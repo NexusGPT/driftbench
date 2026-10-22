@@ -1,7 +1,11 @@
-import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
-import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import {
+  claudeCodeLiveAdapter,
+  loadStateLibraryWithDigest,
+  type StateLibrary,
+  type StateLibraryDigest,
+} from '@agent-nexus/driftbench-adapters';
 import {
   type AgentAdapter,
   blocksOutcome,
@@ -335,17 +339,13 @@ export async function estateRunCommand(
   }
 
   let library: StateLibrary | undefined;
-  let libraryFile: { path: string; sha256: string } | undefined;
+  let libraryFile: ({ path: string } & StateLibraryDigest) | undefined;
   if (options.states !== undefined) {
     try {
       const path = resolve(io.cwd, options.states);
-      library = await loadStateLibrary(path);
-      libraryFile = {
-        path,
-        sha256: createHash('sha256')
-          .update(await readFile(path))
-          .digest('hex'),
-      };
+      const loaded = await loadStateLibraryWithDigest(path);
+      library = loaded.library;
+      libraryFile = { path: recordedPath(io.cwd, path), ...loaded.digest };
     } catch (cause) {
       io.err(`The state library ${options.states} cannot be read: ${describe(cause)}\n`);
       return 2;
@@ -602,6 +602,16 @@ export async function estateRunCommand(
     );
   }
   return passed === lines.length ? 0 : 1;
+}
+
+/**
+ * The path a run record names for a file: relative to the working folder of the run when the file is inside it, so
+ * that no folder of a person's home lands in a stored record, and absolute when the file is outside it.
+ */
+export function recordedPath(cwd: string, path: string): string {
+  const inside = relative(cwd, path);
+  if (inside === '' || inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside)) return path;
+  return inside.split(sep).join('/');
 }
 
 /** The line of one run: pass, undecided (only inconclusive checks), the failing checks and the cost. */

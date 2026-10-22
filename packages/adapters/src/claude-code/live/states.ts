@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { isRecord, parseJsonl } from '../format';
@@ -310,20 +311,48 @@ function lastUuid(records: readonly SessionRecord[]): string | undefined {
   return undefined;
 }
 
+/** What identifies the files a library was read from: one digest, and the digest of each file. */
+export type StateLibraryDigest = {
+  /** The sha-256 over the library file and every prefix file it names, in the order of the prefix names. */
+  sha256: string;
+  /** The prefix files, by prefix name: the file as the library names it and the sha-256 of its bytes. */
+  prefixes: Record<string, { file: string; sha256: string }>;
+};
+
+const sha256Of = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex');
+
 /**
  * Reads a state library: a JSON file `{ prefixes: { name: file.jsonl }, states: { value: [op] }, events:
  * { value: [op] } }`, where an operation's `prefix` names a prefix by name. Files resolve from the library's
  * folder.
  */
 export async function loadStateLibrary(path: string): Promise<StateLibrary> {
-  const raw: unknown = JSON.parse(await readFile(path, 'utf8'));
+  return (await loadStateLibraryWithDigest(path)).library;
+}
+
+/**
+ * `loadStateLibrary`, and the digest of the exact bytes it read: each file is read once, and the library is built
+ * from those bytes. The digest covers the library file and each prefix file in the order of the prefix names, so a
+ * change to a transcript a state resumes from changes it.
+ */
+export async function loadStateLibraryWithDigest(
+  path: string,
+): Promise<{ library: StateLibrary; digest: StateLibraryDigest }> {
+  const bytes = await readFile(path);
+  const raw: unknown = JSON.parse(bytes.toString('utf8'));
   if (!isRecord(raw)) throw new Error(`${path}: a state library is one JSON object`);
   const folder = dirname(path);
   const prefixes = new Map<string, SessionRecord[]>();
   const prefixFiles = isRecord(raw.prefixes) ? raw.prefixes : {};
-  for (const [name, file] of Object.entries(prefixFiles)) {
+  const hash = createHash('sha256').update(`library ${sha256Of(bytes)}\n`);
+  const digests: StateLibraryDigest['prefixes'] = {};
+  for (const name of Object.keys(prefixFiles).sort()) {
+    const file = prefixFiles[name];
     if (typeof file !== 'string') throw new Error(`${path}: prefix ${name} names no file`);
-    prefixes.set(name, readSessionRecords(await readFile(resolve(folder, file), 'utf8')));
+    const content = await readFile(resolve(folder, file));
+    prefixes.set(name, readSessionRecords(content.toString('utf8')));
+    digests[name] = { file, sha256: sha256Of(content) };
+    hash.update(`prefix ${name} ${file} ${digests[name].sha256}\n`);
   }
   const ops = (part: 'states' | 'events'): Record<string, LiveOp[]> => {
     const table = isRecord(raw[part]) ? raw[part] : {};
@@ -334,7 +363,10 @@ export async function loadStateLibrary(path: string): Promise<StateLibrary> {
     }
     return out;
   };
-  return { states: ops('states'), events: ops('events') };
+  return {
+    library: { states: ops('states'), events: ops('events') },
+    digest: { sha256: hash.digest('hex'), prefixes: digests },
+  };
 }
 
 const OPS = new Set(['fresh', 'resume', 'compact', 'restart', 'queue', 'plant', 'helper', 'rate_wave']);
