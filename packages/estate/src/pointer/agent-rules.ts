@@ -148,7 +148,7 @@ ${ALSO_REFERENCE}
           evidence:
             - { type: ordered, before: Read, after: $link.act-tool }
       - name: gate-command
-        description: A unit that tells the reader to run a command first, before an act. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that tells the reader to run a command first, before an act. The unit names both, the command to run and the act that waits for it. Its command is the first code span of the unit. A unit that forbids an act and names nothing to run before it is a prohibition, even when a code span in it names a file or a command. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
         links: [act-tool, reply-act, reply-part, order-key]
         atom:
@@ -172,7 +172,7 @@ ${ALSO_REFERENCE}
           evidence:
             - { type: ordered, before: "\${link.act-tool}~\${span.first-call}", after: "\${link.act-tool}~\${span.second-call}" }
       - name: reference
-        description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span of the unit.
+        description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span or link of the unit. A unit with no code span and no link names no file, so it is not a reference. A row or a cell of a table of values is a description.
         atom:
           kind: reference
           title: "Read \${named}"
