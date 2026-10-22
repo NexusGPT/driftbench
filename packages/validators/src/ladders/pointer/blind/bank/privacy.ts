@@ -63,7 +63,7 @@ const SET_LABEL = 'x';
 
 /** Public effects are measured by harness-owned sinks, never returned counters. */
 export function privacyItems(): BankItem[] {
-  return [...placementItems(), noRequestItem()];
+  return [...placementItems(), noRequestItem(), secondRequestItem()];
 }
 
 /** A file holding only an opaque block has nothing to label and sends no request; beside a labelable unit it sends one. */
@@ -131,6 +131,74 @@ function noRequestItem(): BankItem {
                 [secret, key],
               ),
               networkCalls: trace.networkCalls,
+              status: r.status,
+            };
+          },
+        };
+      });
+      return { probes };
+    },
+  };
+}
+
+/** Two windows, two requests: the private text of an opaque block in the second window must not reach the second request. */
+function secondRequestItem(): BankItem {
+  return {
+    id: 'privacy.fence.second-request',
+    family: 'privacy',
+    tier: 4,
+    level: 4,
+    component: 'pointer.private-recording',
+    title: 'the second of two requests shows an opaque block as its kind and first line only',
+    cause: 'privacy:every-request-hides-opaque-text',
+    design: '5: windows; 8: opaque units show kind and first line',
+    generate(seed) {
+      const probes: Probe[] = [0, 1].map((arm) => {
+        const salt = 500 + arm;
+        const t = token(seed, salt);
+        const secret = privateMarker(seed, salt);
+        const key = privateMarker(seed, salt + 31);
+        // Arm 0: a hundred paragraphs fill several windows, the opaque block closes the last: several requests.
+        // Arm 1: three paragraphs and the block: one request.
+        const paragraphs = Array.from({ length: arm ? 3 : 100 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
+        const source = `${paragraphs.join('\n\n')}\n\n${wrap('fence', secret)}`;
+        const answer = {
+          labels: [],
+          model: `model-${t}`,
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 31, output_tokens: 6 },
+        };
+        const calls = arm ? 1 : 2;
+        const clean: Json = { messages: [{ role: 'user', content: PADDING }] };
+        return {
+          request: {
+            operation: 'privacy',
+            input: {
+              mode: 'record',
+              private: true,
+              file: `fictional-${t}.md`,
+              source,
+              request: { system: `Process ${secret}`, messages: [{ role: 'user', content: PADDING }] },
+              cassettePresent: false,
+            },
+          },
+          setup: { key, answer, cached: null, labelAll: SET_LABEL },
+          expected: { leaked: false, requests: arm ? 'one' : 'several', status: 'ok' },
+          sample: { status: 'ok' },
+          sampleEffects: [
+            { kind: 'key' as const },
+            ...Array.from({ length: calls }, () => ({ kind: 'fetch' as const, value: clean })),
+          ],
+          observe(actual, trace) {
+            if (!actual || typeof actual !== 'object') return null;
+            const r = actual as Record<string, Json>;
+            return {
+              leaked:
+                leaksPrivateFragment({ actual, writes: trace.writes, logs: trace.logs, plans: trace.plans }, [
+                  secret,
+                  key,
+                ]) || leaksPrivateFragment(trace.requests, [secret, key]),
+              requests: trace.networkCalls > 1 ? 'several' : 'one',
               status: r.status,
             };
           },
@@ -217,18 +285,14 @@ function placementItems(): BankItem[] {
                 const r = actual as Record<string, Json>;
                 return {
                   labels: r.labels,
-                  // Include the entire result, including unexpected fields and object keys.
-                  leaked: leaksPrivateFragment(
-                    {
-                      actual,
-                      writes: trace.writes,
-                      logs: trace.logs,
-                      plans: trace.plans,
-                      // Every request body, whatever their number: an opaque block shows its kind and first line only.
-                      ...(beside ? { requests: trace.requests } : {}),
-                    },
-                    [secret, key],
-                  ),
+                  // Include the entire result, including unexpected fields and object keys. A request may carry the
+                  // text of a labelable unit, so every request is searched for the key; an opaque block's text is
+                  // searched in them too.
+                  leaked:
+                    leaksPrivateFragment(
+                      { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
+                      [secret, key],
+                    ) || leaksPrivateFragment(trace.requests, beside ? [secret, key] : [key]),
                   networkCalls: trace.networkCalls,
                   keyReads: trace.keyReads,
                   cacheConsulted: mode === 'record' ? null : trace.cacheReads > 0,

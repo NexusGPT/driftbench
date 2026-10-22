@@ -1,7 +1,16 @@
 import type { Json } from './types';
 
 /** Fixture transport lives outside adapter input; it never reads a real key or network. */
-export type IOSetup = { key: string; answer: Json; cached: Json | null };
+export type IOSetup = {
+  key: string;
+  answer: Json;
+  cached: Json | null;
+  /**
+   * Answer every request with this label for every numbered unit (`[n]`) the request carries, one range from 1 to
+   * the last, keeping the model, stop reason and usage of `answer`. For a scan that sends several windows.
+   */
+  labelAll?: string;
+};
 export type Write = { path: string; value: Json; committed: boolean };
 export type IOTrace = {
   keyReads: number;
@@ -50,7 +59,12 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
           ? (request as { body: Json }).body
           : request;
       trace.requests.push(structuredClone(body));
-      return structuredClone(configured().answer);
+      const { answer, labelAll } = configured();
+      if (labelAll === undefined || !answer || typeof answer !== 'object' || Array.isArray(answer))
+        return structuredClone(answer);
+      const numbers = [...JSON.stringify(body).matchAll(/\\n\[(\d+)\] /g)].map((m) => Number(m[1]));
+      const last = Math.max(0, ...numbers);
+      return structuredClone({ ...answer, labels: [{ units: `1-${last}`, label: labelAll }] });
     },
     readCassette() {
       trace.cacheReads++;
