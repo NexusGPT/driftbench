@@ -17,7 +17,13 @@ import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join, relative, sep } from 'node:path';
 import { Observed } from '@agent-nexus/driftbench-core';
-import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
+import {
+  type GuardCase,
+  payloadOf,
+  type UnitDecision,
+  type UnitOutcome,
+  type UnitTest,
+} from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
   trackFolder,
@@ -30,6 +36,7 @@ import { z } from 'zod';
 import { estatePath, estateSource } from '../paths';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
+import { candidateMaterials, payloadKeys } from './find';
 
 /**
  * The estate unit runner: runs the guards and scripts of an estate directly, with no model in the loop.
@@ -327,7 +334,7 @@ async function runGuardTest(
   const repeats = test.testType === 'guard_speed' || record ? RECORD_RUNS : 1;
   const cases: UnitCaseResult[] = [];
   const recordedCases: GuardCase[] = [];
-  for (const unitCase of test.cases) {
+  const runCase = async (unitCase: GuardCase): Promise<void> => {
     const runs: Exec[] = [];
     for (let index = 0; index < repeats; index++)
       runs.push(await runGuard(guard, test, unitCase, runner, timeoutMs));
@@ -370,7 +377,7 @@ async function runGuardTest(
             : 'no effect'
           : 'recorded',
       });
-      continue;
+      return;
     }
     const expected = unitCase.expected;
     if (unitCase.flaky) {
@@ -383,7 +390,7 @@ async function runGuardTest(
         ms,
         detail: 'flaky on the original: not compared',
       });
-      continue;
+      return;
     }
     if (unitCase.inert || expected === undefined) {
       cases.push({
@@ -395,7 +402,7 @@ async function runGuardTest(
         ms,
         detail: 'inert',
       });
-      continue;
+      return;
     }
     const differences = outcomes.flatMap((outcome) => differ(expected, outcome));
     const slow = test.budgetMs !== undefined && ms > test.budgetMs;
@@ -414,6 +421,13 @@ async function runGuardTest(
             ...(slow ? [`took ${ms} ms, over the budget of ${test.budgetMs} ms`] : []),
           ].join('; '),
     });
+  };
+  for (const unitCase of test.cases) await runCase(unitCase);
+  // A positive test whose every case did nothing cannot show the guard at work. The guard is asked again with
+  // material built from its own source: the first that makes it do something joins the test.
+  if (record && test.testType === 'guard_positive' && recordedCases.every((entry) => entry.inert)) {
+    const found = await findCase(test, guard, runner, timeoutMs);
+    if (found) await runCase(found);
   }
   if (record) {
     const active = recordedCases.filter((entry) => !entry.inert).length;
@@ -683,6 +697,37 @@ async function runGuard(
   return watched(runner, runner.copy, () =>
     execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, runner.copy, timeoutMs),
   );
+}
+
+/**
+ * The first case of a positive test that makes the guard do something, built from the strings and numbers of the
+ * guard's own source (`candidateMaterials`), or nothing when no candidate does. The tool is the one the test's
+ * first case uses. A candidate does something when the guard blocks, prints a message or prints an output.
+ */
+async function findCase(
+  test: UnitTest,
+  guard: GuardDecl,
+  runner: Runner,
+  timeoutMs: number,
+): Promise<GuardCase | undefined> {
+  if (test.target.kind !== 'guard' || guard.script === undefined) return undefined;
+  const source = await readFile(await estatePath(runner.copy, guard.script), 'utf8').catch(() => undefined);
+  const first = test.cases[0];
+  if (source === undefined || first === undefined) return undefined;
+  const tool = typeof first.payload.tool_name === 'string' ? first.payload.tool_name : undefined;
+  const id = `case-${String(test.cases.length + 1).padStart(2, '0')}`;
+  for (const material of candidateMaterials(source, payloadKeys(first.payload))) {
+    const candidate: GuardCase = {
+      id,
+      payload: payloadOf(test.target.event, tool, material),
+      material,
+      found: true,
+    };
+    const outcome = outcomeOf(await runGuard(guard, test, candidate, runner, timeoutMs));
+    if (outcome.decision !== 'allow' || outcome.message !== undefined || outcome.output !== undefined)
+      return candidate;
+  }
+  return undefined;
 }
 
 async function runScriptTest(

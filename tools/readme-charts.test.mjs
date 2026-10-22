@@ -464,7 +464,7 @@ describe('readme charts, v7 held-out results', () => {
     const qa = c.groups[0].rows.find((r) => r.label === 'Inspect, model-graded QA');
     expect(qa.a).toBe(analysis.rows.find((r) => r.row === 'Model-graded QA').v7UsdPer100);
     expect(c.note).toContain('Messages API');
-    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const readme = readFileSync(new URL('../docs/public-benchmarks.md', import.meta.url), 'utf8');
     const panel = c.groups[0].rows.find((r) => r.label === 'Inspect, grader panel');
     const score = analysis.rows.find((r) => r.row === 'Grader panel');
     expect(readme).toContain(

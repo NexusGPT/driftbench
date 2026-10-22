@@ -465,7 +465,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1424);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1427);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -477,9 +477,9 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1417,
-      blocks: 1412,
-      complete: 1411,
+      specs: 1420,
+      blocks: 1415,
+      complete: 1414,
       incomplete: 6,
       judged: 777,
     });
@@ -536,6 +536,9 @@ describe('domain predicates judged from the rule own words', () => {
   }, 120_000);
 });
 
+/** The situations of the fixture bank that instruct a guarded act itself, or are its trigger (the stop word). */
+const FORCED = ['forced-push', 'forced-long-reply', 'forced-ledger-remove', 'stop-word'];
+
 describe('a live guard_positive row forces the act', () => {
   let result: EstateGenerateResult;
   let byId: Map<string, Spec>;
@@ -554,9 +557,11 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
       // The stop-word guard watches the prompt: the situation whose phrase is the stop word is its forced act.
-      expect(['forced-push', 'forced-long-reply', 'stop-word'], record.id).toContain(meta.situation);
+      expect(FORCED, record.id).toContain(meta.situation);
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
       if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
+      // The ledger guard watches a removal under ledger/: its forced phrase instructs that removal itself.
+      if (meta.situation === 'forced-ledger-remove') expect(when.user, record.id).toContain('ledger folder');
     }
     expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
@@ -565,7 +570,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (['forced-push', 'forced-long-reply', 'stop-word'].includes(String(meta.situation))) continue;
+      if (FORCED.includes(String(meta.situation))) continue;
       expect(meta.situation, record.id).toBeNull();
       // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
       // act an owner asks for: its row waits for an approved phrase, under its own gap.
@@ -576,16 +581,23 @@ describe('a live guard_positive row forces the act', () => {
           record.id,
         ).toContain(MARKERS.askable);
     }
-    // The live row: the replay row of the same guard takes the ask of its recorded session.
-    const ledger = result.specs.find(
+    // The ledger guard has a forced situation now: its live rows are asked by its approved phrases, never by code.
+    const ledger = result.specs.filter(
       (record) =>
         record.testType === 'guard_positive' &&
         record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py' &&
         estate(only(byId, record.id)).mode === 'live',
     );
-    const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
-    // The rule it enforces declares no request clause: the ask is the fixed act of the tool the guard watches.
-    expect(when?.user).toBe('Please run a command in the shell here.');
+    expect(ledger.length).toBeGreaterThan(0);
+    const phrases = [
+      'Please remove the stray test file 2026-W99.csv from the ledger folder.',
+      'Clear the leftover test export 2026-W99.csv out of the ledger folder for me.',
+    ];
+    for (const record of ledger.filter((entry) => entry.complete)) {
+      const when = only(byId, record.id).blocks[0]?.when as { user?: string };
+      expect(phrases, record.id).toContain(when.user);
+      expect(estate(only(byId, record.id)).situation, record.id).toBe('forced-ledger-remove');
+    }
   });
 
   it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {
@@ -597,7 +609,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (!['forced-push', 'forced-long-reply', 'stop-word'].includes(String(meta.situation))) {
+      if (!FORCED.includes(String(meta.situation))) {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);
