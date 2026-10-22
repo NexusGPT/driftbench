@@ -21,8 +21,9 @@ import { type View, viewOf } from './view';
  * Planner v2: the rows of a test plan, built from a variable store. Every row gives a value to every approved
  * variable. The rows cover (see groups.ts) the combinations the rules of the store call for, at the strength
  * each asks, and never hold a combination the store calls impossible. Real sessions enter as seed rows: they
- * are always kept and count as covering what they hold. The new rows come most common first, so a budget cuts the
- * rarest ones first.
+ * are always kept and count as covering what they hold. The new rows that hold a required value come first, then
+ * the others, each group most common first, so a budget cuts the rarest rows without a required value first. A
+ * budget that still cuts a row holding a required value warns `budget_drops_required`.
  */
 
 export type PlanSeedRow = {
@@ -73,7 +74,13 @@ export type PlanV2Warning =
   | { code: 'value_unreachable'; variable: string; value: string; required: boolean; message: string }
   | { code: 'seed_unknown_value'; seed: string; variable: string; value: string; message: string }
   | { code: 'seed_unapproved_value'; seed: string; variable: string; value: string; message: string }
-  | { code: 'seed_forbidden'; seed: string; message: string };
+  | { code: 'seed_forbidden'; seed: string; message: string }
+  | {
+      code: 'budget_drops_required';
+      /** The required values the plan built a row for and the budget left in no row. */
+      values: { variable: string; value: string }[];
+      message: string;
+    };
 
 export type PlanV2 = {
   agent: string;
@@ -86,7 +93,7 @@ export type PlanV2 = {
   cut: number;
   layers: PlanV2Layer[];
   rules: StoreRule[];
-  /** The seeds, then the new rows from the most common to the rarest. */
+  /** The seeds, then the new rows that hold a required value, then the others, each from the most common to the rarest. */
   rows: PlanV2Row[];
   warnings: PlanV2Warning[];
 };
@@ -398,13 +405,46 @@ export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV
     .sort(
       (a, b) => compareWeight(b.log, a.log) || a.tie - b.tie || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0),
     );
-  const width = Math.max(3, String(ordered.length).length);
-  const planned = ordered.map((entry, at) => ({
+  // Rows that hold a required value lead, so a budget cuts them last; each group keeps its order of traffic.
+  const required = store.variables.flatMap((variable) =>
+    variable.values
+      .filter((value) => value.required === true)
+      .map((value) => ({ variable: variable.id, value: value.id })),
+  );
+  const holdsRequired = (row: Int16Array) =>
+    required.some(({ variable, value }) => {
+      const at = view.variableIndex.get(variable);
+      const valueAt = at === undefined ? undefined : view.valueIndex[at]?.get(value);
+      return at !== undefined && valueAt !== undefined && row[at] === valueAt;
+    });
+  const lead = ordered.filter((entry) => holdsRequired(entry.row));
+  const sequence = [...lead, ...ordered.filter((entry) => !holdsRequired(entry.row))];
+  const width = Math.max(3, String(sequence.length).length);
+  const planned = sequence.map((entry, at) => ({
     ...entry,
     id: `row.${String(at + 1).padStart(width, '0')}`,
   }));
   const room = options.budget === undefined ? planned.length : Math.max(0, options.budget - seedRows.length);
   const kept = planned.slice(0, room);
+  const held = (rows: readonly Int16Array[], { variable, value }: { variable: string; value: string }) => {
+    const at = view.variableIndex.get(variable);
+    const valueAt = at === undefined ? undefined : view.valueIndex[at]?.get(value);
+    return at !== undefined && valueAt !== undefined && rows.some((row) => row[at] === valueAt);
+  };
+  const keptRows = [...seedRows.map((row) => row.partial), ...kept.map((entry) => entry.row)];
+  const dropped = required.filter(
+    (entry) =>
+      held(
+        planned.map((row) => row.row),
+        entry,
+      ) && !held(keptRows, entry),
+  );
+  if (dropped.length > 0)
+    warnings.push({
+      code: 'budget_drops_required',
+      values: dropped,
+      message: `the budget leaves ${dropped.length} required values in no row`,
+    });
 
   return {
     ...base,

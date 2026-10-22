@@ -31,10 +31,11 @@ const MUTANTS = [
 ] as const;
 
 /**
- * Items of ladder version 3 that the planner does not pass yet: docs/variables.md asks for the order and the
- * warning of required values under a budget (Values, R9), and the planner has neither. They are hardness items.
+ * Items the planner does not pass yet. Empty: the required-first order and the budget_drops_required warning
+ * (docs/variables.md, Values and R9) landed with the planner, and both required items pass. An item added here
+ * must also fail on the real planner, which the test below asserts.
  */
-const PLANNER_GAPS = ['planner.required-survives-budget.required', 'planner.budget-below-required.required'];
+const PLANNER_GAPS: string[] = [];
 
 /** A lost item counts as caught only when a check failed: a load error or a throw is no verdict. */
 const caught = (out: Awaited<ReturnType<typeof run>>) =>
