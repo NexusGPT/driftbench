@@ -174,20 +174,16 @@ export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): B
 /**
  * The atoms a row exercises without verifying them: the duties the plan placed on the row beside its first atom
  * because they apply in the same situation. The ask of the row is the first atom's, so its blocks fail when that
- * atom is gone and say nothing about the others, unless the situation that supplies the ask names them. The
- * skill or helper that owns the first atom, and every atom of a journey, keep their links.
+ * atom is gone and say nothing about the others; each of them is verified by the row of its own. The skill or
+ * helper that owns the first atom, and every atom of a journey, keep their links.
  */
-function coLocated(
-  row: Pick<EstatePlanRow, 'testType'>,
-  atoms: readonly EstateAtom[],
-  situation: Situation | undefined,
-): Set<string> {
+function coLocated(row: Pick<EstatePlanRow, 'testType'>, atoms: readonly EstateAtom[]): Set<string> {
   const duty = (atom: EstateAtom | undefined) => atom?.kind === 'instruction' || atom?.kind === 'gate';
   if (row.testType === 'journey' || !duty(atoms[0])) return new Set();
   return new Set(
     atoms
       .slice(1)
-      .filter((atom) => duty(atom) && !situation?.atoms.includes(atom.id))
+      .filter((atom) => duty(atom))
       .map((atom) => atom.id),
   );
 }
@@ -205,7 +201,7 @@ export function build(
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   // The duties placed beside the first atom add no expectation: the block asks the first atom's request.
-  const exercised = coLocated(row, atoms, situation);
+  const exercised = coLocated(row, atoms);
   const rowAtoms = atoms.filter((atom) => !exercised.has(atom.id));
   // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
