@@ -1,5 +1,5 @@
 import { ANCHOR, ANCHOR_BARE, GUARDS_DIR, ROOT, STANDING } from '../layout';
-import { plantedHeader } from '../registry-record';
+import { plantedHeader, plantedOffState } from '../registry-record';
 import { type GuardLine, namesFor, order, rule, writeSettings } from './common';
 import { DISPATCH_BY_ARGUMENT, DISPATCH_BY_FLAG, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, itemsOf, type Tier } from './frame';
@@ -24,7 +24,15 @@ const CODE = 'packages/estate/src/scan/code.ts';
 // scan.catalogue ------------------------------------------------------------------------------------------
 
 type Entry = { id: string; guard: string; labels: string[] };
-type CatalogueShape = { key: string; tier: Tier; title: string; file: string; lines(entry: Entry): string[] };
+type CatalogueShape = {
+  key: string;
+  tier: Tier;
+  title: string;
+  file: string;
+  /** The entry is planted in a state under which it enforces nothing: the planter records the value as off. */
+  off?: boolean;
+  lines(entry: Entry): string[];
+};
 
 const json = (value: unknown) => JSON.stringify(value);
 const checks = (entry: Entry, guardKey = 'hook', rulesKey = 'rules', rules: unknown = entry.labels) => [
@@ -34,6 +42,9 @@ const checks = (entry: Entry, guardKey = 'hook', rulesKey = 'rules', rules: unkn
   '  ]',
   '}',
 ];
+
+/** The state value planted as off: not an English word, and no code or label list holds it. */
+const OFF_VALUE = 'arrêté';
 
 const CATALOGUES: CatalogueShape[] = [
   {
@@ -220,6 +231,21 @@ const CATALOGUES: CatalogueShape[] = [
     ],
   },
   {
+    key: 'off-state',
+    tier: 3,
+    title: 'a check in an off state, which enforces nothing, beside one that is on',
+    file: 'CATALOGUE.json',
+    off: true,
+    lines: (e) => [
+      '{',
+      '  "checks": [',
+      `    ${json({ id: e.id, event: 'PreToolUse', status: plantedOffState(OFF_VALUE), watches: e.labels })},`,
+      `    ${json({ id: `${e.id}-on`, event: 'PreToolUse', status: 'actif', watches: e.labels })}`,
+      '  ]',
+      '}',
+    ],
+  },
+  {
     key: 'markdown-table',
     tier: 4,
     title: 'a markdown catalogue table',
@@ -269,7 +295,7 @@ export function catalogueFamily(): Family {
           standing.owner = owner;
           standing.line(`- **R${label}.** ${text}`, planted.atoms, planted.prose);
           labels.push(`R${label}`);
-          estate.edge(owner, `${owner}:guard`, `${owner}:rule${n}`, 'enforces');
+          if (!shape.off) estate.edge(owner, `${owner}:guard`, `${owner}:rule${n}`, 'enforces');
         }
         standing.owner = 'base';
         const guard = `${names.skill}.py`;
@@ -286,7 +312,29 @@ export function catalogueFamily(): Family {
           ? `${ROOT}/${shape.file.replace(/\/([^/]+)$/, `/${names.noun}${index}-$1`)}`
           : `${GUARDS_DIR}/${names.noun}${index}-${shape.file}`;
         estate.file(file, owner).lines_(shape.lines(entry));
-        estate.check(owner, fieldIs(`${owner}:guard`, 'registry', entry.id));
+        if (shape.off) {
+          // The two entries are two checks the scan reads as guards of their own, on lines 3 and 4 of the file.
+          estate.expect(owner, { hid: `${owner}:check-off`, kind: 'guard', file, line: 3, key: entry.id });
+          estate.expect(owner, {
+            hid: `${owner}:check-on`,
+            kind: 'guard',
+            file,
+            line: 4,
+            key: `${entry.id}-on`,
+          });
+          estate.check(owner, (scanned) => {
+            const rows = scanned.raw.registry.filter(
+              (row) => row.id === entry.id || row.id === `${entry.id}-on`,
+            );
+            const off = rows.find((row) => row.id === entry.id);
+            const on = rows.find((row) => row.id === `${entry.id}-on`);
+            if (!off || !on) return `the catalogue rows of ${entry.id} were not read`;
+            if (off.enforces.length > 0)
+              return `${entry.id} is in an off state and still enforces ${off.enforces.length} rule(s)`;
+            if (on.enforces.length === 0) return `${entry.id}-on is on and enforces nothing`;
+            return undefined;
+          });
+        } else estate.check(owner, fieldIs(`${owner}:guard`, 'registry', entry.id));
       });
       writeSettings(estate, order(seed, family, guards));
       const scan = await estate.scan();
