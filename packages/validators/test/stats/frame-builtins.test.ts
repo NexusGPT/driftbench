@@ -73,11 +73,15 @@ describe('the mean-shift items with a mean that changes a built-in object after 
     ]);
   });
 
-  // The reviewer's product: the array prototype's map becomes filter, which keeps every value the item's shift
-  // returns, so the item's shifted array is the unshifted one. And the same replacement put back by its first use,
-  // so nothing is left changed after the item's own map: the change is seen at the end of the call that made it.
+  // The reviewer's product: the array prototype's map becomes filter for an array of the item's length (1000), which
+  // keeps every value the item's shift returns, so the item's shifted array is the unshifted one; every other array
+  // maps as before, so the three runs still answer alike. And the same replacement put back by its first use, so
+  // nothing is left changed after the item's own map: the change is seen at the end of the call that made it.
   it.each([
-    ['replaced', 'Object.getPrototypeOf(target).map = Array.prototype.filter;'],
+    [
+      'replaced',
+      'const proto = Object.getPrototypeOf(target); const real = proto.map; proto.map = function (this: unknown[], f: unknown) { return (this.length === 1000 ? Array.prototype.filter : real).call(this, f as never); };',
+    ],
     [
       'replaced until its first use',
       'const proto = Object.getPrototypeOf(target); const real = proto.map; proto.map = function (this: unknown, f: unknown) { proto.map = real; return Array.prototype.filter.call(this, f as never); };',

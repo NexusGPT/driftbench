@@ -298,8 +298,8 @@ describe('random writes to the arguments, at every depth', () => {
     let copied = 0;
     let reported = 0;
     // Every kind of write on every kind of target once, then the random programs.
-    const single = Object.keys(TARGETS).flatMap((target) =>
-      (WRITES[TARGETS[target]?.kind as string] as { name: string; copy: boolean }[]).map((kind) => [
+    const single = Object.entries(TARGETS).flatMap(([target, each]) =>
+      (WRITES[each.kind] as { name: string; copy: boolean }[]).map((kind) => [
         { write: { target, kind: kind.name }, copy: kind.copy },
       ]),
     );

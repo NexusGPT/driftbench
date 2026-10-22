@@ -50,7 +50,9 @@ describe('built-in objects under the frame', () => {
     expect(frame.alteredSince(0)).toBeUndefined();
     expect(frame.product[name]([1, 2, 3])).toBe(6);
     const found = frame.alteredSince(mark);
-    expect(found).toContain(`${name}() ran in a process where the product had changed a built-in object, ${where} (`);
+    expect(found).toContain(
+      `${name}() ran in a process where the product had changed a built-in object, ${where} (`,
+    );
   });
 
   it('names the change on every later call too, as every later call of a caller runs with it', () => {
@@ -58,7 +60,9 @@ describe('built-in objects under the frame', () => {
     frame.product.replaceSqrt([1]);
     const later = frame.position();
     frame.product.honest([2]);
-    expect(frame.alteredSince(later)).toContain('honest() ran in a process where the product had changed a built-in object, Math.sqrt (');
+    expect(frame.alteredSince(later)).toContain(
+      'honest() ran in a process where the product had changed a built-in object, Math.sqrt (',
+    );
   });
 
   it('names a change made by a call that throws', () => {
