@@ -254,6 +254,8 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `RETENTION_FACT_UNKNOWN` | error | `expect.knowledge_retention` names a fact that no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block's `given.origin` says where a prefix comes from, and the block writes no `given.prefix` |
+| `GIVEN_STAGE_WITHOUT_PREFIX` | error | a block's `given.stage` says where a prefix leaves the agent, and the block writes no `given.prefix` |
+| `GIVEN_AFTER_WITHOUT_STAGE` | error | a block's `given.after` names the block that leaves the agent at a stage, and the block writes no `given.stage` |
 | `OBJECT_INVALID` | error | an object file, an inline object in `uses` or a `uses.yaml` does not fit the object format, or a file sits at a path that does not match its kind and id |
 | `OBJECT_KIND_UNKNOWN` | error | an object names a kind no package or plugin registered; the message lists the known kinds |
 | `OBJECT_UNKNOWN` | error | `uses` names an object no layer defines; the message names the spec, the block, the kind, the id and the layers searched |
@@ -1426,7 +1428,7 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [judge flags] [run check flags] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [judge flags] [run check flags] [--json]
 driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
 driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
@@ -1440,7 +1442,7 @@ The options that shape the run of the runtime:
 |---|---|
 | `--order <file>` | a run-order file, such as the `run-order.txt` that `estate generate` writes: one spec file or folder per line, relative to the file's own folder; `#` starts a comment. Its specs run in that order, after any `[specs...]` arguments |
 | `--set-env <NAME=VALUE>` | a variable the runtime and its guards receive; repeat it. For a path, a proxy or a dead URL a spec needs |
-| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials |
+| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials. The stamp holds a digest of each value, keyed with a random salt the store keeps and `--from` copies, so the same value in another store gives another stamp |
 | `--disallow <rules...>` | tools the runtime must refuse, passed to it as `--disallowed-tools` |
 | `--lock-deny <paths...>` | paths the runtime and its children may neither read nor write (the macOS lock). The owner config in `~/.claude` is always write-protected |
 | `--model <name>` | the model the runtime runs, passed as `--model` |
@@ -1450,6 +1452,13 @@ The options that shape the run of the runtime:
 | `--trust-estate` | allow the tools the estate's settings allow, and Skill, as a trusted folder would |
 | `--config host\|isolated` | the config folder of the runtime: `host` (where the login lives) or `isolated`. Default `host`, and `isolated` for a stand-in command |
 | `--timeout <ms>` | kill a turn after this long |
+| `--agent-version <label>` | name the version of the estate this run measures. It is the label a later run carries from, and the `to` of a change manifest. A labelled run stores its results under the target `claude-code:estate` with the label as its variant, so one spec is the same cell in every version |
+| `--from <store>` | carry from an old store (needs `--change` and `--agent-version`): a spec the radius of the change leaves alone keeps the result stored there. The old store is read from a copy and never written |
+| `--change <manifest>` | with `--from`: the change manifest (`radius ledger` or `radius auto` writes it) of the edit between the old run and this one. Its `from` is the `--agent-version` of the old run and its `to` is this run's |
+| `--from-campaign <id>` | with `--from`: the campaign of the old store to carry from. Default: the latest |
+| `--max-carry <n>`, `--max-age <days>` | with `--from`: the most campaigns in a row a result is carried (default 5) and the most days since it was measured (default 7) |
+
+Carrying results. After an edit, rerun only the radius and keep the other results: run once with `--agent-version <from>` and `--store old.db`, edit the estate, write the manifest with `radius ledger`, then run again with `--agent-version <to> --from old.db --change change.yaml --store new.db`. The run prints how many specs are in the radius, runs those, and copies the stored result of every other spec into the new store, stamped with the campaign and version it was measured in. A result is copied only when the spec is the same spec, none of its blocks is in the radius, the inputs of every block rebuild to the stored ones, the run was made with the same runtime, flags, environment and judge, and the result is not older or carried more often than the limits. Otherwise the spec runs, and the output names the reason. A result carried from a run that was not labelled with `--agent-version` is never copied: label the first run. A carried failure stays a failure in the exit code, and a carried line costs nothing.
 
 With `--progress <file>`, each finished spec appends one compact JSON run line to the file as it finishes, so a stopped batch keeps the lines it finished. Stdout is unchanged: with `--json` it is the one summary document, which has `runs`, `passed`, `failed`, `undecided`, `notApplicable` and `costUsd`. A spec whose only non-passing checks are not applicable (a stage check on a run with no stage record) is counted as `notApplicable`, not as a failure, and the summary line names the count.
 
