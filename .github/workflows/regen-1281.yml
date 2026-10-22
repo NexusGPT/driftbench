@@ -1,0 +1,39 @@
+name: regen 1281
+# Temporary probe for #1281. Removed with the branch.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/regen-1281.yml
+permissions:
+  contents: read
+jobs:
+  regen:
+    name: regen 1281
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: git rev-parse HEAD
+      - name: Regenerate with the CLI (estate generate, committed inputs, --force), into a sibling folder of generated
+        run: |
+          pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out examples/estates/fixture/generated-regen --phrases examples/estates/fixture/phrases.yaml --sessions examples/estates/fixture/sessions/index.yaml --force || echo "exit $?"
+      - name: Compare with the committed generated tree
+        run: |
+          diff -ru examples/estates/fixture/generated examples/estates/fixture/generated-regen > generated.diff || true
+          echo "diff lines: $(wc -l < generated.diff)"
+          echo "files committed: $(find examples/estates/fixture/generated -type f | wc -l); regenerated: $(find examples/estates/fixture/generated-regen -type f | wc -l)"
+          diff -rq examples/estates/fixture/generated examples/estates/fixture/generated-regen || true
+          echo "--- full diff"
+          cat generated.diff
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generated-diff
+          path: generated.diff
