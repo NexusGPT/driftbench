@@ -98,6 +98,7 @@ export {
   type PointerPlan,
   type PointerResult,
   pointerScan,
+  REASK_LIMIT,
   windowsOf,
 } from './scan';
 export {

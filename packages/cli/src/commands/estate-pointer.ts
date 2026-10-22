@@ -294,5 +294,6 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
+  for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
   return lines;
 }

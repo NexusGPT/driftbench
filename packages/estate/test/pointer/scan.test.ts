@@ -15,6 +15,7 @@ import {
   type PointerInput,
   type PointerPlan,
   pointerScan,
+  REASK_LIMIT,
   renderLedger,
   singleLabelling,
   type Window,
@@ -854,7 +855,10 @@ describe('a run out of step with the units of its window', () => {
       { runs: 3 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
-    expect(result.outOfStep).toHaveLength(result.windows / 3);
+    // One window per file; its slipped run 2 is asked again as run 4, in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files);
+    expect(result.reasked).toHaveLength(files);
     expect(result.outOfStep[0]).toMatch(
       /run 2 of planted: \d+ of \d+ quoted clauses are not in their unit; the run is left out of the vote/,
     );
@@ -878,7 +882,9 @@ describe('a run out of step with the units of its window', () => {
       { runs: 5 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
-    expect(result.outOfStep).toHaveLength((result.windows / 5) * 3);
+    // Runs 2, 3 and 4 slip in each file's one window; their re-asks (runs 6, 7 and 8) answer order in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files * 3);
     expect(result.unlabeled).toBe(0);
     expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
@@ -898,6 +904,64 @@ describe('a run out of step with the units of its window', () => {
       { runs: 3 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  /** Five runs, then re-asks; call n of a window answers `plan[n - 1]` on every unit (`slip` quotes four lost clauses). */
+  const scripted = (plan: string[]) => {
+    const calls = new Map<string, number>();
+    const log: number[] = [];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        log.push(call);
+        const said = plan[call - 1] ?? 'order';
+        return said === 'slip'
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, said, said === 'order' ? [located] : []);
+      },
+      [],
+      { runs: 5 },
+    );
+    return { labeler, log };
+  };
+
+  it('asks a window again after a slipped run, and the re-ask in step takes its place', async () => {
+    // Heard without the re-ask: order 2, remark 2, a tie with no label. Run 6 says order: three of five.
+    const { labeler } = scripted(['order', 'slip', 'remark', 'remark', 'order', 'order']);
+    const cassette = new Cassette();
+    const result = await pointerScan(input(labeler, cassette, { sets: load(SPANNED) }));
+    const files = result.windows / 6;
+    expect(result.reasked).toHaveLength(files);
+    expect(result.reasked[0]).toMatch(/run 2 of planted: asked again as run 6, in step/);
+    expect(result.unlabeled).toBe(0);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+    // The re-ask is its own recorded answer, so a replay reads it with no call.
+    expect(cassette.entries.size).toBe(result.windows);
+    const replayed = await pointerScan(
+      input(replayOf(labeler), Cassette.parse(cassette.render()), { sets: load(SPANNED), mode: 'replay' }),
+    );
+    expect(replayed.calls).toBe(0);
+    expect(renderLedger(replayed.ledger)).toBe(renderLedger(result.ledger));
+  });
+
+  it('stops after three re-asks that slip, and leaves the slipped run unheard', async () => {
+    const { labeler, log } = scripted([
+      'order',
+      'slip',
+      'order',
+      'remark',
+      'remark',
+      'slip',
+      'slip',
+      'slip',
+      'order',
+    ]);
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(Math.max(...log)).toBe(5 + REASK_LIMIT);
+    expect(result.reasked).toEqual([]);
+    // Four runs heard: order 2, remark 2, a split.
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
