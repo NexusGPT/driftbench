@@ -300,9 +300,12 @@ function templateOf(text: string): { template: string; numbers: number[] } {
  */
 function filled(label: SpanLabel, numbers: readonly number[]): SpanLabel | undefined {
   const l = label as unknown as Record<string, unknown>;
-  if (l.kind === 'numeric') return numbers.length === 1 ? ({ ...l, limit: numbers[0] } as unknown as SpanLabel) : undefined;
+  if (l.kind === 'numeric')
+    return numbers.length === 1 ? ({ ...l, limit: numbers[0] } as unknown as SpanLabel) : undefined;
   if (l.kind === 'range')
-    return numbers.length === 2 ? ({ ...l, low: numbers[0], high: numbers[1] } as unknown as SpanLabel) : undefined;
+    return numbers.length === 2
+      ? ({ ...l, low: numbers[0], high: numbers[1] } as unknown as SpanLabel)
+      : undefined;
   return numbers.length === 0 ? label : undefined;
 }
 

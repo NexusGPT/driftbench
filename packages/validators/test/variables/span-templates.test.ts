@@ -65,7 +65,11 @@ async function spansOf(seed: number): Promise<string[]> {
 
 describe('the template labels', () => {
   it('fill the number of the span into the label', () => {
-    expect(spanLabel('the wait time is at least 137 minutes')).toMatchObject({ kind: 'numeric', limit: 137, comparison: 'ge' });
+    expect(spanLabel('the wait time is at least 137 minutes')).toMatchObject({
+      kind: 'numeric',
+      limit: 137,
+      comparison: 'ge',
+    });
     expect(spanLabel('the wait time is at least 1,500 minutes')).toMatchObject({ limit: 1500 });
     expect(spanLabel('the wait time is at least 0.3 minutes')).toMatchObject({ limit: 0.3 });
     expect(spanLabel('the wait time is at least -5 minutes')).toMatchObject({ limit: -5 });
@@ -108,7 +112,8 @@ describe('a product that carries a table of the texts of some seeds', () => {
               ...rule,
               conditions: rule.conditions.map((condition) => ({
                 ...condition,
-                label: (condition as { label?: unknown }).label ?? table.get(condition.text) ?? { kind: 'none' },
+                label: (condition as { label?: unknown }).label ??
+                  table.get(condition.text) ?? { kind: 'none' },
               })) as typeof rule.conditions,
             })),
           },
