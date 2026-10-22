@@ -234,6 +234,10 @@ export const scaleRuns: Record<string, Run> = {
           return `positive witness: ${String(o.extra.windows)} windows, the widest of ${String(o.extra.widest)} units; expected two, one over 10,000`;
         if (o.calls[0] !== o.extra.windows)
           return `${o.calls[0]} labeller calls for ${String(o.extra.windows)} windows: a whole-window range was refused and asked again`;
+        if (o.live[0] !== o.extra.expectedLive)
+          return `${String(o.live[0])} live entries, expected ${String(o.extra.expectedLive)}`;
+        if (o.extra.missing !== 0)
+          return `${String(o.extra.missing)} planted sentences are not in the ledger with their planted label`;
         if (o.extra.failed !== 0) return `${String(o.extra.failed)} windows failed`;
         return o.extra.unlabelled === 0 ? undefined : `${String(o.extra.unlabelled)} units have no label`;
       },
