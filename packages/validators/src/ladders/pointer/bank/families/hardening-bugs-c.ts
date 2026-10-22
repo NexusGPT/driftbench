@@ -607,7 +607,8 @@ const system1: Record<string, Run> = {
         return fail(`${show(c.text, 30)} holds ${got} from a vector of sum ${sum}, not ${highest(c.vector)}`);
       }
     }
-    const refusedUnits = res.diagnostics.filter((d) => d.reason === 'no-vector');
+    // The class of the diagnostic (a refusal) and its cause (no vector): both are read, as the old check read both.
+    const refusedUnits = res.diagnostics.filter((d) => d.code === 'refusal' && d.reason === 'no-vector');
     const reasons = new Set(refusedUnits.map((d) => `${d.window}/${d.unit}`)).size;
     return reasons >= off
       ? pass(`${off} answers 0.02 or more from 1 refused by name; ${cases.length - off} within 0.005 read`)

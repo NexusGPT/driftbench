@@ -602,8 +602,11 @@ const privacy: Record<string, Run> = {
     const named = res.warningRecords.filter(
       (w) => w.code === 'model-mismatch' && w.recorded === recorded && w.returned === returned,
     );
-    if (named.length === 0)
-      return fail(`no warning names both models; the warnings are ${JSON.stringify(res.warningRecords)}`);
+    const worded = res.warnings.filter((w) => w.includes(recorded) && w.includes(returned));
+    if (named.length === 0 || worded.length === 0)
+      return fail(
+        `no warning names both models; the warnings are ${JSON.stringify([...res.warnings, ...res.warningRecords])}`,
+      );
     const units = fixture.documents.flatMap((d) => d.units.map((u) => u.text.replace(/\s+/g, ' ').trim()));
     const quoted = res.warnings.find((w) => units.some((u) => u.length >= 20 && w.includes(u.slice(0, 20))));
     if (quoted) return fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`);
@@ -653,6 +656,7 @@ const radius: Record<string, Run> = {
     if (!api)
       throw new Problem(
         'the reader exports no rerun rule: it must say, for each unit between two ledgers, whether it is unchanged, context, moved, changed, deleted or new, and which old units rerun',
+        'missing-observation',
       );
     const p = prose(ctx);
     const w = worldOf(p, { files: 2, perFile: 8 });

@@ -558,15 +558,19 @@ export const replayRuns: Record<string, Run> = {
     if (
       !res.warningRecords?.some(
         (w) => w.code === 'model-mismatch' && w.recorded === recorded && w.returned === returned,
-      )
+      ) ||
+      !res.warnings?.some((w) => w.includes(recorded) && w.includes(returned))
     )
       return fail('returned-model warning missing');
     const same = await reRecord(recorded, recorded);
     if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
-    if (!Array.isArray(same.warningRecords)) return fail('the second re-record exposes no warnings');
-    return same.warningRecords.length === 0
+    if (!Array.isArray(same.warnings) || !Array.isArray(same.warningRecords))
+      return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0 && same.warningRecords.length === 0
       ? pass('both model IDs named; models that agree give no warning')
-      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warningRecords).slice(0, 120)}`);
+      : fail(
+          `a re-record whose models agree warns: ${JSON.stringify([...same.warnings, ...same.warningRecords]).slice(0, 120)}`,
+        );
   },
   'carry-forward-needs-only-dirty-entries': async (ctx) => {
     const { fixture, res: before } = await positiveReplay(ctx);
