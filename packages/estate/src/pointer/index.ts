@@ -86,10 +86,12 @@ export {
   type UnitChange,
 } from './radius';
 export {
+  atomNeeds,
   DEFAULT_WINDOW_UNITS,
   type LabelerUsage,
   type LabelledUnit,
   type MemberPlan,
+  missingForAtom,
   OUT_OF_STEP_MIN,
   OUT_OF_STEP_SHARE,
   outOfStep,

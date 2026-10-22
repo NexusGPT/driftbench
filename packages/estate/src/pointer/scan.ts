@@ -1,4 +1,5 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
+import { namedPaths } from '../scan/code';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
 import { type Cut, cut, type Unit } from './cut';
@@ -13,6 +14,7 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  type Label,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
@@ -206,6 +208,45 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
  */
 export const OUT_OF_STEP_SHARE = 0.25;
 export const OUT_OF_STEP_MIN = 4;
+
+/**
+ * The spans and links a label's atom needs, read from its mapping the way the atom builder fills it: the title, the
+ * situation (unless marked optional), the fields and the evidence, each `$span.<kind>` and `$link.<kind>` they name,
+ * braced or not. A placeholder marked optional (`<placeholder>?`), one under an optional key (`"key?"`), one inside a
+ * `firstFilled` or an `each` (which fill when they can), the reply act and the further atoms of `also` need nothing.
+ */
+export function atomNeeds(label: Label | undefined): { spans: string[]; links: string[] } {
+  const spans = new Set<string>();
+  const links = new Set<string>();
+  const walk = (value: unknown): void => {
+    if (typeof value === 'string') {
+      if (value.endsWith('?')) return;
+      for (const match of value.matchAll(/\$\{?(span|link)\.([a-z][a-z0-9-]*)/g))
+        (match[1] === 'span' ? spans : links).add(match[2] as string);
+    } else if (Array.isArray(value)) value.forEach(walk);
+    else if (value && typeof value === 'object') {
+      if ('firstFilled' in value || 'each' in value) return;
+      for (const [key, inner] of Object.entries(value)) if (!key.endsWith('?')) walk(inner);
+    }
+  };
+  const atom = label?.atom;
+  if (atom) for (const part of [atom.title, atom.situation, atom.fields, atom.evidence]) walk(part);
+  return { spans: [...spans], links: [...links] };
+}
+
+/** The spans and links an opinion lacks that its label's atom needs (`span:<kind>`, `link:<kind>`). */
+export function missingForAtom(set: LabelSet, opinion: Opinion): string[] {
+  const label = set.labels.find((candidate) => candidate.name === opinion.label);
+  if (!label?.atom) return [];
+  const needs = atomNeeds(label);
+  const given = new Set([
+    ...(opinion.spans ?? []).map((span) => `span:${span.kind}`),
+    ...(opinion.links ?? []).map((link) => `link:${link.kind}`),
+  ]);
+  return [...needs.spans.map((kind) => `span:${kind}`), ...needs.links.map((kind) => `link:${kind}`)].filter(
+    (need) => !given.has(need),
+  );
+}
 
 /** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
 export const REASK_LIMIT = 3;
@@ -726,10 +767,55 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * labels tie: inside one atom kind (two runs of rule, two of prohibition) or across kinds (two of reply-rule, two
    * of rule).
    */
-  const tiedSplit = (runs: ReadonlyArray<Map<number, Opinion>>, index: number, set: LabelSet): boolean => {
+  /**
+   * The vote on a unit that names a file (a code span or link the path reader takes as a file): a condition reading
+   * of it counts toward one group with the readings of a label whose atom is a reference or a gate, since a unit that
+   * names a file to read is no condition alone. When that group holds more than half of the runs heard, the label is
+   * chosen inside it by the readings that are not conditions and can build their atom (none of a span or link it
+   * needs missing); with none that can build, by the readings that are not conditions. The most given label wins; a
+   * tie at the top is a split (`tied`); a group of conditions alone decides nothing, and the unit stays unlabeled.
+   * Undefined when the unit holds no condition reading or the group holds no majority: the vote then goes on as for any
+   * unit.
+   */
+  const fileVote = (
+    present: Opinion[],
+    heard: number,
+    set: LabelSet,
+  ): { winners?: Opinion[]; tied: boolean } | undefined => {
+    const declared = (label: string) => set.labels.find((candidate) => candidate.name === label);
+    const isCondition = (opinion: Opinion) => declared(opinion.label)?.condition === true;
+    if (!present.some(isCondition)) return undefined;
+    const fileKind = (opinion: Opinion) => {
+      const kind = declared(opinion.label)?.atom?.kind;
+      return kind === 'reference' || kind === 'gate';
+    };
+    const group = present.filter((opinion) => isCondition(opinion) || fileKind(opinion));
+    if (group.length * 2 <= heard) return undefined;
+    const others = group.filter((opinion) => !isCondition(opinion));
+    // Conditions alone do not decide a unit that names a file: it stays unlabeled.
+    if (others.length === 0) return { tied: false };
+    const buildable = others.filter((opinion) => missingForAtom(set, opinion).length === 0);
+    const voters = buildable.length > 0 ? buildable : others;
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const counts = new Map<string, number>();
+    for (const opinion of voters) counts.set(key(opinion), (counts.get(key(opinion)) ?? 0) + 1);
+    const top = Math.max(...counts.values());
+    const leaders = [...counts.entries()].filter(([, count]) => count === top);
+    if (leaders.length > 1) return { tied: true };
+    const pick = voters.find((opinion) => counts.get(key(opinion)) === top) as Opinion;
+    return { winners: voters.filter((opinion) => key(opinion) === key(pick)), tied: false };
+  };
+  const tiedSplit = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+    mentionsFile = false,
+  ): boolean => {
     const given = heardOn(runs, index);
     if (!given || given.length < 2) return false;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const filed = mentionsFile ? fileVote(present, given.length, set) : undefined;
+    if (filed) return filed.tied;
     const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
@@ -745,6 +831,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
     set: LabelSet,
+    mentionsFile = false,
   ): Opinion | undefined => {
     // The runs heard on the unit: a run left out of its window's vote counts neither for a label nor in the count.
     const given = heardOn(runs, index);
@@ -756,11 +843,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
-    const majority =
-      [...tally.values()].find((group) => group.length * 2 > given.length) ??
-      tieBroken(tally, set) ??
-      sameKind(present, given.length, set);
-    const winners = unanimous ? present : majority;
+    const filed = mentionsFile ? fileVote(present, given.length, set) : undefined;
+    const majority = filed
+      ? filed.winners
+      : ([...tally.values()].find((group) => group.length * 2 > given.length) ??
+        tieBroken(tally, set) ??
+        sameKind(present, given.length, set));
+    const winners = unanimous && !filed ? present : majority;
     if (!winners?.[0]) {
       if (present.length === given.length) split++;
       return undefined;
@@ -793,13 +882,17 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (asked.has(where)) continue;
     asked.add(where);
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
-    const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
+    const tied = task.window.units.filter((unit) =>
+      tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+    );
     if (tied.length === 0) continue;
     // Two voices in step at least; while a unit of the window still ties, two more, up to SPLIT_REASK_MAX; a re-ask
     // that slips is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
     let voices = 0;
     for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
-      const stillTied = task.window.units.some((unit) => tiedSplit(runs, unit.index, task.set));
+      const stillTied = task.window.units.some((unit) =>
+        tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+      );
       // Voices come in pairs, so one extra voice never breaks a tie on its own.
       if (voices >= SPLIT_REASK_RUNS && voices % 2 === 0 && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
       const extra = (spent.get(where) ?? 0) + 1;
@@ -845,7 +938,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index, set)),
+          byMember.map((runs) =>
+            opinionOf(runs, index, set, namedPaths(cuts.get(file.path)?.units[index]?.text ?? '').length > 0),
+          ),
           set,
         );
         if (!decision) {
