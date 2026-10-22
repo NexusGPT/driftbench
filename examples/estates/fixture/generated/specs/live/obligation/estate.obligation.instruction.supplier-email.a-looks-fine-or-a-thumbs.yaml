@@ -56,12 +56,6 @@ criteria:
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
     scope: block
-  - name: instruction.supplier-email.never-copy-a-price-or-a
-    rubric: 'Does the reply follow this rule of the estate: "Never copy a price or a date into a draft unless you read it in the order or the invoice."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -75,7 +69,6 @@ blocks:
         others_untouched: true
       criteria:
         - instruction.supplier-email.a-looks-fine-or-a-thumbs
-        - instruction.supplier-email.never-copy-a-price-or-a
 metadata:
   estate:
     atoms:
@@ -98,7 +91,6 @@ metadata:
     outcome: bank
     judged:
       - instruction.supplier-email.a-looks-fine-or-a-thumbs
-      - instruction.supplier-email.never-copy-a-price-or-a
   links:
     - block: ask
       to:

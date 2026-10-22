@@ -22,7 +22,7 @@ const row = (atomIds: string[], extra: Partial<EstatePlanRow> = {}): EstatePlanR
   ...extra,
 });
 
-function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
+function textOf(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
   const result = generateEstateSuite(
     {
       map: { runtime: 'claude-code', hash: 'desk', atoms },
@@ -31,7 +31,11 @@ function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[]
     },
     { fallback: true, paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' } },
   );
-  const text = result.files.find((file) => file.path.endsWith('.yaml'))?.text ?? '';
+  return result.files.find((file) => file.path.endsWith('.yaml'))?.text ?? '';
+}
+
+function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
+  const text = textOf(atoms, rows, situations);
   const found = [...text.matchAll(/rule: (\S+)[\s\S]*?relation: (\w+)/g)].map((m) => [m[1], m[2]]);
   return Object.fromEntries(found);
 }
@@ -60,7 +64,10 @@ it('leaves a row of one atom, and the atoms of a journey, as they were', () => {
 });
 
 it('adds no expectation of a duty placed beside the first atom to the block', () => {
-  const gate: EstateAtom = { ...duty('g', 'gate'), evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }] };
+  const gate: EstateAtom = {
+    ...duty('g', 'gate'),
+    evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }],
+  };
   const alone = textOf([duty('a')], [row(['a'])]);
   const grouped = textOf([duty('a'), gate], [row(['a', 'g'])]);
   expect(alone).not.toContain('ordered');
