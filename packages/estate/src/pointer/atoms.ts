@@ -484,7 +484,8 @@ export function pointerAtoms(
     if (kept) {
       // One key for each condition and target: a unit may scope several targets, and a bound unit of another set
       // limits the atoms of the unit it points at.
-      for (const condition of [...conditional, ...bound]) attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
+      for (const condition of [...conditional, ...bound])
+        attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
     }
   }
   for (const [key, items] of conditions) {

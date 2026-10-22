@@ -1,8 +1,6 @@
 {
   "A": {
-    "notPassed": [
-      "3 variables"
-    ],
+    "notPassed": ["3 variables"],
     "limits38": {
       "truth": 16,
       "found": 9,
@@ -33,9 +31,7 @@
     }
   },
   "B": {
-    "notPassed": [
-      "3 variables"
-    ],
+    "notPassed": ["3 variables"],
     "limits38": {
       "truth": 8,
       "found": 8,
@@ -59,9 +55,7 @@
     }
   },
   "C": {
-    "notPassed": [
-      "3 variables"
-    ],
+    "notPassed": ["3 variables"],
     "limits38": {
       "truth": 14,
       "found": 12,
