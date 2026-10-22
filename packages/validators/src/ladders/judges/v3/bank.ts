@@ -170,8 +170,9 @@ export async function runLabellerItem(
     if (metrics.agreement < bars.agreement || metrics.kappa < bars.kappa)
       diagnostics.push(`below tier ${item.tier} bars: raw >= ${bars.agreement}, kappa >= ${bars.kappa}`);
     if (errors.length) diagnostics.push(`${errors.length} request errors; first: ${errors[0]}`);
-    // Robustness families demand the actual paired answer, not just global accuracy.
-    if (item.family !== 'agreement') {
+    // Every family demands the actual paired answer, not just global accuracy: a labeller that guesses one route in ten
+    // from a surface feature can reach a raw-agreement bar, never the recorded answer of every unit.
+    {
       const misses = fixture.units.flatMap((unit, i) => (answers[i] === unit.recorded ? [] : [i]));
       if (misses.length) diagnostics.push(`paired answer mismatch at units ${misses.slice(0, 6).join(',')}`);
     }
