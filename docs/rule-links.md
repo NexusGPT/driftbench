@@ -69,7 +69,7 @@ driftbench estate plan approve plan.yaml --all
 ## 2. Blocks that carry the rule
 
 ```
-driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
+driftbench estate generate --map approved.yaml --plan plan.yaml --out generated --states northwind/live/states/library.json
 ```
 
 ```
@@ -167,6 +167,23 @@ Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 12
 </p>
 
 Sixteen blocks rerun and 1,235 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+
+`estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
+
+```
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store before.db --map approved.yaml --agent-version db9e07132a1b
+# edit the sentence of step 3 and write change.yaml, then:
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store after.db --agent-version working --from before.db --change change.yaml
+```
+
+```
+Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+16 of 1248 cells in the radius. 16 cells run fresh, 1232 carried from estate-run-919f0f846d19 in before.db.
+...
+16 specs run live on a stand-in and 1232 carried: 211 pass, 1037 fail (232 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-925858f6cb8c.
+```
+
+Sixteen specs run and 1,232 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
 
 ## 5. Prove a link by deleting its rule
 

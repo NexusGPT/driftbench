@@ -178,7 +178,7 @@ jobs:
     permissions:
       contents: read
       statuses: write
-    needs: [bench, research-replay, prepare, checks, build, emission-manifest, python, comparison-replay, viewer-journey, guard, timing]
+    needs: [bench, research-replay, prepare, checks, build, emission-manifest, python, comparison-replay, viewer-journey, guard, timing, guide-install]
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
@@ -215,7 +215,7 @@ jobs:
             fi
             # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
             for id in ${jobs_lc//,/ }; do
-              case ",bench,research-replay,prepare,checks,build,emission-manifest,python,comparison-replay,viewer-journey,guard,timing,fast," in
+              case ",bench,research-replay,prepare,checks,build,emission-manifest,python,comparison-replay,viewer-journey,guard,timing,guide-install,fast," in
                 *",$id,"*) ;;
                 *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
               esac
@@ -525,6 +525,34 @@ jobs:
           fi
       - run: python -m pytest
         working-directory: python/driftbench
+
+  guide-install:
+    # The quickstart's install lines, run as the page shows them in a fresh clone of this checkout: the clone, the
+    # install, the build, the link and `driftbench --version`. It takes minutes and needs the network, so it is a heavy
+    # job and `pr fast` stays fast. Only this job sets the variable that switches the test on.
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',guide-install,'))
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: The quickstart's install lines in a fresh clone
+        env:
+          DRIFTBENCH_GUIDE_INSTALL: '1'
+        run: pnpm exec vitest run tools/docs/install.test.ts
 
   comparison-replay:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',comparison-replay,'))
