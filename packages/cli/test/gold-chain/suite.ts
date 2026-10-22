@@ -174,26 +174,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         const byId = new Map(gold.map((unit) => [unit.id, unit]));
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
-        // The pointer reader gives a unit one label and one target. The first scope of a condition unit is applied;
-        // every other scope is a gap of the product and fails the step, naming the unit and its target.
-        const applied = new Map<string, Truth['scopes'][number]>();
-        const dropped: string[] = [];
-        for (const scope of truth.scopes) {
-          const label = byId.get(scope.unit)?.label ?? '';
-          if (INSTRUCTION.has(label)) {
-            dropped.push(
-              `scope dropped: ${scope.unit} is an instruction (${label}) and cannot also be a condition; target ${scope.target}`,
-            );
-          } else if (applied.has(scope.unit)) {
-            dropped.push(
-              `scope dropped: ${scope.unit} has a second target ${scope.target} (first ${applied.get(scope.unit)?.target}); a unit takes one target`,
-            );
-          } else applied.set(scope.unit, scope);
-        }
-        const scopes = [...applied.values()].map((scope) => ({
-          unit: place(scope.unit),
-          target: place(scope.target),
-        }));
+        // A unit scopes every target the truth names; an instruction keeps its own atom while it scopes.
+        const scopes = truth.scopes.map((scope) => ({ unit: place(scope.unit), target: place(scope.target) }));
         const reader = readerFor('claude-code', { ignore: [] });
         if (reader === undefined) throw new Error('the claude-code reader is missing');
         const parsed = pointer.parseLabelSets(GOLD_SET_YAML);
@@ -233,12 +215,11 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           if (id === undefined) problems.push(`${placeOf(unit)}: no ledger unit`);
           else ledgerOf.set(unit.id, id);
         }
-        const asCondition = new Set(applied.keys());
         const instructions = scan.map.atoms.filter((atom) => atom.kind === 'instruction');
         const atomOf = new Map<string, Atom>();
         for (const atom of instructions) atomOf.set(String(atom.fields?.unit), atom);
         for (const unit of gold) {
-          const wants = unit.agreed && INSTRUCTION.has(unit.label ?? '') && !asCondition.has(unit.id);
+          const wants = unit.agreed && INSTRUCTION.has(unit.label ?? '');
           const atom = atomOf.get(ledgerOf.get(unit.id) ?? '');
           if (wants && !atom)
             problems.push(`${placeOf(unit)}: gold label ${unit.label} built no instruction atom`);
@@ -251,7 +232,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             );
           }
         }
-        for (const scope of applied.values()) {
+        for (const scope of truth.scopes) {
           const target = atomOf.get(ledgerOf.get(scope.target) ?? '');
           const condition = byId.get(scope.unit);
           const said = (condition?.text ?? '').trim();
@@ -260,7 +241,6 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             problems.push(`scope ${scope.unit}: the situation of ${target.id} lacks the condition text`);
           }
         }
-        problems.push(...dropped);
         chain.ledgerOf = ledgerOf;
         chain.atomOf = new Map(
           [...ledgerOf].flatMap(([goldId, ledgerId]) => {
@@ -270,7 +250,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         );
         await writeFile(join(work, 'map.yaml'), renderEstateMap(scan.map));
         expect(problems, report('labels to atoms', problems)).toEqual([]);
-        return `${chain.atomOf.size} instruction atoms, ${applied.size} of ${truth.scopes.length} scopes applied`;
+        return `${chain.atomOf.size} instruction atoms, ${truth.scopes.length} of ${truth.scopes.length} scopes applied`;
       });
     });
 

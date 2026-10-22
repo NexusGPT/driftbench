@@ -87,6 +87,8 @@ export type Decision = {
   label: string;
   /** The unit, as its index in the file, at the other end of a label that asks for one. */
   target?: number;
+  /** The other units, as indexes in the file, that the unit applies to. */
+  scopes?: number[];
   by: LabelerClass;
   sources: string[];
   /** Clauses and links of the unit: from system 2, which reads the whole window, when it gave the same label. */
@@ -126,6 +128,7 @@ function single(member: Labeler): Labelling {
       return {
         label: opinion.label,
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
+        ...(opinion.scopes ? { scopes: opinion.scopes } : {}),
         by: member.cls,
         sources: sourcesOf(opinion),
         ...extrasOf(opinion),
@@ -181,6 +184,7 @@ function stacked(
       const fromSecond = (opinion: Opinion): Decision => ({
         label: opinion.label,
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
+        ...(opinion.scopes ? { scopes: opinion.scopes } : {}),
         by: 'system2',
         sources: sourcesOf(first, opinion),
         ...extrasOf(opinion),

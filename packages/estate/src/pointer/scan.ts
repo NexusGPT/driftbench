@@ -83,6 +83,8 @@ export type LabelledUnit = {
   set: LabelSet;
   label: string;
   target?: { path: string; index: number; unit: Unit; id: string };
+  /** The other units the unit applies to, in file order. */
+  scopes?: Array<{ path: string; index: number; unit: Unit; id: string }>;
   spans?: SpanAnswer[];
   links?: LinkAnswer[];
   source: string;
@@ -607,7 +609,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
-    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const key = (opinion: Opinion) =>
+      `${opinion.label}\0${opinion.target ?? ''}\0${[...(opinion.scopes ?? [])].sort((a, b) => a - b).join(',')}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
@@ -659,6 +662,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
+        const scopeIds = (decision.scopes ?? []).map((at) => unitId(file.path, at));
         entry.labels[set.set] = {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
@@ -666,6 +670,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           source: decision.sources.length === 0 ? 'none' : `cassette:${decision.sources.join('+')}`,
           by: decision.by,
           ...(targetId ? { target: targetId } : {}),
+          ...(scopeIds.length > 0 ? { scopes: scopeIds } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
         };
@@ -695,6 +700,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ? fileCut.units.findIndex((_, at) => unitId(file.path, at) === found.target)
           : -1;
         const targetUnit = targetIndex >= 0 ? fileCut.units[targetIndex] : undefined;
+        const scoped = (found.scopes ?? []).flatMap((scopeId) => {
+          const at = fileCut.units.findIndex((_, i) => unitId(file.path, i) === scopeId);
+          const scopeUnit = at >= 0 ? fileCut.units[at] : undefined;
+          return scopeUnit ? [{ path: file.path, index: at, unit: scopeUnit, id: scopeId }] : [];
+        });
         labelled.push({
           path: file.path,
           index,
@@ -705,6 +715,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetUnit && found.target
             ? { target: { path: file.path, index: targetIndex, unit: targetUnit, id: found.target } }
             : {}),
+          ...(scoped.length > 0 ? { scopes: scoped } : {}),
           ...(found.spans ? { spans: found.spans } : {}),
           ...(found.links ? { links: found.links } : {}),
           source: found.source,

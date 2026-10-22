@@ -93,8 +93,8 @@ export type PlantedScope = { unit: string; target: string };
 
 /**
  * The labeller of the gold: it answers each unit with its gold label and gives no opinion where the annotators
- * disagreed. A unit named as the condition of a scope is answered `condition`, pointed at its target unit when
- * both are in the window.
+ * disagreed. A unit with a label keeps it and lists the units it scopes; a unit with none that scopes is answered
+ * `condition`, pointed at its first target and listing the others, those in the window.
  */
 export function goldLabeller(
   units: readonly GoldUnit[],
@@ -102,20 +102,33 @@ export function goldLabeller(
   scopes: readonly PlantedScope[] = [],
 ) {
   const byUnit = new Map(units.map((unit) => [`${unit.file}#${unit.n}`, unit]));
-  const scoped = new Map(scopes.map((scope) => [scope.unit, scope.target]));
+  const scoped = new Map<string, string[]>();
+  for (const scope of scopes) scoped.set(scope.unit, [...(scoped.get(scope.unit) ?? []), scope.target]);
   const answer = (window: Window): Labelled[] => {
     const answers: Labelled[] = [];
     for (const unit of window.units) {
       const place = `${window.path}#${unit.index + 1}`;
-      const target = scoped.get(place);
-      const at = window.units.find((other) => `${window.path}#${other.index + 1}` === target);
-      if (at !== undefined) {
-        answers.push({ units: String(unit.n), label: 'condition', target: at.n });
-        continue;
-      }
+      const inWindow = (scoped.get(place) ?? []).flatMap((target) => {
+        const at = window.units.find((other) => `${window.path}#${other.index + 1}` === target);
+        return at === undefined ? [] : [at.n];
+      });
       const gold = byUnit.get(place);
-      if (!gold?.agreed || gold.label === null) continue;
-      answers.push({ units: String(unit.n), label: gold.label });
+      // A unit with an instruction label of the gold keeps it and also scopes its targets. Any other unit that
+      // scopes is a condition: its first target is the target of the label, the others its scopes.
+      if (gold?.agreed && gold.label !== null) {
+        answers.push({
+          units: String(unit.n),
+          label: gold.label,
+          ...(inWindow.length > 0 ? { scopes: inWindow } : {}),
+        });
+      } else if (inWindow.length > 0) {
+        answers.push({
+          units: String(unit.n),
+          label: 'condition',
+          target: inWindow[0] as number,
+          ...(inWindow.length > 1 ? { scopes: inWindow.slice(1) } : {}),
+        });
+      }
     }
     return answers;
   };

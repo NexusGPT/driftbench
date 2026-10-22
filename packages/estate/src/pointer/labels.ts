@@ -246,6 +246,8 @@ export type Labelled = {
   units: string;
   label: string;
   target?: number;
+  /** Other units of the window that this unit applies to, besides its target: any label may carry them. */
+  scopes?: number[];
   spans?: SpanInput[];
   links?: LinkAnswer[];
 };
@@ -279,7 +281,10 @@ export function expandUnits(units: string): number[] | undefined {
 
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
-  accepted: Map<number, { label: string; target?: number; spans?: SpanAnswer[]; links?: LinkAnswer[] }>;
+  accepted: Map<
+    number,
+    { label: string; target?: number; scopes?: number[]; spans?: SpanAnswer[]; links?: LinkAnswer[] }
+  >;
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
@@ -338,6 +343,23 @@ export function checkAnswer(
       refusals.push(`${window.id}: the label ${entry.label} takes no target`);
       continue;
     }
+    if (entry.scopes !== undefined) {
+      const wrong =
+        entry.label === 'none'
+          ? 'the label none takes no scopes'
+          : !Array.isArray(entry.scopes) ||
+              entry.scopes.some((scope) => typeof scope !== 'number' || !Number.isInteger(scope) || !inWindow.has(scope))
+            ? `the scopes ${JSON.stringify(entry.scopes)} are not units of the window`
+            : new Set(entry.scopes).size !== entry.scopes.length
+              ? `the scopes ${JSON.stringify(entry.scopes)} name a unit twice`
+              : numbers.some((n) => (entry.scopes as number[]).includes(n))
+                ? `the scopes ${JSON.stringify(entry.scopes)} name the unit itself`
+                : undefined;
+      if (wrong) {
+        refusals.push(`${window.id}: ${wrong}`);
+        continue;
+      }
+    }
     const extras = checkExtras(set, window, entry, numbers, label, context);
     if (typeof extras === 'string') {
       refusals.push(`${window.id}: ${extras}`);
@@ -351,6 +373,7 @@ export function checkAnswer(
         accepted.set(n, {
           label: entry.label,
           ...(entry.target !== undefined ? { target: entry.target } : {}),
+          ...(entry.scopes !== undefined && entry.scopes.length > 0 ? { scopes: entry.scopes } : {}),
           ...kept,
         });
       }
