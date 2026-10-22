@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: five problems</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 350px; }
+  .n { width: 170px; height: 108px; align-content: start; padding: 10px 11px; row-gap: 5px; }
+  .nx-node__kind { font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
+  .nx-node__title { font-size: 13.5px; }
+  .nx-node__detail { font-size: 11.5px; line-height: 1.3; }
+  .head-k { left: 16px; top: 16px; }
+  .mid { position: absolute; left: 200px; top: 162px; width: 220px; text-align: center; font: 400 15px/1.15 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
+  .n { height: 122px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 330"></svg>
+    <span class="nx-kind head-k">Five problems with what exists</span>
+    <div class="nx-node n " style="left:16px;top:42px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/></svg></span>
+      <span class="nx-node__kind">Problem 1</span>
+      <span class="nx-node__title">A whole conversation gets one score</span>
+      <span class="nx-node__detail">When it fails, nobody knows which step broke.</span>
+    </div>
+    <div class="nx-node n " style="left:224px;top:42px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10-10-3-3L5 16z"/></svg></span>
+      <span class="nx-node__kind">Problem 2</span>
+      <span class="nx-node__title">Tests are written by hand</span>
+      <span class="nx-node__detail">Or by a model that nobody checks.</span>
+    </div>
+    <div class="nx-node n " style="left:432px;top:42px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 8h14M7 8l-3 7h6zM17 8l-3 7h6z"/></svg></span>
+      <span class="nx-node__kind">Problem 3</span>
+      <span class="nx-node__title">One judge model, seldom checked</span>
+      <span class="nx-node__detail">Against what people would say.</span>
+    </div>
+    <div class="nx-node n " style="left:120px;top:190px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V9M12 19V5M19 19v-7"/></svg></span>
+      <span class="nx-node__kind">Problem 4</span>
+      <span class="nx-node__title">Few scores show an error bar</span>
+      <span class="nx-node__detail">A small gap can be noise.</span>
+    </div>
+    <div class="nx-node n " style="left:328px;top:190px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg></span>
+      <span class="nx-node__kind">Problem 5</span>
+      <span class="nx-node__title">Every change reruns everything</span>
+      <span class="nx-node__detail">Caches replay unchanged model calls.</span>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 17px "Libre Caslon Display"', '400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>
