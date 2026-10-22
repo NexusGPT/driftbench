@@ -18,7 +18,7 @@ function withoutComments(spec: string): string {
 
 describe('the README code-agent example', () => {
   it('is the price-sheet-build spec, word for word, after its comment lines', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const readme = await readFile(`${ROOT}/docs/how-it-works.md`, 'utf8');
     const spec = await readFile(`${ROOT}/${SPEC}`, 'utf8');
     const body = withoutComments(spec);
     const start = readme.indexOf('```yaml\nid: replay-price-sheet-build');
@@ -30,7 +30,7 @@ describe('the README code-agent example', () => {
 
 describe('the README parent-blocks example', () => {
   it('is the runnable Acme checkout spec, word for word, and loads clean with its parent links', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const readme = await readFile(`${ROOT}/docs/innovations.md`, 'utf8');
     const spec = await readFile(`${ROOT}/${PARENTS}`, 'utf8');
     const start = readme.indexOf('```yaml\n# file: checkout.spec.yaml\nid: acme-parent-checkout');
     expect(start, 'the README holds the example').toBeGreaterThan(0);

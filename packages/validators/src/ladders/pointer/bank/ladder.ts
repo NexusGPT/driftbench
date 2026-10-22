@@ -4,7 +4,7 @@ import { runItem } from './run';
 import { LEVELS, type PointerItem } from './types';
 
 /** The ladder version of the bank (docs/validators.md section 12.5). */
-export const POINTER_LADDER_VERSION = 1;
+export const POINTER_LADDER_VERSION = 2;
 
 /**
  * The ladder of a bank: one level per entry of LEVELS, each the sub-bank of its items with threshold 1. Each level

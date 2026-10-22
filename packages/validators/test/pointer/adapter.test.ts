@@ -192,12 +192,38 @@ describe('the real-reader adapter maps observations without implementing behavio
     }));
     await sut.scan({
       files: [file],
-      model: { arm, transport: () => ({ status: 200, body: '{}' }), threshold: 0.71 },
+      model: { arm, transport: () => ({ status: 200, body: '{}' }), marginCut: 0.71 },
       cassette: { mode: 'replay' },
     });
     expect(reader.buildLabelling).toHaveBeenCalledWith(
       [{ cls, client }],
-      expect.objectContaining({ record: false, threshold: 0.71, fetch: expect.any(Function) }),
+      expect.objectContaining({ record: false, marginCut: 0.71, fetch: expect.any(Function) }),
+    );
+  });
+
+  it('maps a system 1 arm with a second arm and the stack settings to a two-member stack', async () => {
+    const { reader, sut } = fixture();
+    reader.buildLabelling = vi.fn(async () => ({
+      ok: true as const,
+      labelling: { members: [], describe: 'product stack' },
+    }));
+    await sut.scan({
+      files: [file],
+      model: {
+        arm: 'jev',
+        second: 'haiku',
+        transport: () => ({ status: 200, body: '{}' }),
+        passAt: 0.7,
+        failAt: 0.1,
+      },
+      cassette: { mode: 'replay' },
+    });
+    expect(reader.buildLabelling).toHaveBeenCalledWith(
+      [
+        { cls: 'system1', client: 'jev' },
+        { cls: 'system2', client: 'anthropic' },
+      ],
+      expect.objectContaining({ passAt: 0.7, failAt: 0.1 }),
     );
   });
 
