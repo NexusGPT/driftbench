@@ -21,7 +21,15 @@ import {
   setHash,
   type Window,
 } from './labels';
-import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
+import {
+  type Event,
+  type LabelFlip,
+  type Ledger,
+  type LedgerEntry,
+  nextLedger,
+  recordLabel,
+  unitKey,
+} from './ledger';
 import type { Labelling } from './stack';
 
 /**
@@ -302,8 +310,9 @@ type Leaf = { window: Window; answer: Recorded; key: string };
 export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
 const describeFailure = (failure: FailedWindow): string =>
   `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
-/** A unit whose label went from a selected label to none, or to no label. */
-export type LabelFlip = { unit: string; set: string; from: string; to?: 'none' };
+
+export type { LabelFlip } from './ledger';
+
 type TaskResult = { leaves: Leaf[]; failures: FailedWindow[] };
 
 function readableFor(task: Task, window: Window) {
@@ -894,23 +903,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           set,
         );
         // A unit the labelling stops selecting keeps its place; the change of its label is reported.
-        const before = entry.labels[set.set]?.label;
-        const selected = before !== undefined && before !== 'none';
         if (!decision) {
           unlabeled++;
           unlabeledUnits.push({ unit: entry.id, set: set.set });
-          if (selected) flips.push({ unit: entry.id, set: set.set, from: before });
-          delete entry.labels[set.set];
+          const flip = recordLabel(entry, set.set, undefined);
+          if (flip) flips.push(flip);
           continue;
-        }
-        if (selected && decision.label === 'none') {
-          flips.push({ unit: entry.id, set: set.set, from: before, to: 'none' });
         }
         decided++;
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
-        entry.labels[set.set] = {
+        const flip = recordLabel(entry, set.set, {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
           labeler: labelling.hash,
@@ -919,7 +923,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetId ? { target: targetId } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
-        };
+        });
+        if (flip) flips.push(flip);
       }
     }
   }

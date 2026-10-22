@@ -299,6 +299,8 @@ Cheapest first, on units:
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
 
+`carryOf(before, after, sets)` says, for one unit that was labelled before, which labels carry to the next scan and which sets are asked again: a label carries when the unit's fingerprint and its context fingerprint are both unchanged, and a set the unit had no label for is asked again. `recordLabel(entry, set, next)` replaces the label of one set of an entry, leaves the other sets, the id and the status alone, and returns a flip when a label other than `none` was replaced by another label, by `none` or by none. When a text matches in several places the old id stays on the first match, and `nextLedger` lists every place in `candidates`.
+
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
 
 ## 5. Cache and cassette
