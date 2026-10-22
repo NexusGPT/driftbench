@@ -45,10 +45,12 @@ async function reply(options: { withoutRegister?: boolean }): Promise<string> {
 
 describe('the stand-in agent answers in the shape a reply rule in force declares', () => {
   it('answers one JSON object when the register that declares json_only is in force', async () => {
-    expect(() => JSON.parse(await reply({}))).not.toThrow();
+    const text = await reply({});
+    expect(() => JSON.parse(text)).not.toThrow();
   });
 
   it('answers in prose when that register is gone from the estate copy', async () => {
-    expect(() => JSON.parse(await reply({ withoutRegister: true }))).toThrow();
+    const text = await reply({ withoutRegister: true });
+    expect(() => JSON.parse(text)).toThrow();
   });
 });
