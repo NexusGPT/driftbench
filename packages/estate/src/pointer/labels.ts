@@ -490,43 +490,29 @@ export function locateSpanText(
   return { from: first, to: first + wanted.length };
 }
 
-/** How far an anchor words are from the start of a line: they must begin within its first words. */
-export const ANCHOR_REACH = 6;
-
-/** The letters and digits of a text, lower case, as words: what an anchor is compared on. */
-const anchorWords = (text: string): string[] =>
-  text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .trim()
-    .split(' ')
-    .filter((word) => word !== '');
-
 /**
  * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
- * it points, so the words never reach a cassette: `anchored` is the number of lines from the first unit the entry
- * names to the line the anchor starts (0 when it starts that unit, -1 for the line before), or null when it starts
- * no line, or several and not the entry's own. A line starts with an anchor when its words hold the anchor's words in
- * a row, beginning within its first `ANCHOR_REACH` words, so a rule number or a list mark before them is no
- * mismatch. An entry with no anchor, or an empty one, keeps none.
+ * it points, so the words never reach a cassette. The anchor is located as a span is (`locateSpanText`, on the text
+ * the labeler was shown, without regard to case), in every line of the window: `anchored` is 0 when it is in the
+ * first unit the entry names, the count of lines from that unit to the one line that holds it when the number
+ * slipped (-1 for the line before), or null when no line holds it, or several do and not the entry's own. An entry
+ * with no anchor, or an empty one, keeps none.
  */
 export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
   const lines = [
-    ...window.units.map((unit): [number, string[]] => [unit.n, anchorWords(unit.text)]),
-    ...(window.display ?? []).map((line): [number, string[]] => [line.n, anchorWords(line.text)]),
+    ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
+    ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
   ];
   return entries.map((entry) => {
     const { anchor, ...rest } = entry;
-    const words = typeof anchor === 'string' ? anchorWords(anchor) : [];
+    const words = typeof anchor === 'string' ? flatten(anchor).text : '';
     const first = expandUnits(entry.units)?.[0];
-    if (words.length === 0 || first === undefined) return rest;
-    const starts = (line: string[]) => {
-      for (let at = 0; at < ANCHOR_REACH && at + words.length <= line.length; at++) {
-        if (words.every((word, offset) => line[at + offset] === word)) return true;
-      }
-      return false;
+    if (words === '' || first === undefined) return rest;
+    const holds = (text: string) => {
+      const found = locateSpanText(text, words);
+      return !('reason' in found) || found.reason === 'the text is found twice in the unit';
     };
-    const found = lines.filter(([, line]) => starts(line)).map(([n]) => n);
+    const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
     const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
     return { ...rest, anchored };
   });

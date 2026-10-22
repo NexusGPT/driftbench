@@ -88,7 +88,7 @@ export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
   'An entry with a label other than none also gives "anchor": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. ' +
-  'Every unit must appear once. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
+  'Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
   'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
   'A target must be a unit that can be labelled, never a line marked not labelable. ' +
