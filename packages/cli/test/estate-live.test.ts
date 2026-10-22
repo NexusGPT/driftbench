@@ -867,6 +867,36 @@ describe('driftbench estate run --from', () => {
     return calls.take();
   }
 
+  it('carries a failure as a failure: status, reasons and evidence stay what the old store holds', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest());
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const lines = (next.json as CarryJson).runs;
+    const carried = lines.filter((line) => line.carried === true && !line.pass);
+    expect(carried.length).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const oldStore = openStore(old.store);
+    const newStore = openStore(next.store);
+    const oldRuns = await oldStore.listRuns();
+    const newRuns = await newStore.listRuns();
+    await oldStore.close();
+    await newStore.close();
+    for (const line of carried) {
+      const was = oldRuns.find((entry) => entry.specId === line.spec);
+      const now = newRuns.find((entry) => entry.specId === line.spec);
+      expect(was, line.spec).toBeDefined();
+      expect(now, line.spec).toBeDefined();
+      expect(now?.status).toBe(was?.status);
+      expect(line.failing.length).toBeGreaterThan(0);
+      expect(line.failing).toEqual(old.json.runs.find((entry) => entry.spec === line.spec)?.failing);
+      expect(JSON.stringify(now?.blocks)).toBe(JSON.stringify(was?.blocks));
+    }
+  });
+
   it('reruns the specs of the radius and carries the result of every other spec from the old store', async () => {
     const specs = proofSpecs();
     const calls = await counter();
