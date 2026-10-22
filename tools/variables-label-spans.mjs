@@ -143,7 +143,11 @@ async function ask(batch) {
     throw new Error(
       `labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`,
     );
-  responses.push({ id: json.id, model: json.model, usage: { input_tokens: json.usage?.input_tokens ?? 0, output_tokens: json.usage?.output_tokens ?? 0 } });
+  responses.push({
+    id: json.id,
+    model: json.model,
+    usage: { input_tokens: json.usage?.input_tokens ?? 0, output_tokens: json.usage?.output_tokens ?? 0 },
+  });
   tokensIn += json.usage?.input_tokens ?? 0;
   tokensOut += json.usage?.output_tokens ?? 0;
   const text = (json.content ?? []).map((c) => c.text ?? '').join('');
