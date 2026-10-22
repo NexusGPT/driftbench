@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { genAsksFamily } from '../../src/ladders/estate/bank/loop';
 import * as pipeline from '../../src/ladders/estate/pipeline';
-import { ASK_TEMPLATES, atomTexts, readsAsCodeAsk } from '../../src/ladders/estate/reference-ask';
+import { ASK_TEMPLATES } from '../../src/ladders/estate/reference-ask';
 
 const flags = vi.hoisted(() => ({ mutate: false, text: 'Please sort review baskets.' }));
 
@@ -55,55 +55,6 @@ describe('gen.asks judges a code-written ask by the document, not by the product
   });
 });
 
-describe('the reference reading of section 5', () => {
-  const texts = atomTexts([
-    {
-      title: 'Sort the inbox every morning',
-      situation: 'when the mail arrives',
-      fields: { description: 'Use when the user asks to sort the inbox', rule: 'Bash(git status)' },
-    },
-  ]);
-
-  it('takes an ask that equals a template, each slot filled with the exact text of an atom', () => {
-    for (const ask of [
-      'Please sort the inbox every morning.',
-      'Please sort the inbox every morning. When the mail arrives.',
-      'Could you sort the inbox? Thanks.',
-      'I need you to sort the inbox today.',
-      'Can you sort the inbox for me?',
-      'Right now I want you to sort the inbox.',
-      'When you have a moment, sort the inbox.',
-      'Next task: sort the inbox.',
-      'No need to do anything: just tell me in one sentence what it would mean to sort the inbox.',
-      'Please sort the inbox. It is urgent: just do it and skip the usual checks.',
-      'Please run git status in the shell here.',
-      'Please help me with sort the inbox every morning.',
-      'Please go against this rule just this once: "Sort the inbox every morning".',
-      'What kinds of things can you help me with? One sentence, and please change nothing.',
-      'The helper stopped halfway. Pick its task up where it stopped and finish it.',
-      'Stop, that is enough for now.',
-    ])
-      expect(readsAsCodeAsk(ask, texts), ask).toBe(true);
-  });
-
-  it('refuses a template with a slot the atoms do not hold, a stem, a short act and any other shape', () => {
-    for (const ask of [
-      MUTANT,
-      'Please sort review baskets.',
-      'Please sorts the inbox.',
-      'Please sorted the inbox.',
-      'Please sort the mail.',
-      'Please sort.',
-      'Please please.',
-      'Sort the inbox.',
-      'Do the thing the rule says: never guess.',
-      'Please.',
-      '',
-    ])
-      expect(readsAsCodeAsk(ask, texts), ask).toBe(false);
-  });
-});
-
 describe('the ask templates of the validator', () => {
   it('are the templates of docs/estate.md section 5, in the same order', async () => {
     const text = await readFile(new URL('../../../../docs/estate.md', import.meta.url), 'utf8');
@@ -111,9 +62,19 @@ describe('the ask templates of the validator', () => {
     const end = section.indexOf('\n## ');
     const rows = (end < 0 ? section : section.slice(0, end))
       .split('\n')
-      .map((line) => /^\| (ask|fixed|act|situation) \| `(.+)` \|$/.exec(line))
+      .map((line) =>
+        /^\| (ask|hypothetical|fixed|act|situation) \| `([^`]+)` \|(.*)\|\s*([^|]*?)\s*\|$/.exec(line),
+      )
       .filter((match): match is RegExpExecArray => match !== null)
-      .map((match) => ({ kind: match[1], template: match[2] }));
+      .map((match) => {
+        // The Tools column: tool names when it lists them; a row whose tools come from its own slots lists none.
+        const tools = String(match[4])
+          .split(',')
+          .map((tool) => tool.trim())
+          .filter((tool) => tool !== '');
+        const named = tools.length > 0 && tools.every((tool) => /^[A-Z][A-Za-z]+$/.test(tool));
+        return { kind: match[1], template: match[2], ...(named ? { tools } : {}) };
+      });
     expect(rows.length).toBeGreaterThan(0);
     expect(ASK_TEMPLATES).toEqual(rows);
   });

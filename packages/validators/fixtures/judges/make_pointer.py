@@ -506,13 +506,18 @@ M1 = member("planted-p", "system1", "planted-p1", {"threshold": 0.4})
 M2 = member("planted", "system2", "planted-1", {})
 
 
+def hashed(m):
+    """A member as its hash reads it: docs/estate.md "Two classes of labeler", several runs vote by majority."""
+    return {**m, "vote": "majority"} if m["runs"] > 1 else m
+
+
 def single_hash(m):
-    return sha(canonical({"members": [m], "rule": "single"}))[:16]
+    return sha(canonical({"members": [hashed(m)], "rule": "single"}))[:16]
 
 
 def stacked_hash(a, b, rule):
     extra = {"marginCut": rule["marginCut"], "rule": "margin"} if rule["rule"] == "margin" else {"passAt": rule["passAt"], "failAt": rule["failAt"], "rule": "cascade"}
-    return sha(canonical({"members": [a, b], **extra}))[:16]
+    return sha(canonical({"members": [hashed(a), hashed(b)], **extra}))[:16]
 
 
 CAS = {"rule": "cascade", "passAt": 0.9, "failAt": 0.1}

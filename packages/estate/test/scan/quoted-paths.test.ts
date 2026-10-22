@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
 import { namedPaths } from '../../src/scan/code';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 describe('a file path in prose quotes', () => {
   it.each(["'references/guide.md'", '"references/guide.md"'])('reads %s as one file path', (markup) => {
@@ -19,7 +19,12 @@ describe('a file path in prose quotes', () => {
       '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n${quote}`,
       '.claude/skills/reconcile/references/guide.md': '# Guide\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.find((a) => a.kind === 'reference')).toMatchObject({
       fields: { path: '.claude/skills/reconcile/references/guide.md', exists: true },
       provenance: { quote },

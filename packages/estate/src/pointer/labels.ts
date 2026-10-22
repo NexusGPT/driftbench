@@ -39,6 +39,11 @@ export const LinkKind = z
   });
 export type LinkKind = z.infer<typeof LinkKind>;
 
+type FieldValue = string | number | boolean | FieldValue[] | { [key: string]: FieldValue };
+const FieldValue: z.ZodType<FieldValue> = z.lazy(() =>
+  z.union([z.string(), z.number(), z.boolean(), z.array(FieldValue), z.record(z.string(), FieldValue)]),
+);
+
 const AtomBase = z.strictObject({
   kind: z.string().min(1),
   polarity: z.enum(['obligation', 'prohibition']).optional(),
@@ -46,14 +51,20 @@ const AtomBase = z.strictObject({
   title: z.string().min(1).optional(),
   /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
   situation: z.string().min(1).optional(),
-  /** Fields the set puts on every atom of this label, such as the id of a hazard. */
-  fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+  /**
+   * Fields the set puts on every atom of this label, such as the id of a hazard. A value is a scalar, or a list or
+   * an object of values: a string anywhere inside it may hold a placeholder, filled from the spans, the links and
+   * the unit as for the title, and a value with an unfilled placeholder refuses the atom with its reason.
+   */
+  fields: z.record(z.string(), FieldValue).optional(),
+  /** The reply act the atom governs: a top-level key of the atom, filled as `fields` is, with the same optional keys. */
+  replyAct: z.record(z.string(), FieldValue).optional(),
   /** Checks the set puts on every atom of this label, after the review check the scan adds. */
   evidence: z.array(EvidencePredicate).optional(),
-  /** Resolve the first code span of the unit as a file of the estate: the atom gets its path and whether it exists. */
-  locate: z.literal(true).optional(),
+  /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
+  locate: z.union([z.literal(true), z.literal('each')]).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
-  whenFile: z.literal(true).optional(),
+  whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
 
 /** What a label builds: one atom, and the further atoms the same unit also is (a gate that also names a file). */
@@ -215,8 +226,20 @@ export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 1
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
 
-/** A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. */
-export type Window = { id: string; path: string; headingPath: string[]; units: WindowUnit[] };
+/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind and first line. */
+export type ShownLine = { after: number; text: string };
+
+/**
+ * A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. `shown` holds
+ * the display-only lines of the opaque units in the run: `after` is the number of labelable units before the line.
+ */
+export type Window = {
+  id: string;
+  path: string;
+  headingPath: string[];
+  units: WindowUnit[];
+  shown?: ShownLine[];
+};
 
 /** What a labeler says about a window: a label per unit or range, and a target for a label that needs one. */
 export type Labelled = {
@@ -260,6 +283,8 @@ export type Checked = {
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
+  /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
+  dropped: string[];
 };
 
 /**
@@ -277,6 +302,7 @@ export function checkAnswer(
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
+  const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
@@ -317,18 +343,20 @@ export function checkAnswer(
       refusals.push(`${window.id}: ${extras}`);
       continue;
     }
+    dropped.push(...extras.dropped.map((reason) => `${window.id}: ${reason}`));
+    const { dropped: _dropped, ...kept } = extras;
     for (const n of numbers) {
       covered.add(n);
       if (entry.label !== 'none') {
         accepted.set(n, {
           label: entry.label,
           ...(entry.target !== undefined ? { target: entry.target } : {}),
-          ...extras,
+          ...kept,
         });
       }
     }
   }
-  return { accepted, covered, refusals };
+  return { accepted, covered, refusals, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
@@ -404,8 +432,10 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
  * The spans and links of one entry, checked. A span is the words of a clause, or offsets, on the text the labeler
  * was shown: inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
  * overlapping another span of the unit. The offsets kept are those of the unit's own text. A link names a kind the
- * label may carry and a candidate the request listed (or `none`). Any failure refuses the whole entry: the reason
- * is returned as a string.
+ * label may carry and a candidate the request listed (or `none`). A span or a link that fails is DROPPED, with its
+ * reason in `dropped`, and the label stands: the label is the answer, the clauses and links are notes on it, and a
+ * wrong note costs the note, not the unit. An atom whose mapping needs a dropped note is refused later, with its
+ * reason. Only a malformed shape (an empty or non-list `spans` or `links`) refuses the entry.
  */
 function checkExtras(
   set: LabelSet,
@@ -414,103 +444,163 @@ function checkExtras(
   numbers: readonly number[],
   label: Label | undefined,
   context: LabelContext,
-): string | { spans?: SpanAnswer[]; links?: LinkAnswer[] } {
-  const out: { spans?: SpanAnswer[]; links?: LinkAnswer[] } = {};
+): string | { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } {
+  const out: { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } = { dropped: [] };
   if (entry.spans !== undefined) {
     if (!Array.isArray(entry.spans) || entry.spans.length === 0) return 'spans are a non-empty list';
-    if (numbers.length !== 1) return `"${entry.units}" is a range, and a range cannot carry spans`;
-    if (!label?.spans) return `the label ${entry.label} carries no spans`;
-    const unit = window.units.find((candidate) => candidate.n === numbers[0]);
-    if (!unit) return `"${entry.units}" leaves the window`;
-    const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
-    const seen: SpanAnswer[] = [];
-    const counted: Array<{ kind: string; from: number; to: number }> = [];
-    for (const span of entry.spans) {
-      const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
-      if (span === null || typeof span !== 'object') return `${where} is no span`;
-      const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
-      if (!kind || !label.spans.includes(kind.name)) {
-        return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
-      }
-      // The words of the clause are located in the text the labeler was shown (white space made one space) by code:
-      // found exactly once, else refused. The model is bad at counting characters and good at copying; a copied
-      // text enters nowhere unless it is a slice.
+    const unit =
+      numbers.length === 1 ? window.units.find((candidate) => candidate.n === numbers[0]) : undefined;
+    if (numbers.length !== 1) {
+      out.dropped.push(`"${entry.units}" is a range, and a range cannot carry spans`);
+    } else if (!label?.spans) {
+      out.dropped.push(`the label ${entry.label} carries no spans`);
+    } else if (!unit) {
+      out.dropped.push(`"${entry.units}" leaves the window`);
+    } else {
+      const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
+      const seen: SpanAnswer[] = [];
+      const counted: Array<{ kind: string; from: number; to: number; where: string }> = [];
       const shown = flatten(unit.text);
-      let from: number;
-      let to: number;
-      if ('text' in span && typeof span.text === 'string') {
-        const found = locateSpanText(shown.text, span.text);
-        if ('reason' in found) return `${where}: ${found.reason}`;
-        ({ from, to } = found);
-      } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
-        if ('unlocated' in span && typeof span.unlocated === 'string') return `${where}: ${span.unlocated}`;
-        ({ from, to } = span);
-        if (from < 0 || to > shown.text.length || from >= to) {
-          return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
+      for (const span of entry.spans) {
+        const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
+        const refuse = (reason: string) => out.dropped.push(reason);
+        if (span === null || typeof span !== 'object') {
+          refuse(`${where} is no span`);
+          continue;
         }
-      } else {
-        return `${where}: offsets are integers, or the text is a string`;
+        const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
+        if (!kind || !label.spans.includes(kind.name)) {
+          refuse(
+            `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`,
+          );
+          continue;
+        }
+        // The words of the clause are located in the text the labeler was shown (white space made one space) by
+        // code: found exactly once, else dropped. The model is bad at counting characters and good at copying; a
+        // copied text enters nowhere unless it is a slice.
+        let from: number;
+        let to: number;
+        if ('text' in span && typeof span.text === 'string') {
+          const found = locateSpanText(shown.text, span.text);
+          if ('reason' in found) {
+            refuse(`${where}: ${found.reason}`);
+            continue;
+          }
+          ({ from, to } = found);
+        } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+          if ('unlocated' in span && typeof span.unlocated === 'string') {
+            refuse(`${where}: ${span.unlocated}`);
+            continue;
+          }
+          ({ from, to } = span);
+          if (from < 0 || to > shown.text.length || from >= to) {
+            refuse(`${where}: offsets leave the unit (length ${shown.text.length}) or are empty`);
+            continue;
+          }
+        } else {
+          refuse(`${where}: offsets are integers, or the text is a string`);
+          continue;
+        }
+        if (span.polarity !== undefined && span.polarity !== null) {
+          if (!kind.polarity) {
+            refuse(`${where}: the kind ${kind.name} carries no polarity`);
+            continue;
+          }
+          if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
+            refuse(`${where}: the polarity is obligation or prohibition`);
+            continue;
+          }
+        }
+        counted.push({ kind: span.kind, from, to, where });
+        seen.push({
+          kind: span.kind,
+          from: shown.at[from] as number,
+          to: (shown.at[to - 1] as number) + 1,
+          ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
+        });
       }
-      if (span.polarity !== undefined && span.polarity !== null) {
-        if (!kind.polarity) return `${where}: the kind ${kind.name} carries no polarity`;
-        if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
-          return `${where}: the polarity is obligation or prohibition`;
+      // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
+      // any other span a span may not overlap: of two that clash, the later one is dropped.
+      const kept = counted.map(() => true);
+      for (const [index, span] of counted.entries()) {
+        const outer = kinds.get(span.kind)?.within;
+        if (
+          outer !== undefined &&
+          !counted.some((o) => o.kind === outer && o.from <= span.from && span.to <= o.to)
+        ) {
+          kept[index] = false;
+          out.dropped.push(`${span.where} is not inside a span of the kind ${outer}`);
+          continue;
+        }
+        const clash = counted
+          .slice(0, index)
+          .some(
+            (o, before) =>
+              kept[before] &&
+              span.from < o.to &&
+              o.from < span.to &&
+              !ancestor(kinds, span.kind, o.kind) &&
+              !ancestor(kinds, o.kind, span.kind),
+          );
+        if (clash) {
+          kept[index] = false;
+          out.dropped.push(`${span.where} overlaps another span of the unit`);
         }
       }
-      if (
-        counted.some(
-          (other) =>
-            from < other.to &&
-            other.from < to &&
-            !(ancestor(kinds, span.kind, other.kind) || ancestor(kinds, other.kind, span.kind)),
-        )
-      ) {
-        return `${where} overlaps another span of the unit`;
-      }
-      counted.push({ kind: span.kind, from, to });
-      seen.push({
-        kind: span.kind,
-        from: shown.at[from] as number,
-        to: (shown.at[to - 1] as number) + 1,
-        ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
-      });
+      const spans = seen.filter((_, index) => kept[index]);
+      if (spans.length > 0) out.spans = spans.sort((a, b) => a.from - b.from || b.to - a.to);
     }
-    // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry.
-    for (const inner of counted) {
-      const outer = kinds.get(inner.kind)?.within;
-      if (
-        outer !== undefined &&
-        !counted.some((other) => other.kind === outer && other.from <= inner.from && inner.to <= other.to)
-      ) {
-        return `unit [${unit.n}] has a span of the kind ${inner.kind} that is not inside a span of the kind ${outer}`;
-      }
-    }
-    out.spans = seen.sort((a, b) => a.from - b.from || b.to - a.to);
   }
   if (entry.links !== undefined) {
     if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
-    if (!label?.links) return `the label ${entry.label} carries no links`;
-    const kinds = new Map((set.links ?? []).map((kind) => [kind.name, kind]));
-    const links: LinkAnswer[] = [];
-    for (const link of entry.links) {
-      const where = `units "${entry.units}" link ${JSON.stringify(link)}`;
-      if (link === null || typeof link !== 'object') return `${where} is no link`;
-      const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
-      if (!kind || !label.links.includes(kind.name)) {
-        return `${where}: the kind ${JSON.stringify(link.kind)} is not one the label ${entry.label} may carry`;
-      }
-      if (typeof link.to !== 'string') return `${where}: the target is an atom id or none`;
-      if (links.some((other) => other.kind === kind.name))
-        return `${where}: the kind ${kind.name} is given twice`;
-      if (link.to !== 'none') {
-        const listed = context.candidates?.[kind.name] ?? [];
-        if (!listed.some((candidate) => candidate.id === link.to)) {
-          return `${where}: ${link.to} is not an atom the request listed for ${kind.name}`;
+    if (!label?.links) {
+      out.dropped.push(`the label ${entry.label} carries no links`);
+    } else {
+      const kinds = new Map((set.links ?? []).map((kind) => [kind.name, kind]));
+      const links: LinkAnswer[] = [];
+      for (const link of entry.links) {
+        const where = `units "${entry.units}" link ${JSON.stringify(link)}`;
+        if (link === null || typeof link !== 'object') {
+          out.dropped.push(`${where} is no link`);
+          continue;
         }
+        const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
+        if (!kind || !label.links.includes(kind.name)) {
+          out.dropped.push(
+            `${where}: the kind ${JSON.stringify(link.kind)} is not one the label ${entry.label} may carry`,
+          );
+          continue;
+        }
+        if (typeof link.to !== 'string') {
+          out.dropped.push(`${where}: the target is an atom id or none`);
+          continue;
+        }
+        // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,
+        // none, or a second value of a closed list is dropped.
+        if (
+          links.some(
+            (other) =>
+              other.kind === kind.name &&
+              (other.to === link.to ||
+                other.to === 'none' ||
+                link.to === 'none' ||
+                kind.values !== undefined),
+          )
+        ) {
+          out.dropped.push(`${where}: the kind ${kind.name} is given twice`);
+          continue;
+        }
+        if (link.to !== 'none') {
+          const listed = context.candidates?.[kind.name] ?? [];
+          if (!listed.some((candidate) => candidate.id === link.to)) {
+            out.dropped.push(`${where}: ${link.to} is not an atom the request listed for ${kind.name}`);
+            continue;
+          }
+        }
+        links.push({ kind: kind.name, to: link.to });
       }
-      links.push({ kind: kind.name, to: link.to });
+      if (links.length > 0) out.links = links;
     }
-    out.links = links;
   }
   return out;
 }

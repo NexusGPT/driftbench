@@ -21,19 +21,28 @@ const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
 const LIVE = join(FIXTURE, 'generated/specs/live');
 const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
+/** The stand-in judge of the fixture: most generated specs carry a judged criterion (#877), read by it. */
+const JUDGE = [
+  '--judge',
+  'claude:haiku',
+  '--judge-command',
+  join(FIXTURE, 'live/fake/judge.cjs'),
+  '--judge-budget',
+  '1',
+];
 const STATES = join(FIXTURE, 'live/states/library.json');
 const ROUTE = 'route.route-planner.an-ask-that-fits-route-planner';
 /** Specs that name no route-planner atom and pass on the original. */
 const CONTROLS = [
   'estate.pairwise.0333',
-  'estate.pairwise.0588',
-  'estate.pairwise.0832',
-  'estate.pairwise.0885',
+  'estate.pairwise.0001',
+  'estate.pairwise.0024',
+  'estate.pairwise.0002',
 ];
 /** A control the test links to the route, wrongly: the deletion must refute it. */
 const WRONG = 'estate.pairwise.0333';
 /** A spec of the route whose link the test removes: its flip must show up as unlinked. */
-const SILENT = 'estate.pairwise.0011';
+const SILENT = 'estate.pairwise.0053';
 
 async function cli(argv: string[]) {
   const output = { out: '', err: '' };
@@ -210,6 +219,7 @@ describe('estate prove on the planted agent', () => {
         '--states',
         STATES,
         '--json',
+        ...JUDGE,
         ...pin,
       ]);
     const original = await run(FIXTURE, 'original.db', ['--map', MAP]);

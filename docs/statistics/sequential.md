@@ -2,7 +2,7 @@
 
 This page defines the mean of e-values, the rule that combines them under any dependence. It follows the conventions of [statistics capabilities](capabilities.md): the `RangeError` rules, the accuracy of 1e-11.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `eValueAverage` exists in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 ## E-values
 

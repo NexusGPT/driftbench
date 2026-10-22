@@ -85,8 +85,8 @@ estates.
 Each command has its own topic with every option and its default. The usage lines:
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -127,10 +127,10 @@ live runs (section 6), coverage (section 7) and maintenance (section 8).
 ## Worked example
 
 The whole loop on the Northwind estate, in a scratch folder, with no model call. The scan reads the
-recorded model answers in `answers.yaml`; the plan used for generation is a small hand plan of 37 rows.
+recorded labels in `cassette.jsonl` (the pointer reader, no key and no network); the plan used for generation is a small hand plan of 35 rows.
 
 ```sh
-driftbench estate scan examples/estates/fixture --replay examples/estates/fixture/answers.yaml --out map.yaml
+driftbench estate scan examples/estates/fixture --pointer --cassette examples/estates/fixture/cassette.jsonl --out map.yaml # exit 1
 driftbench estate lint map.yaml # exit 1
 driftbench estate approve map.yaml --all
 driftbench estate plan map.yaml --out plan.yaml
@@ -145,18 +145,17 @@ driftbench estate stats --map examples/estates/fixture/approved.yaml --plan pack
 The first lines of each output (each command has the whole of its output in its own topic):
 
 ```text
-Wrote map.yaml: 125 atoms (68 read by code and approved, 57 split from prose by the model and waiting for approval), 54 edges.
-map.yaml: estate at examples/estates/fixture, 125 atoms.
-  ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
-6 findings.
-Approved 57 atoms in map.yaml; 68 were already approved.
-Wrote plan.yaml: 1568 rows (361 from the contract, 10 journeys, 1197 pairwise), all proposed. Summary in plan.summary.json.
-Approved 1568 rows in plan.yaml; 0 were already approved.
-Map ../examples/estates/fixture/approved.yaml (claude-code), hash be2e7a0919cb: 125 atoms.
-Wrote 51 files to suite.
+Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
+map.yaml: estate at examples/estates/fixture, 127 atoms.
+7 findings.
+Approved 79 atoms in map.yaml; 47 were already approved.
+Wrote plan.yaml: 1076 rows (386 from the contract, 10 journeys, 680 pairwise), all proposed. Summary in plan.summary.json.
+Approved 1060 rows in plan.yaml; 0 were already approved.
+Map ../examples/estates/fixture/approved.yaml (claude-code), hash 1a4e0056ecdc: 127 atoms.
+Wrote 46 files to suite.
 ✗ estate.p32  guard_paths_anchored does not hold: {"unanchored":["python3 .claude/guards/ledger-guard.py"]}
-Recorded 5 unit tests (sandbox: sandbox-exec); 0 have no fixture.
-5 of 5 unit tests pass, 0 fail, 0 inert, 0 unrecorded (sandbox: sandbox-exec).
+Recorded 4 unit tests (sandbox: sandbox-exec); 0 have no fixture.
+4 of 4 unit tests pass, 0 fail, 0 inert, 0 unrecorded (sandbox: sandbox-exec).
 Kind  atoms  tested  enforced
 ```
 

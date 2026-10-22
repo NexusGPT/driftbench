@@ -33,6 +33,12 @@ export type StreamResult = {
   durationMs?: number;
   costUsd?: number;
   usage?: { inputTokens: number; outputTokens: number };
+  /**
+   * Why a stand-in runtime ran no turn, when it says so: the record's `not_run` (`check`, `expected`, `got`). The
+   * Claude Code runtime writes no such field; the fixture's stand-in writes it when it cannot resolve what the
+   * estate asks of it.
+   */
+  notRun?: { check: string; expected: string; got: string };
 };
 
 export type ParsedStream = {
@@ -77,6 +83,15 @@ export function parseStream(text: string): ParsedStream {
   return out;
 }
 
+/** The typed reason a stand-in gives for a turn it did not run, when every field is a string. */
+function notRunOf(value: unknown): { notRun: NonNullable<StreamResult['notRun']> } | Record<string, never> {
+  if (!isRecord(value)) return {};
+  const { check, expected, got } = value;
+  return typeof check === 'string' && typeof expected === 'string' && typeof got === 'string'
+    ? { notRun: { check, expected, got } }
+    : {};
+}
+
 function resultOf(record: Record<string, unknown>): StreamResult {
   const usage = isRecord(record.usage) ? record.usage : undefined;
   const subtype = stringField(record, 'subtype');
@@ -85,6 +100,7 @@ function resultOf(record: Record<string, unknown>): StreamResult {
     ...(subtype === undefined ? {} : { subtype }),
     isError: record.is_error === true || (subtype !== undefined && subtype !== 'success'),
     ...(text === undefined ? {} : { text }),
+    ...notRunOf(record.not_run),
     ...(typeof record.num_turns === 'number' ? { numTurns: record.num_turns } : {}),
     ...(typeof record.duration_ms === 'number' ? { durationMs: record.duration_ms } : {}),
     ...(typeof record.total_cost_usd === 'number' && record.total_cost_usd >= 0
