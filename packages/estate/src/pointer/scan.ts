@@ -795,12 +795,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
     const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
     if (tied.length === 0) continue;
-    // Two voices in step at least; while a unit of the window still ties, up to SPLIT_REASK_MAX; a re-ask that slips
-    // is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
+    // Two voices in step at least; while a unit of the window still ties, two more, up to SPLIT_REASK_MAX; a re-ask
+    // that slips is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
     let voices = 0;
     for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
       const stillTied = task.window.units.some((unit) => tiedSplit(runs, unit.index, task.set));
-      if (voices >= SPLIT_REASK_RUNS && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
+      // Voices come in pairs, so one extra voice never breaks a tie on its own.
+      if (voices >= SPLIT_REASK_RUNS && voices % 2 === 0 && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
       const extra = (spent.get(where) ?? 0) + 1;
       spent.set(where, extra);
       const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
