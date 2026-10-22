@@ -119,18 +119,21 @@ describeSpec('specs/hello.yaml', functionAdapter({ respond, deterministic: true 
 - `node_modules/.bin/vitest run agent.test.ts`: runs the tests of one file once and exits · `run` runs once and does not watch for changes. `agent.test.ts` keeps vitest to that file. In your own project, type `npx vitest run` · it prints one line per test file, a count, and exits 0 when every test passes.
 - `--config vitest.config.mjs`: the config file of step 1, so that vitest reads the clone's packages · the value is the file · it changes only where packages come from.
 
-**You type.**
+**You type.** The output is trimmed to its stable lines. Vitest also prints a version, timings and a clock:
 
 ```console
 $ node_modules/.bin/vitest run agent.test.ts --config vitest.config.mjs
-ZZZ-learn-output
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
 ```
 
-**How to read it.** ZZZ
+**How to read it.** The spec has one block, so vitest ran one test and it passed. With five blocks you would see five tests under the name of the spec. Vitest names each test `block <n>`, then the block id when it has one, then the start of the user message. The spec ran once, when the first test started. Each test then reports its own block.
 
 **If it goes wrong.**
 
-- ZZZ
+- Vitest cannot find a package, or finds no test: the links of step 1 are missing. Check that `node_modules` and `vitest.config.mjs` sit in the folder you run from.
+- One failing test with the name of the file and a list of errors: the spec is not valid. The test lists each error. Fix the key it names, or check the spec with `driftbench spec validate specs`.
+- A test is skipped, with a reason that starts `block 0 was not run`: the agent could not take that block. A skipped block is no pass and no failure of the agent.
 
 ## 4. Make the test fail and read why
 
@@ -162,14 +165,25 @@ describeSpec('specs/farewell.yaml', functionAdapter({ respond, deterministic: tr
 
 ```console
 $ node_modules/.bin/vitest run farewell.test.ts --config vitest.config.mjs   # exit 1
-ZZZ-learn-output
+   ❯ vt-farewell (1)
+ FAIL  farewell.test.ts > vt-farewell > block 0: Thanks, that is all.
+Error: block 0 failed
+  must.0 fail: /farewell/ is missing; closest span "Hell", differs by 5 characters; visible text "Hello from Acme. You said: Thanks, that is all."
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
 ```
 
-**How to read it.** ZZZ
+**How to read it.** The failing test carries the block, the check and its evidence.
+
+- `FAIL  farewell.test.ts > vt-farewell > block 0` names the file, the spec id and the block.
+- `must.0` is the check that failed: the first pattern of `must`.
+- The evidence says which pattern is missing and shows the text the check read.
+- Vitest exits 1, so a build that runs it fails, as with any other failing test.
 
 **If it goes wrong.**
 
-- ZZZ
+- The test passes: the agent now says `farewell`. Restore the agent text of step 2.
+- The failure message shows a check you did not expect: the spec lists more `expect` keys than you think. Read the spec, and the [check reference](../reference/checks.md) for what each key does.
 
 ## 5. How this differs from `campaign run`
 
@@ -193,7 +207,7 @@ $ driftbench campaign run specs/hello.yaml --target function:acme-sales
 | The agent | an adapter you build in code, so any function or object | a target named on the command line |
 | One run holds | one spec, one agent, one run | many specs, targets, modes and repeats |
 | The report | one vitest test per block, with the evidence of a failure | one line per cell, a stored campaign, a scorecard and statistics |
-| Judges | the machine checks only, unless you pass a judge in `checks` | machine checks and judges, with `--judge` |
+| Judges | the machine checks, unless you pass checks built with a judge council | machine checks and judges, with `--judge` |
 | Use it for | a fast pass or fail on every commit | a measured rate, a comparison between two versions |
 
 Use vitest when you want the spec to fail the build like any unit test. Use `campaign run` when you want rates with an interval, repeats or a scorecard.
