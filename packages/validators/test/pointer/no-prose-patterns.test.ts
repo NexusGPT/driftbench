@@ -68,7 +68,6 @@ const REASON = {
     'field names of the entries, links, requests or cassette lines of the READER that the item reads or alters, not prose',
   REQBODY:
     'example names in a request body the READER sent to the labeller, whose lines the item wrote itself; it reads no generated prose',
-  ERRNAMES: "names the item looks for in the READER's error message about a field it planted, not prose",
   VOTES: 'label votes handed to the stack function under test as its input, not prose',
   TABLE: 'link states and change names a blind case table declares, not prose',
   STDIO: 'stdio mode names of a child process spawn, not prose',
@@ -252,18 +251,6 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/hardening-bugs-d.ts',
-    anchor: 'm',
-    expr: '/differs in:?\\s*([^;]*)/',
-    reason: 'reads the field list of an error message the READER wrote, not prose',
-  },
-  {
-    file: 'bank/families/hardening-bugs-d.ts',
-    anchor: 'fieldsNamed',
-    expr: '(m[1] as string).split(/[,\\s]+/)',
-    reason: 'splits the field list of an error message the READER wrote, not prose',
-  },
-  {
-    file: 'bank/families/hardening-bugs-d.ts',
     anchor: 'at',
     expr: "line.startsWith(' description: ')",
     reason: 'finds the description lines of a YAML fixture the item wrote itself, not prose',
@@ -271,7 +258,7 @@ const ALLOWED: Allowance[] = [
   {
     file: 'bank/families/hardening-bugs-d.ts',
     anchor: 'miss-nearest-same-labeler',
-    expr: "fieldsNamed(edited.res.error).includes('setHash')",
+    expr: "fieldsNamed(edited.res).includes('setHash')",
     reason:
       "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
@@ -664,12 +651,6 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/replay.ts',
-    anchor: 'namesToken',
-    expr: 'new RegExp(`(^|[^A-Za-z0-9_-])${escaped(token)}($|[^A-Za-z0-9_-])`)',
-    reason: 'finds a token (a field name) whole in the error message the READER wrote, not prose',
-  },
-  {
-    file: 'bank/families/replay.ts',
     anchor: 'yaml',
     expr: "yaml.replace( 'A unit that tells the reader what to do.', 'A unit that tells the reader what to do now.', )",
     reason:
@@ -711,13 +692,6 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/replay.ts',
-    anchor: 'miss-names-nearest-entry',
-    expr: "(res.error ?? '').includes('notes/b.md#1')",
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
-  },
-  {
-    file: 'bank/families/replay.ts',
     anchor: 'key-is-sha256-hex',
     expr: '/^[0-9a-f]{64}$/',
     reason: 'checks that the cassette keys the READER wrote are 64 hex characters, not prose',
@@ -735,13 +709,6 @@ const ALLOWED: Allowance[] = [
     anchor: 'leaked',
     expr: '/ZQ7-\\d+-NOTE/',
     reason: 'searches the cassette the READER wrote for the planted note marker, not prose',
-  },
-  {
-    file: 'bank/families/replay.ts',
-    anchor: 'fresh-replay-needs-all-entries',
-    expr: '/window|#\\d/i',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
   {
     file: 'bank/harness-probe.ts',
@@ -1490,51 +1457,39 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/replay.ts',
-    anchor: 'miss-names-new-file',
-    expr: "['part.user', 'file', 'path', 'window']",
-    reason: REASON.ERRNAMES,
-  },
-  {
-    file: 'bank/families/replay.ts',
     anchor: 'miss-names-labeler',
     expr: "['haiku', 'jev']",
     reason: REASON.ARMS,
   },
   {
     file: 'bank/families/replay.ts',
-    anchor: 'miss-names-set-name',
-    expr: "[ 'setName', 'set', ]",
-    reason: REASON.ERRNAMES,
-  },
-  {
-    file: 'bank/families/replay.ts',
     anchor: 'want',
     expr: "['file', 'path']",
-    reason: REASON.ERRNAMES,
+    reason: REASON.FIELDS,
   },
   {
     file: 'bank/families/replay.ts',
     anchor: 'want',
     expr: "['promptversion', 'prompt']",
-    reason: REASON.ERRNAMES,
+    reason: REASON.FIELDS,
   },
   {
     file: 'bank/families/replay.ts',
     anchor: 'want',
     expr: "['schemaversion', 'schema']",
-    reason: REASON.ERRNAMES,
+    reason: REASON.FIELDS,
   },
   {
     file: 'bank/families/replay.ts',
     anchor: 'want',
     expr: "['setname', 'set']",
-    reason: REASON.ERRNAMES,
+    reason: REASON.FIELDS,
   },
   {
     file: 'bank/families/replay.ts',
     anchor: 'want',
     expr: "['labeler', 'labeller', 'model']",
-    reason: REASON.ERRNAMES,
+    reason: REASON.FIELDS,
   },
   {
     file: 'bank/families/replay.ts',
@@ -1547,12 +1502,6 @@ const ALLOWED: Allowance[] = [
     anchor: 'cassette-stored-answer',
     expr: "[...need, 'model', 'stop', 'usage']",
     reason: REASON.FIELDS,
-  },
-  {
-    file: 'bank/families/replay.ts',
-    anchor: 'one-cassette-per-arm',
-    expr: "['labeler', 'model']",
-    reason: REASON.ERRNAMES,
   },
   {
     file: 'bank/families/stack.ts',
@@ -1810,7 +1759,7 @@ const ALLOWED: Allowance[] = [
   {
     file: 'blind/bank/identity.ts',
     anchor: 'GRID_WORDS',
-    expr: "[ 'amber', 'basket', 'candle', 'drawer', 'ember', 'folder', 'garden', 'harbor', 'island', 'jacket', 'kettle', 'lantern', 'marble', 'napkin', 'orchard', 'pencil', 'quilt', 'ribbon', 'saddle', 'tablet', 'umbrella', 'window', 'yellow', 'zipper",
+    expr: "[ 'amber', 'basket', 'candle', 'drawer', 'ember', 'folder', 'garden', 'harbor', 'island', 'jacket', 'kettle', 'lantern', 'marble', 'napkin', 'orchard', 'pencil', 'quilt', 'ribbon', 'saddle', 'tablet', 'umbrella', 'window', 'yellow', 'zipper', 'brass', 'cedar', 'dusty', 'eager', 'faded', 'gentle', 'hollow', 'inner', 'jolly', 'keen', 'light', 'mossy', 'noble', 'outer', 'plain', 'quiet', 'rusty', 'silent', 'tidy', 'upper', 'woolen', 'young', 'zesty', 'crisp', 'bright', 'calm', 'dark', 'early', 'fresh', 'green', 'heavy', 'idle', 'late', 'mild', 'neat', 'open', ]",
     reason: REASON.VOCAB,
   },
   {
@@ -2413,7 +2362,7 @@ export function findingsOf(file: string, source: string): Finding[] {
       file,
       anchor: anchorOf(node),
       line: sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1,
-      text: node.getText(sf).replace(/\s+/g, ' ').slice(0, 240),
+      text: node.getText(sf).replace(/\s+/g, ' '),
       why,
     });
 
@@ -2806,6 +2755,25 @@ describe('no letter pattern on generated prose in the pointer bank', () => {
     expect(mismatches(at(file, 'want', site), [allowance])).toEqual([]);
     // An allowance whose site is gone matches nothing.
     expect(mismatches([], [allowance])).toHaveLength(1);
+  });
+
+  it('an allowance names the full expression: a change in the tail of a long one is a new site', () => {
+    const allowance = ALLOWED.find((a) => a.anchor === 'GRID_WORDS') as Allowance;
+    expect(allowance.expr.length).toBeGreaterThan(240);
+    const at = (expr: string) => findingsOf(allowance.file, `const GRID_WORDS = ${expr};`);
+    const hits = (found: Finding[]) => found.filter((f) => allowedBy(f).includes(allowance)).length;
+    const same = at(allowance.expr);
+    expect(same.map((f) => f.text)).toEqual([allowance.expr]);
+    expect(hits(same)).toBe(1);
+    // The same first 240 characters, a different last word: the allowance stops matching and the site is open.
+    const tail = allowance.expr.replace("'open', ]", "'never', ]");
+    expect(tail).not.toBe(allowance.expr);
+    expect(tail.slice(0, 240)).toBe(allowance.expr.slice(0, 240));
+    const changed = at(tail);
+    expect(changed).toHaveLength(1);
+    expect(hits(changed)).toBe(0);
+    expect(changed.filter((f) => allowedBy(f).length === 0)).toHaveLength(1);
+    expect(mismatches(changed, [allowance])).toHaveLength(1);
   });
 
   it('does not find the ordinary tests of names, numbers and ids', () => {

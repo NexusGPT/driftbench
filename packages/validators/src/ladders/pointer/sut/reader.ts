@@ -1,6 +1,7 @@
 import { parse as parseYaml } from 'yaml';
 import type {
   Atom,
+  CassetteMissView,
   CutResult,
   CutUnit,
   Diagnostic,
@@ -480,6 +481,19 @@ function fetchOf(
 
 /* ----- scan ----- */
 
+/** The structured fields of a thrown cassette miss (its properties, not its message), or nothing for another failure. */
+function missOf(cause: unknown): CassetteMissView | undefined {
+  if (!(cause instanceof Error) || cause.name !== 'CassetteMiss') return undefined;
+  const fields = cause as Error & Record<'key' | 'differs' | 'nearest' | 'labeler', unknown>;
+  if (typeof fields.key !== 'string' || !Array.isArray(fields.differs)) return undefined;
+  return {
+    key: fields.key,
+    differs: fields.differs.filter((field): field is string => typeof field === 'string'),
+    ...(typeof fields.nearest === 'string' ? { nearest: fields.nearest } : {}),
+    ...(typeof fields.labeler === 'string' ? { labeler: fields.labeler } : {}),
+  };
+}
+
 async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanResult> {
   const fail = (error: string): ScanResult => ({
     ok: false,
@@ -536,7 +550,11 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       ...(request.atoms ? { atoms: request.atoms } : {}),
     });
   } catch (cause) {
-    return fail(cause instanceof Error ? cause.message : String(cause));
+    const miss = missOf(cause);
+    return {
+      ...fail(cause instanceof Error ? cause.message : String(cause)),
+      ...(miss ? { miss } : {}),
+    };
   }
   const view = viewOf(reader, result.ledger, result.cuts);
   if (request.check && reader.checkLedger) {

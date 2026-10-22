@@ -1,6 +1,7 @@
 import { lineOf } from '../../../src/ladders/pointer/kit/compose';
 import type {
   Atom,
+  CassetteMissView,
   Diagnostic,
   LabelRequest,
   LedgerEntry,
@@ -364,7 +365,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             tally,
           );
           if ('abort' in outcome) {
-            return finish(fail(outcome.abort));
+            return finish(fail(outcome.abort, outcome.miss ? { miss: outcome.miss } : {}));
           }
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
           if (outcome.failed) {
@@ -666,7 +667,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   });
 }
 
-type Outcome = { abort: string } | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
+type Outcome = { abort: string; miss?: CassetteMissView } | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
 
 async function labelWindow(
   plan: WindowPlan,
@@ -714,7 +715,8 @@ async function labelWindow(
       // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
       return { abort: `the model call failed for ${plan.id}` };
     }
-    if (result.kind === 'error') return { abort: result.message };
+    if (result.kind === 'error')
+      return { abort: result.message, ...(result.miss ? { miss: result.miss } : {}) };
     if (result.kind === 'refused') {
       reason = result.reason;
       continue;

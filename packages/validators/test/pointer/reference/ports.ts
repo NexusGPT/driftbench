@@ -10,6 +10,7 @@ import {
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
 import type {
+  CassetteMissView,
   LabelAnswer,
   LabelEntry,
   ModelArm,
@@ -249,7 +250,7 @@ export const RETRY_NOTE =
 export type ModelResult =
   | { kind: 'answer'; answer: LabelAnswer; key: string }
   | { kind: 'refused'; reason: string }
-  | { kind: 'error'; message: string };
+  | { kind: 'error'; message: string; miss?: CassetteMissView };
 
 const HAIKU_URL = 'https://api.haiku.invalid/v1/messages';
 const JEV_URL = 'https://jev.invalid/v1/systemone';
@@ -385,7 +386,7 @@ export async function haiku(
   };
   const hit = ctx.cassette.entries.get(key);
   if (hit) {
-    if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+    if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id, want, hit.key);
     return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
   }
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
@@ -441,6 +442,9 @@ export async function haiku(
   return { kind: 'answer', answer: { labels: parsed.labels }, key };
 }
 
+/** The field names of the structured miss are the reader's: the legacy entry says `file` and `setName` for them. */
+const READER_FIELD: Record<string, string> = { file: 'path', setName: 'set' };
+
 function missError(
   ctx: ModelCtx,
   want: Omit<CassetteEntry, 'model' | 'stop_reason' | 'usage' | 'answer'>,
@@ -450,19 +454,27 @@ function missError(
     return {
       kind: 'error',
       message: `cassette miss for ${want.window} (${want.labeler}): the cassette holds no entry; differs in file, window`,
+      miss: { key: want.key, differs: [], labeler: want.labeler },
     };
   }
   const fields = differing({ ...near } as CassetteEntry, { ...want } as unknown as CassetteEntry);
   return {
     kind: 'error',
     message: `cassette miss for ${want.window} (${want.labeler}): the nearest entry is ${near.window}; it differs in ${fields.length > 0 ? fields.join(', ') : 'the request'}`,
+    miss: {
+      key: want.key,
+      differs: fields.map((field) => READER_FIELD[field] ?? field).sort(),
+      nearest: near.key,
+      labeler: want.labeler,
+    },
   };
 }
 
-function cutDigestError(window: string): ModelResult {
+function cutDigestError(window: string, want: { key: string; labeler: string }, nearest: string): ModelResult {
   return {
     kind: 'error',
     message: `cassette miss for ${window}: cutDigest differs from the recording; the cutter ran under Node ${process.versions.node} with ICU ${process.versions.icu}, so the cut may differ between environments`,
+    miss: { key: want.key, differs: ['cutDigest'], nearest, labeler: want.labeler },
   };
 }
 
@@ -515,7 +527,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
     let probabilities: Record<string, number>;
     const hit = ctx.cassette.entries.get(key);
     if (hit) {
-      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id, want, hit.key);
       probabilities = hit.answer.probabilities ?? {};
     } else if (ctx.cassette.mode === 'replay') {
       return missError(ctx, want);
@@ -634,7 +646,7 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
     let probabilities: Record<string, number>;
     const hit = ctx.cassette.entries.get(key);
     if (hit) {
-      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id, want, hit.key);
       probabilities = hit.answer.probabilities ?? {};
     } else if (ctx.cassette.mode === 'replay') {
       return missError(ctx, want);
@@ -729,7 +741,7 @@ async function userYesNo(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
   let probabilities: Record<string, number>;
   const hit = ctx.cassette.entries.get(key);
   if (hit) {
-    if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+    if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id, want, hit.key);
     probabilities = hit.answer.probabilities ?? {};
   } else if (ctx.cassette.mode === 'replay') {
     return missError(ctx, want);
@@ -1026,6 +1038,11 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           message: referenceBugsMiss.has('miss-omits-labeler-id')
             ? `cassette miss for ${window}: the cassette has no entry for the same file, window and set`
             : `cassette miss for ${window}: the cassette holds no entry of the labeler ${named} for the same file, window and set`,
+          miss: {
+            key,
+            differs: [],
+            ...(referenceBugsMiss.has('miss-omits-labeler-id') ? {} : { labeler: named }),
+          },
         };
       }
       const differs = differing(near);
@@ -1034,11 +1051,17 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
         return Promise.resolve({
           kind: 'error',
           message: `cassette miss for ${window}: nearest entry ${near.readable.window} differs in ${fields}${differs.includes('cutDigest') ? `; Node ${process.versions.node}, ICU ${process.versions.icu}` : ''}`,
+          miss: { key, differs, nearest: near.key, labeler: wire.labeler },
         });
       }
       first ??= hit;
     }
-    if (!first) return { kind: 'error', message: `cassette miss for ${window}: no run` };
+    if (!first)
+      return {
+        kind: 'error',
+        message: `cassette miss for ${window}: no run`,
+        miss: { key: lastKey, differs: [] },
+      };
     if (ctx.arm === 'haiku') {
       for (const label of first.answer.labels ?? [])
         labels.push({ ...label, units: String(Number(label.units) + offset) });

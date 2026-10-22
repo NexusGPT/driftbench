@@ -194,10 +194,24 @@ export type Atom = {
 
 export type Diagnostic = { code: string; unit?: string; window?: string; detail: string };
 
+/**
+ * The structured fields of a cassette miss, as the reader raises them (the product's `CassetteMiss`): the key of
+ * the request, the names of the readable fields that differ from the nearest entry, that entry's key, and the id
+ * of the labeler the request carries. Items read these, never the words of the failure message.
+ */
+export type CassetteMissView = {
+  key: string;
+  differs: string[];
+  nearest?: string;
+  labeler?: string;
+};
+
 export type ScanResult = {
   ok: boolean;
   /** The failure message when `ok` is false. */
   error?: string;
+  /** Set when the scan failed on a cassette miss in replay: the miss as structured fields. */
+  miss?: CassetteMissView;
   /** Absent when the reader does not expose warnings. */
   warnings?: string[];
   ledger?: LedgerView;
