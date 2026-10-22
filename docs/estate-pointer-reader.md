@@ -221,6 +221,7 @@ This section states the product contract formerly described by the research `STA
 - System 2 supplies three independent runs on the same window. Below the cut, all three votes must be present, valid members of the label set, and equal. Their unanimous label is accepted even when it differs from system 1. Otherwise the unit is unsure and goes to a person. An empty or undeclared label is never accepted.
 - `requireAgreement` defaults to false. When true, every accepted unit, including an above-cut unit, must also have three valid equal system-2 votes matching its system-1 label. Accepted units are therefore a subset of the ordinary accepted set.
 - A missing or malformed system-2 run counts against unanimity. A system-1 call retries once; a second failure routes its units below the cut. Changing one unit's opinions changes only that unit's route or decision.
+- `margin(probabilities)` refuses a vector that is not a vector (a probability outside 0 to 1, not a number, or a total off by more than 0.01) by throwing. `stackDecision({probabilities, system1Label?, system2Votes, marginCut, requireAgreement?})` applies the rules above to one unit and returns `{label, by}` or nothing, from that unit's opinions only. A system 2 labeler used alone is asked `runs` times when the caller sets it (the validator arms set one).
 - Both classes can be replaced by user labelers. A system-1 replacement supplies probabilities; a system-2 replacement supplies three independent votes. These are product requirements, not behavior the validator adapter implements.
 
 ### System 1 settings (measured, section 10a)
@@ -245,7 +246,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 
@@ -570,6 +571,7 @@ The current API uses `buildLabelling` for configured model clients, `singleLabel
 Optional observation extensions have these shapes:
 
 - `pointerScan` may expose `eventsById: Record<string, string>` and `warnings: string[]`. Its existing `events` remains the aggregate event-count map.
+- `pointerScan` also lists `failedWindows` (window, set, labeler, reason), `unlabeledUnits` (unit id, set) and `flips` (unit id, set, from, to), and the adapter turns them into diagnostics `failed-window`, `unlabeled` and `label_flip`.
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.
