@@ -198,6 +198,52 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(result.pointer?.atomRefusals).toEqual([]);
   });
 
+  it('lets a unit that states its own limit give it to its atom in another set', async () => {
+    const two = `${SET.replace(/ {6}- name: bound[\s\S]*$/, '')}  - set: bounds
+    description: The numbers of the harbour notes.
+    links:
+      - name: limit
+        description: A number the unit sets, with how a quantity is compared with it.
+        values: [lt, le, gt, ge]
+        number: true
+    labels:
+      - name: own
+        description: A unit that is an instruction and states a number that limits it.
+        links: [limit]
+`;
+    const parsed = pointer.parseLabelSets(two);
+    if (!parsed.ok) throw new Error(parsed.message);
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Warn the skipper within five minutes', ''].join('\n'),
+    });
+    const labeler = plantedDense((window, set) => {
+      if (window.path !== 'CLAUDE.md') return [{ units: `1-${window.units.length}`, label: 'none' }];
+      return set.set === 'duty'
+        ? [
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'order' },
+          ]
+        : ([
+            { units: '1', label: 'none' },
+            { units: '2', label: 'own', links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+          ] as pointer.Labelled[]);
+    });
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: parsed.sets,
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    expect(atomOf(result, 'Warn the skipper within five minutes')?.fields?.condition).toEqual([
+      { limit: 5, comparison: 'le', unit: 'minutes' },
+    ]);
+  });
+
   it('puts no condition on a unit that gave no limit', async () => {
     const result = await play(undefined);
     expect(atomOf(result, 'Close the gate at dusk')?.fields).not.toHaveProperty('condition');
