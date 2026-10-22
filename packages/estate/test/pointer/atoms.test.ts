@@ -102,6 +102,12 @@ async function scan(
 }
 
 describe('atoms from labels', () => {
+  it('records the headings above the unit as the section of its atom', async () => {
+    const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'order' }] });
+    const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+    expect(atom?.fields?.section).toEqual(['Harbour office']);
+  });
+
   it('builds each atom from the file itself, with the kind and polarity of its label', async () => {
     // Units of CLAUDE.md: 1 heading, 2 sentence, 3-5 items (lamp, language, gate).
     const { result, root } = await scan({
