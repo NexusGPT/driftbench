@@ -337,6 +337,34 @@ export function expandUnits(units: string): number[] | undefined {
   return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
 }
 
+/**
+ * Splits an answer into the entries that stand and the labels it put on shown lines alone (read, context, opaque),
+ * which a window never asks about. An entry that names a unit besides stands; a `none` on shown lines stands too,
+ * the check ignores it; so does a label outside `known` (when given), which the check refuses. `dropped` lists each dropped line with the label it was given.
+ */
+export function shownLabelDrops(
+  window: Window,
+  answer: readonly Labelled[],
+  known?: ReadonlySet<string>,
+): { labels: Labelled[]; dropped: Array<{ line: number; label: string }> } {
+  const shown = new Set((window.display ?? []).map((line) => line.n));
+  const labels: Labelled[] = [];
+  const dropped: Array<{ line: number; label: string }> = [];
+  for (const entry of answer) {
+    const named = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    if (
+      entry.label !== 'none' &&
+      (known === undefined || known.has(entry.label)) &&
+      named &&
+      named.length > 0 &&
+      named.every((n) => shown.has(n))
+    ) {
+      for (const line of named) dropped.push({ line, label: entry.label });
+    } else labels.push(entry);
+  }
+  return { labels, dropped };
+}
+
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
   accepted: Map<number, { label: string; target?: number; spans?: SpanAnswer[]; links?: LinkAnswer[] }>;
@@ -361,8 +389,10 @@ export function checkAnswer(
 ): Checked {
   const allowed = new Map(set.labels.map((label) => [label.name, label]));
   const inWindow = new Set(window.units.map((unit) => unit.n));
+  const shown = new Set((window.display ?? []).map((line) => line.n));
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
+  const seenEntries = new Set<string>();
   const refusals: string[] = [];
   const invalid: string[] = [];
   const refuse = (reason: string) => {
@@ -373,24 +403,39 @@ export function checkAnswer(
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse(`${window.id}: label-not-in-set (${set.set})`);
       continue;
     }
-    const numbers = expandUnits(entry.units);
-    if (!numbers) {
-      refuse(`${window.id}: "${entry.units}" is no unit number or range`);
+    const named = expandUnits(entry.units);
+    if (!named) {
+      refuse(`${window.id}: units-not-a-number-or-range`);
       continue;
     }
-    if (numbers.some((n) => !inWindow.has(n))) {
+    // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
+    // are dropped. A number that is neither a unit nor a shown line of this window refuses the entry.
+    if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {
       refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
+    const numbers = named.filter((n) => inWindow.has(n));
+    // An entry that names only shown lines has nothing to label. Called none, it is dropped and the answer stands; a
+    // label on a line the window did not ask about is a wrong answer, refused as a whole.
+    if (numbers.length === 0) {
+      if (entry.label === 'none') continue;
+      refuse(`${window.id}: "${entry.units}" names a line that is not labelable`);
+      continue;
+    }
+    // An entry written twice, the same units and the same label, adds nothing: the first stands. A unit named again
+    // inside a range, or with another label, is a unit named twice and is refused below.
+    const written = JSON.stringify([entry.units.trim(), entry.label, entry.target ?? null]);
+    if (seenEntries.has(written)) continue;
+    seenEntries.add(written);
     if (numbers.some((n) => covered.has(n))) {
       refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refuse(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse(`${window.id}: target-not-a-number`);
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
