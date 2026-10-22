@@ -144,13 +144,14 @@ Each block of a run holds `observed` (what the agent did) and `verdicts` (what t
 |---|---|
 | `segments` | What the agent produced, in order. A segment has a `type`: `text` (`text`), `tool_call` (`id`, `label`, `input`), `tool_result` (`id`, `label`, `output`, `error`) or `card` (`name`, `data`). Each may carry `latencyMs` and a `cost`. |
 | `text` | The reply text. |
-| `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`. |
+| `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`, and for a call a helper made, `actor` (`helper`) and `parentCallId` (the id of the Agent call that began the helper). |
+| `helperCalls` | The calls the helpers made, in the same form as `toolCalls`, each with `actor: helper` and `parentCallId`. Absent when the adapter records none. |
 | `runtime` | What the runtime did around the model, below. Optional. |
 | `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
 | `workspaceDiff` | What changed in the workspace during the block, as three lists of paths: `created`, `changed` and `deleted`. |
 | `executions` | One record per command the agent ran, below. |
 | `sandbox` | The sandbox of the block, when the adapter owns one: `kind`, `isolation` (`strong` or `weak`; reports say weak isolation from this field) and `root` (where it sits, optional). |
-| `cost` | `model` (the pricing key), `inputTokens`, `outputTokens`, `cachedInputTokens` (cache reads, already counted in `inputTokens`) and `usd`. Each is optional. |
+| `cost` | `model` (the pricing key), `inputTokens`, `outputTokens`, `cachedInputTokens` (cache reads, already counted in `inputTokens`), `usd`, and `helperInputTokens` and `helperOutputTokens` (the tokens the helpers used, apart from the agent's own). Each is optional. |
 | `latencyMs` | The time the block took. |
 | `retries` | Every retry the calls of the block took, the adapter's own and the runner's, in order: `call` (which call), `attempt` (the attempt that failed, from 1), `status`, `reason`, `delayMs`, `retryAfterMs` (what the server's Retry-After asked, when it sent one) and `at`. Absent when none. |
 | `historyNormalizations` | A history turn a wire serializer left out because its text was empty: `wire` (such as `anthropic` or `google`), `historyIndex` (the turn's zero-based index in the history sent for this block, system messages included), `role` and `kind` (always `omitted-empty-turn`; no placeholder text replaces the turn). Absent when nothing was omitted. |
