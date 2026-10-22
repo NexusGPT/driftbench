@@ -2,6 +2,7 @@ import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   AGENT_RULES_SET,
+  anchorUnits,
   createAnthropicLabeler,
   DENSE_SYSTEM,
   denseLabels,
@@ -458,5 +459,52 @@ describe('the dense request for a set with spans and links', () => {
       spans: [{ kind: 'clause', from: 0, to: 4, polarity: 'obligation' }],
       links: [{ kind: 'topic', to: 'route.a' }],
     });
+  });
+});
+
+describe('the anchor of an entry, read against the window', () => {
+  const window = {
+    id: 'CLAUDE.md#1',
+    path: 'CLAUDE.md',
+    headingPath: ['Rules'],
+    units: [
+      { n: 1, index: 0, text: '**R13.** Before you dispatch a helper agent, write its brief.' },
+      { n: 2, index: 1, text: '**R14.** Do not commit to git until you have read `git status`.' },
+      { n: 3, index: 2, text: '**R15.** After a compaction, re-read this file.' },
+      { n: 4, index: 3, text: 'Fill the template in this order.' },
+    ],
+  };
+  const anchored = (units: string, anchor?: string) =>
+    anchorUnits([{ units, label: 'rule', ...(anchor === undefined ? {} : { anchor }) }], window)[0];
+
+  it('is 0 when the first unit the entry names starts with it, past a rule number', () => {
+    expect(anchored('2', 'Do not commit')).toEqual({ units: '2', label: 'rule', anchored: 0 });
+    expect(anchored('1-2', 'R13 Before you')).toEqual({ units: '1-2', label: 'rule', anchored: 0 });
+  });
+
+  it('counts the lines to the unit it starts when the number slipped, either way', () => {
+    // As R14 of the Northwind fixture: the reading of R13 put on R14's number.
+    expect(anchored('2', 'Before you dispatch')?.anchored).toBe(-1);
+    expect(anchored('1', 'Do not commit')?.anchored).toBe(1);
+    expect(anchored('1', 'Fill the template')?.anchored).toBe(3);
+  });
+
+  it('is null when it starts no line of the window', () => {
+    expect(anchored('2', 'Never paste secrets')?.anchored).toBeNull();
+  });
+
+  it('keeps no word of the anchor, and adds nothing to an entry with none', () => {
+    expect(anchored('2', 'Do not commit')).not.toHaveProperty('anchor');
+    expect(anchored('2')).toEqual({ units: '2', label: 'rule' });
+  });
+
+  it('is kept from the answer until the window reads it', () => {
+    expect(
+      parseDenseAnswer('{"labels": [{"units": "2", "label": "rule", "anchor": "Do not commit"}]}'),
+    ).toEqual([{ units: '2', label: 'rule', anchor: 'Do not commit' }]);
+  });
+
+  it('is asked for in the request, for an entry with a label other than none', () => {
+    expect(DENSE_SYSTEM).toContain('An entry with a label other than none also gives "anchor"');
   });
 });
