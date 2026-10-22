@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   AGENT_RULES_SET,
@@ -8,6 +9,7 @@ import {
   createOpenAiDecisionsLabeler,
   type Labelling,
   type LabelSet,
+  loadModuleLabeler,
   parseLabelSets,
   pointerAtoms,
   pointerScan,
@@ -22,11 +24,36 @@ import { plantedDense } from './support';
 // Invented text: a harbour office. Every comment holds a marker that must never leave in a request, in the
 // cassette a recording run writes, or in the id or title of an atom a request lists.
 
-const names = ['heading', 'inline', 'opaque', 'cell', 'item', 'splitone', 'splittwo', 'splitthree'];
+const names = [
+  'heading',
+  'inline',
+  'opaque',
+  'cell',
+  'item',
+  'splitone',
+  'splittwo',
+  'splitthree',
+  'mdalone1',
+  'mdalone2',
+  'mdalone3',
+  'mdpara1',
+  'mdpara2',
+  'mdpara3',
+  'mdlist',
+  'mdquote',
+];
 
 /** The text of a comment: a marker with characters a JSON body and a URL write differently. */
 const bodyOf = (name: string): string => `ZZSECRET${name.toUpperCase()}ZZ "quoted" a/b\\c`;
 const note = (name: string): string => `<!-- ${bodyOf(name)} -->`;
+
+/** The three Markdown comment forms: a link reference definition with a title in ( ), " " or ' ' marks. */
+const FORMS = [
+  (name: string): string => `[//]: # (${bodyOf(name)})`,
+  (name: string): string => `[//]: # "${bodyOf(name)}"`,
+  (name: string): string => `[comment]: <> (${bodyOf(name)})`,
+] as const;
+const md = (form: 0 | 1 | 2, name: string): string => FORMS[form](name);
 
 /** Every way the marker of a comment may be written in a request: raw, lower case (a slug), JSON, URL. */
 function needlesOf(name: string): string[] {
@@ -54,6 +81,30 @@ const HARBOUR = [
   `| Skiff | Tie up ${note('cell')} at the east quay. |`,
   '',
   `- Never leave the gate open ${note('item')}`,
+  '',
+  // A definition between two paragraphs is a block of its own, one of each form.
+  md(0, 'mdalone1'),
+  '',
+  md(1, 'mdalone2'),
+  '',
+  md(2, 'mdalone3'),
+  '',
+  // A definition on the line after a paragraph cannot interrupt it: the parser keeps it in the paragraph.
+  'Mind the tide.',
+  md(0, 'mdpara1'),
+  '',
+  'Mind the wind.',
+  md(1, 'mdpara2'),
+  '',
+  'Mind the swell.',
+  md(2, 'mdpara3'),
+  '',
+  // In a list item and in a block quote the definition follows the first line of the paragraph.
+  '- Check the rope.',
+  `  ${md(0, 'mdlist')}`,
+  '',
+  '> Check the net.',
+  `> ${md(1, 'mdquote')}`,
   '',
   'Lock the shed.',
   '',
@@ -159,8 +210,17 @@ const ANTHROPIC_REPLY = {
 
 type Member = { name: string; labelling: Labelling; sent: string[][] };
 
+const fixture = (name: string): string => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
+
+/** A list the fixture module fills with each request it is sent: the list is put where the module reads it. */
+function sinkAt(key: string): string[] {
+  const sink: string[] = [];
+  Reflect.set(globalThis, key, sink);
+  return sink;
+}
+
 /** Every labeler a request can leave by, each with the lists of what it sent. */
-function labelers(): Member[] {
+async function labelers(): Promise<Member[]> {
   const env = { JEV_API_KEY: 'k', JEV_URL: 'https://jev.example.test/v1', OPENAI_API_KEY: 'k' };
   const anthropic = recorder(ANTHROPIC_REPLY);
   const http2 = recorder({ labels: [] });
@@ -169,6 +229,11 @@ function labelers(): Member[] {
   const decisions = recorder({ answers: [] });
   const stackJev = recorder({ answers: {} });
   const stackAnthropic = recorder(ANTHROPIC_REPLY);
+  const moduleTwo = sinkAt('__pointerSeenTwo');
+  const moduleOne = sinkAt('__pointerSeenOne');
+  const cwd = fileURLToPath(new URL('.', import.meta.url));
+  const twoLabeler = await loadModuleLabeler(fixture('recording-labeler.mjs'), { cwd });
+  const oneLabeler = await loadModuleLabeler(fixture('recording-labeler-one.mjs'), { cwd });
   return [
     {
       name: 'anthropic',
@@ -216,6 +281,8 @@ function labelers(): Member[] {
       ),
       sent: [decisions.sent],
     },
+    { name: 'module system 2', labelling: singleLabelling(twoLabeler), sent: [moduleTwo] },
+    { name: 'module system 1', labelling: singleLabelling(oneLabeler), sent: [moduleOne] },
     {
       name: 'stack jev + anthropic',
       labelling: stackedLabelling(
@@ -240,7 +307,7 @@ describe('no comment text leaves in any request of any shipped label set', () =>
       const found: string[] = [];
       let requests = 0;
       for (const { name: setName, sets } of SHIPPED) {
-        for (const member of labelers()) {
+        for (const member of await labelers()) {
           const cassette = new Cassette();
           await pointerScan({ files, sets, labelling: member.labelling, cassette, mode: 'record', atoms });
           const outgoing = member.sent.flat();
@@ -262,7 +329,7 @@ describe('no comment text leaves in any request of any shipped label set', () =>
       }
       expect(found).toEqual([]);
       // Every set was asked of every labeler: the check above looked at requests, not at an empty list.
-      expect(requests).toBeGreaterThanOrEqual(SHIPPED.length * 6);
+      expect(requests).toBeGreaterThanOrEqual(SHIPPED.length * 8);
     });
   }
 });

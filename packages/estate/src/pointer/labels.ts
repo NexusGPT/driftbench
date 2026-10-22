@@ -632,13 +632,10 @@ export function flatten(text: string): { text: string; at: number[] } {
 /** What a request carries in place of a comment inside a unit. */
 export const COMMENT_MARKER = '(comment)';
 
-/**
- * The comments of a text as [from, to) offsets: `<!--` up to and with the next `-->`, or up to the end of the
- * text when it never closes. A comment opened inside a `skip` range (a fence) is not one. Line endings do not matter.
- */
-export function commentRanges(
+/** The `<!--` comments of a text as [from, to) offsets: up to and with the next `-->`, or to the end of the text. */
+function htmlCommentRanges(
   text: string,
-  skip: ReadonlyArray<readonly [number, number]> = [],
+  skip: ReadonlyArray<readonly [number, number]>,
 ): Array<[number, number]> {
   const ranges: Array<[number, number]> = [];
   let at = 0;
@@ -655,6 +652,126 @@ export function commentRanges(
     ranges.push([open, end]);
     at = end;
   }
+}
+
+// The structure of a Markdown comment, a link reference definition used to hide a note. These read the shape of
+// the markup, never the words of a sentence: a list marker, the label `//` or `comment` in any case, the
+// destination `#` or `<>`, and a line break.
+const LIST_MARK = /(?:[-+*]|\d{1,9}[.)])[ \t]/y;
+const LABEL = /\[[ \t]*(?:\/\/|comment)[ \t]*\]:/iy;
+const DESTINATION = /#|<>/y;
+const LINE_BREAK = /\r\n|\n|\r/y;
+const BLANK_LINE = /(?:\r\n|\n|\r(?!\n))[ \t]*(?:\r\n|\n|\r)/y;
+
+const matchAt = (pattern: RegExp, text: string, at: number): number => {
+  pattern.lastIndex = at;
+  const found = pattern.exec(text);
+  return found ? at + found[0].length : -1;
+};
+
+/** Where the line that holds `at` ends: the offset of its line break, or the end of the text. */
+function lineEndFrom(text: string, at: number): number {
+  let index = at;
+  while (index < text.length && text[index] !== '\n' && text[index] !== '\r') index++;
+  return index;
+}
+
+/** The offset after spaces and tabs. */
+function skipBlanks(text: string, at: number): number {
+  let index = at;
+  while (text[index] === ' ' || text[index] === '\t') index++;
+  return index;
+}
+
+/** The offset after spaces, at most one line break, and spaces: the gap a definition allows between its parts. */
+function skipGap(text: string, at: number): number {
+  const broke = matchAt(LINE_BREAK, text, skipBlanks(text, at));
+  return skipBlanks(text, broke < 0 ? at : broke);
+}
+
+/** The offset of the `[` of a definition that starts the line at `line` (after blanks, quote marks, list markers). */
+function labelAt(text: string, line: number): number {
+  let index = skipBlanks(text, line);
+  for (;;) {
+    const marked = text[index] === '>' ? index + 1 : matchAt(LIST_MARK, text, index);
+    if (marked < 0) return index;
+    index = skipBlanks(text, marked);
+  }
+}
+
+/** Where the title of the Markdown comment whose `[` is at `open` starts (its opening mark), or -1 when none. */
+function titleAt(text: string, open: number): number {
+  const label = matchAt(LABEL, text, open);
+  if (label < 0) return -1;
+  const destination = matchAt(DESTINATION, text, skipGap(text, label));
+  if (destination < 0) return -1;
+  const mark = skipGap(text, destination);
+  return text[mark] === '"' || text[mark] === "'" || text[mark] === '(' ? mark : -1;
+}
+
+/** Where a title opened at `mark` ends: the end of the line that closes it, or of its paragraph when it never does. */
+function titleEnd(text: string, mark: number): number {
+  const closer = text[mark] === '(' ? ')' : text[mark];
+  for (let index = mark + 1; index < text.length; index++) {
+    const char = text[index];
+    if (char === '\\') {
+      index++;
+    } else if (char === closer) {
+      return lineEndFrom(text, index);
+    } else if (matchAt(BLANK_LINE, text, index) >= 0) {
+      return index;
+    }
+  }
+  return text.length;
+}
+
+/**
+ * The Markdown comments of a text as [from, to) offsets: a link reference definition whose label is `//` or
+ * `comment` (any case) and whose destination is `#` or `<>`, with a title in `( )`, `" "` or `' '`, that starts a
+ * line (after white space, block quote marks and list markers). The range runs from the `[` to the end of the line
+ * that closes the title, whatever follows the closing mark on that line. A title may span lines; a backslash
+ * escapes the next character; a title that is never closed runs to the end of its paragraph (the line before the
+ * next blank line) or of the text. A definition with another label, or with no title, is not one.
+ */
+function markdownCommentRanges(
+  text: string,
+  skip: ReadonlyArray<readonly [number, number]>,
+): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  let line = 0;
+  while (line < text.length) {
+    let next = lineEndFrom(text, line);
+    const open = labelAt(text, line);
+    const mark = skip.some(([from, to]) => open >= from && open < to) ? -1 : titleAt(text, open);
+    if (mark >= 0) {
+      next = titleEnd(text, mark);
+      ranges.push([open, next]);
+    }
+    const broke = matchAt(LINE_BREAK, text, next);
+    line = broke < 0 ? text.length : broke;
+  }
+  return ranges;
+}
+
+/**
+ * The comments of a text as [from, to) offsets, sorted and apart: `<!--` up to and with the next `-->` (or up to
+ * the end of the text when it never closes), and the Markdown comments (`[//]: # (text)`, `[//]: # "text"`,
+ * `[comment]: <> (text)`, see `markdownCommentRanges`). Ranges that overlap are one. A comment opened inside a
+ * `skip` range (a fence) is not one. Line endings do not matter.
+ */
+export function commentRanges(
+  text: string,
+  skip: ReadonlyArray<readonly [number, number]> = [],
+): Array<[number, number]> {
+  const found = [...htmlCommentRanges(text, skip), ...markdownCommentRanges(text, skip)];
+  found.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const ranges: Array<[number, number]> = [];
+  for (const range of found) {
+    const last = ranges.at(-1);
+    if (last && range[0] < last[1]) last[1] = Math.max(last[1], range[1]);
+    else ranges.push([range[0], range[1]]);
+  }
+  return ranges;
 }
 
 /**
