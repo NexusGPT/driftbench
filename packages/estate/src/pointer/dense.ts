@@ -22,6 +22,9 @@ import {
   type Labelled,
   type LabelSet,
   offsetSpans,
+  requestPathOf,
+  requestShownOf,
+  shownIdOf,
   shownOf,
   type Window,
 } from './labels';
@@ -56,7 +59,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
     for (const kind of set.links) {
       lines.push(`- ${kind.name}: ${kind.description}`);
       for (const candidate of context.candidates?.[kind.name] ?? [])
-        lines.push(`    ${candidate.id}  ${candidate.label}`);
+        lines.push(`    ${shownIdOf(candidate)}  ${candidate.label}`);
     }
   }
   return lines;
@@ -98,7 +101,7 @@ export const RETRY_NOTE =
  */
 export function windowLines(window: Window): string[] {
   const shownAt = (after: number) =>
-    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(line.text));
+    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(requestShownOf(line)));
   return [
     ...shownAt(0),
     ...window.units.flatMap((unit, at) => [`[${unit.n}] ${shownOf(unit).text}`, ...shownAt(at + 1)]),
@@ -112,7 +115,7 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
     ...set.labels.map(labelLine),
     '- none: no label of this set applies.',
     ...spanLines(set, context),
-    `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
+    `WINDOW ${window.id}  path: ${requestPathOf(window).join(' > ') || '(top)'}`,
     ...windowLines(window),
   ].join('\n');
 }

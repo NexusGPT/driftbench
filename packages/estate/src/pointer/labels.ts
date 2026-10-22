@@ -271,10 +271,20 @@ export type SpanInput = { kind: string; polarity?: string } & (
 /** A link as answered: a kind and the id of a candidate atom (or `none`). */
 export type LinkAnswer = { kind: string; to: string };
 
+/**
+ * One atom a request lists for a labeler to point at. `id` is the atom's own id, which the answer is carried back
+ * to. `shown` is the id the request carries in its place when the real one holds words of a comment (an id is a
+ * slug of the atom's title); `label` is the title as a request may carry it.
+ */
+export type Candidate = { id: string; label: string; shown?: string };
+
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
-  candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+  candidates?: Readonly<Record<string, ReadonlyArray<Candidate>>>;
 };
+
+/** The id of a candidate as a request writes it, and as the labeler must answer it. */
+export const shownIdOf = (candidate: Candidate): string => candidate.shown ?? candidate.id;
 
 /** `5` or `5-7` as the numbers it names. */
 export function expandUnits(units: string): number[] | undefined {
@@ -449,6 +459,13 @@ export function requestTextOf(unit: Pick<WindowUnit, 'text' | 'comments'>): { te
   copyTo(unit.text.length);
   return { text, at };
 }
+
+/** The headings above a window as a request carries them: a comment in a title is replaced by `(comment)`. */
+export const requestPathOf = (window: Pick<Window, 'headingPath'>): string[] =>
+  window.headingPath.map((title) => requestTextOf({ text: title }).text);
+
+/** A display-only line of a window as a request carries it: a comment in it is replaced by `(comment)`. */
+export const requestShownOf = (line: ShownLine): string => requestTextOf({ text: line.text }).text;
 
 /** `flatten` of the request text of a unit; `at` carries an offset back to the unit's own text. */
 export function shownOf(unit: Pick<WindowUnit, 'text' | 'comments'>): { text: string; at: number[] } {
@@ -645,29 +662,29 @@ function checkExtras(
           out.dropped.push(`${where}: the target is an atom id or none`);
           continue;
         }
+        // The id a request listed (`shown`) is carried back to the atom's own id; a link keeps the real one.
+        const named =
+          link.to === 'none'
+            ? undefined
+            : (context.candidates?.[kind.name] ?? []).find((candidate) => shownIdOf(candidate) === link.to);
+        const target = named?.id ?? link.to;
         // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,
         // none, or a second value of a closed list is dropped.
         if (
           links.some(
             (other) =>
               other.kind === kind.name &&
-              (other.to === link.to ||
-                other.to === 'none' ||
-                link.to === 'none' ||
-                kind.values !== undefined),
+              (other.to === target || other.to === 'none' || link.to === 'none' || kind.values !== undefined),
           )
         ) {
           out.dropped.push(`${where}: the kind ${kind.name} is given twice`);
           continue;
         }
-        if (link.to !== 'none') {
-          const listed = context.candidates?.[kind.name] ?? [];
-          if (!listed.some((candidate) => candidate.id === link.to)) {
-            out.dropped.push(`${where}: ${link.to} is not an atom the request listed for ${kind.name}`);
-            continue;
-          }
+        if (link.to !== 'none' && !named) {
+          out.dropped.push(`${where}: ${link.to} is not an atom the request listed for ${kind.name}`);
+          continue;
         }
-        links.push({ kind: kind.name, to: link.to });
+        links.push({ kind: kind.name, to: target });
       }
       if (links.length > 0) out.links = links;
     }
