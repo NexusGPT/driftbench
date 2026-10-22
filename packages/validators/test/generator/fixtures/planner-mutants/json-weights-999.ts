@@ -1,4 +1,4 @@
-import { renderPlanV2 as nativeRender, planV2 } from '@agent-nexus/driftbench-generate';
+import { planV2, renderPlanV2 as nativeRender } from '@agent-nexus/driftbench-generate';
 
 export { planV2 };
 
