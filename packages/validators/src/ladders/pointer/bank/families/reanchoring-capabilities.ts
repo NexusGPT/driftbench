@@ -63,9 +63,7 @@ const two = (ctx: ItemContext) => {
 
 /** A table of short seeded cells, as composer blocks. */
 function tableOf(p: Prose, rows: number, cols: number): string[][] {
-  return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => p.next().replace(/\.$/, '')),
-  );
+  return Array.from({ length: rows }, () => Array.from({ length: cols }, () => p.next().replace(/\.$/, '')));
 }
 const tableFile = (path: string, header: string[], rows: string[][]): EstateFile => ({
   path,
@@ -101,7 +99,7 @@ export const reanchoringCapabilityRuns: Record<string, Run> = {
     const target = w.paths[1] as string;
     return rescan(
       ctx,
-      'a unit moved to another file and split in two',
+      'a unit moved to another file as two sentences',
       filesOf(v1),
       filesOf(v2),
       [parts.whole],

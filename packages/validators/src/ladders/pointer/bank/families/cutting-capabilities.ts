@@ -20,11 +20,16 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
     const p = prose(ctx);
     const head = headingText(p.random);
     const [a, c] = [p.next(), p.next()];
-    return plantedCut(ctx, 'the heading path of a footnote definition', `# ${head}\n\n${a}\n\n[^n1]: ${c}\n`, [
-      { text: `# ${head}`, container: 'heading', path: [] },
-      { text: a, container: 'sentence', path: [head] },
-      { text: c, container: 'sentence', path: [head, '[^n1]'] },
-    ]);
+    return plantedCut(
+      ctx,
+      'the heading path of a footnote definition',
+      `# ${head}\n\n${a}\n\n[^n1]: ${c}\n`,
+      [
+        { text: `# ${head}`, container: 'heading', path: [] },
+        { text: a, container: 'sentence', path: [head] },
+        { text: c, container: 'sentence', path: [head, '[^n1]'] },
+      ],
+    );
   },
   'footnote-definition-paragraphs': (ctx) => {
     const p = prose(ctx);
