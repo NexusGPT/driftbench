@@ -19,7 +19,8 @@ async function fixtureMap() {
 describe('kill.fake: a declared tool the settings already allow is an equivalent mutant, read from the map', () => {
   it('exempts the delete of a declared tool that a settings allow rule covers', async () => {
     const map = await fixtureMap();
-    // The skill declares Bash(python3 *) and the settings allow Bash(python3 *): the deletion changes nothing a run sees.
+    // The skill declares Bash(python3 *) (the quote of the atom; its rule field keeps the tool alone) and the settings
+    // allow Bash(python3 *): the deletion changes nothing a run sees.
     expect(equivalent(del, DECLARED_BASH, map)).toMatch(/settings allow/);
   });
 
@@ -58,6 +59,14 @@ describe('kill.fake: a declared tool the settings already allow is an equivalent
     });
     expect(equivalent(del, DECLARED_BASH, withAllow('Bash'))).toMatch(/settings allow/);
     expect(equivalent(del, DECLARED_BASH, withAllow('Bash(python3 scripts/*)'))).toBeUndefined();
+    // A declared tool with no pattern grants the whole tool: an allow rule on a pattern does not cover it.
+    const bare = {
+      ...map,
+      atoms: map.atoms.map((atom) =>
+        atom.id === DECLARED_BASH ? { ...atom, provenance: { ...atom.provenance, quote: 'Bash' } } : atom,
+      ),
+    };
+    expect(equivalent(del, DECLARED_BASH, bare)).toBeUndefined();
     expect(equivalent(del, DECLARED_BASH, withAllow('Edit'))).toBeUndefined();
   });
 });

@@ -192,7 +192,15 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
       : undefined;
   }
   if (atom.kind === 'tool' && atom.fields?.effect === 'declared') {
-    const rule = typeof atom.fields.rule === 'string' ? atom.fields.rule : undefined;
+    // The scan keeps the tool of a declared entry in `rule` and can drop its pattern (`Bash(python3 *)` is `Bash`): the
+    // entry as the skill wrote it is the quote of the atom, which names the same tool when it holds a pattern.
+    const written = parseRule(atom.provenance.quote);
+    const rule =
+      written && written.tool === atom.fields.tool
+        ? atom.provenance.quote.trim()
+        : typeof atom.fields.rule === 'string'
+          ? atom.fields.rule
+          : undefined;
     const granted = rule
       ? estate.atoms.find(
           (other) =>
