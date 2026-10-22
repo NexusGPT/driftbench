@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { checkLedger, cut, type Ledger, nextLedger, parseLedger, renderLedger } from '../../src/pointer';
+import {
+  carryOf,
+  checkLedger,
+  cut,
+  type Ledger,
+  nextLedger,
+  parseLedger,
+  recordLabel,
+  renderLedger,
+} from '../../src/pointer';
 
 // Invented files: a depot with crates and keepers.
 const depot = (extra = ''): string =>
@@ -137,5 +146,78 @@ describe('following a reworded unit', () => {
     expect(reword(64, 'A')).toBe(true);
     // Text similarity 0.30 is under the floor, whatever the context.
     expect(reword(36, 'A')).toBe(false);
+  });
+});
+
+describe('carrying labels to the next scan', () => {
+  const before = { fp: 'a', ctxFp: 'x', labels: { tone: 'curt', duty: 'none' } };
+
+  it('carries every label of an unchanged unit, none included', () => {
+    expect(carryOf(before, { fp: 'a', ctxFp: 'x' }, ['tone', 'duty'])).toEqual({
+      carried: [
+        { set: 'tone', label: 'curt' },
+        { set: 'duty', label: 'none' },
+      ],
+      dirty: [],
+    });
+  });
+
+  it('asks again for every set when the text or the context changed, and for a set it never had', () => {
+    for (const after of [
+      { fp: 'b', ctxFp: 'x' },
+      { fp: 'a', ctxFp: 'y' },
+    ]) {
+      expect(carryOf(before, after, ['tone', 'duty'])).toEqual({ carried: [], dirty: ['tone', 'duty'] });
+    }
+    expect(carryOf(before, { fp: 'a', ctxFp: 'x' }, ['tone', 'extra'])).toEqual({
+      carried: [{ set: 'tone', label: 'curt' }],
+      dirty: ['extra'],
+    });
+  });
+});
+
+describe('recording the label of one set', () => {
+  const label = (name: string) => ({ label: name, setHash: 'h', labeler: 'l', source: 'none' });
+
+  it('replaces one set and reports a flip when a selected label changes or stops', () => {
+    const entry = { id: 'u1', labels: { a: label('rule'), b: label('note') } };
+    expect(recordLabel(entry, 'a', label('rule'))).toBeUndefined();
+    expect(recordLabel(entry, 'a', label('none'))).toEqual({
+      unit: 'u1',
+      set: 'a',
+      from: 'rule',
+      to: 'none',
+    });
+    expect(entry.labels.b.label).toBe('note');
+    expect(recordLabel(entry, 'a', label('rule'))).toBeUndefined();
+    expect(recordLabel(entry, 'a', label('prohibition'))).toEqual({
+      unit: 'u1',
+      set: 'a',
+      from: 'rule',
+      to: 'prohibition',
+    });
+    expect(recordLabel(entry, 'b', undefined)).toEqual({ unit: 'u1', set: 'b', from: 'note' });
+    expect(Object.keys(entry.labels)).toEqual(['a']);
+  });
+});
+
+describe('a text that matches in several places', () => {
+  it('lists every place, and the id sits on the first', () => {
+    const text = 'Return every key before you leave the depot.';
+    const first = scan({ 'one.md': `${text}\n` });
+    const second = nextLedger(
+      [
+        { path: 'a.md', cut: cut(`${text}\n`), text: `${text}\n` },
+        { path: 'b.md', cut: cut(`${text}\n`), text: `${text}\n` },
+      ],
+      first.ledger,
+      'depot',
+    );
+    const [id] = first.ledger.entries.map((entry) => entry.id);
+    expect(second.eventsById[id as string]).toBe('ambiguous');
+    expect(second.candidates[id as string]).toEqual([
+      { path: 'a.md', quote: text },
+      { path: 'b.md', quote: text },
+    ]);
   });
 });

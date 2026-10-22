@@ -59,9 +59,11 @@ export {
   type WindowUnit,
 } from './labels';
 export {
+  carryOf,
   checkLedger,
   type Event,
   type FileCut,
+  keepsLabels,
   LADDER,
   type Ledger,
   type LedgerEntry,
@@ -72,6 +74,7 @@ export {
   type NextLedger,
   nextLedger,
   parseLedger,
+  recordLabel,
   renderLedger,
   unitKey,
 } from './ledger';
