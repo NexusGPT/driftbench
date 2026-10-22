@@ -167,7 +167,7 @@ export class CutError extends Error {
 }
 
 /** The deepest nesting of list items and block quotes by their markers, outside fences, in one pass. */
-function nestingOf(source: string): number {
+export function nestingOf(source: string): number {
   let deepest = 0;
   let fence: string | undefined;
   const open: number[] = [];

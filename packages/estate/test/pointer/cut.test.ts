@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CutError, cut, fingerprint, MAX_NESTING, sentenceSpans } from '../../src/pointer';
+import { nestingOf } from '../../src/pointer/cut';
 
 // Every file below is invented: the shelves, the crates and the keepers exist nowhere.
 const SHELF = `---
@@ -264,5 +265,43 @@ describe('the nesting of a file counts list structure, not indent width', () => 
     expect(cut(flat).units).toHaveLength(300);
     const text = `${nestedBy(2, 90)}\nA paragraph.\n\n${nestedBy(2, 90)}`;
     expect(cut(text).units.length).toBeGreaterThan(180);
+  });
+});
+
+describe('the cost of the nesting check on a large file', () => {
+  const cpu = (run: () => void): number => {
+    const before = process.cpuUsage();
+    run();
+    const used = process.cpuUsage(before);
+    return (used.user + used.system) / 1000;
+  };
+  const rows = (count: number) => Array.from({ length: count }, (_, index) => `Row ${index}`).join('\n');
+
+  it('reads 150,000 lines to refuse a deep list at their end in well under the time the parser needs for one block', () => {
+    const deep = Array.from({ length: MAX_NESTING + 5 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join(
+      '\n',
+    );
+    const text = `${rows(150_000)}\n\n${deep}\n`;
+    let refusal: unknown;
+    const used = cpu(() => {
+      try {
+        cut(text);
+      } catch (cause) {
+        refusal = cause;
+      }
+    });
+    expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 5 });
+    // The refusal comes before the parse; a pass that did work per line of a large file twice would show here.
+    expect(used).toBeLessThan(2_000);
+  });
+
+  it('is one pass: twice the lines cost under three times the CPU, and 150,000 lines under a second', () => {
+    const small = rows(150_000);
+    const large = rows(300_000);
+    nestingOf(small);
+    const one = cpu(() => nestingOf(small));
+    const two = cpu(() => nestingOf(large));
+    expect(one).toBeLessThan(1_000);
+    expect(two).toBeLessThan(Math.max(one, 20) * 3);
   });
 });
