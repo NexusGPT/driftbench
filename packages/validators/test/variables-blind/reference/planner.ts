@@ -25,6 +25,7 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  noSeedIdCheck: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
@@ -324,9 +325,21 @@ export function plan(store: StoreDoc, options: PlanOptions): Plan {
       f.every(([v, x]) => cells.some(([cv, cx]) => cv === v && cx === x));
     if (s.forbids.some(held))
       warn('seed_forbidden', `the seed ${i + 1} holds a combination the store forbids`);
-    seedRows.push({ id: `seed.${i + 1}`, kind: 'seed', values, logWeight: weightOf(s, cells) });
+    seedRows.push({
+      id: options.seedIds?.[i] ?? `seed.${i + 1}`,
+      kind: 'seed',
+      values,
+      logWeight: weightOf(s, cells),
+    });
     seedCells.push(cells);
   });
+  if (!mutation.noSeedIdCheck) {
+    const seen = new Set<string>();
+    for (const row of seedRows) {
+      if (seen.has(row.id)) throw new Error(`two seed rows have the id ${row.id}`);
+      seen.add(row.id);
+    }
+  }
   const budgetFor = (): number =>
     budget === undefined ? Number.POSITIVE_INFINITY : Math.max(0, budget - seedRows.length);
   if (s.ids.length === 0) {

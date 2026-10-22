@@ -1028,4 +1028,8 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['absent-list-and-empty-list-agree'],
     ],
   ]),
+  'seedids.ids': table([
+    ['two seed rows with one id raise an Error that names the id', ['two-seed-rows-with-one-id-are-refused']],
+    ['a seed row keeps the id it carries', ['distinct-seed-ids-are-kept']],
+  ]),
 };

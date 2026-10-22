@@ -226,7 +226,7 @@ function storeOf(doc: StoreDoc): VariableStore {
 
 function plan(doc: StoreDoc, options: PlanOptions): Plan {
   const seeds: PlanSeedRow[] = (options.seeds ?? []).map((values, index) => ({
-    id: `s${String(index + 1).padStart(3, '0')}`,
+    id: options.seedIds?.[index] ?? `s${String(index + 1).padStart(3, '0')}`,
     values: { ...values },
   }));
   const planned = planV2(storeOf(doc), {

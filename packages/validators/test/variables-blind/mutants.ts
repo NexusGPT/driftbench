@@ -69,6 +69,7 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    noSeedIdCheck: false,
   });
 };
 const resetQuotes = (): void => {
@@ -138,6 +139,14 @@ const GATE_FUNCTIONS = [
 ] as const;
 
 export const MUTANTS: readonly Mutant[] = [
+  {
+    name: 'plan accepts two seed rows with one id',
+    families: ['seed-rows'],
+    only: ['two-seed-rows-with-one-id-are-refused'],
+    make: flag(() => {
+      plannerMutation.noSeedIdCheck = true;
+    }, resetPlanner),
+  },
   // ---- the plan --------------------------------------------------------------------------------------------
   {
     name: 'plan drops its last new row',

@@ -135,6 +135,11 @@ export type PlanOptions = {
   budget?: number;
   /** Real sessions, kept as they are, first in the plan. */
   seeds?: Row[];
+  /**
+   * The id of each seed row, in the order of `seeds`. A row without one is named by its position. Two seed rows with
+   * one id raise an Error that names the id (docs/variables.md R8).
+   */
+  seedIds?: string[];
 };
 
 export type PlanRow = {

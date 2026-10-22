@@ -7,6 +7,7 @@ import { IMPOSSIBLE_STEMS } from './families/impossible';
 import { QUOTES_STEMS } from './families/quotes';
 import { SCALE_STEMS } from './families/scale';
 import { SEEDS_STEMS } from './families/seeds';
+import { SEEDIDS_STEMS } from './families/seedids';
 import { SOURCES_STEMS } from './families/sources';
 import { STRENGTH_STEMS } from './families/strength';
 import { VALUES_STEMS } from './families/values';
@@ -36,6 +37,7 @@ export const BLIND_STEMS: readonly Stem[] = [
   ...COUNTER_STEMS,
   ...SCALE_STEMS,
   ...AUDIT_STEMS,
+  ...SEEDIDS_STEMS,
 ];
 
 /** Every item of the blind bank, in family order. */
