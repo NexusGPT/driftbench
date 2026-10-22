@@ -52,6 +52,8 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
+  /** Spans of each file the code already reads (a skill's description): those units are shown as read, not asked about. */
+  read?: ReadonlyMap<string, ReadonlyArray<{ start: number; end: number }>>;
   /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
   atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
@@ -274,10 +276,15 @@ export function windowsOf(
  * The window as one labeler is asked about it: the units that need a label stay units; the others keep their number
  * and are shown as context, so a rescan sends the units it needs and the lines around them.
  */
-function askedAbout(window: Window, want: ReadonlySet<number>): Window {
+function askedAbout(window: Window, want: ReadonlySet<number>, read: ReadonlySet<number>): Window {
   const context: DisplayLine[] = window.units
     .filter((unit) => !want.has(unit.index))
-    .map((unit) => ({ n: unit.n, mode: 'context', text: unit.text, index: unit.index }));
+    .map((unit) => ({
+      n: unit.n,
+      mode: read.has(unit.index) ? ('read' as const) : ('context' as const),
+      text: unit.text,
+      index: unit.index,
+    }));
   if (context.length === 0) return window;
   return {
     ...window,
@@ -400,6 +407,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  // The units the code already reads (a skill's description): no label is asked of them; the labeler sees them as read.
+  const readUnits = new Map<string, Set<number>>();
+  for (const file of files) {
+    const spans = input.read?.get(file.path) ?? [];
+    if (spans.length === 0) continue;
+    const inside = new Set<number>();
+    for (const [index, unit] of (cuts.get(file.path) as Cut).units.entries())
+      if (spans.some((span) => unit.start >= span.start && unit.end <= span.end)) inside.add(index);
+    readUnits.set(file.path, inside);
+  }
   const next = nextLedger(
     files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, text: file.text })),
     input.previous,
@@ -418,7 +435,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const set of input.sets) {
       const want = new Set<number>();
       for (const [index, unit] of fileCut.units.entries()) {
-        if (unit.container === 'opaque') continue;
+        if (unit.container === 'opaque' || readUnits.get(file.path)?.has(index)) continue;
         units++;
         const found = entries.get(unitId(file.path, index))?.labels[set.set];
         if (found && found.setHash === hashes.get(set.set) && found.labeler === labelling.hash) carried++;
@@ -458,7 +475,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const [memberAt, member] of labelling.members.entries()) {
         for (const whole of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!whole.units.some((unit) => want.has(unit.index))) continue;
-          const window = askedAbout(whole, want);
+          const window = askedAbout(whole, want, readUnits.get(file.path) ?? new Set());
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
