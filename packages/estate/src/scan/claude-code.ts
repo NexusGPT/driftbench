@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { EstatePathError, estatePath } from '../paths';
+import { cut } from '../pointer/cut';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
@@ -1398,6 +1399,53 @@ function anchorOf(token: string): { script: string; anchored: boolean } {
   }
   if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
   return { script: posix.normalize(token), anchored: false };
+}
+
+/**
+ * The front matter keys the reader turns into declarations, by the kind of file: a value under one of them is read
+ * by code, so a labeler is not asked about it. `readSkill` and `readSubagent` read exactly these.
+ */
+export const READ_KEYS = {
+  skill: ['name', 'description', 'allowed-tools'],
+  subagent: ['name', 'description', 'model', 'effort', 'tools', 'skills'],
+} as const;
+
+/**
+ * The values under `hooks` that `readGuards` consumes: the matcher of a group, and the type and the command (or
+ * prompt) of each hook in it. Any other string under `hooks` (a status message, a condition) is prose the reader
+ * does not read, so a labeler is still asked about it.
+ */
+const HOOK_READ_PATH = /^\$\.hooks\.[^.[\]]+\[\d+\]\.(?:matcher|hooks\[\d+\]\.(?:type|command|prompt))$/;
+
+/**
+ * The spans of each file that the reader already reads as declarations: the front matter values of a skill or a
+ * subagent file under the keys of `READ_KEYS`. Offsets are into the text given, as the cut of the pointer reader
+ * counts them. A file of another kind has none. It works on a list of files in memory, as `read` does on a folder.
+ */
+export function readSpansOf(
+  files: ReadonlyArray<{ path: string; text: string }>,
+): Map<string, Array<{ start: number; end: number }>> {
+  const out = new Map<string, Array<{ start: number; end: number }>>();
+  for (const file of files) {
+    const kind = classify(file.path, file.text).kind;
+    const keys = kind === 'skill' ? READ_KEYS.skill : kind === 'subagent' ? READ_KEYS.subagent : undefined;
+    if (!keys) continue;
+    const spans = cut(file.text)
+      .units.filter(
+        (unit) =>
+          unit.container === 'front_matter_value' &&
+          ((kind === 'skill' && HOOK_READ_PATH.test(unit.key ?? '')) ||
+            keys.some(
+              (key) =>
+                unit.key === `$.${key}` ||
+                unit.key?.startsWith(`$.${key}.`) ||
+                unit.key?.startsWith(`$.${key}[`),
+            )),
+      )
+      .map((unit) => ({ start: unit.start, end: unit.end }));
+    if (spans.length > 0) out.set(file.path, spans);
+  }
+  return out;
 }
 
 function readSkill(file: EstateFile, estate: RawEstate, budget: number): void {

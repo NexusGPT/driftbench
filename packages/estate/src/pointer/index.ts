@@ -1,3 +1,4 @@
+export { readSpansOf } from '../scan/claude-code';
 export { AGENT_RULES_SET } from './agent-rules';
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
@@ -55,6 +56,7 @@ export {
   type SpanAnswer,
   SpanKind,
   setHash,
+  shownLabelDrops,
   type Window,
   type WindowUnit,
 } from './labels';

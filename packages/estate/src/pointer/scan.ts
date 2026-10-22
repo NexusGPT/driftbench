@@ -14,11 +14,13 @@ import {
 } from './labeler';
 import {
   type DisplayLine,
+  expandUnits,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
   type SpanAnswer,
   setHash,
+  shownLabelDrops,
   type Window,
 } from './labels';
 import {
@@ -52,6 +54,8 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
+  /** Spans of each file the code already reads (a skill's description): those units are shown as read, not asked about. */
+  read?: ReadonlyMap<string, ReadonlyArray<{ start: number; end: number }>>;
   /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
   atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
@@ -160,6 +164,8 @@ export type PointerResult = {
   warnings: string[];
   /** The same windows, by window, set and labeler. */
   failedWindows: FailedWindow[];
+  /** Labels dropped from an answer after the retry because they sat on lines the window shows but does not ask about. */
+  droppedLabels: DroppedLabel[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -274,10 +280,15 @@ export function windowsOf(
  * The window as one labeler is asked about it: the units that need a label stay units; the others keep their number
  * and are shown as context, so a rescan sends the units it needs and the lines around them.
  */
-function askedAbout(window: Window, want: ReadonlySet<number>): Window {
+function askedAbout(window: Window, want: ReadonlySet<number>, read: ReadonlySet<number>): Window {
   const context: DisplayLine[] = window.units
     .filter((unit) => !want.has(unit.index))
-    .map((unit) => ({ n: unit.n, mode: 'context', text: unit.text, index: unit.index }));
+    .map((unit) => ({
+      n: unit.n,
+      mode: read.has(unit.index) ? ('read' as const) : ('context' as const),
+      text: unit.text,
+      index: unit.index,
+    }));
   if (context.length === 0) return window;
   return {
     ...window,
@@ -371,6 +382,7 @@ type Task = {
 
 type Leaf = { window: Window; answer: Recorded; key: string };
 /** A window no accepted answer came back for: where, for which set and labeler, and why. */
+export type DroppedLabel = { window: string; set: string; labeler: string; line: number; label: string };
 export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
 const describeFailure = (failure: FailedWindow): string =>
   `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
@@ -400,6 +412,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  // The units the code already reads (a skill's description): no label is asked of them; the labeler sees them as read.
+  const readUnits = new Map<string, Set<number>>();
+  for (const file of files) {
+    const spans = input.read?.get(file.path) ?? [];
+    if (spans.length === 0) continue;
+    const inside = new Set<number>();
+    for (const [index, unit] of (cuts.get(file.path) as Cut).units.entries())
+      if (spans.some((span) => unit.start >= span.start && unit.end <= span.end)) inside.add(index);
+    readUnits.set(file.path, inside);
+  }
   const next = nextLedger(
     files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, text: file.text })),
     input.previous,
@@ -418,7 +440,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const set of input.sets) {
       const want = new Set<number>();
       for (const [index, unit] of fileCut.units.entries()) {
-        if (unit.container === 'opaque') continue;
+        if (unit.container === 'opaque' || readUnits.get(file.path)?.has(index)) continue;
         units++;
         const found = entries.get(unitId(file.path, index))?.labels[set.set];
         if (found && found.setHash === hashes.get(set.set) && found.labeler === labelling.hash) carried++;
@@ -458,7 +480,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const [memberAt, member] of labelling.members.entries()) {
         for (const whole of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!whole.units.some((unit) => want.has(unit.index))) continue;
-          const window = askedAbout(whole, want);
+          const window = askedAbout(whole, want, readUnits.get(file.path) ?? new Set());
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
@@ -533,17 +555,38 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
     let failure: unknown;
+    const refusedAnswers: NonNullable<Recorded['refusedAnswers']> = [];
+    // What a cassette keeps of a refused answer is never text the model chose: a label outside the set, and units
+    // that are no number or range, are stored as the marker `unknown`.
+    const known = new Set([...task.set.labels.map((label) => label.name), 'none']);
+    const safe = (label: string) => (known.has(label) ? label : 'unknown');
+    const safeUnits = (units: string) => (expandUnits(units) ? units.trim() : 'unknown');
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;
-        const answer = await member.call(wire, task.set, window, attempt);
+        let answer = await member.call(wire, task.set, window, attempt);
         counts.input += answer.usage.input;
         counts.output += answer.usage.output;
+        // On the last try, a label put on shown lines alone is dropped and listed, and the rest of the answer stands.
+        if (attempt === 2 && answer.labels) {
+          const split = shownLabelDrops(window, answer.labels, known);
+          if (split.dropped.length > 0)
+            answer = { ...answer, labels: split.labels, shownDropped: split.dropped };
+        }
         // An answer that names a label outside the set, a unit outside the window, a unit twice or a wrong
         // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
         // cannot be located is no such refusal: the run is out of step, and the vote handles it.
         const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
-        if (refused.length > 0) throw new LabelerError(refused.join('; '));
+        if (refused.length > 0) {
+          refusedAnswers.push(
+            (answer.labels ?? []).map((entry) => ({
+              units: safeUnits(String(entry.units)),
+              label: safe(String(entry.label)),
+              ...(typeof entry.target === 'number' ? { target: entry.target } : {}),
+            })),
+          );
+          throw new LabelerError(refused.join('; '));
+        }
         // A model that returns another model id than the one recorded for the same labeler and request model is
         // named, so a re-record that mixes two models of one name is seen.
         for (const entry of cassette.entries.values()) {
@@ -587,6 +630,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        ...(refusedAnswers.length > 0 ? { refusedAnswers } : {}),
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
@@ -595,6 +639,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     throw failure;
   }
+
+  const droppedLabels: DroppedLabel[] = [];
 
   const failure = (task: Task, window: Window, reason: string): FailedWindow => ({
     window: window.id,
@@ -620,6 +666,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         failures: [failure(task, window, result.answer.error ?? 'the answer cannot be read')],
       };
     }
+    for (const drop of result.answer.shownDropped ?? [])
+      droppedLabels.push({ window: window.id, set: task.set.set, labeler: task.member.id, ...drop });
     if (result.answer.refused !== 'too_large') {
       return { leaves: [{ window, answer: result.answer, key: result.key }], failures: [] };
     }
@@ -1068,6 +1116,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failed: failedWindows.map(describeFailure),
     warnings,
     failedWindows,
+    droppedLabels,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };
