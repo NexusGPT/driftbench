@@ -28,8 +28,8 @@ import {
   chainSets,
   composite,
   DEFAULT_LIMITS_MODEL,
-  limitsModelLabeler,
   LIMITS_SET_NAME,
+  limitsModelLabeler,
 } from './limits';
 
 const CAP_IN = Number(process.env.GOLD_LIMITS_CAP_IN ?? Number.POSITIVE_INFINITY);
@@ -63,7 +63,9 @@ async function record(
       ...sent,
       async call(wire, set, window, attempt) {
         if (spent.input >= CAP_IN || spent.output >= CAP_OUT) {
-          throw new Error(`the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`);
+          throw new Error(
+            `the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`,
+          );
         }
         const answer = await send(wire, set, window, attempt);
         spent.input += answer.usage.input;
@@ -89,7 +91,8 @@ async function record(
       },
     });
     const failed = result.pointer?.failed ?? [];
-    if (failed.length > 0) console.log(`estate ${estate}: ${failed.length} windows failed, first: ${failed[0]}`);
+    if (failed.length > 0)
+      console.log(`estate ${estate}: ${failed.length} windows failed, first: ${failed[0]}`);
     const kept = [...cassette.entries.values()].filter((entry) => entry.readable.set === LIMITS_SET_NAME);
     const only = new pointer.Cassette();
     for (const entry of kept) only.entries.set(entry.key, entry);

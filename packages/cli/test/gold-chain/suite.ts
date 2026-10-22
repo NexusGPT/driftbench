@@ -211,9 +211,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           ceiling: 40_000,
           pointer: {
             sets: chainSets(),
-            labelling: pointer.singleLabelling(
-              composite(planted, limitsModelLabeler(limitsModel)),
-            ),
+            labelling: pointer.singleLabelling(composite(planted, limitsModelLabeler(limitsModel))),
             cassette: recorded,
             mode: 'record',
             estateKey: GOLD_ESTATE_KEY,

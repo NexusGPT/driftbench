@@ -47,6 +47,4 @@ jobs:
         continue-on-error: true
         run: pnpm typecheck
       - name: Harness tests
-        env:
-          GOLD_LIMITS_MODEL: claude-sonnet-5-5
         run: pnpm exec vitest run packages/estate/test/pointer packages/estate/test/gold packages/cli/test/gold-chain --maxWorkers=2
