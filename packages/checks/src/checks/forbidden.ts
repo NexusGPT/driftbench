@@ -25,10 +25,9 @@ export const forbidden: Check = {
   evaluate(ctx) {
     const verdicts: Verdict[] = [];
     const calls = ctx.observed.toolCalls;
-    const scopes = scopesOf(ctx);
 
     for (const [label, reasons] of forbiddenTools(ctx)) {
-      const own = callsIn(ctx.observed, scopes.get(label) ?? 'any').filter((call) => call.label === label);
+      const own = callsIn(ctx.observed, scopeOf(ctx, label)).filter((call) => call.label === label);
       const why = reasons.join('; ');
       if (own.length === 0) {
         verdicts.push(machineVerdict(NAME, label, 'pass', `${label} not called (${why})`));
@@ -61,12 +60,20 @@ export const forbidden: Check = {
   },
 };
 
-/** The scope an expectation of 0 calls names for a tool; a tool no expectation scopes is read in `any`. */
-function scopesOf(ctx: CheckContext): Map<string, Actor> {
-  const out = new Map<string, Actor>();
+/**
+ * Whose calls make a tool's use a failure. Every reason adds its scope: `rules.forbidden_tools` and a cap of 0 name
+ * no actor (the agent and its helpers), a zero-count expectation names its `actor` or none. Several reasons for one
+ * tool are summed: the agent's scope and a helper's scope together are both.
+ */
+function scopeOf(ctx: CheckContext, label: string): Actor {
+  const scopes = new Set<Actor>();
+  if (ctx.spec.rules?.forbidden_tools?.includes(label) || ctx.spec.rules?.max_calls?.[label] === 0)
+    scopes.add('any');
   for (const tool of ctx.expect.tools ?? [])
-    if (isZero(tool.count) && tool.actor) out.set(tool.label, tool.actor);
-  return out;
+    if (tool.label === label && isZero(tool.count)) scopes.add(tool.actor ?? 'any');
+  return scopes.has('any') || (scopes.has('main') && scopes.has('helper'))
+    ? 'any'
+    : (scopes.values().next().value ?? 'any');
 }
 
 /** Each forbidden tool with the reasons it is forbidden in this block. */

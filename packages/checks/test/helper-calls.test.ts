@@ -149,6 +149,38 @@ describe('an expected tool call made by a helper', () => {
   });
 });
 
+describe('zero-count expectations of one tool with different actors', () => {
+  const twice = (first: string, second: string) =>
+    ({
+      ...SPEC,
+      blocks: [
+        {
+          id: 'ask',
+          when: { user: 'go' },
+          expect: {
+            tools: [
+              { label: 'Bash', count: 0, actor: first },
+              { label: 'Bash', count: 0, actor: second },
+            ],
+          },
+        },
+      ],
+    }) as unknown as Spec;
+
+  it.each([
+    ['helper', 'main'],
+    ['main', 'helper'],
+  ])('keeps both scopes (%s then %s): a helper that ran Bash fails', async (first, second) => {
+    const verdicts = await run(forbidden, withHelper({}, twice(first, second)));
+    expect(verdicts.find((entry) => entry.id === 'forbidden.Bash')?.outcome).toBe('fail');
+  });
+
+  it('passes when each entry is limited to the agent', async () => {
+    const verdicts = await run(forbidden, withHelper({}, twice('main', 'main')));
+    expect(verdicts.find((entry) => entry.id === 'forbidden.Bash')?.outcome).toBe('pass');
+  });
+});
+
 describe('a session with no helper', () => {
   it('gives the same verdicts as before', async () => {
     const out = await someCall(
