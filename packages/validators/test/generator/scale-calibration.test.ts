@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData } from '../../src/ladders/generator/bank';
-import { type ScaleReport, scaleReport } from '../../src/ladders/generator/scale';
+import { measureCalibration, type ScaleReport, scaleReport } from '../../src/ladders/generator/scale';
 import {
   CALIBRATION_MAX_CREDIT,
   CALIBRATION_REFERENCE_MS,
@@ -157,4 +157,12 @@ describe('the calibration is measured in a process of its own, before the timed 
     expect(report.error).toBeUndefined();
     expect(report.calibrationMs).toBeGreaterThan(0);
   }, 300_000);
+});
+
+describe('a calibration that does not finish fails the item with a reason', () => {
+  it('stops a stuck calibration and says so', async () => {
+    const result = await measureCalibration(1);
+    expect(typeof result).toBe('string');
+    expect(result).toMatch(/did not finish in 1 ms and was stopped/);
+  }, 60_000);
 });

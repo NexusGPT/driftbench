@@ -322,7 +322,7 @@
     {
       "seed": "hidden",
       "planted": "no",
-      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C",
       "raw": 102756,
       "cal": 262.4
     },
@@ -836,7 +836,7 @@
     },
     {
       "seed": "2",
-      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C",
       "raw": 73847,
       "parts": { "alloc": 1268.2, "hash": 127.6, "yaml": 250.7, "stat": 80.6 },
       "cal": 286.2
@@ -1011,7 +1011,7 @@
     },
     {
       "seed": "hidden",
-      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C",
       "raw": 83659,
       "parts": { "alloc": 1263, "hash": 128, "yaml": 244.2, "stat": 81.6 },
       "cal": 283.3
@@ -1023,5 +1023,60 @@
       "parts": { "alloc": 1162.8, "hash": 105.5, "yaml": 265.5, "stat": 179.6 },
       "cal": 282.6
     }
-  ]
+  ],
+  "separateProcessRuns": {
+    "run": 39790219968,
+    "head": "84b145ce0",
+    "how": "scaleReport(100, seed) on ubuntu-latest, one job per run; +2x = real generator plus an equal busy loop",
+    "rows": [
+      { "seed": "1+2x", "cpu": "Intel(R) Xeon(R) 6973P-C", "raw": 141661, "cal": 167.1, "norm": 211904 },
+      { "seed": "1+2x", "cpu": "AMD EPYC 7763 64-Core", "raw": 189356, "cal": 259.1, "norm": 182681 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 107725, "cal": 249.9, "norm": 107756 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 106653, "cal": 265.3, "norm": 100507 },
+      { "seed": "1", "cpu": "AMD EPYC 9V74 80-Core", "raw": 85858, "cal": 213.8, "norm": 100378 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 107134, "cal": 270.4, "norm": 99064 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 105985, "cal": 256.2, "norm": 103410 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 104525, "cal": 252.9, "norm": 103326 },
+      { "seed": "1", "cpu": "AMD EPYC 9V74 80-Core", "raw": 80962, "cal": 193.1, "norm": 104829 },
+      { "seed": "1", "cpu": "AMD EPYC 7763 64-Core", "raw": 108974, "cal": 258.7, "norm": 105296 },
+      { "seed": "1", "cpu": "AMD EPYC 9V45 96-Core", "raw": 60336, "cal": 161.8, "norm": 93239 },
+      { "seed": "1", "cpu": "AMD EPYC 9V74 80-Core", "raw": 106294, "cal": 250.7, "norm": 105983 },
+      { "seed": "2+2x", "cpu": "AMD EPYC 7763 64-Core", "raw": 140899, "cal": 250.2, "norm": 140765 },
+      { "seed": "2+2x", "cpu": "AMD EPYC 9V45 96-Core", "raw": 76029, "cal": 155.1, "norm": 122519 },
+      { "seed": "2", "cpu": "AMD EPYC 7763 64-Core", "raw": 76519, "cal": 258.8, "norm": 73931 },
+      { "seed": "2", "cpu": "AMD EPYC 7763 64-Core", "raw": 73343, "cal": 237.4, "norm": 77227 },
+      { "seed": "2", "cpu": "AMD EPYC 9V74 80-Core", "raw": 73986, "cal": 233.2, "norm": 79313 },
+      { "seed": "2", "cpu": "AMD EPYC 9V45 96-Core", "raw": 42233, "cal": 151.3, "norm": 69805 },
+      { "seed": "2", "cpu": "AMD EPYC 9V45 96-Core", "raw": 46498, "cal": 149.2, "norm": 77914 },
+      { "seed": "2", "cpu": "AMD EPYC 7763 64-Core", "raw": 76329, "cal": 255.7, "norm": 74630 },
+      { "seed": "2", "cpu": "AMD EPYC 7763 64-Core", "raw": 76017, "cal": 262.7, "norm": 72341 },
+      { "seed": "2", "cpu": "AMD EPYC 9V74 80-Core", "raw": 56745, "cal": 172.6, "norm": 82187 },
+      { "seed": "2", "cpu": "AMD EPYC 9V74 80-Core", "raw": 66326, "cal": 229.1, "norm": 72382 },
+      { "seed": "2", "cpu": "AMD EPYC 9V74 80-Core", "raw": 60848, "cal": 197.3, "norm": 77110 },
+      { "seed": "3+2x", "cpu": "AMD EPYC 9V74 80-Core", "raw": 122756, "cal": 245.5, "norm": 124985 },
+      { "seed": "3+2x", "cpu": "AMD EPYC 7763 64-Core", "raw": 124551, "cal": 258.6, "norm": 120419 },
+      { "seed": "3", "cpu": "AMD EPYC 9V45 96-Core", "raw": 47293, "cal": 167, "norm": 70796 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 69389, "cal": 239.5, "norm": 72439 },
+      { "seed": "3", "cpu": "AMD EPYC 9V74 80-Core", "raw": 56008, "cal": 204, "norm": 68634 },
+      { "seed": "3", "cpu": "INTEL(R) XEON(R) PLATINUM 8573C", "raw": 60201, "cal": 198.2, "norm": 75949 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 69797, "cal": 234.2, "norm": 74501 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 72679, "cal": 257.8, "norm": 70473 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 70868, "cal": 245.8, "norm": 72093 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 71805, "cal": 255.7, "norm": 70194 },
+      { "seed": "3", "cpu": "AMD EPYC 9V45 96-Core", "raw": 46410, "cal": 171.1, "norm": 67803 },
+      { "seed": "3", "cpu": "AMD EPYC 7763 64-Core", "raw": 70639, "cal": 229.3, "norm": 77017 },
+      { "seed": "hidden+2x", "cpu": "AMD EPYC 9V45 96-Core", "raw": 85915, "cal": 157.2, "norm": 136601 },
+      { "seed": "hidden+2x", "cpu": "Intel(R) Xeon(R) Platinum 8370C", "raw": 146709, "cal": 282.6, "norm": 129775 },
+      { "seed": "hidden", "cpu": "AMD EPYC 7763 64-Core", "raw": 83571, "cal": 255.4, "norm": 81806 },
+      { "seed": "hidden", "cpu": "AMD EPYC 7763 64-Core", "raw": 88893, "cal": 265.5, "norm": 83705 },
+      { "seed": "hidden", "cpu": "AMD EPYC 9V74 80-Core", "raw": 65828, "cal": 177.9, "norm": 92516 },
+      { "seed": "hidden", "cpu": "AMD EPYC 9V45 96-Core", "raw": 53172, "cal": 176.1, "norm": 75488 },
+      { "seed": "hidden", "cpu": "AMD EPYC 9V45 96-Core", "raw": 58754, "cal": 166.1, "norm": 88415 },
+      { "seed": "hidden", "cpu": "AMD EPYC 7763 64-Core", "raw": 84850, "cal": 251.8, "norm": 84240 },
+      { "seed": "hidden", "cpu": "AMD EPYC 9V74 80-Core", "raw": 82552, "cal": 240.9, "norm": 85672 },
+      { "seed": "hidden", "cpu": "Intel(R) Xeon(R) Platinum 8370C", "raw": 83329, "cal": 278.6, "norm": 74777 },
+      { "seed": "hidden", "cpu": "AMD EPYC 7763 64-Core", "raw": 87330, "cal": 252.9, "norm": 86323 },
+      { "seed": "hidden", "cpu": "AMD EPYC 9V45 96-Core", "raw": 55195, "cal": 165, "norm": 83617 }
+    ]
+  }
 }
