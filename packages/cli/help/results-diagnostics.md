@@ -208,8 +208,8 @@ nothing ran. Pass `stored` back as `confirm` to `blockEvidenceInputs` to diagnos
 
 ### The two scores
 
-The report package reads the diagnoses and gives the two scores. `driftbench report` does not show them yet:
-it passes no diagnoses to the scorecard. Use the calls from code:
+The report package reads the diagnoses and gives the two scores. `driftbench report` and `driftbench view` show them for a
+campaign whose blocks hold diagnoses, as described above. To build your own page, use the calls from code:
 
 | Call | What it does | Defaults |
 |---|---|---|
