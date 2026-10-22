@@ -11,6 +11,7 @@
  */
 import { join, resolve } from 'node:path';
 import { runUnitsEstate } from './heldout';
+import { loadUnitsEstate } from './units-estate';
 import { ASK_MODEL, askPortFor, loadAsksFrom, readKey } from './limits-ask';
 
 const folder = resolve(process.argv[2] ?? '');
@@ -31,7 +32,13 @@ console.log(
   `${folder}: ${run.requests} requests, ${spent.requests} sent, ${spent.input} tokens in, ${spent.output} out, USD ${cost.toFixed(4)}`,
 );
 console.log(`units of the table not cut as the table does: ${run.unmatched.length}`);
-for (const id of run.unmatched) console.log(`  unmatched ${id}`);
+const table = new Map((await loadUnitsEstate(folder)).truth.units.map((unit) => [unit.id, unit.text]));
+const kindOf = (text: string): string =>
+  text.startsWith('|') ? 'table row' : text.startsWith('**') ? 'bold line' : 'other';
+for (const id of run.unmatched) {
+  const text = table.get(id) ?? '';
+  console.log(`  unmatched ${id} [${kindOf(text)}] ${text.slice(0, 60)}`);
+}
 console.log(`units of the scan that the table does not list: ${run.outside.length}`);
 for (const line of run.outside) console.log(`  outside ${line}`);
 if (!dry) {
