@@ -20,6 +20,8 @@ limits:
     limit: 5                     # the number, as a finite number
     comparison: le               # lt, le, gt or ge: how the quantity compares with the limit
                                  # for the condition to hold ("within five days" is le)
+    role: constraint             # constraint: the comparison is the compliant range of the act;
+                                 # trigger: the comparison is the range where the rule applies
     unit_of: working days        # optional: what the number counts
     governs: ab12cd34ef          # the gold id of the rule the limit belongs to (may be the same unit)
 

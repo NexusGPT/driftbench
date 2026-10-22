@@ -17,6 +17,7 @@ const Limit = z.strictObject({
   unit: Id,
   limit: z.number().finite(),
   comparison: z.enum(['lt', 'le', 'gt', 'ge']),
+  role: z.enum(['constraint', 'trigger']),
   unit_of: z.string().min(1).optional(),
   governs: Id,
 });
