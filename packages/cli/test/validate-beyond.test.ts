@@ -80,7 +80,15 @@ describe('a report split by beyondApart joins like the unsplit report', () => {
     const code = await validateCommand(
       ladder.component,
       options,
-      { cwd: dir, out: (text) => void (out.out += text), err: (text) => void (out.err += text) },
+      {
+        cwd: dir,
+        out: (text) => {
+          out.out += text;
+        },
+        err: (text) => {
+          out.err += text;
+        },
+      },
       { ladders: () => ({ [ladder.component]: ladder }), root: dir } as ValidateDeps,
     );
     return { code, ...out };
