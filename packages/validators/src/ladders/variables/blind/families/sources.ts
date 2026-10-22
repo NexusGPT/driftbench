@@ -4,6 +4,8 @@ import type { FileProvenance, Row } from '../../interface';
 import { drawnCase, PATH, readSpans } from '../conditions';
 import {
   drawBoolean,
+  drawBooleanPair,
+  drawChoice,
   drawCondition,
   drawEquality,
   drawMembership,
@@ -93,6 +95,25 @@ const rangeCase =
       () =>
         `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
     );
+  };
+
+const choiceCase =
+  (kind: 'neither' | 'either') =>
+  (ctx: ItemContext): void => {
+    const d = drawChoice(ctx.rng, kind);
+    const text = declareSpan(d.text, { kind: 'member', subject: d.subject, list: d.list });
+    const store = callBuild(ctx, {
+      estate: {
+        files: { [PATH]: policyFile(ctx.rng, [text]) },
+        rules: [{ id: 'rule.choice', source: PATH, conditions: [{ text }], tools: [] }],
+      },
+    });
+    const v = store.variables.find((x) => x.values.some((y) => typeof y.sample === 'string'));
+    must(!!v, () => `no variable with string samples for ${show(d.text)}`);
+    const samples = (v?.values ?? []).map((y) => String(y.sample));
+    must(samples.some((s) => d.list.includes(s)), () => `samples ${show(samples)} lack a member of ${show(d.list)}`);
+    must(samples.some((s) => !d.list.includes(s)), () => `samples ${show(samples)} lack a value outside ${show(d.list)}`);
+    must((v?.boundaries ?? []).length === 0, () => 'a membership condition has no numeric boundary');
   };
 
 const TOOLS = (): ToolSpec[] => [
@@ -363,6 +384,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
       ['symbol-less-than', 3, drawnCase('lt', 'sym-lt')],
       ['symbol-at-most-two-characters', 3, drawnCase('le', 'sym-le-ascii')],
       ['symbol-at-most-one-character', 4, drawnCase('le', 'sym-le-unicode')],
+      ['thousands-written-with-k', 4, drawnCase('gt', 'k-suffix')],
+      ['millions-written-with-a-word', 4, drawnCase('lt', 'million-word')],
     ],
   },
   {
@@ -423,6 +446,37 @@ export const SOURCES_STEMS: readonly Stem[] = [
       ['range-written-with-to', 5, rangeCase('to')],
       ['range-written-with-an-en-dash', 5, rangeCase('en-dash')],
       ['range-written-with-a-hyphen', 5, rangeCase('hyphen')],
+      ['range-with-both-ends-open', 5, rangeCase('open')],
+      ['range-with-one-end-closed', 5, rangeCase('half-open')],
+      ['range-with-a-negative-lower-limit', 5, rangeCase('negative')],
+      ['range-with-decimal-limits', 5, rangeCase('decimal')],
+      ['membership-written-as-neither-nor', 5, choiceCase('neither')],
+      ['membership-written-as-either-or', 5, choiceCase('either')],
+      [
+        'a-fact-and-its-negation-are-one-variable',
+        5,
+        (ctx) => {
+          const d = drawBooleanPair(ctx.rng);
+          const texts = [
+            declareSpan(d.positive, { kind: 'boolean', subject: d.subject, word: d.word }),
+            declareSpan(d.negated, { kind: 'boolean', subject: d.subject, word: d.word }),
+          ];
+          const store = callBuild(ctx, {
+            estate: {
+              files: { [PATH]: policyFile(ctx.rng, texts) },
+              rules: texts.map((t, i) => ({ id: `rule.${i}`, source: PATH, conditions: [{ text: t }], tools: [] })),
+            },
+          });
+          const flags = store.variables.filter(
+            (x) => x.values.some((y) => y.sample === true) && x.values.some((y) => y.sample === false),
+          );
+          must(
+            flags.length === 1,
+            () => `${flags.length} true-or-false variables for a fact and its negation; they name one fact, so one`,
+          );
+          must(flags[0]?.values.length === 2, () => `${flags[0]?.values.length} values; true and false`);
+        },
+      ],
       [
         'boolean-has-true-and-false',
         5,

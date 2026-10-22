@@ -111,6 +111,8 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['the reader reads the less-than symbol as a comparison', ['symbol-less-than']],
     ['the reader reads the two-character at-most symbol as a comparison', ['symbol-at-most-two-characters']],
     ['the reader reads the one-character at-most symbol as a comparison', ['symbol-at-most-one-character']],
+    ['the reader reads a thousand written as k after a number', ['thousands-written-with-k']],
+    ['the reader reads a million written as a word after a number word', ['millions-written-with-a-word']],
   ]),
   'sources.condition.kinds': table([
     ['an equality condition keeps a case below, at and above its limit', ['equality-keeps-all-three-cases']],
@@ -122,6 +124,13 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['a range written with the word to keeps its five cases', ['range-written-with-to']],
     ['a range written with an en dash keeps its five cases', ['range-written-with-an-en-dash']],
     ['a range written with a hyphen keeps its five cases', ['range-written-with-a-hyphen']],
+    ['a range whose two ends are both open (more than A and fewer than B) keeps its five cases', ['range-with-both-ends-open']],
+    ['a range closed at one end only (at least A but under B) keeps its five cases', ['range-with-one-end-closed']],
+    ['a range with a negative lower limit keeps its five cases', ['range-with-a-negative-lower-limit']],
+    ['a range with decimal limits keeps its five cases', ['range-with-decimal-limits']],
+    ['an exclusion (neither A nor B) is a membership condition with an in-list and an out-of-list sample', ['membership-written-as-neither-nor']],
+    ['a choice (either A or B) is a membership condition with an in-list and an out-of-list sample', ['membership-written-as-either-or']],
+    ['a fact and its negation about one subject are one true-or-false variable', ['a-fact-and-its-negation-are-one-variable']],
     [
       'a boolean condition produces the values true and false and no boundary',
       ['boolean-has-true-and-false'],

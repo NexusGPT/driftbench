@@ -38,7 +38,9 @@ export type Form =
   | 'sym-ge-unicode'
   | 'sym-lt'
   | 'sym-le-ascii'
-  | 'sym-le-unicode';
+  | 'sym-le-unicode'
+  | 'k-suffix'
+  | 'million-word';
 
 /** A quantity and the unit its number is written with. */
 const QUANTITIES: ReadonlyArray<readonly [subject: string, unit: string]> = [
@@ -309,6 +311,14 @@ export function drawCondition(rng: Rng, cmp: Cmp, form: Form, options: DrawOptio
         unit: options.unit ?? unit,
       };
     }
+    case 'k-suffix': {
+      const thousands = options.limit !== undefined ? options.limit / 1000 : rng.int(2, 90);
+      return make(pickSubject(MONEY), thousands * 1000, `${thousands}k`, ' euros', true);
+    }
+    case 'million-word': {
+      const millions = options.limit !== undefined ? options.limit / 1_000_000 : rng.int(2, 9);
+      return make(pickSubject(MONEY), millions * 1_000_000, `${words(millions)} million`, ' euros', true);
+    }
     case 'large': {
       const n = options.limit ?? rng.int(1, 9) * 1_000_000;
       return make(pickSubject(MONEY), n, String(n), ' euros', true);
@@ -355,17 +365,37 @@ export function drawEquality(rng: Rng, flavour: 'equal' | 'unequal'): DrawnNumbe
 }
 
 /** A range span with its two limits. */
-export type RangeStyle = 'between' | 'to' | 'en-dash' | 'hyphen';
+export type RangeStyle =
+  | 'between'
+  | 'to'
+  | 'en-dash'
+  | 'hyphen'
+  | 'open'
+  | 'half-open'
+  | 'negative'
+  | 'decimal';
 
 export function drawRange(
   rng: Rng,
   style?: RangeStyle,
 ): { subject: string; text: string; lo: number; hi: number } {
   const [subject, unit] = rng.pick(QUANTITIES);
-  const lo = rng.int(2, 40);
-  const hi = lo + rng.int(3, 25);
+  let lo = rng.int(2, 40);
+  let hi = lo + rng.int(3, 25);
+  if (style === 'negative') {
+    lo = -rng.int(5, 30);
+    hi = rng.int(2, 25);
+  }
+  if (style === 'decimal') {
+    lo = rng.int(1, 20) + 0.5;
+    hi = lo + rng.int(2, 9);
+  }
   const text =
-    style === 'to'
+    style === 'open'
+      ? `${subject} is more than ${lo} and fewer than ${hi}${unit}`
+      : style === 'half-open'
+        ? `${subject} is at least ${lo} but under ${hi}${unit}`
+        : style === 'to'
       ? `${subject} is ${lo} to ${hi}${unit}`
       : style === 'en-dash'
         ? `${subject} is ${lo}\u2013${hi}${unit}`
@@ -412,4 +442,23 @@ export function drawMembership(rng: Rng): { subject: string; list: string[]; tex
     : `${list.slice(0, -1).join(', ')} or ${list[list.length - 1]}`;
   const lead = rng.pick(['is one of', 'is any of', 'is among']);
   return { subject, list, text: `${subject} ${lead} ${joined}` };
+}
+
+
+/** A membership span written as an exclusion ("neither A nor B") or a choice ("either A or B"). */
+export function drawChoice(rng: Rng, kind: 'neither' | 'either'): { subject: string; list: string[]; text: string } {
+  const [subject, pool] = rng.pick(SETS);
+  const list = rng.sample(pool, 2);
+  const [a, b] = list as [string, string];
+  const text =
+    kind === 'neither'
+      ? `${subject} is neither ${a} nor ${b}`
+      : `${subject} is either ${a} or ${b}`;
+  return { subject, list, text };
+}
+
+/** A yes-or-no fact written both ways: the fact and its negation. */
+export function drawBooleanPair(rng: Rng): { subject: string; word: string; positive: string; negated: string } {
+  const [subject, word] = rng.pick(BOOLEANS);
+  return { subject, word, positive: `${subject} ${word}`, negated: `${subject} not ${word}` };
 }
