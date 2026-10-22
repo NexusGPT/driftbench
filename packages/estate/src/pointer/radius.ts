@@ -214,7 +214,7 @@ export function proseLedger(
   const files = new Set(normative.prose.map((chunk) => chunk.file));
   const paths = [...files].sort((a, b) => a.localeCompare(b));
   return nextLedger(
-    paths.map((path) => ({ path, cut: cut(texts.get(path) ?? '') })),
+    paths.map((path) => ({ path, cut: cut(texts.get(path) ?? ''), text: texts.get(path) ?? '' })),
     previous,
     estateKey,
   ).ledger;

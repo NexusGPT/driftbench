@@ -59,12 +59,15 @@ export {
   type WindowUnit,
 } from './labels';
 export {
+  checkLedger,
   type Event,
   type FileCut,
   LADDER,
   type Ledger,
   type LedgerEntry,
   type LedgerLabel,
+  LINEAGE_KEEP,
+  labelMap,
   mintId,
   type NextLedger,
   nextLedger,
