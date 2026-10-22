@@ -114,6 +114,27 @@ describe('a helper session: the calls of the sidechain', () => {
     });
   });
 
+  it('names the helper model from the sidechain records, apart from the agent', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      base('assistant', {
+        isSidechain: true,
+        uuid: 'h1',
+        parentUuid: 'a1',
+        message: {
+          id: 'hm1',
+          model: 'fictional-helper',
+          role: 'assistant',
+          content: [{ type: 'text', text: 'working' }],
+          usage: { input_tokens: 5, output_tokens: 1 },
+        },
+      }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost.helperModel).toBe('fictional-helper');
+  });
+
   it('adds nothing to a session with no helper', () => {
     const { blocks } = map([user('go'), assistant([{ type: 'text', text: 'hi' }])]);
     expect(blocks[0]?.observed.helperCalls).toBeUndefined();
