@@ -222,3 +222,10 @@ Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabli
 - Product measurement, main's real generation: `diff.feasible.cover` fails on all 31 measured seeds, and `diff.feasible.twise` fails on seeds 10 and 15. Cause 1: a cover spec's behaviour is not in its flow, 6787 blocks in total. Cause 2: the first move is recorded at the start stage, 25 blocks. No block sits in a written-constraint cell. These items are level 2, so the product stops there until the generator is fixed.
 - The baseline goal detour feeds only the replay cheater, which reads `expect.tools`. The detour lists no tool, so it feeds no verdict and stays unchanged.
 - Evidence: [feasible-impossible-pairs.json](evidence/feasible-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+## L18 fix I: obligation holders are order-free (2026-10-22)
+
+- Ruling: approved by the lead. The oracle protected the first spec in path order that carried a declared obligation (an injected class, a declared perturbation, a twin pair on an axis, a metamorphic wording). The product keeps the block written first in generation order. When the two orders differ, the oracle flagged the block the product kept.
+- Change (`obligationHolders` in `bank.ts`): every obligation is collected with all its holders. A holder is protected only when removing it would leave the obligation with no holder. Twin pairs: a spec is protected when its path has exactly one walk with a pair, the pair has exactly two values of the axis, and the spec is the only one on its value. Where two specs carry one obligation, each is a repeat of the other.
+- No item, threshold, floor or fault family changes. Fewer blocks are protected, so the minimality items can only fail more often, never less.
+- Red first: the order-swap tests in `minimal-twin-pairs.test.ts` (unprotected members equal in both orders; the later-listed member of a pair; a sole holder stays protected listed first or last). The four reviewer plants in `minimal-planted-suites.test.ts` still flag a removable copy.

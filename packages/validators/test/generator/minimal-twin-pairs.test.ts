@@ -11,11 +11,12 @@ function required<T>(value: T | undefined): T {
 
 /**
  * A block is removable only if removing it loses no declared obligation: an injected deviation class, a declared
- * perturbation, a twin pair on a declared axis, membership in a declared metamorphic family. Each obligation is held
- * once per path over the whole suite; a second holder is a repeat, and a block on an undeclared axis holds none
- * (docs/validators.md, section 3, Same test).
+ * perturbation, a twin pair on a declared axis, membership in a declared metamorphic family. A holder is protected only
+ * when removing it would leave the obligation with no holder: where two specs carry the same obligation each is a repeat
+ * of the other, whichever the suite lists first, and a block on an undeclared axis holds none (docs/validators.md,
+ * section 3, Same test).
  */
-describe('minimality protects the first holder of each declared obligation, once per path', async () => {
+describe('minimality protects the sole holder of each declared obligation', async () => {
   const generated = await new SeedData(1, {}, async () => ({}) as never).generated();
   const cover = required(generated.complete.find(({ spec }) => spec.id === 'gen-cover-004'));
   const channels = generated.hidden.channels.filter((entry) => entry !== cover.spec.channel);
@@ -102,7 +103,44 @@ describe('minimality protects the first holder of each declared obligation, once
       ],
       [[cover.spec.id, 'twin-channel', 'twin-channel-again', 'twin-undeclared', 'twin-same']],
     );
-    expect(group).toEqual(['twin-channel-again', 'twin-undeclared', 'twin-same']);
+    // Two specs on one channel are repeats of each other, so neither the written walk nor its twin is protected.
+    expect(group).toEqual([
+      cover.spec.id,
+      'twin-channel',
+      'twin-channel-again',
+      'twin-undeclared',
+      'twin-same',
+    ]);
+  }, 600_000);
+
+  it('gives the same unprotected members whatever order the suite lists its specs in', async () => {
+    const suite = [
+      cover,
+      copy('twin-channel', required(channels[0])),
+      copy('twin-channel-again', required(channels[0])),
+      copy('twin-undeclared', 'a-channel-nobody-declared'),
+    ];
+    const ids = suite.map(({ spec }) => spec.id);
+    const [forward] = await unprotectedOf(suite, [ids]);
+    const [backward] = await unprotectedOf([...suite].reverse(), [[...ids].reverse()]);
+    expect([...(backward ?? [])].sort()).toEqual([...(forward ?? [])].sort());
+    expect(forward).toContain('twin-channel-again');
+    expect(forward).toContain('twin-channel');
+  }, 600_000);
+
+  it('protects the later-listed member of a pair when the earlier one is a repeat of another', async () => {
+    // The channel pair is cover + twin-channel; the third spec repeats the twin. Listed last or first, the repeats are
+    // the same two specs: the written walk is still the only spec on its channel and stays protected.
+    for (const order of [
+      ['twin-channel', 'twin-channel-again'],
+      ['twin-channel-again', 'twin-channel'],
+    ] as const) {
+      const [group] = await unprotectedOf(
+        [cover, ...order.map((id) => copy(id, required(channels[0])))],
+        [[cover.spec.id, ...order]],
+      );
+      expect([...(group ?? [])].sort()).toEqual(['twin-channel', 'twin-channel-again']);
+    }
   }, 600_000);
 
   it('holds one twin pair per path over the whole suite, not one per group', async () => {
@@ -123,8 +161,8 @@ describe('minimality protects the first holder of each declared obligation, once
         ['other-walk', 'other-twin'],
       ],
     );
-    // The first walk keeps the channel pair of the path; a second walk of the same path holds no obligation.
-    expect(one).toEqual([]);
+    // Two walks of the path each carry the channel pair, so each pair is a repeat of the other.
+    expect(one).toEqual([cover.spec.id, 'twin']);
     expect(two).toEqual(['other-walk', 'other-twin']);
   }, 600_000);
 
@@ -136,7 +174,7 @@ describe('minimality protects the first holder of each declared obligation, once
     expect(group).toEqual(['odd']);
   }, 600_000);
 
-  it('protects the first injection of a class on a path and counts a second one as a repeat', async () => {
+  it('protects the sole injection of a class on a path and counts two as repeats of each other', async () => {
     const source = required(
       generated.complete.find(({ spec }) => spec.blocks.some((block) => 'injection' in (block.when ?? {}))),
     );
@@ -145,22 +183,32 @@ describe('minimality protects the first holder of each declared obligation, once
       [['inject-1', 'inject-2'], ['inject-1']],
       'injected',
     );
-    expect(one).toEqual(['inject-2']);
-    // The sole holder of the obligation is never flagged.
-    expect(two).toEqual([]);
+    expect(one).toEqual(['inject-1', 'inject-2']);
+    expect(two).toEqual(['inject-1']);
+    // The sole holder of the obligation is never flagged, listed first or last.
+    const [sole] = await unprotectedOf([copyOf(source, 'inject-1')], [['inject-1']], 'injected');
+    expect(sole).toEqual([]);
+    const [reversed] = await unprotectedOf(
+      [copyOf(source, 'inject-2'), copyOf(source, 'inject-1')],
+      [['inject-2', 'inject-1']],
+      'injected',
+    );
+    expect(reversed).toEqual(['inject-2', 'inject-1']);
   }, 600_000);
 
-  it('protects the first spec that carries a declared perturbation on a path and counts a second as a repeat', async () => {
+  it('protects the sole spec that carries a declared perturbation on a path and counts two as repeats', async () => {
     const source = required(generated.complete.find(({ spec }) => (spec.perturbations ?? []).length > 0));
     const [one] = await unprotectedOf(
       [copyOf(source, 'perturbed-1'), copyOf(source, 'perturbed-2')],
       [['perturbed-1', 'perturbed-2']],
       'perturbed',
     );
-    expect(one).toEqual(['perturbed-2']);
+    expect(one).toEqual(['perturbed-1', 'perturbed-2']);
+    const [sole] = await unprotectedOf([copyOf(source, 'perturbed-1')], [['perturbed-1']], 'perturbed');
+    expect(sole).toEqual([]);
   }, 600_000);
 
-  it('protects the first metamorphic family of a walk on a path and counts a second family as a repeat', async () => {
+  it('protects the sole holder of each wording of a walk and counts every holder of a shared wording', async () => {
     const source = required(
       generated.complete.find(
         ({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic,
@@ -199,9 +247,10 @@ describe('minimality protects the first holder of each declared obligation, once
         ],
       ],
     );
-    // Each wording of a walk is held once per path, and only by a variant in range: the second family, the clones
-    // whatever number they claim, and a variant outside 1..of are repeats.
+    // A wording said by one spec is protected: the second wording of family A. A wording several specs say is carried
+    // by all of them, so each is a repeat; a variant outside 1..of holds no wording and is a repeat as well.
     expect(group).toEqual([
+      'fam-a-1',
       'fam-b-1',
       'fam-a-1-clone',
       'fam-a-1-relabel-3',
@@ -226,7 +275,7 @@ describe('minimality protects the first holder of each declared obligation, once
       [['inject-1', 'inject-relabelled']],
       'injected',
     );
-    expect(group).toEqual(['inject-relabelled']);
+    expect(group).toEqual(['inject-1', 'inject-relabelled']);
   }, 600_000);
 
   it('still fails a suite that keeps a second pair on the same axis (item level)', async () => {

@@ -2242,9 +2242,10 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
  * The declared obligations of the suite and who holds them. A block is removable only if removing it loses no declared
  * obligation. The obligations are what the suite says a block is for, read from the spec: an injected deviation class, a
  * declared perturbation (a perturbed run reaches the blocks up to its injection), a twin pair on a declared axis (the
- * channel, the persona: a written walk and its first copy for another declared channel or persona), and membership in a
- * declared metamorphic family. Each obligation is held once per path over the WHOLE suite, by the first spec that
- * carries it; a second holder of the same obligation on the same path is a repeat. A block written for a channel or a
+ * channel, the persona: a written walk and a copy of it for another declared channel or persona), and membership in a
+ * declared metamorphic family. Each obligation is collected with every holder over the WHOLE suite. A holder is
+ * protected only when removing it would leave the obligation with no holder; a holder of an obligation another spec also
+ * carries is a repeat, whichever of them the suite lists first. A block written for a channel or a
  * persona the map does not declare holds none. The covering tuples and pairs are not read here: the ablation in
  * `removable` already keeps every map obligation of the coverage items.
  */
@@ -2263,57 +2264,58 @@ async function obligationHolders(data: SeedData): Promise<{
     const bySpec = new Map<string, BlockRun[]>();
     for (const block of (await data.runs()).blocks)
       bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
-    const holder = new Map<string, string>();
-    const hold = (obligation: string, spec: string): boolean => {
-      if (!holder.has(obligation)) holder.set(obligation, spec);
-      return holder.get(obligation) === spec;
+    // Every obligation is collected with ALL its holders first. A holder is protected only if removing it would leave
+    // the obligation with no holder, so the verdict does not depend on the order the suite lists its specs in.
+    const carried = new Map<string, Map<string, Set<string>>>();
+    const carry = (obligation: string, spec: string, block?: string) => {
+      const holders = carried.get(obligation) ?? new Map<string, Set<string>>();
+      const keys = holders.get(spec) ?? new Set<string>();
+      if (block !== undefined) keys.add(block);
+      holders.set(spec, keys);
+      carried.set(obligation, holders);
     };
+    // axis obligations: path|axis -> walk -> value -> specs that are the written walk on that value
+    const axes = new Map<string, Map<string, Map<string, Set<string>>>>();
     const blocks = new Set<string>();
     const specs = new Set<string>();
-    const familyWords = new Map<string, Set<string>>();
-    const written = new Map<string, BlockRun[]>();
-    const secured = new Map<string, Set<string>>();
     for (const [spec, own] of bySpec) {
       const head = own[0] as BlockRun;
       if (!declared(head)) continue;
-      const same = written.get(head.walk);
-      if (!same) written.set(head.walk, [head]);
-      else {
-        // An axis needs both differing values to be members of the declared axis: a missing value is no value.
-        const axes = new Set<string>();
-        for (const other of same) {
-          if (other.channel !== head.channel && channels.has(other.channel) && channels.has(head.channel))
-            axes.add('channel');
-          if (other.persona !== head.persona && personas.has(other.persona) && personas.has(head.persona))
-            axes.add('persona');
-        }
-        const have = secured.get(head.path) ?? new Set<string>();
-        const needed = [...axes].filter((axis) => !have.has(axis));
-        if (needed.length > 0) {
-          for (const axis of needed) have.add(axis);
-          secured.set(head.path, have);
-          specs.add(spec);
-          specs.add((same[0] as BlockRun).spec);
-          same.push(head);
-        }
+      for (const [axis, value, members] of [
+        ['channel', head.channel, channels],
+        ['persona', head.persona, personas],
+      ] as const) {
+        if (!members.has(value)) continue;
+        const walks = axes.get(`${head.path}|${axis}`) ?? new Map<string, Map<string, Set<string>>>();
+        const values = walks.get(head.walk) ?? new Map<string, Set<string>>();
+        values.set(value, (values.get(value) ?? new Set<string>()).add(spec));
+        walks.set(head.walk, values);
+        axes.set(`${head.path}|${axis}`, walks);
       }
       // A metamorphic obligation rests on content, not on the labels a spec declares: a variant in range
-      // (1 <= variant <= of) whose words differ from every earlier holder of the walk on the path.
-      if (head.family !== '' && head.variant >= 1 && head.variant <= head.of) {
-        const key = `${head.path}|${head.walk}`;
-        const seen = familyWords.get(key) ?? new Set<string>();
-        if (!seen.has(head.words)) {
-          seen.add(head.words);
-          familyWords.set(key, seen);
-          specs.add(spec);
-        }
-      }
+      // (1 <= variant <= of) whose words are said by this spec on the walk of the path.
+      if (head.family !== '' && head.variant >= 1 && head.variant <= head.of)
+        carry(`family|${head.path}|${head.walk}|${head.words}`, spec);
       for (const block of own) {
-        if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec))
-          blocks.add(block.key);
+        if (block.injected) carry(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec, block.key);
         for (const cls of block.perturbed === '' ? [] : block.perturbed.split(','))
-          if (hold(`perturb|${block.path}|${cls}`, spec)) blocks.add(block.key);
+          carry(`perturb|${block.path}|${cls}`, spec, block.key);
       }
+    }
+    for (const [obligation, holders] of carried) {
+      if (holders.size !== 1) continue;
+      const [spec, keys] = [...holders][0] as [string, Set<string>];
+      if (obligation.startsWith('family|')) specs.add(spec);
+      else for (const key of keys) blocks.add(key);
+    }
+    // A twin pair on an axis needs two declared values of the axis on one written walk. One pair per path and axis is
+    // enough, so a spec is critical only when the path has exactly one such walk, with exactly two values, and the
+    // spec is the only one on its value: removing it breaks the pair. Two specs on one value are repeats of each other.
+    for (const walks of axes.values()) {
+      const pairs = [...walks.values()].filter((values) => values.size >= 2);
+      const only = pairs.length === 1 ? (pairs[0] as Map<string, Set<string>>) : undefined;
+      if (only?.size !== 2) continue;
+      for (const holders of only.values()) if (holders.size === 1) specs.add([...holders][0] as string);
     }
     return { blocks, specs };
   });
