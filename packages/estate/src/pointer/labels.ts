@@ -430,9 +430,22 @@ export function locateSpanText(
  */
 export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
   return entries.map((entry) => {
-    if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
-    const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
-    if (!unit) return entry;
+    if (!entry.spans) return entry;
+    // The words of a span never reach a cassette. An entry that cannot carry spans (a range, or a unit the window
+    // does not hold) keeps none of them: the span stays as an offset pair no unit holds, and the check of the answer
+    // drops it with its reason.
+    const unit = /^\d+$/.test(entry.units.trim())
+      ? window.units.find((candidate) => candidate.n === Number(entry.units))
+      : undefined;
+    if (!unit)
+      return {
+        ...entry,
+        spans: entry.spans.map((span) => {
+          if (span === null || typeof span !== 'object' || !('text' in span)) return span;
+          const { text: _text, ...rest } = span;
+          return { ...rest, from: -1, to: -1, unlocated: 'the entry is not one unit of the window' };
+        }),
+      };
     const shown = flatten(unit.text).text;
     // A text the unit holds N times and the entry lists N times (two gates that read one file) is located one
     // occurrence for each listing, in the order listed. Fewer listings than occurrences stay ambiguous.
