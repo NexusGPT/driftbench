@@ -586,6 +586,16 @@ describe('runs that split between labels of one atom kind', () => {
     expect(labelsOf(result)).toEqual(new Set(['aside']));
   });
 
+  it('leaves the splits of a set whose labels build no atom as they are', async () => {
+    // The same labels with no atom, as the document roles: remark 1, aside 2, order 1, ban 1. No label has three of
+    // five and the labels do not group, so every unit stays unlabeled.
+    const ROLES = KINDS.replace(/\n {8}atom: \{[^}]*\}/g, '');
+    const result = await pointerScan(
+      input(byRun(['remark', 'aside', 'order', 'aside', 'ban']), new Cassette(), { sets: load(ROLES) }),
+    );
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
     // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits; no kind
     // holds three of five, so the unit stays unlabeled and counts as a split.
