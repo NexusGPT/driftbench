@@ -88,18 +88,6 @@ describe('the cutter on a plain text file', () => {
     expect(cut(list, { plain: false }).units).toHaveLength(12_000);
   }, 120_000);
 
-  it('reads 60,000 lines of one block quote in seconds of CPU and keeps it one unit', () => {
-    const quote = Array.from({ length: 60_000 }, (_, index) => `> Row ${index}`).join('\n');
-    const before = process.cpuUsage();
-    const units = cut(quote, { plain: false }).units;
-    const used = process.cpuUsage(before);
-    expect(units).toHaveLength(1);
-    expect(units[0]?.container).toBe('block_quote');
-    expect(units[0]?.text.endsWith('> Row 59999')).toBe(true);
-    expect(quote.slice(units[0]?.start, units[0]?.end)).toBe(units[0]?.text);
-    expect((used.user + used.system) / 1000).toBeLessThan(8_000);
-  }, 120_000);
-
   it('keeps the heading path after a very long paragraph', () => {
     const rows = Array.from({ length: 12_000 }, (_, index) => `Row ${index}`).join('\n');
     const source = `# Ropes\n\n## Coils\n\n${rows}\n\nNever coil a rope that another skipper holds, note a.\n`;
@@ -118,13 +106,43 @@ describe('the cutter on a plain text file', () => {
     expect(units.filter((unit) => unit.container === 'table_cell').length).toBeGreaterThan(12_000);
   });
 
-  it('reads 60,000 lines of one paragraph in a few seconds of CPU, not the quadratic time of one parse', () => {
-    const source = Array.from({ length: 60_000 }, (_, index) => `Row ${index}`).join('\n');
-    const before = process.cpuUsage();
-    cut(source, { plain: true });
-    const used = process.cpuUsage(before);
-    expect((used.user + used.system) / 1000).toBeLessThan(8_000);
-  }, 120_000);
+  // The cost is measured by how it grows, in one process: ten times the lines should cost about ten times the CPU
+  // (linear is near 10; one parse of the whole paragraph is far above). A millisecond limit on a shared runner is noise.
+  const cpuOf = (source: string, plain: boolean): number => {
+    const times = [0, 1].map(() => {
+      const before = process.cpuUsage();
+      cut(source, { plain });
+      const used = process.cpuUsage(before);
+      return (used.user + used.system) / 1000;
+    });
+    return Math.min(...times);
+  };
+  const growth = (line: (index: number) => string, plain: boolean) => {
+    const text = (count: number) => Array.from({ length: count }, (_, index) => line(index)).join('\n');
+    const small = text(6_000);
+    const large = text(60_000);
+    cut(small, { plain });
+    const one = Math.max(cpuOf(small, plain), 20);
+    const ten = cpuOf(large, plain);
+    return { ratio: ten / one, ten };
+  };
+
+  it('reads 60,000 lines of one paragraph with a cost that grows with the lines: ten times the lines, at most 14 times the CPU', () => {
+    const result = growth((index) => `Row ${index}`, true);
+    expect(result.ratio).toBeLessThanOrEqual(14);
+    expect(result.ten).toBeLessThan(30_000);
+  }, 240_000);
+
+  it('reads 60,000 lines of one block quote with a cost that grows with the lines, and keeps it one unit', () => {
+    const result = growth((index) => `> Row ${index}`, false);
+    expect(result.ratio).toBeLessThanOrEqual(14);
+    expect(result.ten).toBeLessThan(30_000);
+    const quote = Array.from({ length: 60_000 }, (_, index) => `> Row ${index}`).join('\n');
+    const units = cut(quote, { plain: false }).units;
+    expect(units).toHaveLength(1);
+    expect(units[0]?.container).toBe('block_quote');
+    expect(quote.slice(units[0]?.start, units[0]?.end)).toBe(units[0]?.text);
+  }, 240_000);
 
   it('keeps a second title under a first one together with it: a recall limit, taken so that no sentence is split', () => {
     const source = 'PART 1\nROPES\nNever coil a rope that another skipper holds, note a.\n';
@@ -151,5 +169,82 @@ describe('the cutter on a plain text file', () => {
       'Coil the rope',
       'Hang the lamp',
     ]);
+  });
+
+  describe('a cut paragraph or quote reads as the uncut parse reads it', () => {
+    // Lines end with a full stop, so a cut between two lines is also a sentence boundary: the units can be equal.
+    const row = (index: number) => `Row ${index}.`;
+    const rows = (count: number, mark = '', from = 0) =>
+      Array.from({ length: count }, (_, index) => `${mark}${row(from + index)}`);
+    const shapes: Record<string, string[]> = {
+      paragraph: rows(14),
+      'quote followed by lazy lines': [...rows(7, '> '), ...rows(7, '', 7)],
+      'quote with a blank quote line': [...rows(6, '> '), '>', ...rows(6, '> ', 6)],
+      'nested quote': rows(12, '> > '),
+      'fence with a fence inside': ['````', ...rows(5), '```', ...rows(5, '', 5), '````', ...rows(8, '', 10)],
+      'list then paragraph': ['- one.', '- two.', '', ...rows(12)],
+      'heading then paragraph': ['# Ropes', '', '## Coils', '', ...rows(12)],
+      'quote in a list': ['- item.', ...rows(8, '  > ')],
+      table: ['| a | b |', '| - | - |', ...rows(10, '| ').map((line) => `${line} | x |`)],
+    };
+
+    const flat = (source: string, plain: boolean, slabLines: number) =>
+      cut(source, { plain, slabLines }).units.map((unit) => [
+        unit.container,
+        unit.start,
+        unit.end,
+        unit.text,
+        unit.path,
+      ]);
+
+    const same = (name: string, source: string) => {
+      for (const plain of [false, true]) {
+        const whole = flat(source, plain, Number.POSITIVE_INFINITY);
+        const cutUp = flat(source, plain, 3);
+        expect(cutUp, `${name} (plain ${plain})`).toEqual(whole);
+      }
+    };
+
+    it.each(Object.entries(shapes))('is the same for %s', (name, lines) => {
+      same(name, lines.join('\n'));
+      same(`${name} with CRLF`, lines.join('\r\n'));
+    });
+
+    it('is the same for 60 generated documents of lazy lines, nested quotes, fences, lists and CRLF', () => {
+      let state = 12_345;
+      const next = (limit: number) => {
+        state = (state * 1_103_515_245 + 12_345) % 2_147_483_648;
+        return state % limit;
+      };
+      let counter = 0;
+      const block = (): string[] => {
+        const size = 3 + next(10);
+        const lines = rows(size, '', counter);
+        counter += size;
+        switch (next(7)) {
+          case 0:
+            return lines.map((line) => `> ${line}`);
+          case 1:
+            return lines.map((line, at) => (at > 0 && next(3) === 0 ? line : `> ${line}`));
+          case 2:
+            return lines.map((line, at) => (at === 2 ? '>' : `> ${line}`));
+          case 3:
+            return lines.map((line) => `> > ${line}`);
+          case 4:
+            return ['```', ...lines, '```'];
+          case 5:
+            return lines.map((line) => `- ${line}`);
+          default:
+            return lines;
+        }
+      };
+      for (let at = 0; at < 60; at++) {
+        const parts: string[] = [];
+        for (let count = 1 + next(4); count > 0; count--) parts.push(block().join('\n'));
+        const glue = next(2) === 0 ? '\n\n' : '\n';
+        const source = parts.join(glue);
+        same(`document ${at}`, next(3) === 0 ? source.replace(/\n/g, '\r\n') : source);
+      }
+    });
   });
 });

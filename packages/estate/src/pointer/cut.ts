@@ -266,57 +266,81 @@ const linesIn = (text: string): number => {
   return count;
 };
 
-/** Whether a line, read as the start of a file, is a paragraph on its own: the parser decides, not a rule here. */
-const startsParagraph = (line: string): boolean => {
-  const children = (PROCESSOR.parse(line) as unknown as Node).children ?? [];
-  return children.length === 1 && children[0]?.type === 'paragraph';
-};
-
-/** Whether a line, read as the start of a file, is a block quote of one paragraph: the parser decides. */
-const startsQuote = (line: string): boolean => {
-  const children = (PROCESSOR.parse(line) as unknown as Node).children ?? [];
-  return children.length === 1 && children[0]?.type === 'blockquote';
+/**
+ * Whether two lines, read as the start of a file, are one paragraph of the kind: the parser decides, not a rule here.
+ * A cut between them cuts one paragraph, and each part is that paragraph again. `quote` is a block quote of one
+ * paragraph (a lazy line, a blank quote line, a nested quote or a fence inside it is not).
+ */
+const continues = (before: string, line: string, quote: boolean): boolean => {
+  const parsed = (text: string): Node[] => (PROCESSOR.parse(text) as unknown as Node).children ?? [];
+  const one = (nodes: Node[]): boolean =>
+    quote
+      ? nodes.length === 1 &&
+        nodes[0]?.type === 'blockquote' &&
+        nodes[0].children?.length === 1 &&
+        nodes[0].children[0]?.type === 'paragraph'
+      : nodes.length === 1 && nodes[0]?.type === 'paragraph';
+  return one(parsed(before)) && one(parsed(`${before}\n${line}`)) && one(parsed(line));
 };
 
 /**
  * The offsets at which a text is read in parts. The markdown parser's cost grows much faster than the lines of one
- * paragraph (150,000 lines take a minute, in parts of 5,000 about a second), so a paragraph over `SLAB_LINES` lines
- * is read in parts. The block structure comes from the parser's own block pass, which does not read the text of
- * a paragraph and is linear: only a paragraph it finds is cut, at the start of a line that the parser also reads as
- * a paragraph alone, so no fence, heading, table or front matter is cut. A sentence over a cut is two units.
+ * paragraph (150,000 lines take a minute, in parts of 5,000 about a second), so a paragraph over `slab` lines is
+ * read in parts. The block structure comes from the parser's own block passes, which do not read the text of a
+ * paragraph and are linear: the flow pass finds the paragraphs outside any container, the document pass the top
+ * level block quotes. A cut falls only between two lines that the parser reads as one paragraph (one paragraph of a
+ * quote), never inside a fence, a heading, a table, a list, a front matter or a lazy continuation of a quote. A
+ * sentence over a cut is two units; the parts of a quote are joined back into the one unit it is (`join`).
  */
-function cutsOf(text: string): Array<{ at: number; join: boolean }> {
-  if (linesIn(text) <= SLAB_LINES) return [];
+function cutsOf(text: string, slab: number): Array<{ at: number; join: boolean }> {
+  if (linesIn(text) <= slab) return [];
   PROCESSOR.freeze();
   const extensions = (PROCESSOR.data('micromarkExtensions') as never[] | undefined) ?? [];
   const chunks = preprocess()(text, undefined, true);
   const cuts: Array<{ at: number; join: boolean }> = [];
-  const along = (from: number, to: number, ok: (line: string) => boolean, join: boolean) => {
+  const along = (from: number, to: number, quote: boolean) => {
     let lines = 0;
     let at = text.lastIndexOf('\n', from) + 1;
+    let before = '';
     while (at < to) {
       const end = text.indexOf('\n', at);
       const next = end === -1 ? text.length : end + 1;
-      if (lines >= SLAB_LINES && next <= to && ok(text.slice(at, end === -1 ? undefined : end))) {
-        cuts.push({ at, join });
+      const line = text.slice(at, end === -1 ? undefined : end);
+      if (lines >= slab && lines > 0 && next <= to && continues(before, line, quote)) {
+        cuts.push({ at, join: quote });
         lines = 0;
       }
       lines++;
+      before = line;
       at = next;
     }
   };
-  for (const [kind, token] of parse({ extensions }).flow().write(chunks)) {
-    if (kind === 'enter' && token.type === 'paragraph' && token.end.line - token.start.line + 1 > SLAB_LINES)
-      along(token.start.offset, token.end.offset, startsParagraph, false);
-  }
-  // A block quote holds its paragraph one container deep, where the flow pass does not look: its lines are
-  // cut at a line that the parser reads as a quote alone, and the parts are joined back into one unit.
-  let until = -1;
+  // The containers of the document: a paragraph inside one is read with it, not by the flow pass.
+  const inside: Array<[number, number]> = [];
   for (const [kind, token] of parse({ extensions }).document().write(chunks)) {
-    if (kind !== 'enter' || token.type !== 'blockQuote' || token.start.offset < until) continue;
-    until = token.end.offset;
-    if (token.start.column === 1 && token.end.line - token.start.line + 1 > SLAB_LINES)
-      along(token.start.offset, token.end.offset, startsQuote, true);
+    if (
+      kind !== 'enter' ||
+      (token.type !== 'blockQuote' &&
+        token.type !== 'listItemPrefix' &&
+        token.type !== 'listOrdered' &&
+        token.type !== 'listUnordered')
+    )
+      continue;
+    const range: [number, number] = [token.start.offset, token.end.offset];
+    if (inside.some(([a, b]) => range[0] >= a && range[0] < b)) continue;
+    inside.push(range);
+    if (
+      token.type === 'blockQuote' &&
+      token.start.column === 1 &&
+      token.end.line - token.start.line + 1 > slab
+    )
+      along(token.start.offset, token.end.offset, true);
+  }
+  for (const [kind, token] of parse({ extensions }).flow().write(chunks)) {
+    if (kind !== 'enter' || token.type !== 'paragraph') continue;
+    if (token.end.line - token.start.line + 1 <= slab) continue;
+    if (inside.some(([a, b]) => token.start.offset >= a && token.start.offset < b)) continue;
+    along(token.start.offset, token.end.offset, false);
   }
   return cuts.sort((x, y) => x.at - y.at);
 }
@@ -324,6 +348,8 @@ function cutsOf(text: string): Array<{ at: number; join: boolean }> {
 export type CutOptions = {
   /** The file is plain text (`isPlainTextPath`): a title line ends at its line break. */
   plain?: boolean;
+  /** The most lines of one paragraph the parser reads at once (`SLAB_LINES`); a test sets a small value. */
+  slabLines?: number;
 };
 
 /** Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. */
@@ -394,7 +420,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     trail: Array<{ depth: number; title: string }> = [],
     sliced = false,
   ) => {
-    const cuts = sliced ? [] : cutsOf(text);
+    const cuts = sliced ? [] : cutsOf(text, options.slabLines ?? SLAB_LINES);
     if (cuts.length > 0) {
       const edges = [0, ...cuts.map((cutAt) => cutAt.at), text.length];
       for (let part = 0; part + 1 < edges.length; part++) {

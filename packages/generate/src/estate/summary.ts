@@ -46,6 +46,11 @@ export function ordered(totals: Record<string, Totals>, order: readonly string[]
 }
 
 /** The summary the command prints. */
+/** The line of the summary about the catalogue checks: how many a guard tests, and how many lack a trigger or a guard. */
+export function catalogueLine(checks: { tested: number; needsTrigger: number; needsHost: number }): string {
+  return `Catalogue checks: ${checks.tested} tested through their host guard, ${checks.needsTrigger} need a trigger, ${checks.needsHost} need a host guard.`;
+}
+
 export function renderEstateSummary(report: EstateReport): string {
   const lines = [
     `Map ${report.map.path} (${report.map.runtime}), hash ${report.map.hash.slice(0, 12)}: ${report.map.atoms} atoms.`,
@@ -100,7 +105,7 @@ export function renderEstateSummary(report: EstateReport): string {
   if (report.unit.tests > 0) {
     lines.push(
       `Unit tests: ${report.unit.tests} in ${UNIT_DIR}/ (${report.unit.guards} guards, ${report.unit.scripts} scripts, ${report.unit.helpers} helpers, ${report.unit.cases} cases), run by driftbench estate unit: --record on the original first, then on any copy.`,
-      `Catalogue checks: ${report.unit.checks.tested} tested through their host hook, ${report.unit.checks.needsTrigger} need a trigger, ${report.unit.checks.needsHost} need a host hook.`,
+      catalogueLine(report.unit.checks),
     );
   }
   lines.push(
