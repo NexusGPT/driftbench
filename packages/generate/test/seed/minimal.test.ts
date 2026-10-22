@@ -878,4 +878,69 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     minimal.reduce(later);
     expect(later.reducedOpening).toBeUndefined();
   });
+
+  describe('a perturbation said just before the block that would be cut', () => {
+    const setup = () => {
+      const long = desk([
+        {
+          id: 'parcel',
+          stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+          classes: ['D5_language_switch'],
+        },
+      ]);
+      const longPath = long.relations.paths[0];
+      if (!longPath) throw new Error('missing parcel path');
+      const written = walk(long, 'written', longPath);
+      written.perturbations = undefined;
+      const later = walk(long, 'later', longPath);
+      const template = required(later.perturbations?.[0]);
+      const last = later.blocks.length - 1;
+      return { long, written, later, template, last };
+    };
+    const arrivalOf = (draftBlocks: ReturnType<typeof setup>['later']['blocks'], at: number) =>
+      required(draftBlocks[at - 1]).stage;
+
+    it('moves with the cut when it recovers at once to the stage the walk then ends on', () => {
+      const { long, written, later, template, last } = setup();
+      const stage = required(arrivalOf(later.blocks, last));
+      later.perturbations = [
+        { ...template, inject_at: last, recovery: { within_blocks: 0, stage_after: stage } },
+      ];
+      const minimal = new TerminalSubsumption(long, run, 2);
+      minimal.cutsOpenings = false;
+      minimal.reduce(written);
+      minimal.reduce(later);
+      expect(later.blocks).toHaveLength(last);
+      expect(later.perturbations?.[0]?.inject_at).toBe(later.blocks.length);
+    });
+
+    it('keeps the block when the recovery moves the conversation elsewhere', () => {
+      const { long, written, later, template, last } = setup();
+      const stage = required(arrivalOf(later.blocks, last));
+      const elsewhere = required(
+        ['welcome', 'address', 'packing', 'weighing'].find((entry) => entry !== stage),
+      );
+      later.perturbations = [
+        { ...template, inject_at: last, recovery: { within_blocks: 0, stage_after: elsewhere } },
+      ];
+      const minimal = new TerminalSubsumption(long, run, 2);
+      minimal.cutsOpenings = false;
+      minimal.reduce(written);
+      minimal.reduce(later);
+      expect(later.blocks).toHaveLength(last + 1);
+    });
+
+    it('keeps the block of a perturbation said after the walk', () => {
+      const { long, written, later, template, last } = setup();
+      const stage = required(arrivalOf(later.blocks, last));
+      later.perturbations = [
+        { ...template, inject_at: last + 1, recovery: { within_blocks: 0, stage_after: stage } },
+      ];
+      const minimal = new TerminalSubsumption(long, run, 2);
+      minimal.cutsOpenings = false;
+      minimal.reduce(written);
+      minimal.reduce(later);
+      expect(later.blocks).toHaveLength(last + 1);
+    });
+  });
 });

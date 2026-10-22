@@ -125,7 +125,16 @@ export class TerminalSubsumption {
         // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
         // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
         // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
-        if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
+        // One said just before the block that would be cut arrives at the stage the walk then ends on and recovers
+        // there at once, so it is the same test said after the shorter walk: the declaration moves with the cut
+        // (its position is the new length). A later one, or one that recovers elsewhere, keeps the block.
+        if (
+          spec.perturbations?.some(
+            (entry) =>
+              entry.inject_at > last || (entry.inject_at === last && !this.staysAt(spec, entry, last)),
+          )
+        )
+          break;
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
@@ -300,6 +309,16 @@ export class TerminalSubsumption {
       of: owner.spec,
     };
     return parsed.spec;
+  }
+
+  /** Whether a perturbation said before block `at` recovers at once to the stage the walk is at when it arrives. */
+  private staysAt(spec: Spec, entry: NonNullable<Spec['perturbations']>[number], at: number): boolean {
+    const arrival = at === 0 ? spec.stages?.[0] : spec.blocks[at - 1]?.expect?.stage;
+    return (
+      arrival !== undefined &&
+      entry.recovery?.stage_after === arrival &&
+      (entry.recovery.within_blocks ?? 0) === 0
+    );
   }
 
   /** The messages a block says: its user turn, or the turns of a burst. */
