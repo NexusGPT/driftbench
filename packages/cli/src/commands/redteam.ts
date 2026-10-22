@@ -27,6 +27,7 @@ import {
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { pricesFromConfig } from '../token-prices';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -35,6 +36,7 @@ import {
   resolveAdapter,
   specRuns,
 } from './campaign';
+import { meterJudge, usageLines } from './judge-usage';
 import { agentFamilyOf } from './personas';
 
 type SourceOptions = { model?: boolean; agentFamily?: string; judgeFamily: string[] };
@@ -61,6 +63,7 @@ type GradeOptions = {
   cassette?: string;
   judgeId?: string;
   record?: string;
+  prices?: string;
   agentFamily?: string;
   json?: boolean;
 };
@@ -181,6 +184,7 @@ export function registerRedteamCommand(
     .option('--judge-id <id>', 'the judge of the cassette to replay; default its only judge')
     .option('--record <file>', 'with --judge, save the answers as a cassette; refuses an existing file')
     .option('--agent-family <family>', 'target model family the judge must differ from; none for code')
+    .option('--prices <file>', 'a table of USD per million tokens (YAML), to print what the judge cost')
     .option('--json', 'print the run as one JSON document')
     .action(async (path: string, options: GradeOptions) => {
       setExit(await inputErrors(io, () => gradeRedteam(path, options, io, deps, judgeFor)));
@@ -198,6 +202,7 @@ async function gradeRedteam(
   if (o.record !== undefined && o.judge === undefined) throw new Error('--record needs --judge.');
   if (o.judgeId !== undefined && o.cassette === undefined) throw new Error('--judge-id needs --cassette.');
   if (o.record) await newOutput(resolve(io.cwd, o.record));
+  const prices = o.prices === undefined ? undefined : await pricesFromConfig({ prices: o.prices }, io.cwd);
   const loaded = await loadValidSpecs([path], io);
   if (!loaded) return 2;
   const entry = loaded[0];
@@ -227,6 +232,8 @@ async function gradeRedteam(
       throw new Error(`The cassette lists ${ids.length} judges (${ids.join(', ')}): give --judge-id.`);
     judge = playerClient(cassette, id);
   }
+  const metered = meterJudge(judge);
+  judge = metered.client;
   const adapter = await resolveAdapter(
     target,
     () => deps.adapterFor(target),
@@ -249,7 +256,10 @@ async function gradeRedteam(
   const judged = run.blocks.flatMap((block) => block.verdicts.filter((v) => v.kind === 'judge'));
   const outcome = blocksOutcome(run);
   const passed = outcome === 'pass';
-  if (o.json) io.out(`${JSON.stringify({ specId: entry.spec.id, target, passed, outcome, run }, null, 2)}\n`);
+  if (o.json)
+    io.out(
+      `${JSON.stringify({ specId: entry.spec.id, target, passed, outcome, usage: metered.usage, run }, null, 2)}\n`,
+    );
   else {
     io.out(`Graded ${entry.spec.id} with judge ${judge.id}: ${run.status}; ${outcomeWord(outcome)}.\n`);
     for (const line of textTable([
@@ -264,6 +274,7 @@ async function gradeRedteam(
       ]),
     ]))
       io.out(`${line}\n`);
+    for (const line of usageLines(judge, metered.usage, prices, o.cassette !== undefined)) io.out(`${line}\n`);
     if (run.error) io.out(`${run.error}\n`);
     if (o.record) io.out(`Cassette written to ${resolve(io.cwd, o.record)}.\n`);
   }

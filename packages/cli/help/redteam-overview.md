@@ -150,7 +150,8 @@ Usage: `driftbench redteam grade <spec> [options]`. Give exactly one of `--judge
 | `--judge-id <id>` | The cassette judge to replay. Default: the cassette's only judge. |
 | `--record <file>` | With `--judge`, save the answers as a cassette. An existing file is refused. |
 | `--agent-family <family>` | With `--judge`, the agent's model family. Default `none` for the Acme targets. |
-| `--json` | Print the spec id, target, verdict and full run as one JSON document. |
+| `--prices <file>` | A YAML table of USD per million tokens (`as_of`, then `models` with `input`, `output` and `cached_input`). The report then prints the judge's cost. A replay prints the cost when recorded. Without it the report says how to get a cost. |
+| `--json` | Print the spec id, target, verdict, the judge's token counts and full run as one JSON document. |
 
 ## Inputs
 
