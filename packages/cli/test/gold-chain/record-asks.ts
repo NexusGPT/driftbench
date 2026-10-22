@@ -21,7 +21,9 @@ import {
   goldLabeller,
   loadGold,
 } from '../../../estate/test/gold/gold';
+import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
+import { appliedScopes } from './scopes';
 import { ASK_MODEL, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
@@ -36,8 +38,17 @@ async function record(estate: EstateName, key: string) {
       await writeFile(target, file.text);
     }
     const gold = (await loadGold()).filter((unit) => unit.estate === estate);
+    // The scopes of the truth file are planted as the chain plants them, so the atoms and their situations are the same.
+    const { truth } = await loadTruth(estate, gold);
+    const placeOf = new Map(gold.map((unit) => [unit.id, `${LAYOUT[estate][unit.file]}#${unit.n}`]));
+    const scopes = [...appliedScopes(gold, truth.scopes).applied.values()].map((scope) => ({
+      unit: placeOf.get(scope.unit) ?? '',
+      target: placeOf.get(scope.target) ?? '',
+    }));
     const planted = goldLabeller(
       gold.map((unit) => ({ ...unit, file: LAYOUT[estate][unit.file] ?? unit.file })),
+      [],
+      scopes,
     );
     const reader = readerFor('claude-code', { ignore: [] });
     if (reader === undefined) throw new Error('the claude-code reader is missing');

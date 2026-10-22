@@ -175,3 +175,5 @@
 {"key":"a85d47ff1533ecd97a54b44ce3a581ce5c66618d814f197fe2c888321ee8927f","quote":"Answer in the language the customer writes in.","text":"{\"limits\": []}","usage":{"input":379,"output":9}}
 {"key":"36757aae549649f8db9e2e78fc44944848a04c37878077b5db2c0801abf75176","quote":"Be honest about what you can do.","text":"{\"limits\": []}","usage":{"input":376,"output":9}}
 {"key":"466051043bcdaa204a4230708bdc8ce6f6e421b314f4e623a24311a6cf6c83ec","quote":"If you are unsure of a word, use the plain English one rather than guess.","text":"{\"limits\": []}","usage":{"input":388,"output":9}}
+{"key":"e4ea4ac613ae4d4974ea2fb7df8aabbe8ed218fdc590b176aac8b41e63d644d0","quote":"Vulnerable customers get the first free slot, whatever the day.","text":"{\"limits\": []}","usage":{"input":435,"output":9}}
+{"key":"8a8505d6245296082e1cd3f055850b987a8b4d9b20cfc80b34ae4405f4d7e867","quote":"Explain this if they ask why their bill is lower than a neighbour's.","text":"{\"limits\": []}","usage":{"input":434,"output":9}}

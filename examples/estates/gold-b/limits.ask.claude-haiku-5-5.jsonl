@@ -141,3 +141,12 @@
 {"key":"caabdd7d6be61c9237387a3e03278db60c0c0f388372db1801547ec469d004e8","quote":"Give the path in full so the bookkeeper can open it.","text":"{\"limits\": []}","usage":{"input":384,"output":9}}
 {"key":"c4b9f919ff29575060b07d1c99710eccb397e815f2405e03ec0fff80a65657f5","quote":"List anything you were unsure of at the end of the reply.","text":"{\"limits\": []}","usage":{"input":383,"output":9}}
 {"key":"e5551f106b0525fa006ce83fee73e2e686991fc22d7a68e3c7cbe49b815c6b66","quote":"If you were sure of everything, say so in one line.","text":"{\"limits\": [{\"limit\": 1, \"comparison\": \"le\", \"unit\": \"lines\"}]}","usage":{"input":381,"output":35}}
+{"key":"56b1adf3eb1b40f3e42981b8ca0a676298f08b300b244e9199e1bd7aac7e2d77","quote":"Read the file with the separator that matches its source.","text":"{\"limits\": []}","usage":{"input":429,"output":9}}
+{"key":"898fc9dd2c0b1a499dd54a9e32c9f7bc06cf069dcc7c2c672889c9cc37bb9370","quote":"Ask the bookkeeper to upload the file instead.","text":"{\"limits\": []}","usage":{"input":432,"output":9}}
+{"key":"1644a572efbfaa13cafc5e25a5dfc7c6a6e4df8b4affed55f9d22d4419302ccb","quote":"Make sure the bars differ in shade as well as in colour.","text":"{\"limits\": []}","usage":{"input":420,"output":9}}
+{"key":"1dffee034a4eb46fe7bc7c305ada9086689258f236a744d52471856d96fde015","quote":"If two payments from the same client add up exactly to an invoice, match both to it.","text":"{\"limits\": []}","usage":{"input":434,"output":9}}
+{"key":"0e49cae423fedb10225f7282c865cacb0bc0d8358da40b0d009cb69e3ea0dfbb","quote":"Process the data in chunks and run it again.","text":"{\"limits\": []}","usage":{"input":423,"output":9}}
+{"key":"c317344f0b3bd44189a582fe5ca6bb3b4d2e76ec1d98a79aae5563f2c0e53b6a","quote":"Use only categories from that list.","text":"{\"limits\": []}","usage":{"input":420,"output":9}}
+{"key":"cc7aa62d528a05dfec8ff921c9fb903ae8ab8d51910b17b537d345765313f9b4","quote":"Add a total column that is the sum of the payment columns.","text":"{\"limits\": []}","usage":{"input":434,"output":9}}
+{"key":"e7aa2b4efce5ef169e4eeda74fba5cb5bfbb34fdbbc40a2381cfb6297081f0b1","quote":"Set the random seed to a fixed number so the same sample comes back next time.","text":"{\"limits\": []}","usage":{"input":426,"output":9}}
+{"key":"8845419169223a687d58855448e5552d8e7ca14eb8c0591128d752d66aa93136","quote":"Do not keep anything there that you want to find next week.","text":"{\"limits\": [{\"limit\": 7, \"comparison\": \"lt\", \"unit\": \"days\"}]}","usage":{"input":549,"output":35}}

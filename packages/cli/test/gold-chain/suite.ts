@@ -29,6 +29,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
+import { appliedScopes } from './scopes';
 import { ASK_MODEL, answerFor, contextOf, limitsOfAnswer, loadAsks } from './limits-ask';
 
 /**
@@ -177,20 +178,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
         // The pointer reader gives a unit one label and one target. The first scope of a condition unit is applied;
         // every other scope is a gap of the product and fails the step, naming the unit and its target.
-        const applied = new Map<string, Truth['scopes'][number]>();
-        const dropped: string[] = [];
-        for (const scope of truth.scopes) {
-          const label = byId.get(scope.unit)?.label ?? '';
-          if (INSTRUCTION.has(label)) {
-            dropped.push(
-              `scope dropped: ${scope.unit} is an instruction (${label}) and cannot also be a condition; target ${scope.target}`,
-            );
-          } else if (applied.has(scope.unit)) {
-            dropped.push(
-              `scope dropped: ${scope.unit} has a second target ${scope.target} (first ${applied.get(scope.unit)?.target}); a unit takes one target`,
-            );
-          } else applied.set(scope.unit, scope);
-        }
+        const { applied, dropped } = appliedScopes(gold, truth.scopes);
         const scopes = [...applied.values()].map((scope) => ({
           unit: place(scope.unit),
           target: place(scope.target),

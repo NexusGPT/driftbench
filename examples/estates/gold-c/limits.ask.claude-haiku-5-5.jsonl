@@ -143,3 +143,14 @@
 {"key":"3b9e50b8ca6acb6df6df94852f9c83cd3589fe78c0fc8d87495873ff87c3f684","quote":"Write a note that names the guest, the dates and the request.","text":"{\"limits\": []}","usage":{"input":394,"output":9}}
 {"key":"b5430b1ff5f0da50fc431551752d8951df44bd90cedb9ed1c477d42a8c3a9cb0","quote":"Never say \"someone will call\" without a time.","text":"{\"limits\": []}","usage":{"input":390,"output":9}}
 {"key":"bc7722c21632639eb524cd6e9ec27f77aac0f1e6b8448c30f32b31671044c41e","quote":"Pass the conversation to the front desk when the guest asks for a person or asks for a discount.","text":"{\"limits\": []}","usage":{"input":406,"output":9}}
+{"key":"ea0807999ce7455ae93ab723aec336954c00be4d51c21bb324332be254aecc47","quote":"Do not comment on what the photo shows.","text":"{\"limits\": []}","usage":{"input":430,"output":9}}
+{"key":"ac8dc59a05e88405e08ba8a523f6449fe4ee0920362e6b64d412d16cc8a56286","quote":"Answer within one working day.","text":"{\"limits\": [{\"limit\": 1, \"comparison\": \"le\", \"unit\": \"working day\"}]}","usage":{"input":416,"output":35}}
+{"key":"830c7724e14320c356e13cc18b2e04444011b8bf97455396f2419bb186465378","quote":"Say yes only when the room allows it.","text":"{\"limits\": []}","usage":{"input":429,"output":9}}
+{"key":"35b9c7a68ff799e0925bc3eb5979a5b2e93569bc970f9f296d4ffb9f439b9fb6","quote":"Never leave a phone complaint without a promised call back time.","text":"{\"limits\": []}","usage":{"input":427,"output":9}}
+{"key":"4cde2fb281cdead6746ad4cfd9d42d9881f1edbc1e4cfa80d85944a98ae9d413","quote":"Do not argue about reviews.","text":"{\"limits\": []}","usage":{"input":423,"output":9}}
+{"key":"ba2ad3778b39a5363a3e6b37dc6f3d613b5d1fe4ef705ea637f3e3c86a79f8b3","quote":"Tell a guest with a dog about the west beach rule.","text":"{\"limits\": []}","usage":{"input":428,"output":9}}
+{"key":"e2c79d90d7d74e7dae710dc7b18a92af1318a2d980dd387e5e0a55d746f9fc42","quote":"Read it before you write to the guest again.","text":"{\"limits\": []}","usage":{"input":420,"output":9}}
+{"key":"471c04fab2e153587b12d446fbc450f99763cd65f4e5324f70822f76dbc72c64","quote":"Keep each reply to three lines.","text":"{\"limits\": [{\"limit\": 3, \"comparison\": \"le\", \"unit\": \"lines\"}]}","usage":{"input":432,"output":35}}
+{"key":"31fd9ca7aff50cdcf2b8715e601863beeb8695825a4a46a4f81c0513293b4bfc","quote":"Do not paste long paragraphs.","text":"{\"limits\": []}","usage":{"input":432,"output":9}}
+{"key":"c0fa364dcb4c1af362883bb5da12fcc6bfca4f9d5dbfe9ccc43b70d3e2153424","quote":"Do not use symbols, brackets or web addresses.","text":"{\"limits\": []}","usage":{"input":433,"output":9}}
+{"key":"925f5aff88da7b7d427310445d5d5c6589bbc6314284360c0f8ac60c1b675650","quote":"Do not write more than twelve lines.","text":"{\"limits\": [{\"limit\": 12, \"comparison\": \"le\", \"unit\": \"lines\"}]}","usage":{"input":424,"output":35}}
