@@ -1116,6 +1116,13 @@ const STEMS: {
       planned.forEach((row, at) => {
         if (holding[at] && row.logWeight !== Number.NEGATIVE_INFINITY)
           wrong.push(`${row.id} weighs ${row.logWeight} in memory, not minus infinity`);
+        // Every other row weighs the sum of the logarithms of its shares, a finite number (R9).
+        const wanted = a.oracle.logWeight(row.values);
+        if (
+          !holding[at] &&
+          !(Number.isFinite(row.logWeight) && Math.abs(row.logWeight - wanted) <= 1e-6)
+        )
+          wrong.push(`${row.id} weighs ${row.logWeight}, not the sum of log shares ${wanted}`);
       });
       let written: Array<{ id?: unknown; logWeight?: unknown }> = [];
       try {
