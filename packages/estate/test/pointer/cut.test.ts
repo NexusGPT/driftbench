@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CutError, cut, fingerprint, MAX_NESTING, sentenceSpans } from '../../src/pointer';
+import { nestingOf } from '../../src/pointer/cut';
 
 // Every file below is invented: the shelves, the crates and the keepers exist nowhere.
 const SHELF = `---
@@ -233,5 +234,74 @@ describe('a file that nests too deep', () => {
     const fenced = `\`\`\`\n${nested(600)}\`\`\`\n`;
     expect(cut(fenced).units).toHaveLength(1);
     expect(cut(`${' '.repeat(400)}plain text\n`).units.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the nesting of a file counts list structure, not indent width', () => {
+  const nestedBy = (width: number, levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${' '.repeat(width * i)}- level ${i}`).join('\n')}\n`;
+
+  it('reads a list indented four spaces a level as deep as one indented two', () => {
+    expect(cut(nestedBy(4, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(2, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(4, MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('refuses a list one level over the limit, whatever its indent, with the depth in the error', () => {
+    for (const width of [1, 2, 4]) {
+      const refusal = (() => {
+        try {
+          return cut(nestedBy(width, MAX_NESTING + 1));
+        } catch (cause) {
+          return cause;
+        }
+      })();
+      expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    }
+  });
+
+  it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
+    const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
+    expect(cut(flat).units).toHaveLength(300);
+    const text = `${nestedBy(2, 90)}\nA paragraph.\n\n${nestedBy(2, 90)}`;
+    expect(cut(text).units.length).toBeGreaterThan(180);
+  });
+});
+
+describe('the cost of the nesting check on a large file', () => {
+  const cpu = (run: () => void): number => {
+    const before = process.cpuUsage();
+    run();
+    const used = process.cpuUsage(before);
+    return (used.user + used.system) / 1000;
+  };
+  const rows = (count: number) => Array.from({ length: count }, (_, index) => `Row ${index}`).join('\n');
+
+  it('reads 150,000 lines to refuse a deep list at their end in well under the time the parser needs for one block', () => {
+    const deep = Array.from({ length: MAX_NESTING + 5 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join(
+      '\n',
+    );
+    const text = `${rows(150_000)}\n\n${deep}\n`;
+    let refusal: unknown;
+    const used = cpu(() => {
+      try {
+        cut(text);
+      } catch (cause) {
+        refusal = cause;
+      }
+    });
+    expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 5 });
+    // The refusal comes before the parse; a pass that did work per line of a large file twice would show here.
+    expect(used).toBeLessThan(2_000);
+  });
+
+  it('is one pass: twice the lines cost under three times the CPU, and 150,000 lines under a second', () => {
+    const small = rows(150_000);
+    const large = rows(300_000);
+    nestingOf(small);
+    const one = cpu(() => nestingOf(small));
+    const two = cpu(() => nestingOf(large));
+    expect(one).toBeLessThan(1_000);
+    expect(two).toBeLessThan(Math.max(one, 20) * 3);
   });
 });

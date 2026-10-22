@@ -147,16 +147,30 @@ export const MAX_NESTING = 100;
 
 /** A file the cutter refuses, with the reason. */
 export class CutError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    /** The reason as a code a caller reads: `nesting` is a file nested deeper than `MAX_NESTING`. */
+    readonly code: 'nesting' = 'nesting',
+    /** The file, when a caller that knows it names it. */
+    readonly path?: string,
+    /** The depth found. */
+    readonly depth?: number,
+  ) {
     super(message);
     this.name = 'CutError';
+  }
+
+  /** The same refusal with the file it concerns. */
+  at(path: string): CutError {
+    return new CutError(`${path}: ${this.message}`, this.code, path, this.depth);
   }
 }
 
 /** The deepest nesting of list items and block quotes by their markers, outside fences, in one pass. */
-function nestingOf(source: string): number {
+export function nestingOf(source: string): number {
   let deepest = 0;
   let fence: string | undefined;
+  const open: number[] = [];
   for (const line of source.split(/\r\n|\r|\n/)) {
     const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
     if (mark !== undefined) {
@@ -166,9 +180,14 @@ function nestingOf(source: string): number {
     }
     if (fence !== undefined) continue;
     const quotes = /^(?:\s{0,3}>)+/.exec(line)?.[0].split('>').length ?? 1;
+    if (line.trim() === '') continue;
     const indent = /^( *)(?:[-+*]|\d+[.)])\s/.exec(line)?.[1]?.length;
-    const lists = indent === undefined ? 0 : Math.floor(indent / 2) + 1;
-    deepest = Math.max(deepest, quotes - 1, lists);
+    const own = /^ */.exec(line)?.[0].length ?? 0;
+    // A list is a stack of the indents of its open items: an item closes the items at its indent or deeper, and so
+    // does any other line that starts at or left of them. The depth is the stack, whatever the indent per level.
+    while (open.length > 0 && (open.at(-1) as number) >= (indent ?? own)) open.pop();
+    if (indent !== undefined) open.push(indent);
+    deepest = Math.max(deepest, quotes - 1, open.length);
   }
   return deepest;
 }
@@ -179,6 +198,9 @@ export function cut(rawSource: string): Cut {
   if (nesting > MAX_NESTING) {
     throw new CutError(
       `the file nests lists or quotes ${nesting} levels deep, over the limit of ${MAX_NESTING}: it cannot be cut`,
+      'nesting',
+      undefined,
+      nesting,
     );
   }
   const base = rawSource.charCodeAt(0) === 0xfeff ? 1 : 0;
