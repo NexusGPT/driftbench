@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { cp, link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, link, mkdtemp, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -1161,6 +1161,72 @@ describe('driftbench estate run --from', () => {
       expect(json.runs.length).toBeGreaterThan(0);
       expect(json.runs.every((line) => line.carried !== true)).toBe(true);
     });
+
+    it('never prints the store salt: not in stdout, stderr, the progress file, the run records or any other file', async () => {
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const progress = join(await folder(), 'progress.jsonl');
+      const json = await firstRun(calls, small(), '--pass-env', NAME, '--progress', progress);
+      // The same run in text mode: the summary a person reads goes to stdout, not as JSON.
+      const textStore = join(await folder(), 'text.db');
+      const text = await run([
+        'estate',
+        'run',
+        ...small(),
+        '--estate',
+        FIXTURE,
+        '--runtime',
+        'claude-code',
+        '--command',
+        FAKE,
+        '--set-env',
+        `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+        '--store',
+        textStore,
+        '--states',
+        STATES,
+        '--map',
+        MAP,
+        '--agent-version',
+        'v1',
+        '--pass-env',
+        NAME,
+        ...calls.env,
+      ]);
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const store = openStore(json.store);
+      const salt = await store.metaGet('estate.salt');
+      const runs = await store.listRuns();
+      const campaigns = await store.listCampaigns();
+      await store.close();
+      const second = openStore(textStore);
+      const textSalt = await second.metaGet('estate.salt');
+      await second.close();
+      expect(salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(textSalt).toMatch(/^[0-9a-f]{32}$/);
+      expect(text.out).toContain('estate.journey.03');
+      const seen = [
+        ['stdout', JSON.stringify(json.json)],
+        ['stderr', json.err],
+        ['text stdout', text.out],
+        ['text stderr', text.err],
+        ['progress file', await readFile(progress, 'utf8')],
+        ['run records', JSON.stringify(runs)],
+        ['campaign records', JSON.stringify(campaigns)],
+      ] as const;
+      for (const [where, content] of seen) {
+        expect(content, where).not.toContain(salt as string);
+        expect(content, where).not.toContain(textSalt as string);
+      }
+      // Every other file the run left next to the store (the store itself holds the salt by design).
+      const dir = dirname(json.store);
+      for (const name of await readdir(dir)) {
+        if (name.startsWith('runs.db')) continue;
+        const path = join(dir, name);
+        if ((await stat(path)).isFile())
+          expect(await readFile(path, 'latin1'), name).not.toContain(salt as string);
+      }
+    }, 120_000);
 
     it('keeps the value out of the store', async () => {
       const calls = await counter();
