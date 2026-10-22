@@ -1,4 +1,5 @@
 import { helperFile, ROOT, SETTINGS, STANDING, skillFile } from '../layout';
+import { plantedHeader } from '../registry-record';
 import { anchored, namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { type Check, PlantedEstate, type ScanOutcome } from './planted';
@@ -311,7 +312,16 @@ const HOSTILE: Case[] = [
       const rows = Array.from({ length: 5000 }, (_, i) => `| G${i} | g${i}.sh | none |`);
       e.raw(
         `${ROOT}/guards/CHECK-REGISTRY.md`,
-        ['| Id | Guard | Enforces |', '|---|---|---|', ...rows, ''].join('\n'),
+        [
+          plantedHeader([
+            ['id', 'Id'],
+            ['guard', 'Guard'],
+            ['enforces', 'Enforces'],
+          ]),
+          '|---|---|---|',
+          ...rows,
+          '',
+        ].join('\n'),
         o,
       );
     },
@@ -547,7 +557,11 @@ const DECOYS: Case[] = [
           'An example of a row:',
           '',
           '```markdown',
-          '| Id | Guard | Enforces |',
+          plantedHeader([
+            ['id', 'Id'],
+            ['guard', 'Guard'],
+            ['enforces', 'Enforces'],
+          ]),
           '|---|---|---|',
           `| G1 | ${guard} | R1 |`,
           '```',
