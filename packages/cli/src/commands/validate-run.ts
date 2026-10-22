@@ -48,7 +48,6 @@ import {
   seedLabel,
   seedSpecs,
   setLevelTable,
-  splitBeyond,
   statsBankHash,
   writeFloors,
   writeHandover,
@@ -57,6 +56,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { measuredSeeds, withinStatsMeasurementSweep } from './stats-sweep-cache';
 import { USAGE_EXIT, type ValidateCommandOptions, type ValidateDeps } from './validate';
+import { splitBeyond } from './validate-beyond';
 
 export const defaultValidateDeps: ValidateDeps = {
   ladders: registeredLadders,

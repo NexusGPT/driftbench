@@ -1,4 +1,4 @@
-import type { LadderReport, LevelRow } from './ladder';
+import type { LadderReport, LevelRow } from '@agent-nexus/driftbench-validators';
 
 /** What the section of a report that holds the levels measured beyond the first failing level says about them. */
 export const BEYOND_NOTE =

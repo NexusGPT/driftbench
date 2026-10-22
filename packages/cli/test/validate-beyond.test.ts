@@ -1,6 +1,7 @@
+import { defineLadder, registeredLadders, runSeeds, seedSpecs } from '@agent-nexus/driftbench-validators';
 import { describe, expect, it } from 'vitest';
-import { BEYOND_NOTE, defineLadder, registeredLadders, runSeeds, seedSpecs, splitBeyond } from '../src/index';
-import { bankLadder } from './support';
+import { bankLadder } from '../../validators/test/support';
+import { BEYOND_NOTE, splitBeyond } from '../src/commands/validate-beyond';
 
 describe('the levels measured beyond the first failing level', () => {
   it('moves them to their own section, shows them as not run in the rows, keeps the level', async () => {
