@@ -185,6 +185,10 @@ function runFrom(
           if (timer) clearTimeout(timer);
           timer = setTimeout(() => {
             traceLine(where, `child did not end within ${DRAIN_MS} ms after it closed its frame: stopped`);
+            // Every stop is logged, so a child that does not end stays visible: one JSON line on stderr.
+            process.stderr.write(
+              `${JSON.stringify({ event: 'stats-bank-child-stopped', reason: 'no exit after its frame closed', seed, start, pid: child.pid, afterMs: DRAIN_MS })}\n`,
+            );
             child.kill('SIGKILL');
             finish(items.length);
           }, DRAIN_MS);

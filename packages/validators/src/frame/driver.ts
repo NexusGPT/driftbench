@@ -457,30 +457,44 @@ if («setup».command) {
   await import(«toUrl»(«setup».command).href);
 } else {
   // Built-in objects (docs/validators.md section 12.9, "Built-in objects"). A product that replaces a method of a
-  // built-in object (Array.prototype.map, Math.sqrt), adds or removes a property of one, changes a descriptor, a
-  // prototype or the extensibility of one, or rebinds a standard global name, changes how its caller's own code runs
+  // built-in object (Array.prototype.map, Math.sqrt, eval), adds or removes a property of one, changes a descriptor, a
+  // prototype or the extensibility of one, or rebinds or adds a global name, changes how its caller's own code runs
   // after the call. A call in the caller's process shows it; a confined run keeps it in its own process (review of
   // PR 986, codex run 39782335737: a mean that replaced the array prototype's map after it computed the right answer
   // failed the mean-shift items directly and passed them through the frame). Before the product loads, the driver
-  // records every object reachable from the standard global names through properties and prototypes, with the
-  // descriptor of each own property; after every call it compares them through the references captured above and
-  // names the first change.
+  // records what the realm itself lists, never a hand list of names (review of PR 986, codex runs 39821091340 and
+  // 39821718881: eval and Intl were missing from such a list): every own property of the global object, and from
+  // there, to a depth of 8, every function, every object a function holds as its prototype, every prototype of a
+  // recorded object and every object whose prototype is the base object prototype or null (a namespace such as
+  // Math, Intl or Reflect), with the descriptor of each own property. Objects of any other kind (process, console,
+  // a stream) hold the state of the process and are recorded only as the value of the property that holds them.
+  // The global object's lazy properties (a getter that defines the value on first read) are read first, so their
+  // first use by the product is not a change. After every call the driver compares the record through the
+  // references captured above and names the first change.
   const «globalObject» = globalThis;
-  const «builtinNames» = ['globalThis', 'Object', 'Function', 'Array', 'Number', 'String', 'Boolean', 'Symbol', 'BigInt', 'Math', 'JSON', 'Reflect', 'Proxy', 'Map', 'Set', 'WeakMap', 'WeakSet', 'WeakRef', 'FinalizationRegistry', 'Date', 'RegExp', 'Promise', 'Iterator', 'Error', 'TypeError', 'RangeError', 'SyntaxError', 'ReferenceError', 'EvalError', 'URIError', 'AggregateError', 'ArrayBuffer', 'SharedArrayBuffer', 'DataView', 'Atomics', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float16Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array', 'parseFloat', 'parseInt', 'isFinite', 'isNaN', 'encodeURIComponent', 'decodeURIComponent', 'encodeURI', 'decodeURI'];
-  // The descriptor of a global name, by name; the objects, each with its path, prototype, extensibility, own keys in
-  // order and their descriptors.
-  const «bindings» = [];
-  const «builtins» = [];
-  {
-    const «queue» = [];
-    for (const «builtinName» of «builtinNames») {
-      const «binding» = «describe»(«globalObject», «builtinName»);
-      if («binding» === undefined) continue;
-      «bindings».push([«builtinName», «binding»]);
-      if («builtinName» !== 'globalThis') «queue».push([«builtinName», «globalObject»[«builtinName»]]);
+  const «baseProto» = Object.prototype;
+  const «builtinDepth» = 8;
+  for (const «lazyKey» of «ownKeys»(«globalObject»)) {
+    const «lazy» = «describe»(«globalObject», «lazyKey»);
+    if («lazy» && «lazy».get !== undefined) {
+      try {
+        void «globalObject»[«lazyKey»];
+      } catch {
+        // a getter that throws keeps throwing for the product too
+      }
     }
-    // The intrinsics no global name holds.
-    «queue».push(
+  }
+  // The objects, each with its place (the record that holds it and the label of the property or prototype step), its
+  // prototype, extensibility, own keys in order with their labels, and their descriptors. The global object is the
+  // first; its changes are named after those of the objects it holds. Every label is made before the product loads.
+  const «builtins» = [];
+  // The path of a record: its labels from the root, by concatenation only.
+  const «pathOf» = («record») =>
+    «record».parent === null || «record».parent.thing === «globalObject» ? «record».label : «pathOf»(«record».parent) + «record».label;
+  {
+    const «queue» = [[null, 'globalThis', «globalObject», 0]];
+    // The intrinsics no property holds.
+    for (const [«label», «thing»] of [
       ['%ArrayIteratorPrototype%', «protoOf»([][Symbol.iterator]())],
       ['%MapIteratorPrototype%', «protoOf»(new Map().entries())],
       ['%SetIteratorPrototype%', «protoOf»(new Set().values())],
@@ -490,22 +504,43 @@ if («setup».command) {
       ['%GeneratorFunction.prototype%', «protoOf»(function* () {})],
       ['%AsyncFunction.prototype%', «protoOf»(async function () {})],
       ['%AsyncGeneratorFunction.prototype%', «protoOf»(async function* () {})],
-    );
-    const «met» = new Set();
+    ])
+      «queue».push([null, «label», «thing», 1]);
+    // An object met again keeps its record; a place through properties names it better than one through prototypes.
+    const «met» = new Map();
     for (let «head» = 0; «head» < «queue».length; «head» += 1) {
-      const [«where», «thing»] = «queue»[«head»];
-      if («thing» === null || (typeof «thing» !== 'object' && typeof «thing» !== 'function') || «met».has(«thing»)) continue;
-      «met».add(«thing»);
+      const [«parent», «label», «thing», «depth»] = «queue»[«head»];
+      if («thing» === null || (typeof «thing» !== 'object' && typeof «thing» !== 'function')) continue;
+      const «seenRecord» = «met».get(«thing»);
+      if («seenRecord» !== undefined) {
+        const «candidate» = { parent: «parent», label: «label», thing: «thing» };
+        if («pathOf»(«seenRecord»).includes('[[Prototype]]') && !«pathOf»(«candidate»).includes('[[Prototype]]')) {
+          «seenRecord».parent = «parent»;
+          «seenRecord».label = «label»;
+        }
+        continue;
+      }
       const «keys» = «ownKeys»(«thing»);
       const «descs» = «keys».map((«key») => «describe»(«thing», «key»));
+      const «labels» = «keys».map((«key») => («thing» === «globalObject» ? String(«key») : '.' + String(«key»)));
       const «protoNow» = «protoOf»(«thing»);
-      «builtins».push({ thing: «thing», where: «where», proto: «protoNow», ext: «isExt»(«thing»), keys: «keys», descs: «descs» });
-      «queue».push([«where» + '.[[Prototype]]', «protoNow»]);
+      const «record» = { parent: «parent», label: «label», thing: «thing», proto: «protoNow», ext: «isExt»(«thing»), keys: «keys», labels: «labels», descs: «descs» };
+      «met».set(«thing», «record»);
+      «builtins».push(«record»);
+      if («depth» >= «builtinDepth») continue;
+      «queue».push([«record», «thing» === «globalObject» ? 'globalThis.[[Prototype]]' : '.[[Prototype]]', «protoNow», «depth» + 1]);
       for (let «k» = 0; «k» < «keys».length; «k» += 1) {
-        const «at» = «where» + '.' + String(«keys»[«k»]);
         const «desc» = «descs»[«k»];
-        if («hasOwn»(«desc», 'value')) «queue».push([«at», «desc».value]);
-        else «queue».push([«at» + ' (getter)', «desc».get], [«at» + ' (setter)', «desc».set]);
+        if (!«hasOwn»(«desc», 'value')) {
+          «queue».push([«record», «labels»[«k»] + ' (getter)', «desc».get, «depth» + 1], [«record», «labels»[«k»] + ' (setter)', «desc».set, «depth» + 1]);
+          continue;
+        }
+        const «held» = «desc».value;
+        if (typeof «held» === 'function') «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        else if («held» !== null && typeof «held» === 'object') {
+          const «heldProto» = «protoOf»(«held»);
+          if («keys»[«k»] === 'prototype' || «heldProto» === «baseProto» || «heldProto» === null) «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        }
       }
     }
   }
@@ -516,25 +551,28 @@ if («setup».command) {
     if («x».enumerable !== «y».enumerable || «x».configurable !== «y».configurable) return false;
     return «xData» ? «same»(«x».value, «y».value) && «x».writable === «y».writable : «x».get === «y».get && «x».set === «y».set;
   };
-  // The first built-in object the product changed since it was recorded, by its path, or undefined.
-  const «builtinChange» = () => {
-    for (let «b» = 0; «b» < «bindings».length; «b» += 1) {
-      const «bound» = «bindings»[«b»];
-      const «boundNow» = «describe»(«globalObject», «bound»[0]);
-      if («boundNow» === undefined || !«sameDescriptor»(«boundNow», «bound»[1])) return 'the global name ' + «bound»[0];
-    }
-    for (let «r» = 0; «r» < «builtins».length; «r» += 1) {
-      const «was» = «builtins»[«r»];
-      if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «was».where;
-      if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «was».where;
-      const «keysNow» = «ownKeys»(«was».thing);
-      if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «was».where;
-      for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
-        if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «was».where;
-        if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»])) return «was».where + '.' + String(«was».keys[«k»]);
-      }
+  // The first change in one recorded object, by its path, or undefined.
+  const «changeOf» = («was») => {
+    const «global» = «was».thing === «globalObject»;
+    const «named» = «global» ? 'the global object' : «pathOf»(«was»);
+    if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «named»;
+    if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «named»;
+    const «keysNow» = «ownKeys»(«was».thing);
+    if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «named»;
+    for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
+      if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «named»;
+      if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»]))
+        return «global» ? 'the global name ' + «was».labels[«k»] : «named» + «was».labels[«k»];
     }
     return undefined;
+  };
+  // The first built-in object the product changed since it was recorded, by its path, or undefined.
+  const «builtinChange» = () => {
+    for (let «r» = 1; «r» < «builtins».length; «r» += 1) {
+      const «change» = «changeOf»(«builtins»[«r»]);
+      if («change» !== undefined) return «change»;
+    }
+    return «changeOf»(«builtins»[0]);
   };
   // The change reported with each answer: every call after the change reports it, as every later call in the
   // caller's process would run with it.
