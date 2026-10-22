@@ -570,7 +570,7 @@ rules:
   one_message_per_turn: true
 ```
 
-- `tools` lists the calls you expect. `label` is the tool name. `count` is how many calls, and `0` means none. A count of 0 is a prohibition, so it also covers the helpers the agent hands work to; if you mean "the main agent never calls it", add `actor: main`. `input` says what the call must hold, argument by argument.
+- `tools` lists the calls you expect. `label` is the tool name. `count` is how many calls, and `0` means none. A count of 0 is a prohibition. It also covers the helpers the agent hands work to. To limit it to the main agent, add `actor: main`. `input` says what the call must hold, argument by argument.
 - An argument can be a plain value or `regex`, `contains`, `one_of`, `nonempty`, `absent`, `exact` or `subset`.
 - `tool_order` is `exact`, `in_order` or `any_order`. With `in_order`, other calls may sit between the listed ones.
 - `ledger_add` adds facts to the ledger, the facts the agent holds, from this block on.
