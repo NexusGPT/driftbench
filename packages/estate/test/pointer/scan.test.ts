@@ -785,7 +785,10 @@ describe('a run out of step with the units of its window', () => {
       { runs: 3 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
-    expect(result.outOfStep).toHaveLength(result.windows / 3);
+    // One window per file; its slipped run 2 is asked again as run 4, in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files);
+    expect(result.reasked).toHaveLength(files);
     expect(result.outOfStep[0]).toMatch(
       /run 2 of planted: \d+ of \d+ quoted clauses are not in their unit; the run is left out of the vote/,
     );
@@ -809,7 +812,9 @@ describe('a run out of step with the units of its window', () => {
       { runs: 5 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
-    expect(result.outOfStep).toHaveLength((result.windows / 5) * 3);
+    // Runs 2, 3 and 4 slip in each file's one window; their re-asks (runs 6, 7 and 8) answer order in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files * 3);
     expect(result.unlabeled).toBe(0);
     expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
