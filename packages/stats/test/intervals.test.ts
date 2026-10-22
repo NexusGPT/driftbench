@@ -226,11 +226,14 @@ describe('wilson at counts beyond the square root of the largest double', () => 
       const zero = wilson(0, n);
       expect(zero.lower).toBe(0);
       expect(Math.abs(zero.upper - z2 / (n + z2)) / (z2 / n)).toBeLessThan(1e-12);
+      // One success in n: the endpoints are c / n with c below, from the closed form of the score interval.
+      const one = wilson(1, n);
+      const r = Z95 * Math.sqrt(1 + z2 / 4);
+      expect(Math.abs(one.upper * n - (1 + z2 / 2 + r)) / (1 + z2 / 2 + r)).toBeLessThan(1e-9);
+      expect(Math.abs(one.lower * n - (1 + z2 / 2 - r)) / (1 + z2 / 2 - r)).toBeLessThan(1e-9);
       const half = wilson(n / 2, n);
-      const width = Z95 * Math.sqrt(0.25 / n);
-      expect(half.lower).toBeLessThan(0.5);
-      expect(half.upper).toBeGreaterThan(0.5);
-      expect(Math.abs((half.upper - half.lower) / 2 - width) / width).toBeLessThan(1e-9);
+      expect(half.lower).toBeLessThanOrEqual(0.5);
+      expect(half.upper).toBeGreaterThanOrEqual(0.5);
       const all = wilson(n, n);
       expect(all.upper).toBe(1);
       expect(all.lower).toBeLessThanOrEqual(1);

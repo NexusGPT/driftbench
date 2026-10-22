@@ -90,13 +90,18 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             const upper = z2 / (total + z2);
             must(
               zl === 0 && Math.abs(zh - upper) <= upper * 1e-9,
-              () => `weightInterval(0, 2^${Math.log2(total)}) = [${zl}, ${zh}]; the Wilson interval is [0, ${upper}]`,
+              () =>
+                `weightInterval(0, 2^${Math.log2(total)}) = [${zl}, ${zh}]; the Wilson interval is [0, ${upper}]`,
             );
-            const [hl, hh] = callInterval(ctx, total / 2, total);
-            const half = Z * Math.sqrt(0.25 / total);
+            // One success in a total this large: both endpoints are c / total, c from the closed form.
+            const [ol, oh] = callInterval(ctx, 1, total);
+            const r = Z * Math.sqrt(1 + z2 / 4);
+            const wantHigh = (1 + z2 / 2 + r) / total;
+            const wantLow = (1 + z2 / 2 - r) / total;
             must(
-              hl < 0.5 && hh > 0.5 && Math.abs((hh - hl) / 2 - half) <= half * 1e-6,
-              () => `weightInterval(2^${Math.log2(total) - 1}, 2^${Math.log2(total)}) = [${hl}, ${hh}]; it holds 0.5 with half-width ${half}`,
+              Math.abs(oh - wantHigh) <= wantHigh * 1e-9 && Math.abs(ol - wantLow) <= wantLow * 1e-9,
+              () =>
+                `weightInterval(1, 2^${Math.log2(total)}) = [${ol}, ${oh}]; the Wilson interval is [${wantLow}, ${wantHigh}]`,
             );
           }
         },
