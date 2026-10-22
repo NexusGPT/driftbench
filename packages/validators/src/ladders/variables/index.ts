@@ -19,9 +19,13 @@ export type { VariablesImpl } from './interface';
 export const VARIABLES_LADDER_VERSION = 2;
 
 const LEVEL_TEXT: Record<Level, { name: string; metric: string }> = {
-  store: {
-    name: 'the variable store from its three sources',
-    metric: 'store items (sources, quotes, values, boundaries) passing / items',
+  'store-core': {
+    name: 'the store file: loader, ids and boundaries',
+    metric: 'store-core items (file loader, ids, boundaries) passing / items',
+  },
+  'store-readers': {
+    name: 'the readers of the three sources',
+    metric: 'reader items (estate spans, quotes, owner words, conversations, merging) passing / items',
   },
   constraints: {
     name: 'impossible pairs and weights',
@@ -59,6 +63,31 @@ export type VariablesLadderOptions = {
   /** Run the bank in this process instead of child processes (no protection against an endless loop). */
   inProcess?: boolean;
 };
+
+/**
+ * A level opens only when every level before it has no failing item. An item of a level that is still locked counts
+ * as failing, whatever it returned, and says which level locks it, so the score never rises because items are hidden
+ * and a product cannot collect later levels before it has earlier ones.
+ */
+export function lockedRun(items: readonly BankItem[], run: BankRun, level: Level): BankRun {
+  const at = LEVELS.indexOf(level);
+  for (const earlier of LEVELS.slice(0, at)) {
+    const failing = items.filter(
+      (item) => item.level === earlier && !(run.get(item.id)?.pass ?? false),
+    ).length;
+    if (failing === 0) continue;
+    const locked: BankRun = new Map();
+    for (const item of items) {
+      if (item.level !== level) continue;
+      locked.set(item.id, {
+        pass: false,
+        detail: `locked: level ${earlier} still has ${failing} failing item${failing === 1 ? '' : 's'}; it opens when none fails`,
+      });
+    }
+    return locked;
+  }
+  return run;
+}
 
 /**
  * The variables validator (docs/validators.md sections 1 and 12): a bank of items in seven sub-banks, each a
@@ -99,7 +128,7 @@ export function variablesLadder(options: VariablesLadderOptions = {}): Ladder {
         const { items, run } = await seedRun(seed, root);
         return levelMeasure(
           items.filter((item) => item.level === level),
-          run,
+          lockedRun(items, run, level),
         );
       },
     })),
