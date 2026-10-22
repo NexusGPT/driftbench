@@ -922,3 +922,45 @@ hard_cases:
     - f8bfecc990
     - 86a003eebe
     - 87595a49d6
+
+# refers_to: a unit that points at another unit for its number ("the next sentence"), giving the unit it points at.
+refers_to:
+  - unit: 3f7550d6d2
+    target: fdc7f59978
+  - unit: 7f2d8f4a3e
+    target: 282577c0df
+
+# limits_table: a standalone table whose rows state limits (no rule refers to it): its header row and its data rows,
+# first to last, by unit id.
+limits_table:
+  - file: H-appointment-booking-skill.md
+    header: 87d75bf97e
+    first: 08d7b03244
+    last: 50d884ee7a
+    rows:
+      - 08d7b03244
+      - d709427125
+      - 50d884ee7a
+  - file: H-appointment-booking-skill.md
+    header: 9651728e48
+    first: b0f83ecc60
+    last: 0f3a931cdd
+    rows:
+      - b0f83ecc60
+      - 0f3a931cdd
+  - file: H-boarding-and-stays-skill.md
+    header: 3112a4696a
+    first: 9c20f6ca82
+    last: cb9c8ecfd1
+    rows:
+      - 9c20f6ca82
+      - cb9c8ecfd1
+  - file: H-clinic-systems-reference.md
+    header: 79043fca40
+    first: 0b63d1431b
+    last: 87595a49d6
+    rows:
+      - 0b63d1431b
+      - f8bfecc990
+      - 86a003eebe
+      - 87595a49d6
