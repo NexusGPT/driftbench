@@ -211,7 +211,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
         rule: 'validate accepts a store the page accepts',
         input: at,
         got: { refusedWith: issueText('errors' in result ? result.errors : []) },
-      }),);
+      }));
       return;
     }
     const want = c.want as Extract<Want, { kind: 'reject' }>;
@@ -220,7 +220,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
       input: at,
       got: 'the store was accepted',
       expected: { code: want.code, paths: want.paths },
-    }),);
+    }));
     const errors = result.ok ? [] : result.errors;
     const hit = errors.some(
       (e) =>
@@ -231,7 +231,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
       input: at,
       got: { refusedWith: issueText(errors) },
       expected: { code: want.code, paths: want.paths },
-    }),);
+    }));
     return;
   }
   const result = callQuotes(ctx, clone(c.store), { ...c.files });
@@ -244,7 +244,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
     input: at,
     got: { reported: got },
     expected: { issues: need },
-  }),);
+  }));
 }
 
 /** Runs the calls of an item in their certified order; the first wrong answer fails the item. */

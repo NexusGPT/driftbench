@@ -58,7 +58,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       input: { budget, seeds: seeds.length },
       got: { rows: plan.rows.length },
       expected: { rows: seeds.length },
-    }),);
+    }));
     plan.rows.forEach((row, i) => {
       must(
         row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]),
@@ -217,19 +217,19 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           rule: 'a row that holds a value of weight 0 reports a null logWeight',
           input: { row: i },
           got: { logWeight: row.logWeight },
-        }),);
+        }));
         seenNull = true;
       } else {
         check(!seenNull, () => ({
           rule: 'every row of finite weight comes before every row of weight 0',
           input: { row: i },
-        }),);
+        }));
         check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE, () => ({
           rule: 'logWeight is the sum of the logs of the shares of the values of the row',
           input: { row: i },
           got: { logWeight: row.logWeight },
           expected: want,
-        }),);
+        }));
       }
     }
     must(seenNull, 'the plan has no row with a value of weight 0; the value still needs its tuples covered');
@@ -292,7 +292,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       input: variant,
       got: { problems },
       expected: oracle.hidden,
-    }),);
+    }));
     if (variant === 'single-value')
       needWarning(
         plan,

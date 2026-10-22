@@ -171,7 +171,7 @@ export function planAndCheck(
     input: describeSpace(space),
     got: { problems: facts.problems },
     expected: facts.hidden,
-  }),);
+  }));
   return facts;
 }
 

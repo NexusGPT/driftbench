@@ -184,7 +184,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         rule: 'weightInterval contains its estimate with a useful width',
         input: { count, total: 100 },
         got: [lo, hi],
-      }),);
+      }));
     }
     const cases: Array<[number, number]> =
       variant === 'one-session'
@@ -220,7 +220,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           input: { count, total },
           got: [lo, hi],
         }),
-);
+      );
     }
   },
 
@@ -247,7 +247,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           input: { count, total: n },
           got: [lo, hi],
         }),
-);
+      );
       if (lo <= p && p <= hi) inside += 1;
     }
     const need = coverageThreshold(reps, p, n);

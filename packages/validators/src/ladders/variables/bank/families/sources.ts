@@ -75,7 +75,7 @@ export function exactlyOne<T>(list: readonly T[], what: string): T {
     input: what,
     got: { results: list.length },
     expected: { results: 1 },
-  }),);
+  }));
   return list[0] as T;
 }
 
@@ -648,7 +648,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     check(leak === undefined, () => ({
       rule: 'nothing of a conversation but counts reaches the store',
       got: { leak },
-    }),);
+    }));
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     must(!hasPrefix, 'the store holds a fragment of a conversation text or id');
   },

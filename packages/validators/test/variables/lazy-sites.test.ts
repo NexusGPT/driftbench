@@ -80,7 +80,8 @@ describe('every diagnostic of the variables ladder is built lazily', () => {
     const eager: string[] = [];
     for (const path of files(ROOT)) {
       const source = readFileSync(path, 'utf8');
-      for (const arg of secondArguments(source)) if (arg.startsWith('{')) eager.push(`${path.slice(ROOT.length)}: ${arg.slice(0, 60)}`);
+      for (const arg of secondArguments(source))
+        if (arg.startsWith('{')) eager.push(`${path.slice(ROOT.length)}: ${arg.slice(0, 60)}`);
     }
     expect(eager).toEqual([]);
   });

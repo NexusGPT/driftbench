@@ -54,7 +54,7 @@ function ordered(logs: readonly number[], label: string): void {
         previousLogWeight: Number(prev.toFixed(4)),
       },
       expected: RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first',
-    }),);
+    }));
   }
 }
 
@@ -165,7 +165,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
       got: { problems: facts.problems },
       expected: facts.hidden,
-    }),);
+    }));
     const total = full.rows.length;
     ordered(freshLogs(space, full, seeds.length), `${total} rows`);
     if (variant.startsWith('cut-')) {
@@ -190,7 +190,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           input: { budget },
           got: { droppedLogWeight: Number(droppedMin.toFixed(4)), keptLogWeight: Number(keptMax.toFixed(4)) },
           expected: 'the rare rows are cut last',
-        }),);
+        }));
       } else {
         const keptMin = Math.min(...kept);
         const droppedMax = Math.max(...dropped);
@@ -199,7 +199,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           input: { budget },
           got: { droppedLogWeight: Number(droppedMax.toFixed(4)), keptLogWeight: Number(keptMin.toFixed(4)) },
           expected: 'the rare rows are cut first',
-        }),);
+        }));
       }
     }
   },
@@ -299,12 +299,12 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         input: { row: i },
         got: { logWeight: r.logWeight },
         expected: want,
-      }),);
+      }));
       check((r.logWeight as number) <= previous + LOG_TOLERANCE, () => ({
         rule: 'the reported weights do not rise along the plan',
         input: { row: i },
         got: { logWeight: r.logWeight, previous },
-      }),);
+      }));
       previous = r.logWeight as number;
     }
     void groupsOf;

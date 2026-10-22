@@ -77,13 +77,13 @@ function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): 
     rule: 'a value whose quote the file does not hold is refused',
     input: { label, id, quote },
     got: { kept: true },
-  }),);
+  }));
   const named = refusalsMentioning(store, id);
   check(named.length >= 1, () => ({
     rule: 'a refused value is named in the refusal list',
     input: { label, id },
     got: { refusals: store.refused },
-  }),);
+  }));
 }
 
 function mustKeep(store: StoreDoc, quote: string, id: string, label: string, source?: string): void {
@@ -280,7 +280,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
       got: { refusals: store.refused },
-    }),);
+    }));
   },
 
   'quotes.refuse.inexact': (variant, ctx) => {
@@ -557,14 +557,14 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       rule: 'a refused clause is named in the refusal list',
       input: { span },
       got: { refusals: store.refused },
-    }),);
+    }));
     const good = variablesCiting(store, other.text);
     check(good.length === 1, () => ({
       rule: 'a clause the file holds still gives one variable beside a clause it does not hold',
       input: other.text,
       got: { variables: good.length },
       expected: { variables: 1 },
-    }),);
+    }));
   },
 
   'quotes.stored-verbatim': (variant, ctx) => {

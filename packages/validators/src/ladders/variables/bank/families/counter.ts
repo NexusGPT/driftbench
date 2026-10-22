@@ -82,13 +82,13 @@ function compare(
     input: label,
     got: { allowed: String(allowed) },
     expected: { allowed: String(ref.allowed) },
-  }),);
+  }));
   check(covered === BigInt(ref.covered), () => ({
     rule: 'coverage counts the covered tuples exactly, as an exhaustive enumeration does',
     input: label,
     got: { covered: String(covered) },
     expected: { covered: String(ref.covered) },
-  }),);
+  }));
   return result;
 }
 
@@ -449,12 +449,12 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
           got: { allowed: String(result.allowed), covered: String(result.covered) },
           expected: { allowed: required.size, covered: covered.size },
         }),
-);
+      );
       check(Array.isArray(list), () => ({
         rule: 'coverage returns the list of uncovered tuples it was asked for',
         input: { uncoveredLimit: limit },
         got: { returned: list },
-      }),);
+      }));
       const keys = (list as Row[]).map((tuple) => {
         const entries = Object.entries(tuple).map(([variable, value]) => {
           const i = space.vars.findIndex((v) => v.id === variable);

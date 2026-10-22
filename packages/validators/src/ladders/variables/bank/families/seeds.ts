@@ -338,7 +338,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       input: { space: describeSpace(space), seeds: count },
       got: { problems: facts.problems },
       expected: facts.hidden,
-    }),);
+    }));
     must(
       ms <= 8000,
       () => `planning with ${count} seeds took ${Math.round(ms)} ms of processor time, over 8000 ms`,
