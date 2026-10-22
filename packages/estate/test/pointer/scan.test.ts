@@ -114,13 +114,39 @@ describe('the pointer scan', () => {
     expect(log).toHaveLength(4);
     expect(cassette.entries.size).toBe(4);
     expect(first.usage).toEqual([
-      { id: 'planted', cls: 'system2', model: 'planted-1', calls: 4, recorded: 4, input: 40, output: 16 },
+      {
+        id: 'planted',
+        cls: 'system2',
+        model: 'planted-1',
+        calls: 4,
+        recorded: 4,
+        input: 40,
+        output: 16,
+        replayed: 0,
+        replayedInput: 0,
+        replayedOutput: 0,
+      },
     ]);
 
     const second = await pointerScan(
       input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), { mode: 'replay' }),
     );
     expect(second.calls).toBe(0);
+    // The tokens of the answers it replays come from the recording.
+    expect(second.usage).toEqual([
+      {
+        id: 'planted',
+        cls: 'system2',
+        model: 'planted-1',
+        calls: 0,
+        recorded: 0,
+        input: 0,
+        output: 0,
+        replayed: 4,
+        replayedInput: 40,
+        replayedOutput: 16,
+      },
+    ]);
     expect(renderLedger(second.ledger)).toBe(renderLedger(first.ledger));
     expect(second.labelled.map((item) => [item.id, item.label])).toEqual(
       first.labelled.map((item) => [item.id, item.label]),
