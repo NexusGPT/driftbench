@@ -261,14 +261,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             cassette: new pointer.Cassette(),
             mode: 'record',
             estateKey: GOLD_ESTATE_KEY,
-            // The gold labeller reads a file whole: a window cap (60 units) must not cut a scope from its targets.
-            windowUnits: 10_000,
           },
         });
         chain.scan = scan;
         const done = must(scan.pointer, '2');
         const problems: string[] = [];
         for (const failure of done.failed) problems.push(`window failed: ${failure}`);
+        for (const refusal of [...done.refusals, ...done.atomRefusals]) problems.push(`refused: ${refusal}`);
+        for (const cut of done.sectionCuts) problems.push(`section cut: ${cut}`);
 
         const ledgerAt = new Map(
           done.ledger.entries

@@ -169,7 +169,9 @@ describe('the pointer scan', () => {
 
   it('re-labels only the windows of an edited unit', async () => {
     const files = [{ path: 'quay.md', text: QUAY }];
-    const first = await pointerScan(input(plantedDense(byLength), new Cassette(), { files, windowUnits: 4 }));
+    const first = await pointerScan(
+      input(plantedDense(byLength), new Cassette(), { files, windowUnits: 4, keepSections: false }),
+    );
     const log: string[] = [];
     const edited = [
       {
@@ -181,6 +183,7 @@ describe('the pointer scan', () => {
       input(plantedDense(byLength, log), new Cassette(), {
         files: edited,
         windowUnits: 4,
+        keepSections: false,
         previous: first.ledger,
       }),
     );
@@ -334,7 +337,11 @@ describe('the pointer scan', () => {
       window.units.length > limit ? tooLarge() : undefined;
     const cassette = new Cassette();
     const first = await pointerScan(
-      input(plantedDense(byLength, log, { fail: refuseOver(2) }), cassette, { files, windowUnits: 12 }),
+      input(plantedDense(byLength, log, { fail: refuseOver(2) }), cassette, {
+        files,
+        windowUnits: 12,
+        keepSections: false,
+      }),
     );
     // Six units: the window of six and the two halves of three are refused, the quarters of two and one answer.
     expect(first.failed).toEqual([]);
@@ -356,6 +363,7 @@ describe('the pointer scan', () => {
       input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), {
         files,
         windowUnits: 12,
+        keepSections: false,
         mode: 'replay',
       }),
     );

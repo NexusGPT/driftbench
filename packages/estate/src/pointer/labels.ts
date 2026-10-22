@@ -255,6 +255,8 @@ export type Window = {
   headingPath: string[];
   units: WindowUnit[];
   shown?: ShownLine[];
+  /** True when the window ends at its ceiling inside a section: the next unit is in the same section. */
+  cutsSection?: true;
 };
 
 /** What a labeler says about a window: a label per unit or range, and a target for a label that needs one. */
