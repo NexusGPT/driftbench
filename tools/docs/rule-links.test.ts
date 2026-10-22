@@ -179,7 +179,7 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
         ],
         dir,
       );
-      expect(original.code, original.err).toBe(0);
+      expect(original.code, `ORIGOUT ${original.err} ${original.lines.join(' / ')}`).toBe(0);
       shown((original.lines.at(-1) ?? '').split(' Cost ')[0] ?? '');
       const mutated = await cli(
         ['estate', 'run', ...named, '--estate', 'mutant', ...common, '--store', 'mutant.db', ...states],
