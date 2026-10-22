@@ -71,7 +71,7 @@ describe('a condition keeps a target past the window cap', () => {
     const at = (text: string) => window.units.find((unit) => unit.text === text)?.n;
     const when = at('Note 1 for the night watch');
     const first = at('Note 2 for the night watch');
-    const last = at('Note 9 for the night watch');
+    const last = at('Note 6 for the night watch');
     return window.units.flatMap((unit): Labelled[] => {
       if (unit.n === when && first !== undefined) {
         return [
@@ -101,10 +101,16 @@ describe('a condition keeps a target past the window cap', () => {
         ...over,
       });
     const kept = await run({});
-    const targets = kept.labelled.filter((item) => item.label === 'when').flatMap((item) => [item.target, ...(item.scopes ?? [])]);
-    expect(targets.map((target) => target?.unit.text)).toEqual([
+    const reach = (scan: typeof kept) =>
+      scan.labelled
+        .filter((item) => item.label === 'when')
+        .flatMap((item) => [item.target, ...(item.scopes ?? [])])
+        .map((target) => target?.unit.text);
+    // The control: with the cap alone the second target sits in another window and the answer loses it.
+    expect(reach(await run({ keepSections: false }))).toEqual(['Note 2 for the night watch']);
+    expect(reach(kept)).toEqual([
       'Note 2 for the night watch',
-      'Note 9 for the night watch',
+      'Note 6 for the night watch',
     ]);
     expect(kept.failed).toEqual([]);
   });

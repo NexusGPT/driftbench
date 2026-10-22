@@ -42,6 +42,8 @@ export type PointerInput = {
   previous?: Ledger;
   /** The most units in one window before the labeler's own cap. Default 60. */
   windowUnits?: number;
+  /** Let a window run on to the end of its section, up to twice `windowUnits`. Default true. */
+  keepSections?: boolean;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
   /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
@@ -143,9 +145,16 @@ export type PointerResult = {
 /**
  * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
  * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
- * the next needs both in the window.
+ * the next needs both in the window. With `keepSection`, the cap also waits for the end of the section (at most
+ * twice the cap), so a unit that scopes others keeps its targets in the window.
  */
-export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
+export function windowsOf(
+  path: string,
+  units: readonly Unit[],
+  size: number,
+  source?: string,
+  keepSection = false,
+): Window[] {
   const windows: Window[] = [];
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
@@ -189,7 +198,15 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
       previous?.container === 'table_cell' &&
       unit.container === 'table_cell' &&
       !source.slice(previous.end, unit.start).includes('\n');
-    if (current.length >= size && !sameRow) flush();
+    // With `keepSection`, the cap waits for the end of the section, up to twice the cap: a unit that scopes others
+    // names them in its own section, and a window that ends inside it would cut the scope from its targets.
+    const sameSection =
+      keepSection &&
+      last !== undefined &&
+      current.length < size * 2 &&
+      (units[last.index]?.path ?? []).join('\0') === unit.path.join('\0') &&
+      unit.container !== 'heading';
+    if (current.length >= size && !sameRow && !sameSection) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
@@ -355,7 +372,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
+        for (const window of windowsOf(
+          file.path,
+          fileCut.units,
+          member.maxUnits(set, size),
+          file.text,
+          input.keepSections ?? true,
+        )) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
