@@ -5,7 +5,7 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 <a href="../../.github/readme/walkthrough-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../../.github/readme/walkthrough-dark.png">
-    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,424 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 16 of 1251." src="../../.github/readme/walkthrough-light.png" width="100%">
+    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,427 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 16 of 1254." src="../../.github/readme/walkthrough-light.png" width="100%">
   </picture>
 </a>
 
@@ -142,20 +142,20 @@ $ driftbench estate build northwind --out build --pointer --cassette northwind/c
 driftbench estate build northwind, into build
 1. Read the estate: unchanged since the last run, map.yaml kept.
 2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
-3. Map and plan: the plan holds 1424 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-4. Approve the plan: approved all 1424 tests, as --yes says.
-5. Write the tests: 1424 tests written. 1283 are complete and 141 still wait for something (the report lists what).
+3. Map and plan: the plan holds 1427 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+4. Approve the plan: approved all 1427 tests, as --yes says.
+5. Write the tests: 1427 tests written. 1286 are complete and 141 still wait for something (the report lists what).
 ```
 
 **What you get.** The folder `build`, and a count of tests:
 
 ```text
 1. Read the estate: 116 atoms, 69 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
-3. Map and plan: the plan holds 1424 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-5. Write the tests: 1424 tests written. 1283 are complete and 141 still wait for something (the report lists what).
+3. Map and plan: the plan holds 1427 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+5. Write the tests: 1427 tests written. 1286 are complete and 141 still wait for something (the report lists what).
 ```
 
-Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1424 tests. 1283 are complete. The other 141 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
+Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1427 tests. 1286 are complete. The other 141 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
 
 **If it goes wrong.**
 
@@ -403,12 +403,12 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 
 ```text
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+1251 specs, 1254 blocks.
+Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
+  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
 ```
 
-Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, which saves 98.7%. The 1248 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1424 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1248 files hold 1251 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1254 blocks, 16 can be reached by that sentence. The other 1238 are not run, which saves 98.7%. The 1251 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1427 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1251 files hold 1254 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
