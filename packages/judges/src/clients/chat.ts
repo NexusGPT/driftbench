@@ -6,6 +6,7 @@ import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
 import { declinedBy, quoteAssessmentMaterial } from './provider-block';
 import { buildDialectRequest } from './transport';
+import { type TokenUsage, usageFromResponse } from './usage';
 
 /**
  * The system 2 judges: chat models that read the rubric and the data and answer the contract as JSON.
@@ -43,6 +44,11 @@ function rejectsTemperature(cause: unknown): boolean {
 /** The token limit of a request: its budget, plus the reasoning room when the request reasons. */
 function budgetOf(request: JudgeRequest, reasoning?: JudgeRequest['reasoning']): number {
   return MAX_TOKENS[request.budget ?? 'normal'] + (reasoning === undefined ? 0 : REASONING_TOKENS[reasoning]);
+}
+
+/** The result with the tokens the provider reported, or as it is when it reported none. */
+function withUsage(result: JudgeResult, usage: TokenUsage): JudgeResult {
+  return Object.keys(usage).length > 0 ? { ...result, usage } : result;
 }
 
 /** A truncated answer: unparsed, so the council re-judges it once with the large budget. */
@@ -146,8 +152,9 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         };
       }
       const content = contentText(message.content);
-      if (choice.finish_reason === 'length') return truncated(content, model);
-      return parseJudgeText(content, request);
+      const usage = usageFromResponse('openai', payload);
+      if (choice.finish_reason === 'length') return withUsage(truncated(content, model), usage);
+      return withUsage(parseJudgeText(content, request), usage);
     },
   };
 }
@@ -228,8 +235,9 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         })
         .map((block) => block.text)
         .join('');
-      if (payload.stop_reason === 'max_tokens') return truncated(text, model);
-      return parseJudgeText(text, request);
+      const usage = usageFromResponse('anthropic', payload);
+      if (payload.stop_reason === 'max_tokens') return withUsage(truncated(text, model), usage);
+      return withUsage(parseJudgeText(text, request), usage);
     },
   };
 }
@@ -313,14 +321,15 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
       const text = parts
         .map((part) => (isRecord(part) && typeof part.text === 'string' ? part.text : ''))
         .join('');
-      if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
+      const usage = usageFromResponse('google', payload);
+      if (candidate.finishReason === 'MAX_TOKENS') return withUsage(truncated(text, model), usage);
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
         return {
           answer: inconclusive(`${model} declined the request`),
           raw,
           ...declinedBy('google', payload),
         };
-      return parseJudgeText(text, request);
+      return withUsage(parseJudgeText(text, request), usage);
     },
   };
 }

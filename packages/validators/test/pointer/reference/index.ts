@@ -1,7 +1,7 @@
 import type { PointerSut } from '../../../src/ladders/pointer/sut/port';
 import { cutText } from './cut';
 import { referenceLinks } from './links';
-import { scanEstate } from './scan';
+import { type ReferenceOptions, scanEstate } from './scan';
 import { referenceStack } from './stack';
 
 /**
@@ -9,14 +9,14 @@ import { referenceStack } from './stack';
  * that the bank's items must pass. It proves the items satisfiable and is the base of the planted-bug variants.
  * It is not the pointer reader and it ships nowhere.
  */
-export function referenceSut(): PointerSut {
+export function referenceSut(options: ReferenceOptions = {}): PointerSut {
   return {
-    name: 'reference',
+    name: options.fault ?? options.protocol ?? 'reference',
     async cut(file) {
       return cutText(file.text);
     },
     async scan(request) {
-      return scanEstate(request);
+      return scanEstate(request, options);
     },
     links: referenceLinks,
     stack: referenceStack,

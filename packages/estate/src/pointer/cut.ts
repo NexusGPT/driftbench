@@ -64,11 +64,14 @@ function mask(text: string): string {
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
-    .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll})/gu, (match, stop: string, letter: string) => {
-      // The segmenter never breaks before a lower-case letter. Raising the letter, when it keeps the length,
-      // lets it report the boundary so that `shouldMerge` judges it by the text before the stop.
-      const raised = letter.toUpperCase();
-      return raised.length === letter.length ? stop + raised : match;
+    .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll}[^\s]*)/gu, (match, stop: string, word: string) => {
+      // The segmenter never breaks before a lower-case letter. A word that starts lower case and holds a capital
+      // inside (iOS, eBay) is a name, and a sentence may start with it: raise its first letter so the segmenter
+      // reports the boundary. An all lower-case word continues the sentence, and the segmenter's own decision stands.
+      const first = word.slice(0, 1);
+      const raised = first.toUpperCase();
+      const named = /\p{Lu}/u.test(word.slice(1));
+      return named && raised.length === first.length ? stop + raised + word.slice(1) : match;
     });
 }
 
@@ -82,6 +85,67 @@ function shouldMerge(before: string, after: string): boolean {
   if (/^\s*\d/.test(after)) return true;
   if (/^\s*[)\]"'”’]/.test(after)) return true;
   return false;
+}
+
+/** Whether a file is plain text: its line breaks are all the structure it has, where markdown has soft wraps. */
+export function isPlainTextPath(path: string): boolean {
+  return /\.txt$/i.test(path);
+}
+
+/** A title line is at most this share of the typical length of the other lines of its paragraph and of the line after it. */
+export const TITLE_SHARE = 0.4;
+
+/**
+ * The blocks of a plain text paragraph: the paragraph, cut after each title line. A title line
+ * - opens a sentence: it is the first line, or the line before it ends with a full stop, a question mark or an
+ *   exclamation mark (a wrapped sentence has no title in its middle),
+ * - does not start in lower case, and has no sign that the sentence goes on (a comma, a colon, a dash) at its end,
+ * - is far shorter than the typical line of the others (their median, so one very long line moves nothing) and
+ *   than the line after it, which does not start in lower case.
+ * A hard wrapped line is as long as its neighbours, so a wrapped sentence stays whole; a table of rows has no short
+ * line. By shape only, and when unsure the lines stay together.
+ */
+function plainBlocks(source: string, from: number, to: number): Array<[number, number]> {
+  const lines: Array<[number, number]> = [];
+  let at = from;
+  for (const line of source.slice(from, to).split('\n')) {
+    lines.push([at, at + line.length]);
+    at += line.length + 1;
+  }
+  const texts = lines.map(([start, end]) => source.slice(start, end).trim());
+  const order = texts
+    .map((_, index) => index)
+    .sort((a, b) => (texts[a]?.length ?? 0) - (texts[b]?.length ?? 0));
+  const rank = new Map(order.map((line, place) => [line, place]));
+  // The upper median of the lengths of all lines but one, read from the order of all lines.
+  const typical = (line: number): number => {
+    const middle = Math.floor((order.length - 1) / 2);
+    const place = rank.get(line) ?? 0;
+    return texts[order[place <= middle ? middle + 1 : middle] ?? line]?.length ?? 0;
+  };
+  const blocks: Array<[number, number]> = [];
+  let start = from;
+  lines.forEach((line, index) => {
+    const next = lines[index + 1];
+    if (!next) return;
+    const text = texts[index] ?? '';
+    const after = texts[index + 1] ?? '';
+    const opens = index === 0 || /[.!?]$/.test(texts[index - 1] ?? '');
+    const title =
+      opens &&
+      text.length > 0 &&
+      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(text) &&
+      !/[,;:\u2013\u2014-]$/.test(text) &&
+      after.length > 0 &&
+      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(after) &&
+      text.length <= typical(index) * TITLE_SHARE &&
+      text.length <= after.length * TITLE_SHARE;
+    if (!title) return;
+    blocks.push([start, line[1]]);
+    start = next[0];
+  });
+  blocks.push([start, to]);
+  return blocks;
 }
 
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
@@ -142,8 +206,50 @@ type Context = { inList?: boolean; inQuote?: boolean };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
+/** How deep lists and block quotes may nest in a file. The parser takes time that grows faster than the file does. */
+export const MAX_NESTING = 100;
+
+/** A file the cutter refuses, with the reason. */
+export class CutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CutError';
+  }
+}
+
+/** The deepest nesting of list items and block quotes by their markers, outside fences, in one pass. */
+function nestingOf(source: string): number {
+  let deepest = 0;
+  let fence: string | undefined;
+  for (const line of source.split(/\r\n|\r|\n/)) {
+    const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (mark !== undefined) {
+      if (fence === undefined) fence = mark.charAt(0);
+      else if (mark.charAt(0) === fence) fence = undefined;
+      continue;
+    }
+    if (fence !== undefined) continue;
+    const quotes = /^(?:\s{0,3}>)+/.exec(line)?.[0].split('>').length ?? 1;
+    const indent = /^( *)(?:[-+*]|\d+[.)])\s/.exec(line)?.[1]?.length;
+    const lists = indent === undefined ? 0 : Math.floor(indent / 2) + 1;
+    deepest = Math.max(deepest, quotes - 1, lists);
+  }
+  return deepest;
+}
+
+export type CutOptions = {
+  /** The file is plain text (`isPlainTextPath`): a title line ends at its line break. */
+  plain?: boolean;
+};
+
 /** Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. */
-export function cut(rawSource: string): Cut {
+export function cut(rawSource: string, options: CutOptions = {}): Cut {
+  const nesting = nestingOf(rawSource);
+  if (nesting > MAX_NESTING) {
+    throw new CutError(
+      `the file nests lists or quotes ${nesting} levels deep, over the limit of ${MAX_NESTING}: it cannot be cut`,
+    );
+  }
   const base = rawSource.charCodeAt(0) === 0xfeff ? 1 : 0;
   const source = rawSource.slice(base);
   const units: Unit[] = [];
@@ -245,7 +351,11 @@ export function cut(rawSource: string): Cut {
           [start, end] = withoutTagLines(text, start, end);
           if (context.inList) return add('list_item', at(start), at(end), here());
           if (context.inQuote) return add('block_quote', at(start), at(end), here());
-          for (const [from, to] of sentenceSpans(text, start, end)) add('sentence', at(from), at(to), here());
+          for (const [blockFrom, blockTo] of options.plain
+            ? plainBlocks(text, start, end)
+            : ([[start, end]] as Array<[number, number]>))
+            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo))
+              add('sentence', at(from), at(to), here());
           return;
         }
         case 'code':
