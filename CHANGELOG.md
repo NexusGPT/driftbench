@@ -6,6 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `redteam grade` prints the tokens the judge used and, with `--prices <file>`, its cost in USD. The chat judges (`anthropic`, `openai`, `google`) keep the tokens their provider reports, a recording stores them in the cassette entry (`usage`), and a replay prints them as the cost when recorded. A cassette made before this holds no counts, and the report says so.
 * `estate scan` prints the tokens the answers replayed from the cassette had cost when recorded, and, with `--prices <file>`, the cost in USD per model. `estate build` takes `--prices` too and prints the labelers' requests, tokens and cost after the scan, without `--verbose`.
 * `estate run --from <old store> --change <manifest> --agent-version <label>` carries the results a change leaves alone. After an edit, run again with the manifest `radius ledger` wrote: the specs in the radius run, and every other spec keeps the result stored in the old store, stamped with the campaign and the version it was measured in. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the old run, and it is within `--max-carry` and `--max-age`; otherwise the spec runs and the reason is printed. The old store is read from a copy and never written. `--agent-version` labels a run (target `claude-code:estate`, the label as its variant); a store written without it cannot be carried from. Without the new flags `estate run` is unchanged.
 
