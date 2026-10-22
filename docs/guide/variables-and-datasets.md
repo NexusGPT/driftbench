@@ -160,7 +160,7 @@ $ driftbench campaign run specs --process-command "[\"node\",\"$PWD/agent.mjs\"]
 
 **How to read it.**
 
-- `rows 2` and so on in the import lines are the source rows. Row 1 is the header.
+- `row 2` and so on in the import lines are the source rows. Row 1 is the header.
 - Every written spec starts with a comment that names its file and rows, such as `# Imported from orders.csv, rows 2.`
 - `3 cells: 3 pass` means each order spec ran once and passed. The table is the dataset of the tests; the specs are generated from it.
 - Add a row to the table and import again with `--force` to add a test.
@@ -184,7 +184,7 @@ block:
 
 ```console
 $ driftbench import csv orders.csv --mapping broken/missing-column.yaml --out broken/out   # exit 2
-ZZZ
+the mapping names column "nope", which orders.csv does not have; its columns are order, status, expected
 $ driftbench import csv ../examples/acme/import/cases.xlsx --mapping ../examples/acme/import/mapping.yaml --out broken/out   # exit 2
 import csv reads a .csv or .tsv file; ../examples/acme/import/cases.xlsx is not one.
 ```
@@ -256,11 +256,11 @@ Imported 4 specs from 4 rows of orders.csv into specs.
 $ driftbench dataset push order-specs specs --store runs.db --note 'four orders'
 Pushed dataset order-specs@2 (hash cc0c5a9e18b8): 4 files from specs.
 $ driftbench dataset diff order-specs@2 --store runs.db   # exit 1
-ZZZ
+A order-A-4004.yaml
+1 file differs between order-specs@1 and order-specs@2.
 $ driftbench dataset restore order-specs@1 --store runs.db --out restored
-ZZZ
+Restored dataset order-specs@1 into restored: 3 written, 0 unchanged.
 $ driftbench dataset list order-specs --store runs.db
-ZZZ
 ```
 
 **How to read it.**
@@ -272,8 +272,9 @@ ZZZ
 
 **If it goes wrong.**
 
-- `Dataset ... not found` style errors exit 2: the name or version is not in the store. Run `dataset list` to see what the store holds.
-- A push refuses an invalid spec (exit 1). Run `spec validate` on the folder first.
+- `No dataset <name> in <store>.` (exit 2): the name is not in the store. Run `dataset list --store runs.db` to see what the store holds.
+- `Fix the invalid specs first: nothing was pushed.` (exit 1): a spec of the folder is invalid. Run `spec validate` on the folder first.
+- `✗ <file> differs from <ref>` (exit 1) on `restore`: the target holds edited files. Pass `--out` for another folder, or `--force`.
 
 ## 5. Run a campaign on a dataset and read what it records
 
@@ -297,24 +298,33 @@ $ driftbench campaign run --dataset order-specs --campaign c-orders --store runs
 ✓ order-A-4004 · process:my-agent · F · repeat 0  pass  1 block
 4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench campaign status c-orders --store runs.db
-ZZZ
+✓ order-A-1042 · process:my-agent · F · repeat 0  pass  1 block
+✓ order-A-4004 · process:my-agent · F · repeat 0  pass  1 block
+4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench campaign export c-orders --store runs.db --out bundles
-ZZZ
+Exported campaign c-orders to bundles/c-orders: 4 runs, 4 specs, 1 sources (dataset order-specs@2).
 $ grep -A6 '"sources"' bundles/c-orders/campaign.json
-ZZZ
+  "sources": [
+    {
+      "kind": "dataset",
+      "name": "order-specs",
+      "version": 2,
+      "hash": "cc0c5a9e18b89d5e2cc0f3e241ed2ae9bbb3c553635e267d32be329b942f7996"
+    }
 ```
 
 **How to read it.**
 
 - Four cells ran, one for each row of the table. Each cell is one spec run once.
 - The `sources` entry of the campaign names the dataset, its version and its hash. A reader a year later knows which tests produced the runs.
-- `campaign status` prints the stored result again. It also prints a line with the time the campaign was created, which this page does not show.
+- `campaign status` prints the stored result again. It also prints a line with the time the campaign was created. That line changes on every run, so this page does not show it. The output above is trimmed to the first and last cell.
 - Import the bundle on another machine with `driftbench campaign import` and run the same dataset again there.
 
 **If it goes wrong.**
 
-- `Campaign c-orders already exists. Resume it with: driftbench campaign resume c-orders`: the store holds a campaign with this id. Pick another id.
-- `--dataset needs --store`: a dataset lives in a store. Add `--store runs.db`.
+- `Campaign c-orders already exists. Resume it with: driftbench campaign resume c-orders` (exit 2): the store holds a campaign with this id. Pick another id.
+- `--dataset and --prompt read the registry of a store: add --store <file>.`: a dataset lives in a store. Add `--store runs.db`.
+- `No dataset <ref> in <store>. Push it with: driftbench dataset push <name> <path>`: the name or version is not in the store.
 
 ## 6. Plan the rows from a variable store
 
@@ -398,13 +408,18 @@ main();
 ```console
 $ npx tsx plan.ts
 variables.yaml: 2 variables
-ZZZ
+row.001 {"channel":"web_chat","order_state":"paid"}
+row.002 {"channel":"web_chat","order_state":"shipped"}
+row.003 {"channel":"web_chat","order_state":"refunded"}
+row.004 {"channel":"email","order_state":"shipped"}
+row.005 {"channel":"email","order_state":"paid"}
+row.006 {"channel":"email","order_state":"refunded"}
 broken-variables.yaml: VARIABLES_WEIGHT_INCOMPLETE variables.0.values.1.weight
 ```
 
 **How to read it.**
 
-- Each planned row gives one value to every approved variable. Six rows cover every pair of values of the two variables.
+- Each planned row gives one value to every approved variable. The six rows hold every pair of a channel and an order state.
 - The broken store names its problem by code and by path: a variable that weighs some of its values and not all. Fix it by weighing every value or none.
 - No command reads a variable store yet. You copy the rows into a table, then import the table as in step 2.
 

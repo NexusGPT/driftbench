@@ -61,7 +61,9 @@ $ driftbench spec validate specs/coverage.yaml
 ✓ specs/coverage.yaml  coverage-check · 1 block · hash b7b900096288
 Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 $ driftbench spec lint specs/coverage.yaml
-ZZZ
+✓ specs/coverage.yaml  coverage-check · 1 block · hash b7b900096288
+  ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
+Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 $ driftbench spec validate broken/no-user.yaml   # exit 1
 ✗ broken/no-user.yaml
     blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`
@@ -73,6 +75,7 @@ Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 - `✓ specs/coverage.yaml ...` means the file is valid. `1 block` is the number of blocks, and the hash changes with any edit of the content.
 - The invalid file prints `✗`, then one line per error: the path in the spec (`blocks.0`), the code, and the message. The exit code is 1.
 - Blocks count from 0, so `blocks.0` is the first block.
+- `1 warning` is advice, not an error. `BLOCK_NO_EXPECTATION` says this block checks nothing. Step 2 fixes it.
 
 **If it goes wrong.**
 
@@ -185,7 +188,9 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/no-adapter.yaml   # exit 1
-ZZZ
+✗ broken/no-adapter.yaml
+    target.adapter  SCHEMA_INVALID_TYPE  Invalid input: expected string, missing
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
 **How to read it.**
@@ -196,6 +201,7 @@ ZZZ
 
 **If it goes wrong.**
 
+- `target.adapter  SCHEMA_INVALID_TYPE` (exit 1): the target has no adapter. Add `adapter: function`, or the adapter of your agent.
 - `No adapter is set up for function:acme-sales. ...` (exit 2): you run outside a clone, where the Acme example does not exist. Run this part from a clone of the repository.
 
 ## 4. Label the spec: title, description and the rest
@@ -260,10 +266,17 @@ $ driftbench spec validate specs/coverage.yaml
 ✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 3e13973916e3
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/bad-label.yaml   # exit 1
-ZZZ
+✗ broken/bad-label.yaml
+    lang  SCHEMA_TOO_SMALL  Too small: expected string to have >=2 characters
+    tags  SCHEMA_INVALID_TYPE  Invalid input: expected array, received string
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
-**How to read it.** The labels change the hash and nothing else about the run. A schema error names the field in its path and says what shape it expects.
+**How to read it.**
+
+- The labels change the hash and nothing else about the run.
+- A schema error starts with `SCHEMA_`. It names the field in its path and says what shape it expects.
+- Both wrong values print together, because the checker lists every error of a file.
 
 **If it goes wrong.**
 
@@ -350,7 +363,9 @@ $ driftbench spec validate specs/coverage.yaml specs/prefix.yaml
 ✓ specs/prefix.yaml  prefix-example · 1 block · hash 4e219c76805c
 Checked 2 specs: 2 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/origin-alone.yaml   # exit 1
-ZZZ
+✗ broken/origin-alone.yaml
+    blocks.0.given.origin  GIVEN_ORIGIN_WITHOUT_PREFIX  origin says where a prefix comes from, and this block writes no prefix: add given.prefix or remove origin
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
@@ -587,7 +602,9 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/forbidden-expected.yaml   # exit 1
-ZZZ
+✗ broken/forbidden-expected.yaml
+    blocks.0.expect.tools.0  TOOL_FORBIDDEN_EXPECTED  "order.create" is forbidden by the spec's rules but expected here
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
 **How to read it.** `pass  2 blocks` means the stage, the two tools with their inputs, the text and the rules all held. If the assistant offered a plan before it looked up the address, the `tool_order` and `count` checks would fail.
@@ -789,7 +806,7 @@ end_state:
 - `none` in place of the mapping asserts that nothing was submitted.
 - The check runs on the last block, in the modes T and F.
 
-A wrong value: an `end_state` with no `expect`.
+A wrong value: an `end_state` with a `source` and no `expect`.
 
 ```yaml
 # file: broken/end-state-empty.yaml
@@ -812,14 +829,17 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  4 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/end-state-empty.yaml   # exit 1
-ZZZ
+✗ broken/end-state-empty.yaml
+    end_state  SCHEMA_INVALID_UNION  expected 'none', an end-state mapping, or a list of them
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
 **How to read it.** `pass  4 blocks` means every block held and the recorded lead matched the end state. The phone number is made up: it sits in the reserved range for fiction, `+1 202 555 0100` to `0199`.
 
 **If it goes wrong.**
 
-- The `end_state` verdict fails with a message that names the field and the value it saw. Fix the expected value, or fix the agent.
+- `SCHEMA_INVALID_UNION` on `end_state` (exit 1): the value is not `none`, a mapping or a list of mappings. A mapping needs a `source` and an `expect`.
+- An `end_state` verdict fails at run time with a message that names the field and the value it saw. Fix the expected value, or fix the agent.
 
 ## 11. Inject a deviation: perturbations
 
@@ -968,7 +988,9 @@ $ driftbench campaign run specs/coverage.yaml --mode F,P
 ✓ coverage-check · function:acme-sales · P · repeat 0 · free-fiber  pass  5 blocks
 3 cells: 3 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/inject-too-far.yaml   # exit 1
-ZZZ
+✗ broken/inject-too-far.yaml
+    perturbations.0.inject_at  PERTURBATION_OUT_OF_RANGE  inject_at 9 is past the last position (1); it inserts before block n, counting from 0
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
 **How to read it.**
@@ -1023,7 +1045,7 @@ metadata:
 - `metadata` is free. Its `links` entry ties a block to a prompt section, a spec clause or a past turn, and stays out of the spec hash.
 - `schema_version` names the spec format. `1` is the only version today.
 
-A wrong value: a rule set that does not exist.
+A wrong value: a rule set that does not exist. This clone ships none, so every name in `uses` must be one that you define.
 
 ```yaml
 # file: broken/uses-unknown.yaml
@@ -1041,17 +1063,19 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/rest.yaml
-✓ specs/rest.yaml  rest-of-the-fields · 2 blocks · hash 0000000000aa
+✓ specs/rest.yaml  rest-of-the-fields · 2 blocks · hash 2c013c4d4ae3
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/uses-unknown.yaml   # exit 1
-ZZZ
+✗ broken/uses-unknown.yaml
+    uses.gating  OBJECT_UNKNOWN  spec uses-unknown: uses.gating: unknown object policy/gating:nope; searched layers shipped, project, suite, spec, block, cli; known ids for policy/gating: (none)
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
 **How to read it.** The spec is valid with all of its fields. A change to `metadata.links` leaves the hash alone, but a change to `budget` or `end` changes it.
 
 **If it goes wrong.**
 
-- `OBJECT_UNKNOWN` (exit 1): `uses` names a rule set no layer defines. The message lists the layers it searched.
+- `OBJECT_UNKNOWN` (exit 1): `uses` names a rule set no layer defines. The message lists the layers it searched and the ids it knows. Define the rule set first, as the [objects page](../reference/objects.md) shows.
 - `PARENT_MISSING`: a `parent` names no block of the spec. Check the block id.
 - `LINK_BLOCK_UNKNOWN`: a link names a block the spec lacks. Use an existing id or index.
 
