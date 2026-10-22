@@ -1,3 +1,4 @@
+export { readSpansOf } from '../scan/claude-code';
 export { AGENT_RULES_SET } from './agent-rules';
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
@@ -40,6 +41,7 @@ export {
   type Checked,
   canonical,
   checkAnswer,
+  type DisplayLine,
   expandUnits,
   Label,
   type LabelContext,
@@ -51,7 +53,6 @@ export {
   locateSpanText,
   offsetSpans,
   parseLabelSets,
-  type ShownLine,
   type SpanAnswer,
   SpanKind,
   setHash,
@@ -59,19 +60,41 @@ export {
   type WindowUnit,
 } from './labels';
 export {
+  carryOf,
+  checkLedger,
   type Event,
   type FileCut,
+  keepsLabels,
   LADDER,
   type Ledger,
   type LedgerEntry,
   type LedgerLabel,
+  LINEAGE_KEEP,
+  labelMap,
   mintId,
   type NextLedger,
   nextLedger,
   parseLedger,
+  recordLabel,
   renderLedger,
   unitKey,
 } from './ledger';
+export {
+  blastRadius,
+  CLEAR_REASONS,
+  type ClearReason,
+  classifyLinks,
+  clearLink,
+  createLink,
+  impactOf,
+  type Link,
+  type LinkedLedger,
+  type LinkReview,
+  type LinkState,
+  linkCoverage,
+  verifiedSpans,
+  verifyLink,
+} from './links';
 export {
   atomsByUnit,
   EDIT_CLASSES,
@@ -88,7 +111,9 @@ export {
 } from './radius';
 export {
   DEFAULT_WINDOW_UNITS,
+  type FailedWindow,
   type LabelerUsage,
+  type LabelFlip,
   type LabelledUnit,
   type MemberPlan,
   OUT_OF_STEP_MIN,
@@ -122,8 +147,13 @@ export {
   type LabellingOptions,
   margin,
   parseLabelerSpec,
+  STACK_VOTES,
+  type StackDecision,
+  type StackRequest,
   singleLabelling,
+  stackDecision,
   stackedLabelling,
+  stackMargin,
 } from './stack';
 export {
   createHttpLabeler,

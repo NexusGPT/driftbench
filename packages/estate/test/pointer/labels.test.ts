@@ -581,3 +581,34 @@ describe('spans and links in a label set', () => {
     expect(none.dropped[0]).toMatch(/carries no links/);
   });
 });
+
+describe('a refused label set names what is wrong with it', () => {
+  const set = (name: string, label: string, extra = '') =>
+    `labels:\n  - set: ${name}\n    description: A set.\n    labels:\n      - name: ${label}\n        description: A label.\n${extra}`;
+  const message = (text: string): string => {
+    const parsed = parseLabelSets(text);
+    if (parsed.ok) throw new Error('the set was accepted');
+    return parsed.message;
+  };
+
+  it('names the label and the set of a bad identifier', () => {
+    expect(message(set('s3', 'bad name'))).toContain('"bad name"');
+    expect(message(set('s3', 'bad name'))).toContain('"s3"');
+  });
+
+  it('names the label of a target that is not required', () => {
+    expect(message(set('s4', 'odd', '        target: optional\n'))).toContain('"odd"');
+  });
+
+  it('names the label that holds more than three examples', () => {
+    const examples = ['a', 'b', 'c', 'd'].map((e) => `          - ${e}\n`).join('');
+    expect(message(set('many', 'voice', `        examples:\n${examples}`))).toContain('"voice"');
+  });
+
+  it('accepts a set named like an object property', () => {
+    for (const name of ['__proto__', 'constructor', 'hasOwnProperty']) {
+      expect(parseLabelSets(set(name, 'rule')).ok).toBe(true);
+    }
+    expect(message(set('has space', 'rule'))).toContain('"has space"');
+  });
+});

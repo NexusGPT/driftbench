@@ -13,15 +13,23 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  type DisplayLine,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
-  type ShownLine,
   type SpanAnswer,
   setHash,
   type Window,
 } from './labels';
-import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
+import {
+  type Event,
+  type LabelFlip,
+  type Ledger,
+  type LedgerEntry,
+  nextLedger,
+  recordLabel,
+  unitKey,
+} from './ledger';
 import type { Labelling } from './stack';
 
 /**
@@ -44,13 +52,16 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
+  /** Spans of each file the code already reads (a skill's description): those units are shown as read, not asked about. */
+  read?: ReadonlyMap<string, ReadonlyArray<{ start: number; end: number }>>;
   /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
   atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
   onPlan?: (plan: PointerPlan) => void;
 };
 
-export const DEFAULT_WINDOW_UNITS = 60;
+/** The units a request holds when the labeler sets no cap of its own: a file fits one window up to `WINDOW_CHARS`. */
+export const DEFAULT_WINDOW_UNITS = Number.POSITIVE_INFINITY;
 
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
 export type MemberPlan = {
@@ -110,6 +121,8 @@ export type LabelerUsage = {
 export type PointerResult = {
   ledger: Ledger;
   events: Record<Event, number>;
+  /** What the ladder decided for each id of this scan. */
+  eventsById: Record<string, Event>;
   cuts: Map<string, Cut>;
   labelled: LabelledUnit[];
   plan: PointerPlan;
@@ -126,6 +139,10 @@ export type PointerResult = {
   calls: number;
   /** Units no accepted answer named. */
   unlabeled: number;
+  /** The same units, by ledger id and set. */
+  unlabeledUnits: Array<{ unit: string; set: string }>;
+  /** Units that had a label other than none and no longer have one. */
+  flips: LabelFlip[];
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
   /** Units whose runs agreed on the label but drew the spans or links differently: the first run's stand. */
@@ -141,67 +158,139 @@ export type PointerResult = {
   reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
+  /** Notes that do not stop a run: a returned model that differs from the one recorded. */
+  warnings: string[];
+  /** The same windows, by window, set and labeler. */
+  failedWindows: FailedWindow[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
 };
 
+/** The sections a window sits in: the headings above its first unit and, when it starts at a heading, that heading. */
+function pathOf(first: Unit | undefined): string[] {
+  if (!first) return [];
+  if (first.container !== 'heading') return first.path;
+  const title = (first.text.split(/\r\n|\r|\n/, 1)[0] ?? '')
+    .replace(/^\s*#{1,6}\s*/, '')
+    .replace(/\s+#+\s*$/, '')
+    .trim();
+  return title === '' ? first.path : [...first.path, title];
+}
+
 /**
- * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
- * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
- * the next needs both in the window.
+ * The characters of units one window holds before a file is split. About 100,000 tokens at four characters a token:
+ * a file under it is one window, whatever its headings.
  */
-export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
-  const windows: Window[] = [];
-  let current: Window['units'] = [];
-  let shown: ShownLine[] = [];
-  let first: Unit | undefined;
-  const flush = () => {
-    // A run with no unit to label is not a window: an opaque unit alone sends nothing.
-    if (current.length === 0) {
-      shown = [];
-      return;
-    }
-    windows.push({
-      id: `${path}#${windows.length + 1}`,
-      path,
-      headingPath: first?.path ?? [],
-      units: current,
-      ...(shown.length > 0 ? { shown } : {}),
-    });
-    current = [];
-    shown = [];
-    first = undefined;
+export const WINDOW_CHARS = 400_000;
+
+/**
+ * The windows of a file. A file that fits `budget` characters of unit text is one window; a longer one is split,
+ * and only at a heading (the last heading of the run when the next unit would overflow it, else at the unit). A
+ * member that takes fewer units per request (`size`) closes a window at that count. With the source text, a cut
+ * never falls inside a table row: a label that points from one cell to the next needs both in the window.
+ * A fence or comment is a line the labeler reads and cannot label: it keeps its place in the numbering, in the
+ * window it stands in or, after a window's last unit, the window before it. A run with no unit to label is no
+ * window.
+ */
+export function windowsOf(
+  path: string,
+  units: readonly Unit[],
+  size: number,
+  source?: string,
+  budget: number = WINDOW_CHARS,
+): Window[] {
+  // 1. The groups of labelable units, by index into `units`.
+  const groups: number[][] = [];
+  let current: number[] = [];
+  let chars = 0;
+  let lastHeading = -1;
+  const close = (keep: number[] = []) => {
+    if (current.length > 0) groups.push(current);
+    current = keep;
+    chars = keep.reduce((sum, at) => sum + (units[at]?.text.length ?? 0), 0);
+    lastHeading = -1;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
-    // first line (design: "shown to the labeler as the fence kind and its first line only").
-    if (unit.container === 'opaque') {
-      const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
-      shown.push({
-        after: current.length,
-        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
-        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
-      });
-      continue;
-    }
-    // A window filled to its cap is flushed only when the next unit to label arrives, so that an opaque unit that
-    // follows it still attaches to it as trailing context; a cell of the same table row as the last unit stays with
-    // it, so a row is never split across two windows.
+    if (unit.container === 'opaque') continue;
     const last = current.at(-1);
-    const previous = last === undefined ? undefined : units[last.index];
+    const previous = last === undefined ? undefined : units[last];
     const sameRow =
       source !== undefined &&
       previous?.container === 'table_cell' &&
       unit.container === 'table_cell' &&
       !source.slice(previous.end, unit.start).includes('\n');
-    if (current.length >= size && !sameRow) flush();
-    if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
-    first ??= unit;
-    current.push({ n: current.length + 1, text: unit.text, index });
+    if (current.length >= size && !sameRow) close();
+    else if (chars + unit.text.length > budget && current.length > 0 && !sameRow) {
+      // Over the budget: the run since its last heading moves to the next window.
+      if (lastHeading > 0) close(current.splice(lastHeading));
+      else close();
+    }
+    if (unit.container === 'heading' && current.length > 0) lastHeading = current.length;
+    current.push(index);
+    chars += unit.text.length;
   }
-  flush();
+  close();
+  // 2. Each group is a window; a fence or comment goes to the window its place falls in.
+  const windows: Window[] = [];
+  for (const [at, group] of groups.entries()) {
+    const from = at === 0 ? 0 : (group[0] as number);
+    const next = groups[at + 1]?.[0];
+    const to = next === undefined ? units.length : next;
+    const inGroup = new Set(group);
+    const listed: Array<{ index: number; opaque: boolean }> = [];
+    for (let index = from; index < to; index++) {
+      const unit = units[index] as Unit;
+      if (unit.container === 'opaque') listed.push({ index, opaque: true });
+      else if (inGroup.has(index)) listed.push({ index, opaque: false });
+    }
+    const members: Window['units'] = [];
+    const display: DisplayLine[] = [];
+    for (const [place, entry] of listed.entries()) {
+      const unit = units[entry.index] as Unit;
+      const n = place + 1;
+      if (!entry.opaque) members.push({ n, text: unit.text, index: entry.index });
+      else {
+        const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
+        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        display.push({
+          n,
+          mode: 'opaque',
+          text: `${kind}: ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+          index: entry.index,
+        });
+      }
+    }
+    windows.push({
+      id: `${path}#${at + 1}`,
+      path,
+      headingPath: pathOf(units[group[0] as number]),
+      units: members,
+      ...(display.length > 0 ? { display } : {}),
+    });
+  }
   return windows;
+}
+
+/**
+ * The window as one labeler is asked about it: the units that need a label stay units; the others keep their number
+ * and are shown as context, so a rescan sends the units it needs and the lines around them.
+ */
+function askedAbout(window: Window, want: ReadonlySet<number>, read: ReadonlySet<number>): Window {
+  const context: DisplayLine[] = window.units
+    .filter((unit) => !want.has(unit.index))
+    .map((unit) => ({
+      n: unit.n,
+      mode: read.has(unit.index) ? ('read' as const) : ('context' as const),
+      text: unit.text,
+      index: unit.index,
+    }));
+  if (context.length === 0) return window;
+  return {
+    ...window,
+    units: window.units.filter((unit) => want.has(unit.index)),
+    display: [...(window.display ?? []), ...context].sort((a, b) => a.n - b.n),
+  };
 }
 
 /**
@@ -288,7 +377,14 @@ type Task = {
 };
 
 type Leaf = { window: Window; answer: Recorded; key: string };
-type TaskResult = { leaves: Leaf[]; failures: string[] };
+/** A window no accepted answer came back for: where, for which set and labeler, and why. */
+export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
+const describeFailure = (failure: FailedWindow): string =>
+  `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
+
+export type { LabelFlip } from './ledger';
+
+type TaskResult = { leaves: Leaf[]; failures: FailedWindow[] };
 
 function readableFor(task: Task, window: Window) {
   return readableOf(task.member.render(task.set, window, task.context), {
@@ -311,8 +407,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  // The units the code already reads (a skill's description): no label is asked of them; the labeler sees them as read.
+  const readUnits = new Map<string, Set<number>>();
+  for (const file of files) {
+    const spans = input.read?.get(file.path) ?? [];
+    if (spans.length === 0) continue;
+    const inside = new Set<number>();
+    for (const [index, unit] of (cuts.get(file.path) as Cut).units.entries())
+      if (spans.some((span) => unit.start >= span.start && unit.end <= span.end)) inside.add(index);
+    readUnits.set(file.path, inside);
+  }
   const next = nextLedger(
-    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut })),
+    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, text: file.text })),
     input.previous,
     estateKey,
   );
@@ -329,7 +435,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const set of input.sets) {
       const want = new Set<number>();
       for (const [index, unit] of fileCut.units.entries()) {
-        if (unit.container === 'opaque') continue;
+        if (unit.container === 'opaque' || readUnits.get(file.path)?.has(index)) continue;
         units++;
         const found = entries.get(unitId(file.path, index))?.labels[set.set];
         if (found && found.setHash === hashes.get(set.set) && found.labeler === labelling.hash) carried++;
@@ -367,8 +473,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
-          if (!window.units.some((unit) => want.has(unit.index))) continue;
+        for (const whole of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
+          if (!whole.units.some((unit) => want.has(unit.index))) continue;
+          const window = askedAbout(whole, want, readUnits.get(file.path) ?? new Set());
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
@@ -425,6 +532,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     replayedOutput: 0,
   }));
 
+  const warnings: string[] = [];
+
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
     const wire = member.render(task.set, window, task.context);
@@ -447,6 +556,26 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const answer = await member.call(wire, task.set, window, attempt);
         counts.input += answer.usage.input;
         counts.output += answer.usage.output;
+        // An answer that names a label outside the set, a unit outside the window, a unit twice or a wrong
+        // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
+        // cannot be located is no such refusal: the run is out of step, and the vote handles it.
+        const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
+        if (refused.length > 0) throw new LabelerError(refused.join('; '));
+        // A model that returns another model id than the one recorded for the same labeler and request model is
+        // named, so a re-record that mixes two models of one name is seen.
+        for (const entry of cassette.entries.values()) {
+          const earlier = entry.answer.returnedModel;
+          if (
+            entry.readable.labeler === readable.labeler &&
+            entry.readable.model === readable.model &&
+            earlier !== answer.returnedModel &&
+            !entry.answer.refused
+          ) {
+            const note = `${readable.labeler} ${readable.model}: the returned model ${answer.returnedModel} differs from ${earlier} recorded before`;
+            if (!warnings.includes(note)) warnings.push(note);
+            break;
+          }
+        }
         cassette.put(wire, readable, answer);
         counts.recorded++;
         return { answer, key: requestKey(wire, readable) };
@@ -484,6 +613,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     throw failure;
   }
 
+  const failure = (task: Task, window: Window, reason: string): FailedWindow => ({
+    window: window.id,
+    set: task.set.set,
+    labeler: task.member.id,
+    reason,
+  });
+
   async function resolve(task: Task, window: Window): Promise<TaskResult> {
     let result: { answer: Recorded; key: string };
     try {
@@ -492,17 +628,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (FATAL(cause)) throw cause;
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${cause instanceof Error ? cause.message : String(cause)}`,
-        ],
+        failures: [failure(task, window, cause instanceof Error ? cause.message : String(cause))],
       };
     }
     if (result.answer.refused === 'unreadable') {
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${result.answer.error ?? 'the answer cannot be read'}`,
-        ],
+        failures: [failure(task, window, result.answer.error ?? 'the answer cannot be read')],
       };
     }
     if (result.answer.refused !== 'too_large') {
@@ -511,36 +643,35 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (window.units.length === 1) {
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): the endpoint refused a window of one unit as too large`,
-        ],
+        failures: [failure(task, window, 'the endpoint refused a window of one unit as too large')],
       };
     }
+    // Halved by the units asked about; the lines between them follow, and the numbers start again from one.
+    const lines = [
+      ...window.units.map((unit) => ({ n: unit.n, unit })),
+      ...(window.display ?? []).map((line) => ({ n: line.n, line })),
+    ].sort((a, b) => a.n - b.n);
     const half = Math.ceil(window.units.length / 2);
-    const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
-    // The shown lines follow their units: the first half keeps those up to the split, the second the rest.
-    const shownIn = (from: number, to: number): { shown?: ShownLine[] } => {
-      const lines = (window.shown ?? [])
-        .filter(
-          (line) =>
-            line.after >= from && (line.after < to || (to === window.units.length && line.after === to)),
-        )
-        .map((line) => ({ ...line, after: line.after - from }));
-      return lines.length > 0 ? { shown: lines } : {};
+    const cutAt = lines.findIndex(
+      (entry, at) => 'unit' in entry && lines.slice(0, at).filter((other) => 'unit' in other).length === half,
+    );
+    const part = (list: typeof lines, id: string): Window => {
+      const units: Window['units'] = [];
+      const display: DisplayLine[] = [];
+      for (const [at, entry] of list.entries()) {
+        if ('unit' in entry) units.push({ ...entry.unit, n: at + 1 });
+        else display.push({ ...entry.line, n: at + 1 });
+      }
+      return {
+        id,
+        path: window.path,
+        headingPath: window.headingPath,
+        units,
+        ...(display.length > 0 ? { display } : {}),
+      };
     };
-    const { shown: _shown, ...bare } = window;
-    const first = await resolve(task, {
-      ...bare,
-      id: `${window.id}a`,
-      units: renumber(window.units.slice(0, half)),
-      ...shownIn(0, half),
-    });
-    const second = await resolve(task, {
-      ...bare,
-      id: `${window.id}b`,
-      units: renumber(window.units.slice(half)),
-      ...shownIn(half, window.units.length),
-    });
+    const first = await resolve(task, part(lines.slice(0, cutAt), `${window.id}a`));
+    const second = await resolve(task, part(lines.slice(cutAt), `${window.id}b`));
     return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
   }
 
@@ -553,7 +684,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
   const dropped: string[] = [];
-  const failed: string[] = [];
+  const failedWindows: FailedWindow[] = [];
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -592,7 +723,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
-    failed.push(...outcome.value.failures);
+    failedWindows.push(...outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -629,7 +760,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
       }
       const answered = await resolve(again, window);
-      failed.push(...answered.failures);
+      failedWindows.push(...answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -669,7 +800,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * side; undefined for any other tally (three labels, two specific ones, a single run on a side).
    */
   const tieBroken = (tally: ReadonlyMap<string, Opinion[]>, set: LabelSet): Opinion[] | undefined => {
-    const rule = tieBreaks[set.set];
+    const rule = tieBreaks.get(set.set);
     const groups = [...tally.values()];
     if (!rule || groups.length !== 2) return undefined;
     const [one, two] = groups as [Opinion[], Opinion[]];
@@ -681,7 +812,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     return undefined;
   };
   /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
-  const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  const tieBreaks = new Map<string, typeof AGENT_RULES_TIE_BREAK>([['agent-rules', AGENT_RULES_TIE_BREAK]]);
   /**
    * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
    * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
@@ -815,7 +946,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
       }
       const answered = await resolve(again, task.window);
-      failed.push(...answered.failures);
+      failedWindows.push(...answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -837,6 +968,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   let unlabeled = 0;
+  const unlabeledUnits: Array<{ unit: string; set: string }> = [];
+  const flips: LabelFlip[] = [];
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
   let fellBack = 0;
@@ -852,16 +985,19 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           byMember.map((runs) => opinionOf(runs, index, set)),
           set,
         );
+        // A unit the labelling stops selecting keeps its place; the change of its label is reported.
         if (!decision) {
           unlabeled++;
-          delete entry.labels[set.set];
+          unlabeledUnits.push({ unit: entry.id, set: set.set });
+          const flip = recordLabel(entry, set.set, undefined);
+          if (flip) flips.push(flip);
           continue;
         }
         decided++;
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
-        entry.labels[set.set] = {
+        const flip = recordLabel(entry, set.set, {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
           labeler: labelling.hash,
@@ -870,7 +1006,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetId ? { target: targetId } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
-        };
+        });
+        if (flip) flips.push(flip);
       }
     }
   }
@@ -925,6 +1062,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   return {
     ledger: next.ledger,
     events: next.events,
+    eventsById: next.eventsById,
     cuts,
     labelled,
     plan,
@@ -935,6 +1073,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     fellBack,
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
     unlabeled,
+    unlabeledUnits,
+    flips,
     split,
     spanSplit,
     voted,
@@ -942,7 +1082,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     dropped,
     outOfStep: outOfStepRuns,
     reasked,
-    failed,
+    failed: failedWindows.map(describeFailure),
+    warnings,
+    failedWindows,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };

@@ -80,16 +80,16 @@ const input = (labeler: Labeler, cassette: Cassette, over: Partial<PointerInput>
 const replayOf = (labeler: Labeler): Labeler => ({ ...labeler, call: undefined });
 
 describe('the windows', () => {
-  it('cut at a top-level heading and at the size, and leave an opaque unit out', () => {
+  it('make a file one window, cut only at the size of the labeler, and leave an opaque unit out', () => {
     const text = '# One\n\nA first sentence. A second sentence.\n\n```sh\nrun\n```\n\n# Two\n\n- Item\n';
     const units = cut(text).units;
     const windows = windowsOf('a.md', units, 60);
-    expect(windows.map((window) => window.units.length)).toEqual([3, 2]);
+    expect(windows.map((window) => window.units.length)).toEqual([5]);
     expect(
       windows.flatMap((window) => window.units.map((unit) => units[unit.index]?.container)),
     ).not.toContain('opaque');
-    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 1, 2]);
-    expect(windows[1]?.id).toBe('a.md#2');
+    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 2, 1]);
+    expect(windowsOf('a.md', units, 2)[1]?.id).toBe('a.md#2');
   });
 
   it('do not cut a table row: the cells of a row stay in one window, so a label can point from one to the next', () => {
@@ -237,7 +237,7 @@ describe('the pointer scan', () => {
     ).rejects.toThrow(/differs in: .*setHash/);
   });
 
-  it('refuses a bad pointer, lists it, and labels nothing from it', async () => {
+  it('refuses a bad answer as a whole, asks again once, lists the window as failed, and labels nothing from it', async () => {
     const bad = (window: Window, set: LabelSet): Labelled[] =>
       set.set === 'duty'
         ? [
@@ -250,17 +250,19 @@ describe('the pointer scan', () => {
     const result = await pointerScan(
       input(plantedDense(bad), new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
     );
-    expect(result.refusals).toEqual([
-      'quay.md#1: "99" leaves the window',
-      'quay.md#1: the label rotate is not in the set duty',
-      'quay.md#1: "3" names a unit that is already labelled',
+    // The same bad answer comes back at the second request: the window fails, and no entry of it is kept.
+    expect(result.failedWindows).toMatchObject([
+      {
+        window: 'quay.md#1',
+        set: 'duty',
+        reason: [
+          'quay.md#1: "99" leaves the window',
+          'quay.md#1: the label rotate is not in the set duty',
+          'quay.md#1: "3" names a unit that is already labelled',
+        ].join('; '),
+      },
     ]);
-    const duty = result.labelled.filter((item) => item.set.set === 'duty');
-    // Only the accepted range 2-3 is labelled; the rest of the window got no accepted answer.
-    expect(duty.map((item) => item.unit.text)).toEqual([
-      'Coil the ropes on the red post',
-      'Name the skipper of every boat',
-    ]);
+    expect(result.labelled.filter((item) => item.set.set === 'duty')).toEqual([]);
     expect(result.unlabeled).toBeGreaterThan(0);
   });
 
@@ -1272,4 +1274,157 @@ describe('an answer that stopped at a refusal or at max_tokens, on the Anthropic
       expect(result.labelled).toEqual([]);
     });
   }
+});
+
+describe('an answer the scan refuses as a whole', () => {
+  it('is asked again once, and the second answer applies', async () => {
+    const asked = new Map<string, number>();
+    const labeler = plantedDense((window, set) => {
+      const key = `${window.id}:${set.set}`;
+      const times = (asked.get(key) ?? 0) + 1;
+      asked.set(key, times);
+      return times === 1 ? [{ units: '1', label: 'nonexistent' }] : byLength(window, set);
+    });
+    const result = await pointerScan(input(labeler, new Cassette()));
+    expect(result.failedWindows).toEqual([]);
+    expect([...asked.values()].every((times) => times === 2)).toBe(true);
+    expect(result.unlabeled).toBe(0);
+    expect(result.labelled.length).toBeGreaterThan(0);
+  });
+
+  it('lists the units no answer named', async () => {
+    const partial = (window: Window, set: LabelSet): Labelled[] =>
+      byLength(window, set).filter((entry) => !(set.set === 'duty' && entry.units === '2'));
+    const result = await pointerScan(input(plantedDense(partial), new Cassette()));
+    expect(result.unlabeledUnits.length).toBe(FILES.length);
+    expect(result.unlabeledUnits.every((gap) => gap.set === 'duty')).toBe(true);
+    expect(result.unlabeled).toBe(result.unlabeledUnits.length);
+  });
+
+  it('lists the units a label stopped selecting', async () => {
+    const first = await pointerScan(input(plantedDense(byLength), new Cassette()));
+    const none = (window: Window): Labelled[] => [{ units: `1-${window.units.length}`, label: 'none' }];
+    const second = await pointerScan(
+      input(
+        plantedDense((window, set) => (set.set === 'duty' ? none(window) : byLength(window, set))),
+        new Cassette(),
+        {
+          previous: first.ledger,
+          sets: load(SETS.replace('tells the skipper what to do', 'asks the skipper')),
+        },
+      ),
+    );
+    expect(second.flips.length).toBeGreaterThan(0);
+    expect(
+      second.flips.every((flip) => flip.set === 'duty' && flip.from === 'order' && flip.to === 'none'),
+    ).toBe(true);
+  });
+});
+
+describe('the warnings of a recording run', () => {
+  const first = (model: string): Labeler => {
+    const planted = plantedDense(byLength);
+    return {
+      ...planted,
+      async call(wire, set, window, attempt) {
+        const answer = await (planted.call as NonNullable<Labeler['call']>)(wire, set, window, attempt);
+        return { ...answer, returnedModel: model };
+      },
+    };
+  };
+
+  it('names both models when a re-record returns another model than the cassette holds', async () => {
+    const cassette = new Cassette();
+    await pointerScan(input(first('m-1'), cassette));
+    expect(cassette.entries.size).toBeGreaterThan(1);
+    const [oldest] = [...cassette.entries.keys()];
+    cassette.entries.delete(oldest as string);
+    const result = await pointerScan(input(first('m-2'), cassette));
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toContain('m-1');
+    expect(result.warnings[0]).toContain('m-2');
+  });
+
+  it('has none when every answer names the same model', async () => {
+    const result = await pointerScan(input(first('m-1'), new Cassette()));
+    expect(result.warnings).toEqual([]);
+  });
+});
+
+describe('the windows of a file over the character budget', () => {
+  const section = (title: string, rules: number) =>
+    [`# ${title}`, '', ...Array.from({ length: rules }, (_, at) => `Rule ${title} number ${at}.`)].join(
+      '\n\n',
+    );
+
+  it('are cut only at a heading, every window starts at one, and no unit is in two', () => {
+    const text = `${section('Alpha', 6)}\n\n${section('Beta', 6)}\n\n${section('Gamma', 6)}\n`;
+    const units = cut(text).units;
+    const whole = windowsOf('big.md', units, 1000);
+    expect(whole).toHaveLength(1);
+    const windows = windowsOf('big.md', units, 1000, text, 170);
+    expect(windows.length).toBeGreaterThan(1);
+    for (const window of windows) {
+      expect(units[window.units[0]?.index as number]?.container).toBe('heading');
+      expect(window.units.reduce((sum, unit) => sum + unit.text.length, 0)).toBeLessThanOrEqual(170);
+    }
+    const seen = windows.flatMap((window) => window.units.map((unit) => unit.index));
+    expect(new Set(seen).size).toBe(seen.length);
+    expect(seen).toHaveLength(units.length);
+  });
+
+  it('are cut at the unit when no heading falls inside the run', () => {
+    const text = Array.from({ length: 30 }, (_, at) => `A plain rule number ${at}.`).join('\n\n');
+    const windows = windowsOf('flat.md', cut(text).units, 1000, text, 100);
+    expect(windows.length).toBeGreaterThan(3);
+    expect(windows.reduce((sum, window) => sum + window.units.length, 0)).toBe(30);
+  });
+});
+
+describe('a rescan sends the units it needs and shows the others as context', () => {
+  it('marks the units that keep their label as context lines with their own numbers', async () => {
+    const calls: string[] = [];
+    const labeler: Labeler = {
+      ...plantedDense(byLength),
+      async call(wire, set, window, attempt) {
+        calls.push(
+          `${window.id}:${window.units.map((unit) => unit.n).join(',')}|${(window.display ?? []).map((line) => `${line.n}${line.mode}`).join(',')}`,
+        );
+        return (plantedDense(byLength).call as NonNullable<Labeler['call']>)(wire, set, window, attempt);
+      },
+    };
+    const first = await pointerScan(
+      input(labeler, new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
+    );
+    calls.length = 0;
+    const edited = QUAY.replace('Name the skipper of every boat', 'Name the skipper of each boat');
+    await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [{ path: 'quay.md', text: edited }],
+        previous: first.ledger,
+      }),
+    );
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      const [units, display] = call.split('|');
+      expect(units).not.toBe('');
+      expect(display).toMatch(/context/);
+    }
+  });
+});
+
+describe('the path of a window and the layout of its request', () => {
+  it('names the heading a window starts at, after the headings above it', () => {
+    const text = '# Emails\n\nGreet the client.\n\n## Tone\n\nStay calm.\n';
+    const [window] = windowsOf('emails.md', cut(text).units, 1000, text);
+    expect(window?.headingPath).toEqual(['Emails']);
+    const body = createAnthropicLabeler({}).render(load(SETS)[0] as LabelSet, window as Window).body as {
+      messages: Array<{ content: string }>;
+    };
+    const lines = (body.messages[0]?.content ?? '').split('\n');
+    expect(lines[0]).toBe('SET duty');
+    expect(lines[1]).toMatch(/^DESCRIPTION /);
+    expect(lines[2]).toBe('LABELS order | remark | none');
+    expect(lines.find((line) => line.startsWith('WINDOW '))).toBe('WINDOW emails.md#1  path: Emails');
+  });
 });

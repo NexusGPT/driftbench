@@ -10,6 +10,8 @@ import { sha } from './cut';
  */
 
 const LABEL_NAME = /^[a-z][a-z0-9-]*$/;
+/** A set name is data, not an identifier: it is stored as a key and sent in a request, so it holds no punctuation. */
+const SET_NAME = /^[\p{L}\p{N}_-]+$/u;
 
 /** A kind of span a labeler may point at inside one unit: a clause by offsets, never by words. */
 export const SpanKind = z.strictObject({
@@ -92,7 +94,7 @@ export const Label = z.strictObject({
 export type Label = z.infer<typeof Label>;
 
 export const LabelSet = z.strictObject({
-  set: z.string().regex(LABEL_NAME, { error: 'a set name is lower case letters, digits and hyphens' }),
+  set: z.string().regex(SET_NAME, { error: 'a set name is letters, digits, underscores and hyphens' }),
   description: z.string().min(1),
   spans: z.array(SpanKind).min(1).optional(),
   links: z.array(LinkKind).min(1).optional(),
@@ -115,6 +117,25 @@ export function canonical(value: unknown): string {
 
 export type LabelSetsResult = { ok: true; sets: LabelSet[] } | { ok: false; message: string };
 
+/**
+ * Where in the sets a problem lies, by the names the writer gave: walking the path, an object that holds a `set`
+ * names a set, and one that holds a `name` names a label (or a span or link kind). A refusal then says which set
+ * and label it is about, whatever is wrong with them.
+ */
+function namedPlace(raw: unknown, path: ReadonlyArray<PropertyKey>): string {
+  const names: string[] = [];
+  let node: unknown = raw;
+  for (const key of path) {
+    if (node === null || typeof node !== 'object') break;
+    node = (node as Record<PropertyKey, unknown>)[key];
+    if (node === null || typeof node !== 'object') break;
+    const entry = node as { set?: unknown; name?: unknown };
+    if (typeof entry.set === 'string') names.push(`the set "${entry.set}"`);
+    else if (typeof entry.name === 'string') names.push(`"${entry.name}"`);
+  }
+  return names.join(', ');
+}
+
 /** Reads the `labels:` list of a YAML text, and refuses a duplicate set or label name. */
 export function parseLabelSets(text: string): LabelSetsResult {
   let raw: unknown;
@@ -130,7 +151,11 @@ export function parseLabelSets(text: string): LabelSetsResult {
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     const path = first?.path.map(String).join('.') ?? '';
-    return { ok: false, message: `${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}` };
+    const where = namedPlace(raw, first?.path ?? []);
+    return {
+      ok: false,
+      message: `${where ? `${where}, ` : ''}${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}`,
+    };
   }
   const seen = new Set<string>();
   for (const set of parsed.data.labels) {
@@ -226,19 +251,25 @@ export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 1
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
 
-/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind and first line. */
-export type ShownLine = { after: number; text: string };
+/**
+ * A line the labeler reads and cannot label, with the number it has among the lines of the window. `context` is a
+ * unit that already has its label (a unit of the window the scan does not ask about), `opaque` a fence or a comment
+ * shown by its kind and first line, `read` a unit the code already read.
+ */
+export type DisplayLine = { n: number; mode: 'context' | 'opaque' | 'read'; text: string; index?: number };
 
 /**
- * A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. `shown` holds
- * the display-only lines of the opaque units in the run: `after` is the number of labelable units before the line.
+ * A run of units that one request labels. `index` is the unit's place in its file. Units and display lines share
+ * one numbering, so a number names one line of the window.
  */
 export type Window = {
   id: string;
   path: string;
   headingPath: string[];
+  /** The units the labeler is asked about. */
   units: WindowUnit[];
-  shown?: ShownLine[];
+  /** The other lines of the window, between the units by their number. */
+  display?: DisplayLine[];
 };
 
 /** What a labeler says about a window: a label per unit or range, and a target for a label that needs one. */
@@ -283,6 +314,8 @@ export type Checked = {
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
+  /** The refusals of the answer as a whole: a label, a unit or a target that does not exist. */
+  invalid: string[];
   /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
   dropped: string[];
 };
@@ -302,40 +335,45 @@ export function checkAnswer(
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
+  const invalid: string[] = [];
+  const refuse = (reason: string) => {
+    refusals.push(reason);
+    invalid.push(reason);
+  };
   const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refusals.push(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
       continue;
     }
     const numbers = expandUnits(entry.units);
     if (!numbers) {
-      refusals.push(`${window.id}: "${entry.units}" is no unit number or range`);
+      refuse(`${window.id}: "${entry.units}" is no unit number or range`);
       continue;
     }
     if (numbers.some((n) => !inWindow.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" leaves the window`);
+      refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
     if (numbers.some((n) => covered.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" names a unit that is already labelled`);
+      refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refusals.push(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label none takes no target`);
+      refuse(`${window.id}: the label none takes no target`);
       continue;
     }
     if (label?.target === 'required' && (entry.target === undefined || !inWindow.has(entry.target))) {
-      refusals.push(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
+      refuse(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
       continue;
     }
     if (label && label.target !== 'required' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label ${entry.label} takes no target`);
+      refuse(`${window.id}: the label ${entry.label} takes no target`);
       continue;
     }
     const extras = checkExtras(set, window, entry, numbers, label, context);
@@ -356,7 +394,7 @@ export function checkAnswer(
       }
     }
   }
-  return { accepted, covered, refusals, dropped };
+  return { accepted, covered, refusals, invalid, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
