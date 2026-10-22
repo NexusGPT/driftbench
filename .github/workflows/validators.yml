@@ -261,11 +261,10 @@ jobs:
       - name: Fetch the span labels
         shell: bash
         run: |
-          git fetch --depth=1 origin cassettes/variables-spans
-          mkdir -p "$RUNNER_TEMP/spans"
-          git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/spans"
-          cat "$RUNNER_TEMP"/spans/*.jsonl > "$RUNNER_TEMP/spans-union.jsonl"
-          wc -l "$RUNNER_TEMP/spans-union.jsonl"
+          git fetch --no-tags origin cassettes/variables-spans
+          git worktree add --detach "$RUNNER_TEMP/spans" FETCH_HEAD
+          # One label per text: the vocabulary recording wins for its texts, else the newest recording (tools/variables-span-union.mjs).
+          node tools/variables-span-union.mjs "$RUNNER_TEMP/spans" "$RUNNER_TEMP/spans-union.jsonl"
           echo "DRIFTBENCH_VARIABLES_CASSETTE=$RUNNER_TEMP/spans-union.jsonl" >> "$GITHUB_ENV"
       - name: Run this leg
         shell: bash
