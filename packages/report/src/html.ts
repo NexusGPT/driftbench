@@ -661,6 +661,15 @@ function blockDetail(block: BlockDetail, extra = ''): string {
     blockStatus(block) === 'pass' && block.toolCalls.length > 0
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
+  const helpers =
+    (block.helperCalls ?? []).length === 0
+      ? ''
+      : `<p class="label">Helper calls</p>${(block.helperCalls ?? [])
+          .map(
+            (call) =>
+              `<div class="call"><p class="mono">${esc(call.label)}${call.parentCallId ? ` <span class="muted">in ${esc(call.parentCallId)}</span>` : ''}${call.error ? ` <span class="bad">error: ${esc(call.error)}</span>` : ''}</p><pre>${esc(json({ input: call.input, output: call.output }, 1200))}</pre></div>`,
+          )
+          .join('')}`;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
   const verdict = verdictOf(blockStatus(block));
   const reason = unscoredReason(block);
@@ -669,7 +678,7 @@ ${block.rejudged ? `<p>${block.rejudged.criteria.length === 0 ? 'Re-scored' : `R
 ${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="skip-reason">${esc(reason)}</p>\n`}${block.stimulus === undefined ? '' : `<p class="label">${block.realized === undefined ? 'User' : 'User, as written'}</p><pre class="msg">${esc(block.stimulus)}</pre>`}${block.realized === undefined ? '' : `\n<p class="label">User, as sent</p><pre class="msg">${esc(block.realized.text ?? notStored(block.realized.hash))}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
 <p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
-<p class="label">Tool calls</p>${tools}
+<p class="label">Tool calls</p>${tools}${helpers}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
 ${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${block.diagnoses === undefined ? '' : `\n${diagnosesTable(block.diagnoses)}`}${extra === '' ? '' : `\n${extra}`}
 </div>`;

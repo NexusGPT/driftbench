@@ -277,7 +277,10 @@ function permissionRule(ctx: Parameters<CustomCheckFunction>[0], options: unknow
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
   const { effect, rule } = options;
   const matcher = ruleMatcher(rule);
-  const covered = ctx.observed.toolCalls.filter(matcher);
+  // A subagent inherits the permission rules of the main conversation (Claude Code docs, sub-agents: "The rule applies
+  // to the main conversation and to subagents"), so a rule covers a helper's calls too; `actor` narrows it.
+  const scope = options.actor === 'main' || options.actor === 'helper' ? options.actor : 'any';
+  const covered = callsIn(ctx.observed, scope).filter(matcher);
   const refused = covered.filter((call) => /permission|denied|not allowed/i.test(call.error ?? ''));
   const id = effect;
   if (effect === 'deny') {
