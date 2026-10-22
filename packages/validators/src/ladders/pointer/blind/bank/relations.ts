@@ -11,6 +11,11 @@ import { type BankItem, type Json, type Probe, probe, type Tier, token } from '.
  */
 type State = 'ok' | 'suspect' | 'advisory' | 'ambiguous';
 type LinkCase = { name: string; cause: string; states: State[]; changes: string[] };
+/**
+ * The classify step (layer C) is absent from the reader, so the three items below fail for one missing module, not
+ * for the per-rule sub-rule they used to declare. Only the cause tag changes; the cases and the oracle do not.
+ */
+const LAYER_C_CLASSIFY_MISSING = 'links:layer-c-classify-missing';
 const linkCases: LinkCase[] = [
   {
     name: 'unchanged-fingerprint',
@@ -40,10 +45,10 @@ const linkCases: LinkCase[] = [
     states: ['ambiguous'],
     changes: ['ambiguous'],
   },
-  { name: 'move-with-same-context', cause: 'track-links-by-ledger-id', states: ['ok'], changes: ['moved'] },
+  { name: 'move-with-same-context', cause: LAYER_C_CLASSIFY_MISSING, states: ['ok'], changes: ['moved'] },
   {
     name: 'changed-next-to-unchanged',
-    cause: 'classify-each-link-independently',
+    cause: LAYER_C_CLASSIFY_MISSING,
     states: ['suspect', 'ok'],
     changes: ['changed', 'unchanged'],
   },
@@ -55,7 +60,7 @@ const linkCases: LinkCase[] = [
   },
   {
     name: 'merged-next-to-deleted',
-    cause: 'preserve-every-suspect-link',
+    cause: LAYER_C_CLASSIFY_MISSING,
     states: ['suspect', 'suspect'],
     changes: ['merged', 'deleted'],
   },

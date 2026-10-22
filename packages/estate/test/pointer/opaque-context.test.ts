@@ -45,7 +45,7 @@ describe('an opaque unit is shown to the labeler as context', () => {
       '[2] Hang the lamp before dusk.',
       '(fence, not labelable) ```js',
       '[3] Close the gate at night.',
-      '(comment, not labelable) <!-- keeper: private note -->',
+      '(comment, not labelable)',
       '[4] Lock the shed.',
     ]);
   });
@@ -66,7 +66,7 @@ describe('an opaque unit is shown to the labeler as context', () => {
     expect(window?.units.every((u) => !/^(```|<!--)/.test(u.text))).toBe(true);
   });
 
-  it('shows only the first line of a fence or a comment, whatever the line endings', () => {
+  it('shows only the first line of a fence and only the kind of a comment, whatever the line endings', () => {
     for (const eol of ['\n', '\r\n', '\r']) {
       const file = [
         'Hang the lamp before dusk.',
@@ -86,10 +86,12 @@ describe('an opaque unit is shown to the labeler as context', () => {
       const text = JSON.stringify(windows);
       expect(text, JSON.stringify(eol)).not.toContain('HIDDEN_SECOND_ROW');
       expect(text, JSON.stringify(eol)).not.toContain('HIDDEN_COMMENT_ROW');
+      // The first line of the comment is private too: nothing of a comment is sent.
+      expect(text, JSON.stringify(eol)).not.toContain('first');
       expect(
         windows[0]?.shown?.map((line) => line.text),
         JSON.stringify(eol),
-      ).toEqual(['(fence, not labelable) ```js', '(comment, not labelable) <!-- first']);
+      ).toEqual(['(fence, not labelable) ```js', '(comment, not labelable)']);
     }
   });
 

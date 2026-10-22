@@ -1,17 +1,20 @@
 import { fileURLToPath } from 'node:url';
 import { anchorCase } from '../../kit/anchor-case';
-import { allTexts, cloneWorld, filesOf, worldOf } from '../../kit/anchor-world';
+import { allTexts, cloneWorld, distinctSentences, filesOf, worldOf } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutRun } from '../../kit/cut-case';
-import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
+import { build, byId, type EstateFile, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { loadFixture, RUNS } from '../../kit/fixture';
 import { entriesFor, perfect, recording, truthLabel } from '../../kit/labellers';
+import { norm } from '../../kit/norm';
+import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
-import { keyOf, RULES_YAML } from '../../kit/sets';
-import { fakeTransport } from '../../kit/transport';
+import { buildScript, filesOfSegments, type ScriptOps } from '../../kit/segments';
+import { FIVE_YAML, keyOf, PROBE_YAML, RULES_YAML } from '../../kit/sets';
+import { type FakeTransport, fakeTransport, type ParsedCall, seededModels } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, word } from '../../kit/words';
-import type { Labeler, LedgerView, ScanResult } from '../../sut/port';
+import type { Labeler, LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
 import { runControl } from '../controls';
 import { PLANTS, probe, readerGainedNothing } from '../harness-probe';
 import { MARKER_PLANTED } from '../plants/broken';
@@ -109,9 +112,23 @@ const ids: Record<string, Run> = {
     if (JSON.stringify(ended) !== JSON.stringify(['new', 'deleted']))
       return fail(`the deleted unit has the lineage ${JSON.stringify(ended)}, expected ["new","deleted"]`);
     const steps = (byId(fourth.ledger, id3)?.lineage ?? []).map((step) => step.scan);
-    return steps.every((scan, at) => at === 0 || scan > (steps[at - 1] as number))
-      ? pass('the lineage grows by one true step per change, and not for a rescan')
-      : fail(`the scan numbers of one lineage do not grow: ${JSON.stringify(steps)}`);
+    if (!steps.every((scan, at) => at === 0 || scan > (steps[at - 1] as number)))
+      return fail(`the scan numbers of one lineage do not grow: ${JSON.stringify(steps)}`);
+    // Round 3 audit, seat 2: a lineage that steps only on a changed fingerprint or a deletion gains nothing.
+    // A fifth scan moves the first unit to the end of the file: its lineage ends with `moved`.
+    const shifted = cloneWorld(gone);
+    const first0 = (shifted.texts[0] as string[]).shift() as string;
+    (shifted.texts[0] as string[]).push(first0);
+    const fifth = await scanOk(ctx.sut, {
+      files: build(filesOf(shifted)).files,
+      previousLedger: fourth.ledger.raw,
+      labeler,
+    });
+    const id0 = liveByText(first.ledger, first0)?.id as string;
+    const moved = history(fifth.ledger, id0);
+    return JSON.stringify(moved) === JSON.stringify(['new', 'moved'])
+      ? pass('the lineage grows by one true step per change, a move included, and not for a rescan')
+      : fail(`the moved unit has the lineage ${JSON.stringify(moved)}, expected ["new","moved"]`);
   },
   'entry-slices-with-bom-and-crlf': async (ctx) => {
     const p = prose(ctx);
@@ -171,9 +188,251 @@ const ids: Record<string, Run> = {
   },
 };
 
+/* ----- id carry and per-kind events (round 3 audit, seat 1) ----- */
+
+/** What each text of an edit script becomes, read from its construction. */
+type Plan = {
+  before: EstateFile[];
+  after: EstateFile[];
+  /** Texts the script keeps in place. */
+  kept: string[];
+  moved: Array<{ text: string; path: string }>;
+  changed: Array<{ from: string; to: string }>;
+  deleted: string[];
+  /** Texts that enter the estate and must take a fresh id: inserts and rewrites in place. */
+  entering: string[];
+  split: string[];
+  merged: Array<{ a: string; b: string; into: string }>;
+};
+
+/** An edit script drawn from the seed over `files` files, with six kept units among the ops. */
+function planOf(p: Prose, ops: ScriptOps, files: number): Plan {
+  const segs = buildScript(p, ops, 6, files);
+  const heads = Array.from({ length: files }, (_, f) => `${headingText(p.random)} ${f + 1}`);
+  const { before, after } = filesOfSegments(segs, files, heads);
+  const plan: Plan = {
+    before,
+    after,
+    kept: [],
+    moved: [],
+    changed: [],
+    deleted: [],
+    entering: [],
+    split: [],
+    merged: [],
+  };
+  for (const seg of segs) {
+    if (seg.fates.length === 0 && seg.before.length === 1 && seg.before[0] === seg.after[0])
+      plan.kept.push(seg.before[0] as string);
+    if (seg.fates.length === 0 && seg.before.length === 0 && seg.afterFile === undefined)
+      plan.entering.push(...seg.after);
+    for (const { text, fate } of seg.fates) {
+      if (fate.kind === 'moved') plan.moved.push({ text, path: fate.path as string });
+      else if (fate.kind === 'changed') plan.changed.push({ from: text, to: fate.to });
+      else if (fate.kind === 'split') plan.split.push(text);
+      else if (fate.kind === 'mergePair' && !plan.merged.some((m) => m.b === text))
+        plan.merged.push({ a: text, b: fate.other, into: fate.into });
+      else if (fate.kind === 'deleted') {
+        plan.deleted.push(text);
+        plan.entering.push(...seg.after);
+      }
+    }
+  }
+  return plan;
+}
+
+/** Scans the old files fresh, then the new files with the first ledger. */
+async function rescan(ctx: ItemContext, before: EstateFile[], after: EstateFile[]) {
+  const labeler = perfect();
+  const first = await scanOk(ctx.sut, { files: build(before).files, labeler });
+  const second = await scanOk(ctx.sut, {
+    files: build(after).files,
+    previousLedger: first.ledger.raw,
+    labeler,
+  });
+  const oldEntry = (text: string) => {
+    const entry = liveByText(first.ledger, text);
+    if (!entry) throw new Problem(`positive witness: the first scan has no live entry for ${show(text)}`);
+    return entry;
+  };
+  return { first, second, oldEntry };
+}
+
+/**
+ * The carry of ids, judged from the ledger alone: the edit is a reword, a move to the other file, a rewrite
+ * in place, an insert and a delete among six kept units. Nothing the reader reports beside the ledger is read.
+ */
+async function carry(ctx: ItemContext) {
+  const plan = planOf(prose(ctx), ['reword', 'move', 'rewrite', 'insert', 'delete'], 2);
+  const run = await rescan(ctx, plan.before, plan.after);
+  const live = liveOf(run.second.ledger);
+  if (new Set(live.map((e) => e.id)).size !== live.length)
+    throw new Problem('the rescan gives two live entries one id');
+  /** The live entry of the old id, or the reason it has none. */
+  const carried = (text: string): { old: LedgerEntry; now: LedgerEntry } => {
+    const old = run.oldEntry(text);
+    const now = live.find((e) => e.id === old.id);
+    if (!now)
+      throw new Problem(
+        `the id ${old.id} of ${show(text)} is not live after the rescan: the unit lost its id`,
+      );
+    return { old, now };
+  };
+  return { plan, run, live, carried };
+}
+
+const carryRuns: Record<string, Run> = {
+  'carry-unchanged-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const text of plan.kept) {
+      const { old, now } = carried(text);
+      if (norm(now.quote) !== norm(text))
+        return fail(`the id ${old.id} of the unchanged unit ${show(text)} now quotes ${show(now.quote)}`);
+      if (now.path !== old.path)
+        return fail(`the id ${old.id} of the unchanged unit ${show(text)} moved to ${now.path}`);
+    }
+    return pass(`${plan.kept.length} unchanged units keep their ids in the ledger`);
+  },
+  'carry-moved-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const { text, path } of plan.moved) {
+      const { old, now } = carried(text);
+      if (norm(now.quote) !== norm(text))
+        return fail(`the id ${old.id} of the moved unit ${show(text)} now quotes ${show(now.quote)}`);
+      if (now.path !== path)
+        return fail(`the id ${old.id} of the unit moved to ${path} is live in ${now.path}`);
+    }
+    return pass(`${plan.moved.length} moved unit keeps its id in the ledger, in the file it moved to`);
+  },
+  'carry-reworded-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const { from, to } of plan.changed) {
+      const { old, now } = carried(from);
+      if (norm(now.quote) !== norm(to))
+        return fail(`the id ${old.id} of the reworded unit quotes ${show(now.quote)}, expected ${show(to)}`);
+      if (now.path !== old.path) return fail(`the id ${old.id} of the reworded unit moved to ${now.path}`);
+    }
+    return pass(`${plan.changed.length} reworded unit keeps its id in the ledger, with the new text`);
+  },
+  'fresh-id-for-new-unit-in-ledger': async (ctx) => {
+    const { plan, run, live } = await carry(ctx);
+    const oldIds = new Map(run.first.ledger.entries.map((e) => [e.id, e]));
+    for (const text of plan.entering) {
+      const now = live.find((e) => norm(e.quote) === norm(text));
+      if (!now) return fail(`positive witness: the new unit ${show(text)} has no live entry`);
+      const was = oldIds.get(now.id);
+      if (was)
+        return fail(
+          `the new unit ${show(text)} carries the old id ${now.id}, which belonged to ${show(was.quote)}`,
+        );
+    }
+    return pass(`${plan.entering.length} new units take ids no old entry had`);
+  },
+  'deleted-id-not-reused-in-ledger': async (ctx) => {
+    const { plan, run, live } = await carry(ctx);
+    for (const text of plan.deleted) {
+      const old = run.oldEntry(text);
+      const again = live.find((e) => e.id === old.id);
+      if (again)
+        return fail(
+          `the id ${old.id} of the deleted unit ${show(text)} is live again with ${show(again.quote)}`,
+        );
+    }
+    return pass(`${plan.deleted.length} deleted units leave their ids unused`);
+  },
+};
+
+/** The event the reader reports for one id; an absent observation earns no credit. */
+const reported = (result: ScanResult, id: string): string => {
+  const event = result.events?.[id];
+  if (event === undefined) throw new Problem(`the reader does not expose an event for ${id}`);
+  return event;
+};
+
+/** The edit of each script kind; `ambiguous` has its own world. */
+const KIND_OPS: Record<string, { ops: ScriptOps; files: number }> = {
+  new: { ops: ['insert'], files: 1 },
+  unchanged: { ops: ['insert'], files: 1 },
+  moved: { ops: ['move'], files: 2 },
+  changed: { ops: ['reword'], files: 1 },
+  split: { ops: ['split'], files: 1 },
+  merged: { ops: ['merge'], files: 1 },
+  deleted: { ops: ['delete'], files: 1 },
+};
+
+/** The ids that must carry the event, the ids that must not, from the ledger; then the events are read. */
+async function eventCase(ctx: ItemContext, kind: string): Promise<Outcome> {
+  const p = prose(ctx);
+  let targets: string[];
+  let controls: string[];
+  let result: ScanResult;
+  if (kind === 'ambiguous') {
+    const w = worldOf(p, { files: 1, perFile: 30 });
+    const v2 = cloneWorld(w);
+    const texts = v2.texts[0] as string[];
+    const t = texts.splice(8, 1)[0] as string;
+    texts.splice(2, 0, t);
+    texts.splice(20, 0, t);
+    const run = await rescan(ctx, filesOf(w), filesOf(v2));
+    targets = [run.oldEntry(t).id];
+    controls = (w.texts[0] as string[]).filter((x) => x !== t).map((x) => run.oldEntry(x).id);
+    result = run.second;
+  } else {
+    const { ops, files } = KIND_OPS[kind] as { ops: ScriptOps; files: number };
+    const plan = planOf(p, ops, files);
+    const run = await rescan(ctx, plan.before, plan.after);
+    const kept = plan.kept.map((text) => run.oldEntry(text).id);
+    const fresh = plan.entering.map((text) => {
+      const entry = liveByText(run.second.ledger, text);
+      if (!entry) throw new Problem(`positive witness: the inserted unit ${show(text)} has no live entry`);
+      return entry.id;
+    });
+    const survivors = plan.merged.map(({ a, b, into }) => {
+      const pair = [run.oldEntry(a).id, run.oldEntry(b).id];
+      const live = pair.filter((id) => {
+        const now = byId(run.second.ledger, id);
+        return now?.status === 'live' && norm(now.quote) === norm(into);
+      });
+      if (live.length !== 1)
+        throw new Problem(
+          `positive witness: ${live.length} of the two merged ids live on with the joined text, expected one`,
+        );
+      return live[0] as string;
+    });
+    const byKind: Record<string, string[]> = {
+      new: fresh,
+      unchanged: kept,
+      moved: plan.moved.map((m) => run.oldEntry(m.text).id),
+      changed: plan.changed.map((c) => run.oldEntry(c.from).id),
+      split: plan.split.map((text) => run.oldEntry(text).id),
+      merged: survivors,
+      deleted: plan.deleted.map((text) => run.oldEntry(text).id),
+    };
+    targets = byKind[kind] ?? [];
+    controls = kind === 'unchanged' ? fresh : kept;
+    result = run.second;
+  }
+  if (targets.length === 0 || controls.length === 0)
+    throw new Problem(`positive witness: the script made no ${kind} unit or no control unit`);
+  for (const id of targets) {
+    const event = reported(result, id);
+    if (event !== kind) return fail(`the ${kind} unit ${id} has event ${event}, expected ${kind}`);
+  }
+  for (const id of controls) {
+    if (reported(result, id) === kind)
+      return fail(`the control unit ${id}, which the edit did not make ${kind}, has event ${kind}`);
+  }
+  return pass(`${targets.length} ${kind} unit(s) reported ${kind}; ${controls.length} control units are not`);
+}
+
+const KINDS = ['new', 'unchanged', 'moved', 'changed', 'split', 'merged', 'ambiguous', 'deleted'] as const;
+const eventRuns: Record<string, Run> = {};
+for (const kind of KINDS) eventRuns[`event-${kind}`] = (ctx) => eventCase(ctx, kind);
+
 /* ----- re-anchoring ----- */
 
 const reanchoring: Record<string, Run> = {
+  ...eventRuns,
   'heading-edit-relabels-interior-unit': async (ctx) => {
     const p = prose(ctx);
     const paragraphs = p.many(4, longMake) as string[];
@@ -313,33 +572,43 @@ const reanchoring: Record<string, Run> = {
 const privacy: Record<string, Run> = {
   'warning-names-models-not-units': async (ctx) => {
     const fixture = loadFixture('haiku');
-    const rows = structuredClone(fixture.rows).slice(1);
-    for (const row of rows) row.answer.returnedModel = 'm-1';
-    const res = await ctx.sut.scan({
-      files: fixture.files,
-      labelsYaml: fixture.labelsYaml,
-      model: { arm: 'haiku', transport: fakeTransport({ model: 'm-2' }) },
-      cassette: {
-        mode: 'record',
-        text: rows
-          .map((row) => JSON.stringify(row))
-          .concat('')
-          .join('\n'),
-      },
-    });
+    // Round 3 audit, seat 2: the models come from the seed, and a re-record whose models agree must warn of
+    // nothing, so a warning literal or a warning given on every scan gains nothing.
+    const { recorded, returned } = seededModels(ctx.seed, ctx.id);
+    const reRecord = (cassetteModel: string, transportModel: string): Promise<ScanResult> => {
+      const rows = structuredClone(fixture.rows).slice(1);
+      for (const row of rows) row.answer.returnedModel = cassetteModel;
+      return ctx.sut.scan({
+        files: fixture.files,
+        labelsYaml: fixture.labelsYaml,
+        model: { arm: 'haiku', transport: fakeTransport({ model: transportModel }) },
+        cassette: {
+          mode: 'record',
+          text: rows
+            .map((row) => JSON.stringify(row))
+            .concat('')
+            .join('\n'),
+        },
+      });
+    };
+    const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`the re-record failed: ${res.error}`);
     if (!Array.isArray(res.warnings))
       return fail(
         'the reader does not expose warnings: a returned model that differs from the cassette must be reported as a warning that names both models',
       );
-    const named = res.warnings.filter((w) => w.includes('m-1') && w.includes('m-2'));
+    const named = res.warnings.filter((w) => w.includes(recorded) && w.includes(returned));
     if (named.length === 0)
       return fail(`no warning names both models; the warnings are ${JSON.stringify(res.warnings)}`);
     const units = fixture.documents.flatMap((d) => d.units.map((u) => u.text.replace(/\s+/g, ' ').trim()));
     const quoted = res.warnings.find((w) => units.some((u) => u.length >= 20 && w.includes(u.slice(0, 20))));
-    return quoted
-      ? fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`)
-      : pass('the warning names both models and no unit text');
+    if (quoted) return fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`);
+    const same = await reRecord(recorded, recorded);
+    if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
+    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0
+      ? pass('the warning names both models and no unit text; models that agree give no warning')
+      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
   },
 };
 
@@ -699,6 +968,242 @@ const labels: Record<string, Run> = {
   },
 };
 
+/* ----- labels: the requests and the record of the yes or no arm `openai-decisions` ----- */
+
+/** The label names of PROBE_YAML and FIVE_YAML, in set order. */
+const PROBE_LABELS = ['rule', 'prohibition', 'example'];
+const FIVE_LABELS = ['one', 'two', 'three', 'four', 'five'];
+/** The most questions one decisions request may hold (docs/estate-pointer-reader.md, section 3). */
+const DECISIONS_MAX_QUESTIONS = 100;
+
+/** One file of one paragraph per text, no heading. */
+const paragraphs = (texts: string[]): SourceFile[] => {
+  const blocks = texts.map((text): Block => ({ kind: 'paragraph', sentences: [text] }));
+  return [{ path: 'doc.md', text: compose(blocks).text }];
+};
+
+/** A failure found inside a helper, turned into the item's failure by `decisionsRun`. */
+class DecisionsFailure extends Error {}
+const decisionsRun =
+  (body: (ctx: ItemContext) => Promise<Outcome>): Run =>
+  async (ctx) => {
+    try {
+      return await body(ctx);
+    } catch (error) {
+      if (error instanceof DecisionsFailure) return fail(error.message);
+      throw error;
+    }
+  };
+
+/** Record a scan on the `openai-decisions` arm over `transport`; the failure text when it fails. */
+async function decisionsRecord(
+  ctx: ItemContext,
+  texts: string[],
+  yaml: string,
+  transport: FakeTransport,
+  threshold?: number,
+): Promise<ScanResult & { ledger: LedgerView }> {
+  const res = await ctx.sut.scan({
+    files: paragraphs(texts),
+    labelsYaml: yaml,
+    model: { arm: 'openai-decisions', transport, ...(threshold === undefined ? {} : { threshold }) },
+    cassette: { mode: 'record' },
+  });
+  if (!res.ok || !res.ledger) throw new DecisionsFailure(`the scan failed: ${res.error ?? 'no ledger'}`);
+  return res as ScanResult & { ledger: LedgerView };
+}
+
+/** The questions of a decisions request as sent: the `type` and `name` of each entry of its list. */
+function predicatesOf(call: ParsedCall): Array<{ type: unknown; name: unknown }> {
+  try {
+    const questions = (JSON.parse(call.body) as { questions?: unknown }).questions;
+    if (!Array.isArray(questions)) return [];
+    return questions.map((q) => {
+      const question = (q ?? {}) as { type?: unknown; name?: unknown };
+      return { type: question.type, name: question.name };
+    });
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The predicate checks of decisions requests: every question of type `predicate`, named `u<n>__<label>`
+ * with a label of `labels` and the number of a unit of its own request's input; no name twice in a request;
+ * every unit of the input asked once per label; over all requests, each text asked once per label. The
+ * failure, or undefined.
+ */
+function predicatesProblem(calls: ParsedCall[], texts: string[], labels: string[]): string | undefined {
+  const asked = new Map<string, number>();
+  for (const [at, call] of calls.entries()) {
+    const where = `request ${at + 1}`;
+    if (call.arm !== 'decisions') return `${where} holds no list of predicates`;
+    const unitText = new Map(call.units.map((u) => [u.n, u.text]));
+    const names = new Set<string>();
+    for (const question of predicatesOf(call)) {
+      if (question.type !== 'predicate')
+        return `${where} has a question of type ${String(question.type)}, not predicate`;
+      const name = typeof question.name === 'string' ? question.name : '';
+      const m = /^u(\d+)__(.+)$/.exec(name);
+      if (!m || !labels.includes(m[2] as string))
+        return `${where} has a question named ${JSON.stringify(question.name)}, not u<n>__<label> of the set`;
+      if (names.has(name)) return `${where} names the predicate ${name} twice`;
+      names.add(name);
+      const text = unitText.get(Number(m[1]));
+      if (text === undefined) return `${where} asks ${name}, and its input has no unit [${m[1]}]`;
+      const pair = `${keyOf(text)}\0${m[2]}`;
+      asked.set(pair, (asked.get(pair) ?? 0) + 1);
+    }
+    for (const unit of call.units)
+      for (const name of labels)
+        if (!names.has(`u${unit.n}__${name}`))
+          return `${where} does not ask u${unit.n}__${name}, and unit [${unit.n}] is in its input`;
+  }
+  for (const text of texts)
+    for (const name of labels) {
+      const times = asked.get(`${keyOf(text)}\0${name}`) ?? 0;
+      if (times !== 1) return `${show(text, 30)} was asked about ${name} ${times} times, expected once`;
+    }
+  return undefined;
+}
+
+/** The label a yes or no labeler decides: the highest probability at or above the threshold, else none. */
+const decided = (probs: Record<string, number>, threshold: number): string => {
+  let best: { name: string; p: number } | undefined;
+  for (const name of PROBE_LABELS) {
+    const p = probs[name] as number;
+    if (p >= threshold && (!best || p > best.p)) best = { name, p };
+  }
+  return best?.name ?? 'none';
+};
+
+/** The numbers keyed `u<n>__...` in one cassette line, wherever the line nests them. */
+function recordedOf(line: string): Map<string, number> {
+  const found = new Map<string, number>();
+  const walk = (v: unknown) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object')
+      for (const [k, x] of Object.entries(v)) {
+        if (typeof x === 'number' && /^u\d+__/.test(k)) found.set(k, x);
+        else walk(x);
+      }
+  };
+  try {
+    walk(JSON.parse(line));
+  } catch {
+    // A line that is not JSON records nothing.
+  }
+  return found;
+}
+
+const decisions: Record<string, Run> = {
+  'decisions-predicate-names': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const count = 12 + Math.floor(p.random() * 9);
+    const texts = distinctSentences(p, count);
+    const fake = fakeTransport();
+    await decisionsRecord(ctx, texts, FIVE_YAML, fake);
+    if (fake.count === 0) return fail('no request reached the transport');
+    const problem = predicatesProblem(fake.calls, texts, FIVE_LABELS);
+    return problem
+      ? fail(problem)
+      : pass(`${count * 5} predicates u<n>__<label> in ${fake.count} request(s), each unit and label once`);
+  }),
+  'decisions-question-cap': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const cases: Array<[string, string[], number, number]> = [
+      [PROBE_YAML, PROBE_LABELS, 70, 41],
+      [FIVE_YAML, FIVE_LABELS, 45, 36],
+    ];
+    const seen: string[] = [];
+    for (const [yaml, names, low, span] of cases) {
+      const count = low + Math.floor(p.random() * span);
+      const texts = distinctSentences(p, count);
+      const fake = fakeTransport();
+      await decisionsRecord(ctx, texts, yaml, fake);
+      const big = fake.calls.find((call) => call.questions.length > DECISIONS_MAX_QUESTIONS);
+      if (big)
+        return fail(
+          `a request holds ${big.questions.length} questions (${names.length} labels), the cap is ${DECISIONS_MAX_QUESTIONS}`,
+        );
+      const total = count * names.length;
+      const need = Math.ceil(total / DECISIONS_MAX_QUESTIONS);
+      if (fake.count < need)
+        return fail(`${fake.count} requests for ${total} questions, at least ${need} are needed`);
+      const problem = predicatesProblem(fake.calls, texts, names);
+      if (problem) return fail(problem);
+      seen.push(`${total} questions in ${fake.count} requests`);
+    }
+    return pass(`${seen.join(', ')}, none over ${DECISIONS_MAX_QUESTIONS}, each unit and label once`);
+  }),
+  'decisions-probabilities-recorded': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const r = p.random;
+    const count = 24 + Math.floor(r() * 17);
+    const texts = distinctSentences(p, count);
+    const draw = (low: number, high: number) => Math.round((low + r() * (high - low)) * 100) / 100;
+    // Three kinds in turn: one label over 0.9; a top label from 0.45 to 0.85; every label under 0.25.
+    const table = new Map<string, Record<string, number>>();
+    for (const [i, text] of texts.entries()) {
+      const kind = i % 3;
+      const probs: Record<string, number> = {};
+      for (const name of PROBE_LABELS) probs[name] = kind === 2 ? draw(0.02, 0.24) : draw(0.02, 0.4);
+      const top = PROBE_LABELS[Math.floor(r() * PROBE_LABELS.length)] as string;
+      if (kind === 0) probs[top] = draw(0.91, 0.98);
+      if (kind === 1) probs[top] = draw(0.45, 0.85);
+      table.set(keyOf(text), probs);
+    }
+    const answered = (text: string, name: string) => table.get(keyOf(text))?.[name] ?? 0.05;
+    const fake = fakeTransport({ probability: answered });
+    const res = await decisionsRecord(ctx, texts, PROBE_YAML, fake, 0.9);
+    if (!res.cassette) return fail('the record run returned no cassette');
+    const lines = res.cassette.split('\n').filter(Boolean).map(recordedOf);
+    const used = new Set<number>();
+    for (const [at, call] of fake.calls.entries()) {
+      const unitText = new Map(call.units.map((u) => [u.n, u.text]));
+      const want = call.questions.map((name): [string, number] => {
+        const m = /^u(\d+)__(.+)$/.exec(name);
+        return [name, answered(unitText.get(Number(m?.[1])) ?? '', m?.[2] ?? '')];
+      });
+      // A predicate the entry lacks is missing: the difference is NaN, never within the tolerance.
+      const missing = (found: Map<string, number>) =>
+        want.filter(([name, value]) => !(Math.abs((found.get(name) ?? Number.NaN) - value) <= 1e-9));
+      if (want.length === 0) return fail(`request ${at + 1} asks no question`);
+      const match = lines.findIndex((found, i) => !used.has(i) && missing(found).length === 0);
+      if (match < 0) {
+        const left = lines.filter((_, i) => !used.has(i)).map(missing);
+        const closest = left.sort((a, b) => a.length - b.length)[0] ?? want;
+        const [name, value] = closest[0] as [string, number];
+        return fail(
+          `request ${at + 1}: no cassette entry holds its ${want.length} probabilities as answered; ${closest.length} differ, e.g. ${name} answered ${value}`,
+        );
+      }
+      used.add(match);
+    }
+    for (const text of texts) {
+      const want = decided(table.get(keyOf(text)) as Record<string, number>, 0.9);
+      const got = liveByText(res.ledger, text)?.labels.probe?.label;
+      if (got !== want) return fail(`${show(text, 30)} has label ${got} at threshold 0.9, expected ${want}`);
+    }
+    const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
+    const replay = await ctx.sut.scan({
+      files: paragraphs(texts),
+      labelsYaml: PROBE_YAML,
+      model: { arm: 'openai-decisions', transport: closed, threshold: 0.3 },
+      cassette: { mode: 'replay', text: res.cassette },
+    });
+    if (!replay.ok || !replay.ledger) return fail(`the replay at threshold 0.3 failed: ${replay.error}`);
+    if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
+    for (const text of texts) {
+      const want = decided(table.get(keyOf(text)) as Record<string, number>, 0.3);
+      const got = liveByText(replay.ledger, text)?.labels.probe?.label;
+      if (got !== want)
+        return fail(`${show(text, 30)} has label ${got} on the replay at threshold 0.3, expected ${want}`);
+    }
+    return pass(`${fake.count} request(s) recorded in full; the replay at 0.3 relabelled ${count} units`);
+  }),
+};
+
 /* ----- adversarial: the reader and the verdict ----- */
 
 /** The folder of the reader: `packages/estate/src/pointer`, seen from this file. */
@@ -757,10 +1262,10 @@ const adversarial: Record<string, Run> = {
 export const HARDENING_RUNS: Record<string, Record<string, Run>> = {
   adversarial,
   cutting,
-  ids,
+  ids: { ...ids, ...carryRuns },
   're-anchoring': reanchoring,
   privacy,
   radius,
   grouping: { ...grouping, ...grouping2 },
-  labels,
+  labels: { ...labels, ...decisions },
 };

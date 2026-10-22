@@ -16,6 +16,124 @@ export const HARDENING_PROBE_CAP_MS = 140_000;
 
 const cap = { capMs: HARDENING_CAP_MS } as const;
 
+/**
+ * Round 3 audit, seat 1: one export of per-id events turned 56 items green with no change to the ladder. These
+ * five judge the carry of ids from the ledger alone (never the events, the lineage or the counts), so a reader
+ * with a correct-looking events export and a wrong ladder still fails them. Each row: key, title, oracle, cause.
+ */
+const CARRY: ReadonlyArray<readonly [string, string, string, string]> = [
+  [
+    'carry-unchanged-in-ledger',
+    'An unchanged unit keeps its id, read from the ledger alone',
+    'Every unit the script keeps has, after the rescan, a live entry with its old id, its own text and its own path.',
+    'anchor:keep-id-of-unchanged-unit',
+  ],
+  [
+    'carry-moved-in-ledger',
+    'A unit moved to the other file keeps its id, read from the ledger alone',
+    'The moved unit has, after the rescan, a live entry with its old id, its own text and the path of the file it moved to.',
+    'anchor:keep-id-of-moved-unit',
+  ],
+  [
+    'carry-reworded-in-ledger',
+    'A reworded unit keeps its id, read from the ledger alone',
+    'The reworded unit has, after the rescan, a live entry with its old id, the new text and its own path.',
+    'anchor:keep-id-of-reworded-unit',
+  ],
+  [
+    'fresh-id-for-new-unit-in-ledger',
+    'A unit the edit adds takes an id no old entry had, read from the ledger alone',
+    'Every inserted text and every text written in place of a deleted unit has a live entry whose id is none of the ids of the previous ledger; no two live entries share an id.',
+    'ids:mint-fresh-id-for-new-unit',
+  ],
+  [
+    'deleted-id-not-reused-in-ledger',
+    'The id of a deleted unit is not reused, read from the ledger alone',
+    'No live entry after the rescan carries the id of a deleted unit, not even the text written in its place.',
+    'anchor:retire-id-of-deleted-unit',
+  ],
+];
+
+const CARRY_ROWS: Spec[] = CARRY.map(([key, title, oracle, cause]) =>
+  row(
+    key,
+    3,
+    title,
+    'Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units.',
+    `${oracle} The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them.`,
+    cause,
+    { ...cap, component: 'anchor' },
+  ),
+);
+
+/**
+ * Round 3 audit, seat 1: the per-id events export is asserted by one item per event kind, each with its own edit
+ * script drawn from the seed. The kind must be reported for the edited ids and for no control id. Each row: kind,
+ * title, input, oracle.
+ */
+const EVENTS: ReadonlyArray<readonly [string, string, string, string]> = [
+  [
+    'new',
+    'A unit the edit inserts is reported `new`',
+    'One file of six kept units and one inserted unit.',
+    'The inserted unit has event `new`; no kept unit has event `new`.',
+  ],
+  [
+    'unchanged',
+    'A unit the edit keeps is reported `unchanged`',
+    'One file of six kept units and one inserted unit.',
+    'Every kept unit has event `unchanged`; the inserted unit does not.',
+  ],
+  [
+    'moved',
+    'A unit moved to another file is reported `moved`',
+    'Two files of six kept units; one unit moves from one file to the other.',
+    'The moved unit has event `moved`; no kept unit has event `moved`.',
+  ],
+  [
+    'changed',
+    'A reworded unit is reported `changed`',
+    'One file of six kept units and one unit reworded to a similarity between 0.6 and 0.9.',
+    'The reworded unit has event `changed`; no kept unit has event `changed`.',
+  ],
+  [
+    'split',
+    'A unit cut in two is reported `split`',
+    'One file of six kept units and one unit written as two sentences that join to its text.',
+    'The id of the unit that was cut has event `split`; no kept unit has event `split`.',
+  ],
+  [
+    'merged',
+    'Two units joined into one are reported `merged`',
+    'One file of six kept units and two neighbouring units written as one sentence that joins them.',
+    'Exactly one of the two old ids lives on with the joined text, and it has event `merged`; no kept unit has event `merged`.',
+  ],
+  [
+    'ambiguous',
+    'A unit whose text now stands in two places is reported `ambiguous`',
+    'One file of thirty units; one unit leaves its place and its text is written twice elsewhere in the file.',
+    'The old id of that unit has event `ambiguous`; no other old unit has event `ambiguous`.',
+  ],
+  [
+    'deleted',
+    'A unit the edit removes is reported `deleted`',
+    'One file of six kept units and one unit removed.',
+    'The removed unit has event `deleted`; no kept unit has event `deleted`.',
+  ],
+];
+
+const EVENT_ROWS: Spec[] = EVENTS.map(([kind, title, gen, oracle]) =>
+  row(
+    `event-${kind}`,
+    3,
+    title,
+    `${gen} The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger.`,
+    `${oracle} The event is read from the per-id events of the rescan; a missing event is a failure.`,
+    'scan:events-by-id',
+    { ...cap, component: 'anchor' },
+  ),
+);
+
 export const HARDENING_SPECS: Record<string, Spec[]> = {
   adversarial: [
     row(
@@ -94,8 +212,8 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'lineage-is-history',
       3,
       'The lineage of an entry is its history: one step per change, none for a rescan that changes nothing',
-      'One file of eight units scanned four times: fresh, unchanged, one unit reworded, one unit deleted.',
-      'Every entry shows lineage; the unchanged rescan writes the same ledger bytes; the reworded entry ends with `changed` and the deleted one with `deleted`; every other entry still holds only `new`.',
+      'One file of eight units scanned five times: fresh, unchanged, one unit reworded, one unit deleted, the first unit moved to the end.',
+      'Every entry shows lineage; the unchanged rescan writes the same ledger bytes; the reworded entry ends with `changed` and the deleted one with `deleted`; every other entry still holds only `new`; the moved entry then holds `new`, `moved`.',
       'ledger:lineage-appends-true-events',
       { ...cap, component: 'ledger' },
     ),
@@ -123,6 +241,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
         role: 'catch',
       },
     ),
+    ...CARRY_ROWS,
   ],
   're-anchoring': [
     row(
@@ -130,7 +249,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       3,
       'The event of each id is what a comparison of the old and the new text gives',
       'Two files of eight units. One unit moves to the other file, one is reworded by one word, one is deleted, one is added.',
-      '`moved` for the moved unit, `changed` for the reworded one, `deleted` for the deleted one, `unchanged` for the others, `new` for the added one; a reader that calls every surviving id `unchanged` fails.',
+      '`moved` for the moved unit, `changed` for the reworded one, `deleted` for the deleted one, `unchanged` for the others, `new` for the added one; a reader that calls every surviving id `unchanged` fails. Then the twin edit of the re-anchoring family (a removed block, a probe file with a split and a merge).',
       'scan:events-by-id',
       { ...cap, component: 'anchor' },
     ),
@@ -161,14 +280,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'ledger:ctxfp-covers-heading-path',
       { ...cap, component: 'ledger' },
     ),
+    ...EVENT_ROWS,
   ],
   privacy: [
     row(
       'warning-names-models-not-units',
       3,
       'The warning of a model mismatch names both models and quotes no unit text',
-      'The committed Haiku fixture re-recorded against a cassette whose models are `m-1` while the transport answers `m-2`.',
-      'The scan succeeds; the warnings are not empty; one names `m-1` and `m-2`; none holds a stretch of unit text.',
+      'The committed Haiku fixture re-recorded against a cassette whose models carry a name drawn from the seed while the transport answers a second seeded name; then re-recorded with one name on both sides.',
+      'The scan succeeds; the warnings are not empty; one names both models; none holds a stretch of unit text. When the names agree the warnings are empty.',
       'scan:warn-on-returned-model-mismatch',
       { ...cap, component: 'scan' },
     ),
@@ -276,6 +396,60 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'No window offers that unit as labelable and it holds no label; every paragraph holds the label the labeler gave it.',
       'scan:read-units-marked',
       { ...cap, component: 'scan' },
+    ),
+    row(
+      'decisions-threshold-window',
+      2,
+      'A yes or no system 1 labeler takes the highest probability at or above 0.4 by default',
+      'The `openai-decisions` arm (one yes or no question per unit and label) on a fake transport, no threshold given; 12 units with crafted probabilities around 0.4 (0.39 / 0.41 and others).',
+      'Label = the highest probability label when it is above 0.4, else `none` (values at 0.39 and 0.41 only; 0.4 itself is not asked).',
+      'decisions:threshold-window',
+      { ...cap, component: 'openai-decisions', needs: ['transport'] },
+    ),
+    row(
+      'decisions-threshold-set-by-caller',
+      3,
+      'A threshold the caller sets decides the labels of a yes or no system 1 labeler',
+      'The `openai-decisions` arm with threshold 0.7; 12 units with probabilities around 0.7.',
+      'Label = the highest probability label when it is above 0.7, else `none`.',
+      'decisions:threshold-from-caller',
+      { ...cap, component: 'openai-decisions', needs: ['transport'] },
+    ),
+    row(
+      'decisions-threshold-is-a-replay-setting',
+      3,
+      'Changing the threshold of a yes or no system 1 labeler needs no new call',
+      'Record 12 units on the `openai-decisions` arm at the default (rule 0.95 or 0.5); replay that cassette with threshold 0.9 on a closed transport.',
+      'Every unit is rule at the default; the replay succeeds with zero transport calls; the labelled units shrink to those above 0.9.',
+      'decisions:threshold-is-replay-setting',
+      { ...cap, component: 'openai-decisions', needs: ['transport', 'cassette'] },
+    ),
+    row(
+      'decisions-predicate-names',
+      3,
+      'A yes or no system 1 labeler asks one predicate per unit and label, named `u<n>__<label>`, none repeated',
+      'The `openai-decisions` arm on a fake transport with the five-label set; 12 to 20 units by the seed, so every question fits one request.',
+      'Every question is of type `predicate`, named `u<n>__<label>` with a label of the set and the number of a unit of its own request; no name occurs twice in a request; each request asks every unit of its input once per label; over all requests each unit text is asked once per label.',
+      'decisions:predicate-per-unit-and-label',
+      { ...cap, component: 'openai-decisions', needs: ['transport'] },
+    ),
+    row(
+      'decisions-question-cap',
+      3,
+      'A yes or no system 1 labeler asks at most 100 questions per request and splits a larger window',
+      'The `openai-decisions` arm on a fake transport: the three-label set with 70 to 110 units, then the five-label set with 45 to 80 units, by the seed; one file, no heading.',
+      'No request holds more than 100 questions; the requests number at least the questions divided by 100, rounded up; over all requests each unit text is asked once per label, so the questions total the units times the labels.',
+      'decisions:question-cap-per-request',
+      { ...cap, component: 'openai-decisions', needs: ['transport'] },
+    ),
+    row(
+      'decisions-probabilities-recorded',
+      3,
+      'A yes or no system 1 labeler records the probability of every question, so a lower threshold replays without a call',
+      'The `openai-decisions` arm at threshold 0.9 set by the caller; 24 to 40 units with seeded probabilities per label: one label over 0.9, or a top label from 0.45 to 0.85, or every label under 0.25. Then a replay of that cassette at threshold 0.3 on a closed transport.',
+      'Each request has a cassette entry that holds every one of its predicates with the probability the transport answered, those under the threshold and those of a label that lost included; the record run labels at 0.9; the replay makes zero transport calls and labels each unit with its highest label at or above 0.3, else `none`.',
+      'decisions:probabilities-recorded',
+      { ...cap, component: 'openai-decisions', needs: ['transport', 'cassette'] },
     ),
   ],
 };

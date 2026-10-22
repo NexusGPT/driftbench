@@ -64,13 +64,24 @@ const TAILS = split(`
   yesterday tomorrow tonight outside inside upstairs downstairs elsewhere overnight meanwhile afterwards
 `);
 
-const take = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+// The words a generator writes, in order, while a `written` call is open: the positions a planter may change.
+let trace: string[] | null = null;
+const pick = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+const take = <T>(rng: Rng, items: readonly T[]): T => {
+  const value = pick(rng, items);
+  if (trace && typeof value === 'string') trace.push(value);
+  return value;
+};
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const long = (rng: Rng, items: readonly string[]): string => {
   for (let tries = 0; tries < 20; tries += 1) {
-    const word = take(rng, items);
-    if (word.length >= 4) return word;
+    const word = pick(rng, items);
+    if (word.length >= 4) {
+      trace?.push(word);
+      return word;
+    }
   }
+  trace?.push('quietly');
   return 'quietly';
 };
 
@@ -200,6 +211,36 @@ export function dice(a: string, b: string): number {
   return diceOf(gramsOf(a), gramsOf(b));
 }
 
+/** A word a generator wrote, and where it starts in the text it returned. */
+export type WrittenWord = { text: string; start: number };
+/** A text and the words the generator wrote into it, in order. */
+export type Written = { text: string; words: WrittenWord[] };
+
+/**
+ * Runs a generator and returns its text with the position of every word it wrote. The positions come from what
+ * the generator drew, never from a pattern matched on the text, so a planter that changes a word changes a word
+ * the generator chose.
+ */
+export function written(make: (rng: Rng) => string, rng: Rng): Written {
+  const before = trace;
+  trace = [];
+  try {
+    const text = make(rng);
+    const lower = text.toLowerCase();
+    const words: WrittenWord[] = [];
+    let from = 0;
+    for (const drawn of trace) {
+      const at = lower.indexOf(drawn.toLowerCase(), from);
+      if (at < 0) continue;
+      words.push({ text: text.slice(at, at + drawn.length), start: at });
+      from = at + drawn.length;
+    }
+    return { text, words };
+  } finally {
+    trace = before;
+  }
+}
+
 /**
  * A pool of sentences drawn apart: each new sentence has trigram Dice under `limit` against the last `window`
  * sentences of the pool. Two sentences far apart in a long document may be alike; `unrelatedTo` is for the pairs
@@ -241,6 +282,19 @@ export class Prose {
     return fallback;
   }
 
+  /** The next sentence as `next` draws it, with the words the generator wrote and where they start. */
+  nextWritten(make: (rng: Rng) => string = sentence): Written {
+    let last: Written | undefined;
+    const text = this.next((rng) => {
+      last = written(make, rng);
+      return last.text;
+    });
+    // A fallback text only appends to the last draw, so its offsets still hold.
+    if (!last || !text.startsWith(last.text.replace(/\.$/, '')))
+      throw new Error('the accepted sentence is not the last draw');
+    return { text, words: last.words };
+  }
+
   many(count: number, make?: (rng: Rng) => string): string[] {
     return Array.from({ length: count }, () => this.next(make));
   }
@@ -250,6 +304,15 @@ export class Prose {
     for (let tries = 0; tries < 400; tries += 1) {
       const candidate = this.next(make);
       if (texts.every((t) => similarity(candidate, t) < limit)) return candidate;
+    }
+    throw new Error('no sentence unrelated enough');
+  }
+
+  /** `unrelatedTo`, with the words the generator wrote and where they start. */
+  unrelatedToWritten(texts: readonly string[], limit = 0.3, make: (rng: Rng) => string = sentence): Written {
+    for (let tries = 0; tries < 400; tries += 1) {
+      const candidate = this.nextWritten(make);
+      if (texts.every((t) => similarity(candidate.text, t) < limit)) return candidate;
     }
     throw new Error('no sentence unrelated enough');
   }

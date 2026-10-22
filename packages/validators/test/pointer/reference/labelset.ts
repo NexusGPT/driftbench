@@ -31,7 +31,50 @@ function fail(message: string): never {
   throw new LabelSetError(message);
 }
 
-export type ParsedSet = LabelSetDef & { hash: string };
+/** A kind of span inside one unit (design section 1, the reader's `spans:` of a set). */
+export type SpanKindDef = { name: string; description: string; polarity?: true; within?: string };
+/** A kind of link to a listed candidate: the atom kinds it names, or a closed list of values. */
+export type LinkKindDef = { name: string; description: string; to?: string[]; values?: string[] };
+/** A label that may also carry spans and links of the kinds its set declares. */
+export type RefLabel = LabelDef & { spans?: string[]; links?: string[] };
+/** What a mapping adds to its kind and polarity: a title and a situation (templates), and `whenFile`. */
+export type MappingExtra = { title?: string; situation?: string; whenFile?: true };
+
+export type ParsedSet = Omit<LabelSetDef, 'labels'> & {
+  hash: string;
+  labels: RefLabel[];
+  /** The span kinds of the set; absent when it declares none. */
+  spans?: SpanKindDef[];
+  /** The link kinds of the set; absent when it declares none. */
+  links?: LinkKindDef[];
+  /** The title, situation and `whenFile` of each label's atom mapping, by label name (not enumerable). */
+  mappings: Map<string, MappingExtra>;
+};
+
+const strings = (value: unknown): string[] | undefined =>
+  Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === 'string')
+    ? (value as string[])
+    : undefined;
+
+/** The span kinds or link kinds a set declares, each with a name and a description. */
+function kindsOf(set: Record<string, unknown>, field: 'spans' | 'links'): Array<Record<string, unknown>> {
+  const raw = set[field];
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw) || raw.length === 0)
+    fail(`the set "${String(set.set)}" has an empty ${field} list`);
+  const seen = new Set<string>();
+  return (raw as unknown[]).map((entry) => {
+    const kind = (entry ?? {}) as Record<string, unknown>;
+    if (typeof kind.name !== 'string' || !NAME.test(kind.name))
+      fail(`a ${field} kind of the set "${String(set.set)}" has no lower-case name`);
+    if (typeof kind.description !== 'string' || kind.description.trim() === '')
+      fail(`the ${field} kind ${kind.name} has no description`);
+    if (seen.has(kind.name))
+      fail(`the set "${String(set.set)}" declares the ${field} kind ${kind.name} twice`);
+    seen.add(kind.name);
+    return kind;
+  });
+}
 
 export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
   let data: unknown;
@@ -53,8 +96,29 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
     if (names.has(set.set)) fail(`the set name "${set.set}" is used twice`);
     names.add(set.set);
     if (!Array.isArray(set.labels) || set.labels.length === 0) fail(`the set "${set.set}" has no labels`);
+    const spanKinds = kindsOf(set, 'spans').map(
+      (kind): SpanKindDef => ({
+        name: kind.name as string,
+        description: kind.description as string,
+        ...(kind.polarity === true ? { polarity: true as const } : {}),
+        ...(typeof kind.within === 'string' ? { within: kind.within } : {}),
+      }),
+    );
+    const linkKinds = kindsOf(set, 'links').map((kind): LinkKindDef => {
+      const to = strings(kind.to);
+      const values = strings(kind.values);
+      if ((to === undefined) === (values === undefined))
+        fail(`the link kind ${String(kind.name)} names \`to\` or \`values\`, one of the two`);
+      return {
+        name: kind.name as string,
+        description: kind.description as string,
+        ...(to ? { to } : {}),
+        ...(values ? { values } : {}),
+      };
+    });
     const seen = new Set<string>();
-    const labels: LabelDef[] = [];
+    const labels: RefLabel[] = [];
+    const mappings = new Map<string, MappingExtra>();
     for (const rawLabel of set.labels as unknown[]) {
       const label = rawLabel as Record<string, unknown>;
       const name = label.name;
@@ -80,7 +144,7 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
         fail(`the label "${name}" is a condition and needs target: required`);
       if (label.condition === true && label.atom !== undefined)
         fail(`the label "${name}" is a condition and builds no atom of its own: it takes no atom mapping`);
-      const def: LabelDef = { name, description: label.description };
+      const def: RefLabel = { name, description: label.description };
       if (label.condition === true) def.condition = true;
       if (Array.isArray(label.examples)) def.examples = label.examples.map(String);
       if (label.target === 'required') def.target = 'required';
@@ -91,15 +155,47 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
           kind: atom.kind,
           ...(typeof atom.polarity === 'string' ? { polarity: atom.polarity } : {}),
         };
+        const extra: MappingExtra = {
+          ...(typeof atom.title === 'string' && atom.title !== '' ? { title: atom.title } : {}),
+          ...(typeof atom.situation === 'string' && atom.situation !== ''
+            ? { situation: atom.situation }
+            : {}),
+          ...(atom.whenFile === true ? { whenFile: true as const } : {}),
+        };
+        if (Object.keys(extra).length > 0) mappings.set(name, extra);
+      }
+      for (const field of ['spans', 'links'] as const) {
+        if (label[field] === undefined) continue;
+        const names = strings(label[field]);
+        const declared = field === 'spans' ? spanKinds : linkKinds;
+        if (!names) fail(`the label "${name}" has an empty ${field} list`);
+        const what = field === 'spans' ? 'span' : 'link';
+        for (const kind of names)
+          if (!declared.some((k) => k.name === kind))
+            fail(`the label ${name} names the ${what} kind ${kind}, which the set does not declare`);
+        def[field] = names;
       }
       labels.push(def);
     }
-    const parsed: LabelSetDef = {
+    const parsed: Omit<ParsedSet, 'hash' | 'mappings'> = {
       set: set.set,
       description: typeof set.description === 'string' ? set.description : '',
       labels,
+      ...(spanKinds.length > 0 ? { spans: spanKinds } : {}),
+      ...(linkKinds.length > 0 ? { links: linkKinds } : {}),
     };
-    out.push({ ...parsed, hash: sha256(canonicalCompact(parsed)).slice(0, 16) });
+    // The set hash covers what the set declares: the mapping templates join it when the set has any. A set
+    // with no spans, links or templates hashes as it did before the reference knew them.
+    const declared = { ...parsed, ...(mappings.size > 0 ? { mappings: Object.fromEntries(mappings) } : {}) };
+    // The mapping extras are not enumerable: a set copied or serialised whole (a fixture wire) stays the set
+    // it was before the reference knew them.
+    out.push(
+      Object.defineProperty(
+        { ...parsed, labels, hash: sha256(canonicalCompact(declared)).slice(0, 16) },
+        'mappings',
+        { value: mappings },
+      ) as ParsedSet,
+    );
   }
   return out;
 }

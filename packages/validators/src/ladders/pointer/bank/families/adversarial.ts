@@ -1,4 +1,4 @@
-import { anchorCase } from '../../kit/anchor-case';
+import { anchorCase, runTwin } from '../../kit/anchor-case';
 import { cloneWorld, distinctSentences, filesOf, longSentence, worldOf } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
@@ -510,10 +510,8 @@ export const adversarialRuns: Record<string, Run> = {
       para(q as string),
     ];
     const dup2 = rewordWords(p.random, dup, 1);
-    const first = await scanOk(ctx.sut, {
-      files: build([{ path: 'd.md', blocks: [para(dup), ...mk(dup)] }]).files,
-      labeler: perfect(),
-    });
+    const old = [{ path: 'd.md', blocks: [para(dup), ...mk(dup)] }];
+    const first = await scanOk(ctx.sut, { files: build(old).files, labeler: perfect() });
     const second = await scanOk(ctx.sut, {
       files: build([{ path: 'd.md', blocks: [para(dup), ...mk(dup2)] }]).files,
       previousLedger: first.ledger.raw,
@@ -534,7 +532,7 @@ export const adversarialRuns: Record<string, Run> = {
         return fail(`untouched copy ${i + 1} is ${eventNow(second, now)} with ${now.quote.slice(0, 30)}`);
     }
     void middle;
-    return pass('the edited copy changed, the other three unchanged');
+    return pass(`the edited copy changed, the other three unchanged; ${await runTwin(ctx, old)}`);
   },
   'hostile-file-names': async (ctx) => {
     const p = prose(ctx);

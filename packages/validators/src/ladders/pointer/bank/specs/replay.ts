@@ -103,7 +103,7 @@ export const replay: FamilySpec = {
       3,
       'A cassette of another labeller is refused by name',
       "Replay each committed Haiku and Jev fixture correctly, then give each arm the other arm's cassette.",
-      'The valid fixtures retain every authored label; the wrong-arm cassettes fail offline and name labeler or model.',
+      "The valid fixtures retain every authored label; the wrong-arm cassettes fail offline, and each miss names, as a whole token, the labeler id its own fixture's entries declare (the id of the missing entry, never only the word labeler or model).",
       'cassette:miss-names-labeler',
     ),
     row(
@@ -191,8 +191,8 @@ export const replay: FamilySpec = {
       'model-mismatch-warns',
       3,
       'A changed returned model warns on re-record',
-      'Remove the first committed entry, set the remaining returned-model receipts to m-1, and record the missing request with m-2.',
-      'The scan succeeds and exposes a warning naming both returned models.',
+      'Remove the first committed entry, set the remaining returned-model receipts to a model name drawn from the seed, and record the missing request with a second seeded name; then the same with one name on both sides.',
+      'The scan succeeds and exposes a warning naming both returned models; when the two names agree the warnings are empty.',
       'cassette:model-mismatch-warning',
     ),
     row(

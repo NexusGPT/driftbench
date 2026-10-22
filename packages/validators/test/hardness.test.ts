@@ -154,6 +154,47 @@ describe('the bar a validator records in GATE.md', () => {
     );
   });
 
+  it('reads a gain bar that replaces the score ceiling, and fails a pilot that climbs faster than it', () => {
+    expect(parseGate('Max score gain over the pilot: 0.10\nMin forecast: 100\n')).toEqual({
+      maxScore: null,
+      minForecast: null,
+      minCauses: null,
+      maxGain: 0.1,
+    });
+    // 600 items, 396 pass at iteration 0 (0.66), 6 more per pilot fix: 0.66 to 0.76, a gain of 0.1, and 144
+    // failing items at the end, so the 100 causes of section 12.4 hold.
+    const tiers = { '1': 200, '2': 160, '3': 120, '4': 80, '5': 40 };
+    const journal = rows([396, 402, 408, 414, 420, 426, 432, 438, 444, 450, 456], 600, tiers);
+    const gate = (gain: number) => `Max score gain over the pilot: ${gain}\nMin forecast: 20\n`;
+    const held = measureHardness(journal, { audit: PASSING_AUDIT, gate: gate(0.11) });
+    expect(held.gate.reasons).toEqual([]);
+    expect(held.lowered).toBe(true);
+    const climbed = measureHardness(journal, { audit: PASSING_AUDIT, gate: gate(0.05) });
+    expect(climbed.gate.reasons).toEqual([
+      'the score rose 0.1 over the pilot, above 0.05 (the bar GATE.md sets in place of the score ceiling)',
+    ]);
+    // Without the gain line the absolute ceiling of 12.4 applies and fails.
+    const absolute = measureHardness(journal, { audit: PASSING_AUDIT, gate: 'Min forecast: 20\n' });
+    expect(absolute.gate.reasons).toContain('the score after the pilot 0.76 is above 0.4');
+  });
+
+  it('takes the stricter gain of the hardness items and of every item', () => {
+    // 510 hardness items climb from 306 to 366 passing: a rise of 0.1176. Ninety catch items always pass, so the
+    // gain over every item is (456 - 396) / 600 = 0.1, which passes a bar of 0.11 that the hardness rise fails.
+    const tiers = { '1': 170, '2': 136, '3': 102, '4': 68, '5': 34 };
+    const passing = Array.from({ length: 11 }, (_, iteration) => 306 + 6 * iteration);
+    const journal = rows(passing, 510, tiers);
+    const gate = 'Max score gain over the pilot: 0.11\nMin forecast: 20\n';
+    const alone = measureHardness(journal, { audit: PASSING_AUDIT, gate });
+    expect(alone.gate.reasons.some((reason) => reason.includes('the score rose'))).toBe(true);
+    const caught = journal.map((row) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 90, passing: 90 } }),
+    );
+    const mixed = measureHardness(caught, { audit: PASSING_AUDIT, gate });
+    expect(mixed.gate.holds).toBe(false);
+    expect(mixed.gate.reasons.some((reason) => reason.includes('the score rose'))).toBe(true);
+  });
+
   it('honours the bars the committed GATE.md files record', () => {
     const bar = (component: string) =>
       parseGate(readFileSync(join(ROOT, 'validators', component, 'GATE.md'), 'utf8'));

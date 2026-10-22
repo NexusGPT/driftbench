@@ -22,6 +22,10 @@ import {
   type Labelled,
   type LabelSet,
   offsetSpans,
+  requestPathOf,
+  requestShownOf,
+  shownIdOf,
+  shownOf,
   type Window,
 } from './labels';
 
@@ -55,7 +59,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
     for (const kind of set.links) {
       lines.push(`- ${kind.name}: ${kind.description}`);
       for (const candidate of context.candidates?.[kind.name] ?? [])
-        lines.push(`    ${candidate.id}  ${candidate.label}`);
+        lines.push(`    ${shownIdOf(candidate)}  ${candidate.label}`);
     }
   }
   return lines;
@@ -93,14 +97,14 @@ export const RETRY_NOTE =
 
 /**
  * The numbered units of a window, one per line: `[n] text`. An opaque unit of the run (a fence or a comment) is
- * shown where it stands, by its kind and first line, without a number: it is context and cannot be labelled.
+ * shown where it stands, by its kind (a fence also by its first line), without a number: it is context and cannot be labelled.
  */
 export function windowLines(window: Window): string[] {
   const shownAt = (after: number) =>
-    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(line.text));
+    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(requestShownOf(line)));
   return [
     ...shownAt(0),
-    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${squash(unit.text)}`, ...shownAt(at + 1)]),
+    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${shownOf(unit).text}`, ...shownAt(at + 1)]),
   ];
 }
 
@@ -111,7 +115,7 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
     ...set.labels.map(labelLine),
     '- none: no label of this set applies.',
     ...spanLines(set, context),
-    `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
+    `WINDOW ${window.id}  path: ${requestPathOf(window).join(' > ') || '(top)'}`,
     ...windowLines(window),
   ].join('\n');
 }

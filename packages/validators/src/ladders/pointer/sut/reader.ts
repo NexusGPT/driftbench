@@ -7,6 +7,9 @@ import type {
   EditClass,
   LedgerEntry,
   LedgerView,
+  ListedCandidates,
+  ManifestAtom,
+  ManifestChange,
   PointerSut,
   RerunApi,
   ScanRequest,
@@ -17,6 +20,7 @@ import type {
   Transport,
 } from './port';
 import { ReaderNotReachable } from './port';
+import { SentRecorder } from './sent';
 
 /**
  * The one file that knows the real pointer reader. It maps the reader's exports (names and types only, as listed in
@@ -74,10 +78,15 @@ type RLabeler = {
   cls: 'system1' | 'system2';
   settings: Readonly<Record<string, unknown>>;
   model: string;
+  runs?: number;
   maxUnits(set: RSet, wanted: number): number;
-  render(set: RSet, window: RWindow): RWire;
+  render(set: RSet, window: RWindow, context?: RContext): RWire;
   opinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
   call?(wire: RWire, set: RSet, window: RWindow): Promise<RRecorded>;
+};
+/** What a request lists for a labeler to point at, as the reader hands it to `render`. */
+type RContext = {
+  candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string; shown?: string }>>>;
 };
 type RLabelling = { members: readonly RLabeler[]; describe: string };
 type RCassette = { render(): string };
@@ -97,9 +106,12 @@ type RResult = {
   refusals: string[];
   failed: string[];
   recorded: number;
+  /** Units one member of a stack decided alone because the other gave no opinion. */
+  fellBack?: number;
 };
 type RAtom = {
   kind: string;
+  title?: string;
   situation?: string;
   provenance: { file: string; startLine: number; endLine: number; quote: string };
   producedBy: string;
@@ -110,6 +122,7 @@ type RAtom = {
 
 type RChange = { id: string; class: string; path: string; sectionPath: string[]; quote: string };
 type RRerun = { units: Map<string, string[]>; advisory: Map<string, string[]>; whole: string | null };
+type RManifest = { changes: Array<{ kind: string; id?: string; global?: boolean }> };
 
 type RSettings =
   | {
@@ -124,6 +137,12 @@ export type ReaderExports = {
   /** Optional rerun rule of the ledger: absent exports fail the items that need them, explicitly. */
   ledgerChanges?(before: RLedger, after: RLedger): RChange[];
   rerunOf?(changes: readonly RChange[], before: RLedger): RRerun;
+  /** Optional change manifest of a rerun set: absent exports fail the items that need them, explicitly. */
+  atomsByUnit?(atoms: ReadonlyArray<{ id: string; fields?: Record<string, unknown> }>): Map<string, string[]>;
+  ledgerChangeManifest?(
+    rerun: RRerun,
+    options: { from: string; to: string; atomsByUnit?: ReadonlyMap<string, readonly string[]> },
+  ): RManifest;
   /** Optional stack observables. Unsupported rules fail explicitly. */
   margin?: StackApi['margin'];
   stackDecision?: StackApi['decide'];
@@ -133,12 +152,13 @@ export type ReaderExports = {
   cut(source: string): RCut;
   LabelerError: new (message: string) => Error;
   buildLabelling(
-    specs: Array<{ cls: 'system1' | 'system2'; client: string }>,
+    specs: Array<{ cls: 'system1' | 'system2'; client: string; target?: string }>,
     options: {
       env: Record<string, string | undefined>;
       cwd: string;
       record: boolean;
       threshold?: number;
+      marginCut?: number;
       fetch?: unknown;
     },
   ): Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string }>;
@@ -341,6 +361,36 @@ function viewOf(reader: ReaderExports, ledger: RLedger, cuts: Map<string, RCut>)
 
 /* ----- labelers ----- */
 
+/**
+ * A labeler member that reports which candidates each request it sends was meant to list. Its renderer notes the
+ * context it was handed against the wire it returns; its call runs inside the scope of that wire, so the body the
+ * transport receives (see `fetchOf`) is paired with the context of exactly that request. The member serialises
+ * nothing: a candidate is listed from the string the transport received and from nothing else (`sut/sent.ts`).
+ * A renderer that drops candidates, prints another title, or keeps them in a field that is not sent, lists fewer.
+ */
+export function recordingMember(member: RLabeler, recorder: SentRecorder): RLabeler {
+  const render = (set: RSet, window: RWindow, context?: RContext): RWire => {
+    const wire = member.render(set, window, context);
+    const byLink = Object.fromEntries(
+      Object.entries(context?.candidates ?? {}).map(([link, list]) => [
+        link,
+        list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+      ]),
+    );
+    recorder.note(wire, { where: { file: window.path, window: window.id, set: set.set }, byLink });
+    return wire;
+  };
+  const original = member.call;
+  const call = original
+    ? (wire: RWire, ...rest: unknown[]): Promise<RRecorded> =>
+        recorder.during(wire, () => Reflect.apply(original, member, [wire, ...rest]) as Promise<RRecorded>)
+    : undefined;
+  return Object.create(member, {
+    render: { value: render },
+    ...(call ? { call: { value: call } } : {}),
+  }) as RLabeler;
+}
+
 function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<string, RCut>): RLabeler {
   const planted = request.labeler;
   return {
@@ -349,6 +399,7 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
     cls: 'system2',
     settings: {},
     model: 'planted',
+    ...(request.labelerRuns !== undefined ? { runs: request.labelerRuns } : {}),
     maxUnits: (_set, wanted) => wanted,
     render: (set, window) => ({ labeler: 'planted', body: { set: set.set, window } }),
     opinions: (answer, set, window) => reader.denseOpinions(answer, set, window),
@@ -398,10 +449,57 @@ const TEST_ENV: Record<string, string> = {
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
   JEV_URL: 'https://jev.invalid/v1/systemone',
+  OPENAI_API_KEY: 'test-key-not-real',
+  OPENAI_BASE_URL: 'https://openai.invalid',
+  OPENAI_DECISIONS_MODEL: 'decisions-fake-1',
 };
 
-function fetchOf(
+/** The address of the `user-yes-no` labeler: a reserved `.invalid` name only the fake transport answers. */
+const USER_LABELER_URL = 'https://labeler.invalid/v1/label';
+
+/**
+ * The environment of a scan whose item watches the key of the `haiku` arm: the same values, with the key
+ * behind a getter that reports each read. The reader decides when it reads the key; the binding reports it.
+ */
+function envOf(onKeyRead: (() => void) | undefined): Record<string, string | undefined> {
+  if (!onKeyRead) return TEST_ENV;
+  const env: Record<string, string | undefined> = { ...TEST_ENV };
+  Object.defineProperty(env, 'ANTHROPIC_API_KEY', {
+    enumerable: true,
+    configurable: true,
+    get() {
+      onKeyRead();
+      return TEST_ENV.ANTHROPIC_API_KEY;
+    },
+  });
+  return env;
+}
+
+/** The labelers the model port of a request names: one arm, or a choice system 1 arm then the `haiku` arm. */
+function specsOf(
+  model: NonNullable<ScanRequest['model']>,
+): Array<{ cls: 'system1' | 'system2'; client: string; target?: string }> | string {
+  const { arm } = model;
+  if (model.stack) {
+    if (arm !== 'jev' && arm !== 'jev-unit') return `a stack takes a choice system 1 arm, not ${arm}`;
+    return [
+      { cls: 'system1', client: arm },
+      { cls: 'system2', client: 'anthropic' },
+    ];
+  }
+  if (arm === 'user-yes-no') return [{ cls: 'system1', client: 'http', target: USER_LABELER_URL }];
+  if (arm === 'http') return [{ cls: 'system2', client: 'http', target: model.url ?? '' }];
+  if (arm === 'haiku') return [{ cls: 'system2', client: 'anthropic' }];
+  return [{ cls: 'system1', client: arm }];
+}
+
+/**
+ * The fetch the product posts through. The body string it is handed is the one string handed on to the transport,
+ * and the one the recorder reads the listed candidates from.
+ */
+export function fetchOf(
   transport: Transport,
+  recorder?: SentRecorder,
 ): (url: unknown, init?: { headers?: unknown; body?: unknown }) => Promise<Response> {
   return async (url, init) => {
     const headers: Record<string, string> = {};
@@ -412,11 +510,9 @@ function fetchOf(
       });
     else if (Array.isArray(raw)) for (const [k, v] of raw as Array<[string, string]>) headers[k] = v;
     else if (raw && typeof raw === 'object') Object.assign(headers, raw);
-    const out = await transport({
-      url: String(url),
-      headers,
-      body: typeof init?.body === 'string' ? init.body : '',
-    });
+    const body = typeof init?.body === 'string' ? init.body : '';
+    recorder?.received(body);
+    const out = await transport({ url: String(url), headers, body });
     return new Response(out.body, { status: out.status });
   };
 }
@@ -442,26 +538,24 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   }
   const cuts = new Map<string, RCut>();
   for (const file of request.files) cuts.set(file.path, reader.cut(file.text));
+  const listed: ListedCandidates[] = [];
+  const recorder = new SentRecorder({ rows: listed, seen: new Set<string>() });
   const mode = request.cassette?.mode ?? 'record';
   const cassette = reader.Cassette.parse(request.cassette?.text ?? '');
   let labelling: RLabelling;
   if (request.model) {
+    const specs = specsOf(request.model);
+    if (typeof specs === 'string') return fail(specs);
+    const marginCut = request.model.stack?.marginCut;
     try {
-      const built = await reader.buildLabelling(
-        [
-          {
-            cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
-            client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
-          },
-        ],
-        {
-          record: mode === 'record',
-          cwd: '.',
-          env: TEST_ENV,
-          fetch: fetchOf(request.model.transport),
-          ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
-        },
-      );
+      const built = await reader.buildLabelling(specs, {
+        record: mode === 'record',
+        cwd: '.',
+        env: envOf(request.model.onKeyRead),
+        fetch: fetchOf(request.model.transport, recorder),
+        ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
+        ...(marginCut !== undefined ? { marginCut } : {}),
+      });
       if (!built.ok) return fail(built.message);
       labelling = built.labelling;
     } catch (cause) {
@@ -470,6 +564,10 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   } else {
     labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
   }
+  labelling = {
+    ...labelling,
+    members: labelling.members.map((member) => recordingMember(member, recorder)),
+  };
   let result: RResult;
   try {
     result = await reader.pointerScan({
@@ -479,6 +577,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       cassette,
       mode,
       ...(previous ? { previous } : {}),
+      ...(request.estateKey !== undefined ? { estateKey: request.estateKey } : {}),
+      ...(request.atoms ? { atoms: request.atoms } : {}),
     });
   } catch (cause) {
     return fail(cause instanceof Error ? cause.message : String(cause));
@@ -525,6 +625,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     eventCounts: result.events,
     windows: result.windows,
     calls: result.calls,
+    listed,
+    ...(result.fellBack !== undefined ? { fellBack: result.fellBack } : {}),
   };
 }
 
@@ -534,6 +636,7 @@ function atomOf(atom: RAtom): Atom {
   return {
     kind: atom.kind,
     ...(polarity ? { polarity } : {}),
+    ...(typeof atom.title === 'string' ? { title: atom.title } : {}),
     ...(typeof atom.situation === 'string' && atom.situation !== '' ? { situation: atom.situation } : {}),
     file: atom.provenance.file,
     startLine: atom.provenance.startLine,
@@ -623,8 +726,30 @@ function rerunOf(reader: ReaderExports): RerunApi {
         whole: out.whole,
       };
     },
+    manifest(previous, current, atoms) {
+      if (!reader.atomsByUnit || !reader.ledgerChangeManifest)
+        throw new ReaderNotReachable('the reader does not export atomsByUnit and ledgerChangeManifest');
+      const { before, list } = changes(previous, current);
+      const rerun = (reader.rerunOf as NonNullable<ReaderExports['rerunOf']>)(list, before);
+      const byUnit = reader.atomsByUnit(atoms.map(fieldsOf));
+      const out = reader.ledgerChangeManifest(rerun, { from: 'before', to: 'after', atomsByUnit: byUnit });
+      return out.changes.map(changeOf);
+    },
   };
 }
+
+/** A manifest atom as the reader keeps it: the unit and the condition units in its fields. */
+const fieldsOf = (atom: ManifestAtom) => ({
+  id: atom.id,
+  fields: { unit: atom.unit, ...(atom.condition ? { condition: [...atom.condition] } : {}) },
+});
+
+/** A change of the reader's manifest, its kind, id and global flag passed on unchanged. */
+const changeOf = (change: { kind: string; id?: string; global?: boolean }): ManifestChange => ({
+  kind: change.kind,
+  ...(change.id !== undefined ? { id: change.id } : {}),
+  ...(change.global !== undefined ? { global: change.global } : {}),
+});
 
 /** The real reader as a PointerSut. Layer C is not built in the reader, so `links` is absent. */
 export function realReader(): PointerSut {
@@ -643,6 +768,10 @@ export function realReader(): PointerSut {
     rerun: {
       classify: async (previous, current) => rerunOf(await load()).classify(previous, current),
       rerun: async (previous, current) => rerunOf(await load()).rerun(previous, current),
+      manifest: async (previous, current, atoms) => {
+        const api = rerunOf(await load());
+        return (api.manifest as NonNullable<RerunApi['manifest']>)(previous, current, atoms);
+      },
     },
     settings: { parse: async (text) => settingsOf(await load()).parse(text) },
     stack: {

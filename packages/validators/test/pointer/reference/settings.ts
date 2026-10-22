@@ -1,5 +1,6 @@
 import { parse } from 'yaml';
 import type { SettingsApi } from '../../../src/ladders/pointer/sut/port';
+import { bugsC } from './bugs-c';
 
 /**
  * The settings file of docs/estate-pointer-reader.md, section 1: a `threshold` mapping whose keys are
@@ -34,9 +35,11 @@ export function makeSettings(upper = 1, inherited = false): SettingsApi {
         else {
           for (const [key, number] of Object.entries(given)) {
             const known = inherited ? TABLE[key] !== undefined : (KEYS as readonly string[]).includes(key);
+            // Planted bug of lane bugs C: no finite check, so a YAML .nan passes both bounds.
+            const finite = Number.isFinite(number) || bugsC.has('nan-threshold');
             if (!known)
               errors.push(`threshold: ${key} is not a threshold; the thresholds are ${KEYS.join(', ')}`);
-            else if (typeof number !== 'number' || !Number.isFinite(number) || number < 0 || number > upper)
+            else if (typeof number !== 'number' || !finite || number < 0 || number > upper)
               errors.push(`threshold: ${key} is a number from 0 to 1`);
             else thresholds[key] = number;
           }

@@ -84,6 +84,30 @@ export type FetchResponse = { status: number; body: string };
 export type Transport = (request: FetchRequest) => FetchResponse | Promise<FetchResponse>;
 
 export type ModelArm = 'haiku' | 'jev' | 'jev-unit';
+/**
+ * The arms a scan can record on: the three of the fixtures; `openai-decisions`, the system 1 client that asks
+ * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have none);
+ * `user-yes-no`, a user labeler of the system 1 class behind an HTTP endpoint (design section 3, a client
+ * `http:<url>`): `{ set, window, state, questions }` in, `{ probabilities }` out, a label at a threshold; and
+ * `http`, a system 2 user labeler behind the address `url` of the model port.
+ */
+export type ScanArm = ModelArm | 'openai-decisions' | 'user-yes-no' | 'http';
+
+/** The model port of a scan: one arm, or a stack of a choice system 1 arm in front of the `haiku` arm. */
+export type ScanModel = {
+  arm: ScanArm;
+  transport: Transport;
+  threshold?: number;
+  /** The `http` arm: the address the user labeler is posted to. */
+  url?: string;
+  /**
+   * A stack: the arm (`jev` or `jev-unit`) is system 1 and the `haiku` arm is system 2, over the same
+   * transport. `marginCut` absent: the reader's default cut.
+   */
+  stack?: { marginCut?: number };
+  /** Called each time the reader reads the key of the `haiku` arm; the binding holds it behind a getter. */
+  onKeyRead?: () => void;
+};
 
 /* ----- scan ----- */
 
@@ -96,14 +120,29 @@ export type ScanRequest = {
    * Ids and ledgers must not depend on it. Absent: the binding picks one.
    */
   location?: { parent: string; name: string };
+  /**
+   * The key of the estate: part of every id the scan mints, with the file, the fingerprint and the occurrence
+   * (docs/estate-pointer-reader.md section 4). Absent: the reader's own default key.
+   */
+  estateKey?: string;
   /** The raw text of the previous ledger. */
   previousLedger?: string;
   /** The label sets as the user writes them (YAML). Absent: the shipped default set. */
   labelsYaml?: string;
   /** A planted labeller called in process. */
   labeler?: Labeler;
+  /**
+   * The atoms of the estate so far, by id, kind and title: a link kind of a set lists those of its kinds in the
+   * request (docs/estate-pointer-reader.md, section 3). Absent: none.
+   */
+  atoms?: Array<{ id: string; kind: string; title: string }>;
+  /**
+   * How many times the planted labeller is asked each window (absent: once); a unit takes the label every
+   * run gives. The runs are part of what decides a label, so a change of them re-labels the estate.
+   */
+  labelerRuns?: number;
   /** Or a model port over a fake transport; with a cassette. */
-  model?: { arm: ModelArm; transport: Transport; threshold?: number };
+  model?: ScanModel;
   cassette?: CassetteIo;
   /** Check mode: fail when the ledger is stale instead of writing a new one. */
   check?: boolean;
@@ -133,6 +172,8 @@ export type LedgerView = { raw: string; entries: LedgerEntry[] };
 export type Atom = {
   kind: string;
   polarity?: string;
+  /** The title the reader gave the atom; absent when the reader does not expose it. */
+  title?: string;
   file: string;
   startLine: number;
   endLine: number;
@@ -168,9 +209,32 @@ export type ScanResult = {
   events?: Record<string, string>;
   /** How many ids got each event in this scan. */
   eventCounts?: Record<string, number>;
+  /**
+   * Of the units a stack labelled in this scan, those one member decided alone because the other gave no
+   * opinion. Absent when the reader does not expose it.
+   */
+  fellBack?: number;
   /** Windows sent to the labeller or the model port in this scan, and how many calls reached it. */
   windows?: number;
   calls?: number;
+  /**
+   * The link candidates each request carried, read from the request body the transport received: one row per
+   * window, set and link kind. A candidate of the context the reader hands its renderer is listed only when its
+   * exact id and exact title occur in that body string (`sut/sent.ts`); the row keeps the string (`body`).
+   * `id` is the id the request carries and `title` the title it carries. A renderer that drops a candidate lists
+   * fewer; a request that never reached the transport lists nothing. Absent when the reader does not expose it.
+   */
+  listed?: ListedCandidates[];
+};
+
+export type ListedCandidates = {
+  file: string;
+  window: string;
+  set: string;
+  link: string;
+  candidates: Array<{ id: string; title: string }>;
+  /** The exact request body string the transport received, the one the candidates were read from. */
+  body?: string;
 };
 
 /* ----- layer C ----- */
@@ -249,7 +313,22 @@ export interface RerunApi {
   ):
     | { units: string[]; advisory: string[]; whole: string | null }
     | Promise<{ units: string[]; advisory: string[]; whole: string | null }>;
+  /**
+   * The change manifest of the edit, given the atoms of the map before it (each by its id, the unit it was built
+   * from and its condition units): the changes in the reader's order. Absent when the reader does not export it.
+   */
+  manifest?(
+    previous: LedgerView,
+    current: LedgerView,
+    atoms: ReadonlyArray<ManifestAtom>,
+  ): ManifestChange[] | Promise<ManifestChange[]>;
 }
+
+/** An atom as the change manifest reads it: its id, the unit it was built from, the units of its conditions. */
+export type ManifestAtom = { id: string; unit: string; condition?: string[] };
+
+/** One change of a manifest: a `prompt` change names an atom (or is global), a `unit` change names a unit. */
+export type ManifestChange = { kind: string; id?: string; global?: boolean };
 
 /** A validator-facing observation seam for the product stack (no voting in the adapter). */
 export type StackRequest = {
