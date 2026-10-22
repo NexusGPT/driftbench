@@ -447,7 +447,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(result.code).toBe(2);
     expect(result.err).toMatch(
-      /the cassette has no answer for request [0-9a-f]{12}; the nearest entry [0-9a-f]{12} differs in: .*part\./,
+      /the cassette has no answer for request [0-9a-f]{12} of window \S+#\d+; the nearest entry [0-9a-f]{12} differs in: .*part\./,
     );
     await expect(readFile(join(root, 'missed.yaml'), 'utf8')).rejects.toThrow();
   });

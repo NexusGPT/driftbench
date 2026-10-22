@@ -74,15 +74,18 @@ export class CassetteMiss extends Error {
     readonly labeler?: string,
     /** With no entry of the same set and labeler, the closest entry of the same file and window, and what differs. */
     readonly closest?: { key: string; differs: string[] },
+    /** The window of the request that missed, as path and number: the window to record again. */
+    readonly window?: string,
   ) {
+    const of = window === undefined ? '' : ` of window ${window}`;
     super(
       nearest
-        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
+        ? `the cassette has no answer for request ${key.slice(0, 12)}${of}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
             differs.includes('cutDigest')
               ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
               : ''
           }`
-        : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
+        : `the cassette has no answer for request ${key.slice(0, 12)}${of}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
     );
     this.name = 'CassetteMiss';
   }
@@ -132,7 +135,7 @@ export class Cassette {
     if (hit) {
       const stale = differs(hit);
       if (stale.length === 0) return hit;
-      throw new CassetteMiss(key, stale, hit.key, readable.labeler);
+      throw new CassetteMiss(key, stale, hit.key, readable.labeler, undefined, readable.window);
     }
     // The nearest entry is one of the same file, window, set and labeler. With none, the closest entry of the same
     // file and window is kept apart: it names the other set or the other labeler, and `nearest` stays empty.
@@ -152,6 +155,7 @@ export class Cassette {
       nearest?.key,
       readable.labeler,
       closest ? { key: closest.key, differs: differs(closest) } : undefined,
+      readable.window,
     );
   }
 
