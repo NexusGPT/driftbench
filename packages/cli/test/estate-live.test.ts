@@ -314,7 +314,7 @@ describe('driftbench estate run', () => {
       prefixes[name] = entry;
       joined += `prefix ${name} ${entry.file} ${entry.sha256}\n`;
     }
-    return { path, sha256: sha(joined), prefixes };
+    return { path, fileSha256: sha(text), sha256: sha(joined), prefixes };
   };
 
   /** The `stateLibrary` record of the first block of the first run of a store. */
