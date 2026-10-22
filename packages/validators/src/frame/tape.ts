@@ -18,6 +18,8 @@ export type Entry = {
   /** The run whose answer the validator reads. */
   ret?: Json;
   throws?: Json;
+  /** The processor time of the call in run A, in milliseconds, measured inside the confined process. */
+  cpu?: number;
   /** The twin run, made in a process that differs in every signal a product could read about how it is run. */
   twin?: Outcome;
   /** Run C: the same call made by a plain entry file in a fresh process, as a user's script makes it. */
@@ -33,6 +35,17 @@ export class FrameError extends Error {
   override name = 'FrameError';
 }
 
+/** The error classes of the language: a thrown one comes back as its class, so `instanceof RangeError` holds. */
+const ERRORS: Record<string, ErrorConstructor> = {
+  Error,
+  RangeError,
+  TypeError,
+  SyntaxError,
+  ReferenceError,
+  EvalError,
+  URIError,
+};
+
 const OPEN = '$';
 const esc = (key: string): string => (key.startsWith(OPEN) ? `${OPEN}${key}` : key);
 const unesc = (key: string): string => (key.startsWith(`${OPEN}${OPEN}`) ? key.slice(1) : key);
@@ -46,6 +59,7 @@ export function encode(
   strict = false,
   path = 'value',
   seen: WeakSet<object> = new WeakSet(),
+  ship?: Ship,
 ): Json {
   if (value === null) return null;
   switch (typeof value) {
@@ -59,9 +73,15 @@ export function encode(
     case 'bigint':
       return { $big: value.toString() };
     case 'symbol':
-    case 'function':
-      if (strict) throw new FrameError(`${path} is a ${typeof value}: it cannot cross the process boundary`);
+    case 'function': {
+      if (strict) {
+        const shipped =
+          typeof value === 'function' ? ship?.(value as (...args: never[]) => unknown) : undefined;
+        if (shipped !== undefined) return shipped;
+        throw new FrameError(`${path} is a ${typeof value}: it cannot cross the process boundary`);
+      }
       return { $opaque: typeof value };
+    }
     default:
       break;
   }
@@ -72,14 +92,14 @@ export function encode(
     if (object instanceof Map)
       return {
         $map: [...object.entries()].map(([k, v], i) => [
-          encode(k, strict, `${path}.key[${i}]`, seen),
-          encode(v, strict, `${path}.get(${i})`, seen),
+          encode(k, strict, `${path}.key[${i}]`, seen, ship),
+          encode(v, strict, `${path}.get(${i})`, seen, ship),
         ]),
       };
     if (object instanceof Set)
-      return { $set: [...object.values()].map((v, i) => encode(v, strict, `${path}[${i}]`, seen)) };
+      return { $set: [...object.values()].map((v, i) => encode(v, strict, `${path}[${i}]`, seen, ship)) };
     if (object instanceof Error) return { $err: { name: object.name, message: object.message } };
-    if (Array.isArray(object)) return object.map((v, i) => encode(v, strict, `${path}[${i}]`, seen));
+    if (Array.isArray(object)) return object.map((v, i) => encode(v, strict, `${path}[${i}]`, seen, ship));
     if (object instanceof Date) return { $date: object.toISOString() };
     if (ArrayBuffer.isView(object))
       return { $bytes: [...new Uint8Array(object.buffer, object.byteOffset, object.byteLength)] };
@@ -89,32 +109,47 @@ export function encode(
       return { $opaque: proto?.constructor?.name ?? 'object' };
     }
     return Object.fromEntries(
-      Object.entries(object).map(([k, v]) => [esc(k), encode(v, strict, `${path}.${k}`, seen)] as const),
+      Object.entries(object).map(
+        ([k, v]) => [esc(k), encode(v, strict, `${path}.${k}`, seen, ship)] as const,
+      ),
     );
   } finally {
     seen.delete(object);
   }
 }
 
-export function decode(x: Json): unknown {
+/**
+ * How the parent sends a function in an argument: a handle it holds for a function the product returned earlier,
+ * or the source of a pure function of the validator (a statistic), which the confined run rebuilds. Undefined
+ * refuses the function.
+ */
+export type Ship = (fn: (...args: never[]) => unknown) => Json | undefined;
+
+/** How the parent rebuilds a function the product returned: a function that calls the product's by its handle. */
+export type Revive = (handle: number) => unknown;
+
+export function decode(x: Json, revive?: Revive): unknown {
   if (x === null || typeof x !== 'object') return x;
-  if (Array.isArray(x)) return x.map(decode);
+  if (Array.isArray(x)) return x.map((each) => decode(each, revive));
   const o = x as Record<string, Json>;
   if ('$n' in o) return o.$n === '-0' ? -0 : Number(o.$n);
   if ('$u' in o) return undefined;
   if ('$big' in o) return BigInt(o.$big as string);
-  if ('$map' in o) return new Map((o.$map as Json[][]).map(([k, v]) => [decode(k), decode(v)]));
-  if ('$set' in o) return new Set((o.$set as Json[]).map(decode));
+  if ('$map' in o)
+    return new Map((o.$map as Json[][]).map(([k, v]) => [decode(k, revive), decode(v, revive)]));
+  if ('$set' in o) return new Set((o.$set as Json[]).map((each) => decode(each, revive)));
   if ('$date' in o) return new Date(o.$date as string);
   if ('$bytes' in o) return Uint8Array.from(o.$bytes as number[]);
   if ('$opaque' in o) return { opaque: o.$opaque };
+  if ('$handle' in o) return revive ? revive(o.$handle as number) : { opaque: 'function' };
   if ('$err' in o) {
     const e = o.$err as { name: string; message: string };
-    const error = new Error(e.message);
+    const Class = ERRORS[e.name] ?? Error;
+    const error = new Class(e.message);
     error.name = e.name;
     return error;
   }
-  return Object.fromEntries(Object.entries(o).map(([k, v]) => [unesc(k), decode(v)]));
+  return Object.fromEntries(Object.entries(o).map(([k, v]) => [unesc(k), decode(v, revive)]));
 }
 
 /** A canonical text of an encoded value: keys sorted, so two runs that answer the same compare equal. */
