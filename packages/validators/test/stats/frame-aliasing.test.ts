@@ -55,6 +55,15 @@ describe('the shifted bootstrap items under the frame', () => {
     expect((await outcomes('overwrite')).filter((each) => each.pass)).toEqual([]);
   });
 
+  // A package that blinds the watch's own intrinsics (the hash, the serialiser, Reflect) at load is still caught: the
+  // driver captures what it uses before the product loads (review of PR 986, codex run 39709007729).
+  it.each(['patch-digest', 'patch-update', 'patch-stringify', 'patch-reflect'] as const)(
+    'fail a padded shared-object package that patches %s',
+    async (kind) => {
+      expect((await outcomes(kind)).filter((each) => each.pass)).toEqual([]);
+    },
+  );
+
   // A result padded with an unused large field must not switch the watch off (review of PR 986, probe 39702920607).
   it.each(['shared-padded', 'overwrite-padded'] as const)(
     'fail a package that pads its results with a field of 200,000 characters (%s)',

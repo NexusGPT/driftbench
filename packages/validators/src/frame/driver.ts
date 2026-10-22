@@ -47,7 +47,6 @@ function fill(template: string, name: (key: string) => string): string {
 const CODEC = String.raw`
 const «open» = '$';
 let «counter» = 0;
-let «mute» = false;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
@@ -59,7 +58,7 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
     case 'symbol': return { $opaque: typeof «value» };
-    case 'function': { if («mute») return { $handle: 0 }; const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
+    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -97,6 +96,29 @@ function «decode»(«x») {
 const TWIN = String.raw`
 import { pathToFileURL as «toUrl» } from 'node:url';
 import { createHash as «createHash» } from 'node:crypto';
+// What the aliasing watch uses, taken before the product loads and called only through these references, never
+// through a property the product can reach: a product that patches the hash, the serialiser, Reflect or the
+// iteration methods cannot blind the watch (review of PR 986, codex run 39709007729).
+const «call» = Reflect.apply;
+const «ownKeys» = Reflect.ownKeys;
+const «describe» = Reflect.getOwnPropertyDescriptor;
+const «protoOf» = Reflect.getPrototypeOf;
+const «isArray» = Array.isArray;
+const «isView» = ArrayBuffer.isView;
+const «stringify» = JSON.stringify;
+const «same» = Object.is;
+const «hashStart» = «createHash»;
+const «hashProto» = «protoOf»(«hashStart»('sha256'));
+const «hashUpdate» = «hashProto».update;
+const «hashDigest» = «hashProto».digest;
+const «mapEntries» = Map.prototype.entries;
+const «setValues» = Set.prototype.values;
+const «mapNext» = «protoOf»(new Map().entries()).next;
+const «setNext» = «protoOf»(new Set().values()).next;
+const «dateTime» = Date.prototype.getTime;
+const «seenHas» = WeakSet.prototype.has;
+const «seenAdd» = WeakSet.prototype.add;
+const «SeenSet» = WeakSet;
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -125,7 +147,7 @@ const «next» = () =>
 const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
 const «cpuNow» = process.cpuUsage.bind(process);
-const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
+const «answer» = («message») => «write»(«setup».token + ' ' + «stringify»(«message») + '\n');
 
 if ('nodeOptions' in «setup») {
   if («setup».nodeOptions === null) delete process.env.NODE_OPTIONS;
@@ -144,14 +166,97 @@ if («setup».uptimeShift > 0) {
   Object.defineProperty(performance, 'now', { value: { now() { return «realNow»() + «shift» * 1000; } }.now, writable: true, configurable: true });
 }
 «codec»
-// Aliased results (docs/validators.md section 12.9): the live results of the last calls, each with the text it had
-// when it was returned. A later call that changed one of them, or filled the same object again, is reported in its
-// answer; only that finding crosses to the validator, whose item never sees the live object.
-const «recent» = [];
-const «print» = («value») => {
-  «mute» = true;
-  try { return «createHash»('sha256').update(JSON.stringify(«encode»(«value»))).digest('hex'); } finally { «mute» = false; }
+// Aliased results (docs/validators.md section 12.9): the live results of the last calls, each with a digest of what it
+// held when it was returned. A later call that changed one of them, or filled the same object again, is reported in
+// its answer; only that finding crosses to the validator, whose item never sees the live object. The digest walks
+// the value with the captured references above, and builds its text with string concatenation only.
+const «fingerprint» = («root») => {
+  const «hash» = «call»(«hashStart», undefined, ['sha256']);
+  let «chunk» = '';
+  const «put» = («piece») => {
+    «chunk» += «piece»;
+    if («chunk».length > 65536) {
+      «call»(«hashUpdate», «hash», [«chunk»]);
+      «chunk» = '';
+    }
+  };
+  const «seen» = new «SeenSet»();
+  const «walk» = («value», «level») => {
+    switch (typeof «value») {
+      case 'undefined': «put»('u;'); return;
+      case 'boolean': «put»(«value» ? 't;' : 'f;'); return;
+      case 'number': «put»('n' + («same»(«value», -0) ? '-0' : '' + «value») + ';'); return;
+      case 'bigint': «put»('b' + «value» + ';'); return;
+      case 'string': «put»('s' + «value».length + ':' + «value» + ';'); return;
+      case 'symbol': «put»('y;'); return;
+      case 'function': «put»('F;'); return;
+    }
+    if («value» === null) { «put»('N;'); return; }
+    if («call»(«seenHas», «seen», [«value»])) { «put»('C;'); return; }
+    if («level» > 1000) { «put»('D;'); return; }
+    «call»(«seenAdd», «seen», [«value»]);
+    let «entries»;
+    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
+    if («entries» !== undefined) {
+      «put»('M{');
+      for (;;) {
+        const «step» = «call»(«mapNext», «entries», []);
+        if («step».done) break;
+        «walk»(«step».value[0], «level» + 1);
+        «walk»(«step».value[1], «level» + 1);
+      }
+      «put»('}');
+      return;
+    }
+    let «values»;
+    try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
+    if («values» !== undefined) {
+      «put»('S{');
+      for (;;) {
+        const «step» = «call»(«setNext», «values», []);
+        if («step».done) break;
+        «walk»(«step».value, «level» + 1);
+      }
+      «put»('}');
+      return;
+    }
+    let «time»;
+    try { «time» = «call»(«dateTime», «value», []); } catch { «time» = undefined; }
+    if («time» !== undefined) { «put»('T' + «time» + ';'); return; }
+    if («isView»(«value»)) {
+      «put»('V' + «value».length + ':');
+      for (let «i» = 0; «i» < «value».length; «i» += 1) «put»('' + «value»[«i»] + ',');
+      «put»(';');
+      return;
+    }
+    if («isArray»(«value»)) {
+      «put»('A' + «value».length + '[');
+      for (let «i» = 0; «i» < «value».length; «i» += 1) «walk»(«value»[«i»], «level» + 1);
+      «put»(']');
+      return;
+    }
+    const «keys» = «ownKeys»(«value»);
+    «put»('O' + «keys».length + '{');
+    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+      const «key» = «keys»[«i»];
+      if (typeof «key» === 'symbol') «put»('y;');
+      else «put»('k' + «key».length + ':' + «key»);
+      const «desc» = «describe»(«value», «key»);
+      const «descKeys» = «ownKeys»(«desc»);
+      let «isData» = false;
+      for (let «j» = 0; «j» < «descKeys».length; «j» += 1) if («descKeys»[«j»] === 'value') «isData» = true;
+      if («isData») «walk»(«desc».value, «level» + 1);
+      else if (typeof «desc».get === 'function') «walk»(«call»(«desc».get, «value», []), «level» + 1);
+      else «put»('g;');
+    }
+    «put»('}');
+  };
+  «walk»(«root», 0);
+  «call»(«hashUpdate», «hash», [«chunk»]);
+  return «call»(«hashDigest», «hash», ['hex']);
 };
+const «recent» = new Array(16);
+let «stored» = 0;
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
 
 if («setup».command) {
@@ -184,19 +289,22 @@ if («setup».command) {
       const «used» = «cpuNow»(«before»);
       const «ret» = «encode»(«result»);
       const «moved» = [];
+      let «movedCount» = 0;
       if («setup».aliasing) {
-        for (const «each» of «recent») {
-          const «now» = «print»(«each».live);
+        const «kept» = «stored» < 16 ? «stored» : 16;
+        for (let «i» = 0; «i» < «kept»; «i» += 1) {
+          const «each» = «recent»[«i»];
+          const «now» = «fingerprint»(«each».live);
           // A change is reported by the one call after which it is seen, not again by the calls that follow.
-          if («now» !== «each».text) { «moved».push(«each».call); «each».text = «now»; }
+          if («now» !== «each».digest) { «moved»[«movedCount»] = «each».call; «movedCount» += 1; «each».digest = «now»; }
         }
         if («result» !== null && typeof «result» === 'object') {
           // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
-          «recent».push({ call: «request».call, live: «result», text: «print»(«result») });
-          if («recent».length > 16) «recent».shift();
+          «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «fingerprint»(«result») };
+          «stored» += 1;
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«moved».length > 0 ? { moved: «moved» } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}) });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }

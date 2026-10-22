@@ -2,7 +2,16 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** How the copy's `bootstrapCI` hands out its results. */
-export type Aliasing = 'fresh' | 'shared' | 'overwrite' | 'shared-padded' | 'overwrite-padded';
+export type Aliasing =
+  | 'fresh'
+  | 'shared'
+  | 'overwrite'
+  | 'shared-padded'
+  | 'overwrite-padded'
+  | 'patch-digest'
+  | 'patch-update'
+  | 'patch-stringify'
+  | 'patch-reflect';
 
 const SIGNATURE =
   'export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {';
@@ -10,7 +19,29 @@ const SIGNATURE =
 // An unused field far over any size a watch could afford to compare: the result is padded with it.
 const PAD = "pad: 'x'.repeat(200_000)";
 
+// What a package does at load to blind a watch that hashes or serialises results in its process: the shared padded
+// package plus one patch of an intrinsic the watch could use. The frame must keep every one of them caught.
+const PATCHES: Record<string, string> = {
+  'patch-digest': `import { createHash as patchHash } from 'node:crypto';
+Object.getPrototypeOf(patchHash('sha256')).digest = () => 'constant';
+`,
+  'patch-update': `import { createHash as patchHash } from 'node:crypto';
+Object.getPrototypeOf(patchHash('sha256')).update = function patched() { return this; };
+`,
+  'patch-stringify': `JSON.stringify = () => '{}';
+`,
+  'patch-reflect': `Reflect.ownKeys = () => [];
+Reflect.getOwnPropertyDescriptor = () => undefined;
+Reflect.getPrototypeOf = () => null;
+Reflect.apply = () => undefined;
+`,
+};
+
 const WRAPPERS: Record<Aliasing, string> = {
+  'patch-digest': '',
+  'patch-update': '',
+  'patch-stringify': '',
+  'patch-reflect': '',
   // The shared object, padded.
   'shared-padded': `const shared = {} as BootstrapInterval;
 export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
@@ -56,9 +87,11 @@ export function aliasingPackage(root: string, kind: Aliasing, into: string): str
   const text = readFileSync(intervals, 'utf8');
   if (!text.includes(SIGNATURE))
     throw new Error('the bootstrapCI signature changed: update the aliasing builder');
+  const patched = kind in PATCHES;
+  const wrapper = patched ? WRAPPERS['shared-padded'] : WRAPPERS[kind];
   writeFileSync(
     intervals,
-    `${text.replace(SIGNATURE, 'function realBootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {')}\n${WRAPPERS[kind]}`,
+    `${PATCHES[kind] ?? ''}${text.replace(SIGNATURE, 'function realBootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {')}\n${wrapper}`,
   );
   mkdirSync(into, { recursive: true });
   return join(src, 'index.ts');
