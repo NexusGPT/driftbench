@@ -201,7 +201,7 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
         dir,
       );
       console.log(`[PROOF] ${proof.code} ${proof.err}\n${proof.lines.join('\n')}`);
-      expect(proof.code, proof.err).toBe(0);
+      expect(proof.code, `PROOFOUT ${proof.err} ${proof.lines.join(' / ')}`).toBe(0);
       shown(proof.lines.join('\n'));
     } finally {
       await rm(dir, { recursive: true, force: true });
