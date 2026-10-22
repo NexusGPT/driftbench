@@ -6,7 +6,7 @@
   "yaml": 0.4,
   "stat": 0.1
  },
- "how": "Calibration = 0.1 allocation + 0.4 sha256 of canonical JSON + 0.4 yaml parse + 0.1 stat of parent directories (scale-calibration.ts), each part the fastest of 3 rounds. Weights were chosen on the 40 fitting runs (GitHub Actions run 39770302367... see fittingRun) by trying round weight sets and keeping the one with the smallest per-seed spread; the reference, 271 ms, is the median weighted calibration of those 40 runs. Held-out check: a second batch of 48 runs (holdoutRun), not used to choose weights or reference. Normalised = raw x reference / calibration.",
+ "how": "Calibration = 0.1 allocation + 0.4 sha256 of canonical JSON + 0.4 yaml parse + 0.1 stat of parent directories (scale-calibration.ts), each part the fastest of 3 rounds. Weights were chosen on the 40 fitting runs (GitHub Actions run fittingRun, workflow on branch scratch/gen-scale-calibration-proof3) by trying round weight sets and keeping the one with the smallest per-seed spread; the reference, 271 ms, is the median weighted calibration of those 40 runs. Held-out check: a second batch of 48 runs (holdoutRun, branch scratch/gen-scale-calibration-proof4), not used to choose weights or reference. Normalised = raw x reference / calibration.",
  "fittingRun": "39770614800",
  "holdoutRun": "39771805176",
  "fittingRuns": [
