@@ -30,6 +30,9 @@ export const LIMITS_SET_YAML = `  - set: ${LIMITS_SET_NAME}
         target: required
         condition: true
         links: [limit]
+      - name: own
+        description: A unit that is itself an instruction and states a number that limits it, such as a duration or a count inside the instruction. A unit that states no such number is none.
+        links: [limit]
 `;
 
 /** The label sets of the chain: the gold labels and the limits. */

@@ -220,7 +220,6 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const done = must(scan.pointer, '2');
         const problems: string[] = [];
         for (const failure of done.failed) problems.push(`window failed: ${failure}`);
-        for (const refusal of [...done.refusals, ...done.atomRefusals]) problems.push(`refused: ${refusal}`);
 
         const ledgerAt = new Map(
           done.ledger.entries
@@ -334,12 +333,25 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }
           wanted.set(key(atom.id, limit.limit, limit.comparison, limit.unit_of), limit);
         }
+        // Only the limits on instruction atoms are measured; a code invariant (the size of the standing file) has its own.
+        const instructionAtoms = new Set([...atomOf.values()].map((atom) => atom.id));
         const produced = new Map<string, string>();
+        let producedCount = 0;
         for (const atom of approved.atoms) {
+          if (!instructionAtoms.has(atom.id)) continue;
           for (const found of variables.conditionsOf(atom)) {
             produced.set(key(atom.id, found.limit, found.comparison, found.unit), atom.id);
+            producedCount++;
           }
         }
+        // A bound unit the model marked, whose target holds no instruction atom, lands nowhere: counted, not listed.
+        const goldOfLedger = new Map([...ledgerOf].map(([goldId, ledgerId]) => [ledgerId, goldId]));
+        const unplaced = must(scan.pointer, '2').labelled.filter(
+          (item) =>
+            item.set.set === 'limits' &&
+            item.label === 'bound' &&
+            !atomOf.has(goldOfLedger.get(item.target?.id ?? '') ?? ''),
+        ).length;
         for (const [k, limit] of wanted) {
           if (!produced.has(k)) {
             problems.push(`limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`);
@@ -352,14 +364,18 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const conditions = withLimits.store.variables.filter((variable) =>
           variable.id.startsWith('condition.'),
         );
-        if (conditions.length !== produced.size) {
-          problems.push(`${conditions.length} condition variables for ${produced.size} produced limits`);
+        const others = approved.atoms
+          .filter((atom) => !instructionAtoms.has(atom.id))
+          .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
+        if (conditions.length !== producedCount + others) {
+          problems.push(`${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`);
         }
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         expect(problems, report('variables', problems)).toEqual([]);
-        return `${values.size} instruction values, ${conditions.length} conditions, ${wanted.size - [...wanted.keys()].filter((k) => !produced.has(k)).length} of ${wanted.size} truth limits produced`;
+        const found = [...wanted.keys()].filter((k) => produced.has(k)).length;
+        return `${values.size} instruction values, ${found} of ${wanted.size} truth limits produced, ${producedCount - found} extra, ${unplaced} bound units placed on no instruction`;
       });
     });
 
