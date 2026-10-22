@@ -1,12 +1,12 @@
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader } from '../../src/index';
-import { estate } from '../support';
+import { estate, readRaw } from '../support';
 
 it.each([
   [{ id: 'G1', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/check.py --strict', rules: ['R2'] }],
   { G1: { command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/check.py --strict', rules: ['R2'] } },
 ])('resolves a registry command to the guard it executes', async (checks) => {
-  const raw = await new ClaudeCodeReader().read(
+  const raw = await readRaw(
     await estate({
       '.claude/hooks/check.py': 'print("ok")\n',
       '.claude/check-registry.json': JSON.stringify({ checks }, null, 2),
@@ -18,7 +18,7 @@ it.each([
 
 it('preserves an explicit guard field even when command has the identical value', async () => {
   const name = 'check.py --strict';
-  const raw = await new ClaudeCodeReader().read(
+  const raw = await readRaw(
     await estate({
       '.claude/check-registry.json': JSON.stringify({
         checks: [{ id: 'G2', guard: name, command: name, rules: ['R3'] }],
@@ -29,7 +29,7 @@ it('preserves an explicit guard field even when command has the identical value'
 });
 
 it('resolves command rows in separate registry files in one estate read', async () => {
-  const raw = await new ClaudeCodeReader().read(
+  const raw = await readRaw(
     await estate({
       '.claude/hooks/first.py': 'print("first")\n',
       '.claude/hooks/second.py': 'print("second")\n',

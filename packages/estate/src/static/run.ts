@@ -1,5 +1,6 @@
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { orphansOf, scanEstate } from '../map/build';
+import type { RegistryRolesInput } from '../pointer/registry-roles-set';
 import type { EstateReader } from '../scan/reader';
 import type { EstateMap } from '../schema';
 
@@ -25,6 +26,8 @@ export type StaticInput = {
    * names, so without it a file only the prose names is an orphan; with it, the atoms the prose gave count.
    */
   map?: EstateMap;
+  /** The recorded registry roles; else the map's own. */
+  registryRoles?: RegistryRolesInput;
 };
 
 export async function runStaticTests(
@@ -34,6 +37,9 @@ export async function runStaticTests(
   const scanned = await scanEstate({
     root: input.root,
     reader: input.reader,
+    ...((input.registryRoles ?? input.map?.registryRoles)
+      ? { registryRoles: (input.registryRoles ?? input.map?.registryRoles) as RegistryRolesInput }
+      : {}),
     ...(input.ceiling !== undefined ? { ceiling: input.ceiling } : {}),
   });
   const invariants = scanned.map.atoms.filter((atom) => atom.kind === 'invariant');

@@ -15,11 +15,11 @@ import {
   scanEstate,
   scriptOf,
 } from '../src/index';
-import { answer, estate, FIXTURE, NOW, scanFixture } from './support';
+import { answer, estate, FIXTURE, HAND_ROLES, NOW, readRaw, scanFixture } from './support';
 
 describe('the Claude Code reader', () => {
   it('reads every estate file with its kind, and nothing outside the estate', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await readRaw(FIXTURE);
     const kinds = Object.fromEntries(raw.files.map((file) => [file.path, file.kind]));
     expect(kinds).toEqual({
       'CLAUDE.md': 'standing',
@@ -53,7 +53,7 @@ describe('the Claude Code reader', () => {
   });
 
   it('reads guards from the settings and from a skill frontmatter, with the script and its anchoring', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await readRaw(FIXTURE);
     expect(
       raw.guards.map((guard) => [
         guard.event,
@@ -80,7 +80,7 @@ describe('the Claude Code reader', () => {
   });
 
   it('keeps permission rules and setting keys, and never an environment value', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await readRaw(FIXTURE);
     expect(raw.permissions.map((permission) => `${permission.effect} ${permission.rule}`)).toEqual([
       'allow Read',
       'allow Grep',
@@ -105,7 +105,7 @@ describe('the Claude Code reader', () => {
   });
 
   it('reads the check registry rows by id and by quoted passage, and the step list', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await readRaw(FIXTURE);
     expect(raw.registry.map((row) => [row.id, row.guard, row.verdict, row.enforces])).toEqual([
       ['G1', 'block-force-push.sh', 'deny', [{ id: 'R6' }]],
       ['G2', 'read-before-edit.py', 'deny', [{ id: 'R3' }, { id: 'R5' }]],
@@ -124,7 +124,7 @@ describe('the Claude Code reader', () => {
   });
 
   it('gives the prose of standing files, memory, skill bodies, skill files and helper bodies to the model, never a frontmatter', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await readRaw(FIXTURE);
     expect(raw.prose.map((chunk) => [chunk.id, chunk.startLine])).toEqual([
       ['CLAUDE.md', 1],
       ['.claude/agents/inbox-triager.md', 7],
@@ -176,7 +176,12 @@ describe('the Claude Code reader', () => {
 
 describe('code atoms', () => {
   it('reads every structured atom of the fixture, approved as read, with no model call', async () => {
-    const result = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const result = await scanEstate({
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const counts: Record<string, number> = {};
     for (const atom of result.map.atoms) counts[atom.kind] = (counts[atom.kind] ?? 0) + 1;
     expect(counts).toEqual({
@@ -217,7 +222,7 @@ describe('code atoms', () => {
       ['.claude/memory/MEMORY.md', true],
     ]);
     const scripts = (
-      await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW })
+      await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), registryRoles: HAND_ROLES, now: NOW })
     ).map.atoms.filter((atom) => atom.kind === 'script');
     expect(scripts.map((atom) => [atom.fields?.path, atom.provenance.file, atom.fields?.named])).toEqual([
       [
@@ -230,7 +235,12 @@ describe('code atoms', () => {
   });
 
   it('reads routes from descriptions by code, and from the routing table by the pointer reader', async () => {
-    const coded = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const coded = await scanEstate({
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const inCode = coded.map.atoms.filter((atom) => atom.kind === 'route');
     expect(inCode.every((atom) => atom.fields?.via === 'description')).toBe(true);
     expect(inCode).toHaveLength(7);
@@ -269,7 +279,7 @@ describe('prose atoms through the model port', () => {
 
   async function scanWith(answers: ConstructorParameters<typeof FakeModelPort>[0]) {
     const root = await estate({ 'CLAUDE.md': RULES });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     const port = new FakeModelPort(answers);
     return { ...(await scanAtoms(raw, { port })), port };
   }
@@ -363,7 +373,7 @@ describe('prose atoms through the model port', () => {
       '.claude/skills/demo/SKILL.md':
         '---\nname: demo\ndescription: Use it to demo things.\n---\n\nAlways log the run.\n',
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     const port = new FakeModelPort([
       answer('.claude/skills/demo/SKILL.md', [
         {
