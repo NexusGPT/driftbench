@@ -43,6 +43,21 @@ limits:
     comparison: ge
     unit_of: "readings of the message"
     governs: lhxxqkxm3l
+  - unit: 2yxq6pbpcn
+    limit: 1
+    comparison: le
+    unit_of: "sentences"
+    governs: 2yxq6pbpcn
+  - unit: ttzfbmyzfz
+    limit: 1
+    comparison: le
+    unit_of: "sentences"
+    governs: ttzfbmyzfz
+  - unit: erb2rbwa26
+    limit: 4
+    comparison: le
+    unit_of: "digits shown"
+    governs: erb2rbwa26
 
 scopes:
   - unit: 7u66fhgg6x

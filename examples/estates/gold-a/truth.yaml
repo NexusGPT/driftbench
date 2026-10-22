@@ -83,6 +83,51 @@ limits:
     comparison: le
     unit_of: "days"
     governs: 24gupjkmw3
+  - unit: 2ihgfbfpwv
+    limit: 1
+    comparison: le
+    unit_of: "sentences"
+    governs: 2ihgfbfpwv
+  - unit: 5fheyswkjr
+    limit: 1
+    comparison: le
+    unit_of: "minutes"
+    governs: 5fheyswkjr
+  - unit: 5fnrtqa4dt
+    limit: 1
+    comparison: le
+    unit_of: "sentences"
+    governs: 5fnrtqa4dt
+  - unit: dptij3uzkt
+    limit: 1
+    comparison: le
+    unit_of: "lines"
+    governs: dptij3uzkt
+  - unit: ozfstdpufc
+    limit: 1
+    comparison: le
+    unit_of: "lines"
+    governs: ozfstdpufc
+  - unit: xalkekvnkq
+    limit: 1
+    comparison: le
+    unit_of: "questions per message"
+    governs: xalkekvnkq
+  - unit: emimqrmqo6
+    limit: 2
+    comparison: le
+    unit_of: "sentences"
+    governs: emimqrmqo6
+  - unit: nmk2xrp2r3
+    limit: 2
+    comparison: le
+    unit_of: "lines"
+    governs: nmk2xrp2r3
+  - unit: 4delmkvg75
+    limit: 3
+    comparison: ge
+    unit_of: "notes read"
+    governs: 4delmkvg75
 
 scopes:
   - unit: jmd56vqa6y
