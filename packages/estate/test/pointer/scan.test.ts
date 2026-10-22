@@ -722,6 +722,43 @@ describe('a run out of step with the units of its window', () => {
     expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
 
+  it('counts only the runs heard: three slipped runs of five leave the two in step to decide', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // Runs 2, 3 and 4 slip; runs 1 and 5 say order on every unit, as the Northwind window CLAUDE.md#1 of a
+        // fresh draw did (three of five out of step, which left the whole window with no label).
+        return call >= 2 && call <= 4
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.outOfStep).toHaveLength((result.windows / 5) * 3);
+    expect(result.unlabeled).toBe(0);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('gives no opinion when fewer than two runs are heard', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // Only the first of three runs is in step: one run heard is no vote.
+        return call >= 2 ? every(window, 'remark', Array(4).fill(unlocated)) : every(window, 'order', [located]);
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
   it('keeps a run of a single-run labeler: it has no vote to leave', async () => {
     const labeler = plantedDense((window) => every(window, 'order', Array(4).fill(unlocated)), [], {
       runs: 1,
