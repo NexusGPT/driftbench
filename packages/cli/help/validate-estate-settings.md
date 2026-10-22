@@ -91,7 +91,7 @@ What a change costs in recorded answers:
 
 With a settings file, `estate scan --pointer` prints `Pointer settings from driftbench.estate.yaml: <keys>.` first: the keys it read. The report then names the labelers (`Pointer reader: ...`), the units kept from the ledger and labelled by this run, and the requests: answered, sent and recorded. A run that prints `0 sent` cost nothing.
 
-A pointer key with the wrong shape stops the scan with exit 2 and names the key. The other keys are a note of the scan and are left out.
+A pointer key with the wrong shape stops the scan with exit 2 and names the key. The other keys that have the wrong shape are left out of the scan without a note.
 
 `radius ledger` prints the count of each edit class, then how many units rerun and how many are advisory only.
 

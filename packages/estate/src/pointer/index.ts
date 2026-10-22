@@ -4,12 +4,14 @@ export {
   Cassette,
   type CassetteEntry,
   CassetteMiss,
+  type CutEnvironment,
   type Readable,
   type Recorded,
   readableOf,
   requestKey,
   type Wire,
 } from './cassette';
+export { type PointerDiagnostic, record as diagnosticRecord, UNKNOWN_CODE } from './codes';
 export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
 export {
   type AnthropicLabelerOptions,
@@ -47,12 +49,15 @@ export {
   type LabelContext,
   type Labelled,
   LabelSet,
+  type LabelSetsFailure,
+  type LabelSetsOutcome,
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
+  parseLabelSetsDetailed,
   requestTextOf,
   type ShownLine,
   type SpanAnswer,
@@ -62,10 +67,12 @@ export {
   type WindowUnit,
 } from './labels';
 export {
+  checkLedger,
   type Event,
   type FileCut,
   LADDER,
   type Ledger,
+  type LedgerCheck,
   type LedgerEntry,
   type LedgerLabel,
   mintId,
@@ -101,18 +108,25 @@ export {
   type PointerPlan,
   type PointerResult,
   pointerScan,
+  REASK_LIMIT,
+  SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';
 export {
   MODEL_VARIABLES,
   type PointerSettings,
   parsePointerSettings,
+  parsePointerSettingsDetailed,
   readPointerSettings,
   SETTINGS_FILE,
+  type SettingsIssue,
+  type SettingsOutcome,
   type SettingsResult,
 } from './settings';
 export {
+  type BuiltLabelling,
   buildLabelling,
+  buildLabellingDetailed,
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
   DEFAULT_MARGIN_CUT,

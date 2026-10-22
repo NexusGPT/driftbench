@@ -1,6 +1,7 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { EvidencePredicate } from '../schema';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
 import { sha } from './cut';
 
 /**
@@ -113,81 +114,234 @@ export function canonical(value: unknown): string {
   );
 }
 
+/**
+ * Why a label file is refused, beside the text. `code` is stable; `reason` is the short cause; `set`, `label` and
+ * `kind` are the offending names as written; `path` is the dotted place of the first schema issue.
+ */
+export type LabelSetsFailure = {
+  ok: false;
+  message: string;
+  code: string;
+  reason: string;
+  set?: string;
+  label?: string;
+  kind?: string;
+  parent?: string;
+  path?: string;
+};
+
+/** What a label file gives, with the structured reason of a refusal. */
+export type LabelSetsOutcome = { ok: true; sets: LabelSet[] } | LabelSetsFailure;
+
 export type LabelSetsResult = { ok: true; sets: LabelSet[] } | { ok: false; message: string };
+
+type FailureFields = Partial<Omit<LabelSetsFailure, 'ok' | 'message' | 'code' | 'reason'>>;
+
+const refuseSets = (
+  code: string,
+  reason: string,
+  message: string,
+  fields: FailureFields = {},
+): LabelSetsFailure => {
+  const out: LabelSetsFailure = { ok: false, message, code, reason };
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined) (out as Record<string, unknown>)[key] = value;
+  }
+  return out;
+};
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** The value at a path of the raw label file, or undefined when the path leaves it. */
+function at(raw: unknown, path: ReadonlyArray<PropertyKey>): unknown {
+  let value: unknown = raw;
+  for (const key of path) {
+    if (Array.isArray(value) && typeof key === 'number') value = value[key];
+    else if (isObject(value) && typeof key === 'string') value = value[key];
+    else return undefined;
+  }
+  return value;
+}
+
+const nameOf = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+
+/**
+ * The code and the offending names of the first schema issue. The place of the issue says which field of which
+ * set or label it is; the raw file gives the set and label that hold it.
+ */
+function schemaFailure(
+  raw: unknown,
+  issue: { path: ReadonlyArray<PropertyKey>; code: string },
+  message: string,
+): LabelSetsFailure {
+  const path = issue.path;
+  const dotted = path.map(String).join('.');
+  const tail = path[path.length - 1];
+  const inSet = path[0] === 'labels' && typeof path[1] === 'number';
+  const set = inSet ? nameOf(at(raw, ['labels', path[1] as number, 'set'])) : undefined;
+  const inLabel = inSet && path[2] === 'labels' && typeof path[3] === 'number';
+  const label = inLabel
+    ? nameOf(at(raw, ['labels', path[1] as number, 'labels', path[3] as number, 'name']))
+    : undefined;
+  const found = nameOf(at(raw, path));
+  const base: FailureFields = { path: dotted, ...(set !== undefined ? { set } : {}) };
+  if (inSet && path.length === 3 && tail === 'set') {
+    return refuseSets('set-name-invalid', 'not-an-identifier', message, { ...base, set: found });
+  }
+  if (inLabel && tail === 'name' && path.length === 5) {
+    return issue.code === 'custom'
+      ? refuseSets('label-name-reserved', 'reserved', message, { ...base, label: found })
+      : refuseSets('label-name-invalid', 'not-an-identifier', message, { ...base, label: found });
+  }
+  if (inLabel && tail === 'examples') {
+    return issue.code === 'too_big'
+      ? refuseSets('label-examples-too-many', 'more-than-three-examples', message, { ...base, label })
+      : refuseSets('label-examples-not-a-list', 'not-a-list', message, { ...base, label });
+  }
+  if (inLabel && path.length === 6 && path[4] === 'examples') {
+    return refuseSets('label-example-invalid', 'example-not-text', message, { ...base, label });
+  }
+  if (inLabel && tail === 'target') {
+    return refuseSets('label-target-invalid', 'target-is-required-only', message, { ...base, label });
+  }
+  if (inSet && path[2] === 'spans' && tail === 'name') {
+    return refuseSets('span-kind-name-invalid', 'not-an-identifier', message, { ...base, kind: found });
+  }
+  if (inSet && path[2] === 'links' && tail === 'name') {
+    return refuseSets('link-kind-name-invalid', 'not-an-identifier', message, { ...base, kind: found });
+  }
+  if (inSet && path[2] === 'spans' && tail === 'within') {
+    return refuseSets('span-kind-within-invalid', 'not-an-identifier', message, { ...base, parent: found });
+  }
+  if (inSet && path[2] === 'links' && typeof path[3] === 'number' && path.length === 4) {
+    const kind = nameOf(at(raw, ['labels', path[1] as number, 'links', path[3] as number, 'name']));
+    return refuseSets('link-kind-shape-invalid', 'to-or-values', message, { ...base, kind });
+  }
+  if (inLabel) return refuseSets('label-field-invalid', 'invalid-field', message, { ...base, label });
+  if (inSet) return refuseSets('set-field-invalid', 'invalid-field', message, base);
+  return refuseSets('label-file-invalid', 'invalid-file', message, base);
+}
 
 /** Reads the `labels:` list of a YAML text, and refuses a duplicate set or label name. */
 export function parseLabelSets(text: string): LabelSetsResult {
+  const read = parseLabelSetsDetailed(text);
+  return read.ok ? read : { ok: false, message: read.message };
+}
+
+/**
+ * The same read as `parseLabelSets`, and a refusal that also carries a `code`, a `reason` and the offending
+ * `set`, `label` or `kind` as written.
+ */
+export function parseLabelSetsDetailed(text: string): LabelSetsOutcome {
   let raw: unknown;
   try {
     raw = parseYaml(text, { uniqueKeys: true });
   } catch (cause) {
-    return {
-      ok: false,
-      message: cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause),
-    };
+    return refuseSets(
+      'label-file-not-yaml',
+      'not-yaml',
+      cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause),
+    );
   }
   const parsed = LabelFile.safeParse(raw);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     const path = first?.path.map(String).join('.') ?? '';
-    return { ok: false, message: `${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}` };
+    const message = `${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}`;
+    return first
+      ? schemaFailure(raw, first, message)
+      : refuseSets('label-file-invalid', 'invalid-file', message);
   }
   const seen = new Set<string>();
   for (const set of parsed.data.labels) {
-    if (seen.has(set.set)) return { ok: false, message: `the set ${set.set} is declared twice` };
+    if (seen.has(set.set)) {
+      return refuseSets('set-duplicate', 'duplicate', `the set ${set.set} is declared twice`, {
+        set: set.set,
+      });
+    }
     seen.add(set.set);
     const spanKinds = new Set<string>();
     for (const kind of set.spans ?? []) {
-      if (spanKinds.has(kind.name))
-        return { ok: false, message: `the set ${set.set} declares the span kind ${kind.name} twice` };
+      if (spanKinds.has(kind.name)) {
+        return refuseSets(
+          'span-kind-duplicate',
+          'duplicate',
+          `the set ${set.set} declares the span kind ${kind.name} twice`,
+          { set: set.set, kind: kind.name },
+        );
+      }
       spanKinds.add(kind.name);
     }
     const nesting = nestingProblem(set);
-    if (nesting) return { ok: false, message: nesting };
+    if (nesting) return nesting;
     const linkKinds = new Set<string>();
     for (const kind of set.links ?? []) {
-      if (linkKinds.has(kind.name))
-        return { ok: false, message: `the set ${set.set} declares the link kind ${kind.name} twice` };
+      if (linkKinds.has(kind.name)) {
+        return refuseSets(
+          'link-kind-duplicate',
+          'duplicate',
+          `the set ${set.set} declares the link kind ${kind.name} twice`,
+          { set: set.set, kind: kind.name },
+        );
+      }
       linkKinds.add(kind.name);
     }
     const names = new Set<string>();
     for (const label of set.labels) {
       for (const kind of label.spans ?? []) {
         if (!spanKinds.has(kind)) {
-          return {
-            ok: false,
-            message: `the label ${label.name} names the span kind ${kind}, which the set does not declare`,
-          };
+          return refuseSets(
+            'label-span-kind-undeclared',
+            'undeclared',
+            `the label ${label.name} names the span kind ${kind}, which the set does not declare`,
+            { set: set.set, label: label.name, kind },
+          );
         }
       }
       for (const kind of label.links ?? []) {
         if (!linkKinds.has(kind)) {
-          return {
-            ok: false,
-            message: `the label ${label.name} names the link kind ${kind}, which the set does not declare`,
-          };
+          return refuseSets(
+            'label-link-kind-undeclared',
+            'undeclared',
+            `the label ${label.name} names the link kind ${kind}, which the set does not declare`,
+            { set: set.set, label: label.name, kind },
+          );
         }
       }
       for (const kind of label.spans ?? []) {
         const parent = set.spans?.find((candidate) => candidate.name === kind)?.within;
         if (parent && !label.spans?.includes(parent)) {
-          return {
-            ok: false,
-            message: `the label ${label.name} carries the span kind ${kind}, which is within ${parent}, and not ${parent}`,
-          };
+          return refuseSets(
+            'label-span-parent-missing',
+            'parent-not-carried',
+            `the label ${label.name} carries the span kind ${kind}, which is within ${parent}, and not ${parent}`,
+            { set: set.set, label: label.name, kind, parent },
+          );
         }
       }
-      if (names.has(label.name))
-        return { ok: false, message: `the set ${set.set} declares ${label.name} twice` };
+      if (names.has(label.name)) {
+        return refuseSets('label-duplicate', 'duplicate', `the set ${set.set} declares ${label.name} twice`, {
+          set: set.set,
+          label: label.name,
+        });
+      }
       names.add(label.name);
       if (label.condition && label.target !== 'required') {
-        return { ok: false, message: `the label ${label.name} is a condition and needs target: required` };
+        return refuseSets(
+          'label-condition-needs-target',
+          'condition-without-target',
+          `the label ${label.name} is a condition and needs target: required`,
+          { set: set.set, label: label.name },
+        );
       }
       if (label.condition && label.atom) {
-        return {
-          ok: false,
-          message: `the label ${label.name} is a condition and builds no atom of its own: it takes no atom mapping`,
-        };
+        return refuseSets(
+          'label-condition-takes-no-atom',
+          'condition-with-atom',
+          `the label ${label.name} is a condition and builds no atom of its own: it takes no atom mapping`,
+          { set: set.set, label: label.name },
+        );
       }
     }
   }
@@ -205,17 +359,36 @@ function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: str
 }
 
 /** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
-function nestingProblem(set: LabelSet): string | undefined {
+function nestingProblem(set: LabelSet): LabelSetsFailure | undefined {
   const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
   for (const [name, parent] of parents) {
     if (parent === undefined) continue;
-    if (parent === name) return `the span kind ${name} is within itself`;
-    if (!parents.has(parent))
-      return `the span kind ${name} is within ${parent}, which the set does not declare`;
+    if (parent === name) {
+      return refuseSets('span-kind-within-itself', 'cycle', `the span kind ${name} is within itself`, {
+        set: set.set,
+        kind: name,
+        parent,
+      });
+    }
+    if (!parents.has(parent)) {
+      return refuseSets(
+        'span-kind-within-undeclared',
+        'undeclared',
+        `the span kind ${name} is within ${parent}, which the set does not declare`,
+        { set: set.set, kind: name, parent },
+      );
+    }
     // The chain above a kind has at most as many steps as there are kinds; a longer one loops.
     let up: string | undefined = parent;
     for (let step = 0; up !== undefined && step < parents.size; step += 1) up = parents.get(up);
-    if (up !== undefined) return `the span kinds ${name} and ${parent} are within each other`;
+    if (up !== undefined) {
+      return refuseSets(
+        'span-kind-within-cycle',
+        'cycle',
+        `the span kinds ${name} and ${parent} are within each other`,
+        { set: set.set, kind: name, parent },
+      );
+    }
   }
   return undefined;
 }
@@ -264,7 +437,7 @@ export type SpanAnswer = { kind: string; from: number; to: number; polarity?: st
 
 /** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
 export type SpanInput = { kind: string; polarity?: string } & (
-  | { from: number; to: number; unlocated?: string }
+  | { from: number; to: number; unlocated?: string; unlocatedCode?: string }
   | { text: string }
 );
 
@@ -302,8 +475,12 @@ export type Checked = {
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
+  /** One record for each text of `refusals`, in the same order: a code and the identifiers the text names. */
+  refusalRecords: PointerDiagnostic[];
   /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
   dropped: string[];
+  /** One record for each text of `dropped`, in the same order. */
+  droppedRecords: PointerDiagnostic[];
 };
 
 /**
@@ -321,49 +498,95 @@ export function checkAnswer(
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
+  const refusalRecords: PointerDiagnostic[] = [];
   const dropped: string[] = [];
+  const droppedRecords: PointerDiagnostic[] = [];
+  const refuse = (
+    code: string,
+    reason: string,
+    fields: Partial<Omit<PointerDiagnostic, 'code' | 'detail'>> = {},
+  ) => {
+    const detail = `${window.id}: ${reason}`;
+    refusals.push(detail);
+    refusalRecords.push(record(code, detail, { window: window.id, set: set.set, ...fields }));
+  };
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refusals.push(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse('label-not-in-set', `the label ${entry.label} is not in the set ${set.set}`, {
+        label: entry.label,
+        units: entry.units,
+      });
       continue;
     }
     const numbers = expandUnits(entry.units);
     if (!numbers) {
-      refusals.push(`${window.id}: "${entry.units}" is no unit number or range`);
+      refuse('units-malformed', `"${entry.units}" is no unit number or range`, {
+        units: entry.units,
+        label: entry.label,
+      });
       continue;
     }
     if (numbers.some((n) => !inWindow.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" leaves the window`);
+      refuse('units-leave-window', `"${entry.units}" leaves the window`, {
+        units: entry.units,
+        label: entry.label,
+      });
       continue;
     }
     if (numbers.some((n) => covered.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" names a unit that is already labelled`);
+      refuse('units-already-labelled', `"${entry.units}" names a unit that is already labelled`, {
+        units: entry.units,
+        label: entry.label,
+      });
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refusals.push(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse('target-malformed', `the target ${JSON.stringify(entry.target)} is no unit number`, {
+        units: entry.units,
+        label: entry.label,
+      });
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label none takes no target`);
+      refuse('none-takes-no-target', 'the label none takes no target', {
+        units: entry.units,
+        label: entry.label,
+        target: String(entry.target),
+      });
       continue;
     }
     if (label?.target === 'required' && (entry.target === undefined || !inWindow.has(entry.target))) {
-      refusals.push(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
+      refuse('target-required', `the label ${entry.label} needs a target unit inside the window`, {
+        units: entry.units,
+        label: entry.label,
+        ...(entry.target !== undefined ? { target: String(entry.target) } : {}),
+      });
       continue;
     }
     if (label && label.target !== 'required' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label ${entry.label} takes no target`);
+      refuse('target-not-taken', `the label ${entry.label} takes no target`, {
+        units: entry.units,
+        label: entry.label,
+        target: String(entry.target),
+      });
       continue;
     }
     const extras = checkExtras(set, window, entry, numbers, label, context);
-    if (typeof extras === 'string') {
-      refusals.push(`${window.id}: ${extras}`);
+    if ('refusal' in extras) {
+      refuse(extras.code, extras.refusal, { units: entry.units, label: entry.label });
       continue;
     }
     dropped.push(...extras.dropped.map((reason) => `${window.id}: ${reason}`));
-    const { dropped: _dropped, ...kept } = extras;
+    droppedRecords.push(
+      ...extras.droppedRecords.map((item) => ({
+        ...item,
+        detail: `${window.id}: ${item.detail}`,
+        window: window.id,
+        set: set.set,
+      })),
+    );
+    const { dropped: _dropped, droppedRecords: _droppedRecords, ...kept } = extras;
     for (const n of numbers) {
       covered.add(n);
       if (entry.label !== 'none') {
@@ -375,7 +598,7 @@ export function checkAnswer(
       }
     }
   }
-  return { accepted, covered, refusals, dropped };
+  return { accepted, covered, refusals, refusalRecords, dropped, droppedRecords };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
@@ -474,6 +697,21 @@ export function shownOf(unit: Pick<WindowUnit, 'text' | 'comments'>): { text: st
   return { text: flat.text, at: flat.at.map((index) => masked.at[index] as number) };
 }
 
+/** Where words sit in a unit, or why not: the reason text and its code, set together at the miss. */
+type Located = { from: number; to: number } | { reason: string; code: string };
+
+const TEXT_ABSENT = { reason: 'the text is not in the unit', code: 'span-text-absent' };
+const TEXT_REPEATED = { reason: 'the text is found twice in the unit', code: 'span-text-repeated' };
+
+function locate(unitText: string, words: string): Located {
+  const lower = unitText.toLowerCase();
+  const wanted = words.toLowerCase();
+  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
+  if (first < 0) return TEXT_ABSENT;
+  if (lower.indexOf(wanted, first + 1) >= 0) return TEXT_REPEATED;
+  return { from: first, to: first + wanted.length };
+}
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
  * kept is the unit's own text, never the copy. `reason` says why not.
@@ -482,12 +720,8 @@ export function locateSpanText(
   unitText: string,
   words: string,
 ): { from: number; to: number } | { reason: string } {
-  const lower = unitText.toLowerCase();
-  const wanted = words.toLowerCase();
-  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: 'the text is not in the unit' };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
-  return { from: first, to: first + wanted.length };
+  const found = locate(unitText, words);
+  return 'reason' in found ? { reason: found.reason } : found;
 }
 
 /**
@@ -506,9 +740,9 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(shownOf(unit).text, text);
+        const found = locate(shownOf(unit).text, text);
         return 'reason' in found
-          ? { ...rest, from: -1, to: -1, unlocated: found.reason }
+          ? { ...rest, from: -1, to: -1, unlocated: found.reason, unlocatedCode: found.code }
           : { ...rest, ...found };
       }),
     };
@@ -524,6 +758,14 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
  * wrong note costs the note, not the unit. An atom whose mapping needs a dropped note is refused later, with its
  * reason. Only a malformed shape (an empty or non-list `spans` or `links`) refuses the entry.
  */
+type Extras = {
+  spans?: SpanAnswer[];
+  links?: LinkAnswer[];
+  dropped: string[];
+  /** One record for each text of `dropped`, in the same order. */
+  droppedRecords: PointerDiagnostic[];
+};
+
 function checkExtras(
   set: LabelSet,
   window: Window,
@@ -531,34 +773,55 @@ function checkExtras(
   numbers: readonly number[],
   label: Label | undefined,
   context: LabelContext,
-): string | { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } {
-  const out: { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } = { dropped: [] };
+): { refusal: string; code: string } | Extras {
+  const out: Extras = { dropped: [], droppedRecords: [] };
+  const drop = (
+    code: string,
+    reason: string,
+    fields: Partial<Omit<PointerDiagnostic, 'code' | 'detail'>> = {},
+  ) => {
+    out.dropped.push(reason);
+    out.droppedRecords.push(record(code, reason, { label: entry.label, ...fields }));
+  };
   if (entry.spans !== undefined) {
-    if (!Array.isArray(entry.spans) || entry.spans.length === 0) return 'spans are a non-empty list';
+    if (!Array.isArray(entry.spans) || entry.spans.length === 0) {
+      return { refusal: 'spans are a non-empty list', code: 'spans-malformed' };
+    }
     const unit =
       numbers.length === 1 ? window.units.find((candidate) => candidate.n === numbers[0]) : undefined;
     if (numbers.length !== 1) {
-      out.dropped.push(`"${entry.units}" is a range, and a range cannot carry spans`);
+      drop('span-range-unit', `"${entry.units}" is a range, and a range cannot carry spans`, {
+        units: entry.units,
+      });
     } else if (!label?.spans) {
-      out.dropped.push(`the label ${entry.label} carries no spans`);
+      drop('label-carries-no-spans', `the label ${entry.label} carries no spans`, { units: entry.units });
     } else if (!unit) {
-      out.dropped.push(`"${entry.units}" leaves the window`);
+      drop('span-unit-leaves-window', `"${entry.units}" leaves the window`, { units: entry.units });
     } else {
       const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
       const seen: SpanAnswer[] = [];
-      const counted: Array<{ kind: string; from: number; to: number; where: string }> = [];
+      const counted: Array<{ kind: string; from: number; to: number; where: string; shown: string }> = [];
       const shown = shownOf(unit);
       for (const span of entry.spans) {
         const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
-        const refuse = (reason: string) => out.dropped.push(reason);
+        const own = { unit: String(unit.n) };
+        const named = (value: unknown): { span?: string } =>
+          typeof value === 'string' ? { span: value } : {};
+        const refuse = (
+          code: string,
+          reason: string,
+          fields: Partial<Omit<PointerDiagnostic, 'code' | 'detail'>> = {},
+        ) => drop(code, reason, { ...own, ...fields });
         if (span === null || typeof span !== 'object') {
-          refuse(`${where} is no span`);
+          refuse('span-malformed', `${where} is no span`);
           continue;
         }
         const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
         if (!kind || !label.spans.includes(kind.name)) {
           refuse(
+            'span-kind-not-allowed',
             `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`,
+            { ...(typeof span.kind === 'string' ? { kind: span.kind } : {}) },
           );
           continue;
         }
@@ -567,38 +830,56 @@ function checkExtras(
         // copied text enters nowhere unless it is a slice.
         let from: number;
         let to: number;
+        let shownSpan: string | undefined;
         if ('text' in span && typeof span.text === 'string') {
-          const found = locateSpanText(shown.text, span.text);
+          const found = locate(shown.text, span.text);
           if ('reason' in found) {
-            refuse(`${where}: ${found.reason}`);
+            refuse(found.code, `${where}: ${found.reason}`, {
+              kind: kind.name,
+              ...named(span.text),
+            });
             continue;
           }
           ({ from, to } = found);
+          shownSpan = span.text;
         } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
           if ('unlocated' in span && typeof span.unlocated === 'string') {
-            refuse(`${where}: ${span.unlocated}`);
+            // An entry recorded before the code was kept has none: it reads as `unknown`, not from its text.
+            const kept = span.unlocatedCode;
+            const code = typeof kept === 'string' ? kept : UNKNOWN_CODE;
+            refuse(code, `${where}: ${span.unlocated}`, { kind: kind.name });
             continue;
           }
           ({ from, to } = span);
           if (from < 0 || to > shown.text.length || from >= to) {
-            refuse(`${where}: offsets leave the unit (length ${shown.text.length}) or are empty`);
+            refuse(
+              'span-offsets-invalid',
+              `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`,
+              { kind: kind.name, span: `${from}-${to}` },
+            );
             continue;
           }
         } else {
-          refuse(`${where}: offsets are integers, or the text is a string`);
+          refuse('span-shape-invalid', `${where}: offsets are integers, or the text is a string`, {
+            kind: kind.name,
+          });
           continue;
         }
         if (span.polarity !== undefined && span.polarity !== null) {
           if (!kind.polarity) {
-            refuse(`${where}: the kind ${kind.name} carries no polarity`);
+            refuse('span-polarity-not-allowed', `${where}: the kind ${kind.name} carries no polarity`, {
+              kind: kind.name,
+            });
             continue;
           }
           if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
-            refuse(`${where}: the polarity is obligation or prohibition`);
+            refuse('span-polarity-invalid', `${where}: the polarity is obligation or prohibition`, {
+              kind: kind.name,
+            });
             continue;
           }
         }
-        counted.push({ kind: span.kind, from, to, where });
+        counted.push({ kind: span.kind, from, to, where, shown: shownSpan ?? `${from}-${to}` });
         seen.push({
           kind: span.kind,
           from: shown.at[from] as number,
@@ -616,7 +897,12 @@ function checkExtras(
           !counted.some((o) => o.kind === outer && o.from <= span.from && span.to <= o.to)
         ) {
           kept[index] = false;
-          out.dropped.push(`${span.where} is not inside a span of the kind ${outer}`);
+          drop('span-outside-parent', `${span.where} is not inside a span of the kind ${outer}`, {
+            unit: String(unit.n),
+            kind: span.kind,
+            parent: outer,
+            span: span.shown,
+          });
           continue;
         }
         const clash = counted
@@ -631,7 +917,11 @@ function checkExtras(
           );
         if (clash) {
           kept[index] = false;
-          out.dropped.push(`${span.where} overlaps another span of the unit`);
+          drop('span-overlap', `${span.where} overlaps another span of the unit`, {
+            unit: String(unit.n),
+            kind: span.kind,
+            span: span.shown,
+          });
         }
       }
       const spans = seen.filter((_, index) => kept[index]);
@@ -639,27 +929,34 @@ function checkExtras(
     }
   }
   if (entry.links !== undefined) {
-    if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
+    if (!Array.isArray(entry.links) || entry.links.length === 0) {
+      return { refusal: 'links are a non-empty list', code: 'links-malformed' };
+    }
     if (!label?.links) {
-      out.dropped.push(`the label ${entry.label} carries no links`);
+      drop('label-carries-no-links', `the label ${entry.label} carries no links`, { units: entry.units });
     } else {
       const kinds = new Map((set.links ?? []).map((kind) => [kind.name, kind]));
       const links: LinkAnswer[] = [];
       for (const link of entry.links) {
         const where = `units "${entry.units}" link ${JSON.stringify(link)}`;
         if (link === null || typeof link !== 'object') {
-          out.dropped.push(`${where} is no link`);
+          drop('link-malformed', `${where} is no link`, { units: entry.units });
           continue;
         }
         const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
         if (!kind || !label.links.includes(kind.name)) {
-          out.dropped.push(
+          drop(
+            'link-kind-not-allowed',
             `${where}: the kind ${JSON.stringify(link.kind)} is not one the label ${entry.label} may carry`,
+            { units: entry.units, ...(typeof link.kind === 'string' ? { kind: link.kind } : {}) },
           );
           continue;
         }
         if (typeof link.to !== 'string') {
-          out.dropped.push(`${where}: the target is an atom id or none`);
+          drop('link-target-malformed', `${where}: the target is an atom id or none`, {
+            units: entry.units,
+            kind: kind.name,
+          });
           continue;
         }
         // The id a request listed (`shown`) is carried back to the atom's own id; a link keeps the real one.
@@ -677,11 +974,19 @@ function checkExtras(
               (other.to === target || other.to === 'none' || link.to === 'none' || kind.values !== undefined),
           )
         ) {
-          out.dropped.push(`${where}: the kind ${kind.name} is given twice`);
+          drop('link-kind-repeated', `${where}: the kind ${kind.name} is given twice`, {
+            units: entry.units,
+            kind: kind.name,
+            target: link.to,
+          });
           continue;
         }
         if (link.to !== 'none' && !named) {
-          out.dropped.push(`${where}: ${link.to} is not an atom the request listed for ${kind.name}`);
+          drop(
+            'link-target-unlisted',
+            `${where}: ${link.to} is not an atom the request listed for ${kind.name}`,
+            { units: entry.units, kind: kind.name, target: link.to },
+          );
           continue;
         }
         links.push({ kind: kind.name, to: target });

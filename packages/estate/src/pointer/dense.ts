@@ -155,13 +155,17 @@ export type Expected = { window?: string; set?: string };
  */
 export function parseDenseAnswer(text: string, expected: Expected = {}): Labelled[] {
   const value = jsonObjectOf(text);
-  if (value === undefined) throw new LabelerError('the answer is not JSON');
+  if (value === undefined) throw new LabelerError('the answer is not JSON', { code: 'answer-not-json' });
   const named = value as Record<string, unknown>;
   if (expected.window !== undefined && named.window !== undefined && named.window !== expected.window) {
-    throw new LabelerError(`the answer is for another window than ${expected.window}`);
+    throw new LabelerError(`the answer is for another window than ${expected.window}`, {
+      code: 'answer-window-mismatch',
+    });
   }
   if (expected.set !== undefined && named.set !== undefined && named.set !== expected.set) {
-    throw new LabelerError(`the answer is for another set than ${expected.set}`);
+    throw new LabelerError(`the answer is for another set than ${expected.set}`, {
+      code: 'answer-set-mismatch',
+    });
   }
   return denseLabels(value);
 }
@@ -169,7 +173,7 @@ export function parseDenseAnswer(text: string, expected: Expected = {}): Labelle
 /** The labels of an answer already parsed: `{ labels: [{ units, label, target? }] }`. */
 export function denseLabels(value: unknown): Labelled[] {
   if (!isRecord(value) || !Array.isArray(value.labels)) {
-    throw new LabelerError('the answer has no labels list');
+    throw new LabelerError('the answer has no labels list', { code: 'answer-no-labels' });
   }
   const out: Labelled[] = [];
   for (const entry of value.labels) {
@@ -178,7 +182,7 @@ export function denseLabels(value: unknown): Labelled[] {
       (typeof entry.units !== 'string' && typeof entry.units !== 'number') ||
       typeof entry.label !== 'string'
     ) {
-      throw new LabelerError('a label entry is not {units, label}');
+      throw new LabelerError('a label entry is not {units, label}', { code: 'answer-entry-malformed' });
     }
     const target = entry.target;
     // A target that is no number is kept as written, so the check refuses it and the scan counts the refusal.
@@ -218,7 +222,13 @@ export function denseOpinions(
       ...(accepted?.links ? { links: accepted.links } : {}),
     });
   }
-  return { byUnit, refusals: checked.refusals, dropped: checked.dropped };
+  return {
+    byUnit,
+    refusals: checked.refusals,
+    dropped: checked.dropped,
+    refusalRecords: checked.refusalRecords,
+    droppedRecords: checked.droppedRecords,
+  };
 }
 
 export type AnthropicLabelerOptions = HttpOptions & {
