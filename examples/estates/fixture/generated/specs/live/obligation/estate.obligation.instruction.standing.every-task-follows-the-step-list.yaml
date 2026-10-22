@@ -28,6 +28,18 @@ criteria:
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
     scope: block
+  - name: instruction.standing.a-tracker-note-may-be-written
+    rubric: 'Does the reply follow this rule of the estate: "A tracker note may be written at any step."?'
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
+  - name: instruction.standing.never-report-a-task-as-done
+    rubric: 'Does the reply follow this rule of the estate: "Never report a task as done before the verify step has passed."?'
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
 blocks:
   - id: ask
     when:
@@ -37,10 +49,14 @@ blocks:
         deleted: []
       criteria:
         - instruction.standing.every-task-follows-the-step-list
+        - instruction.standing.a-tracker-note-may-be-written
+        - instruction.standing.never-report-a-task-as-done
 metadata:
   estate:
     atoms:
       - instruction.standing.every-task-follows-the-step-list
+      - instruction.standing.a-tracker-note-may-be-written
+      - instruction.standing.never-report-a-task-as-done
     planRow: obligation.instruction.standing.every-task-follows-the-step-list
     cell:
       atoms.instruction: instruction.standing.every-task-follows-the-step-list
@@ -73,6 +89,8 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.every-task-follows-the-step-list
+      - instruction.standing.a-tracker-note-may-be-written
+      - instruction.standing.never-report-a-task-as-done
   links:
     - block: ask
       to:
@@ -80,6 +98,24 @@ metadata:
         rule: instruction.standing.every-task-follows-the-step-list
         ledger: mnlr5rno4r
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.a-tracker-note-may-be-written
+        ledger: ceowdbcrfy
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-report-a-task-as-done
+        ledger: i7uw67ztqh
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

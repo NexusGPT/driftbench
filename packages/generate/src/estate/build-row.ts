@@ -204,12 +204,17 @@ export function build(
 ): Built {
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
+  // The duties placed beside the first atom add no expectation: the block asks the first atom's request.
+  const exercised = coLocated(row, atoms, situation);
+  const rowAtoms = atoms.filter((atom) => !exercised.has(atom.id));
   // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
   const own =
     row.mode === 'unit' || row.testType === 'contract_alone'
-      ? atoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
-      : atoms;
+      ? rowAtoms.filter(
+          (atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'),
+        )
+      : rowAtoms;
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
   // The unit that owns the rule supplies the task of a code-written ask even when the rule is not part of it.
@@ -432,7 +437,6 @@ export function build(
   // The block writer writes the blocks and their links: the row's atoms, the row and its cell, the session.
   const version = ctx.map.hash.slice(0, 12);
   // A negative control exercises its rules: it checks they do not act outside their trigger.
-  const exercised = coLocated(row, atoms, situation);
   const rules = atoms.map((atom) => ({
     ...ruleOf(atom),
     ...(polarity === 'negative' || exercised.has(atom.id) ? { relation: 'exercises' as const } : {}),
@@ -441,12 +445,10 @@ export function build(
   // The prompt sections that hold the atoms' quotes, when the estate has prompts with a section registry.
   const sections = atoms.flatMap((atom) =>
     atom.provenance?.file !== undefined && ctx.sections
-      ? ctx.sections
-          .locate(atom.provenance.file, atom.provenance.quote)
-          .map((ref) => ({
-            ...ref,
-            ...(polarity === 'negative' || exercised.has(atom.id) ? { relation: 'exercises' as const } : {}),
-          }))
+      ? ctx.sections.locate(atom.provenance.file, atom.provenance.quote).map((ref) => ({
+          ...ref,
+          ...(polarity === 'negative' || exercised.has(atom.id) ? { relation: 'exercises' as const } : {}),
+        }))
       : [],
   );
   const written = writeBlocks(

@@ -29,6 +29,18 @@ criteria:
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
     scope: block
+  - name: instruction.shipment-tracker.always-pass-the-carrier-code-to
+    rubric: 'Does the reply follow this rule of the estate: "Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`."?'
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
+  - name: instruction.shipment-tracker.when-the-carrier-answers-with-an
+    rubric: "Does the reply follow this rule of the estate: \"When the carrier answers with an error, say so and give the carrier's own tracking page; never guess a status.\"? The rule applies when: When the carrier answers with an error."
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
 blocks:
   - id: ask
     when:
@@ -42,11 +54,15 @@ blocks:
         deleted: []
       criteria:
         - instruction.shipment-tracker.ask-for-the-tracking-number-when
+        - instruction.shipment-tracker.always-pass-the-carrier-code-to
+        - instruction.shipment-tracker.when-the-carrier-answers-with-an
 metadata:
   estate:
     atoms:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
       - skill.shipment-tracker.skill-shipment-tracker
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+      - instruction.shipment-tracker.when-the-carrier-answers-with-an
     planRow: obligation.instruction.shipment-tracker.ask-for-the-tracking-number-when
     cell:
       atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
@@ -73,6 +89,8 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+      - instruction.shipment-tracker.when-the-carrier-answers-with-an
   links:
     - block: ask
       to:
@@ -88,6 +106,24 @@ metadata:
         kind: rule
         rule: skill.shipment-tracker.skill-shipment-tracker
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+        ledger: 2pgcgb6enm
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.when-the-carrier-answers-with-an
+        ledger: iax6q7xbmz
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b
