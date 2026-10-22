@@ -725,30 +725,47 @@ function titleEnd(text: string, mark: number): number {
   return text.length;
 }
 
+/** The offset of the start of the line after the one that holds `at`, or the end of the text. */
+function afterLine(text: string, at: number): number {
+  const broke = matchAt(LINE_BREAK, text, lineEndFrom(text, at));
+  return broke < 0 ? text.length : broke;
+}
+
+/** The offset of the next word after the one that holds `at`, or the end of the text. */
+function afterWord(text: string, at: number): number {
+  let index = at;
+  while (index < text.length && !/\s/.test(text[index] as string)) index++;
+  while (index < text.length && /\s/.test(text[index] as string)) index++;
+  return index;
+}
+
 /**
  * The Markdown comments of a text as [from, to) offsets: a link reference definition whose label is `//` or
  * `comment` (any case) and whose destination is `#` or `<>`, with a title in `( )`, `" "` or `' '`, that starts a
  * line (after white space, block quote marks and list markers). The range runs from the `[` to the end of the line
  * that closes the title, whatever follows the closing mark on that line. A title may span lines; a backslash
  * escapes the next character; a title that is never closed runs to the end of its paragraph (the line before the
- * next blank line) or of the text. A definition with another label, or with no title, is not one.
+ * next blank line) or of the text. A definition with another label, or with no title, is not one. With `flat`,
+ * the text has lost its line breaks (the title of an atom is a unit on one line), so a definition may start at
+ * any word and runs to the end of the text.
  */
 function markdownCommentRanges(
   text: string,
   skip: ReadonlyArray<readonly [number, number]>,
+  flat: boolean,
 ): Array<[number, number]> {
   const ranges: Array<[number, number]> = [];
-  let line = 0;
-  while (line < text.length) {
-    let next = lineEndFrom(text, line);
-    const open = labelAt(text, line);
+  let at = 0;
+  while (at < text.length) {
+    const open = labelAt(text, at);
     const mark = skip.some(([from, to]) => open >= from && open < to) ? -1 : titleAt(text, open);
     if (mark >= 0) {
-      next = titleEnd(text, mark);
-      ranges.push([open, next]);
+      const end = titleEnd(text, mark);
+      ranges.push([open, end]);
+      at = afterLine(text, end);
+    } else {
+      at = flat ? afterWord(text, at) : afterLine(text, at);
     }
-    const broke = matchAt(LINE_BREAK, text, next);
-    line = broke < 0 ? text.length : broke;
   }
   return ranges;
 }
@@ -757,13 +774,15 @@ function markdownCommentRanges(
  * The comments of a text as [from, to) offsets, sorted and apart: `<!--` up to and with the next `-->` (or up to
  * the end of the text when it never closes), and the Markdown comments (`[//]: # (text)`, `[//]: # "text"`,
  * `[comment]: <> (text)`, see `markdownCommentRanges`). Ranges that overlap are one. A comment opened inside a
- * `skip` range (a fence) is not one. Line endings do not matter.
+ * `skip` range (a fence) is not one. Line endings do not matter. `flat` is for a text that has lost its line
+ * breaks, such as the title of an atom: a Markdown comment may then start at any word.
  */
 export function commentRanges(
   text: string,
   skip: ReadonlyArray<readonly [number, number]> = [],
+  flat = false,
 ): Array<[number, number]> {
-  const found = [...htmlCommentRanges(text, skip), ...markdownCommentRanges(text, skip)];
+  const found = [...htmlCommentRanges(text, skip), ...markdownCommentRanges(text, skip, flat)];
   found.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   const ranges: Array<[number, number]> = [];
   for (const range of found) {

@@ -166,6 +166,24 @@ describe('what is not a Markdown comment', () => {
   });
 });
 
+describe('a text that has lost its line breaks (the title of an atom)', () => {
+  it('finds a Markdown comment at any word and masks it to the end of the text', () => {
+    const text = 'Mind the swell. [comment]: <> (SECRET_ONE) Lock the shed.';
+    expect(commentRanges(text, [], true)).toEqual([[16, text.length]]);
+    const shown = requestTextOf({ text, comments: commentRanges(text, [], true) }).text;
+    expect(shown).toBe('Mind the swell. (comment)');
+    // Without the flag the form is in the middle of a line, and is text.
+    expect(commentRanges(text)).toEqual([]);
+  });
+
+  it('finds it behind the marks that stay in a flat title, and leaves other labels alone', () => {
+    const quoted = "Check the net. > [//]: # 'SECRET_ONE'";
+    expect(commentRanges(quoted, [], true)).toEqual([[17, quoted.length]]);
+    const other = 'Check the net. [note]: # (visible words)';
+    expect(commentRanges(other, [], true)).toEqual([]);
+  });
+});
+
 describe('<!-- --> comments are found as before', () => {
   it('keeps the ranges and the masked text of the html comment form', () => {
     const text = 'a <!-- x --> b <!-- y --> c <!-- never closed';

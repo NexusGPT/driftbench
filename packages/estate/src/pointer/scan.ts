@@ -220,7 +220,9 @@ function sitOf(at: NonNullable<AtomInput['at']>, text: string): { from: number; 
  * opener to find), and under a hash of its id; the answer is carried back to the real id (`shown`).
  */
 function candidateOf(atom: AtomInput, source: Source | undefined): Candidate {
-  let verdict: 'clean' | 'mask' | 'withhold' = commentRanges(atom.title).length > 0 ? 'mask' : 'clean';
+  // The title of an atom is one line: a Markdown comment in it cannot be told by the start of a line.
+  const inTitle = commentRanges(atom.title, [], true);
+  let verdict: 'clean' | 'mask' | 'withhold' = inTitle.length > 0 ? 'mask' : 'clean';
   if (atom.at && source) {
     const sit = sitOf(atom.at, source.text);
     const touching = source.comments.filter(([from, to]) => from < sit.to && to > sit.from);
@@ -229,7 +231,7 @@ function candidateOf(atom: AtomInput, source: Source | undefined): Candidate {
     }
   }
   if (verdict === 'withhold') return { id: atom.id, label: WITHHELD_TITLE, shown: handleOf(atom.id) };
-  const label = requestTitle(atom.title);
+  const label = requestTextOf({ text: atom.title, comments: inTitle }).text;
   return label === atom.title ? { id: atom.id, label } : { id: atom.id, label, shown: handleOf(atom.id) };
 }
 
