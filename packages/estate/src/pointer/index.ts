@@ -76,6 +76,19 @@ export {
   unitKey,
 } from './ledger';
 export {
+  blastRadius,
+  CLEAR_REASONS,
+  type ClearReason,
+  classifyLinks,
+  clearLink,
+  createLink,
+  type Link,
+  type LinkedLedger,
+  type LinkState,
+  linkCoverage,
+  verifyLink,
+} from './links';
+export {
   atomsByUnit,
   EDIT_CLASSES,
   type EditClass,
