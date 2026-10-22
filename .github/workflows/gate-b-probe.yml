@@ -23,5 +23,6 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: node tools/structure/api-surface.mjs --build --check
       - name: Probe
         run: pnpm exec vitest run tools/docs/zz-probe.test.ts

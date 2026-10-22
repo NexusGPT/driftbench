@@ -13,7 +13,7 @@ it('probe: which spec names the sentence', async () => {
   };
   const problems = await runGuidePage(ROOT, 'docs/guide/walkthrough.md');
   console.log = log;
-  log('PROBE problems', problems.length, problems[0]?.slice(0, 1500));
+  log('PROBE problems', problems.length);
   const sh = (c: string) => execSync(c, { cwd: base, encoding: 'utf8', maxBuffer: 1 << 26 });
   log('PROBE tree', sh('find . -maxdepth 5 -type d | grep -v node_modules | head -40'));
   const named = sh('grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" . --include=*.yaml | grep -v "plan\\|phrases\\|map\\|variables\\|space" | LC_ALL=C sort');
