@@ -1,4 +1,4 @@
-export { type Comparison, type Condition, conditionOf } from './condition';
+export { type Comparison, type Condition, conditionOf, conditionsOf } from './condition';
 export {
   type EstateVariables,
   type EstateVariablesOptions,
