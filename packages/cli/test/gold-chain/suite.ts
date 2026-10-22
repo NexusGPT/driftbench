@@ -28,7 +28,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { chainSets, composite, DEFAULT_LIMITS_MODEL, LIMITS_RUNS, loadLimitsCassette } from './limits';
+import { chainSets, composite, DEFAULT_LIMITS_MODEL, limitsModelLabeler, loadLimitsCassette } from './limits';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -212,7 +212,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           pointer: {
             sets: chainSets(),
             labelling: pointer.singleLabelling(
-              composite(planted, pointer.createAnthropicLabeler({ model: limitsModel, runs: LIMITS_RUNS })),
+              composite(planted, limitsModelLabeler(limitsModel)),
             ),
             cassette: recorded,
             mode: 'record',

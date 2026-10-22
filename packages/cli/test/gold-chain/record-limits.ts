@@ -28,10 +28,13 @@ import {
   chainSets,
   composite,
   DEFAULT_LIMITS_MODEL,
-  LIMITS_RUNS,
+  limitsModelLabeler,
   LIMITS_SET_NAME,
 } from './limits';
 
+const CAP_IN = Number(process.env.GOLD_LIMITS_CAP_IN ?? Number.POSITIVE_INFINITY);
+const CAP_OUT = Number(process.env.GOLD_LIMITS_CAP_OUT ?? Number.POSITIVE_INFINITY);
+const spent = { input: 0, output: 0 };
 const PRICE_IN = 0.1 / 1_000_000;
 const PRICE_OUT = 0.5 / 1_000_000;
 
@@ -51,11 +54,27 @@ async function record(
     const planted = goldLabeller(
       gold.map((unit) => ({ ...unit, file: LAYOUT[estate][unit.file] ?? unit.file })),
     );
-    const model = pointer.createAnthropicLabeler({ key, model: modelName, runs: LIMITS_RUNS });
+    const sent = limitsModelLabeler(modelName, key);
+    const send = sent.call;
+    if (send === undefined) throw new Error('the labeler has no key: nothing can be recorded');
+    // A cap on the tokens of the whole run (GOLD_LIMITS_CAP_IN, GOLD_LIMITS_CAP_OUT): a request that would start past
+    // it stops the run. Two requests are in flight at most, so the cap is passed by no more than those two.
+    const model: pointer.Labeler = {
+      ...sent,
+      async call(wire, set, window, attempt) {
+        if (spent.input >= CAP_IN || spent.output >= CAP_OUT) {
+          throw new Error(`the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`);
+        }
+        const answer = await send(wire, set, window, attempt);
+        spent.input += answer.usage.input;
+        spent.output += answer.usage.output;
+        return answer;
+      },
+    };
     const cassette = new pointer.Cassette();
     const reader = readerFor('claude-code', { ignore: [] });
     if (reader === undefined) throw new Error('the claude-code reader is missing');
-    await scanEstate({
+    const result = await scanEstate({
       root: dir,
       reader,
       rootLabel: 'estate',
@@ -69,6 +88,8 @@ async function record(
         jobs: 2,
       },
     });
+    const failed = result.pointer?.failed ?? [];
+    if (failed.length > 0) console.log(`estate ${estate}: ${failed.length} windows failed, first: ${failed[0]}`);
     const kept = [...cassette.entries.values()].filter((entry) => entry.readable.set === LIMITS_SET_NAME);
     const only = new pointer.Cassette();
     for (const entry of kept) only.entries.set(entry.key, entry);

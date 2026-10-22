@@ -87,3 +87,17 @@ export function composite(planted: pointer.Labeler, model: pointer.Labeler): poi
     },
   };
 }
+
+/**
+ * The model labeller of the limits set. The default model is asked with thinking off, as the product asks it. Another
+ * model (the comparison recording) is asked with the request's thinking field left out, because one of them refuses
+ * `disabled`.
+ */
+export function limitsModelLabeler(model: string, key?: string): pointer.Labeler {
+  return pointer.createAnthropicLabeler({
+    model,
+    runs: LIMITS_RUNS,
+    ...(model === DEFAULT_LIMITS_MODEL ? {} : { thinking: 'default' as const }),
+    ...(key === undefined ? {} : { key }),
+  });
+}
