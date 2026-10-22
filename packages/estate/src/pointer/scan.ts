@@ -530,6 +530,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const dropped: string[] = [];
   const failed: string[] = [];
   const outOfStepRuns: string[] = [];
+  // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
+  const unheard = new WeakMap<Map<number, Opinion>, Set<number>>();
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
   const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
@@ -556,6 +558,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         outOfStepRuns.push(
           `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
         );
+        const run = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
+          task.run - 1
+        ] as Map<number, Opinion>;
+        const off = unheard.get(run) ?? new Set<number>();
+        for (const unit of leaf.window.units) off.add(unit.index);
+        unheard.set(run, off);
         continue;
       }
       const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
@@ -571,7 +579,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   /**
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
-   * the runs gave: three of five by default. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * the runs heard gave: three of five by default. A run out of step in the unit's window is not heard: it counts
+   * neither for a label nor in the count, and with fewer than two runs heard the member has no opinion. A run that left
+   * the unit out counts for no label. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
@@ -603,7 +613,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     index: number,
     set: LabelSet,
   ): Opinion | undefined => {
-    const given = runs.map((run) => run.get(index));
+    // The runs heard on the unit: a run left out of its window's vote counts neither for a label nor in the count.
+    const heard = runs.filter((run) => !unheard.get(run)?.has(index));
+    if (runs.length > 1 && heard.length < 2) return undefined;
+    const given = heard.map((run) => run.get(index));
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
