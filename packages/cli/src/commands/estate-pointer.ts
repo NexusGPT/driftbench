@@ -412,6 +412,11 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
     `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
+  const dropCount = done.droppedLabels?.length ?? 0;
+  if (dropCount > 0)
+    lines.push(
+      `  ${dropCount} ${dropCount === 1 ? 'label on a shown line was' : 'labels on shown lines were'} dropped after the retry, listed below.`,
+    );
   const spend = newSpend();
   lines.push(...tokenLines(done.usage, '', prices, spend));
   const events = Object.entries(done.events).filter(([, count]) => count > 0);
@@ -432,6 +437,10 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
+  for (const drop of done.droppedLabels ?? [])
+    lines.push(
+      `    dropped label: ${drop.window} (${drop.set}, ${drop.labeler}): ${drop.label} on the shown line ${drop.line}`,
+    );
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
   return lines;

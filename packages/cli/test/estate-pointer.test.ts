@@ -6,6 +6,7 @@ import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
+import { pointerLines } from '../src/commands/estate-pointer';
 import { type Io, main } from '../src/index';
 
 // An invented harbour office. No line below comes from a real estate.
@@ -130,6 +131,48 @@ async function record(root: string, over: string[] = [], extra: { prices?: strin
   );
   return { code, ...output };
 }
+
+describe('the lines a scan prints about dropped labels', () => {
+  const resultWith = (droppedLabels: unknown[]) =>
+    ({
+      pointer: {
+        ledger: { entries: [] },
+        cuts: new Map(),
+        carried: 0,
+        decided: 0,
+        decidedBy: { system1: 0, system2: 0 },
+        fellBack: 0,
+        unlabeled: 0,
+        split: 0,
+        spanSplit: 0,
+        atoms: 0,
+        dropped: [],
+        windows: 0,
+        calls: 0,
+        recorded: 0,
+        usage: [],
+        events: {},
+        failed: [],
+        refusals: [],
+        atomRefusals: [],
+        droppedLabels,
+      },
+    }) as never;
+
+  it('prints a count and one line per drop, and nothing when none was dropped', () => {
+    const drop = {
+      window: 'a.md#1',
+      set: 'agent-rules',
+      labeler: 'system2-a',
+      line: 2,
+      label: 'description',
+    };
+    const text = pointerLines(resultWith([drop, { ...drop, line: 4 }]), 'planted').join('\n');
+    expect(text).toContain('2 labels on shown lines were dropped after the retry, listed below');
+    expect(text).toContain('dropped label: a.md#1 (agent-rules, system2-a): description on the shown line 2');
+    expect(pointerLines(resultWith([]), 'planted').join('\n')).not.toContain('dropped after the retry');
+  });
+});
 
 describe('driftbench estate scan --pointer', () => {
   it('records the default stack with the two services, then replays it with no key', async () => {
