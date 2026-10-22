@@ -25,9 +25,7 @@ const wrap = (kind: string, text: string): string => {
     case 'fence':
       return `\`\`\`text\n${text}\n\`\`\``;
     case 'comment':
-      // The scan shows a comment to the labeler as its kind and first line (docs, section 2), so the first line
-      // is public and the private text sits on the second.
-      return `<!-- kept note\n${text} -->`;
+      return `<!-- ${text} -->`;
     case 'frontmatter':
       return `---\ndescription: "${text}"\n---`;
     case 'inline-code':
@@ -39,7 +37,7 @@ const wrap = (kind: string, text: string): string => {
   }
 };
 
-/** A fence or a comment is opaque: the scan labels no unit of it and sends no text of it beyond its first line. */
+/** A fence or a comment is opaque: the scan labels no unit of it and sends no text of it. */
 const opaque = (placement: string): boolean => placement === 'fence' || placement === 'comment';
 
 /** A seeded private-use alphabet makes even one leaked marker character unambiguous.
