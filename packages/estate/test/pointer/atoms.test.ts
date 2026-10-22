@@ -367,14 +367,16 @@ describe('atoms from labels', () => {
       expect(atom?.fields).not.toHaveProperty('labelLinks');
     });
 
-    it('refuses an entry whose link names an atom the request did not list, and labels no atom from it', async () => {
+    it('drops a link that names an atom the request did not list, and labels no atom that needs it', async () => {
       const { result } = await spanned({
         'CLAUDE.md': [{ units: '3', label: 'order', links: [{ kind: 'topic', to: 'skill.zzz.nothing' }] }],
       });
-      expect(result.pointer?.refusals).toEqual([
+      expect(result.pointer?.refusals).toEqual([]);
+      expect(result.pointer?.dropped).toEqual([
         expect.stringContaining('is not an atom the request listed for topic'),
       ]);
-      expect(result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      // The label stands, but nothing is built that points at the dropped target.
+      expect(JSON.stringify(result.map.atoms)).not.toContain('skill.zzz.nothing');
     });
 
     it('keeps the spans in the ledger with the label, and replays them from the cassette', async () => {
@@ -532,6 +534,109 @@ describe('atoms from labels', () => {
       expect(gate?.fields?.labelLinks).toEqual([{ kind: 'act-tool', value: 'Edit' }]);
     });
 
+    it('fills placeholders inside a list or an object of a field, and refuses the atom when one is unfilled', async () => {
+      const nested = GATES.replace(
+        'fields: { first: $code, path: $path, trigger: $span.weather }',
+        'fields: { reread: [$path], order: { act: $link.act-tool, when: $span.weather, note: kept } }',
+      );
+      expect(nested).not.toBe(GATES);
+      const play = (answer: Record<string, unknown>) =>
+        scan(
+          {},
+          {
+            sets: setsOf(nested),
+            labelling: pointer.singleLabelling(
+              plantedDense((window) => {
+                const at = window.units.find((unit) => unit.text === UNIT)?.n;
+                return at === undefined
+                  ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                  : [{ units: String(at), ...answer } as pointer.Labelled];
+              }),
+            ),
+          },
+          LOGS,
+        );
+      const { result } = await play(entry());
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.fields).toMatchObject({
+        reread: ['.claude/skills/logs/references/log-rules.md'],
+        order: { act: 'Edit', when: 'when the fog comes in', note: 'kept' },
+      });
+      const missing = await play(entry({ links: undefined }));
+      expect(missing.result.map.atoms.some((candidate) => candidate.fields?.extraction === 'pointer')).toBe(
+        false,
+      );
+      expect(missing.result.pointer?.atomRefusals).toHaveLength(1);
+    });
+
+    it('writes optional keys, alternatives, lists of the unit and a top-level reply act from the labels', async () => {
+      const text = GATES.replace(
+        '      - { name: weather, description: the condition that calls for it }',
+        '      - { name: weather, description: the condition that calls for it }\n      - { name: ask-context, description: the situation of the request }',
+      )
+        .replace(
+          '      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }',
+          '      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }\n      - { name: reply-act, description: the act of the reply, values: [answer, refuse] }',
+        )
+        .replace(
+          '        spans: [weather]\n        links: [act-tool]',
+          '        spans: [weather, ask-context]\n        links: [act-tool, reply-act]',
+        )
+        .replace(
+          'fields: { first: $code, path: $path, trigger: $span.weather }',
+          'fields: { reread: $paths, codes: $codes, calls: { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "ask?": { text: $span.weather, "context?": $span.ask-context }, "retry?": $has.ask-context, order: { firstFilled: [ { key: $link.nothing }, { before: $span.weather, after: $link.act-tool } ] } }\n          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: reply } }',
+        );
+      expect(text).not.toBe(GATES);
+      const play = (answer: Record<string, unknown>) =>
+        scan(
+          {},
+          {
+            sets: setsOf(text),
+            labelling: pointer.singleLabelling(
+              plantedDense((window) => {
+                const at = window.units.find((unit) => unit.text === UNIT)?.n;
+                return at === undefined
+                  ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                  : [{ units: String(at), ...answer } as pointer.Labelled];
+              }),
+            ),
+          },
+          LOGS,
+        );
+      const found = (run: Awaited<ReturnType<typeof play>>) =>
+        run.result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      const full = found(
+        await play(
+          entry({
+            spans: [
+              { kind: 'weather', from: UNIT.indexOf('when the fog'), to: UNIT.indexOf('comes') - 1 },
+              { kind: 'ask-context', from: UNIT.indexOf('comes'), to: UNIT.length - 1 },
+            ],
+            links: [
+              { kind: 'act-tool', to: 'Edit' },
+              { kind: 'reply-act', to: 'refuse' },
+            ],
+          }),
+        ),
+      );
+      expect(full).toBeDefined();
+      expect(full?.replyAct).toEqual({ id: 'refuse', evidence: { type: 'text_segment', part: 'reply' } });
+      expect(full?.fields).toMatchObject({
+        reread: ['.claude/skills/logs/references/log-rules.md'],
+        // The one code span of the unit leads to a file, so it is no command.
+        codes: ['references/log-rules.md'],
+        calls: [],
+        ask: { text: 'when the fog', context: 'comes in' },
+        retry: true,
+        order: { before: 'when the fog', after: 'Edit' },
+      });
+      // Without the context span and the reply act link: the optional keys and the reply act are left out.
+      const bare = found(await play(entry()));
+      expect(bare?.replyAct).toBeUndefined();
+      expect(bare?.fields?.ask).toEqual({ text: 'when the fog comes in' });
+      expect(bare?.fields).not.toHaveProperty('retry');
+    });
+
     it('refuses the atom, with the reason, when the unit gives no span, link or code span that the mapping needs', async () => {
       const noLink = await run(entry({ links: undefined }));
       expect(noLink.result.pointer?.atomRefusals).toEqual([
@@ -542,11 +647,10 @@ describe('atoms from labels', () => {
       expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
     });
 
-    it('refuses a link value the set did not declare, as the check of the answer does', async () => {
+    it('drops a link value the set did not declare, as the check of the answer does', async () => {
       const { result } = await run(entry({ links: [{ kind: 'act-tool', to: 'Fly' }] }));
-      expect(result.pointer?.refusals).toEqual([
-        expect.stringContaining('is not an atom the request listed'),
-      ]);
+      expect(result.pointer?.dropped).toEqual([expect.stringContaining('is not an atom the request listed')]);
+      expect(result.pointer?.atomRefusals).toHaveLength(1);
     });
 
     it('keeps a string that only starts with a dollar sign', async () => {
@@ -690,9 +794,13 @@ describe('the gates and references of the shipped set', () => {
 
   it('reads a rule that names a file of the estate as a reference too, and one that names none as a rule only', async () => {
     const { result, quoted } = await run();
-    // The code reader holds the reference of the file already, so the pointer's one is listed as a repeat.
-    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(1);
-    expect(quoted('Always check').map((atom) => atom.kind)).toEqual(['instruction']);
+    // No code reader reads references (#877): the pointer builds the reference of the file itself, so the rule is an
+    // instruction and a reference, and nothing is listed as a repeat.
+    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(0);
+    expect(quoted('Always check').map((atom) => [atom.kind, atom.fields?.path ?? null])).toEqual([
+      ['instruction', null],
+      ['reference', '.claude/skills/moorings/SKILL.md'],
+    ]);
     // A command is no file: the rule builds nothing beside it, and nothing is listed as a repeat or a refusal.
     expect(quoted('Always run').map((atom) => [atom.kind, atom.fields?.polarity])).toEqual([
       ['instruction', 'prohibition'],
@@ -828,7 +936,7 @@ describe('the ordered pair of the shipped set', () => {
     });
   });
 
-  it('refuses the entry when a call is outside the governed-action span', async () => {
+  it('drops a call outside the governed-action span, and builds no gate without it', async () => {
     const { result } = await scan(
       {
         'CLAUDE.md': [
@@ -844,63 +952,118 @@ describe('the ordered pair of the shipped set', () => {
       { sets },
       FILES_R14,
     );
-    expect(result.pointer?.refusals).toEqual([
+    expect(result.pointer?.dropped).toEqual([
       expect.stringContaining('is not inside a span of the kind governed-action'),
     ]);
     expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
   });
 
-  it('lets the mapped ordered gate replace the prose gate read from the same line', async () => {
-    const files = {
-      'CLAUDE.md': [
-        '# Harbour office',
-        '',
-        '- **R14.** Do not commit to git until you have read the output of `git status`.',
-        '',
-      ].join('\n'),
-    };
+  it('names the input that both calls share, from the order-key link of #926', () => {
+    expect(sets[0]?.links?.map((link) => link.name)).toContain('order-key');
+  });
+});
+
+describe('a read before a change of the same object, with no file named (gate-same)', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Three paraphrases with no content word in common: the order comes from the labels, never from the words.
+  const PARAPHRASES = [
+    ['Read a file before editing it.', 'editing it', 'Edit'],
+    ['Look the sheet over ahead of any change you make to it.', 'any change you make to it', 'Edit'],
+    ['Never overwrite a document you have not opened yet.', 'overwrite a document', 'Write'],
+  ] as const;
+
+  it('builds a gate keyed on the shared input, the same way for three paraphrases', async () => {
+    for (const [line, act, tool] of PARAPHRASES) {
+      const { result } = await scan(
+        {
+          'CLAUDE.md': [
+            {
+              units: '2',
+              label: 'gate-same',
+              spans: [{ kind: 'governed-action', text: act }],
+              links: [
+                { kind: 'act-tool', to: tool },
+                { kind: 'order-key', to: 'file_path' },
+              ],
+            },
+          ],
+        },
+        { sets },
+        { 'CLAUDE.md': ['# Office', '', `- ${line}`, ''].join('\n') },
+      );
+      expect(result.pointer?.refusals, line).toEqual([]);
+      const gate = result.map.atoms.find((atom) => atom.kind === 'gate');
+      expect(gate?.fields, line).toMatchObject({ trigger: act, order: { key: 'file_path' } });
+      expect(gate?.evidence, line).toContainEqual({ type: 'ordered', before: 'Read', after: tool });
+    }
+  });
+
+  it('builds no gate when the labeler gives no order key', async () => {
     const { result } = await scan(
       {
         'CLAUDE.md': [
-          pair({
-            spans: [
-              {
-                kind: 'governed-action',
-                text: 'commit to git until you have read the output of `git status`',
-              },
-              { kind: 'first-call', text: 'git status' },
-              { kind: 'second-call', text: 'commit' },
-            ],
-          }),
+          {
+            units: '2',
+            label: 'gate-same',
+            spans: [{ kind: 'governed-action', text: 'editing it' }],
+            links: [{ kind: 'act-tool', to: 'Edit' }],
+          },
         ],
       },
       { sets },
-      files,
+      { 'CLAUDE.md': ['# Office', '', '- Read a file before editing it.', ''].join('\n') },
+    );
+    expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
+  });
+});
+
+describe('the things a hazard orders read again that are no file (reread-other)', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const LINE = '- After a compaction, re-read this file and the open tracker note before you continue.';
+
+  it('declares the file the unit is in and each named thing apart, as the labeler pointed them', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'hazard-compaction',
+            spans: [
+              { kind: 'reread-self', text: 're-read this file' },
+              { kind: 'reread-other', text: 'the open tracker note' },
+            ],
+          },
+        ],
+      },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', LINE, ''].join('\n') },
     );
     expect(result.pointer?.refusals).toEqual([]);
-    const gates = result.map.atoms.filter((atom) => atom.kind === 'gate');
-    expect(gates).toHaveLength(1);
-    expect(gates[0]?.producedBy).toBe('model');
-    expect(gates[0]?.fields).toMatchObject({ first: 'git status', second: 'commit' });
-    expect(gates[0]?.evidence).toContainEqual({
-      type: 'ordered',
-      before: 'Bash~git status',
-      after: 'Bash~commit',
-    });
+    const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+    expect(hazard?.evidence).toContainEqual(
+      expect.objectContaining({
+        type: 'custom',
+        name: 'hazard_recovery',
+        options: expect.objectContaining({ rereadSelf: true, unpathed: ['the open tracker note'] }),
+      }),
+    );
   });
 
-  it('keeps the prose gate when the pointer entry builds no ordered gate', async () => {
-    const files = {
-      'CLAUDE.md': [
-        '# Harbour office',
-        '',
-        '- **R14.** Do not commit to git until you have read the output of `git status`.',
-        '',
-      ].join('\n'),
-    };
-    const { result } = await scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets }, files);
-    const gates = result.map.atoms.filter((atom) => atom.kind === 'gate');
-    expect(gates).toHaveLength(1);
-    expect(gates[0]?.producedBy).toBe('code');
+  it('declares no unnamed target when the labeler points at none', async () => {
+    const { result } = await scan(
+      { 'CLAUDE.md': [{ units: '2', label: 'hazard-compaction' }] },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', LINE, ''].join('\n') },
+    );
+    expect(result.pointer?.refusals).toEqual([]);
+    const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+    const options = hazard?.evidence.find((entry) => entry.type === 'custom')?.options as Record<
+      string,
+      unknown
+    >;
+    expect(options.unpathed ?? []).toEqual([]);
+    expect(options).not.toHaveProperty('rereadSelf');
   });
 });

@@ -1,34 +1,32 @@
 /**
- * The fake's default agent: a stream derived by code from the estate it
- * is given, nothing else. It reads the copy in its working folder (the standing file, the skills, the helpers,
- * the settings and the step list), routes the ask by the words it shares with a routing row or a unit's
- * description, and does what the unit and the estate say: load the skill, read the files its body names,
- * dispatch the helpers it names, run the command its body names and the command the ask spells out, read a
- * file before editing it when a standing rule says so, edit the file the ask names, walk the step list, and run every hook the settings
- * declare on each of its tool calls. This deterministic stand-in implements a limited instruction syntax;
- * it is not a model or a complete Claude Code simulator. It knows nothing of any test, plan row or mutant:
- * what changes its stream is only what the copy says. No model, no cost, fictional data only.
+ * The fake's default agent: a stream derived by code from the estate it is given and from that estate's own
+ * structured definitions, nothing else. It reads the copy in its working folder (the skills, the helpers, the
+ * settings and the step list) and, from `FAKE_MAP` and `FAKE_PHRASES`, the approved map and the phrase bank of the
+ * estate (see dispatch.mjs). The ask sets off the atoms the map or the bank ties it to; the fake does what those
+ * atoms define: loads the unit that owns the rule, reads the files a reference names, provokes the guard its
+ * settings name so the real script decides, and replies with the act the atom declares.
+ * An ask the map and the bank do not know sets off nothing and is answered plainly.
+ * From the loaded skill it does what the map declares the skill holds (dispatch.mjs `unitPlan`): it reads the
+ * references, runs the scripts and dispatches the helpers of the skill's atoms in force, orders them by the gates
+ * the map declares, refuses a call a declared forbid case names, and runs every hook the settings declare on each
+ * of its tool calls. It reads no word of the estate or of the ask: the same map in any wording gives the same run.
+ * This deterministic stand-in is not a model or a complete Claude Code simulator. It knows nothing of any test,
+ * plan row or mutant: what changes its stream is only what the copy, the map and the bank say. No model, no cost,
+ * fictional data only.
+ * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
-
-const STOP = new Set(
-  'the and for with that this from into your you are can what which when where who how please just tell give make sure about them they their there here have has had will would could should than then also only each every some any one two all not but our its it'.split(
-    ' ',
-  ),
-);
-
-const words = (text) =>
-  new Set(
-    String(text)
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, ' ')
-      .split(/\s+/)
-      .filter((word) => word.length >= 3 && !STOP.has(word))
-      // One stem for a word and its plural or third person: sort, sorts.
-      .map((word) => (word.length > 4 ? word.replace(/(?:es|s)$/, '') : word)),
-  );
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import {
+  intentsOf,
+  loadDispatch,
+  provocation,
+  recoveryReads,
+  replyActOf,
+  setOff,
+  unitPlan,
+} from './dispatch.mjs';
 
 const read = (path) => (existsSync(path) ? readFileSync(path, 'utf8') : undefined);
 
@@ -47,9 +45,6 @@ function frontmatter(text) {
 }
 
 function readEstate(cwd) {
-  const standing = ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']
-    .map((path) => read(join(cwd, path)) ?? '')
-    .join('\n');
   const skills = [];
   const skillsDir = join(cwd, '.claude', 'skills');
   if (existsSync(skillsDir)) {
@@ -94,50 +89,7 @@ function readEstate(cwd) {
   } catch {
     steps = [];
   }
-  return { standing, skills, helpers, settings, steps };
-}
-
-/** Rows of the standing file's tables that name a unit: the ask cell and the unit. */
-function routingRows(standing, units) {
-  const rows = [];
-  for (const line of standing.split('\n')) {
-    if (!line.includes('|')) continue;
-    const cells = line
-      .split('|')
-      .map((cell) => cell.trim())
-      .filter((cell) => cell !== '');
-    if (cells.length < 2) continue;
-    for (const unit of units) {
-      const named = cells.findIndex((cell) => cell.replace(/[`*]/g, '').includes(unit.name));
-      if (named < 0) continue;
-      const ask = cells.filter((_, index) => index !== named).join(' ');
-      if (/\b(never|not)\b/i.test(cells[named] ?? '')) continue;
-      rows.push({ unit, ask });
-    }
-  }
-  return rows;
-}
-
-/** The unit an ask goes to: the most words shared with a routing row or a description, at least two. */
-function route(ask, estate) {
-  const units = [...estate.skills, ...estate.helpers];
-  const asked = words(ask);
-  const shared = (text) => [...words(text)].filter((word) => asked.has(word)).length;
-  let best;
-  let score = 1;
-  for (const unit of units) {
-    const own = Math.max(
-      shared(unit.description),
-      ...routingRows(estate.standing, units)
-        .filter((row) => row.unit === unit)
-        .map((row) => shared(row.ask)),
-    );
-    if (own > score) {
-      best = unit;
-      score = own;
-    }
-  }
-  return best;
+  return { skills, helpers, settings, steps };
 }
 
 /** The step list in its order: from the stage no next enters, along the first next; anytime steps last. */
@@ -178,32 +130,6 @@ function denied(settings, tool, input) {
   });
 }
 
-// Sentence boundaries outside code spans only: dots in filenames and commands are not punctuation.
-function statementsOf(body) {
-  const statements = [];
-  let sentence = '';
-  for (const token of body.match(/`[^`]*`|[.!?\n]|[^`.!?\n]+/g) ?? []) {
-    if (/^[.!?\n]$/.test(token)) {
-      if (sentence.trim()) statements.push(sentence.trim().replace(/^[-*\d.)\s]+/, ''));
-      sentence = '';
-    } else sentence += token;
-  }
-  if (sentence.trim()) statements.push(sentence.trim());
-  return statements.filter((line) => !line.startsWith('#'));
-}
-
-const negative = (clause) =>
-  /\b(never|do not|don't|must not|forbidden)\b/i.test(
-    clause.replace(/`[^`]*`/g, '').replace(/\bnot forbidden\b/gi, ''),
-  );
-
-function masked(line) {
-  const spans = [];
-  const prose = line.replace(/`[^`]*`/g, (span) => `\uE000${spans.push(span) - 1}\uE000`);
-  const restore = (clause) => clause.replace(/\uE000(\d+)\uE000/g, (_, index) => spans[Number(index)]);
-  return { prose, restore };
-}
-
 // Skill paths are local to that skill; explicit .claude/ and absolute paths are estate-wide.
 function fileTarget(literal, cwd, folder) {
   return resolve(cwd, isAbsolute(literal) || literal.startsWith('.claude/') ? '' : folder, literal);
@@ -221,308 +147,69 @@ function commandTarget(literal, cwd, folder) {
     .join(' ');
 }
 
-/** The same current-turn parser supplies candidates and evidence for asked/requested conditions. */
-function requestedActions(ask) {
-  const { prose, restore } = masked(ask);
-  // Quoted targets are opaque; a dot within an unquoted filename is not a sentence boundary.
-  return prose.split(/[\n;]+|[.!?](?:\s+|$)/).flatMap((clause) => {
-    const request =
-      /^(?:please\s+)?(?:(?:can|could|will|would)\s+you\s+|i\s+(?:want|need|ask)\s+you\s+to\s+)?(?:please\s+)?(run|execute|read|edit|dispatch|call|delegate)\s*:?[ \t]+(.+)$/i.exec(
-        clause.trim(),
-      );
-    if (!request) return [];
-    const requestedKind = /^(run|execute)$/i.test(request[1])
-      ? 'Bash'
-      : /^read$/i.test(request[1])
-        ? 'Read'
-        : /^edit$/i.test(request[1])
-          ? 'Edit'
-          : 'Agent';
-    const named = restore(
-      request[2].replace(/^(?:(?:this|the|following)\s+)?(?:exact\s+)?(?:command|file|helper)\s*:\s*/i, ''),
-    ).trim();
-    const literal = /^`[^`]+`$/.test(named) ? named.slice(1, -1) : named;
-    return [{ kind: requestedKind, literal }];
-  });
-}
-
 function actionTarget(kind, literal, cwd, folder) {
   return kind === 'Bash'
     ? commandTarget(literal, cwd, folder)
-    : kind === 'Read' || kind === 'Edit'
+    : kind === 'Read' || kind === 'Edit' || kind === 'Write'
       ? fileTarget(literal, cwd, folder)
       : literal;
 }
 
-/** Match the governed target, never the prohibition's glob or just a word shared with its name. */
-function requestedAction(ask, kind, target, cwd, folder) {
-  return requestedActions(ask).some(
-    (action) =>
-      action.kind === kind &&
-      ['', folder].some((scope) => actionTarget(kind, action.literal, cwd, scope) === target),
-  );
-}
-
-function askedCondition(condition) {
-  const words = condition
-    .toLowerCase()
-    .replace(/\b(?:explicitly|specifically|directly)\s*/g, '')
-    .trim();
-  const passive =
-    /^(?:you (?:are|were|have been) )?(?:asked|requested)(?: by (?:the )?user)?(?: to do (?:so|it|this|that))?(?: by (?:the )?user)?$/;
-  const active =
-    /^(?:the )?user (?:has )?(?:asks|requests|asked|requested)(?: (?:for )?(?:it|this|that)|(?: you)? to do (?:so|it|this|that))?$/;
-  return passive.test(words) || active.test(words);
-}
-
 /**
- * Prohibitions are retained for the whole run, independently of positive action collection. Read/edit
- * targets are paths and run targets are complete commands; shell-style globs match those same targets.
- * Standing rules cover the stated action target in any skill as well as its estate-relative path;
- * skill rules resolve targets within their own folder. All standing files
- * and the routed unit are collected before the first action, so placement never overrides a ban.
- *
- * Conditional syntax: if/when/unless FILE exists, does not exist, is present or is missing. Conditions
- * are checked at the governed call, not once at planning. Asked/requested (including "the user asks",
- * "asked by the user", and explicit/specific requests) tests only the CURRENT turn for an imperative,
- * polite question or "I want you to" request naming that action and exact target. Mentions, negations,
- * other targets, and earlier turns do not count. Targets may be backticked or unquoted; commands use
- * their complete input. This exception never clears an unconditional prohibition, even if a later
- * instruction says "you may now". Every other unknown condition still stops the matching action
- * with a diagnostic; they are never silently treated as unconditional bans or permission. Temporal
- * before/until gates in skills remain dependency edges below, rather than permanent prohibitions.
+ * The skill's actions in the order its gates allow: a gate puts its read (or its command) before every action of
+ * the tool its act uses, adding that read when no reference declares it; a gate on two calls of one tool puts the
+ * call holding its first part before the call holding its second. A gate whose two acts use one tool and that
+ * names no calls orders nothing. Without a gate, actions keep the order of their lines. A cycle stops the skill as
+ * contradictory; two calls a gate names that no action holds stop it as unresolved. Nothing falls back to prose.
  */
-function prohibitions(estate, unit, cwd, ask) {
-  const sources = [{ body: estate.standing, folder: '' }, ...(unit ? [unit] : [])];
-  const rules = [];
-  for (const source of sources) {
-    for (const line of statementsOf(source.body)) {
-      if (!negative(line)) continue;
-      const { prose, restore } = masked(line);
-      const prefix = /^(if|when|unless)\s+(.+?)[,;]\s*(.+)$/i.exec(prose);
-      const suffix = /^(.+?)\s+(if|when|unless)\s+(.+)$/i.exec(prose);
-      const condition = prefix ? prefix[2] : suffix?.[3];
-      const connective = (prefix ? prefix[1] : suffix?.[2])?.toLowerCase();
-      const action = prefix ? prefix[3] : suffix ? suffix[1] : prose;
-      // These clauses have a conditional temporal meaning, not an unconditional ban.
-      if (/\b(before|after|until)\b/i.test(action)) continue;
-      const verb =
-        /\b(read(?:ing)?|run(?:ning)?|execut(?:e|ing)|edit(?:ing)?|dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.exec(
-          action,
-        );
-      if (!verb) continue;
-      const kind = /^read/i.test(verb[1])
-        ? 'Read'
-        : /^(run|execut)/i.test(verb[1])
-          ? 'Bash'
-          : /^edit/i.test(verb[1])
-            ? 'Edit'
-            : 'Agent';
-      const folder = source.folder ?? '';
-      const holds = (calledTarget) => {
-        if (!condition) {
-          // A condition outside the supported grammar still must not become an unconditional ban.
-          return /\b(if|when|unless|without|except|while)\b/i.test(action) ? undefined : true;
-        }
-        if (askedCondition(restore(condition))) {
-          const value = requestedAction(ask, kind, calledTarget, cwd, unit?.folder ?? '');
-          return connective === 'unless' ? !value : value;
-        }
-        const match = /^`([^`]+)`\s+(exists|does not exist|is present|is missing)$/i.exec(restore(condition));
-        if (!match) return undefined;
-        const exists = existsSync(fileTarget(match[1], cwd, folder));
-        const value = /^(exists|is present)$/i.test(match[2]) ? exists : !exists;
-        return connective === 'unless' ? !value : value;
-      };
-      for (const match of restore(action).matchAll(/`([^`]+)`/g)) {
-        const literal = match[1].trim();
-        const target =
-          kind === 'Bash'
-            ? commandTarget(literal, cwd, folder)
-            : kind === 'Read' || kind === 'Edit'
-              ? fileTarget(literal, cwd, folder)
-              : literal;
-        rules.push({ kind, target, literal, inherited: source === sources[0], holds });
-      }
-    }
-  }
-  return (tool, input, literal) => {
-    const target =
-      tool === 'Bash'
-        ? commandTarget(input.command, cwd, '')
-        : tool === 'Read' || tool === 'Edit'
-          ? input.file_path
-          : input.subagent_type;
-    for (const rule of rules) {
-      if (rule.kind !== tool || typeof target !== 'string') continue;
-      if (
-        !matchesGlob(target, rule.target) &&
-        !(rule.inherited && literal !== undefined && matchesGlob(literal, rule.literal))
-      )
-        continue;
-      const applies = rule.holds(target);
-      if (applies === true)
-        return 'An estate prohibition forbids this action; I stopped before the tool call.';
-      if (applies === undefined)
-        return 'The condition of an estate prohibition cannot be resolved; I stopped before the tool call.';
-    }
-    return undefined;
-  };
-}
-
-/**
- * Collect the whole skill and current-turn requests before acting. Requests supply candidate actions
- * even when the skill contains only a prohibition. Append new requests in turn order after estate
- * candidates; the same action and normalized target execute once. All candidates share the existing
- * prerequisite graph and permission/prohibition checks. Explicit before/after/first/until clauses become dependency
- * edges, including clauses in later sections. Repeated mentions identify the same action. Without an
- * ordering clause, choose the earliest first mention among ready actions (source order, then code-span
- * order). A clause never orders an action against itself: a described part that names only the action the other
- * part quotes is unresolved, not a cycle. Unresolved relations and cycles stop the skill; they never silently fall
- * back to prose order.
- * This small grammar uses backticked paths/commands/helper names, or an unambiguous action description.
- */
-function skillActions(unit, estate, requested, cwd) {
-  const statements = statementsOf(unit.body);
-  const active = statements.filter(
-    (line) => !negative(line) || /\b(before|after|until)\b/i.test(line.replace(/`[^`]*`/g, '')),
-  );
-  const actions = [];
-  const add = (kind, literal, folder = unit.folder) => {
+function ordered(plan, cwd) {
+  const actions = plan.actions.map((action) => ({
+    ...action,
+    target: actionTarget(action.kind, action.literal, cwd, action.folder),
+    needs: new Set(),
+  }));
+  const ensure = (kind, literal, folder) => {
     const target = actionTarget(kind, literal, cwd, folder);
-    if (!actions.some((action) => action.kind === kind && action.target === target))
-      actions.push({ kind, literal, target, folder, needs: new Set() });
-  };
-  for (const line of active) {
-    for (const match of line.matchAll(/`([^`]+)`/g)) {
-      const literal = match[1].trim();
-      if (/^[^\s]+\.(?:md|txt|json|csv)$/.test(literal)) add('Read', literal);
-      else if (/\s/.test(literal) && /\b(run(?:ning)?|execut(?:e|ing))\b/i.test(line)) add('Bash', literal);
-      else if (
-        estate.helpers.some((helper) => helper.name === literal) &&
-        /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing)|hand)\b/i.test(line)
-      )
-        add('Agent', literal);
+    let action = actions.find((other) => other.kind === kind && other.target === target);
+    if (!action) {
+      action = { kind, literal, folder, target, needs: new Set() };
+      actions.push(action);
     }
-  }
-
-  // The enclosing skill's command domain, before any current-turn request adds another candidate.
-  const domainCommands = actions.filter((action) => action.kind === 'Bash');
-  for (const action of requested) {
-    // Current-turn file paths name an existing workspace file before falling back to a skill-local file.
-    const folder =
-      (action.kind === 'Read' || action.kind === 'Edit') && existsSync(fileTarget(action.literal, cwd, ''))
-        ? ''
-        : unit.folder;
-    add(action.kind, action.literal, folder);
-  }
-
-  const noise = new Set(
-    'before after first then only until run running execute executing command read reading file dispatch dispatching call calling do done must been have has you the a an of is it to'.split(
-      ' ',
-    ),
-  );
-  const terms = (text) => [...words(text)].filter((word) => !noise.has(word));
-  // `except` holds the actions a clause may not name: the earlier part of an ordering clause cannot also be what
-  // the later part describes, whatever word the two share. Only a description is read that way; a quoted action
-  // is named on purpose, so a clause that quotes one action on both sides stays a contradiction.
-  const kindOf = (clause) => {
-    const prose = masked(clause).prose;
-    return /\bread(?:ing)?\b/i.test(prose)
-      ? 'Read'
-      : /\b(run(?:ning)?|execut(?:e|ing)|command)\b/i.test(prose)
-        ? 'Bash'
-        : /\bedit(?:ing)?\b/i.test(prose)
-          ? 'Edit'
-          : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(prose)
-            ? 'Agent'
-            : undefined;
-  };
-  const matchActions = (clause, except = []) => {
-    const kind = kindOf(clause);
-    const listed = actions.filter((action) => !kind || action.kind === kind);
-    const quoted = [...clause.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
-    if (quoted.length) {
-      const matches = (action, literal) =>
-        action.target === actionTarget(action.kind, literal, cwd, unit.folder);
-      const found = listed.filter((action) => quoted.some((literal) => matches(action, literal)));
-      return quoted.every((literal) => found.some((action) => matches(action, literal))) ? found : [];
-    }
-    const candidates = listed.filter((action) => !except.includes(action));
-    const named = terms(clause);
-    if (!named.length) return candidates.length === 1 ? candidates : [];
-    // Names come from the action's own input, including a script's basename, never from a fixture table.
-    const scores = candidates.map((action) => {
-      const labels = words(action.literal.replace(/[./_-]/g, ' '));
-      return { action, score: named.filter((word) => labels.has(word)).length };
-    });
-    const best = Math.max(0, ...scores.map(({ score }) => score));
-    const found = scores.filter(({ score }) => score === best && score > 0);
-    return found.length === 1 ? found.map(({ action }) => action) : [];
+    return action;
   };
   let unresolved = false;
-  const relate = (before, after, implicitDomain = false) => {
-    const quotes = (clause) => /`[^`]+`/.test(clause);
-    const predecessors = matchActions(before, quotes(after) ? matchActions(after) : []);
-    let successors = matchActions(after, quotes(before) ? matchActions(before) : []);
-    // A suffix "A before ..." may leave the domain operation unnamed. Its only structural binding is
-    // the sole command declared by this skill, never a current-turn request. Prefixes, named actions,
-    // and domains with zero or multiple commands remain unresolved. No lexical alias is inferred.
-    if (
-      implicitDomain &&
-      successors.length === 0 &&
-      !quotes(after) &&
-      kindOf(after) === undefined &&
-      domainCommands.length === 1
-    ) {
-      successors = domainCommands.filter((action) => !predecessors.includes(action));
-    }
-    // Two described parts that name one action do not order it: the words do not tell the parts apart.
-    const same = successors.some((action) => predecessors.includes(action));
-    if (!predecessors.length || !successors.length || (same && !(quotes(before) && quotes(after)))) {
-      unresolved = true;
-      return;
-    }
-    for (const successor of successors)
-      for (const predecessor of predecessors) successor.needs.add(predecessor);
-  };
-  const first = new Set();
-  for (const line of active) {
-    // Temporal words inside a quoted filename or command argument are data, not instructions.
-    const { prose, restore } = masked(line);
-    const relation = (before, after) => relate(restore(before), restore(after));
-    const prefix =
-      /^(?:only\s+)?(before|after)\s+(.+?)(?:[,;]\s*|\s+(?=(?:read|run|execute|dispatch|call|do)\b))(.+)$/i.exec(
-        prose,
-      );
-    const suffix = /^(.+?)\s+(?:only\s+)?(before|after|until)\s+(.+)$/i.exec(prose);
-    const sequence = /^first\s*,?\s*(.+?)(?:,\s*|\s+)then\s+(.+)$/i.exec(prose);
-    if (prefix) {
-      if (prefix[1].toLowerCase() === 'before') {
-        if (negative(prefix[3])) relation(prefix[2], prefix[3]);
-        else relation(prefix[3], prefix[2]);
-      } else if (negative(prefix[3])) unresolved = true;
-      else relation(prefix[2], prefix[3]);
-    } else if (suffix) {
-      const word = suffix[2].toLowerCase();
-      if (word === 'before' && !negative(suffix[1])) relate(restore(suffix[1]), restore(suffix[3]), true);
-      else if ((word === 'after' && negative(suffix[1])) || (word === 'until' && !negative(suffix[1])))
+  for (const gate of plan.gates) {
+    if (gate.second !== undefined) {
+      const tool = gate.before.split('~')[0];
+      const holding = (part) =>
+        actions.filter(
+          (action) => action.kind === tool && part !== undefined && action.literal.includes(part),
+        );
+      const firsts = holding(gate.first);
+      const seconds = holding(gate.second);
+      if (!firsts.length || !seconds.length || firsts.some((action) => seconds.includes(action))) {
         unresolved = true;
-      else relation(suffix[3], suffix[1]);
-    } else if (sequence) {
-      relation(sequence[1], sequence[2]);
-      for (const action of matchActions(restore(sequence[1]))) first.add(action);
-    } else if (/^first\b|\bfirst$/i.test(prose)) {
-      const named = matchActions(restore(prose.replace(/^first\s*,?\s*|\s+first$/gi, '')));
-      if (!named.length) unresolved = true;
-      for (const action of named) first.add(action);
-    } else if (/\b(before|after|first|until)\b/i.test(prose)) {
-      unresolved = true;
+        continue;
+      }
+      for (const second of seconds) for (const first of firsts) second.needs.add(first);
+      continue;
     }
+    if (gate.before === gate.after) continue;
+    const governed = actions.filter((action) => action.kind === gate.after);
+    if (!governed.length) continue;
+    const first =
+      gate.before === 'Read' && gate.path
+        ? ensure('Read', gate.path, '')
+        : gate.before === 'Bash' && gate.first
+          ? ensure('Bash', gate.first, gate.folder)
+          : undefined;
+    if (!first) {
+      unresolved = true;
+      continue;
+    }
+    for (const action of governed) if (action !== first) action.needs.add(first);
   }
-  for (const action of actions)
-    if (!first.has(action)) for (const prerequisite of first) action.needs.add(prerequisite);
-  const ordered = [];
+  const order = [];
   const remaining = new Set(actions);
   while (remaining.size) {
     const ready = actions.find(
@@ -530,22 +217,67 @@ function skillActions(unit, estate, requested, cwd) {
     );
     if (!ready) return { error: 'The skill has contradictory ordering obligations.', actions: [] };
     remaining.delete(ready);
-    ordered.push(ready);
+    order.push(ready);
   }
   return unresolved
     ? { error: 'The skill has an ordering obligation whose actions cannot be resolved.', actions: [] }
-    : { actions: ordered };
+    : { actions: order };
 }
 
-export function planStream({ ask, cwd, sessionId, env }) {
+/** The refusal a declared forbid case gives a call, if any: the same tool on a target its material matches. */
+function prohibitions(bans, cwd) {
+  return (tool, input) => {
+    const target =
+      tool === 'Bash'
+        ? commandTarget(input.command, cwd, '')
+        : tool === 'Read' || tool === 'Edit' || tool === 'Write'
+          ? input.file_path
+          : input.subagent_type;
+    if (typeof target !== 'string') return undefined;
+    for (const ban of bans) {
+      if (ban.tool !== tool) continue;
+      const rule = actionTarget(tool, ban.material, cwd, ban.folder);
+      if (target !== rule && !matchesGlob(target, rule)) continue;
+      return ban.conditional
+        ? 'The condition of an estate prohibition cannot be resolved; I stopped before the tool call.'
+        : 'An estate prohibition forbids this action; I stopped before the tool call.';
+    }
+    return undefined;
+  };
+}
+
+export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const estate = readEstate(cwd);
-  const unit = route(ask, estate);
-  const prohibited = prohibitions(estate, unit, cwd, ask);
+  // The atoms the ask sets off, and what they define; a unit whose file the copy lacks is not loaded.
+  const dispatch = loadDispatch(env);
+  const setOffBy = dispatch ? setOff(dispatch, ask) : { atoms: [], named: [] };
+  const intent = dispatch
+    ? intentsOf(dispatch, setOffBy.atoms, cwd)
+    : { units: [], reads: [], guards: [], replies: [] };
+  const loaded = intent.units
+    .map((entry) =>
+      (entry.kind === 'skill' ? estate.skills : estate.helpers).find((u) => u.name === entry.name),
+    )
+    .filter(Boolean);
+  const unit = loaded[0];
+  // What the loaded skill holds, as the map declares it; a helper's own acts are the helper's, not this agent's.
+  const plan =
+    unit?.kind === 'skill' && dispatch
+      ? unitPlan(dispatch, { kind: 'skill', name: unit.name }, cwd)
+      : { actions: [], gates: [], bans: [] };
+  const prohibited = prohibitions(plan.bans, cwd);
   const out = [];
   let id = 0;
   let blocked = false;
-  const text = (value) =>
+  let lastReply = '';
+  const text = (value, act, part = 'reply') => {
+    lastReply = value;
     out.push({
+      replyAct: {
+        id: act,
+        evidence: { type: 'text_segment', part, index: 0 },
+        source: { kind: 'adapter', name: 'driftbench-fictional-agent' },
+      },
       type: 'assistant',
       message: {
         id: `msg_agent_${++id}`,
@@ -557,6 +289,7 @@ export function planStream({ ask, cwd, sessionId, env }) {
       },
       parent_tool_use_id: null,
     });
+  };
 
   /** Runs the hooks of an event for a tool call; true when one blocks it (exit 2 on a PreToolUse). */
   const hooks = (event, tool, payload) => {
@@ -600,14 +333,20 @@ export function planStream({ ask, cwd, sessionId, env }) {
   };
 
   /** A tool call as the runtime makes it: denied by a permission, blocked by a hook, else done. */
-  const call = (tool, input, perform, literal) => {
-    const prohibition = prohibited(tool, input, literal);
+  const call = (tool, input, perform, attempt = false) => {
+    // A provoked guard is an attempt the guard must catch, not one the agent's own reading of the rules declines.
+    const prohibition = attempt ? undefined : prohibited(tool, input);
     if (prohibition) {
       blocked = true;
-      text(prohibition);
+      text(prohibition, 'refuse');
       return undefined;
     }
-    if (denied(estate.settings, tool, input)) return undefined;
+    // The agent does not make a call the settings deny. A provoked attempt is made: the runtime runs its PreToolUse
+    // hooks first, a hook that exits 2 stops the call before the permission rules are evaluated, and a deny rule
+    // still blocks a call the hooks let through (Claude Code docs, Configure permissions, "Extend permissions with
+    // hooks": https://code.claude.com/docs/en/permissions#extend-permissions-with-hooks).
+    const refused = denied(estate.settings, tool, input);
+    if (refused && !attempt) return undefined;
     const useId = `toolu_agent_${++id}`;
     out.push({
       type: 'assistant',
@@ -622,7 +361,11 @@ export function planStream({ ask, cwd, sessionId, env }) {
       parent_tool_use_id: null,
     });
     const stopped = hooks('PreToolUse', tool, { tool_name: tool, tool_input: input });
-    const result = stopped ? { error: true, content: 'Blocked by a hook.' } : perform();
+    const result = stopped
+      ? { error: true, content: 'Blocked by a hook.' }
+      : refused
+        ? { error: true, content: 'Denied by a permission rule of the settings.' }
+        : perform();
     out.push({
       type: 'user',
       message: {
@@ -638,89 +381,130 @@ export function planStream({ ask, cwd, sessionId, env }) {
       },
       parent_tool_use_id: null,
     });
-    if (!stopped)
+    if (!stopped && !refused)
       hooks('PostToolUse', tool, {
         tool_name: tool,
         tool_input: input,
         tool_response: { stdout: result.content, stderr: '', interrupted: false },
       });
-    if (stopped) blocked = true;
-    return result;
-  };
-
-  const editFile = (target, folder) => {
-    const readFirst = estate.standing
-      .split('\n')
-      .some(
-        (line) =>
-          /\bread\b[^.]*\bbefore\b[^.]*\b(edit|chang|modif|writ)/i.test(line) &&
-          !/\bnever read\b/i.test(line),
-      );
-    const path = fileTarget(target, cwd, folder);
-    if (readFirst) {
-      const result = call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }), target);
-      if (!result || result.error) return result;
-    }
-    const before = read(path) ?? '';
-    const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
-    const result = call(
-      'Edit',
-      { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added },
-      () => ({ content: `The file ${target} has been updated.` }),
-      target,
-    );
-    if (result && !result.error)
-      out.push({ fake: 'write', path: relative(cwd, path), content: `${before}${added}` });
+    if (stopped || refused) blocked = true;
     return result;
   };
 
   const step = (name) => out.push({ fake: 'step', step: name });
   const { order, anytime } = walk(estate.steps);
 
-  hooks('UserPromptSubmit', undefined, { prompt: ask });
-  // An ask to explain without acting, or to say what can be done: a reply, nothing else.
-  if (
-    /^(?:no need to do anything|what kinds of things|what does\b|what would it mean)/i.test(ask) ||
-    /\bjust tell me\b/i.test(ask)
-  ) {
-    text('Here is my answer; I changed nothing.');
-    hooks('Stop', undefined, { stop_hook_active: false });
+  const declared = replyActOf(intent.replies);
+  let acted = false;
+  const sayings = {
+    answer: 'Here is my answer; I changed nothing.',
+    report: 'Done. Here is what I did, in short.',
+    clarify: 'Before I go on I need one thing from you. Which one do you mean?',
+    refuse: 'I will not do that, and I changed nothing.',
+    draft: 'Here is a draft for you to review. I have sent nothing.',
+    acknowledge: 'Stopped. Everything is paused.',
+  };
+  /** The closing reply: the act the atoms set off declare, else what the run did decides. */
+  const close = (note, padTo = 0) => {
+    const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
+    let body = note ?? sayings[act];
+    // A guard on the length of a reply is provoked by a reply longer than its limit, made of the estate's own text.
+    for (let at = 0; body.length <= padTo; at++) {
+      const unitText = estate.skills[at % Math.max(1, estate.skills.length)];
+      body += ` ${unitText ? `${unitText.name}: ${unitText.description}` : 'More detail.'}`;
+    }
+    text(body, act, declared?.id === act ? declared.part : 'reply');
+    hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
     return { records: out, blocked };
+  };
+
+  hooks('UserPromptSubmit', undefined, { prompt: ask });
+  // After a compaction the agent reads again what the hazard atoms of the map name, whatever it is asked next.
+  if (compacted && dispatch) {
+    for (const path of recoveryReads(dispatch, cwd)) {
+      const target = fileTarget(path, cwd, '');
+      acted = true;
+      call('Read', { file_path: target }, () => ({ content: read(target) ?? '' }));
+    }
   }
+  // An ask that concerns no atom of the map is answered plainly: no step is walked.
+  if (setOffBy.atoms.length === 0) return close();
 
   if (order[0]) step(order[0]);
-  if (unit?.kind === 'skill') {
-    call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
-  } else if (unit?.kind === 'helper') {
-    call('Agent', { subagent_type: unit.name, description: `Brief for ${unit.name}`, prompt: ask }, () => ({
-      content: '{"status": "done"}',
-    }));
-  }
-  const planUnit = unit?.kind === 'skill' ? unit : { body: '', folder: '' };
-  const requested = requestedActions(ask).filter(
-    (action) => !(unit?.kind === 'helper' && action.kind === 'Agent' && action.literal === unit.name),
-  );
-  const plan = skillActions(planUnit, estate, requested, cwd);
-  if (plan.error) {
-    text(plan.error);
+  const load = (entry) => {
+    acted = true;
+    if (entry.kind === 'skill') {
+      call('Skill', { skill: entry.name }, () => ({ content: `Launching skill: ${entry.name}` }));
+    } else {
+      call(
+        'Agent',
+        { subagent_type: entry.name, description: `Brief for ${entry.name}`, prompt: ask },
+        () => ({
+          content: '{"status": "done"}',
+        }),
+      );
+    }
+  };
+  const steps = ordered(plan, cwd);
+  // The unit is loaded before its obligations are read: a skill whose ordering cannot be resolved still loads,
+  // then the run stops on the error.
+  if (unit) load(unit);
+  if (steps.error) {
+    text(steps.error);
     hooks('Stop', undefined, { stop_hook_active: false });
-    return { records: out, blocked: true, error: plan.error };
+    return { records: out, blocked: true, error: steps.error };
   }
-  for (const action of plan.actions) {
+  // The other units the atoms set off, and the files their references name.
+  for (const entry of loaded.slice(1)) load(entry);
+  for (const path of intent.reads) {
+    const target = fileTarget(path, cwd, '');
+    if (
+      steps.actions.some(
+        (action) => action.kind === 'Read' && fileTarget(action.literal, cwd, action.folder) === target,
+      )
+    )
+      continue;
+    acted = true;
+    call('Read', { file_path: target }, () => ({ content: read(target) ?? '' }));
+  }
+  // A guard is provoked by the event its settings name, so that its real script decides.
+  let longerThan = 0;
+  for (const guard of intent.guards) {
+    const matcher = matcherOf(estate.settings, guard);
+    const provoked = provocation(dispatch, guard, matcher, covers);
+    if (provoked === undefined) continue;
+    if (provoked.longerThan !== undefined) {
+      longerThan = Math.max(longerThan, provoked.longerThan);
+    } else if (provoked.tool === 'Bash') {
+      acted = true;
+      call(
+        'Bash',
+        { command: provoked.material, description: 'Run the named command' },
+        () => ({ content: '' }),
+        true,
+      );
+    } else {
+      acted = true;
+      const path = fileTarget(provoked.material, cwd, '');
+      call(
+        provoked.tool,
+        { file_path: path, old_string: '', new_string: '' },
+        () => ({ content: `The file ${provoked.material} has been updated.` }),
+        true,
+      );
+    }
+  }
+  for (const action of steps.actions) {
     let result;
+    acted = true;
     if (action.kind === 'Read') {
       const path = fileTarget(action.literal, cwd, action.folder);
-      result = call(
-        'Read',
-        { file_path: path },
-        () => {
-          const content = read(path);
-          return content === undefined
-            ? { error: true, content: `File not found: ${action.literal}` }
-            : { content };
-        },
-        action.literal,
-      );
+      result = call('Read', { file_path: path }, () => {
+        const content = read(path);
+        return content === undefined
+          ? { error: true, content: `File not found: ${action.literal}` }
+          : { content };
+      });
     } else if (action.kind === 'Bash') {
       // Resolve commands against the skill folder; omit unfilled placeholders as before.
       const command = action.literal
@@ -728,60 +512,38 @@ export function planStream({ ask, cwd, sessionId, env }) {
         .filter((token) => !/^<.*>$/.test(token))
         .map((token) => (existsSync(join(cwd, action.folder, token)) ? join(action.folder, token) : token))
         .join(' ');
-      result = call(
-        'Bash',
-        { command, description: 'Run the named command' },
-        () => {
-          const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
-          return {
-            content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
-            error: ran.status !== 0,
-          };
-        },
-        action.literal,
-      );
-    } else if (action.kind === 'Edit') {
-      result = editFile(action.literal, action.folder);
+      result = call('Bash', { command, description: 'Run the named command' }, () => {
+        const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+        return {
+          content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+          error: ran.status !== 0,
+        };
+      });
     } else {
       result = call(
         'Agent',
         { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
         () => ({ content: '{"status": "done"}' }),
-        action.literal,
       );
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
     if (!result || result.error) {
-      text('An action could not complete; I stopped before continuing.');
-      hooks('Stop', undefined, { stop_hook_active: false });
+      text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
+      hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }
   }
   const rest = order.slice(1);
   if (rest[0]) step(rest[0]);
 
-  // Preserve the existing implicit file-edit request only when no explicit action is named.
-  const target = requestedActions(ask).length
-    ? undefined
-    : ask
-        .split(/\s+/)
-        .map((token) => token.replace(/[.,;:!?]+$/, ''))
-        .find((token) => token.includes('/') && !token.startsWith('.claude') && isFile(join(cwd, token)));
-  if (target) editFile(target, '');
-
   for (const name of rest.slice(1)) step(name);
   for (const name of anytime) step(name);
-  text(
-    blocked ? 'A guard blocked part of the work; I stopped there.' : 'Done. Here is what I did, in short.',
-  );
-  hooks('Stop', undefined, { stop_hook_active: false });
-  return { records: out, blocked };
+  return close(undefined, longerThan);
 }
 
-function isFile(path) {
-  try {
-    return statSync(path).isFile();
-  } catch {
-    return false;
-  }
+/** The matcher the settings put on the hook that runs a guard's command: how the runtime scopes the guard. */
+function matcherOf(settings, guard) {
+  for (const group of settings?.hooks?.[guard.fields?.event] ?? [])
+    for (const hook of group?.hooks ?? []) if (hook?.command === guard.fields?.command) return group.matcher;
+  return undefined;
 }

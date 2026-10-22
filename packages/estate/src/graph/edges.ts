@@ -1,4 +1,4 @@
-import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
+import { guardName, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -8,9 +8,10 @@ import type { Atom, Edge } from '../schema';
  * is a node of its own, named `event.<name>`, since no file states an event as an atom.
  *
  *   route      a route atom to the skill or helper it loads
- *   reference  a skill or helper to a file its body names (a reference atom)
+ *   reference  a skill or helper to a reference atom in a file it owns: its own file and, for a skill, the
+ *              files of its folder that its citations lead to. Never to what a shared file cites in turn.
  *   script     a skill to a script it ships
- *   dispatch   a skill or helper to a helper its body names
+ *   dispatch   a skill or helper to a helper its body tells the reader to hand work to (a `dispatches` link)
  *   enforces   a guard to a rule it checks
  *   event      a guard to the event it runs on
  *   allows     a skill or helper to a tool or skill it may use
@@ -26,6 +27,12 @@ import type { Atom, Edge } from '../schema';
  *      the other, compared without markup, case or final punctuation.
  * Only instruction, gate and register atoms are enforced. `enforcement` on each rule lists its guards.
  */
+
+/** The folder a unit owns, with its closing slash: a skill's folder. A helper is one file and owns none. */
+export function ownFolder(unit: Atom): string | undefined {
+  const folder = unit.kind === 'skill' ? unit.fields?.folder : undefined;
+  return typeof folder === 'string' && folder !== '' ? `${folder.replace(/\/+$/, '')}/` : undefined;
+}
 
 export const EVENT_PREFIX = 'event.';
 const RULE_KINDS = new Set(['instruction', 'gate', 'register']);
@@ -67,9 +74,32 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (target) add(route.id, target.id, 'route');
   }
 
+  // A unit stores one reference edge for each citation in a file it owns: its definition file, and the files
+  // of its own folder that those citations lead to (a skill folder holds the skill's bundled files). A file
+  // outside the folder, shared by other units, is read by whoever cites it and owned by none: the edges never
+  // carry what a cited file cites in turn. What a unit reaches is computed when asked (`reach.ts`), so a
+  // document cited by every unit costs one edge for each citation, not one for each of its own citations.
+  const referencesByFile = new Map<string, Atom[]>();
   for (const reference of byKind('reference')) {
-    const unit = unitOfFile.get(reference.provenance.file);
-    if (unit) add(unit.id, reference.id, 'reference');
+    const file = reference.provenance.file;
+    const references = referencesByFile.get(file) ?? [];
+    references.push(reference);
+    referencesByFile.set(file, references);
+  }
+  for (const unit of unitOfFile.values()) {
+    const own = ownFolder(unit);
+    const pending = [unit.provenance.file];
+    const visited = new Set<string>();
+    for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
+      if (visited.has(file)) continue;
+      visited.add(file);
+      for (const reference of referencesByFile.get(file) ?? []) {
+        add(unit.id, reference.id, 'reference');
+        const target = reference.fields?.path;
+        if (typeof target === 'string' && own !== undefined && target.startsWith(own) && files.has(target))
+          pending.push(target);
+      }
+    }
   }
 
   for (const script of byKind('script')) {
@@ -77,17 +107,16 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (unit) add(unit.id, script.id, 'script');
   }
 
-  const helpers = byKind('subagent');
-  for (const chunk of raw.prose) {
-    const unit = unitOfFile.get(chunk.file);
-    if (!unit) continue;
-    const visible = chunkLines(chunk, files.get(chunk.file))
-      .map((line) => line.text)
-      .join('\n');
-    for (const helper of helpers) {
-      const name = String(helper.fields?.name ?? '');
-      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
-        add(unit.id, helper.id, 'dispatch');
+  // A unit that tells the reader to hand work to a helper carries a `dispatches` link to it; the owner of
+  // the file the unit sits in dispatches.
+  const helperIds = new Set(byKind('subagent').map((atom) => atom.id));
+  for (const atom of atoms) {
+    const owner = unitOfFile.get(atom.provenance.file);
+    const links = Array.isArray(atom.fields?.labelLinks) ? (atom.fields.labelLinks as unknown[]) : [];
+    if (!owner) continue;
+    for (const link of links) {
+      const { kind, atom: to } = link as { kind?: unknown; atom?: unknown };
+      if (kind === 'dispatches' && typeof to === 'string' && helperIds.has(to)) add(owner.id, to, 'dispatch');
     }
   }
 
@@ -121,11 +150,13 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
 
   const rules = atoms.filter((atom) => RULE_KINDS.has(atom.kind));
   const labels = new Map(rules.map((rule) => [rule.id, labelOf(rule, files)]));
-  const withLabel = (label: string) => rules.filter((rule) => labels.get(rule.id) === label);
+  const withLabel = (label: string) =>
+    rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
-      const label = `${match[1]}${match[2]}`;
+    const quote = rule.provenance.quote;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/gi)) {
+      const label = `${match[1]}${match[2]}`.toUpperCase();
       if (label === own) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
@@ -142,7 +173,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     const row = decl ? registryRowOf(decl, raw.registry) : undefined;
     for (const entry of row?.enforces ?? []) {
       if ('id' in entry) for (const rule of withLabel(entry.id)) take(rule, 'registry');
-      else for (const rule of rules) if (holds(rule.provenance.quote, entry.quote)) take(rule, 'registry');
+      else for (const rule of rules) if (holds(ruleWords(rule), entry.quote)) take(rule, 'registry');
     }
     const script = typeof guard.fields?.script === 'string' ? files.get(guard.fields.script) : undefined;
     if (script) {
@@ -150,7 +181,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (holds(ruleWords(rule), literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -158,6 +189,15 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   }
 
   return { edges: sortEdges(edges), enforces };
+}
+
+/**
+ * The words of a rule: its quote without the label that opens its line (`**R5.**`, `R#5 —`), which a guard's
+ * message does not repeat. The label is read by its shape, as `labelOfLine` reads it.
+ */
+function ruleWords(rule: Atom): string {
+  const label = /^\s*(?:[-*]\s+)?(?:\*\*)?[A-Z]{1,3}#?\d{1,3}\.?(?:\*\*)?[.:]?\s+/i;
+  return rule.provenance.quote.replace(label, '');
 }
 
 /** True when two passages say the same words, or one holds the other, compared without markup. */
@@ -172,11 +212,12 @@ function holds(quote: string, passage: string): boolean {
 export function declaredLabels(text: string): string[] {
   const found: string[] = [];
   for (const line of linesOf(text)) {
-    const match = /\b[Ee]nforces?\b\s*:?\s*([A-Z]{1,3}\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}\d{1,3})*)/.exec(
+    const match = /\benforces?\b\s*:?\s*([A-Z]{1,3}#?\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}#?\d{1,3})*)/i.exec(
       line.raw,
     );
     if (!match?.[1]) continue;
-    for (const label of match[1].matchAll(/[A-Z]{1,3}\d{1,3}/g)) found.push(label[0]);
+    for (const label of match[1].matchAll(/[A-Z]{1,3}#?\d{1,3}/gi))
+      found.push(label[0].replace('#', '').toUpperCase());
   }
   return found;
 }
@@ -184,7 +225,11 @@ export function declaredLabels(text: string): string[] {
 /** Rule ids a guard source cites in the `R#23` form, anywhere in its text, as labels (`R23`). */
 export function citedLabels(text: string): string[] {
   return [
-    ...new Set([...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/g)].map((match) => `${match[1]}${match[2]}`)),
+    ...new Set(
+      [...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/gi)].map((match) =>
+        `${match[1]}${match[2]}`.toUpperCase(),
+      ),
+    ),
   ];
 }
 

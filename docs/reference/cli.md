@@ -1164,8 +1164,8 @@ Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id:
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -1234,47 +1234,49 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
   Atoms per kind:
-    gate         4
-    route       13
+    route        7
     skill        4
-    reference    9
     script       2
     subagent     3
     guard        6
     tool        12
     setting      4
     stage        5
-    hazard       2
     invariant    4
   No model call: structured atoms only (--no-model).
+  Prose: 15 chunks, 6961 characters (standing 1, memory 2, skill bodies 4, skill files 5, helper bodies 3).
+  Unanswered prose chunks (no model call): 15, 6961 characters.
+    CLAUDE.md  2782 characters
+    .claude/agents/inbox-triager.md  169 characters
+    .claude/agents/ledger-auditor.md  519 characters
+    ...
   Refused: none.
-  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 3 of 4 rules have no guard.
-    gate.standing.read-git-status-before-commit-to
-    gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-writing
+  Ignored: none.
+  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
+  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
+  Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 122 atoms.
+examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
-  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:13 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
+  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  51 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
+  EXTERNAL    0 named paths outside the estate (information).
 6 findings.
 ```
 
 ```
 $ pnpm -s driftbench estate plan approve examples/estates/fixture/plan.yaml
-examples/estates/fixture/plan.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.
+examples/estates/fixture/plan.yaml: 1599 rows, 1599 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 ```
 
@@ -1462,7 +1464,7 @@ $ pnpm driftbench estate run <route_positive and tool_denied specs> --estate exa
     failing: block 0: forbidden.WebFetch
 2 specs run live on a stand-in: 1 pass, 1 fail. Cost 0.0000 USD over 2 runs that report one. Campaign estate-run-76badd446d95.
 (exit 1)
-$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to <dir>
+$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to <dir>
   before: - **R3.** Read a file before you edit it.
   after:  (the line is gone)
   map be2e7a0919cb -> 046d83f242ed

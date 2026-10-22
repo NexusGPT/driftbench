@@ -165,7 +165,15 @@ const written = [
 let lastText = '';
 let turns = 0;
 const usage = { input_tokens: 0, output_tokens: 0 };
-const planned = manifestPath ? undefined : planStream({ ask, cwd, sessionId, env });
+const planned = manifestPath
+  ? undefined
+  : planStream({
+      ask,
+      cwd,
+      sessionId,
+      env,
+      compacted: previous.some((record) => record.type === 'system' && record.subtype === 'compact_boundary'),
+    });
 const records = manifestPath
   ? readFileSync(resolve(dirname(manifestPath), streamFile), 'utf8')
       .split('\n')
@@ -257,6 +265,16 @@ print({
   subtype: planned?.error ? 'error_during_execution' : 'success',
   is_error: planned?.error !== undefined,
   result: planned?.error ?? lastText,
+  // An obligation the stand-in cannot resolve is no act of the agent: it ran no turn, and says why.
+  ...(planned?.error
+    ? {
+        not_run: {
+          check: 'skill obligation',
+          expected: 'an order of the skill actions the stand-in can resolve',
+          got: planned.error,
+        },
+      }
+    : {}),
   num_turns: turns,
   duration_ms: 10 * tick,
   session_id: sessionId,

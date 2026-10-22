@@ -26,7 +26,7 @@ export { benchFamily } from './bench';
 export { blindFamilies } from './blind/index';
 export { determinismFamily } from './determinism';
 export * from './frame';
-export { coverageFamily, holdsTask, readsFamily, taskFamily } from './genquality';
+export { coverageFamily, readsFamily, taskFamily } from './genquality';
 export { killFamily } from './kill';
 export { maintainFixtureFamily } from './maintain-fixture';
 export { statsFamily } from './stats';

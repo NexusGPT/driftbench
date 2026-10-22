@@ -29,12 +29,21 @@ export const FOLDERS = [
   },
   // The pointer reader's own cassette of the settings example: each recorded answer under a 64-hex request key.
   { path: /^examples\/estates\/fixture\/settings-cassette\.jsonl$/, fields: ['key'], min: 64 },
+  // The pointer reader's cassettes of the Northwind estates and the reader cases: a 64-hex request key per answer.
+  {
+    path: /^examples\/estates\/(?:fixture|fixture-v2|reader-cases)\/cassette\.jsonl$/,
+    fields: ['key'],
+    min: 64,
+  },
 ];
 export const PATHSPECS = [
   'examples/all-peers-public/cells/calls-parts',
   'examples/ledger-verify',
   'examples/judge-benchmarks/experiments/ledger-rb',
   'examples/estates/fixture/settings-cassette.jsonl',
+  'examples/estates/fixture/cassette.jsonl',
+  'examples/estates/fixture-v2/cassette.jsonl',
+  'examples/estates/reader-cases/cassette.jsonl',
 ];
 export const BEGIN =
   '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';

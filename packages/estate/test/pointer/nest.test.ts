@@ -62,7 +62,7 @@ describe('a span kind nested in another', () => {
     ]);
   });
 
-  it('refuses the whole entry, with its own reason, for each way a nested span is wrong', () => {
+  it('drops the wrong span, with its own reason, and keeps the label, for each way a nested span is wrong', () => {
     const cases: Array<[string, unknown[], RegExp]> = [
       [
         'no span of the parent kind',
@@ -105,9 +105,10 @@ describe('a span kind nested in another', () => {
     ];
     for (const [name, spans, reason] of cases) {
       const checked = check(spans);
-      expect(checked.refusals, name).toHaveLength(1);
-      expect(checked.refusals[0], name).toMatch(reason);
-      expect(checked.accepted.size, name).toBe(0);
+      expect(checked.refusals, name).toEqual([]);
+      expect(checked.dropped, name).toHaveLength(1);
+      expect(checked.dropped[0], name).toMatch(reason);
+      expect(checked.accepted.size, name).toBe(1);
     }
   });
 
