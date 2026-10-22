@@ -178,6 +178,23 @@ describe('sentence spans', () => {
     ]);
   });
 
+  it('does not split before an all lower-case word, a name that starts lower case with a capital inside does', () => {
+    expect(split('Smith et al. apply the rule to every crate.')).toEqual([
+      'Smith et al. apply the rule to every crate.',
+    ]);
+    expect(split('She said "lock up now." and then she left.')).toEqual([
+      'She said "lock up now." and then she left.',
+    ]);
+    expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
+      'We bake rye daily.',
+      'iOS bakers prefer wheat.',
+    ]);
+    expect(split('Order it online. eBay lists the price.')).toEqual([
+      'Order it online.',
+      'eBay lists the price.',
+    ]);
+  });
+
   it('keeps a boundary when the next sentence starts in lower case', () => {
     expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
       'We bake rye daily.',

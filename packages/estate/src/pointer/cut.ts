@@ -64,11 +64,14 @@ function mask(text: string): string {
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
-    .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll})/gu, (match, stop: string, letter: string) => {
-      // The segmenter never breaks before a lower-case letter. Raising the letter, when it keeps the length,
-      // lets it report the boundary so that `shouldMerge` judges it by the text before the stop.
-      const raised = letter.toUpperCase();
-      return raised.length === letter.length ? stop + raised : match;
+    .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll}[^\s]*)/gu, (match, stop: string, word: string) => {
+      // The segmenter never breaks before a lower-case letter. A word that starts lower case and holds a capital
+      // inside (iOS, eBay) is a name, and a sentence may start with it: raise its first letter so the segmenter
+      // reports the boundary. An all lower-case word continues the sentence, and the segmenter's own decision stands.
+      const first = word.slice(0, 1);
+      const raised = first.toUpperCase();
+      const named = /\p{Lu}/u.test(word.slice(1));
+      return named && raised.length === first.length ? stop + raised + word.slice(1) : match;
     });
 }
 
