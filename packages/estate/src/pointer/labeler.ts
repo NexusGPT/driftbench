@@ -38,6 +38,8 @@ export type Opinions = {
   refusals: string[];
   /** The refusals that make the whole answer invalid (a label or unit that does not exist): the answer is asked again. */
   invalid?: string[];
+  /** The same refusals as codes, with no word the model chose: what a cassette keeps. */
+  invalidCodes?: string[];
   dropped?: string[];
 };
 

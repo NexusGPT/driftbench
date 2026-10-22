@@ -221,7 +221,13 @@ export function denseOpinions(
       ...(accepted?.links ? { links: accepted.links } : {}),
     });
   }
-  return { byUnit, refusals: checked.refusals, invalid: checked.invalid, dropped: checked.dropped };
+  return {
+    byUnit,
+    refusals: checked.refusals,
+    invalid: checked.invalid,
+    invalidCodes: checked.invalidCodes,
+    dropped: checked.dropped,
+  };
 }
 
 export type AnthropicLabelerOptions = HttpOptions & {
