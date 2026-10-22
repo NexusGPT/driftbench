@@ -216,6 +216,10 @@ export function calibrationFactor(
 }
 
 /** The CPU time of a run on the reference machine: raw time times the calibration factor. */
-export function normalisedMs(rawMs: number, calibrationMs: number, referenceMs = CALIBRATION_REFERENCE_MS): number {
+export function normalisedMs(
+  rawMs: number,
+  calibrationMs: number,
+  referenceMs = CALIBRATION_REFERENCE_MS,
+): number {
   return Math.round(rawMs * calibrationFactor(calibrationMs, referenceMs).factor);
 }
