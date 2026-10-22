@@ -17,24 +17,27 @@ vi.setConfig({ testTimeout: 900_000, hookTimeout: 900_000 });
 const ROOT = findRoot(process.cwd());
 const ID = 'roadmap-purity.weightedMean';
 const item = statsBank(ROOT).find((each) => each.id === ID);
+// The same method, checked for its value only: no purity check, so the frame adds no rule.
+const PLAIN = 'roadmap.weightedMean.1';
+const plain = statsBank(ROOT).find((each) => each.id === PLAIN);
 mkdirSync(join(ROOT, 'node_modules', '.cache'), { recursive: true });
 const work = mkdtempSync(join(ROOT, 'node_modules', '.cache', 'frame-purity-'));
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 
 /** The verdicts of the item on seeds 1 to 3: in this process (the direct path) and through the bank child (the frame). */
-async function verdicts(kind: Purity): Promise<{ direct: boolean[]; framed: boolean[] }> {
-  if (!item) throw new Error(`no bank item ${ID}`);
+async function verdicts(kind: Purity, target = item): Promise<{ direct: boolean[]; framed: boolean[] }> {
+  if (!target) throw new Error('no bank item');
   const index = purityPackage(ROOT, kind, join(work, kind));
   const impl = (await import(index)) as never;
   const direct: boolean[] = [];
   const framed: boolean[] = [];
   const before = process.env.DRIFTBENCH_STATS_IMPL;
   for (const seed of [1, 2, 3]) {
-    const d = await runItem(item, seed, ROOT, impl);
+    const d = await runItem(target, seed, ROOT, impl);
     direct.push(d.pass);
     process.env.DRIFTBENCH_STATS_IMPL = index;
     try {
-      const r = (await runIsolated([item], seed, ROOT)).get(ID);
+      const r = (await runIsolated([target], seed, ROOT)).get(target.id);
 
       framed.push(r?.pass === true);
     } finally {
@@ -58,5 +61,14 @@ describe(`the purity item ${ID} under the frame`, () => {
 
   it('fails a method that writes to its argument and puts the value back', async () => {
     expect((await verdicts('writes-and-restores')).framed).toEqual([false, false, false]);
+  });
+
+  it('passes the same sorting method on an item with no purity check, as it does directly', async () => {
+    expect(plain?.purity).toBeUndefined();
+    expect(item?.purity).toBe(true);
+    expect(await verdicts('sorts-in-place', plain)).toEqual({
+      direct: [true, true, true],
+      framed: [true, true, true],
+    });
   });
 });

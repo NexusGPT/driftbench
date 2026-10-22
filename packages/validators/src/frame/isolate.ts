@@ -136,6 +136,12 @@ export type Frame<T> = {
   cpuSince(from: number): number;
   /** The first divergence among the calls from the tape position `from` on, or undefined. */
   divergenceSince(from: number): string | undefined;
+  /**
+   * From now on, until switched off, every call is strict: its arguments reach the product frozen at every depth, in
+   * every run, and a digest of them before and after the call reports a write the freeze cannot stop. For an item that
+   * declares a purity check; the frame adds no rule to any other call.
+   */
+  strictArguments(on: boolean): void;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
@@ -479,12 +485,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       taint ??= message;
     }
   };
+  let strict = false;
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent });
+    relay.port.postMessage({ call: name, args: sent, freeze: strict });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
@@ -524,13 +531,26 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
           message: `${name}() returned a result that is a Proxy, or holds a Proxy or an accessor property (a getter or a setter) (${describeRun(plan as TwinPlan)}): an invalid result, since each runs the product's own code on every read`,
         });
     }
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if ((each as { written?: boolean }).written)
+        aliased.push({
+          at: tape.length,
+          message: `${name}() changed an argument it was given (${describeRun(plan as TwinPlan)}): the arguments of this call must stay as they were`,
+        });
+    }
     const {
       moved: _moved,
       invalid: _invalid,
+      written: _written,
       ...answer
     } = a as Outcome & {
       moved?: string[];
       invalid?: boolean;
+      written?: boolean;
     };
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
@@ -557,7 +577,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if (plain) {
       // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
+      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
       recorded.push({
         call: name,
         entry,
@@ -610,6 +630,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return first;
     },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
+    strictArguments: (on) => {
+      strict = on;
+    },
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
     aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
     tainted: () => {

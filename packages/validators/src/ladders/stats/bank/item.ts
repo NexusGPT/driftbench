@@ -47,6 +47,11 @@ export type BankItem = {
   cause?: string;
   /** How long the item may run before the validator stops it; DEFAULT_ITEM_BUDGET_MS when absent. */
   budgetMs?: number;
+  /**
+   * The item checks that the package leaves its arguments as it found them. Under the frame its calls are strict:
+   * the arguments arrive frozen and a write to one fails the item (docs/validators.md section 12.9, "Written inputs").
+   */
+  purity?: boolean;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;
 };
 

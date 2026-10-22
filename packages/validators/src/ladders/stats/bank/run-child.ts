@@ -53,6 +53,7 @@ async function main(args: readonly string[]): Promise<void> {
     const ran = await runItem(item, seed, root as string, s, {
       mark: () => frame.position(),
       aliased: (since) => frame.aliasSince(since),
+      strict: (on) => frame.strictArguments(on),
     });
     // A call whose runs answered differently makes the item fail whatever the item concluded.
     const split = frame.divergenceSince(mark);

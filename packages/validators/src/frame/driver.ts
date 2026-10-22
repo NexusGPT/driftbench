@@ -363,11 +363,17 @@ if («setup».command) {
         : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
-      const «args» = «deepFreeze»(«decode»(«request».args));
+      // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
+      // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set).
+      const «strict» = «request».freeze === true;
+      const «decoded» = «decode»(«request».args);
+      const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
+      const «argsBefore» = «strict» ? «fingerprint»(«args») : undefined;
       const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
       const «used» = «cpuNow»(«before»);
       const «ret» = «encode»(«result»);
+      const «written» = «strict» && «fingerprint»(«args») !== «argsBefore»;
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -390,7 +396,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}) });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }
@@ -478,7 +484,7 @@ export function plainBatchEntry(
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('deepFreeze')}(${name('decode')}(${each}.args)))) };`,
+    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('decode')}(${each}.args)) : ${name('decode')}(${each}.args)))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,
@@ -543,7 +549,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
   const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });
