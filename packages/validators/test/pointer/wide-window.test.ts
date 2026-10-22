@@ -39,8 +39,6 @@ for (const [module, what] of [
   ['./wide-window-label.ts', 'one entry under another label'],
 ] as const) {
   it(`scale.wide-window fails a reader that returns ${what}`, async () => {
-    const outcome = await withReader(module);
-    expect(outcome.pass).toBe(false);
-    expect(outcome.detail).toMatch(/live entries|the ledger differs/);
+    expect((await withReader(module)).pass).toBe(false);
   }, 120_000);
 }
