@@ -225,6 +225,22 @@ export const scaleRuns: Record<string, Run> = {
           : `${o.units} units for ${String(o.extra.expected)} sentences`,
       { ms: 10_000 },
     ),
+  'wide-window': (ctx) =>
+    viaChild(
+      ctx,
+      { op: 'wide-window', first: 300_000, second: 150_000 },
+      (o) => {
+        if (Number(o.extra.widest) <= 10_000 || Number(o.extra.windows) < 2)
+          return `positive witness: ${String(o.extra.windows)} windows, the widest of ${String(o.extra.widest)} units; expected two, one over 10,000`;
+        if (o.calls[0] !== o.extra.windows)
+          return `${o.calls[0]} labeller calls for ${String(o.extra.windows)} windows: a whole-window range was refused and asked again`;
+        if (o.extra.failed !== 0) return `${String(o.extra.failed)} windows failed`;
+        if (o.live[0] !== o.extra.expectedLive)
+          return `${String(o.live[0])} live entries, expected ${String(o.extra.expectedLive)}`;
+        return o.extra.mismatch === null ? undefined : `the ledger differs: ${String(o.extra.mismatch)}`;
+      },
+      { ms: 5000 },
+    ),
   'wide-table': (ctx) =>
     viaChild(
       ctx,

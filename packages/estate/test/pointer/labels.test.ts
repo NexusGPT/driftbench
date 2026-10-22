@@ -236,6 +236,34 @@ describe('checking an answer', () => {
     ]);
   });
 
+  it('accepts a range as wide as a window of more than 10,000 units, and refuses one past its last line', () => {
+    // A file under the character budget is one window, so a window can hold far more than 10,000 units; a range
+    // is bounded by the window it is answered for, never by a fixed count (docs/estate-pointer-reader.md, Validation).
+    const wide = {
+      ...window,
+      units: Array.from({ length: 12_293 }, (_, at) => ({ n: at + 1, text: `unit ${at + 1}`, index: at })),
+    };
+    const whole = checkAnswer(counter, wide, [{ units: '1-12293', label: 'greeting' }]);
+    expect(whole.invalid).toEqual([]);
+    expect(whole.accepted.size).toBe(12_293);
+    const past = checkAnswer(counter, wide, [{ units: '1-12294', label: 'greeting' }]);
+    expect(past.invalid).toEqual(['notes.md#1: "1-12294" leaves the window']);
+    expect(past.accepted.size).toBe(0);
+    // The same refusal as a short range that leaves a short window.
+    expect(checkAnswer(counter, window, [{ units: '3-5', label: 'greeting' }]).invalid).toEqual([
+      'notes.md#1: "3-5" leaves the window',
+    ]);
+    // A wide range on display lines alone is still dropped on the last try, never refused for its width.
+    const shownWide = {
+      ...wide,
+      units: [{ n: 12_294, text: 'last unit', index: 12_293 }],
+      display: wide.units.map((unit) => ({ n: unit.n, mode: 'context' as const, text: unit.text })),
+    };
+    const split = shownLabelDrops(shownWide, [{ units: '1-12293', label: 'greeting' }]);
+    expect(split.labels).toEqual([]);
+    expect(split.dropped).toHaveLength(12_293);
+  });
+
   it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
     const same = checkAnswer(counter, window, [
       { units: '1-2', label: 'greeting' },

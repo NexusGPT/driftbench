@@ -1,5 +1,5 @@
 import { rngFor } from '@agent-nexus/driftbench-generate';
-import type { LedgerView, Link, PointerSut, ScanResult, SourceFile } from '../sut/port';
+import type { Labeler, LedgerView, Link, PointerSut, ScanResult, SourceFile } from '../sut/port';
 import { type Block, compose } from './compose';
 import { makeFixture, requireFixtureLabels } from './fixture';
 import { perfect, truthLabel } from './labellers';
@@ -34,7 +34,8 @@ export type ScaleOp =
   | { op: 'replay'; spec: ScaleSpec }
   | { op: 'long-paragraph'; sentences: number }
   | { op: 'wide-table'; rows: number; cols: number }
-  | { op: 'long-units'; units: number; chars: number };
+  | { op: 'long-units'; units: number; chars: number }
+  | { op: 'wide-window'; first: number; second: number };
 
 const alien = (rng: Rng, i: number): string => {
   const letters = 'jkqvwxz';
@@ -195,6 +196,102 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.ms.push(ms);
     out.units = value.units.length;
     out.extra = { expected: (job.rows + 1) * job.cols };
+  } else if (job.op === 'wide-window') {
+    // One file of short sentences in two parts under top-level headings: past the window budget together and
+    // under it apart, so it is two windows, the first of more than 10,000 units. It is the shape measured for
+    // issue 1376 (about 468,000 characters and 18,000 units). The labeller answers each window with one range
+    // over all the units it may label, with a label that builds no atom: the item times the scan, not the atoms.
+    const part = (from: number, characters: number): Block[] => {
+      const blocks: Block[] = [];
+      let length = 0;
+      for (let i = from; length < characters; i++) {
+        const sentences = ['Fictional public padding.', `Number ${i} of v226p9j.`];
+        blocks.push({ kind: 'paragraph', sentences });
+        length += sentences.join(' ').length;
+      }
+      return blocks;
+    };
+    const first = part(0, job.first);
+    const second = part(first.length, job.second);
+    const doc = compose([
+      { kind: 'heading', level: 1, text: 'Part one' },
+      ...first,
+      { kind: 'heading', level: 1, text: 'Part two' },
+      ...second,
+    ]);
+    let calls = 0;
+    let widest = 0;
+    const labeler: Labeler = (request) => {
+      calls += 1;
+      const numbers = request.window.units.filter((u) => u.mode === 'label').map((u) => u.n);
+      const low = numbers.reduce((a, b) => Math.min(a, b), Number.POSITIVE_INFINITY);
+      const high = numbers.reduce((a, b) => Math.max(a, b), 0);
+      widest = Math.max(widest, numbers.length);
+      return { labels: [{ units: `${low}-${high}`, label: 'description' }] };
+    };
+    const { value, ms } = await timed(() =>
+      sut.scan({ files: [{ path: 'wide.md', text: doc.text }], labelsYaml: RULES_YAML, labeler }),
+    );
+    const ledger = ok(value, 'the scan');
+    const live = ledger.entries.filter((e) => e.status === 'live');
+    out.ms.push(ms);
+    out.calls.push(calls);
+    out.units = live.length;
+    out.live.push(live.length);
+    // The ledger must equal the planted one exactly, on every field the earlier forms of this item read: each live
+    // entry's container is its planted unit's, its quote is the source slice at its own span byte for byte, that
+    // span lies inside the unit's region with the same content, its label is the planted one; each planted unit,
+    // headings included, is named by exactly one entry, and no other entry stands.
+    const named = new Array<number>(doc.units.length).fill(0);
+    let mismatch: string | null = null;
+    for (const entry of live) {
+      const span = entry.hint;
+      const slice = span ? doc.text.slice(span.start, span.end) : undefined;
+      if (!span || slice !== entry.quote) {
+        mismatch = `the quote ${JSON.stringify(entry.quote.slice(0, 40))} is not the source slice at its span`;
+        break;
+      }
+      // The units are in source order: the one whose region starts last at or before the span.
+      let low = 0;
+      let high = doc.units.length - 1;
+      while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        if ((doc.units[mid]?.region[0] ?? 0) <= span.start) low = mid;
+        else high = mid - 1;
+      }
+      const unit = doc.units[low];
+      const at =
+        unit &&
+        entry.container === unit.container &&
+        span.start >= unit.region[0] &&
+        span.end <= unit.region[1] &&
+        norm(entry.quote, unit.container) === norm(unit.text, unit.container)
+          ? low
+          : -1;
+      if (at < 0) {
+        mismatch = `the entry ${JSON.stringify(entry.quote.slice(0, 40))} is no planted unit`;
+        break;
+      }
+      named[at] = (named[at] ?? 0) + 1;
+      const label = entry.labels['agent-rules']?.label;
+      if (label !== 'description') {
+        mismatch = `the unit ${JSON.stringify(entry.quote.slice(0, 40))} has the label ${String(label)}`;
+        break;
+      }
+    }
+    if (mismatch === null) {
+      const at = named.findIndex((count) => count !== 1);
+      if (at >= 0)
+        mismatch = `the planted unit ${JSON.stringify(doc.units[at]?.text.slice(0, 40))} is named by ${named[at]} entries`;
+    }
+    out.extra = {
+      characters: doc.text.length,
+      windows: value.windows,
+      widest,
+      expectedLive: doc.units.length,
+      mismatch,
+      failed: value.diagnostics.filter((d) => d.code === 'failed-window').length,
+    };
   } else if (job.op === 'long-units') {
     const rng = rngFor(1, 'long-units');
     const make = (i: number) => {
