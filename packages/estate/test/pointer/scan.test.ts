@@ -559,7 +559,7 @@ describe('a labeler that answers several times', () => {
     expect(quay.filter((entry) => entry.labels.duty?.label === 'order')).toHaveLength(quay.length);
   });
 
-  it('puts a run that leaves a unit out of step, never reading the unit as none, and asks its window again', async () => {
+  it('leaves a unit unlabeled when two runs do not name it, and does not call that a split', async () => {
     const calls = new Map<string, number>();
     const labeler = plantedDense(
       (window) => {
@@ -573,11 +573,7 @@ describe('a labeler that answers several times', () => {
       { runs: 3 },
     );
     const result = await duty(labeler, new Cassette());
-    // Runs 2 and 3 of the office, and every re-ask, leave its last unit out: each is out of step under units-missing,
-    // so only run 1 is heard on the office, and one run heard is no vote. Its units stay unlabeled, none of them a split.
-    const office = result.ledger.entries.filter((entry) => entry.path === 'office.md').length;
-    expect(result.outOfStep.filter((note) => note.includes('units-missing: 1 units'))).not.toHaveLength(0);
-    expect(result.unlabeled).toBe(office);
+    expect(result.unlabeled).toBe(1);
     expect(result.split).toBe(0);
   });
 

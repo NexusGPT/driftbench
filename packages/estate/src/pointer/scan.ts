@@ -349,6 +349,22 @@ export function outOfStep(answer: unknown, window?: Window): Slip | undefined {
     : undefined;
 }
 
+/** The units of the window an answer does not name. */
+function leftOut(answer: unknown, window: Window): Window['units'] {
+  const named = new Set<number>();
+  const labels = (answer as { labels?: unknown })?.labels;
+  for (const entry of Array.isArray(labels) ? labels : []) {
+    const units = (entry as { units?: unknown })?.units;
+    for (const n of typeof units === 'string' ? (expandUnits(units) ?? []) : []) named.add(n);
+  }
+  return window.units.filter((unit) => !named.has(unit.n));
+}
+
+/** Whether a run is out of step only for the units it left out: no anchor slipped and its clauses are in place. */
+const onlyLeftOut = (slip: Slip): boolean =>
+  slip.slipped === 0 &&
+  !(slip.unlocated >= OUT_OF_STEP_MIN && slip.unlocated > slip.quoted * OUT_OF_STEP_SHARE);
+
 /** Why a run is out of step, for the report: a code, then the counts. */
 const slipReason = (slip: Slip): string =>
   slip.slipped > 0
@@ -787,14 +803,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer, leaf.window) : undefined;
       if (slipped) {
         outOfStepRuns.push(
-          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; the run is left out of the vote`,
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; ${onlyLeftOut(slipped) ? 'the run is left out of the vote on those units' : 'the run is left out of the vote'}`,
         );
         const run = runOf(task, task.run);
         const off = unheard.get(run) ?? new Set<number>();
-        for (const unit of leaf.window.units) off.add(unit.index);
+        // A run that only left units out is still heard on the units it named; a slipped run is heard on none.
+        const left = onlyLeftOut(slipped) ? leftOut(leaf.answer, leaf.window) : leaf.window.units;
+        for (const unit of left) off.add(unit.index);
         unheard.set(run, off);
         slippedLeaves.push({ task, window: leaf.window });
-        continue;
+        if (!onlyLeftOut(slipped)) continue;
       }
       hear(task, task.run, leaf);
     }
@@ -843,7 +861,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
    * the runs heard gave: three of five by default. A run out of step in the unit's window is not heard: it counts
    * neither for a label nor in the count, and with fewer than two runs heard the member has no opinion. A run that left
-   * the unit out counts for no label. Unanimity dropped units that a
+   * the unit out is not heard on it (`units-missing`), and its window is asked again. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
