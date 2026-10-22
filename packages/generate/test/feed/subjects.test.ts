@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   applySubjects,
   canonicalSubjects,
-  type SpanLabel,
   prefixOf,
+  type SpanLabel,
   shareSubjects,
   soundMap,
   variablesFromSources,
@@ -62,8 +62,14 @@ describe('one quantity, one subject', () => {
     const clauses = [
       { text: 'the delay is at least 2 days', label: num('delay', 2) },
       { text: 'the refund is at least 2 euros', label: num('refund', 2) },
-      { text: 'the country is one of FR, BE', label: { kind: 'member', subject: 'country', members: ['FR', 'BE'] } as SpanLabel },
-      { text: 'the country is one of NL, DE', label: { kind: 'member', subject: 'nation', members: ['NL', 'DE'] } as SpanLabel },
+      {
+        text: 'the country is one of FR, BE',
+        label: { kind: 'member', subject: 'country', members: ['FR', 'BE'] } as SpanLabel,
+      },
+      {
+        text: 'the country is one of NL, DE',
+        label: { kind: 'member', subject: 'nation', members: ['NL', 'DE'] } as SpanLabel,
+      },
     ];
     expect(shareSubjects(clauses)).toEqual(clauses);
   });

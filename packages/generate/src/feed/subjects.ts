@@ -15,13 +15,15 @@ import type { SpanLabel } from './sources';
 export type LabelledClause = { text: string; label?: SpanLabel };
 
 const hasSubject = (label: SpanLabel | undefined): label is Extract<SpanLabel, { subject: string }> =>
-  label !== undefined && (label.kind === 'numeric' || label.kind === 'range') && typeof label.subject === 'string';
+  label !== undefined &&
+  (label.kind === 'numeric' || label.kind === 'range') &&
+  typeof label.subject === 'string';
 
-/** The text of a clause up to the first digit or symbol, white space and case folded. */
+/** The text of a clause up to the first digit or symbol, white space folded, case kept (a clause in capitals is another clause). */
 export function prefixOf(text: string): string {
   const cut = text.search(/[^\p{L}\s'’-]/u);
   const head = cut < 0 ? text : text.slice(0, cut);
-  return head.replace(/\s+/g, ' ').trim().toLowerCase();
+  return head.replace(/\s+/g, ' ').trim();
 }
 
 /**
@@ -49,7 +51,8 @@ export function subjectsOf(clauses: readonly LabelledClause[]): string[] {
   const out = new Set<string>();
   for (const clause of clauses) {
     const label = clause.label;
-    if (label !== undefined && 'subject' in label && typeof label.subject === 'string') out.add(label.subject);
+    if (label !== undefined && 'subject' in label && typeof label.subject === 'string')
+      out.add(label.subject);
   }
   return [...out].sort();
 }
@@ -77,7 +80,10 @@ export function soundMap(map: unknown, subjects: readonly string[]): Record<stri
 }
 
 /** Applies a map of subjects to clauses. Returns new clauses. */
-export function applySubjects<T extends LabelledClause>(clauses: readonly T[], map: Record<string, string>): T[] {
+export function applySubjects<T extends LabelledClause>(
+  clauses: readonly T[],
+  map: Record<string, string>,
+): T[] {
   return clauses.map((clause) => {
     const label = clause.label;
     if (label === undefined || !('subject' in label) || typeof label.subject !== 'string') return clause;

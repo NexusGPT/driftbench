@@ -1,7 +1,7 @@
-import { shareSubjects } from './subjects';
 import { createHash } from 'node:crypto';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { QuoteIndex } from '../extract/quote';
+import { shareSubjects } from './subjects';
 
 /**
  * The variable store from its three sources at once (docs/variables.md R1 to R5): the agent's own files, the

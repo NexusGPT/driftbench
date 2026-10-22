@@ -71,6 +71,14 @@ export {
 } from './reader';
 export { createScopedConditionProposer } from './scoped-proposer';
 export {
+  type SourceRefusal,
+  type SpanLabel,
+  type VariableSources,
+  type VariablesFromSources,
+  type VariablesFromSourcesOptions,
+  variablesFromSources,
+} from './sources';
+export {
   applySubjects,
   canonicalSubjects,
   type LabelledClause,
@@ -79,11 +87,3 @@ export {
   soundMap,
   subjectsOf,
 } from './subjects';
-export {
-  type SourceRefusal,
-  type SpanLabel,
-  type VariableSources,
-  type VariablesFromSources,
-  type VariablesFromSourcesOptions,
-  variablesFromSources,
-} from './sources';
