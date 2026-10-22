@@ -63,6 +63,13 @@ const AtomBase = z.strictObject({
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
+  /**
+   * One atom for each span of this kind, in the order the label lists them. The label also lists, in the same order,
+   * the span of the file of each gate (`spanFile`): the nth span of one kind goes with the nth span of the other (each kind in the order the spans stand), and
+   * nothing is bound by where a span or a path stands in the unit. A gate with no file span is refused.
+   */
+  spanEach: z.string().min(1).optional(),
+  spanFile: z.string().min(1).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
   whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
@@ -548,7 +555,11 @@ function checkExtras(
         }
       }
       const spans = seen.filter((_, index) => kept[index]);
-      if (spans.length > 0) out.spans = spans.sort((a, b) => a.from - b.from || b.to - a.to);
+      // A label whose atom pairs each gate's act span with its file span (`spanFile`) keeps the spans in the order the
+      // labeler listed them: the file span that follows an act span is that gate's own. Any other label is sorted.
+      if (spans.length > 0)
+        out.spans =
+          label?.atom?.spanFile !== undefined ? spans : spans.sort((a, b) => a.from - b.from || b.to - a.to);
     }
   }
   if (entry.links !== undefined) {
