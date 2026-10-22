@@ -403,7 +403,7 @@ const «collect» = («root», «into») => {
     }
   }
 };
-// The first object a value reaches that is in `first` ('input') or in `second` ('earlier'), or undefined.
+// The first object a value reaches that is in the first set ('input') or in the second ('earlier'), or undefined.
 const «meets» = («root», «first», «second») => {
   const «seen» = new «SeenSet»();
   const «stack» = [«root»];
@@ -461,7 +461,7 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    // A product module may hold its functions in an export of that name (`members`), as an object.
+    // A product module may hold its functions in an export of that name (the option members), as an object.
     if («setup».members) {
       for (let «i» = 0; «i» < «setup».members.length; «i» += 1) {
         const «held» = «product»[«setup».members[«i»]];
