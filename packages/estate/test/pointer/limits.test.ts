@@ -143,6 +143,51 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atom && variables.conditionsOf(atom).map((entry) => entry.limit)).toEqual([5]);
   });
 
+  it('lets a set of limits sit beside the set of rules: the bound unit points across sets', async () => {
+    const two = `${SET.replace(/      - name: bound[\s\S]*$/, '')}  - set: bounds
+    description: The numbers of the harbour notes.
+    links:
+      - name: limit
+        description: A number the unit sets, with how a quantity is compared with it.
+        values: [lt, le, gt, ge]
+        number: true
+    labels:
+      - name: bound
+        description: A unit that states a number that limits another unit.
+        target: required
+        condition: true
+        links: [limit]
+`;
+    const parsed = pointer.parseLabelSets(two);
+    if (!parsed.ok) throw new Error(parsed.message);
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Warn the skipper', '- Five minutes', ''].join('\n'),
+    });
+    const labeler = plantedDense((window, set) => {
+      if (window.path !== 'CLAUDE.md') return [{ units: `1-${window.units.length}`, label: 'none' }];
+      return set.set === 'duty'
+        ? [
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'order' },
+            { units: '3', label: 'remark' },
+          ]
+        : ([
+            { units: '1-2', label: 'none' },
+            { units: '3', label: 'bound', target: 2, links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+          ] as pointer.Labelled[]);
+    });
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: { sets: parsed.sets, labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+    });
+    expect(atomOf(result, 'Warn the skipper')?.fields?.condition).toEqual([
+      { limit: 5, comparison: 'le', unit: 'minutes' },
+    ]);
+    expect(result.pointer?.atomRefusals).toEqual([]);
+  });
+
   it('puts no condition on a unit that gave no limit', async () => {
     const result = await play(undefined);
     expect(atomOf(result, 'Close the gate at dusk')?.fields).not.toHaveProperty('condition');
