@@ -29,18 +29,14 @@ function setup() {
 
 it('outside a known call an unnoted wire produces no listed candidates', async () => {
   const { into, recorder, fetch } = setup();
-  await recorder.during({}, () =>
-    fetch('https://labeler.invalid/', { body: JSON.stringify(candidate) }),
-  );
+  await recorder.during({}, () => fetch('https://labeler.invalid/', { body: JSON.stringify(candidate) }));
   expect(into.rows).toEqual([]);
 });
 
 it('an unnoted wire nested inside a known call must not inherit its candidate context', async () => {
   const { into, recorder, wire, fetch, bodies } = setup();
   await recorder.during(wire, async () => {
-    await recorder.during({}, () =>
-      fetch('https://labeler.invalid/', { body: JSON.stringify(candidate) }),
-    );
+    await recorder.during({}, () => fetch('https://labeler.invalid/', { body: JSON.stringify(candidate) }));
   });
   expect(bodies).toEqual([JSON.stringify(candidate)]);
   expect(into.rows).toEqual([]);
