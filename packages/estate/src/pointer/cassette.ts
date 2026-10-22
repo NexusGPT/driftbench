@@ -121,7 +121,17 @@ export class Cassette {
   get(wire: Wire, readable: Readable): CassetteEntry {
     const key = requestKey(wire, readable);
     const hit = this.entries.get(key);
-    if (hit) return hit;
+    const differs = (entry: CassetteEntry): string[] =>
+      [...new Set([...Object.keys(readable), ...Object.keys(entry.readable)])]
+        .filter((field) => readable[field] !== entry.readable[field])
+        .sort();
+    // The readable fields beside a key must agree with the request even when the key matches: an entry whose
+    // fields were edited, or written for another request, is refused and the fields are named.
+    if (hit) {
+      const stale = differs(hit);
+      if (stale.length === 0) return hit;
+      throw new CassetteMiss(key, stale, hit.key, readable.labeler);
+    }
     const same = [...this.entries.values()].filter(
       (entry) =>
         entry.readable.path === readable.path &&
@@ -129,10 +139,6 @@ export class Cassette {
         entry.readable.set === readable.set &&
         entry.readable.labeler === readable.labeler,
     );
-    const differs = (entry: CassetteEntry): string[] =>
-      [...new Set([...Object.keys(readable), ...Object.keys(entry.readable)])]
-        .filter((field) => readable[field] !== entry.readable[field])
-        .sort();
     const nearest = same.sort((a, b) => differs(a).length - differs(b).length)[0];
     throw new CassetteMiss(key, nearest ? differs(nearest) : [], nearest?.key, readable.labeler);
   }
