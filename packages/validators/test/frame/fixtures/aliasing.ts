@@ -254,3 +254,16 @@ export const applyWrites = (input: WriteTarget, program: Write[]) => {
   }
   return program.length;
 };
+
+const holder: { run: () => number } = { run: () => 0 };
+let swaps = 0;
+/** Returns one object whose function field is replaced by another function with the same source on every call. */
+export const swapsFunction = () => {
+  swaps += 1;
+  const n = swaps;
+  holder.run = () => n;
+  return holder;
+};
+/** Returns a new object each call holding the same function. */
+const sameFn = () => 1;
+export const keepsFunction = () => ({ run: sameFn });

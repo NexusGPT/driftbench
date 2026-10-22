@@ -331,3 +331,21 @@ describe('random writes to the arguments, at every depth', () => {
     expect(reported).toBeGreaterThan(40);
   });
 });
+
+describe('results that differ only by function identity', () => {
+  it('finds a function field replaced by another function between two calls', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.swapsFunction();
+    frame.product.swapsFunction();
+    expect(frame.aliasSince(0)).toContain('has changed since');
+  });
+
+  it('finds nothing for new objects that hold the same function', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.keepsFunction();
+    frame.product.keepsFunction();
+    expect(frame.aliasSince(0)).toBeUndefined();
+  });
+});
