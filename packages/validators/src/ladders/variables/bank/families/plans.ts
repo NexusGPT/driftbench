@@ -1,6 +1,7 @@
 import type { Plan, PlanRow, Row, StoreDoc, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { type ItemContext, planOf, type StemRun } from '../item';
+import { check } from '../../../failure';
 import { GeneralOracle } from '../oracle/general';
 import {
   forbid,
@@ -280,7 +281,12 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const oracle = new GeneralOracle(space, approved ? forbids : []);
     const plan = planOf(ctx, store, { seed: ctx.seed });
     const problems = oracle.check(plan, groupsOf(space));
-    must(problems.length === 0, () => `${variant}: ${problems.join('; ')}`);
+    check(problems.length === 0, {
+      rule: 'the plan is sound and holds every allowed required tuple',
+      input: variant,
+      got: { problems },
+      expected: oracle.hidden,
+    });
     if (variant === 'single-value')
       needWarning(
         plan,

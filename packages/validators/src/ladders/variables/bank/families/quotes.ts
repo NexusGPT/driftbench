@@ -11,6 +11,7 @@ import {
   valueByQuote,
   variablesCiting,
 } from '../oracle/estate';
+import { check } from '../../../failure';
 import { cpuMs, must, type Rng, show } from '../util';
 import { basicSpan } from './sources';
 
@@ -554,10 +555,12 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       () => `the refusal list ${show(store.refused)} does not name the span ${show(span, 80)}`,
     );
     const good = variablesCiting(store, other.text);
-    must(
-      good.length === 1,
-      () => `the findable span ${show(other.text, 80)} should still give one variable, found ${good.length}`,
-    );
+    check(good.length === 1, {
+      rule: 'a clause the file holds still gives one variable beside a clause it does not hold',
+      input: other.text,
+      got: { variables: good.length },
+      expected: { variables: 1 },
+    });
   },
 
   'quotes.stored-verbatim': (variant, ctx) => {

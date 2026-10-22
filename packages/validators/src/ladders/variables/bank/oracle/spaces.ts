@@ -1,5 +1,6 @@
 import type { Plan, PlanOptions, Row } from '../../interface';
 import { type ItemContext, planOf } from '../item';
+import { check } from '../../../failure';
 import { must, type Rng, show } from '../util';
 import {
   type Coverage,
@@ -93,6 +94,8 @@ export type PlanFacts = {
   /** Required tuples the seeds alone hold. */
   seedHeld: number;
   problems: string[];
+  /** What the page wants, one entry per problem: kept out of the message (docs/validators.md 12.11). */
+  hidden: unknown[];
 };
 
 export type CheckOptions = {
@@ -117,28 +120,27 @@ export function checkPlan(
   const seeds = options.seeds ?? [];
   const groups = options.groups ?? groupsOf(space);
   const problems = shapeProblems(space, plan, seeds);
+  const hidden: unknown[] = [];
   if (problems.length > 0)
-    return { plan, fresh: [], coverage: { required: 0, covered: 0, missing: [] }, seedHeld: 0, problems };
+    return { plan, fresh: [], coverage: { required: 0, covered: 0, missing: [] }, seedHeld: 0, problems, hidden };
   const parsed = parsePlan(space, plan, seeds.length);
   const seedIdx = seeds.map((s) => indexRow(space, s));
   problems.push(...forbiddenRows(space, oracle, parsed));
   const coverage = coverageOf(space, oracle, groups, seedIdx, parsed.freshIndex);
   const held = seedCoverage(oracle, groups, seedIdx).size;
   if (!options.noCoverage && coverage.missing.length > 0) {
-    problems.push(
-      `${coverage.required - coverage.covered} of ${coverage.required} required tuples are not covered, for example ${coverage.missing.slice(0, 3).join(' | ')}`,
-    );
+    problems.push(`${coverage.required - coverage.covered} required tuples are not held by the rows`);
+    hidden.push({ required: coverage.required, notHeld: coverage.missing.slice(0, 3) });
   }
   if (options.boundFactor !== undefined) {
     const missing = coverage.required - held;
     const bound = rowBound(space, groups, missing, options.boundFactor);
     if (parsed.freshIndex.length > bound) {
-      problems.push(
-        `the plan adds ${parsed.freshIndex.length} new rows for ${missing} tuples the seeds miss; a covering array needs at most ${bound}`,
-      );
+      problems.push(`the plan adds ${parsed.freshIndex.length} new rows`);
+      hidden.push({ tuplesTheSeedsMiss: missing, rowBound: bound });
     }
   }
-  return { plan, fresh: parsed.freshIndex, coverage, seedHeld: held, problems };
+  return { plan, fresh: parsed.freshIndex, coverage, seedHeld: held, problems, hidden };
 }
 
 /** Plans a space and fails the item with the problems found, if any. */
@@ -157,7 +159,12 @@ export function planAndCheck(
   };
   const plan = planOf(ctx, store, planOptions);
   const facts = checkPlan(space, oracle, plan, options);
-  must(facts.problems.length === 0, () => `${describeSpace(space)}: ${facts.problems.join('; ')}`);
+  check(facts.problems.length === 0, {
+    rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
+    input: describeSpace(space),
+    got: { problems: facts.problems },
+    expected: facts.hidden,
+  });
   return facts;
 }
 

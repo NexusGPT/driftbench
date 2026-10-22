@@ -37,6 +37,7 @@ import {
   variablesCiting,
 } from '../oracle/estate';
 import { drawCategorical } from '../oracle/stats';
+import { check } from '../../../../failure';
 import { clone, deepEqual, must, type Rng, show, stableStringify } from '../util';
 
 /** The wordings the sources items use when the wording is not what they test. */
@@ -69,7 +70,12 @@ export function farThresholds(rng: Rng, count: number): number[] {
 }
 
 export function exactlyOne<T>(list: readonly T[], what: string): T {
-  must(list.length === 1, () => `${what}: expected exactly 1, found ${list.length}`);
+  check(list.length === 1, {
+    rule: 'the store holds one result for this question',
+    input: what,
+    got: { results: list.length },
+    expected: { results: 1 },
+  });
   return list[0] as T;
 }
 

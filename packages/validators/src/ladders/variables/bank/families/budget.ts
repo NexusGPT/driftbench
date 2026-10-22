@@ -3,6 +3,7 @@ import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
 import { groupsOf, indexRow, logWeight, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
 import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import { check } from '../../../failure';
 import { must, show, stableStringify } from '../util';
 
 /** Spaces with skewed shares whose unbudgeted plan has dozens of rows. */
@@ -43,11 +44,12 @@ function ordered(logs: readonly number[], label: string): void {
     const prev = logs[i - 1] as number;
     const cur = logs[i] as number;
     const bad = RARE_ROWS_CUT === 'last' ? cur < prev - 1e-9 : cur > prev + 1e-9;
-    must(
-      !bad,
-      () =>
-        `${label}: new row ${i} has log weight ${cur.toFixed(4)}, new row ${i - 1} has ${prev.toFixed(4)}; the new rows should run ${RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first'}`,
-    );
+    check(!bad, {
+      rule: 'the new rows run in the order of their log weights that the page names',
+      input: label,
+      got: { row: i, logWeight: Number(cur.toFixed(4)), previousRow: i - 1, previousLogWeight: Number(prev.toFixed(4)) },
+      expected: RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first',
+    });
   }
 }
 

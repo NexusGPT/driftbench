@@ -15,6 +15,7 @@ import {
   type SpaceGroup,
   toStore,
 } from '../oracle/space';
+import { check } from '../../../failure';
 import { choose, cpuMs, must, type Rng, show } from '../util';
 import { toBig } from './counter';
 import { type Base, baseStore, checkCounts, draw } from './sources';
@@ -46,11 +47,12 @@ function verify(
     () => `${label}: ${bad.count} rows hold an impossible pair, for example ${bad.first}`,
   );
   const scan = scanCoverage(space, groups, rows);
-  must(
-    scan.missing === 0,
-    () =>
-      `${label}: ${scan.missing} of ${scan.required} required tuples are not covered, for example ${scan.sample.join(' | ')}`,
-  );
+  check(scan.missing === 0, {
+    rule: 'every required tuple is held by the rows',
+    input: label,
+    got: { tuplesNotHeld: scan.missing },
+    expected: { required: scan.required, notHeld: scan.sample },
+  });
   let maxChance = 1;
   for (const g of groups) {
     const t = Math.min(g.strength, g.vars.length);
