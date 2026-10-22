@@ -52,5 +52,14 @@ export const HARDENING_PRIVACY_SPECS: Record<string, Spec[]> = {
       'privacy:comment-text-never-leaves-table',
       placed,
     ),
+    row(
+      'comment-text-never-leaves-link-candidate',
+      3,
+      'A comment inside the unit of an atom never leaves in a request as a link candidate; the candidate still does',
+      'A label set with a link kind that names an atom kind; a file of a plain sentence and a seeded sentence split at a seeded word with a comment holding a seeded private marker between the two halves; an atom of that kind handed to the scan as the real scan builds it (its title the unit text with the comment, its id a slug of that title); a file of another seeded sentence the labeler is asked to label; a recording scan of the `haiku` arm on a fake transport.',
+      'A request leaves for the second file and lists the atom (the words around its comment, or a hashed id); no request holds a character of the marker.',
+      'privacy:comment-text-never-leaves-link-candidate',
+      placed,
+    ),
   ],
 };

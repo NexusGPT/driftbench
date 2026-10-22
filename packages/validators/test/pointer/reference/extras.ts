@@ -181,7 +181,8 @@ export function extrasProblem(
         return `${where}: the kind ${kind.name} is given twice`;
       // The candidates the request listed for the kind: its closed values, or the atoms of the kinds it names
       // (scan.ts); with no listing given, the values of the kind and no atom.
-      const listed = candidates[kind.name]?.map((candidate) => candidate.id) ?? kind.values ?? [];
+      const listed =
+        candidates[kind.name]?.map((candidate) => candidate.shown ?? candidate.id) ?? kind.values ?? [];
       if (link.to !== 'none' && !bugsC.has('link-unlisted') && !listed.includes(link.to))
         return `${where}: ${link.to} is not an atom the request listed for ${kind.name}`;
       given.push(kind.name);

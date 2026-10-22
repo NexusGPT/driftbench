@@ -2,10 +2,12 @@ import type { LabelDef, WindowMode } from '../../../src/ladders/pointer/sut/port
 import type { NewUnit } from './anchor';
 import { referenceBugsB } from './bugs-b';
 import { referenceBugsPrivacy } from './bugs-privacy';
+import { sha256 } from './hash';
 import type { ParsedSet } from './labelset';
 
 /** What a request lists for each link kind of a set: the candidates a link may name, by kind. */
-export type Candidates = Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+export type Candidate = { id: string; label: string; shown?: string };
+export type Candidates = Readonly<Record<string, ReadonlyArray<Candidate>>>;
 
 /** About 100,000 tokens at four characters a token. */
 export const WINDOW_CHARS = 400_000;
@@ -39,6 +41,17 @@ export function requestText(text: string): string {
   if (!text.includes('<!--')) return text;
   if (referenceBugsPrivacy.has('comment-unit-dropped')) return COMMENT_MARKER;
   return text.replace(COMMENT, COMMENT_MARKER);
+}
+
+/**
+ * An atom as a request lists it as a link candidate. A title that holds a comment is listed with the comment
+ * replaced by `(comment)`, and under a hash of its id (`atom-` and ten hex digits), because the id is a slug of
+ * that title; the answer is carried back to the real id. A title with no comment is listed as it is.
+ */
+export function candidateOf(atom: { id: string; title: string }): Candidate {
+  if (referenceBugsPrivacy.has('candidate-comment-sent') || !atom.title.includes('<!--'))
+    return { id: atom.id, label: atom.title };
+  return { id: atom.id, label: requestText(atom.title), shown: `atom-${sha256(atom.id).slice(0, 10)}` };
 }
 
 /**
@@ -167,7 +180,7 @@ function linkLines(set: ParsedSet, candidates: Candidates): string[] {
   for (const kind of set.links) {
     lines.push(`- ${kind.name}: ${kind.description}`);
     for (const candidate of candidates[kind.name] ?? [])
-      lines.push(`    ${candidate.id}  ${candidate.label}`);
+      lines.push(`    ${candidate.shown ?? candidate.id}  ${candidate.label}`);
   }
   return lines;
 }

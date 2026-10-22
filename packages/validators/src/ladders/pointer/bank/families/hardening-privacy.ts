@@ -70,7 +70,62 @@ async function judge(ctx: ItemContext, build: (p: Prose, marker: string) => Plac
   return pass(`${fake.count} requests held none of the comment and all of the text around it`);
 }
 
+/** A label set with a link kind that names the atoms of the kind `instruction`. */
+const LINK_YAML = `labels:
+  - set: agent-rules
+    description: What an instruction file asks of the agent.
+    links:
+      - name: topic
+        description: The instruction the unit is about.
+        to: [instruction]
+    labels:
+      - name: rule
+        description: A unit that tells the reader what to do.
+        links: [topic]
+        atom: { kind: instruction, polarity: obligation }
+`;
+
+/**
+ * The atom of a sentence that holds a comment, as the real scan builds it: its title is the text of its unit,
+ * comment included, and its id is a slug of that title, so both carry the comment. It is handed to the scan as
+ * a candidate of the link kind; the request that asks for the labels of a second file must list it without the
+ * comment. The words around the comment, or a hashed id, show that the candidate is listed at all.
+ */
+async function linkCandidate(ctx: ItemContext) {
+  const marker = privateMarker(ctx.seed, 15);
+  const p = prose(ctx);
+  const { head, tail } = halves(ctx, p.next());
+  const other = p.next();
+  const title = `${head} <!-- ${marker} --> ${tail}`;
+  const atom = { id: `instruction.${title.toLowerCase().replace(/\s+/g, '-')}`, kind: 'instruction', title };
+  const fake = fakeTransport({ truth: () => 'none' });
+  const res = await ctx.sut.scan({
+    files: [
+      { path: 'harbour/first.md', text: `${title}\n` },
+      { path: 'harbour/second.md', text: `${other}\n` },
+    ],
+    labelsYaml: LINK_YAML,
+    model: { arm: 'haiku', transport: fake },
+    cassette: { mode: 'record' },
+    atoms: [atom],
+  });
+  if (!res.ok || !res.ledger) return fail(`the scan failed: ${res.error ?? 'no ledger'}`);
+  if (!liveByText(res.ledger, other))
+    return fail('positive witness: the sentence of the second file is not a live unit of the ledger');
+  const bodies = bodiesOf(fake.calls);
+  const asked = bodiesOf(fake.calls.filter((call) => call.body.includes(other)));
+  if (asked.length === 0) return fail('no request left for the second file: it proves nothing');
+  if (!asked.some((body) => body.includes(head) || body.includes(tail) || /atom-[0-9a-f]{10}/.test(body)))
+    return fail(
+      'positive witness: the request for the second file lists no candidate: neither the words around the comment nor a hashed id',
+    );
+  if (leaksPrivateFragment(bodies, [marker]))
+    return fail(`the text of a comment reached a request as a link candidate (${fake.count} requests sent)`);
+  return pass(`${fake.count} requests: the candidate is listed and none holds a character of the comment`);
+}
+
 export const privacyCommentRuns: Record<string, Run> = {
+  'comment-text-never-leaves-link-candidate': linkCandidate,
   'comment-text-never-leaves-inline': (ctx) =>
     judge(
       ctx,
