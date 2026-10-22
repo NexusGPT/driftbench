@@ -548,10 +548,12 @@ export const replayRuns: Record<string, Run> = {
       return fail('the cassette of the failed run is not valid JSON lines');
     }
     if (windows.has('notes/b.md#1')) return fail('the failed window left an entry in the cassette');
-    if (windows.get('notes/a.md#1') !== runs)
-      return fail(
-        `the window asked in full holds ${windows.get('notes/a.md#1') ?? 0} entries, expected ${runs}`,
-      );
+    for (const window of ['notes/a.md#1', 'notes/c.md#1']) {
+      const held = windows.get(window) ?? 0;
+      if (held !== runs) return fail(`the window ${window} was asked in full and holds ${held} entries, expected ${runs}`);
+    }
+    const keys = entries.map((l) => (JSON.parse(l) as { key: string }).key);
+    if (new Set(keys).size !== keys.length) return fail('two entries of the failed run share a key');
     const fixture = loadFixture('haiku');
     const fake = fakeTransport();
     const again = await ctx.sut.scan({
