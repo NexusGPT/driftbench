@@ -61,7 +61,12 @@ function runs(rng: Rng, text: string): string {
 
 /** Puts `mark` inside a word of the text, away from its ends. */
 function inside(rng: Rng, text: string, mark: string): string {
-  const spots = [...text].map((c, i) => i).filter((i) => /\p{L}/u.test(text[i] ?? '') && /\p{L}/u.test(text[i - 1] ?? '') && /\p{L}/u.test(text[i + 1] ?? ''));
+  const spots = [...text]
+    .map((c, i) => i)
+    .filter(
+      (i) =>
+        /\p{L}/u.test(text[i] ?? '') && /\p{L}/u.test(text[i - 1] ?? '') && /\p{L}/u.test(text[i + 1] ?? ''),
+    );
   if (spots.length === 0) return text;
   const at = rng.pick(spots);
   return `${text.slice(0, at)}${mark}${text.slice(at)}`;
@@ -155,7 +160,15 @@ export const punctuationMustMatch = (rng: Rng): Pair => {
   return { inFile: `${a}${from} then ask ${b}`, inQuote: `${a}${to} then ask ${b}` };
 };
 export const missingWord = (rng: Rng): Pair => {
-  const words = [rng.pick(['tell', 'show', 'send']), 'the', some(rng, 1)[0] as string, 'and', 'offer', 'a', some(rng, 1)[0] as string];
+  const words = [
+    rng.pick(['tell', 'show', 'send']),
+    'the',
+    some(rng, 1)[0] as string,
+    'and',
+    'offer',
+    'a',
+    some(rng, 1)[0] as string,
+  ];
   const drop = rng.int(1, words.length - 2);
   return { inFile: words.join(' '), inQuote: words.filter((_, i) => i !== drop).join(' ') };
 };

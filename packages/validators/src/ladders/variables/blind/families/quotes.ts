@@ -404,7 +404,11 @@ export const QUOTES_STEMS: readonly Stem[] = [
       ['zero-width-characters-in-the-quote', 3, folds('zero width', f.zeroWidthInTheQuote)],
       ['soft-hyphen-prints-nothing', 4, folds('soft hyphen', f.softHyphen)],
       ['markdown-backslash-before-an-asterisk', 3, folds('markdown backslash', f.backslashBeforeAsterisk)],
-      ['markdown-backslash-before-an-underscore', 3, folds('markdown backslash', f.backslashBeforeUnderscore)],
+      [
+        'markdown-backslash-before-an-underscore',
+        3,
+        folds('markdown backslash', f.backslashBeforeUnderscore),
+      ],
       ['case-must-match', 2, differs(f.caseMustMatch)],
       ['punctuation-must-match', 2, differs(f.punctuationMustMatch)],
       ['a-missing-word-is-not-found', 2, differs(f.missingWord)],
