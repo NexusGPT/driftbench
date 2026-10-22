@@ -11,8 +11,8 @@ const root = fileURLToPath(new URL('../../../../', import.meta.url));
 describe('generator ladder cause metadata', () => {
   it('reports an authored cause for every failing item without an own-ID fallback', async () => {
     const items = bankItems();
-    // 2286 items: the planner family of ladder version 3 (part A, strength: +83; part B, seed rows: +28).
-    expect(items).toHaveLength(2286);
+    // 2347 items: the planner family of ladder version 3 (parts A +83, B +28, C traffic order +61).
+    expect(items).toHaveLength(2347);
     for (const item of items) {
       expect(item.cause ?? item.defaultCause, item.id).toBeTruthy();
       expect(item.cause ?? item.defaultCause, item.id).not.toBe(item.id);
@@ -56,8 +56,8 @@ describe('generator ladder cause metadata', () => {
         expect(kind.cause, id).not.toBe(id);
       }
     }
-    // Items with an own cause: 143 before ladder version 3, plus its 111 planner items.
-    expect([...bank.keys()].filter((id) => !assignments.includes(id))).toHaveLength(254);
+    // Items with an own cause: 143 before ladder version 3, plus its 172 planner items.
+    expect([...bank.keys()].filter((id) => !assignments.includes(id))).toHaveLength(315);
     expect(() => authoredCauseFor('unassigned-new-item')).toThrow('needs an authored cause');
   });
 
