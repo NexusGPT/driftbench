@@ -1,0 +1,86 @@
+name: gate-b probe
+
+# Temporary: regenerates the Northwind fixture on the merged tree and uploads the result as a patch.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: node tools/structure/api-surface.mjs --build --check
+      - name: Regenerate the fixture (docs/estate.md, Regenerate the fixture)
+        continue-on-error: true
+        shell: bash {0}
+        run: |
+          set -x
+          F=examples/estates/fixture
+          V=examples/estates/fixture-v2
+          P=packages/generate/test/estate/fixtures
+          T=$(mktemp -d)
+          
+          # 1. The map: a pointer scan that replays the committed cassette. The scan updates a copy of the ledger.
+          cp $F/ledger.json $T/ledger.json
+          pnpm -s driftbench estate scan $F --runtime claude-code --pointer --cassette $F/cassette.jsonl --ledger $T/ledger.json --update --out $F/map.yaml --force
+          
+          # 2. The approved map, and the space map of the docs.
+          cp $F/map.yaml $F/approved.yaml
+          pnpm -s driftbench estate approve $F/approved.yaml --all
+          pnpm -s driftbench estate map $F/approved.yaml --to $F/space.yaml --agent northwind
+          
+          # 3. The map hash, in the three files that pin it.
+          HASH=$(grep -m1 '^hash:' $F/approved.yaml | cut -d' ' -f2)
+          perl -pi -e "s/^mapHash: \S+/mapHash: $HASH/" $F/phrases.yaml $P/plan.yaml
+          perl -pi -e "s/MAP_HASH = '[0-9a-f]+'/MAP_HASH = '$HASH'/" packages/adapters/test/claude-code/live/support.ts
+          
+          # 4. The plan, of the full declared space.
+          pnpm -s driftbench estate map $F/approved.yaml --to $T/space.yaml --agent estate
+          pnpm -s driftbench estate plan $F/approved.yaml --out $F/plan.yaml --space $T/space.yaml --force
+          
+          # 5. The approved copy of the plan, under the three note lines it already has.
+          head -3 $P/planner-plan.approved.yaml > $T/notes.txt
+          pnpm -s driftbench estate plan approve $F/plan.yaml --all --out $T/approved-plan.yaml
+          cat $T/notes.txt $T/approved-plan.yaml > $P/planner-plan.approved.yaml
+          
+          # 6. The suite.
+          pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force
+          
+          # 7. Fixture-v2: its map, the diff against the fixture, the impact on its tests.
+          cp $F/ledger.json $V/ledger.json
+          pnpm -s driftbench estate scan $V --runtime claude-code --pointer --cassette $V/cassette.jsonl --ledger $V/ledger.json --update --out $V/map.yaml --force
+          pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --old-ledger $F/ledger.json --new-ledger $V/ledger.json --out $V/maintain/diff.json > $V/maintain/diff.txt
+          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt
+          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json
+          pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
+          rm -rf "$T"
+      - name: What changed
+        run: |
+          git status --short | grep -v "generated/" | head -50
+          echo "generated files changed: $(git status --short | grep -c 'generated/')"
+          mkdir -p /tmp/out
+          git diff --binary > /tmp/out/fixture.patch
+          git status --short > /tmp/out/status.txt
+          git ls-files --others --exclude-standard > /tmp/out/untracked.txt
+          wc -c /tmp/out/fixture.patch
+      - name: Count tests after the regeneration
+        continue-on-error: true
+        run: pnpm exec vitest run packages/cli/test/estate.test.ts packages/cli/test/estate-plan.test.ts packages/cli/test/estate-maintain.test.ts packages/estate/test/scan.test.ts packages/estate/test/graph.test.ts packages/estate/test/map.test.ts packages/estate/test/plan/plan.test.ts packages/estate/test/lint.test.ts packages/estate/test/maintain/fixture-v2.test.ts packages/estate/test/fixture.test.ts --maxWorkers=2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixture-patch
+          path: /tmp/out
