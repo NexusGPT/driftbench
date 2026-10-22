@@ -42,16 +42,20 @@ describe('the reduction of repeated ends under --spec-cap', () => {
     let cutWalks = 0;
     for (const spec of kept.all) {
       const shorter = byId.get(spec.id);
-      if (!shorter || shorter.blocks.length === spec.blocks.length) continue;
+      // A walk that starts after an opening is written with fewer blocks and says where it starts instead.
+      const opening =
+        (shorter?.metadata as { generated: { reduced_opening?: { blocks: number } } } | undefined)?.generated
+          .reduced_opening?.blocks ?? 0;
+      if (!shorter || shorter.blocks.length + opening === spec.blocks.length) continue;
       cutWalks += 1;
       const reduction = (shorter.metadata as { generated: { reduced_ends: ReducedEnds } }).generated
         .reduced_ends;
       expect(reduction).toMatchObject({
         from_blocks: spec.blocks.length,
-        to_blocks: shorter.blocks.length,
+        to_blocks: shorter.blocks.length + opening,
       });
       expect(reduction.duplicates.map((entry) => entry.block)).toEqual(
-        spec.blocks.slice(shorter.blocks.length).map((block) => block.id),
+        spec.blocks.slice(shorter.blocks.length + opening).map((block) => block.id),
       );
       for (const entry of reduction.duplicates) {
         const witness = byId.get(entry.duplicate_of.spec);
@@ -62,7 +66,7 @@ describe('the reduction of repeated ends under --spec-cap', () => {
         expect(witnessIndex).toBeGreaterThanOrEqual(0);
         expect(key(spec, originalIndex)).toBe(key(witness as Spec, witnessIndex));
       }
-      for (let index = shorter.blocks.length; index < spec.blocks.length; index += 1)
+      for (let index = shorter.blocks.length + opening; index < spec.blocks.length; index += 1)
         expect(written.has(key(spec, index)), `${spec.id}#${spec.blocks[index]?.id}`).toBe(true);
     }
     for (const [seeder, totals] of Object.entries(reduced.report.seeders)) {

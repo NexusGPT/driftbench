@@ -456,6 +456,7 @@ describe('terminal subsumption and the context a walk is written in', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
     const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
     const twin = walk(prepared, 'twin', path, 'twise', [channelPick(prepared, 'phone')]);
@@ -484,6 +485,7 @@ describe('terminal subsumption and the context a walk is written in', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     // A reworded phone walk holds the phone tuples; then a counter walk and its phone twin arrive.
     const holder = reworded(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
     const counter = walk(prepared, 'counter', path, 'twise', [channelPick(prepared, 'counter')]);
@@ -523,6 +525,7 @@ describe('terminal subsumption and the persona a walk is written for', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     // A reworded expert walk holds the expert tuples; then a novice walk and its expert twin arrive.
     const holder = reworded(walk(prepared, 'holder', path, 'twise', [personaPick(prepared, 'expert')]));
     const novice = walk(prepared, 'novice', path, 'twise', [personaPick(prepared, 'novice')]);
@@ -571,6 +574,7 @@ describe('terminal subsumption and the block a walk ends on', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const [first, second, third] = ['first', 'second', 'third'].map((id) => probe(prepared, path, id));
     if (!first || !second || !third) throw new Error('missing probes');
     const length = first.blocks.length;
@@ -592,6 +596,7 @@ describe('terminal subsumption and the block a walk ends on', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const drafts = ['first', 'second', 'third', 'fourth'].map((id) => probe(prepared, path, id));
     const [first, second, third, fourth] = drafts;
     if (!first || !second || !third || !fourth) throw new Error('missing probes');
@@ -650,6 +655,7 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('keeps the end of a block whose wording no written spec says: the phrase would be lost', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = plain('written');
     const again = lastWordedAs(plain('again'), 'Pack it now, thank you.');
     const length = again.blocks.length;
@@ -660,6 +666,7 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('keeps the end of a block that expects another Then, however alike the turn reads', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = plain('written');
     const other = endsElsewhere(plain('other'));
     const length = other.blocks.length;
@@ -686,6 +693,7 @@ describe('terminal subsumption keeps what only the cut block checks or says', ()
 
   it('keeps the end of a block that holds a gating criterion no written spec holds', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = plain('written');
     const gated = plain('gated');
     gated.criteria = [
@@ -738,6 +746,7 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
 
   it('cuts a stay from the middle of a walk when a written spec already says it', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = stayAt(plain('written'), 1);
     const again = endsElsewhere(stayAt(plain('again'), 1));
     const stay = required(again.blocks[1]).id;
@@ -751,6 +760,7 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
 
   it('keeps a stay no written spec says', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = plain('written');
     const again = endsElsewhere(stayAt(plain('again'), 1));
     const length = again.blocks.length;
@@ -761,6 +771,7 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
 
   it('keeps a stay that sets its own world: the next block would not start from the same Given', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = stayAt(plain('written'), 1);
     const again = endsElsewhere(stayAt(plain('again'), 1));
     required(again.blocks[1]).given = { world: { tools: { lookup: { result: { found: false } } } } };
@@ -772,6 +783,7 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
 
   it('keeps a block that moves the walk to another stage', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    minimal.cutsOpenings = false;
     const written = plain('written');
     const again = endsElsewhere(plain('again'));
     const length = again.blocks.length;
@@ -796,6 +808,7 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
       return draft;
     };
     const minimal = new TerminalSubsumption(long, run, 2);
+    minimal.cutsOpenings = false;
     const written = stayAt(plainLong('written'), 1);
     // The end of this walk is said by the first one, its fourth block is not, and its second block is a stay.
     const again = stayAt(plainLong('again'), 1);
@@ -808,5 +821,58 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     expect(again.reducedEnds).toBeDefined();
     expect(again.blocks).toHaveLength(length - 2);
     expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
+  });
+  it('starts a walk after the opening an earlier walk says, and writes the stage it starts at', () => {
+    const long = desk([
+      {
+        id: 'parcel',
+        stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+        classes: ['D5_language_switch'],
+      },
+    ]);
+    const longPath = long.relations.paths[0];
+    if (!longPath) throw new Error('missing parcel path');
+    const plain = (id: string) => {
+      const draft = walk(long, id, longPath);
+      draft.perturbations = undefined;
+      return draft;
+    };
+    const minimal = new TerminalSubsumption(long, run, 2);
+    const written = plain('written');
+    // The end of this walk is its own: it shares every block but the last with the first one.
+    const later = plain('later');
+    const end = required(later.blocks.at(-1));
+    end.must_not = [...(end.must_not ?? []), 'a parcel weighing'];
+    minimal.reduce(written);
+    minimal.reduce(later);
+    const opening = later.reducedOpening;
+    expect(opening?.of).toBe('written');
+    expect(opening?.blocks).toBeGreaterThan(0);
+    const first = required(later.blocks[0]);
+    expect(first.given?.stage).toBe(required(written.blocks[(opening?.blocks ?? 0) - 1]).stage);
+    expect(first.given?.prefix?.length).toBeGreaterThan(0);
+    expect(first.given?.origin).toBe('canonical');
+  });
+
+  it('keeps the opening of a walk that declares a perturbation', () => {
+    const long = desk([
+      {
+        id: 'parcel',
+        stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+        classes: ['D5_language_switch'],
+      },
+    ]);
+    const longPath = long.relations.paths[0];
+    if (!longPath) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(long, run, 2);
+    const written = walk(long, 'written', longPath);
+    written.perturbations = undefined;
+    const later = walk(long, 'later', longPath);
+    const end = required(later.blocks.at(-1));
+    end.must_not = [...(end.must_not ?? []), 'a parcel weighing'];
+    expect(later.perturbations?.length).toBeGreaterThan(0);
+    minimal.reduce(written);
+    minimal.reduce(later);
+    expect(later.reducedOpening).toBeUndefined();
   });
 });

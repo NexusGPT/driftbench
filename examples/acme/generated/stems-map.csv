@@ -792,9 +792,8 @@ gen-twise-146,2,b3-offer-to-recap,gen-twise-146,b3-offer-to-recap,1
 gen-twise-146,3,b4-D2_goal_shift,gen-twise-146,b4-D2_goal_shift,1
 gen-twise-146,4,b5-recap-to-order_placed,gen-twise-146,b5-recap-to-order_placed,1
 gen-twise-146,5,b6-order_placed-to-closing,gen-twise-146,b6-order_placed-to-closing,1
-gen-twise-147,0,b1-needs-to-identify,stem-bea8b7a1f5e7,b1-needs-to-identify,2
-gen-twise-147,1,b2-identify-to-offer,gen-twise-147,b2-identify-to-offer,1
-gen-twise-147,2,b3-D3_contradiction,gen-twise-147,b3-D3_contradiction,1
+gen-twise-147,0,b2-identify-to-offer,gen-twise-147,b2-identify-to-offer,1
+gen-twise-147,1,b3-D3_contradiction,gen-twise-147,b3-D3_contradiction,1
 gen-twise-148,0,b1-needs-to-identify,gen-twise-148,b1-needs-to-identify,1
 gen-twise-148,1,b2-identify-to-offer,gen-twise-148,b2-identify-to-offer,1
 gen-twise-148,2,b3-offer-to-recap,gen-twise-148,b3-offer-to-recap,1
@@ -811,9 +810,8 @@ gen-twise-151,0,b1-needs-to-identify,gen-twise-151,b1-needs-to-identify,1
 gen-twise-151,1,b2-identify-to-offer,gen-twise-151,b2-identify-to-offer,1
 gen-twise-151,2,b3-offer-to-recap,gen-twise-151,b3-offer-to-recap,1
 gen-twise-151,3,b4-D8_tool_failure,gen-twise-151,b4-D8_tool_failure,1
-gen-twise-152,0,b1-needs-to-identify,stem-bea8b7a1f5e7,b1-needs-to-identify,2
-gen-twise-152,1,b2-D10_return,gen-twise-152,b2-D10_return,1
-gen-twise-152,2,b3-identify-to-closing,gen-twise-152,b3-identify-to-closing,1
+gen-twise-152,0,b2-D10_return,gen-twise-152,b2-D10_return,1
+gen-twise-152,1,b3-identify-to-closing,gen-twise-152,b3-identify-to-closing,1
 gen-twise-153,0,b1-needs-to-identify,stem-f512f9340f39,b1-needs-to-identify,3
 gen-twise-153,1,b2-identify-to-offer,stem-f512f9340f39,b2-identify-to-offer,3
 gen-twise-153,2,b3-offer-to-recap,stem-f512f9340f39,b3-offer-to-recap,3

@@ -1,9 +1,9 @@
 {
   "generator": "driftbench generate",
   "stems": {
-    "stems": 96,
-    "specs": 189,
-    "saved": 293
+    "stems": 95,
+    "specs": 187,
+    "saved": 292
   },
   "map": {
     "path": "../map/approved.yaml",
@@ -22,7 +22,7 @@
   },
   "summary": {
     "specs": 510,
-    "blocks": 1852,
+    "blocks": 1850,
     "complete": 435,
     "incomplete": 75
   },
@@ -44,7 +44,7 @@
     },
     "twise": {
       "specs": 156,
-      "blocks": 791,
+      "blocks": 789,
       "cut_blocks": 1,
       "complete": 153,
       "needs_phrase": 0,
@@ -52,7 +52,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 647,
-        "pielou": 0.882756847346,
+        "pielou": 0.882794732193,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -8848,17 +8848,17 @@
       "share": 1
     },
     "measures": {
-      "discovery": 0.0058816939278512215,
-      "chao_coverage": 0.9941186575052334,
-      "chao1": 806.4319859119427,
+      "discovery": 0.005884001120762118,
+      "chao_coverage": 0.9941163505880871,
+      "chao1": 806.4319837489493,
       "hill_q0": 708,
-      "hill_q1": 309.413171757979,
-      "hill_q2": 191.3666034570345,
-      "pielou": 0.873863064934,
+      "hill_q1": 309.444548287098,
+      "hill_q2": 191.3511071772582,
+      "pielou": 0.873878516712,
       "t3_share": 0.7672244094488189,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 284.0225995845727,
+      "effective_sample_size": 284.0186924457047,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

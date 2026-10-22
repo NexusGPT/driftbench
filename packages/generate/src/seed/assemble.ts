@@ -2,8 +2,8 @@ import type {
   CriterionDef,
   EndStateSpec,
   Expect,
-  GuardExpect,
   GivenOverride,
+  GuardExpect,
   PerturbationSpec,
   Rules,
   ToolExpect,
@@ -88,9 +88,9 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   reducedEnds?: ReducedEnds;
-  /** Blocks cut from the middle of the walk: a stay another written spec already says. */
   /** Blocks the walk starts after: its opening is an earlier written spec's, carried as a prefix. */
   reducedOpening?: { blocks: number; of: string };
+  /** Blocks cut from the middle of the walk: a stay another written spec already says. */
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */

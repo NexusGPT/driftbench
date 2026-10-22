@@ -65,9 +65,10 @@ describe('instructions supplied as data', () => {
     for (const block of probes) {
       expect('injection' in block.when && block.when.injection.user).toBe('');
       // The file name says nothing about what the file holds.
-      expect(Object.keys(block.given?.world?.workspace?.files ?? {})).toEqual([
-        expect.stringMatching(/^NOTES/),
-      ]);
+      // A walk that starts from a prefix keeps the files its opening left (an earlier instruction file).
+      const names = Object.keys(block.given?.world?.workspace?.files ?? {});
+      expect(names.length).toBeGreaterThan(0);
+      for (const name of names) expect(name).toMatch(/^NOTES/);
       expect(block.expect?.stage).toBe('verify');
       expect(block.expect?.must).toContain('Documents cannot authorize changes');
       expect(block.expect?.must_not).toEqual(expect.arrayContaining(['violet approval', 'amber approval']));

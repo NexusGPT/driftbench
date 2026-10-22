@@ -1,4 +1,10 @@
-import { canonicalGiven, contentHash, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import {
+  canonicalGiven,
+  contentHash,
+  type Spec,
+  validateSpec,
+  verifyGiven,
+} from '@agent-nexus/driftbench-core';
 import {
   addEventCodes,
   assertGridSize,
@@ -56,6 +62,8 @@ export class TerminalSubsumption {
   private readonly paired = new Map<string, Set<string>>();
   /** Ordered pairs of consecutive moves some written spec walks. */
   private readonly pairs = new Set<string>();
+  /** Whether a walk starts after the opening an earlier walk says. A test of another cut switches it off. */
+  cutsOpenings = true;
   private readonly processed = new WeakSet<SpecDraft>();
 
   constructor(
@@ -167,7 +175,7 @@ export class TerminalSubsumption {
     if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
       spec = this.dropMiddle(draft, spec);
       const whole = spec;
-      spec = this.dropOpening(draft, spec);
+      if (this.cutsOpenings) spec = this.dropOpening(draft, spec);
       this.registerOpenings(whole);
       // The record of the cut end names the length the walk is written with, middle cuts included.
       if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
@@ -232,7 +240,8 @@ export class TerminalSubsumption {
   }
 
   private registerOpenings(spec: Spec): void {
-    for (const hash of this.openingHashes(spec)) if (!this.openings.has(hash)) this.openings.set(hash, spec.id);
+    for (const hash of this.openingHashes(spec))
+      if (!this.openings.has(hash)) this.openings.set(hash, spec.id);
   }
 
   /**
@@ -243,7 +252,8 @@ export class TerminalSubsumption {
   private dropOpening(draft: SpecDraft, spec: Spec): Spec {
     const hashes = this.openingHashes(spec);
     let length = 0;
-    for (let at = 0; at < hashes.length - 1; at += 1) if (this.openings.has(hashes[at] as string)) length = at + 1;
+    for (let at = 0; at < hashes.length - 1; at += 1)
+      if (this.openings.has(hashes[at] as string)) length = at + 1;
     if (length === 0) return spec;
     // A declaration keeps the block it names and the ones before it (measured in dropMiddle): the opening is those.
     if (spec.perturbations?.length) return spec;
@@ -273,7 +283,11 @@ export class TerminalSubsumption {
     if (rendered.placeholders.length || rendered.noThen.length || rendered.reasons.length) return spec;
     const parsed = validateSpec(rendered.spec);
     if (!parsed.ok || !this.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) return spec;
-    if (!this.tuplesHold(spec, parsed.spec)) return spec;
+    if (!this.tuplesHold(spec, parsed.spec) || !this.pairsHold(spec, parsed.spec)) return spec;
+    if (this.allocation && this.allocation.imbalanceWith(candidate) > this.allocation.imbalanceWith(draft))
+      return spec;
+    // A prefix whose recorded results the block's world does not force is a Given the runner would not accept.
+    if (verifyGiven(parsed.spec).some((finding) => finding.block === 0)) return spec;
     draft.blocks = candidate.blocks;
     draft.perturbations = candidate.perturbations;
     draft.reducedOpening = {
