@@ -478,19 +478,24 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/** Why words were not located in a text: in no place (`not-found`), or in several (`ambiguous`). */
+export type LocateMiss = 'not-found' | 'ambiguous';
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
- * kept is the unit's own text, never the copy. `reason` says why not.
+ * kept is the unit's own text, never the copy. A miss gives `code`, which checks read, and `reason`, its words for a
+ * report.
  */
 export function locateSpanText(
   unitText: string,
   words: string,
-): { from: number; to: number } | { reason: string } {
+): { from: number; to: number } | { code: LocateMiss; reason: string } {
   const lower = unitText.toLowerCase();
   const wanted = words.toLowerCase();
   const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: 'the text is not in the unit' };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  if (first < 0) return { code: 'not-found', reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0)
+    return { code: 'ambiguous', reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
 }
 
@@ -512,7 +517,7 @@ export function anchorUnits(entries: readonly Labelled[], window: Window): Label
     if (words === '' || at === undefined) return undefined;
     const holds = (text: string) => {
       const found = locateSpanText(text, words);
-      return !('reason' in found) || found.reason === 'the text is found twice in the unit';
+      return !('reason' in found) || found.code === 'ambiguous';
     };
     const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
     return found.includes(at) ? 0 : found.length === 1 ? (found[0] as number) - at : null;

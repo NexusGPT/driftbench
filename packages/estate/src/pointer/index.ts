@@ -52,6 +52,7 @@ export {
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
+  type LocateMiss,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
