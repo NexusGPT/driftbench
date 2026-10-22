@@ -142,6 +142,8 @@ describe('a helper session: the calls of the sidechain', () => {
     ]);
     expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ label: 'Read', parentCallId: 'agent-5' });
     expect(meta.issues).toEqual([]);
+    // Visible, not silent: the records that took the latest Agent call for want of a parent are counted.
+    expect(meta.ownerlessHelperRecords).toBe(1);
   });
 
   it('treats parent_tool_use_id alone as a helper marker, with no isSidechain', () => {
