@@ -121,7 +121,9 @@ describe('a section longer than twice the cap is a named failure, never a quiet 
     pointerScan({
       files: [{ path: 'notes.md', text }],
       sets: load(SETS),
-      labelling: singleLabelling(plantedDense((window) => window.units.map((unit) => ({ units: String(unit.n), label: 'order' })))),
+      labelling: singleLabelling(
+        plantedDense((window) => window.units.map((unit) => ({ units: String(unit.n), label: 'order' }))),
+      ),
       cassette: new Cassette(),
       mode: 'record',
       windowUnits: 4,
