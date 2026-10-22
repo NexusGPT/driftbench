@@ -23,6 +23,7 @@ Everything in this estate is invented for testing.
 - **R15.** After a compaction, re-read this file and the open tracker note before you continue.
 - **R16.** If a tool fails twice in a row, stop and tell the user what failed instead of retrying.
 - **R17.** Report a number only when you read it in a file or a tool result during this session.
+- **R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue.
 
 ## Routing
 
