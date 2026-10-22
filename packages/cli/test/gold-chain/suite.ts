@@ -334,7 +334,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const limited: EstateMap = {
           ...approved,
           atoms: approved.atoms.map((atom) => {
-            const entries = [...governed].filter(([id]) => atomOf.get(id)?.id === atom.id).flatMap(([, v]) => v);
+            const entries = [...governed]
+              .filter(([id]) => atomOf.get(id)?.id === atom.id)
+              .flatMap(([, v]) => v);
             if (entries.length === 0) return atom;
             const condition = entries.map((entry) => ({
               limit: entry.limit,
