@@ -1,0 +1,473 @@
+[
+  {
+    "id": "r3d-001",
+    "path": "training/round3-fiction.md",
+    "quote": "When a parcel is more than 24 hours late, send a fresh tracking request.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_one_day"
+    }
+  },
+  {
+    "id": "r3d-002",
+    "path": "training/round3-fiction.md",
+    "quote": "For a parcel delayed by over 48 hours, open a claim.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_two_days"
+    }
+  },
+  {
+    "id": "r3d-003",
+    "path": "training/round3-fiction.md",
+    "quote": "If the shipment has been confirmed lost, preserve the claim number.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "lost"
+    }
+  },
+  {
+    "id": "r3d-004",
+    "path": "training/round3-fiction.md",
+    "quote": "Once context compaction has just completed, reload the fictional ledger.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_compaction"
+    }
+  },
+  {
+    "id": "r3d-005",
+    "path": "training/round3-fiction.md",
+    "quote": "Immediately after restarting the session, rebuild the task index.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_restart"
+    }
+  },
+  {
+    "id": "r3d-006",
+    "path": "training/round3-fiction.md",
+    "quote": "Before changing an invoice file, save its old checksum.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "before_invoice_edit"
+    }
+  },
+  {
+    "id": "r3d-007",
+    "path": "training/round3-fiction.md",
+    "quote": "If the invoice total differs by more than EUR 50.00, request a review.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "invoice_diff_over_50"
+    }
+  },
+  {
+    "id": "r3d-008",
+    "path": "training/round3-fiction.md",
+    "quote": "Right before dispatching a helper agent, attach its task brief.",
+    "truth": {
+      "variable": "helper",
+      "value": "before_helper_dispatch"
+    }
+  },
+  {
+    "id": "r3d-009",
+    "path": "training/round3-fiction.md",
+    "quote": "If the helper crashes irrecoverably, report that it died.",
+    "truth": {
+      "variable": "helper",
+      "value": "helper_died"
+    }
+  },
+  {
+    "id": "r3d-010",
+    "path": "training/round3-fiction.md",
+    "quote": "While the required approver has still not answered, leave the draft pending.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_unanswered"
+    }
+  },
+  {
+    "id": "r3d-011",
+    "path": "training/round3-fiction.md",
+    "quote": "When the approver explicitly says yes, record that approval.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_given"
+    }
+  },
+  {
+    "id": "r3d-012",
+    "path": "training/round3-fiction.md",
+    "quote": "If the order supplier is absent from the language table, ask for its locale.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_not_in_table"
+    }
+  },
+  {
+    "id": "r3d-013",
+    "path": "training/round3-fiction.md",
+    "quote": "When the order supplier is present in the language table, use the listed locale.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_in_table"
+    }
+  },
+  {
+    "id": "r3d-014",
+    "path": "training/round3-fiction.md",
+    "quote": "If the carrier replies with an error, retain the exact error code.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_error"
+    }
+  },
+  {
+    "id": "r3d-015",
+    "path": "training/round3-fiction.md",
+    "quote": "When a carrier response contains a tracking status, save that status.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_status"
+    }
+  },
+  {
+    "id": "r3d-016",
+    "path": "training/round3-fiction.md",
+    "quote": "Act if the shipment is at least two days late, including exactly two days.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-017",
+    "path": "training/round3-fiction.md",
+    "quote": "When a shipment is more than three days late, escalate its case.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-018",
+    "path": "training/round3-fiction.md",
+    "quote": "If a shipment is over twelve hours late, offer a revised estimate.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-019",
+    "path": "training/round3-fiction.md",
+    "quote": "If the parcel is over two business days late, notify its recipient.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-020",
+    "path": "training/round3-fiction.md",
+    "quote": "When a shipment has arrived ten hours after its promised time, record that delay.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-021",
+    "path": "training/round3-fiction.md",
+    "quote": "If session compaction has been requested but has not begun, wait for it.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-022",
+    "path": "training/round3-fiction.md",
+    "quote": "When the session is restored from a checkpoint without any restart or compaction, verify the cursor.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-023",
+    "path": "training/round3-fiction.md",
+    "quote": "If a restart is scheduled for tomorrow and has not happened, save the current queue.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-024",
+    "path": "training/round3-fiction.md",
+    "quote": "If session memory becomes corrupt while the same process keeps running, stop reading that memory.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-025",
+    "path": "training/round3-fiction.md",
+    "quote": "When the invoice difference is at least EUR 50.00, including equality, request review.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-026",
+    "path": "training/round3-fiction.md",
+    "quote": "After the invoice edit has finished, verify the saved file.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-027",
+    "path": "training/round3-fiction.md",
+    "quote": "If the invoice grand total itself is over EUR 50.00, mark its amount band; this is not a difference between totals.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-028",
+    "path": "training/round3-fiction.md",
+    "quote": "If the invoice total difference exceeds 50 US dollars and no euro conversion is available, ask for a conversion.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-029",
+    "path": "training/round3-fiction.md",
+    "quote": "If a helper is blocked on a missing file but remains alive, request that file.",
+    "truth": {
+      "variable": "helper",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-030",
+    "path": "training/round3-fiction.md",
+    "quote": "If a helper task is queued for next week with no dispatch yet scheduled, leave it in the backlog.",
+    "truth": {
+      "variable": "helper",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-031",
+    "path": "training/round3-fiction.md",
+    "quote": "If a helper has delivered only part of its answer and is waiting for more input, supply that input.",
+    "truth": {
+      "variable": "helper",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-032",
+    "path": "training/round3-fiction.md",
+    "quote": "If the approver says approval is conditional and has not yet been granted, keep the draft conditional.",
+    "truth": {
+      "variable": "approval",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-033",
+    "path": "training/round3-fiction.md",
+    "quote": "If the approver explicitly refuses the request, discard the draft.",
+    "truth": {
+      "variable": "approval",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-034",
+    "path": "training/round3-fiction.md",
+    "quote": "When the supplier language table cannot be loaded and membership is unknown, report the unavailable lookup.",
+    "truth": {
+      "variable": "supplier",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-035",
+    "path": "training/round3-fiction.md",
+    "quote": "If the carrier request times out without any carrier response, record the unanswered request.",
+    "truth": {
+      "variable": "carrier",
+      "value": "NEW"
+    }
+  },
+  {
+    "id": "r3d-036",
+    "path": "training/round3-fiction.md",
+    "quote": "If a news article is more than two days old, archive it; use a parcel icon for the archive button.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-037",
+    "path": "training/round3-fiction.md",
+    "quote": "If a credit memo exceeds EUR 50.00, send it to the memo desk.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-038",
+    "path": "training/round3-fiction.md",
+    "quote": "Use the exact words carrier error as the column heading.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-039",
+    "path": "training/round3-fiction.md",
+    "quote": "Print the sentence The session was just restarted in the glossary, irrespective of session state.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-040",
+    "path": "training/round3-fiction.md",
+    "quote": "Ask the user to approve the draft; this instruction records no answer.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-041",
+    "path": "training/round3-fiction.md",
+    "quote": "Assign every helper task a deadline in the fictional tracker.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-042",
+    "path": "training/round3-fiction.md",
+    "quote": "When teaching the parser syntax, use a compaction instruction as an example.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-043",
+    "path": "training/round3-fiction.md",
+    "quote": "If the interface theme is dark, choose the lost parcel icon.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-044",
+    "path": "training/round3-fiction.md",
+    "quote": "If a weather reading falls below two degrees, shorten the courier briefing.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-045",
+    "path": "training/round3-fiction.md",
+    "quote": "Use the fixed word invoice in every report heading.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-046",
+    "path": "training/round3-fiction.md",
+    "quote": "When writing the tutorial, explain what the phrase helper agent died means.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-047",
+    "path": "training/round3-fiction.md",
+    "quote": "When a user requests a status report, compose a query for the carrier.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-048",
+    "path": "training/round3-fiction.md",
+    "quote": "If a paragraph contains more than fifty lines, wrap the example invoice message.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-049",
+    "path": "training/round3-fiction.md",
+    "quote": "Never use the phrase helper agent died as a title.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-050",
+    "path": "training/round3-fiction.md",
+    "quote": "If a permission dialog is too narrow, shorten its approval button label.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-051",
+    "path": "training/round3-fiction.md",
+    "quote": "After a documentation release, add an example showing a carrier status response.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-052",
+    "path": "training/round3-fiction.md",
+    "quote": "If a calendar reminder is unanswered, display the supplier-table tutorial link.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-053",
+    "path": "training/round3-fiction.md",
+    "quote": "Before publishing a blog post, spell-check its invoice-edit example.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-054",
+    "path": "training/round3-fiction.md",
+    "quote": "When an illustration is missing, draw a restarted-session diagram.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-055",
+    "path": "training/round3-fiction.md",
+    "quote": "If the demo video lasts over one day, replace it with a shorter shipment tutorial.",
+    "truth": "none"
+  },
+  {
+    "id": "r3d-056",
+    "path": "training/round3-fiction.md",
+    "quote": "After a session restart, load the index; if the carrier answers with an error, keep its code.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_restart"
+    }
+  },
+  {
+    "id": "r3d-057",
+    "path": "training/round3-fiction.md",
+    "quote": "After a session restart, load the index; if the carrier answers with an error, keep its code.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_error"
+    }
+  },
+  {
+    "id": "r3d-058",
+    "path": "training/round3-fiction.md",
+    "quote": "When a shipment is lost, open a claim; before dispatching a helper agent, attach the claim brief.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "lost"
+    }
+  },
+  {
+    "id": "r3d-059",
+    "path": "training/round3-fiction.md",
+    "quote": "When a shipment is lost, open a claim; before dispatching a helper agent, attach the claim brief.",
+    "truth": {
+      "variable": "helper",
+      "value": "before_helper_dispatch"
+    }
+  }
+]
