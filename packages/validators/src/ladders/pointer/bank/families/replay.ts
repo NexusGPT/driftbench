@@ -248,7 +248,8 @@ export const replayRuns: Record<string, Run> = {
     const fake = fakeTransport();
     await record(fixture.files, 'haiku', fake, { labelsYaml: fixture.labelsYaml }, ctx);
     const asked = 3 * runsOf('haiku').length;
-    if (fake.count !== asked) return fail(`record must call all three windows for every run: ${fake.count} calls, expected ${asked}`);
+    if (fake.count !== asked)
+      return fail(`record must call all three windows for every run: ${fake.count} calls, expected ${asked}`);
     const again = fakeTransport();
     const second = await ctx.sut.scan({
       files: fixture.files,
