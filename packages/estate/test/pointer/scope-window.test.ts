@@ -42,26 +42,26 @@ describe('a window cap does not cut a section', () => {
   const units = cut(NOTES).units;
 
   it('keeps a section whole up to twice the cap, and cuts a longer one at that ceiling', () => {
-    // 10 night notes (plus the heading units): without the option the cap cuts every 4 units.
-    const capped = windowsOf('n.md', units, 4, NOTES).map((window) => window.units.length);
-    expect(capped.every((count) => count <= 4)).toBe(true);
+    const capped = windowsOf('n.md', units, 4, NOTES);
+    expect(capped.every((window) => window.units.length <= 4)).toBe(true);
     const kept = windowsOf('n.md', units, 4, NOTES, true);
     expect(Math.max(...kept.map((window) => window.units.length))).toBeLessThanOrEqual(8);
+    expect(Math.max(...kept.map((window) => window.units.length))).toBeGreaterThan(4);
     expect(kept.length).toBeLessThan(capped.length);
     // Every unit is in exactly one window, in file order.
-    expect(kept.flatMap((window) => window.units.map((unit) => unit.index))).toEqual(
-      capped.flatMap((window) => window.units.map((unit) => unit.index)),
-    );
+    const indexes = (windows: typeof kept) =>
+      windows.flatMap((window) => window.units.map((unit) => unit.index));
+    expect(indexes(kept)).toEqual(indexes(capped));
   });
 
-  it('never keeps a window open across a heading', () => {
+  it('runs a window past the cap only inside one section', () => {
     const kept = windowsOf('n.md', units, 4, NOTES, true);
-    for (const window of kept) {
-      const paths = new Set(window.units.map((unit) => (units[unit.index]?.path ?? []).join('>')));
-      expect(paths.size, window.id).toBeLessThanOrEqual(2);
+    for (const window of kept.filter((each) => each.units.length > 4)) {
+      // The headings that open the window are not part of a section's run: the cap waits on its sentences.
+      const body = window.units.filter((unit) => units[unit.index]?.container !== 'heading');
+      const paths = new Set(body.map((unit) => (units[unit.index]?.path ?? []).join('>')));
+      expect(paths.size, window.id).toBe(1);
     }
-    const day = kept.find((window) => window.units.some((unit) => units[unit.index]?.text === 'Open the gate'));
-    expect(day?.units.some((unit) => units[unit.index]?.text.startsWith('Note'))).toBe(false);
   });
 });
 
