@@ -44,6 +44,31 @@ describe('the spans the reader already reads', () => {
     expect(found?.map((span) => agent.slice(span.start, span.end))).toEqual(['night-owl', 'haiku']);
   });
 
+  it('cover the matcher, type and command of a skill hook, and no other text under hooks', () => {
+    const text = [
+      '---',
+      'name: closer',
+      'description: Closes the till.',
+      'hooks:',
+      '  PreToolUse:',
+      '    - matcher: Bash',
+      '      hooks:',
+      '        - type: command',
+      '          command: python3 guards/till.py',
+      '          timeout: 5',
+      '          statusMessage: Counting the till for you',
+      '---',
+      'Close the till.',
+      '',
+    ].join('\n');
+    const path = '.claude/skills/closer/SKILL.md';
+    const read = (readSpansOf([{ path, text }]).get(path) ?? []).map((span) =>
+      text.slice(span.start, span.end),
+    );
+    expect(read).toEqual(['closer', 'Closes the till.', 'Bash', 'command', 'python3 guards/till.py']);
+    expect(read).not.toContain('Counting the till for you');
+  });
+
   it('are none for a file of another kind', () => {
     expect(readSpansOf([{ path: 'CLAUDE.md', text: SKILL }]).size).toBe(0);
   });

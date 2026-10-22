@@ -1406,9 +1406,16 @@ function anchorOf(token: string): { script: string; anchored: boolean } {
  * by code, so a labeler is not asked about it. `readSkill` and `readSubagent` read exactly these.
  */
 export const READ_KEYS = {
-  skill: ['name', 'description', 'allowed-tools', 'hooks'],
+  skill: ['name', 'description', 'allowed-tools'],
   subagent: ['name', 'description', 'model', 'effort', 'tools', 'skills'],
 } as const;
+
+/**
+ * The values under `hooks` that `readGuards` consumes: the matcher of a group, and the type and the command (or
+ * prompt) of each hook in it. Any other string under `hooks` (a status message, a condition) is prose the reader
+ * does not read, so a labeler is still asked about it.
+ */
+const HOOK_READ_PATH = /^\$\.hooks\.[^.[\]]+\[\d+\]\.(?:matcher|hooks\[\d+\]\.(?:type|command|prompt))$/;
 
 /**
  * The spans of each file that the reader already reads as declarations: the front matter values of a skill or a
@@ -1427,12 +1434,13 @@ export function readSpansOf(
       .units.filter(
         (unit) =>
           unit.container === 'front_matter_value' &&
-          keys.some(
-            (key) =>
-              unit.key === `$.${key}` ||
-              unit.key?.startsWith(`$.${key}.`) ||
-              unit.key?.startsWith(`$.${key}[`),
-          ),
+          ((kind === 'skill' && HOOK_READ_PATH.test(unit.key ?? '')) ||
+            keys.some(
+              (key) =>
+                unit.key === `$.${key}` ||
+                unit.key?.startsWith(`$.${key}.`) ||
+                unit.key?.startsWith(`$.${key}[`),
+            )),
       )
       .map((unit) => ({ start: unit.start, end: unit.end }));
     if (spans.length > 0) out.set(file.path, spans);
