@@ -29,7 +29,7 @@ describe('driftbench estate build with no state library given', () => {
     let err = '';
     const code = await estateBuildCommand(
       'estate',
-      { out: 'b', yes: true, replay: 'estate/answers.yaml' },
+      { out: 'b', yes: true, pointer: true, cassette: 'estate/cassette.jsonl' },
       {
         cwd: root,
         out: (text) => {
@@ -57,12 +57,12 @@ describe('driftbench estate build with no state library given', () => {
     const written = out.match(
       /5\. Write the tests: (\d+) tests written\. (\d+) are complete and (\d+) still wait/,
     );
-    expect(written?.slice(1)).toEqual(['1409', '735', '674']);
+    expect(written?.slice(1)).toEqual(['1424', '779', '645']);
     const waiting = err.match(/^(\d+) rows need states not in the library: (.*)\. Pass --states/);
     expect(waiting?.[2]).toBe(
       'event dead_helper, event stale_tracker, session state helpers_running, session state resumed',
     );
-    expect(waiting?.[1]).toBe('580');
+    expect(waiting?.[1]).toBe('569');
 
     // Complete live tests set the states of the library, and never one it lacks.
     const live = await specs(join(generated, 'specs', 'live'));

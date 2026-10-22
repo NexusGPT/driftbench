@@ -1114,9 +1114,19 @@ Limits of replay today:
 
 ### The state library of a live run
 
-`estate build` and `estate generate` need no state library from you. With no `--states` and no `live/states/library.json` beside the map, they write `states/library.json` and `states/prefixes/long.jsonl` beside the specs, and plan the live rows from it. The library holds the session states `long`, `after_compaction` and `after_restart`, and the events `compaction_mid_task`, `process_restart` and `rate_wave`. The test `packages/cli/test/estate-build-generated-states.test.ts` builds the Northwind estate this way and checks the file, the printed counts and the planned states. With the recorded answers of the fixture (`estate build <copy of the fixture> --out build --replay answers.yaml --yes`), the build writes 1409 tests, 735 of them complete, and 580 rows wait for `resumed`, `helpers_running`, `stale_tracker` or `dead_helper`, which need the estate's own transcript, tracker or helper.
+`estate build` and `estate generate` need no state library from you. With no `--states` and no `live/states/library.json` beside the map, they write `states/library.json` and `states/prefixes/long.jsonl` beside the specs, and plan the live rows from it. The library holds the session states `long`, `after_compaction` and `after_restart`, and the events `compaction_mid_task`, `process_restart` and `rate_wave`. The test `packages/cli/test/estate-build-generated-states.test.ts` builds the Northwind estate this way and checks the file, the printed counts and the planned states. With the recording of the fixture (`estate build <copy of the fixture> --out build --pointer --cassette cassette.jsonl --yes`, which replays the cassette and calls no model), the build writes 1424 tests, 779 of them complete, and 569 rows wait for `resumed`, `helpers_running`, `stale_tracker` or `dead_helper`, which need the estate's own transcript, tracker or helper.
 
-Recorded run, 2026-10-22, with an API key. The run used a build with no `--states` and three live tests of the generated folder, one for each session state, run by `claude` on `claude-haiku-5-5` with `--states build/generated/states/library.json`. It cost 0.0055 USD, under a cap of 0.10 USD. It is not run by the tests, because it is billed. The campaign id changes at every run. The two failures are tests whose guard did not fire, since the agent asked which command to run instead of running one.
+Recorded run, 2026-10-22, with an API key. The run used the build above and three live tests of its generated folder, one for each session state, run by `claude` on `claude-haiku-5-5` with `--states build/generated/states/library.json`. It cost 0.0055 USD, under a cap of 0.10 USD. It is not run by the tests, because it is billed. The campaign id changes at every run. The two failures are tests whose guard did not fire, since the agent asked which command to run instead of running one.
+
+The store of the run holds proof that each state was planted before the first turn. These are the fields `raw.live.ops`, `raw.live.notes` and `raw.markers` of each run:
+
+| Test | Session state | Operation run | Note of the runner | Marker in the transcript |
+|---|---|---|---|---|
+| `estate.pairwise.0902` | `long` | `resume` | resume: a session of 24 records | none |
+| `estate.pairwise.0279` | `after_compaction` | `compact` | compact: a compaction boundary and its summary were appended | `compaction`, planted, trigger `auto`, 150000 tokens before |
+| `estate.pairwise.0188` | `after_restart` | `restart` | restart: the session was cut after 23 records, the next one torn | none |
+
+The 24 records of the first row are the 12 turns of `states/prefixes/long.jsonl`. The first turn of each test then ran in that session.
 
 ```text
 note: the estate copy is not pinned to a map hash; pass --map to pin it
