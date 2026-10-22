@@ -83,14 +83,18 @@ export async function replayOp(input: Obj): Promise<unknown> {
     };
   } catch (thrown) {
     if (!(thrown instanceof pointer.CassetteMiss)) throw thrown;
-    const cause = thrown as { nearest?: string; differs: string[] };
-    if (cause.nearest === undefined)
-      throw new Unsupported(
-        'replay',
-        'a miss names no field when the set or the labeler differs: the reader compares only entries of the same file, window, set and labeler',
-      );
+    const cause = thrown as {
+      nearest?: string;
+      differs: string[];
+      closest?: { key: string; differs: string[] };
+    };
+    // With no entry of the same set and labeler, the reader names the closest entry of the same file and window.
+    const at = cause.nearest ?? cause.closest?.key;
+    const differs = cause.nearest === undefined ? (cause.closest?.differs ?? []) : cause.differs;
+    if (at === undefined)
+      throw new Unsupported('replay', 'the cassette holds no entry of the same file and window to compare');
     const nearest = (input.entries as Obj[]).map((entry) => entry.request as Obj);
-    const stored = cassette.entries.get(cause.nearest);
+    const stored = cassette.entries.get(at);
     const match =
       nearest.find(
         (candidate) =>
@@ -100,7 +104,7 @@ export async function replayOp(input: Obj): Promise<unknown> {
       ) ??
       nearest[0] ??
       {};
-    const fields = fieldsOf(cause.differs, request, match);
+    const fields = fieldsOf(differs, request, match);
     if (fields.length !== 1)
       throw new Unsupported(
         'replay',

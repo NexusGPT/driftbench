@@ -72,6 +72,8 @@ export class CassetteMiss extends Error {
     readonly nearest: string | undefined,
     /** The labeler id of the request that missed, as its label set or settings name it. */
     readonly labeler?: string,
+    /** With no entry of the same set and labeler, the closest entry of the same file and window, and what differs. */
+    readonly closest?: { key: string; differs: string[] },
   ) {
     super(
       nearest
@@ -132,15 +134,25 @@ export class Cassette {
       if (stale.length === 0) return hit;
       throw new CassetteMiss(key, stale, hit.key, readable.labeler);
     }
-    const same = [...this.entries.values()].filter(
-      (entry) =>
-        entry.readable.path === readable.path &&
-        entry.readable.window === readable.window &&
-        entry.readable.set === readable.set &&
-        entry.readable.labeler === readable.labeler,
+    // The nearest entry is one of the same file, window, set and labeler. With none, the closest entry of the same
+    // file and window is kept apart: it names the other set or the other labeler, and `nearest` stays empty.
+    const sameWindow = [...this.entries.values()].filter(
+      (entry) => entry.readable.path === readable.path && entry.readable.window === readable.window,
     );
-    const nearest = same.sort((a, b) => differs(a).length - differs(b).length)[0];
-    throw new CassetteMiss(key, nearest ? differs(nearest) : [], nearest?.key, readable.labeler);
+    const rank = (list: CassetteEntry[]) => list.sort((a, b) => differs(a).length - differs(b).length)[0];
+    const nearest = rank(
+      sameWindow.filter(
+        (entry) => entry.readable.set === readable.set && entry.readable.labeler === readable.labeler,
+      ),
+    );
+    const closest = nearest === undefined ? rank(sameWindow) : undefined;
+    throw new CassetteMiss(
+      key,
+      nearest ? differs(nearest) : [],
+      nearest?.key,
+      readable.labeler,
+      closest ? { key: closest.key, differs: differs(closest) } : undefined,
+    );
   }
 
   put(wire: Wire, readable: Readable, answer: Recorded): CassetteEntry {
