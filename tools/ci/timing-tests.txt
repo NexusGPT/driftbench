@@ -9,4 +9,3 @@ packages/core/test/radius/unique-quote.test.ts
 packages/core/test/retention-linear.test.ts
 packages/core/test/runner/history-incremental.test.ts
 packages/generate/test/extract/forbid-index.test.ts
-packages/validators/test/variables/frame-cheats.test.ts
