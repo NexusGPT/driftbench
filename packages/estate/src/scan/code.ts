@@ -380,6 +380,13 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
   const declared = [...raw.skills, ...raw.subagents].flatMap((unit) => unit.tools);
+  // One atom for each tool name; the entries a skill or helper writes for it, with their patterns, stay in `rules`
+  // (`rule` keeps the tool alone, as the evidence and the ids always had).
+  const written = new Map<string, string[]>();
+  for (const tool of declared) {
+    const name = toolBase(tool.value);
+    written.set(name, [...(written.get(name) ?? []), tool.value.trim()]);
+  }
   for (const tool of declared) {
     const name = toolBase(tool.value);
     if (bare.has(name)) continue;
@@ -389,7 +396,12 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
       title: `Declared ${name}`,
       at: tool.at,
       evidence: [{ type: 'custom', name: 'permission', options: { effect: 'declared', rule: name } }],
-      fields: { tool: name, effect: 'declared', rule: name },
+      fields: {
+        tool: name,
+        effect: 'declared',
+        rule: name,
+        rules: [...new Set(written.get(name) ?? [name])],
+      },
     });
   }
 
