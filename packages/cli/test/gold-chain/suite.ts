@@ -364,8 +364,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const conditions = withLimits.store.variables.filter((variable) =>
           variable.id.startsWith('condition.'),
         );
+        const refusedAtoms = new Set(withLimits.refused.map((entry) => entry.atom));
         const others = approved.atoms
-          .filter((atom) => !instructionAtoms.has(atom.id))
+          .filter((atom) => !instructionAtoms.has(atom.id) && !refusedAtoms.has(atom.id))
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
         if (conditions.length !== producedCount + others) {
           problems.push(`${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`);

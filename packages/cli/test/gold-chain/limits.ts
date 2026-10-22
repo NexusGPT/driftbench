@@ -21,17 +21,17 @@ export const LIMITS_SET_YAML = `  - set: ${LIMITS_SET_NAME}
     description: The numbers that limit the instructions of an agent.
     links:
       - name: limit
-        description: The number a unit states, and how a quantity is compared with it for the limited unit to hold. Give value as a JSON number, to as the comparison, and unit as what the number counts when the unit says so.
+        description: The number a unit states, and how a quantity is compared with it for the limited unit to hold. value is the number as a JSON number, to is the comparison, unit is what the number counts when the unit says so. Every unit with a label that lists this kind needs at least one limit link.
         values: [lt, le, gt, ge]
         number: true
     labels:
       - name: bound
-        description: A unit that states a number (a count, a duration, a size or a threshold) which limits when or how another unit applies. Give the unit of the instruction the number limits as the target. A unit that only mentions a number without limiting an instruction is none.
+        description: A unit that states a number (a count, a duration, a size or a threshold) which limits when or how ANOTHER unit applies. Give the unit of the instruction the number limits as the target. Give each such unit as its own entry, never inside a range, with its limit links. A unit that only mentions a number without limiting an instruction is none.
         target: required
         condition: true
         links: [limit]
       - name: own
-        description: A unit that is itself an instruction and states a number that limits it, such as a duration or a count inside the instruction. A unit that states no such number is none.
+        description: A unit that is itself an instruction and states a number that limits it, such as a duration or a count written inside the instruction. Give each such unit as its own entry, never inside a range, with its limit links. A unit that states no such number is none.
         links: [limit]
 `;
 
