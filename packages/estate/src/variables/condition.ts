@@ -33,24 +33,42 @@ function declared(value: unknown): Condition | undefined {
   return { limit, comparison: comparison as Comparison, ...(unit === undefined ? {} : { unit }) };
 }
 
-/** The condition of an atom, with a base for its variable id, or undefined when its fields hold none. */
+/**
+ * Every numeric condition of an atom, each with a base for its variable id. `fields.condition` is one condition or
+ * a list of them (the pointer reader also keeps the ids of its condition units in that field: an entry that is not
+ * exactly `{ limit, comparison, unit? }` is no condition and is passed over). An invariant whose check declares a
+ * limit gives its one condition when the atom carries none of its own.
+ */
+export function conditionsOf(
+  atom: Atom,
+  limits: readonly InvariantLimit[] = INVARIANT_LIMITS,
+): Array<Condition & { base: string }> {
+  const fields = atom.fields ?? {};
+  const listed = Array.isArray(fields.condition) ? fields.condition : [fields.condition];
+  const own = listed.flatMap((entry) => {
+    const found = declared(entry);
+    return found === undefined ? [] : [{ ...found, base: atom.id }];
+  });
+  if (own.length > 0 || atom.kind !== 'invariant') return own;
+  const rule = limits.find((candidate) => candidate.check === fields.check);
+  const limit = rule === undefined ? undefined : fields[rule.limit];
+  if (rule !== undefined && typeof limit === 'number' && Number.isFinite(limit)) {
+    return [
+      {
+        limit,
+        comparison: rule.comparison,
+        ...(rule.unit === undefined ? {} : { unit: rule.unit }),
+        base: rule.check,
+      },
+    ];
+  }
+  return [];
+}
+
+/** The first condition of an atom, with a base for its variable id, or undefined when its fields hold none. */
 export function conditionOf(
   atom: Atom,
   limits: readonly InvariantLimit[] = INVARIANT_LIMITS,
 ): (Condition & { base: string }) | undefined {
-  const fields = atom.fields ?? {};
-  const own = declared(fields.condition);
-  if (own !== undefined) return { ...own, base: atom.id };
-  if (atom.kind !== 'invariant') return undefined;
-  const rule = limits.find((candidate) => candidate.check === fields.check);
-  const limit = rule === undefined ? undefined : fields[rule.limit];
-  if (rule !== undefined && typeof limit === 'number' && Number.isFinite(limit)) {
-    return {
-      limit,
-      comparison: rule.comparison,
-      ...(rule.unit === undefined ? {} : { unit: rule.unit }),
-      base: rule.check,
-    };
-  }
-  return undefined;
+  return conditionsOf(atom, limits)[0];
 }

@@ -4,7 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { INVARIANT_LIMITS } from '../../src/scan/invariants';
-import { conditionOf, conditionsOf as conditionsFor, estateToVariables, provenanceResolver } from '../../src/variables';
+import {
+  conditionOf,
+  conditionsOf as conditionsFor,
+  estateToVariables,
+  provenanceResolver,
+} from '../../src/variables';
 import { atom, HALL, mapOf } from './support';
 
 const resolver = () => provenanceResolver(new Map(Object.entries(HALL)));
@@ -116,7 +121,10 @@ describe('an atom may carry several numeric conditions', () => {
   ];
 
   it('gives each condition of a list its own variable, on the quote of the atom', () => {
-    const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition: FIELD } })]), resolver());
+    const result = estateToVariables(
+      mapOf([atom({ quote: QUOTE, fields: { condition: FIELD } })]),
+      resolver(),
+    );
     const variables = conditionsOf(result);
     expect(variables).toHaveLength(2);
     expect(variables.map((variable) => variable.boundaries?.[0]?.limit)).toEqual([2, 5]);
@@ -128,7 +136,10 @@ describe('an atom may carry several numeric conditions', () => {
 
   it('keeps the unit ids a pointer atom carries in the same field, and reads the conditions beside them', () => {
     const mixed = ['abcdefghij', ...FIELD, { limit: 3 }];
-    const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition: mixed } })]), resolver());
+    const result = estateToVariables(
+      mapOf([atom({ quote: QUOTE, fields: { condition: mixed } })]),
+      resolver(),
+    );
     expect(conditionsOf(result)).toHaveLength(2);
     const ids = estateToVariables(
       mapOf([atom({ quote: QUOTE, fields: { condition: ['abcdefghij'] } })]),
