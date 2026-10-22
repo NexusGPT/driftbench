@@ -1142,7 +1142,8 @@ describe('driftbench estate run --from', () => {
       for (const name of await readdir(dir)) {
         if (name.startsWith('runs.db')) continue;
         const path = join(dir, name);
-        if ((await stat(path)).isFile()) expect(await readFile(path, 'latin1'), name).not.toContain(salt as string);
+        if ((await stat(path)).isFile())
+          expect(await readFile(path, 'latin1'), name).not.toContain(salt as string);
       }
     }, 120_000);
 
