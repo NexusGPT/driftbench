@@ -68,7 +68,9 @@ export function windowCap(arm: ModelArm): number {
   return arm === 'jev' ? JEV_WINDOW_UNITS : Number.POSITIVE_INFINITY;
 }
 /** The path a window prints: the headings above its first unit and, when it starts at a heading, that heading. */
-export function windowPath(first: { text: string; container?: string; path?: string[] } | undefined): string[] {
+export function windowPath(
+  first: { text: string; container?: string; path?: string[] } | undefined,
+): string[] {
   const above = first?.path ?? [];
   if (first?.container !== 'heading') return above;
   const title = (first.text.split(/\r\n|\r|\n/, 1)[0] ?? '')
@@ -199,7 +201,9 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
       const cap = windowCap(arm);
       // A fixture file over the budget would be cut at a heading; no fixture is authored that long.
       if (doc.units.reduce((sum, u) => sum + u.text.length, 0) > WINDOW_CHARS)
-        throw new Error(`${doc.path}: a fixture file over ${WINDOW_CHARS} characters of units is not authored`);
+        throw new Error(
+          `${doc.path}: a fixture file over ${WINDOW_CHARS} characters of units is not authored`,
+        );
       for (let offset = 0; offset < doc.units.length; offset += cap) {
         const selected = doc.units.slice(offset, offset + cap),
           window = `${doc.path}#${Math.floor(offset / cap) + 1}`;

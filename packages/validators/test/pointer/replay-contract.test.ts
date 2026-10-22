@@ -93,7 +93,8 @@ describe('the windows of the fixtures', () => {
   it('a Haiku file under the budget is one window, its path ending with the heading it starts at', () => {
     const fixture = makeFixture('haiku', [document], PROBE_YAML);
     expect(new Set(fixture.rows.map((row) => row.readable.window))).toEqual(new Set(['notes/long.md#1']));
-    const content = (fixture.wires[0]?.body.messages as Array<{ content: string }>)[0]?.content ?? '';
+    const wire = fixture.wires[0] as { body: Record<string, unknown> };
+    const content = (wire.body.messages as Array<{ content: string }>)[0]?.content ?? '';
     expect(content.split('\n').find((line) => line.startsWith('WINDOW '))).toBe(
       'WINDOW notes/long.md#1  path: Long notes',
     );
