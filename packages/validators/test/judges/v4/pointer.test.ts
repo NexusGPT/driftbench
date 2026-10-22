@@ -524,10 +524,11 @@ describe('planted faults in a copy of the labellers', () => {
       const edits = [{ from: fault.from, to: fault.to }, ...(fault.also ?? [])];
       for (const edit of edits)
         expect(text.includes(edit.from), `the source no longer holds: ${edit.from}`).toBe(true);
-      writeFileSync(
-        path,
-        edits.reduce((current, edit) => current.replace(edit.from, edit.to), text),
-      );
+      const mutated = edits.reduce((current, edit) => current.replace(edit.from, edit.to), text);
+      // A fault that edits nothing, or that names no item it must break, would pass whatever the source does.
+      expect(mutated, `the fault changes nothing: ${fault.name}`).not.toBe(text);
+      expect(fault.fails.length, `the fault names no item it breaks: ${fault.name}`).toBeGreaterThan(0);
+      writeFileSync(path, mutated);
       const impl = (await import(
         /* @vite-ignore */ pathToFileURL(join(dir, 'src/pointer/index.ts')).href
       )) as PointerImpl;
