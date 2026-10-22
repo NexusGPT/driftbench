@@ -28,7 +28,7 @@ const WORDS = [
 const CONNECTORS = ['the', 'our', 'each', 'every'] as const;
 const VERBS = ['holds', 'applies', 'stays', 'counts', 'waits'] as const;
 /** The kinds of white space every white space draw holds at least once. */
-const REQUIRED_RUNS = ['   ', '\t', '\n'] as const;
+const REQUIRED_RUNS = ['  ', '   ', '\t', '\n'] as const;
 const RUNS = ['  ', '   ', '\t', '\n', ' \t', '\r\n', ' \n ', '\t\t'] as const;
 const INVISIBLE = ['​', '‌', '‍', '⁠'] as const;
 const ACCENTED = [
