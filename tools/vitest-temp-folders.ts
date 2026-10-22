@@ -1,9 +1,11 @@
+import { spawnSync } from 'node:child_process';
 import fs, { realpathSync, rmSync } from 'node:fs';
 import fsp from 'node:fs/promises';
 import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
-import { afterAll } from 'vitest';
+import { fileURLToPath } from 'node:url';
+import { afterAll, beforeAll } from 'vitest';
 
 /**
  * Keeps the machine's temporary folder clean after a test run. A test file makes its fixtures with
@@ -74,4 +76,35 @@ export function trackedTempFolders(): string[] {
 state();
 afterAll(() => {
   removeTempFolders();
+});
+
+/**
+ * The committed examples/ tree is read-only for tests. A test that runs a script or a command from the tree
+ * in place can leave a file in it (a log, an output) that another test file, in the same checkout, then reads
+ * as a change. This guard lists what `git status` shows under examples/ when a test file starts and fails the
+ * file if the list holds a new entry when it ends. A test that needs a writable tree copies it first.
+ */
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+
+function examplesState(): Set<string> {
+  const run = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', '--', 'examples'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  // Outside a git checkout (a source archive) there is no tree to guard.
+  if (run.status !== 0) return new Set();
+  return new Set(run.stdout.split('\n').filter(Boolean));
+}
+
+let examplesBefore: Set<string> | undefined;
+beforeAll(() => {
+  examplesBefore = examplesState();
+});
+afterAll(() => {
+  if (examplesBefore === undefined) return;
+  const added = [...examplesState()].filter((entry) => !examplesBefore?.has(entry));
+  if (added.length > 0)
+    throw new Error(
+      `a test left a change in the committed examples/ tree (copy the tree to a temporary folder first):\n${added.join('\n')}`,
+    );
 });
