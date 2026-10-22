@@ -88,7 +88,7 @@ export type UnitResult = {
   cases: UnitCaseResult[];
   /** With record: the test with its recorded cases, to write back. */
   recorded?: UnitTest;
-  /** A catalogue check's test: whether the host hook's answer to its trigger names the check. */
+  /** A catalogue check's test: whether the host guard's answer to its trigger names the check. */
   exercised?: boolean;
 };
 
