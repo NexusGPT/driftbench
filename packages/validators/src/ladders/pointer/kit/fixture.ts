@@ -97,11 +97,12 @@ export function wireFor(
           {
             role: 'user',
             content: [
-              `SET ${set.set}: ${set.description}`,
-              'LABELS:',
+              `SET ${set.set}`,
+              `DESCRIPTION ${set.description.replace(/\s+/g, ' ').trim()}`,
+              `LABELS ${[...set.labels.map((l) => l.name), 'none'].join(' | ')}`,
               ...set.labels.map(
                 (l) =>
-                  `- ${l.name}: ${l.description}${examples(l)}${l.target ? ' (also give "target": the number of the unit that holds the other end)' : ''}`,
+                  `- ${l.name}: ${l.description}${examples(l)}${l.target ? ' (also give "target": the number of the unit that holds the other end, as a JSON number)' : ''}`,
               ),
               '- none: no label of this set applies.',
               `WINDOW ${window}  path: ${path.join(' > ') || '(top)'}`,
