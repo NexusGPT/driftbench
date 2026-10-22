@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { ConversationInput, Plan } from '../../interface';
 import { build, callCoverage, type ItemContext, planOf, type StemRun } from '../item';
 import { nounNumber, numericSpan, type Quantity, ruleSentence } from '../oracle/conditions';
@@ -15,7 +16,6 @@ import {
   type SpaceGroup,
   toStore,
 } from '../oracle/space';
-import { check } from '../../../../failure';
 import { choose, cpuMs, must, type Rng, show } from '../util';
 import { toBig } from './counter';
 import { type Base, baseStore, checkCounts, draw } from './sources';
@@ -39,13 +39,14 @@ function verify(
   label: string,
 ): void {
   const problems = shapeProblems(space, run.plan, []);
-  must(problems.length === 0, () => `${label}: ${problems.join('; ')}`);
+  check(problems.length === 0, { rule: 'the plan has a sound shape', input: label, got: { problems } });
   const rows = run.plan.rows.map((r) => indexRow(space, r.values) as number[]);
   const bad = rowsWithForbidden(space, rows);
-  must(
-    bad.count === 0,
-    () => `${label}: ${bad.count} rows hold an impossible pair, for example ${bad.first}`,
-  );
+  check(bad.count === 0, {
+    rule: 'no row of the plan holds an impossible pair',
+    input: label,
+    got: { rowsWithAnImpossiblePair: bad.count, first: bad.first },
+  });
   const scan = scanCoverage(space, groups, rows);
   check(scan.missing === 0, {
     rule: 'every required tuple is held by the rows',

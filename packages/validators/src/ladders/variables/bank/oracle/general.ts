@@ -99,9 +99,8 @@ export class GeneralOracle {
         }
       }
     }
-    if (missing > 0)
-      problems.push(`${missing} allowed required tuples are not held by the rows`);
-      this.hidden.push({ example });
+    if (missing > 0) problems.push(`${missing} allowed required tuples are not held by the rows`);
+    this.hidden.push({ example });
     return problems;
   }
 }

@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type {
   ConversationInput,
   OwnerInput,
@@ -37,7 +38,6 @@ import {
   variablesCiting,
 } from '../oracle/estate';
 import { drawCategorical } from '../oracle/stats';
-import { check } from '../../../../failure';
 import { clone, deepEqual, must, type Rng, show, stableStringify } from '../util';
 
 /** The wordings the sources items use when the wording is not what they test. */
@@ -645,7 +645,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const store = build(ctx, { estate: base.estate, conversations: sessions });
     const dump = JSON.stringify(store);
     const leak = canaries.find((c) => dump.includes(c));
-    must(leak === undefined, () => `the store holds "${leak}" from a conversation: only counts may reach it`);
+    check(leak === undefined, { rule: 'nothing of a conversation but counts reaches the store', got: { leak } });
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     must(!hasPrefix, 'the store holds a fragment of a conversation text or id');
   },

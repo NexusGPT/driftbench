@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { EstateInput, Refusal, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, type StemRun } from '../item';
@@ -11,7 +12,6 @@ import {
   valueByQuote,
   variablesCiting,
 } from '../oracle/estate';
-import { check } from '../../../../failure';
 import { cpuMs, must, type Rng, show } from '../util';
 import { basicSpan } from './sources';
 
@@ -73,15 +73,9 @@ export function toolEstate(
 
 function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): void {
   const kept = valueByQuote(store, quote);
-  must(
-    !kept,
-    () => `${label}: the value ${id} was kept with the quote ${show(quote, 80)}; it must be refused`,
-  );
+  check(!kept, { rule: 'a value whose quote the file does not hold is refused', input: { label, id, quote }, got: { kept: true } });
   const named = refusalsMentioning(store, id);
-  must(
-    named.length >= 1,
-    () => `${label}: the refusal list ${show(store.refused)} does not name the value ${id}`,
-  );
+  check(named.length >= 1, { rule: 'a refused value is named in the refusal list', input: { label, id }, got: { refusals: store.refused } });
 }
 
 function mustKeep(store: StoreDoc, quote: string, id: string, label: string, source?: string): void {
@@ -274,10 +268,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       !!var0 && var0.values.length === 1,
       () => `the variable should hold only the good value; it holds ${show(var0?.values.map((v) => v.id))}`,
     );
-    must(
-      refusalsMentioning(store, bad.id).length >= 1,
-      () => `the refusal list ${show(store.refused)} does not name the value ${bad.id}`,
-    );
+    check(refusalsMentioning(store, bad.id).length >= 1, {
+      rule: 'a refused value is named in the refusal list',
+      input: { id: bad.id },
+      got: { refusals: store.refused },
+    });
   },
 
   'quotes.refuse.inexact': (variant, ctx) => {
@@ -550,10 +545,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       hit.length === 0,
       () => `the span ${show(span, 80)} is not in ${source} but variable ${hit[0]?.id} cites it`,
     );
-    must(
-      refusalsMentioning(store, span, 'R1').length >= 1,
-      () => `the refusal list ${show(store.refused)} does not name the span ${show(span, 80)}`,
-    );
+    check(refusalsMentioning(store, span, 'R1').length >= 1, {
+      rule: 'a refused clause is named in the refusal list',
+      input: { span },
+      got: { refusals: store.refused },
+    });
     const good = variablesCiting(store, other.text);
     check(good.length === 1, {
       rule: 'a clause the file holds still gives one variable beside a clause it does not hold',

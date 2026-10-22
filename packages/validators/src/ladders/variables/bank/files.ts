@@ -1,7 +1,7 @@
+import { check } from '../../../failure';
 import type { FileIssue, FileStore, FileVariable } from '../interface';
 import { OWNER_DATE } from './constants';
 import { callQuotes, callValidate, type ItemContext } from './item';
-import { check } from '../../../failure';
 import { clone, makeRng, must, type Rng, show, subRng } from './util';
 
 /**

@@ -1,6 +1,6 @@
+import { check } from '../../../../failure';
 import type { Plan, PlanOptions, Row } from '../../interface';
 import { type ItemContext, planOf } from '../item';
-import { check } from '../../../../failure';
 import { must, type Rng, show } from '../util';
 import {
   type Coverage,
@@ -122,7 +122,14 @@ export function checkPlan(
   const problems = shapeProblems(space, plan, seeds);
   const hidden: unknown[] = [];
   if (problems.length > 0)
-    return { plan, fresh: [], coverage: { required: 0, covered: 0, missing: [] }, seedHeld: 0, problems, hidden };
+    return {
+      plan,
+      fresh: [],
+      coverage: { required: 0, covered: 0, missing: [] },
+      seedHeld: 0,
+      problems,
+      hidden,
+    };
   const parsed = parsePlan(space, plan, seeds.length);
   const seedIdx = seeds.map((s) => indexRow(space, s));
   problems.push(...forbiddenRows(space, oracle, parsed));

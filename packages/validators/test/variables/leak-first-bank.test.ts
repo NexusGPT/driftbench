@@ -26,8 +26,15 @@ describe('the failure messages of the first bank', () => {
         for (const seed of [1, 2, 3]) {
           for (const item of list) {
             try {
-              const r = await item.check({ seed, impl, root: '/nonexistent', id: item.id, rng: itemRng(seed, item.id) });
-              if (!r.pass) failures.push({ item: item.id, error: r.failure ?? new Error(r.detail), detail: r.detail });
+              const r = await item.check({
+                seed,
+                impl,
+                root: '/nonexistent',
+                id: item.id,
+                rng: itemRng(seed, item.id),
+              });
+              if (!r.pass)
+                failures.push({ item: item.id, error: r.failure ?? new Error(r.detail), detail: r.detail });
             } catch (error) {
               failures.push({ item: item.id, error, detail: String(error) });
             }
@@ -41,11 +48,18 @@ describe('the failure messages of the first bank', () => {
     const bySite = new Map<string, number>();
     for (const f of failures) {
       if (f.error instanceof Error && f.error.name === 'ItemFailure') continue;
-      const key = f.detail.replace(/\[[^\]]*tier \d\] /, '').replace(/[0-9]+/g, '#').replace(/"[^"]*"/g, '"_"').slice(0, 70);
+      const key = f.detail
+        .replace(/\[[^\]]*tier \d\] /, '')
+        .replace(/[0-9]+/g, '#')
+        .replace(/"[^"]*"/g, '"_"')
+        .slice(0, 70);
       bySite.set(key, (bySite.get(key) ?? 0) + 1);
     }
-    console.log(`first bank: ${failures.length} failures, ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking, ${bySite.size} distinct unstructured messages`);
-    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`site ${n} x ${k}`);
+    console.log(
+      `first bank: ${failures.length} failures, ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking, ${bySite.size} distinct unstructured messages`,
+    );
+    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]).slice(0, 25))
+      console.log(`site ${n} x ${k}`);
     expect(report.leaking).toEqual([]);
     expect(report.unstructured).toBeLessThanOrEqual(UNSTRUCTURED_MAX);
   }, 1_800_000);

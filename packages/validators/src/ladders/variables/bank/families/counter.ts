@@ -15,6 +15,7 @@ import {
   tupleKey,
 } from '../oracle/space';
 import { randomSpace, randomValidRow } from '../oracle/spaces';
+import { check } from '../../../../failure';
 import { choose, cpuMs, must, type Rng, show } from '../util';
 
 /** The exact value of a count: a bigint, or a number that is a safe integer. */
@@ -76,14 +77,18 @@ function compare(
   );
   const allowed = toBig(result.allowed, 'allowed');
   const covered = toBig(result.covered, 'covered');
-  must(
-    allowed === BigInt(ref.allowed),
-    () => `${label}: allowed ${allowed}, exhaustive enumeration gives ${ref.allowed}`,
-  );
-  must(
-    covered === BigInt(ref.covered),
-    () => `${label}: covered ${covered}, exhaustive enumeration gives ${ref.covered}`,
-  );
+  check(allowed === BigInt(ref.allowed), {
+    rule: 'coverage counts the allowed tuples exactly, as an exhaustive enumeration does',
+    input: label,
+    got: { allowed: String(allowed) },
+    expected: { allowed: String(ref.allowed) },
+  });
+  check(covered === BigInt(ref.covered), {
+    rule: 'coverage counts the covered tuples exactly, as an exhaustive enumeration does',
+    input: label,
+    got: { covered: String(covered) },
+    expected: { covered: String(ref.covered) },
+  });
   return result;
 }
 
@@ -435,15 +440,21 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         { uncovered: limit },
       );
       const list = result.uncovered;
-      must(
+      check(
         toBig(result.allowed, 'allowed') === BigInt(required.size) &&
           toBig(result.covered, 'covered') === BigInt(covered.size),
-        () => `coverage must count ${required.size} allowed and ${covered.size} covered tuples`,
+        {
+          rule: 'coverage counts the allowed and the covered tuples exactly',
+          input: { uncoveredLimit: limit },
+          got: { allowed: String(result.allowed), covered: String(result.covered) },
+          expected: { allowed: required.size, covered: covered.size },
+        },
       );
-      must(
-        Array.isArray(list),
-        () => `coverage was asked for the uncovered tuples (limit ${limit}) but returned ${show(list)}`,
-      );
+      check(Array.isArray(list), {
+        rule: 'coverage returns the list of uncovered tuples it was asked for',
+        input: { uncoveredLimit: limit },
+        got: { returned: list },
+      });
       const keys = (list as Row[]).map((tuple) => {
         const entries = Object.entries(tuple).map(([variable, value]) => {
           const i = space.vars.findIndex((v) => v.id === variable);

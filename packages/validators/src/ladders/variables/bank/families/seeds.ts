@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { Row } from '../../interface';
 import { planOf, type StemRun } from '../item';
 import {
@@ -20,7 +21,6 @@ import {
   randomSpace,
   randomValidRow,
 } from '../oracle/spaces';
-import { check } from '../../../../failure';
 import { cpuMs, deepEqual, must, type Rng, show, stableStringify } from '../util';
 
 const BOUND = 1.25;

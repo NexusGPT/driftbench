@@ -1,7 +1,7 @@
+import { check } from '../../../../failure';
 import type { Plan, PlanRow, Row, StoreDoc, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { type ItemContext, planOf, type StemRun } from '../item';
-import { check } from '../../../../failure';
 import { GeneralOracle } from '../oracle/general';
 import {
   forbid,
@@ -53,11 +53,12 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const budget =
       variant === 'zero-with-seeds' ? 0 : variant === 'one-below' ? seeds.length - 1 : seeds.length;
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed, budget, seeds: clone(seeds) });
-    must(
-      plan.rows.length === seeds.length,
-      () =>
-        `budget ${budget} with ${seeds.length} seeds gives ${plan.rows.length} rows; a budget below the seed count keeps every seed and no new row`,
-    );
+    check(plan.rows.length === seeds.length, {
+      rule: 'a budget below the seed count keeps every seed and no new row',
+      input: { budget, seeds: seeds.length },
+      got: { rows: plan.rows.length },
+      expected: { rows: seeds.length },
+    });
     plan.rows.forEach((row, i) => {
       must(
         row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]),
@@ -212,18 +213,20 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     for (const [i, row] of plan.rows.entries()) {
       const want = logWeight(space, indexRow(space, row.values));
       if (want === Number.NEGATIVE_INFINITY) {
-        must(
-          row.logWeight === null,
-          () => `row ${i} holds a value of weight 0 and reports logWeight ${show(row.logWeight)}, not null`,
-        );
+        check(row.logWeight === null, {
+          rule: 'a row that holds a value of weight 0 reports a null logWeight',
+          input: { row: i },
+          got: { logWeight: row.logWeight },
+        });
         seenNull = true;
       } else {
-        must(!seenNull, () => `row ${i} has a finite weight but comes after a row of weight 0`);
-        must(
-          typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE,
-          () =>
-            `row ${i} reports logWeight ${show(row.logWeight)}; the sum of the logs of its shares is ${want}`,
-        );
+        check(!seenNull, { rule: 'every row of finite weight comes before every row of weight 0', input: { row: i } });
+        check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE, {
+          rule: 'logWeight is the sum of the logs of the shares of the values of the row',
+          input: { row: i },
+          got: { logWeight: row.logWeight },
+          expected: want,
+        });
       }
     }
     must(seenNull, 'the plan has no row with a value of weight 0; the value still needs its tuples covered');
