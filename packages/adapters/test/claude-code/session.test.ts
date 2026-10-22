@@ -52,7 +52,7 @@ function map(records: unknown[], more: Partial<Parameters<typeof mapSession>[0]>
 }
 
 describe('a helper session: the calls of the sidechain', () => {
-  const sidechain = [
+  const sidechain = () => [
     user('clean the scratch folder'),
     assistant([use('agent-1', 'Agent', { subagent_type: 'tidy', prompt: 'clear /work/demo/scratch' })], {
       uuid: 'a1',
@@ -68,7 +68,7 @@ describe('a helper session: the calls of the sidechain', () => {
   ];
 
   it('keeps the helper calls apart from the agent calls, tied to their Agent call and marked by actor', () => {
-    const { blocks, meta } = map(sidechain);
+    const { blocks, meta } = map(sidechain());
     const observed = blocks[0]?.observed;
     expect(observed?.toolCalls.map((call) => call.label)).toEqual(['Agent']);
     expect(observed?.helperCalls).toHaveLength(1);
@@ -127,6 +127,21 @@ describe('a helper session: the calls of the sidechain', () => {
       (blocks[0]?.observed.helperCalls ?? []).map((call) => [call.id, call.parentCallId]),
     );
     expect(parents).toEqual({ B1: 'A1', 'c-inner': 'B1', 'c-outer': 'A1' });
+  });
+
+  it('gives a helper record that names no parent the latest Agent call, and raises no issue', () => {
+    const { blocks, meta } = map([
+      user('go'),
+      assistant([use('agent-5', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      result('agent-5', 'done'),
+      base('assistant', {
+        isSidechain: true,
+        parentUuid: null,
+        message: { content: [use('s1', 'Read', { file_path: 'x' })] },
+      }),
+    ]);
+    expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ label: 'Read', parentCallId: 'agent-5' });
+    expect(meta.issues).toEqual([]);
   });
 
   it('treats parent_tool_use_id alone as a helper marker, with no isSidechain', () => {

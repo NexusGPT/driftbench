@@ -272,6 +272,8 @@ export function mapSession(input: SessionInput): ReplaySession {
   /** Record uuid to the id of the Agent call that record holds, and a helper record's uuid to the Agent call it belongs to. */
   const agentAt = new Map<string, string>();
   const helperOwner = new Map<string, string>();
+  /** The id of the latest Agent call the agent made: the owner of a helper record that names none. */
+  let lastAgentCall: string | undefined;
   /** Call id of a helper's call to the Agent call it belongs to. */
   const helperCallOwner = new Map<string, string>();
   /** Paths the session has seen exist: read, edited or written. */
@@ -442,8 +444,10 @@ export function mapSession(input: SessionInput): ReplaySession {
         } else if (isRecord(part) && part.type === 'tool_use' && typeof part.name === 'string' && part.name) {
           applyCall(block, part, line, at);
           const recordUuid = stringField(record, 'uuid');
-          if (AGENT_TOOLS.has(part.name) && recordUuid !== undefined && typeof part.id === 'string')
-            agentAt.set(recordUuid, part.id);
+          if (AGENT_TOOLS.has(part.name) && typeof part.id === 'string') {
+            lastAgentCall = part.id;
+            if (recordUuid !== undefined) agentAt.set(recordUuid, part.id);
+          }
         } else {
           block.kept.push({
             line,
@@ -486,7 +490,8 @@ export function mapSession(input: SessionInput): ReplaySession {
     const owner =
       stringField(record, 'parent_tool_use_id') ??
       answered.map((id) => helperCallOwner.get(id)).find((found) => found !== undefined) ??
-      (parent === undefined ? undefined : (agentAt.get(parent) ?? helperOwner.get(parent)));
+      (parent === undefined ? undefined : (agentAt.get(parent) ?? helperOwner.get(parent))) ??
+      lastAgentCall;
     if (uuid !== undefined && owner !== undefined) helperOwner.set(uuid, owner);
     const block = current();
     if (!block) return;
@@ -519,8 +524,6 @@ export function mapSession(input: SessionInput): ReplaySession {
         if (id !== undefined && owner !== undefined) helperCallOwner.set(id, owner);
         if (AGENT_TOOLS.has(part.name) && id !== undefined && uuid !== undefined) agentAt.set(uuid, id);
         if (id !== undefined) helperPending.set(id, { call, ...(at === undefined ? {} : { at }), line });
-        if (owner === undefined)
-          meta.issues.push(`line ${line}: a helper call ${part.name} that no Agent call began`);
       }
       return;
     }
