@@ -145,7 +145,7 @@ Each block of a run holds `observed` (what the agent did) and `verdicts` (what t
 | `segments` | What the agent produced, in order. A segment has a `type`: `text` (`text`), `tool_call` (`id`, `label`, `input`), `tool_result` (`id`, `label`, `output`, `error`) or `card` (`name`, `data`). Each may carry `latencyMs` and a `cost`. |
 | `text` | The reply text. |
 | `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`, and for a call a helper made, `actor` (`helper`) and `parentCallId` (the id of the Agent call that began the helper). |
-| `helperCalls` | The calls the helpers made, in the same form as `toolCalls`, each with `actor: helper` and `parentCallId`. Absent when the adapter records none. |
+| `helperCalls` | The calls the helpers made, one record per call: `id`, `spanId`, `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`, `actor` (always `helper`) and `parentCallId` (the id of the Agent call that began the helper). Absent when the adapter records none. |
 | `runtime` | What the runtime did around the model, below. Optional. |
 | `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
 | `workspaceDiff` | What changed in the workspace during the block, as three lists of paths: `created`, `changed` and `deleted`. |
