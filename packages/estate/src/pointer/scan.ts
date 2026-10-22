@@ -773,7 +773,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * names a file to read is no condition alone. When that group holds more than half of the runs heard, the label is
    * chosen inside it by the readings that are not conditions and can build their atom (none of a span or link it
    * needs missing); with none that can build, by the readings that are not conditions. The most given label wins; a
-   * tie at the top is a split (`tied`); a group of conditions alone decides nothing, and the unit stays unlabeled.
+   * tie at the top is a split (`tied`); a group of conditions alone decides nothing and is a split too: the window is
+   * asked again, and the unit stays unlabeled while no other reading comes.
    * Undefined when the unit holds no condition reading or the group holds no majority: the vote then goes on as for any
    * unit.
    */
@@ -792,8 +793,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const group = present.filter((opinion) => isCondition(opinion) || fileKind(opinion));
     if (group.length * 2 <= heard) return undefined;
     const others = group.filter((opinion) => !isCondition(opinion));
-    // Conditions alone do not decide a unit that names a file: it stays unlabeled.
-    if (others.length === 0) return { tied: false };
+    // Conditions alone do not decide a unit that names a file: it is a split, asked again like a tie, and it stays
+    // unlabeled while no other reading comes.
+    if (others.length === 0) return { tied: true };
     const buildable = others.filter((opinion) => missingForAtom(set, opinion).length === 0);
     const voters = buildable.length > 0 ? buildable : others;
     const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
