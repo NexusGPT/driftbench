@@ -190,15 +190,25 @@ async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): P
     pass.failed.push(...done.failed);
     return done.labelled
       .filter((unit) => unit.set.set === REGISTRY_ROLES_SET_NAME)
-      .map((unit) => ({ cell: unit.unit.text.replace(/^[-*]\s+/, '').trim(), label: unit.label }));
+      .map((unit) => ({ index: unit.index, label: unit.label }));
   };
-  for (const { cell, label } of await ask('registry-roles/headers.md', registryCellsToLabel(read).headers)) {
-    const role = REGISTRY_ROLE_LABELS[label];
-    if (role !== undefined && roles.columns[cell] === undefined) roles.columns[cell] = role;
+  // One question for each table, its header cells in column order: the answer for a unit is the role of the
+  // column at that position, whatever the cell says.
+  for (const table of registryCellsToLabel(read).tables) {
+    const answers = await ask(`registry-roles/${table.headerLine}/${table.file}.md`, table.headers);
+    for (const { index, label } of answers) {
+      const role = REGISTRY_ROLE_LABELS[label];
+      const cell = table.headers[index];
+      if (role !== undefined && cell !== undefined && roles.columns[cell] === undefined)
+        roles.columns[cell] = role;
+    }
   }
   applyRegistryRoles(read, roles);
-  for (const { cell, label } of await ask('registry-roles/states.md', registryCellsToLabel(read).states)) {
-    if (label === STATE_OFF_LABEL && !roles.offStates.includes(cell)) roles.offStates.push(cell);
+  const states = registryCellsToLabel(read).states;
+  for (const { index, label } of await ask('registry-roles/states.md', states)) {
+    const cell = states[index];
+    if (label === STATE_OFF_LABEL && cell !== undefined && !roles.offStates.includes(cell))
+      roles.offStates.push(cell);
   }
   applyRegistryRoles(read, roles);
   return pass;

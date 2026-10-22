@@ -3,12 +3,12 @@ import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { EstatePathError, estatePath } from '../paths';
+import type { RegistryRoles } from '../pointer/registry-roles-set';
+import { NO_REGISTRY_ROLES } from '../pointer/registry-roles-set';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
-import type { RegistryRoles } from '../pointer/registry-roles-set';
-import { NO_REGISTRY_ROLES } from '../pointer/registry-roles-set';
 import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
@@ -1504,6 +1504,7 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
     (estate.registryTables ??= []).push({
       file: file.path,
       header: table.header,
+      headerLine: table.headerLine,
       rows: table.rows.map((row) => ({ cells: row.cells, line: row.line, text: row.text })),
     });
   }
@@ -1581,14 +1582,22 @@ export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_
   }
 }
 
-/** The distinct header cells of the registry tables, and the distinct values of their state-like cells to label. */
-export function registryCellsToLabel(estate: RawEstate): { headers: string[]; states: string[] } {
-  const headers = new Set<string>();
-  for (const table of estate.registryTables ?? []) for (const cell of table.header) headers.add(strip(cell));
+/**
+ * What the label pass is asked: each registry table with its header cells in column order, and the distinct values
+ * of the state-like cells. A table is asked on its own, so its answer is by the position of the cell in it.
+ */
+export function registryCellsToLabel(estate: RawEstate): {
+  tables: Array<{ file: string; headerLine: number; headers: string[] }>;
+  states: string[];
+} {
   const states = new Set<string>();
   for (const row of estate.registry) if (row.state !== undefined && row.state !== '') states.add(row.state);
   return {
-    headers: [...headers].filter((cell) => cell !== '').sort(),
+    tables: (estate.registryTables ?? []).map((table) => ({
+      file: table.file,
+      headerLine: table.headerLine,
+      headers: table.header.map(strip),
+    })),
     states: [...states].sort(),
   };
 }
