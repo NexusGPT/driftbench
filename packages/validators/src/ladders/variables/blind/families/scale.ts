@@ -196,8 +196,15 @@ const SPAN_WORDINGS: ReadonlyArray<readonly [phrase: string, cmp: 'gt' | 'ge' | 
 
 /** The spans of the blind vocabulary: the text of span `index` is a function of `index` alone (docs/validators.md 12.9). */
 const BLIND_VOCABULARY = 10_000;
-function blindSpan(index: number): { text: string; subject: string; limit: number; cmp: 'gt' | 'ge' | 'lt' | 'le' } {
-  const [phrase, cmp] = SPAN_WORDINGS[(index * 5 + Math.floor(index / SPAN_WORDINGS.length)) % SPAN_WORDINGS.length] as (typeof SPAN_WORDINGS)[number];
+function blindSpan(index: number): {
+  text: string;
+  subject: string;
+  limit: number;
+  cmp: 'gt' | 'ge' | 'lt' | 'le';
+} {
+  const [phrase, cmp] = SPAN_WORDINGS[
+    (index * 5 + Math.floor(index / SPAN_WORDINGS.length)) % SPAN_WORDINGS.length
+  ] as (typeof SPAN_WORDINGS)[number];
   const limit = (index % 90) + 5;
   const subject = `the quantity ${lettersOf(index)}`;
   return { text: `${subject} ${phrase} ${limit} days`, subject, limit, cmp };

@@ -39,7 +39,13 @@ function parseCondition(condition: { text: string; label?: unknown }): SpanMeani
     | { kind?: string; subject?: string; limit?: number; comparison?: 'lt' | 'le' | 'gt' | 'ge' }
     | undefined;
   if (label?.kind === 'numeric' && typeof label.subject === 'string' && typeof label.limit === 'number')
-    return { kind: 'numeric', subject: label.subject, limit: label.limit, cmp: label.comparison ?? 'gt', flavour: 'cmp' };
+    return {
+      kind: 'numeric',
+      subject: label.subject,
+      limit: label.limit,
+      cmp: label.comparison ?? 'gt',
+      flavour: 'cmp',
+    };
   return meaningOf(condition.text);
 }
 

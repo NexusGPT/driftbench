@@ -99,7 +99,8 @@ const LABELLED_STEM: Stem = {
   rules: ['R3'],
   family: 'sources',
   component: 'store/estate',
-  cause: 'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
+  cause:
+    'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
   cases: [
     [
       'the-label-decides-not-the-text',
@@ -125,11 +126,13 @@ const LABELLED_STEM: Stem = {
         const hit = read.find((samples) => [8, 9, 10].every((n) => samples.includes(n)));
         must(
           hit !== undefined,
-          () => `the label gives the limit 9 (samples 8, 9, 10), the text says 5; the store reads ${show(read, 160)}`,
+          () =>
+            `the label gives the limit 9 (samples 8, 9, 10), the text says 5; the store reads ${show(read, 160)}`,
         );
         must(
           !read.some((samples) => samples.includes(5)),
-          () => `a variable has the sample 5, the limit of the text: the product read the text, not the label (${show(read, 160)})`,
+          () =>
+            `a variable has the sample 5, the limit of the text: the product read the text, not the label (${show(read, 160)})`,
         );
       },
     ],

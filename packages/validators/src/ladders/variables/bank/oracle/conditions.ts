@@ -174,7 +174,10 @@ const ORDERED: ReadonlyArray<readonly [Cmp, string]> = (['gt', 'ge', 'lt', 'le']
 
 /** The comparison class, the wording key and the limit of vocabulary span i. */
 export function vocabularyOf(i: number): { cls: Cmp; wording: string; limit: number } {
-  const [cls, wording] = ORDERED[(i * 7 + Math.floor(i / ORDERED.length)) % ORDERED.length] as readonly [Cmp, string];
+  const [cls, wording] = ORDERED[(i * 7 + Math.floor(i / ORDERED.length)) % ORDERED.length] as readonly [
+    Cmp,
+    string,
+  ];
   return { cls, wording, limit: 5 + ((i * 37) % 896) };
 }
 

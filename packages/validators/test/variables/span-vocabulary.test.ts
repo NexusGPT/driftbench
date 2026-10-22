@@ -73,14 +73,18 @@ describe('the span vocabulary of the first bank', () => {
     expect(first200.size).toBe(wanted.length);
   });
 
-  it.each([1, 2, 3, 820020691, 360920726])('seed %i reads only texts of the vocabulary', async (seed) => {
-    const vocabulary = new Set(all);
-    for (const id of ['scale.estate-spans.two-hundred', 'scale.estate-spans.two-thousand']) {
-      const read = await (spansRead(id, seed) as unknown as Promise<string[]>);
-      expect(read.length).toBeGreaterThan(0);
-      expect(read.filter((text) => !vocabulary.has(text))).toEqual([]);
-    }
-  }, 300_000);
+  it.each([1, 2, 3, 820020691, 360920726])(
+    'seed %i reads only texts of the vocabulary',
+    async (seed) => {
+      const vocabulary = new Set(all);
+      for (const id of ['scale.estate-spans.two-hundred', 'scale.estate-spans.two-thousand']) {
+        const read = await (spansRead(id, seed) as unknown as Promise<string[]>);
+        expect(read.length).toBeGreaterThan(0);
+        expect(read.filter((text) => !vocabulary.has(text))).toEqual([]);
+      }
+    },
+    300_000,
+  );
 
   it('lets the seed pick other spans in another order', async () => {
     const a = await (spansRead('scale.estate-spans.two-hundred', 1) as unknown as Promise<string[]>);
