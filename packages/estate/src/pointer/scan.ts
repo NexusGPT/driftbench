@@ -1,6 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
 import { type Cut, cut, type Unit } from './cut';
 import {
   isTooLarge,
@@ -133,14 +134,20 @@ export type PointerResult = {
   /** Units a member decided by a majority of its runs instead of all of them. */
   voted: number;
   refusals: string[];
+  /** One record for each text of `refusals`, in the same order: a stable `code` and the identifiers the text names. */
+  refusalRecords: PointerDiagnostic[];
   /** Spans and links of accepted answers that failed a check and were dropped: the label stood without them. */
   dropped: string[];
+  /** One record for each text of `dropped`, in the same order. */
+  droppedRecords: PointerDiagnostic[];
   /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
   outOfStep: string[];
   /** Slipped runs whose window was asked again and answered in step, with the run that took their place. */
   reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
+  /** One record for each text of `failed`, in the same order. */
+  failedRecords: PointerDiagnostic[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -288,7 +295,7 @@ type Task = {
 };
 
 type Leaf = { window: Window; answer: Recorded; key: string };
-type TaskResult = { leaves: Leaf[]; failures: string[] };
+type TaskResult = { leaves: Leaf[]; failures: string[]; failureRecords: PointerDiagnostic[] };
 
 function readableFor(task: Task, window: Window) {
   return readableOf(task.member.render(task.set, window, task.context), {
@@ -475,6 +482,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        code: failure.code,
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
@@ -485,36 +493,39 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   async function resolve(task: Task, window: Window): Promise<TaskResult> {
+    const windowFailure = (code: string, reason: string): TaskResult => {
+      const detail = `${window.id} (${task.set.set}, ${task.member.id}): ${reason}`;
+      return {
+        leaves: [],
+        failures: [detail],
+        failureRecords: [
+          record(code, detail, { window: window.id, set: task.set.set, labeler: task.member.id }),
+        ],
+      };
+    };
     let result: { answer: Recorded; key: string };
     try {
       result = await answerOf(task, window);
     } catch (cause) {
       if (FATAL(cause)) throw cause;
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${cause instanceof Error ? cause.message : String(cause)}`,
-        ],
-      };
+      return windowFailure(
+        cause instanceof LabelerError ? cause.code : 'window-failed',
+        cause instanceof Error ? cause.message : String(cause),
+      );
     }
     if (result.answer.refused === 'unreadable') {
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${result.answer.error ?? 'the answer cannot be read'}`,
-        ],
-      };
+      const reason = result.answer.error ?? 'the answer cannot be read';
+      return windowFailure(result.answer.code ?? UNKNOWN_CODE, reason);
     }
     if (result.answer.refused !== 'too_large') {
-      return { leaves: [{ window, answer: result.answer, key: result.key }], failures: [] };
+      return {
+        leaves: [{ window, answer: result.answer, key: result.key }],
+        failures: [],
+        failureRecords: [],
+      };
     }
     if (window.units.length === 1) {
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): the endpoint refused a window of one unit as too large`,
-        ],
-      };
+      return windowFailure('window-too-large', 'the endpoint refused a window of one unit as too large');
     }
     const half = Math.ceil(window.units.length / 2);
     const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
@@ -541,7 +552,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       units: renumber(window.units.slice(half)),
       ...shownIn(half, window.units.length),
     });
-    return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
+    return {
+      leaves: [...first.leaves, ...second.leaves],
+      failures: [...first.failures, ...second.failures],
+      failureRecords: [...first.failureRecords, ...second.failureRecords],
+    };
   }
 
   const settled = await runPool(
@@ -552,8 +567,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
+  const refusalRecords: PointerDiagnostic[] = [];
   const dropped: string[] = [];
+  const droppedRecords: PointerDiagnostic[] = [];
   const failed: string[] = [];
+  const failedRecords: PointerDiagnostic[] = [];
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -584,7 +602,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const hear = (task: Task, run: number, leaf: Leaf) => {
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
     refusals.push(...read.refusals);
+    refusalRecords.push(...(read.refusalRecords ?? []));
     dropped.push(...(read.dropped ?? []));
+    droppedRecords.push(...(read.droppedRecords ?? []));
     const target = runOf(task, run);
     for (const [index, opinion] of read.byUnit)
       target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
@@ -593,6 +613,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
     failed.push(...outcome.value.failures);
+    failedRecords.push(...outcome.value.failureRecords);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -630,6 +651,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
       const answered = await resolve(again, window);
       failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -816,6 +838,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
       const answered = await resolve(again, task.window);
       failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -939,10 +962,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     spanSplit,
     voted,
     refusals,
+    refusalRecords,
     dropped,
+    droppedRecords,
     outOfStep: outOfStepRuns,
     reasked,
     failed,
+    failedRecords,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };

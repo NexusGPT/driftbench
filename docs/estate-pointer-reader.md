@@ -569,3 +569,27 @@ Optional observation extensions have these shapes:
 Absent observations stay absent. An item that needs an observation must require it explicitly; missing per-id events never mean `unchanged`. A reported empty array, empty map, or null twin is distinct from an unavailable observation.
 
 These extension names specify the validator interface, not existing product capabilities. At PR692 head `575e7d706c7aae52e945f12e5fd5e0c26680c7d2`, `pointerScan` exposes aggregate events but no per-id map or warnings; ledger entries expose neither lineage nor twinOf; check mode exists only inside the CLI `openPointer(...).finish(...)`; independent-vote stackDecision is not exported. The adapter must not hide these gaps.
+
+### Structured codes
+
+Every refusal, dropped note, failed window, atom refusal and error that has a text also has a stable kebab-case `code` and the identifiers the text names as fields. A check reads the code and the fields, never the text. The text is unchanged; the records sit beside it in the same order. A record has `code`, `detail` (the same text), and the fields it fills from `window`, `unit`, `units`, `target`, `kind`, `span`, `set`, `label`, `path`, `labeler`, `repeats`, `parent`, `sum`. In an answer record, `unit` is the unit number in its window and `units` is the range as written; in an atom record, `unit` is the ledger id.
+
+| Code | Where emitted | Fields |
+| --- | --- | --- |
+| `cassette-miss` | `CassetteMiss.code`; `environment: {node, icu}` is set when `differs` has `cutDigest` | `environment` |
+| `set-duplicate`, `label-duplicate`, `span-kind-duplicate`, `link-kind-duplicate` | `parseLabelSetsDetailed` | `reason`, `set`, `label` or `kind` |
+| `set-name-invalid`, `label-name-invalid`, `label-name-reserved`, `span-kind-name-invalid`, `link-kind-name-invalid`, `label-examples-too-many` (more than three), `label-examples-not-a-list` (not a list), `label-example-invalid` (an element that is not a non-empty text), `label-target-invalid` | `parseLabelSetsDetailed` | `reason`, `path`, the offending `set`, `label` or `kind` as written |
+| `span-kind-within-itself`, `-undeclared`, `-cycle`, `label-span-kind-undeclared`, `label-link-kind-undeclared`, `label-span-parent-missing`, `label-condition-needs-target`, `label-condition-takes-no-atom` | `parseLabelSetsDetailed` | `reason`, `set`, `label`, `kind`, `parent` |
+| `set-needs-system2`, `set-has-no-askable-label` | `LabelerConfigError` thrown by `askedLabels`; `buildLabellingDetailed` | `code`, `set` |
+| `labeler-count`, `labeler-class-repeated`, `bounds-invalid`, `labeler-key-missing`, `margin-cut-needs-choice`, `no-labeler` | `buildLabellingDetailed` | `code` |
+| `ledger-out-of-date` | `checkLedger` | `files` (sorted changed paths) |
+| `threshold-out-of-range`, `threshold-not-finite`, `threshold-not-a-number`, `threshold-unknown-key`, `settings-*` | `parsePointerSettingsDetailed`, `issues` list beside `errors` | `code`, `key`, `reason` |
+| `no-vector` | `choiceOpinions`, `PointerResult.refusalRecords` | `window`, `unit`, `sum` |
+| `label-not-in-set`, `units-malformed`, `units-leave-window`, `units-already-labelled`, `target-malformed`, `none-takes-no-target`, `target-required`, `target-not-taken`, `spans-malformed`, `links-malformed` | `checkAnswer`, `PointerResult.refusalRecords` | `window`, `set`, `units`, `label`, `target` |
+| `span-*`, `link-*`, `label-carries-no-spans`, `label-carries-no-links` | `checkAnswer`, `PointerResult.droppedRecords` | `window`, `set`, `label`, `unit`, `units`, `kind`, `span`, `target`, `parent` |
+| `answer-*`, `window-failed`, `window-too-large` | `PointerResult.failedRecords` | `window`, `set`, `labeler` |
+| `unit-not-at-lines`, `span-not-exact-slice`, `link-target-not-atom`, `atom-kind-unbuildable`, `file-not-named`, `template-unfilled`, `condition-unattached`, `atom-duplicate` | `pointerAtoms`: `refusalRecords`, `duplicateRecords` | `unit`, `set`, `label`, `path`, `kind`, `span`, `target`, `repeats` |
+
+`parseLabelSets`, `buildLabelling` and `parsePointerSettings` keep their text-only results; the `Detailed` functions return the same results with the codes added.
+
+Every code is set at the site that raises the error, and no function derives a code from a message. A `LabelerError` takes its code from the site that throws it (`new LabelerError(message, { code })`); one raised with no code carries the code `unknown`. A failed window is recorded in the cassette with that `code`, and an old entry with no `code` replays as `unknown`. An unlocated span keeps its `unlocatedCode` beside its `unlocated` text, and one with no `unlocatedCode` reads as `unknown`. `answer-unreadable` is no longer emitted. A static test (`packages/estate/test/pointer/no-message-to-code.test.ts`) fails when a function of `src/pointer` applies a string method to a message to find a code.

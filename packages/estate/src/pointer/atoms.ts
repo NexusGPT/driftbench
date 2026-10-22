@@ -3,6 +3,7 @@ import { type AtomBuilder, namedPaths, pathMentions } from '../scan/code';
 import { PROSE_KINDS } from '../scan/prose';
 import { type Located, lineAt, quoteAtSpan } from '../scan/text';
 import type { Atom } from '../schema';
+import { type PointerDiagnostic, record } from './codes';
 import type { LabelledUnit } from './scan';
 
 /**
@@ -15,7 +16,15 @@ import type { LabelledUnit } from './scan';
  * of one target joined in file order. The condition's unit ids are kept in the atom's fields and in its check.
  */
 
-export type PointerAtoms = { accepted: Atom[]; refusals: string[]; duplicates: string[] };
+export type PointerAtoms = {
+  accepted: Atom[];
+  refusals: string[];
+  duplicates: string[];
+  /** One record for each text of `refusals`, in the same order: a stable `code` and the identifiers it names. */
+  refusalRecords: PointerDiagnostic[];
+  /** One record for each text of `duplicates`, in the same order. */
+  duplicateRecords: PointerDiagnostic[];
+};
 
 /** The atom kinds a label may build: those of prose, and the hazards the prose names. */
 export const POINTER_KINDS = [...PROSE_KINDS, 'hazard', 'reference', 'script'] as const;
@@ -164,6 +173,25 @@ export function pointerAtoms(
   const accepted: Atom[] = [];
   const refusals: string[] = [];
   const duplicates: string[] = [];
+  const refusalRecords: PointerDiagnostic[] = [];
+  const duplicateRecords: PointerDiagnostic[] = [];
+  const refuse = (
+    code: string,
+    detail: string,
+    item: LabelledUnit,
+    fields: Partial<Omit<PointerDiagnostic, 'code' | 'detail'>> = {},
+  ) => {
+    refusals.push(detail);
+    refusalRecords.push(
+      record(code, detail, {
+        unit: item.id,
+        set: item.set.set,
+        label: item.label,
+        path: item.path,
+        ...fields,
+      }),
+    );
+  };
   const conditions = new Map<string, LabelledUnit[]>();
   for (const item of labelled) {
     if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
@@ -189,7 +217,11 @@ export function pointerAtoms(
       quote: text.slice(start, end),
     };
     if (!quoteAtSpan(text, at)) {
-      refusals.push(`${where}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`);
+      refuse(
+        'unit-not-at-lines',
+        `${where}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`,
+        item,
+      );
       continue;
     }
     const folded = foldQuote(at.quote);
@@ -203,8 +235,11 @@ export function pointerAtoms(
     for (const span of item.spans ?? []) {
       const here = text.slice(item.unit.start + span.from, item.unit.start + span.to);
       if (here === '' || here !== item.unit.text.slice(span.from, span.to)) {
-        refusals.push(
+        refuse(
+          'span-not-exact-slice',
           `${where}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
+          item,
+          { kind: span.kind, span: `${span.from}-${span.to}` },
         );
         continue;
       }
@@ -224,7 +259,12 @@ export function pointerAtoms(
         continue;
       }
       if (!builder.atoms.some((other) => other.id === link.to)) {
-        refusals.push(`${where}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
+        refuse(
+          'link-target-not-atom',
+          `${where}: the ${link.kind} link names ${link.to}, which is no atom of the estate`,
+          item,
+          { kind: link.kind, target: link.to },
+        );
         continue;
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
@@ -310,8 +350,11 @@ export function pointerAtoms(
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
-          refusals.push(
+          refuse(
+            'atom-kind-unbuildable',
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
+            item,
+            { kind: mapping.kind },
           );
           continue;
         }
@@ -325,7 +368,17 @@ export function pointerAtoms(
             (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
         );
         if (same) {
-          duplicates.push(`${where} repeats ${same.id}`);
+          const detail = `${where} repeats ${same.id}`;
+          duplicates.push(detail);
+          duplicateRecords.push(
+            record('atom-duplicate', detail, {
+              unit: item.id,
+              set: item.set.set,
+              label: item.label,
+              path: item.path,
+              repeats: same.id,
+            }),
+          );
           continue;
         }
         // A situation written `<placeholder>?` is optional: the atom is kept, without one, when it does not fill.
@@ -360,7 +413,11 @@ export function pointerAtoms(
           continue;
         if (mapping.locate || mapping.whenFile) {
           if (namedPath === undefined) {
-            refusals.push(`${where}: the label ${item.label} locates a file, and the unit names none`);
+            refuse(
+              'file-not-named',
+              `${where}: the label ${item.label} locates a file, and the unit names none`,
+              item,
+            );
             continue;
           }
           const target = builder.resolve(namedPath, item.path, bareNames.has(namedPath));
@@ -381,8 +438,10 @@ export function pointerAtoms(
           mappedFields === UNRESOLVED ||
           mappedEvidence === UNRESOLVED
         ) {
-          refusals.push(
+          refuse(
+            'template-unfilled',
             `${where}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+            item,
           );
           continue;
         }
@@ -437,10 +496,13 @@ export function pointerAtoms(
   for (const items of conditions.values()) {
     for (const condition of items) {
       if (attached.has(`${condition.set.set}:${condition.id}`)) continue;
-      refusals.push(
+      refuse(
+        'condition-unattached',
         `${condition.path} unit ${condition.id} (${condition.label}): the condition points at a unit that holds no atom`,
+        condition,
+        condition.target ? { target: condition.target.id } : {},
       );
     }
   }
-  return { accepted, refusals, duplicates };
+  return { accepted, refusals, duplicates, refusalRecords, duplicateRecords };
 }
