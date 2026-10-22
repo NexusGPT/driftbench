@@ -33,8 +33,8 @@ describe('the blind bank bound to the reader', () => {
         } else counts.differs += 1;
       }
     }
-    expect(counts).toEqual({ pass: 340, differs: 0, unsupported: 2, error: 0 });
-    expect([...reasons].sort()).toEqual(['unsupported: replay']);
+    expect(counts).toEqual({ pass: 342, differs: 0, unsupported: 0, error: 0 });
+    expect([...reasons].sort()).toEqual([]);
   }, 300_000);
 
   it('gives the same verdict for every item on three runs in one process', async () => {
