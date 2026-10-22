@@ -30,8 +30,11 @@ export type Spent = { input: number; output: number; requests: number };
 export const askPath = (estate: EstateName, model: string): string =>
   join(estateFolder(estate), `limits.ask.${model}.jsonl`);
 
-export function loadAsks(estate: EstateName, model: string): Map<string, Entry> {
-  const path = askPath(estate, model);
+export const loadAsks = (estate: EstateName, model: string): Map<string, Entry> =>
+  loadAsksFrom(askPath(estate, model));
+
+/** The recorded answers of one cassette file; none when the file does not exist. */
+export function loadAsksFrom(path: string): Map<string, Entry> {
   const out = new Map<string, Entry>();
   if (!existsSync(path)) return out;
   for (const line of readFileSync(path, 'utf8').split('\n')) {
@@ -46,8 +49,18 @@ export const readKey = (): string =>
   readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
 
 /** The port: replays the recorded answer; with `record`, asks the provider on a miss and appends the answer. */
-export function askPort(
+export const askPort = (
   estate: EstateName,
+  model: string,
+  cache: Map<string, Entry>,
+  spent: Spent,
+  record?: { key: string; capIn: number; capOut: number },
+): variables.LimitAsk => askPortFor(askPath(estate, model), `estate ${estate}`, model, cache, spent, record);
+
+/** The same port for any cassette file: `label` names the estate in the error of a request with no answer. */
+export function askPortFor(
+  path: string,
+  label: string,
   model: string,
   cache: Map<string, Entry>,
   spent: Spent,
@@ -59,7 +72,7 @@ export function askPort(
     const hit = cache.get(key);
     if (hit) return hit.text;
     if (!record) {
-      throw new Error(`no recorded answer for a request of estate ${estate} (${model}): run record-asks.ts`);
+      throw new Error(`no recorded answer for a request of ${label} (${model}): run record-asks.ts`);
     }
     if (spent.input >= record.capIn || spent.output >= record.capOut) {
       throw new Error(
@@ -92,7 +105,7 @@ export function askPort(
       text,
       usage: { input: payload.usage.input_tokens, output: payload.usage.output_tokens },
     };
-    appendFileSync(askPath(estate, model), `${JSON.stringify(entry)}\n`);
+    appendFileSync(path, `${JSON.stringify(entry)}\n`);
     cache.set(key, entry);
     spent.input += entry.usage.input;
     spent.output += entry.usage.output;
