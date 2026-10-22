@@ -31,6 +31,23 @@ const need = (name) => {
   return args[name];
 };
 const BATCH = Number(args.batch ?? 12);
+// Template mode (`--templates true`): each text of the spans is a template with `{n}` where a number stands. The labeller
+// is shown the template with 100 in the first slot and 200 in the second, and the row keeps the template with the answer
+// minus the numbers: a numeric label without its limit, a range label without its low and high. The adapter fills the number
+// from the span it reads (docs/validators.md 12.9). An answer whose number is not the sample is unusable.
+const TEMPLATES = args.templates === 'true';
+const sampleOf = (template) => {
+  let n = 0;
+  return template.replace(/\{n\}/g, () => String(100 * ++n));
+};
+const withoutNumbers = (template, label) => {
+  if (!TEMPLATES || !label || typeof label !== 'object') return label;
+  const slots = (template.match(/\{n\}/g) ?? []).length;
+  const { limit, low, high, ...rest } = label;
+  if (label.kind === 'numeric') return slots === 1 && limit === 100 ? rest : undefined;
+  if (label.kind === 'range') return slots === 2 && low === 100 && high === 200 ? rest : undefined;
+  return slots === 0 ? label : undefined;
+};
 const sha = need('sha');
 const spansDir = need('spans');
 const outFile = need('out');
@@ -124,13 +141,13 @@ let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
 
-async function ask(batch) {
+async function ask(batch, shown = batch) {
   const body = {
     model: MODEL,
     max_tokens: 4096,
     system: SYSTEM,
     messages: [
-      { role: 'user', content: subjectsBlock() + batch.map((text, i) => `${i + 1}. ${text}`).join('\n') },
+      { role: 'user', content: subjectsBlock() + shown.map((text, i) => `${i + 1}. ${text}`).join('\n') },
     ],
   };
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -184,18 +201,20 @@ for (let i = 0; i < texts.length; i += BATCH) {
   }
   const batch = texts.slice(i, i + BATCH);
   responses = [];
-  const answers = await ask(batch);
+  const shown = (list) => (TEMPLATES ? list.map(sampleOf) : list);
+  const usable = (text, answer) => (valid(answer) ? withoutNumbers(text, answer) : undefined);
+  const answers = (await ask(batch, shown(batch))).map((a, j) => usable(batch[j], a));
   // One retry for the clauses that came back unusable.
-  const retry = batch.filter((_, j) => !valid(answers[j]));
+  const retry = batch.filter((_, j) => answers[j] === undefined);
   if (retry.length > 0) {
-    const second = await ask(retry);
+    const second = await ask(retry, shown(retry));
     retry.forEach((text, k) => {
       const at = batch.indexOf(text);
-      answers[at] = second[k];
+      answers[at] = usable(text, second[k]);
     });
   }
   batch.forEach((text, j) => {
-    if (valid(answers[j])) {
+    if (answers[j] !== undefined) {
       rows.set(text, answers[j]);
       noteSubjects(answers[j]);
     } else {

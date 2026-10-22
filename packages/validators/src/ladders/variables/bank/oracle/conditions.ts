@@ -181,16 +181,6 @@ export function vocabularyOf(i: number): { cls: Cmp; wording: string; limit: num
   return { cls, wording, limit: 5 + ((i * 37) % 896) };
 }
 
-/**
- * An integer of the grid of `steps` evenly spaced values from `lo` to `hi`. The limits of the condition spans an item
- * draws come from such a grid, so the texts a seed can write are few enough to be recorded once, whatever the seed
- * (docs/validators.md 12.9, "The span vocabulary"). The seed still picks the grid value, the quantity, the wording, the
- * order, the file and the sentence.
- */
-export function gridInt(rng: Rng, lo: number, hi: number, steps = 4): number {
-  return lo + Math.round((rng.int(0, steps - 1) * (hi - lo)) / (steps - 1));
-}
-
 /** The number of spans of the vocabulary: the largest scale item reads all of them. */
 export const VOCABULARY_SIZE = 10_000;
 

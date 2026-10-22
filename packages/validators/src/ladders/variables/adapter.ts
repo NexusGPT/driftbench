@@ -275,23 +275,75 @@ let cassette: Map<string, SpanLabel> | undefined;
 const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 /**
+ * A number as a span writes it: an optional `$` or `EUR ` prefix, a sign, digits grouped by commas or spaces (a narrow
+ * no-break space folds to a space) or not, and a decimal part. A digit run inside a word (`24h`, `p95`) is part of the word. A template row of the recording writes `{n}` in its place.
+ */
+const NUMBER_TOKEN = /(?<!\w)(?:\$|EUR )?-?(?:\d{1,3}(?:[, ]\d{3})+|\d+)(?:\.\d+)?(?!\w)/g;
+
+/** The value a number token writes. */
+const numberOf = (token: string): number => Number(token.replace(/^(?:\$|EUR )/, '').replace(/[, ]/g, ''));
+
+/** The template of a span: each number it writes replaced by `{n}`, and the numbers in the order written. */
+function templateOf(text: string): { template: string; numbers: number[] } {
+  const numbers: number[] = [];
+  const template = text.replace(NUMBER_TOKEN, (token) => {
+    numbers.push(numberOf(token));
+    return '{n}';
+  });
+  return { template, numbers };
+}
+
+/**
+ * The label of a template row filled with the numbers a span writes: a numeric label takes the first as its limit, a range
+ * label the first two as its low and high. Any other kind carries no number. The label of a template row holds the kind,
+ * the subject, the comparison and the unit; the recording never holds the number.
+ */
+function filled(label: SpanLabel, numbers: readonly number[]): SpanLabel | undefined {
+  const l = label as unknown as Record<string, unknown>;
+  if (l.kind === 'numeric') return numbers.length === 1 ? ({ ...l, limit: numbers[0] } as unknown as SpanLabel) : undefined;
+  if (l.kind === 'range')
+    return numbers.length === 2 ? ({ ...l, low: numbers[0], high: numbers[1] } as unknown as SpanLabel) : undefined;
+  return numbers.length === 0 ? label : undefined;
+}
+
+let templates: Map<string, SpanLabel> | undefined;
+
+/**
  * The labels a reader wrote for condition spans, by span text with its white space folded: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
- * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
- * variable. This code reads the file and calls no model.
+ * JSON object per line (`{ "text": ..., "label": ... }`). A row whose text holds `{n}` is a template: it labels every span
+ * that is the template with numbers in the slots, and the number comes from the span, never from the recording (docs/validators.md
+ * 12.9, "The span vocabulary"). Unset: no span has a label, and a span with no label gives no variable. This code reads the file
+ * and calls no model.
  */
 function labels(): Map<string, SpanLabel> {
   if (cassette) return cassette;
   const map = new Map<string, SpanLabel>();
+  const forms = new Map<string, SpanLabel>();
   const file = process.env.DRIFTBENCH_VARIABLES_CASSETTE;
   if (file) {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
       if (line.trim() === '') continue;
       const row = JSON.parse(line) as { text: string; label: SpanLabel };
-      map.set(foldSpan(row.text), row.label);
+      (row.text.includes('{n}') ? forms : map).set(foldSpan(row.text), row.label);
     }
   }
   cassette = map;
+  templates = forms;
   return map;
+}
+
+/** The label of a span: its own text if the recording holds it, else its template with the numbers it writes. */
+export function spanLabel(text: string): SpanLabel | undefined {
+  return labelOf(labels(), text);
+}
+
+function labelOf(known: Map<string, SpanLabel>, text: string): SpanLabel | undefined {
+  const key = foldSpan(text);
+  const own = known.get(key);
+  if (own !== undefined) return own;
+  const { template, numbers } = templateOf(key);
+  const form = templates?.get(template);
+  return form === undefined ? undefined : filled(form, numbers);
 }
 
 /**
@@ -320,7 +372,7 @@ function buildStore(sources: Sources): StoreDoc {
             conditions: rule.conditions.map((condition) => {
               // A label the span already carries is the reader's reading: the recording never replaces it.
               if ((condition as { label?: unknown }).label !== undefined) return condition;
-              const label = known.get(foldSpan(condition.text));
+              const label = labelOf(known, condition.text);
               return label === undefined ? condition : { ...condition, label };
             }),
           })),

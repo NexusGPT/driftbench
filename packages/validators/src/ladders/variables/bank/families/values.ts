@@ -1,7 +1,7 @@
 import type { OwnerInput, Sources, StoreDoc, StoreValue, StoreVariable } from '../../interface';
 import { BANK_SET_HASH, OWNER_DATE } from '../constants';
 import { build, type ItemContext, planOf, type StemRun } from '../item';
-import { fileOf, gridInt, QUANTITIES, type Quantity, ruleSentence } from '../oracle/conditions';
+import { fileOf, QUANTITIES, type Quantity, ruleSentence } from '../oracle/conditions';
 import {
   canonicalStore,
   estateOf,
@@ -23,7 +23,7 @@ const VALUE_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 
 function oneNumeric(ctx: ItemContext, noun: string, unit = ' euros') {
   const quantity: Quantity = { noun, unit, kind: 'count' };
-  const span = basicSpan(ctx.rng, quantity, gridInt(ctx.rng, 5, 900));
+  const span = basicSpan(ctx.rng, quantity, ctx.rng.int(5, 900));
   const store = build(ctx, {
     estate: estateOf({ 'CLAUDE.md': fileOf(ctx.rng, [ruleSentence(span.text, ctx.rng)], 5) }, [
       { id: 'R1', source: 'CLAUDE.md', conditions: [span.text], tools: [] },
@@ -59,7 +59,7 @@ export function fullSources(ctx: ItemContext): { sources: Sources; base: Base } 
   const base = baseStore(ctx, [3, 2]);
   const q1 = rng.pick(QUANTITIES);
   const q2 = rng.pick(QUANTITIES.filter((q) => q.noun !== q1.noun));
-  const spans = [basicSpan(rng, q1, gridInt(rng, 5, 900)), basicSpan(rng, q2, gridInt(rng, 5, 900))];
+  const spans = [basicSpan(rng, q1, rng.int(5, 900)), basicSpan(rng, q2, rng.int(5, 900))];
   const estate = {
     files: {
       ...base.estate.files,
@@ -219,7 +219,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     if (variant === 'variable-collision') {
       const nouns = ['the 請求 score', 'the 注文 score', 'the 返金 score'].slice(0, 2);
       const spans = nouns.map((noun) =>
-        basicSpan(ctx.rng, { noun, unit: '', kind: 'count' }, gridInt(ctx.rng, 5, 900)),
+        basicSpan(ctx.rng, { noun, unit: '', kind: 'count' }, ctx.rng.int(5, 900)),
       );
       const store = build(ctx, {
         estate: estateOf(

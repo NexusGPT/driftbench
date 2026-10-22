@@ -4,7 +4,6 @@ import {
   CLASS_OF_STEM,
   type Cmp,
   fileOf,
-  gridInt,
   groupThousands,
   NARROW_NBSP,
   type NumericSpan,
@@ -124,15 +123,15 @@ const pickQuantity = (rng: Rng, kind?: Quantity['kind']): Quantity =>
 function thresholdFor(rng: Rng, q: Quantity): number {
   switch (q.kind) {
     case 'money':
-      return gridInt(rng, 10, 5000);
+      return rng.int(10, 5000);
     case 'percent':
-      return gridInt(rng, 5, 95);
+      return rng.int(5, 95);
     case 'time':
-      return gridInt(rng, 2, 300);
+      return rng.int(2, 300);
     case 'size':
-      return gridInt(rng, 2, 500);
+      return rng.int(2, 500);
     default:
-      return gridInt(rng, 2, 40);
+      return rng.int(2, 40);
   }
 }
 
@@ -195,12 +194,12 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
   'boundaries.range': (variant, ctx) => {
     const { rng } = ctx;
     if (variant === 'negative-range') {
-      const a = -gridInt(rng, 20, 60, 3);
-      const b = a + gridInt(rng, 10, 30, 2);
+      const a = -rng.int(20, 60);
+      const b = a + rng.int(10, 30);
       rangeCase(ctx, `the temperature is between ${a} and ${b} degrees`, a, b);
     } else {
-      const a = gridInt(rng, 10, 200, 4);
-      const b = a + gridInt(rng, 20, 400, 2);
+      const a = rng.int(10, 200);
+      const b = a + rng.int(20, 400);
       const q = pickQuantity(rng, 'money');
       rangeCase(
         ctx,
@@ -245,13 +244,13 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
   'boundaries.thousands-separator': (variant, ctx) => {
     const q = pickQuantity(ctx.rng, 'money');
     if (variant === 'comma') {
-      const t = gridInt(ctx.rng, 1000, 9999, 4);
+      const t = ctx.rng.int(1000, 9999);
       numericCase(ctx, 'gt', 'over', { quantity: q, threshold: t, written: groupThousands(t, ',') });
     } else if (variant === 'several-groups') {
-      const t = gridInt(ctx.rng, 1_000_000, 99_999_999, 4);
+      const t = ctx.rng.int(1_000_000, 99_999_999);
       numericCase(ctx, 'ge', 'at-least', { quantity: q, threshold: t, written: groupThousands(t, ',') });
     } else {
-      const t = gridInt(ctx.rng, 1000, 99_999, 4);
+      const t = ctx.rng.int(1000, 99_999);
       numericCase(ctx, 'lt', 'under', { quantity: q, threshold: t, written: groupThousands(t, NARROW_NBSP) });
     }
   },
@@ -267,20 +266,20 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
     if (variant === 'euros') {
       numericCase(ctx, 'gt', 'over', {
         quantity: { noun: 'the invoice total', unit: ' euros', kind: 'money' },
-        threshold: gridInt(rng, 10, 900),
+        threshold: rng.int(10, 900),
       });
     } else if (variant === 'percent') {
       numericCase(ctx, 'ge', 'at-least', {
         quantity: { noun: 'the discount rate', unit: '%', kind: 'percent' },
-        threshold: gridInt(rng, 5, 95),
+        threshold: rng.int(5, 95),
       });
     } else if (variant === 'minutes') {
       numericCase(ctx, 'lt', 'under', {
         quantity: { noun: 'the wait time', unit: ' minutes', kind: 'time' },
-        threshold: gridInt(rng, 2, 120),
+        threshold: rng.int(2, 120),
       });
     } else {
-      const t = gridInt(rng, 10, 900);
+      const t = rng.int(10, 900);
       numericCase(ctx, 'gt', 'over', {
         quantity: { noun: 'the refund amount', unit: '', kind: 'money' },
         threshold: t,
@@ -302,12 +301,12 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
   'boundaries.merge-thresholds': (variant, ctx) => {
     const { rng } = ctx;
     const q = pickQuantity(rng, 'money');
-    const t1 = gridInt(rng, 20, 400, 4);
+    const t1 = rng.int(20, 400);
     const pair: Array<{ cls: Cmp; wording: string; t: number }> =
       variant === 'far-apart'
         ? [
             { cls: 'gt', wording: 'over', t: t1 },
-            { cls: 'lt', wording: 'under', t: t1 + gridInt(rng, 200, 900, 2) },
+            { cls: 'lt', wording: 'under', t: t1 + rng.int(200, 900) },
           ]
         : variant === 'adjacent-overlap'
           ? [

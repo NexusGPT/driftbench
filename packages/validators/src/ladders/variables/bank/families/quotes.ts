@@ -1,7 +1,7 @@
 import type { EstateInput, Refusal, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, type StemRun } from '../item';
-import { fileOf, gridInt, QUANTITIES, ruleSentence } from '../oracle/conditions';
+import { fileOf, QUANTITIES, ruleSentence } from '../oracle/conditions';
 import {
   estateOf,
   type RuleSpec,
@@ -523,15 +523,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
   'quotes.condition-span-unfindable': (variant, ctx) => {
     const { rng } = ctx;
     const q = rng.pick(QUANTITIES);
-    const real = basicSpan(rng, q, gridInt(rng, 10, 900));
+    const real = basicSpan(rng, q, rng.int(10, 900));
     let span = real.text;
     let files: Record<string, string>;
     const source = 'CLAUDE.md';
-    const other = basicSpan(
-      rng,
-      rng.pick(QUANTITIES.filter((x) => x.noun !== q.noun)),
-      gridInt(rng, 10, 900),
-    );
+    const other = basicSpan(rng, rng.pick(QUANTITIES.filter((x) => x.noun !== q.noun)), rng.int(10, 900));
     if (variant === 'edited-wording') {
       const swapped = real.text.replace(/ is (over|at least|under|at most) /, ' tops ');
       must(swapped !== real.text, 'the generator could not edit the wording');
