@@ -1,3 +1,4 @@
+import { callsIn } from '../schema/run';
 import type { EvidenceInput, RuleAtom, RuleLink, ToolCall } from './types';
 
 /**
@@ -35,7 +36,8 @@ export function subjectField(input: EvidenceInput): string | undefined {
 export function subjectCalls(input: EvidenceInput): ToolCall[] {
   const tool = subjectTool(input);
   if (tool === undefined) return [];
-  return input.block.observed.toolCalls.filter((call) => call.label === tool);
+  // A verdict about a tool can be about a helper's call, so the evidence lists the helpers' calls too.
+  return callsIn(input.block.observed, 'any').filter((call) => call.label === tool);
 }
 
 /** Whitespace folded to single spaces, ends trimmed. */

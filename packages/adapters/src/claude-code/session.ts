@@ -189,6 +189,14 @@ export function diffTrees(before: Tree, after: Tree): WorkspaceDiff {
 
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
+
+/** A helper's record: `isSidechain` in a saved transcript, or `parent_tool_use_id` in a headless stream. */
+function isHelperRecord(record: Record<string, unknown>): boolean {
+  return (
+    record.isSidechain === true ||
+    (typeof record.parent_tool_use_id === 'string' && record.parent_tool_use_id !== '')
+  );
+}
 /** A file inside a skill folder: a `skills/<name>/` segment anywhere in its path. */
 const SKILL_FILE = /(^|\/)skills\/[^/]+\//;
 const OUTPUT_LIMIT = 4000;
@@ -300,7 +308,7 @@ export function mapSession(input: SessionInput): ReplaySession {
     const type = stringField(record, 'type');
     const at = stringField(record, 'timestamp');
 
-    if (record.isSidechain === true) {
+    if (isHelperRecord(record)) {
       keep(line, 'a helper record (sidechain)', record);
       current()?.touch(line, undefined);
       mapHelperRecord(record, type, line, at);
@@ -505,10 +513,23 @@ export function mapSession(input: SessionInput): ReplaySession {
         const open = helperPending.get(part.tool_use_id);
         if (!open) continue;
         helperPending.delete(part.tool_use_id);
-        if (part.is_error === true) open.call.error = resultText(part.content);
+        const failed = part.is_error === true;
+        if (failed) open.call.error = resultText(part.content);
         else open.call.output = part.content;
         const latency = elapsed(open.at, at);
         if (latency !== undefined) open.call.latencyMs = latency;
+        // A helper's file acts enter the workspace diff, beside the agent's.
+        const fields = isRecord(open.call.input) ? open.call.input : {};
+        const path = stringField(fields, 'file_path') ?? stringField(fields, 'notebook_path');
+        if (path === undefined || failed) continue;
+        if (open.call.label === 'Read') known.add(path);
+        else
+          noteWrite(
+            block,
+            open.call.label,
+            path,
+            isRecord(record.toolUseResult) ? record.toolUseResult : undefined,
+          );
       }
     }
   }
@@ -608,11 +629,24 @@ export function mapSession(input: SessionInput): ReplaySession {
         block.references.push({ path: read, ...(open.at === undefined ? {} : { at: open.at }) });
       return;
     }
-    if (!WRITE_TOOLS.has(call.label)) return;
+    noteWrite(block, call.label, path, structured);
+  }
+
+  /**
+   * A successful write enters the block's workspace diff: created when the tool says so (or a Write of a path the
+   * session has not seen), else changed. The agent's writes and a helper's both come here, in transcript order, so
+   * the diff shows what the helper edited too.
+   */
+  function noteWrite(
+    block: BlockBuilder,
+    label: string,
+    path: string,
+    structured: Record<string, unknown> | undefined,
+  ): void {
+    if (!WRITE_TOOLS.has(label)) return;
     const relativePath = rel(path);
     const kind = structured?.type;
-    const createdNow =
-      call.label === 'Write' && (kind === 'create' || (kind !== 'update' && !known.has(path)));
+    const createdNow = label === 'Write' && (kind === 'create' || (kind !== 'update' && !known.has(path)));
     known.add(path);
     if (createdNow) {
       if (!block.created.includes(relativePath)) block.created.push(relativePath);
