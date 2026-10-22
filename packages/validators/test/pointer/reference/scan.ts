@@ -12,7 +12,16 @@ import { anchorUnits, type NewUnit } from './anchor';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, askStack, askSystem2, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
+import {
+  askModel,
+  askStack,
+  askSystem2,
+  Cassette,
+  CassetteError,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
 import { planWindows, type WindowPlan } from './window';
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
@@ -425,11 +434,11 @@ async function labelWindow(
     if (model) {
       let result: Awaited<ReturnType<typeof askModel>>;
       try {
-        result = await (model.second
-          ? askStack
-          : model.arm === 'haiku'
-            ? askSystem2
-            : askModel)(plan, set, model);
+        result = await (model.second ? askStack : model.arm === 'haiku' ? askSystem2 : askModel)(
+          plan,
+          set,
+          model,
+        );
       } catch (cause) {
         return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
       }

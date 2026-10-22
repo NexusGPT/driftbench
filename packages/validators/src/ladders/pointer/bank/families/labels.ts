@@ -1168,7 +1168,9 @@ labels:
     const perWindow = new Map<string, number>();
     for (const c of fake.calls) perWindow.set(c.window, (perWindow.get(c.window) ?? 0) + 1);
     if (perWindow.size !== 2 || [...perWindow.values()].some((n) => n !== runs))
-      return fail(`the requests are spread ${JSON.stringify([...perWindow.values()])} over the windows, expected ${runs} each`);
+      return fail(
+        `the requests are spread ${JSON.stringify([...perWindow.values()])} over the windows, expected ${runs} each`,
+      );
     const texts = fake.calls.flatMap((c) => c.units.map((u) => u.text));
     const wrong = texts.find((t) => label(res.ledger, t) !== truthLabel(t));
     return wrong
@@ -1207,7 +1209,9 @@ labels:
       if (!res.ok || !res.ledger) return fail(`stop reason ${stop}: the scan failed: ${res.error}`);
       const expected = runsOf('haiku').length + 1;
       if (fake.count !== expected)
-        return fail(`stop reason ${stop}: ${fake.count} calls, expected ${expected} (every run once, the refused one retried once)`);
+        return fail(
+          `stop reason ${stop}: ${fake.count} calls, expected ${expected} (every run once, the refused one retried once)`,
+        );
       if (label(res.ledger, texts[0] as string) !== truthLabel(texts[0] as string))
         return fail(`stop reason ${stop}: the retry's answer did not apply`);
     }

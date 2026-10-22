@@ -534,7 +534,8 @@ export const replayRuns: Record<string, Run> = {
     });
     const reported =
       !failedRun.ok || failedRun.diagnostics.some((d) => d.window === 'notes/b.md#1' && d.code !== '');
-    if (!reported) return fail('a transport failure was reported neither as a failed scan nor as a failed window');
+    if (!reported)
+      return fail('a transport failure was reported neither as a failed scan nor as a failed window');
     const entries = lines(failedRun.cassette ?? '');
     const windows = new Map<string, number>();
     try {
@@ -549,14 +550,22 @@ export const replayRuns: Record<string, Run> = {
     }
     if (windows.has('notes/b.md#1')) return fail('the failed window left an entry in the cassette');
     if (windows.get('notes/a.md#1') !== runs)
-      return fail(`the window asked in full holds ${windows.get('notes/a.md#1') ?? 0} entries, expected ${runs}`);
+      return fail(
+        `the window asked in full holds ${windows.get('notes/a.md#1') ?? 0} entries, expected ${runs}`,
+      );
     const fixture = loadFixture('haiku');
     const fake = fakeTransport();
     const again = await ctx.sut.scan({
       files: fixture.files,
       labelsYaml: fixture.labelsYaml,
       model: { arm: 'haiku', transport: fake },
-      cassette: { mode: 'record', text: `${fixture.rows.slice(0, runs).map((r) => JSON.stringify(r)).join('\n')}\n` },
+      cassette: {
+        mode: 'record',
+        text: `${fixture.rows
+          .slice(0, runs)
+          .map((r) => JSON.stringify(r))
+          .join('\n')}\n`,
+      },
     });
     if (!again.ok) return fail(`the second record run failed: ${again.error}`);
     const expected = 2 * runs;
