@@ -86,4 +86,5 @@ export {
   shareSubjects,
   soundMap,
   subjectsOf,
+  unitsBySubject,
 } from './subjects';

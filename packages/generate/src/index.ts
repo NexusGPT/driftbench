@@ -444,6 +444,7 @@ export {
   shareSubjects,
   soundMap,
   subjectsOf,
+  unitsBySubject,
   type Tally,
   type ValueReport,
   type VariableReport,

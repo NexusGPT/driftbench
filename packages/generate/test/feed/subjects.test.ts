@@ -123,3 +123,55 @@ describe('the sibling pass', () => {
     expect(map).toEqual({ b: 'a', d: 'c' });
   });
 });
+
+describe('never merge on words alone: the unit decides', () => {
+  const lab = (subject: string, unit: string, limit = 5): SpanLabel => ({
+    kind: 'numeric',
+    subject,
+    limit,
+    comparison: 'le',
+    unit,
+  });
+
+  it('keeps two subjects when the same words come before numbers of other units', () => {
+    const pair = shareSubjects([
+      { text: 'The limit is 5 retries', label: lab('retry limit', 'retries') },
+      { text: 'The limit is 40 items', label: lab('item limit', 'items', 40) },
+    ]);
+    expect(pair.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual(['retry limit', 'item limit']);
+    const cap = shareSubjects([
+      { text: 'The cap is at most 5 euros', label: lab('price cap', 'euros') },
+      { text: 'The cap is at most 5 percent', label: lab('discount cap', 'percent') },
+    ]);
+    expect(cap.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual(['price cap', 'discount cap']);
+  });
+
+  it('still shares a subject when the units agree, or both are absent', () => {
+    const same = shareSubjects([
+      { text: 'The cap is at most 5 euros', label: lab('price cap', 'euros') },
+      { text: 'The cap is at most 9 euros', label: lab('cap price', 'euros', 9) },
+    ]);
+    expect(new Set(same.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).size).toBe(1);
+  });
+
+  it('refuses a model map across units and accepts one within a unit', async () => {
+    const clauses = [
+      { text: 'a 5 retries', label: lab('retry limit', 'retries') },
+      { text: 'b 5 euros', label: lab('order value', 'euros') },
+      { text: 'c 5 euros', label: lab('order amount', 'euros') },
+    ];
+    const map = await canonicalSubjects(clauses, async () => ({
+      'retry limit': 'order value',
+      'order amount': 'order value',
+    }));
+    expect(map).toEqual({ 'order amount': 'order value' });
+  });
+
+  it('refuses a merge when one subject carries two units', () => {
+    const units = new Map([
+      ['a', new Set(['euros', 'percent'])],
+      ['b', new Set(['euros'])],
+    ]);
+    expect(soundMap({ a: 'b' }, ['a', 'b'], units)).toEqual({});
+  });
+});

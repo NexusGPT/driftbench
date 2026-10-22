@@ -14,6 +14,10 @@ import type { SpanLabel } from './sources';
 
 export type LabelledClause = { text: string; label?: SpanLabel };
 
+/** The unit a label carries; none when it has none. Two clauses of one quantity carry the same unit. */
+const unitOf = (label: SpanLabel | undefined): string =>
+  label !== undefined && 'unit' in label && typeof label.unit === 'string' ? label.unit.trim().toLowerCase() : '';
+
 const hasSubject = (label: SpanLabel | undefined): label is Extract<SpanLabel, { subject: string }> =>
   label !== undefined &&
   (label.kind === 'numeric' || label.kind === 'range') &&
@@ -41,11 +45,12 @@ export function shareSubjects<T extends LabelledClause>(clauses: readonly T[]): 
   const ordered = [...clauses].sort((a, b) => (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
   for (const clause of ordered) {
     const prefix = prefixOf(clause.text);
-    if (prefix === '' || !hasSubject(clause.label) || first.has(prefix)) continue;
-    first.set(prefix, clause.label.subject);
+    const key = `${unitOf(clause.label)}\u0000${prefix}`;
+    if (prefix === '' || !hasSubject(clause.label) || first.has(key)) continue;
+    first.set(key, clause.label.subject);
   }
   return clauses.map((clause) => {
-    const subject = first.get(prefixOf(clause.text));
+    const subject = first.get(`${unitOf(clause.label)}\u0000${prefixOf(clause.text)}`);
     return hasSubject(clause.label) && subject !== undefined && clause.label.subject !== subject
       ? { ...clause, label: { ...clause.label, subject } }
       : clause;
@@ -64,12 +69,21 @@ export function subjectsOf(clauses: readonly LabelledClause[]): string[] {
 }
 
 /** Keeps the sound entries of a map a reader returned: both ends known, no self map, chains resolved, cycles dropped. */
-export function soundMap(map: unknown, subjects: readonly string[]): Record<string, string> {
+export function soundMap(
+  map: unknown,
+  subjects: readonly string[],
+  units?: ReadonlyMap<string, ReadonlySet<string>>,
+): Record<string, string> {
   const known = new Set(subjects);
   const direct: Record<string, string> = {};
   if (map === null || typeof map !== 'object') return direct;
   for (const [from, to] of Object.entries(map as Record<string, unknown>)) {
     if (!known.has(from) || typeof to !== 'string' || !known.has(to) || from === to) continue;
+    // Two subjects merge only when every clause of both carries one and the same unit.
+    if (units !== undefined) {
+      const both = new Set([...(units.get(from) ?? []), ...(units.get(to) ?? [])]);
+      if (both.size > 1) continue;
+    }
     direct[from] = to;
   }
   const end: Record<string, string> = {};
@@ -83,6 +97,19 @@ export function soundMap(map: unknown, subjects: readonly string[]): Record<stri
     if (!seen.has(at)) end[from] = at;
   }
   return end;
+}
+
+/** The set of units carried by the clauses of each subject. */
+export function unitsBySubject(clauses: readonly LabelledClause[]): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  for (const clause of clauses) {
+    const label = clause.label;
+    if (label === undefined || !('subject' in label) || typeof label.subject !== 'string') continue;
+    const set = out.get(label.subject) ?? new Set<string>();
+    set.add(unitOf(label));
+    out.set(label.subject, set);
+  }
+  return out;
 }
 
 /** Applies a map of subjects to clauses. Returns new clauses. */
@@ -111,7 +138,7 @@ export async function canonicalSubjects(
   const merged: Record<string, string> = {};
   for (let i = 0; i < subjects.length; i += size) {
     const chunk = subjects.slice(i, i + size);
-    Object.assign(merged, soundMap(await ask(chunk), chunk));
+    Object.assign(merged, soundMap(await ask(chunk), chunk, unitsBySubject(clauses)));
   }
-  return soundMap(merged, subjects);
+  return soundMap(merged, subjects, unitsBySubject(clauses));
 }

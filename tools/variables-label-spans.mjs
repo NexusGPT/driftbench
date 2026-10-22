@@ -227,6 +227,10 @@ if (spentBefore + spent() > totalCap || spent() > cap) {
 const sameMap = await canonicalSubjects(finished, askSame);
 finished = applySubjects(finished, sameMap);
 console.log(`subjects merged by the sibling pass: ${Object.keys(sameMap).length}`);
+for (const [from, to] of Object.entries(sameMap)) {
+  const texts = finished.filter((row) => row.label?.subject === to).map((row) => row.text);
+  console.log(`merge: "${from}" -> "${to}" (e.g. ${JSON.stringify(texts.slice(0, 2))})`);
+}
 
 writeFileSync(outFile, `${finished.map((row) => JSON.stringify(row)).join('\n')}\n`);
 const total = spentBefore + spent();
