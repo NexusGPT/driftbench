@@ -9,6 +9,7 @@
 // once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
 // (the collector writes the spans folded, and the adapter folds a clause before it looks the label up). The cost is computed from the token
 // counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
+import { createHash } from 'node:crypto';
 import { appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -117,6 +118,8 @@ const valid = (l) => {
   return l.kind === 'boolean';
 };
 
+/** The responses of the batch in hand: id, model and token usage, no text. */
+let responses = [];
 let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
@@ -140,6 +143,7 @@ async function ask(batch) {
     throw new Error(
       `labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`,
     );
+  responses.push({ id: json.id, model: json.model, usage: { input_tokens: json.usage?.input_tokens ?? 0, output_tokens: json.usage?.output_tokens ?? 0 } });
   tokensIn += json.usage?.input_tokens ?? 0;
   tokensOut += json.usage?.output_tokens ?? 0;
   const text = (json.content ?? []).map((c) => c.text ?? '').join('');
@@ -175,6 +179,7 @@ for (let i = 0; i < texts.length; i += BATCH) {
     process.exit(3);
   }
   const batch = texts.slice(i, i + BATCH);
+  responses = [];
   const answers = await ask(batch);
   // One retry for the clauses that came back unusable.
   const retry = batch.filter((_, j) => !valid(answers[j]));
@@ -197,6 +202,17 @@ for (let i = 0; i < texts.length; i += BATCH) {
   appendFileSync(
     outFile,
     `${batch.map((text) => JSON.stringify({ text, label: rows.get(text) })).join('\n')}\n`,
+  );
+  // The audit trail of the batch, beside the labels: the response ids, the model and the token usage of the request(s)
+  // that made it, and the SHA-256 of each text it labelled (never the text), so a row of the recording is traced to
+  // its response.
+  appendFileSync(
+    `${outFile}.batches.jsonl`,
+    `${JSON.stringify({
+      batch: i / BATCH + 1,
+      responses,
+      rows: batch.map((text) => createHash('sha256').update(text).digest('hex')),
+    })}\n`,
   );
   console.log(`batch ${i / BATCH + 1}: tokens in ${tokensIn}, out ${tokensOut} so far`);
 }
