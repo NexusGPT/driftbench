@@ -23,6 +23,8 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Proof output
+        run: pnpm exec vitest run tools/docs/rule-links.test.ts --maxWorkers=1 || true
       - name: Regenerate
         run: pnpm exec vitest run packages/cli/test/zz-regen.test.ts --maxWorkers=1
       - name: Keep impact.txt as committed
