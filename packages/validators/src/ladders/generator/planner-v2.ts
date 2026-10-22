@@ -30,6 +30,8 @@ const FAMILY = 'planner';
 
 type Cell = Record<string, string>;
 type PlanFn = (store: VariableStore, options?: Record<string, unknown>) => PlanV2;
+/** The planner module as the items call it: the planner, and the JSON text of a plan. */
+type PlannerModule = { planV2: PlanFn; renderPlanV2: (plan: PlanV2) => string };
 
 const verdict = (pass: boolean, detail: string, cause?: string): Verdict => ({
   pass,
@@ -76,6 +78,10 @@ type Shape = {
   special?: 'non-extendable' | 'odd-sizes';
   /** One value of an axis, one whole variable and one constraint that nobody approved (R6, R7). */
   unapproved?: boolean;
+  /** With `weighted`, only every other variable has weights; the rest use equal shares (R9). */
+  weightedSome?: boolean;
+  /** With `weighted`, the last value of the last axis weighs 0: its rows weigh minus infinity (R9). */
+  zeroWeight?: boolean;
 };
 
 const SHAPES: Shape[] = [
@@ -99,6 +105,18 @@ const SHAPES: Shape[] = [
   },
   { name: 'odd-sizes', tier: 3, axes: 5, detail: true, rules: [3], forbids: 0, special: 'odd-sizes' },
   { name: 'unapproved', tier: 3, axes: 5, detail: true, rules: [3], forbids: 1, unapproved: true },
+  // Ladder version 3: the shapes the traffic items need (R9).
+  {
+    name: 'mixed-weights',
+    tier: 3,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    weightedSome: true,
+  },
+  { name: 'zero-weight', tier: 4, axes: 4, detail: false, rules: [3], forbids: 0, weighted: true, zeroWeight: true },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -118,7 +136,10 @@ function draw(seed: number, shape: Shape): Scenario {
     // The axis that keeps a value nobody approved has three, so two approved ones are left.
     const count = shape.unapproved && k === shape.axes - 1 ? 3 : int(2, shape.width ?? 3);
     const values = Array.from({ length: count }, (_, j) => name(`v${k}.${j}`));
-    const weights = shape.weighted ? values.map(() => int(1, 9)) : undefined;
+    const weights =
+      shape.weighted && !(shape.weightedSome && k % 2 === 1)
+        ? values.map((_, j) => (shape.zeroWeight && k === shape.axes - 1 && j === count - 1 ? 0 : int(1, 9)))
+        : undefined;
     variables.push({
       id,
       role: k < shape.axes ? 'axis' : 'detail',
@@ -392,6 +413,12 @@ type Answers = {
   forbidden?: { seeds: PlanSeedRow[]; plan: PlanV2 };
   /** A seed that holds a value nobody approved, on a store with one. */
   unapproved?: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** The plan of the same store with every weight three times as large (R9: weights are relative). */
+  scaled?: PlanV2;
+  /** The plan of the same store with the keys of every object written in reverse order (R11). */
+  reordered: PlanV2;
+  /** The JSON text of the plan without a budget, on a store with a value of weight 0. */
+  rendered?: string;
   divergence?: string;
 };
 
@@ -419,11 +446,35 @@ function layerVerdict(plan: PlanV2, a: Answers, seeds: readonly Cell[]): Verdict
   return verdict(wrong.length === 0, wrong.slice(0, 4).join('; '));
 }
 
+/** The store with every weight multiplied by `factor`. */
+function scaledStore(store: VariableStore, factor: number): VariableStore {
+  return {
+    ...store,
+    variables: store.variables.map((variable) => ({
+      ...variable,
+      values: variable.values.map((value) =>
+        value.weight === undefined ? value : { ...value, weight: value.weight * factor },
+      ),
+    })),
+  };
+}
+
+/** The same data with the keys of every object in reverse order; arrays keep their order. */
+function reversedKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(reversedKeys);
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .reverse()
+      .map(([key, entry]) => [key, reversedKeys(entry)]),
+  );
+}
+
 async function answers(data: SeedData, shape: Shape, module: string): Promise<Answers> {
   return data.memoized(`planner:${shape.name}:${module}`, async () => {
     const scenario = draw(data.seed, shape);
     const oracle = new Oracle(scenario);
-    const frame = isolate<{ planV2: PlanFn }>({ module, seed: data.seed, tag: `planner:${shape.name}` });
+    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:${shape.name}` });
     try {
       const plan = frame.product.planV2;
       const full = plan(scenario.store, { seed: 1 });
@@ -463,6 +514,9 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seeds: unapprovedSeeds,
         plan: plan(scenario.store, { seed: 1, seeds: unapprovedSeeds }),
       };
+      const scaled = scenario.weighted ? plan(scaledStore(scenario.store, 3), { seed: 1 }) : undefined;
+      const reordered = plan(reversedKeys(scenario.store) as VariableStore, { seed: 1 });
+      const rendered = shape.zeroWeight ? frame.product.renderPlanV2(full) : undefined;
       return {
         scenario,
         oracle,
@@ -475,6 +529,9 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         partial,
         ...(forbidden ? { forbidden } : {}),
         ...(unapproved ? { unapproved } : {}),
+        ...(scaled ? { scaled } : {}),
+        reordered,
+        ...(rendered === undefined ? {} : { rendered }),
         divergence: frame.divergence(),
       };
     } finally {
@@ -713,7 +770,8 @@ const STEMS: {
   {
     id: 'traffic-weight-of-a-row',
     cause: `${FILES.plan}: a row weighs the sum of the logarithms of the shares of its values`,
-    when: (shape) => shape.weighted === true,
+    // A value of weight 0 gives minus infinity, which zero-weight-last checks.
+    when: (shape) => shape.weighted === true && !shape.zeroWeight,
     tier: 4,
     check: (a) => {
       const bad = logOf(a.full).filter(
@@ -991,6 +1049,75 @@ const STEMS: {
         }
       }
       return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  // Ladder version 3, traffic order (R9, R11).
+  {
+    id: 'weight-scale-invariance',
+    cause: `${FILES.view}: weigh a value by its share of its variable's weights, not by the weight itself`,
+    when: (shape) => shape.weighted === true,
+    tier: 3,
+    check: (a) => {
+      const scaled = a.scaled as PlanV2;
+      const same =
+        scaled.rows.length === a.full.rows.length &&
+        scaled.rows.every((row, at) => {
+          const other = a.full.rows[at];
+          const close =
+            row.logWeight === other?.logWeight || Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
+          return row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close;
+        });
+      return verdict(same, 'the plan changes when every weight is three times as large');
+    },
+  },
+  {
+    id: 'zero-weight-last',
+    cause: `${FILES.plan}: a row with a value of weight 0 weighs minus infinity, comes last, and is written null`,
+    when: (shape) => shape.zeroWeight === true,
+    tier: 4,
+    check: (a) => {
+      const axis = a.scenario.variables.filter((variable) => variable.role === 'axis').at(-1) as Variable;
+      const zero = axis.values.at(-1) as string;
+      const planned = logOf(a.full);
+      const holding = planned.map((row) => row.values[axis.id] === zero);
+      const wrong: string[] = [];
+      if (!holding.some(Boolean)) wrong.push('no new row holds the value of weight 0');
+      if (holding.some((held, at) => !held && holding.slice(0, at).some(Boolean)))
+        wrong.push('a row with the value of weight 0 comes before a row without it');
+      planned.forEach((row, at) => {
+        if (holding[at] && row.logWeight !== Number.NEGATIVE_INFINITY)
+          wrong.push(`${row.id} weighs ${row.logWeight} in memory, not minus infinity`);
+      });
+      let written: Array<{ id?: unknown; logWeight?: unknown }> = [];
+      try {
+        written = (JSON.parse(a.rendered ?? '') as { rows?: typeof written }).rows ?? [];
+      } catch {
+        wrong.push('the plan is not written as JSON');
+      }
+      for (const row of planned) {
+        const out = written.find((entry) => entry.id === row.id);
+        const held = row.values[axis.id] === zero;
+        if (held && out?.logWeight !== null) wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
+        if (!held && typeof out?.logWeight !== 'number') wrong.push(`${row.id} is written without a number`);
+      }
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  {
+    id: 'key-order-invariance',
+    cause: `${FILES.plan}: the order of the keys of the store changes nothing in the plan`,
+    when: () => true,
+    tier: 3,
+    check: (a) => {
+      const rows = JSON.stringify(a.reordered.rows) === JSON.stringify(a.full.rows);
+      const layers = JSON.stringify(a.reordered.layers) === JSON.stringify(a.full.layers);
+      const rules = (plan: PlanV2) =>
+        plan.rules
+          .map((rule) => [...rule.variables].sort().join(','))
+          .sort()
+          .join('|');
+      const same = rows && layers && rules(a.reordered) === rules(a.full);
+      return verdict(same, `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`);
     },
   },
 ];
