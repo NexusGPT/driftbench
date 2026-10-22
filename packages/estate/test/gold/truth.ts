@@ -52,8 +52,12 @@ const Truth = z.strictObject({
   planted_rules: z.array(PlantedRule).min(8).max(12),
   plan: Plan,
   refers_to: z.array(RefersTo).default([]),
-  /** The cells of each standalone table of numbers that no instruction points at, as a range of cells. */
-  limits_table: z.array(Range).default([]),
+  /**
+   * The cells of each number table: a standalone table whose cells state numbers, that no instruction points at
+   * and that holds no truth limit, as a range of cells. Not `limits_table`, which elsewhere names a table whose rows
+   * carry truth limits.
+   */
+  number_table: z.array(Range).default([]),
 });
 export type Truth = z.infer<typeof Truth>;
 
@@ -144,7 +148,11 @@ export async function loadTruth(
     }
     return [...byId.values()].filter((unit) => unit.file === from.file && unit.n >= from.n && unit.n <= to.n);
   };
+  const key = (entry: { unit: string; to: string | { from: string; to: string } }): string =>
+    `${entry.unit}>${typeof entry.to === 'string' ? entry.to : `${entry.to.from}..${entry.to.to}`}`;
   truth.refers_to.forEach((entry, at) => {
+    const first = truth.refers_to.findIndex((other) => key(other) === key(entry));
+    if (first < at) problems.push(`refers_to.${at}: the same entry as refers_to.${first}`);
     const unit = unitOf(`refers_to.${at}.unit`, entry.unit);
     const referred =
       typeof entry.to === 'string'
@@ -154,10 +162,15 @@ export async function loadTruth(
       problems.push(`refers_to.${at}: ${entry.unit} refers to itself`);
     }
   });
-  truth.limits_table.forEach((range, at) => {
-    const cells = rangeOf(`limits_table.${at}`, range);
+  const tables: Array<Set<string>> = [];
+  truth.number_table.forEach((range, at) => {
+    const cells = rangeOf(`number_table.${at}`, range);
     const other = cells?.find((unit) => unit.container !== 'table_cell');
-    if (other) problems.push(`limits_table.${at}: ${other.id} is a ${other.container}, not a table cell`);
+    if (other) problems.push(`number_table.${at}: ${other.id} is a ${other.container}, not a table cell`);
+    const ids = new Set((cells ?? []).map((unit) => unit.id));
+    const overlap = tables.findIndex((seen) => [...ids].some((id) => seen.has(id)));
+    if (overlap >= 0) problems.push(`number_table.${at}: overlaps number_table.${overlap}`);
+    tables.push(ids);
   });
   return { truth, problems };
 }

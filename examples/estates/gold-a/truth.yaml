@@ -300,7 +300,7 @@ refers_to:
   - unit: fko2ua5tpt             # the reopen window of the sentence before
     to: hykpyrtlha
 
-# 6. Standalone tables of numbers that no instruction points at, as a range of their cells.
-limits_table:
+# 6. Number tables: standalone tables whose cells state numbers, that no instruction points at and that hold no truth limit, as a range of their cells.
+number_table:
   - { from: ls4xe277ue, to: v6tqzxlzqq }   # ticket tool calls
   - { from: zzu22pt7no, to: 2zdwebsoay }   # ticket fields

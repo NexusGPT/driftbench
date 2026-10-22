@@ -7,7 +7,7 @@ import { ESTATE_NAMES, estateFolder, type GoldUnit, loadGold } from './gold';
 import { loadTruth } from './truth';
 
 /**
- * The refers_to and limits_table sections of the truth files (examples/estates/gold5/TRUTH-SCHEMA.md, sections 5
+ * The refers_to and number_table sections of the truth files (examples/estates/gold5/TRUTH-SCHEMA.md, sections 5
  * and 6): the committed files load clean, and each check of the loader names a bad entry.
  */
 
@@ -22,21 +22,23 @@ afterAll(async () => {
 });
 
 /** Estate A's committed truth with its two new sections replaced, loaded from a scratch file. */
-async function problemsWith(sections: { refers_to?: unknown; limits_table?: unknown }): Promise<string[]> {
+async function problemsWith(sections: { refers_to?: unknown; number_table?: unknown }): Promise<string[]> {
   const text = await readFile(join(estateFolder('A'), 'truth.yaml'), 'utf8');
   const truth = parse(text) as Record<string, unknown>;
   const path = join(work, `truth-${Math.random().toString(36).slice(2)}.yaml`);
-  const file = { ...truth, refers_to: [], limits_table: [], ...sections };
+  const file = { ...truth, refers_to: [], number_table: [], ...sections };
   await writeFile(path, stringify(file));
   return (await loadTruth('A', gold, path)).problems;
 }
 
-describe('refers_to and limits_table in the truth files', () => {
+describe('refers_to and number_table in the truth files', () => {
   it.each(ESTATE_NAMES)('the committed truth of estate %s loads with both sections', async (estate) => {
     const { truth, problems } = await loadTruth(estate, gold);
     expect(problems).toEqual([]);
-    expect(Array.isArray(truth.refers_to)).toBe(true);
-    expect(truth.limits_table.length).toBeGreaterThan(0);
+    // Read through a plain shape, so the file also typechecks against a loader that lacks both fields (red first).
+    const read = truth as { refers_to?: unknown[]; number_table?: unknown[] };
+    expect(Array.isArray(read.refers_to)).toBe(true);
+    expect(read.number_table?.length).toBeGreaterThan(0);
   });
 
   it('names an id that is no unit of the estate', async () => {
@@ -62,9 +64,25 @@ describe('refers_to and limits_table in the truth files', () => {
     expect(problems).toContain('refers_to.1: tqcnb4gt46 refers to itself');
   });
 
-  it('refuses a limits_table range that holds a unit other than a table cell', async () => {
+  it('refuses a number_table range that holds a unit other than a table cell', async () => {
     // From the heading of the section to the sentence that points at the table: a heading and sentences.
-    const problems = await problemsWith({ limits_table: [{ from: 'hmsstexity', to: '2nfri23ink' }] });
-    expect(problems).toContain('limits_table.0: hmsstexity is a heading, not a table cell');
+    const problems = await problemsWith({ number_table: [{ from: 'hmsstexity', to: '2nfri23ink' }] });
+    expect(problems).toContain('number_table.0: hmsstexity is a heading, not a table cell');
+  });
+
+  it('refuses a refers_to entry given twice', async () => {
+    const entry = { unit: 'fko2ua5tpt', to: 'hykpyrtlha' };
+    const problems = await problemsWith({ refers_to: [entry, { ...entry }] });
+    expect(problems).toContain('refers_to.1: the same entry as refers_to.0');
+  });
+
+  it('refuses two number tables that share a cell', async () => {
+    const problems = await problemsWith({
+      number_table: [
+        { from: 'ls4xe277ue', to: 'v6tqzxlzqq' },
+        { from: 'kmxy45ryyx', to: 'v6tqzxlzqq' },
+      ],
+    });
+    expect(problems).toContain('number_table.1: overlaps number_table.0');
   });
 });

@@ -279,6 +279,6 @@ refers_to:
   - unit: k6g63ac7qe             # the urgency table
     to: { from: p77uihinyk, to: 27jkqliewi }
 
-# 6. Standalone tables of numbers that no instruction points at, as a range of their cells.
-limits_table:
+# 6. Number tables: standalone tables whose cells state numbers, that no instruction points at and that hold no truth limit, as a range of their cells.
+number_table:
   - { from: gzkv46cdyp, to: 5ign5ie4be }   # rooms, sleeps and price per night
