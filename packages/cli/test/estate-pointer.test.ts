@@ -174,6 +174,8 @@ describe('driftbench estate scan --pointer', () => {
     const root = await estate();
     // The second to fourth asks of a window holding the "Close" unit (system 1 is torn on it) call it a prohibition, a
     // description and a prohibition: five runs, and no label has three of them (rule 2, prohibition 2, description 1).
+    // That ties inside the instruction kind, so the window is asked twice more (asks 6 and 7): the sixth says
+    // prohibition and the seventh rule, so it still ties, 3 against 3.
     const asks = new Map<string, number>();
     const wavering: FetchLike = async (url, init) => {
       const response = await services(url, init);
@@ -186,7 +188,7 @@ describe('driftbench estate scan --pointer', () => {
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
       asks.set(content, seen);
-      if (seen < 2 || seen > 4) return response;
+      if (seen < 2 || seen === 5 || seen > 6) return response;
       const payload = (await response.json()) as { content: Array<{ text: string }> };
       const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
         labels: Array<{ units: string; label: string }>;
@@ -216,6 +218,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(code).toBe(0);
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
+    expect(output.out).toMatch(/asked again: .* asked again as run 7 for \d+ split units/);
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {

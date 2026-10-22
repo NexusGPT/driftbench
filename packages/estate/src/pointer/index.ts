@@ -99,6 +99,7 @@ export {
   type PointerResult,
   pointerScan,
   REASK_LIMIT,
+  SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';
 export {
