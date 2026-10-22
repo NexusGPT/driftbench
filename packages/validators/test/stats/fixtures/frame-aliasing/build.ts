@@ -15,7 +15,14 @@ export type Aliasing =
   | 'proxy'
   | 'proxy-nested'
   | 'getter'
-  | 'setter';
+  | 'setter'
+  | 'getter-array'
+  | 'setter-array'
+  | 'extra-typed'
+  | 'extra-map'
+  | 'extra-array'
+  | 'extra-date'
+  | 'extra-set';
 
 const SIGNATURE =
   'export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {';
@@ -42,6 +49,64 @@ Reflect.apply = () => undefined;
 };
 
 const WRAPPERS: Record<Aliasing, string> = {
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-typed': `const shared = new Float64Array(2);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-map': `const shared = new Map();
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-array': `const shared = [1, 2];
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-date': `const shared = new Date(0);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-set': `const shared = new Set([1]);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+
+  // An array field whose element 1 is a getter answering the real number once and zero afterwards.
+  'getter-array': `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  let reads = 0;
+  const series = [1, 2, 3];
+  Object.defineProperty(series, 1, { enumerable: true, get: () => { reads += 1; return reads <= 1 ? 2 : 0; } });
+  return { ...real, series } as BootstrapInterval;
+}
+`,
+  // An array field whose element 1 is a setter alone.
+  'setter-array': `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  const series = [1, 2, 3];
+  Object.defineProperty(series, 1, { enumerable: true, set() {} });
+  return { ...real, series } as BootstrapInterval;
+}
+`,
   // A getter on a field of a correct result: the first read is the real number, later reads are zero.
   getter: `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
   const real = { ...realBootstrapCI(values, options) };

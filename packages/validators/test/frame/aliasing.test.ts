@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
+import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
 
 /**
@@ -21,7 +22,7 @@ afterEach(() => {
 });
 
 /** The item: two calls, the first result read after the second. Returns whether it passes, and what the frame found. */
-function twoCalls(name: keyof Product, aliasingOn: boolean, plain = false) {
+function twoCalls(name: 'fresh' | 'shared' | 'overwrite', aliasingOn: boolean, plain = false) {
   const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: aliasingOn, plain });
   open.push(frame as Frame<unknown>);
   const mark = frame.position();
@@ -85,5 +86,65 @@ describe('aliased results under the frame', () => {
     open.push(frame as Frame<unknown>);
     frame.product.proxied([1, 2, 3]);
     expect(frame.aliasSince(0)).toBeUndefined();
+  });
+
+  it('finds a typed array refilled on every call whose own length property says 0', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.sharedTyped();
+    frame.product.sharedTyped();
+    expect(frame.aliasSince(0)).toContain('has changed since');
+  });
+
+  it.each(['withArrayGetter', 'withArraySetter'] as const)(
+    '%s: an array element that is an accessor makes the result invalid',
+    (name) => {
+      const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+      open.push(frame as Frame<unknown>);
+      frame.product[name]();
+      expect(frame.aliasSince(0)).toContain('accessor');
+    },
+  );
+});
+
+// A package that patches an intrinsic the digest could use, with a shared value that only that intrinsic reads: the
+// driver captured them before the product loaded, so the change is still seen.
+describe('aliased results when the package patches the iteration and time intrinsics', () => {
+  const module = (name: string) =>
+    fileURLToPath(new URL(`./fixtures/alias-patched/${name}.ts`, import.meta.url));
+  it.each(['map', 'set', 'date'])('finds a shared %s refilled on every call', (name) => {
+    const frame = isolate<{ next(): unknown }>({
+      module: module(name),
+      seed: 11,
+      aliasing: true,
+      plain: false,
+    });
+    open.push(frame as Frame<unknown>);
+    frame.product.next();
+    frame.product.next();
+    expect(frame.aliasSince(0)).toContain('has changed since');
+  });
+
+  // The digest walk uses nothing the product can reach: no global is read by name and no method is called on a
+  // value or a prototype. Every helper is a constant taken before the product loads and applied with Reflect.apply.
+  it('walks with captured references only', () => {
+    const source = twinDriver(1, 'source-check');
+    const start = source.indexOf('// Aliased results');
+    const end = source.indexOf('new Array(16)');
+    expect(start).toBeGreaterThan(0);
+    const body = source.slice(start, end);
+    expect(
+      body.match(
+        /\b(Reflect|JSON|Object|Array|ArrayBuffer|Map|Set|WeakSet|Date|Number|String|Symbol|Math)\./g,
+      ),
+    ).toBeNull();
+    expect(
+      body.match(
+        /\.(update|digest|next|getTime|entries|values|has|add|push|shift|slice|concat|join|map|forEach)\(/g,
+      ),
+    ).toBeNull();
+    // no iteration protocol (for-of, spread): the array and Map iterators are patchable
+    expect(body).not.toMatch(/for \((const|let|var) [^;)]*\bof\b/);
+    expect(body).not.toMatch(/\[\.\.\.|\(\.\.\./);
   });
 });
