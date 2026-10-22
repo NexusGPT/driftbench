@@ -230,6 +230,32 @@ describe('a helper session: the calls of the sidechain', () => {
     expect(blocks[0]?.observed.cost.helperModel).toBe('fictional-helper');
   });
 
+  it('keeps the helper model when the message that names it carries no usage and a later record has the usage', () => {
+    const named = {
+      id: 'hm9',
+      model: 'fictional-helper',
+      role: 'assistant',
+      content: [{ type: 'text', text: 'a' }],
+    };
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      base('assistant', { isSidechain: true, uuid: 'h1', parentUuid: 'a1', message: named }),
+      base('assistant', {
+        isSidechain: true,
+        uuid: 'h2',
+        parentUuid: 'h1',
+        message: { id: 'hm9', role: 'assistant', content: [], usage: { input_tokens: 7, output_tokens: 3 } },
+      }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost).toMatchObject({
+      helperModel: 'fictional-helper',
+      helperInputTokens: 7,
+      helperOutputTokens: 3,
+    });
+  });
+
   it('adds nothing to a session with no helper', () => {
     const { blocks } = map([user('go'), assistant([{ type: 'text', text: 'hi' }])]);
     expect(blocks[0]?.observed.helperCalls).toBeUndefined();

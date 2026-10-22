@@ -48,6 +48,26 @@ describe('helper tokens are priced with the helper model', () => {
     expect(priced.cost.usd).toBeCloseTo(0.006, 10);
   });
 
+  it('uses the one model the segments name for the agent, as the agent pricing does', () => {
+    const priced = priceObserved(
+      {
+        ...observed({
+          inputTokens: 1000,
+          outputTokens: 500,
+          helperInputTokens: 1000,
+          helperOutputTokens: 0,
+        }),
+        segments: [{ type: 'text', text: 'ok', cost: { model: 'fictional-agent' } }],
+      },
+      { adapter: 'echo' },
+      prices,
+      true,
+    );
+    // The target names no model: the segment's model prices the agent and, with none for the helper, the helper.
+    expect(priced.cost.helperUsd).toBeCloseTo(0.002, 10);
+    expect(priced.cost.usd).toBeCloseTo(0.006, 10);
+  });
+
   it('prices a run that has only helper tokens', () => {
     const priced = priceObserved(
       observed({ helperInputTokens: 1000, helperOutputTokens: 0, helperModel: 'fictional-helper' }),
