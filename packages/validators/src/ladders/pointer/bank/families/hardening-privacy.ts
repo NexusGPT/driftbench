@@ -131,15 +131,17 @@ async function linkCandidate(ctx: ItemContext) {
   const requests = [...new Set(fake.calls.filter((call) => call.body.includes(other)).map((c) => c.body))];
   const rows = res.listed.filter((row) => row.file === 'harbour/second.md' && row.link === 'topic');
   for (const request of requests) {
-    const witnesses = rows.filter((row) => row.body === request);
+    const listedHere = rows.filter((row) => row.body === request).flatMap((row) => row.candidates);
+    if (listedHere.length === 0)
+      return fail(
+        'positive witness: the request for the second file lists no candidate in a row whose body is that request',
+      );
     // The candidate of THE planted atom: the one whose shown title holds the words around its comment. It must
     // carry another id than the real one (a slug of the title, comment included) and no comment text.
-    const planted = witnesses
-      .flatMap((row) => row.candidates)
-      .find((c) => c.title.includes(head) && c.title.includes(tail));
+    const planted = listedHere.find((c) => c.title.includes(head) && c.title.includes(tail));
     if (!planted)
       return fail(
-        'positive witness: a request for the second file lists no candidate that is the planted atom: none holds the words around the comment, in a row whose body is that request',
+        'positive witness: no candidate of the request for the second file is the planted atom: none holds the words around the comment',
       );
     if (planted.id === '' || planted.id === atom.id || planted.title === title)
       return fail('the planted atom is listed as it is given: its id and its title are not masked');
