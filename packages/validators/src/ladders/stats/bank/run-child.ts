@@ -74,6 +74,8 @@ async function main(args: readonly string[]): Promise<void> {
   traceLine(`bank-child:${seedText}:${startText}`, 'items done, closing the frame');
   closeFrame(frame);
   traceLine(`bank-child:${seedText}:${startText}`, 'frame closed');
+  // The last line: every outcome and the frame's taint are written before it, so the parent has all it needs.
+  process.stdout.write(`${JSON.stringify({ closed: true })}\n`);
 }
 
 /** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
@@ -103,7 +105,12 @@ export function statsBankChild(args: readonly string[]): Promise<never> {
     // Exit when every line has left the process: an exit with output still queued would drop it.
     () =>
       new Promise<never>(() => {
-        process.stdout.write('', () => process.exit(0));
+        traceLine('bank-child', 'writing the end of the output');
+        process.on('exit', () => traceLine('bank-child', 'exit event'));
+        process.stdout.write('', () => {
+          traceLine('bank-child', 'output written, exiting');
+          process.exit(0);
+        });
       }),
     (cause) => {
       process.stderr.write(`bank child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);

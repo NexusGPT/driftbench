@@ -34,6 +34,7 @@ export function childCommand(moduleUrl: string, root: string, rest: readonly str
 }
 
 type Line = {
+  closed?: boolean;
   start?: number;
   done?: number;
   id?: string;
@@ -176,6 +177,17 @@ function runFrom(
         }
         if (line.taint !== undefined) {
           taints.push(line.taint);
+        } else if (line.closed === true && reported + start >= items.length) {
+          // The child closed its frame after its last item: every outcome and the taint are read. A child that then
+          // does not end within DRAIN_MS is stopped; it holds nothing more (CI runs of PR 986: a child that wrote
+          // "frame closed" never ended, and the parent waited CLOSE_MS, past the test's own limit).
+          traceLine(where, 'child says its frame is closed');
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => {
+            traceLine(where, `child did not end within ${DRAIN_MS} ms after it closed its frame: stopped`);
+            child.kill('SIGKILL');
+            finish(items.length);
+          }, DRAIN_MS);
         } else if (line.start !== undefined) {
           traceLine(where, `child says item ${line.start} starts`);
           arm(line.start);
