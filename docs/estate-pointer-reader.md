@@ -2,7 +2,7 @@
 
 Status: revision 5. The normative review corrections below supersede the corresponding revision-4 rules and prototype observations. The implementation and historical measurements described below are not a claim that the corrections are implemented.
 
-Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); links (layer C), the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
+Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); the link functions of layer C (section 7) are built as library functions and have no command; the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
 
 ## The shape: three layers with three owners
 
@@ -224,6 +224,7 @@ This section states the product contract formerly described by the research `STA
 - System 2 supplies three independent runs on the same window. Below the cut, all three votes must be present, valid members of the label set, and equal. Their unanimous label is accepted even when it differs from system 1. Otherwise the unit is unsure and goes to a person. An empty or undeclared label is never accepted.
 - `requireAgreement` defaults to false. When true, every accepted unit, including an above-cut unit, must also have three valid equal system-2 votes matching its system-1 label. Accepted units are therefore a subset of the ordinary accepted set.
 - A missing or malformed system-2 run counts against unanimity. A system-1 call retries once; a second failure routes its units below the cut. Changing one unit's opinions changes only that unit's route or decision.
+- `margin(probabilities)` is the pure measure: the likeliest option minus the second, or undefined when the probabilities are no vector (a probability outside 0 to 1, not a number, a total off by more than 0.01) or hold no `none` option. `stackMargin(probabilities)` is the margin the stack reads: the same measure, and a RangeError where the measure gives none. `stackDecision` leaves a unit with no margin to system 2. `stackDecision({probabilities, system1Label?, system2Votes, marginCut, requireAgreement?})` applies the rules above to one unit and returns `{label, by}` or nothing, from that unit's opinions only. A system 2 labeler used alone is asked `runs` times when the caller sets it (the validator arms set one).
 - Both classes can be replaced by user labelers. A system-1 replacement supplies probabilities; a system-2 replacement supplies three independent votes. These are product requirements, not behavior the validator adapter implements.
 
 ### System 1 settings (measured, section 10a)
@@ -248,7 +249,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 
@@ -301,6 +302,8 @@ Cheapest first, on units:
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
 
+`carryOf(before, after, sets)` says, for one unit that was labelled before, which labels carry to the next scan and which sets are asked again: a label carries when the unit's fingerprint and its context fingerprint are both unchanged, and a set the unit had no label for is asked again. `recordLabel(entry, set, next)` replaces the label of one set of an entry, leaves the other sets, the id and the status alone, and returns a flip when a label other than `none` was replaced by another label, by `none` or by none. When a text matches in several places the old id stays on the first match, and `nextLedger` lists every place in `candidates`.
+
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
 
 ## 5. Cache and cassette
@@ -341,6 +344,8 @@ A test or block links to a span with `{ span: <ledger id>, fp, relation, created
 | `ambiguous` | The span matches in several places. |
 
 The **blast radius** of an edit is the set of tests with `suspect` links, plus a separately reported advisory set (tests linked to the same section) for references a precise link may hide ("except as described above"). Only links with `createdBy: verified` count towards a claim; a link becomes verified by mutation (deleting or negating the span flips the test). Clearing a suspect link records a reason (`cosmetic`, `semantic-still-covered`, `test-updated`). Coverage reports the inverse: spans labelled with an `atom` mapping and no verified link.
+
+The functions are `createLink(ledger, owner, span, relation, createdBy?)`, `classifyLinks(previous, current, links)`, `clearLink(link, reason, current)`, `verifyLink(link, {mutation, flipped})`, `linkCoverage(current, mappedLabels, links)` and `blastRadius(previous, current, links)`. A link holds `owner`, `span`, `fp`, `relation`, `createdBy`, `accepted` (a boolean, or the clearing reason) and, once cleared, `reason`; it holds no offset. A link also holds the context fingerprint and the heading path the span had when it was accepted. A state depends on the link and the ledger after the edit: `suspect` when the span is gone, deleted, or its fingerprint differs from the link's; `ambiguous` when the last event of the span's lineage is `ambiguous` (its text matched in several places); `advisory` when the span's context fingerprint or heading path differs from the link's, and it stays advisory until the link is accepted again; else `ok`. A link with no context of its own takes the context of the ledger before the edit. A clearing takes a ledger or a review (`fp`, `ctxFp`, `sectionPath`) and refuses any reason but the three; it keeps the link as it was when it refuses. `verifiedSpans(links)` is the spans a claim may name: those of verified links, each once. `impactOf(precise, sectionLinks, editedSections)` is the radius from links already classified: the owners of suspect links whoever made them, and the owners of section-level references to an edited section. The coverage counts a span as covered when a verified link names it at its current fingerprint. The blast radius is the sorted, unique owners of suspect links, with the advisory owners (links left advisory or ambiguous, and links to other spans of the sections where a span went suspect) listed apart.
 
 ## 8. How the validators replay it
 
@@ -564,6 +569,8 @@ Every readable field stored beside a cassette key must equal the corresponding m
 
 Replay expectations come from committed fixtures or independently authored source boundaries and labels. Recording behavior can be tested, but a recording produced during an item never becomes that item's replay input or expected answer.
 
+`pointerScan` also lists `warnings`: when a recording run gets a returned model that differs from the one the cassette holds for the same labeler and request model, the warning names both model ids. A run with none has an empty list.
+
 ### Validator adapter observability contract
 
 The validator adapter maps product exports. It does not infer per-id events from changed quotes, compare ledger bytes to implement check mode, reconstruct lineage or twin relationships, decide labels, or generate warnings. Product results pass through unchanged, including wrong results that the bank must reject.
@@ -573,6 +580,7 @@ The current API uses `buildLabelling` for configured model clients, `singleLabel
 Optional observation extensions have these shapes:
 
 - `pointerScan` may expose `eventsById: Record<string, string>` and `warnings: string[]`. Its existing `events` remains the aggregate event-count map.
+- `pointerScan` also lists `failedWindows` (window, set, labeler, reason), `unlabeledUnits` (unit id, set) and `flips` (unit id, set, from, to), and the adapter turns them into diagnostics `failed-window`, `unlabeled` and `label_flip`.
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.

@@ -35,6 +35,18 @@ describe('the cassette', () => {
     expect(recorded().get(WIRE, readableOf(WIRE, META)).answer).toEqual(ANSWER);
   });
 
+  it('refuses an entry whose readable field was changed under the key, and names the field', () => {
+    const cassette = recorded();
+    const key = requestKey(WIRE, readableOf(WIRE, META));
+    for (const field of ['path', 'window', 'set', 'setHash', 'model', 'cutDigest', 'promptVersion']) {
+      const copy = Cassette.parse(cassette.render());
+      const entry = copy.entries.get(key);
+      if (!entry) throw new Error('no entry');
+      entry.readable[field] = 'tampered';
+      expect(() => copy.get(WIRE, readableOf(WIRE, META))).toThrow(new RegExp(`differs in: ${field}\\b`));
+    }
+  });
+
   it('dumps the same bytes for the same content, and reads them back', () => {
     const text = recorded().render();
     expect(recorded().render()).toBe(text);

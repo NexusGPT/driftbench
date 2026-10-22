@@ -21,7 +21,15 @@ import {
   setHash,
   type Window,
 } from './labels';
-import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
+import {
+  type Event,
+  type LabelFlip,
+  type Ledger,
+  type LedgerEntry,
+  nextLedger,
+  recordLabel,
+  unitKey,
+} from './ledger';
 import type { Labelling } from './stack';
 
 /**
@@ -128,6 +136,10 @@ export type PointerResult = {
   calls: number;
   /** Units no accepted answer named. */
   unlabeled: number;
+  /** The same units, by ledger id and set. */
+  unlabeledUnits: Array<{ unit: string; set: string }>;
+  /** Units that had a label other than none and no longer have one. */
+  flips: LabelFlip[];
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
   /** Units whose runs agreed on the label but drew the spans or links differently: the first run's stand. */
@@ -143,6 +155,10 @@ export type PointerResult = {
   reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
+  /** Notes that do not stop a run: a returned model that differs from the one recorded. */
+  warnings: string[];
+  /** The same windows, by window, set and labeler. */
+  failedWindows: FailedWindow[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -296,7 +312,14 @@ type Task = {
 };
 
 type Leaf = { window: Window; answer: Recorded; key: string };
-type TaskResult = { leaves: Leaf[]; failures: string[] };
+/** A window no accepted answer came back for: where, for which set and labeler, and why. */
+export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
+const describeFailure = (failure: FailedWindow): string =>
+  `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
+
+export type { LabelFlip } from './ledger';
+
+type TaskResult = { leaves: Leaf[]; failures: FailedWindow[] };
 
 function readableFor(task: Task, window: Window) {
   return readableOf(task.member.render(task.set, window, task.context), {
@@ -445,6 +468,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     replayedOutput: 0,
   }));
 
+  const warnings: string[] = [];
+
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
     const wire = member.render(task.set, window, task.context);
@@ -467,6 +492,26 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const answer = await member.call(wire, task.set, window, attempt);
         counts.input += answer.usage.input;
         counts.output += answer.usage.output;
+        // An answer that names a label outside the set, a unit outside the window, a unit twice or a wrong
+        // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
+        // cannot be located is no such refusal: the run is out of step, and the vote handles it.
+        const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
+        if (refused.length > 0) throw new LabelerError(refused.join('; '));
+        // A model that returns another model id than the one recorded for the same labeler and request model is
+        // named, so a re-record that mixes two models of one name is seen.
+        for (const entry of cassette.entries.values()) {
+          const earlier = entry.answer.returnedModel;
+          if (
+            entry.readable.labeler === readable.labeler &&
+            entry.readable.model === readable.model &&
+            earlier !== answer.returnedModel &&
+            !entry.answer.refused
+          ) {
+            const note = `${readable.labeler} ${readable.model}: the returned model ${answer.returnedModel} differs from ${earlier} recorded before`;
+            if (!warnings.includes(note)) warnings.push(note);
+            break;
+          }
+        }
         cassette.put(wire, readable, answer);
         counts.recorded++;
         return { answer, key: requestKey(wire, readable) };
@@ -504,6 +549,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     throw failure;
   }
 
+  const failure = (task: Task, window: Window, reason: string): FailedWindow => ({
+    window: window.id,
+    set: task.set.set,
+    labeler: task.member.id,
+    reason,
+  });
+
   async function resolve(task: Task, window: Window): Promise<TaskResult> {
     let result: { answer: Recorded; key: string };
     try {
@@ -512,17 +564,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (FATAL(cause)) throw cause;
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${cause instanceof Error ? cause.message : String(cause)}`,
-        ],
+        failures: [failure(task, window, cause instanceof Error ? cause.message : String(cause))],
       };
     }
     if (result.answer.refused === 'unreadable') {
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${result.answer.error ?? 'the answer cannot be read'}`,
-        ],
+        failures: [failure(task, window, result.answer.error ?? 'the answer cannot be read')],
       };
     }
     if (result.answer.refused !== 'too_large') {
@@ -531,9 +579,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (window.units.length === 1) {
       return {
         leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): the endpoint refused a window of one unit as too large`,
-        ],
+        failures: [failure(task, window, 'the endpoint refused a window of one unit as too large')],
       };
     }
     const half = Math.ceil(window.units.length / 2);
@@ -573,7 +619,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
   const dropped: string[] = [];
-  const failed: string[] = [];
+  const failedWindows: FailedWindow[] = [];
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -612,7 +658,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
-    failed.push(...outcome.value.failures);
+    failedWindows.push(...outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -649,7 +695,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
       }
       const answered = await resolve(again, window);
-      failed.push(...answered.failures);
+      failedWindows.push(...answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -835,7 +881,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
       }
       const answered = await resolve(again, task.window);
-      failed.push(...answered.failures);
+      failedWindows.push(...answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -857,6 +903,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   let unlabeled = 0;
+  const unlabeledUnits: Array<{ unit: string; set: string }> = [];
+  const flips: LabelFlip[] = [];
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
   let fellBack = 0;
@@ -872,16 +920,19 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           byMember.map((runs) => opinionOf(runs, index, set)),
           set,
         );
+        // A unit the labelling stops selecting keeps its place; the change of its label is reported.
         if (!decision) {
           unlabeled++;
-          delete entry.labels[set.set];
+          unlabeledUnits.push({ unit: entry.id, set: set.set });
+          const flip = recordLabel(entry, set.set, undefined);
+          if (flip) flips.push(flip);
           continue;
         }
         decided++;
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
-        entry.labels[set.set] = {
+        const flip = recordLabel(entry, set.set, {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
           labeler: labelling.hash,
@@ -890,7 +941,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetId ? { target: targetId } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
-        };
+        });
+        if (flip) flips.push(flip);
       }
     }
   }
@@ -956,6 +1008,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     fellBack,
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
     unlabeled,
+    unlabeledUnits,
+    flips,
     split,
     spanSplit,
     voted,
@@ -963,7 +1017,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     dropped,
     outOfStep: outOfStepRuns,
     reasked,
-    failed,
+    failed: failedWindows.map(describeFailure),
+    warnings,
+    failedWindows,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };
