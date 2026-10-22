@@ -87,12 +87,12 @@ export const DEFAULT_RUNS = 5;
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
-  'An entry with a label other than none also gives "anchor": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. ' +
-  'Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
+  'Every entry, none included, also gives "anchor": the first three words of the first unit it names, copied from its start, and a range also gives "anchorEnd": the first three words of its last unit, so code can check the entry is on the units you mean. ' +
+  'Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
   'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
   'A target must be a unit that can be labelled, never a line marked not labelable. ' +
-  'Never copy text from the units, except an anchor and the words of a span.';
+  'Never copy text from the units, except the anchors and the words of a span.';
 
 /** Added to the system text of a second request, after an answer that was no JSON. */
 export const RETRY_NOTE =
@@ -194,6 +194,7 @@ export function denseLabels(value: unknown): Labelled[] {
       label: entry.label,
       // The anchor is read against the window by `anchorUnits` and never reaches a cassette as words.
       ...(typeof entry.anchor === 'string' ? { anchor: entry.anchor } : {}),
+      ...(typeof entry.anchorEnd === 'string' ? { anchorEnd: entry.anchorEnd } : {}),
       ...(target === undefined || target === null ? {} : { target: target as number }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
       ...(!Array.isArray(entry.spans) || entry.spans.length === 0

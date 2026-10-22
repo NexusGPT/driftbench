@@ -398,7 +398,12 @@ export function outOfStep(answer: unknown, window?: Window): Slip | undefined {
   const named = new Set<number>();
   for (const entry of labels) {
     const anchored = (entry as { anchored?: unknown })?.anchored;
-    if (typeof anchored === 'number' && anchored !== 0) slipped++;
+    const anchoredEnd = (entry as { anchoredEnd?: unknown })?.anchoredEnd;
+    if (
+      (typeof anchored === 'number' && anchored !== 0) ||
+      (typeof anchoredEnd === 'number' && anchoredEnd !== 0)
+    )
+      slipped++;
     const units = (entry as { units?: unknown })?.units;
     for (const n of typeof units === 'string' ? (expandUnits(units) ?? []) : []) named.add(n);
     const spans = (entry as { spans?: unknown })?.spans;

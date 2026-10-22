@@ -280,6 +280,10 @@ export type Labelled = {
   anchor?: string;
   /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
   anchored?: number | null;
+  /** On a range, the first words of its last unit, as the labeler answered (`anchorUnits`). */
+  anchorEnd?: string;
+  /** Lines from the last unit of a range to the one its end anchor starts; null for none (`anchorUnits`). */
+  anchoredEnd?: number | null;
   target?: number;
   spans?: SpanInput[];
   links?: LinkAnswer[];
@@ -491,30 +495,38 @@ export function locateSpanText(
 }
 
 /**
- * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
- * it points, so the words never reach a cassette. The anchor is located as a span is (`locateSpanText`, on the text
- * the labeler was shown, without regard to case), in every line of the window: `anchored` is 0 when it is in the
- * first unit the entry names, the count of lines from that unit to the one line that holds it when the number
- * slipped (-1 for the line before), or null when no line holds it, or several do and not the entry's own. An entry
- * with no anchor, or an empty one, keeps none.
+ * Reads each entry's anchors against the window, and keeps only where they point, so the words never reach a
+ * cassette. `anchor` is the first words of the first unit the entry names and `anchorEnd`, on a range, those of its
+ * last unit. Each is located as a span is (`locateSpanText`, on the text the labeler was shown, without regard to
+ * case), in every line of the window: `anchored` (`anchoredEnd` for the end) is 0 when it is in the unit it should
+ * start, the count of lines from that unit to the one line that holds it when the number slipped (-1 for the line
+ * before), or null when no line holds it, or several do and not the right one. An anchor missing or empty keeps none.
  */
 export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
   const lines = [
     ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
     ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
   ];
-  return entries.map((entry) => {
-    const { anchor, ...rest } = entry;
+  const offset = (anchor: unknown, at: number | undefined): number | null | undefined => {
     const words = typeof anchor === 'string' ? flatten(anchor).text : '';
-    const first = expandUnits(entry.units)?.[0];
-    if (words === '' || first === undefined) return rest;
+    if (words === '' || at === undefined) return undefined;
     const holds = (text: string) => {
       const found = locateSpanText(text, words);
       return !('reason' in found) || found.reason === 'the text is found twice in the unit';
     };
     const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
-    const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
-    return { ...rest, anchored };
+    return found.includes(at) ? 0 : found.length === 1 ? (found[0] as number) - at : null;
+  };
+  return entries.map((entry) => {
+    const { anchor, anchorEnd, ...rest } = entry;
+    const named = expandUnits(entry.units);
+    const anchored = offset(anchor, named?.[0]);
+    const anchoredEnd = named && named.length > 1 ? offset(anchorEnd, named.at(-1)) : undefined;
+    return {
+      ...rest,
+      ...(anchored === undefined ? {} : { anchored }),
+      ...(anchoredEnd === undefined ? {} : { anchoredEnd }),
+    };
   });
 }
 
