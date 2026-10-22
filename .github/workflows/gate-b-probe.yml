@@ -37,11 +37,11 @@ jobs:
       - name: Format and lint of the harness files (the diff is what the formatter wants)
         continue-on-error: true
         run: |
-          pnpm exec biome check --max-diagnostics=1000 --write packages/estate/src/plan packages/estate/src/pointer/atoms.ts packages/estate/test/plan packages/estate/test/pointer || true
+          pnpm exec biome check --max-diagnostics=1000 --write packages/estate/src/plan packages/generate/src/estate/build-row.ts packages/generate/test/estate/co-located-links.test.ts packages/estate/src/pointer/atoms.ts packages/estate/test/plan packages/estate/test/pointer || true
           git diff --stat
           git diff
       - name: Type check
         continue-on-error: true
         run: pnpm typecheck
       - name: Harness tests
-        run: pnpm exec vitest run packages/estate/test/gold packages/cli/test/gold-chain packages/estate/test/plan packages/estate/test/pointer packages/estate/test/map --maxWorkers=2
+        run: pnpm exec vitest run packages/estate/test/gold packages/cli/test/gold-chain packages/estate/test/plan packages/estate/test/pointer packages/estate/test/map packages/generate/test/estate --maxWorkers=2
