@@ -386,6 +386,12 @@ type Answers = {
   fedBack: PlanV2;
   /** The seeds of the budget-below-seeds call. */
   tight: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** Seeds that set two variables each, as a session that shows only some does (R8). */
+  partial: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** A seed that holds a combination the store forbids, on a store with constraints. */
+  forbidden?: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** A seed that holds a value nobody approved, on a store with one. */
+  unapproved?: { seeds: PlanSeedRow[]; plan: PlanV2 };
   divergence?: string;
 };
 
@@ -436,6 +442,27 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seeds: rowsOf(full).map((values, index) => ({ id: `r${index}`, values })),
       });
       const tight = { seeds, plan: plan(scenario.store, { seed: 1, seeds, budget: 1 }) };
+      const two = scenario.variables.slice(0, 2).map((variable) => variable.id);
+      const partialSeeds: PlanSeedRow[] = [pick[0], pick.at(-1)]
+        .filter((cell): cell is Cell => cell !== undefined)
+        .map((cell, index) => ({ id: `p${index}`, values: Object.fromEntries(two.map((id) => [id, cell[id] as string])) }));
+      const partial = { seeds: partialSeeds, plan: plan(scenario.store, { seed: 1, seeds: partialSeeds }) };
+      const first = scenario.forbids[0];
+      const forbiddenSeeds: PlanSeedRow[] | undefined =
+        first && oracle.cells[0] ? [{ id: 'f0', values: { ...oracle.cells[0], ...first } }] : undefined;
+      const forbidden = forbiddenSeeds && {
+        seeds: forbiddenSeeds,
+        plan: plan(scenario.store, { seed: 1, seeds: forbiddenSeeds }),
+      };
+      const outside = Object.entries(scenario.excluded.values)[0];
+      const unapprovedSeeds: PlanSeedRow[] | undefined =
+        outside && oracle.cells[0]
+          ? [{ id: 'u0', values: { ...oracle.cells[0], [outside[0]]: outside[1] } }]
+          : undefined;
+      const unapproved = unapprovedSeeds && {
+        seeds: unapprovedSeeds,
+        plan: plan(scenario.store, { seed: 1, seeds: unapprovedSeeds }),
+      };
       return {
         scenario,
         oracle,
@@ -445,6 +472,9 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seeded,
         fedBack,
         tight,
+        partial,
+        ...(forbidden ? { forbidden } : {}),
+        ...(unapproved ? { unapproved } : {}),
         divergence: frame.divergence(),
       };
     } finally {
@@ -862,6 +892,104 @@ const STEMS: {
       for (const forbid of excluded.forbids)
         if (!rowsOf(a.full).some((row) => holds(row, forbid)))
           wrong.push('no row holds the pair a constraint nobody approved names');
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  // Ladder version 3, seed rows (R8).
+  {
+    id: 'partial-seed-credit',
+    cause: `${FILES.groups}: a partial seed covers only the combinations whose variables it sets`,
+    when: () => true,
+    tier: 3,
+    check: (a) => {
+      const { seeds, plan } = a.partial;
+      const head = plan.rows.slice(0, seeds.length);
+      const kept = head.every(
+        (row, at) =>
+          row.source === 'seed' && JSON.stringify(row.values) === JSON.stringify(seeds[at]?.values),
+      );
+      if (!kept) return verdict(false, 'the partial seeds do not lead the plan with exactly their own values');
+      const missing = [
+        ...a.oracle.uncovered('own', rowsOf(plan)),
+        ...a.oracle.uncovered('axes', rowsOf(plan)),
+        ...a.oracle.uncovered('values', rowsOf(plan)),
+      ];
+      if (missing.length > 0) return verdict(false, `${missing.length} tuples uncovered with partial seeds`);
+      const report = layerVerdict(
+        plan,
+        a,
+        seeds.map((seed) => seed.values),
+      );
+      return verdict(report.pass, `with partial seeds: ${report.detail}`);
+    },
+  },
+  {
+    id: 'seed-forbidden-kept',
+    cause: `${FILES.plan}: keep a seed that holds a forbidden combination, and warn seed_forbidden`,
+    when: (shape) => shape.forbids > 0 || shape.special !== undefined,
+    check: (a) => {
+      const got = a.forbidden;
+      if (!got) throw new Error('the store of this shape has no constraint');
+      const [seed] = got.seeds as [PlanSeedRow];
+      const row = got.plan.rows[0];
+      const kept =
+        row?.source === 'seed' &&
+        row.id === `seed.${seed.id}` &&
+        JSON.stringify(row.values) === JSON.stringify(seed.values);
+      const warned = got.plan.warnings.some(
+        (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
+      );
+      return verdict(kept && warned, `kept ${kept}, warned ${warned}`);
+    },
+  },
+  {
+    id: 'seed-unapproved-covers-nothing',
+    cause: `${FILES.plan}: keep a seed's value nobody approved, warn seed_unapproved_value, and credit nothing with it`,
+    when: (shape) => shape.unapproved === true,
+    tier: 4,
+    check: (a) => {
+      const got = a.unapproved;
+      if (!got) throw new Error('the store of this shape has no value nobody approved');
+      const [seed] = got.seeds as [PlanSeedRow];
+      const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
+      const row = got.plan.rows[0];
+      const kept = row?.source === 'seed' && JSON.stringify(row.values) === JSON.stringify(seed.values);
+      const warned = got.plan.warnings.some(
+        (warning) =>
+          warning.code === 'seed_unapproved_value' &&
+          warning.seed === seed.id &&
+          warning.variable === variable &&
+          warning.value === value,
+      );
+      if (!kept || !warned) return verdict(false, `kept whole ${kept}, warned ${warned}`);
+      const report = layerVerdict(got.plan, a, [seed.values]);
+      return verdict(report.pass, `with a value nobody approved in a seed: ${report.detail}`);
+    },
+  },
+  {
+    id: 'new-row-novel',
+    cause: `${FILES.plan}: a new row repeats no seed and no other new row, and holds a target the seeds miss`,
+    when: () => true,
+    check: (a) => {
+      const groups = Object.values(a.oracle.layerGroups()).flat();
+      const targets = groups.flatMap((group) => a.oracle.tuples(group));
+      const wrong: string[] = [];
+      for (const [name, plan] of [
+        ['without seeds', a.full],
+        ['with seeds', a.seeded.plan],
+      ] as const) {
+        const seeds = plan.rows.filter((row) => row.source === 'seed').map((row) => row.values);
+        const seen = new Set(seeds.map((values) => JSON.stringify(Object.entries(values).sort())));
+        for (const row of logOf(plan)) {
+          const key = JSON.stringify(Object.entries(row.values).sort());
+          if (seen.has(key)) wrong.push(`${name}: ${row.id} repeats an earlier row`);
+          seen.add(key);
+          const fresh = targets.some(
+            (tuple) => holds(row.values, tuple) && !seeds.some((seed) => holds(seed, tuple)),
+          );
+          if (!fresh) wrong.push(`${name}: ${row.id} holds no target the seeds miss`);
+        }
+      }
       return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
     },
   },
