@@ -2,7 +2,7 @@
 
 Status: revision 5. The normative review corrections below supersede the corresponding revision-4 rules and prototype observations. The implementation and historical measurements described below are not a claim that the corrections are implemented.
 
-Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); links (layer C), the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
+Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); the link functions of layer C (section 7) are built as library functions and have no command; the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
 
 ## The shape: three layers with three owners
 
@@ -339,6 +339,8 @@ A test or block links to a span with `{ span: <ledger id>, fp, relation, created
 | `ambiguous` | The span matches in several places. |
 
 The **blast radius** of an edit is the set of tests with `suspect` links, plus a separately reported advisory set (tests linked to the same section) for references a precise link may hide ("except as described above"). Only links with `createdBy: verified` count towards a claim; a link becomes verified by mutation (deleting or negating the span flips the test). Clearing a suspect link records a reason (`cosmetic`, `semantic-still-covered`, `test-updated`). Coverage reports the inverse: spans labelled with an `atom` mapping and no verified link.
+
+The functions are `createLink(ledger, owner, span, relation, createdBy?)`, `classifyLinks(previous, current, links)`, `clearLink(link, reason, current)`, `verifyLink(link, {mutation, flipped})`, `linkCoverage(current, mappedLabels, links)` and `blastRadius(previous, current, links)`. A link holds `owner`, `span`, `fp`, `relation`, `createdBy`, `accepted` (a boolean, or the clearing reason) and, once cleared, `reason`; it holds no offset. A state depends on the link and the two ledgers only: `suspect` when the span is gone or its fingerprint differs from the link's, `ambiguous` when the fingerprint stands in several live units where it stood in at most one before the edit, `advisory` when the span's context fingerprint or heading path differs from the ledger before the edit, else `ok`. A clearing refuses any reason but the three, and keeps the link as it was. The coverage counts a span as covered when a verified link names it at its current fingerprint. The blast radius is the sorted, unique owners of suspect links, with the advisory owners (links left advisory or ambiguous, and links to other spans of the sections where a span went suspect) listed apart.
 
 ## 8. How the validators replay it
 
