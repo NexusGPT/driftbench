@@ -53,18 +53,25 @@ describe('the end of the bank child', () => {
 });
 
 describe('how a bank child may end after its closed line', () => {
-  it('takes exit and its own SIGKILL as a normal end', () => {
-    expect(endAfterClosed(true, null)).toBeUndefined();
-    expect(endAfterClosed(true, 'SIGKILL')).toBeUndefined();
+  it('takes exit, and its own SIGKILL announced by the closed line, as a normal end', () => {
+    expect(endAfterClosed(true, true, null)).toBeUndefined();
+    expect(endAfterClosed(true, false, null)).toBeUndefined();
+    expect(endAfterClosed(true, true, 'SIGKILL')).toBeUndefined();
+  });
+
+  it('takes a SIGKILL the closed line did not announce (an outside kill) as a failure', () => {
+    expect(endAfterClosed(true, false, 'SIGKILL')).toContain('without announcing');
   });
 
   it('takes any other signal after the closed line as a failure, and says which', () => {
-    for (const signal of ['SIGTERM', 'SIGSEGV', 'SIGABRT'] as const)
-      expect(endAfterClosed(true, signal)).toContain(signal);
+    for (const signal of ['SIGTERM', 'SIGSEGV', 'SIGABRT'] as const) {
+      expect(endAfterClosed(true, true, signal)).toContain(signal);
+      expect(endAfterClosed(true, false, signal)).toContain(signal);
+    }
   });
 
   it('leaves a signal before the closed line to the ordinary death path', () => {
-    expect(endAfterClosed(false, 'SIGKILL')).toBeUndefined();
-    expect(endAfterClosed(false, 'SIGSEGV')).toBeUndefined();
+    expect(endAfterClosed(false, false, 'SIGKILL')).toBeUndefined();
+    expect(endAfterClosed(false, false, 'SIGSEGV')).toBeUndefined();
   });
 });

@@ -71,17 +71,26 @@ function build(name = 'compiled', mutation?: { file: string; change: (source: st
 }
 
 /**
- * A clean bank child ends by exit 0, or by its own SIGKILL after it wrote its last line, `{"closed":true}`: the child
- * ends itself that way so that the native teardown of Node.js 24 cannot hold it (docs/validators.md section 12.9).
- * Any other signal, or a signal with no closed line, is not a clean end.
+ * A clean bank child ends by exit 0, or by its own SIGKILL after it wrote its last line, `{"closed":true,"selfEnd":true}`,
+ * with every result line before it: the child ends itself that way so that the native teardown of Node.js 24 cannot
+ * hold it (docs/validators.md section 12.9). Any other signal, a SIGKILL with no marker (an outside kill, the OOM
+ * killer), a marker with a result missing, or output after the marker is not a clean end.
  */
 function endedClean(
   result: { status: number | null; signal?: string | null; stdout: unknown },
-  _expectedItems = 0,
+  expectedItems = 0,
 ): boolean {
   if (result.status === 0) return true;
+  if (result.status !== null || result.signal !== 'SIGKILL') return false;
+  const lines = String(result.stdout)
+    .split('\n')
+    .filter((line) => line.trim() !== '');
+  // The last line on stdout is the self-end marker, and every result line is present before it.
+  if (lines[lines.length - 1] !== '{"closed":true,"selfEnd":true}') return false;
+  const before = lines.slice(0, -1).map((line) => JSON.parse(line) as { start?: number; done?: number });
   return (
-    result.status === null && result.signal === 'SIGKILL' && String(result.stdout).includes('"closed":true')
+    before.filter((line) => line.start !== undefined).length === expectedItems &&
+    before.filter((line) => line.done !== undefined).length === expectedItems
   );
 }
 

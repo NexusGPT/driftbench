@@ -75,9 +75,13 @@ async function main(args: readonly string[]): Promise<void> {
   closeFrame(frame);
   await frame.ended();
   traceLine(`bank-child:${seedText}:${startText}`, 'frame closed');
-  // The last line: every outcome and the frame's taint are written before it, so the parent has all it needs.
-  process.stdout.write(`${JSON.stringify({ closed: true })}\n`);
 }
+
+/**
+ * The last line of the child: every outcome and the frame's taint are written before it, so the parent has all it
+ * needs. `selfEnd` announces that the child ends itself by SIGKILL once this line is written.
+ */
+const LAST_LINE = `${JSON.stringify({ closed: true, selfEnd: true })}\n`;
 
 /** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
 function productModule(root: string, implPath: string | undefined): string {
@@ -108,12 +112,13 @@ export function statsBankChild(args: readonly string[]): Promise<never> {
       new Promise<never>(() => {
         traceLine('bank-child', 'writing the end of the output');
         process.on('exit', () => traceLine('bank-child', 'exit event'));
-        process.stdout.write('', () => {
-          traceLine('bank-child', 'output written, ending');
-          // Every outcome, the taint and the closed line are in the pipe, and the parent reads an end after the closed line
-          // as the end. On Node.js 24 the native teardown of a process that ran a worker thread and child processes stays
-          // alive in about 1 child in 300 after its exit handlers ran (traced, PR 986), so a child that finished its work
-          // ends itself by SIGKILL, which no teardown can hold. A child that failed ends by process.exit(1) below.
+        process.stdout.write(LAST_LINE, () => {
+          traceLine('bank-child', 'last line written, ending');
+          // Every outcome, the taint and the last line are in the pipe, and the parent reads an end after it as the end.
+          // On Node.js 24 the native teardown of a process that ran a worker thread and child processes stays alive in
+          // about 1 child in 300 after its exit handlers ran (traced, PR 986), so a child that finished its work ends
+          // itself by SIGKILL, which no teardown can hold, in the callback of the write that announces it. A child that
+          // failed ends by process.exit(1) below.
           try {
             process.kill(process.pid, 'SIGKILL');
           } catch {
