@@ -19,7 +19,9 @@ describe('the normal form of a limit', () => {
 
   it('makes the two readings of one prohibition equal', () => {
     // Do not do the act for fewer than four items: applies when lt 4, compliant when ge 4.
-    expect(normalForm(reading(4, 'lt', 'trigger'), true)).toEqual(normalForm(reading(4, 'ge', 'constraint'), true));
+    expect(normalForm(reading(4, 'lt', 'trigger'), true)).toEqual(
+      normalForm(reading(4, 'ge', 'constraint'), true),
+    );
   });
 
   it('leaves a constraint on a prohibition as it is', () => {

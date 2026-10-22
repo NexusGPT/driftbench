@@ -25,8 +25,8 @@ import {
   goldLabeller,
   loadGold,
 } from '../../../estate/test/gold/gold';
-import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { type Comparison, normalForm, type Role } from '../../../estate/test/gold/normal-form';
+import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
