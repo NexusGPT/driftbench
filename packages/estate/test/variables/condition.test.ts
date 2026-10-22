@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { INVARIANT_LIMITS } from '../../src/scan/invariants';
-import { estateToVariables, provenanceResolver } from '../../src/variables';
+import { conditionOf, conditionsOf as conditionsFor, estateToVariables, provenanceResolver } from '../../src/variables';
 import { atom, HALL, mapOf } from './support';
 
 const resolver = () => provenanceResolver(new Map(Object.entries(HALL)));
@@ -106,6 +106,41 @@ describe('a numeric condition comes only from a structured field', () => {
     const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition } })]), resolver());
     expect(conditionsOf(result)).toEqual([]);
     expect(result.refused).toEqual([]);
+  });
+});
+
+describe('an atom may carry several numeric conditions', () => {
+  const FIELD = [
+    { limit: 2, comparison: 'le', unit: 'days' },
+    { limit: 5, comparison: 'ge' },
+  ];
+
+  it('gives each condition of a list its own variable, on the quote of the atom', () => {
+    const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition: FIELD } })]), resolver());
+    const variables = conditionsOf(result);
+    expect(variables).toHaveLength(2);
+    expect(variables.map((variable) => variable.boundaries?.[0]?.limit)).toEqual([2, 5]);
+    expect(variables.map((variable) => variable.boundaries?.[0]?.comparison)).toEqual(['le', 'ge']);
+    expect(new Set(variables.map((variable) => variable.id)).size).toBe(2);
+    expect(variables[0]?.boundaries?.[0]?.provenance).toEqual(variables[1]?.boundaries?.[0]?.provenance);
+    expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+
+  it('keeps the unit ids a pointer atom carries in the same field, and reads the conditions beside them', () => {
+    const mixed = ['abcdefghij', ...FIELD, { limit: 3 }];
+    const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition: mixed } })]), resolver());
+    expect(conditionsOf(result)).toHaveLength(2);
+    const ids = estateToVariables(
+      mapOf([atom({ quote: QUOTE, fields: { condition: ['abcdefghij'] } })]),
+      resolver(),
+    );
+    expect(conditionsOf(ids)).toEqual([]);
+  });
+
+  it('lists every condition of an atom with conditionsOf, and the first with conditionOf', () => {
+    const one = atom({ quote: QUOTE, fields: { condition: FIELD } });
+    expect(conditionsFor(one).map((entry) => entry.limit)).toEqual([2, 5]);
+    expect(conditionOf(one)?.limit).toBe(2);
   });
 });
 
