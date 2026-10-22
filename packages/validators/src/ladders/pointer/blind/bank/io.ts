@@ -6,6 +6,8 @@ export type Write = { path: string; value: Json; committed: boolean };
 export type IOTrace = {
   keyReads: number;
   networkCalls: number;
+  /** The body of every request the adapter sent, in order. Headers are left out: they carry the fictional key. */
+  requests: Json[];
   cacheReads: number;
   writes: Write[];
   logs: Json[];
@@ -23,7 +25,15 @@ export interface PointerIO {
 /** Frozen callbacks own all counters and sinks. No adapter can replace the trace. */
 export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace } {
   const fixture = setup && structuredClone(setup);
-  const trace: IOTrace = { keyReads: 0, networkCalls: 0, cacheReads: 0, writes: [], logs: [], plans: [] };
+  const trace: IOTrace = {
+    keyReads: 0,
+    networkCalls: 0,
+    requests: [],
+    cacheReads: 0,
+    writes: [],
+    logs: [],
+    plans: [],
+  };
   function configured(): IOSetup {
     if (!fixture) throw new Error('transport fixture absent');
     return fixture;
@@ -33,8 +43,13 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
       trace.keyReads++;
       return configured().key;
     },
-    async fetch(_request: Json) {
+    async fetch(request: Json) {
       trace.networkCalls++;
+      const body =
+        request && typeof request === 'object' && !Array.isArray(request) && 'body' in request
+          ? (request as { body: Json }).body
+          : request;
+      trace.requests.push(structuredClone(body));
       return structuredClone(configured().answer);
     },
     readCassette() {
@@ -56,6 +71,8 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
 
 /** Only a scripted positive TEST stub consumes these actions, never the adapter. */
 export type SampleEffect =
-  | { kind: 'key' | 'fetch' | 'cache' }
+  | { kind: 'key' | 'cache' }
+  /** `value` is the body of the request the stub sends; absent, the stub sends the request input. */
+  | { kind: 'fetch'; value?: Json }
   | ({ kind: 'write' } & Write)
   | { kind: 'log' | 'plan'; value: Json };

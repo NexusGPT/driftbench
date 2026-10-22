@@ -192,7 +192,7 @@ The sealed set is used once: a later configuration needs a fresh draw.
 
 ## Pointwise final freeze and label audit (2026-10-13)
 
-Frozen configuration: [pw-final-frozen.json](configs/pw-final-frozen.json). Replay: `python3 -m moj.pointwise_frozen`.
+Frozen configuration: pw-final-frozen.json (`configs/pw-final-frozen.json`, not in this repository). Replay: `python3 -m moj.pointwise_frozen`.
 Practice split `moj-split-v2` only. Official labels stay unchanged. No sealed data is used.
 The three accepted terrain cells retain their frozen policy. Blind Verify retains the previously measured Luna solve plus S1 compare expert.
 All new System-2 contestants use gpt-6-luna. Historical single-threshold results retain their mixed panel and are identified as historical.
@@ -226,7 +226,7 @@ System-1 pricing is unknown and excluded from USD. Calls represent replayed per-
 | verify-with-reference | Two-step terrain commit | 55 | 98.2 | 98.9 | 100.0 | 97.8 | 1.8 | 0.000633 |
 | verify-with-reference | FINAL FREEZE | 55 | 98.2 | 98.9 | 100.0 | 97.8 | 1.8 | 0.000633 |
 
-Every recorded baseline, coverage denominator, matched MoJ score, cost and paired interval is beside the final configuration in [the full scoreboard](results/pointwise-moj/final/SCOREBOARD.md).
+Every recorded baseline, coverage denominator, matched MoJ score, cost and paired interval is beside the final configuration in the full scoreboard (`results/pointwise-moj/final/SCOREBOARD.md`, not in this repository).
 Same-model full-coverage comparisons include RubricBench S1 rows 93.5 and Luna rubric 88.0; hard rows ledger and Luna rubric 100.0; blind Verify always-fail 85.7.
 The hard-row ledger uses 100 S2 calls/100 and 0.038929 USD/100; full Luna uses 100 and 0.009096. Frozen MoJ uses 55.6 and 0.006124, but loses 3.7 points.
 On the separate 26-item domain-seat subset, frozen MoJ is 100.0 versus 98.1 at zero versus 100 S2 calls/100. This meets the requested ceiling-tie target.
@@ -247,7 +247,7 @@ Reference-guided Verify has one item classified into hard facts and sent to Luna
 
 ### Independent evidence and oracle capacity
 
-The [four-case diagnosis](results/pointwise-moj/verify-evidence/FOUR-CASES.md) is written before the independent evidence round. The source sees question and candidate only.
+The four-case diagnosis (`results/pointwise-moj/verify-evidence/FOUR-CASES.md`, not in this repository) is written before the independent evidence round. The source sees question and candidate only.
 The adjective answer assumes an unsupported complete order. Exact checks support the marble answer 9 and painting answer E. A finite countermodel check also supports the final answer that Greg's color is unspecified.
 An error-hunting Luna call must quote a surviving final-answer error; System 1 verifies that allegation. Invalid or unquoted allegations cannot veto.
 
@@ -271,7 +271,7 @@ There are 6 recorded-fail answers proved correct and 2 recorded-pass answers pro
 Question-specific formalizations and final-answer extractions are explicit in the check code; execution uses no model. Checks include exact rational arithmetic, finite enumeration, constraint search, Boolean truth tables, stack validation and calendar arithmetic.
 Ambiguous language, missing final answers, inconsistent inputs and floating-point SVG reconstructions cannot authorize label changes. Conditional calculations for those items remain recorded.
 No claim is made about label correctness outside the 48 proved entries. Screening all items does not mean proving all items.
-The [audit scoreboard](results/pointwise-moj/label-audit/SCOREBOARD.md) includes both directions, full item ids, all check code, exact certificates, and separate proved-subset and matched-subset tables.
+The audit scoreboard (`results/pointwise-moj/label-audit/SCOREBOARD.md`, not in this repository) includes both directions, full item ids, all check code, exact certificates, and separate proved-subset and matched-subset tables.
 Data files remain unchanged. Only the sensitivity-analysis copy flips these eight labels; model decisions and thresholds remain fixed.
 
 #### All blind practice: official versus proof-corrected labels
@@ -307,5 +307,5 @@ Fifteen focused tests pass. Network-disabled replay reproduces 204 decisions for
 Raw recordings reproduce 569 two-step S1 signals, 217 terrain signals, 95 error-hunt sources and 18 independent solves. Four missing S1 stage answers remain explicit. Failed-call latency is excluded from raw equality, but response, key, cost and call counts are checked.
 No returned S1 or S2 answer is submitted twice. The three accepted cells retain their original source/config/result hashes.
 System-2 budget accounting is 1.65812343 USD against the 15 USD cap: 0.66265593 known plus 0.99546750 reserved for unpriced attempts. No cost is assigned to the model-free checks.
-Replay evidence: [verification.json](results/pointwise-moj/final/verification.json). Label-check replay: `python3 results/pointwise-moj/label-audit/score.py`.
+Replay evidence: verification.json (`results/pointwise-moj/final/verification.json`, not in this repository). Label-check replay: `python3 results/pointwise-moj/label-audit/score.py`.
 Stop here. No further fit, model call or sealed evaluation follows this freeze.

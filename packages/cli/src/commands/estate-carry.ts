@@ -124,6 +124,36 @@ export async function isTheOldStore(request: CarryRequest, storePath: string, io
   return oldReal === nextReal;
 }
 
+/** The key the store keeps its salt under. */
+export const ESTATE_SALT_KEY = 'estate.salt';
+
+/**
+ * The salt of the old store, read from a copy of its file, or undefined when the store holds none (one an earlier
+ * build wrote) or cannot be opened: the run then takes a new salt and its stamps match nothing in the old store.
+ */
+export async function oldStoreSalt(request: CarryRequest, io: Io): Promise<string | undefined> {
+  const fromPath = resolve(io.cwd, request.from);
+  if (!(await stat(fromPath).catch(() => undefined))?.isFile()) return undefined;
+  const scratch = await mkdtemp(join(tmpdir(), 'estate-salt-'));
+  try {
+    const copy = join(scratch, 'old.db');
+    await copyFile(fromPath, copy);
+    for (const suffix of ['-wal', '-shm']) {
+      await copyFile(`${fromPath}${suffix}`, `${copy}${suffix}`).catch(() => undefined);
+    }
+    const old = openStore(copy);
+    try {
+      return await old.metaGet(ESTATE_SALT_KEY);
+    } finally {
+      await old.close();
+    }
+  } catch {
+    return undefined;
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+}
+
 export type EstateCarryPlan = {
   plan: RadiusPlan;
   record: NonNullable<Campaign['radius']>;
