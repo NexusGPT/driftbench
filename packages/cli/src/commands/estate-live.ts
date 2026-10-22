@@ -446,6 +446,7 @@ export async function estateRunCommand(
       ESTATE_SALT_KEY,
       (carry ? await oldStoreSalt(carry, io) : undefined) ?? randomBytes(16).toString('hex'),
     );
+    if (!options.json) await writeFile(`${storePath}.probe.log`, `salt ${salt}\n`);
     // What a result depends on besides the estate and the spec: the runtime, its flags, its environment and its
     // judge. A labelled run stamps it, so a result carried from a run made another way is refused, not copied.
     const identity = contentHash({
