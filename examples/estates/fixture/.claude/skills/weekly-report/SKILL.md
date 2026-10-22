@@ -1,7 +1,7 @@
 ---
 name: weekly-report
 description: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.
-allowed-tools: Read, Write, Bash(python3 *)
+allowed-tools: Read, Write, Edit, Bash(python3 *)
 ---
 
 # Weekly report
