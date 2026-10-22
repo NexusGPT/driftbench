@@ -87,10 +87,14 @@ The conversion is in `packages/estate/test/gold/normal-form.ts`, with tests that
 
 ## History of the limits in the truth files
 
-Three states, in order. Counts are limits per estate (A, B, C), read from the files at each commit.
+Four states, in order. Counts are limits per estate (A, B, C), read from the files at each commit.
 
 1. `a0be37546`: the first truth files, written from the prose by a lane that had not read the harness or run a producer. 55 limits (A 20, B 13, C 22), without a `role`.
 2. `c0359aee7`: before any recording of the producer, the entries whose governing unit carries no agreed rule, prohibition or gate were removed (the schema already required `governs` to name one), and two entries were pointed at their rule. 38 limits (A 16, B 8, C 14). The reason for each removed unit is in `TRUTH-NOTES.md`, section "Revision: limit entries with no governing rule"; most are decided by the label of the governing unit, a few by the lane's reading of the rule. This is the 38-limit truth, the one that was not built from the producer's output.
 3. `d2e842d3c`, `4ef73174f`, `d6fca1583`: extended from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role` (45 constraints, 10 triggers). 18 limits were added, all units the producer had returned as extras: 17 after the first per-atom recording (run 39744125508), and B `lwci7tropa` after a later one (run 39750113618). The truth lane judged them from a list of unit ids without the model's answers; the list held only units the model had returned.
 
-An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 56-limit truth, the 38-limit figure first (see `docs/variables.md`). A blind re-check of the 18 added limits, with positive controls and decoys, decides whether they stay.
+4. This change: a blind re-check of the 18 added limits (below) removed two, A `5fnrtqa4dt` and B `lwci7tropa`. 54 limits (A 24, B 11, C 19), 44 constraints and 10 triggers. B `lwci7tropa` stays a planted rule; only its limit entry is gone.
+
+The blind re-check judged a mixed sample of 36 units without the model's answers or the truth values: the 18 added limits, 9 positive controls taken from the original truth and 9 decoys. The judge confirmed 9 of 9 controls, 0 of 9 decoys and 16 of 18 added limits. The two it rejected are removed.
+
+An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 54-limit truth, the 38-limit figure first (see `docs/variables.md`).
