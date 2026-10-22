@@ -74,8 +74,8 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   return false;
 }
 
-const USER_SKILLS_FLAG = '--user-skills <folder>';
-const USER_SKILLS_HELP =
+export const USER_SKILLS_FLAG = '--user-skills <folder>';
+export const USER_SKILLS_HELP =
   'also read the user-level skill layer from this folder, such as ~/.claude/skills; none is read without it; a project skill wins a name clash';
 
 export type EstateDeps = {

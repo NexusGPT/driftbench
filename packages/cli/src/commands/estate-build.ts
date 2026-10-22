@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { parseEstateMapText, parsePlanText } from '@agent-nexus/driftbench-estate';
@@ -68,6 +69,13 @@ async function folderHash(root: string, skip: string): Promise<string> {
   return hash.digest('hex');
 }
 
+/** The hash of the folder `--user-skills` names, as the scan reads it, or `none` when it is not there. */
+async function userLayerHash(value: string, io: Io, skip: string): Promise<string> {
+  const folder =
+    value === '~' || value.startsWith('~/') ? join(homedir(), value.slice(2)) : resolve(io.cwd, value);
+  return (await exists(folder)) ? folderHash(folder, skip) : 'none';
+}
+
 async function readStamp(path: string): Promise<Stamp> {
   try {
     const parsed = JSON.parse(await readFile(path, 'utf8')) as Stamp;
@@ -124,6 +132,7 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--no-model', 'read the structured atoms only; no prose atom')
     .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
     .option('--ignore <glob>', 'skip the paths this glob matches; repeat it', collect)
+    .option(estateCommands.USER_SKILLS_FLAG, estateCommands.USER_SKILLS_HELP)
     .option(
       '--pointer',
       'read the prose with the pointer reader, and keep a ledger of unit ids in the folder',
@@ -183,6 +192,8 @@ export async function estateBuildCommand(
       options.model === false,
       options.provider ?? null,
       options.ignore ?? [],
+      options.userSkills ?? null,
+      options.userSkills === undefined ? null : await userLayerHash(options.userSkills, io, out),
       options.pointer === true,
       options.labeler ?? [],
       replay ? await fileHash(replay) : null,
@@ -204,6 +215,7 @@ export async function estateBuildCommand(
       ...(options.model === false ? { model: false } : {}),
       ...(options.provider ? { provider: options.provider } : {}),
       ...(options.ignore ? { ignore: options.ignore } : {}),
+      ...(options.userSkills !== undefined ? { userSkills: options.userSkills } : {}),
       ...(options.pointer
         ? {
             pointer: true,
