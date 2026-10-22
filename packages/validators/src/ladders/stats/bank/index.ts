@@ -102,20 +102,23 @@ export function statsBank(root: string): BankItem[] {
 }
 
 /**
- * What the bank child gives an item run besides the package: the frame's mark of the calls so far, and the first
- * aliased result among the calls since a mark (docs/validators.md section 12.9, "Aliased results").
+ * What the bank child gives an item run besides the package: the frame's mark of the calls so far, the first
+ * aliased result among the calls since a mark (docs/validators.md section 12.9, "Aliased results"), and the first
+ * built-in object the package changed (the same section, "Built-in objects").
  */
 export type Watch = {
   mark(): number;
   aliased(since: number): string | undefined;
+  altered(since: number): string | undefined;
   /** Switches the strict arguments of the frame on for an item that declares a purity check, and off after it. */
   strict(on: boolean): void;
 };
 
 /**
  * Runs one item on one seed. A throw inside the item is a failing outcome naming the error. With a watch, an item
- * that passed fails when a confined run reports that a result it returned has changed since, whatever the item
- * concluded: the item reads the results as data and cannot see that on its own.
+ * that passed fails when a confined run reports that a result it returned has changed since, or that the package
+ * changed a built-in object, whatever the item concluded: the item reads the results as data and runs in another
+ * process, so it cannot see either on its own.
  */
 export async function runItem(
   item: BankItem,
@@ -133,9 +136,10 @@ export async function runItem(
   try {
     const outcome = await item.check({ seed, s: given, root, rng });
     const moved = outcome.pass ? watch?.aliased(since) : undefined;
-    return moved
-      ? { pass: false, detail: `the package returned a result that changed later: ${moved}` }
-      : outcome;
+    if (moved) return { pass: false, detail: `the package returned a result that changed later: ${moved}` };
+    const altered = outcome.pass ? watch?.altered(since) : undefined;
+    if (altered) return { pass: false, detail: `the package changed a built-in object: ${altered}` };
+    return outcome;
   } catch (cause) {
     const error = attempt(() => {
       throw cause;

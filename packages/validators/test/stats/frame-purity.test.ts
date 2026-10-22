@@ -151,18 +151,41 @@ describe('the shifted bootstrap items with a bootstrapCI that fills its input af
 // frame reports a change it cannot reproduce.
 describe('the mean-shift items with a product that writes to its input afterwards, of every kind', () => {
   const shifts = statsBank(ROOT).filter((each) => each.id.startsWith('stability.mean-shift-'));
-  const verdicts2 = async (name: string, code: string) => {
+  type Verdict = { seed: number; id: string; pass: boolean; detail: string; ms: number };
+  /** The verdicts of the two mean-shift items on the given seeds, directly and through the frame, with why and how long. */
+  const verdicts2 = async (name: string, code: string, seeds = [1, 2]) => {
     const index = writingMeanPackage(ROOT, join(work, `writes-${name}`), code);
     const impl = (await import(index)) as never;
     const before = process.env.DRIFTBENCH_STATS_IMPL;
-    const direct: boolean[] = [];
-    const framed: boolean[] = [];
-    for (const seed of [1, 2]) {
-      for (const each of shifts) direct.push((await runItem(each, seed, ROOT, impl)).pass);
+    const direct: Verdict[] = [];
+    const framed: Verdict[] = [];
+    for (const seed of seeds) {
+      for (const each of shifts) {
+        const began = performance.now();
+        const outcome = await runItem(each, seed, ROOT, impl);
+        direct.push({
+          seed,
+          id: each.id,
+          pass: outcome.pass,
+          detail: outcome.detail,
+          ms: Math.round(performance.now() - began),
+        });
+      }
       process.env.DRIFTBENCH_STATS_IMPL = index;
       try {
+        const began = performance.now();
         const run = await runIsolated(shifts, seed, ROOT);
-        for (const each of shifts) framed.push(run.get(each.id)?.pass === true);
+        const ms = Math.round(performance.now() - began);
+        for (const each of shifts) {
+          const outcome = run.get(each.id);
+          framed.push({
+            seed,
+            id: each.id,
+            pass: outcome?.pass === true,
+            detail: outcome?.detail ?? 'no outcome',
+            ms,
+          });
+        }
       } finally {
         if (before === undefined) delete process.env.DRIFTBENCH_STATS_IMPL;
         else process.env.DRIFTBENCH_STATS_IMPL = before;
@@ -170,36 +193,37 @@ describe('the mean-shift items with a product that writes to its input afterward
     }
     return { direct, framed };
   };
+  const shown = (name: string, got: { direct: Verdict[]; framed: Verdict[] }, at: number) =>
+    `${name}: ${got.direct[at]?.id} seed ${got.direct[at]?.seed}; direct ${got.direct[at]?.pass} (${got.direct[at]?.ms} ms) ${got.direct[at]?.detail.slice(0, 200)}; framed ${got.framed[at]?.pass} (${got.framed[at]?.ms} ms for the seed's items) ${got.framed[at]?.detail.slice(0, 300)}`;
+
+  it.each([
+    ['Object.prototype', 'Object.setPrototypeOf(target, Object.prototype);'],
+    ['null', 'Object.setPrototypeOf(target, null);'],
+  ])(
+    "fails codex's prototype swap to %s (r11) through the frame, as it does directly",
+    async (_name, code) => {
+      const got = await verdicts2(`proto-${_name === 'null' ? 'null' : 'object'}`, code);
+      expect(got.direct.map((v) => v.pass)).toEqual([false, false, false, false]);
+      expect(got.framed.map((v) => v.pass)).toEqual([false, false, false, false]);
+    },
+  );
 
   it("fails codex's own-map product through the frame, as it does directly", async () => {
     const got = await verdicts2('codex-map', 'target.map = Array.prototype.filter;');
-    expect(got.direct).toEqual([false, false, false, false]);
-    expect(got.framed).toEqual(got.direct);
+    expect(got.direct.map((v) => v.pass)).toEqual([false, false, false, false]);
+    expect(got.framed.map((v) => v.pass)).toEqual([false, false, false, false]);
   });
 
-  // Generated: every kind of write, alone and in pairs drawn from a fixed generator. A write the frame can copy back
-  // gives the same verdict as directly; any other write never passes where the direct run fails (and the frame fails
-  // it as a change it cannot reproduce).
+  // Every kind of write, alone, on seed 1 in every run (all of MEAN_WRITES, no rotation, no draw): a product that
+  // fails directly never passes through the frame, and a write the frame can copy back gives the same verdict as
+  // directly. Pairs and 150 random programs run in the fast frame test (frame/aliasing.test.ts).
   it('never passes a product that fails directly, and agrees on every write the frame can copy back', async () => {
-    let state = 986;
-    const next = () => {
-      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-      return state / 4294967296;
-    };
-    const programs = [
-      ...MEAN_WRITES.map((write) => [write]),
-      ...Array.from({ length: 8 }, () => [
-        MEAN_WRITES[Math.floor(next() * MEAN_WRITES.length)],
-        MEAN_WRITES[Math.floor(next() * MEAN_WRITES.length)],
-      ]),
-    ] as Array<typeof MEAN_WRITES>;
-    for (const program of programs) {
-      const name = program.map((write) => write.name).join('+');
-      const got = await verdicts2(name.replace(/\W/g, '_'), program.map((write) => write.code).join(' '));
-      const copy = program.every((write) => write.copy);
-      got.direct.forEach((pass, index) => {
-        if (!pass) expect(got.framed[index], `${name} item ${index}`).toBe(false);
-        else if (copy) expect(got.framed[index], `${name} item ${index}`).toBe(true);
+    for (const write of MEAN_WRITES) {
+      const got = await verdicts2(write.name, write.code, [1]);
+      got.direct.forEach((verdict, index) => {
+        const note = shown(write.name, got, index);
+        if (!verdict.pass) expect(got.framed[index]?.pass, note).toBe(false);
+        else if (write.copy) expect(got.framed[index]?.pass, note).toBe(true);
       });
     }
   });

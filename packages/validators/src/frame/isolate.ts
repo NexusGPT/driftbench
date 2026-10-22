@@ -38,6 +38,7 @@ import {
   shortText,
   type Tape,
 } from './tape';
+import { TRACE, traceLine } from './trace';
 import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 /**
@@ -182,6 +183,12 @@ export type Frame<T> = {
    * `names` limits the guard to the functions named.
    */
   guarded<R>(kinds: readonly Guard[], run: () => R, names?: readonly string[]): R;
+  /**
+   * The first call from the tape position `from` on after which a confined run found a built-in object changed since
+   * before the product loaded (a method replaced, a property added or removed, a descriptor, a prototype, the
+   * extensibility, a standard global name rebound), as a message naming it, or undefined. Always watched.
+   */
+  alteredSince(from: number): string | undefined;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
   tainted(): string | undefined;
   /** Ends both runs and removes their files. */
@@ -405,6 +412,37 @@ function merged(old: unknown, now: unknown): unknown {
   return now;
 }
 
+/** The text of a value that is an object, or undefined: how a key of a Map or a member of a Set is matched. */
+function textOf(value: unknown): string | undefined {
+  if (value === null || typeof value !== 'object') return undefined;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The old key or member that an object of the state after the call stands for: the first unused one that reads the
+ * same, so the caller's object keeps its identity and is changed in place. A primitive stands for itself.
+ */
+function keptKey(old: unknown[], used: Set<number>, key: unknown, position?: number): unknown {
+  const text = textOf(key);
+  if (text === undefined) return key;
+  for (let at = 0; at < old.length; at += 1) {
+    if (used.has(at) || textOf(old[at]) !== text) continue;
+    used.add(at);
+    return old[at];
+  }
+  // The product changed the content of the key itself: when nothing was added or removed, the key at the same place
+  // in the order stands for it.
+  if (position !== undefined && !used.has(position) && textOf(old[position]) !== undefined) {
+    used.add(position);
+    return old[position];
+  }
+  return key;
+}
+
 /** Makes `target` read like `source`, keeping `target` the same object (arrays, typed arrays, Maps, Sets, Dates, plain objects). */
 function changeInPlace(target: object, source: object, kind: string): void {
   if (kind === 'array') {
@@ -418,23 +456,50 @@ function changeInPlace(target: object, source: object, kind: string): void {
     if (to.length === from.length) for (let at = 0; at < to.length; at += 1) to[at] = from[at];
   } else if (kind === 'map') {
     const to = target as Map<unknown, unknown>;
-    const entries = [...(source as Map<unknown, unknown>).entries()].map(
-      ([key, value]) => [key, to.has(key) ? merged(to.get(key), value) : value] as const,
-    );
+    const oldKeys = [...to.keys()];
+    const used = new Set<number>();
+    const sameSize = oldKeys.length === (source as Map<unknown, unknown>).size;
+    let at = 0;
+    const position = (index: number) => (sameSize ? index : undefined);
+    const entries = [...(source as Map<unknown, unknown>).entries()].map(([key, value]) => {
+      const kept = keptKey(oldKeys, used, key, position(at++));
+      // A key that stands for an old object keeps that object (changed in place); the old value follows the old key.
+      const stays = kept !== key;
+      const slot = stays ? kept : key;
+      const before = to.has(slot) ? to.get(slot) : undefined;
+      return [stays ? merged(kept, key) : key, before === undefined ? value : merged(before, value)] as const;
+    });
     to.clear();
     for (const [key, value] of entries) to.set(key, value);
   } else if (kind === 'set') {
     const to = target as Set<unknown>;
-    const values = [...(source as Set<unknown>).values()];
+    const oldKeys = [...to.values()];
+    const used = new Set<number>();
+    const sameSize = oldKeys.length === (source as Set<unknown>).size;
+    let at = 0;
+    const values = [...(source as Set<unknown>).values()].map((value) => {
+      const kept = keptKey(oldKeys, used, value, sameSize ? at++ : undefined);
+      return kept === value ? value : merged(kept, value);
+    });
     to.clear();
     for (const value of values) to.add(value);
   } else if (kind === 'date') {
     (target as Date).setTime((source as Date).getTime());
   } else {
+    // Own keys only, whatever their names (toString, constructor, __proto__ are keys like any other), in the order of
+    // the state after the call; a value that is an object keeps the identity of the old one when it can.
     const to = target as Record<string, unknown>;
     const from = source as Record<string, unknown>;
-    for (const key of Object.keys(to)) if (!(key in from)) delete to[key];
-    for (const key of Object.keys(from)) to[key] = merged(to[key], from[key]);
+    const old = new Map(Object.keys(to).map((key) => [key, to[key]] as const));
+    for (const key of Object.keys(to)) Reflect.deleteProperty(to, key);
+    for (const key of Object.keys(from)) {
+      Object.defineProperty(to, key, {
+        value: merged(old.get(key), from[key]),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   }
 }
 
@@ -449,6 +514,8 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
+  const trace = (text: string) => traceLine(tag, text);
+  trace('isolate begin');
   const module = resolve(options.module);
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
@@ -534,7 +601,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
     worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
       execArgv: [],
-      workerData: { port: port2, signal, plans, setup },
+      workerData: {
+        port: port2,
+        signal,
+        plans,
+        setup: { ...setup, trace: TRACE ? `${TRACE}` : undefined, tag },
+      },
       transferList: [port2],
       stderr: false,
     }),
@@ -543,6 +615,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   relay.worker.unref();
   port1.unref();
+  trace('relay worker created');
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   const aliased: Array<{ at: number; message: string }> = [];
@@ -565,11 +638,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     return id;
   };
+  const altered: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
   let taint: string | undefined;
   let closed = false;
   const close = () => {
     if (closed) return;
+    trace('close begin');
     try {
       flushPlain();
     } catch {
@@ -590,7 +665,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
+    trace('close end');
   };
+  trace('waiting for the product to load in the three runs');
   const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{
       ready?: boolean;
@@ -599,6 +676,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       shape?: Record<string, { fn?: 1; value?: Json }>;
     }>;
   };
+  trace('product loaded in the three runs');
   const failed = started.ready.find((each) => each.ready !== true);
   if (failed) {
     close();
@@ -677,6 +755,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
     spent.relayMs += took;
+    if (took > 10_000) trace(`slow call ${name}: ${Math.round(took)} ms`);
     const each = byName.get(name) ?? { calls: 0, ms: 0, slow: 0 };
     each.calls += 1;
     each.ms += took;
@@ -728,11 +807,24 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
           message: `${name}() returned a result that holds an object of ${shared === 'input' ? 'its arguments' : 'an earlier result'} (${describeRun(plan as TwinPlan)}): a result must be built new`,
         });
     }
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      const change = (each as { altered?: string }).altered;
+      if (typeof change === 'string')
+        altered.push({
+          at: tape.length,
+          message: `${name}() ran in a process where the product had changed a built-in object, ${change} (${describeRun(plan as TwinPlan)}): the product must leave the built-in objects of its caller's process as it found them`,
+        });
+    }
     const {
       moved: _moved,
       invalid: _invalid,
       written: _written,
       shared: _shared,
+      altered: _altered,
       argsAfter,
       cannot,
       ...answer
@@ -741,6 +833,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid?: boolean;
       written?: boolean;
       shared?: string;
+      altered?: string;
       argsAfter?: Json;
       cannot?: boolean;
     };
@@ -884,6 +977,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         run,
       );
     },
+    alteredSince: (from) => altered.find((each) => each.at >= from)?.message,
     tainted: () => {
       flushPlain();
       return taint;

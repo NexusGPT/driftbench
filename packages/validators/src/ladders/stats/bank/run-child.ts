@@ -8,22 +8,26 @@ import { appendFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Frame, isolate } from '../../../frame';
+import { traceLine } from '../../../frame/trace';
 import type { StatsImpl } from '../reference';
 import { installTrap } from './trap';
 
 async function main(args: readonly string[]): Promise<void> {
   const [seedText, root, startText] = args;
+  traceLine(`bank-child:${seedText}:${startText}`, 'main begin');
   const seed = Number(seedText);
   const start = Number(startText ?? 0);
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
   const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
+  traceLine(`bank-child:${seedText}:${startText}`, `ids read: ${ids.length}`);
   const implPath = process.env.DRIFTBENCH_STATS_IMPL;
   // The package under test runs with no file or process access; the validator's own reads are not affected.
   installTrap([
     ...(implPath ? [dirname(implPath.startsWith('file://') ? new URL(implPath).pathname : implPath)] : []),
     join(root as string, 'packages', 'stats', 'src'),
   ]);
+  traceLine(`bank-child:${seedText}:${startText}`, 'trap installed');
   // The package under test runs in confined processes of the frame (docs/validators.md section 12.9): the bank
   // calls it through a proxy and cannot be seen by it, and the expected values stay in this process.
   const frame = isolate<StatsImpl>({
@@ -33,6 +37,7 @@ async function main(args: readonly string[]): Promise<void> {
     functions: 'source',
     aliasing: true,
   });
+  traceLine(`bank-child:${seedText}:${startText}`, 'frame ready');
   // The bank also imports the target transitively: load it only after the trap is active.
   const { useProductClock } = await import('./scale');
   useProductClock({ mark: () => frame.position(), since: (mark) => frame.cpuSince(mark) });
@@ -47,12 +52,14 @@ async function main(args: readonly string[]): Promise<void> {
   });
   for (let index = start; index < items.length; index += 1) {
     const item = items[index] as (typeof items)[number];
+    traceLine(`bank-child:${seedText}:${startText}`, `item ${index} ${item.id} begins`);
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
     const began = performance.now();
     const mark = frame.position();
     const ran = await runItem(item, seed, root as string, s, {
       mark: () => frame.position(),
       aliased: (since) => frame.aliasSince(since),
+      altered: (since) => frame.alteredSince(since),
       strict: (on) => frame.strictArguments(on),
     });
     // A call whose runs answered differently makes the item fail whatever the item concluded.
@@ -64,7 +71,11 @@ async function main(args: readonly string[]): Promise<void> {
       `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ms: Math.round(performance.now() - began) })}\n`,
     );
   }
+  traceLine(`bank-child:${seedText}:${startText}`, 'items done, closing the frame');
   closeFrame(frame);
+  traceLine(`bank-child:${seedText}:${startText}`, 'frame closed');
+  // The last line: every outcome and the frame's taint are written before it, so the parent has all it needs.
+  process.stdout.write(`${JSON.stringify({ closed: true })}\n`);
 }
 
 /** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
@@ -94,7 +105,12 @@ export function statsBankChild(args: readonly string[]): Promise<never> {
     // Exit when every line has left the process: an exit with output still queued would drop it.
     () =>
       new Promise<never>(() => {
-        process.stdout.write('', () => process.exit(0));
+        traceLine('bank-child', 'writing the end of the output');
+        process.on('exit', () => traceLine('bank-child', 'exit event'));
+        process.stdout.write('', () => {
+          traceLine('bank-child', 'output written, exiting');
+          process.exit(0);
+        });
       }),
     (cause) => {
       process.stderr.write(`bank child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);

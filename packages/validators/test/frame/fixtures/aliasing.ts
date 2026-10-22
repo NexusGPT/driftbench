@@ -139,14 +139,25 @@ export const WRITES: Record<string, { name: string; copy: boolean }[]> = {
       name,
       copy: true,
     })),
-    ...['delete', 'ownMap', 'hidden', 'extra', 'symbol', 'accessor', 'proto', 'preventExt'].map((name) => ({
+    ...[
+      'delete',
+      'ownMap',
+      'hidden',
+      'extra',
+      'symbol',
+      'accessor',
+      'proto',
+      'protoObject',
+      'protoNull',
+      'preventExt',
+    ].map((name) => ({
       name,
       copy: false,
     })),
   ],
   plain: [
-    ...['set', 'delete', 'add'].map((name) => ({ name, copy: true })),
-    ...['hidden', 'symbol', 'accessor', 'fnValue', 'proto', 'preventExt'].map((name) => ({
+    ...['set', 'delete', 'add', 'protoObject'].map((name) => ({ name, copy: true })),
+    ...['hidden', 'symbol', 'accessor', 'fnValue', 'proto', 'protoNull', 'preventExt'].map((name) => ({
       name,
       copy: false,
     })),
@@ -248,6 +259,8 @@ export const applyWrites = (input: WriteTarget, program: Write[]) => {
         else if (kind === 'symbol') o[Symbol('s')] = 1;
         else if (kind === 'accessor') Object.defineProperty(o, 'acc', { get: () => 1, configurable: true });
         else if (kind === 'proto') Object.setPrototypeOf(o, Object.create(Object.getPrototypeOf(o)));
+        else if (kind === 'protoObject') Object.setPrototypeOf(o, Object.prototype);
+        else if (kind === 'protoNull') Object.setPrototypeOf(o, null);
         else if (kind === 'preventExt') Object.preventExtensions(o);
         else throw new Error(`no write ${TARGETS[target]?.kind}:${kind}`);
     }
@@ -267,3 +280,45 @@ export const swapsFunction = () => {
 /** Returns a new object each call holding the same function. */
 const sameFn = () => 1;
 export const keepsFunction = () => ({ run: sameFn });
+
+/** Plain-object writes that shadow the names of Object.prototype, share or replace children (codex, run 39780074824). */
+export const plainWrites = (input: any, which: string) => {
+  switch (which) {
+    case 'deleteToString':
+      delete input.toString;
+      break;
+    case 'deleteConstructor':
+      delete input.constructor;
+      break;
+    case 'deleteHasOwnProperty':
+      delete input.hasOwnProperty;
+      break;
+    case 'addConstructor':
+      input.constructor = 7;
+      break;
+    case 'aliasChildren':
+      input.y = input.x;
+      break;
+    case 'replaceByCopy':
+      input.x = { ...input.x };
+      break;
+    case 'reorderKeys': {
+      const { a, ...rest } = input;
+      delete input.a;
+      Object.assign(input, rest, { a });
+      break;
+    }
+    default:
+      throw new Error(which);
+  }
+  return which.length;
+};
+
+/** Mutates the content of a key of a Map and of a member of a Set (objects) in place. */
+export const changesKeys = (input: { table: Map<{ n: number }, string>; bag: Set<{ n: number }> }) => {
+  input.table.forEach((_, key) => {
+    key.n += 1;
+  });
+  for (const member of input.bag) member.n += 10;
+  return input.table.size;
+};

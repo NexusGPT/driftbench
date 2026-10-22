@@ -90,14 +90,27 @@ describe('the shifted bootstrap items under the frame', () => {
     },
   );
 
-  // The watch's other captured helpers: an honest package whose Array.isArray, ArrayBuffer.isView, Object.is or
+  // The watch's other captured helpers: a package whose Array.isArray, ArrayBuffer.isView, Object.is or
   // WeakSet.prototype.has throws when called on its result beyond the one call the frame's own encoding of the answer
-  // makes passes, because the watch never calls the patched helper. A watch that looked a helper up when it runs
-  // would call it and fail the item.
-  it.each(['marked-isarray', 'marked-isview', 'marked-is', 'marked-weakset'] as const)(
-    'pass an honest package whose %s helper throws when the watch calls it',
-    async (kind) => {
-      expect((await outcomes(kind)).filter((each) => !each.pass)).toEqual([]);
+  // makes. Its results are right, but it replaces a built-in at load, so every item fails on that built-in, named
+  // (docs/validators.md section 12.9, "Built-in objects"), and none on the throw: the watch never calls the patched
+  // helper. A watch that looked a helper up when it runs would call it, and the item would fail on the throw instead.
+  it.each([
+    ['marked-isarray', 'Array.isArray'],
+    ['marked-isview', 'ArrayBuffer.isView'],
+    ['marked-is', 'Object.is'],
+    ['marked-weakset', 'WeakSet.prototype.has'],
+  ] as const)(
+    'fail a package whose %s helper throws when the watch calls it, on the built-in it replaced (%s), never on the throw',
+    async (kind, builtin) => {
+      const got = await outcomes(kind);
+      expect(got.filter((each) => each.pass)).toEqual([]);
+      for (const each of got) {
+        expect(each.detail, `${each.id} seed ${each.seed}`).toContain(
+          `the package changed a built-in object: bootstrapCI() ran in a process where the product had changed a built-in object, ${builtin} (`,
+        );
+        expect(each.detail).not.toContain('looked up by the watch');
+      }
     },
   );
 

@@ -221,6 +221,8 @@ const «hashProto» = «protoOf»(«hashStart»('sha256'));
 const «hashUpdate» = «hashProto».update;
 const «hashDigest» = «hashProto».digest;
 const «mapEntries» = Map.prototype.entries;
+const «mapGet» = Map.prototype.get;
+const «mapSet» = Map.prototype.set;
 const «setValues» = Set.prototype.values;
 const «mapNext» = «protoOf»(new Map().entries()).next;
 const «setNext» = «protoOf»(new Set().values()).next;
@@ -237,9 +239,8 @@ const «isSetKind» = «utilTypes».isSet;
 const «isDateKind» = «utilTypes».isDate;
 const «isSealedIt» = Object.isSealed;
 const «ids» = new WeakMap();
-// The prototypes an argument has when the validator decodes it.
-const «builtins» = new WeakSet();
-for (const «known» of [Object.prototype, Array.prototype, Map.prototype, Set.prototype, Date.prototype, DataView.prototype, «protoOf»(Uint8Array.prototype), Uint8Array.prototype, Int8Array.prototype, Uint16Array.prototype, Int16Array.prototype, Uint32Array.prototype, Int32Array.prototype, Float32Array.prototype, Float64Array.prototype, BigInt64Array.prototype, BigUint64Array.prototype, Uint8ClampedArray.prototype]) «call»(WeakSet.prototype.add, «builtins», [«known»]);
+// The prototype of each kind of argument as the validator decodes it, by kind: plain, array, typed, Map, Set, Date.
+const «canonical» = [Object.prototype, Array.prototype, null, Map.prototype, Set.prototype, Date.prototype];
 const «idGet» = WeakMap.prototype.get;
 const «idSet» = WeakMap.prototype.set;
 let «idNext» = 0;
@@ -303,7 +304,10 @@ if («setup».uptimeShift > 0) {
 // property of a container, a descriptor flag, the prototype, extensibility). A change in the OTHER digest is a change
 // the frame cannot reproduce.
 let «sawInvalid» = false;
-const «scan» = («root») => {
+const «scan» = («root», «prior») => {
+  // The objects met in this scan, by the order they were first met, up to a cap (the arguments of the scale items hold
+  // millions of rows, and a map of them costs more than the scan).
+  const «known» = new Map();
   const «dataHash» = «call»(«hashStart», undefined, ['sha256']);
   const «otherHash» = «call»(«hashStart», undefined, ['sha256']);
   let «dataText» = '';
@@ -330,13 +334,13 @@ const «scan» = («root») => {
   // A stable number for a function, a prototype or an object: the same one the next time it is met.
   const «idOf» = («thing») => {
     try {
-      let «known» = «call»(«idGet», «ids», [«thing»]);
-      if («known» === undefined) {
+      let «have» = «call»(«idGet», «ids», [«thing»]);
+      if («have» === undefined) {
         «idNext» += 1;
-        «known» = «idNext»;
-        «call»(«idSet», «ids», [«thing», «known»]);
+        «have» = «idNext»;
+        «call»(«idSet», «ids», [«thing», «have»]);
       }
-      return «known»;
+      return «have»;
     } catch {
       return -1;
     }
@@ -370,10 +374,23 @@ const «scan» = («root») => {
       if («ancestors»[«up»] === «value») { «put»('C;'); return; }
     }
     «ancestors»[«level»] = «value»;
+    // The identity of the object: the number of its first visit in the scan before the call, written each time it is
+    // met. An object the product made after the call has no such number and writes nothing, so adding an object
+    // changes nothing, while replacing an object by an equal copy, reaching one object by two keys, or moving
+    // objects between slots does (review of PR 986, codex run 39780074824).
+    if («prior» === undefined) {
+      let «index» = «call»(«mapGet», «known», [«value»]);
+      if («index» === undefined && «known».size < 100000) {
+        «index» = «known».size;
+        «call»(«mapSet», «known», [«value», «index»]);
+      }
+      if («index» !== undefined) «putOther»('I' + «index» + ';');
+    } else {
+      const «before» = «call»(«mapGet», «prior», [«value»]);
+      if («before» !== undefined) «putOther»('I' + «before» + ';');
+    }
     const «proto» = «protoOf»(«value»);
-    // Only a deviation is written (a prototype that is not a built-in one, a state other than extensible and open), so
-    // an object the frame can copy back, which a product adds or removes, does not change the digest.
-    if («proto» !== null && !«call»(«seenHas», «builtins», [«proto»])) «putOther»('P' + «idOf»(«proto») + ';');
+
     // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
     if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
     // The kind of the object, and its content.
@@ -416,7 +433,7 @@ const «scan» = («root») => {
           «kind» = 2;
           if («size» !== undefined) {
             «put»('V' + «size» + ':');
-            for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
+            for (let «i» = 0; «i» < «size»; «i» += 1) «put»(«same»(«value»[«i»], -0) ? '-0,' : '' + «value»[«i»] + ',');
           } else {
             const «bytes» = «call»(«viewByteLength», «value», []);
             «put»('W' + «bytes» + ':');
@@ -468,6 +485,13 @@ const «scan» = («root») => {
         }
       }
     }
+    // The prototype, by identity, for every object whose prototype is not the one the validator's own decoding gives
+    // its kind (the base object prototype for a plain object, the array prototype for an array, the Map, Set and Date ones). A
+    // swap to null, to a built-in one or to a custom one always changes the digest (review of PR 986, codex run
+    // 39756451516). The canonical prototype is left out only so that an object a product adds or removes, which the
+    // frame copies back and decodes with exactly that prototype, does not count as a change; a typed array and a
+    // DataView are always recorded.
+    if («kind» === 2 || «proto» !== «canonical»[«kind»]) «putOther»('P' + («proto» === null ? 0 : «idOf»(«proto»)) + ';');
     // Own properties. The ones the frame can copy back (the enumerable string keys of a plain object) go to the data
     // digest; every other one goes to the other digest with its descriptor, and what it holds.
     const «keys» = «ownKeys»(«value»);
@@ -504,7 +528,7 @@ const «scan» = («root») => {
   «walk»(«root», 0, false);
   «dataFlush»();
   «otherFlush»();
-  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']) };
+  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']), known: «known» };
 };
 const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
@@ -605,6 +629,130 @@ if («setup».command) {
   process.argv = [process.argv[0], «setup».script || «setup».command, ...«setup».args];
   await import(«toUrl»(«setup».command).href);
 } else {
+  // Built-in objects (docs/validators.md section 12.9, "Built-in objects"). A product that replaces a method of a
+  // built-in object (Array.prototype.map, Math.sqrt, eval), adds or removes a property of one, changes a descriptor, a
+  // prototype or the extensibility of one, or rebinds or adds a global name, changes how its caller's own code runs
+  // after the call. A call in the caller's process shows it; a confined run keeps it in its own process (review of
+  // PR 986, codex run 39782335737: a mean that replaced the array prototype's map after it computed the right answer
+  // failed the mean-shift items directly and passed them through the frame). Before the product loads, the driver
+  // records what the realm itself lists, never a hand list of names (review of PR 986, codex runs 39821091340 and
+  // 39821718881: eval and Intl were missing from such a list): every own property of the global object, and from
+  // there, to a depth of 8, every function, every object a function holds as its prototype, every prototype of a
+  // recorded object and every object whose prototype is the base object prototype or null (a namespace such as
+  // Math, Intl or Reflect), with the descriptor of each own property. Objects of any other kind (process, console,
+  // a stream) hold the state of the process and are recorded only as the value of the property that holds them.
+  // The global object's lazy properties (a getter that defines the value on first read) are read first, so their
+  // first use by the product is not a change. After every call the driver compares the record through the
+  // references captured above and names the first change.
+  const «globalObject» = globalThis;
+  const «baseProto» = Object.prototype;
+  const «builtinDepth» = 8;
+  for (const «lazyKey» of «ownKeys»(«globalObject»)) {
+    const «lazy» = «describe»(«globalObject», «lazyKey»);
+    if («lazy» && «lazy».get !== undefined) {
+      try {
+        void «globalObject»[«lazyKey»];
+      } catch {
+        // a getter that throws keeps throwing for the product too
+      }
+    }
+  }
+  // The objects, each with its place (the record that holds it and the label of the property or prototype step), its
+  // prototype, extensibility, own keys in order with their labels, and their descriptors. The global object is the
+  // first; its changes are named after those of the objects it holds. Every label is made before the product loads.
+  const «builtins» = [];
+  // The path of a record: its labels from the root, by concatenation only.
+  const «pathOf» = («record») =>
+    «record».parent === null || «record».parent.thing === «globalObject» ? «record».label : «pathOf»(«record».parent) + «record».label;
+  {
+    const «queue» = [[null, 'globalThis', «globalObject», 0]];
+    // The intrinsics no property holds.
+    for (const [«label», «thing»] of [
+      ['%ArrayIteratorPrototype%', «protoOf»([][Symbol.iterator]())],
+      ['%MapIteratorPrototype%', «protoOf»(new Map().entries())],
+      ['%SetIteratorPrototype%', «protoOf»(new Set().values())],
+      ['%StringIteratorPrototype%', «protoOf»(''[Symbol.iterator]())],
+      ['%RegExpStringIteratorPrototype%', «protoOf»('a'.matchAll(/a/g))],
+      ['%TypedArray%', «protoOf»(Int8Array)],
+      ['%GeneratorFunction.prototype%', «protoOf»(function* () {})],
+      ['%AsyncFunction.prototype%', «protoOf»(async function () {})],
+      ['%AsyncGeneratorFunction.prototype%', «protoOf»(async function* () {})],
+    ])
+      «queue».push([null, «label», «thing», 1]);
+    // An object met again keeps its record; a place through properties names it better than one through prototypes.
+    const «met» = new Map();
+    for (let «head» = 0; «head» < «queue».length; «head» += 1) {
+      const [«parent», «label», «thing», «depth»] = «queue»[«head»];
+      if («thing» === null || (typeof «thing» !== 'object' && typeof «thing» !== 'function')) continue;
+      const «seenRecord» = «met».get(«thing»);
+      if («seenRecord» !== undefined) {
+        const «candidate» = { parent: «parent», label: «label», thing: «thing» };
+        if («pathOf»(«seenRecord»).includes('[[Prototype]]') && !«pathOf»(«candidate»).includes('[[Prototype]]')) {
+          «seenRecord».parent = «parent»;
+          «seenRecord».label = «label»;
+        }
+        continue;
+      }
+      const «keys» = «ownKeys»(«thing»);
+      const «descs» = «keys».map((«key») => «describe»(«thing», «key»));
+      const «labels» = «keys».map((«key») => («thing» === «globalObject» ? String(«key») : '.' + String(«key»)));
+      const «protoNow» = «protoOf»(«thing»);
+      const «record» = { parent: «parent», label: «label», thing: «thing», proto: «protoNow», ext: «isExt»(«thing»), keys: «keys», labels: «labels», descs: «descs» };
+      «met».set(«thing», «record»);
+      «builtins».push(«record»);
+      if («depth» >= «builtinDepth») continue;
+      «queue».push([«record», «thing» === «globalObject» ? 'globalThis.[[Prototype]]' : '.[[Prototype]]', «protoNow», «depth» + 1]);
+      for (let «k» = 0; «k» < «keys».length; «k» += 1) {
+        const «desc» = «descs»[«k»];
+        if (!«hasOwn»(«desc», 'value')) {
+          «queue».push([«record», «labels»[«k»] + ' (getter)', «desc».get, «depth» + 1], [«record», «labels»[«k»] + ' (setter)', «desc».set, «depth» + 1]);
+          continue;
+        }
+        const «held» = «desc».value;
+        if (typeof «held» === 'function') «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        else if («held» !== null && typeof «held» === 'object') {
+          const «heldProto» = «protoOf»(«held»);
+          if («keys»[«k»] === 'prototype' || «heldProto» === «baseProto» || «heldProto» === null) «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        }
+      }
+    }
+  }
+  // Two descriptors are the same: the same kind, flags, and value or accessor functions. Only own fields are read.
+  const «sameDescriptor» = («x», «y») => {
+    const «xData» = «hasOwn»(«x», 'value');
+    if («xData» !== «hasOwn»(«y», 'value')) return false;
+    if («x».enumerable !== «y».enumerable || «x».configurable !== «y».configurable) return false;
+    return «xData» ? «same»(«x».value, «y».value) && «x».writable === «y».writable : «x».get === «y».get && «x».set === «y».set;
+  };
+  // The first change in one recorded object, by its path, or undefined.
+  const «changeOf» = («was») => {
+    const «global» = «was».thing === «globalObject»;
+    const «named» = «global» ? 'the global object' : «pathOf»(«was»);
+    if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «named»;
+    if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «named»;
+    const «keysNow» = «ownKeys»(«was».thing);
+    if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «named»;
+    for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
+      if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «named»;
+      if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»]))
+        return «global» ? 'the global name ' + «was».labels[«k»] : «named» + «was».labels[«k»];
+    }
+    return undefined;
+  };
+  // The first built-in object the product changed since it was recorded, by its path, or undefined.
+  const «builtinChange» = () => {
+    for (let «r» = 1; «r» < «builtins».length; «r» += 1) {
+      const «change» = «changeOf»(«builtins»[«r»]);
+      if («change» !== undefined) return «change»;
+    }
+    return «changeOf»(«builtins»[0]);
+  };
+  // The change reported with each answer: every call after the change reports it, as every later call in the
+  // caller's process would run with it.
+  const «altered» = () => {
+    const «change» = «builtinChange»();
+    return «change» === undefined ? {} : { altered: «change» };
+  };
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
@@ -635,7 +783,7 @@ if («setup».command) {
     let «argsBefore»;
     const «afterState» = () => {
       if («argsBefore» === undefined) return {};
-      const «now» = «scan»(«argsRef»);
+      const «now» = «scan»(«argsRef», «argsBefore».known);
       // A change the frame cannot copy back (a function, an accessor, a symbol or hidden key, an extra property of a
       // container, a descriptor, the prototype, extensibility) is reported as such, never copied.
       if («now».other !== «argsBefore».other) return { cannot: true };
@@ -700,9 +848,9 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}), ...«after» });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}), ...«after», ...«altered»() });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}) });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
   }
 }
@@ -820,11 +968,16 @@ export function plainBatchEntry(
  */
 export const RELAY = String.raw`
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { workerData } from 'node:worker_threads';
 const { port, signal, plans, setup } = workerData;
+const began = Date.now();
+const trace = (text) => {
+  if (!setup.trace) return;
+  try { appendFileSync(setup.trace, new Date().toISOString() + ' relay ' + setup.tag + ' +' + (Date.now() - began) + ' ms ' + text + '\n'); } catch {}
+};
 const flag = new Int32Array(signal);
 const reply = (message) => { port.postMessage(message); Atomics.store(flag, 0, 1); Atomics.notify(flag, 0); };
 const runs = plans.map((plan) => {
@@ -840,8 +993,10 @@ const runs = plans.map((plan) => {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   const run = { plan, child, waiting: [], stderr: '', exited: undefined };
+  trace('spawned run ' + plan.run);
   child.stderr.on('data', (chunk) => { run.stderr = (run.stderr + chunk).slice(-4000); });
   child.on('exit', (code, sig) => {
+    trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
     for (const waiter of run.waiting.splice(0)) waiter({ dead: run.exited });
   });
@@ -860,7 +1015,7 @@ const ask = (run, line) =>
     run.waiting.push(resolve);
     if (line !== undefined) run.child.stdin.write(line + '\n');
   });
-const ready = await Promise.all(runs.map((run) => ask(run)));
+const ready = await Promise.all(runs.map((run) => ask(run).then((message) => { trace('run ' + run.plan.run + ' answered its start: ' + (message.ready === true ? 'ready' : 'not ready')); return message; })));
 reply({ ready });
 let id = 0;
 port.on('message', async (message) => {
@@ -871,7 +1026,8 @@ port.on('message', async (message) => {
   }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ids: message.ids, forget: message.forget, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
-  const answers = await Promise.all(runs.map((run) => ask(run, line)));
+  const sentAt = Date.now();
+  const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ answers });
 });
 `;
