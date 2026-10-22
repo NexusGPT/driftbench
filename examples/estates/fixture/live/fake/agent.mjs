@@ -550,6 +550,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       );
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
+    if (action.kind === 'Read' && result?.error && action.literal.endsWith('.md')) continue;
     if (!result || result.error) {
       text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
