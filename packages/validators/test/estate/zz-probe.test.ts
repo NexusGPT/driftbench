@@ -87,6 +87,6 @@ it('raw run of the failing spec', async () => {
   writeFileSync('/tmp/probe-calls2.jsonl', '');
   const F = join(FIXTURE, 'live/fake');
   const r = cli(['estate','run',spec.path,'--estate',FIXTURE,'--runtime','claude-code','--command',join(F,'claude.mjs'),'--store','/tmp/probe2.db','--states',join(FIXTURE,'live/states/library.json'),'--judge','claude:haiku','--judge-command',join(F,'judge.cjs'),'--map',join(FIXTURE,'approved.yaml'),'--set-env',`FAKE_MAP=${join(FIXTURE,'approved.yaml')}`,'--set-env',`FAKE_PHRASES=${join(FIXTURE,'phrases.yaml')}`,'--set-env','FAKE_CALLS=/tmp/probe-calls2.jsonl','--json']);
-  say(`RAW ${r.out.slice(0, 5000)}`);
+  say(`RAW ${JSON.stringify(JSON.parse(r.out.slice(r.out.indexOf('{'))), (k, v) => (k === 'trace' || k === 'verdicts' ? v : v)).slice(0, 7000)}`);
   say(`CALLS2 ${existsSync('/tmp/probe-calls2.jsonl') ? read('/tmp/probe-calls2.jsonl', 'utf8').slice(0, 3000) : 'none'}`);
 });
