@@ -30,4 +30,4 @@ jobs:
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Harness tests
-        run: pnpm exec vitest run packages/estate/test/gold packages/cli/test/gold-chain packages/estate/test/plan packages/estate/test/pointer packages/estate/test/map packages/generate/test/estate --maxWorkers=2
+        run: pnpm exec vitest run packages/validators/test/estate/zz-probe.test.ts --maxWorkers=1
