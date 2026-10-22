@@ -13,7 +13,9 @@ import { loadUnitsEstate } from './units-estate';
 const FOLDER = join(dirname(fileURLToPath(import.meta.url)), 'fixtures/tiny-units');
 
 const answers: Record<string, unknown> = {
-  'Reply in at most two sentences.': { limits: [{ limit: 2, comparison: 'le', role: 'constraint', unit: 'sentences' }] },
+  'Reply in at most two sentences.': {
+    limits: [{ limit: 2, comparison: 'le', role: 'constraint', unit: 'sentences' }],
+  },
   'Wait five minutes before the second reminder.': {
     limits: [{ limit: 5, comparison: 'gt', role: 'constraint', unit: 'minutes' }],
   },

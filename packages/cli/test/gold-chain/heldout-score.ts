@@ -47,7 +47,8 @@ export function scoreLimits(truth: UnitsTruth, produced: readonly Produced[]): L
       claimed.add(at);
       found.add(at);
       const limit = truth.limits[at];
-      if (limit !== undefined && limit.comparison === item.comparison && limit.role === item.role) exact.add(at);
+      if (limit !== undefined && limit.comparison === item.comparison && limit.role === item.role)
+        exact.add(at);
       matched++;
     } else if (nonLimitUnits.has(item.unit)) {
       nonLimitHits++;

@@ -58,7 +58,8 @@ export function parseUnitsTruth(text: string): UnitsTruth {
     if (!ids.has(limit.unit)) problems.push(`limits: ${limit.unit} is not a unit`);
     if (!ids.has(limit.governs)) problems.push(`limits: ${limit.governs} is not a unit`);
     if (!Number.isFinite(limit.limit)) problems.push(`limits: ${limit.unit} has no number`);
-    if (!COMPARISONS.has(limit.comparison)) problems.push(`limits: ${limit.unit} comparison ${limit.comparison}`);
+    if (!COMPARISONS.has(limit.comparison))
+      problems.push(`limits: ${limit.unit} comparison ${limit.comparison}`);
     if (!ROLES.has(limit.role)) problems.push(`limits: ${limit.unit} role ${limit.role}`);
   }
   const nonLimits = list('non_limits').map((entry) => ({
@@ -66,7 +67,8 @@ export function parseUnitsTruth(text: string): UnitsTruth {
     number: typeof entry.number === 'number' ? entry.number : String(entry.number),
     why: String(entry.why),
   }));
-  for (const entry of nonLimits) if (!ids.has(entry.unit)) problems.push(`non_limits: ${entry.unit} is not a unit`);
+  for (const entry of nonLimits)
+    if (!ids.has(entry.unit)) problems.push(`non_limits: ${entry.unit} is not a unit`);
   if (problems.length > 0) throw new Error(`the truth file has problems:\n${problems.join('\n')}`);
   return { estate: String(raw.estate), units, limits, nonLimits };
 }
