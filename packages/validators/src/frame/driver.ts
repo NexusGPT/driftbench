@@ -456,6 +456,92 @@ if («setup».command) {
   process.argv = [process.argv[0], «setup».script || «setup».command, ...«setup».args];
   await import(«toUrl»(«setup».command).href);
 } else {
+  // Built-in objects (docs/validators.md section 12.9, "Built-in objects"). A product that replaces a method of a
+  // built-in object (Array.prototype.map, Math.sqrt), adds or removes a property of one, changes a descriptor, a
+  // prototype or the extensibility of one, or rebinds a standard global name, changes how its caller's own code runs
+  // after the call. A call in the caller's process shows it; a confined run keeps it in its own process (review of
+  // PR 986, codex run 39782335737: a mean that replaced the array prototype's map after it computed the right answer
+  // failed the mean-shift items directly and passed them through the frame). Before the product loads, the driver
+  // records every object reachable from the standard global names through properties and prototypes, with the
+  // descriptor of each own property; after every call it compares them through the references captured above and
+  // names the first change.
+  const «globalObject» = globalThis;
+  const «builtinNames» = ['globalThis', 'Object', 'Function', 'Array', 'Number', 'String', 'Boolean', 'Symbol', 'BigInt', 'Math', 'JSON', 'Reflect', 'Proxy', 'Map', 'Set', 'WeakMap', 'WeakSet', 'WeakRef', 'FinalizationRegistry', 'Date', 'RegExp', 'Promise', 'Iterator', 'Error', 'TypeError', 'RangeError', 'SyntaxError', 'ReferenceError', 'EvalError', 'URIError', 'AggregateError', 'ArrayBuffer', 'SharedArrayBuffer', 'DataView', 'Atomics', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float16Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array', 'parseFloat', 'parseInt', 'isFinite', 'isNaN', 'encodeURIComponent', 'decodeURIComponent', 'encodeURI', 'decodeURI'];
+  // The descriptor of a global name, by name; the objects, each with its path, prototype, extensibility, own keys in
+  // order and their descriptors.
+  const «bindings» = [];
+  const «builtins» = [];
+  {
+    const «queue» = [];
+    for (const «builtinName» of «builtinNames») {
+      const «binding» = «describe»(«globalObject», «builtinName»);
+      if («binding» === undefined) continue;
+      «bindings».push([«builtinName», «binding»]);
+      if («builtinName» !== 'globalThis') «queue».push([«builtinName», «globalObject»[«builtinName»]]);
+    }
+    // The intrinsics no global name holds.
+    «queue».push(
+      ['%ArrayIteratorPrototype%', «protoOf»([][Symbol.iterator]())],
+      ['%MapIteratorPrototype%', «protoOf»(new Map().entries())],
+      ['%SetIteratorPrototype%', «protoOf»(new Set().values())],
+      ['%StringIteratorPrototype%', «protoOf»(''[Symbol.iterator]())],
+      ['%RegExpStringIteratorPrototype%', «protoOf»('a'.matchAll(/a/g))],
+      ['%TypedArray%', «protoOf»(Int8Array)],
+      ['%GeneratorFunction.prototype%', «protoOf»(function* () {})],
+      ['%AsyncFunction.prototype%', «protoOf»(async function () {})],
+      ['%AsyncGeneratorFunction.prototype%', «protoOf»(async function* () {})],
+    );
+    const «met» = new Set();
+    for (let «head» = 0; «head» < «queue».length; «head» += 1) {
+      const [«where», «thing»] = «queue»[«head»];
+      if («thing» === null || (typeof «thing» !== 'object' && typeof «thing» !== 'function') || «met».has(«thing»)) continue;
+      «met».add(«thing»);
+      const «keys» = «ownKeys»(«thing»);
+      const «descs» = «keys».map((«key») => «describe»(«thing», «key»));
+      const «protoNow» = «protoOf»(«thing»);
+      «builtins».push({ thing: «thing», where: «where», proto: «protoNow», ext: «isExt»(«thing»), keys: «keys», descs: «descs» });
+      «queue».push([«where» + '.[[Prototype]]', «protoNow»]);
+      for (let «k» = 0; «k» < «keys».length; «k» += 1) {
+        const «at» = «where» + '.' + String(«keys»[«k»]);
+        const «desc» = «descs»[«k»];
+        if («hasOwn»(«desc», 'value')) «queue».push([«at», «desc».value]);
+        else «queue».push([«at» + ' (getter)', «desc».get], [«at» + ' (setter)', «desc».set]);
+      }
+    }
+  }
+  // Two descriptors are the same: the same kind, flags, and value or accessor functions. Only own fields are read.
+  const «sameDescriptor» = («x», «y») => {
+    const «xData» = «hasOwn»(«x», 'value');
+    if («xData» !== «hasOwn»(«y», 'value')) return false;
+    if («x».enumerable !== «y».enumerable || «x».configurable !== «y».configurable) return false;
+    return «xData» ? «same»(«x».value, «y».value) && «x».writable === «y».writable : «x».get === «y».get && «x».set === «y».set;
+  };
+  // The first built-in object the product changed since it was recorded, by its path, or undefined.
+  const «builtinChange» = () => {
+    for (let «b» = 0; «b» < «bindings».length; «b» += 1) {
+      const «bound» = «bindings»[«b»];
+      const «boundNow» = «describe»(«globalObject», «bound»[0]);
+      if («boundNow» === undefined || !«sameDescriptor»(«boundNow», «bound»[1])) return 'the global name ' + «bound»[0];
+    }
+    for (let «r» = 0; «r» < «builtins».length; «r» += 1) {
+      const «was» = «builtins»[«r»];
+      if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «was».where;
+      if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «was».where;
+      const «keysNow» = «ownKeys»(«was».thing);
+      if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «was».where;
+      for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
+        if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «was».where;
+        if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»])) return «was».where + '.' + String(«was».keys[«k»]);
+      }
+    }
+    return undefined;
+  };
+  // The change reported with each answer: every call after the change reports it, as every later call in the
+  // caller's process would run with it.
+  const «altered» = () => {
+    const «change» = «builtinChange»();
+    return «change» === undefined ? {} : { altered: «change» };
+  };
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
@@ -523,9 +609,9 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after» });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}) });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
   }
 }

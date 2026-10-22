@@ -145,6 +145,12 @@ export type Frame<T> = {
   strictArguments(on: boolean): void;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
+  /**
+   * The first call from the tape position `from` on after which a confined run found a built-in object changed since
+   * before the product loaded (a method replaced, a property added or removed, a descriptor, a prototype, the
+   * extensibility, a standard global name rebound), as a message naming it, or undefined. Always watched.
+   */
+  alteredSince(from: number): string | undefined;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
   tainted(): string | undefined;
   /** Ends both runs and removes their files. */
@@ -540,6 +546,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   const aliased: Array<{ at: number; message: string }> = [];
+  const altered: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
   let taint: string | undefined;
   let closed = false;
@@ -690,10 +697,23 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
           message: `${name}() changed an argument it was given (${describeRun(plan as TwinPlan)}): the arguments of this call must stay as they were`,
         });
     }
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      const change = (each as { altered?: string }).altered;
+      if (typeof change === 'string')
+        altered.push({
+          at: tape.length,
+          message: `${name}() ran in a process where the product had changed a built-in object, ${change} (${describeRun(plan as TwinPlan)}): the product must leave the built-in objects of its caller's process as it found them`,
+        });
+    }
     const {
       moved: _moved,
       invalid: _invalid,
       written: _written,
+      altered: _altered,
       argsAfter,
       cannot,
       ...answer
@@ -701,6 +721,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       moved?: string[];
       invalid?: boolean;
       written?: boolean;
+      altered?: string;
       argsAfter?: Json;
       cannot?: boolean;
     };
@@ -800,6 +821,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     },
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
     aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
+    alteredSince: (from) => altered.find((each) => each.at >= from)?.message,
     tainted: () => {
       flushPlain();
       return taint;
