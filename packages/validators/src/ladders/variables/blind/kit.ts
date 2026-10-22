@@ -488,7 +488,11 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
   // change what the product is asked, or in what order (docs/validators.md 12.11).
   const ids = new Set<string>();
   for (const r of plan.rows) {
-    check(typeof r.id === 'string' && r.id.length > 0, () => ({ rule, got: { id: r.id }, expected: 'a nonempty string id' }));
+    check(typeof r.id === 'string' && r.id.length > 0, () => ({
+      rule,
+      got: { id: r.id },
+      expected: 'a nonempty string id',
+    }));
     check(!ids.has(r.id), () => ({ rule, got: { repeatedId: r.id }, expected: 'distinct ids' }));
     ids.add(r.id);
   }
@@ -522,7 +526,11 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
     check(!seen.has(key), () => ({ rule, got: { repeatedRow: r.id }, expected: 'distinct new rows' }));
     seen.add(key);
     for (const s of seeds)
-      check(!sameRow(s, r.values), () => ({ rule, got: { row: r.id, repeatsASeed: true }, expected: 'no seed repeated' }));
+      check(!sameRow(s, r.values), () => ({
+        rule,
+        got: { row: r.id, repeatsASeed: true },
+        expected: 'no seed repeated',
+      }));
   }
   return fresh;
 }

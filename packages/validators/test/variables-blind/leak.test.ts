@@ -12,9 +12,9 @@ import { referenceImpl } from './reference/index';
  * A failure message never names the expected value (docs/validators.md section 12, "What a failure message says").
  * The wrong products are the planted mutants of the reference; for each, the items it makes fail are run on seeds 1 to
  * 3 and their failures are checked on fields (`leakReport`). A failure that is not structured is counted, and the count
- * may only go down: UNSTRUCTURED_MAX is lowered as the sites are converted.
+ * may only go down: the ceiling is committed in validators/variables/leak-ceilings.json and compared with the one on
+ * the base branch, so a PR cannot raise it in the same diff that raises the count.
  */
-
 
 const items = blindBank().filter((i) => i.family !== 'scale');
 
@@ -66,7 +66,10 @@ describe('the failure messages of the blind bank repeat no expected value', () =
         `leak ${e.n} x ${rule.slice(0, 80)} :: ${[...e.atoms].slice(0, 4).join(' | ').slice(0, 160)}`,
       );
     expect(report.leaking).toEqual([]);
-    const { head, base } = readCeilings(fileURLToPath(new URL('../../../../validators/variables/leak-ceilings.json', import.meta.url)), 'blind');
+    const { head, base } = readCeilings(
+      fileURLToPath(new URL('../../../../validators/variables/leak-ceilings.json', import.meta.url)),
+      'blind',
+    );
     expect(ceilingVerdict(report.unstructured, head, base)).toBeUndefined();
     expect(report.structured).toBeGreaterThan(0);
   }, 1_800_000);

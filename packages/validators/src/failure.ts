@@ -100,7 +100,8 @@ function numbersIn(text: string): number[] {
   return out;
 }
 
-const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+const near = (a: number, b: number): boolean =>
+  Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
 
 export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
@@ -125,14 +126,17 @@ export function leaksOf(failure: ItemFailure): string[] {
     const atom = normal(raw);
     if (/^-?\d+(?:\.\d+)?$/.test(atom)) {
       const value = Number(atom);
-      if (!ownNumbers.some((n) => near(n, value)) && messageNumbers.some((n) => near(n, value))) out.push(atom);
+      if (!ownNumbers.some((n) => near(n, value)) && messageNumbers.some((n) => near(n, value)))
+        out.push(atom);
       continue;
     }
     // A short code (two characters with a digit, such as E1) counts; a short plain word does not.
     if (atom.length < 3 && !(atom.length === 2 && /\d/.test(atom))) continue;
     if (allowed.has(atom)) continue;
     // A text with white space is found whole; a token is found as a token.
-    if (/\s/.test(atom) ? message.includes(atom) && !own.some((text) => text.includes(atom)) : words.has(atom))
+    if (
+      /\s/.test(atom) ? message.includes(atom) && !own.some((text) => text.includes(atom)) : words.has(atom)
+    )
       out.push(atom);
   }
   return out;

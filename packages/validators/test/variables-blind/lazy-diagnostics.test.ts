@@ -22,7 +22,9 @@ describe('the diagnostics of a converted helper cost the product no read', () =>
         return reads <= 3 ? 'row.1' : 'row.2';
       },
     };
-    const plan = { rows: [{ id: 'row.1', kind: 'new' as const, values: { a: 'v0' }, logWeight: 0 }, second] } as unknown as Plan;
+    const plan = {
+      rows: [{ id: 'row.1', kind: 'new' as const, values: { a: 'v0' }, logWeight: 0 }, second],
+    } as unknown as Plan;
     expect(() => assertRowsSound(space, plan, [])).toThrow();
   });
 
