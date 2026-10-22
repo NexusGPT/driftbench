@@ -29,6 +29,11 @@ const SET = `labels:
         atom: { kind: instruction, polarity: obligation }
       - name: remark
         description: A unit that states how things are.
+      - name: bound
+        description: A unit that states a number that limits another unit.
+        target: required
+        condition: true
+        links: [limit]
 `;
 
 const sets = () => {
@@ -92,6 +97,32 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atom).toBeDefined();
     expect(atom?.fields).not.toHaveProperty('condition');
     expect(result.pointer?.dropped.join('\n')).toContain('limit');
+  });
+
+  it('puts the limit a bound unit states on the atom of the unit it points at, beside the unit id', async () => {
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Warn the skipper', '- Five minutes', ''].join('\n'),
+    });
+    const labeler = plantedDense((window) =>
+      window.path === 'CLAUDE.md'
+        ? ([
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'order' },
+            { units: '3', label: 'bound', target: 2, links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+          ] as pointer.Labelled[])
+        : [{ units: `1-${window.units.length}`, label: 'none' }],
+    );
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: { sets: sets(), labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+    });
+    const atom = atomOf(result, 'Warn the skipper');
+    const condition = atom?.fields?.condition as unknown[];
+    expect(condition).toHaveLength(2);
+    expect(condition).toContainEqual({ limit: 5, comparison: 'le', unit: 'minutes' });
+    expect(atom && variables.conditionsOf(atom).map((entry) => entry.limit)).toEqual([5]);
   });
 
   it('puts no condition on a unit that gave no limit', async () => {

@@ -155,6 +155,17 @@ function titleOf(text: string): string {
   return flat.length <= TITLE_CHARACTERS ? flat : `${flat.slice(0, TITLE_CHARACTERS - 1).trimEnd()}…`;
 }
 
+/** The limits a unit's numeric links state: the number, how a quantity is compared with it, and what it counts. */
+function limitsOf(item: LabelledUnit): Array<{ limit: number; comparison: string; unit?: string }> {
+  return (item.links ?? []).flatMap((link) =>
+    link.to !== 'none' &&
+    typeof link.value === 'number' &&
+    item.set.links?.find((kind) => kind.name === link.kind)?.number
+      ? [{ limit: link.value, comparison: link.to, ...(link.unit === undefined ? {} : { unit: link.unit }) }]
+      : [],
+  );
+}
+
 export function pointerAtoms(
   labelled: readonly LabelledUnit[],
   texts: ReadonlyMap<string, string>,
@@ -219,17 +230,10 @@ export function pointerAtoms(
     const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
     // A link of a numeric kind is a limit of the unit: the number, how a quantity is compared with it, and what it
     // counts. The atoms of the unit take them in `fields.condition`, which the variable feed reads and nothing else.
-    const limits: Array<{ limit: number; comparison: string; unit?: string }> = [];
+    const limits = [...limitsOf(item), ...conditional.flatMap(limitsOf)];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
-      if (item.set.links?.find((kind) => kind.name === link.kind)?.number && typeof link.value === 'number') {
-        limits.push({
-          limit: link.value,
-          comparison: link.to,
-          ...(link.unit === undefined ? {} : { unit: link.unit }),
-        });
-        continue;
-      }
+      if (item.set.links?.find((kind) => kind.name === link.kind)?.number) continue;
       if (item.set.links?.find((kind) => kind.name === link.kind)?.values) {
         labelLinks.push({ kind: link.kind, value: link.to });
         continue;
