@@ -318,14 +318,39 @@ export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
 
-/** `5` or `5-7` as the numbers it names. */
-export function expandUnits(units: string): number[] | undefined {
+/** `5` or `5-7` as its first and last number, without listing the numbers between. */
+export function unitRange(units: string): { from: number; to: number } | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
   if (!match) return undefined;
   const from = Number(match[1]);
   const to = Number(match[2] ?? match[1]);
-  if (to < from || to - from > 10_000) return undefined;
-  return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
+  return to < from ? undefined : { from, to };
+}
+
+/** `5` or `5-7` as the numbers it names, read with no window at hand: a range over 10,000 numbers is refused. */
+export function expandUnits(units: string): number[] | undefined {
+  const range = unitRange(units);
+  if (!range || range.to - range.from > 10_000) return undefined;
+  return Array.from({ length: range.to - range.from + 1 }, (_, offset) => range.from + offset);
+}
+
+/** The last number of a window: its units and its shown lines share one numbering. */
+function lastLine(window: Window): number {
+  let last = 0;
+  for (const unit of window.units) last = Math.max(last, unit.n);
+  for (const line of window.display ?? []) last = Math.max(last, line.n);
+  return last;
+}
+
+/**
+ * The numbers a unit reference names in a window. A range may be as wide as the window, never wider: one that runs
+ * past the window's last line is `leaves`, found without listing its numbers.
+ */
+function unitsIn(window: Window, units: string): number[] | 'leaves' | undefined {
+  const range = unitRange(units);
+  if (!range) return undefined;
+  if (range.to > lastLine(window)) return 'leaves';
+  return Array.from({ length: range.to - range.from + 1 }, (_, offset) => range.from + offset);
 }
 
 /**
@@ -342,11 +367,11 @@ export function shownLabelDrops(
   const labels: Labelled[] = [];
   const dropped: Array<{ line: number; label: string }> = [];
   for (const entry of answer) {
-    const named = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    const named = typeof entry.units === 'string' ? unitsIn(window, entry.units) : undefined;
     if (
       entry.label !== 'none' &&
       (known === undefined || known.has(entry.label)) &&
-      named &&
+      Array.isArray(named) &&
       named.length > 0 &&
       named.every((n) => shown.has(n))
     ) {
@@ -397,9 +422,13 @@ export function checkAnswer(
       refuse(`${window.id}: label-not-in-set (${set.set})`);
       continue;
     }
-    const named = expandUnits(entry.units);
+    const named = unitsIn(window, entry.units);
     if (!named) {
       refuse(`${window.id}: units-not-a-number-or-range`);
+      continue;
+    }
+    if (named === 'leaves') {
+      refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
     // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
