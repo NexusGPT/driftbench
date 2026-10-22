@@ -22,7 +22,7 @@ const BOOTSTRAP_FIELDS = ['clusters', 'iterations', 'method', 'seed'];
  */
 function engineTaint(detail) {
   const found = TAINT.exec(detail ?? '');
-  if (!found || found[2] !== 'bootstrapCI') return undefined;
+  if (found?.[2] !== 'bootstrapCI') return undefined;
   try {
     const answer = JSON.parse(found[3]);
     return BOOTSTRAP_FIELDS.some((field) => !(field in answer)) ? found[1] : undefined;
