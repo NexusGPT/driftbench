@@ -434,5 +434,13 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
+  for (const entry of done.unstable ?? []) {
+    const kinds = Object.entries(entry.kinds)
+      .map(([kind, count]) => `${kind} ${count}`)
+      .join(', ');
+    lines.push(
+      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; ${entry.label ? `labelled ${entry.label}` : 'left unlabeled'}`,
+    );
+  }
   return lines;
 }

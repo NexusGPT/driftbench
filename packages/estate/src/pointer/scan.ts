@@ -122,6 +122,20 @@ export type LabelerUsage = {
   replayedOutput: number;
 };
 
+/**
+ * A unit the runs of one labeler read two ways, near evenly: `kinds` counts the runs heard by what their label builds
+ * (an atom kind such as `gate` or `instruction`; a label that points at another unit by its name; `no atom` for the
+ * labels that build none), most given first. `label` is the label the vote gave, absent when it gave none.
+ */
+export type Unstable = {
+  unit: string;
+  path: string;
+  set: string;
+  labeler: string;
+  kinds: Record<string, number>;
+  label?: string;
+};
+
 export type PointerResult = {
   ledger: Ledger;
   events: Record<Event, number>;
@@ -168,6 +182,12 @@ export type PointerResult = {
   failedWindows: FailedWindow[];
   /** Labels dropped from an answer after the retry because they sat on lines the window shows but does not ask about. */
   droppedLabels: DroppedLabel[];
+  /**
+   * Units whose runs are one run from another outcome: the two kinds of atom most given (a gate and an instruction, or
+   * an atom and no atom) are at most one run apart, the second with two runs at least. The vote's label stands and is
+   * listed here with the count of each kind.
+   */
+  unstable: Unstable[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -945,6 +965,31 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const pick = group.find((opinion) => counts.get(key(opinion)) === top) as Opinion;
     return { winners: group.filter((opinion) => key(opinion) === key(pick)), tiedInKind: false };
   };
+  /**
+   * The kinds the runs heard on a unit gave, when the two most given are at most one run apart and the second has two
+   * runs at least: one more run could tie or turn the vote. Counted by what a label builds, so two labels of one kind
+   * (a rule and a prohibition) are one kind here; a set whose labels build no atom has no kinds and none of this.
+   */
+  const unstableKinds = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+  ): Record<string, number> | undefined => {
+    if (runs.length < 2 || !set.labels.some((label) => label.atom)) return undefined;
+    const given = heardOn(runs, index);
+    if (!given) return undefined;
+    const counts = new Map<string, number>();
+    for (const opinion of given) {
+      if (!opinion) continue;
+      const declared = set.labels.find((candidate) => candidate.name === opinion.label);
+      const kind = declared?.target ? opinion.label : (declared?.atom?.kind ?? 'no atom');
+      counts.set(kind, (counts.get(kind) ?? 0) + 1);
+    }
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const [first, second] = sorted;
+    if (!first || !second || second[1] < 2 || first[1] - second[1] > 1) return undefined;
+    return Object.fromEntries(sorted);
+  };
   /** The opinions of the runs heard on a unit: none when fewer than two of several runs are heard. */
   const heardOn = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) => {
     const heard = runs.filter(
@@ -1120,6 +1165,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   let unlabeled = 0;
   const unlabeledUnits: Array<{ unit: string; set: string }> = [];
   const flips: LabelFlip[] = [];
+  const unstable: Unstable[] = [];
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
   let fellBack = 0;
@@ -1138,6 +1184,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           set,
         );
         // A unit the labelling stops selecting keeps its place; the change of its label is reported.
+        for (const [at, runs] of byMember.entries()) {
+          const kinds = unstableKinds(runs, index, set);
+          if (!kinds) continue;
+          unstable.push({
+            unit: entry.id,
+            path: file.path,
+            set: set.set,
+            labeler: labelling.members[at]?.id ?? '',
+            kinds,
+            ...(decision ? { label: decision.label } : {}),
+          });
+        }
         if (!decision) {
           unlabeled++;
           unlabeledUnits.push({ unit: entry.id, set: set.set });
@@ -1238,6 +1296,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     warnings,
     failedWindows,
     droppedLabels,
+    unstable,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };

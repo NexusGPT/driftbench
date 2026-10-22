@@ -44,7 +44,7 @@ export const AGENT_RULES_SET = `labels:
     description: What an instruction file asks of the agent that reads it.
     spans:
       - name: governed-action
-        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+        description: The act that the rule governs or that waits for something, copied from the unit in its own words, without the words that order it.
       - name: first-call
         description: Inside the governed-action span, the call of the tool that must come first, as the unit writes it, in the fewest words that tell it from the other call, such as the command or the file name, with no quote marks and no word that orders it.
         within: governed-action
@@ -101,7 +101,7 @@ export const AGENT_RULES_SET = `labels:
         to: [subagent]
     labels:
       - name: rule
-        description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead.
+        description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, a unit that orders a read or a command before an act is a gate (gate, gate-same or gate-command), and a unit about an event the agent must get through has its own label instead.
         spans: [situation, ask-text, required-material]
         links: [reply-act, reply-part, require-tool]
         atom:
@@ -138,7 +138,7 @@ ${ALSO_REFERENCE}      - name: prohibition
             - optional: { type: tool_not_called, label: $link.forbid-tool, input: { "\${link.forbid-input}": { contains: $span.forbidden-material } } }
 ${ALSO_REFERENCE}
       - name: gate
-        description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule, unless the act it waits for changes that same file (gate-same). Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that orders a read of a file before an act, and names that file in a code span or a link. The read comes first whatever words order it, such as before the act, at the start of it, or the act done from the file or following it. Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link. A read before an act that names no file is gate-same when the act changes what is read. A read with no act after it is a reference when it names a file, and a rule when it names none.
         spans: [governed-action]
         links: [act-tool, reply-act, reply-part, order-key]
         atom:
@@ -159,7 +159,7 @@ ${ALSO_REFERENCE}
               evidence:
                 - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
       - name: gate-same
-        description: A unit that tells the reader to read something before an act that changes that same thing, and names no file for it, such as reading a file before editing it. Give the act as the governed-action span, the tool that act uses as the act-tool link, and the input the read and the change share as the order-key link. A unit that names the file to read first is a gate.
+        description: A unit that orders a read before an act that changes the same thing, and names no file for it, such as reading a file before editing it, or reading a value before changing it. It is a gate and not a rule, since the read must come first. Give the act as the governed-action span, the tool that act uses as the act-tool link, and the input the read and the change share as the order-key link. A unit that names the file to read first is a gate.
         spans: [governed-action]
         links: [act-tool, order-key]
         atom:
