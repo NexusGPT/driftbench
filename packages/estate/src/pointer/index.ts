@@ -1,5 +1,6 @@
 import { AGENT_RULES_SET } from './agent-rules';
 
+export { readSpansOf } from '../scan/claude-code';
 export { AGENT_RULES_SET } from './agent-rules';
 export { GATE_FORMS_SET, GATE_FORMS_SET_NAME, SHIPPED_LABEL_SETS } from './gate-forms-set';
 
@@ -75,6 +76,7 @@ export {
   type SpanAnswer,
   SpanKind,
   setHash,
+  shownLabelDrops,
   type Window,
   type WindowUnit,
 } from './labels';
