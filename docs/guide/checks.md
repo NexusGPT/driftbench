@@ -174,7 +174,7 @@ rules:
   forbidden_tools: [order.create, notify_sales]
 ```
 
-- `tools` lists the expected calls. `label` is the tool name, `count` is how many calls (`0` means none; it also covers the agent's helpers, and `actor: main` narrows it to the agent), and `input` says what the call must hold.
+- `tools` lists the expected calls. `label` is the tool name, `count` is how many calls (`0` means none). A count of 0 also covers the agent's helpers. `actor: main` narrows it to the agent. `input` says what the call must hold.
 - `tool_order` says how the calls line up: `exact`, `in_order` or `any_order`.
 - `tool_f1` scores the calls as a set against the expected ones. It needs a `min` from 0 to 1.
 - `rules.forbidden_tools` names tools that must never be called.

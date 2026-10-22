@@ -258,7 +258,7 @@ rules:
 The new keys:
 
 - `stages` lists the **stages** of the conversation: the named points the agent moves through. The agent reports the stage it reached, and `stage` in a block checks it. Every stage you check must be in this list.
-- `tools` lists the tool calls you expect in the block. `label` is the tool name. `count` is how many times it is called; `0` means it must not be called. A count of 0 is a prohibition, so it also covers the helpers the agent hands work to; if you mean "the main agent never calls it", add `actor: main`. `input` says what the call must hold, argument by argument. An argument can be a plain value, or `regex`, `contains`, `one_of`, `nonempty` or `absent`.
+- `tools` lists the tool calls you expect in the block. `label` is the tool name. `count` is how many times it is called; `0` means it must not be called. A count of 0 is a prohibition. It also covers the helpers the agent hands work to. To limit it to the main agent, add `actor: main`. `input` says what the call must hold, argument by argument. An argument can be a plain value, or `regex`, `contains`, `one_of`, `nonempty` or `absent`.
 - `tool_order: in_order` says the tools are called in the order listed. Other calls may sit between them.
 - `rules` holds rules for the whole conversation. `forbidden_tools` names tools that must never be called. `max_calls` caps the calls of a tool.
 
