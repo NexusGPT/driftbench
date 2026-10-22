@@ -16,7 +16,10 @@ export { type BankItem, LEVELS, type Level, variablesBank } from './bank/index';
 export type { VariablesImpl } from './interface';
 
 /** The ladder version this bank is (docs/validators.md section 12.5: floors are per ladder version). */
-export const VARIABLES_LADDER_VERSION = 2;
+export const VARIABLES_LADDER_VERSION = 3;
+// Version 3: eight levels (the store split into store-core and store-readers) and a locked level counts as failing
+// (docs/validators.md 12.5). A report of version 2 has seven levels and no locking, so its level numbers are not
+// those of a report of version 3.
 
 const LEVEL_TEXT: Record<Level, { name: string; metric: string }> = {
   'store-core': {
