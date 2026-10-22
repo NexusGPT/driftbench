@@ -93,6 +93,7 @@ export {
   OUT_OF_STEP_MIN,
   OUT_OF_STEP_SHARE,
   outOfStep,
+  REASK_LIMIT,
   type PointerInput,
   type PointerPlan,
   type PointerResult,

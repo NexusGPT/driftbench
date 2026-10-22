@@ -131,6 +131,8 @@ export type PointerResult = {
   dropped: string[];
   /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
   outOfStep: string[];
+  /** Slipped runs whose window was asked again and answered in step, with the run that took their place. */
+  reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   usage: LabelerUsage[];
@@ -204,6 +206,9 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
  */
 export const OUT_OF_STEP_SHARE = 0.25;
 export const OUT_OF_STEP_MIN = 4;
+
+/** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
+export const REASK_LIMIT = 3;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
@@ -530,6 +535,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const dropped: string[] = [];
   const failed: string[] = [];
   const outOfStepRuns: string[] = [];
+  const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
   const unheard = new WeakMap<Map<number, Opinion>, Set<number>>();
   let windows = 0;
@@ -546,6 +552,21 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     return found;
   };
+  /** The opinions of one run of a member on a file and set. */
+  const runOf = (task: Task, run: number): Map<number, Opinion> =>
+    (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[run - 1] as Map<
+      number,
+      Opinion
+    >;
+  /** Reads an answer in step and puts its opinions in the place of run `run`. */
+  const hear = (task: Task, run: number, leaf: Leaf) => {
+    const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
+    refusals.push(...read.refusals);
+    dropped.push(...(read.dropped ?? []));
+    const target = runOf(task, run);
+    for (const [index, opinion] of read.byUnit)
+      target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
+  };
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
@@ -558,22 +579,53 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         outOfStepRuns.push(
           `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
         );
-        const run = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
-          task.run - 1
-        ] as Map<number, Opinion>;
+        const run = runOf(task, task.run);
         const off = unheard.get(run) ?? new Set<number>();
         for (const unit of leaf.window.units) off.add(unit.index);
         unheard.set(run, off);
+        slippedLeaves.push({ task, window: leaf.window });
         continue;
       }
-      const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
-      refusals.push(...read.refusals);
-      dropped.push(...(read.dropped ?? []));
-      const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
-        task.run - 1
-      ] as Map<number, Opinion>;
-      for (const [index, opinion] of read.byUnit)
-        target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
+      hear(task, task.run, leaf);
+    }
+  }
+
+  // A window that lost a run to a slip is asked again, as runs after the last (6, 7 and 8 of five), until the runs heard
+  // are as many as the runs asked or REASK_LIMIT re-asks are spent. A re-ask in step takes the place of the slipped
+  // run. A re-ask is keyed by its own run number, so a replay reads the same answers; a replay whose cassette holds no
+  // re-ask leaves the slipped run unheard.
+  const reasked: string[] = [];
+  const spent = new Map<string, number>();
+  for (const { task, window } of slippedLeaves) {
+    const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${window.id}`;
+    while ((spent.get(where) ?? 0) < REASK_LIMIT) {
+      const extra = (spent.get(where) ?? 0) + 1;
+      spent.set(where, extra);
+      const again: Task = { ...task, window, run: (task.member.runs ?? 1) + extra };
+      if (input.mode === 'replay') {
+        const wire = again.member.render(again.set, window, again.context);
+        if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
+      }
+      const answered = await resolve(again, window);
+      failed.push(...answered.failures);
+      const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
+      if (!leaf) break;
+      windows++;
+      const slipped = outOfStep(leaf.answer);
+      if (slipped) {
+        outOfStepRuns.push(
+          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+        );
+        continue;
+      }
+      // The re-ask takes the slipped run's place on the units of this window.
+      const run = runOf(task, task.run);
+      for (const unit of window.units) unheard.get(run)?.delete(unit.index);
+      hear(again, task.run, leaf);
+      reasked.push(
+        `${window.id} run ${task.run} of ${task.member.id}: asked again as run ${again.run}, in step`,
+      );
+      break;
     }
   }
 
@@ -782,6 +834,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     refusals,
     dropped,
     outOfStep: outOfStepRuns,
+    reasked,
     failed,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
