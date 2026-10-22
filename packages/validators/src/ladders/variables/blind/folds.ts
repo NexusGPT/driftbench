@@ -27,6 +27,8 @@ const WORDS = [
 ] as const;
 const CONNECTORS = ['the', 'our', 'each', 'every'] as const;
 const VERBS = ['holds', 'applies', 'stays', 'counts', 'waits'] as const;
+/** The kinds of white space every white space draw holds at least once. */
+const REQUIRED_RUNS = ['   ', '\t', '\n'] as const;
 const RUNS = ['  ', '   ', '\t', '\n', ' \t', '\r\n', ' \n ', '\t\t'] as const;
 const INVISIBLE = ['​', '‌', '‍', '⁠'] as const;
 const ACCENTED = [
@@ -53,10 +55,12 @@ function sentence(rng: Rng, count = 2): string {
 
 /** The words of a sentence joined by a run of white space that is never a single space. */
 function runs(rng: Rng, text: string): string {
-  return text
-    .split(' ')
-    .map((w, i, all) => (i < all.length - 1 ? `${w}${rng.pick(RUNS)}` : w))
-    .join('');
+  const words = text.split(' ');
+  const gaps = words.length - 1;
+  // Every kind of white space the page folds is present in every draw: a run of spaces, a tab and a newline.
+  const extra = Array.from({ length: Math.max(0, gaps - REQUIRED_RUNS.length) }, () => rng.pick(RUNS));
+  const gap: string[] = rng.shuffle([...REQUIRED_RUNS, ...extra]);
+  return words.map((w, i) => (i < gaps ? `${w}${gap[i]}` : w)).join('');
 }
 
 /** Puts `mark` inside a word of the text, away from its ends. */
@@ -112,31 +116,36 @@ export const typographicQuotesInTheQuote = (rng: Rng): Pair => {
   };
 };
 
+/** A phrase that always holds an acute and a grave accent, and one more drawn accented phrase. */
+function accented(rng: Rng): string {
+  return `${rng.pick(['Le', 'Un', 'Notre'])} café crème, ${rng.pick(ACCENTED)}`;
+}
 export const composedInTheFile = (rng: Rng): Pair => {
-  const s = `${rng.pick(['Le', 'Un', 'Notre'])} ${rng.pick(ACCENTED)}`;
+  const s = accented(rng);
   return { inFile: s.normalize('NFC'), inQuote: s.normalize('NFD') };
 };
 export const decomposedInTheFile = (rng: Rng): Pair => {
-  const s = `${rng.pick(['Le', 'Un', 'Notre'])} ${rng.pick(ACCENTED)}`;
+  const s = accented(rng);
   return { inFile: s.normalize('NFD'), inQuote: s.normalize('NFC') };
 };
 
-function marked(rng: Rng, s: string, count: number, marks: readonly string[]): string {
+/** Every mark in the list is placed at least once, so a fold that misses one of them is caught on every seed. */
+function markedAll(rng: Rng, s: string, marks: readonly string[]): string {
   let out = s;
-  for (let i = 0; i < count; i += 1) out = inside(rng, out, rng.pick(marks));
+  for (const mark of rng.shuffle(marks)) out = inside(rng, out, mark);
   return out;
 }
 export const zeroWidthInTheFile = (rng: Rng): Pair => {
-  const s = sentence(rng);
-  return { inFile: marked(rng, s, rng.int(2, 4), INVISIBLE), inQuote: s };
+  const s = sentence(rng, 3);
+  return { inFile: markedAll(rng, s, INVISIBLE), inQuote: s };
 };
 export const zeroWidthInTheQuote = (rng: Rng): Pair => {
-  const s = sentence(rng);
-  return { inFile: s, inQuote: marked(rng, s, rng.int(2, 4), [...INVISIBLE, '﻿']) };
+  const s = sentence(rng, 3);
+  return { inFile: s, inQuote: markedAll(rng, s, [...INVISIBLE, '\ufeff']) };
 };
 export const softHyphen = (rng: Rng): Pair => {
-  const s = sentence(rng);
-  return { inFile: marked(rng, s, rng.int(1, 2), ['­']), inQuote: s };
+  const s = sentence(rng, 3);
+  return { inFile: markedAll(rng, s, ['\u00ad', '\u00ad']), inQuote: s };
 };
 
 export const backslashBeforeAsterisk = (rng: Rng): Pair => {
