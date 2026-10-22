@@ -19,7 +19,7 @@ jobs:
       - name: Biome
         run: pnpm exec biome check --diagnostic-level=error --max-diagnostics=200 packages/validators/src/ladders/pointer/bank packages/validators/test/pointer
       - name: Typecheck
-        run: pnpm -s tsc --noEmit -p packages/validators
+        run: pnpm run typecheck
       - name: Tests
         run: pnpm exec vitest run packages/validators/test/pointer/cr2-comment-privacy.test.ts packages/validators/test/pointer/provenance.test.ts packages/validators/test/pointer/bank.test.ts packages/validators/test/pointer/reference.test.ts packages/validators/test/pointer/hardening.test.ts packages/validators/test/pointer/cause-count.test.ts
   bank:
