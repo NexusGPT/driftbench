@@ -16,9 +16,10 @@
  * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, matchesGlob, resolve } from 'node:path';
 import {
+  helperPlan,
   intentsOf,
   loadDispatch,
   provocation,
@@ -365,7 +366,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       ? { error: true, content: 'Blocked by a hook.' }
       : refused
         ? { error: true, content: 'Denied by a permission rule of the settings.' }
-        : perform();
+        : perform(useId);
     out.push({
       type: 'user',
       message: {
@@ -392,6 +393,91 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   };
 
   const step = (name) => out.push({ fake: 'step', step: name });
+
+  /**
+   * A dispatched helper does what its rules in force declare (dispatch.mjs `helperPlan`), on the workspace, as the
+   * helper's own acts (records with `parent_tool_use_id`, the id of the Agent call): a `require` case on a folder moves
+   * each item the ask hands over (`inputs`) into that folder; each call the ask invites (`invites`) is made unless a
+   * `forbid` case of the helper refuses it (a Bash case a command that starts with its words, a Write case a file at or
+   * under its path). A rule gone from
+   * the copy declares nothing, so its act is not done, or its call is no longer refused. Nothing reads a word of prose.
+   */
+  const helper = (name, parent) => {
+    const acts = dispatch ? helperPlan(dispatch, name, cwd) : { requires: [], bans: [] };
+    const run = (command) =>
+      spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+    const shown = (ran) => ({
+      content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+      error: ran.status !== 0,
+    });
+    const own = (tool, input, result) => {
+      const useId = `toolu_helper_${++id}`;
+      out.push({
+        type: 'assistant',
+        message: {
+          id: `msg_helper_${++id}`,
+          type: 'message',
+          role: 'assistant',
+          model: 'fake-model',
+          content: [{ type: 'tool_use', id: useId, name: tool, input }],
+          usage: { input_tokens: 100, output_tokens: 20 },
+        },
+        parent_tool_use_id: parent,
+      });
+      out.push({
+        type: 'user',
+        message: {
+          role: 'user',
+          content: [
+            {
+              tool_use_id: useId,
+              type: 'tool_result',
+              content: result.content,
+              ...(result.error ? { is_error: true } : {}),
+            },
+          ],
+        },
+        parent_tool_use_id: parent,
+      });
+    };
+    // A plain relative path only: the command is made of it, and nothing outside the copy is touched.
+    const plain = (path) => /^[\w.-]+(?:\/[\w.-]+)*\/?$/.test(path) && !path.split('/').includes('..');
+    for (const required of acts.requires) {
+      if (!required.material.endsWith('/') || !plain(required.material)) continue;
+      for (const item of setOffBy.inputs ?? []) {
+        if (!plain(item) || !existsSync(join(cwd, item))) continue;
+        mkdirSync(join(cwd, required.material), { recursive: true });
+        const command = `mv ${item} ${join(required.material, basename(item))}`;
+        own('Bash', { command, description: 'File the message' }, shown(run(command)));
+      }
+    }
+    // A Bash case refuses a command that starts with its words; a Write case a file at its path or under its folder.
+    const refused = (call) =>
+      acts.bans.some((entry) => {
+        if (entry.tool !== call.tool) return false;
+        if (call.tool === 'Write') {
+          const under = entry.material.endsWith('/') && call.file_path.startsWith(entry.material);
+          return under || call.file_path === entry.material;
+        }
+        const words = call.command.trim().split(/\s+/);
+        return entry.material.trim().split(/\s+/).every((word, at) => words[at] === word);
+      });
+    for (const invited of setOffBy.invites ?? []) {
+      if (refused(invited)) continue;
+      if (invited.tool === 'Write') {
+        if (!plain(invited.file_path) || invited.file_path.endsWith('/')) continue;
+        const path = join(cwd, invited.file_path);
+        mkdirSync(dirname(path), { recursive: true });
+        writeFileSync(path, invited.content);
+        const input = { file_path: path, content: invited.content };
+        own('Write', input, { content: `File created: ${invited.file_path}` });
+        continue;
+      }
+      const input = { command: invited.command, description: 'Run the named command' };
+      own('Bash', input, shown(run(invited.command)));
+    }
+    return { content: '{"status": "done"}' };
+  };
   const { order, anytime } = walk(estate.steps);
 
   const declared = replyActOf(intent.replies);
@@ -452,9 +538,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       call(
         'Agent',
         { subagent_type: entry.name, description: `Brief for ${entry.name}`, prompt: ask },
-        () => ({
-          content: '{"status": "done"}',
-        }),
+        (useId) => helper(entry.name, useId),
       );
     }
   };
@@ -536,7 +620,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       result = call(
         'Agent',
         { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
-        () => ({ content: '{"status": "done"}' }),
+        (useId) => helper(action.literal, useId),
       );
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
