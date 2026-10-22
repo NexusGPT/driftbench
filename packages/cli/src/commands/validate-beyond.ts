@@ -36,3 +36,35 @@ function notRun(row: LevelRow): LevelRow {
   const { bank: _bank, items: _items, beyond: _beyond, ...bare } = row;
   return { ...bare, observed: null, pass: null, itemCount: null };
 }
+
+/**
+ * The inverse of `splitBeyond`, for `--reports`: a leg that holds `beyondTheFirstFailingLevel` gets each level of
+ * that section back in its row, as the unsplit run wrote it (its measure, `pass` from `metThreshold`, `beyond`, its
+ * bank, items and any measurement error), so the join reads exactly what the run measured: a measurement error at
+ * any level still stops it, and a full join finds every level. A section that does not fit its rows is refused with
+ * a message.
+ */
+export function unsplitBeyond(
+  leg: LadderReport & { beyondTheFirstFailingLevel?: unknown },
+): LadderReport | string {
+  const { beyondTheFirstFailingLevel: section, ...report } = leg;
+  if (section === undefined) return report;
+  const seeds = (section as Partial<BeyondSection> | null)?.seeds;
+  if (!Array.isArray(seeds)) return 'its beyondTheFirstFailingLevel section holds no seeds';
+  const runs = report.seeds.map((run) => ({ ...run, rows: [...run.rows] }));
+  for (const entry of seeds as BeyondSeed[]) {
+    const run = runs.find(
+      (candidate) => candidate.seed === entry?.seed && candidate.hidden === entry?.hidden,
+    );
+    if (!run || !Array.isArray(entry.levels)) return 'its beyond section names a seed it does not hold';
+    for (const level of entry.levels) {
+      const index = level?.level - 1;
+      const row = run.rows[index];
+      if (!row || row.id !== level.id || row.pass !== null || !(level.level > entry.firstFailingLevel))
+        return `its beyond section does not fit level ${String(level?.level)} of seed ${run.seed}`;
+      const { metThreshold, ...measure } = level;
+      run.rows[index] = { ...measure, pass: metThreshold, beyond: true };
+    }
+  }
+  return { ...report, seeds: runs };
+}

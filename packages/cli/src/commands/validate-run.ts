@@ -56,7 +56,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { measuredSeeds, withinStatsMeasurementSweep } from './stats-sweep-cache';
 import { USAGE_EXIT, type ValidateCommandOptions, type ValidateDeps } from './validate';
-import { splitBeyond } from './validate-beyond';
+import { splitBeyond, unsplitBeyond } from './validate-beyond';
 
 export const defaultValidateDeps: ValidateDeps = {
   ladders: registeredLadders,
@@ -400,6 +400,7 @@ function joinLegs(
     level: Math.min(...runs.map((run) => run.level)),
     top: ladder.levels.length,
     seeds: runs,
+    ...(ladder.beyondApart ? { beyondApart: true as const } : {}),
   };
 }
 
@@ -440,7 +441,13 @@ function readLegs(
         return undefined;
       }
       if (!wanted.has(item.component)) continue;
-      legs.set(item.component, [...(legs.get(item.component) ?? []), item]);
+      // A leg that reported the levels beyond its first failure apart gets them back in its rows first.
+      const whole = unsplitBeyond(item);
+      if (typeof whole === 'string') {
+        io.err(`${name}: ${whole}.\n`);
+        return undefined;
+      }
+      legs.set(item.component, [...(legs.get(item.component) ?? []), whole as Leg]);
       hidden = item.hiddenSeed ?? hidden;
     }
   }
