@@ -192,7 +192,7 @@ export type EstateReport = {
     scripts: number;
     helpers: number;
     cases: number;
-    /** Catalogue checks: tested through their host hook, or a gap for want of a trigger or a host. */
+    /** Catalogue checks: tested through their host guard, or a gap for want of a trigger or a host. */
     checks: { tested: number; needsTrigger: number; needsHost: number };
     skipped: string[];
   };
