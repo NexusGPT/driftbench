@@ -63,6 +63,35 @@ function sideBodyProduct(sideOf: (candidates: unknown[], other: string) => strin
       );
       return { ...built, labelling: { ...built.labelling, members } };
     },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
+      if (!built.ok) return built;
+      const send = (args[1] as any).fetch;
+      if (typeof send !== 'function') throw new Error('the reader options have no fetch');
+      const members = built.labelling.members.map((member) =>
+        Object.create(member, {
+          render: {
+            value: (set: any, window: any, context: any) => {
+              const wire = member.render(set, window, { ...context, candidates: {} });
+              const candidates = Object.values(context?.candidates ?? {}).flatMap((list: any) =>
+                list.map((c: any) => ({ id: c.shown ?? c.id, title: c.label })),
+              );
+              auxiliary.set(wire, sideOf(candidates, state.other));
+              return wire;
+            },
+          },
+          call: {
+            value: async (wire: any, ...rest: any[]) => {
+              const body = auxiliary.get(wire);
+              if (body !== undefined)
+                await send('https://api.anthropic.com/v1/messages', { method: 'POST', body });
+              return (member.call as any).call(member, wire, ...rest);
+            },
+          },
+        }),
+      );
+      return { ...built, labelling: { ...built.labelling, members } };
+    },
   };
 }
 

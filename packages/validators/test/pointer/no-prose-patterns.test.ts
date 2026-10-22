@@ -918,6 +918,12 @@ const ALLOWED: Allowance[] = [
     count: 2,
   },
   {
+    file: 'bank/families/hardening-privacy.ts',
+    anchor: 'bodiesOf',
+    expr: '/\\\\u([0-9a-f]{4})/gi',
+    reason: 'decodes the \\\\u escapes of the request bodies the READER sent (JSON text), not prose',
+  },
+  {
     file: 'blind/bank/privacy.ts',
     anchor: 'decoded',
     expr: '/\\\\u([0-9a-f]{4})/gi',
@@ -1548,6 +1554,13 @@ const ALLOWED: Allowance[] = [
     anchor: 'needs',
     expr: "['scan', 'transport', 'cassette']",
     reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/hardening-privacy.ts',
+    anchor: 'needs',
+    expr: "['scan', 'transport']",
+    reason: REASON.NEEDS,
+    count: 3,
   },
   {
     file: 'bank/specs/hardening.ts',

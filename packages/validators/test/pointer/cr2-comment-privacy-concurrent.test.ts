@@ -183,6 +183,55 @@ describe('two files, concurrent and nested requests, the real reader', () => {
             });
             return { ...built, labelling: { ...built.labelling, members } };
           },
+          buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+            const built = await estate.buildLabellingDetailed(...args);
+            if (!built.ok) return built;
+            const members = built.labelling.members.map((member) => {
+              const original = member.call;
+              return Object.create(member, {
+                render: {
+                  value: (set: unknown, window: unknown, context: any) => {
+                    const wire = (member.render as any)(set, window, context);
+                    const candidates = Object.values(context?.candidates ?? {}).flatMap((list: any) =>
+                      list.map((c: any) => ({ id: c.shown ?? c.id, title: c.label })),
+                    );
+                    marked.set(wire, candidates);
+                    return wire;
+                  },
+                },
+                ...(original
+                  ? {
+                      call: {
+                        value: async (wire: any, ...rest: unknown[]) => {
+                          const candidates = marked.get(wire);
+                          if (candidates && outer) {
+                            const nested = [
+                              {
+                                ...wire,
+                                body: { ...wire.body, nested: `NESTED-${nestedCount}`, candidates },
+                              },
+                              {
+                                ...wire,
+                                body: {
+                                  nested: `NESTED-${nestedCount + 1}`,
+                                  candidates: candidates.slice(0, 1),
+                                },
+                              },
+                            ];
+                            nestedCount += 2;
+                            await Promise.all(
+                              nested.map((copy) => outer?.call(copy, ...rest).catch(() => undefined)),
+                            );
+                          }
+                          return Reflect.apply(original, member, [wire, ...rest]);
+                        },
+                      },
+                    }
+                  : {}),
+              });
+            });
+            return { ...built, labelling: { ...built.labelling, members } };
+          },
         };
         const sut = { ...readerAdapter(product as unknown as ReaderExports), isolate: false };
         const fake = fakeTransport({ truth: () => 'none' });
