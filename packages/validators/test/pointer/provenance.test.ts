@@ -9,14 +9,15 @@ import { referenceSut } from './reference/index';
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
 
 describe('the provenance of the first bank', () => {
-  it('labels every item, and the labels cover the 419 items', () => {
-    expect(pointerBank()).toHaveLength(419);
-    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(419);
+  it('labels every item, and the labels cover the 470 items', () => {
+    expect(pointerBank()).toHaveLength(470);
+    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(470);
   });
 
-  it('labels the stack and label-set validation items as maintainer-added', () => {
+  it('labels the stack and label-set validation items and the golden family maintainer-added', () => {
     const added = pointerBank().filter((i) => i.provenance === 'maintainer-added');
-    expect(added.every((i) => /^labels\.(stack-|set-validation-)/.test(i.id))).toBe(true);
+    const later = /^labels\.(stack-|set-validation-)|^golden\./;
+    expect(added.every((i) => later.test(i.id))).toBe(true);
   });
 });
 
@@ -25,9 +26,9 @@ describe('the first bank claims no blind item', () => {
     expect(pointerBank().filter((i) => i.provenance === 'blind')).toEqual([]);
   });
 
-  it('labels the 402 original items maintainer-repaired and the 17 later ones maintainer-added', () => {
+  it('labels the 402 original items maintainer-repaired and the 68 later ones maintainer-added', () => {
     expect(count('maintainer-repaired')).toBe(402);
-    expect(count('maintainer-added')).toBe(17);
+    expect(count('maintainer-added')).toBe(68);
   });
 });
 
