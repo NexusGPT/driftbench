@@ -100,6 +100,7 @@ type RResult = {
   /** Observability extensions: absence is not an empty observation. */
   failedWindows?: Array<{ window: string; set: string; labeler: string; reason: string }>;
   unlabeledUnits?: Array<{ unit: string; set: string }>;
+  droppedLabels?: Array<{ window: string; set: string; labeler: string; line: number; label: string }>;
   flips?: Array<{ unit: string; set: string; from: string; to?: string }>;
   recorded: number;
 };
@@ -546,6 +547,11 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       code: 'failed-window',
       ...(failed.window !== undefined ? { window: failed.window } : {}),
       detail: `${failed.window ?? ''} (${failed.set}, ${failed.labeler}): ${failed.reason}`,
+    })),
+    ...(result.droppedLabels ?? []).map((drop) => ({
+      code: 'dropped-label',
+      window: drop.window,
+      detail: `${drop.window} (${drop.set}, ${drop.labeler}): the label ${drop.label} on the shown line ${drop.line} was dropped`,
     })),
     ...(result.unlabeledUnits ?? []).map((gap) => ({
       code: 'unlabeled',
