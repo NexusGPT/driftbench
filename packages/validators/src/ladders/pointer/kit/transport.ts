@@ -3,9 +3,13 @@ import type { FetchRequest, FetchResponse, Transport } from '../sut/port';
 import { truthLabel } from './labellers';
 
 /**
- * A fake model endpoint. It answers a Haiku dense request or a Jev question request from the hidden truth, reads
+ * A fake model endpoint. It answers a Haiku dense request or a Jev choice request from the hidden truth, reads
  * the numbered units out of whatever the request carries, and keeps every call so an item can count and inspect
  * them. It never reads a key and never opens a socket.
+ *
+ * The Jev request is one choice question per unit: `questions.u<n> = { type: 'choice', instructions, criteria }`,
+ * where `criteria` maps each option (the labels of the set, then `none`) to its definition. The answer is
+ * `answers.u<n>.probabilities`, a map from option to probability.
  */
 
 export type ParsedCall = {
@@ -14,7 +18,10 @@ export type ParsedCall = {
   labels: string[];
   window: string;
   units: Array<{ n: number; text: string; mode: 'label' | 'context' | 'read' }>;
+  /** The key of every question of a Jev request: u<n>, one per unit. */
   questions: string[];
+  /** The Jev questions in request order, read as structure: key, unit number, type and the options in order. */
+  choices: Array<{ key: string; n: number; type: string; options: string[] }>;
   body: string;
   headers: Record<string, string>;
 };
@@ -22,8 +29,11 @@ export type ParsedCall = {
 export type FakeOptions = {
   /** The label of a unit text; default the planted truth. */
   truth?: (text: string) => string;
-  /** The probability of yes for (text, label); default 0.95 for the truth label, 0.05 otherwise. */
-  probability?: (text: string, label: string, truth: string) => number;
+  /**
+   * The probability vector of a Jev choice for (text, options): a map from every option, `none` among them, to
+   * its probability. Default: 0.9 for the truth label and the rest shared evenly.
+   */
+  vector?: (text: string, options: string[], truth: string) => Record<string, number>;
   model?: string;
   /** Replaces the response of call number `index` (0-based) when it returns one. */
   respond?: (index: number, call: ParsedCall, base: FetchResponse) => FetchResponse | undefined;
@@ -61,19 +71,31 @@ export function parseCall(request: FetchRequest): ParsedCall {
         mode: (m[2] as 'context' | 'read' | undefined) ?? 'label',
       });
   }
-  const questions = arm === 'jev' ? Object.keys((record.questions ?? {}) as object) : [];
+  const asked = (arm === 'jev' ? (record.questions ?? {}) : {}) as Record<string, unknown>;
+  const questions = Object.keys(asked);
+  const choices = questions.map((key) => {
+    const question = (asked[key] ?? {}) as { type?: unknown; criteria?: unknown };
+    const criteria = question.criteria && typeof question.criteria === 'object' ? question.criteria : {};
+    return {
+      key,
+      n: Number(/^u(\d+)$/.exec(key)?.[1] ?? 0),
+      type: typeof question.type === 'string' ? question.type : '',
+      options: Object.keys(criteria),
+    };
+  });
   if (arm === 'jev' && units.length === 0 && questions.length > 0) {
-    const n = Number(/^u(\d+)__/.exec(questions[0] as string)?.[1] ?? 1);
+    const n = Number(/^u(\d+)$/.exec(questions[0] as string)?.[1] ?? 1);
     const longest = [...all].sort((a, b) => b.length - a.length)[0] ?? '';
     units.push({ n, text: longest, mode: 'label' });
   }
   const labelsLine = /^LABELS (.*)$/m.exec(text)?.[1];
-  const labels = labelsLine
+  const fromLine = labelsLine
     ? labelsLine
         .split('|')
         .map((s) => s.trim())
         .filter((s) => s !== 'none' && s !== '')
     : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
+  const labels = arm === 'jev' ? (choices[0]?.options ?? []).filter((o) => o !== 'none') : fromLine;
   return {
     arm,
     set:
@@ -85,6 +107,7 @@ export function parseCall(request: FetchRequest): ParsedCall {
     window: /^WINDOW (\S+)/m.exec(text)?.[1] ?? '',
     units,
     questions,
+    choices,
     body: request.body,
     headers: request.headers,
   };
@@ -102,8 +125,12 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
       const digest = createHash('sha256').update(text).digest();
       return plain[(digest[0] as number) % plain.length] as string;
     };
-  const probability =
-    options.probability ?? ((_text: string, label: string, want: string) => (label === want ? 0.95 : 0.05));
+  const vector =
+    options.vector ??
+    ((_text: string, all: string[], want: string): Record<string, number> => {
+      const rest = Math.round((0.1 / Math.max(1, all.length - 1)) * 1e4) / 1e4;
+      return Object.fromEntries(all.map((o) => [o, o === want ? 0.9 : rest]));
+    });
   const calls: ParsedCall[] = [];
   const transport = (async (request: FetchRequest): Promise<FetchResponse> => {
     const call = parseCall(request);
@@ -111,14 +138,12 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
     calls.push(call);
     let base: FetchResponse;
     if (call.arm === 'jev') {
-      const answers: Record<string, { noul: number }> = {};
+      const answers: Record<string, { probabilities: Record<string, number> }> = {};
       const text = new Map(call.units.map((u) => [u.n, u.text]));
       const truth = truthFor(call);
-      for (const key of call.questions) {
-        const m = /^u(\d+)__(.+)$/.exec(key);
-        const unitText = text.get(Number(m?.[1])) ?? '';
-        const want = truth(unitText);
-        answers[key] = { noul: probability(unitText, m?.[2] ?? '', want) };
+      for (const choice of call.choices) {
+        const unitText = text.get(choice.n) ?? '';
+        answers[choice.key] = { probabilities: vector(unitText, choice.options, truth(unitText)) };
       }
       base = { status: 200, body: JSON.stringify({ model: options.model ?? 'jev-fake-1', answers }) };
     } else {

@@ -274,9 +274,12 @@ export {
 export { type SessionRateResult, type SessionRun, sessionRate } from './session';
 export { runStaticTests, type StaticInput, type StaticResult } from './static';
 export {
+  candidateMaterials,
   casesFromSource,
   ESTATE_CONFIG_FILE,
+  guardLiterals,
   type HelperObservation,
+  MAX_CANDIDATES,
   neutral,
   observeHelper,
   observeUnitTests,
