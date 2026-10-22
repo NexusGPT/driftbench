@@ -88,6 +88,7 @@ async function record(estate: EstateName, key: string) {
       console.log(
         `estate ${estate}: ${seen.length} requests assembled, ${seen.filter((u) => u.includes('PREVIOUS UNIT:')).length} with a previous unit, ${seen.filter((u) => u.includes('NEXT UNIT:')).length} with a next unit, ${both.length} with both`,
       );
+      if (estate === 'A') console.log(`--- system ---\n${variables.LIMIT_SYSTEM}`);
       if (estate === 'A') console.log(`--- one request ---\n${both[3] ?? both[0] ?? seen[0]}\n---`);
     }
     const quotes = { length: produced.requests };
