@@ -612,6 +612,7 @@ async function outcomesOn(
  */
 export async function runAll(generated: Generation, parts: GeneratorParts = {}): Promise<Runs> {
   const { hidden } = generated;
+  const book = stageBookOf(generated.complete.map((entry) => entry.spec));
   const k = parts.k ?? REFERENCE_REPEATS;
   const context = runContext();
   const followerSession = (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(hidden);
@@ -670,12 +671,12 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
-        from: startStageOf(spec, index),
+        from: startStageOf(spec, index, book),
         path: (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '',
         walk: contentHash(
           spec.blocks.map((_, at) => [
             answersOf(spec, at),
-            startStageOf(spec, at),
+            startStageOf(spec, at, book),
             machineSignature(spec, at),
           ]),
         ),
@@ -752,23 +753,46 @@ export function answersOf(spec: Spec, index: number): string {
 }
 
 /** The stage a block starts from: part of its Given, so a copy said from another stage is another test. */
-export function startStageOf(spec: Spec, index: number): string {
+export function startStageOf(spec: Spec, index: number, book: StageBook): string {
   return (
-    declaredStageBefore(spec, index) ??
+    declaredStageBefore(spec, index, book) ??
     (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ??
     ''
   );
 }
 
+/** Per history, the stages the written specs of a suite reach after saying it (the hash of its messages). */
+export type StageBook = Map<string, Set<string>>;
+
+/**
+ * What each written spec says about where a history leaves the agent: after block k - 1 of a spec, the history of
+ * blocks 0 to k - 1 and the stage block k - 1 expects. A declared start stage is checked against this book.
+ */
+export function stageBookOf(specs: readonly Spec[]): StageBook {
+  const book: StageBook = new Map();
+  for (const spec of specs)
+    spec.blocks.forEach((block, index) => {
+      const stage = block.expect?.stage;
+      if (stage === undefined) return;
+      const key = contentHash(canonicalGiven(spec, index + 1).prefix);
+      book.set(key, (book.get(key) ?? new Set()).add(stage));
+    });
+  return book;
+}
+
 /**
  * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
- * block that starts from a prefix declares. Undefined when nothing is said, so a spec without one reads as before.
+ * block that starts from a prefix declares. A declared stage counts only when a written spec of the suite leaves
+ * the agent at that stage after the same history: an unconfirmed one is not read, so declaring a stage cannot
+ * dodge a check. Undefined when nothing is said, so a spec without one reads as before.
  */
-export function declaredStageBefore(spec: Spec, index: number): string | undefined {
+export function declaredStageBefore(spec: Spec, index: number, book: StageBook): string | undefined {
   for (let at = index; at >= 0; at -= 1) {
     const block = spec.blocks[at];
     if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
-    if (block?.given?.stage !== undefined) return block.given.stage;
+    const declared = block?.given?.stage;
+    if (declared !== undefined && block?.given?.prefix !== undefined)
+      if (book.get(contentHash(block.given.prefix))?.has(declared)) return declared;
   }
   return undefined;
 }

@@ -1,7 +1,7 @@
 import { canonicalGiven } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData } from '../../src/ladders/generator/bank';
-import { type Generation, startStageOf } from '../../src/ladders/generator/measure';
+import { type Generation, stageBookOf, startStageOf } from '../../src/ladders/generator/measure';
 
 function required<T>(value: T | undefined): T {
   if (value === undefined) throw new Error('missing fixture value');
@@ -49,8 +49,9 @@ describe('a prefix-started walk says where it starts', async () => {
     return { ...source, spec };
   };
 
-  const recovery = async (entry: Generation['complete'][number]) => {
-    const mini: Generation = { ...generated, complete: [entry] };
+  // The suite holds the walk the opening comes from (its parent) unless a case says it does not.
+  const recovery = async (entry: Generation['complete'][number], withParent = true) => {
+    const mini: Generation = { ...generated, complete: withParent ? [source, entry] : [entry] };
     const data = new SeedData(1, {}, async () => ({}) as never);
     await data.memoized('generated', async () => mini);
     const item = required(bankItems().find((each) => each.id === `perturbation.recovery.${cls}`));
@@ -58,8 +59,9 @@ describe('a prefix-started walk says where it starts', async () => {
   };
 
   it('reads the declared stage as the start of the walk', () => {
-    expect(startStageOf(started(real).spec, 0)).toBe(real);
-    expect(startStageOf(started(undefined).spec, 0)).toBe(source.spec.stages?.[0] ?? '');
+    const book = stageBookOf([source.spec]);
+    expect(startStageOf(started(real).spec, 0, book)).toBe(real);
+    expect(startStageOf(started(undefined).spec, 0, book)).toBe(source.spec.stages?.[0] ?? '');
   });
 
   it('passes the recovery check when the declared stage is the true one', async () => {
@@ -70,6 +72,13 @@ describe('a prefix-started walk says where it starts', async () => {
     const wrong = required(source.spec.stages?.find((stage) => stage !== real));
     const verdict = await recovery(started(wrong));
     expect(verdict.pass).toBe(false);
+  }, 600_000);
+
+  it('does not read a declared stage no written walk of the suite confirms', async () => {
+    // The true stage, but the suite holds no walk that says this opening: a generator could declare any stage.
+    const verdict = await recovery(started(real), false);
+    expect(verdict.pass).toBe(false);
+    expect(startStageOf(started(real).spec, 0, stageBookOf([]))).toBe(source.spec.stages?.[0] ?? '');
   }, 600_000);
 
   it('reads a walk with no declared stage as before', async () => {
