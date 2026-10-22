@@ -360,10 +360,9 @@ export function checkAnswer(
       continue;
     }
     const numbers = named.filter((n) => inWindow.has(n));
-    if (numbers.length === 0) {
-      refuse(`${window.id}: "${entry.units}" names no unit to label`);
-      continue;
-    }
+    // An entry that names only shown lines (the model calls them none) has nothing to label: it is dropped, and the
+    // answer stands.
+    if (numbers.length === 0) continue;
     if (numbers.some((n) => covered.has(n))) {
       refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;

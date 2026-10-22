@@ -221,8 +221,14 @@ describe('checking an answer', () => {
     const outside = checkAnswer(counter, shown, [{ units: '1-9', label: 'greeting' }]);
     expect(outside.refusals).toEqual(['notes.md#1: "1-9" leaves the window']);
     expect(outside.accepted.size).toBe(0);
-    // A number that names only a display line is no unit to label.
-    expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).accepted.size).toBe(0);
+    // An entry that names only display lines has nothing to label: it is dropped, and the answer is not refused.
+    const only = checkAnswer(counter, shown, [
+      { units: '3', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ]);
+    expect(only.refusals).toEqual([]);
+    expect(only.invalid).toEqual([]);
+    expect([...only.accepted.keys()]).toEqual([1, 2]);
   });
 
   it('refuses a label that is not in the set, with the reason', () => {
