@@ -69,7 +69,11 @@ describe('driftbench estate generate on a hazard with no declared recovery', () 
     expect(withoutJudge.code).toBe(1);
     expect(await hazardSpecs(join(bare, 'specs'))).toEqual([]);
     expect(await hazardSpecs(join(bare, 'incomplete'))).toHaveLength(1);
-    const report = await readFile(join(bare, 'estate-generate-report.json'), 'utf8');
-    expect(report).toContain('hazard_recovery requires declared reread, calls or retry evidence');
+    const report = JSON.parse(await readFile(join(bare, 'estate-generate-report.json'), 'utf8')) as {
+      incomplete: Array<{ path: string; reasons: Array<{ marker: string }> }>;
+    };
+    const waiting = report.incomplete.filter((entry) => entry.path.includes('hazard_recovery'));
+    expect(waiting).toHaveLength(1);
+    expect(waiting[0]?.reasons.map((reason) => reason.marker)).toEqual(['needs-registered-check']);
   }, 120_000);
 });
