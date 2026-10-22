@@ -604,6 +604,8 @@ atoms:
       tool: Bash
       effect: declared
       rule: Bash
+      rules:
+        - Bash(./scripts/track.sh *)
   - id: setting.settings.setting-model-is-opus
     kind: setting
     title: Setting model is opus
