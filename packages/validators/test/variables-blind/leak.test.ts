@@ -60,7 +60,9 @@ describe('the failure messages of the blind bank repeat no expected value', () =
       byRule.set(l.rule, e);
     }
     for (const [rule, e] of [...byRule].sort((x, y) => y[1].n - x[1].n).slice(0, 12))
-      console.log(`leak ${e.n} x ${rule.slice(0, 80)} :: ${[...e.atoms].slice(0, 4).join(' | ').slice(0, 160)}`);
+      console.log(
+        `leak ${e.n} x ${rule.slice(0, 80)} :: ${[...e.atoms].slice(0, 4).join(' | ').slice(0, 160)}`,
+      );
     expect(report.leaking).toEqual([]);
     expect(report.unstructured).toBeLessThanOrEqual(UNSTRUCTURED_MAX);
     expect(report.structured).toBeGreaterThan(0);

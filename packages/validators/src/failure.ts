@@ -92,11 +92,10 @@ export function leaksOf(failure: ItemFailure): string[] {
   if (fields.expected === undefined) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.
-  const allowed = new Set<string>([
-    ...atomsOf(fields.input),
-    ...atomsOf(fields.got),
-    ...atomsOf(fields.item),
-  ]);
+  const allowed = new Set<string>([...atomsOf(fields.input), ...atomsOf(fields.got), ...atomsOf(fields.item)]);
+  // Whatever the input and the output of the product print, in the words a message would read them, is theirs.
+  for (const text of [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''])
+    for (const token of text.match(TOKEN) ?? []) allowed.add(token);
   const words = new Set<string>(failure.message.match(TOKEN) ?? []);
   for (const atom of atomsOf(fields.expected)) {
     if (atom.length < 3 || allowed.has(atom)) continue;
