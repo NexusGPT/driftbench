@@ -127,6 +127,7 @@ export function contractRows(
   const ownerOf = rowOwners(atoms, edges);
   const navigation = navigationFiles(map.documents);
   const routed = new Set(edges.filter((edge) => edge.kind === 'route').map((edge) => edge.to));
+  const sectionMates = sectionGroups(atoms);
   const rows: DraftRow[] = [];
   for (const kind of kinds) {
     for (const atom of atoms.filter((candidate) => candidate.kind === kind)) {
@@ -142,7 +143,13 @@ export function contractRows(
         testType,
         ...(extra.note ? { note: extra.note } : {}),
       });
-      rows.push(...rowsOf(atom, row, { ...options, routed: routed.has(atom.id), edges }));
+      const made = rowsOf(atom, row, { ...options, routed: routed.has(atom.id), edges });
+      // The atoms that read the same section of the same file apply together: the first of them names the others
+      // on its first contract row, so one row exercises the group.
+      const mates = sectionMates.get(atom.id);
+      const first = made[0];
+      if (mates && first) made[0] = { ...first, atomIds: [...first.atomIds, ...mates] };
+      rows.push(...made);
     }
   }
   return rows;
@@ -295,4 +302,35 @@ function quoteOf(text: string): string {
   const flat = text.replace(/\s+/g, ' ').trim();
   const short = flat.length > 80 ? `${flat.slice(0, 77)}...` : flat;
   return `"${short}"`;
+}
+
+/** The kinds of atom that state a duty and so apply together with the duties beside them. */
+const DUTY_KINDS: ReadonlySet<AtomKind> = new Set(['instruction', 'gate']);
+
+/** The headings an atom carries from its unit, outermost first; none for an atom read without them. */
+function sectionOf(atom: Atom): string[] | undefined {
+  const section = atom.fields?.section;
+  if (!Array.isArray(section) || section.length === 0) return undefined;
+  return section.every((heading) => typeof heading === 'string') ? (section as string[]) : undefined;
+}
+
+/**
+ * The atoms of one section of one file, from the headings the scan recorded: the first atom of the section in map
+ * order, with the others. An atom with no recorded section, or alone in its section, has no entry. Nothing reads
+ * the words of the estate: the key is the file and the heading path the scan cut.
+ */
+export function sectionGroups(atoms: readonly Atom[]): Map<string, string[]> {
+  const groups = new Map<string, string[]>();
+  for (const atom of atoms) {
+    const section = sectionOf(atom);
+    if (!section || !DUTY_KINDS.has(atom.kind)) continue;
+    const key = JSON.stringify([atom.provenance.file, section]);
+    groups.set(key, [...(groups.get(key) ?? []), atom.id]);
+  }
+  const mates = new Map<string, string[]>();
+  for (const ids of groups.values()) {
+    const [head, ...rest] = ids;
+    if (head !== undefined && rest.length > 0) mates.set(head, rest);
+  }
+  return mates;
 }

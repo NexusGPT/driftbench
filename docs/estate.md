@@ -524,11 +524,11 @@ The plan of the approved Northwind map:
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
 Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1309 (a cell is the atoms of a row crossed with its situation values).
+  Cells: 1313 (a cell is the atoms of a row crossed with its situation values).
   Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction    93
-    gate           12
+    instruction    95
+    gate           13
     route          65
     skill         114
     reference       8
@@ -571,7 +571,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 jou
     setting             4
     journey            10
   Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1309 of 1309.
+  Cells with no approved phrase: 1313 of 1313.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
