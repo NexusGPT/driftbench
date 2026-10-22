@@ -396,6 +396,11 @@ type Answers = {
 };
 
 const rowsOf = (plan: PlanV2): Cell[] => plan.rows.map((row) => row.values);
+/** Two rows hold the same values, whatever order their keys are written in. */
+const sameValues = (a: Cell | undefined, b: Cell | undefined) =>
+  a !== undefined &&
+  b !== undefined &&
+  JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort());
 
 /**
  * Every field of the report, layer by layer, against the oracle's count: the layers must be exactly the three,
@@ -905,8 +910,7 @@ const STEMS: {
       const { seeds, plan } = a.partial;
       const head = plan.rows.slice(0, seeds.length);
       const kept = head.every(
-        (row, at) =>
-          row.source === 'seed' && JSON.stringify(row.values) === JSON.stringify(seeds[at]?.values),
+        (row, at) => row.source === 'seed' && sameValues(row.values, seeds[at]?.values),
       );
       if (!kept) return verdict(false, 'the partial seeds do not lead the plan with exactly their own values');
       const missing = [
@@ -926,16 +930,14 @@ const STEMS: {
   {
     id: 'seed-forbidden-kept',
     cause: `${FILES.plan}: keep a seed that holds a forbidden combination, and warn seed_forbidden`,
-    when: (shape) => shape.forbids > 0 || shape.special !== undefined,
+    // On the unapproved shape a drawn constraint may name the value nobody approved, and then it forbids nothing.
+    when: (shape) => (shape.forbids > 0 || shape.special !== undefined) && !shape.unapproved,
     check: (a) => {
       const got = a.forbidden;
       if (!got) throw new Error('the store of this shape has no constraint');
       const [seed] = got.seeds as [PlanSeedRow];
       const row = got.plan.rows[0];
-      const kept =
-        row?.source === 'seed' &&
-        row.id === `seed.${seed.id}` &&
-        JSON.stringify(row.values) === JSON.stringify(seed.values);
+      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
       );
@@ -953,7 +955,7 @@ const STEMS: {
       const [seed] = got.seeds as [PlanSeedRow];
       const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && JSON.stringify(row.values) === JSON.stringify(seed.values);
+      const kept = row?.source === 'seed' && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) =>
           warning.code === 'seed_unapproved_value' &&
