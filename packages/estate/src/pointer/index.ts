@@ -149,6 +149,7 @@ export {
   SPLIT_REASK_ATTEMPTS,
   SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
+  type Unstable,
   windowsOf,
 } from './scan';
 export {
