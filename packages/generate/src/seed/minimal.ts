@@ -247,14 +247,16 @@ export class TerminalSubsumption {
     if (length === 0) return spec;
     // A declaration keeps the block it names and the ones before it (measured in dropMiddle): the opening is those.
     if (spec.perturbations?.length) return spec;
-    // The recovery check reads the stage before an injection from the earlier blocks, and a Given carries no stage.
-    if (spec.blocks.some((block) => block.when && 'injection' in block.when)) return spec;
     if (!spec.blocks.slice(0, length).every((block) => this.phrasesHold(block))) return spec;
+    // The walk says where it starts: a Given carries the stage, and a cut before a block that names none is not made.
+    const stage = spec.blocks[length - 1]?.expect?.stage;
+    if (stage === undefined) return spec;
     const start = canonicalGiven(spec, length);
     const state = start.state;
     const given = {
       prefix: start.prefix,
       origin: 'canonical' as const,
+      stage,
       ...(Object.keys(state.ledger ?? {}).length > 0 ? { ledger: state.ledger } : {}),
       ...(Object.keys(state.world ?? {}).length > 0 ? { world: state.world } : {}),
       ...(Object.keys(state.vars ?? {}).length > 0 ? { vars: state.vars } : {}),
