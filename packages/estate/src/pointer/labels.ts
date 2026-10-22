@@ -308,6 +308,27 @@ export function expandUnits(units: string): number[] | undefined {
   return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
 }
 
+/**
+ * Splits an answer into the entries that stand and the labels it put on shown lines alone (read, context, opaque),
+ * which a window never asks about. An entry that names a unit besides stands; a `none` on shown lines stands too,
+ * the check ignores it. `dropped` lists each dropped line with the label it was given.
+ */
+export function shownLabelDrops(
+  window: Window,
+  answer: readonly Labelled[],
+): { labels: Labelled[]; dropped: Array<{ line: number; label: string }> } {
+  const shown = new Set((window.display ?? []).map((line) => line.n));
+  const labels: Labelled[] = [];
+  const dropped: Array<{ line: number; label: string }> = [];
+  for (const entry of answer) {
+    const named = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    if (entry.label !== 'none' && named && named.length > 0 && named.every((n) => shown.has(n))) {
+      for (const line of named) dropped.push({ line, label: entry.label });
+    } else labels.push(entry);
+  }
+  return { labels, dropped };
+}
+
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
   accepted: Map<number, { label: string; target?: number; spans?: SpanAnswer[]; links?: LinkAnswer[] }>;
@@ -335,6 +356,7 @@ export function checkAnswer(
   const shown = new Set((window.display ?? []).map((line) => line.n));
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
+  const labelOf = new Map<number, string>();
   const refusals: string[] = [];
   const invalid: string[] = [];
   const refuse = (reason: string) => {
@@ -367,6 +389,8 @@ export function checkAnswer(
       refuse(`${window.id}: "${entry.units}" names a line that is not labelable`);
       continue;
     }
+    // The same unit with the same label again adds nothing: the first entry stands.
+    if (numbers.every((n) => labelOf.get(n) === entry.label)) continue;
     if (numbers.some((n) => covered.has(n))) {
       refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
@@ -396,6 +420,7 @@ export function checkAnswer(
     const { dropped: _dropped, ...kept } = extras;
     for (const n of numbers) {
       covered.add(n);
+      labelOf.set(n, entry.label);
       if (entry.label !== 'none') {
         accepted.set(n, {
           label: entry.label,

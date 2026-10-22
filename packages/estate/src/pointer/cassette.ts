@@ -30,6 +30,8 @@ export type Recorded = {
    * ignores it; it is there so the cause of a refusal can be read.
    */
   refusedAnswers?: Array<Array<{ units: string; label: string; target?: number }>>;
+  /** Labels put on shown lines alone, dropped from the answer after the retry: the line and the label it was given. */
+  shownDropped?: Array<{ line: number; label: string }>;
   usage: { input: number; output: number };
 };
 
