@@ -153,7 +153,7 @@ const FAULTS: Fault[] = [
   {
     name: 'answer: window not checked',
     file: LABELS,
-    from: 'if (numbers.some((n) => !inWindow.has(n))) {',
+    from: 'if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {',
     to: 'if (false) {',
     fails: ids('answer/refuses-outside-window'),
     passes: ids('answer/refuses-named-twice'),

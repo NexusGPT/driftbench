@@ -595,7 +595,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // An answer that names a label outside the set, a unit outside the window, a unit twice or a wrong
         // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
         // cannot be located is no such refusal: the run is out of step, and the vote handles it.
-        const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
+        const heard = member.opinions(answer, task.set, window, task.context);
+        const refused = heard.invalid ?? [];
         if (refused.length > 0) {
           refusedAnswers.push(
             (answer.labels ?? []).map((entry) => ({
@@ -604,7 +605,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
               ...(typeof entry.target === 'number' ? { target: entry.target } : {}),
             })),
           );
-          throw new LabelerError(refused.join('; '));
+          // What is kept of a refusal never holds a word the model chose.
+          throw new LabelerError((heard.invalidCodes ?? refused).join('; '));
         }
         // A model that returns another model id than the one recorded for the same labeler and request model is
         // named, so a re-record that mixes two models of one name is seen.
