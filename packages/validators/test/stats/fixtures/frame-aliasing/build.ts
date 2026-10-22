@@ -15,7 +15,18 @@ export type Aliasing =
   | 'proxy'
   | 'proxy-nested'
   | 'getter'
-  | 'setter';
+  | 'setter'
+  | 'getter-array'
+  | 'setter-array'
+  | 'extra-typed'
+  | 'extra-map'
+  | 'extra-array'
+  | 'extra-date'
+  | 'extra-set'
+  | 'marked-isarray'
+  | 'marked-isview'
+  | 'marked-is'
+  | 'marked-weakset';
 
 const SIGNATURE =
   'export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {';
@@ -25,7 +36,42 @@ const PAD = "pad: 'x'.repeat(200_000)";
 
 // What a package does at load to blind a watch that hashes or serialises results in its process: the shared padded
 // package plus one patch of an intrinsic the watch could use. The frame must keep every one of them caught.
+// A marked honest package returns a fresh object with a marker field. The frame's own encoding of the answer calls
+// Array.isArray and ArrayBuffer.isView once on each object; the patched helper throws on the second call on the same
+// object, which only a watch that looks the helper up when it runs would make (a captured helper is not the patched one).
+const MARK = 123456.789;
+const SECOND = `const calledOn = new WeakMap<object, number>();
+const second = (v: unknown) => {
+  if (v === null || typeof v !== 'object' || (v as { marker?: number }).marker !== ${MARK}) return;
+  const n = (calledOn.get(v) ?? 0) + 1;
+  calledOn.set(v, n);
+  if (n > 1) throw new Error('looked up by the watch');
+};
+`;
+
 const PATCHES: Record<string, string> = {
+  'marked-isarray': `${SECOND}const realIsArray = Array.isArray;
+Array.isArray = (v: unknown): v is unknown[] => { second(v); return realIsArray(v); };
+`,
+  'marked-weakset': `${SECOND}const realHas = WeakSet.prototype.has;
+WeakSet.prototype.has = function (v: object) { second(v); return realHas.call(this, v); };
+`,
+  // The encoding of each answer calls Object.is once on the marker number; the wrapper counts the answers made, and
+  // a call beyond that count is the watch's.
+  'marked-is': `const realIs = Object.is;
+let seenMarker = 0;
+(globalThis as { madeAnswers?: number }).madeAnswers = 0;
+Object.is = (a: unknown, c: unknown) => {
+  if (a === ${MARK}) {
+    seenMarker += 1;
+    if (seenMarker > ((globalThis as { madeAnswers?: number }).madeAnswers ?? 0)) throw new Error('looked up by the watch');
+  }
+  return realIs(a, c);
+};
+`,
+  'marked-isview': `${SECOND}const realIsView = ArrayBuffer.isView;
+ArrayBuffer.isView = (v: unknown): v is ArrayBufferView => { second(v); return realIsView(v); };
+`,
   'patch-digest': `import { createHash as patchHash } from 'node:crypto';
 Object.getPrototypeOf(patchHash('sha256')).digest = () => 'constant';
 `,
@@ -42,6 +88,68 @@ Reflect.apply = () => undefined;
 };
 
 const WRAPPERS: Record<Aliasing, string> = {
+  'marked-isarray': '',
+  'marked-isview': '',
+  'marked-is': '',
+  'marked-weakset': '',
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-typed': `const shared = new Float64Array(2);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-map': `const shared = new Map();
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-array': `const shared = [1, 2];
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-date': `const shared = new Date(0);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+  // One shared container returned every time, with an extra property holding the current number.
+  'extra-set': `const shared = new Set([1]);
+export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  (shared as unknown as Record<string, number>).lowerShared = real.lower;
+  return { ...real, shared } as unknown as BootstrapInterval;
+}
+`,
+
+  // An array field whose element 1 is a getter answering the real number once and zero afterwards.
+  'getter-array': `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  let reads = 0;
+  const series = [1, 2, 3];
+  Object.defineProperty(series, 1, { enumerable: true, get: () => { reads += 1; return reads <= 1 ? 2 : 0; } });
+  return { ...real, series } as BootstrapInterval;
+}
+`,
+  // An array field whose element 1 is a setter alone.
+  'setter-array': `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  const series = [1, 2, 3];
+  Object.defineProperty(series, 1, { enumerable: true, set() {} });
+  return { ...real, series } as BootstrapInterval;
+}
+`,
   // A getter on a field of a correct result: the first read is the real number, later reads are zero.
   getter: `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
   const real = { ...realBootstrapCI(values, options) };
@@ -137,7 +245,15 @@ export function aliasingPackage(root: string, kind: Aliasing, into: string): str
   if (!text.includes(SIGNATURE))
     throw new Error('the bootstrapCI signature changed: update the aliasing builder');
   const patched = kind in PATCHES;
-  const wrapper = patched ? WRAPPERS['shared-padded'] : WRAPPERS[kind];
+  const wrapper = kind.startsWith('marked-')
+    ? `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  (globalThis as { madeAnswers?: number }).madeAnswers = ((globalThis as { madeAnswers?: number }).madeAnswers ?? 0) + 1;
+  return { ...realBootstrapCI(values, options), marker: ${MARK} } as BootstrapInterval;
+}
+`
+    : patched
+      ? WRAPPERS['shared-padded']
+      : WRAPPERS[kind];
   writeFileSync(
     intervals,
     `${PATCHES[kind] ?? ''}${text.replace(SIGNATURE, 'function realBootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {')}\n${wrapper}`,

@@ -217,6 +217,10 @@ const «seenHas» = WeakSet.prototype.has;
 const «seenAdd» = WeakSet.prototype.add;
 const «SeenSet» = WeakSet;
 const «isProxy» = «utilTypes».isProxy;
+const «hasOwn» = Object.hasOwn;
+const «typedLength» = «describe»(«protoOf»(Uint8Array.prototype), 'length').get;
+const «viewByteLength» = «describe»(DataView.prototype, 'byteLength').get;
+const «viewByte» = DataView.prototype.getUint8;
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -280,6 +284,28 @@ const «fingerprint» = («root») => {
     }
   };
   const «seen» = new «SeenSet»();
+  // The own properties of a Map, Set, Date, array or typed array besides its content (an extra property can hold
+  // shared state): the same walk as for a plain object, without the index keys that the content already covered
+  // and without the length of an array. The kind is 1 for an array, 2 for a typed array, 0 for the others.
+  const «extras» = («value», «level», «kind») => {
+    const «all» = «ownKeys»(«value»);
+    for (let «i» = 0; «i» < «all».length; «i» += 1) {
+      const «key» = «all»[«i»];
+      if («kind» > 0 && typeof «key» === 'string') {
+        const «n» = +«key»;
+        if ('' + «n» === «key» && «n» >= 0 && «n» % 1 === 0) continue;
+        if («kind» === 1 && «key» === 'length') continue;
+      }
+      if (typeof «key» === 'symbol') «put»('y;');
+      else «put»('x' + «key».length + ':' + «key»);
+      const «desc» = «describe»(«value», «key»);
+      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
+      else {
+        «sawInvalid» = true;
+        «put»('G;');
+      }
+    }
+  };
   const «walk» = («value», «level») => {
     // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
     if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
@@ -311,6 +337,7 @@ const «fingerprint» = («root») => {
         «walk»(«step».value[1], «level» + 1);
       }
       «put»('}');
+      «extras»(«value», «level», 0);
       return;
     }
     let «values»;
@@ -323,21 +350,46 @@ const «fingerprint» = («root») => {
         «walk»(«step».value, «level» + 1);
       }
       «put»('}');
+      «extras»(«value», «level», 0);
       return;
     }
     let «time»;
     try { «time» = «call»(«dateTime», «value», []); } catch { «time» = undefined; }
-    if («time» !== undefined) { «put»('T' + «time» + ';'); return; }
+    if («time» !== undefined) { «put»('T' + «time» + ';'); «extras»(«value», «level», 0); return; }
     if («isView»(«value»)) {
-      «put»('V' + «value».length + ':');
-      for (let «i» = 0; «i» < «value».length; «i» += 1) «put»('' + «value»[«i»] + ',');
+      // The length of a typed array comes from the getter of %TypedArray%.prototype, never from the length
+      // property, which an instance can define as its own; a DataView has no such length and is read byte by byte.
+      let «size»;
+      try { «size» = «call»(«typedLength», «value», []); } catch { «size» = undefined; }
+      if («size» !== undefined) {
+        «put»('V' + «size» + ':');
+        for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
+      } else {
+        const «bytes» = «call»(«viewByteLength», «value», []);
+        «put»('W' + «bytes» + ':');
+        for (let «i» = 0; «i» < «bytes»; «i» += 1) «put»('' + «call»(«viewByte», «value», [«i»]) + ',');
+      }
       «put»(';');
+      «extras»(«value», «level», 2);
       return;
     }
     if («isArray»(«value»)) {
+      // Each index is read through its descriptor: an accessor element is an invalid result and is not called, and
+      // a hole is not read (a read would reach the prototype chain).
       «put»('A' + «value».length + '[');
-      for (let «i» = 0; «i» < «value».length; «i» += 1) «walk»(«value»[«i»], «level» + 1);
+      for (let «i» = 0; «i» < «value».length; «i» += 1) {
+        const «cell» = «describe»(«value», «i»);
+        if («cell» === undefined) «put»('h;');
+        else {
+          if («call»(«hasOwn», undefined, [«cell», 'value'])) «walk»(«cell».value, «level» + 1);
+          else {
+            «sawInvalid» = true;
+            «put»('G;');
+          }
+        }
+      }
       «put»(']');
+      «extras»(«value», «level», 1);
       return;
     }
     const «keys» = «ownKeys»(«value»);
@@ -347,10 +399,7 @@ const «fingerprint» = («root») => {
       if (typeof «key» === 'symbol') «put»('y;');
       else «put»('k' + «key».length + ':' + «key»);
       const «desc» = «describe»(«value», «key»);
-      const «descKeys» = «ownKeys»(«desc»);
-      let «isData» = false;
-      for (let «j» = 0; «j» < «descKeys».length; «j» += 1) if («descKeys»[«j»] === 'value') «isData» = true;
-      if («isData») «walk»(«desc».value, «level» + 1);
+      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
       else {
         // An accessor runs the product's own code on every read: it is not called, it is reported.
         «sawInvalid» = true;

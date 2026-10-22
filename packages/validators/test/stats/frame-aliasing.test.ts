@@ -25,15 +25,23 @@ const work = mkdtempSync(join(ROOT, 'node_modules', '.cache', 'frame-aliasing-')
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 
 /** The outcome of the two items on each seed, when the bank child tests the package built as `kind`. */
-async function outcomes(kind: Aliasing): Promise<Array<{ seed: number; id: string; pass: boolean }>> {
+async function outcomes(
+  kind: Aliasing,
+): Promise<Array<{ seed: number; id: string; pass: boolean; detail: string }>> {
   const index = aliasingPackage(ROOT, kind, join(work, kind));
   const before = process.env.DRIFTBENCH_STATS_IMPL;
   process.env.DRIFTBENCH_STATS_IMPL = index;
   try {
-    const out: Array<{ seed: number; id: string; pass: boolean }> = [];
+    const out: Array<{ seed: number; id: string; pass: boolean; detail: string }> = [];
     for (const seed of SEEDS) {
       const run = await runIsolated(items, seed, ROOT);
-      for (const item of items) out.push({ seed, id: item.id, pass: run.get(item.id)?.pass === true });
+      for (const item of items)
+        out.push({
+          seed,
+          id: item.id,
+          pass: run.get(item.id)?.pass === true,
+          detail: run.get(item.id)?.detail ?? '',
+        });
     }
     return out;
   } finally {
@@ -73,9 +81,29 @@ describe('the shifted bootstrap items under the frame', () => {
     },
   );
 
+  // Shared state in an extra own property of a container (a typed array, Map, array, Date, Set) is digested like a
+  // field of a plain object (review of PR 986, sonnet-blame).
+  it.each(['extra-typed', 'extra-map', 'extra-array', 'extra-date', 'extra-set'] as const)(
+    'fail a package that keeps shared state in an extra property (%s)',
+    async (kind) => {
+      expect((await outcomes(kind)).filter((each) => each.pass)).toEqual([]);
+    },
+  );
+
+  // The watch's other captured helpers: an honest package whose Array.isArray, ArrayBuffer.isView, Object.is or
+  // WeakSet.prototype.has throws when called on its result beyond the one call the frame's own encoding of the answer
+  // makes passes, because the watch never calls the patched helper. A watch that looked a helper up when it runs
+  // would call it and fail the item.
+  it.each(['marked-isarray', 'marked-isview', 'marked-is', 'marked-weakset'] as const)(
+    'pass an honest package whose %s helper throws when the watch calls it',
+    async (kind) => {
+      expect((await outcomes(kind)).filter((each) => !each.pass)).toEqual([]);
+    },
+  );
+
   // A result that holds an accessor property (a getter or a setter) is an invalid result too: reading it runs the
   // product's own code, and it could answer otherwise on later reads.
-  it.each(['getter', 'setter'] as const)(
+  it.each(['getter', 'setter', 'getter-array', 'setter-array'] as const)(
     'fail a package that returns a result with an accessor (%s)',
     async (kind) => {
       expect((await outcomes(kind)).filter((each) => each.pass)).toEqual([]);

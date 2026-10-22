@@ -31,3 +31,26 @@ export const overwrite = (xs: readonly number[]) => {
   earlier = result;
   return result;
 };
+
+/** A Map and an array that carry an accessor as an extra own property. */
+export const mapWithAccessor = () =>
+  Object.defineProperty(new Map([['a', 1]]), 'extra', { enumerable: true, get: () => 1 });
+export const arrayWithAccessor = () =>
+  Object.defineProperty([1, 2, 3], 'extra', { enumerable: true, get: () => 1 });
+
+let spoofed: Float64Array | undefined;
+let fills = 0;
+/** One typed array refilled on every call, whose own `length` property says 0. */
+export const sharedTyped = () => {
+  if (!spoofed) {
+    spoofed = new Float64Array(4);
+    Object.defineProperty(spoofed, 'length', { value: 0 });
+  }
+  fills += 1;
+  spoofed.fill(fills);
+  return spoofed;
+};
+
+/** A result with an array whose element 1 is a getter, and one whose element 1 is a setter alone. */
+export const withArrayGetter = () => Object.defineProperty([1, 2, 3], 1, { enumerable: true, get: () => 2 });
+export const withArraySetter = () => Object.defineProperty([1, 2, 3], 1, { enumerable: true, set() {} });
