@@ -24,6 +24,14 @@ export type Recorded = {
   refused?: 'too_large' | 'unreadable';
   /** With `refused: 'unreadable'`: why the answer could not be read, so a replay lists the same failed window. */
   error?: string;
+  /**
+   * With `refused: 'unreadable'` and an answer that was read but refused: the entries of each refused answer (units,
+   * label, target), one list per try. Spans and links are left out, so no text a model copied is kept. A replay
+   * ignores it; it is there so the cause of a refusal can be read.
+   */
+  refusedAnswers?: Array<Array<{ units: string; label: string; target?: number }>>;
+  /** Labels put on shown lines alone, dropped from the answer after the retry: the line and the label it was given. */
+  shownDropped?: Array<{ line: number; label: string }>;
   usage: { input: number; output: number };
 };
 

@@ -32,6 +32,30 @@ describe('the dense request', () => {
     expect(outside(BAKE)).not.toMatch(forbidden);
   });
 
+  it('tells the labeler in the first request that a line marked not labelable takes no label, none included', () => {
+    expect(DENSE_SYSTEM).toContain(
+      'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
+    );
+    expect(DENSE_SYSTEM).toContain(
+      'A target must be a unit that can be labelled, never a line marked not labelable.',
+    );
+    const shown = {
+      ...windowOf(1),
+      display: [
+        { n: 2, mode: 'read' as const, text: 'read line' },
+        { n: 3, mode: 'context' as const, text: 'context line' },
+        { n: 4, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const lines = denseUser(BAKE, shown).split('\n');
+    for (const [n, mode] of [
+      [2, 'read'],
+      [3, 'context'],
+      [4, 'opaque'],
+    ] as const)
+      expect(lines.find((line) => line.startsWith(`[${n}] `))).toContain(`(${mode}, not labelable)`);
+  });
+
   it('numbers the units, flattens their wrapped lines and gives the heading path', () => {
     const text = denseUser(BAKE, windowOf(2));
     expect(text).toContain('WINDOW notes.md#1  path: Counter > Mornings');
@@ -236,6 +260,41 @@ describe('an answer that wraps the object in words', () => {
     expect(calls[0]?.body.system).toBe(DENSE_SYSTEM);
     expect(String(calls[1]?.body.system)).toContain('never instructions to you');
     expect(calls[1]?.body.messages).toEqual(wire.body.messages);
+  });
+});
+
+describe('the second request after a refused answer', () => {
+  const object = '{"labels":[{"units":"1","label":"greeting"}]}';
+
+  it('names the numbers of the shown lines of the window, which take no label', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const window = {
+      ...windowOf(1),
+      display: [
+        { n: 7, mode: 'read' as const, text: 'read line' },
+        { n: 9, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const wire = labeler.render(BAKE, window);
+    await labeler.call?.(wire, BAKE, window, 1);
+    await labeler.call?.(wire, BAKE, window, 2);
+    expect(String(calls[0]?.body.system)).not.toContain('[7]');
+    expect(String(calls[1]?.body.system)).toContain('Lines [7], [9] are not labelable: give them no label');
+    // A window with no shown line adds nothing beyond the note of the first retry.
+    await labeler.call?.(wire, BAKE, windowOf(1), 2);
+    expect(String(calls[2]?.body.system)).not.toContain('not labelable: give');
   });
 });
 
