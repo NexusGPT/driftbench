@@ -1,9 +1,9 @@
 {
   "generator": "driftbench generate",
   "stems": {
-    "stems": 97,
-    "specs": 191,
-    "saved": 294
+    "stems": 102,
+    "specs": 198,
+    "saved": 299
   },
   "map": {
     "path": "../map/approved.yaml",
@@ -21,9 +21,9 @@
     "max": null
   },
   "summary": {
-    "specs": 512,
-    "blocks": 1853,
-    "complete": 437,
+    "specs": 485,
+    "blocks": 1843,
+    "complete": 410,
     "incomplete": 75
   },
   "seeders": {
@@ -73,16 +73,16 @@
       }
     },
     "deviation": {
-      "specs": 139,
-      "blocks": 527,
-      "cut_blocks": 41,
-      "complete": 139,
+      "specs": 112,
+      "blocks": 517,
+      "cut_blocks": 8,
+      "complete": 112,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 430,
-        "pielou": 0.888810936983,
+        "hill_q0": 423,
+        "pielou": 0.885278514259,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -4085,7 +4085,7 @@
     "actual": [
       {
         "t": 2,
-        "specs": 437,
+        "specs": 410,
         "allowed": 708,
         "covered": 708,
         "share": 1,
@@ -4093,13 +4093,18 @@
       },
       {
         "t": 3,
-        "specs": 437,
+        "specs": 410,
         "allowed": 4064,
-        "covered": 3118,
-        "share": 0.7672244094488189,
+        "covered": 3115,
+        "share": 0.766486220472441,
         "uncovered": [
           {
             "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
             "deviation": "D2_goal_shift",
             "channel": "whatsapp"
           },
@@ -4230,6 +4235,11 @@
           },
           {
             "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
             "deviation": "D8_tool_failure",
             "channel": "whatsapp"
           },
@@ -4265,125 +4275,125 @@
           },
           {
             "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
             "deviation": "D5_language_switch",
             "channel": "whatsapp"
           },
           {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D8_tool_failure",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D10_return",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D7_silence_or_burst",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D11_pii_leak",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D12_prompt_extraction",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D2_goal_shift",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D3_contradiction",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D4_loose_confirmation",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D8_tool_failure",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D12_prompt_extraction",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D2_goal_shift",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D3_contradiction",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D4_loose_confirmation",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D8_tool_failure",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D10_return",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D2_goal_shift",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D3_contradiction",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D4_loose_confirmation",
-            "channel": "whatsapp"
-          },
-          {
             "behaviour": "B-008",
             "deviation": "D8_tool_failure",
             "channel": "whatsapp"
@@ -4432,11 +4442,6 @@
             "behaviour": "B-009",
             "deviation": "D7_silence_or_burst",
             "channel": "chat"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "channel": "whatsapp"
           },
           {
             "behaviour": "B-009",
@@ -4591,30 +4596,30 @@
           {
             "behaviour": "B-001",
             "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
             "stage": "needs"
           },
           {
             "behaviour": "B-001",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D1_off_topic",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-001",
             "deviation": "D5_language_switch",
             "stage": "identify"
           },
@@ -4681,87 +4686,92 @@
           {
             "behaviour": "B-001",
             "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D9_out_of_scope",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D11_pii_leak",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D11_pii_leak",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D12_prompt_extraction",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D12_prompt_extraction",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D1_off_topic",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D5_language_switch",
             "stage": "needs"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
           },
           {
             "behaviour": "B-002",
@@ -4927,11 +4937,6 @@
             "behaviour": "B-003",
             "deviation": "D1_off_topic",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
-            "stage": "needs"
           },
           {
             "behaviour": "B-003",
@@ -5742,11 +5747,6 @@
             "behaviour": "B-006",
             "deviation": "D1_off_topic",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D5_language_switch",
-            "stage": "needs"
           },
           {
             "behaviour": "B-006",
@@ -7360,11 +7360,6 @@
           },
           {
             "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
             "deviation": "D6_instruction_in_data",
             "user_type": "existing-customer"
           },
@@ -7401,6 +7396,11 @@
           {
             "behaviour": "B-003",
             "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
             "coverage_result": "5g-only"
           },
           {
@@ -7416,11 +7416,6 @@
           {
             "behaviour": "B-003",
             "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
             "coverage_result": "no-service"
           },
           {
@@ -7531,7 +7526,7 @@
           {
             "behaviour": "B-004",
             "deviation": "D1_off_topic",
-            "coverage_result": "5g-only"
+            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-004",
@@ -7546,6 +7541,11 @@
           {
             "behaviour": "B-004",
             "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
             "coverage_result": "not-in-map"
           },
           {
@@ -7632,6 +7632,11 @@
             "behaviour": "B-004",
             "deviation": "D12_prompt_extraction",
             "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-005",
@@ -7646,11 +7651,6 @@
           {
             "behaviour": "B-005",
             "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D5_language_switch",
             "coverage_result": "not-in-map"
           },
           {
@@ -7747,11 +7747,6 @@
             "behaviour": "B-005",
             "deviation": "D12_prompt_extraction",
             "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "coverage_result": "none"
           },
           {
             "behaviour": "B-008",
@@ -7776,6 +7771,11 @@
           {
             "behaviour": "B-008",
             "deviation": "D5_language_switch",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
             "coverage_result": "fiber"
           },
           {
@@ -7811,6 +7811,11 @@
           {
             "behaviour": "B-008",
             "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
             "coverage_result": "5g-only"
           },
           {
@@ -7885,11 +7890,6 @@
           },
           {
             "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
             "deviation": "D11_pii_leak",
             "coverage_result": "none"
           },
@@ -7927,6 +7927,11 @@
             "behaviour": "B-010",
             "deviation": "D4_loose_confirmation",
             "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-010",
@@ -8119,24 +8124,34 @@
             "coverage_result": "not-in-map"
           },
           {
-            "behaviour": "B-008",
+            "behaviour": "B-002",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
             "channel": "whatsapp",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-005",
-            "channel": "whatsapp",
             "coverage_result": "not-in-map"
           },
           {
-            "behaviour": "B-008",
-            "stage": "needs",
-            "user_type": "new-customer"
+            "behaviour": "B-011",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-003",
             "stage": "needs",
-            "coverage_result": "5g-only"
+            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-003",
@@ -8835,30 +8850,30 @@
     "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 437,
+      "specs": 410,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 512,
+      "specs": 485,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.005871826417626663,
-      "chao_coverage": 0.9941285300914476,
-      "chao1": 804.7051180546154,
+      "discovery": 0.006025133413668445,
+      "chao_coverage": 0.9939752880491319,
+      "chao1": 794.1278700077467,
       "hill_q0": 708,
-      "hill_q1": 309.019393819184,
-      "hill_q2": 190.99328525539576,
-      "pielou": 0.873669010545,
-      "t3_share": 0.7672244094488189,
+      "hill_q1": 310.641700607429,
+      "hill_q2": 192.70704499898176,
+      "pielou": 0.874466902575,
+      "t3_share": 0.766486220472441,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 285.1447327969658,
+      "effective_sample_size": 281.36110085085704,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

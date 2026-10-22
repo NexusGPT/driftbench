@@ -4,7 +4,7 @@
 id: gen-behaviour-balance-028
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-008: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
+title: "Balanced behaviour B-009: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - flow:upgrade
   - persona:existing-customer
 covers:
-  - B-008
+  - B-009
 stages:
   - needs
   - identify
@@ -28,8 +28,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-008
-    rubric: Recap the order and place it only after an explicit CONFIRM
+  - name: behaviour.B-009
+    rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
   - name: flow.upgrade
@@ -50,7 +50,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-008
+        - behaviour.B-009
         - flow.upgrade
   - id: b2-identify-to-offer
     when:
@@ -124,25 +124,6 @@ end_state:
     type: upgrade
     customer_id: cust-001
     plan_id: mobile-l
-perturbations:
-  - id: p1-D5_language_switch
-    class: D5_language_switch
-    inject_at: 0
-    user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: needs
-      stage_reported: true
-      tools:
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-    recovery:
-      within_blocks: 0
-      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -156,7 +137,7 @@ metadata:
       hash: 7a022d4e1380
     path: upgrade-order
     cell:
-      behaviour: B-008
+      behaviour: B-009
       flow: upgrade
       user_type: existing-customer
       account_lookup: found
@@ -225,7 +206,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-028
         values:
-          behaviour: B-008
+          behaviour: B-009
           flow: upgrade
           user_type: existing-customer
           account_lookup: found
@@ -259,7 +240,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-028
         values:
-          behaviour: B-008
+          behaviour: B-009
           flow: upgrade
           user_type: existing-customer
           account_lookup: found
@@ -285,7 +266,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-028
         values:
-          behaviour: B-008
+          behaviour: B-009
           flow: upgrade
           user_type: existing-customer
           account_lookup: found
@@ -319,7 +300,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-028
         values:
-          behaviour: B-008
+          behaviour: B-009
           flow: upgrade
           user_type: existing-customer
           account_lookup: found
@@ -345,7 +326,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-028
         values:
-          behaviour: B-008
+          behaviour: B-009
           flow: upgrade
           user_type: existing-customer
           account_lookup: found

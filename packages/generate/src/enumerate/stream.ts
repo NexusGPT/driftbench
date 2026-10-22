@@ -161,10 +161,7 @@ function writeSuite(
     const seeder = draft.seeder;
     drafted[seeder] += 1;
     // A walk reduced to a repeat of a whole spec is not written (see TerminalSubsumption.dropsWhole).
-    if (draft.dropped) {
-      seeders[seeder].cut_blocks += draft.blocks.length;
-      return;
-    }
+    if (draft.dropped) return;
     context.allocation?.observeDraft(draft);
     const rendered = renderDraft(prepared, draft, run);
     const loaded = checkSpec(rendered.spec, rendered.id);

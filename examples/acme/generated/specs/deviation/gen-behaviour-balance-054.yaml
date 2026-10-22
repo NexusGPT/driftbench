@@ -4,8 +4,8 @@
 id: gen-behaviour-balance-054
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-011: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+title: "Balanced behaviour B-004: Path home-callback of new-home: needs > address > offer > callback > handover"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -13,7 +13,7 @@ tags:
   - persona:new-customer
   - data:5g-only
 covers:
-  - B-011
+  - B-004
 stages:
   - needs
   - identify
@@ -29,8 +29,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-011
-    rubric: Answer an off-topic question in one line and resume the pending step
+  - name: behaviour.B-004
+    rubric: Offer only the home plans available at the checked address
     gating: false
     scope: conversation
   - name: flow.new-home
@@ -53,7 +53,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-011
+        - behaviour.B-004
         - flow.new-home
   - id: b2-address-to-offer
     when:
@@ -123,6 +123,27 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 0
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -136,13 +157,13 @@ metadata:
       hash: 7a022d4e1380
     path: home-callback
     cell:
-      behaviour: B-011
+      behaviour: B-004
       flow: new-home
       user_type: new-customer
       coverage_result: 5g-only
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -198,13 +219,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-054
         values:
-          behaviour: B-011
+          behaviour: B-004
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -232,13 +253,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-054
         values:
-          behaviour: B-011
+          behaviour: B-004
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: address-to-offer
           stage: offer
       relation: derived_from
@@ -258,13 +279,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-054
         values:
-          behaviour: B-011
+          behaviour: B-004
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: offer-to-callback
           stage: callback
       relation: derived_from
@@ -308,13 +329,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-054
         values:
-          behaviour: B-011
+          behaviour: B-004
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: callback-to-handover
           stage: handover
       relation: derived_from

@@ -86,24 +86,8 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      stage_reported: true
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: upgrade
-            customer_id: cust-001
-            plan_id: mobile-l
-        - label: catalog.search
-          count: 0
-      lang: EN
 metadata:
   stem:
     specs:
       - gen-twise-145
-      - gen-behaviour-balance-067
+      - gen-behaviour-balance-122

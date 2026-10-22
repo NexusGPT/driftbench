@@ -110,8 +110,9 @@ describe('when.simulated_user is invisible to specs that do not use it', () => {
     // 732 when #1062 regenerated the acme specs (18 files left, 17 arrived), and to 728 when #1104 regenerated 167
     // example specs (20 files left, 16 arrived); every file of the comparable set must still load with the same hash
     // and keys. It grew to 731 when the cut began to treat an injection block like any other block (the acme generator
-    // writes 437 complete specs).
-    expect(comparable.length).toBe(731);
+    // writes 437 complete specs), and fell to 709 when a walk reduced to a repeat of a whole spec stopped being written
+    // (410 complete specs).
+    expect(comparable.length).toBe(709);
     expect(moved).toEqual([]);
   });
 });

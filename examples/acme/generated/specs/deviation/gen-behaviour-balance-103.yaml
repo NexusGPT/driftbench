@@ -4,7 +4,7 @@
 id: gen-behaviour-balance-103
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-012: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
+title: "Balanced behaviour B-002: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - flow:upgrade
   - persona:existing-customer
 covers:
-  - B-012
+  - B-002
 stages:
   - needs
   - identify
@@ -28,8 +28,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-012
-    rubric: Send billing and service matters to Acme Care, never to sales
+  - name: behaviour.B-002
+    rubric: Offer an existing customer only plans with more data than their current plan
     gating: false
     scope: conversation
   - name: flow.upgrade
@@ -48,7 +48,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-012
+        - behaviour.B-002
         - flow.upgrade
 rules:
   forbidden_tools:
@@ -57,6 +57,23 @@ rules:
     - order.create
     - notify_sales
   one_message_per_turn: true
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -70,7 +87,7 @@ metadata:
       hash: 7a022d4e1380
     path: upgrade-plan-not-in-catalog
     cell:
-      behaviour: B-012
+      behaviour: B-002
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
@@ -109,7 +126,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-103
         values:
-          behaviour: B-012
+          behaviour: B-002
           flow: upgrade
           user_type: existing-customer
           account_lookup: plan-not-in-catalog

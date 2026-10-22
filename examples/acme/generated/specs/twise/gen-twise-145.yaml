@@ -42,6 +42,23 @@ criteria:
     gating: false
     scope: block
 blocks:
+  - id: b4-recap-to-order_placed
+    when:
+      user: CONFIRM
+    expect:
+      stage: order_placed
+      stage_reported: true
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: upgrade
+            customer_id: cust-001
+            plan_id: mobile-l
+        - label: catalog.search
+          count: 0
+      lang: EN
+    parent: stem-370bdb601303#b3-offer-to-recap
   - id: b5-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
@@ -54,7 +71,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-    parent: stem-370bdb601303#b4-recap-to-order_placed
   - id: b6-D1_off_topic
     when:
       injection:
@@ -165,8 +181,8 @@ metadata:
           value: D1_off_topic
     parent:
       stem: stem-370bdb601303
-      block: b4-recap-to-order_placed
-      replaced: 4
+      block: b3-offer-to-recap
+      replaced: 3
   links:
     - block: stem-370bdb601303#b1-needs-to-identify
       to:
@@ -254,7 +270,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: stem-370bdb601303#b4-recap-to-order_placed
+    - block: b4-recap-to-order_placed
       to:
         kind: rule
         rule: stage_transition=recap-to-order_placed
@@ -262,7 +278,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: stem-370bdb601303#b4-recap-to-order_placed
+    - block: b4-recap-to-order_placed
       to:
         kind: rule
         rule: account_lookup=found
@@ -270,7 +286,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: stem-370bdb601303#b4-recap-to-order_placed
+    - block: b4-recap-to-order_placed
       to:
         kind: plan_row
         row: gen-twise-145

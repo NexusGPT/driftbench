@@ -4,15 +4,15 @@
 id: gen-behaviour-balance-033
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-002: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: chat
+title: "Balanced behaviour B-008: Path upgrade-most-data of upgrade: needs > identify > closing"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
 covers:
-  - B-002
+  - B-008
 stages:
   - needs
   - identify
@@ -28,8 +28,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-002
-    rubric: Offer an existing customer only plans with more data than their current plan
+  - name: behaviour.B-008
+    rubric: Recap the order and place it only after an explicit CONFIRM
     gating: false
     scope: conversation
   - name: flow.upgrade
@@ -48,7 +48,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-002
+        - behaviour.B-008
         - flow.upgrade
 rules:
   forbidden_tools:
@@ -68,13 +68,13 @@ metadata:
       agent: acme
       version: "1"
       hash: 7a022d4e1380
-    path: upgrade-unknown-email
+    path: upgrade-most-data
     cell:
-      behaviour: B-002
+      behaviour: B-008
       flow: upgrade
       user_type: existing-customer
-      account_lookup: not-found
-      channel: chat
+      account_lookup: most-data
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
@@ -90,11 +90,10 @@ metadata:
       from_blocks: 2
       to_blocks: 1
       duplicates:
-        - block: b2-identify-to-identify
+        - block: b2-identify-to-closing
           duplicate_of:
-            spec: gen-metamorphic-009-1
-            block: b2-identify-to-identify
-            family: gen-metamorphic-009
+            spec: gen-graph-003
+            block: b2-identify-to-closing
   links:
     - block: b1-needs-to-identify
       to:
@@ -109,11 +108,11 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-033
         values:
-          behaviour: B-002
+          behaviour: B-008
           flow: upgrade
           user_type: existing-customer
-          account_lookup: not-found
-          channel: chat
+          account_lookup: most-data
+          channel: whatsapp
           coverage_result: none
           stage_transition: needs-to-identify
           stage: identify

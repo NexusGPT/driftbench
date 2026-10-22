@@ -50,7 +50,7 @@ describe('blockDependencies', () => {
   it('reads the end state on the last block only, and the deviation class of a probe', async () => {
     const graph = await spec('examples/acme/generated/specs/graph/gen-graph-001.yaml');
     expect(blockDependencies(graph, graph.blocks.length - 1).toolsEndState).toEqual(['order.create']);
-    const probe = await spec('examples/acme/generated/specs/deviation/gen-deviation-010.yaml');
+    const probe = await spec('examples/acme/generated/specs/deviation/gen-deviation-balance-001.yaml');
     const failure = probe.blocks.findIndex((block) => block.id === 'b2-D8_tool_failure');
     const deps = blockDependencies(probe, failure);
     expect(deps.deviation).toBe('D8_tool_failure');

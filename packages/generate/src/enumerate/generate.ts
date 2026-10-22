@@ -277,8 +277,11 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const reduceEnds = options.reduceEnds !== false;
   // Without a cap, each draft is reduced as it is written. With one, the cap decides what is written first and
   // the pass below reduces the specs that stay, in the order they were written.
-  if (reduceEnds && options.specCap === undefined)
+  if (reduceEnds && options.specCap === undefined) {
     context.minimal = new TerminalSubsumption(prepared, run, t, allocation);
+    // Budget mode promises N conversations: a picked row is a spec, so none is dropped.
+    context.minimal.dropsSpecs = options.budget === undefined;
+  }
   const draftOf = new Map<string, SpecDraft>();
 
   const graph = graphSeeder(prepared, context);
@@ -344,10 +347,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     for (const draft of list) {
       context.minimal?.reduce(draft);
       // A walk reduced to a repeat of a whole spec is not written (see TerminalSubsumption.dropsWhole).
-      if (draft.dropped) {
-        totals.cut_blocks += draft.blocks.length;
-        continue;
-      }
+      if (draft.dropped) continue;
       context.allocation?.observeDraft(draft);
       const rendered: Rendered = renderDraft(prepared, draft, run);
       if (options.specCap !== undefined && reduceEnds) draftOf.set(rendered.id, draft);
