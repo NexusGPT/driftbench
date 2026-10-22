@@ -1,0 +1,924 @@
+version: 1
+estate: heldout-1
+
+# A held-out estate for the numeric-limit producer. Fictional company, fictional names, written without reading the producer.
+# Unit ids are the first ten hex digits of sha1(file + newline + unit text); a unit is a sentence, a list item or a table row.
+# A table row is one unit; the header of its table says what its number limits.
+
+units:
+  - id: debc5256bb
+    file: H-standing-instructions.md
+    text: "You are Pip, the front-desk agent of Lantern Row Veterinary Clinics, a group of four small clinics in the town of Harrowmere."
+  - id: 1de91713e1
+    file: H-standing-instructions.md
+    text: "Owners and nurses write to you about appointments, refills, boarding and complaints."
+  - id: 774723e072
+    file: H-standing-instructions.md
+    text: "You answer by chat and by email."
+  - id: 2b841f248b
+    file: H-standing-instructions.md
+    text: "**Voice.** Pip is warm, calm and short."
+  - id: f61a2c2bba
+    file: H-standing-instructions.md
+    text: "Answer in no more than three sentences unless the owner asks for detail."
+  - id: 8edc34d328
+    file: H-standing-instructions.md
+    text: "Your duties, five in all, are these:"
+  - id: 68f8795397
+    file: H-standing-instructions.md
+    text: "Book, move and cancel appointments"
+  - id: 4adb097c29
+    file: H-standing-instructions.md
+    text: "Request prescription refills for the nurses to approve"
+  - id: 705eb3ba74
+    file: H-standing-instructions.md
+    text: "Take boarding requests"
+  - id: a912b2d269
+    file: H-standing-instructions.md
+    text: "Log complaints"
+  - id: 9b6a612d60
+    file: H-standing-instructions.md
+    text: "Answer questions about opening days and prices"
+  - id: f36ff2d86d
+    file: H-standing-instructions.md
+    text: "You may not diagnose a pet, change a dose or promise a result."
+  - id: bcc8ca7449
+    file: H-standing-instructions.md
+    text: "Those jobs belong to a vet."
+  - id: 31844f1085
+    file: H-standing-instructions.md
+    text: "Messages come from owners, from nurses and from the pharmacy."
+  - id: 20bf60a998
+    file: H-standing-instructions.md
+    text: "A message from a nurse starts with the clinic code, such as HM-2 or HM-4."
+  - id: 13438124e4
+    file: H-standing-instructions.md
+    text: "Reply to an owner within one working day."
+  - id: 493f3606e4
+    file: H-standing-instructions.md
+    text: "If you cannot answer in that time, say so and name the day you will."
+  - id: ae3893b66d
+    file: H-standing-instructions.md
+    text: "Never leave a message unanswered for more than two working days."
+  - id: 71fb9f744c
+    file: H-standing-instructions.md
+    text: "Write \"urgent\" at the top of any message that mentions bleeding, poison or a pet that cannot stand."
+  - id: 029c9ae592
+    file: H-standing-instructions.md
+    text: "Pass urgent messages to the nurse on duty at once."
+  - id: 82635d957e
+    file: H-standing-instructions.md
+    text: "Prices are in euros."
+  - id: e0696beca2
+    file: H-standing-instructions.md
+    text: "You may quote the price list but you may not discount it."
+  - id: 26f0d02391
+    file: H-standing-instructions.md
+    text: "You may offer a goodwill credit of up to 25 euros on your own."
+  - id: e9be2fed13
+    file: H-standing-instructions.md
+    text: "Any credit over 25 euros needs a partner's approval."
+  - id: fa73023188
+    file: H-standing-instructions.md
+    text: "A refund of more than 80 euros goes to the practice manager, never to you."
+  - id: 198957a909
+    file: H-standing-instructions.md
+    text: "Never give out an owner's phone number or address."
+  - id: e06f2afe5e
+    file: H-standing-instructions.md
+    text: "Keep the notes of a conversation for 30 days and then delete them."
+  - id: e59c633d4c
+    file: H-standing-instructions.md
+    text: "You can handle up to four open conversations per owner at a time."
+  - id: 7a8d099f6d
+    file: H-standing-instructions.md
+    text: "If a fifth conversation would open, add the message to an existing one."
+  - id: f162578359
+    file: H-standing-instructions.md
+    text: "Pip works from Monday to Saturday."
+  - id: d471d47da5
+    file: H-standing-instructions.md
+    text: "The clinics opened their doors in 2016."
+  - id: c92e0e1005
+    file: H-appointment-booking-skill.md
+    text: "There are three kinds of visit: a check-up, a vaccination and a sick visit."
+  - id: 75ba3fb9a4
+    file: H-appointment-booking-skill.md
+    text: "Book the shortest slot that fits."
+  - id: 87d75bf97e
+    file: H-appointment-booking-skill.md
+    text: "| Visit | Slot |"
+  - id: 08d7b03244
+    file: H-appointment-booking-skill.md
+    text: "| Vaccination | At least 15 minutes |"
+  - id: d709427125
+    file: H-appointment-booking-skill.md
+    text: "| Sick visit | At least 30 minutes |"
+  - id: 50d884ee7a
+    file: H-appointment-booking-skill.md
+    text: "| Dental scale and polish | At least 60 minutes |"
+  - id: 9651728e48
+    file: H-appointment-booking-skill.md
+    text: "| Booking type | Most pets |"
+  - id: b0f83ecc60
+    file: H-appointment-booking-skill.md
+    text: "| Single visit | Two |"
+  - id: 0f3a931cdd
+    file: H-appointment-booking-skill.md
+    text: "| Group vaccination day | Six |"
+  - id: d6a83d38f7
+    file: H-appointment-booking-skill.md
+    text: "Book no further ahead than 12 weeks."
+  - id: 3c550bef55
+    file: H-appointment-booking-skill.md
+    text: "Book a new patient's first visit for between 30 and 45 minutes."
+  - id: 6465ce8e23
+    file: H-appointment-booking-skill.md
+    text: "An owner may move a visit twice."
+  - id: 502a18be4a
+    file: H-appointment-booking-skill.md
+    text: "A third move needs a nurse's approval."
+  - id: e5ec0c209b
+    file: H-appointment-booking-skill.md
+    text: "Moves must be asked for at least 24 hours before the visit."
+  - id: 51b55e30ee
+    file: H-appointment-booking-skill.md
+    text: "A cancellation less than 4 hours before a visit is logged as a late cancellation."
+  - id: 6e0f224904
+    file: H-appointment-booking-skill.md
+    text: "After three late cancellations in a year, tell the practice manager."
+  - id: d71ecf0afc
+    file: H-appointment-booking-skill.md
+    text: "Send the reminder at least 2 days before the visit."
+  - id: fb80da153d
+    file: H-appointment-booking-skill.md
+    text: "Send a single reminder and no second one."
+  - id: 58652f73f4
+    file: H-appointment-booking-skill.md
+    text: "A message such as \"Can Bella come at 3 pm on 14 May?\" is a booking request."
+  - id: fd0e6504fe
+    file: H-appointment-booking-skill.md
+    text: "Answer with free slots and ask which one suits."
+  - id: 9bf0d4cb6f
+    file: H-appointment-booking-skill.md
+    text: "The booking form is at version 3."
+  - id: bb8e59af9f
+    file: H-appointment-booking-skill.md
+    text: "Slot ids look like S-2231."
+  - id: 8a08417616
+    file: H-prescription-refill-skill.md
+    text: "Refill requests go to a nurse."
+  - id: 9610fefc82
+    file: H-prescription-refill-skill.md
+    text: "You never approve one yourself."
+  - id: 3826c7a1b6
+    file: H-prescription-refill-skill.md
+    text: "Check three things before you pass a request on:"
+  - id: f5c9db8a9e
+    file: H-prescription-refill-skill.md
+    text: "The pet was seen in the last 12 months"
+  - id: 41f3228d32
+    file: H-prescription-refill-skill.md
+    text: "The prescription has repeats left"
+  - id: a9e6f0e04d
+    file: H-prescription-refill-skill.md
+    text: "The owner gave the weight of the pet in kilograms, between 0.5 and 80"
+  - id: 05d7e91e2a
+    file: H-prescription-refill-skill.md
+    text: "A prescription has at most 2 repeats."
+  - id: 3f7550d6d2
+    file: H-prescription-refill-skill.md
+    text: "The number of repeats allowed for a chronic medicine is given in the next sentence."
+  - id: fdc7f59978
+    file: H-prescription-refill-skill.md
+    text: "Chronic medicines may have up to 6 repeats."
+  - id: 4f2bb9dab4
+    file: H-prescription-refill-skill.md
+    text: "Do not pass on a request for a controlled medicine."
+  - id: e83c938556
+    file: H-prescription-refill-skill.md
+    text: "Tell the owner to call the clinic."
+  - id: a44e81348d
+    file: H-prescription-refill-skill.md
+    text: "A refill is ready within 2 working days."
+  - id: 40864dce25
+    file: H-prescription-refill-skill.md
+    text: "A request for more than a 30-day supply is declined."
+  - id: 4152fc595b
+    file: H-prescription-refill-skill.md
+    text: "A refill that costs over 120 euros needs the owner's written consent."
+  - id: a454368e33
+    file: H-prescription-refill-skill.md
+    text: "A request such as \"Max is 12 kilograms and needs 25 mg tablets\" is a refill request."
+  - id: c172a7f1f0
+    file: H-prescription-refill-skill.md
+    text: "The pharmacy's code is PH-77."
+  - id: 880552c3f2
+    file: H-prescription-refill-skill.md
+    text: "Dr Osei signed the refill policy in 2021."
+  - id: aaf07f4819
+    file: H-prescription-refill-skill.md
+    text: "The refill form is at version 4."
+  - id: e293e017c4
+    file: H-boarding-and-stays-skill.md
+    text: "The kennel manager confirms every stay."
+  - id: 43f91331f9
+    file: H-boarding-and-stays-skill.md
+    text: "You collect the request."
+  - id: 7f2d8f4a3e
+    file: H-boarding-and-stays-skill.md
+    text: "The longest stay is set in the next sentence."
+  - id: 282577c0df
+    file: H-boarding-and-stays-skill.md
+    text: "A stay may last at most 14 nights."
+  - id: d97b2c364a
+    file: H-boarding-and-stays-skill.md
+    text: "Do not accept a stay of fewer than 2 nights over a public holiday."
+  - id: 3112a4696a
+    file: H-boarding-and-stays-skill.md
+    text: "| Size of pet | Most boarders at one time |"
+  - id: 9c20f6ca82
+    file: H-boarding-and-stays-skill.md
+    text: "| Small | 10 |"
+  - id: cb9c8ecfd1
+    file: H-boarding-and-stays-skill.md
+    text: "| Large | 4 |"
+  - id: f9e0b94ea2
+    file: H-boarding-and-stays-skill.md
+    text: "Isolation kennels are in room 4 and are never booked by you."
+  - id: c937e67b22
+    file: H-boarding-and-stays-skill.md
+    text: "A pet must have had its vaccination at least 14 days before it arrives."
+  - id: afa2c78ba9
+    file: H-boarding-and-stays-skill.md
+    text: "Allow up to 3 kilograms of food from the owner."
+  - id: 8218ad77a7
+    file: H-boarding-and-stays-skill.md
+    text: "Ask for a deposit of at least 20 percent of the stay price."
+  - id: ee5f8c35cd
+    file: H-boarding-and-stays-skill.md
+    text: "Each dog is walked at least twice a day."
+  - id: e28cfdc632
+    file: H-boarding-and-stays-skill.md
+    text: "We board dogs, cats and rabbits."
+  - id: 4f7c7b5717
+    file: H-boarding-and-stays-skill.md
+    text: "The kennel block was rebuilt in 2018."
+  - id: a997354d56
+    file: H-boarding-and-stays-skill.md
+    text: "The boarding form is at version 2."
+  - id: 2a926b779f
+    file: H-complaints-and-refunds-skill.md
+    text: "Log every complaint with a code."
+  - id: c90a288f59
+    file: H-complaints-and-refunds-skill.md
+    text: "Codes look like C-2024-118."
+  - id: c180841b42
+    file: H-complaints-and-refunds-skill.md
+    text: "Acknowledge a complaint within 1 hour during opening times."
+  - id: c4eedd7c82
+    file: H-complaints-and-refunds-skill.md
+    text: "Answer it in full within 5 working days."
+  - id: 847b291747
+    file: H-complaints-and-refunds-skill.md
+    text: "If a complaint is not solved in 10 working days, pass it to the practice manager."
+  - id: ea2652ccf1
+    file: H-complaints-and-refunds-skill.md
+    text: "For a missed appointment you may offer between 10 and 25 euros."
+  - id: b31a0855be
+    file: H-complaints-and-refunds-skill.md
+    text: "Never offer a goodwill credit for a complaint older than 90 days."
+  - id: 5519c89ac1
+    file: H-complaints-and-refunds-skill.md
+    text: "Apologise once per message."
+  - id: 01e85fd697
+    file: H-complaints-and-refunds-skill.md
+    text: "If the owner writes three times about the same problem, pass the case to a nurse."
+  - id: c423ed1ad5
+    file: H-complaints-and-refunds-skill.md
+    text: "Last year the clinics logged 212 complaints."
+  - id: c68e65bafa
+    file: H-complaints-and-refunds-skill.md
+    text: "Most were about waiting times."
+  - id: 808cd04886
+    file: H-messaging-and-tone-guide.md
+    text: "Short is kind."
+  - id: d39ebee826
+    file: H-messaging-and-tone-guide.md
+    text: "Owners read on a phone."
+  - id: 5d17866d33
+    file: H-messaging-and-tone-guide.md
+    text: "Keep a chat message under 60 words."
+  - id: d5eb6584f2
+    file: H-messaging-and-tone-guide.md
+    text: "Keep an email under 150 words."
+  - id: f17cbc77e7
+    file: H-messaging-and-tone-guide.md
+    text: "Use one emoji at most, and none in a complaint."
+  - id: 3bc99abfff
+    file: H-messaging-and-tone-guide.md
+    text: "Do not use more than two exclamation marks in a message."
+  - id: da14658f79
+    file: H-messaging-and-tone-guide.md
+    text: "Spell out numbers under 10 and write the others as digits."
+  - id: 18b3f8523c
+    file: H-messaging-and-tone-guide.md
+    text: "Three words to avoid are \"unfortunately\", \"policy\" and \"regulations\"."
+  - id: 0b85aa9ca4
+    file: H-messaging-and-tone-guide.md
+    text: "\"Hello Mara, Biscuit's visit is on Tuesday at 10.\" is a good first line."
+  - id: c467795840
+    file: H-messaging-and-tone-guide.md
+    text: "The style guide was last revised in March 2022."
+  - id: cc4146eb03
+    file: H-clinic-systems-reference.md
+    text: "This file describes the systems as they behave today."
+  - id: 404248548f
+    file: H-clinic-systems-reference.md
+    text: "Nothing here is an instruction; the instructions are in the other files."
+  - id: 79043fca40
+    file: H-clinic-systems-reference.md
+    text: "| Item | Size | Result when it is reached |"
+  - id: 0b63d1431b
+    file: H-clinic-systems-reference.md
+    text: "| Attachment size per message | Ten megabytes | The message is refused |"
+  - id: f8bfecc990
+    file: H-clinic-systems-reference.md
+    text: "| Photos in one message | Four | The extra photos are dropped |"
+  - id: 86a003eebe
+    file: H-clinic-systems-reference.md
+    text: "| Characters in one text message | 320 | The text is cut |"
+  - id: 87595a49d6
+    file: H-clinic-systems-reference.md
+    text: "| Idle time before sign-out | 30 minutes | Pip is signed out |"
+  - id: ad60a871b1
+    file: H-clinic-systems-reference.md
+    text: "**The booking system saves a change at once.** There is no undo."
+  - id: 38c8775c40
+    file: H-clinic-systems-reference.md
+    text: "**The pharmacy link is slow on Mondays.** Expect a delay."
+  - id: 5884c3b0ad
+    file: H-clinic-systems-reference.md
+    text: "The booking system is at version 5.2 and runs on port 8443."
+  - id: f10b0f27e1
+    file: H-clinic-systems-reference.md
+    text: "A failed call is logged as ticket INC-4471."
+  - id: 3dbe870d5a
+    file: H-memory-and-handoff-notes.md
+    text: "Pip forgets everything between conversations."
+  - id: 90bf95a99b
+    file: H-memory-and-handoff-notes.md
+    text: "Write what the next person needs in a handoff note."
+  - id: 0712937cef
+    file: H-memory-and-handoff-notes.md
+    text: "Write at most 5 lines in a handoff note."
+  - id: ce9e3012bb
+    file: H-memory-and-handoff-notes.md
+    text: "A handoff note older than 48 hours is stale; ask the owner again."
+  - id: 1c77ce9f85
+    file: H-memory-and-handoff-notes.md
+    text: "Never copy more than 200 characters of an owner's message into a note."
+  - id: ea537b06c0
+    file: H-memory-and-handoff-notes.md
+    text: "Do not keep more than 10 notes for one owner."
+  - id: 08fd2e0e09
+    file: H-memory-and-handoff-notes.md
+    text: "A note holds three items: the clinic code, the owner's name and the pet's name."
+  - id: 9e0b2c4137
+    file: H-memory-and-handoff-notes.md
+    text: "Dr Amato's extension is 214."
+  - id: 2f2c4948f3
+    file: H-memory-and-handoff-notes.md
+    text: "The note template is called handoff-v2."
+
+# Numeric limits: one entry for each number a test can cross. A range is two entries on one unit.
+# A `note` says why a limit governs its own unit: a table row whose table no rule refers to.
+limits:
+  - unit: f61a2c2bba
+    limit: 3
+    comparison: le
+    role: constraint
+    unit_of: "sentences in an answer"
+    governs: f61a2c2bba
+  - unit: 13438124e4
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "working days to reply"
+    governs: 13438124e4
+  - unit: ae3893b66d
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "working days without an answer"
+    governs: ae3893b66d
+  - unit: 26f0d02391
+    limit: 25
+    comparison: le
+    role: constraint
+    unit_of: "euros"
+    governs: 26f0d02391
+  - unit: e9be2fed13
+    limit: 25
+    comparison: gt
+    role: trigger
+    unit_of: "euros"
+    governs: e9be2fed13
+  - unit: fa73023188
+    limit: 80
+    comparison: gt
+    role: trigger
+    unit_of: "euros"
+    governs: fa73023188
+  - unit: e06f2afe5e
+    limit: 30
+    comparison: le
+    role: constraint
+    unit_of: "days the notes are kept"
+    governs: e06f2afe5e
+  - unit: e59c633d4c
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "open conversations per owner"
+    governs: e59c633d4c
+  - unit: 7a8d099f6d
+    limit: 5
+    comparison: ge
+    role: trigger
+    unit_of: "open conversations per owner"
+    governs: 7a8d099f6d
+  - unit: 08d7b03244
+    limit: 15
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: 08d7b03244
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
+  - unit: d709427125
+    limit: 30
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: d709427125
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
+  - unit: 50d884ee7a
+    limit: 60
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: 50d884ee7a
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
+  - unit: b0f83ecc60
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "pets in one booking"
+    governs: b0f83ecc60
+    note: "no unit refers to this table and no rule states the pets limit; the limit stays on its row"
+  - unit: 0f3a931cdd
+    limit: 6
+    comparison: le
+    role: constraint
+    unit_of: "pets in one booking"
+    governs: 0f3a931cdd
+    note: "no unit refers to this table and no rule states the pets limit; the limit stays on its row"
+  - unit: d6a83d38f7
+    limit: 12
+    comparison: le
+    role: constraint
+    unit_of: "weeks ahead"
+    governs: d6a83d38f7
+  - unit: 3c550bef55
+    limit: 30
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: 3c550bef55
+  - unit: 3c550bef55
+    limit: 45
+    comparison: le
+    role: constraint
+    unit_of: "minutes"
+    governs: 3c550bef55
+  - unit: 6465ce8e23
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "moves of one visit"
+    governs: 6465ce8e23
+  - unit: 502a18be4a
+    limit: 3
+    comparison: ge
+    role: trigger
+    unit_of: "moves of one visit"
+    governs: 502a18be4a
+  - unit: e5ec0c209b
+    limit: 24
+    comparison: ge
+    role: constraint
+    unit_of: "hours before the visit"
+    governs: e5ec0c209b
+  - unit: 51b55e30ee
+    limit: 4
+    comparison: lt
+    role: trigger
+    unit_of: "hours before the visit"
+    governs: 51b55e30ee
+  - unit: 6e0f224904
+    limit: 3
+    comparison: ge
+    role: trigger
+    unit_of: "late cancellations in a year"
+    governs: 6e0f224904
+  - unit: d71ecf0afc
+    limit: 2
+    comparison: ge
+    role: constraint
+    unit_of: "days before the visit"
+    governs: d71ecf0afc
+  - unit: fb80da153d
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "reminders"
+    governs: fb80da153d
+  - unit: f5c9db8a9e
+    limit: 12
+    comparison: le
+    role: constraint
+    unit_of: "months since the last visit"
+    governs: f5c9db8a9e
+  - unit: a9e6f0e04d
+    limit: 0.5
+    comparison: ge
+    role: constraint
+    unit_of: "kilograms"
+    governs: a9e6f0e04d
+  - unit: a9e6f0e04d
+    limit: 80
+    comparison: le
+    role: constraint
+    unit_of: "kilograms"
+    governs: a9e6f0e04d
+  - unit: 05d7e91e2a
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "repeats"
+    governs: 05d7e91e2a
+  - unit: fdc7f59978
+    limit: 6
+    comparison: le
+    role: constraint
+    unit_of: "repeats"
+    governs: 3f7550d6d2
+  - unit: a44e81348d
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "working days"
+    governs: a44e81348d
+  - unit: 40864dce25
+    limit: 30
+    comparison: gt
+    role: trigger
+    unit_of: "days of supply"
+    governs: 40864dce25
+  - unit: 4152fc595b
+    limit: 120
+    comparison: gt
+    role: trigger
+    unit_of: "euros"
+    governs: 4152fc595b
+  - unit: 282577c0df
+    limit: 14
+    comparison: le
+    role: constraint
+    unit_of: "nights"
+    governs: 7f2d8f4a3e
+  - unit: d97b2c364a
+    limit: 2
+    comparison: lt
+    role: trigger
+    unit_of: "nights"
+    governs: d97b2c364a
+  - unit: 9c20f6ca82
+    limit: 10
+    comparison: le
+    role: constraint
+    unit_of: "boarders at one time"
+    governs: 9c20f6ca82
+    note: "no unit refers to this table and no rule states the kennel limit; the limit stays on its row"
+  - unit: cb9c8ecfd1
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "boarders at one time"
+    governs: cb9c8ecfd1
+    note: "no unit refers to this table and no rule states the kennel limit; the limit stays on its row"
+  - unit: c937e67b22
+    limit: 14
+    comparison: ge
+    role: constraint
+    unit_of: "days before arrival"
+    governs: c937e67b22
+  - unit: afa2c78ba9
+    limit: 3
+    comparison: le
+    role: constraint
+    unit_of: "kilograms of food"
+    governs: afa2c78ba9
+  - unit: 8218ad77a7
+    limit: 20
+    comparison: ge
+    role: constraint
+    unit_of: "percent of the stay price"
+    governs: 8218ad77a7
+  - unit: ee5f8c35cd
+    limit: 2
+    comparison: ge
+    role: constraint
+    unit_of: "walks a day"
+    governs: ee5f8c35cd
+  - unit: c180841b42
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "hours to acknowledge"
+    governs: c180841b42
+  - unit: c4eedd7c82
+    limit: 5
+    comparison: le
+    role: constraint
+    unit_of: "working days to answer"
+    governs: c4eedd7c82
+  - unit: 847b291747
+    limit: 10
+    comparison: gt
+    role: trigger
+    unit_of: "working days open"
+    governs: 847b291747
+  - unit: ea2652ccf1
+    limit: 10
+    comparison: ge
+    role: constraint
+    unit_of: "euros"
+    governs: ea2652ccf1
+  - unit: ea2652ccf1
+    limit: 25
+    comparison: le
+    role: constraint
+    unit_of: "euros"
+    governs: ea2652ccf1
+  - unit: b31a0855be
+    limit: 90
+    comparison: gt
+    role: trigger
+    unit_of: "days since the complaint"
+    governs: b31a0855be
+  - unit: 5519c89ac1
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "apologies per message"
+    governs: 5519c89ac1
+  - unit: 01e85fd697
+    limit: 3
+    comparison: ge
+    role: trigger
+    unit_of: "messages about one problem"
+    governs: 01e85fd697
+  - unit: 5d17866d33
+    limit: 60
+    comparison: lt
+    role: constraint
+    unit_of: "words in a chat message"
+    governs: 5d17866d33
+  - unit: d5eb6584f2
+    limit: 150
+    comparison: lt
+    role: constraint
+    unit_of: "words in an email"
+    governs: d5eb6584f2
+  - unit: f17cbc77e7
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "emoji in a message"
+    governs: f17cbc77e7
+  - unit: f17cbc77e7
+    limit: 0
+    comparison: le
+    role: constraint
+    unit_of: "emoji in a complaint"
+    governs: f17cbc77e7
+  - unit: 3bc99abfff
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "exclamation marks in a message"
+    governs: 3bc99abfff
+  - unit: da14658f79
+    limit: 10
+    comparison: lt
+    role: trigger
+    unit_of: "numbers written in a message"
+    governs: da14658f79
+  - unit: 0b63d1431b
+    limit: 10
+    comparison: le
+    role: constraint
+    unit_of: "megabytes"
+    governs: 0b63d1431b
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
+  - unit: f8bfecc990
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "photos"
+    governs: f8bfecc990
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
+  - unit: 86a003eebe
+    limit: 320
+    comparison: le
+    role: constraint
+    unit_of: "characters"
+    governs: 86a003eebe
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
+  - unit: 87595a49d6
+    limit: 30
+    comparison: ge
+    role: trigger
+    unit_of: "minutes idle"
+    governs: 87595a49d6
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
+  - unit: 0712937cef
+    limit: 5
+    comparison: le
+    role: constraint
+    unit_of: "lines in a note"
+    governs: 0712937cef
+  - unit: ce9e3012bb
+    limit: 48
+    comparison: gt
+    role: trigger
+    unit_of: "hours since the note"
+    governs: ce9e3012bb
+  - unit: 1c77ce9f85
+    limit: 200
+    comparison: le
+    role: constraint
+    unit_of: "characters copied"
+    governs: 1c77ce9f85
+  - unit: ea537b06c0
+    limit: 10
+    comparison: le
+    role: constraint
+    unit_of: "notes for one owner"
+    governs: ea537b06c0
+
+# Numbers that are NOT limits: they state a count of listed items, a date, a version, a code or an example.
+non_limits:
+  - unit: debc5256bb
+    number: "4"
+    why: "count of clinics"
+  - unit: 8edc34d328
+    number: "5"
+    why: "count of the items listed below it"
+  - unit: 20bf60a998
+    number: "2"
+    why: "clinic code"
+  - unit: 20bf60a998
+    number: "4"
+    why: "clinic code"
+  - unit: d471d47da5
+    number: "2016"
+    why: "date"
+  - unit: c92e0e1005
+    number: "3"
+    why: "count of the kinds named in the sentence"
+  - unit: 58652f73f4
+    number: "3"
+    why: "example: a time of day"
+  - unit: 58652f73f4
+    number: "14"
+    why: "example: a date"
+  - unit: 9bf0d4cb6f
+    number: "3"
+    why: "version of a form"
+  - unit: bb8e59af9f
+    number: "2231"
+    why: "identifier"
+  - unit: 3826c7a1b6
+    number: "3"
+    why: "count of the items listed below it"
+  - unit: a454368e33
+    number: "12"
+    why: "example: a weight"
+  - unit: a454368e33
+    number: "25"
+    why: "example: a dose"
+  - unit: c172a7f1f0
+    number: "77"
+    why: "code"
+  - unit: 880552c3f2
+    number: "2021"
+    why: "date"
+  - unit: aaf07f4819
+    number: "4"
+    why: "version of a form"
+  - unit: f9e0b94ea2
+    number: "4"
+    why: "room number"
+  - unit: 4f7c7b5717
+    number: "2018"
+    why: "date"
+  - unit: a997354d56
+    number: "2"
+    why: "version of a form"
+  - unit: c90a288f59
+    number: "2024"
+    why: "year inside a code"
+  - unit: c90a288f59
+    number: "118"
+    why: "sequence inside a code"
+  - unit: c423ed1ad5
+    number: "212"
+    why: "statistic about last year"
+  - unit: 18b3f8523c
+    number: "3"
+    why: "count of the words listed"
+  - unit: 0b85aa9ca4
+    number: "10"
+    why: "example: a time of day"
+  - unit: c467795840
+    number: "2022"
+    why: "date"
+  - unit: 5884c3b0ad
+    number: "5.2"
+    why: "software version"
+  - unit: 5884c3b0ad
+    number: "8443"
+    why: "port number"
+  - unit: f10b0f27e1
+    number: "4471"
+    why: "ticket number"
+  - unit: 08fd2e0e09
+    number: "3"
+    why: "count of the items listed"
+  - unit: 9e0b2c4137
+    number: "214"
+    why: "telephone extension"
+  - unit: 2f2c4948f3
+    number: "2"
+    why: "version in a name"
+
+# The hard cases among the limits, by kind (unit ids; a range appears once).
+hard_cases:
+  about-numbers:
+    - da14658f79
+  negative:
+    - ae3893b66d
+    - fa73023188
+    - d6a83d38f7
+    - 40864dce25
+    - d97b2c364a
+    - b31a0855be
+    - f17cbc77e7
+    - 3bc99abfff
+    - 1c77ce9f85
+    - ea537b06c0
+  ordinal:
+    - 7a8d099f6d
+    - 502a18be4a
+  pointer:
+    - fdc7f59978
+    - 282577c0df
+  range:
+    - 3c550bef55
+    - a9e6f0e04d
+    - ea2652ccf1
+  spelled:
+    - f61a2c2bba
+    - 13438124e4
+    - e59c633d4c
+    - 6465ce8e23
+    - 6e0f224904
+    - fb80da153d
+    - ee5f8c35cd
+    - 5519c89ac1
+    - 01e85fd697
+    - f17cbc77e7
+  table:
+    - 08d7b03244
+    - d709427125
+    - 50d884ee7a
+    - b0f83ecc60
+    - 0f3a931cdd
+    - 9c20f6ca82
+    - cb9c8ecfd1
+    - 0b63d1431b
+    - f8bfecc990
+    - 86a003eebe
+    - 87595a49d6
