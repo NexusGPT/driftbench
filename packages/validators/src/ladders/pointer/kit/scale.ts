@@ -233,10 +233,23 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.calls.push(calls);
     out.units = live.length;
     out.live.push(live.length);
+    // Every planted sentence must come back once, as a live entry with its planted label; the two headings too.
+    const planted = new Map<string, number>();
+    for (const paragraph of [...first, ...second])
+      for (const sentence of paragraph.split(/(?<=\.) /))
+        planted.set(sentence, (planted.get(sentence) ?? 0) + 1);
+    const returned = new Map<string, number>();
+    for (const entry of live)
+      if (entry.labels['agent-rules']?.label === 'description')
+        returned.set(entry.quote, (returned.get(entry.quote) ?? 0) + 1);
+    let missing = 0;
+    for (const [sentence, count] of planted) missing += Math.max(0, count - (returned.get(sentence) ?? 0));
     out.extra = {
       characters: text.length,
       windows: value.windows,
       widest,
+      expectedLive: 2 * (first.length + second.length) + 2,
+      missing,
       unlabelled: live.filter((e) => e.labels['agent-rules']?.label !== 'description').length,
       failed: value.diagnostics.filter((d) => d.code === 'failed-window').length,
     };
