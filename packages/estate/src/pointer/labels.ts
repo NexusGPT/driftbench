@@ -361,6 +361,7 @@ export function checkAnswer(
 ): Checked {
   const allowed = new Map(set.labels.map((label) => [label.name, label]));
   const inWindow = new Set(window.units.map((unit) => unit.n));
+  const shown = new Set((window.display ?? []).map((line) => line.n));
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
@@ -376,13 +377,20 @@ export function checkAnswer(
       refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
       continue;
     }
-    const numbers = expandUnits(entry.units);
-    if (!numbers) {
+    const named = expandUnits(entry.units);
+    if (!named) {
       refuse(`${window.id}: "${entry.units}" is no unit number or range`);
       continue;
     }
-    if (numbers.some((n) => !inWindow.has(n))) {
+    // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
+    // are dropped. A number that is neither a unit nor a shown line of this window refuses the entry.
+    if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {
       refuse(`${window.id}: "${entry.units}" leaves the window`);
+      continue;
+    }
+    const numbers = named.filter((n) => inWindow.has(n));
+    if (numbers.length === 0) {
+      refuse(`${window.id}: "${entry.units}" names no unit to label`);
       continue;
     }
     if (numbers.some((n) => covered.has(n))) {
