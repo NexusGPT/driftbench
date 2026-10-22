@@ -150,7 +150,11 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
   const rows: Array<{ step: string; tie: string; verified: 'yes' | 'gap' | 'NO' }> = [];
   const gapped = new Set<string>();
   async function prove(step: string, check: () => Promise<string>): Promise<void> {
-    const row: { step: string; tie: string; verified: 'yes' | 'gap' | 'NO' } = { step, tie: '', verified: 'NO' };
+    const row: { step: string; tie: string; verified: 'yes' | 'gap' | 'NO' } = {
+      step,
+      tie: '',
+      verified: 'NO',
+    };
     rows.push(row);
     row.tie = await check();
     row.verified = gapped.has(step) ? 'gap' : 'yes';
@@ -451,7 +455,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           {
             truth: original.length,
             found: original.filter(([k]) => produced.has(k)).length,
-            produced: producedCount,
+            produced: produced.size,
           },
           'the producer on the 38-limit truth (truth limits, found, produced) differs from known-gaps.json',
         ).toEqual(KNOWN[estate].limits38);
