@@ -42,7 +42,7 @@ export type PointerInput = {
   previous?: Ledger;
   /** The most units in one window before the labeler's own cap. Default 60. */
   windowUnits?: number;
-  /** Let a window run on to the end of its section, up to twice `windowUnits`. Default true. */
+  /** Let a window of a chat labeler run on to the end of its section, up to twice the cap. Default true. */
   keepSections?: boolean;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
@@ -377,7 +377,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           fileCut.units,
           member.maxUnits(set, size),
           file.text,
-          input.keepSections ?? true,
+          // Only a chat labeler names targets and scopes; a yes or no labeler's windows stay as its cap cuts them.
+          member.cls === 'system2' && (input.keepSections ?? true),
         )) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {
