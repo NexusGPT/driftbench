@@ -34,8 +34,8 @@ const FILES = {
   'docs/send.md': '# Send\n',
 };
 
-async function gates(acts: string[]) {
-  const root = await estate(FILES);
+async function gates(acts: string[], files: Record<string, string> = FILES) {
+  const root = await estate(files);
   const { map, pointer } = await scanEstate({
     root,
     reader: new ClaudeCodeReader(),
@@ -86,6 +86,33 @@ describe('a mapping that takes the nth span for the nth path (spanEach)', () => 
     expect(found).toEqual([
       ['docs/ledger.md', 'editing a ledger'],
       ['docs/send.md', 'editing a ledger'],
+    ]);
+  });
+
+  it('keeps one gate for each occurrence when two gates name one file', async () => {
+    const line = 'Before editing a ledger: read `docs/ledger.md`; before sending one: read `docs/ledger.md`.';
+    const { found, refusals } = await gates(['editing a ledger', 'sending one'], {
+      'CLAUDE.md': `# Gates\n\n${line}\n`,
+      'docs/ledger.md': '# Ledger\n',
+    });
+    expect(refusals).toEqual([]);
+    expect(found).toEqual([
+      ['docs/ledger.md', 'editing a ledger'],
+      ['docs/ledger.md', 'sending one'],
+    ]);
+  });
+
+  it('drops an exact repeat inside one gate', async () => {
+    const line =
+      'Before editing a ledger: read `docs/ledger.md` (that is `docs/ledger.md`); before sending one: read `docs/send.md`.';
+    const { found } = await gates(['editing a ledger', 'sending one'], {
+      'CLAUDE.md': `# Gates\n\n${line}\n`,
+      'docs/ledger.md': '# Ledger\n',
+      'docs/send.md': '# Send\n',
+    });
+    expect(found).toEqual([
+      ['docs/ledger.md', 'editing a ledger'],
+      ['docs/send.md', 'sending one'],
     ]);
   });
 });

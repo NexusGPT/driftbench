@@ -241,12 +241,32 @@ export function pointerAtoms(
     );
     // The paths in the order they stand in the unit (by offset, not by the kind of notation that found them), so the
     // nth path takes the nth span.
-    const inOrder = pathMentions(item.unit.text)
-      .sort((a, b) => a.start - b.start)
+    const mentions = pathMentions(item.unit.text).sort((a, b) => a.start - b.start);
+    const inOrder = mentions
       .map(({ path }) => path)
       .filter((path, index, all) => all.indexOf(path) === index);
     const allNamed = inOrder.filter((path) => !imported(path));
     const firstNamed = namedOf(item.unit.text);
+    // Under a `spanEach` mapping each gate binds its own path occurrence: the unit is cut at the start of each span of
+    // that kind, and an exact repeat is dropped only inside one gate's stretch, so two gates naming one file keep both.
+    const perGate = (kind: string): string[] => {
+      const starts = labelSpans
+        .filter((entry) => entry.kind === kind)
+        .map((entry) => entry.from)
+        .sort((a, b) => a - b);
+      if (starts.length < 2) return allNamed;
+      const stretchOf = (offset: number): number =>
+        starts.filter((from, index) => index > 0 && from <= offset).length;
+      return mentions
+        .filter(({ path }) => !imported(path))
+        .filter(
+          (mention, index, all) =>
+            all.findIndex(
+              (other) => other.path === mention.path && stretchOf(other.start) === stretchOf(mention.start),
+            ) === index,
+        )
+        .map(({ path }) => path);
+    };
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
     const templateFor = (
       namedPath: string | undefined,
@@ -294,9 +314,10 @@ export function pointerAtoms(
     });
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
+      const eachNamed = mapping.spanEach === undefined ? allNamed : perGate(mapping.spanEach);
       const paths =
         (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
-          ? allNamed
+          ? eachNamed
           : [readable];
       // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
       // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
