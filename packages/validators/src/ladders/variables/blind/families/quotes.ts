@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
 import type { ItemContext } from '../../bank/item';
+import type { Rng } from '../../bank/util';
 import type { FileProvenance, FileStore } from '../../interface';
 import { baseFile, constraintOf, copy, variableOf } from '../files';
+import * as f from '../folds';
 import { callBuild, callQuotes, must, type Stem, show } from '../kit';
 import { OWNER_DATE, varOf } from '../scene';
 
@@ -76,25 +78,25 @@ const foundAt =
 
 /** The text is findable once folded: the quote and the file differ only in what the page folds. */
 const folds =
-  (inFile: string, inQuote: string, label: string) =>
+  (label: string, make: (rng: Rng) => f.Pair) =>
   (ctx: ItemContext): void => {
-    const file = `# Notes\n\nPrefix words here. ${inFile} Suffix words there.\n`;
+    const { inFile, inQuote } = make(ctx.rng);
     noErrors(
       ctx,
       storeWith(ctx, 'value', quote(inQuote)),
-      { [PATH]: file },
+      { [PATH]: f.around(ctx.rng, inFile) },
       `${label}: the quote ${show(inQuote)} is the file text ${show(inFile)} once folded, and was reported`,
     );
   };
 
 const differs =
-  (inFile: string, inQuote: string, _label: string) =>
+  (make: (rng: Rng) => f.Pair) =>
   (ctx: ItemContext): void => {
-    const file = `# Notes\n\nPrefix words here. ${inFile} Suffix words there.\n`;
+    const { inFile, inQuote } = make(ctx.rng);
     oneError(
       ctx,
       storeWith(ctx, 'value', quote(inQuote)),
-      { [PATH]: file },
+      { [PATH]: f.around(ctx.rng, inFile) },
       'VARIABLES_QUOTE_NOT_FOUND',
       `${BASES.value}.quote`,
     );
@@ -391,82 +393,22 @@ export const QUOTES_STEMS: readonly Stem[] = [
     cause:
       'a quote is found word for word after the folding of white space, typographic quotes, accents, characters that print nothing and the markdown backslash, and case and punctuation must match',
     cases: [
-      [
-        'white-space-runs-in-the-quote',
-        2,
-        folds('late by more than two days', 'late   by\tmore\nthan two  days', 'white space'),
-      ],
-      [
-        'white-space-runs-in-the-file',
-        2,
-        folds('late  by\n more\tthan   two days', 'late by more than two days', 'white space'),
-      ],
-      [
-        'typographic-double-quotes-in-the-file',
-        2,
-        folds('He said “stop” at once', 'He said "stop" at once', 'double quotes'),
-      ],
-      [
-        'typographic-single-quotes-in-the-file',
-        2,
-        folds('It’s the ‘main’ desk', "It's the 'main' desk", 'single quotes'),
-      ],
-      [
-        'typographic-quotes-in-the-quote',
-        3,
-        folds(
-          'He said "stop" at once, it\'s final',
-          'He said “stop” at once, it’s final',
-          'quotes in the quote',
-        ),
-      ],
-      [
-        'composed-accents-in-the-file-decomposed-in-the-quote',
-        3,
-        folds('Le café crème', 'Le café crème', 'accents'),
-      ],
-      [
-        'decomposed-accents-in-the-file-composed-in-the-quote',
-        3,
-        folds('Le café crème', 'Le café crème', 'accents'),
-      ],
-      [
-        'zero-width-characters-in-the-file',
-        3,
-        folds('the re​fund‌ po‍licy⁠ holds', 'the refund policy holds', 'zero width'),
-      ],
-      [
-        'zero-width-characters-in-the-quote',
-        3,
-        folds('the refund policy holds', 'the re​fund po⁠licy﻿ holds', 'zero width'),
-      ],
-      [
-        'soft-hyphen-prints-nothing',
-        4,
-        folds('the re­fund policy holds', 'the refund policy holds', 'soft hyphen'),
-      ],
-      [
-        'markdown-backslash-before-an-asterisk',
-        3,
-        folds('Use the \\*escalate\\* tag', 'Use the *escalate* tag', 'markdown backslash'),
-      ],
-      [
-        'markdown-backslash-before-an-underscore',
-        3,
-        folds('Keep snake\\_case names', 'Keep snake_case names', 'markdown backslash'),
-      ],
-      ['case-must-match', 2, differs('Never promise a refund', 'never promise a refund', 'case')],
-      ['punctuation-must-match', 2, differs('refund, then ask', 'refund; then ask', 'punctuation')],
-      [
-        'a-missing-word-is-not-found',
-        2,
-        differs(
-          'tell the customer and offer a supplier email',
-          'tell customer and offer a supplier email',
-          'word',
-        ),
-      ],
-      ['accents-must-still-match', 3, differs('Le café is open', 'Le cafe is open', 'accent')],
+      ['white-space-runs-in-the-quote', 2, folds('white space', f.whiteSpaceInTheQuote)],
+      ['white-space-runs-in-the-file', 2, folds('white space', f.whiteSpaceInTheFile)],
+      ['typographic-double-quotes-in-the-file', 2, folds('double quotes', f.doubleQuotesInTheFile)],
+      ['typographic-single-quotes-in-the-file', 2, folds('single quotes', f.singleQuotesInTheFile)],
+      ['typographic-quotes-in-the-quote', 3, folds('quotes in the quote', f.typographicQuotesInTheQuote)],
+      ['composed-accents-in-the-file-decomposed-in-the-quote', 3, folds('accents', f.composedInTheFile)],
+      ['decomposed-accents-in-the-file-composed-in-the-quote', 3, folds('accents', f.decomposedInTheFile)],
+      ['zero-width-characters-in-the-file', 3, folds('zero width', f.zeroWidthInTheFile)],
+      ['zero-width-characters-in-the-quote', 3, folds('zero width', f.zeroWidthInTheQuote)],
+      ['soft-hyphen-prints-nothing', 4, folds('soft hyphen', f.softHyphen)],
+      ['markdown-backslash-before-an-asterisk', 3, folds('markdown backslash', f.backslashBeforeAsterisk)],
+      ['markdown-backslash-before-an-underscore', 3, folds('markdown backslash', f.backslashBeforeUnderscore)],
+      ['case-must-match', 2, differs(f.caseMustMatch)],
+      ['punctuation-must-match', 2, differs(f.punctuationMustMatch)],
+      ['a-missing-word-is-not-found', 2, differs(f.missingWord)],
+      ['accents-must-still-match', 3, differs(f.accentMustMatch)],
     ],
   },
   {
