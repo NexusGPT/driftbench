@@ -49,6 +49,8 @@ export async function runUnitsEstate(options: {
   folder: string;
   ask: variables.LimitAsk;
   estate?: UnitsEstate;
+  /** Use the planted `refers_to` and `limits_table` of the truth file. Default: yes when the file has them. */
+  planted?: boolean;
 }): Promise<UnitsRun> {
   const estate = options.estate ?? (await loadUnitsEstate(options.folder));
   const layout = layoutOf(estate.files.map((file) => file.path));
@@ -113,15 +115,43 @@ export async function runUnitsEstate(options: {
     }
     const labelled = new Set(tableId.values());
     const unmatched = estate.truth.units.map((unit) => unit.id).filter((id) => !labelled.has(id));
+    // The planted fields of the truth lane: what a labeller would say. The referred text is copied by code from the table.
+    const planted = options.planted ?? true;
+    const textOf = new Map(estate.truth.units.map((unit) => [unit.id, unit.text]));
+    const targetsOf = new Map(estate.truth.refersTo.map((entry) => [entry.unit, entry.targets]));
     const asked = await variables.produceLimits(scan.map, {
       texts,
       ask: options.ask,
       include: (atom) => tableId.has(atom.id),
+      ...(planted && targetsOf.size > 0
+        ? {
+            referred: (atom) => {
+              const targets = targetsOf.get(tableId.get(atom.id) ?? '');
+              return targets === undefined
+                ? undefined
+                : targets.map((id) => flat(textOf.get(id) ?? '')).join('\n');
+            },
+          }
+        : {}),
     });
+    const tables = planted
+      ? estate.truth.limitsTable.map((table, at) => ({
+          id: `table-${at + 1}`,
+          header: flat(textOf.get(table.header) ?? ''),
+          rows: table.rows.map((id) => ({ id, text: flat(textOf.get(id) ?? '') })),
+        }))
+      : [];
+    const tabled = await variables.produceTableLimits(tables, { ask: options.ask });
+    for (const table of tables) for (const row of table.rows) labelled.add(row.id);
     const produced: Produced[] = [];
     for (const [atomId, list] of asked.limits) {
       const unit = tableId.get(atomId);
       if (unit === undefined) continue;
+      for (const found of list) {
+        produced.push({ unit, limit: found.limit, comparison: found.comparison, role: found.role });
+      }
+    }
+    for (const [unit, list] of tabled.limits) {
       for (const found of list) {
         produced.push({ unit, limit: found.limit, comparison: found.comparison, role: found.role });
       }
@@ -131,8 +161,8 @@ export async function runUnitsEstate(options: {
       produced,
       unmatched,
       outside: [...outside].map(([place, text]) => `${place}: ${text}`),
-      requests: asked.requests,
-      unreadable: asked.unreadable.length,
+      requests: asked.requests + tabled.requests,
+      unreadable: asked.unreadable.length + tabled.unreadable.length,
     };
   } finally {
     await rm(dir, { recursive: true, force: true });

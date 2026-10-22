@@ -159,4 +159,32 @@ describe('the held-out harness on a made-up estate', () => {
       'non_limits[0]: u9 is not a unit',
     ]);
   });
+
+  it('uses the planted refers_to and limits_table: the pointer gets a REFERRED block, the table one request, nothing else changes', async () => {
+    const folder = join(dirname(fileURLToPath(import.meta.url)), 'fixtures/tiny-planted');
+    const seen: string[] = [];
+    const ask = async (request: { system: string; user: string }): Promise<string> => {
+      seen.push(request.user);
+      if (request.user.includes('REFERRED:\nA stall may be rented for at most 14 nights.'))
+        return JSON.stringify({ limits: [{ limit: 14, comparison: 'le', role: 'constraint' }] });
+      if (request.user.startsWith('TABLE HEADER:'))
+        return JSON.stringify({
+          limits: [
+            { row: 1, limit: 14, comparison: 'le', role: 'constraint' },
+            { row: 2, limit: 30, comparison: 'le', role: 'constraint' },
+          ],
+        });
+      return '{"limits": []}';
+    };
+    const planted = await runUnitsEstate({ folder, ask });
+    expect(planted.score.limits).toEqual({ truth: 3, found: 3, exact: 3, missing: [], unreachable: [] });
+    expect(seen.filter((user) => user.includes('REFERRED:'))).toHaveLength(1);
+    expect(seen.filter((user) => user.startsWith('TABLE HEADER:'))).toHaveLength(1);
+    // The neighbour that nothing points at is asked as it always was.
+    expect(seen.find((user) => user.endsWith('INSTRUCTION:\nGreet the rider by name.'))).not.toContain('REFERRED');
+    // Without the planted fields the pointer gets no number (the stub answers only a REFERRED request) and the table rows are out of reach.
+    const plain = await runUnitsEstate({ folder, ask, planted: false });
+    expect(plain.score.limits.found).toBe(0);
+    expect(plain.score.limits.unreachable.sort()).toEqual(['r1', 'r2']);
+  });
 });
