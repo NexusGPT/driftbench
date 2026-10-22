@@ -195,7 +195,11 @@ describe('each evidence predicate as an existing check', () => {
     ).toEqual([{ before: 'Read~refs/own.md', after: 'Edit' }]);
     // No declared Read, or a declared call of another tool, leaves the pair as it was.
     expect(pairOf(atom('g', [ordered], { kind: 'gate' }))).toEqual([{ before: 'Read', after: 'Edit' }]);
-    const bash: EstateEvidence = { type: 'tool_called', label: 'Bash', input: { command: { contains: 'x.sh' } } };
+    const bash: EstateEvidence = {
+      type: 'tool_called',
+      label: 'Bash',
+      input: { command: { contains: 'x.sh' } },
+    };
     expect(pairOf(atom('g', [ordered, bash], { kind: 'gate' }))).toEqual([{ before: 'Read', after: 'Edit' }]);
     // The key of the gate still ends the pair when no file is declared.
     expect(pairOf(atom('g', [ordered], { kind: 'gate', fields: { order: { key: 'file_path' } } }))).toEqual([
