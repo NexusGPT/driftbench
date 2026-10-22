@@ -9,6 +9,7 @@ import {
   offsetSpans,
   parseLabelSets,
   setHash,
+  shownLabelDrops,
 } from '../../src/pointer';
 
 // Two invented sets on the same units: one for a bakery's counter notes, one for a harbour's mooring notes.
@@ -203,9 +204,92 @@ describe('checking an answer', () => {
     expect([...checked.covered]).toEqual([1, 2, 3]);
   });
 
+  it('labels the units of a range that crosses a line the window shows but does not ask about', () => {
+    // Units and display lines share one numbering: 3 is a read line, 5 a context line.
+    const shown = {
+      ...window,
+      units: [1, 2, 4, 6].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const checked = checkAnswer(counter, shown, [{ units: '1-5', label: 'greeting' }]);
+    expect(checked.refusals).toEqual([]);
+    expect([...checked.accepted.keys()]).toEqual([1, 2, 4]);
+    expect([...checked.covered]).toEqual([1, 2, 4]);
+    // A number outside the window still refuses the whole entry, even inside a range over display lines.
+    const outside = checkAnswer(counter, shown, [{ units: '1-9', label: 'greeting' }]);
+    expect(outside.refusals).toEqual(['notes.md#1: "1-9" leaves the window']);
+    expect(outside.accepted.size).toBe(0);
+    // An entry called none that names only display lines is dropped, and the answer is not refused.
+    const only = checkAnswer(counter, shown, [
+      { units: '3', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ]);
+    expect(only.refusals).toEqual([]);
+    expect(only.invalid).toEqual([]);
+    expect([...only.accepted.keys()]).toEqual([1, 2]);
+    // A label other than none on a display line alone is a wrong answer: refused.
+    expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).invalid).toEqual([
+      'notes.md#1: "3" names a line that is not labelable',
+    ]);
+  });
+
+  it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
+    const same = checkAnswer(counter, window, [
+      { units: '1-2', label: 'greeting' },
+      { units: '1-2', label: 'greeting' },
+      { units: '3', label: 'none' },
+      { units: '3', label: 'none' },
+    ]);
+    expect(same.refusals).toEqual([]);
+    expect([...same.accepted.keys()]).toEqual([1, 2]);
+    expect([...same.covered]).toEqual([1, 2, 3]);
+    // Another label, or the same label on a unit inside a range already given, is a unit named twice.
+    for (const second of [
+      { units: '2', label: 'price-claim' },
+      { units: '2', label: 'greeting' },
+    ]) {
+      const other = checkAnswer(counter, window, [{ units: '1-2', label: 'greeting' }, second]);
+      expect(other.invalid).toEqual(['notes.md#1: "2" names a unit that is already labelled']);
+    }
+  });
+
+  it('splits the entries that put a real label on shown lines alone from the rest of an answer', () => {
+    const shown = {
+      ...window,
+      units: [1, 2, 4].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const answer = [
+      { units: '3', label: 'greeting' },
+      { units: '3-4', label: 'greeting' },
+      { units: '5', label: 'greeting' },
+      { units: '5', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ];
+    const split = shownLabelDrops(shown, answer);
+    expect(split.labels).toEqual([answer[1], answer[3], answer[4]]);
+    expect(split.dropped).toEqual([
+      { line: 3, label: 'greeting' },
+      { line: 5, label: 'greeting' },
+    ]);
+    // A label the set does not have is not dropped with the shown lines: it stays, and the check refuses it.
+    const known = new Set(['greeting', 'none']);
+    const unknown = shownLabelDrops(shown, [{ units: '3', label: 'mystery' }], known);
+    expect(unknown.dropped).toEqual([]);
+    expect(unknown.labels).toHaveLength(1);
+    // The entries that stand are checked as before.
+    expect(checkAnswer(counter, shown, split.labels).refusals).toEqual([]);
+  });
+
   it('refuses a label that is not in the set, with the reason', () => {
     const checked = checkAnswer(counter, window, [{ units: '1', label: 'order' }]);
-    expect(checked.refusals).toEqual(['notes.md#1: the label order is not in the set counter-voice']);
+    expect(checked.refusals).toEqual(['notes.md#1: label-not-in-set (counter-voice)']);
     expect(checked.accepted.size).toBe(0);
   });
 
@@ -257,7 +341,7 @@ describe('checking an answer', () => {
       { units: '1', label: gate.name, target: '2' as unknown as number },
     ]);
     expect(string.accepted.size).toBe(0);
-    expect(string.refusals).toEqual([expect.stringContaining('is no unit number')]);
+    expect(string.refusals).toEqual([expect.stringContaining('target-not-a-number')]);
     const none = checkAnswer(set, window, [{ units: '1', label: 'none', target: 2 }]);
     expect(none.accepted.size).toBe(0);
     expect(none.refusals).toEqual([expect.stringContaining('none takes no target')]);
@@ -616,5 +700,36 @@ describe('spans and links in a label set', () => {
       { units: '2', label: 'none', links: [{ kind: 'topic', to: 'none' }] },
     ]);
     expect(none.dropped[0]).toMatch(/carries no links/);
+  });
+});
+
+describe('a refused label set names what is wrong with it', () => {
+  const set = (name: string, label: string, extra = '') =>
+    `labels:\n  - set: ${name}\n    description: A set.\n    labels:\n      - name: ${label}\n        description: A label.\n${extra}`;
+  const message = (text: string): string => {
+    const parsed = parseLabelSets(text);
+    if (parsed.ok) throw new Error('the set was accepted');
+    return parsed.message;
+  };
+
+  it('names the label and the set of a bad identifier', () => {
+    expect(message(set('s3', 'bad name'))).toContain('"bad name"');
+    expect(message(set('s3', 'bad name'))).toContain('"s3"');
+  });
+
+  it('names the label of a target that is not required', () => {
+    expect(message(set('s4', 'odd', '        target: optional\n'))).toContain('"odd"');
+  });
+
+  it('names the label that holds more than three examples', () => {
+    const examples = ['a', 'b', 'c', 'd'].map((e) => `          - ${e}\n`).join('');
+    expect(message(set('many', 'voice', `        examples:\n${examples}`))).toContain('"voice"');
+  });
+
+  it('accepts a set named like an object property', () => {
+    for (const name of ['__proto__', 'constructor', 'hasOwnProperty']) {
+      expect(parseLabelSets(set(name, 'rule')).ok).toBe(true);
+    }
+    expect(message(set('has space', 'rule'))).toContain('"has space"');
   });
 });

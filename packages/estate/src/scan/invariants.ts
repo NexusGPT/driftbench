@@ -1,5 +1,5 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
-import { type PointerInput, type PointerResult, pointerAtoms, pointerScan } from '../pointer';
+import { type PointerInput, type PointerResult, pointerAtoms, pointerScan, readSpansOf } from '../pointer';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
@@ -96,6 +96,7 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
       ...options.pointer,
       atoms: builder.atoms.map((atom) => ({ id: atom.id, kind: atom.kind, title: atom.title })),
       files: proseFiles.map((path) => ({ path, text: files.get(path)?.text ?? '' })),
+      read: readSpansOf(proseFiles.map((path) => ({ path, text: files.get(path)?.text ?? '' }))),
     });
     const built = pointerAtoms(
       pointed.labelled,

@@ -11,8 +11,11 @@ import {
   parseLabelerSpec,
   pointerScan,
   renderLedger,
+  type StackRequest,
   singleLabelling,
+  stackDecision,
   stackedLabelling,
+  stackMargin,
 } from '../../src/pointer';
 import { load, plantedDense, plantedYesNo } from './support';
 
@@ -522,6 +525,67 @@ describe('a margin stack with no system 2 opinion', () => {
   });
 });
 
+describe('the stack contract for one unit', () => {
+  const vector = { order: 0.75, remark: 0.25, none: 0 };
+  const request = (extra: Partial<StackRequest> = {}): StackRequest => ({
+    probabilities: vector,
+    system1Label: 'order',
+    system2Votes: ['remark', 'remark', 'remark'],
+    marginCut: 0.5,
+    ...extra,
+  });
+
+  it('gives the margin boundary to system 1', () => {
+    expect(stackDecision(request())).toEqual({ label: 'order', by: 'system1' });
+    expect(stackDecision(request({ marginCut: 0.5001 }))).toEqual({ label: 'remark', by: 'system2' });
+    expect(stackDecision(request({ marginCut: 0 }))).toEqual({ label: 'order', by: 'system1' });
+  });
+
+  it('accepts three equal declared votes below the cut, even against system 1', () => {
+    expect(stackDecision(request({ marginCut: 1 }))).toEqual({ label: 'remark', by: 'system2' });
+    expect(stackDecision(request({ marginCut: 1, system2Votes: ['none', 'none', 'none'] }))).toEqual({
+      label: 'none',
+      by: 'system2',
+    });
+  });
+
+  it('leaves a unit unsure when a vote differs, is missing, is empty or is undeclared', () => {
+    const votes: Array<Array<string | null>> = [
+      ['remark', 'remark', 'order'],
+      [null, 'remark', 'remark'],
+      ['', '', ''],
+      [' ', 'remark', 'remark'],
+      ['outside', 'outside', 'outside'],
+      ['remark', 'remark'],
+    ];
+    for (const system2Votes of votes) {
+      expect(stackDecision(request({ marginCut: 1, system2Votes }))).toBeUndefined();
+    }
+  });
+
+  it('requires agreement of both classes only when asked', () => {
+    expect(stackDecision(request({ marginCut: 1, requireAgreement: true }))).toBeUndefined();
+    expect(
+      stackDecision(
+        request({ marginCut: 1, requireAgreement: true, system2Votes: ['order', 'order', 'order'] }),
+      ),
+    ).toEqual({ label: 'order', by: 'system2' });
+    expect(stackDecision(request({ requireAgreement: true }))).toBeUndefined();
+    expect(
+      stackDecision(request({ requireAgreement: true, system2Votes: ['order', 'order', 'order'] })),
+    ).toEqual({ label: 'order', by: 'system1' });
+  });
+
+  it('sends a unit whose probabilities are no vector to system 2', () => {
+    expect(stackDecision(request({ probabilities: { order: 1, remark: 1, none: 0 }, marginCut: 0 }))).toEqual(
+      {
+        label: 'remark',
+        by: 'system2',
+      },
+    );
+  });
+});
+
 describe('a stack that decides by margin', () => {
   const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
   const second = plantedDense(() => []);
@@ -543,9 +607,24 @@ describe('a stack that decides by margin', () => {
       margin: expect.closeTo(0.94, 5),
     });
     expect(margin({ order: 0.5, remark: 0.45, none: 0.05 })?.margin).toBeCloseTo(0.05, 5);
-    // Not a vector: no margin, and no repair.
+    // Not a vector, or no none option: no margin from the measure, and no repair.
     expect(margin({ order: 1, remark: 1, none: 0 })).toBeUndefined();
     expect(margin({ order: 0.9, remark: 0.05 })).toBeUndefined();
+    expect(margin({ order: -0.1, remark: 0.6, none: 0.5 })).toBeUndefined();
+    expect(margin({ order: Number.NaN, remark: 0, none: 1 })).toBeUndefined();
+  });
+
+  it('refuses in the stack where the measure gives none', () => {
+    expect(stackMargin({ order: 0.75, remark: 0.125, none: 0.125 })).toMatchObject({ label: 'order' });
+    for (const bad of [
+      { order: 0.4, remark: 0.3, none: 0.2 },
+      { order: 0.6, remark: 0.3, none: 0.2 },
+      { order: -0.1, remark: 0.6, none: 0.5 },
+      { order: Number.POSITIVE_INFINITY, remark: 0, none: 0 },
+      { order: 0.9, remark: 0.1 },
+    ] as Array<Record<string, number>>) {
+      expect(() => stackMargin(bad)).toThrow(RangeError);
+    }
   });
 
   it('lets system 1 decide a clear unit, and system 2 every unit below the cut', () => {
