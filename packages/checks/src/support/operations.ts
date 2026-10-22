@@ -79,7 +79,8 @@ const COMMAND_RULES: Array<{
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
   {
     class: 'overwrite',
-    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|-][^\s;&|]*\s)?--\s+[^\s;|]/,
+    // biome-ignore lint/complexity/noUselessEscapeInRegex: the operation-vocabulary fixture pins this source text
+    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|\-][^\s;&|]*\s)?--\s+[^\s;|]/,
     needsNoDiff: true,
     needsPath: true,
   },
