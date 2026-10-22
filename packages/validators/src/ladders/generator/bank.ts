@@ -18,6 +18,7 @@ import { createFollower } from './follower';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
 import {
   type BlockRun,
+  declaredStageBefore,
   followerAdapter,
   type Generation,
   type GeneratorParts,
@@ -33,6 +34,7 @@ import {
   runCombinations,
   runContext,
   STABILITY_OFFSETS,
+  stageBookOf,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import { plannerItems } from './planner-v2';
@@ -1918,6 +1920,7 @@ function modeItems(): BankItem[] {
         component: `${C.relations}#recoveryFor`,
         async check(data) {
           const generated = await data.generated();
+          const book = stageBookOf(generated.complete.map((entry) => entry.spec));
           const recovery = generated.hidden.recoveries.find((entry) => entry.class === cls);
           const problems: string[] = [];
           let seen = 0;
@@ -1926,11 +1929,7 @@ function modeItems(): BankItem[] {
               if (!block.when || !('injection' in block.when) || block.when.injection.class !== cls) return;
               const previousProblems = problems.length;
               seen += 1;
-              const pending =
-                [...spec.blocks.slice(0, index)]
-                  .reverse()
-                  .find((earlier) => earlier.expect?.stage !== undefined)?.expect?.stage ??
-                generated.hidden.start;
+              const pending = declaredStageBefore(spec, index, book) ?? generated.hidden.start;
               const wanted =
                 recovery?.stageAfter === 'pending'
                   ? cls === 'D8_tool_failure'
@@ -2105,6 +2104,15 @@ export function vectorOf(block: BlockRun): string {
 }
 
 /**
+ * What makes two blocks candidates for the same test: the same Then and outcomes (`vectorOf`), run from the same stage
+ * against the same tool answers. A block that starts from another stage, or gets other answers from a tool, is another
+ * test (docs/validators.md, section 3, Same test).
+ */
+export function sameTestKey(block: BlockRun): string {
+  return JSON.stringify([block.answers, block.from, vectorOf(block)]);
+}
+
+/**
  * A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. Nor a link: a
  * `metadata.links` entry of the deleted block goes with it, and a link by index to a later block moves down
  * one, so the reduced spec stays valid (a link to a block the spec does not have is LINK_BLOCK_UNKNOWN).
@@ -2226,6 +2234,97 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
   });
 }
 
+/**
+ * The declared obligations of the suite and who holds them. A block is removable only if removing it loses no declared
+ * obligation. The obligations are what the suite says a block is for, read from the spec: an injected deviation class, a
+ * declared perturbation (a perturbed run reaches the blocks up to its injection), a twin pair on a declared axis (the
+ * channel, the persona: a written walk and its first copy for another declared channel or persona), and membership in a
+ * declared metamorphic family. Each obligation is held once per path over the WHOLE suite, by the first spec that
+ * carries it; a second holder of the same obligation on the same path is a repeat. A block written for a channel or a
+ * persona the map does not declare holds none. The covering tuples and pairs are not read here: the ablation in
+ * `removable` already keeps every map obligation of the coverage items.
+ */
+async function obligationHolders(data: SeedData): Promise<{
+  blocks: Set<string>;
+  specs: Set<string>;
+  declared: (block: BlockRun) => boolean;
+}> {
+  const { hidden } = await data.generated();
+  const channels = new Set<string>(hidden.channels);
+  const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
+  const declared = (block: BlockRun): boolean =>
+    (block.channel === '' || channels.has(block.channel)) &&
+    (block.persona === '' || personas.has(block.persona));
+  const held = await data.memoized('obligation-holders', async () => {
+    const bySpec = new Map<string, BlockRun[]>();
+    for (const block of (await data.runs()).blocks)
+      bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
+    const holder = new Map<string, string>();
+    const hold = (obligation: string, spec: string): boolean => {
+      if (!holder.has(obligation)) holder.set(obligation, spec);
+      return holder.get(obligation) === spec;
+    };
+    const blocks = new Set<string>();
+    const specs = new Set<string>();
+    const familyWords = new Map<string, Set<string>>();
+    const written = new Map<string, BlockRun[]>();
+    const secured = new Map<string, Set<string>>();
+    for (const [spec, own] of bySpec) {
+      const head = own[0] as BlockRun;
+      if (!declared(head)) continue;
+      const same = written.get(head.walk);
+      if (!same) written.set(head.walk, [head]);
+      else {
+        // An axis needs both differing values to be members of the declared axis: a missing value is no value.
+        const axes = new Set<string>();
+        for (const other of same) {
+          if (other.channel !== head.channel && channels.has(other.channel) && channels.has(head.channel))
+            axes.add('channel');
+          if (other.persona !== head.persona && personas.has(other.persona) && personas.has(head.persona))
+            axes.add('persona');
+        }
+        const have = secured.get(head.path) ?? new Set<string>();
+        const needed = [...axes].filter((axis) => !have.has(axis));
+        if (needed.length > 0) {
+          for (const axis of needed) have.add(axis);
+          secured.set(head.path, have);
+          specs.add(spec);
+          specs.add((same[0] as BlockRun).spec);
+          same.push(head);
+        }
+      }
+      // A metamorphic obligation rests on content, not on the labels a spec declares: a variant in range
+      // (1 <= variant <= of) whose words differ from every earlier holder of the walk on the path.
+      if (head.family !== '' && head.variant >= 1 && head.variant <= head.of) {
+        const key = `${head.path}|${head.walk}`;
+        const seen = familyWords.get(key) ?? new Set<string>();
+        if (!seen.has(head.words)) {
+          seen.add(head.words);
+          familyWords.set(key, seen);
+          specs.add(spec);
+        }
+      }
+      for (const block of own) {
+        if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec))
+          blocks.add(block.key);
+        for (const cls of block.perturbed === '' ? [] : block.perturbed.split(','))
+          if (hold(`perturb|${block.path}|${cls}`, spec)) blocks.add(block.key);
+      }
+    }
+    return { blocks, specs };
+  });
+  return { ...held, declared };
+}
+
+/**
+ * The members of a group of same-test blocks that hold no declared obligation: the suite has no reason to keep them, so
+ * the oracle may call one of them removable.
+ */
+export async function unprotectedMembers(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
+  const { blocks, specs, declared } = await obligationHolders(data);
+  return group.filter((block) => !declared(block) || !(blocks.has(block.key) || specs.has(block.spec)));
+}
+
 async function hasRemovable(data: SeedData, group: BlockRun[]): Promise<boolean> {
   for (const block of group) if (await removable(data, block)) return true;
   return false;
@@ -2251,10 +2350,11 @@ function minimalityItems(): BankItem[] {
           return verdict(false, `no block kills ${cls.id}, so there is no test set to judge`);
         const groups = new Map<string, BlockRun[]>();
         for (const block of found)
-          groups.set(vectorOf(block), [...(groups.get(vectorOf(block)) ?? []), block]);
+          groups.set(sameTestKey(block), [...(groups.get(sameTestKey(block)) ?? []), block]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values())
-          if (group.length > 1 && (await hasRemovable(data, group))) redundant.push(group);
+          if (group.length > 1 && (await hasRemovable(data, await unprotectedMembers(data, group))))
+            redundant.push(group);
         return verdict(
           redundant.length === 0,
           `${found.length} blocks kill ${cls.id}; ${redundant.length} groups contain a removable duplicate (same Then/outcomes, map obligations, retained execution and causal kills preserved): ${redundant
@@ -2282,15 +2382,15 @@ function minimalityItems(): BankItem[] {
         const family = (block: BlockRun) => block.spec.replace(/-\d+$/, '');
         const groups = new Map<string, BlockRun[]>();
         for (const block of blocks)
-          groups.set(`${block.when}|${vectorOf(block)}`, [
-            ...(groups.get(`${block.when}|${vectorOf(block)}`) ?? []),
+          groups.set(`${block.when}|${sameTestKey(block)}`, [
+            ...(groups.get(`${block.when}|${sameTestKey(block)}`) ?? []),
             block,
           ]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values()) {
           if (group.length < 2 || (seeder === 'metamorphic' && new Set(group.map(family)).size === 1))
             continue;
-          if (await hasRemovable(data, group)) redundant.push(group);
+          if (await hasRemovable(data, await unprotectedMembers(data, group))) redundant.push(group);
         }
         return verdict(
           blocks.length > 0 && redundant.length === 0,
