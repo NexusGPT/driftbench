@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
 import { applyWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
-import { isDeepStrictEqual } from 'node:util';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
