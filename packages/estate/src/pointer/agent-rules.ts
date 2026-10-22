@@ -57,6 +57,8 @@ export const AGENT_RULES_SET = `labels:
         description: A clause of the unit, as it stands, that a user could say as a complete request which makes the reader do what the unit orders or refuse what it forbids. Give it only when the unit holds such a clause.
       - name: forbidden-material
         description: Inside a unit that forbids a kind of call, the command, file or name the forbidden call holds, as the unit writes it, with no quote marks and no word that forbids it. Give it only when the unit names one such thing and it is the whole of what the unit forbids.
+      - name: required-material
+        description: Inside a unit that tells the reader to put something in one place, the folder or file it must go to, as the unit writes it, with no quote marks. Give it only when the unit names one such place and it is the whole of where the unit sends things.
       - name: retry
         description: The clause of the unit that orders the reader to try the failed request again. Give it only when the unit has one.
       - name: reread-self
@@ -79,6 +81,9 @@ export const AGENT_RULES_SET = `labels:
       - name: forbid-tool
         description: The tool whose call a unit forbids, when the unit forbids a call that holds the forbidden-material span. Bash for a command, Edit or Write for a change of a file, Read for a read, Agent for handing work to a helper. Give it with the forbidden-material span.
         values: [Bash, Edit, Write, Read, Agent]
+      - name: require-tool
+        description: The tool whose call a unit requires, when the unit sends things to the place the required-material span names. Write for putting a file there, Edit for changing one, Bash for a command. Give it with the required-material span.
+        values: [Write, Edit, Bash]
       - name: forbid-input
         description: The input of that call the forbidden material is part of. command for a Bash call, file_path for a call on a file, subagent_type for a handoff to a helper. Give it with the forbid-tool link.
         values: [command, file_path, subagent_type]
@@ -97,14 +102,16 @@ export const AGENT_RULES_SET = `labels:
     labels:
       - name: rule
         description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead.
-        spans: [situation, ask-text]
-        links: [reply-act, reply-part]
+        spans: [situation, ask-text, required-material]
+        links: [reply-act, reply-part, require-tool]
         atom:
           kind: instruction
           situation: $span.situation?
           polarity: obligation
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields:
+            "ask?": { text: $span.ask-text, "context?": $span.situation }
+            "unitCases?": [{ effect: require, tool: $link.require-tool, material: $span.required-material }]
 ${ALSO_REFERENCE}      - name: dispatch
         description: A unit that tells the reader to hand work to a helper agent. Give that helper as the dispatches link. A unit that only names a helper, or says not to use it, is a rule or a prohibition.
         spans: [situation, ask-text]
