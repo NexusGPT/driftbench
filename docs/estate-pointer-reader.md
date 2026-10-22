@@ -101,6 +101,7 @@ Parser and offsets:
 
 - Parse with `unified`, `remark-parse`, `remark-gfm` and `remark-frontmatter`. Every node carries UTF-16 start and end offsets; a unit's text is always `source.slice(start, end)`, never a node's `value` (a blockquote's value drops the `> ` markers).
 - A leading byte-order mark is stripped and its length recorded as a base offset, so every offset still points into the original file.
+- Lists and block quotes may nest 100 levels deep. A file that nests deeper is refused by the cutter with a message that names the depth and the limit, and the scan names the file, because the parser takes more than linear time on deep nesting. Fenced code does not count.
 
 Units:
 
@@ -116,6 +117,8 @@ Units:
 | Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
 
 Every prose character belongs to exactly one unit. Spans never overlap.
+
+**Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
 
 **Cut digest.** The cutter hashes the ordered list of unit fingerprints into a digest and stores it. Replay recomputes the cut and compares digests. A mismatch stops with an error that names the Node and ICU versions, so a cutter that varies between environments fails loudly instead of renumbering silently. Experiment 6 decides whether `Intl.Segmenter` may stay or a deterministic splitter must ship.
 
@@ -298,6 +301,8 @@ Cheapest first, on units:
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
+
+`carryOf(before, after, sets)` says, for one unit that was labelled before, which labels carry to the next scan and which sets are asked again: a label carries when the unit's fingerprint and its context fingerprint are both unchanged, and a set the unit had no label for is asked again. `recordLabel(entry, set, next)` replaces the label of one set of an entry, leaves the other sets, the id and the status alone, and returns a flip when a label other than `none` was replaced by another label, by `none` or by none. When a text matches in several places the old id stays on the first match, and `nextLedger` lists every place in `candidates`.
 
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
 

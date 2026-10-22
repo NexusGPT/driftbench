@@ -113,7 +113,7 @@ export async function estateStatsCommand(options: Options, io: Io): Promise<numb
       );
       if (coverage.navigationReferences !== undefined)
         io.out(
-          `${coverage.navigationReferences} references to navigation-only documents have no test by design.\n`,
+          `${coverage.navigationReferences} references to navigation-only documents have a read test and are counted apart.\n`,
         );
       io.out(`${reachNotObservable.atoms} atoms: reach is not observable.\n`);
       io.out(
@@ -234,8 +234,8 @@ function ownedRows(map: EstateMap, plan: Plan): Plan['rows'] {
 
 function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const tested = new Set(tests.flatMap((t) => t.atoms));
-  // A reference to an example, a template or a history is a place to look and has no test by design: it
-  // is neither a gap in the coverage nor an edge to cover.
+  // A reference to an example, a template or a history has its read test but is counted apart: the coverage of the
+  // kinds and the edges to cover leave it out, and its number is reported.
   const navigation = navigationFiles(map.documents);
   const skipped = new Set(
     map.atoms.filter((atom) => navigationReference(atom, navigation)).map((atom) => atom.id),

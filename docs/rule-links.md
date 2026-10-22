@@ -69,12 +69,12 @@ driftbench estate plan approve plan.yaml --all
 ## 2. Blocks that carry the rule
 
 ```
-driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
+driftbench estate generate --map approved.yaml --plan plan.yaml --out generated --states northwind/live/states/library.json
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1275 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1455 files to generated.
+Asks of the complete specs: 0 approved phrases, 1278 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1458 files to generated.
 ```
 
 The command exits 1 while some specs stay incomplete; its gap list names what each one needs. Every block it writes carries its links in `metadata.links`. This is the head of the spec that tests the sentence above:
@@ -154,19 +154,36 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+1251 specs, 1254 blocks.
+Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
+  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1251 blocks, which rerun. The other 1235 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1254 blocks, which rerun. The other 1238 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,235 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,238 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+
+`estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
+
+```
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store before.db --map approved.yaml --agent-version db9e07132a1b
+# edit the sentence of step 3 and write change.yaml, then:
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store after.db --agent-version working --from before.db --change change.yaml
+```
+
+```
+Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+16 of 1251 cells in the radius. 16 cells run fresh, 1235 carried from estate-run-501322d100b5 in before.db.
+...
+16 specs run live on a stand-in and 1235 carried: 211 pass, 1040 fail (232 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-e48f7cf49eaf.
+```
+
+Sixteen specs run and 1,235 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
 
 ## 5. Prove a link by deleting its rule
 

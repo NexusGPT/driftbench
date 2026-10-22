@@ -1,10 +1,11 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
 
@@ -292,6 +293,86 @@ describe('driftbench estate run', () => {
     expect(guarded?.blocks[0]?.observed.runtime?.skills?.map((skill) => skill.name)).toEqual([
       'invoice-reconcile',
     ]);
+  });
+
+  /** The `live` record of the raw part of an observed block. */
+  const liveOf = (raw: unknown): { stateLibrary?: unknown } | undefined =>
+    (raw as { live?: { stateLibrary?: unknown } } | undefined)?.live;
+
+  /** The record the run is expected to carry for a library: the digest the test computes from the files. */
+  const digestOf = (file: string, path: string) => {
+    const sha = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
+    const text = readFileSync(file);
+    const named = (JSON.parse(text.toString('utf8')) as { prefixes: Record<string, string> }).prefixes;
+    const prefixes: Record<string, { file: string; sha256: string }> = {};
+    let joined = `library ${sha(text)}\n`;
+    for (const name of Object.keys(named).sort()) {
+      const entry = {
+        file: named[name] ?? '',
+        sha256: sha(readFileSync(join(dirname(file), named[name] ?? ''))),
+      };
+      prefixes[name] = entry;
+      joined += `prefix ${name} ${entry.file} ${entry.sha256}\n`;
+    }
+    return { path, sha256: sha(joined), prefixes };
+  };
+
+  /** The `stateLibrary` record of the first block of the first run of a store. */
+  async function recordOf(result: Awaited<ReturnType<typeof estateRun>>): Promise<unknown> {
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    return liveOf(stored?.blocks[0]?.observed.raw)?.stateLibrary;
+  }
+
+  it('records the state library of a run: a path inside the working folder is relative, with its digest', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(FIXTURE, [spec]);
+    expect(result.code).toBe(0);
+    const recorded = await recordOf(result);
+    expect(recorded).toEqual(digestOf(STATES, relative(ROOT, STATES).split(sep).join('/')));
+    expect(JSON.stringify(recorded)).not.toContain(ROOT);
+    // A run with no library names none.
+    const bare = join(await folder(), 'bare.db');
+    const without = await run([
+      'estate',
+      'run',
+      spec,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--set-env',
+      `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+      '--store',
+      bare,
+      '--json',
+    ]);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const other = await openStore(bare);
+    const [plain] = await other.listRuns({ campaignId: (JSON.parse(without.out) as RunJson).campaignId });
+    await other.close();
+    expect(liveOf(plain?.blocks[0]?.observed.raw)).not.toHaveProperty('stateLibrary');
+  });
+
+  it('records the absolute path of a library outside the working folder, and the digest of its prefix files', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const copy = join(await folder(), 'states');
+    await cp(dirname(STATES), copy, { recursive: true });
+    const library = join(copy, 'library.json');
+    const first = await recordOf(await estateRun(FIXTURE, [spec], '--states', library));
+    expect(first).toEqual(digestOf(library, library));
+    // A prefix file changes, the library file does not: the recorded digest changes.
+    const prefix = join(copy, 'prefixes', 'long.jsonl');
+    await writeFile(prefix, `${readFileSync(prefix, 'utf8')}\n`);
+    const second = (await recordOf(await estateRun(FIXTURE, [spec], '--states', library))) as {
+      sha256: string;
+    };
+    expect(second).toEqual(digestOf(library, library));
+    expect(second.sha256).not.toBe((first as { sha256: string }).sha256);
   });
 
   it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
@@ -762,4 +843,430 @@ describe('estate run leaves no process behind', () => {
       for (const pid of running()) process.kill(pid, 'SIGKILL');
     }
   }, 120_000);
+});
+
+describe('driftbench estate run --from', () => {
+  type CarryJson = Omit<RunJson, 'runs'> & {
+    runs: Array<RunJson['runs'][number] & { carried?: boolean }>;
+    radius?: {
+      fresh: number;
+      carried: number;
+      outside: number;
+      from: string;
+      refused: Array<{ reason: string; cells: number }>;
+    };
+    carryNote?: string;
+  };
+  const manifestText = (from: string, to: string) =>
+    `from: ${from}\nto: ${to}\nchanges:\n  - kind: prompt\n    id: ${R7}\n    note: the line of R7 changed\n`;
+
+  async function manifest(from = 'v1', to = 'v2'): Promise<string> {
+    const path = join(await folder(), 'change.yaml');
+    await writeFile(path, manifestText(from, to));
+    return path;
+  }
+
+  /**
+   * A stand-in call is one line of the FAKE_CALLS file. The path is part of what a run depends on, so every run of
+   * a test uses the same file, emptied between runs.
+   */
+  async function counter() {
+    const path = join(await folder(), 'calls.jsonl');
+    return {
+      env: ['--set-env', `FAKE_CALLS=${path}`],
+      async take(): Promise<number> {
+        const text = await readFile(path, 'utf8').catch(() => '');
+        await writeFile(path, '');
+        return text === '' ? 0 : text.trim().split('\n').length;
+      },
+    };
+  }
+
+  /** The first run, labelled v1. */
+  async function firstRun(calls: Awaited<ReturnType<typeof counter>>, specs: string[], ...extra: string[]) {
+    const result = await estateRun(
+      FIXTURE,
+      specs,
+      '--map',
+      MAP,
+      '--agent-version',
+      'v1',
+      ...calls.env,
+      ...extra,
+    );
+    expect(result.err).toBe('');
+    await calls.take();
+    return { ...result, json: result.json as CarryJson };
+  }
+
+  async function secondRun(
+    calls: Awaited<ReturnType<typeof counter>>,
+    oldStore: string,
+    specs: string[],
+    ...extra: string[]
+  ) {
+    const result = await estateRun(
+      FIXTURE,
+      specs,
+      '--map',
+      MAP,
+      '--agent-version',
+      'v2',
+      '--from',
+      oldStore,
+      ...calls.env,
+      ...extra,
+    );
+    return { ...result, json: result.json as CarryJson | undefined, calls: await calls.take() };
+  }
+
+  /** The paths of the proof specs whose metadata names the atom. */
+  async function pathsOfAtom(atom: string): Promise<string[]> {
+    const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
+    const out: string[] = [];
+    for (const path of proofSpecs()) {
+      const loaded = await loadSpecFile(path);
+      if (!loaded.ok) throw new Error(path);
+      const estate = loaded.spec.metadata?.estate as { atoms?: string[] } | undefined;
+      if (estate?.atoms?.includes(atom)) out.push(path);
+    }
+    return out;
+  }
+
+  /**
+   * Four proof specs, one of them (the obligation) naming R7: the radius of a change to R7 is not the whole suite
+   * only when some spec in the run declares a dependency on the changed atom.
+   */
+  const small = () =>
+    [PROOF.obligation, PROOF.journey, PROOF.route_positive, PROOF.tool_denied].map((path) =>
+      join(LIVE, path ?? ''),
+    );
+
+  /** The stand-in calls a run of just these specs makes: what a carried result saves. */
+  async function callsOf(calls: Awaited<ReturnType<typeof counter>>, specs: string[]): Promise<number> {
+    await estateRun(FIXTURE, specs, '--map', MAP, ...calls.env);
+    return calls.take();
+  }
+
+  it('carries a failure as a failure: status, reasons and evidence stay what the old store holds', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest());
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const lines = (next.json as CarryJson).runs;
+    const carried = lines.filter((line) => line.carried === true && !line.pass);
+    expect(carried.length).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const oldStore = openStore(old.store);
+    const newStore = openStore(next.store);
+    const oldRuns = await oldStore.listRuns();
+    const newRuns = await newStore.listRuns();
+    await oldStore.close();
+    await newStore.close();
+    for (const line of carried) {
+      const was = oldRuns.find((entry) => entry.specId === line.spec);
+      const now = newRuns.find((entry) => entry.specId === line.spec);
+      expect(was, line.spec).toBeDefined();
+      expect(now, line.spec).toBeDefined();
+      expect(now?.status).toBe(was?.status);
+      expect(line.failing.length).toBeGreaterThan(0);
+      expect(line.failing).toEqual(old.json.runs.find((entry) => entry.spec === line.spec)?.failing);
+      expect(JSON.stringify(now?.blocks)).toBe(JSON.stringify(was?.blocks));
+    }
+  });
+
+  it('reruns the specs of the radius and carries the result of every other spec from the old store', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    expect(old.json.runs).toHaveLength(specs.length);
+    const change = await manifest();
+    const inRadius = await specsOfAtom(R7);
+    expect(inRadius.length).toBeGreaterThan(0);
+    expect(inRadius.length).toBeLessThan(specs.length);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', change);
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const json = next.json as CarryJson;
+    // The spec outcomes are the old ones: a carried result keeps its verdict, a rerun gives the same here.
+    expect(outcomes(json)).toEqual(outcomes(old.json));
+    expect(
+      json.runs
+        .filter((line) => line.carried !== true)
+        .map((line) => line.spec)
+        .sort(),
+    ).toEqual(inRadius);
+    expect(json.runs.filter((line) => line.carried === true)).toHaveLength(specs.length - inRadius.length);
+    expect(json.radius).toMatchObject({
+      fresh: inRadius.length,
+      carried: specs.length - inRadius.length,
+      from: old.json.campaignId,
+    });
+    // The stand-in is called only for the blocks of the radius: as many times as a run of those specs alone.
+    expect(next.calls).toBe(await callsOf(calls, await pathsOfAtom(R7)));
+    expect(next.calls).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(next.store);
+    const runs = await store.listRuns({ campaignId: json.campaignId });
+    await store.close();
+    expect(runs).toHaveLength(specs.length);
+    const carried = runs.filter((entry) => entry.carried !== undefined);
+    expect(carried).toHaveLength(specs.length - inRadius.length);
+    for (const entry of carried) {
+      expect(entry.carried?.fromCampaign).toBe(old.json.campaignId);
+      expect(entry.carried?.agentVersion).toBe('v1');
+      expect(entry.target.variant).toBe('v2');
+    }
+  });
+
+  it('refuses to carry when no run of the old store names the version the manifest starts from', async () => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest('v0'));
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.carryNote).toContain('holds no run of agent version v0');
+    expect(next.calls).toBeGreaterThan(0);
+  });
+
+  it('carries nothing from an old store whose runs were not labelled with a version', async () => {
+    const specs = small();
+    const calls = await counter();
+    const unlabelled = await estateRun(FIXTURE, specs, '--map', MAP, ...calls.env);
+    expect(unlabelled.json?.runs).toHaveLength(specs.length);
+    await calls.take();
+    const next = await secondRun(calls, unlabelled.store, specs, '--change', await manifest());
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.radius?.carried).toBe(0);
+    expect(json.carryNote).toContain('carry no agent version or execution stamp');
+  });
+
+  it('runs a spec fresh when it changed since the old run, and carries the specs that did not', async () => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const edited = join(await folder(), 'edited.yaml');
+    // The journey is outside the radius of R7; editing it changes its hash, so its old result is no sample of it.
+    const text = await readFile(specs[1] ?? '', 'utf8');
+    await writeFile(
+      edited,
+      text.replace(/^title: "?/m, (head) => `${head}edited: `),
+    );
+    const next = await secondRun(
+      calls,
+      old.store,
+      [specs[0] ?? '', edited, ...specs.slice(2)],
+      '--change',
+      await manifest(),
+    );
+    const json = next.json as CarryJson;
+    const fresh = json.runs.filter((line) => line.carried !== true).map((line) => line.spec);
+    expect(fresh.sort()).toEqual([old.json.runs[0]?.spec, old.json.runs[1]?.spec].sort());
+    expect(json.radius?.refused.map((entry) => entry.reason).join(' ')).toContain('holds no run of the cell');
+    expect(json.runs.filter((line) => line.carried === true).length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['model', ['--model', 'other-model']],
+    ['environment', ['--set-env', 'NORTHWIND_REGION=south']],
+    ['tool rules', ['--disallow', 'WebFetch']],
+  ])('refuses a result made with another %s', async (_name, extra) => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest(), ...extra);
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
+      'current execution context differs or cannot be proved',
+    );
+  });
+
+  describe('a variable the run passes on', () => {
+    const NAME = 'NORTHWIND_PASSED_ON';
+    let before: string | undefined;
+    beforeEach(() => {
+      before = process.env[NAME];
+    });
+    afterEach(() => {
+      if (before === undefined) delete process.env[NAME];
+      else process.env[NAME] = before;
+    });
+
+    it('carries a result made with the same value and refuses one made with another', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const change = await manifest();
+      const same = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect((same.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      process.env[NAME] = 'south';
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      const json = next.json as CarryJson;
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+      expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
+        'current execution context differs or cannot be proved',
+      );
+    });
+
+    it('gives the same value another stamp in another store, and the same stamp through --from', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const stampsOf = async (path: string) => {
+        const store = await openStore(path);
+        const runs = await store.listRuns();
+        const salt = await store.metaGet('estate.salt');
+        await store.close();
+        return { salt, stamps: new Set(runs.map((entry) => entry.provenance?.adapter.cacheIdentityHash)) };
+      };
+      const one = await firstRun(calls, specs, '--pass-env', NAME);
+      const two = await firstRun(calls, specs, '--pass-env', NAME);
+      const first = await stampsOf(one.store);
+      const second = await stampsOf(two.store);
+      expect(first.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).not.toBe(first.salt);
+      expect(first.stamps.size).toBe(1);
+      expect(second.stamps.size).toBe(1);
+      expect([...second.stamps][0]).not.toBe([...first.stamps][0]);
+      // Carry copies the salt, so the new store's digests are the old store's and the result is carried.
+      const change = await manifest();
+      const carried = await secondRun(calls, one.store, specs, '--change', change, '--pass-env', NAME);
+      expect((carried.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      expect((await stampsOf(carried.store)).salt).toBe(first.salt);
+    });
+
+    it('carries nothing from a store whose meta table holds no salt row, and runs fresh without error', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const { DatabaseSync } = await import('node:sqlite');
+      const raw = new DatabaseSync(old.store);
+      raw.exec("DELETE FROM meta WHERE key = 'estate.salt'");
+      raw.close();
+      const change = await manifest();
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect(next.err).toBe('');
+      const json = next.json as CarryJson;
+      expect(json.runs.length).toBeGreaterThan(0);
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    });
+
+    it('keeps the value out of the store', async () => {
+      const calls = await counter();
+      process.env[NAME] = 'north-secret-value';
+      const old = await firstRun(calls, small(), '--pass-env', NAME);
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const store = await openStore(old.store);
+      const campaigns = await store.listCampaigns();
+      const runs = await store.listRuns({ campaignId: old.json.campaignId });
+      await store.close();
+      expect(JSON.stringify([campaigns, runs])).not.toContain('north-secret-value');
+      expect(await readFile(old.store, 'latin1')).not.toContain('north-secret-value');
+    });
+  });
+
+  const LINKS = [
+    ['a symbolic link', symlink],
+    ['a hard link', link],
+  ] as const;
+  for (const [what, make] of LINKS) {
+    it(`refuses a --store that is ${what} to --from with exit 2 and leaves the old store as it was`, async () => {
+      const specs = small();
+      const calls = await counter();
+      const old = await firstRun(calls, specs);
+      const alias = join(await folder(), 'alias.db');
+      await make(old.store, alias);
+      const before = await readFile(old.store);
+      const next = await secondRun(calls, old.store, specs, '--change', await manifest(), '--store', alias);
+      expect(next.code).toBe(2);
+      expect(next.err).toContain('--store is the old store under another name');
+      expect(next.calls).toBe(0);
+      expect(await readFile(old.store)).toEqual(before);
+    });
+  }
+
+  it('refuses a bad combination of the flags with exit 2 and runs nothing', async () => {
+    const specs = small().slice(0, 2);
+    const counted = await counter();
+    const old = await firstRun(counted, specs);
+    const change = await manifest();
+    const base = counted.env;
+    const only = await estateRun(FIXTURE, specs, '--agent-version', 'v2', '--from', old.store, ...base);
+    expect(only.code).toBe(2);
+    expect(only.err).toContain('go together');
+    const noChangeFrom = await estateRun(
+      FIXTURE,
+      specs,
+      '--agent-version',
+      'v2',
+      '--change',
+      change,
+      ...base,
+    );
+    expect(noChangeFrom.code).toBe(2);
+    const noVersion = await estateRun(FIXTURE, specs, '--from', old.store, '--change', change, ...base);
+    expect(noVersion.code).toBe(2);
+    expect(noVersion.err).toContain('--agent-version');
+    const dependent = await estateRun(FIXTURE, specs, '--max-carry', '2', ...base);
+    expect(dependent.code).toBe(2);
+    const same = await run([
+      'estate',
+      'run',
+      ...specs,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--store',
+      old.store,
+      '--agent-version',
+      'v2',
+      '--from',
+      old.store,
+      '--change',
+      change,
+    ]);
+    expect(same.code).toBe(2);
+    expect(same.err).toContain('cannot be the same file');
+    const missing = await estateRun(
+      FIXTURE,
+      specs,
+      '--agent-version',
+      'v2',
+      '--from',
+      join(await folder(), 'nowhere.db'),
+      '--change',
+      change,
+      ...base,
+    );
+    expect(missing.code).toBe(2);
+    expect(missing.err).toContain('not a file');
+    expect(await counted.take()).toBe(0);
+  });
+
+  it('writes the same target and campaign as before when no carry flag is given', async () => {
+    const result = await estateRun(FIXTURE, [proofSpecs()[0] ?? ''], '--map', MAP);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [campaign] = await store.listCampaigns();
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    expect(campaign?.agentVersion).toBeUndefined();
+    expect(campaign?.radius).toBeUndefined();
+    expect(stored?.target.variant).toBeUndefined();
+    expect(stored?.target.agent).toBe(result.json?.pins[0]?.slice(0, 12));
+  });
 });

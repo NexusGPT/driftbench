@@ -3,7 +3,7 @@ import { checkSpec, type Issue, stringifyBlockYaml } from '@agent-nexus/driftben
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
 import { build, buildRow, situationOfRow, specId, uniqueId, useOf } from './build-row';
-import { estateOwners, navigationFiles, taskAtoms, unitRoutes } from './context';
+import { estateOwners, taskAtoms, unitRoutes } from './context';
 import { equivalenceKey } from './equivalence';
 import {
   type Built,
@@ -165,7 +165,6 @@ export function generateEstateSuite(
     seed,
     owners,
     routes: unitRoutes(input.map.atoms, input.map.edges),
-    navigation: navigationFiles(input.map.documents),
     paths: options.paths,
     ...(options.sections ? { sections: options.sections } : {}),
     fallback: options.fallback ?? true,
@@ -189,6 +188,7 @@ export function generateEstateSuite(
         .filter((name): name is string => typeof name === 'string'),
     ),
     customChecks: new Set(checks),
+    ...(options.stateIds ? { stateIds: options.stateIds } : {}),
   };
 
   const files: GeneratedFile[] = [];

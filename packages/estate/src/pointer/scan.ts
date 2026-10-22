@@ -1,7 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type Cut, cut, type Unit } from './cut';
+import { type Cut, CutError, cut, isPlainTextPath, type Unit } from './cut';
 import {
   isTooLarge,
   type Labeler,
@@ -21,7 +21,15 @@ import {
   setHash,
   type Window,
 } from './labels';
-import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
+import {
+  type Event,
+  type LabelFlip,
+  type Ledger,
+  type LedgerEntry,
+  nextLedger,
+  recordLabel,
+  unitKey,
+} from './ledger';
 import type { Labelling } from './stack';
 
 /**
@@ -252,6 +260,12 @@ export function outOfStep(answer: unknown): { quoted: number; unlocated: number 
 const RETRYABLE = (cause: unknown): boolean =>
   cause instanceof LabelerError || (cause instanceof ModelError && cause.code !== 'config');
 
+/** True when every label of the set asks for a target, a span or a link, which a probability cannot give. */
+const setNeedsSystem2 = (set: LabelSet): boolean =>
+  set.labels.every(
+    (label) => label.target === 'required' || label.spans !== undefined || label.links !== undefined,
+  );
+
 /** A failure that stops the run: nothing the next window does can fix it. */
 const FATAL = (cause: unknown): boolean =>
   cause instanceof CassetteMiss || cause instanceof LabelerConfigError;
@@ -302,8 +316,9 @@ type Leaf = { window: Window; answer: Recorded; key: string };
 export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
 const describeFailure = (failure: FailedWindow): string =>
   `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
-/** A unit whose label went from a selected label to none, or to no label. */
-export type LabelFlip = { unit: string; set: string; from: string; to?: 'none' };
+
+export type { LabelFlip } from './ledger';
+
 type TaskResult = { leaves: Leaf[]; failures: FailedWindow[] };
 
 function readableFor(task: Task, window: Window) {
@@ -326,7 +341,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const estateKey = input.estateKey ?? 'estate';
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
-  const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  const cuts = new Map(
+    files.map((file) => {
+      try {
+        return [file.path, cut(file.text, { plain: isPlainTextPath(file.path) })];
+      } catch (cause) {
+        if (cause instanceof CutError) throw new CutError(`${file.path}: ${cause.message}`);
+        throw cause;
+      }
+    }),
+  );
   const next = nextLedger(
     files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, text: file.text })),
     input.previous,
@@ -383,6 +407,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
+        // In a stack, a yes or no labeler is not asked about a set whose every label needs a target, a clause or a
+        // link: it has no question to put, and the other labeler decides alone.
+        if (labelling.members.length > 1 && member.cls === 'system1' && setNeedsSystem2(set)) continue;
         for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {
@@ -894,23 +921,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           set,
         );
         // A unit the labelling stops selecting keeps its place; the change of its label is reported.
-        const before = entry.labels[set.set]?.label;
-        const selected = before !== undefined && before !== 'none';
         if (!decision) {
           unlabeled++;
           unlabeledUnits.push({ unit: entry.id, set: set.set });
-          if (selected) flips.push({ unit: entry.id, set: set.set, from: before });
-          delete entry.labels[set.set];
+          const flip = recordLabel(entry, set.set, undefined);
+          if (flip) flips.push(flip);
           continue;
-        }
-        if (selected && decision.label === 'none') {
-          flips.push({ unit: entry.id, set: set.set, from: before, to: 'none' });
         }
         decided++;
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
-        entry.labels[set.set] = {
+        const flip = recordLabel(entry, set.set, {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
           labeler: labelling.hash,
@@ -919,7 +941,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetId ? { target: targetId } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
-        };
+        });
+        if (flip) flips.push(flip);
       }
     }
   }

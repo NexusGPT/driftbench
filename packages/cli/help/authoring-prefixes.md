@@ -169,6 +169,8 @@ The topic authoring-import tells the rest of the command.
 | `world` | spec or block | mapping | `tools`, `store`, `workspace`, `fixtures`, see below. |
 | `vars` | spec or block | mapping | Runtime variables. |
 | `shared` | block only | list of `{ fact, by, in? }` | Where each ledger fact was stated before the block: `by` is `user` or `agent` (said in prefix message `in`, counting from 0) or `record` (known from a system of record, never said). |
+| `stage` | block only | string | The stage the agent is at when the block starts, for a block that starts from a prefix. It needs a `prefix` on the same block (`GIVEN_STAGE_WITHOUT_PREFIX`) and a stage the spec lists (`STAGE_UNKNOWN`). A validator reads it only when the block named in `after` leaves the agent at that stage. |
+| `after` | block only | string | The block of a written spec the prefix is taken after, as `<spec id>#<block id>`. It needs a `stage` on the same block (`GIVEN_AFTER_WITHOUT_STAGE`). |
 | `summary` | spec or block | string | What a named session state (`vars.session_state`) holds, in words. |
 
 A `prefix` or an `origin` at the top-level `given` is a schema error: only a block takes them. An `origin` on a block that writes no `prefix` is `GIVEN_ORIGIN_WITHOUT_PREFIX`.
@@ -523,6 +525,8 @@ Problems with no message:
 | `SCHEMA_INVALID_TYPE` on `tool_calls.N.label` | a tool call with no name | add `label` |
 | `SCHEMA_UNRECOGNIZED_KEYS` on `given` | `prefix` or `origin` at the top-level `given` | move it to a block's `given` |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | `origin` on a block with no `prefix` | add the `prefix` it describes, or remove `origin` |
+| `GIVEN_STAGE_WITHOUT_PREFIX` | `stage` on a block with no `prefix` | add the `prefix` it describes, or remove `stage` |
+| `GIVEN_AFTER_WITHOUT_STAGE` | `after` on a block with no `stage` | add the `stage` the named block leaves, or remove `after` |
 | `PREFIX_PROSE_HISTORY` warning | an assistant message states a ledger fact no recorded call holds | record the call with its `output` in `tool_calls`, or keep the prose on purpose and read the results as a different test |
 | a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run. Leaving `output` out is no fix: the block is then `not_run` |
 | `GIVEN_UNMET  tool_history_paired` from `spec lint`, and the block is `not_run` | a prefix tool call has no `output` and no `error`: an agent replaying its history would read an empty result the spec never wrote | record what the tool returned in `output` (or `error`) |

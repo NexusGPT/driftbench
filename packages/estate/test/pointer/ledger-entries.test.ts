@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { checkLedger, cut, type Ledger, nextLedger, parseLedger, renderLedger } from '../../src/pointer';
+import {
+  carryOf,
+  checkLedger,
+  cut,
+  type Ledger,
+  nextLedger,
+  parseLedger,
+  recordLabel,
+  renderLedger,
+} from '../../src/pointer';
 
 // Invented files: a depot with crates and keepers.
 const depot = (extra = ''): string =>
@@ -137,5 +146,114 @@ describe('following a reworded unit', () => {
     expect(reword(64, 'A')).toBe(true);
     // Text similarity 0.30 is under the floor, whatever the context.
     expect(reword(36, 'A')).toBe(false);
+  });
+});
+
+describe('carrying labels to the next scan', () => {
+  const before = { fp: 'a', ctxFp: 'x', labels: { tone: 'curt', duty: 'none' } };
+
+  it('carries every label of an unchanged unit, none included', () => {
+    expect(carryOf(before, { fp: 'a', ctxFp: 'x' }, ['tone', 'duty'])).toEqual({
+      carried: [
+        { set: 'tone', label: 'curt' },
+        { set: 'duty', label: 'none' },
+      ],
+      dirty: [],
+    });
+  });
+
+  it('asks again for every set when the text or the context changed, and for a set it never had', () => {
+    for (const after of [
+      { fp: 'b', ctxFp: 'x' },
+      { fp: 'a', ctxFp: 'y' },
+    ]) {
+      expect(carryOf(before, after, ['tone', 'duty'])).toEqual({ carried: [], dirty: ['tone', 'duty'] });
+    }
+    expect(carryOf(before, { fp: 'a', ctxFp: 'x' }, ['tone', 'extra'])).toEqual({
+      carried: [{ set: 'tone', label: 'curt' }],
+      dirty: ['extra'],
+    });
+  });
+});
+
+describe('recording the label of one set', () => {
+  const label = (name: string) => ({ label: name, setHash: 'h', labeler: 'l', source: 'none' });
+
+  it('replaces one set and reports a flip when a selected label changes or stops', () => {
+    const entry = { id: 'u1', labels: { a: label('rule'), b: label('note') } };
+    expect(recordLabel(entry, 'a', label('rule'))).toBeUndefined();
+    expect(recordLabel(entry, 'a', label('none'))).toEqual({
+      unit: 'u1',
+      set: 'a',
+      from: 'rule',
+      to: 'none',
+    });
+    expect(entry.labels.b.label).toBe('note');
+    expect(recordLabel(entry, 'a', label('rule'))).toBeUndefined();
+    expect(recordLabel(entry, 'a', label('prohibition'))).toEqual({
+      unit: 'u1',
+      set: 'a',
+      from: 'rule',
+      to: 'prohibition',
+    });
+    expect(recordLabel(entry, 'b', undefined)).toEqual({ unit: 'u1', set: 'b', from: 'note' });
+    expect(Object.keys(entry.labels)).toEqual(['a']);
+  });
+});
+
+describe('a text that matches in several places', () => {
+  it('lists every place, and the id sits on the first', () => {
+    const text = 'Return every key before you leave the depot.';
+    const first = scan({ 'one.md': `${text}\n` });
+    const second = nextLedger(
+      [
+        { path: 'a.md', cut: cut(`${text}\n`), text: `${text}\n` },
+        { path: 'b.md', cut: cut(`${text}\n`), text: `${text}\n` },
+      ],
+      first.ledger,
+      'depot',
+    );
+    const [id] = first.ledger.entries.map((entry) => entry.id);
+    expect(second.eventsById[id as string]).toBe('ambiguous');
+    expect(second.candidates[id as string]).toEqual([
+      { path: 'a.md', quote: text },
+      { path: 'b.md', quote: text },
+    ]);
+  });
+});
+
+describe('a unit split in two or two units joined', () => {
+  const whole =
+    'Count every compass promptly, then tighten the polished register behind the barrow overnight, and a valve from the cellar hangs together while the numbered gallery shifts beneath the crate, and seal each rake firmly.';
+  const head =
+    'Count every compass promptly, then tighten the polished register behind the barrow overnight, and a valve from the cellar hangs together while the numbered gallery shifts beneath the crate.';
+  const tail = 'Seal each rake firmly.';
+
+  it('is a split even when one piece is almost the whole unit', () => {
+    const first = scan({ 'a.md': `${whole}\n` });
+    const second = scan({ 'a.md': `${head}\n\n${tail}\n` }, first.ledger);
+    expect(second.events.split).toBe(1);
+    expect(second.events.changed).toBe(0);
+    const [id] = first.ledger.entries.map((entry) => entry.id);
+    expect(second.eventsById[id as string]).toBe('split');
+  });
+
+  it('is a merge even when one unit was almost the whole joined text', () => {
+    const first = scan({ 'a.md': `${head}\n\n${tail}\n` });
+    const second = scan({ 'a.md': `${whole}\n` }, first.ledger);
+    expect(second.events.merged).toBe(1);
+    expect(second.events.deleted).toBe(1);
+    expect(second.events.changed).toBe(0);
+  });
+
+  it('is a plain change when the neighbour adds nothing', () => {
+    const first = scan({ 'a.md': `${head}\n\nLock the gate when the yard is empty.\n` });
+    const second = scan(
+      { 'a.md': `${head.replace('crate', 'cart')}\n\nLock the gate when the yard is empty.\n` },
+      first.ledger,
+    );
+    expect(second.events.changed).toBe(1);
+    expect(second.events.split).toBe(0);
+    expect(second.events.merged).toBe(0);
   });
 });

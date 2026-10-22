@@ -89,7 +89,58 @@ function hashes(store: ReturnType<typeof callBuild>, variable: string): string[]
   return out;
 }
 
+/**
+ * A condition span the validator labelled: the product follows the label, not its own reading of the text. A product that
+ * carries a table of the span vocabulary (or a pattern for it) and labels the spans itself reads the text, and the label
+ * here disagrees with the text on purpose, so it builds another limit than the label gives.
+ */
+const LABELLED_STEM: Stem = {
+  id: 'sources.labelled-condition',
+  rules: ['R3'],
+  family: 'sources',
+  component: 'store/estate',
+  cause:
+    'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
+  cases: [
+    [
+      'the-label-decides-not-the-text',
+      4,
+      (ctx) => {
+        const text = 'the delay is more than 5 days';
+        const label = { kind: 'numeric', subject: 'the delay', limit: 9, comparison: 'gt' };
+        const sources = {
+          estate: {
+            files: { 'agent/prompt.md': `Escalate when ${text}.` },
+            rules: [
+              {
+                id: 'rule.delay',
+                source: 'agent/prompt.md',
+                conditions: [{ text, label }],
+                tools: [],
+              },
+            ],
+          },
+        } as unknown as Parameters<typeof callBuild>[1];
+        const store = callBuild(ctx, sources);
+        const read = store.variables.map((v) => v.values.map((x) => x.sample));
+        const hit = read.find((samples) => [8, 9, 10].every((n) => samples.includes(n)));
+        must(
+          hit !== undefined,
+          () =>
+            `the label gives the limit 9 (samples 8, 9, 10), the text says 5; the store reads ${show(read, 160)}`,
+        );
+        must(
+          !read.some((samples) => samples.includes(5)),
+          () =>
+            `a variable has the sample 5, the limit of the text: the product read the text, not the label (${show(read, 160)})`,
+        );
+      },
+    ],
+  ],
+};
+
 export const SOURCES_STEMS: readonly Stem[] = [
+  LABELLED_STEM,
   {
     id: 'sources.file.provenance-shape',
     rules: ['Provenance', 'Limits'],
