@@ -77,3 +77,16 @@ it('with the patches: kill.fake and mutant.agent gate items', async () => {
     for (const [k, v] of m) if (k.includes('gate') || !v.pass) say(`MUT seed ${seed} ${k} ${v.pass} ${v.detail.slice(0, 300)}`);
   }
 });
+
+it('raw run of the failing spec', async () => {
+  const { cli } = await import('../../src/ladders/estate/bank/bench');
+  const { readFileSync: read, existsSync, writeFileSync } = await import('node:fs');
+  const suite = await fixtureSuite();
+  const spec = suite.specs.find((x) => x.id === 'estate.ordered_pair.gate.standing.read-before-edit-it');
+  if (!spec) throw new Error('no spec');
+  writeFileSync('/tmp/probe-calls2.jsonl', '');
+  const F = join(FIXTURE, 'live/fake');
+  const r = cli(['estate','run',spec.path,'--estate',FIXTURE,'--runtime','claude-code','--command',join(F,'claude.mjs'),'--store','/tmp/probe2.db','--states',join(FIXTURE,'live/states/library.json'),'--judge','claude:haiku','--judge-command',join(F,'judge.cjs'),'--map',join(FIXTURE,'approved.yaml'),'--set-env',`FAKE_MAP=${join(FIXTURE,'approved.yaml')}`,'--set-env',`FAKE_PHRASES=${join(FIXTURE,'phrases.yaml')}`,'--set-env','FAKE_CALLS=/tmp/probe-calls2.jsonl','--json']);
+  say(`RAW ${r.out.slice(0, 5000)}`);
+  say(`CALLS2 ${existsSync('/tmp/probe-calls2.jsonl') ? read('/tmp/probe-calls2.jsonl', 'utf8').slice(0, 3000) : 'none'}`);
+});
