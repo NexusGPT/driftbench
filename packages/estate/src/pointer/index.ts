@@ -42,6 +42,7 @@ export {
   denseUser,
   parseDenseAnswer,
   SPAN_RULE,
+  TARGET_RULE,
   windowLines,
 } from './dense';
 export {
