@@ -45,11 +45,16 @@ type Scenario = {
   name: string;
   tier: Tier;
   store: VariableStore;
+  /** The approved variables with their approved values: what the planner plans over. */
   variables: Variable[];
   rules: Rule[];
-  /** Pairs of values no row may hold. */
+  /** Approved combinations of values no row may hold: pairs, and on some shapes one value or three. */
   forbids: Cell[];
   weighted: boolean;
+  /** What the store holds that nobody approved: a value of an axis, a whole variable, a constraint. */
+  excluded: { values: Cell; variables: string[]; forbids: Cell[] };
+  /** A pair of values that no constraint names and no valid row can hold (shape `non-extendable`). */
+  pinched?: Cell;
 };
 
 type Shape = {
@@ -63,6 +68,14 @@ type Shape = {
   weighted?: boolean;
   /** Values per variable: from 2 to this. */
   width?: number;
+  /**
+   * Constraints drawn on purpose instead of at random: `non-extendable` forbids no pair of two axes yet leaves a
+   * pair of them in no valid row (R6: a tuple is allowed only if it extends to a full valid assignment);
+   * `odd-sizes` forbids one combination of three values and one value alone (R7).
+   */
+  special?: 'non-extendable' | 'odd-sizes';
+  /** One value of an axis, one whole variable and one constraint that nobody approved (R6, R7). */
+  unapproved?: boolean;
 };
 
 const SHAPES: Shape[] = [
@@ -73,6 +86,11 @@ const SHAPES: Shape[] = [
   { name: 'constrained', tier: 3, axes: 5, detail: true, rules: [3], forbids: 3 },
   { name: 'weighted', tier: 3, axes: 5, detail: true, rules: [3, 3], forbids: 1, weighted: true },
   { name: 'wide', tier: 4, axes: 7, detail: true, rules: [4, 3], forbids: 2, weighted: true, width: 3 },
+  // Ladder version 3: the shapes the strength items need (R6, R7, R14).
+  { name: 'rule-of-six', tier: 3, axes: 7, detail: false, rules: [6], forbids: 0, width: 2 },
+  { name: 'non-extendable', tier: 4, axes: 5, detail: true, rules: [3], forbids: 0, special: 'non-extendable' },
+  { name: 'odd-sizes', tier: 3, axes: 5, detail: true, rules: [3], forbids: 0, special: 'odd-sizes' },
+  { name: 'unapproved', tier: 3, axes: 5, detail: true, rules: [3], forbids: 1, unapproved: true },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -89,7 +107,8 @@ function draw(seed: number, shape: Shape): Scenario {
   const total = shape.axes + (shape.detail ? 1 : 0);
   for (let k = 0; k < total; k++) {
     const id = name(`v${k}`);
-    const count = int(2, shape.width ?? 3);
+    // The axis that keeps a value nobody approved has three, so two approved ones are left.
+    const count = shape.unapproved && k === shape.axes - 1 ? 3 : int(2, shape.width ?? 3);
     const values = Array.from({ length: count }, (_, j) => name(`v${k}.${j}`));
     const weights = shape.weighted ? values.map(() => int(1, 9)) : undefined;
     variables.push({
@@ -116,6 +135,25 @@ function draw(seed: number, shape: Shape): Scenario {
       whens.set(host.id, Object.fromEntries(names.map((other) => [other.id, [other.values[0] as string]])));
   });
   const forbids: Cell[] = [];
+  const key = (cell: Cell) => JSON.stringify(Object.entries(cell).sort());
+  let pinched: Cell | undefined;
+  if (shape.special === 'non-extendable') {
+    // a0 with any value of e but the last, and b0 with the last value of e: no row holds a0 and b0 together,
+    // though no constraint names the two.
+    const [, a, , b, e] = axes as [Variable, Variable, Variable, Variable, Variable];
+    for (const value of e.values.slice(0, -1)) forbids.push({ [a.id]: a.values[0] as string, [e.id]: value });
+    forbids.push({ [b.id]: b.values[0] as string, [e.id]: e.values.at(-1) as string });
+    pinched = { [a.id]: a.values[0] as string, [b.id]: b.values[0] as string };
+  }
+  if (shape.special === 'odd-sizes') {
+    const [, a, b, c, e] = axes as [Variable, Variable, Variable, Variable, Variable];
+    forbids.push({
+      [a.id]: a.values[1] as string,
+      [b.id]: b.values[1] as string,
+      [c.id]: c.values[0] as string,
+    });
+    forbids.push({ [e.id]: e.values.at(-1) as string });
+  }
   for (let n = 0; n < shape.forbids; n++) {
     const a = axes[int(0, axes.length - 1)] as Variable;
     let b = axes[int(0, axes.length - 1)] as Variable;
@@ -125,20 +163,33 @@ function draw(seed: number, shape: Shape): Scenario {
       [b.id]: b.values[int(0, b.values.length - 1)] as string,
     };
     // The store refuses one combination forbidden twice, whichever way round its pair is written.
-    const key = (cell: Cell) => JSON.stringify(Object.entries(cell).sort());
     if (!forbids.some((other) => key(other) === key(forbid))) forbids.push(forbid);
+  }
+  // What nobody approved: the last value of the last axis, an extra axis, and a constraint on two values the
+  // plan must still pair (both stand in the first rule, whose triples hold them).
+  const excluded: Scenario['excluded'] = { values: {}, variables: [], forbids: [] };
+  const extra: Variable[] = [];
+  if (shape.unapproved) {
+    const last = axes.at(-1) as Variable;
+    excluded.values[last.id] = last.values.at(-1) as string;
+    const id = name('unapproved');
+    extra.push({ id, role: 'axis', values: [name('unapproved.0'), name('unapproved.1')] });
+    excluded.variables.push(id);
+    const [first, second] = axes as [Variable, Variable];
+    const forbid = { [first.id]: first.values[0] as string, [second.id]: second.values[0] as string };
+    if (!forbids.some((other) => key(other) === key(forbid))) excluded.forbids.push(forbid);
   }
   const raw = {
     format: 1,
     agent: name('agent'),
     version: '1',
     prior: { kind: 'declared' },
-    variables: variables.map((variable) => ({
+    variables: [...variables, ...extra].map((variable) => ({
       id: variable.id,
       title: variable.id,
       kind: 'data',
       role: variable.role,
-      approved: true,
+      approved: !excluded.variables.includes(variable.id),
       values: variable.values.map((value, j) => {
         const hosted = j === 0 ? whens.get(variable.id) : undefined;
         return {
@@ -147,22 +198,39 @@ function draw(seed: number, shape: Shape): Scenario {
           ...(variable.weights ? { weight: variable.weights[j] } : {}),
           ...(hosted ? { polarity: 'must', when: hosted } : {}),
           ...(j === 0 && polar.has(variable.id) ? { polarity: 'must' } : {}),
+          ...(excluded.values[variable.id] === value ? { approved: false } : {}),
         };
       }),
     })),
-    constraints: forbids.map((forbid) => ({ forbid, reason: 'drawn for the item', approved: true })),
+    constraints: [
+      ...forbids.map((forbid) => ({ forbid, reason: 'drawn for the item', approved: true })),
+      ...excluded.forbids.map((forbid) => ({ forbid, reason: 'nobody approved it', approved: false })),
+    ],
   };
   const checked = validateVariableStore(raw);
   if (!checked.ok)
     throw new Error(`the drawn store is invalid: ${checked.errors.map((issue) => issue.message).join('; ')}`);
+  // The oracle plans over what was approved, as the planner must.
+  const planned = variables.map((variable) => {
+    const out = excluded.values[variable.id];
+    if (out === undefined) return variable;
+    const at = variable.values.indexOf(out);
+    return {
+      ...variable,
+      values: variable.values.filter((_, j) => j !== at),
+      ...(variable.weights ? { weights: variable.weights.filter((_, j) => j !== at) } : {}),
+    };
+  });
   return {
     name: shape.name,
     tier: shape.tier,
     store: checked.store,
-    variables,
+    variables: planned,
     rules,
     forbids,
     weighted: shape.weighted === true,
+    excluded,
+    ...(pinched ? { pinched } : {}),
   };
 }
 
@@ -423,7 +491,7 @@ const STEMS: {
   {
     id: 'no-forbidden-row',
     cause: `${FILES.solver}: never place a combination the store forbids`,
-    when: (shape) => shape.forbids > 0,
+    when: (shape) => shape.forbids > 0 || shape.special !== undefined,
     check: (a) => {
       const bad = rowsOf(a.full).filter((row) => a.scenario.forbids.some((forbid) => holds(row, forbid)));
       return verdict(bad.length === 0, `${bad.length} rows hold a forbidden pair`);
@@ -715,6 +783,78 @@ const STEMS: {
       if ([...warned].sort().join('|') !== [...unreachable].sort().join('|'))
         wrong.push(`warnings ${JSON.stringify(warned)} where ${JSON.stringify(unreachable)} are wanted`);
       return verdict(wrong.length === 0, wrong.join('; '));
+    },
+  },
+  // Ladder version 3, strength (R6, R7, R14).
+  {
+    id: 'row-cap',
+    cause: `${FILES.solver}: keep the new rows within the covering-array cap of R14`,
+    when: (shape) => shape.forbids === 0 && shape.special === undefined && !shape.unapproved,
+    tier: 3,
+    check: (a) => {
+      // R14 (docs/variables.md): M required tuples, p the reciprocal of the largest product of arities of a
+      // required tuple, G = ceil(log(M) / -log(1 - p)), the cap ceil(1.25 G) + 1.
+      const sizes = new Map(a.scenario.variables.map((variable) => [variable.id, variable.values.length]));
+      const groups = Object.values(a.oracle.layerGroups()).flat();
+      const m = groups.reduce((sum, group) => sum + a.oracle.tuples(group).length, 0);
+      const widest = Math.max(
+        1,
+        ...groups.map((group) => group.reduce((product, id) => product * (sizes.get(id) as number), 1)),
+      );
+      const p = 1 / widest;
+      const g = m === 0 ? 0 : p === 1 ? 1 : Math.ceil(Math.log(m) / -Math.log(1 - p));
+      const cap = m === 0 ? 0 : Math.ceil(1.25 * g) + 1;
+      const n = logOf(a.full).length;
+      return verdict(n <= cap, `${n} new rows where R14 caps them at ${cap} (M ${m}, G ${g})`);
+    },
+  },
+  {
+    id: 'non-extendable-not-target',
+    cause: `${FILES.groups}: a combination no valid row extends is infeasible, not a target`,
+    when: (shape) => shape.special === 'non-extendable',
+    tier: 4,
+    check: (a) => {
+      const pinched = a.scenario.pinched as Cell;
+      if (a.oracle.cells.some((cell) => holds(cell, pinched)))
+        throw new Error('the drawn store lets a valid row hold the pinched pair');
+      const held = rowsOf(a.full).filter((row) => holds(row, pinched)).length;
+      const report = layerVerdict(a.full, a, []);
+      return verdict(
+        held === 0 && report.pass,
+        held > 0 ? `${held} rows hold a pair no valid row can hold` : report.detail,
+      );
+    },
+  },
+  {
+    id: 'odd-size-forbids',
+    cause: `${FILES.solver}: a constraint of one value or of three values forbids every row that holds it`,
+    when: (shape) => shape.special === 'odd-sizes',
+    check: (a) => {
+      const odd = a.scenario.forbids.filter((forbid) => Object.keys(forbid).length !== 2);
+      const bad = rowsOf(a.full).filter((row) => odd.some((forbid) => holds(row, forbid))).length;
+      return verdict(bad === 0 && odd.length === 2, `${bad} rows hold a forbidden value or triple`);
+    },
+  },
+  {
+    id: 'approved-only',
+    cause: `${FILES.view}: plan only the values, variables and constraints a person approved`,
+    when: (shape) => shape.unapproved === true,
+    tier: 3,
+    check: (a) => {
+      const { excluded } = a.scenario;
+      const wrong: string[] = [];
+      for (const row of logOf(a.full)) {
+        if (Object.entries(excluded.values).some(([variable, value]) => row.values[variable] === value))
+          wrong.push(`${row.id} holds a value nobody approved`);
+        if (excluded.variables.some((variable) => row.values[variable] !== undefined))
+          wrong.push(`${row.id} names a variable nobody approved`);
+      }
+      // A constraint nobody approved plans nothing: the pair it names is a target of the first rule, so a row
+      // holds it.
+      for (const forbid of excluded.forbids)
+        if (!rowsOf(a.full).some((row) => holds(row, forbid)))
+          wrong.push('no row holds the pair a constraint nobody approved names');
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
     },
   },
 ];
