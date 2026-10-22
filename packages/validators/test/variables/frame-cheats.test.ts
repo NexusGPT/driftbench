@@ -38,6 +38,9 @@ const AIMED = [
   'blind.reach.coverage.mapped',
   'blind.reach.quotes.mapped',
   'blind.reach.plan.mapped',
+  'values.input-not-mutated.estate',
+  'values.input-not-mutated.conversations',
+  'values.input-not-mutated.owner',
 ];
 const items: BankItem[] = variablesBank().filter(
   (item) => NEW_STEMS.some((stem) => item.id.startsWith(stem)) || AIMED.includes(item.id),
@@ -85,6 +88,7 @@ describe('the cheating products of the variables audit', () => {
     'coverage-big',
     'quotes-big',
     'quotes-emoji',
+    'write-restore',
   ])('%s passes no item that the adapter fails', async (name) => {
     const honest = passing(await outcomes('honest'));
     const cheat = passing(await outcomes(name));
@@ -119,6 +123,8 @@ describe('the cheating products of the variables audit', () => {
   });
 
   it.each([
+    ['write-restore', 'values.input-not-mutated.estate'],
+    ['write-restore', 'values.input-not-mutated.owner'],
     ['coverage-big', 'blind.counter.many-rows.twenty-thousand-full-rows'],
     ['coverage-big', 'blind.counter.many-rows.twenty-thousand-partial-rows'],
     ['quotes-big', 'blind.quotes.large-file.wrong-quote-at-the-end-of-five-megabytes-is-reported'],
