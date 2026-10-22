@@ -307,7 +307,10 @@ describe('driftbench estate run', () => {
     const prefixes: Record<string, { file: string; sha256: string }> = {};
     let joined = `library ${sha(text)}\n`;
     for (const name of Object.keys(named).sort()) {
-      const entry = { file: named[name] ?? '', sha256: sha(readFileSync(join(dirname(file), named[name] ?? ''))) };
+      const entry = {
+        file: named[name] ?? '',
+        sha256: sha(readFileSync(join(dirname(file), named[name] ?? ''))),
+      };
       prefixes[name] = entry;
       joined += `prefix ${name} ${entry.file} ${entry.sha256}\n`;
     }
