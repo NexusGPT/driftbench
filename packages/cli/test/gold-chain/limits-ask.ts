@@ -15,7 +15,10 @@ export const COMPARISONS = ['lt', 'le', 'gt', 'ge'] as const;
 export type Limit = { limit: number; comparison: (typeof COMPARISONS)[number]; unit?: string };
 
 export const ASK_SYSTEM =
-  'You read one instruction from the prompt of an AI agent. Say whether the instruction states a number that limits ' +
+  'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings ' +
+  'above it and the tables of its section. The place is context only, to read what the instruction refers to; ' +
+  'answer about the INSTRUCTION alone, never about another line of the section. ' +
+  'Say whether the instruction states, or points at a table that gives, a number that limits ' +
   'it: a count, a duration, a size or a threshold that the instruction itself sets. Answer with one JSON object and ' +
   'nothing else: {"limits": [{"limit": <the number as a JSON number>, "comparison": "lt" | "le" | "gt" | "ge", ' +
   '"unit": <what the number counts, a short text, or leave it out>}]}. The comparison says how a quantity is compared ' +
@@ -23,12 +26,49 @@ export const ASK_SYSTEM =
   'list when the instruction states no such number. A number that only names a thing, such as a version or an ' +
   'identifier, is not a limit.';
 
-export const askBody = (model: string, quote: string): Record<string, unknown> => ({
+/**
+ * Where an instruction sits, by the structure of the Markdown file: the headings above its first line, and the tables
+ * of its section (runs of lines that start with a bar). No word of the file is read.
+ */
+export function contextOf(text: string, line: number): string {
+  const lines = text.split('\n');
+  const stack: string[] = [];
+  let sectionStart = 0;
+  for (let at = 0; at < Math.min(line, lines.length); at++) {
+    const heading = /^(#{1,6})\s+(.*)$/.exec(lines[at] ?? '');
+    if (heading?.[1] !== undefined) {
+      stack.length = heading[1].length - 1;
+      stack[heading[1].length - 1] = (heading[2] ?? '').trim();
+      sectionStart = at;
+    }
+  }
+  let sectionEnd = lines.length;
+  for (let at = Math.max(line, sectionStart + 1); at < lines.length; at++) {
+    if (/^#{1,6}\s+/.test(lines[at] ?? '')) {
+      sectionEnd = at;
+      break;
+    }
+  }
+  const tables: string[] = [];
+  let run: string[] = [];
+  for (const row of lines.slice(sectionStart, sectionEnd)) {
+    if (row.trimStart().startsWith('|')) run.push(row.trim());
+    else if (run.length > 0) {
+      tables.push(run.join('\n'));
+      run = [];
+    }
+  }
+  if (run.length > 0) tables.push(run.join('\n'));
+  const path = stack.filter((heading) => heading !== undefined && heading !== '').join(' > ');
+  return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}`;
+}
+
+export const askBody = (model: string, quote: string, context: string): Record<string, unknown> => ({
   model,
   max_tokens: 400,
   ...(model === ASK_MODEL ? { thinking: { type: 'disabled' } } : {}),
   system: ASK_SYSTEM,
-  messages: [{ role: 'user', content: `INSTRUCTION:\n${quote}` }],
+  messages: [{ role: 'user', content: `PLACE:\n${context}\n\nINSTRUCTION:\n${quote}` }],
 });
 
 export const askKey = (body: Record<string, unknown>): string =>
@@ -87,11 +127,12 @@ export async function answerFor(
   estate: EstateName,
   model: string,
   quote: string,
+  context: string,
   cache: Map<string, Entry>,
   spent: Spent,
   record?: { key: string; capIn: number; capOut: number },
 ): Promise<string> {
-  const body = askBody(model, quote);
+  const body = askBody(model, quote, context);
   const key = askKey(body);
   const hit = cache.get(key);
   if (hit) return hit.text;

@@ -8,7 +8,7 @@
  * examples/estates/gold-<x>/limits.ask.<model>.jsonl, and the chain replays them. The cost is the tokens the answers
  * report times the price of docs/estate-pointer-reader.md section 11 (USD 0.10 per million input, 0.50 per million output).
  */
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pointer, readerFor, scanEstate } from '@agent-nexus/driftbench-estate';
@@ -22,7 +22,7 @@ import {
   loadGold,
 } from '../../../estate/test/gold/gold';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, answerFor, loadAsks, readKey } from './limits-ask';
+import { ASK_MODEL, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
@@ -56,21 +56,23 @@ async function record(estate: EstateName, key: string) {
         estateKey: GOLD_ESTATE_KEY,
       },
     });
-    const quotes = [
-      ...new Set(
-        scan.map.atoms
-          .filter((atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer')
-          .map((atom) => atom.provenance.quote),
-      ),
-    ];
+    const texts = new Map<string, string>();
+    for (const path of Object.values(LAYOUT[estate])) texts.set(path, await readFile(join(dir, path), 'utf8'));
+    const asks = new Map<string, { quote: string; context: string }>();
+    for (const atom of scan.map.atoms) {
+      if (atom.kind !== 'instruction' || atom.fields?.extraction !== 'pointer') continue;
+      const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine);
+      asks.set(`${atom.provenance.quote}\n${context}`, { quote: atom.provenance.quote, context });
+    }
+    const quotes = [...asks.values()];
     const cache = loadAsks(estate, ASK_MODEL);
     const spent = { input: 0, output: 0, requests: 0 };
     let next = 0;
     const worker = async () => {
       for (;;) {
-        const quote = quotes[next++];
-        if (quote === undefined) return;
-        await answerFor(estate, ASK_MODEL, quote, cache, spent, { key, capIn, capOut });
+        const ask = quotes[next++];
+        if (ask === undefined) return;
+        await answerFor(estate, ASK_MODEL, ask.quote, ask.context, cache, spent, { key, capIn, capOut });
       }
     };
     await Promise.all([worker(), worker(), worker(), worker()]);

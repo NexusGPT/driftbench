@@ -29,7 +29,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, answerFor, limitsOfAnswer, loadAsks } from './limits-ask';
+import { ASK_MODEL, answerFor, contextOf, limitsOfAnswer, loadAsks } from './limits-ask';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -343,7 +343,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const byAtom = new Map<string, Array<{ limit: number; comparison: string; unit?: string }>>();
         const atomUnits = new Map([...atomOf].map(([goldId, atom]) => [atom.id, goldId]));
         for (const atom of atomOf.values()) {
-          const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, asks, spent);
+          const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine);
+          const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, asks, spent);
           const read = limitsOfAnswer(text);
           if (read.problem) problems.push(`answer unreadable on ${atomUnits.get(atom.id)}: ${read.problem}`);
           if (read.limits.length > 0) byAtom.set(atom.id, read.limits);
