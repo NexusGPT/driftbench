@@ -2,6 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import type { GoldUnit } from './gold';
 import { loadTruth } from './truth';
 
 /**
@@ -32,17 +33,34 @@ const truthWith = (limitUnit: string, governs: string, cover: string): string =>
     '',
   ].join('\n');
 
-async function load(text: string): Promise<Error | undefined> {
+const unit = (id: string): GoldUnit => ({
+  file: 'A-skill.md',
+  n: 0,
+  id,
+  container: '',
+  text: id,
+  section: '',
+  estate: 'A',
+  labelAuthor: 'rule',
+  labelOpus: 'rule',
+  agreed: true,
+  label: 'rule',
+});
+
+/** Gold units for every planted rule and for the ids the tests use, each a rule outside the standing file. */
+const GOLD = [...Array.from({ length: 8 }, (_, i) => `abcdefgh0${i}`), '13438124e4'].map(unit);
+
+async function loadWith(text: string, gold: readonly GoldUnit[] = []) {
   const dir = await mkdtemp(join(tmpdir(), 'truth-ids-'));
   const path = join(dir, 'truth.yaml');
   await writeFile(path, text);
   try {
-    await loadTruth('A', [], path);
-    return undefined;
+    return { error: undefined, ...(await loadTruth('A', gold, path)) };
   } catch (error) {
-    return error as Error;
+    return { error: error as Error, truth: undefined, problems: [] as string[] };
   }
 }
+const load = async (text: string): Promise<Error | undefined> => (await loadWith(text)).error;
 
 describe('an id that the default YAML schema reads as a number', () => {
   it.each(['13438124e4', '774723e072', '9651728e48', '1234567890'])(
@@ -60,9 +78,14 @@ describe('an id that the default YAML schema reads as a number', () => {
     expect(error?.message).toMatch(/plan\.cover\.0/);
   });
 
-  it('is accepted when quoted: the schema reaches the units, where an unknown id is reported by its path', async () => {
-    const error = await load(truthWith('"13438124e4"', '"13438124e4"', '"13438124e4"'));
-    // The file fits the schema; with no gold units the loader returns problems instead of throwing.
-    expect(error).toBeUndefined();
+  it('is accepted when quoted: a known quoted id gives no problem, an unknown one is reported by its path', async () => {
+    const known = await loadWith(truthWith('"13438124e4"', '"13438124e4"', '"13438124e4"'), GOLD);
+    expect(known.error).toBeUndefined();
+    expect(known.problems).toEqual([]);
+    expect(known.truth?.limits[0]?.unit).toBe('13438124e4');
+    const unknown = await loadWith(truthWith('"13438124e4"', '"13438124e5"', '"13438124e4"'), GOLD);
+    expect(unknown.error).toBeUndefined();
+    expect(unknown.problems).toHaveLength(1);
+    expect(unknown.problems[0]).toMatch(/^limits\.0\.governs: 13438124e5 is no unit of estate A/);
   });
 });
