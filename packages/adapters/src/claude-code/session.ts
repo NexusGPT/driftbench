@@ -101,6 +101,8 @@ export type SessionMeta = {
     guards: Array<{ row: unknown; reason: string }>;
     stages: Array<{ row: unknown; reason: string }>;
   };
+  /** Helper records that named no parent and took the latest Agent call. */
+  ownerlessHelperRecords: number;
   /** What the reader noticed: rows of other sessions, calls with no result, lines that are not JSON. */
   issues: string[];
   /** The diff of the before and after trees, when both were given. */
@@ -262,6 +264,7 @@ export function mapSession(input: SessionInput): ReplaySession {
     summaries: [],
     unplaced: { guards: [], stages: [] },
     issues: [],
+    ownerlessHelperRecords: 0,
     decisions: input.decisions !== undefined,
     steps: input.steps !== undefined,
   };
@@ -487,11 +490,13 @@ export function mapSession(input: SessionInput): ReplaySession {
         ? [part.tool_use_id]
         : [],
     );
-    const owner =
+    const named =
       stringField(record, 'parent_tool_use_id') ??
       answered.map((id) => helperCallOwner.get(id)).find((found) => found !== undefined) ??
-      (parent === undefined ? undefined : (agentAt.get(parent) ?? helperOwner.get(parent))) ??
-      lastAgentCall;
+      (parent === undefined ? undefined : (agentAt.get(parent) ?? helperOwner.get(parent)));
+    // A record that names no parent takes the latest Agent call, and is counted so it stays visible.
+    const owner = named ?? lastAgentCall;
+    if (named === undefined && owner !== undefined) meta.ownerlessHelperRecords += 1;
     if (uuid !== undefined && owner !== undefined) helperOwner.set(uuid, owner);
     const block = current();
     if (!block) return;
