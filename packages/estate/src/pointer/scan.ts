@@ -210,7 +210,7 @@ export const OUT_OF_STEP_MIN = 4;
 /** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
 export const REASK_LIMIT = 3;
 
-/** How many more runs a window gets when the runs heard on one of its units tie inside one atom kind. */
+/** How many more runs a window gets when the two most given labels of one of its units tie. */
 export const SPLIT_REASK_RUNS = 2;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
@@ -715,8 +715,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     );
     return runs.length > 1 && heard.length < 2 ? undefined : heard.map((run) => run.get(index));
   };
-  /** Whether the runs heard on a unit tie inside one atom kind, with no label, tie break or group to decide it. */
-  const tiedInKind = (runs: ReadonlyArray<Map<number, Opinion>>, index: number, set: LabelSet): boolean => {
+  /**
+   * Whether the runs heard on a unit are split with no label, tie break or group to decide it, and its two most given
+   * labels tie: inside one atom kind (two runs of rule, two of prohibition) or across kinds (two of reply-rule, two
+   * of rule).
+   */
+  const tiedSplit = (runs: ReadonlyArray<Map<number, Opinion>>, index: number, set: LabelSet): boolean => {
     const given = heardOn(runs, index);
     if (!given || given.length < 2) return false;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
@@ -725,7 +729,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     if ([...tally.values()].some((group) => group.length * 2 > given.length) || tieBroken(tally, set))
       return false;
-    return sameKindVote(present, given.length, set).tiedInKind;
+    const grouped = sameKindVote(present, given.length, set);
+    if (grouped.winners) return false;
+    if (grouped.tiedInKind) return true;
+    const counts = [...tally.values()].map((group) => group.length).sort((a, b) => b - a);
+    return counts.length >= 2 && counts[0] === counts[1];
   };
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
@@ -767,7 +775,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     };
   };
 
-  // A window with a unit whose runs tie inside one atom kind (two runs of rule, two of prohibition) is asked
+  // A window with a unit whose two most given labels tie, inside one atom kind (two runs of rule, two of prohibition)
+  // or across kinds (two of reply-rule, two of rule), with nothing else to decide it, is asked
   // SPLIT_REASK_RUNS more times, as the runs after those the window already used; each answer in step is one more
   // voice on the units of that window. Keyed by run number like every run, so a replay reads the same answers; a
   // replay whose cassette holds none leaves the tie as it is.
@@ -778,7 +787,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (asked.has(where)) continue;
     asked.add(where);
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
-    const tied = task.window.units.filter((unit) => tiedInKind(runs, unit.index, task.set));
+    const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
     if (tied.length === 0) continue;
     for (let more = 1; more <= SPLIT_REASK_RUNS; more++) {
       const extra = (spent.get(where) ?? 0) + 1;
@@ -805,7 +814,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       heardOnly.set(voice, new Set(task.window.units.map((unit) => unit.index)));
       hear(again, runs.length, leaf);
       reasked.push(
-        `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${tied.length} units split inside a kind`,
+        `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${tied.length} split units`,
       );
     }
   }
