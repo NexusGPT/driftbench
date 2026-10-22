@@ -22,6 +22,8 @@ export const SpanKind = z.strictObject({
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
+const COMPARISONS: ReadonlySet<string> = new Set(['lt', 'le', 'gt', 'ge']);
+
 /** A kind of link from a unit to an atom the request listed as a candidate. */
 export const LinkKind = z
   .strictObject({
@@ -33,9 +35,18 @@ export const LinkKind = z
     to: z.array(z.string().min(1)).min(1).optional(),
     /** Or a closed list of values the set declares, such as the names of a runtime's tools. */
     values: z.array(z.string().min(1)).min(1).optional(),
+    /**
+     * A numeric kind: each link of it carries a number (`value`) and, when the unit gives one, what the number
+     * counts (`unit`). Its closed list is the comparisons: how a quantity is compared with the number for the unit to
+     * hold. The atom of the unit takes them in `fields.condition`.
+     */
+    number: z.literal(true).optional(),
   })
   .refine((kind) => (kind.to === undefined) !== (kind.values === undefined), {
     error: 'a link kind names `to` (atom kinds) or `values` (a closed list), one of the two',
+  })
+  .refine((kind) => kind.number === undefined || (kind.values !== undefined && kind.values.every((v) => COMPARISONS.has(v))), {
+    error: 'a numeric link kind names `values`, each one of lt, le, gt, ge',
   });
 export type LinkKind = z.infer<typeof LinkKind>;
 
@@ -259,8 +270,11 @@ export type SpanInput = { kind: string; polarity?: string } & (
   | { text: string }
 );
 
-/** A link as answered: a kind and the id of a candidate atom (or `none`). */
-export type LinkAnswer = { kind: string; to: string };
+/**
+ * A link as answered: a kind and the id of a candidate atom (or `none`). A link of a numeric kind carries `to`, the
+ * comparison, and `value`, the number, with `unit` when the unit says what it counts.
+ */
+export type LinkAnswer = { kind: string; to: string; value?: number; unit?: string };
 
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
@@ -573,6 +587,28 @@ function checkExtras(
         }
         if (typeof link.to !== 'string') {
           out.dropped.push(`${where}: the target is an atom id or none`);
+          continue;
+        }
+        if (kind.number) {
+          const { value, unit } = link as { value?: unknown; unit?: unknown };
+          if (typeof value !== 'number' || !Number.isFinite(value)) {
+            out.dropped.push(`${where}: the limit link needs a finite number as its value`);
+            continue;
+          }
+          if (unit !== undefined && (typeof unit !== 'string' || unit.trim() === '')) {
+            out.dropped.push(`${where}: the limit link's unit is a non-empty string`);
+            continue;
+          }
+          if (!kind.values?.includes(link.to)) {
+            out.dropped.push(`${where}: the limit link's comparison is one of ${kind.values?.join(', ')}`);
+            continue;
+          }
+          links.push({
+            kind: kind.name,
+            to: link.to,
+            value,
+            ...(unit === undefined ? {} : { unit: unit.trim() }),
+          });
           continue;
         }
         // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,

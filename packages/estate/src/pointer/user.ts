@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
-import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser, SPAN_RULE } from './dense';
+import { DEFAULT_RUNS, denseLabels, denseOpinions, denseUser, systemFor } from './dense';
 import {
   type Labeler,
   type LabelerClass,
@@ -80,7 +80,7 @@ export function userRequest(
       set: setBody,
       window: windowBody,
       prompt: {
-        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        system: systemFor(set),
         user: denseUser(set, window, context),
       },
     };

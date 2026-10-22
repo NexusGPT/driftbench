@@ -217,8 +217,19 @@ export function pointerAtoms(
     // A link names an atom of the estate (one the scan does not hold is dropped with its reason), or a value of
     // a closed list the set declares.
     const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
+    // A link of a numeric kind is a limit of the unit: the number, how a quantity is compared with it, and what it
+    // counts. The atoms of the unit take them in `fields.condition`, which the variable feed reads and nothing else.
+    const limits: Array<{ limit: number; comparison: string; unit?: string }> = [];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
+      if (item.set.links?.find((kind) => kind.name === link.kind)?.number && typeof link.value === 'number') {
+        limits.push({
+          limit: link.value,
+          comparison: link.to,
+          ...(link.unit === undefined ? {} : { unit: link.unit }),
+        });
+        continue;
+      }
       if (item.set.links?.find((kind) => kind.name === link.kind)?.values) {
         labelLinks.push({ kind: link.kind, value: link.to });
         continue;
@@ -423,7 +434,9 @@ export function pointerAtoms(
               labelSet: item.set.set,
               label: item.label,
               labeler,
-              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+              ...(conditionIds.length > 0 || limits.length > 0
+                ? { condition: [...conditionIds, ...limits] }
+                : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
               ...(labelSpans.length > 0 ? { labelSpans } : {}),
               ...(ownLinks.length > 0 ? { labelLinks: ownLinks } : {}),

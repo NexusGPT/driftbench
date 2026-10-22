@@ -23,7 +23,7 @@ export type LedgerLabel = {
   /** Clauses of the unit by offsets into its text; kept with the label, valid while the unit's text is. */
   spans?: Array<{ kind: string; from: number; to: number; polarity?: string }>;
   /** Atoms the unit points at, by kind and id. */
-  links?: Array<{ kind: string; to: string }>;
+  links?: Array<{ kind: string; to: string; value?: number; unit?: string }>;
 };
 
 export type LedgerEntry = {
