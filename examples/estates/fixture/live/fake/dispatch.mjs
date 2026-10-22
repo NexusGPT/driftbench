@@ -99,7 +99,12 @@ export function loadDispatch(env) {
         const at = phrase.text;
         phrases.set(at, [
           ...(phrases.get(at) ?? []),
-          { use: situation.use, atoms: situation.atoms ?? [], changed: situation.touches?.changed ?? [] },
+          {
+            use: situation.use,
+            atoms: situation.atoms ?? [],
+            changed: situation.touches?.changed ?? [],
+            provokes: situation.provokes,
+          },
         ]);
       }
   }
@@ -202,12 +207,15 @@ export function setOff(index, ask) {
   if (banked) {
     const out = new Map();
     const edits = [];
+    const provokes = [];
     for (const situation of banked) {
       if (situation.use === 'outside' || situation.use === 'near_miss') continue;
       for (const path of situation.changed) if (!edits.includes(path)) edits.push(path);
+      if (situation.provokes && !provokes.some((call) => call.command === situation.provokes.command))
+        provokes.push(situation.provokes);
       for (const id of situation.atoms) out.set(id, (out.get(id) ?? false) || situation.use === 'forced');
     }
-    return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [], edits };
+    return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [], edits, provokes };
   }
   const matched = matchAsk(index.grammar, ask);
   if (matched)
