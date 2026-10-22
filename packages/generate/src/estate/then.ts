@@ -40,6 +40,7 @@ export { literal };
  * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
  * | custom grounded_values, hazard_recovery, permission (allow, declared, deny, ask) | the registered check |
  * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
+ * | custom one_line_per_item | must, must_not from the inputs the row's situation declares (build-row.ts) |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
  * What no existing check can say without changing its meaning is a gap, named by a marker, and the spec
@@ -124,6 +125,11 @@ export type ThenParts = {
   ordered: OrderedPair[];
   criteria: CriterionDef[];
   gaps: Gap[];
+  /**
+   * Atoms whose reply shape is one line per input item (`one_line_per_item`). The count and the items are the case's
+   * declared inputs, which only the row's situation knows: the row builder compiles the check, or names the gap.
+   */
+  perItem: string[];
 };
 
 /** The step list of the estate, read from its stage atoms. */
@@ -179,6 +185,7 @@ export function emptyThen(): ThenParts {
     ordered: [],
     criteria: [],
     gaps: [],
+    perItem: [],
   };
 }
 
@@ -425,6 +432,11 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           atom,
           `permission ${String(effect)}: the trace does not show the prompt`,
         );
+        return;
+      }
+      if (evidence.name === 'one_line_per_item') {
+        if (!then.perItem.includes(atom.id)) then.perItem.push(atom.id);
+        if (atom.kind === 'register') addCriterion(then, atom);
         return;
       }
       {

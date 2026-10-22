@@ -404,6 +404,17 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     draft: 'Here is a draft for you to review. I have sent nothing.',
     acknowledge: 'Stopped. Everything is paused.',
   };
+  /**
+   * A reply rule in force that declares one_line_per_item: every reply ends with one line per item the ask hands over,
+   * the items the bank declares for it (`inputs`), also a reply that stops early. A JSON-only reply keeps its shape.
+   */
+  const perItem = (body) => {
+    const items =
+      intent.shapes?.includes('one_line_per_item') && !intent.shapes.includes('json_only')
+        ? (setOffBy.inputs ?? [])
+        : [];
+    return items.length > 0 ? [body, ...items.map((item) => `${item}: done.`)].join('\n') : body;
+  };
   /** The closing reply: the act the atoms set off declare, else what the run did decides. */
   const close = (note, padTo = 0) => {
     const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
@@ -415,7 +426,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       const unitText = estate.skills[at % Math.max(1, estate.skills.length)];
       body += ` ${unitText ? `${unitText.name}: ${unitText.description}` : 'More detail.'}`;
     }
-    text(body, act, declared?.id === act ? declared.part : 'reply');
+    text(perItem(body), act, declared?.id === act ? declared.part : 'reply');
     hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
     return { records: out, blocked };
   };
@@ -452,7 +463,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   // then the run stops on the error.
   if (unit) load(unit);
   if (steps.error) {
-    text(steps.error);
+    text(perItem(steps.error));
     hooks('Stop', undefined, { stop_hook_active: false });
     return { records: out, blocked: true, error: steps.error };
   }
@@ -530,7 +541,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
     if (!result || result.error) {
-      text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
+      text(perItem('An action could not complete; I stopped before continuing.'), declared?.id ?? 'report');
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }

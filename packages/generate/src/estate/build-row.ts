@@ -26,6 +26,7 @@ import type {
   Situation,
   SituationUse,
 } from './inputs';
+import { compilePredicate } from './predicates';
 import { statesNeeded } from './states';
 import {
   addPair,
@@ -300,6 +301,28 @@ export function build(
 
   // A reply in the language of the ask: the phrase's language, once it is known.
   if (then.langFromAsk && phrase && then.lang === undefined) then.lang = phrase.lang.toUpperCase();
+
+  // A reply of one line per input item: the items, and so their count, are the inputs the situation declares, taken
+  // only when the ask is one of that situation's phrases. Without them no check can count the lines: a gap.
+  const inputs =
+    situation && phrase && situation.phrases.some((entry) => entry.text === phrase?.text)
+      ? (situation.inputs ?? [])
+      : [];
+  for (const id of then.perItem) {
+    const compiled = compilePredicate('one_line_per_item', { items: inputs });
+    if (!compiled) {
+      gap(
+        then,
+        MARKERS.registered,
+        id,
+        `one_line_per_item: ${situation ? `${situation.id} declares no inputs for this ask` : 'no situation declares the inputs of the ask'}`,
+      );
+      continue;
+    }
+    for (const pattern of compiled.must ?? []) if (!then.must.includes(pattern)) then.must.push(pattern);
+    for (const pattern of compiled.mustNot ?? [])
+      if (!then.mustNot.includes(pattern)) then.mustNot.push(pattern);
+  }
 
   // Blocks.
   const placeholder = `[no approved phrase: ${use} situation for ${first.id}]`;

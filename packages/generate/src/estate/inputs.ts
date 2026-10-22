@@ -148,6 +148,13 @@ export const Situation = z.strictObject({
     .describe('Situation axis values the phrases express; a plan row must agree with each of them'),
   workspace: Slug.optional().describe('The workspace seed the ask starts from'),
   touches: Touches.optional(),
+  inputs: z
+    .array(z.string().min(1))
+    .min(1)
+    .optional()
+    .describe(
+      'The items the ask hands the agent to work on, each by the text that names it, such as an invoice number or a file name. A reply rule of one line per item counts them.',
+    ),
   phrases: z
     .array(BankPhrase)
     .min(1)
