@@ -1,6 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
+  AGENT_RULES_SET,
   Cassette,
   CassetteMiss,
   createAnthropicLabeler,
@@ -14,6 +15,7 @@ import {
   outOfStep,
   type PointerInput,
   type PointerPlan,
+  parseLabelSets,
   pointerScan,
   REASK_LIMIT,
   renderLedger,
@@ -750,6 +752,75 @@ describe('runs that split between labels of one atom kind', () => {
     ]);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
     expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
+describe('a unit that names a file to read is no condition alone', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  /** The label unit 1 of `text` gets when run n answers `plan[n - 1]`; the rest of the window is a rule. */
+  const scanUnit = async (text: string, plan: Labelled[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // A re-ask hears the last reading again.
+        const entry = plan[call - 1] ?? (plan.at(-1) as Labelled);
+        return [
+          entry,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(
+      input(labeler, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }),
+    );
+    return result.labelled.find((item) => item.index === 0)?.label;
+  };
+  const condition: Labelled = { units: '1', label: 'condition', target: 2 };
+
+  it('decides the file read of a when clause as a gate, though three of five runs call it a condition', async () => {
+    // As invoice-reconcile/SKILL.md of the Northwind fixture: the condition readings count for the group of file
+    // labels, and inside it the gate readings, which can build their atom, choose.
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    const gate: Labelled = {
+      units: '1',
+      label: 'gate',
+      spans: [{ kind: 'governed-action', text: 'convert every amount' }],
+      links: [{ kind: 'act-tool', to: 'Edit' }],
+    };
+    expect(await scanUnit(text, [condition, gate, condition, gate, condition])).toBe('gate');
+  });
+
+  it('decides a when clause that names files to read as a reference, though three of five runs call it a condition', async () => {
+    // As unit 21 of the reader-cases CLAUDE.md: four files named, read when a claim names a supplier.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(await scanUnit(text, [condition, reference, condition, reference, condition])).toBe('reference');
+  });
+
+  it('keeps a condition of a unit that names no file', async () => {
+    const text = 'When the invoice is not in EUR, convert every amount.\n\nKeep two decimals.\n';
+    expect(
+      await scanUnit(text, [
+        condition,
+        condition,
+        condition,
+        { units: '1', label: 'rule' } as Labelled,
+        condition,
+      ]),
+    ).toBe('condition');
+  });
+
+  it('leaves unlabeled a unit that names a file when only conditions are given for it', async () => {
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    expect(await scanUnit(text, [condition, condition, condition, condition, condition])).toBeUndefined();
   });
 });
 
