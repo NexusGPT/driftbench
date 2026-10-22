@@ -31,6 +31,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
+import { referredBy, refersEnabled } from './refers';
 import { askModel, askPort, loadAsks } from './limits-ask';
 
 /**
@@ -401,6 +402,17 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           texts,
           ask: askPort(estate, MODEL, asks, spent),
           include: (atom) => atomUnits.has(atom.id),
+          // GOLD_REFERS: the planted refers_to of the truth feeds a REFERRED block; the gate does not use it.
+          ...(refersEnabled()
+            ? {
+                referred: referredBy({
+                  estate,
+                  gold,
+                  truth,
+                  ledger: ledger.entries.filter((entry) => entry.status === 'live'),
+                }),
+              }
+            : {}),
         });
         for (const entry of asked.unreadable) {
           problems.push(`answer unreadable on ${atomUnits.get(entry.atom)}: ${entry.reason}`);

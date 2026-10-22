@@ -23,6 +23,7 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
+import { referredBy, refersEnabled } from './refers';
 import { askModel, askPort, askPrices, loadAsks, readKey } from './limits-ask';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
@@ -92,6 +93,16 @@ async function record(estate: EstateName, key: string) {
             ...PRICES,
           }),
       include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
+      ...(refersEnabled() && scan.pointer !== undefined
+        ? {
+            referred: referredBy({
+              estate,
+              gold,
+              truth,
+              ledger: scan.pointer.ledger.entries.filter((entry) => entry.status === 'live'),
+            }),
+          }
+        : {}),
     });
     if (process.env.GOLD_ASK_DRY) {
       const both = seen.filter((user) => user.includes('PREVIOUS UNIT:') && user.includes('NEXT UNIT:'));
