@@ -898,7 +898,7 @@ describe('a unit the runs read two ways near evenly is listed as unstable', () =
       gateSame,
       rule,
     ]);
-    expect(result.reasked).toHaveLength(SPLIT_REASK_MAX);
+    expect(result.reasked).toHaveLength(CLOSE_REASK_MAX);
     expect(labelOf(result)).toBeUndefined();
     expect(result.unstable).toEqual([
       {

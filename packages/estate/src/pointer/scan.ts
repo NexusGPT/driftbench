@@ -292,11 +292,17 @@ export const REASK_LIMIT = 3;
  */
 export const SPLIT_REASK_RUNS = 2;
 
-/** The most extra voices a window gets while one of its units is still undecided: six, in pairs. */
-export const SPLIT_REASK_MAX = 6;
+/** The most extra voices a window gets while one of its units still ties. */
+export const SPLIT_REASK_MAX = 4;
 
-/** The most asks a window gets for an undecided unit, those that slip included. */
-export const SPLIT_REASK_ATTEMPTS = 8;
+/** The most asks a window gets for a split, those that slip included. */
+export const SPLIT_REASK_ATTEMPTS = 6;
+
+/** The most extra voices a window gets while one of its units is close (`closeKinds`): six, in pairs. */
+export const CLOSE_REASK_MAX = 6;
+
+/** The most asks a window gets while one of its units is close, those that slip included. */
+export const CLOSE_REASK_ATTEMPTS = 8;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
@@ -794,11 +800,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     return { winners: group.filter((opinion) => key(opinion) === key(pick)), tiedInKind: false };
   };
   /**
-   * The kinds the runs heard on a unit gave, when the two most given are at most one run apart and the second has two
-   * runs at least: one more run could tie or turn the vote. Counted by what a label builds, so two labels of one kind
-   * (a rule and a prohibition) are one kind here; a set whose labels build no atom has no kinds and none of this.
+   * The kinds the runs heard on a unit gave, when its two most given labels are one run apart (the second with two
+   * runs at least) and are two readings, not one: they build different atom kinds, or one builds an atom and the
+   * other none. Two labels of one kind (a rule and a prohibition, or two labels that build no atom) are settled by the
+   * group vote, and the generic rule against one specific label by the tie break, so neither is close here. Counted by
+   * what a label builds (an atom kind; a label that points at another unit by its name; `no atom`), most given first.
    */
-  const unstableKinds = (
+  const closeKinds = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
     set: LabelSet,
@@ -806,17 +814,21 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (runs.length < 2 || !set.labels.some((label) => label.atom)) return undefined;
     const given = heardOn(runs, index);
     if (!given) return undefined;
-    const counts = new Map<string, number>();
-    for (const opinion of given) {
-      if (!opinion) continue;
+    const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const tally = new Map<string, Opinion[]>();
+    for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
+    const [first, second] = [...tally.values()].sort((a, b) => b.length - a.length);
+    if (!first || !second || second.length < 2 || first.length - second.length > 1) return undefined;
+    const kindOf = (opinion: Opinion) => {
       const declared = set.labels.find((candidate) => candidate.name === opinion.label);
-      const kind = declared?.target ? opinion.label : (declared?.atom?.kind ?? 'no atom');
-      counts.set(kind, (counts.get(kind) ?? 0) + 1);
-    }
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-    const [first, second] = sorted;
-    if (!first || !second || second[1] < 2 || first[1] - second[1] > 1) return undefined;
-    return Object.fromEntries(sorted);
+      return declared?.target ? opinion.label : (declared?.atom?.kind ?? 'no atom');
+    };
+    if (kindOf(first[0] as Opinion) === kindOf(second[0] as Opinion) || tieBroken(tally, set))
+      return undefined;
+    const counts = new Map<string, number>();
+    for (const opinion of present) counts.set(kindOf(opinion), (counts.get(kindOf(opinion)) ?? 0) + 1);
+    return Object.fromEntries([...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
   };
   /** The opinions of the runs heard on a unit: none when fewer than two of several runs are heard. */
   const heardOn = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) => {
@@ -898,7 +910,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     index: number,
     set: LabelSet,
     mentionsFile = false,
-  ): boolean => tiedSplit(runs, index, set, mentionsFile) || unstableKinds(runs, index, set) !== undefined;
+  ): boolean => tiedSplit(runs, index, set, mentionsFile) || closeKinds(runs, index, set) !== undefined;
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
@@ -913,7 +925,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
     // Two kinds one run apart are no decision, whatever label a vote would give: the unit was asked again, and if its
     // runs are still that close it stays unlabeled (it is listed as unstable).
-    if (unstableKinds(runs, index, set)) {
+    if (closeKinds(runs, index, set)) {
       if (present.length === given.length) split++;
       return undefined;
     }
@@ -967,12 +979,20 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     // Two voices in step at least; while a unit of the window is still undecided, two more, up to SPLIT_REASK_MAX; a re-ask
     // that slips is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
     let voices = 0;
-    for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
+    for (let attempt = 1; attempt <= CLOSE_REASK_ATTEMPTS; attempt++) {
       const stillTied = task.window.units.some((unit) =>
         undecided(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
       );
+      // A close unit gets up to six voices; a tie with no close unit keeps the four of a split.
+      const close = task.window.units.some((unit) => closeKinds(runs, unit.index, task.set) !== undefined);
+      if (!close && attempt > SPLIT_REASK_ATTEMPTS) break;
       // Voices come in pairs, so one extra voice never breaks a tie on its own.
-      if (voices >= SPLIT_REASK_RUNS && voices % 2 === 0 && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
+      if (
+        voices >= SPLIT_REASK_RUNS &&
+        voices % 2 === 0 &&
+        (!stillTied || voices >= (close ? CLOSE_REASK_MAX : SPLIT_REASK_MAX))
+      )
+        break;
       const extra = (spent.get(where) ?? 0) + 1;
       spent.set(where, extra);
       const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
@@ -1010,7 +1030,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     byMember: ReadonlyArray<Array<Map<number, Opinion>>>,
     index: number,
   ) => {
-    const close = byMember.map((runs) => unstableKinds(runs, index, set));
+    const close = byMember.map((runs) => closeKinds(runs, index, set));
     // A unit whose runs stay one run from another outcome is unlabeled: no other labeler decides it alone.
     const decision = close.some((kinds) => kinds)
       ? undefined
@@ -1060,7 +1080,6 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           (candidate) =>
             candidate.file === file.path &&
             candidate.set === set &&
-            (candidate.member.runs ?? 1) > 1 &&
             candidate.window.units.some((unit) => unit.index === index),
         );
         const unit = task?.window.units.find((candidate) => candidate.index === index);
