@@ -32,6 +32,12 @@ export const overwrite = (xs: readonly number[]) => {
   return result;
 };
 
+/** A Map and an array that carry an accessor as an extra own property. */
+export const mapWithAccessor = () =>
+  Object.defineProperty(new Map([['a', 1]]), 'extra', { enumerable: true, get: () => 1 });
+export const arrayWithAccessor = () =>
+  Object.defineProperty([1, 2, 3], 'extra', { enumerable: true, get: () => 1 });
+
 let spoofed: Float64Array | undefined;
 let fills = 0;
 /** One typed array refilled on every call, whose own `length` property says 0. */

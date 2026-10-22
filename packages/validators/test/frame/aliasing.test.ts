@@ -96,6 +96,16 @@ describe('aliased results under the frame', () => {
     expect(frame.aliasSince(0)).toContain('has changed since');
   });
 
+  it.each(['mapWithAccessor', 'arrayWithAccessor'] as const)(
+    '%s: an accessor in an extra property of a container makes the result invalid',
+    (name) => {
+      const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+      open.push(frame as Frame<unknown>);
+      frame.product[name]();
+      expect(frame.aliasSince(0)).toContain('accessor');
+    },
+  );
+
   it.each(['withArrayGetter', 'withArraySetter'] as const)(
     '%s: an array element that is an accessor makes the result invalid',
     (name) => {
