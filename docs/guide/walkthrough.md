@@ -366,7 +366,7 @@ $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" buil
 $ find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort | grep -v -x -F -f rerun.txt | head -8 > others.txt
 $ cat rerun.txt others.txt | LC_ALL=C sort > base.txt
 $ grep -c "" base.txt
-24
+25
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store before.db --agent-version v1 --states northwind/live/states/library.json   # exit 1
 25 specs run live on a stand-in: 0 pass, 25 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 25 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
 ```
@@ -420,7 +420,7 @@ In the radius, mode F:
   estate.pairwise.0177                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
-Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. The last one is the `ordered_pair` test of the gate `gate.weekly-report.read-templates-report-md-before-writing`: that gate and this sentence are in the same section of the skill file, so the plan puts them in one row. So the 17 blocks are 17 files, 3 named for the rule, 13 from the plan and 1 for the gate of the same section.
+Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. The last one is the `ordered_pair` test of the gate `gate.weekly-report.read-templates-report-md-before-writing`. That gate and this sentence are in one section of the skill file. So the plan puts them in one row. So the 17 blocks are 17 files, 3 named for the rule, 13 from the plan and 1 for the gate of the same section.
 
 **Which id to grep for.** The first line of the radius output ends with `prompt:` and the id of the atom you changed. Here it is `instruction.weekly-report.count-only-what-the-ledger-and`. On your own agent it is the text after `prompt:`, without the final full stop. The tests that name an atom hold a line `- <atom id>` in their links, so a `grep` for that line finds them.
 
