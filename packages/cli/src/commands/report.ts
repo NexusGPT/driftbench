@@ -94,7 +94,7 @@ export function registerReportCommand(
     )
     .option(
       '--aggregate <spec>',
-      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; its result is printed',
+      'a campaign-level criterion, name:op threshold, e.g. 'pass-rate:>=0.8' (quote it: a shell reads >= as a redirect); repeatable; its result is printed',
       (value: string, previous: string[]) => [...previous, value],
       [] as string[],
     )

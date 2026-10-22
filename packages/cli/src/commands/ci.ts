@@ -271,7 +271,7 @@ export function registerCiCommand(
     )
     .option(
       '--aggregate <spec>',
-      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; a failing one fails the gate',
+      'a campaign-level criterion, name:op threshold, e.g. 'pass-rate:>=0.8' (quote it: a shell reads >= as a redirect); repeatable; a failing one fails the gate',
       collect,
       [] as string[],
     );
