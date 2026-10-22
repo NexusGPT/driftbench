@@ -13,6 +13,8 @@ export type LinkedLedger = {
   entries: ReadonlyArray<
     Pick<LedgerEntry, 'id' | 'path' | 'fp' | 'ctxFp' | 'sectionPath' | 'status'> & {
       labels: Readonly<Record<string, { label: string }>>;
+      /** What the scans decided for the unit; a last event `ambiguous` marks a text that matched in several places. */
+      lineage?: ReadonlyArray<{ event: string }>;
     }
   >;
 };
@@ -24,6 +26,9 @@ export type Link = {
   span: string;
   /** The fingerprint of the span at the last accept. */
   fp: string;
+  /** The fingerprint of the neighbours of the span, and its heading path, at the last accept. */
+  ctxFp?: string;
+  sectionPath?: string[];
   /** How the owner stands to the span, as the owner wrote it. */
   relation: string;
   /** `verified` once a mutation flipped the owner's test; anything else counts toward no claim. */
@@ -59,45 +64,49 @@ export function createLink(
 ): Link {
   const entry = byId(ledger).get(span);
   if (!entry) throw new RangeError(`the ledger holds no live span ${span}`);
-  return { owner, span, fp: entry.fp, relation, createdBy, accepted: createdBy === 'verified' };
-}
-
-/** How many live units of a ledger have each fingerprint. */
-function copies(ledger: LinkedLedger | null): Map<string, number> {
-  const counts = new Map<string, number>();
-  if (!ledger) return counts;
-  for (const entry of liveEntries(ledger)) counts.set(entry.fp, (counts.get(entry.fp) ?? 0) + 1);
-  return counts;
+  return {
+    owner,
+    span,
+    fp: entry.fp,
+    ctxFp: entry.ctxFp,
+    sectionPath: [...entry.sectionPath],
+    relation,
+    createdBy,
+    accepted: createdBy === 'verified',
+  };
 }
 
 /**
  * The state of each link against the ledger after an edit, in the order of the links. A state depends on the link
- * and the two ledgers only, never on the other links or their order.
+ * and the ledger only, never on the other links or their order; `previous` serves a link that holds no context of
+ * its own, which then takes the context of the ledger before the edit.
  */
 export function classifyLinks(
   previous: LinkedLedger | null,
   current: LinkedLedger,
   links: readonly Link[],
 ): LinkState[] {
-  const now = byId(current);
+  const now = new Map(current.entries.map((entry) => [entry.id, entry]));
   const before = previous ? byId(previous) : new Map<string, LinkedLedger['entries'][number]>();
-  const nowCopies = copies(current);
-  const beforeCopies = copies(previous);
   return links.map((link): LinkState => {
     const entry = now.get(link.span);
-    if (!entry || entry.fp !== link.fp) return 'suspect';
-    // The text now stands in several places where it stood in one: which copy the link meant is not known.
-    if ((nowCopies.get(entry.fp) ?? 0) > 1 && (beforeCopies.get(entry.fp) ?? 0) <= 1) return 'ambiguous';
+    if (!entry || entry.status !== 'live' || entry.fp !== link.fp) return 'suspect';
+    if (entry.lineage?.at(-1)?.event === 'ambiguous') return 'ambiguous';
     const prior = before.get(link.span);
+    const ctxFp = link.ctxFp ?? prior?.ctxFp;
+    const sectionPath = link.sectionPath ?? prior?.sectionPath;
     if (
-      prior &&
-      (prior.ctxFp !== entry.ctxFp || prior.sectionPath.join('\0') !== entry.sectionPath.join('\0'))
+      (ctxFp !== undefined && ctxFp !== entry.ctxFp) ||
+      (sectionPath !== undefined && sectionPath.join('\0') !== entry.sectionPath.join('\0'))
     ) {
       return 'advisory';
     }
     return 'ok';
   });
 }
+
+/** The span as a person just reviewed it: what a cleared link holds from then on. */
+export type LinkReview = { fp: string; ctxFp?: string; sectionPath?: readonly string[] };
 
 /**
  * Clears a suspect link with one of the three reasons: the link then holds the span's current fingerprint and the
@@ -106,15 +115,26 @@ export function classifyLinks(
 export function clearLink(
   link: Link,
   reason: string,
-  current: LinkedLedger,
+  review: LinkedLedger | LinkReview,
 ): { ok: true; link: Link } | { ok: false; error: string } {
   if (!(CLEAR_REASONS as readonly string[]).includes(reason)) {
     return { ok: false, error: `a link is cleared with one of ${CLEAR_REASONS.join(', ')}, not "${reason}"` };
   }
-  const entry = byId(current).get(link.span);
+  const entry = 'entries' in review ? byId(review).get(link.span) : review;
   if (!entry)
     return { ok: false, error: `the ledger holds no live span ${link.span}: delete the link or re-point it` };
-  return { ok: true, link: { ...link, fp: entry.fp, accepted: reason, reason } };
+  const { ctxFp: _ctx, sectionPath: _section, ...rest } = link;
+  return {
+    ok: true,
+    link: {
+      ...rest,
+      fp: entry.fp,
+      ...(entry.ctxFp === undefined ? {} : { ctxFp: entry.ctxFp }),
+      ...(entry.sectionPath === undefined ? {} : { sectionPath: [...entry.sectionPath] }),
+      accepted: reason,
+      reason,
+    },
+  };
 }
 
 /** A link becomes verified only when a mutation of its span (a delete or a negation) flipped the owner's test. */
@@ -133,10 +153,10 @@ export function linkCoverage(
   links: readonly Link[],
 ): { uncovered: string[]; covered: number } {
   const mapped = new Set(mappedLabels);
-  const verified = new Map<string, Set<string>>();
+  const verified = new Map<string, Set<string | undefined>>();
   for (const link of links) {
     if (link.createdBy !== 'verified') continue;
-    const fps = verified.get(link.span) ?? new Set<string>();
+    const fps = verified.get(link.span) ?? new Set<string | undefined>();
     fps.add(link.fp);
     verified.set(link.span, fps);
   }
@@ -144,7 +164,7 @@ export function linkCoverage(
   let covered = 0;
   for (const entry of liveEntries(current)) {
     if (!Object.values(entry.labels).some((label) => mapped.has(label.label))) continue;
-    if (verified.get(entry.id)?.has(entry.fp)) covered++;
+    if ([...(verified.get(entry.id) ?? [])].some((fp) => fp === undefined || fp === entry.fp)) covered++;
     else uncovered.push(entry.id);
   }
   return { uncovered: uncovered.sort(), covered };
@@ -185,4 +205,30 @@ export function blastRadius(
     if (place !== undefined && changedPlaces.has(place)) advisory.add(link.owner);
   }
   return { rerun: sorted(rerun), advisory: sorted(advisory) };
+}
+
+/** The spans a claim may name: those a verified link names, sorted, each once. A proposal counts for nothing. */
+export function verifiedSpans(links: ReadonlyArray<Pick<Link, 'span' | 'createdBy'>>): string[] {
+  return sorted(links.filter((link) => link.createdBy === 'verified').map((link) => link.span));
+}
+
+/**
+ * The radius of an edit from links already classified. The tests to rerun are the owners of suspect links, whoever
+ * made them: a proposal that went suspect reruns its test. The advisory tests are the owners of the links to a
+ * section as a whole that the edit touched, which a precise link cannot name. Both lists are sorted and unique.
+ */
+export function impactOf(
+  precise: ReadonlyArray<{ owner: string; state: LinkState }>,
+  sectionLinks: ReadonlyArray<{ owner: string; section: { path: string; sectionPath: readonly string[] } }>,
+  editedSections: ReadonlyArray<{ path: string; sectionPath: readonly string[] }>,
+): { rerun: string[]; advisory: string[] } {
+  const place = (at: { path: string; sectionPath: readonly string[] }) =>
+    `${at.path}\0${at.sectionPath.join('\0')}`;
+  const edited = new Set(editedSections.map(place));
+  return {
+    rerun: sorted(precise.filter((link) => link.state === 'suspect').map((link) => link.owner)),
+    advisory: sorted(
+      sectionLinks.filter((link) => edited.has(place(link.section))).map((link) => link.owner),
+    ),
+  };
 }

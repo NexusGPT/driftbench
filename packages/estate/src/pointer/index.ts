@@ -82,10 +82,13 @@ export {
   classifyLinks,
   clearLink,
   createLink,
+  impactOf,
   type Link,
   type LinkedLedger,
+  type LinkReview,
   type LinkState,
   linkCoverage,
+  verifiedSpans,
   verifyLink,
 } from './links';
 export {
