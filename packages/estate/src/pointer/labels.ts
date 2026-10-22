@@ -195,7 +195,12 @@ function schemaFailure(
       : refuseSets('label-name-invalid', 'not-an-identifier', message, { ...base, label: found });
   }
   if (inLabel && tail === 'examples') {
-    return refuseSets('label-examples-too-many', 'more-than-three-examples', message, { ...base, label });
+    return issue.code === 'too_big'
+      ? refuseSets('label-examples-too-many', 'more-than-three-examples', message, { ...base, label })
+      : refuseSets('label-examples-not-a-list', 'not-a-list', message, { ...base, label });
+  }
+  if (inLabel && path.length === 6 && path[4] === 'examples') {
+    return refuseSets('label-example-invalid', 'example-not-text', message, { ...base, label });
   }
   if (inLabel && tail === 'target') {
     return refuseSets('label-target-invalid', 'target-is-required-only', message, { ...base, label });

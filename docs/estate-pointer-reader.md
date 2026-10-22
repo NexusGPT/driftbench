@@ -578,7 +578,7 @@ Every refusal, dropped note, failed window, atom refusal and error that has a te
 | --- | --- | --- |
 | `cassette-miss` | `CassetteMiss.code`; `environment: {node, icu}` is set when `differs` has `cutDigest` | `environment` |
 | `set-duplicate`, `label-duplicate`, `span-kind-duplicate`, `link-kind-duplicate` | `parseLabelSetsDetailed` | `reason`, `set`, `label` or `kind` |
-| `set-name-invalid`, `label-name-invalid`, `label-name-reserved`, `span-kind-name-invalid`, `link-kind-name-invalid`, `label-examples-too-many`, `label-target-invalid` | `parseLabelSetsDetailed` | `reason`, `path`, the offending `set`, `label` or `kind` as written |
+| `set-name-invalid`, `label-name-invalid`, `label-name-reserved`, `span-kind-name-invalid`, `link-kind-name-invalid`, `label-examples-too-many` (more than three), `label-examples-not-a-list` (not a list), `label-example-invalid` (an element that is not a non-empty text), `label-target-invalid` | `parseLabelSetsDetailed` | `reason`, `path`, the offending `set`, `label` or `kind` as written |
 | `span-kind-within-itself`, `-undeclared`, `-cycle`, `label-span-kind-undeclared`, `label-link-kind-undeclared`, `label-span-parent-missing`, `label-condition-needs-target`, `label-condition-takes-no-atom` | `parseLabelSetsDetailed` | `reason`, `set`, `label`, `kind`, `parent` |
 | `set-needs-system2`, `set-has-no-askable-label` | `LabelerConfigError` thrown by `askedLabels`; `buildLabellingDetailed` | `code`, `set` |
 | `labeler-count`, `labeler-class-repeated`, `bounds-invalid`, `labeler-key-missing`, `margin-cut-needs-choice`, `no-labeler` | `buildLabellingDetailed` | `code` |

@@ -823,3 +823,56 @@ describe('the settings file', () => {
     expect(detailed.ok ? 0 : detailed.issues.length).toBe(detailed.ok ? 0 : detailed.errors.length);
   });
 });
+
+describe('the examples of a label', () => {
+  const fileWith = (examples: string) =>
+    `labels:\n  - set: harbour\n    description: A set.\n    labels:\n      - name: rule\n        description: A rule.\n        examples: ${examples}\n`;
+  const refusal = (examples: string) => {
+    const read = pointer.parseLabelSetsDetailed(fileWith(examples));
+    expect(read.ok).toBe(false);
+    return read;
+  };
+
+  it('gives four examples the count code', () => {
+    expect(refusal('[one, two, three, four]')).toMatchObject({
+      code: 'label-examples-too-many',
+      reason: 'more-than-three-examples',
+      set: 'harbour',
+      label: 'rule',
+    });
+  });
+
+  it.each(['false', '1', '{}', 'null', 'plain text', '"quoted"', '1.5', 'true'])(
+    'gives the non-list examples value %s its own code, not the count code',
+    (examples) => {
+      const read = refusal(examples);
+      expect(read).toMatchObject({
+        code: 'label-examples-not-a-list',
+        reason: 'not-a-list',
+        path: 'labels.0.labels.0.examples',
+        set: 'harbour',
+        label: 'rule',
+      });
+      expect(read).not.toMatchObject({ code: 'label-examples-too-many' });
+    },
+  );
+
+  it.each(['[1]', '[null]', '[{}]', '[[a]]', '[one, false]', '[""]'])(
+    'gives the list %s with a bad element its own code, neither of the list codes',
+    (examples) => {
+      const read = refusal(examples);
+      expect(read).toMatchObject({
+        code: 'label-example-invalid',
+        reason: 'example-not-text',
+        set: 'harbour',
+        label: 'rule',
+      });
+      expect(read).not.toMatchObject({ code: 'label-examples-not-a-list' });
+      expect(read).not.toMatchObject({ code: 'label-examples-too-many' });
+    },
+  );
+
+  it('still reads a list of up to three texts', () => {
+    expect(pointer.parseLabelSetsDetailed(fileWith('[one, two, three]')).ok).toBe(true);
+  });
+});
