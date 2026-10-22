@@ -580,6 +580,36 @@ describe('a labeler that answers several times', () => {
     expect(result.split).toBe(0);
   });
 
+  it('drops a run that leaves a unit out and holds a labelled entry whose anchor starts no line', async () => {
+    // As the reviewer's probe: runs 2 and 3 of the office leave its last unit out, and the entries they do give carry
+    // anchors that start no line (anchored null), so the units they name may be shifted too: those runs are not heard
+    // on any unit of the window, not even on the units they name.
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const left = call >= 2 && window.path === 'office.md' ? window.units.length - 1 : window.units.length;
+        return [
+          {
+            units: `1-${left}`,
+            label: 'order',
+            ...(call >= 2 && window.path === 'office.md' ? { anchored: null } : {}),
+          } as Labelled,
+        ];
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await duty(labeler, new Cassette());
+    const office = result.outOfStep.filter(
+      (note) => note.startsWith('office.md#1 run 2 ') || note.startsWith('office.md#1 run 3 '),
+    );
+    expect(office).toHaveLength(2);
+    for (const note of office)
+      expect(note).toMatch(/units-missing: 1 units .*; the run is left out of the vote$/);
+  });
+
   it('replays the runs from the cassette with no call', async () => {
     const cassette = new Cassette();
     const first = await duty(
