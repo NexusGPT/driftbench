@@ -175,7 +175,10 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const byId = new Map(gold.map((unit) => [unit.id, unit]));
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
         // A unit scopes every target the truth names; an instruction keeps its own atom while it scopes.
-        const scopes = truth.scopes.map((scope) => ({ unit: place(scope.unit), target: place(scope.target) }));
+        const scopes = truth.scopes.map((scope) => ({
+          unit: place(scope.unit),
+          target: place(scope.target),
+        }));
         const reader = readerFor('claude-code', { ignore: [] });
         if (reader === undefined) throw new Error('the claude-code reader is missing');
         const parsed = pointer.parseLabelSets(GOLD_SET_YAML);
@@ -250,7 +253,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         );
         await writeFile(join(work, 'map.yaml'), renderEstateMap(scan.map));
         expect(problems, report('labels to atoms', problems)).toEqual([]);
-        return `${chain.atomOf.size} instruction atoms, ${truth.scopes.length} of ${truth.scopes.length} scopes applied`;
+        return `${chain.atomOf.size} instruction atoms, ${truth.scopes.length} scopes applied`;
       });
     });
 

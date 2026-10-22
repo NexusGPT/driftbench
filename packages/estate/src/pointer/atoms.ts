@@ -438,7 +438,9 @@ export function pointerAtoms(
         );
       }
     }
-    if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
+    if (kept) {
+      for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
+    }
   }
   for (const [key, items] of conditions) {
     const targetId = key.slice(key.indexOf(':') + 1);

@@ -609,8 +609,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
-    const key = (opinion: Opinion) =>
-      `${opinion.label}\0${opinion.target ?? ''}\0${[...(opinion.scopes ?? [])].sort((a, b) => a - b).join(',')}`;
+    const scopesOf = (opinion: Opinion) => [...(opinion.scopes ?? [])].sort((a, b) => a - b).join(',');
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}\0${scopesOf(opinion)}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;

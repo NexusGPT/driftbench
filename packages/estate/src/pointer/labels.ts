@@ -269,6 +269,24 @@ export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
 
+/** Why a list of scopes is refused, or undefined when it is sound. */
+function scopeProblem(
+  label: string,
+  scopes: unknown,
+  numbers: readonly number[],
+  inWindow: ReadonlySet<number>,
+): string | undefined {
+  if (label === 'none') return 'the label none takes no scopes';
+  const shown = JSON.stringify(scopes);
+  if (!Array.isArray(scopes)) return `the scopes ${shown} are not a list`;
+  const all = scopes as unknown[];
+  if (!all.every((scope) => typeof scope === 'number' && inWindow.has(scope)))
+    return `the scopes ${shown} are not units of the window`;
+  if (new Set(all).size !== all.length) return `the scopes ${shown} name a unit twice`;
+  if (numbers.some((n) => all.includes(n))) return `the scopes ${shown} name the unit itself`;
+  return undefined;
+}
+
 /** `5` or `5-7` as the numbers it names. */
 export function expandUnits(units: string): number[] | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
@@ -344,17 +362,7 @@ export function checkAnswer(
       continue;
     }
     if (entry.scopes !== undefined) {
-      const wrong =
-        entry.label === 'none'
-          ? 'the label none takes no scopes'
-          : !Array.isArray(entry.scopes) ||
-              entry.scopes.some((scope) => typeof scope !== 'number' || !Number.isInteger(scope) || !inWindow.has(scope))
-            ? `the scopes ${JSON.stringify(entry.scopes)} are not units of the window`
-            : new Set(entry.scopes).size !== entry.scopes.length
-              ? `the scopes ${JSON.stringify(entry.scopes)} name a unit twice`
-              : numbers.some((n) => (entry.scopes as number[]).includes(n))
-                ? `the scopes ${JSON.stringify(entry.scopes)} name the unit itself`
-                : undefined;
+      const wrong = scopeProblem(entry.label, entry.scopes, numbers, inWindow);
       if (wrong) {
         refusals.push(`${window.id}: ${wrong}`);
         continue;

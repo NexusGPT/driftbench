@@ -182,8 +182,10 @@ export function denseLabels(value: unknown): Labelled[] {
       units: String(entry.units),
       label: entry.label,
       ...(target === undefined || target === null ? {} : { target: target as number }),
-      // Scopes are kept as answered, like a target: the check refuses a malformed list and the scan counts it.
-      ...(!Array.isArray(entry.scopes) || entry.scopes.length === 0 ? {} : { scopes: entry.scopes as number[] }),
+      // Scopes are kept as answered, like a target: the check refuses a malformed list.
+      ...(!Array.isArray(entry.scopes) || entry.scopes.length === 0
+        ? {}
+        : { scopes: entry.scopes as number[] }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
       ...(!Array.isArray(entry.spans) || entry.spans.length === 0
         ? {}
@@ -194,6 +196,14 @@ export function denseLabels(value: unknown): Labelled[] {
     });
   }
   return out;
+}
+
+/** The indexes in the file of the units a list of window numbers names. */
+function scopeIndexes(numbers: readonly number[], window: Window): number[] {
+  return numbers.flatMap((n) => {
+    const unit = window.units[n - 1];
+    return unit ? [unit.index] : [];
+  });
 }
 
 /** The opinions of a dense answer: one label per unit it named, a target as the index of the unit in the file. */
@@ -213,7 +223,7 @@ export function denseOpinions(
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
       ...(accepted?.scopes
-        ? { scopes: accepted.scopes.flatMap((n) => (window.units[n - 1] ? [window.units[n - 1]?.index as number] : [])) }
+        ? { scopes: scopeIndexes(accepted.scopes, window) }
         : {}),
       ...(accepted?.spans ? { spans: accepted.spans } : {}),
       ...(accepted?.links ? { links: accepted.links } : {}),
