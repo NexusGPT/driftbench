@@ -1,9 +1,10 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { DENSE_SYSTEM, SPAN_RULE } from '@agent-nexus/driftbench-core';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
-import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser, SPAN_RULE } from './dense';
+import { DEFAULT_RUNS, denseLabels, denseOpinions, denseUser } from './dense';
 import {
   type Labeler,
   type LabelerClass,
