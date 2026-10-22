@@ -324,7 +324,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         // The limits come from one structured request for each instruction or gate atom, replayed from the cassette of the
         // estate. They are compared with the limits of the truth file: each truth limit must be produced on the atom it
         // governs, and no other limit may be produced. A unit that differs only in the words of the unit is noted.
-        const key = (atomId: string, limit: number, comparison: string): string => `${atomId} | ${limit} ${comparison}`;
+        const key = (atomId: string, limit: number, comparison: string): string =>
+          `${atomId} | ${limit} ${comparison}`;
         const wanted = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
           const atom = atomOf.get(limit.governs);
@@ -385,7 +386,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
         const producedCount = [...byAtom.values()].reduce((sum, list) => sum + list.length, 0);
         if (conditions.length !== producedCount + others) {
-          problems.push(`${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`);
+          problems.push(
+            `${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`,
+          );
         }
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok)

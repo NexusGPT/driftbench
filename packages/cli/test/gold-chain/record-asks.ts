@@ -36,7 +36,9 @@ async function record(estate: EstateName, key: string) {
       await writeFile(target, file.text);
     }
     const gold = (await loadGold()).filter((unit) => unit.estate === estate);
-    const planted = goldLabeller(gold.map((unit) => ({ ...unit, file: LAYOUT[estate][unit.file] ?? unit.file })));
+    const planted = goldLabeller(
+      gold.map((unit) => ({ ...unit, file: LAYOUT[estate][unit.file] ?? unit.file })),
+    );
     const reader = readerFor('claude-code', { ignore: [] });
     if (reader === undefined) throw new Error('the claude-code reader is missing');
     const parsed = pointer.parseLabelSets(GOLD_SET_YAML);

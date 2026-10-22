@@ -67,8 +67,10 @@ export function limitsOfAnswer(text: string): { limits: Limit[]; problem?: strin
   const limits: Limit[] = [];
   for (const item of list) {
     const { limit, comparison, unit } = (item ?? {}) as Record<string, unknown>;
-    if (typeof limit !== 'number' || !Number.isFinite(limit)) return { limits: [], problem: 'a limit is no number' };
-    if (!(COMPARISONS as readonly unknown[]).includes(comparison)) return { limits: [], problem: 'a comparison is unknown' };
+    if (typeof limit !== 'number' || !Number.isFinite(limit))
+      return { limits: [], problem: 'a limit is no number' };
+    if (!(COMPARISONS as readonly unknown[]).includes(comparison))
+      return { limits: [], problem: 'a comparison is unknown' };
     limits.push({
       limit,
       comparison: comparison as Limit['comparison'],
@@ -93,21 +95,32 @@ export async function answerFor(
   const key = askKey(body);
   const hit = cache.get(key);
   if (hit) return hit.text;
-  if (!record) throw new Error(`no recorded answer for a quote of estate ${estate} (${model}): run record-asks.ts`);
+  if (!record)
+    throw new Error(`no recorded answer for a quote of estate ${estate} (${model}): run record-asks.ts`);
   if (spent.input >= record.capIn || spent.output >= record.capOut) {
-    throw new Error(`the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`);
+    throw new Error(
+      `the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`,
+    );
   }
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': record.key, 'anthropic-version': '2023-06-01' },
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': record.key,
+      'anthropic-version': '2023-06-01',
+    },
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(`the provider answered ${response.status}: ${(await response.text()).slice(0, 300)}`);
+  if (!response.ok)
+    throw new Error(`the provider answered ${response.status}: ${(await response.text()).slice(0, 300)}`);
   const payload = (await response.json()) as {
     content: Array<{ type: string; text?: string }>;
     usage: { input_tokens: number; output_tokens: number };
   };
-  const text = payload.content.filter((block) => block.type === 'text').map((block) => block.text ?? '').join('');
+  const text = payload.content
+    .filter((block) => block.type === 'text')
+    .map((block) => block.text ?? '')
+    .join('');
   const entry: Entry = {
     key,
     quote,
