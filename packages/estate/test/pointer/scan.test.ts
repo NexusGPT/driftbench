@@ -22,10 +22,11 @@ import {
   SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   singleLabelling,
+  stackedLabelling,
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { BAKERY, type Call, load, plantedDense } from './support';
+import { BAKERY, type Call, load, plantedDense, plantedYesNo } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -1608,6 +1609,49 @@ describe('the warnings of a recording run', () => {
   it('has none when every answer names the same model', async () => {
     const result = await pointerScan(input(first('m-1'), new Cassette()));
     expect(result.warnings).toEqual([]);
+  });
+});
+
+describe('a stack asks system 2 only about the windows system 1 does not decide', () => {
+  const run = async (system1: Record<string, number>, sets = SETS) => {
+    const one: string[] = [];
+    const two: string[] = [];
+    const first = plantedYesNo(() => system1, one);
+    const second = plantedDense((window, set) => byLength(window, set), two);
+    const result = await pointerScan(
+      input(second, new Cassette(), {
+        sets: load(sets),
+        labelling: stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1 }),
+      }),
+    );
+    return { result, one, two };
+  };
+
+  it('leaves system 2 out of the windows whose units system 1 is sure are none', async () => {
+    const { result, one, two } = await run({ order: 0.02, remark: 0.02, curt: 0.02, long: 0.02 });
+    expect(one.length).toBeGreaterThan(0);
+    expect(two).toEqual([]);
+    expect(result.labelled).toEqual([]);
+    expect(result.unlabeled).toBe(0);
+  });
+
+  it('asks system 2 about every window when system 1 is not sure', async () => {
+    const { two } = await run({ order: 0.5, remark: 0.5, curt: 0.5, long: 0.5 });
+    expect(two.length).toBeGreaterThan(0);
+  });
+
+  it('asks system 2 when the set holds a label only system 2 can give, even where system 1 says none', async () => {
+    const withTarget = `${SETS}  - set: ties
+    description: Units that point at another.
+    labels:
+      - name: plain
+        description: A unit that stands alone.
+      - name: gate
+        description: A unit that waits for another.
+        target: required
+`;
+    const { two } = await run({ order: 0.02, remark: 0.02, curt: 0.02, long: 0.02, plain: 0.02 }, withTarget);
+    expect(two.some((entry) => entry.endsWith(':ties'))).toBe(true);
   });
 });
 

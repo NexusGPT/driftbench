@@ -90,6 +90,30 @@ describe('the cassette', () => {
     );
   });
 
+  it('names the window of a request it cannot answer, with a nearest entry or without one', () => {
+    // The window id is a field of the request (path and number): a reader finds the window to record again from it.
+    const nearWire: Wire = { ...WIRE, body: { ...WIRE.body, system: 'Label the units well.' } };
+    let near: CassetteMiss | undefined;
+    try {
+      recorded().get(nearWire, readableOf(nearWire, META));
+    } catch (cause) {
+      near = cause as CassetteMiss;
+    }
+    expect(near?.nearest).toBeDefined();
+    expect(near?.window).toBe(META.window);
+    expect(near?.message).toContain(META.window);
+    const other = readableOf(WIRE, { ...META, window: 'other.md#1', path: 'other.md' });
+    let none: CassetteMiss | undefined;
+    try {
+      recorded().get({ ...WIRE, body: { ...WIRE.body, user: 'x' } }, other);
+    } catch (cause) {
+      none = cause as CassetteMiss;
+    }
+    expect(none?.nearest).toBeUndefined();
+    expect(none?.window).toBe('other.md#1');
+    expect(none?.message).toContain('other.md#1');
+  });
+
   it('names the labeler id of a request no entry of that labeler answers, as a token', () => {
     // One labeler's cassette, asked for the same file, window and set by another: it names the id asked.
     const asked: Wire = { ...WIRE, labeler: 'system2-b7' };
