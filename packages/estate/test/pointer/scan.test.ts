@@ -834,6 +834,83 @@ describe('a unit that names a file to read is no condition alone', () => {
   });
 });
 
+describe('a unit the runs read two ways near evenly is listed as unstable', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  /** The scan of `text` when run n answers `plan[n - 1]` for unit 1; the rest of the window is a rule. */
+  const scanPlan = async (text: string, plan: Labelled[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // A re-ask hears the last reading again.
+        const entry = plan[call - 1] ?? (plan.at(-1) as Labelled);
+        return [
+          entry,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    return pointerScan(input(labeler, new Cassette(), { files: [{ path: 'CLAUDE.md', text }], sets }));
+  };
+  const text = 'Read a file before you edit it.\n\nKeep two decimals.\n';
+  const rule: Labelled = { units: '1', label: 'rule' };
+  const gateSame: Labelled = {
+    units: '1',
+    label: 'gate-same',
+    spans: [{ kind: 'governed-action', text: 'edit it' }],
+    links: [
+      { kind: 'act-tool', to: 'Edit' },
+      { kind: 'order-key', to: 'file_path' },
+    ],
+  };
+  const unitOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.ledger.entries.find((entry) => entry.index === 0)?.id;
+
+  it('lists a read before an edit that three runs call a rule and two a gate-same, with the label the vote gave', async () => {
+    // As R3 of the Northwind fixture: the gate and the instruction are one run apart, so the rule the vote gives is
+    // not silent.
+    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule]);
+    expect(result.unstable).toEqual([
+      {
+        unit: unitOf(result),
+        path: 'CLAUDE.md',
+        set: 'agent-rules',
+        labeler: 'planted',
+        kinds: { instruction: 3, gate: 2 },
+        label: 'rule',
+      },
+    ]);
+  });
+
+  it('lists it the other way round too, a gate by three runs of five', async () => {
+    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame]);
+    expect(result.unstable.map((entry) => [entry.kinds, entry.label])).toEqual([
+      [{ gate: 3, instruction: 2 }, 'gate-same'],
+    ]);
+  });
+
+  it('does not list a unit four runs of five agree on', async () => {
+    const result = await scanPlan(text, [gateSame, gateSame, rule, gateSame, gateSame]);
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('does not list a split between two labels of one kind, a rule and a prohibition', async () => {
+    const prohibition: Labelled = { units: '1', label: 'prohibition' };
+    const result = await scanPlan('Never edit a file you have not read.\n\nKeep two decimals.\n', [
+      rule,
+      prohibition,
+      rule,
+      prohibition,
+      rule,
+    ]);
+    expect(result.unstable).toEqual([]);
+  });
+});
+
 describe('what the cassette key holds', () => {
   it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
     const recorded = new Cassette();
