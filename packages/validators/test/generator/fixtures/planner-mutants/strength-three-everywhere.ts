@@ -13,7 +13,9 @@ export const planV2 = (store: Parameters<typeof real>[0], options: Parameters<ty
         variable.id === host.id
           ? {
               ...variable,
-              values: variable.values.map((value, at) => (at === 1 ? { ...value, polarity: 'must', when } : value)),
+              values: variable.values.map((value, at) =>
+                at === 1 ? { ...value, polarity: 'must', when } : value,
+              ),
             }
           : variable,
       ),
