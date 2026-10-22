@@ -1114,7 +1114,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Write to each supplier
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -1721,6 +1720,11 @@ atoms:
           to: 74
       spans:
         - .env
+    replyAct:
+      id: refuse
+      evidence:
+        type: text_segment
+        part: reply
   - id: gate.standing.read-git-status-before-commit-to
     kind: gate
     title: Read git status before commit to git
@@ -1742,6 +1746,8 @@ atoms:
     fields:
       first: git status
       trigger: commit to git
+      order:
+        key: command
       extraction: pointer
       unit: zuie2qo5us
       labelSet: agent-rules
@@ -1754,6 +1760,8 @@ atoms:
       labelLinks:
         - kind: act-tool
           value: Bash
+        - kind: order-key
+          value: command
       spans:
         - git status
   - id: hazard.standing.r15-after-a-compaction-re-read
@@ -1771,10 +1779,12 @@ atoms:
     situation: A compaction of the context
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ndszu34jlz, set: agent-rules, label: hazard-compaction } }
-      - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: [], rereadSelf: true, unpathed: [ the open tracker note ], calls: [] } }
+      - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: [], calls: [] } }
     enforcement: []
     fields:
       hazard: compaction
+      ask:
+        text: re-read this file and the open tracker note before you continue
       extraction: pointer
       unit: ndszu34jlz
       labelSet: agent-rules
@@ -1849,6 +1859,35 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
+      labelLinks:
+        - kind: reply-part
+          value: reply
+  - id: hazard.standing.r20-after-a-restart-of-your
+    kind: hazard
+    title: R20. After a restart of your process, re-read .claude/memory/MEMORY.md before you continu…
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+      hash: 45cdecbf829780d992fe3f32af9007be8e4efbd6c7e868ac7444252b371a69c5
+    producedBy: model
+    role: detail
+    approved: false
+    situation: A process restart
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2ehiz3u7nq, set: agent-rules, label: hazard-restart } }
+      - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: [ .claude/memory/MEMORY.md ], calls: [] } }
+    enforcement: []
+    fields:
+      hazard: restart
+      ask:
+        text: re-read `.claude/memory/MEMORY.md` before you continue
+      extraction: pointer
+      unit: 2ehiz3u7nq
+      labelSet: agent-rules
+      label: hazard-restart
+      labeler: jev+anthropic
       labelSpans:
         - kind: situation
           from: 9
@@ -2173,6 +2212,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
+    situation: before the verify step has passed
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: i7uw67ztqh, set: agent-rules, label: prohibition } }
     enforcement: []
@@ -2525,7 +2565,6 @@ edges:
   - { from: skill.weekly-report.skill-weekly-report, to: tool.settings.allow-read, kind: allows }
   - { from: skill.weekly-report.skill-weekly-report, to: tool.weekly-report.declared-write, kind: allows }
   - { from: skill.weekly-report.skill-weekly-report, to: reference.weekly-report.read-references-kpi-definitions-md, kind: reference }
-  - { from: skill.weekly-report.skill-weekly-report, to: reference.weekly-report.read-templates-report-md, kind: reference }
   - { from: stage.steps.stage-do-make-the-change, to: stage.steps.stage-verify-run-the-check-that, kind: next }
   - { from: stage.steps.stage-plan-restate-the-ask-and, to: stage.steps.stage-do-make-the-change, kind: next }
   - { from: stage.steps.stage-verify-run-the-check-that, to: stage.steps.stage-do-make-the-change, kind: next }
