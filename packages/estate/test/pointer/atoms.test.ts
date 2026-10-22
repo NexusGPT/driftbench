@@ -1137,3 +1137,46 @@ describe('the reply shape and the forbid case of the shipped set', () => {
     expect(lose?.evidence.map((item) => item.type)).toEqual(['custom']);
   });
 });
+
+describe('the require case of the shipped set', () => {
+  const FILES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Put every parcel with no owner in `lost/`',
+      '- Keep the harbour tidy',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 a rule that names where things go, 3 a rule that names no place.
+  const rows = {
+    'CLAUDE.md': [
+      {
+        units: '2',
+        label: 'rule',
+        spans: [{ kind: 'required-material', text: 'lost/' }],
+        links: [{ kind: 'require-tool', to: 'Write' }],
+      },
+      { units: '3', label: 'rule' },
+    ] as pointer.Labelled[],
+  };
+  const atoms = async () => {
+    const { result } = await scan(rows, { sets }, FILES);
+    const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    return (text: string) => mine.find((atom) => atom.provenance.quote.includes(text));
+  };
+
+  it('builds a require case for a rule that names the place it sends things to', async () => {
+    const lost = (await atoms())('no owner');
+    expect(lost?.kind).toBe('instruction');
+    expect(lost?.fields?.unitCases).toEqual([{ effect: 'require', tool: 'Write', material: 'lost/' }]);
+  });
+
+  it('keeps a rule that names no place as it was: no require case', async () => {
+    const tidy = (await atoms())('tidy');
+    expect(tidy?.kind).toBe('instruction');
+    expect(tidy?.fields?.unitCases).toBeUndefined();
+  });
+});
