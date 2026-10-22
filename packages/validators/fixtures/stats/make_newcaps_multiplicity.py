@@ -14,6 +14,7 @@ from ref_common import *  # noqa: E402,F401,F403
 
 GROUP = "multiplicity"
 DOC = "docs/statistics/multiplicity.md#"
+KEEP = ['familywiseErrorRate', 'bonferroniThreshold', 'sidakThreshold', 'simesPValue']
 functions = []
 SHOW = "--show" in sys.argv
 
@@ -519,6 +520,8 @@ build("stoufferCombinedZ", "combine", stouffer, stouffer_alt,
        [[1.1, 2.3, 0.7, 1.9], [20, 35, 10, 50]]],
       ST_DOMAIN, list_result=False)
 
+# Only the functions driftbench uses are in the bank (docs/validators.md 12.2: no padding).
+functions = [f for f in functions if f["fn"] in KEEP]
 write(
     GROUP,
     "Exact reference values for the multiplicity functions, computed with Fraction and 120-digit Decimal by "

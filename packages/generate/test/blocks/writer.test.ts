@@ -176,9 +176,13 @@ describe('one block writer for the prompt map and the estate map', () => {
     spy.mockClear();
     const prompt = generateSuite(zedPrepared(), { mapPath: '../map.yaml' });
     const promptSpecs = parsed(prompt.files);
-    expect(spy).toHaveBeenCalledTimes(promptSpecs.length);
-    const promptLinks = spy.mock.results.map((result) => (result.value as writer.WrittenBlocks).links);
-    expect(promptSpecs.map(linksOfSpec)).toEqual(promptLinks);
+    // The end-of-walk reducer renders a draft to judge a cut, and each render goes through the writer too.
+    expect(spy.mock.calls.length).toBeGreaterThanOrEqual(promptSpecs.length);
+    const promptLinks = new Set(
+      spy.mock.results.map((result) => JSON.stringify((result.value as writer.WrittenBlocks).links)),
+    );
+    for (const spec of promptSpecs)
+      expect(promptLinks.has(JSON.stringify(linksOfSpec(spec))), spec.id).toBe(true);
 
     spy.mockClear();
     const estate = generateEstateSuite(estateInput, { paths: HAND_PATHS });

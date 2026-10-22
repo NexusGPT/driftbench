@@ -54,8 +54,8 @@ blocks:
 metadata:
   stem:
     specs:
+      - gen-deviation-003
       - gen-deviation-015
-      - gen-deviation-017
       - gen-metamorphic-018-1
       - gen-metamorphic-019-1
       - gen-metamorphic-019-2

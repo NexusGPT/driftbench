@@ -468,6 +468,25 @@ it.each(['malformed', 'missing', 'unreadable', 'wrong shape'])(
   120_000,
 );
 
+it('stamps the Node major version only: a patch release keeps the build fresh, a new major makes it stale', () => {
+  const repo = fixture('export const direct = 1;');
+  try {
+    expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+    const file = join(repo.root, '.cache/api-surface-build.json');
+    const stamp = JSON.parse(readFileSync(file, 'utf8'));
+    const major = process.versions.node.split('.')[0];
+    expect(stamp.node).toBe(major);
+    const fresh = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(fresh.status, fresh.stderr).toBe(0);
+    writeFileSync(file, JSON.stringify({ ...stamp, node: String(Number(major) + 1) }));
+    const stale = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(stale.status).toBe(1);
+    expect(stale.stderr).toBe(REBUILD);
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
 it('refuses a source symlink that resolves outside the repository', () => {
   const repo = fixture('export const direct = 1;');
   const outside = mkdtempSync(join(tmpdir(), 'driftbench-api-outside-'));

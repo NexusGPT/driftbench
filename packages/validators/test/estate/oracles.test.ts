@@ -1,18 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
 import { type Check, machineVerdict, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
 import { context, observed } from '../../../checks/test/support/context';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
-import { holdsTask, taskFamily } from '../../src/ladders/estate/bank/genquality';
+import { taskFamily } from '../../src/ladders/estate/bank/genquality';
 import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
 import { estateMeta } from '../../src/ladders/estate/levels';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 
-const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const APPROVED_TASKS = [
   { type: 'route_positive', text: 'Fill in the shipments late section of the week 41 report.' },
   { type: 'twin', text: 'Go through inbox/ and say which folder each message belongs in.' },
@@ -156,36 +154,48 @@ describe('the affected gen.complete items', { timeout: 120_000 }, () => {
   });
 });
 
-describe('approved task asks are judged by the task oracle', () => {
+describe('approved task asks are judged by the act the fake sets off', () => {
   const bank = parse(readFileSync(join(fixture.FIXTURE, 'phrases.yaml'), 'utf8')) as {
-    situations: Array<{ phrases: Array<{ text: string; approved: boolean }> }>;
+    situations: Array<{ id: string; atoms: string[]; phrases: Array<{ text: string; approved: boolean }> }>;
   };
-  const approved = bank.situations.flatMap((situation) =>
-    situation.phrases.filter((phrase) => phrase.approved).map((phrase) => phrase.text),
-  );
+  const plan = parse(readFileSync(join(fixture.FIXTURE, 'plan.yaml'), 'utf8')) as {
+    rows: Array<{ id: string; atomIds: string[]; testType: string }>;
+  };
+  const situationOf = (text: string) =>
+    bank.situations.find((situation) =>
+      situation.phrases.some((phrase) => phrase.approved && phrase.text === text),
+    );
+  // The plan row of the test type whose first atom the situation holds: gen.task judges a spec on its row.
+  const rowOf = (type: string, atoms: readonly string[]) =>
+    plan.rows.find((row) => row.testType === type && atoms.includes(row.atomIds[0] as string));
 
   for (const phrase of APPROVED_TASKS) {
-    it(`accepts the approved ask: ${phrase.text}`, () => {
-      expect(approved).toContain(phrase.text);
-      expect(holdsTask(phrase.text)).toBe(true);
-    });
-
-    it(`keeps gen.task.${phrase.type} green for that ask and red for a rule-restatement component output`, async () => {
+    it(`keeps gen.task.${phrase.type} green for the approved ask and red for a rule restated in its place: ${phrase.text}`, async () => {
+      const situation = situationOf(phrase.text);
+      expect(situation, phrase.text).toBeDefined();
+      const row = rowOf(phrase.type, situation?.atoms ?? []);
+      expect(row, phrase.text).toBeDefined();
+      const asked = (text: string) =>
+        ({
+          ...task(text),
+          metadata: { estate: { ask: 'bank', situation: situation?.id, planRow: row?.id } },
+        }) as unknown as Spec;
       const spec = {
         path: 'oracle-task.yaml',
         id: 'oracle-task',
-        atoms: [],
+        atoms: row?.atomIds ?? [],
         testType: phrase.type,
         mode: 'task',
         complete: true,
-        spec: task(phrase.text),
+        spec: asked(phrase.text),
       };
       const suite: fixture.FixtureSuite = {
-        work: ROOT,
+        work: fixture.FIXTURE,
         map: join(fixture.FIXTURE, 'approved.yaml'),
         specs: [spec],
         natives: [],
         report: {},
+        checks: fixture.RUNNER_CHECKS,
       };
       const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
       try {
@@ -195,30 +205,15 @@ describe('approved task asks are judged by the task oracle', () => {
         });
         mock.mockResolvedValue({
           ...suite,
-          specs: [{ ...spec, spec: task('Please do this: never guess a status.') }],
+          specs: [{ ...spec, spec: asked('Please do this: never guess a status.') }],
         });
         expect((await taskFamily().evaluate(1)).get(`gen.task.${phrase.type}`)).toMatchObject({
           pass: false,
-          detail: expect.stringContaining('asks hold no task'),
+          detail: expect.stringContaining('the ask is no phrase of'),
         });
       } finally {
         mock.mockRestore();
       }
     });
   }
-
-  it('accepts say followed by an explicit object', () => {
-    expect(holdsTask('Say which folder this message belongs in.')).toBe(true);
-  });
-
-  it.each([
-    'Fill',
-    'Fill in',
-    'Go',
-    'Go through',
-    'Say',
-    'Never fill the report.',
-    "Don't go through inbox/.",
-    'Please handle this for me: the invoice is not in EUR.',
-  ])('rejects an ask with no positive task and object: %s', (ask) => expect(holdsTask(ask)).toBe(false));
 });

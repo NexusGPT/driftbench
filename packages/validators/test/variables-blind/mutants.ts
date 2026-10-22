@@ -124,6 +124,19 @@ const planFrom =
     },
   });
 
+/** The parts of a variable of a store file that the mutants below read. */
+type AxisLike = { kind: string; role: string; values: Array<{ id: string }> };
+
+/** The functions of the interface and the id of the gate item of each (blind/families/audit.ts). */
+const GATE_FUNCTIONS = [
+  ['buildStore', 'build-store'],
+  ['weightInterval', 'weight-interval'],
+  ['plan', 'plan'],
+  ['coverage', 'coverage'],
+  ['validate', 'validate'],
+  ['quotes', 'quotes'],
+] as const;
+
 export const MUTANTS: readonly Mutant[] = [
   // ---- the plan --------------------------------------------------------------------------------------------
   {
@@ -2208,6 +2221,170 @@ export const MUTANTS: readonly Mutant[] = [
           const r = base.coverage(...a);
           return { ...r, allowed: BigInt(r.allowed) + 1n, covered: BigInt(r.covered) + 1n };
         },
+      },
+    }),
+  },
+  // ---- the audit of the first measurement: the gate of each function --------------------------------------------
+  ...GATE_FUNCTIONS.map(
+    ([name, id]): Mutant => ({
+      name: `the adapter does not map ${name}`,
+      families: ['sources'],
+      only: [`reach.${id}.mapped`],
+      make: (base) => ({ impl: { ...base, [name]: undefined } as unknown as VariablesImpl }),
+    }),
+  ),
+  // ---- a value id shared by axes of different kinds -------------------------------------------------------------
+  {
+    name: 'validate keeps ambiguous value ids apart per kind',
+    families: ['values'],
+    only: [
+      'values.file.ambiguous-value.behaviour-and-persona',
+      'values.file.ambiguous-value.behaviour-and-data',
+      'values.file.ambiguous-value.behaviour-and-task',
+      'values.file.ambiguous-value.persona-and-data',
+      'values.file.ambiguous-value.persona-and-task',
+      'values.file.ambiguous-value.data-and-task',
+    ],
+    make: validateWith((r, value) => {
+      if (r.ok) return r;
+      const variables = (value as { variables: AxisLike[] }).variables;
+      const errors = r.errors.filter((e) => {
+        const at = /^variables\.(\d+)\.values\.(\d+)\.id$/.exec(e.path);
+        if (e.code !== 'VARIABLES_AMBIGUOUS_VALUE' || !at) return true;
+        const own = variables[Number(at[1])] as AxisLike;
+        const id = (own.values[Number(at[2])] as { id: string }).id;
+        return variables.some(
+          (other, k) =>
+            k !== Number(at[1]) &&
+            other.kind === own.kind &&
+            other.role === 'axis' &&
+            other.values.some((x) => x.id === id),
+        );
+      });
+      return errors.length === 0 ? { ok: true, store: value, warnings: [] } : { ok: false, errors };
+    }),
+  },
+  {
+    name: 'validate refuses a value id shared with a stage or channel axis',
+    families: ['values'],
+    only: ['values.file.ambiguous-value.ids-shared-with-a-stage-or-channel-axis-are-fine'],
+    make: refuseIf((value) => {
+      const variables = (value as { variables?: AxisLike[] }).variables ?? [];
+      const outside = new Set(
+        variables
+          .filter((v) => ['stage', 'channel', 'deviation'].includes(v.kind))
+          .flatMap((v) => v.values.map((x) => x.id)),
+      );
+      return variables.some(
+        (v) =>
+          ['behaviour', 'persona', 'data', 'task'].includes(v.kind) &&
+          v.values.some((x) => outside.has(x.id)),
+      );
+    }),
+  },
+  {
+    name: 'validate refuses none in axes of two kinds',
+    families: ['values'],
+    only: ['values.file.ambiguous-value.none-in-axes-of-two-kinds-is-fine'],
+    make: refuseIf((value) => {
+      const kinds = new Set(
+        ((value as { variables?: AxisLike[] }).variables ?? [])
+          .filter((v) => v.role === 'axis' && v.values.some((x) => x.id === 'none'))
+          .map((v) => v.kind),
+      );
+      return ['behaviour', 'persona', 'data', 'task'].filter((k) => kinds.has(k)).length >= 2;
+    }),
+  },
+  {
+    name: 'validate refuses a detail that repeats the value id of an axis',
+    families: ['values'],
+    only: ['values.file.ambiguous-value.a-detail-may-repeat-the-id-of-an-axis-of-another-kind'],
+    make: refuseIf((value) => {
+      const variables = (value as { variables?: AxisLike[] }).variables ?? [];
+      const axisIds = new Set(
+        variables.filter((v) => v.role === 'axis').flatMap((v) => v.values.map((x) => x.id)),
+      );
+      return variables.some(
+        (v) =>
+          v.role === 'detail' &&
+          ['behaviour', 'persona', 'data', 'task'].includes(v.kind) &&
+          v.values.some((x) => axisIds.has(x.id)),
+      );
+    }),
+  },
+  // ---- a pair of two values of one variable, and a constraint of one entry --------------------------------------
+  {
+    name: 'plan reads a pair of one variable as excluding nothing only for the words of the bank',
+    families: ['impossible-pairs'],
+    only: ['impossible.same-variable.wording-does-not-decide'],
+    make: planFrom((store, o) => {
+      const forbids = [...(store.forbids ?? [])];
+      store.impossible = store.impossible.filter((pair) => {
+        if (pair.a.variable !== pair.b.variable) return true;
+        const words = (pair.provenance[0] as { words?: string } | undefined)?.words;
+        if (words !== 'these two never occur together')
+          forbids.push({ forbid: { [pair.a.variable]: pair.b.value } });
+        return false;
+      });
+      store.forbids = forbids;
+      return [store, o];
+    }),
+  },
+  {
+    name: 'plan drops every constraint of one entry',
+    families: ['impossible-pairs'],
+    only: ['impossible.same-variable.one-entry-constraint-binds-beside-a-same-variable-pair'],
+    make: planFrom((store, o) => {
+      store.forbids = (store.forbids ?? []).filter((f) => Object.keys(f.forbid).length !== 1);
+      return [store, o];
+    }),
+  },
+  // ---- the quote check on a store file with no constraints list -------------------------------------------------
+  {
+    name: 'quotes throws on a store file with no constraints list',
+    families: ['quotes'],
+    only: [
+      'quotes.no-constraints.true-quote-is-found',
+      'quotes.no-constraints.false-quote-is-reported',
+      'quotes.no-constraints.absent-list-and-empty-list-agree',
+    ],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) => {
+          if (store.constraints === undefined) throw new TypeError('store.constraints is not iterable');
+          return base.quotes(store, files);
+        },
+      },
+    }),
+  },
+  {
+    name: 'quotes reports nothing on a store file with no constraints list',
+    families: ['quotes'],
+    only: [
+      'quotes.no-constraints.false-quote-is-reported',
+      'quotes.no-constraints.absent-list-and-empty-list-agree',
+    ],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) =>
+          store.constraints === undefined ? { errors: [] } : base.quotes(store, files),
+      },
+    }),
+  },
+  {
+    name: 'quotes reports the right number of wrong quotes at the wrong place at scale',
+    families: ['scale'],
+    only: ['scale.readers.quotes-2000-reports-each-wrong-one'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (...a) => ({
+          errors: base
+            .quotes(...a)
+            .errors.map((e, k) => ({ ...e, path: `variables.0.values.${k}.provenance.0.quote` })),
+        }),
       },
     }),
   },

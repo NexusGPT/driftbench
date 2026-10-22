@@ -183,20 +183,28 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
   const outcomes: ConditionOutcome[] = [];
   let proposerCalls = 0;
 
-  /** The values among `values` that system 1 reads `text` as (a decided yes). A failed read gives none. */
-  const readsAs = async (text: string, variable: Variable, values: readonly Value[]): Promise<Value[]> => {
+  /** Preserve every description decision: an unread comparison is never evidence for a new value. */
+  const readsAs = async (
+    text: string,
+    variable: Variable,
+    values: readonly Value[],
+  ): Promise<{ matches: Value[]; decisions: Decision[] }> => {
     const qs = values.map((value) => questionFor(variable, value, questionText));
-    if (qs.length === 0) return [];
+    if (qs.length === 0) return { matches: [], decisions: [] };
+    let decisions: Decision[];
     try {
       const answers = await reader.read(text, qs as ReaderQuestion[]);
-      return values.filter((_, i) => {
-        const q = qs[i] as YesNoQuestion;
-        const d = decide(q, answers[q.name], thresholds);
-        return d.kind === 'value' && d.value === 'yes';
-      });
+      decisions = qs.map((q) => decide(q, answers[q.name], thresholds));
     } catch {
-      return [];
+      decisions = qs.map(() => ({ kind: 'unread' }));
     }
+    return {
+      matches: values.filter((_, i) => {
+        const d = decisions[i];
+        return d?.kind === 'value' && d.value === 'yes';
+      }),
+      decisions,
+    };
   };
 
   for (const span of spans) {
@@ -256,7 +264,7 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
                 first.variable,
                 near.map((t) => t.value),
               )
-            ).length > 0;
+            ).matches.length > 0;
           if (!same) {
             outcomes.push({
               span: span.id,
@@ -309,8 +317,8 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
     }
     const known = store.variables.find((variable) => variable.id === proposal.variable.id);
     if (known !== undefined && input.options?.checkProposals !== undefined) {
-      const same = await readsAs(proposal.value.title, known, known.values);
-      const hit = same[0];
+      const checked = await readsAs(proposal.value.title, known, known.values);
+      const hit = checked.matches[0];
       if (hit !== undefined) {
         if (input.options.checkProposals === 'match') {
           attach(hit, span);
@@ -323,6 +331,15 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
             reason: `the proposal ${proposal.variable.id}/${proposal.value.id} reads as ${pair(known, hit)}`,
           });
         }
+        continue;
+      }
+      if (checked.decisions.some((d) => d.kind !== 'value' || d.value !== 'no')) {
+        outcomes.push({
+          span: span.id,
+          status: 'unsure',
+          values: [],
+          reason: 'the reader did not settle every proposal comparison as no',
+        });
         continue;
       }
     }
