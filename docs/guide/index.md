@@ -59,6 +59,14 @@ Every command in the guide starts with `driftbench`, and you type it exactly so.
 | Know every command family, find help, pass options and read exit codes | [The command line](command-line.md) |
 | Set how driftbench reads your agent's folder, key by key, and check the file | [Estate settings](estate-settings.md) |
 | Plan, run, read and resume a campaign, with repeats, budgets and retries | [Campaigns](campaigns.md) |
+| Connect a function, a web endpoint or a command to driftbench | [Connect your agent](connect-adapters.md) |
+| Hand an object built with an SDK to driftbench | [Adapters for SDKs](sdk-adapters.md) |
+| Run a Claude Code folder or a Nexus agent, and cap what the run spends | [Claude Code and Nexus agents](claude-code-and-nexus.md) |
+| Load your own check or adapter, and see the shipped red-team plugins | [Plugins](plugins.md) |
+| Run specs from a Python script and from pytest, with a Python function or script as the agent | [Python](python.md) |
+| Run a spec inside a vitest suite, one test per block, and compare it with `campaign run` | [Vitest](vitest.md) |
+| Read what an agent did, turn a trace into a draft test, replay a session against a new rule | [Traces](traces.md) |
+| Write a scorecard, browse runs in the local viewer, label a block by hand | [The viewer and scorecards](viewer.md) |
 
 The reference pages below hold the detail of each area. Each guide part above links to them.
 
