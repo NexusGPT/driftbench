@@ -180,8 +180,12 @@ export function pointerAtoms(
     if (text === undefined) continue;
     // A gate holds two units: the quote runs from the first to the end of the second, in file order.
     const spans = [item.unit, ...(item.target ? [item.target.unit] : [])];
-    const start = Math.min(...spans.map((unit) => unit.start));
-    const end = Math.max(...spans.map((unit) => unit.end));
+    let start = Number.POSITIVE_INFINITY;
+    let end = Number.NEGATIVE_INFINITY;
+    for (const unit of spans) {
+      if (unit.start < start) start = unit.start;
+      if (unit.end > end) end = unit.end;
+    }
     const at: Located = {
       file: item.path,
       startLine: lineAt(text, start),

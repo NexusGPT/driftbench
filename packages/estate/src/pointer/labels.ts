@@ -302,8 +302,13 @@ export type LabelContext = {
 export const MAX_RANGE = 10_000;
 
 /** The number of the last line of a window, units and shown lines: a range up to it is a range of this window. */
-export const lastLineOf = (window: Window): number =>
-  Math.max(0, ...window.units.map((unit) => unit.n), ...(window.display ?? []).map((line) => line.n));
+export function lastLineOf(window: Window): number {
+  // A loop, not Math.max over a spread: a window may hold more units than a call may take as arguments.
+  let last = 0;
+  for (const unit of window.units) if (unit.n > last) last = unit.n;
+  for (const line of window.display ?? []) if (line.n > last) last = line.n;
+  return last;
+}
 
 /**
  * `5` or `5-7` as the numbers it names. A range may name `MAX_RANGE` numbers, or as many as the window has lines
@@ -329,10 +334,11 @@ export function shownLabelDrops(
   known?: ReadonlySet<string>,
 ): { labels: Labelled[]; dropped: Array<{ line: number; label: string }> } {
   const shown = new Set((window.display ?? []).map((line) => line.n));
+  const last = lastLineOf(window);
   const labels: Labelled[] = [];
   const dropped: Array<{ line: number; label: string }> = [];
   for (const entry of answer) {
-    const named = typeof entry.units === 'string' ? expandUnits(entry.units, lastLineOf(window)) : undefined;
+    const named = typeof entry.units === 'string' ? expandUnits(entry.units, last) : undefined;
     if (
       entry.label !== 'none' &&
       (known === undefined || known.has(entry.label)) &&
@@ -371,6 +377,7 @@ export function checkAnswer(
   const allowed = new Map(set.labels.map((label) => [label.name, label]));
   const inWindow = new Set(window.units.map((unit) => unit.n));
   const shown = new Set((window.display ?? []).map((line) => line.n));
+  const last = lastLineOf(window);
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const seenEntries = new Set<string>();
@@ -387,7 +394,7 @@ export function checkAnswer(
       refuse(`${window.id}: label-not-in-set (${set.set})`);
       continue;
     }
-    const named = expandUnits(entry.units, lastLineOf(window));
+    const named = expandUnits(entry.units, last);
     if (!named) {
       refuse(`${window.id}: units-not-a-number-or-range`);
       continue;

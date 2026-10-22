@@ -5,6 +5,7 @@ import {
   expandUnits,
   type Labelled,
   type LabelSet,
+  lastLineOf,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
@@ -256,6 +257,25 @@ describe('checking an answer', () => {
     // The units of a recorded failure are stored as written when they are a range of this window.
     expect(expandUnits('1-12293', 12_293)).toHaveLength(12_293);
     expect(expandUnits('1-12293')).toBeUndefined();
+  });
+
+  it('answers a legal window of 200,000 units, for one unit and for all of them', () => {
+    const huge = {
+      id: 'huge.md#1',
+      path: 'huge.md',
+      headingPath: [],
+      units: Array.from({ length: 200_000 }, (_, at) => ({ n: at + 1, text: 'u', index: at })),
+      display: [{ n: 200_001, mode: 'read' as const, text: 'read line' }],
+    };
+    const one = checkAnswer(counter, huge, [{ units: '1', label: 'greeting' }]);
+    expect(one.refusals).toEqual([]);
+    expect(one.accepted.size).toBe(1);
+    const all = checkAnswer(counter, huge, [{ units: '1-200000', label: 'greeting' }]);
+    expect(all.refusals).toEqual([]);
+    expect(all.accepted.size).toBe(200_000);
+    expect(lastLineOf(huge)).toBe(200_001);
+    const split = shownLabelDrops(huge, [{ units: '200001', label: 'greeting' }]);
+    expect(split.dropped).toEqual([{ line: 200_001, label: 'greeting' }]);
   });
 
   it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
