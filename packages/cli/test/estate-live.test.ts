@@ -961,19 +961,15 @@ describe('driftbench estate run --from', () => {
     expect(json.runs.filter((line) => line.carried === true).length).toBeGreaterThan(0);
   });
 
-  it('refuses a result made with another runtime setting', async () => {
+  it.each([
+    ['model', ['--model', 'other-model']],
+    ['environment', ['--set-env', 'NORTHWIND_REGION=south']],
+    ['tool rules', ['--disallow', 'WebFetch']],
+  ])('refuses a result made with another %s', async (_name, extra) => {
     const specs = small();
     const calls = await counter();
     const old = await firstRun(calls, specs);
-    const next = await secondRun(
-      calls,
-      old.store,
-      specs,
-      '--change',
-      await manifest(),
-      '--model',
-      'other-model',
-    );
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest(), ...extra);
     const json = next.json as CarryJson;
     expect(json.runs.every((line) => line.carried !== true)).toBe(true);
     expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
