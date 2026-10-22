@@ -886,6 +886,14 @@ describe('a unit the runs read two ways near evenly is listed as unstable', () =
     expect(result.unstable).toEqual([]);
   });
 
+  it('takes the gate the other way round: gate-same 3, rule 2, and two more runs of gate-same', async () => {
+    // Restores the other-way case of #1359: the gate side leads, and two runs separate it.
+    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame, gateSame, gateSame]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('gate-same');
+    expect(result.unstable).toEqual([]);
+  });
+
   it('leaves a unit unlabeled and lists it as unstable when six more runs still leave its kinds one run apart', async () => {
     // Every pair of new runs splits one and one: rule 6 against gate-same 5 after the sixth. The vote never picks the
     // label whose atom can be built.
