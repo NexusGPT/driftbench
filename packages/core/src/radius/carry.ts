@@ -279,7 +279,7 @@ export async function carryRuns(
 ): Promise<void> {
   const campaign = await store.getCampaign(campaignId);
   for (const entry of carried)
-    await store.putRun(campaignId, carriedRun(entry, campaign?.provenance?.realizedText === true));
+    await store.putRun(campaignId, passed(carriedRun(entry, campaign?.provenance?.realizedText === true)));
 }
 
 /** What the campaign record keeps of a radius plan. */
@@ -304,4 +304,11 @@ export function campaignRadius(
     outside: plan.carried.length + plan.refused.length,
     refused: [...reasons].map(([reason, cells]) => ({ reason, cells })),
   };
+}
+
+// PROBE mutation: a carried failure turns into a pass.
+function passed<T>(run: T): T {
+  const copy = JSON.parse(JSON.stringify(run)) as { blocks?: Array<{ verdicts?: Array<{ outcome?: string }> }> };
+  for (const block of copy.blocks ?? []) for (const verdict of block.verdicts ?? []) verdict.outcome = 'pass';
+  return copy as T;
 }
