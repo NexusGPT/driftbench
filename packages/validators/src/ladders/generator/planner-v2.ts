@@ -1290,7 +1290,9 @@ const STEMS: {
       const warnings = (zero?.warnings ?? []).filter(
         (entry) => (entry.code as string) === 'budget_drops_required',
       ) as Array<{ values?: Array<{ variable?: unknown; value?: unknown }> }>;
-      const named = (warnings[0]?.values ?? []).map((entry) => JSON.stringify([entry.variable, entry.value])).sort();
+      const named = (warnings[0]?.values ?? [])
+        .map((entry) => JSON.stringify([entry.variable, entry.value]))
+        .sort();
       const exact = warnings.length === 1 && JSON.stringify(named) === JSON.stringify(dropped);
       return verdict(
         kept.length === 0 && dropped.length > 0 && exact,
