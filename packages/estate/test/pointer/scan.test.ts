@@ -257,7 +257,7 @@ describe('the pointer scan', () => {
         set: 'duty',
         reason: [
           'quay.md#1: "99" leaves the window',
-          'quay.md#1: the label rotate is not in the set duty',
+          'quay.md#1: label-not-in-set (duty)',
           'quay.md#1: "3" names a unit that is already labelled',
         ].join('; '),
       },
@@ -289,11 +289,8 @@ describe('the pointer scan', () => {
       { units: 'unknown', label: 'unknown' },
     ];
     expect(failed[0]?.answer.refusedAnswers).toEqual([tried, tried]);
-    // The stored entries hold none of the model's own words (its refusal message, `error`, is the reader's own text).
-    expect(JSON.stringify(failed[0]?.answer.refusedAnswers)).not.toMatch(
-      /private words|rotate|words of the unit/,
-    );
-    expect(cassette.render()).not.toContain('copied unit text');
+    // The stored entry holds none of the model's own words, in its answers or in its error.
+    expect(cassette.render()).not.toMatch(/private words|rotate|words of the unit|copied unit text/);
     const replay = await pointerScan(
       input(replayOf(plantedDense(bad)), Cassette.parse(cassette.render()), {
         mode: 'replay',

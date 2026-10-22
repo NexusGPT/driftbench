@@ -289,7 +289,7 @@ describe('checking an answer', () => {
 
   it('refuses a label that is not in the set, with the reason', () => {
     const checked = checkAnswer(counter, window, [{ units: '1', label: 'order' }]);
-    expect(checked.refusals).toEqual(['notes.md#1: the label order is not in the set counter-voice']);
+    expect(checked.refusals).toEqual(['notes.md#1: label-not-in-set (counter-voice)']);
     expect(checked.accepted.size).toBe(0);
   });
 
@@ -341,7 +341,7 @@ describe('checking an answer', () => {
       { units: '1', label: gate.name, target: '2' as unknown as number },
     ]);
     expect(string.accepted.size).toBe(0);
-    expect(string.refusals).toEqual([expect.stringContaining('is no unit number')]);
+    expect(string.refusals).toEqual([expect.stringContaining('target-not-a-number')]);
     const none = checkAnswer(set, window, [{ units: '1', label: 'none', target: 2 }]);
     expect(none.accepted.size).toBe(0);
     expect(none.refusals).toEqual([expect.stringContaining('none takes no target')]);

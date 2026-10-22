@@ -374,12 +374,12 @@ export function checkAnswer(
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse(`${window.id}: label-not-in-set (${set.set})`);
       continue;
     }
     const named = expandUnits(entry.units);
     if (!named) {
-      refuse(`${window.id}: "${entry.units}" is no unit number or range`);
+      refuse(`${window.id}: units-not-a-number-or-range`);
       continue;
     }
     // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
@@ -406,7 +406,7 @@ export function checkAnswer(
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refuse(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse(`${window.id}: target-not-a-number`);
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
