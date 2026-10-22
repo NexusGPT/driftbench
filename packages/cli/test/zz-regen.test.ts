@@ -2,7 +2,13 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateEstateSuite } from '../../generate/src/estate/generate';
-import { ClaudeCodeReader, renderEstateMap, scanEstate } from '@agent-nexus/driftbench-estate';
+import {
+  ClaudeCodeReader,
+  loadEstateMap,
+  renderEstateMap,
+  scanEstate,
+  toEstateSpaceMap,
+} from '@agent-nexus/driftbench-estate';
 import { it, vi } from 'vitest';
 import { fixtureInputs, PLANNER_PATHS } from '../../generate/test/estate/support';
 import { CASES } from '../../estate/test/scan/cases';
@@ -46,7 +52,12 @@ it('regenerates the committed outputs', async () => {
   await cli(['estate', 'approve', `${F}/map.yaml`, '--all', '--to', `${F}/approved.yaml`]);
   await cli(['estate', 'approve', `${C}/map.yaml`, '--all', '--to', `${C}/approved.yaml`]);
   await cli(['estate', 'map', `${F}/approved.yaml`, '--to', `${F}/space.yaml`, '--agent', 'northwind']);
-  await cli(['estate', 'plan', `${F}/approved.yaml`, '--space', `${F}/space.yaml`, '--out', `${F}/plan.yaml`, '--force']);
+  const approvedMap = await loadEstateMap(join(ROOT, F, 'approved.yaml'));
+  if (!approvedMap.ok) throw new Error('invalid fixture map');
+  const legacy = join(ROOT, 'legacy-space.json');
+  await writeFile(legacy, JSON.stringify(toEstateSpaceMap(approvedMap.map)));
+  await cli(['estate', 'plan', `${F}/approved.yaml`, '--space', 'legacy-space.json', '--out', `${F}/plan.yaml`, '--force']);
+  await rm(legacy, { force: true });
   const planner = 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml';
   const old = (await readFile(join(ROOT, planner), 'utf8')).split('\n').slice(0, 3);
   const fresh = (await readFile(join(ROOT, F, 'plan.yaml'), 'utf8')).split('\n');
