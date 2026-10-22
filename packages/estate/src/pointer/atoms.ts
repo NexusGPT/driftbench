@@ -509,7 +509,8 @@ export function pointerAtoms(
                   ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
                 },
               },
-              ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
+              // An `optional` item is already unwrapped (or left out) by the fill: what is left is plain checks.
+              ...(mappedEvidence as unknown as Atom['evidence']),
             ],
             producedBy: 'model',
             ...(mappedReplyAct !== undefined && mappedReplyAct !== UNRESOLVED
