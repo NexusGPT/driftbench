@@ -29,6 +29,14 @@ const SET = `labels:
         atom: { kind: instruction, polarity: obligation }
       - name: remark
         description: A unit that states how things are.
+      - name: check
+        description: A unit that tells the reader to check something first.
+        links: [limit]
+        atom: { kind: gate }
+      - name: wording
+        description: A unit that sets how the reader replies.
+        links: [limit]
+        atom: { kind: register }
       - name: bound
         description: A unit that states a number that limits another unit.
         target: required
@@ -242,6 +250,84 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atomOf(result, 'Warn the skipper within five minutes')?.fields?.condition).toEqual([
       { limit: 5, comparison: 'le', unit: 'minutes' },
     ]);
+  });
+
+  it.each([
+    ['an unknown comparison', { kind: 'limit', to: 'more', value: 2 }],
+    ['an empty unit', { kind: 'limit', to: 'le', value: 2, unit: '  ' }],
+    ['to: none', { kind: 'limit', to: 'none', value: 2 }],
+  ])('drops a limit with %s, keeps the label and makes no condition', async (_name, link) => {
+    const result = await play([link]);
+    const atom = atomOf(result, 'Warn the skipper when a boat is overdue');
+    expect(atom).toBeDefined();
+    expect(atom?.fields).not.toHaveProperty('condition');
+  });
+
+  it('makes one condition of identical limits on one unit, and keeps different ones', async () => {
+    const same = { kind: 'limit', to: 'le', value: 2, unit: 'days' };
+    const result = await play([same, { ...same }, { kind: 'limit', to: 'le', value: 3, unit: 'days' }]);
+    expect(atomOf(result, 'Warn the skipper when a boat is overdue')?.fields?.condition).toEqual([
+      { limit: 2, comparison: 'le', unit: 'days' },
+      { limit: 3, comparison: 'le', unit: 'days' },
+    ]);
+  });
+
+  it('accepts a limit on a gate atom', async () => {
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Check the tide table', ''].join('\n'),
+    });
+    const labeler = plantedDense((window) =>
+      window.path === 'CLAUDE.md'
+        ? ([
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'check', links: [{ kind: 'limit', to: 'le', value: 2, unit: 'hours' }] },
+          ] as pointer.Labelled[])
+        : [{ units: `1-${window.units.length}`, label: 'none' }],
+    );
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    const gate = result.map.atoms.find(
+      (atom) => atom.kind === 'gate' && atom.provenance.quote === 'Check the tide table',
+    );
+    expect(gate?.fields?.condition).toEqual([{ limit: 2, comparison: 'le', unit: 'hours' }]);
+  });
+
+  it('drops a limit on any other kind of atom, and says which unit gave it', async () => {
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Reply in the skipper language', ''].join('\n'),
+    });
+    const labeler = plantedDense((window) =>
+      window.path === 'CLAUDE.md'
+        ? ([
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'wording', links: [{ kind: 'limit', to: 'le', value: 2, unit: 'lines' }] },
+          ] as pointer.Labelled[])
+        : [{ units: `1-${window.units.length}`, label: 'none' }],
+    );
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    const register = result.map.atoms.find((atom) => atom.kind === 'register');
+    expect(register).toBeDefined();
+    expect(register?.fields).not.toHaveProperty('condition');
+    expect(result.pointer?.atomRefusals).toHaveLength(1);
   });
 
   it('puts no condition on a unit that gave no limit', async () => {

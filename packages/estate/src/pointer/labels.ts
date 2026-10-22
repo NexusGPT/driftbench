@@ -608,12 +608,14 @@ function checkExtras(
             out.dropped.push(`${where}: the limit link's comparison is one of ${kind.values?.join(', ')}`);
             continue;
           }
-          links.push({
+          const given = {
             kind: kind.name,
             to: link.to,
             value,
             ...(unit === undefined ? {} : { unit: unit.trim() }),
-          });
+          };
+          // The same limit written twice is one limit.
+          if (!links.some((other) => JSON.stringify(other) === JSON.stringify(given))) links.push(given);
           continue;
         }
         // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,

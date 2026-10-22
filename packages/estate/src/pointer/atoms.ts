@@ -155,6 +155,9 @@ function titleOf(text: string): string {
   return flat.length <= TITLE_CHARACTERS ? flat : `${flat.slice(0, TITLE_CHARACTERS - 1).trimEnd()}…`;
 }
 
+/** The kinds of atom a limit may land on. */
+const LIMIT_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate']);
+
 /** The limits a unit's numeric links state: the number, how a quantity is compared with it, and what it counts. */
 function limitsOf(item: LabelledUnit): Array<{ limit: number; comparison: string; unit?: string }> {
   return (item.links ?? []).flatMap((link) =>
@@ -343,6 +346,15 @@ export function pointerAtoms(
           );
           continue;
         }
+        // A limit belongs to an instruction or a gate (a rule, a prohibition or a check). Any other kind of atom
+        // takes none: the limits are dropped, and the refusal names the units that gave them.
+        const placed = LIMIT_KINDS.has(mapping.kind) ? limits : [];
+        if (limits.length > 0 && placed.length === 0) {
+          const givers = [item, ...bound].filter((unit) => limitsOf(unit).length > 0).map((unit) => unit.id);
+          refusals.push(
+            `${where}: the ${mapping.kind} atom takes no limit; dropped the limits of unit ${givers.join(', ')}`,
+          );
+        }
         const same = builder.atoms.find(
           (other) =>
             other.kind === mapping.kind &&
@@ -451,8 +463,8 @@ export function pointerAtoms(
               labelSet: item.set.set,
               label: item.label,
               labeler,
-              ...(conditionIds.length > 0 || limits.length > 0
-                ? { condition: [...conditionIds, ...limits] }
+              ...(conditionIds.length > 0 || placed.length > 0
+                ? { condition: [...conditionIds, ...placed] }
                 : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
               ...(labelSpans.length > 0 ? { labelSpans } : {}),
