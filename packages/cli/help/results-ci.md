@@ -76,7 +76,7 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 | `--json` | off | print the JSON summary instead of the table |
 | `--config <file>` | `driftbench.yaml` in the working folder | the project config: its `aggregates:` are scored, and its `campaign:` key gives `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version` where no flag is given |
 | `--max-not-run <share>` | `0` | the largest share of a spec's fresh blocks that may be not run before the verdict is `not-run`, exit 3, from 0 to 1. Raise it for an exploratory suite; the specs below it are still listed |
-| `--aggregate <spec>` | none | a campaign-level criterion `name:op threshold`, such as `pass-rate:>=0.8`; repeatable; a failing one fails the gate |
+| `--aggregate <spec>` | none | a campaign-level criterion `name:op threshold`, such as `'pass-rate:>=0.8'`, quoted because a shell reads `>=` as a redirect; repeatable; a failing one fails the gate |
 
 Global: `--plugin <module>` loads a plugin, which can register an adapter for your own agent.
 

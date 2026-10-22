@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
@@ -15,6 +16,14 @@ import { estate, FIXTURE } from './support';
 
 const SCRIPT = '.claude/skills/invoice-reconcile/scripts/reconcile.py';
 const V2 = fileURLToPath(new URL('../../../examples/estates/fixture-v2/', import.meta.url));
+
+/** The execution logs the script would leave in the fixture estates of the checkout. */
+const CHECKOUT_LOGS = [FIXTURE, V2].map((root) => join(root, '.claude/northwind/reconcile-executions.jsonl'));
+
+/** How many runs a log holds: 0 when the file is absent. */
+function runs(path: string): number {
+  return existsSync(path) ? readFileSync(path, 'utf8').split('\n').filter(Boolean).length : 0;
+}
 
 type Seed = { id: string; files: Record<string, string> };
 
@@ -49,10 +58,16 @@ describe('the reconcile script on the workspace seeds the live specs use', () =>
   });
 
   it('reconciles every invoice of every seed with its order, with no traceback', async () => {
+    const before = CHECKOUT_LOGS.map(runs);
     for (const seed of await seeds()) {
       for (const pair of pairs(seed)) {
         const root = await estate(seed.files);
-        const run = spawnSync('python3', [join(FIXTURE, SCRIPT), pair.invoice, pair.order], {
+        // The script logs under the estate root its own path defines: a copy inside the temporary estate keeps
+        // that log in the temporary folder.
+        const copy = join(root, SCRIPT);
+        mkdirSync(dirname(copy), { recursive: true });
+        copyFileSync(join(FIXTURE, SCRIPT), copy);
+        const run = spawnSync('python3', [copy, pair.invoice, pair.order], {
           cwd: root,
           encoding: 'utf8',
         });
@@ -73,5 +88,7 @@ describe('the reconcile script on the workspace seeds the live specs use', () =>
         }
       }
     }
+    // The script logs under the estate root its own path defines: run in place, it would write into the checkout.
+    expect(CHECKOUT_LOGS.map(runs)).toEqual(before);
   });
 });

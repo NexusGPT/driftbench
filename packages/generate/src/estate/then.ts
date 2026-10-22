@@ -73,6 +73,7 @@ export const MARKERS = {
   askable: 'needs-askable-act',
   existingFile: 'needs-existing-file',
   guardTrace: 'needs-guard-trace',
+  stateOperation: 'needs-state-operation',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));

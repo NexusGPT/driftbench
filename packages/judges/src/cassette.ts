@@ -114,6 +114,13 @@ export const CassetteEntry = z.strictObject({
   unparsedReason: z.string().optional(),
   /** What the recorded call cost in US dollars, when the client reported it. Replayed with the answer. */
   cost_usd: z.number().nonnegative().optional(),
+  /** The tokens the recorded call used, when the provider reported them. Replayed with the answer. */
+  usage: z
+    .strictObject({
+      input: z.number().nonnegative().optional(),
+      output: z.number().nonnegative().optional(),
+    })
+    .optional(),
   /** The answer parsed only after the strict repair of unescaped quotes. Replayed with the answer. */
   repaired: z.literal(true).optional(),
 });
@@ -332,7 +339,10 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         : {}),
     };
     const commit = reserveOccurrence(cassette);
-    const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
+    const cost = (result: JudgeResult) => ({
+      ...(result.costUsd === undefined ? {} : { cost_usd: result.costUsd }),
+      ...(result.usage === undefined ? {} : { usage: result.usage }),
+    });
     try {
       const result =
         pairPolicy && client.judgePair
@@ -488,6 +498,7 @@ function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
   if (entry.result) return structuredClone(entry.result);
   const cost = {
     ...(entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd }),
+    ...(entry.usage === undefined ? {} : { usage: entry.usage }),
     ...(entry.repaired ? { repaired: true } : {}),
   };
   if (entry.unparsedReason !== undefined)
