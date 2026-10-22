@@ -171,11 +171,7 @@ function cpuMs(work: () => number): { ms: number; checksum: number } {
  * The CPU time of the calibration in milliseconds: per part the fastest of the rounds, then the weighted sum.
  * 0 when the meter reports none.
  */
-export function calibrate(
-  rounds = CALIBRATION_ROUNDS,
-  size = CALIBRATION_SIZE,
-  paths = STAT_PATHS,
-): number {
+export function calibrate(rounds = CALIBRATION_ROUNDS, size = CALIBRATION_SIZE, paths = STAT_PATHS): number {
   const tree = makeTree();
   const next = sequence(20261016);
   const best = { allocation: Infinity, hash: Infinity, yaml: Infinity, stat: Infinity };
@@ -220,10 +216,6 @@ export function calibrationFactor(
 }
 
 /** The CPU time of a run on the reference machine: raw time times the calibration factor. */
-export function normalisedMs(
-  rawMs: number,
-  calibrationMs: number,
-  referenceMs = CALIBRATION_REFERENCE_MS,
-): number {
+export function normalisedMs(rawMs: number, calibrationMs: number, referenceMs = CALIBRATION_REFERENCE_MS): number {
   return Math.round(rawMs * calibrationFactor(calibrationMs, referenceMs).factor);
 }
