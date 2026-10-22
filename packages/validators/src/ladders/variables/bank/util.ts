@@ -147,8 +147,24 @@ export function show(value: unknown, limit = 200): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
+/**
+ * Where the processor time of a call is read when the product runs apart from the bank (the frame, docs/validators.md
+ * section 12.9): `mark` is the position of the calls so far, `since` the processor time the product used for the calls
+ * made after it, measured in the product's own process, never in the bank's.
+ */
+export type ProductClock = { mark(): number; since(mark: number): number };
+let clock: ProductClock | undefined;
+export function useProductClock(next: ProductClock | undefined): void {
+  clock = next;
+}
+
 /** Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. */
 export function cpuMs<T>(run: () => T): { value: T; ms: number } {
+  if (clock) {
+    const mark = clock.mark();
+    const value = run();
+    return { value, ms: clock.since(mark) };
+  }
   const start = process.cpuUsage();
   const value = run();
   const used = process.cpuUsage(start);

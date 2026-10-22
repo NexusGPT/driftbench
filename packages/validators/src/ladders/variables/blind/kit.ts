@@ -1,7 +1,7 @@
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import { FAMILY_LEVEL, type Family, type Tier } from '../bank/manifest/types';
-import { attempt, Fail, must, type Rng, show } from '../bank/util';
+import { attempt, cpuMs, Fail, must, type Rng, show } from '../bank/util';
 import type {
   CoverageResult,
   FileStore,
@@ -548,10 +548,10 @@ export function widestTuple(space: Space): number {
   return widest;
 }
 
-/** Processor time of a call (user and system, ms): a busy machine does not fail an item. */
+/**
+ * Processor time of a call (user and system, ms): a busy machine does not fail an item. When the product runs apart
+ * from the bank, the time is the product's own, children it started included (bank/util.ts `cpuMs`).
+ */
 export function cpu<T>(run: () => T): { value: T; ms: number } {
-  const start = process.cpuUsage();
-  const value = run();
-  const used = process.cpuUsage(start);
-  return { value, ms: (used.user + used.system) / 1000 };
+  return cpuMs(run);
 }

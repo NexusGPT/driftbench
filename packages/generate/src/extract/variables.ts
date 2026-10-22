@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { posix, resolve } from 'node:path';
 import {
   type QuoteProvenance,
   resolveStructure,
@@ -69,6 +69,13 @@ export function proposalToVariables(proposal: Proposal): VariableStore {
   };
 }
 
+/** The entries of a store that rest on a source file: its quotes and its structure pointers. */
+function sourcedEntries(store: VariableStore) {
+  return variableProvenance(store).flatMap(({ path, entry }) =>
+    entry.kind === 'quote' || entry.kind === 'structure' ? [{ path, entry }] : [],
+  );
+}
+
 /**
  * Reads every file the quotes of a store name, relative to `baseDir`, and checks each quote word for word, as
  * a proposal's evidence is checked (white space, typographic quote marks and accents are folded; case and
@@ -79,25 +86,70 @@ export async function verifyVariableQuotes(
   store: VariableStore,
   baseDir: string,
 ): Promise<VariableStoreIssue[]> {
-  const sourced = variableProvenance(store).flatMap(({ path, entry }) =>
-    entry.kind === 'quote' || entry.kind === 'structure' ? [{ path, entry }] : [],
-  );
-  const quotes = sourced.flatMap(({ path, entry }) => (entry.kind === 'quote' ? [{ path, entry }] : []));
   const texts = new Map<string, string>();
-  const issues: VariableStoreIssue[] = [];
-  const unreadable = new Set<string>();
-  for (const { path, entry } of sourced) {
+  const unreadable = new Map<string, string>();
+  for (const { entry } of sourcedEntries(store)) {
     if (texts.has(entry.path) || unreadable.has(entry.path)) continue;
     try {
       texts.set(entry.path, await readFile(resolve(baseDir, entry.path), 'utf8'));
     } catch (cause) {
-      unreadable.add(entry.path);
-      issues.push({
-        code: 'VARIABLES_SOURCE_UNREADABLE',
-        path: `${path}.path`,
-        message: `cannot read ${entry.path}, so its quotes cannot be checked: ${describe(cause)}`,
-      });
+      unreadable.set(entry.path, describe(cause));
     }
+  }
+  return checkSources(store, texts, unreadable);
+}
+
+/** A path as the files of `checkVariableQuotes` name it: no `./`, no `a/..`; undefined for a path that leaves the folder. */
+function inFolder(path: string): string | undefined {
+  const clean = posix.normalize(path);
+  return clean.startsWith('/') || clean === '..' || clean.startsWith('../') ? undefined : clean;
+}
+
+/**
+ * The same check on files already in memory: `files` maps a path, relative to the folder the store sits in, to the
+ * text of the file. A path the map does not hold, or that leaves the folder, is a file that cannot be read. The
+ * result is what `verifyVariableQuotes` returns for a folder that holds exactly these files.
+ */
+export function checkVariableQuotes(
+  store: VariableStore,
+  files: Readonly<Record<string, string>>,
+): VariableStoreIssue[] {
+  const held = new Map<string, string>();
+  for (const [path, text] of Object.entries(files)) {
+    const clean = inFolder(path);
+    if (clean !== undefined) held.set(clean, text);
+  }
+  const texts = new Map<string, string>();
+  const unreadable = new Map<string, string>();
+  for (const { entry } of sourcedEntries(store)) {
+    if (texts.has(entry.path) || unreadable.has(entry.path)) continue;
+    const clean = inFolder(entry.path);
+    const text = clean === undefined ? undefined : held.get(clean);
+    if (text === undefined) unreadable.set(entry.path, 'no such file');
+    else texts.set(entry.path, text);
+  }
+  return checkSources(store, texts, unreadable);
+}
+
+/** The checks on the texts of the files: the unreadable files, the structure entries, then the quotes. */
+function checkSources(
+  store: VariableStore,
+  texts: ReadonlyMap<string, string>,
+  unreadable: ReadonlyMap<string, string>,
+): VariableStoreIssue[] {
+  const sourced = sourcedEntries(store);
+  const quotes = sourced.flatMap(({ path, entry }) => (entry.kind === 'quote' ? [{ path, entry }] : []));
+  const issues: VariableStoreIssue[] = [];
+  const reported = new Set<string>();
+  for (const { path, entry } of sourced) {
+    const cause = unreadable.get(entry.path);
+    if (cause === undefined || reported.has(entry.path)) continue;
+    reported.add(entry.path);
+    issues.push({
+      code: 'VARIABLES_SOURCE_UNREADABLE',
+      path: `${path}.path`,
+      message: `cannot read ${entry.path}, so its quotes cannot be checked: ${cause}`,
+    });
   }
   for (const { path, entry } of sourced) {
     if (entry.kind !== 'structure') continue;

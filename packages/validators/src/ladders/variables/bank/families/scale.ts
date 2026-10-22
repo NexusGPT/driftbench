@@ -1,6 +1,6 @@
 import type { ConversationInput, Plan } from '../../interface';
 import { build, callCoverage, type ItemContext, planOf, type StemRun } from '../item';
-import { nounNumber, numericSpan, type Quantity, ruleSentence } from '../oracle/conditions';
+import { nounNumber, numericSpan, type Quantity, ruleSentence, WORDINGS } from '../oracle/conditions';
 import { estateOf, type RuleSpec, variablesCiting } from '../oracle/estate';
 import { greedyBound, shapeProblems } from '../oracle/planCheck';
 import { rowsWithForbidden, scanCoverage } from '../oracle/scan';
@@ -207,7 +207,10 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const texts: string[] = [];
     for (let i = 0; i < spans; i += 1) {
       const q: Quantity = { noun: nounNumber(i), unit: ' euros', kind: 'money' };
-      const span = numericSpan(rng.pick(['gt', 'ge', 'lt', 'le'] as const), 'symbol', q, rng.int(5, 900));
+      // Every wording of the comparison, drawn per span from the seed: a pattern written for one wording (the symbol
+      // form of the fixtures of an earlier version) reads a part of the spans on any seed and fails the item.
+      const cls = rng.pick(['gt', 'ge', 'lt', 'le'] as const);
+      const span = numericSpan(cls, rng.pick(Object.keys(WORDINGS[cls])), q, rng.int(5, 900));
       const f = i % filesCount;
       (byFile[f] as string[]).push(ruleSentence(span.text, rng));
       rules.push({ id: `R${i + 1}`, source: `docs/part-${f}.md`, conditions: [span.text], tools: [] });

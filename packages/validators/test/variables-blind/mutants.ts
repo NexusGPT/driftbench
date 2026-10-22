@@ -69,6 +69,10 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    ignoreBoundaryQuotes: false,
+    exactPassages: false,
+    acceptUnapprovedForbids: false,
+    acceptOutOfDomainInterval: false,
   });
 };
 const resetQuotes = (): void => {
@@ -2372,6 +2376,190 @@ export const MUTANTS: readonly Mutant[] = [
           store.constraints === undefined ? { errors: [] } : base.quotes(store, files),
       },
     }),
+  },
+  // ---- items added after the second audit ------------------------------------------------------------------
+  {
+    name: 'weightInterval accepts a count above the total',
+    families: ['weights'],
+    only: ['weights.interval-refuses.count-above-total', 'weights.interval-refuses.count-one-above-total'],
+    make: flag(() => {
+      plannerMutation.acceptOutOfDomainInterval = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'weightInterval accepts a negative count, a fractional count and a total below one',
+    families: ['weights'],
+    only: [
+      'weights.interval-refuses.negative-count',
+      'weights.interval-refuses.total-below-one',
+      'weights.interval-refuses.fractional-count',
+    ],
+    make: flag(() => {
+      plannerMutation.acceptOutOfDomainInterval = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'weightInterval refuses a count above the total with another error',
+    families: ['weights'],
+    only: ['weights.interval-refuses.count-above-total'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        weightInterval: (c, n) => {
+          if (c > n) throw new Error('count above total');
+          return base.weightInterval(c, n);
+        },
+      },
+    }),
+  },
+  {
+    name: 'coverage counts a forbid that is not approved',
+    families: ['counter'],
+    only: [
+      'counter.constraints.unapproved-forbid-excludes-nothing',
+      'counter.constraints.unapproved-three-cell-forbid-excludes-nothing',
+    ],
+    make: flag(() => {
+      plannerMutation.acceptUnapprovedForbids = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'coverage ignores an approved forbid of two cells',
+    families: ['counter'],
+    only: ['counter.constraints.approved-forbid-excludes-its-pair'],
+    make: (base) => ({
+      impl: { ...base, coverage: (store, rows, groups, o) => base.coverage({ ...store, forbids: [] }, rows, groups, o) },
+    }),
+  },
+  {
+    name: 'coverage treats a forbid with no flag as not approved',
+    families: ['counter'],
+    only: ['counter.constraints.forbid-without-a-flag-is-approved'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        coverage: (store, rows, groups, o) =>
+          base.coverage(
+            {
+              ...store,
+              forbids: (store.forbids ?? []).map((f) => (f.approved === undefined ? { ...f, approved: false } : f)),
+            },
+            rows,
+            groups,
+            o,
+          ),
+      },
+    }),
+  },
+  {
+    name: 'coverage counts above 10,000 rows as all covered',
+    families: ['counter'],
+    only: [
+      'counter.many-rows.twenty-thousand-full-rows',
+      'counter.many-rows.twenty-thousand-partial-rows',
+      'counter.many-rows.twenty-thousand-rows-repeating-a-few',
+      'counter.many-rows.sixty-thousand-full-rows',
+    ],
+    make: (base) => ({
+      impl: {
+        ...base,
+        coverage: (store, rows, groups, o) => {
+          const got = base.coverage(store, rows, groups, o);
+          return rows.length > 10_000 ? { ...got, covered: got.allowed } : got;
+        },
+      },
+    }),
+  },
+  {
+    name: 'quotes checks no file of more than three megabytes',
+    families: ['quotes'],
+    only: [
+      'quotes.large-file.wrong-quote-at-the-end-of-five-megabytes-is-reported',
+      'quotes.large-file.wrong-quote-in-ten-megabytes-is-reported',
+    ],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) =>
+          Object.values(files).some((text) => text.length > 3_000_000) ? { errors: [] } : base.quotes(store, files),
+      },
+    }),
+  },
+  {
+    name: 'quotes reports a quote of a large file that it should find',
+    families: ['quotes'],
+    only: ['quotes.large-file.right-quote-at-the-end-of-five-megabytes-is-found'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) => {
+          const got = base.quotes(store, files);
+          return Object.values(files).some((text) => text.length > 3_000_000) && got.errors.length === 0
+            ? { errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' }] }
+            : got;
+        },
+      },
+    }),
+  },
+  {
+    name: 'quotes drops a quote that holds an emoji before it checks',
+    families: ['quotes'],
+    only: [
+      'quotes.emoji.wrong-quote-with-a-rocket-is-reported',
+      'quotes.emoji.wrong-quote-with-a-check-mark-is-reported',
+      'quotes.emoji.wrong-quote-with-the-other-emoji-is-reported',
+    ],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) => {
+          const cleaned = copy(store);
+          for (const variable of cleaned.variables)
+            for (const value of variable.values)
+              value.provenance = (value.provenance ?? []).filter(
+                (p) => !(p.kind === 'quote' && /\p{Extended_Pictographic}/u.test(p.quote)),
+              );
+          return base.quotes(cleaned, files);
+        },
+      },
+    }),
+  },
+  {
+    name: 'quotes reports a quote that holds an emoji and sits in its file',
+    families: ['quotes'],
+    only: ['quotes.emoji.right-quote-with-a-rocket-is-found'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        quotes: (store, files) => {
+          const got = base.quotes(store, files);
+          const holds = store.variables.some((v) =>
+            v.values.some((x) =>
+              (x.provenance ?? []).some((p) => p.kind === 'quote' && /\p{Extended_Pictographic}/u.test(p.quote)),
+            ),
+          );
+          return holds && got.errors.length === 0
+            ? { errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' }] }
+            : got;
+        },
+      },
+    }),
+  },
+  {
+    name: 'a boundary that quotes a passage makes no rule',
+    families: ['strength'],
+    only: ['plan.rules.boundary-quote-joins-its-rule', 'plan.rules.quotes-with-other-spacing-are-one-passage'],
+    make: flag(() => {
+      plannerMutation.ignoreBoundaryQuotes = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'a passage is named by the exact text of its quote, white space included',
+    families: ['strength'],
+    only: ['plan.rules.quotes-with-other-spacing-are-one-passage'],
+    make: flag(() => {
+      plannerMutation.exactPassages = true;
+    }, resetPlanner),
   },
   {
     name: 'quotes reports the right number of wrong quotes at the wrong place at scale',

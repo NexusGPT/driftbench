@@ -274,6 +274,7 @@ export {
   validateProposal,
   valueApproved,
   verifyQuotes,
+  checkVariableQuotes,
   verifyVariableQuotes,
   viewSources,
 } from './extract';

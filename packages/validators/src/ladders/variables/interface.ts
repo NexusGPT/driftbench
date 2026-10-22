@@ -53,6 +53,11 @@ export type StoreBoundary = {
   limit?: number;
   comparison?: 'lt' | 'le' | 'gt' | 'ge';
   unit?: string;
+  /**
+   * Where the condition comes from. A boundary that quotes a passage belongs to the rule of that passage, as a value
+   * that quotes it does (docs/variables.md "What the rows cover").
+   */
+  provenance?: Provenance[];
 };
 
 export type StoreVariable = {

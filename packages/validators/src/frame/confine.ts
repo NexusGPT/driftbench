@@ -325,6 +325,13 @@ function workspaceSources(base: string): string[] {
 }
 
 /**
+ * What a seal is built with: `sources` are folders besides the product's own that the bundle may be built from,
+ * `reads` are data files the confined runs may read, and `refuse` are folders of the validator that the product must
+ * not import even when they sit inside its own tree: the bank that holds the expected values.
+ */
+export type Seal = { sources?: readonly string[]; reads?: readonly string[]; refuse?: readonly string[] };
+
+/**
  * Bundles the product module with all it imports into `${into}/${name}.mjs`. The folder holds nothing else of the
  * project, so a run that may read only this folder has the product and nothing around it. The bundle is built only
  * from code of the product's own source tree, the extra trees named in `sources`, and the packages in a
@@ -337,7 +344,7 @@ export function seal(
   module: string,
   into: string,
   name: string,
-  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+  grants: Seal = {},
 ): Sealed {
   if (!SOURCE.has(extname(module)))
     throw new FrameError(`the product ${module} is not a script the frame can bundle`);
@@ -377,7 +384,14 @@ export function seal(
   const workspace = workspaceSources(base);
   const trees = [tree, ...(grants.sources ?? []).map((path) => realOf(resolve(path))), ...workspace];
   const granted = (grants.reads ?? []).map((path) => realOf(resolve(path)));
+  const refused = (grants.refuse ?? []).map((path) => realOf(resolve(path)));
   for (const input of inputs) {
+    // A file of the validator's bank is never part of the product, wherever the product's tree reaches.
+    const barred = refused.find((folder) => under(input, folder));
+    if (barred)
+      throw new FrameError(
+        `the product imports ${input}, a file of the validator under ${barred}: the validator's own files are not part of the product`,
+      );
     // A package of node_modules is a dependency; the project's cache folder inside it is not.
     if (/[\\/]node_modules[\\/](?!\.cache[\\/])/.test(input)) continue;
     const isGranted = granted.some((folder) => under(input, folder));
@@ -418,13 +432,15 @@ const SEALS = new Map<string, SealRecord>();
 
 const sealKey = (
   module: string,
-  grants: { sources?: readonly string[]; reads?: readonly string[] },
+  grants: Seal,
 ): string =>
   [
     realOf(resolve(module)),
     ...(grants.sources ?? []).map((path) => resolve(path)),
     '|',
     ...(grants.reads ?? []).map((path) => resolve(path)),
+    '|',
+    ...(grants.refuse ?? []).map((path) => resolve(path)),
   ].join('\0');
 
 /** Forgets every sealed product of this process: a test that rewrites a product and wants the new code bundled. */
@@ -535,7 +551,7 @@ export function sealOnce(
   module: string,
   into: string,
   name: string,
-  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+  grants: Seal = {},
   given?: SealDescriptor,
 ): Sealed {
   mkdirSync(into, { recursive: true });
@@ -599,7 +615,7 @@ export function sealOnce(
 export function describeSeal(
   module: string,
   folder: string,
-  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+  grants: Seal = {},
 ): SealDescriptor {
   const sealed = sealOnce(module, folder, 'sealed', grants);
   const record = SEALS.get(sealKey(module, grants)) as SealRecord;

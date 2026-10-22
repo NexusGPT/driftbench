@@ -100,7 +100,7 @@ describe('the blind variables bank', () => {
         m[1] as string,
         (m[2] as string).split(',').map((x) => x.trim()),
       );
-    const sections = ['Provenance', 'Limits', 'Values', 'Boundaries', 'Impossible', 'Approval'];
+    const sections = ['Provenance', 'Limits', 'Values', 'Boundaries', 'Impossible', 'Approval', 'Planning'];
     for (const stem of BLIND_STEMS) {
       const row = rows.get(stem.family);
       expect(row, `no row for ${stem.family} in Rules by bank family`).toBeTruthy();

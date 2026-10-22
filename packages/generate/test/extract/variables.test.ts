@@ -12,6 +12,7 @@ import {
 } from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
+  checkVariableQuotes,
   loadProposal,
   Proposal,
   proposalToVariables,
@@ -320,6 +321,67 @@ describe('verifyVariableQuotes', () => {
     expect(issues.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
       'VARIABLES_SOURCE_UNREADABLE variables.0.values.0.provenance.0.path',
     ]);
+  });
+});
+
+describe('checkVariableQuotes', () => {
+  const store = (...paths: Array<[path: string, quote: string]>): VariableStore =>
+    ({
+      format: 1,
+      agent: 'demo',
+      version: '1',
+      prior: { kind: 'declared' },
+      variables: [
+        {
+          id: 'v',
+          title: 'V',
+          kind: 'data',
+          role: 'axis',
+          approved: true,
+          values: paths.map(([path, quote], index) => ({
+            id: `x${index}`,
+            title: `X${index}`,
+            provenance: [{ kind: 'quote', path, quote }],
+          })),
+        },
+      ],
+      constraints: [],
+    }) as unknown as VariableStore;
+
+  const files = { 'a.md': 'Keep each reply short.\nClose with \u{1F680} and a check.', 'sub/b.md': 'Second file.' };
+  const codes = (issues: Array<{ code: string; path: string }>) =>
+    issues.map((issue) => `${issue.code} ${issue.path}`);
+
+  it('gives the issues verifyVariableQuotes gives for a folder that holds the same files', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-check-quotes-'));
+    for (const [name, text] of Object.entries(files)) {
+      await mkdir(dirname(join(dir, name)), { recursive: true });
+      await writeFile(join(dir, name), text);
+    }
+    const target = store(
+      ['a.md', 'Keep each reply short.'],
+      ['a.md', 'Keep each reply brief.'],
+      ['a.md', 'Close with \u{1F680} and a check.'],
+      ['a.md', 'Close with \u{1F680} and a cross.'],
+      ['sub/b.md', 'Second file.'],
+      ['gone.md', 'One.'],
+      ['gone.md', 'Two.'],
+    );
+    const fromFolder = await verifyVariableQuotes(target, dir);
+    const fromText = checkVariableQuotes(target, files);
+    expect(codes(fromText)).toEqual(codes(fromFolder));
+    expect(codes(fromText)).toEqual([
+      'VARIABLES_SOURCE_UNREADABLE variables.0.values.5.provenance.0.path',
+      'VARIABLES_QUOTE_NOT_FOUND variables.0.values.1.provenance.0.quote',
+      'VARIABLES_QUOTE_NOT_FOUND variables.0.values.3.provenance.0.quote',
+    ]);
+  });
+
+  it('reads a path as a path of the folder: a leading ./ is the same file, a path out of it is no file', () => {
+    expect(codes(checkVariableQuotes(store(['./a.md', 'Keep each reply short.']), files))).toEqual([]);
+    expect(
+      codes(checkVariableQuotes(store(['../a.md', 'Keep each reply short.']), { '../a.md': 'Keep each reply short.' })),
+    ).toEqual(['VARIABLES_SOURCE_UNREADABLE variables.0.values.0.provenance.0.path']);
   });
 });
 

@@ -77,7 +77,8 @@ export const SCALE: readonly StemDef[] = [
     family: 'scale',
     component: 'store/estate',
     need: 'H4',
-    generator: '200, 2,000 and 10,000 condition spans with distinct nouns, spread over 20 files of 100 KB.',
+    generator:
+      '200, 2,000 and 10,000 condition spans with distinct nouns, each worded in any of the ways the comparison has (drawn per span from the seed), spread over 20 files of 100 KB.',
     oracle:
       'The store holds one variable per noun with three values each, no refusal; at most 10 s of processor time at 2,000 spans, 30 s at 10,000.',
     cause: 'reading the estate is linear in spans and file size',

@@ -86,6 +86,7 @@ export function contextFor(
   root: string,
   impl: Partial<VariablesImpl>,
   implModule?: string,
+  watch?: ItemContext['watch'],
 ): ItemContext {
   return {
     seed,
@@ -94,6 +95,7 @@ export function contextFor(
     id: item.id,
     rng: itemRng(seed, item.id),
     ...(implModule ? { implModule } : {}),
+    ...(watch ? { watch } : {}),
   };
 }
 
@@ -104,9 +106,10 @@ export async function runItem(
   root: string,
   impl: Partial<VariablesImpl>,
   implModule?: string,
+  watch?: ItemContext['watch'],
 ): Promise<ItemOutcome> {
   try {
-    return await item.check(contextFor(item, seed, root, impl, implModule));
+    return await item.check(contextFor(item, seed, root, impl, implModule, watch));
   } catch (cause) {
     const error = cause instanceof Error ? cause : new Error(String(cause));
     return { pass: false, detail: `the item threw ${error.name}: ${error.message}` };

@@ -1,3 +1,4 @@
+import type { Ambient } from '../../../frame';
 import type {
   CoverageResult,
   FileStore,
@@ -31,6 +32,12 @@ export type ItemContext = {
   root: string;
   /** The item's own stream of draws. */
   rng: Rng;
+  /**
+   * What an item may ask of the process that runs the product when it runs apart from the bank (the frame, docs/validators.md
+   * section 12.9); absent when the product runs in this process. `ambient` runs the calls it makes under the given clock or
+   * random sources.
+   */
+  watch?: { ambient<R>(specs: readonly Ambient[], run: () => R): R };
   /** The item id. */
   id: string;
 };

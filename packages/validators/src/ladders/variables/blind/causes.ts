@@ -1028,4 +1028,69 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['absent-list-and-empty-list-agree'],
     ],
   ]),
+  'weights.interval-refuses': table([
+    ['a count above the total is refused with a RangeError', ['count-above-total', 'count-one-above-total']],
+    ['a negative count is refused with a RangeError', ['negative-count']],
+    ['a total below 1 is refused with a RangeError', ['total-below-one']],
+    ['a count that is not a whole number is refused with a RangeError', ['fractional-count']],
+  ]),
+  'counter.many-rows': table([
+    [
+      'the covered tuples of 20,000 full rows are counted exactly',
+      ['twenty-thousand-full-rows', 'twenty-thousand-rows-repeating-a-few'],
+    ],
+    ['the covered tuples of 20,000 partial rows are counted exactly', ['twenty-thousand-partial-rows']],
+    ['the covered tuples of 60,000 full rows are counted exactly', ['sixty-thousand-full-rows']],
+  ]),
+  'counter.constraints': table([
+    [
+      'a forbid that is not approved excludes no pair from the allowed tuples',
+      ['unapproved-forbid-excludes-nothing'],
+    ],
+    ['an approved forbid excludes its pair from the allowed tuples', ['approved-forbid-excludes-its-pair']],
+    [
+      'a forbid with no approval flag is approved and excludes its pair',
+      ['forbid-without-a-flag-is-approved'],
+    ],
+    [
+      'a forbid of three cells that is not approved excludes no tuple from the allowed tuples',
+      ['unapproved-three-cell-forbid-excludes-nothing'],
+    ],
+    [
+      'an approved forbid of three cells excludes its tuple from the allowed tuples',
+      ['approved-three-cell-forbid-excludes-its-tuple'],
+    ],
+  ]),
+  'quotes.large-file': table([
+    [
+      'a wrong quote at the end of a five-megabyte file is reported',
+      ['wrong-quote-at-the-end-of-five-megabytes-is-reported'],
+    ],
+    [
+      'a right quote at the end of a five-megabyte file is found',
+      ['right-quote-at-the-end-of-five-megabytes-is-found'],
+    ],
+    ['a wrong quote in a ten-megabyte file is reported', ['wrong-quote-in-ten-megabytes-is-reported']],
+  ]),
+  'quotes.emoji': table([
+    ['a quote that holds an emoji and sits in its file is found', ['right-quote-with-a-rocket-is-found']],
+    [
+      'a quote that holds an emoji and is not in its file is reported',
+      [
+        'wrong-quote-with-a-rocket-is-reported',
+        'wrong-quote-with-a-check-mark-is-reported',
+        'wrong-quote-with-the-other-emoji-is-reported',
+      ],
+    ],
+  ]),
+  'plan.rules': table([
+    [
+      'a boundary that quotes a passage belongs to the rule of that passage',
+      ['boundary-quote-joins-its-rule'],
+    ],
+    [
+      'quotes of one passage written with other white space name the same rule',
+      ['quotes-with-other-spacing-are-one-passage'],
+    ],
+  ]),
 };

@@ -67,6 +67,15 @@ function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
 }
 
+/** Ambient state a call can be held under: the random sources throw, or the clock stands at a given millisecond. */
+export type Ambient = { kind: 'random' } | { kind: 'crypto' } | { kind: 'clock'; at: number };
+
+/**
+ * What the confined runs check around a call: 'mutation' - the arguments must read as they did before the call;
+ * 'sharing' - the result must hold no object of the arguments and none of an earlier guarded result.
+ */
+export type Guard = 'mutation' | 'sharing';
+
 /** What the validator keeps of an answer before the two runs are compared, by export name. */
 export type Keep = Record<string, (value: unknown) => unknown>;
 
@@ -98,6 +107,18 @@ export type IsolateOptions = {
    */
   aliasing?: boolean;
   /**
+   * The exports of the product module that may hold its functions as an object, tried in order: a module that
+   * exports `variablesImpl = { buildStore, ... }` is called as `product.buildStore(...)`. Default: the module's own
+   * exports.
+   */
+  members?: string[];
+  /**
+   * Keep the identity of the objects the caller passes (default false). An object the caller passes in a later call
+   * reaches the product as the same object, filled again with what the caller holds now, until `forget()`: a product
+   * that keeps a cache keyed by the object it was given sees the same key and the edits made in place.
+   */
+  identity?: boolean;
+  /**
    * The bundle the invocation sealed (confine.ts `describeSeal`), when this frame runs in a child process of the
    * invocation: the frame runs that bundle, after checking its hash, and builds none.
    */
@@ -107,6 +128,11 @@ export type IsolateOptions = {
    * imports). A file outside the product's tree and these folders is refused when the product is bundled.
    */
   sources?: string[];
+  /**
+   * Folders of the validator that the product must not import, even when they sit inside its own tree (the bank and
+   * its oracles). An import from one refuses the bundle with the file named.
+   */
+  refuse?: string[];
   /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
@@ -138,6 +164,17 @@ export type Frame<T> = {
   divergenceSince(from: number): string | undefined;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
+  /** The first guarded call from the tape position `from` on that changed an argument or returned a shared object. */
+  guardSince(from: number): string | undefined;
+  /** Ends the identity of the objects passed so far: the next call passes every object as a new one. */
+  forget(): void;
+  /** Runs `run` with the calls it makes held under the ambient state (the clock, the random sources). */
+  ambient<R>(specs: readonly Ambient[], run: () => R): R;
+  /**
+   * Runs `run` with the calls it makes guarded: an argument must not change, a result must share nothing. `names`
+   * limits the sharing guard to the functions named.
+   */
+  guarded<R>(kinds: readonly Guard[], run: () => R, names?: readonly string[]): R;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
   tainted(): string | undefined;
   /** Ends both runs and removes their files. */
@@ -182,7 +219,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string };
+  codecNames: { encode: string; decode: string; handles: string; pin: string; under: string };
   count: number;
   /** The file of the calls run C makes, one JSON line each, in the order they were made. */
   calls: string;
@@ -243,6 +280,7 @@ function plainRunAll(
   tag: string,
   module: string,
   count: number,
+  members: readonly string[],
 ): Array<Outcome | { dead: string }> {
   plain.count += 1;
   const stem = `${tag.length.toString(36)}${plain.count}`;
@@ -261,6 +299,7 @@ function plainRunAll(
         out: pathToFileURL(out).href,
       },
       plain.codecNames,
+      members,
     ),
   );
   const ran = spawnGrouped(
@@ -305,6 +344,25 @@ const outcomeText = (outcome: Outcome | { dead: string }) =>
       ? `threw ${shortText(outcome.throws, 80)}`
       : shortText(outcome.ret, 80);
 
+const frozenObject = (arg: unknown): boolean =>
+  arg !== null && typeof arg === 'object' && Object.isFrozen(arg);
+
+/** Runs `run` between `enter` and `leave`; a run that returns a promise leaves when the promise settles. */
+function scoped<R>(enter: () => void, leave: () => void, run: () => R): R {
+  enter();
+  let out: R;
+  try {
+    out = run();
+  } catch (cause) {
+    leave();
+    throw cause;
+  }
+  if (out !== null && typeof out === 'object' && typeof (out as { then?: unknown }).then === 'function')
+    return (out as unknown as Promise<unknown>).finally(leave) as unknown as R;
+  leave();
+  return out;
+}
+
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
@@ -322,7 +380,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     module,
     sealFolder,
     drawnFolder(options.seed, `bundle:${tag}`),
-    { sources: options.sources ?? [], reads: options.reads ?? [] },
+    { sources: options.sources ?? [], reads: options.reads ?? [], refuse: options.refuse ?? [] },
     options.sealed,
   );
   // Run C is unconfined and can read the expected values: a file it wrote would reach the confined runs of a later
@@ -365,13 +423,23 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     );
     if (!plan.wrap) return confined;
     // Run D reaches the product through a wrapper module of the run's own folder.
-    const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
+    const wrapper = wrapperModule(
+      options.seed,
+      `${tag}:${plan.run}`,
+      pathToFileURL(sealed).href,
+      options.members ?? [],
+    );
     const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
     writeFileSync(file, wrapper.source);
     return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
-  const setup = { token, module: sealed, aliasing: options.aliasing === true };
+  const setup = {
+    token,
+    module: sealed,
+    aliasing: options.aliasing === true,
+    ...(options.members ? { members: options.members } : {}),
+  };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
@@ -391,6 +459,24 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   const aliased: Array<{ at: number; message: string }> = [];
+  const guardFound: Array<{ at: number; message: string }> = [];
+  // The identity of the objects the caller passes (option `identity`), the pending end of it, and the state a call is held under.
+  let identityIds = new WeakMap<object, number>();
+  let nextId = 0;
+  let pendingForget = false;
+  let ambientNow: Ambient[] = [];
+  let guardNow: Guard[] = [];
+  let guardNames: readonly string[] | undefined;
+  const idOf = (arg: unknown): number | null => {
+    if (arg === null || typeof arg !== 'object') return null;
+    let id = identityIds.get(arg);
+    if (id === undefined) {
+      nextId += 1;
+      id = nextId;
+      identityIds.set(arg, id);
+    }
+    return id;
+  };
   let first: string | undefined;
   let taint: string | undefined;
   let closed = false;
@@ -457,7 +543,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const flushPlain = (): void => {
     if (!plain || compared >= recorded.length) return;
     const t3 = performance.now();
-    const answers = plainRunAll(plain, options.seed, tag, module, recorded.length);
+    const answers = plainRunAll(plain, options.seed, tag, module, recorded.length, options.members ?? []);
     spent.plainMs += performance.now() - t3;
     for (let index = compared; index < recorded.length; index += 1) {
       const held = recorded[index] as Recorded;
@@ -484,7 +570,19 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent });
+    const extra = {
+      ...(options.identity ? { ids: args.map(idOf) } : {}),
+      ...(pendingForget ? { forget: true } : {}),
+      ...(args.some(frozenObject) ? { frozen: args.map(frozenObject) } : {}),
+      ...(ambientNow.length > 0 ? { ambient: ambientNow } : {}),
+    };
+    pendingForget = false;
+    relay.port.postMessage({
+      call: name,
+      args: sent,
+      ...extra,
+      ...(guardNow.length > 0 ? { guard: guardNow, ...(guardNames ? { guardNames } : {}) } : {}),
+    });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
@@ -524,13 +622,35 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
           message: `${name}() returned a result that is a Proxy, or holds a Proxy or an accessor property (a getter or a setter) (${describeRun(plan as TwinPlan)}): an invalid result, since each runs the product's own code on every read`,
         });
     }
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      const mutated = (each as { mutated?: number[] }).mutated;
+      if (mutated && mutated.length > 0)
+        guardFound.push({
+          at: tape.length,
+          message: `${name}() changed ${mutated.map((index) => `argument ${index + 1}`).join(' and ')} (${describeRun(plan as TwinPlan)}): a call must leave what it is given as it was`,
+        });
+      const shared = (each as { shared?: string }).shared;
+      if (shared)
+        guardFound.push({
+          at: tape.length,
+          message: `${name}() returned a result that holds an object of ${shared === 'input' ? 'its arguments' : 'an earlier result'} (${describeRun(plan as TwinPlan)}): a result must be built new`,
+        });
+    }
     const {
       moved: _moved,
       invalid: _invalid,
+      mutated: _mutated,
+      shared: _shared,
       ...answer
     } = a as Outcome & {
       moved?: string[];
       invalid?: boolean;
+      mutated?: number[];
+      shared?: string;
     };
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
@@ -557,7 +677,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if (plain) {
       // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
+      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, ...extra })}\n`);
       recorded.push({
         call: name,
         entry,
@@ -612,6 +732,38 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
     aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
+    guardSince: (from) => guardFound.find((each) => each.at >= from)?.message,
+    forget: () => {
+      identityIds = new WeakMap();
+      pendingForget = true;
+    },
+    ambient: (specs, run) => {
+      const saved = ambientNow;
+      return scoped(
+        () => {
+          ambientNow = [...saved, ...specs];
+        },
+        () => {
+          ambientNow = saved;
+        },
+        run,
+      );
+    },
+    guarded: (kinds, run, names) => {
+      const saved = guardNow;
+      const savedNames = guardNames;
+      return scoped(
+        () => {
+          guardNow = [...new Set([...saved, ...kinds])];
+          guardNames = names;
+        },
+        () => {
+          guardNow = saved;
+          guardNames = savedNames;
+        },
+        run,
+      );
+    },
     tainted: () => {
       flushPlain();
       return taint;

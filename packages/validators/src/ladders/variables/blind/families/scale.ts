@@ -179,16 +179,37 @@ function lettersOf(i: number): string {
   return out;
 }
 
+/**
+ * How an English condition compares a quantity with a limit, by comparison. Each span of the estate draws its wording
+ * from all of them, and the drawing follows the seed, so a pattern written for one wording reads a part of the spans
+ * on any seed and fails the item (the cheater audit of the variables bank, a regular expression written for the
+ * wording of the fixtures passed the span items).
+ */
+const SPAN_WORDINGS: ReadonlyArray<readonly [phrase: string, cmp: 'gt' | 'ge' | 'lt' | 'le']> = [
+  ['is more than', 'gt'],
+  ['is over', 'gt'],
+  ['exceeds', 'gt'],
+  ['is greater than', 'gt'],
+  ['is at least', 'ge'],
+  ['is no less than', 'ge'],
+  ['is under', 'lt'],
+  ['is below', 'lt'],
+  ['is fewer than', 'lt'],
+  ['is at most', 'le'],
+  ['is no more than', 'le'],
+];
+
 function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
   const files: Record<string, string[]> = {};
   const rules: NonNullable<Sources['estate']>['rules'] = [];
   for (let i = 0; i < count; i += 1) {
     const path = `docs/file${i % 20}.md`;
+    const [phrase, cmp] = ctx.rng.pick(SPAN_WORDINGS);
     const text = numeric(
-      `the quantity ${lettersOf(i)} is more than ${(i % 90) + 5} days`,
+      `the quantity ${lettersOf(i)} ${phrase} ${(i % 90) + 5} days`,
       `the quantity ${lettersOf(i)}`,
       (i % 90) + 5,
-      'gt',
+      cmp,
     );
     const lines = files[path] ?? [];
     files[path] = lines;

@@ -25,9 +25,18 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  ignoreBoundaryQuotes: false,
+  exactPassages: false,
+  acceptUnapprovedForbids: false,
+  acceptOutOfDomainInterval: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
+  if (!mutation.acceptOutOfDomainInterval) {
+    if (!Number.isInteger(count) || count < 0) throw new RangeError(`count must be a whole number from 0, got ${count}`);
+    if (!Number.isInteger(total) || total < 1) throw new RangeError(`total must be a whole number from 1, got ${total}`);
+    if (count > total) throw new RangeError(`count ${count} is above the total ${total}`);
+  }
   const p = count / total;
   const d = 1 + (Z * Z) / total;
   const centre = (p + (Z * Z) / (2 * total)) / d;
@@ -93,7 +102,7 @@ function spaceOf(store: StoreDoc): Space {
     forbids.push(cells);
   };
   for (const f of store.forbids ?? []) {
-    if (f.approved === false) continue;
+    if (f.approved === false && !mutation.acceptUnapprovedForbids) continue;
     const cells = Object.entries(f.forbid).map(([k, x]) => cellOf(k, x));
     if (cells.length > 0 && cells.every((c) => c !== undefined)) addForbid(cells as Array<[number, number]>);
   }
@@ -108,6 +117,24 @@ function spaceOf(store: StoreDoc): Space {
       ...new Set(r.variables.map((id) => index.get(id)).filter((i): i is number => i !== undefined)),
     ];
     if (own.length > 0) rules.push(own);
+  }
+  // A boundary that quotes a passage belongs to the rule of that passage (docs/variables.md "What the rows cover").
+  if (!mutation.ignoreBoundaryQuotes) {
+    const passages = new Map<string, Set<number>>();
+    for (const v of store.variables) {
+      const at = index.get(v.id);
+      if (at === undefined) continue;
+      for (const b of v.boundaries ?? []) {
+        for (const p of b.provenance ?? []) {
+          if (p.kind !== 'quote') continue;
+          const key = `${p.path}\n${mutation.exactPassages ? p.quote : p.quote.replace(/\s+/g, ' ').trim()}`;
+          const set = passages.get(key) ?? new Set<number>();
+          set.add(at);
+          passages.set(key, set);
+        }
+      }
+    }
+    for (const set of passages.values()) rules.push([...set].sort((a, b) => a - b));
   }
   return {
     ids,
