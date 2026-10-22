@@ -531,7 +531,7 @@ export const replayRuns: Record<string, Run> = {
       cassette: { mode: 'record' },
     });
     const reported =
-      !failedRun.ok || failedRun.diagnostics.some((d) => d.window === 'notes/b.md#1' && d.code !== '');
+      !failedRun.ok || failedRun.diagnostics.some((d) => d.code === 'failed-window');
     if (!reported)
       return fail('a transport failure was reported neither as a failed scan nor as a failed window');
     const entries = lines(failedRun.cassette ?? '');

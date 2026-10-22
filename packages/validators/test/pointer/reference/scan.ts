@@ -233,7 +233,7 @@ export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
           if (outcome.failed) {
             diagnostics.push({
-              code: 'window_failed',
+              code: 'failed-window',
               window: plan.id,
               detail: `the window ${plan.id} was refused twice: ${outcome.failed}`,
             });
