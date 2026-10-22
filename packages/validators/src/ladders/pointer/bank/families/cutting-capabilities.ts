@@ -117,10 +117,15 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
     const p = prose(ctx);
     const head = headingText(p.random);
     const a = p.next();
-    return plantedCut(ctx, 'the heading path of a container directive', `# ${head}\n\n:::warning\n${a}\n:::\n`, [
-      { text: `# ${head}`, container: 'heading', path: [] },
-      { text: a, container: 'sentence', path: [head, 'warning'] },
-    ]);
+    return plantedCut(
+      ctx,
+      'the heading path of a container directive',
+      `# ${head}\n\n:::warning\n${a}\n:::\n`,
+      [
+        { text: `# ${head}`, container: 'heading', path: [] },
+        { text: a, container: 'sentence', path: [head, 'warning'] },
+      ],
+    );
   },
   'math-block-opaque': (ctx) => {
     const b = prose(ctx).next();

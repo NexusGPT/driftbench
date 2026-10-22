@@ -5,8 +5,9 @@ import { pointerBank } from '../../src/ladders/pointer/bank';
 import { realReader } from '../../src/ladders/pointer/sut/reader';
 
 // The capability items of 2026-10-23 fail on the shared ItemFailure: every failure they raise must be structured and
-// must not repeat the planted value (docs/validators.md section 12, "What a failure message says"). The reader is
-// the real one with its last cut unit dropped, so every cut item fails whatever the reader has learned.
+// must not repeat the planted value (docs/validators.md section 12, "What a failure message says"). Cut items run
+// on the real reader with its last cut unit dropped, so each fails whatever the reader has learned; re-anchoring
+// items run on the real reader itself (its scan checks the cut it is given).
 const CAPABILITY =
   /^cutting\.(footnote|alert|front-matter|sentence-terminal|thai|directive|math)|^re-anchoring\.(cross-file|renamed-file|table-)/;
 
@@ -24,7 +25,8 @@ it('the capability items raise structured failures that do not leak the planted 
   const failures: Array<{ item: string; error: unknown }> = [];
   for (const item of items) {
     try {
-      await item.run({ seed: 1, id: item.id, sut, rng: rngFor(1, item.id) });
+      const reader = item.family === 'cutting' ? sut : base;
+      await item.run({ seed: 1, id: item.id, sut: reader, rng: rngFor(1, item.id) });
     } catch (error) {
       failures.push({ item: item.id, error });
     }
