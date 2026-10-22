@@ -668,7 +668,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   /**
    * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
    * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
-   * group of its own. When a group holds more than half of the runs heard, the label most of its runs gave wins. A tie
+   * group of its own for each target it names. When a group holds more than half of the runs heard, the label most of its runs gave wins. A tie
    * inside a group that builds an atom stays a split (an obligation against a prohibition builds two different
    * atoms); inside the group that builds none, the earliest run's label stands. A split between atom kinds (a reply rule
    * against a rule) stays a split: no group holds the majority, and the unit stays unlabeled.
@@ -683,15 +683,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   ): { winners?: Opinion[]; tiedInKind: boolean } => {
     // A set whose labels build no atom (the document roles) has no kinds to vote by: its splits stay splits.
     if (!set.labels.some((label) => label.atom)) return { tiedInKind: false };
-    // A label that points at another unit (a condition) acts through its target, so it is a group of its own.
-    const kindOf = (label: string) => {
+    // A label that points at another unit (a condition) acts through its target: each label and target is a group of
+    // its own, so runs that name different targets never vote together.
+    const kindOf = (label: string, target?: number) => {
       const declared = set.labels.find((candidate) => candidate.name === label);
-      if (declared?.target) return `(label ${label})`;
+      if (declared?.target) return `(label ${label} ${target ?? ''})`;
       return declared?.atom?.kind ?? '(no atom)';
     };
     const byKind = new Map<string, Opinion[]>();
     for (const opinion of present) {
-      const kind = kindOf(opinion.label);
+      const kind = kindOf(opinion.label, opinion.target);
       byKind.set(kind, [...(byKind.get(kind) ?? []), opinion]);
     }
     const group = [...byKind.values()].find((members) => members.length * 2 > heard);

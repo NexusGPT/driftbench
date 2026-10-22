@@ -10,7 +10,6 @@ Added:
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Changed, white space only:
   ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
-      also: situation, evidence, fields
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
