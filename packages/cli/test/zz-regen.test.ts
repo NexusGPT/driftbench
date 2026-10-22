@@ -46,7 +46,7 @@ it('regenerates the committed outputs', async () => {
   await cli(['estate', 'approve', `${F}/map.yaml`, '--all', '--to', `${F}/approved.yaml`]);
   await cli(['estate', 'approve', `${C}/map.yaml`, '--all', '--to', `${C}/approved.yaml`]);
   await cli(['estate', 'map', `${F}/approved.yaml`, '--to', `${F}/space.yaml`, '--agent', 'northwind']);
-  await cli(['estate', 'plan', `${F}/approved.yaml`, '--space', `${F}/space.yaml`, '--out', `${F}/plan.yaml`]);
+  await cli(['estate', 'plan', `${F}/approved.yaml`, '--space', `${F}/space.yaml`, '--out', `${F}/plan.yaml`, '--force']);
   const planner = 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml';
   const old = (await readFile(join(ROOT, planner), 'utf8')).split('\n').slice(0, 3);
   const fresh = (await readFile(join(ROOT, F, 'plan.yaml'), 'utf8')).split('\n');

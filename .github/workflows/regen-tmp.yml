@@ -27,6 +27,8 @@ jobs:
         run: pnpm exec vitest run packages/cli/test/zz-regen.test.ts --maxWorkers=1
       - name: Format the data files
         run: pnpm exec biome format --write examples/estates/fixture-v2/maintain packages/cli/test/zz-regen.test.ts || true
+      - name: Fix formatting of the PR source files
+        run: pnpm exec biome check --write packages/generate/src/estate/build-row.ts packages/estate/src/plan/contract.ts packages/estate/src/pointer/atoms.ts packages/estate/test/plan/section-mates.test.ts packages/generate/test/estate/co-located-links.test.ts || true
       - name: Lint errors of the PR files
         run: pnpm exec biome check --diagnostic-level=error --max-diagnostics=1000 packages/estate/src packages/estate/test packages/generate/src packages/generate/test packages/cli/test || true
       - name: Pack the changes
