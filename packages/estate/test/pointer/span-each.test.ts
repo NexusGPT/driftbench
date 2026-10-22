@@ -192,6 +192,16 @@ describe('a mapping that builds one atom for each act span, with the file span l
     expect(atomRefusals.length).toBeGreaterThan(0);
   });
 
+  it('does not take a code span in a link title for a path', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read [`archive/docs/ledger.md`](docs/ledger.md).',
+      [{ act: 'editing a ledger', file: '`archive/docs/ledger.md`' }],
+      ['docs/ledger.md', 'archive/docs/ledger.md'],
+    );
+    expect(found).toEqual([]);
+    expect(atomRefusals.length).toBeGreaterThan(0);
+  });
+
   it('accepts a file span written without the marks around the path', async () => {
     const { found } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',
