@@ -355,12 +355,19 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
             );
         }
         if (reread.length === 0 && calls.length === 0 && !retry) {
-          gap(
-            then,
-            MARKERS.registered,
-            atom,
-            'hazard_recovery requires declared reread, calls or retry evidence',
-          );
+          // Nobody declared what the recovery is, and code does not read it from the words of the rule. With a judge
+          // the rule's own words become a criterion, and the check keeps only what every recovery shares: the agent
+          // goes on after the event and does nothing destructive. Without a judge the row waits.
+          if (!ctx.judge) {
+            gap(
+              then,
+              MARKERS.registered,
+              atom,
+              'hazard_recovery requires declared reread, calls or retry evidence',
+            );
+            return;
+          }
+          judgeRule(then, atom, 'positive');
           return;
         }
         // Valid source requirements remain intact; malformed siblings keep the row incomplete.
