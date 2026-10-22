@@ -21,10 +21,11 @@ function stub(
   seed: number,
   mutate?: (response: Json, io: PointerIO, probe: Probe) => unknown,
   /** The body a scripted fetch sends instead of the clean one. */
-  fetchBody?: (probe: Probe) => Json,
+  fetchBody?: (probe: Probe, index: number) => Json,
 ): PointerAdapter {
   const probes = item.generate(seed).probes;
   let i = 0;
+  let fetches = 0;
   return {
     async execute(request, io) {
       const p = probes[i++];
@@ -36,7 +37,7 @@ function stub(
             io.readKey();
             break;
           case 'fetch':
-            await io.fetch({ body: fetchBody ? fetchBody(p) : (effect.value ?? null) });
+            await io.fetch({ body: fetchBody ? fetchBody(p, fetches++) : (effect.value ?? null) });
             break;
           case 'cache':
             io.readCassette();
@@ -60,8 +61,8 @@ function stub(
 
 describe('blind pointer bank harness', () => {
   it('has 341 unique items, at least 30 per requested family, every tier and level, causes and citations', () => {
-    expect(bank).toHaveLength(342);
-    expect(new Set(bank.map((i) => i.id)).size).toBe(342);
+    expect(bank).toHaveLength(343);
+    expect(new Set(bank.map((i) => i.id)).size).toBe(343);
     const families = [
       'cutting',
       'ids',
@@ -77,13 +78,13 @@ describe('blind pointer bank harness', () => {
     ];
     for (const family of families)
       expect(bank.filter((i) => i.family === family)).toHaveLength(
-        family === 'labels' ? 40 : family === 'adversarial' || family === 'privacy' ? 31 : 30,
+        family === 'labels' ? 40 : family === 'adversarial' ? 31 : family === 'privacy' ? 32 : 30,
       );
     for (const n of [1, 2, 3, 4, 5]) {
       expect(bank.some((i) => i.tier === n)).toBe(true);
       expect(bank.some((i) => i.level === n)).toBe(true);
     }
-    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 73, 72, 73]);
+    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 73, 73, 73]);
     for (const item of bank) {
       expect(item.cause.length).toBeGreaterThan(5);
       expect(item.design.length).toBeGreaterThan(0);
@@ -483,6 +484,7 @@ describe('blind pointer bank harness', () => {
       'privacy.fence.ci-miss',
       'privacy.fence.no-request',
       'privacy.fence.record',
+      'privacy.fence.second-request',
     ]);
     for (const item of bank.filter((i) => i.family === 'privacy'))
       for (const seed of [1, 2, 3]) {
@@ -490,12 +492,34 @@ describe('blind pointer bank harness', () => {
         expect(outcome.pass, item.id).toBe(true);
       }
     // Only the items that send a request can leak through it.
-    for (const item of opaque.filter((i) => /record$|no-request$/.test(i.id)))
+    for (const item of opaque.filter((i) => /record$|no-request$|second-request$/.test(i.id)))
       for (const seed of [1, 2, 3]) {
         const whole = stub(item, seed, undefined, (p) => (p.request.input as { source: Json }).source);
         const outcome = await runItem(item, seed, whole);
         expect(outcome.pass, `${item.id} seed ${seed}`).toBe(false);
       }
+  });
+
+  it('fails a key in the body of any request on every privacy item, and a leak in the second request only', async () => {
+    const sent = (item: BankItem) => item.generate(1).probes.some((p) => (p.sampleEffects ?? []).some((e) => e.kind === 'fetch'));
+    for (const item of bank.filter((i) => i.family === 'privacy' && sent(i))) {
+      const leaky = stub(item, 1, undefined, (p) => ({
+        messages: [{ role: 'user', content: String((p.setup as { key: string }).key) }],
+      }));
+      expect((await runItem(item, 1, leaky)).pass, item.id).toBe(false);
+    }
+    const item = bank.find((i) => i.id === 'privacy.fence.second-request') as BankItem;
+    for (const seed of [1, 2, 3]) {
+      expect((await runItem(item, seed, stub(item, seed))).pass, `honest ${seed}`).toBe(true);
+      const second = stub(item, seed, undefined, (p, index) =>
+        index === 1 ? (p.request.input as { source: Json }).source : { messages: [] },
+      );
+      expect((await runItem(item, seed, second)).pass, `second-only ${seed}`).toBe(false);
+      const first = stub(item, seed, undefined, (p, index) =>
+        index === 0 ? (p.request.input as { source: Json }).source : { messages: [] },
+      );
+      expect((await runItem(item, seed, first)).pass, `first-only ${seed}`).toBe(false);
+    }
   });
 
   it('fails a reader that never sends a request beside an opaque block, and one that sends one for a fence alone', async () => {
