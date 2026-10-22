@@ -290,3 +290,17 @@ plan:
     - [u3fof5lwue, pvpoflwzui, 24gupjkmw3]
     - [xalkekvnkq, igzesiei4c]
     - [f2lszyu7ak, yjskahdxy6]
+
+# 5. Units that take their number from another unit or a range, by gold id.
+refers_to:
+  - unit: 2nfri23ink             # the reply deadlines of the handoff table
+    to: { from: q6hrdkjhga, to: fs6zqfdxp7 }
+  - unit: 2wwl74onpb             # the chat and email length limits just before it
+    to: { from: qrpn6f4hwh, to: bqmc45hi3w }
+  - unit: fko2ua5tpt             # the reopen window of the sentence before
+    to: hykpyrtlha
+
+# 6. Standalone tables of numbers that no instruction points at, as a range of their cells.
+limits_table:
+  - { from: ls4xe277ue, to: v6tqzxlzqq }   # ticket tool calls
+  - { from: zzu22pt7no, to: 2zdwebsoay }   # ticket fields

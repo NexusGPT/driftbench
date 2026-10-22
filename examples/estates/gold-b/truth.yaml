@@ -215,3 +215,11 @@ plan:
     - [lcoi4jq5co, msp3hmr4kd, p4pkpnul4a]
     - [fbmm6pav4t, qpvok5x4q5, ebwykg53kb]
     - [a7faudg7cr, jomhopmzce, rfdkrhuali]
+
+# 5. Units that take their number from another unit or a range, by gold id.
+refers_to: []
+
+# 6. Standalone tables of numbers that no instruction points at, as a range of their cells.
+limits_table:
+  - { from: snywjstsdc, to: 25uvhimuu5 }   # file types
+  - { from: ltkvndwfdl, to: kzslvhb6rf }   # sandbox limits

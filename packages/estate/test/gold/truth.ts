@@ -31,6 +31,12 @@ const PlantedRule = z.strictObject({
   near_miss: z.string().min(1).optional(),
 });
 
+/** A run of units of one file, in file order, from `from` to `to`, both included. */
+const Range = z.strictObject({ from: Id, to: Id });
+
+/** A unit that takes its number from another unit or a range ("the table above", "after that"). */
+const RefersTo = z.strictObject({ unit: Id, to: z.union([Id, Range]) });
+
 const Plan = z.strictObject({
   cover: z.array(Id),
   exclude: z.array(Id),
@@ -45,6 +51,9 @@ const Truth = z.strictObject({
   scopes: z.array(Scope),
   planted_rules: z.array(PlantedRule).min(8).max(12),
   plan: Plan,
+  refers_to: z.array(RefersTo).default([]),
+  /** The cells of each standalone table of numbers that no instruction points at, as a range of cells. */
+  limits_table: z.array(Range).default([]),
 });
 export type Truth = z.infer<typeof Truth>;
 
@@ -123,6 +132,32 @@ export async function loadTruth(
     group.forEach((id, item) => {
       unitOf(`plan.same_row.${at}.${item}`, id);
     });
+  });
+  // A range is a run of one file in file order; the units of a range, or undefined when it is not one.
+  const rangeOf = (where: string, range: { from: string; to: string }): GoldUnit[] | undefined => {
+    const from = unitOf(`${where}.from`, range.from);
+    const to = unitOf(`${where}.to`, range.to);
+    if (!from || !to) return undefined;
+    if (from.file !== to.file || from.n > to.n) {
+      problems.push(`${where}: ${range.from} to ${range.to} is no run of one file in order`);
+      return undefined;
+    }
+    return [...byId.values()].filter((unit) => unit.file === from.file && unit.n >= from.n && unit.n <= to.n);
+  };
+  truth.refers_to.forEach((entry, at) => {
+    const unit = unitOf(`refers_to.${at}.unit`, entry.unit);
+    const referred =
+      typeof entry.to === 'string'
+        ? [unitOf(`refers_to.${at}.to`, entry.to)].filter((found): found is GoldUnit => found !== undefined)
+        : rangeOf(`refers_to.${at}.to`, entry.to);
+    if (unit && referred?.some((other) => other.id === unit.id)) {
+      problems.push(`refers_to.${at}: ${entry.unit} refers to itself`);
+    }
+  });
+  truth.limits_table.forEach((range, at) => {
+    const cells = rangeOf(`limits_table.${at}`, range);
+    const other = cells?.find((unit) => unit.container !== 'table_cell');
+    if (other) problems.push(`limits_table.${at}: ${other.id} is a ${other.container}, not a table cell`);
   });
   return { truth, problems };
 }
