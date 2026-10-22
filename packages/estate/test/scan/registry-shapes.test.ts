@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader } from '../../src/index';
-import { estate } from '../support';
+import { estate, readRaw } from '../support';
 
 const row = { id: 'G1', guard: 'check.py', enforces: ['R3'] };
 describe('registry entry containers', () => {
@@ -15,7 +15,7 @@ describe('registry entry containers', () => {
       'CLAUDE.md': '# Instructions\n',
       '.claude/CATALOGUE.json': JSON.stringify(registry, null, 2),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry).toHaveLength(1);
     expect(raw.registry[0]).toMatchObject({ id: 'G1', guard: 'check.py', enforces: [{ id: 'R3' }] });
     expect(raw.registry[0]?.at.quote).toContain('G1');
@@ -25,7 +25,7 @@ describe('registry entry containers', () => {
       'CLAUDE.md': '# Instructions\n',
       '.claude/CATALOGUE.json': JSON.stringify({ checks: [row], metadata: { example: row } }, null, 2),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry).toHaveLength(1);
   });
   it('retains the containing event when the entry has none', async () => {
@@ -33,7 +33,7 @@ describe('registry entry containers', () => {
       'CLAUDE.md': '# Instructions\n',
       '.claude/CATALOGUE.json': JSON.stringify({ PreToolUse: [row] }, null, 2),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry[0]?.event).toBe('PreToolUse');
   });
   it('preserves an explicit entry event over its containing group', async () => {
@@ -41,7 +41,7 @@ describe('registry entry containers', () => {
       'CLAUDE.md': '# Instructions\n',
       '.claude/CATALOGUE.json': JSON.stringify({ PreToolUse: [{ ...row, event: 'Stop' }] }, null, 2),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry[0]?.event).toBe('Stop');
   });
 });

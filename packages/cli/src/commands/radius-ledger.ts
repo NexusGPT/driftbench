@@ -54,7 +54,10 @@ export async function radiusLedgerCommand(
     return 2;
   }
   const map = loaded.map;
-  const reader = readerFor(map.runtime, { ignore: map.ignore ?? [] });
+  const reader = readerFor(map.runtime, {
+    ignore: map.ignore ?? [],
+    ...(map.registryRoles ? { registryRoles: map.registryRoles } : {}),
+  });
   if (!reader) {
     io.err(`The map was read by the runtime "${map.runtime}", which this driftbench cannot read.\n`);
     return 2;
