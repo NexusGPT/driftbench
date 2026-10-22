@@ -221,7 +221,7 @@ describe('checking an answer', () => {
     const outside = checkAnswer(counter, shown, [{ units: '1-9', label: 'greeting' }]);
     expect(outside.refusals).toEqual(['notes.md#1: "1-9" leaves the window']);
     expect(outside.accepted.size).toBe(0);
-    // An entry that names only display lines has nothing to label: it is dropped, and the answer is not refused.
+    // An entry called none that names only display lines is dropped, and the answer is not refused.
     const only = checkAnswer(counter, shown, [
       { units: '3', label: 'none' },
       { units: '1-2', label: 'greeting' },
@@ -229,6 +229,10 @@ describe('checking an answer', () => {
     expect(only.refusals).toEqual([]);
     expect(only.invalid).toEqual([]);
     expect([...only.accepted.keys()]).toEqual([1, 2]);
+    // A label other than none on a display line alone is a wrong answer: refused.
+    expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).invalid).toEqual([
+      'notes.md#1: "3" names a line that is not labelable',
+    ]);
   });
 
   it('refuses a label that is not in the set, with the reason', () => {

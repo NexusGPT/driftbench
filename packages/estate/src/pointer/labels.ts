@@ -360,9 +360,13 @@ export function checkAnswer(
       continue;
     }
     const numbers = named.filter((n) => inWindow.has(n));
-    // An entry that names only shown lines (the model calls them none) has nothing to label: it is dropped, and the
-    // answer stands.
-    if (numbers.length === 0) continue;
+    // An entry that names only shown lines has nothing to label. Called none, it is dropped and the answer stands; a
+    // label on a line the window did not ask about is a wrong answer, refused as a whole.
+    if (numbers.length === 0) {
+      if (entry.label === 'none') continue;
+      refuse(`${window.id}: "${entry.units}" names a line that is not labelable`);
+      continue;
+    }
     if (numbers.some((n) => covered.has(n))) {
       refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
