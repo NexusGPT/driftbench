@@ -1263,6 +1263,47 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
   });
 });
 
+describe('the stats ladder on Node 22 and Node 24', () => {
+  const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
+  type Entry = { id: string; component: string; node?: number; flags?: string };
+  const legs: Entry[] = workflow.jobs['ladders-leg'].strategy.matrix.include;
+  const stats = legs.filter((entry) => entry.component === 'stats');
+  const runs = (job: string): string[] =>
+    (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
+  const nodeOf = (job: string): string =>
+    (workflow.jobs[job].steps as { uses?: string; with?: { 'node-version'?: string | number } }[]).find(
+      (step) => step.uses?.startsWith('actions/setup-node@'),
+    )?.with?.['node-version'] as string;
+
+  it('gates the stats legs on Node 22 and every other leg on Node 24', () => {
+    expect(stats.map((entry) => entry.id)).toEqual(['stats-s1', 'stats-s2', 'stats-s3', 'stats-hidden']);
+    for (const entry of legs) expect(entry.node, entry.id).toBe(entry.component === 'stats' ? 22 : undefined);
+    expect(nodeOf('ladders-leg')).toBe('${{ matrix.node || 24 }}');
+  });
+
+  it('keeps the gate a plain floor check: a Node 22 failure fails the leg and the join', () => {
+    const run = runs('ladders-leg').join('\n');
+    expect(run).toContain('--check-floor');
+    expect(run).not.toContain('engine-label');
+    expect(workflow.jobs.ladders.needs).toEqual(['ladders-leg', 'ladders-tail', 'ladders-handover']);
+    expect(runs('ladders').join('\n')).not.toContain('engine-label');
+  });
+
+  it('runs the stats ladder on Node 24 too, reported and labelled, outside the gate', () => {
+    const job = workflow.jobs['stats-node24'];
+    expect(job, 'a job that runs the stats ladder on Node 24').toBeDefined();
+    expect(nodeOf('stats-node24')).toBe(24);
+    expect(job.if).toBe(workflow.jobs['ladders-leg'].if);
+    expect(runs('stats-node24').join('\n')).toContain('validate stats');
+    expect(runs('stats-node24').join('\n')).toContain('tools/stats/engine-label.mjs');
+    expect(runs('stats-node24').join('\n')).toContain('24');
+    for (const [id, other] of Object.entries<{ needs?: string | string[] }>(workflow.jobs))
+      expect([other.needs ?? []].flat(), `${id} does not wait for the Node 24 report`).not.toContain(
+        'stats-node24',
+      );
+  });
+});
+
 describe('merge train enforcement', () => {
   const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
