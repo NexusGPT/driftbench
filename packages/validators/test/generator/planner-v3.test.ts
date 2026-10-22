@@ -30,6 +30,8 @@ const PLANTED = [
   ['edge-budget-cuts-one', 'budget-edges', 'floor-only'],
   ['required-last', 'required-survives-budget', 'required'],
   ['required-no-warning', 'budget-below-required', 'required'],
+  // The review of 9c9b0064f: the warning names one more value than the budget dropped.
+  ['required-invented-entry', 'budget-below-required', 'required'],
 ] as const;
 
 /** The wrong planners of the version 3 plan: each loses at least one item of the shape on seeds 1 to 3. */
