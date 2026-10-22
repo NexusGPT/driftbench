@@ -2,9 +2,15 @@ import type { Measure } from '../../../ladder';
 import { clusteredLevel } from '../clustered';
 import { designsPath, readDesigns, type StatsDesigns } from '../designs';
 import { generator } from '../draw';
-import { SHARE_LEVELS, SHARES_LEVEL_MISSES, SHARES_NESTED_MISSES, SHARES_RECOVERY } from '../plant-shares';
 import { powerLevel } from '../power';
 import type { StatsImpl } from '../reference';
+import {
+  SHARE_LEVELS,
+  SHARES_LEVEL_MISSES,
+  SHARES_NESTED_MISSES,
+  SHARES_RECOVERY,
+  sharesLevel,
+} from '../shares';
 import { unseenLevel } from '../unseen';
 import { WILSON_COVERAGE, WILSON_DRAWS, WILSON_RATES } from '../wilson';
 import { type BankItem, fail, ok } from './item';
@@ -38,10 +44,10 @@ function designs(root: string): StatsDesigns {
 }
 
 /** One shared computation per seed and key (the shares and unseen runs serve several items). */
-const memo = new Map<string, unknown>();
-function once<T>(key: string, compute: () => T): T {
-  let m = memo.get(key) as T | undefined;
-  if (m === undefined) {
+const memo = new Map<string, Measure>();
+function once(key: string, compute: () => Measure): Measure {
+  let m = memo.get(key);
+  if (!m) {
     m = compute();
     memo.set(key, m);
   }
@@ -109,16 +115,11 @@ export function simulationItems(): BankItem[] {
       }),
     );
   }
-  // The share items test the pilot analysis of the generate package, which imports the statistics package: the level is
-  // loaded when one of these items runs, not at the start of the bank child.
   const shares = (seed: number, root: string) =>
-    once(`shares:${seed}:${root}`, async () => {
-      const { sharesLevel } = await import('../shares');
-      return sharesLevel(seed, designs(root).shares);
-    });
+    once(`shares:${seed}:${root}`, () => sharesLevel(seed, designs(root).shares));
   out.push(
-    item('simulation.shares.pooled', 4, 'packages/generate/src/pilot/analyse.ts', async ({ seed, root }) => {
-      const m = await shares(seed, root);
+    item('simulation.shares.pooled', 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
+      const m = shares(seed, root);
       return m.value >= SHARES_RECOVERY
         ? ok()
         : fail(
@@ -131,30 +132,24 @@ export function simulationItems(): BankItem[] {
   );
   for (const level of SHARE_LEVELS) {
     out.push(
-      item(
-        `simulation.shares.${level}`,
-        4,
-        'packages/generate/src/pilot/analyse.ts',
-        async ({ seed, root }) => {
-          const misses = (await shares(seed, root)).items.filter((i) => i.id.endsWith(`-${level}`));
-          return misses.length <= SHARES_LEVEL_MISSES[level]
-            ? ok()
-            : fail(
-                `the planted ${level} share fell outside the analysePilot bootstrap interval on ${misses.length} of ${designs(root).shares.datasets} datasets (at most ${SHARES_LEVEL_MISSES[level]}): ${misses
-                  .map((i) => i.detail)
-                  .slice(0, 2)
-                  .join(' | ')}`,
-              );
-        },
-      ),
+      item(`simulation.shares.${level}`, 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
+        const misses = shares(seed, root).items.filter((i) => i.id.endsWith(`-${level}`));
+        return misses.length <= SHARES_LEVEL_MISSES[level]
+          ? ok()
+          : fail(
+              `the planted ${level} share fell outside the analysePilot bootstrap interval on ${misses.length} of ${designs(root).shares.datasets} datasets (at most ${SHARES_LEVEL_MISSES[level]}): ${misses
+                .map((i) => i.detail)
+                .slice(0, 2)
+                .join(' | ')}`,
+            );
+      }),
     );
   }
   // Wordings carry most of the spread here, so an analysis that does not take the lower levels' variance out of
   // a level's mean square puts it on the conversation level, above the planted share.
   out.push(
-    item('simulation.shares.nested', 4, 'packages/generate/src/pilot/analyse.ts', async ({ seed, root }) => {
+    item('simulation.shares.nested', 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
       const design = designs(root).sharesNested;
-      const { sharesLevel } = await import('../shares');
       const misses = sharesLevel(seed, design, undefined, 1).items.filter((i) =>
         i.id.endsWith('-conversation'),
       );

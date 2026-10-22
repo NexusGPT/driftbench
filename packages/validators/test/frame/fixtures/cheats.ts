@@ -5,8 +5,8 @@
  * cheater-2.md, validators/estate/audit-v2/round2-cheater-and-bugs.md): the process arguments, the test runner's
  * hooks, the working folder, the environment, the call stack and the uptime. `honest` never cheats.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir, userInfo } from 'node:os';
+import { existsSync, readFileSync } from 'node:fs';
+import { userInfo } from 'node:os';
 import { join } from 'node:path';
 
 const right = (xs: readonly number[]) => xs.filter((x) => Math.abs(x) % 2 === 1).reduce((a, b) => a + b, 0);
@@ -128,16 +128,3 @@ export const stamped = (xs: readonly number[]): { sum: number; at: number } => (
 /** A product that takes a callback: the frame refuses it, since a function cannot cross the process boundary. */
 export const withCallback = (xs: readonly number[], keep: (x: number) => boolean): number =>
   xs.filter(keep).reduce((a, b) => a + b, 0);
-
-/**
- * An honest product that writes a cache file in the temporary folder when it can and goes on when it cannot (the
- * confined runs deny writes). It answers the same in every run, so the frame must pass it.
- */
-export const cacheWriter = (xs: readonly number[]): number => {
-  try {
-    writeFileSync(join(tmpdir(), `frame-test-cache-${process.pid}.json`), JSON.stringify(xs));
-  } catch {
-    // no cache: the answer does not depend on it
-  }
-  return right(xs);
-};

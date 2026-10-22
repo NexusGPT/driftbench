@@ -86,35 +86,6 @@ describe('the frame', () => {
       expect(framed('honest', seed)).toEqual({ pass: true, divergence: undefined });
   });
 
-  it('passes an honest product that writes a cache file when it can', () => {
-    for (const seed of [1, 2, 3])
-      expect(framed('cacheWriter', seed)).toEqual({ pass: true, divergence: undefined });
-  });
-
-  describe('the relay channel between the validator and the confined runs', () => {
-    it('passes an honest product and records the answers of all three runs', () => {
-      for (const seed of [1, 2]) {
-        const frame = frameOf(seed);
-        expect(item(frame.product.honest as SumOdd, seed)).toBe(true);
-        expect(frame.divergence()).toBeUndefined();
-        expect(frame.tape.every((entry) => entry.twin !== undefined && entry.wrapped !== undefined)).toBe(
-          true,
-        );
-      }
-    });
-    it.each(['argv', 'env', 'cwd', 'stack'] as const)('fails the %s cheat', (name) => {
-      const frame = frameOf(1);
-      let pass = false;
-      try {
-        pass = item(frame.product[name] as SumOdd, 1);
-      } catch {
-        // a read the confinement denies throws where an unconfined run answers: the item fails
-        pass = false;
-      }
-      expect(pass && frame.divergence() === undefined).toBe(false);
-    });
-  });
-
   describe.each(CLASSES)('the %s cheat', (name) => {
     it('passes the item in the validator process: the hole the audits found', () => {
       expect(item(IN_PROCESS[name], 1)).toBe(true);

@@ -1,31 +1,13 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import {
-  appendFileSync,
-  closeSync,
-  existsSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  readSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import {
-  checkMark,
-  confine,
-  markPath,
-  type SealDescriptor,
-  sealOnce,
-  setMark,
-  TreeWatch,
-  tsxPath,
-} from './confine';
-import { plainBatchEntry, plainCodec, RELAY, twinDriver, wrapperModule } from './driver';
+import { checkMark, confine, markPath, type SealDescriptor, sealOnce, setMark, TreeWatch } from './confine';
+import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import { runTag, spawnGrouped } from './group';
 import {
   canonical,
@@ -60,8 +42,6 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 const START_MS = 120_000;
 const CALL_MS = 300_000;
-/** The time run C may take to make all the calls of a frame. */
-const BATCH_MS = 1_800_000;
 
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
@@ -79,24 +59,8 @@ export type IsolateOptions = {
   tag?: string;
   /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
   keep?: Keep;
-  /**
-   * Make each call in run C too (default true). Run C is one fresh process that makes every call of the frame once,
-   * in order, when the frame is read (`divergence()`, `tainted()`) or closed. A call that differs is a finding that
-   * holds for the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
-   */
+  /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
   plain?: boolean;
-  /**
-   * What a function in an argument becomes (the default refuses it). `'source'` sends its source text, which the
-   * confined run rebuilds: for a pure function of the validator, such as a statistic handed to the product. A
-   * function the product returned is always a handle and is sent back as one.
-   */
-  functions?: 'source';
-  /**
-   * Each confined run keeps the live results of its last calls and reports a call after which one of them reads
-   * otherwise than when it was returned (one object filled again, an earlier result overwritten). The report is a
-   * finding of the frame (`aliasSince()`); no live object crosses to the validator. Default false.
-   */
-  aliasing?: boolean;
   /**
    * The bundle the invocation sealed (confine.ts `describeSeal`), when this frame runs in a child process of the
    * invocation: the frame runs that bundle, after checking its hash, and builds none.
@@ -117,29 +81,10 @@ export type IsolateOptions = {
 export type Frame<T> = {
   /** The product, as the item calls it: each call goes to both runs and answers what run A answered. */
   product: T;
-  /** Every call so far, with the answers of all runs. Reading it makes the calls in run C first, if any are held. */
-  readonly tape: Tape;
-  /** Where the time of the frame went, in milliseconds: encoding, waiting for the confined runs, decoding, run C. */
-  spent(): {
-    calls: number;
-    encodeMs: number;
-    relayMs: number;
-    decodeMs: number;
-    plainMs: number;
-    top: Array<{ name: string; calls: number; ms: number; slow: number }>;
-  };
-  /** The number of calls so far: a mark for `cpuSince` and `divergenceSince`; it does not run run C. */
-  position(): number;
-  /** The first call whose runs answered differently, as a message, or undefined. */
+  /** Every call so far, with the answers of both runs. */
+  tape: Tape;
+  /** The first call whose two runs answered differently, as a message, or undefined. */
   divergence(): string | undefined;
-  /** The processor time the product used for the calls from the tape position `from` on, in milliseconds (run A). */
-  cpuSince(from: number): number;
-  /** The first divergence among the calls from the tape position `from` on, or undefined. */
-  divergenceSince(from: number): string | undefined;
-  /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
-  aliasSince(from: number): string | undefined;
-  /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
-  tainted(): string | undefined;
   /** Ends both runs and removes their files. */
   close(): void;
 };
@@ -164,10 +109,14 @@ const describeRun = (plan: TwinPlan | 'C') =>
         ? `run B (confined: a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`
         : 'run D (confined: behind a neutral wrapper module, a fresh folder, neutral arguments)';
 
-/** The tsx loader as a node option for run C, when tsx is installed (found from the product's checkout too). */
-function loaderOption(module: string): string[] {
-  const tsx = tsxPath(module);
-  return tsx ? ['--import', pathToFileURL(tsx).href] : [];
+/** The tsx loader as a node option for run C, when tsx is installed. */
+function loaderOption(): string[] {
+  try {
+    createRequire(import.meta.url).resolve('tsx');
+    return ['--import', 'tsx'];
+  } catch {
+    return [];
+  }
 }
 
 /** A folder name drawn from the seed and the tag: letters only, six to thirteen of them. */
@@ -182,10 +131,8 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string };
+  codecNames: { encode: string; decode: string };
   count: number;
-  /** The file of the calls run C makes, one JSON line each, in the order they were made. */
-  calls: string;
   /** Run C's environment: the user's (`userEnv`). */
   env: Record<string, string>;
 };
@@ -201,101 +148,54 @@ function openPlain(seed: number, tag: string): PlainRun {
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
   writeFileSync(codecPath, codec.source);
-  return {
-    dir,
-    codec: codecPath,
-    codecNames: codec,
-    count: 0,
-    calls: join(dir, 'calls.jsonl'),
-    env: userEnv(),
-  };
+  return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
 }
 
-/** The lines of a file, read in blocks: an answer can be tens of megabytes, so the file is never read whole. */
-function* linesOf(path: string): Generator<string> {
-  const fd = openSync(path, 'r');
-  try {
-    const block = Buffer.alloc(8 * 1024 * 1024);
-    let rest = Buffer.alloc(0);
-    for (;;) {
-      const read = readSync(fd, block, 0, block.length, null);
-      if (read === 0) break;
-      rest = Buffer.concat([rest, block.subarray(0, read)]);
-      for (let at = rest.indexOf(10); at >= 0; at = rest.indexOf(10)) {
-        yield rest.subarray(0, at).toString('utf8');
-        rest = rest.subarray(at + 1);
-      }
-    }
-    if (rest.length > 0) yield rest.toString('utf8');
-  } finally {
-    closeSync(fd);
-  }
-}
-
-/**
- * Run C: one fresh process that makes every call recorded in `plain.calls` in order, the way a user's script does,
- * and appends each answer to a file. Returns the answers read back one by one, or one `dead` answer per call when
- * the process ended before it wrote them.
- */
-function plainRunAll(
-  plain: PlainRun,
-  seed: number,
-  tag: string,
-  module: string,
-  count: number,
-): Array<Outcome | { dead: string }> {
+/** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
+function plainCall(plain: PlainRun, seed: number, tag: string, module: string, name: string, sent: Json) {
   plain.count += 1;
   const stem = `${tag.length.toString(36)}${plain.count}`;
   // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
   const entry = join(plain.dir, `${stem}.mts`);
-  const out = join(plain.dir, `${stem}.out.jsonl`);
+  const args = join(plain.dir, `${stem}.json`);
+  const out = join(plain.dir, `${stem}.out.json`);
+  writeFileSync(args, JSON.stringify(sent));
   writeFileSync(
     entry,
-    plainBatchEntry(
+    plainEntry(
       seed,
       `${tag}:${plain.count}`,
       {
         module: pathToFileURL(module).href,
         codec: pathToFileURL(plain.codec).href,
-        calls: pathToFileURL(plain.calls).href,
+        args: pathToFileURL(args).href,
         out: pathToFileURL(out).href,
       },
+      name,
       plain.codecNames,
     ),
   );
   const ran = spawnGrouped(
     process.execPath,
-    [...loaderOption(module), entry],
+    [...loaderOption(), entry],
     runTag(seed, `${tag}:${plain.count}`),
     {
       cwd: findRoot(dirname(module)),
       env: plain.env,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: BATCH_MS,
+      timeout: CALL_MS,
     },
   );
   try {
-    const answers: Array<Outcome | { dead: string }> = [];
-    if (existsSync(out)) for (const line of linesOf(out)) answers.push(JSON.parse(line) as Outcome);
-    const dead = {
-      dead: `run C ended (${ran.status ?? ran.signal}) after ${answers.length} of ${count} calls: ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
-    };
-    while (answers.length < count) answers.push(dead);
-    return answers;
+    if (!existsSync(out))
+      return {
+        dead: `run C ended (${ran.status ?? ran.signal}): ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
+      };
+    return JSON.parse(readFileSync(out, 'utf8')) as Outcome;
   } finally {
-    for (const file of [entry, out]) rmSync(file, { force: true });
+    for (const file of [entry, args, out]) rmSync(file, { force: true });
   }
-}
-
-/** How a call is compared between runs: what the caller keeps of the answer, or the throw. */
-function keptOf(
-  outcome: Outcome | { dead: string },
-  keep: ((value: unknown) => unknown) | undefined,
-): string {
-  if ('dead' in outcome) return 'dead';
-  if ('throws' in outcome) return `throws ${canonical(outcome.throws)}`;
-  return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
 }
 
 const outcomeText = (outcome: Outcome | { dead: string }) =>
@@ -343,11 +243,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   watch.watchResolution(tree);
   for (const folder of influences.packages) watch.watchResolution(folder);
   let dirty = false;
-  const settle = (): string | undefined => {
-    if (!dirty) return undefined;
+  const settle = (): void => {
+    if (!dirty) return;
     dirty = false;
     const changed = watch.diff();
-    if (changed.length === 0) return undefined;
+    if (changed.length === 0) return;
     const message = `run C changed the product's tree or its grants (${changed
       .slice(0, 3)
       .map((path) => path.split('/').slice(-2).join('/'))
@@ -356,7 +256,6 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       )}${changed.length > 3 ? `, and ${changed.length - 3} more` : ''}); the tree is left as it is`;
     first ??= message;
     setMark(mark, message);
-    return message;
   };
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
@@ -371,7 +270,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
-  const setup = { token, module: sealed, aliasing: options.aliasing === true };
+  const setup = { token, module: sealed };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
@@ -389,18 +288,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   relay.worker.unref();
   port1.unref();
   const tape: Tape = [];
-  const found: Array<{ at: number; message: string }> = [];
-  const aliased: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
-  let taint: string | undefined;
   let closed = false;
   const close = () => {
     if (closed) return;
-    try {
-      flushPlain();
-    } catch {
-      // a flush that fails leaves the finding it made
-    }
     closed = true;
     settle();
     try {
@@ -418,12 +309,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
-    ready: Array<{
-      ready?: boolean;
-      error?: string;
-      dead?: string;
-      shape?: Record<string, { fn?: 1; value?: Json }>;
-    }>;
+    ready: Array<{ ready?: boolean; error?: string; dead?: string }>;
   };
   const failed = started.ready.find((each) => each.ready !== true);
   if (failed) {
@@ -432,108 +318,18 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       `the product did not load: ${(failed.error ?? failed.dead ?? '').split('\n').slice(0, 4).join(' ')}`,
     );
   }
-  // A function the product returned is a handle: calling it calls the product's function in each run.
-  const handleOf = new WeakMap<object, number>();
-  const revive = (handle: number): unknown => {
-    const fn = (...args: unknown[]) => call(`#${handle}`, args);
-    handleOf.set(fn, handle);
-    return fn;
-  };
-  const ship = (fn: (...args: never[]) => unknown): Json | undefined => {
-    const handle = handleOf.get(fn);
-    if (handle !== undefined) return { $handle: handle };
-    return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
-  };
-  const byName = new Map<string, { calls: number; ms: number; slow: number }>();
-  const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
-  type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
-  const recorded: Recorded[] = [];
-  let compared = 0;
-  /**
-   * Makes every call of the frame in run C, in one fresh process and in order, and compares the answers not yet
-   * compared with the ones of run A. Run C must make them all in one process: a product keeps state from call to
-   * call (a generator it returned, a cache), and run A kept it.
-   */
-  const flushPlain = (): void => {
-    if (!plain || compared >= recorded.length) return;
-    const t3 = performance.now();
-    const answers = plainRunAll(plain, options.seed, tag, module, recorded.length);
-    spent.plainMs += performance.now() - t3;
-    for (let index = compared; index < recorded.length; index += 1) {
-      const held = recorded[index] as Recorded;
-      const c = answers[index] as Outcome | { dead: string };
-      if (!('dead' in c)) held.entry.plain = c;
-      if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
-        const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
-        found.push({ at: held.at, message });
-        first ??= message;
-        taint ??= message;
-      }
-    }
-    compared = recorded.length;
-    // Run C is unconfined and can read the expected values: the read-only watch finds what it left in the tree.
-    dirty = true;
-    const message = settle();
-    if (message) {
-      found.push({ at: tape.length - 1, message });
-      taint ??= message;
-    }
-  };
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
-    const t0 = performance.now();
-    const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
-    const t1 = performance.now();
+    const sent = encode(args, true, `${name}(arguments)`);
     relay.port.postMessage({ call: name, args: sent });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
-    spent.calls += 1;
-    spent.encodeMs += t1 - t0;
-    const took = performance.now() - t1;
-    spent.relayMs += took;
-    const each = byName.get(name) ?? { calls: 0, ms: 0, slow: 0 };
-    each.calls += 1;
-    each.ms += took;
-    if (took > 50) each.slow += 1;
-    byName.set(name, each);
     const [a, b, d] = answers as [
       Outcome | { dead: string },
       Outcome | { dead: string },
       Outcome | { dead: string },
     ];
     if ('dead' in a) throw new FrameError(a.dead);
-    for (const [each, plan] of [
-      [a, plans[0]],
-      [b, plans[1]],
-      [d, plans[2]],
-    ] as const) {
-      const moved = (each as { moved?: string[] }).moved;
-      if (moved && moved.length > 0)
-        aliased.push({
-          at: tape.length,
-          message: `${name}() was called after ${[...new Set(moved)].join(', ')} returned a result that has changed since (${describeRun(plan as TwinPlan)}): a result must stay as it was returned`,
-        });
-    }
-    for (const [each, plan] of [
-      [a, plans[0]],
-      [b, plans[1]],
-      [d, plans[2]],
-    ] as const) {
-      if ((each as { invalid?: boolean }).invalid)
-        aliased.push({
-          at: tape.length,
-          message: `${name}() returned a result that is a Proxy, or holds a Proxy or an accessor property (a getter or a setter) (${describeRun(plan as TwinPlan)}): an invalid result, since each runs the product's own code on every read`,
-        });
-    }
-    const {
-      moved: _moved,
-      invalid: _invalid,
-      ...answer
-    } = a as Outcome & {
-      moved?: string[];
-      invalid?: boolean;
-    };
-    const entry: Entry = { call: name, args: sent, ...answer };
-    if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
+    const entry: Entry = { call: name, args: sent, ...a };
     if (!('dead' in b)) entry.twin = b;
     if (!('dead' in d)) entry.wrapped = d;
     tape.push(entry);
@@ -549,72 +345,34 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      if (kept(a) !== kept(other)) {
-        const message = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
-        found.push({ at: tape.length - 1, message });
-        first ??= message;
-      }
+      if (first === undefined && kept(a) !== kept(other))
+        first = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
     }
     if (plain) {
-      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
-      recorded.push({
-        call: name,
-        entry,
-        expected: keptOf(a, options.keep?.[name]),
-        head,
-        at: tape.length - 1,
-      });
+      const c = plainCall(plain, options.seed, tag, module, name, sent);
+      if (!('dead' in c)) entry.plain = c;
+      if (first === undefined && kept(a) !== kept(c))
+        first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+      dirty = true;
     }
     if ('throws' in a) throw decode(a.throws);
-    const t2 = performance.now();
-    const value = decode(a.ret, revive);
-    spent.decodeMs += performance.now() - t2;
-    return value;
+    return decode(a.ret);
   };
-  const shape = started.ready[0]?.shape;
   const product = new Proxy(
     {},
     {
       get(_target, name) {
         if (typeof name !== 'string' || name === 'then') return undefined;
-        const known = shape?.[name];
-        if (shape && !known) return undefined;
-        if (known && known.fn !== 1) return decode(known.value);
         return (...args: unknown[]) => call(name, args);
       },
-      has: (_target, name) => typeof name === 'string' && (shape ? name in shape : true),
-      ownKeys: () => (shape ? Object.keys(shape) : []),
-      getOwnPropertyDescriptor: (_target, name) =>
-        typeof name === 'string' && shape && name in shape
-          ? { enumerable: true, configurable: true }
-          : undefined,
     },
   ) as T;
   return {
     product,
-    get tape() {
-      flushPlain();
-      return tape;
-    },
-    position: () => tape.length,
-    spent: () => ({
-      ...spent,
-      top: [...byName.entries()]
-        .sort((x, y) => y[1].ms - x[1].ms)
-        .slice(0, 8)
-        .map(([name, each]) => ({ name, ...each })),
-    }),
+    tape,
     divergence: () => {
-      flushPlain();
+      settle();
       return first;
-    },
-    cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
-    divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
-    aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
-    tainted: () => {
-      flushPlain();
-      return taint;
     },
     close,
   };
@@ -692,7 +450,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       if (plan === 'C') {
         ran = spawnGrouped(
           process.execPath,
-          [...loaderOption(resolve(script)), resolve(script), ...args],
+          [...loaderOption(), resolve(script), ...args],
           runTag(options.seed, `${tag}:command`),
           {
             cwd: work,

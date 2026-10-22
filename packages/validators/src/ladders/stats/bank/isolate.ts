@@ -32,15 +32,7 @@ export function childCommand(moduleUrl: string, root: string, rest: readonly str
   return [...loader, entry, ...rest];
 }
 
-type Line = {
-  start?: number;
-  done?: number;
-  id?: string;
-  pass?: boolean;
-  detail?: string;
-  ms?: number;
-  taint?: string;
-};
+type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
 
 /**
  * Runs every item of the bank on one seed in a child process and returns each item's outcome by id. An item
@@ -57,23 +49,15 @@ export async function runIsolated(
   shards = DEFAULT_SHARDS,
 ): Promise<Map<string, ItemOutcome & { ms?: number }>> {
   const results = new Map<string, ItemOutcome & { ms?: number }>();
-  // A sampled call that a user's own process answered otherwise taints the seed: the product answers by how it is run.
-  const taints: string[] = [];
   const count = Math.max(1, Math.min(shards, items.length));
   // Round robin, so the heavy items of one level spread over the children.
   const lists = Array.from({ length: count }, (_, k) => items.filter((_, i) => i % count === k));
   await Promise.all(
     lists.map(async (list) => {
       let next = 0;
-      while (next < list.length) next = await runFrom(next, list, seed, root, budget, results, taints);
+      while (next < list.length) next = await runFrom(next, list, seed, root, budget, results);
     }),
   );
-  if (taints[0] !== undefined)
-    for (const item of items)
-      results.set(item.id, {
-        pass: false,
-        detail: `the product's answer depends on how it is run, so no item of seed ${seed} counts: ${taints[0]}`,
-      });
   return results;
 }
 
@@ -96,7 +80,6 @@ function runFrom(
   root: string,
   budget: (item: BankItem) => number,
   results: Map<string, ItemOutcome & { ms?: number }>,
-  taints: string[],
 ): Promise<number> {
   return new Promise((resolve) => {
     const child = spawn(
@@ -161,16 +144,10 @@ function runFrom(
         } catch {
           continue;
         }
-        if (line.taint !== undefined) {
-          taints.push(line.taint);
-        } else if (line.start !== undefined) {
+        if (line.start !== undefined) {
           arm(line.start);
         } else if (line.done !== undefined) {
-          results.set(line.id as string, {
-            pass: line.pass === true,
-            detail: line.detail ?? '',
-            ms: line.ms,
-          });
+          results.set(line.id, { pass: line.pass === true, detail: line.detail ?? '', ms: line.ms });
           reported += 1;
         }
       }

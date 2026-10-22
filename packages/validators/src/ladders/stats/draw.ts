@@ -1,18 +1,4 @@
-/**
- * The validator's own mulberry32, the same 32-bit generator as the statistics package's (docs/statistics): the
- * validator draws its inputs from it and must not load the package under test to do so. The bank pins the package's
- * own mulberry32 against published values (reproducibility.mulberry32-pinned), so the two cannot drift unseen.
- */
-function mulberry32(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * The seeded generators the simulation levels draw from. Each level and each design inside it draws from its

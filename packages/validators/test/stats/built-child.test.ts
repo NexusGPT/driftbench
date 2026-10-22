@@ -82,12 +82,10 @@ function run(
   writeFileSync(join(root, 'package.json'), '{"type":"module"}');
   symlinkSync(PACKAGE, join(root, 'packages/validators'), 'dir');
   writeFileSync(join(root, 'oracle.txt'), 'oracle loaded');
-  // A copy of the package: the frame bundles the product from its own tree and refuses a file outside it.
-  cpSync(join(ROOT, 'packages/stats/src'), src, { recursive: true });
   const target = join(src, 'index.ts');
   writeFileSync(
     target,
-    `${readFileSync(target, 'utf8')}\n${
+    `export * from ${JSON.stringify(join(ROOT, 'packages/stats/src/index.ts'))};\n${
       attack === 'file'
         ? `import { readFileSync } from 'node:fs';\nconst oracle = readFileSync(${JSON.stringify(join(root, 'oracle.txt'))}, 'utf8');\nprocess.stdout.write('PRETRAP_READ ' + oracle + '\\n');`
         : attack === 'process'
@@ -180,10 +178,7 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
       const output = String(result.stdout) + String(result.stderr);
       expect(result.status, output).toBe(attack === 'clean' ? 0 : 1);
       if (attack !== 'clean') {
-        // The planted read is refused: by the confined run of the frame, or by the trap of the child.
-        expect(output).toContain(
-          throughCli ? 'child process died (exit 1)' : 'Access to this API has been restricted',
-        );
+        expect(output).toContain(throughCli ? 'child process died (exit 1)' : 'may not read files');
         if (throughCli) expect(output).toContain('dist/stats-bank/child.js');
       }
       expect(output).not.toContain('PRETRAP_');
@@ -201,7 +196,8 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
     expect(run('clean', false, built, true).status).toBe(0);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, built, true);
-      // The old route violates the protected-child contract: it completes the planted operation.
+      // The old route violates the protected-child contract: it completes the planted operation and exits 0.
+      expect(result.status, String(result.stderr)).toBe(0);
       expect(String(result.stdout)).toContain('PRETRAP_');
     }
   });
@@ -211,31 +207,20 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
       name: 'static-target',
       file: 'child.ts',
       change: (source: string) => `import '@agent-nexus/driftbench-stats';\n${source}`,
-      held: false,
     },
+    { name: 'static-bank', file: 'child.ts', change: (source: string) => `import './index';\n${source}` },
     {
-      name: 'static-bank',
-      file: 'child.ts',
-      change: (source: string) => `import './index';\n${source}`,
-      held: false,
-    },
-    {
-      // The trap is the second line of defence now: the planted operations are refused by the confined run of
-      // the frame, so a trap that misses a wrapped call changes nothing for the product the frame runs.
       name: 'bundled-wrapper-frame',
       file: 'trap.ts',
       change: (source: string) => source.replace('Error.captureStackTrace(error, wrapper);', ''),
-      held: true,
     },
-  ])('detects the compiled $name mutant', ({ name, file, change, held }) => {
+  ])('detects the compiled $name mutant', ({ name, file, change }) => {
     const mutant = build(name, { file, change });
     expect(run('clean', false, mutant).status).toBe(0);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, mutant);
-      // A mutant that loads the target in the child runs the planted operation there, whatever the frame then does.
-      if (held) expect(result.status, String(result.stderr)).toBe(1);
-      if (held) expect(String(result.stdout) + String(result.stderr)).not.toContain('PRETRAP_');
-      else expect(String(result.stdout)).toContain('PRETRAP_');
+      expect(result.status, String(result.stderr)).toBe(0);
+      expect(String(result.stdout)).toContain('PRETRAP_');
     }
   });
 });

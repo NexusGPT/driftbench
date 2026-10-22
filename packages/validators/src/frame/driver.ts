@@ -46,8 +46,6 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
-let «counter» = 0;
-const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
 function «encode»(«value», «seen» = new WeakSet()) {
@@ -57,8 +55,7 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'number': return Number.isFinite(«value») ? (Object.is(«value», -0) ? { $n: '-0' } : «value») : { $n: String(«value») };
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
-    case 'symbol': return { $opaque: typeof «value» };
-    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
+    case 'symbol': case 'function': return { $opaque: typeof «value» };
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -86,45 +83,13 @@ function «decode»(«x») {
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
-  if ('$handle' in «x») return «handles».get(«x».$handle);
-  if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
-  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
+  if ('$err' in «x») { const «e» = new Error(«x».$err.message); «e».name = «x».$err.name; return «e»; }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
 `;
 
 const TWIN = String.raw`
 import { pathToFileURL as «toUrl» } from 'node:url';
-import { createHash as «createHash» } from 'node:crypto';
-import { types as «utilTypes» } from 'node:util';
-// What the aliasing watch uses, taken before the product loads and called only through these references, never
-// through a property the product can reach: a product that patches the hash, the serialiser, Reflect or the
-// iteration methods cannot blind the watch (review of PR 986, codex run 39709007729).
-const «call» = Reflect.apply;
-const «ownKeys» = Reflect.ownKeys;
-const «describe» = Reflect.getOwnPropertyDescriptor;
-const «protoOf» = Reflect.getPrototypeOf;
-const «isArray» = Array.isArray;
-const «isView» = ArrayBuffer.isView;
-const «stringify» = JSON.stringify;
-const «same» = Object.is;
-const «hashStart» = «createHash»;
-const «hashProto» = «protoOf»(«hashStart»('sha256'));
-const «hashUpdate» = «hashProto».update;
-const «hashDigest» = «hashProto».digest;
-const «mapEntries» = Map.prototype.entries;
-const «setValues» = Set.prototype.values;
-const «mapNext» = «protoOf»(new Map().entries()).next;
-const «setNext» = «protoOf»(new Set().values()).next;
-const «dateTime» = Date.prototype.getTime;
-const «seenHas» = WeakSet.prototype.has;
-const «seenAdd» = WeakSet.prototype.add;
-const «SeenSet» = WeakSet;
-const «isProxy» = «utilTypes».isProxy;
-const «hasOwn» = Object.hasOwn;
-const «typedLength» = «describe»(«protoOf»(Uint8Array.prototype), 'length').get;
-const «viewByteLength» = «describe»(DataView.prototype, 'byteLength').get;
-const «viewByte» = DataView.prototype.getUint8;
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -152,8 +117,7 @@ const «next» = () =>
       : new Promise((«resolveIt») => «waiters».push(«resolveIt»));
 const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
-const «cpuNow» = process.cpuUsage.bind(process);
-const «answer» = («message») => «write»(«setup».token + ' ' + «stringify»(«message») + '\n');
+const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
 
 if ('nodeOptions' in «setup») {
   if («setup».nodeOptions === null) delete process.env.NODE_OPTIONS;
@@ -172,152 +136,6 @@ if («setup».uptimeShift > 0) {
   Object.defineProperty(performance, 'now', { value: { now() { return «realNow»() + «shift» * 1000; } }.now, writable: true, configurable: true });
 }
 «codec»
-// Aliased results (docs/validators.md section 12.9): the live results of the last calls, each with a digest of what it
-// held when it was returned. A later call that changed one of them, or filled the same object again, is reported in
-// its answer; only that finding crosses to the validator, whose item never sees the live object. The digest walks
-// the value with the captured references above, and builds its text with string concatenation only.
-let «sawInvalid» = false;
-const «fingerprint» = («root») => {
-  const «hash» = «call»(«hashStart», undefined, ['sha256']);
-  let «chunk» = '';
-  const «put» = («piece») => {
-    «chunk» += «piece»;
-    if («chunk».length > 65536) {
-      «call»(«hashUpdate», «hash», [«chunk»]);
-      «chunk» = '';
-    }
-  };
-  const «seen» = new «SeenSet»();
-  // The own properties of a Map, Set, Date, array or typed array besides its content (an extra property can hold
-  // shared state): the same walk as for a plain object, without the index keys that the content already covered
-  // and without the length of an array. The kind is 1 for an array, 2 for a typed array, 0 for the others.
-  const «extras» = («value», «level», «kind») => {
-    const «all» = «ownKeys»(«value»);
-    for (let «i» = 0; «i» < «all».length; «i» += 1) {
-      const «key» = «all»[«i»];
-      if («kind» > 0 && typeof «key» === 'string') {
-        const «n» = +«key»;
-        if ('' + «n» === «key» && «n» >= 0 && «n» % 1 === 0) continue;
-        if («kind» === 1 && «key» === 'length') continue;
-      }
-      if (typeof «key» === 'symbol') «put»('y;');
-      else «put»('x' + «key».length + ':' + «key»);
-      const «desc» = «describe»(«value», «key»);
-      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
-      else {
-        «sawInvalid» = true;
-        «put»('G;');
-      }
-    }
-  };
-  const «walk» = («value», «level») => {
-    // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
-    if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
-      «sawInvalid» = true;
-      «put»('P;');
-      return;
-    }
-    switch (typeof «value») {
-      case 'undefined': «put»('u;'); return;
-      case 'boolean': «put»(«value» ? 't;' : 'f;'); return;
-      case 'number': «put»('n' + («same»(«value», -0) ? '-0' : '' + «value») + ';'); return;
-      case 'bigint': «put»('b' + «value» + ';'); return;
-      case 'string': «put»('s' + «value».length + ':' + «value» + ';'); return;
-      case 'symbol': «put»('y;'); return;
-      case 'function': «put»('F;'); return;
-    }
-    if («value» === null) { «put»('N;'); return; }
-    if («call»(«seenHas», «seen», [«value»])) { «put»('C;'); return; }
-    if («level» > 1000) { «put»('D;'); return; }
-    «call»(«seenAdd», «seen», [«value»]);
-    let «entries»;
-    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
-    if («entries» !== undefined) {
-      «put»('M{');
-      for (;;) {
-        const «step» = «call»(«mapNext», «entries», []);
-        if («step».done) break;
-        «walk»(«step».value[0], «level» + 1);
-        «walk»(«step».value[1], «level» + 1);
-      }
-      «put»('}');
-      «extras»(«value», «level», 0);
-      return;
-    }
-    let «values»;
-    try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
-    if («values» !== undefined) {
-      «put»('S{');
-      for (;;) {
-        const «step» = «call»(«setNext», «values», []);
-        if («step».done) break;
-        «walk»(«step».value, «level» + 1);
-      }
-      «put»('}');
-      «extras»(«value», «level», 0);
-      return;
-    }
-    let «time»;
-    try { «time» = «call»(«dateTime», «value», []); } catch { «time» = undefined; }
-    if («time» !== undefined) { «put»('T' + «time» + ';'); «extras»(«value», «level», 0); return; }
-    if («isView»(«value»)) {
-      // The length of a typed array comes from the getter of %TypedArray%.prototype, never from the length
-      // property, which an instance can define as its own; a DataView has no such length and is read byte by byte.
-      let «size»;
-      try { «size» = «call»(«typedLength», «value», []); } catch { «size» = undefined; }
-      if («size» !== undefined) {
-        «put»('V' + «size» + ':');
-        for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
-      } else {
-        const «bytes» = «call»(«viewByteLength», «value», []);
-        «put»('W' + «bytes» + ':');
-        for (let «i» = 0; «i» < «bytes»; «i» += 1) «put»('' + «call»(«viewByte», «value», [«i»]) + ',');
-      }
-      «put»(';');
-      «extras»(«value», «level», 2);
-      return;
-    }
-    if («isArray»(«value»)) {
-      // Each index is read through its descriptor: an accessor element is an invalid result and is not called, and
-      // a hole is not read (a read would reach the prototype chain).
-      «put»('A' + «value».length + '[');
-      for (let «i» = 0; «i» < «value».length; «i» += 1) {
-        const «cell» = «describe»(«value», «i»);
-        if («cell» === undefined) «put»('h;');
-        else {
-          if («call»(«hasOwn», undefined, [«cell», 'value'])) «walk»(«cell».value, «level» + 1);
-          else {
-            «sawInvalid» = true;
-            «put»('G;');
-          }
-        }
-      }
-      «put»(']');
-      «extras»(«value», «level», 1);
-      return;
-    }
-    const «keys» = «ownKeys»(«value»);
-    «put»('O' + «keys».length + '{');
-    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
-      const «key» = «keys»[«i»];
-      if (typeof «key» === 'symbol') «put»('y;');
-      else «put»('k' + «key».length + ':' + «key»);
-      const «desc» = «describe»(«value», «key»);
-      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
-      else {
-        // An accessor runs the product's own code on every read: it is not called, it is reported.
-        «sawInvalid» = true;
-        «put»('G;');
-      }
-    }
-    «put»('}');
-  };
-  «walk»(«root», 0);
-  «call»(«hashUpdate», «hash», [«chunk»]);
-  return «call»(«hashDigest», «hash», ['hex']);
-};
-const «recent» = new Array(16);
-let «stored» = 0;
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
 
 if («setup».command) {
@@ -330,48 +148,18 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
+    «answer»({ ready: true });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
-    const «handle» = «request».call.startsWith('#');
-    const «fn» = «handle»
-      ? «handles».get(Number(«request».call.slice(1)))
-      : «setup».invoke
-        ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
-        : «product»[«request».call];
+    const «fn» = «setup».invoke ? (...«rest») => «product»[«setup».invoke](«request».call, «rest») : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       const «args» = «decode»(«request».args);
-      const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
-      const «used» = «cpuNow»(«before»);
-      const «ret» = «encode»(«result»);
-      const «moved» = [];
-      let «movedCount» = 0;
-      let «invalid» = false;
-      if («setup».aliasing) {
-        const «kept» = «stored» < 16 ? «stored» : 16;
-        for (let «i» = 0; «i» < «kept»; «i» += 1) {
-          const «each» = «recent»[«i»];
-          const «now» = «fingerprint»(«each».live);
-          // A change is reported by the one call after which it is seen, not again by the calls that follow.
-          if («now» !== «each».digest) { «moved»[«movedCount»] = «each».call; «movedCount» += 1; «each».digest = «now»; }
-        }
-        if («result» !== null && (typeof «result» === 'object' || typeof «result» === 'function')) {
-          // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
-          «sawInvalid» = false;
-          const «digest» = «fingerprint»(«result»);
-          if («sawInvalid») «invalid» = true;
-          else if (typeof «result» === 'object') {
-            «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «digest» };
-            «stored» += 1;
-          }
-        }
-      }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}) });
+      «answer»({ id: «request».id, ret: «encode»(«result») });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }
@@ -414,48 +202,36 @@ export function wrapperModule(
   return { source, invoke: name('invoke') };
 }
 
-/** The codec module of run C: the value codec and the table of handles, exported under drawn names. */
-export function plainCodec(
-  seed: number,
-  tag: string,
-): { source: string; encode: string; decode: string; handles: string } {
+/** The codec module of run C: the value codec, exported under drawn names. */
+export function plainCodec(seed: number, tag: string): { source: string; encode: string; decode: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')} };\n`;
-  return { source, encode: name('encode'), decode: name('decode'), handles: name('handles') };
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')} };\n`;
+  return { source, encode: name('encode'), decode: name('decode') };
 }
 
 /**
- * The entry of run C: one fresh process that imports the product and the codec, reads the recorded calls from a file
- * line by line, makes them in order and appends every answer to a file as one line. The state a call leaves (a
- * counter, a handle, a cache) is kept from one call to the next, as in the confined runs. Paths are file URLs.
+ * The entry of run C for one call: it imports the product and the codec, reads the arguments from a file, makes the
+ * call and writes the answer to a file. Paths are file URLs and the call's name is a string literal.
  */
-export function plainBatchEntry(
+export function plainEntry(
   seed: number,
   tag: string,
-  paths: { module: string; codec: string; calls: string; out: string },
-  codec: { encode: string; decode: string; handles: string },
+  paths: { module: string; codec: string; args: string; out: string },
+  call: string,
+  codec: { encode: string; decode: string },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
-  const each = name('each');
-  const fn = name('fn');
-  const answer = name('answer');
+  const out = name('out');
   const error = name('error');
   return [
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
-    `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
-    `import { createInterface as ${name('lines')} } from 'node:readline';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')} } from ${JSON.stringify(paths.codec)};`,
-    `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
-    `  const ${each} = JSON.parse(${name('line')});`,
-    `  let ${answer};`,
-    `  try {`,
-    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
-    `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('decode')}(${each}.args))) };`,
-    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
-    `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
-    `}`,
+    `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')} } from ${JSON.stringify(paths.codec)};`,
+    `let ${out};`,
+    `try { ${out} = { ret: ${name('encode')}(await ${product}[${JSON.stringify(call)}](...${name('decode')}(JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.args)}), 'utf8'))))) }; }`,
+    `catch (${error}) { ${out} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `${name('write')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${out}));`,
     '',
   ].join('\n');
 }
