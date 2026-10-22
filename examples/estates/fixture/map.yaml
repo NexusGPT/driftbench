@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T11:48:48.568Z
+readAt: 2026-10-22T01:58:27.043Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -2130,8 +2130,9 @@ atoms:
     producedBy: model
     role: axis
     approved: false
+    situation: "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it."
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 6juqj4iyft, set: agent-rules, label: prohibition } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 6juqj4iyft, set: agent-rules, label: prohibition, condition: [ mx7vrgfrjv ] } }
     enforcement: []
     fields:
       extraction: pointer
@@ -2139,6 +2140,8 @@ atoms:
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
+      condition:
+        - mx7vrgfrjv
       polarity: prohibition
       labelLinks:
         - kind: reply-act
@@ -3332,5 +3335,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T11:48:48.568Z
+  at: 2026-10-22T01:58:27.043Z
 hash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
