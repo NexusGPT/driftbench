@@ -274,7 +274,8 @@ async function gradeRedteam(
       ]),
     ]))
       io.out(`${line}\n`);
-    for (const line of usageLines(judge, metered.usage, prices, o.cassette !== undefined)) io.out(`${line}\n`);
+    for (const line of usageLines(judge, metered.usage, prices, o.cassette !== undefined))
+      io.out(`${line}\n`);
     if (run.error) io.out(`${run.error}\n`);
     if (o.record) io.out(`Cassette written to ${resolve(io.cwd, o.record)}.\n`);
   }

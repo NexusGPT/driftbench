@@ -46,9 +46,14 @@ export function usageLines(
     `${replayed ? 'Tokens replayed from the cassette' : 'Tokens'}, ${who}: ${usage.input} in, ${usage.output} out, ${usage.calls} calls.`,
   ];
   if (usage.reported < usage.calls)
-    lines.push(`${usage.calls - usage.reported} of the ${usage.calls} calls reported no tokens, so the cost is partial.`);
+    lines.push(
+      `${usage.calls - usage.reported} of the ${usage.calls} calls reported no tokens, so the cost is partial.`,
+    );
   if (!prices) return [...lines, 'No prices given: pass --prices <file> to see the cost in USD.'];
-  const price = client.model !== undefined && Object.hasOwn(prices.models, client.model) ? prices.models[client.model] : undefined;
+  const price =
+    client.model !== undefined && Object.hasOwn(prices.models, client.model)
+      ? prices.models[client.model]
+      : undefined;
   if (!price)
     return [...lines, `No cost is known: the price table has no price for ${client.model ?? client.id}.`];
   const usd = (usage.input * price.input + usage.output * price.output) / 1_000_000;

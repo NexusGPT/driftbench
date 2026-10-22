@@ -427,7 +427,8 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
     });
 
     describe('what the judge used', () => {
-      const prices = 'as_of: 2026-01-01\nmodels:\n  judge-model-1: { input: 1, output: 4, cached_input: 0 }\n';
+      const prices =
+        'as_of: 2026-01-01\nmodels:\n  judge-model-1: { input: 1, output: 4, cached_input: 0 }\n';
       const metered: JudgeFactory = () => ({
         id: 'metered',
         family: 'openai',
@@ -449,7 +450,18 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
         const table = join(dir, 'grade-usage.prices.yaml');
         await writeFile(table, prices);
         const live = await redteam(
-          ['grade', spec, '--target', 'function:acme-sales', '--judge', 'openai', '--record', saved, '--prices', table],
+          [
+            'grade',
+            spec,
+            '--target',
+            'function:acme-sales',
+            '--judge',
+            'openai',
+            '--record',
+            saved,
+            '--prices',
+            table,
+          ],
           defaultDeps,
           metered,
         );
@@ -478,7 +490,10 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
         );
         expect(live.out).toContain('No prices given: pass --prices <file> to see the cost in USD.');
         const other = join(dir, 'grade-usage.other.yaml');
-        await writeFile(other, 'as_of: 2026-01-01\nmodels:\n  other-1: { input: 1, output: 4, cached_input: 0 }\n');
+        await writeFile(
+          other,
+          'as_of: 2026-01-01\nmodels:\n  other-1: { input: 1, output: 4, cached_input: 0 }\n',
+        );
         const replay = await redteam(
           ['grade', spec, '--target', 'function:acme-sales', '--cassette', saved, '--prices', other],
           defaultDeps,
@@ -490,9 +505,15 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
 
       it('replays the committed cassette of the guide with a price table', async () => {
         const table = join(dir, 'grade-guide.prices.yaml');
-        await writeFile(table, 'as_of: 2026-10-22\nmodels:\n  claude-haiku-5-5: { input: 0.1, output: 0.5, cached_input: 0 }\n');
+        await writeFile(
+          table,
+          'as_of: 2026-10-22\nmodels:\n  claude-haiku-5-5: { input: 0.1, output: 0.5, cached_input: 0 }\n',
+        );
         const spec = join(dir, 'guide-sql.json');
-        await writeFile(spec, await readFile(join(ROOT, 'examples/acme/recordings/redteam-sql-injection.spec.json'), 'utf8'));
+        await writeFile(
+          spec,
+          await readFile(join(ROOT, 'examples/acme/recordings/redteam-sql-injection.spec.json'), 'utf8'),
+        );
         const replay = await redteam(
           [
             'grade',
@@ -512,7 +533,9 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
           noLiveJudge,
         );
         expect(replay.err).toBe('');
-        expect(replay.out).toMatch(/Tokens replayed from the cassette, judge anthropic claude-haiku-5-5: \d+ in, \d+ out, 1 calls\./);
+        expect(replay.out).toMatch(
+          /Tokens replayed from the cassette, judge anthropic claude-haiku-5-5: \d+ in, \d+ out, 1 calls\./,
+        );
         expect(replay.out).toMatch(/Cost when recorded: 0\.\d{4} USD\./);
       });
     });

@@ -10,8 +10,10 @@ const REQUEST = {
   ],
 };
 
-const reply = (body: unknown): FetchLike => async () =>
-  new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
+const reply =
+  (body: unknown): FetchLike =>
+  async () =>
+    new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
 
 describe('a chat judge keeps the tokens its provider reports', () => {
   it('openai', async () => {
