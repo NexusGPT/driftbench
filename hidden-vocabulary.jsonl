@@ -15994,181 +15994,181 @@
 {"text": "The Wait time is under 353 minutes", "label": {"kind": "numeric", "subject": "Wait time", "limit": 353, "comparison": "lt", "unit": "minutes"}}
 {"text": "The Wait time is under 420 minutes", "label": {"kind": "numeric", "subject": "Wait time", "limit": 420, "comparison": "lt", "unit": "minutes"}}
 {"text": "The Wait time is under 80 minutes", "label": {"kind": "numeric", "subject": "Wait time", "limit": 80, "comparison": "lt", "unit": "minutes"}}
-{"text": "the attachment size is 180 MB or fewer", "label": {"comparison": "le", "kind": "numeric", "limit": 180, "subject": "attachment size", "unit": "MB"}}
-{"text": "the attachment size is at most 168 MB", "label": {"comparison": "le", "kind": "numeric", "limit": 168, "subject": "attachment size", "unit": "MB"}}
-{"text": "the attachment size is below 168 MB", "label": {"comparison": "lt", "kind": "numeric", "limit": 168, "subject": "attachment size", "unit": "MB"}}
-{"text": "the attachment size is over 53 MB", "label": {"comparison": "gt", "kind": "numeric", "limit": 53, "subject": "attachment size", "unit": "MB"}}
-{"text": "the balance is under 0 euros", "label": {"comparison": "lt", "kind": "numeric", "limit": 0, "subject": "balance", "unit": "euros"}}
-{"text": "the basket is under twenty-five items", "label": {"comparison": "lt", "kind": "numeric", "limit": 25, "subject": "basket item count", "unit": "items"}}
-{"text": "the batch holds at least twelve items", "label": {"comparison": "ge", "kind": "numeric", "limit": 12, "subject": "batch item count", "unit": "items"}}
-{"text": "the batch size < 5 rows", "label": {"comparison": "lt", "kind": "numeric", "limit": 5, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is at least one hundred", "label": {"comparison": "ge", "kind": "numeric", "limit": 100, "subject": "batch size"}}
-{"text": "the batch size is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "batch size"}}
-{"text": "the batch size is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "batch size"}}
-{"text": "the batch size is below 2 rows", "label": {"comparison": "lt", "kind": "numeric", "limit": 2, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is more than 0 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is no more than 0 rows", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is over 27 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 27, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is over 53 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 53, "subject": "batch size", "unit": "rows"}}
-{"text": "the batch size is over 653 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 653, "subject": "Batch size", "unit": "rows"}}
+{"text": "the attachment size is 180 MB or fewer", "label": {"kind": "numeric", "subject": "attachment size", "limit": 180, "comparison": "le", "unit": "MB"}}
+{"text": "the attachment size is at most 168 MB", "label": {"kind": "numeric", "subject": "attachment size", "limit": 168, "comparison": "le", "unit": "MB"}}
+{"text": "the attachment size is below 168 MB", "label": {"kind": "numeric", "subject": "attachment size", "limit": 168, "comparison": "lt", "unit": "MB"}}
+{"text": "the attachment size is over 53 MB", "label": {"kind": "numeric", "subject": "attachment size", "limit": 53, "comparison": "gt", "unit": "MB"}}
+{"text": "the balance is under 0 euros", "label": {"kind": "numeric", "subject": "balance", "limit": 0, "comparison": "lt", "unit": "euros"}}
+{"text": "the basket is under twenty-five items", "label": {"kind": "numeric", "subject": "basket item count", "limit": 25, "comparison": "lt", "unit": "items"}}
+{"text": "the batch holds at least twelve items", "label": {"kind": "numeric", "subject": "batch item count", "limit": 12, "comparison": "ge", "unit": "items"}}
+{"text": "the batch size < 5 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 5, "comparison": "lt", "unit": "rows"}}
+{"text": "the batch size is at least one hundred", "label": {"kind": "numeric", "subject": "batch size", "limit": 100, "comparison": "ge"}}
+{"text": "the batch size is at least three", "label": {"kind": "numeric", "subject": "batch size", "limit": 3, "comparison": "ge"}}
+{"text": "the batch size is at least twenty-five", "label": {"kind": "numeric", "subject": "batch size", "limit": 25, "comparison": "ge"}}
+{"text": "the batch size is below 2 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 2, "comparison": "lt", "unit": "rows"}}
+{"text": "the batch size is more than 0 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 0, "comparison": "gt", "unit": "rows"}}
+{"text": "the batch size is no more than 0 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 0, "comparison": "le", "unit": "rows"}}
+{"text": "the batch size is over 27 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 27, "comparison": "gt", "unit": "rows"}}
+{"text": "the batch size is over 53 rows", "label": {"kind": "numeric", "subject": "batch size", "limit": 53, "comparison": "gt", "unit": "rows"}}
+{"text": "the batch size is over 653 rows", "label": {"kind": "numeric", "subject": "Batch size", "limit": 653, "comparison": "gt", "unit": "rows"}}
 {"text": "the customer has no account", "label": {"kind": "boolean", "subject": "customer has an account"}}
 {"text": "the customer is not verified", "label": {"kind": "boolean", "subject": "customer is verified"}}
 {"text": "the customer is verified", "label": {"kind": "boolean", "subject": "customer is verified"}}
-{"text": "the delay is at least 2 days", "label": {"comparison": "ge", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
-{"text": "the delay is at least 4 days", "label": {"comparison": "ge", "kind": "numeric", "limit": 4, "subject": "delay", "unit": "days"}}
-{"text": "the delay is at most 4 days", "label": {"comparison": "le", "kind": "numeric", "limit": 4, "subject": "delay", "unit": "days"}}
-{"text": "the delay is between 2 and 6 days", "label": {"high": 6, "kind": "range", "low": 2, "subject": "delay", "unit": "days"}}
-{"text": "the delay is exactly 2 days", "label": {"comparison": "eq", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
-{"text": "the delay is more than 2 days", "label": {"comparison": "gt", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
-{"text": "the delay is more than 6 days", "label": {"comparison": "gt", "kind": "numeric", "limit": 6, "subject": "delay", "unit": "days"}}
-{"text": "the delay is more than two days", "label": {"comparison": "gt", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
-{"text": "the delay is other than 2 days", "label": {"comparison": "ne", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
-{"text": "the discount is under 15%", "label": {"comparison": "lt", "kind": "numeric", "limit": 15, "subject": "discount", "unit": "%"}}
-{"text": "the discount rate != 87%", "label": {"comparison": "ne", "kind": "numeric", "limit": 87, "subject": "discount rate", "unit": "%"}}
-{"text": "the discount rate < 10%", "label": {"comparison": "lt", "kind": "numeric", "limit": 10, "subject": "discount rate", "unit": "%"}}
-{"text": "the discount rate <= 53%", "label": {"comparison": "le", "kind": "numeric", "limit": 53, "subject": "discount rate", "unit": "%"}}
-{"text": "the discount rate >= 65%", "label": {"comparison": "ge", "kind": "numeric", "limit": 65, "subject": "discount rate", "unit": "percent"}}
-{"text": "the discount rate >= 95%", "label": {"comparison": "ge", "kind": "numeric", "limit": 95, "subject": "the discount rate", "unit": "%"}}
-{"text": "the discount rate is 80% or fewer", "label": {"comparison": "le", "kind": "numeric", "limit": 80, "subject": "discount rate", "unit": "%"}}
-{"text": "the discount rate is at least 5%", "label": {"comparison": "ge", "kind": "numeric", "limit": 5, "subject": "Discount rate", "unit": "%"}}
-{"text": "the discount rate is at least 53%", "label": {"comparison": "ge", "kind": "numeric", "limit": 53, "subject": "discount", "unit": "%"}}
-{"text": "the discount rate is at least 95%", "label": {"comparison": "ge", "kind": "numeric", "limit": 95, "subject": "discount rate", "unit": "percent"}}
-{"text": "the discount rate is at most 900%", "label": {"comparison": "le", "kind": "numeric", "limit": 900, "subject": "discount rate", "unit": "%"}}
+{"text": "the delay is at least 2 days", "label": {"kind": "numeric", "subject": "delay", "limit": 2, "comparison": "ge", "unit": "days"}}
+{"text": "the delay is at least 4 days", "label": {"kind": "numeric", "subject": "delay", "limit": 4, "comparison": "ge", "unit": "days"}}
+{"text": "the delay is at most 4 days", "label": {"kind": "numeric", "subject": "delay", "limit": 4, "comparison": "le", "unit": "days"}}
+{"text": "the delay is between 2 and 6 days", "label": {"kind": "range", "subject": "delay", "low": 2, "high": 6, "unit": "days"}}
+{"text": "the delay is exactly 2 days", "label": {"kind": "numeric", "subject": "delay", "limit": 2, "comparison": "eq", "unit": "days"}}
+{"text": "the delay is more than 2 days", "label": {"kind": "numeric", "subject": "delay", "limit": 2, "comparison": "gt", "unit": "days"}}
+{"text": "the delay is more than 6 days", "label": {"kind": "numeric", "subject": "delay", "limit": 6, "comparison": "gt", "unit": "days"}}
+{"text": "the delay is more than two days", "label": {"kind": "numeric", "subject": "delay", "limit": 2, "comparison": "gt", "unit": "days"}}
+{"text": "the delay is other than 2 days", "label": {"kind": "numeric", "subject": "delay", "limit": 2, "comparison": "ne", "unit": "days"}}
+{"text": "the discount is under 15%", "label": {"kind": "numeric", "subject": "discount", "limit": 15, "comparison": "lt", "unit": "%"}}
+{"text": "the discount rate != 87%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 87, "comparison": "ne", "unit": "%"}}
+{"text": "the discount rate < 10%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 10, "comparison": "lt", "unit": "%"}}
+{"text": "the discount rate <= 53%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 53, "comparison": "le", "unit": "%"}}
+{"text": "the discount rate >= 65%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 65, "comparison": "ge", "unit": "percent"}}
+{"text": "the discount rate >= 95%", "label": {"kind": "numeric", "subject": "the discount rate", "limit": 95, "comparison": "ge", "unit": "%"}}
+{"text": "the discount rate is 80% or fewer", "label": {"kind": "numeric", "subject": "discount rate", "limit": 80, "comparison": "le", "unit": "%"}}
+{"text": "the discount rate is at least 5%", "label": {"kind": "numeric", "subject": "Discount rate", "limit": 5, "comparison": "ge", "unit": "%"}}
+{"text": "the discount rate is at least 53%", "label": {"kind": "numeric", "subject": "discount", "limit": 53, "comparison": "ge", "unit": "%"}}
+{"text": "the discount rate is at least 95%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 95, "comparison": "ge", "unit": "percent"}}
+{"text": "the discount rate is at most 900%", "label": {"kind": "numeric", "subject": "discount rate", "limit": 900, "comparison": "le", "unit": "%"}}
 {"text": "the draft is not signed", "label": {"kind": "boolean", "subject": "draft is not signed"}}
 {"text": "the draft is signed", "label": {"kind": "boolean", "subject": "draft is signed"}}
-{"text": "the draft is under 120 words", "label": {"comparison": "lt", "kind": "numeric", "limit": 120, "subject": "draft length", "unit": "words"}}
+{"text": "the draft is under 120 words", "label": {"kind": "numeric", "subject": "draft length", "limit": 120, "comparison": "lt", "unit": "words"}}
 {"text": "the file is not staged", "label": {"kind": "boolean", "subject": "the file is not staged"}}
 {"text": "the file is staged", "label": {"kind": "boolean", "subject": "file is staged"}}
-{"text": "the history length != 15 turns", "label": {"comparison": "ne", "kind": "numeric", "limit": 15, "subject": "history length", "unit": "turns"}}
-{"text": "the history length <= 15 turns", "label": {"comparison": "le", "kind": "numeric", "limit": 15, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is at least one hundred", "label": {"comparison": "ge", "kind": "numeric", "limit": 100, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "history length"}}
-{"text": "the history length is at most 15 turns", "label": {"comparison": "le", "kind": "numeric", "limit": 15, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is more than 0 turns", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is no less than 2 turns", "label": {"comparison": "ge", "kind": "numeric", "limit": 2, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is no more than 0 turns", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is other than 40 turns", "label": {"comparison": "ne", "kind": "numeric", "limit": 40, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is over 173 turns", "label": {"comparison": "gt", "kind": "numeric", "limit": 173, "subject": "history length", "unit": "turns"}}
-{"text": "the history length is over 5 turns", "label": {"comparison": "gt", "kind": "numeric", "limit": 5, "subject": "history length", "unit": "turns"}}
+{"text": "the history length != 15 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 15, "comparison": "ne", "unit": "turns"}}
+{"text": "the history length <= 15 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 15, "comparison": "le", "unit": "turns"}}
+{"text": "the history length is at least one hundred", "label": {"kind": "numeric", "subject": "history length", "limit": 100, "comparison": "ge", "unit": "turns"}}
+{"text": "the history length is at least three", "label": {"kind": "numeric", "subject": "history length", "limit": 3, "comparison": "ge", "unit": "turns"}}
+{"text": "the history length is at least twenty-five", "label": {"kind": "numeric", "subject": "history length", "limit": 25, "comparison": "ge"}}
+{"text": "the history length is at most 15 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 15, "comparison": "le", "unit": "turns"}}
+{"text": "the history length is more than 0 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 0, "comparison": "gt", "unit": "turns"}}
+{"text": "the history length is no less than 2 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 2, "comparison": "ge", "unit": "turns"}}
+{"text": "the history length is no more than 0 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 0, "comparison": "le", "unit": "turns"}}
+{"text": "the history length is other than 40 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 40, "comparison": "ne", "unit": "turns"}}
+{"text": "the history length is over 173 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 173, "comparison": "gt", "unit": "turns"}}
+{"text": "the history length is over 5 turns", "label": {"kind": "numeric", "subject": "history length", "limit": 5, "comparison": "gt", "unit": "turns"}}
 {"text": "the invoice is approved", "label": {"kind": "boolean", "subject": "invoice is approved"}}
-{"text": "the invoice is more than 1,250.50 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1250.5, "subject": "Invoice Total", "unit": "euros"}}
+{"text": "the invoice is more than 1,250.50 euros", "label": {"kind": "numeric", "subject": "Invoice Total", "limit": 1250.5, "comparison": "gt", "unit": "euros"}}
 {"text": "the invoice is not approved", "label": {"kind": "boolean", "subject": "Invoice approved"}}
-{"text": "the invoice total is at most 602", "label": {"comparison": "le", "kind": "numeric", "limit": 602, "subject": "Invoice total"}}
-{"text": "the invoice total is at most 603 euros", "label": {"comparison": "le", "kind": "numeric", "limit": 603, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is more than 1000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is more than 1000000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000000, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is more than 2147483648 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 2147483648, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is over 0.3 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.3, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is over 0.5 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.5, "subject": "Invoice Total", "unit": "euros"}}
-{"text": "the invoice total is over 113 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 113, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is over 12.75 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 12.75, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is over 120 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 120, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is over 3.0 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 3, "subject": "invoice total", "unit": "euros"}}
-{"text": "the invoice total is under 87 euros", "label": {"comparison": "lt", "kind": "numeric", "limit": 87, "subject": "invoice total", "unit": "euros"}}
-{"text": "the loop depth is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "loop depth"}}
-{"text": "the loop depth is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "loop depth"}}
-{"text": "the loop depth is fewer than 15", "label": {"comparison": "lt", "kind": "numeric", "limit": 15, "subject": "loop depth"}}
-{"text": "the loop depth is greater than 27", "label": {"comparison": "gt", "kind": "numeric", "limit": 27, "subject": "loop depth"}}
-{"text": "the loop depth is more than 0", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "loop depth"}}
-{"text": "the loop depth is no more than 0", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "Loop depth"}}
-{"text": "the loop depth is no more than 2", "label": {"comparison": "le", "kind": "numeric", "limit": 2, "subject": "loop depth"}}
-{"text": "the loop depth is not equal to 5", "label": {"comparison": "ne", "kind": "numeric", "limit": 5, "subject": "loop depth"}}
-{"text": "the loop depth is over 20", "label": {"comparison": "gt", "kind": "numeric", "limit": 20, "subject": "loop depth"}}
-{"text": "the loop depth is under 53", "label": {"comparison": "lt", "kind": "numeric", "limit": 53, "subject": "loop depth"}}
-{"text": "the margin is under -2.5 percent", "label": {"comparison": "lt", "kind": "numeric", "limit": -2.5, "subject": "margin", "unit": "percent"}}
+{"text": "the invoice total is at most 602", "label": {"kind": "numeric", "subject": "Invoice total", "limit": 602, "comparison": "le"}}
+{"text": "the invoice total is at most 603 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 603, "comparison": "le", "unit": "euros"}}
+{"text": "the invoice total is more than 1000000000 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 1000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is more than 1000000000000 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 1000000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is more than 2147483648 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 2147483648, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 0.3 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 0.3, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 0.5 euros", "label": {"kind": "numeric", "subject": "Invoice Total", "limit": 0.5, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 113 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 113, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 12.75 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 12.75, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 120 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 120, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is over 3.0 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 3, "comparison": "gt", "unit": "euros"}}
+{"text": "the invoice total is under 87 euros", "label": {"kind": "numeric", "subject": "invoice total", "limit": 87, "comparison": "lt", "unit": "euros"}}
+{"text": "the loop depth is at least three", "label": {"kind": "numeric", "subject": "loop depth", "limit": 3, "comparison": "ge"}}
+{"text": "the loop depth is at least twenty-five", "label": {"kind": "numeric", "subject": "loop depth", "limit": 25, "comparison": "ge"}}
+{"text": "the loop depth is fewer than 15", "label": {"kind": "numeric", "subject": "loop depth", "limit": 15, "comparison": "lt"}}
+{"text": "the loop depth is greater than 27", "label": {"kind": "numeric", "subject": "loop depth", "limit": 27, "comparison": "gt"}}
+{"text": "the loop depth is more than 0", "label": {"kind": "numeric", "subject": "loop depth", "limit": 0, "comparison": "gt"}}
+{"text": "the loop depth is no more than 0", "label": {"kind": "numeric", "subject": "Loop depth", "limit": 0, "comparison": "le"}}
+{"text": "the loop depth is no more than 2", "label": {"kind": "numeric", "subject": "loop depth", "limit": 2, "comparison": "le"}}
+{"text": "the loop depth is not equal to 5", "label": {"kind": "numeric", "subject": "loop depth", "limit": 5, "comparison": "ne"}}
+{"text": "the loop depth is over 20", "label": {"kind": "numeric", "subject": "loop depth", "limit": 20, "comparison": "gt"}}
+{"text": "the loop depth is under 53", "label": {"kind": "numeric", "subject": "loop depth", "limit": 53, "comparison": "lt"}}
+{"text": "the margin is under -2.5 percent", "label": {"kind": "numeric", "subject": "margin", "limit": -2.5, "comparison": "lt", "unit": "percent"}}
 {"text": "the order has no delivery date", "label": {"kind": "boolean", "subject": "order has no delivery date"}}
-{"text": "the order is at least 1000000 euros", "label": {"comparison": "ge", "kind": "numeric", "limit": 1000000, "subject": "order value", "unit": "euros"}}
-{"text": "the order is more than 1,000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is at most 274 euros", "label": {"comparison": "le", "kind": "numeric", "limit": 274, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is more than 1000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is more than 1000000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000000, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is more than 2147483648 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 2147483648, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is over 0.3 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.3, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is over 0.5 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.5, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is over 12.75 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 12.75, "subject": "order value", "unit": "euros"}}
-{"text": "the order value is over 3.0 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 3, "subject": "order value", "unit": "euros"}}
-{"text": "the page count == 2 pages", "label": {"comparison": "eq", "kind": "numeric", "limit": 2, "subject": "page count", "unit": "pages"}}
-{"text": "the page count == 27 pages", "label": {"comparison": "eq", "kind": "numeric", "limit": 27, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is at least 113 pages", "label": {"comparison": "ge", "kind": "numeric", "limit": 113, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is at least one hundred", "label": {"comparison": "ge", "kind": "numeric", "limit": 100, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "page count"}}
-{"text": "the page count is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is greater than 10 pages", "label": {"comparison": "gt", "kind": "numeric", "limit": 10, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is more than 0 pages", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is no less than 20 pages", "label": {"comparison": "ge", "kind": "numeric", "limit": 20, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is no more than 0 pages", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "page count", "unit": "pages"}}
-{"text": "the page count is over 20 pages", "label": {"comparison": "gt", "kind": "numeric", "limit": 20, "subject": "page count", "unit": "pages"}}
-{"text": "the queue is more than 7 tickets", "label": {"comparison": "gt", "kind": "numeric", "limit": 7, "subject": "queue length", "unit": "tickets"}}
-{"text": "the queue is under 3 tickets", "label": {"comparison": "lt", "kind": "numeric", "limit": 3, "subject": "queue length", "unit": "tickets"}}
-{"text": "the queue length equals 20 items", "label": {"comparison": "eq", "kind": "numeric", "limit": 20, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is at least one hundred", "label": {"comparison": "ge", "kind": "numeric", "limit": 100, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "queue length"}}
-{"text": "the queue length is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is at most 53 items", "label": {"comparison": "le", "kind": "numeric", "limit": 53, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is below 2 items", "label": {"comparison": "lt", "kind": "numeric", "limit": 2, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is more than 0 items", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is no more than 0 items", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "Queue length", "unit": "items"}}
-{"text": "the queue length is no more than 2 items", "label": {"comparison": "le", "kind": "numeric", "limit": 2, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is no more than 20 items", "label": {"comparison": "le", "kind": "numeric", "limit": 20, "subject": "queue size", "unit": "items"}}
-{"text": "the queue length is over 27 items", "label": {"comparison": "gt", "kind": "numeric", "limit": 27, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is under 5 items", "label": {"comparison": "lt", "kind": "numeric", "limit": 5, "subject": "queue length", "unit": "items"}}
-{"text": "the rating is at least 0.5 stars", "label": {"comparison": "ge", "kind": "numeric", "limit": 0.5, "subject": "rating", "unit": "stars"}}
-{"text": "the rating is more than 2.5 stars", "label": {"comparison": "gt", "kind": "numeric", "limit": 2.5, "subject": "rating", "unit": "stars"}}
-{"text": "the refund amount is at most 180 euros", "label": {"comparison": "le", "kind": "numeric", "limit": 180, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is more than 1000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is more than 1000000000000 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1000000000000, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is more than 2147483648 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 2147483648, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is over 0.3 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.3, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is over 0.5 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 0.5, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is over 12.75 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 12.75, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is over 180 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 180, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is over 3.0 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 3, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund amount is under 10 euros", "label": {"comparison": "lt", "kind": "numeric", "limit": 10, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund is at least 5 euros", "label": {"comparison": "ge", "kind": "numeric", "limit": 5, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund is at most \u20ac35", "label": {"comparison": "le", "kind": "numeric", "limit": 35, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund is more than $20", "label": {"comparison": "gt", "kind": "numeric", "limit": 20, "subject": "refund amount", "unit": "dollars"}}
-{"text": "the refund is more than 50 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 50, "subject": "refund amount", "unit": "euros"}}
-{"text": "the refund is under 30 euros", "label": {"comparison": "lt", "kind": "numeric", "limit": 30, "subject": "refund amount", "unit": "euros"}}
-{"text": "the reply holds at most 1 question", "label": {"comparison": "le", "kind": "numeric", "limit": 1, "subject": "questions in reply"}}
-{"text": "the response time > 173 seconds", "label": {"comparison": "gt", "kind": "numeric", "limit": 173, "subject": "response time", "unit": "seconds"}}
-{"text": "the response time is at least 201 seconds", "label": {"comparison": "ge", "kind": "numeric", "limit": 201, "subject": "response time", "unit": "seconds"}}
-{"text": "the response time is at least 80 seconds", "label": {"comparison": "ge", "kind": "numeric", "limit": 80, "subject": "Response time", "unit": "seconds"}}
-{"text": "the response time is greater than 180 seconds", "label": {"comparison": "gt", "kind": "numeric", "limit": 180, "subject": "response time", "unit": "seconds"}}
-{"text": "the response time is no less than 10 seconds", "label": {"comparison": "ge", "kind": "numeric", "limit": 10, "subject": "response time", "unit": "seconds"}}
-{"text": "the response time is under 201 seconds", "label": {"comparison": "lt", "kind": "numeric", "limit": 201, "subject": "response time", "unit": "seconds"}}
-{"text": "the retry count > 15", "label": {"comparison": "gt", "kind": "numeric", "limit": 15, "subject": "Retry count"}}
-{"text": "the retry count is at least one hundred", "label": {"comparison": "ge", "kind": "numeric", "limit": 100, "subject": "retry count"}}
-{"text": "the retry count is at least three", "label": {"comparison": "ge", "kind": "numeric", "limit": 3, "subject": "retry count"}}
-{"text": "the retry count is at least twenty-five", "label": {"comparison": "ge", "kind": "numeric", "limit": 25, "subject": "retry count"}}
-{"text": "the retry count is at most 40", "label": {"comparison": "le", "kind": "numeric", "limit": 40, "subject": "Retry count"}}
-{"text": "the retry count is at most 5", "label": {"comparison": "le", "kind": "numeric", "limit": 5, "subject": "Retry count"}}
-{"text": "the retry count is at most 53", "label": {"comparison": "le", "kind": "numeric", "limit": 53, "subject": "Retry count"}}
-{"text": "the retry count is exactly 27", "label": {"comparison": "eq", "kind": "numeric", "limit": 27, "subject": "Retry count"}}
-{"text": "the retry count is fewer than 27", "label": {"comparison": "lt", "kind": "numeric", "limit": 27, "subject": "retry count"}}
-{"text": "the retry count is more than 0", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "retry count"}}
-{"text": "the retry count is no less than 10", "label": {"comparison": "ge", "kind": "numeric", "limit": 10, "subject": "Retry count"}}
-{"text": "the retry count is no less than 5", "label": {"comparison": "ge", "kind": "numeric", "limit": 5, "subject": "retry count"}}
-{"text": "the retry count is no more than 0", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "retry count"}}
-{"text": "the retry count is not equal to 5", "label": {"comparison": "ne", "kind": "numeric", "limit": 5, "subject": "retry count"}}
-{"text": "the retry count is over 40", "label": {"comparison": "gt", "kind": "numeric", "limit": 40, "subject": "Retry count"}}
-{"text": "the retry count is under 20", "label": {"comparison": "lt", "kind": "numeric", "limit": 20, "subject": "Retry count"}}
-{"text": "the retry count is under 87", "label": {"comparison": "lt", "kind": "numeric", "limit": 87, "subject": "retry count"}}
-{"text": "the temperature is at most -3 degrees", "label": {"comparison": "le", "kind": "numeric", "limit": -3, "subject": "temperature", "unit": "degrees"}}
-{"text": "the temperature is below -5 degrees", "label": {"comparison": "lt", "kind": "numeric", "limit": -5, "subject": "temperature", "unit": "degrees"}}
-{"text": "the temperature is over -0.5 degrees", "label": {"comparison": "gt", "kind": "numeric", "limit": -0.5, "subject": "temperature", "unit": "degrees"}}
-{"text": "the ticket age != 10 days", "label": {"comparison": "ne", "kind": "numeric", "limit": 10, "subject": "ticket age", "unit": "days"}}
-{"text": "the ticket age exceeds 2 days", "label": {"comparison": "gt", "kind": "numeric", "limit": 2, "subject": "ticket age", "unit": "days"}}
-{"text": "the ticket age is at least 87 days", "label": {"comparison": "ge", "kind": "numeric", "limit": 87, "subject": "ticket age", "unit": "days"}}
-{"text": "the ticket age is over 101 days", "label": {"comparison": "gt", "kind": "numeric", "limit": 101, "subject": "ticket age", "unit": "days"}}
-{"text": "the ticket age is under 113 days", "label": {"comparison": "lt", "kind": "numeric", "limit": 113, "subject": "ticket age", "unit": "days"}}
+{"text": "the order is at least 1000000 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 1000000, "comparison": "ge", "unit": "euros"}}
+{"text": "the order is more than 1,000 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 1000, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is at most 274 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 274, "comparison": "le", "unit": "euros"}}
+{"text": "the order value is more than 1000000000 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 1000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is more than 1000000000000 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 1000000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is more than 2147483648 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 2147483648, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is over 0.3 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 0.3, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is over 0.5 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 0.5, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is over 12.75 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 12.75, "comparison": "gt", "unit": "euros"}}
+{"text": "the order value is over 3.0 euros", "label": {"kind": "numeric", "subject": "order value", "limit": 3, "comparison": "gt", "unit": "euros"}}
+{"text": "the page count == 2 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 2, "comparison": "eq", "unit": "pages"}}
+{"text": "the page count == 27 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 27, "comparison": "eq", "unit": "pages"}}
+{"text": "the page count is at least 113 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 113, "comparison": "ge", "unit": "pages"}}
+{"text": "the page count is at least one hundred", "label": {"kind": "numeric", "subject": "page count", "limit": 100, "comparison": "ge", "unit": "pages"}}
+{"text": "the page count is at least three", "label": {"kind": "numeric", "subject": "page count", "limit": 3, "comparison": "ge"}}
+{"text": "the page count is at least twenty-five", "label": {"kind": "numeric", "subject": "page count", "limit": 25, "comparison": "ge", "unit": "pages"}}
+{"text": "the page count is greater than 10 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 10, "comparison": "gt", "unit": "pages"}}
+{"text": "the page count is more than 0 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 0, "comparison": "gt", "unit": "pages"}}
+{"text": "the page count is no less than 20 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 20, "comparison": "ge", "unit": "pages"}}
+{"text": "the page count is no more than 0 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 0, "comparison": "le", "unit": "pages"}}
+{"text": "the page count is over 20 pages", "label": {"kind": "numeric", "subject": "page count", "limit": 20, "comparison": "gt", "unit": "pages"}}
+{"text": "the queue is more than 7 tickets", "label": {"kind": "numeric", "subject": "queue length", "limit": 7, "comparison": "gt", "unit": "tickets"}}
+{"text": "the queue is under 3 tickets", "label": {"kind": "numeric", "subject": "queue length", "limit": 3, "comparison": "lt", "unit": "tickets"}}
+{"text": "the queue length equals 20 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 20, "comparison": "eq", "unit": "items"}}
+{"text": "the queue length is at least one hundred", "label": {"kind": "numeric", "subject": "queue length", "limit": 100, "comparison": "ge", "unit": "items"}}
+{"text": "the queue length is at least three", "label": {"kind": "numeric", "subject": "queue length", "limit": 3, "comparison": "ge"}}
+{"text": "the queue length is at least twenty-five", "label": {"kind": "numeric", "subject": "queue length", "limit": 25, "comparison": "ge", "unit": "items"}}
+{"text": "the queue length is at most 53 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 53, "comparison": "le", "unit": "items"}}
+{"text": "the queue length is below 2 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 2, "comparison": "lt", "unit": "items"}}
+{"text": "the queue length is more than 0 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 0, "comparison": "gt", "unit": "items"}}
+{"text": "the queue length is no more than 0 items", "label": {"kind": "numeric", "subject": "Queue length", "limit": 0, "comparison": "le", "unit": "items"}}
+{"text": "the queue length is no more than 2 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 2, "comparison": "le", "unit": "items"}}
+{"text": "the queue length is no more than 20 items", "label": {"kind": "numeric", "subject": "queue size", "limit": 20, "comparison": "le", "unit": "items"}}
+{"text": "the queue length is over 27 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 27, "comparison": "gt", "unit": "items"}}
+{"text": "the queue length is under 5 items", "label": {"kind": "numeric", "subject": "queue length", "limit": 5, "comparison": "lt", "unit": "items"}}
+{"text": "the rating is at least 0.5 stars", "label": {"kind": "numeric", "subject": "rating", "limit": 0.5, "comparison": "ge", "unit": "stars"}}
+{"text": "the rating is more than 2.5 stars", "label": {"kind": "numeric", "subject": "rating", "limit": 2.5, "comparison": "gt", "unit": "stars"}}
+{"text": "the refund amount is at most 180 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 180, "comparison": "le", "unit": "euros"}}
+{"text": "the refund amount is more than 1000000000 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 1000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is more than 1000000000000 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 1000000000000, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is more than 2147483648 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 2147483648, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is over 0.3 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 0.3, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is over 0.5 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 0.5, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is over 12.75 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 12.75, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is over 180 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 180, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is over 3.0 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 3, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund amount is under 10 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 10, "comparison": "lt", "unit": "euros"}}
+{"text": "the refund is at least 5 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 5, "comparison": "ge", "unit": "euros"}}
+{"text": "the refund is at most \u20ac35", "label": {"kind": "numeric", "subject": "refund amount", "limit": 35, "comparison": "le", "unit": "euros"}}
+{"text": "the refund is more than $20", "label": {"kind": "numeric", "subject": "refund amount", "limit": 20, "comparison": "gt", "unit": "dollars"}}
+{"text": "the refund is more than 50 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 50, "comparison": "gt", "unit": "euros"}}
+{"text": "the refund is under 30 euros", "label": {"kind": "numeric", "subject": "refund amount", "limit": 30, "comparison": "lt", "unit": "euros"}}
+{"text": "the reply holds at most 1 question", "label": {"kind": "numeric", "subject": "questions in reply", "limit": 1, "comparison": "le"}}
+{"text": "the response time > 173 seconds", "label": {"kind": "numeric", "subject": "response time", "limit": 173, "comparison": "gt", "unit": "seconds"}}
+{"text": "the response time is at least 201 seconds", "label": {"kind": "numeric", "subject": "response time", "limit": 201, "comparison": "ge", "unit": "seconds"}}
+{"text": "the response time is at least 80 seconds", "label": {"kind": "numeric", "subject": "Response time", "limit": 80, "comparison": "ge", "unit": "seconds"}}
+{"text": "the response time is greater than 180 seconds", "label": {"kind": "numeric", "subject": "response time", "limit": 180, "comparison": "gt", "unit": "seconds"}}
+{"text": "the response time is no less than 10 seconds", "label": {"kind": "numeric", "subject": "response time", "limit": 10, "comparison": "ge", "unit": "seconds"}}
+{"text": "the response time is under 201 seconds", "label": {"kind": "numeric", "subject": "response time", "limit": 201, "comparison": "lt", "unit": "seconds"}}
+{"text": "the retry count > 15", "label": {"kind": "numeric", "subject": "Retry count", "limit": 15, "comparison": "gt"}}
+{"text": "the retry count is at least one hundred", "label": {"kind": "numeric", "subject": "retry count", "limit": 100, "comparison": "ge"}}
+{"text": "the retry count is at least three", "label": {"kind": "numeric", "subject": "retry count", "limit": 3, "comparison": "ge"}}
+{"text": "the retry count is at least twenty-five", "label": {"kind": "numeric", "subject": "retry count", "limit": 25, "comparison": "ge"}}
+{"text": "the retry count is at most 40", "label": {"kind": "numeric", "subject": "Retry count", "limit": 40, "comparison": "le"}}
+{"text": "the retry count is at most 5", "label": {"kind": "numeric", "subject": "Retry count", "limit": 5, "comparison": "le"}}
+{"text": "the retry count is at most 53", "label": {"kind": "numeric", "subject": "Retry count", "limit": 53, "comparison": "le"}}
+{"text": "the retry count is exactly 27", "label": {"kind": "numeric", "subject": "Retry count", "limit": 27, "comparison": "eq"}}
+{"text": "the retry count is fewer than 27", "label": {"kind": "numeric", "subject": "retry count", "limit": 27, "comparison": "lt"}}
+{"text": "the retry count is more than 0", "label": {"kind": "numeric", "subject": "retry count", "limit": 0, "comparison": "gt"}}
+{"text": "the retry count is no less than 10", "label": {"kind": "numeric", "subject": "Retry count", "limit": 10, "comparison": "ge"}}
+{"text": "the retry count is no less than 5", "label": {"kind": "numeric", "subject": "retry count", "limit": 5, "comparison": "ge"}}
+{"text": "the retry count is no more than 0", "label": {"kind": "numeric", "subject": "retry count", "limit": 0, "comparison": "le"}}
+{"text": "the retry count is not equal to 5", "label": {"kind": "numeric", "subject": "retry count", "limit": 5, "comparison": "ne"}}
+{"text": "the retry count is over 40", "label": {"kind": "numeric", "subject": "Retry count", "limit": 40, "comparison": "gt"}}
+{"text": "the retry count is under 20", "label": {"kind": "numeric", "subject": "Retry count", "limit": 20, "comparison": "lt"}}
+{"text": "the retry count is under 87", "label": {"kind": "numeric", "subject": "retry count", "limit": 87, "comparison": "lt"}}
+{"text": "the temperature is at most -3 degrees", "label": {"kind": "numeric", "subject": "temperature", "limit": -3, "comparison": "le", "unit": "degrees"}}
+{"text": "the temperature is below -5 degrees", "label": {"kind": "numeric", "subject": "temperature", "limit": -5, "comparison": "lt", "unit": "degrees"}}
+{"text": "the temperature is over -0.5 degrees", "label": {"kind": "numeric", "subject": "temperature", "limit": -0.5, "comparison": "gt", "unit": "degrees"}}
+{"text": "the ticket age != 10 days", "label": {"kind": "numeric", "subject": "ticket age", "limit": 10, "comparison": "ne", "unit": "days"}}
+{"text": "the ticket age exceeds 2 days", "label": {"kind": "numeric", "subject": "ticket age", "limit": 2, "comparison": "gt", "unit": "days"}}
+{"text": "the ticket age is at least 87 days", "label": {"kind": "numeric", "subject": "ticket age", "limit": 87, "comparison": "ge", "unit": "days"}}
+{"text": "the ticket age is over 101 days", "label": {"kind": "numeric", "subject": "ticket age", "limit": 101, "comparison": "gt", "unit": "days"}}
+{"text": "the ticket age is under 113 days", "label": {"kind": "numeric", "subject": "ticket age", "limit": 113, "comparison": "lt", "unit": "days"}}
 {"text": "the ticket has no owner", "label": {"kind": "boolean", "subject": "ticket has an owner"}}
-{"text": "the wait time <= 20 minutes", "label": {"comparison": "le", "kind": "numeric", "limit": 20, "subject": "wait time", "unit": "minutes"}}
-{"text": "the wait time is at least 240 minutes", "label": {"comparison": "ge", "kind": "numeric", "limit": 240, "subject": "wait time", "unit": "minutes"}}
-{"text": "the wait time is at least 602 minutes", "label": {"comparison": "ge", "kind": "numeric", "limit": 602, "subject": "wait time", "unit": "minutes"}}
-{"text": "the wait time is at most 120 minutes", "label": {"comparison": "le", "kind": "numeric", "limit": 120, "subject": "wait time", "unit": "minutes"}}
-{"text": "the wait time is at most 5 minutes", "label": {"comparison": "le", "kind": "numeric", "limit": 5, "subject": "wait time", "unit": "minutes"}}
-{"text": "the wait time is under 120 minutes", "label": {"comparison": "lt", "kind": "numeric", "limit": 120, "subject": "Wait time", "unit": "minutes"}}
+{"text": "the wait time <= 20 minutes", "label": {"kind": "numeric", "subject": "wait time", "limit": 20, "comparison": "le", "unit": "minutes"}}
+{"text": "the wait time is at least 240 minutes", "label": {"kind": "numeric", "subject": "wait time", "limit": 240, "comparison": "ge", "unit": "minutes"}}
+{"text": "the wait time is at least 602 minutes", "label": {"kind": "numeric", "subject": "wait time", "limit": 602, "comparison": "ge", "unit": "minutes"}}
+{"text": "the wait time is at most 120 minutes", "label": {"kind": "numeric", "subject": "wait time", "limit": 120, "comparison": "le", "unit": "minutes"}}
+{"text": "the wait time is at most 5 minutes", "label": {"kind": "numeric", "subject": "wait time", "limit": 5, "comparison": "le", "unit": "minutes"}}
+{"text": "the wait time is under 120 minutes", "label": {"kind": "numeric", "subject": "Wait time", "limit": 120, "comparison": "lt", "unit": "minutes"}}
 {"text": "Always greet the user by name.", "label": {"kind": "none"}}
 {"text": "Answer in complete sentences.", "label": {"kind": "none"}}
 {"text": "Ask one question at a time.", "label": {"kind": "none"}}
