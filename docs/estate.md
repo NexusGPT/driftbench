@@ -27,7 +27,7 @@ Every number on this page comes from the commands run on the fixture estates of 
 | [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, three changed in meaning (one rewritten at the same ledger unit), one added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
 | `examples/estates/sessions` | Six synthetic sessions of another fictional estate (a shop build) with their guard decision logs, step feeds and seven replay specs, for `driftbench replay`. |
 
-No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
+No command on this page calls a paid model. The Northwind map is scanned with the pointer reader, which replays the committed recording `cassette.jsonl` and calls no model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
 
 ## The commands
 
@@ -1400,7 +1400,7 @@ Recorded measurements behind two estate changes: [generation pass-to-fail compar
 
 ## Regenerate the fixture
 
-The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `answers.yaml`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. A change under `examples/estates/fixture-v2` alone needs only step 7. The commands call no model and write in place. Run them from the repository root, in this order.
+The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `cassette.jsonl`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. A change under `examples/estates/fixture-v2` alone needs only step 7. The commands call no model and write in place. Run them from the repository root, in this order.
 
 ```sh
 F=examples/estates/fixture
@@ -1408,8 +1408,9 @@ V=examples/estates/fixture-v2
 P=packages/generate/test/estate/fixtures
 T=$(mktemp -d)
 
-# 1. The map: a scan with the recorded answers.
-pnpm -s driftbench estate scan $F --runtime claude-code --replay $F/answers.yaml --out $F/map.yaml --force
+# 1. The map: a pointer scan that replays the committed cassette. The scan updates a copy of the ledger.
+cp $F/ledger.json $T/ledger.json
+pnpm -s driftbench estate scan $F --runtime claude-code --pointer --cassette $F/cassette.jsonl --ledger $T/ledger.json --update --out $F/map.yaml --force
 
 # 2. The approved map, and the space map of the docs.
 cp $F/map.yaml $F/approved.yaml
@@ -1434,8 +1435,9 @@ cat $T/notes.txt $T/approved-plan.yaml > $P/planner-plan.approved.yaml
 pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force
 
 # 7. Fixture-v2: its map, the diff against the fixture, the impact on its tests.
-pnpm -s driftbench estate scan $V --runtime claude-code --replay $V/answers.yaml --out $V/map.yaml --force
-pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --out $V/maintain/diff.json > $V/maintain/diff.txt
+cp $F/ledger.json $V/ledger.json
+pnpm -s driftbench estate scan $V --runtime claude-code --pointer --cassette $V/cassette.jsonl --ledger $V/ledger.json --update --out $V/map.yaml --force
+pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --old-ledger $F/ledger.json --new-ledger $V/ledger.json --out $V/maintain/diff.json > $V/maintain/diff.txt
 pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt
 pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json
 pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
@@ -1444,7 +1446,7 @@ rm -rf "$T"
 
 | Step | Writes | Notes |
 |---|---|---|
-| 1 | `map.yaml` | The scan exits 1 when a prose file has no recorded answer, and names the file. Add an entry to `answers.yaml` for it (`atoms: []` when it holds no rule). The failed scan still writes a partial `map.yaml`, without the atoms of that file, and the block has no `set -e` (steps 6 and 7 exit 1 on purpose): run the whole block again from step 1. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. |
+| 1 | `map.yaml` | The scan replays `cassette.jsonl` and calls no model. It updates a copy of the ledger in the scratch folder: a scan that updates the committed `ledger.json` adds a label to one of its entries, so the committed file is left alone. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. The block has no `set -e` (steps 6 and 7 exit 1 on purpose): when a step fails, run the whole block again from step 1. |
 | 2 | `approved.yaml`, `space.yaml` | `approved.yaml` is `map.yaml` with every atom approved. The space map names the agent `northwind`. Both are checked by `fixture.test.ts`. |
 | 3 | `phrases.yaml`, `packages/generate/test/estate/fixtures/plan.yaml`, `packages/adapters/test/claude-code/live/support.ts` | The hash of the map replaces the old one in the phrase bank, in the hand-written plan and in the live adapter test. Nothing changes when the hash did not. `estate generate` refuses a bank written against another map and prints both hashes. |
 | 4 | `plan.yaml`, `plan.summary.json` | The committed plan is the plan of the full declared space, the one `estate map` writes with the agent name `estate`. The space file of this step is a scratch file. `packages/cli/test/estate-plan.test.ts` checks the committed bytes. |
@@ -1452,7 +1454,7 @@ rm -rf "$T"
 | 6 | `generated/` | Replaces `specs/`, `incomplete/`, `static/`, `unit/`, `estate-generate-report.json` and `run-order.txt`, and nothing else in the folder. Exit 1 is normal while some spec stays incomplete. The seed is 1. `generate.test.ts` compares every file. |
 | 7 | `fixture-v2/map.yaml`, `fixture-v2/maintain/diff.json`, `diff.txt`, `impact.json`, `impact.txt` | `estate impact` exits 1: the planted changes wait for a person. Its text goes to `impact.txt` without `--out`, so the file holds no line that names the JSON file. The repository formatter formats the two JSON files. `packages/estate/test/maintain/fixture-v2.test.ts` compares the JSON files as data, and `packages/cli/test/estate-maintain.test.ts` compares the two text files. |
 
-`phrases.yaml`, `sessions/`, `answers.yaml` and the files of the estate itself are inputs written by hand. The hand-written plan and `phrases.yaml` name atoms by id: when a change renames or removes an atom they name, edit both by hand. Step 6 exits 2 and names the entry of `phrases.yaml` that no longer matches an atom.
+`phrases.yaml`, `sessions/` and the files of the estate itself are inputs written by hand. `cassette.jsonl` is a recording, made by the pointer scan with a labeler. The hand-written plan and `phrases.yaml` name atoms by id: when a change renames or removes an atom they name, edit both by hand. Step 6 exits 2 and names the entry of `phrases.yaml` that no longer matches an atom.
 
 A run on an estate that did not change changes only the time of the scan: `readAt` and the `at` of `producedBy` in `map.yaml`, `approved.yaml` and `fixture-v2/map.yaml`, and the two `readAt` values in `fixture-v2/maintain/diff.json`. Restore those four files with `git checkout` when nothing else moved. Use this as a check: if anything else changes on an estate you did not touch, the code behind a command changed its output.
 
