@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
 import { blankFences } from '../../src/scan/text';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 const skill = '.claude/skills/reconcile/SKILL.md';
 const body = '---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n\n';
@@ -22,7 +22,12 @@ describe('comments are not instructions or references', () => {
       '.claude/skills/reconcile/references/hidden.md': '# Hidden\n',
       '.claude/skills/reconcile/references/real.md': '# Real\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((a) => a.kind === 'gate' || a.kind === 'hazard')).toEqual([]);
     const references = map.atoms.filter((a) => a.kind === 'reference');
     expect(references).toHaveLength(1);
@@ -62,6 +67,7 @@ describe('comments are not instructions or references', () => {
       root,
       reader: new ClaudeCodeReader({ chunkCharacters: 35 }),
       now: NOW,
+      pointer: structurePointer(),
     });
     expect(raw.prose.length).toBeGreaterThan(1);
     expect(raw.files.map((file) => file.path)).not.toContain('ghost.md');
@@ -77,7 +83,12 @@ describe('comments are not instructions or references', () => {
       [skill]: body + quote,
       '.claude/skills/reconcile/references/real.md': '# Real\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.find((a) => a.kind === 'reference')?.provenance.quote).toBe(quote);
   });
 
@@ -90,7 +101,12 @@ describe('comments are not instructions or references', () => {
         '---\nname: reconcile\ndescription: "A literal <!-- marker"\n---\nRead `references/real.md`.\n',
       '.claude/skills/reconcile/references/real.md': '# Real\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((a) => a.kind === 'reference').map((a) => a.fields?.path)).toEqual([
       '.claude/skills/reconcile/references/real.md',
     ]);
@@ -107,6 +123,7 @@ describe('comments are not instructions or references', () => {
       root,
       reader: new ClaudeCodeReader({ chunkCharacters: 30 }),
       now: NOW,
+      pointer: structurePointer(),
     });
     expect(map.edges.filter((edge) => edge.kind === 'dispatch')).toEqual([]);
   });
@@ -119,7 +136,12 @@ describe('comments are not instructions or references', () => {
       '.claude/skills/reconcile/private/guide.md': '# Private\n',
       '.claude/skills/reconcile/references/guide.md': '# Real\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(raw.aliases?.REF).toEqual(['.claude/skills/reconcile/references']);
     expect(map.atoms.find((atom) => atom.kind === 'reference')?.fields?.path).toBe(
       '.claude/skills/reconcile/references/guide.md',

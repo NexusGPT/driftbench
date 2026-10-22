@@ -3,6 +3,8 @@
 One campaign on the Northwind code-agent example (the fixture estate in `examples/estates/fixture`), run live on
 Claude Code. Everything in it is fictional.
 
+The walkthrough with the output of each command is [the Northwind campaign](../../docs/northwind-campaign.md).
+
 | Block feature | Where it shows |
 |---|---|
 | Parents | `specs/ledger-branches.yaml`: two blocks continue from one opening (`parent:`). |
@@ -36,7 +38,7 @@ The third runs on the explicit protocol recordings in `rehearsal/`. These are pa
 money:
 
 ```
-ANTHROPIC_API_KEY="$(cat ~/.nexus-secrets/anthropic-driftbench.key)" \
+# First export ANTHROPIC_API_KEY with your own key, set in your shell and not typed in a command.
 NORTHWIND_COMMAND=claude NORTHWIND_ALLOW_BILLED=1 NORTHWIND_MODEL=claude-haiku-5-5 \
 NORTHWIND_MAX_TURNS=15 NORTHWIND_MAX_BLOCK_USD=0.6 NORTHWIND_PERMISSION_MODE=acceptEdits \
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml \

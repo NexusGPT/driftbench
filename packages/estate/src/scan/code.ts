@@ -1,21 +1,17 @@
 import { basename, posix } from 'node:path';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import { isNormative, normativeEstate } from './document-roles';
+import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
-import {
-  blankFences,
-  type Located,
-  linesOf,
-  provenanceHash,
-  readFrontmatter,
-  readTables,
-  slug,
-} from './text';
+import { ignoredReference, pathReference } from './reference-role';
+import { blankFences, type Located, linesOf, provenanceHash, readFrontmatter, slug } from './text';
 
 /**
  * The code half of the scan: every atom whose source has structure. Skills, helpers, guards, permissions,
- * settings and stages come from the reader's declarations; references, scripts, routing table rows,
- * fixed-form gates ("Before X: Read Y" and its equivalents) and passages that address a runtime hazard come
- * from patterns over the prose. Code atoms are approved as read: their quote is the file's own structure.
+ * settings, stages and the routes of skill and helper descriptions come from the reader's declarations; scripts
+ * from their files and the commands that run them. What a sentence says (references, gates, runtime hazards, the
+ * routes of a routing table) comes from the pointer reader. Code atoms are approved as read: their quote is the
+ * file's own structure.
  */
 
 /** The role code proposes per kind: axis kinds become cells of the plan, detail kinds vary inside a cell. */
@@ -36,34 +32,15 @@ export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
   invariant: 'detail',
 };
 
-/** Hazards of a long-running agent, found in prose by the words that name them. */
-export const HAZARDS = [
-  // The noun and the participle; "compact" alone is an adjective (a compact table) far more often.
-  {
-    id: 'compaction',
-    title: 'A compaction of the context',
-    pattern:
-      /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
-  },
-  { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
-  { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
-  {
-    id: 'session_boundary',
-    title: 'A new session',
-    pattern: /\b(start of (every|each|a) session|new session|session start)/i,
-  },
-  { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
-  { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
-] as const;
-
-/** Extensions a named file needs to count as a reference when it does not exist. */
-const DOCUMENT = /\.(md|markdown|txt|json|ya?ml|csv|tsv|html|py|sh|js|mjs|ts)$/i;
 const SCRIPT = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/i;
 
 /** Builds atoms with stable, unique ids: kind, scope and a slug of the title, then -2, -3 on a repeat. */
 export class AtomBuilder {
   readonly atoms: Atom[] = [];
   private readonly ids = new Set<string>();
+  /** Per base id, the lowest suffix that may be free: every suffix below it is taken, and ids are never freed. */
+  private readonly suffixes = new Map<string, number>();
+  private readonly byFile = new Map<string, Atom[]>();
 
   private names?: ReadonlyMap<string, readonly string[]>;
 
@@ -80,13 +57,52 @@ export class AtomBuilder {
 
   /** The file of the estate that a path written in `from` leads to; the path as resolved when none is found. */
   locate(path: string, from: string): string {
-    return this.place(path, from).path;
+    return this.resolve(path, from).path;
+  }
+
+  /** The estate the scan reads: its aliases, base folders, skipped files and external folders resolve a path. */
+  private estate: RawEstate | undefined;
+  configure(raw: RawEstate): void {
+    this.estate = raw;
   }
 
   /** Where a path written in `from` leads, how it was found, and whether the file is one of the estate. */
-  resolve(path: string, from: string): NamedTarget & { exists: boolean } {
-    const target = this.place(path, from);
-    return { ...target, exists: this.files.has(target.path) };
+  resolve(
+    path: string,
+    from: string,
+    bare = false,
+  ): NamedTarget & { exists: boolean; ignored: boolean; unresolved: boolean; concrete: boolean } {
+    const raw = this.estate;
+    // A configured estate gives its own places; otherwise the places the builder was made with.
+    const skipped = raw ? skippedOf(raw) : (this.places.skipped ?? new Set<string>());
+    const target = raw
+      ? locateNamed(path, from, this.files, {
+          bases: raw.bases ?? [],
+          skipped,
+          aliases: raw.aliases ?? {},
+          byName: names(raw, this.files),
+          externals: raw.externals ?? [],
+        })
+      : this.place(path, from);
+    const present = this.files.has(target.path);
+    // A name with no separator that resolves nowhere has no place. Quoted, backticked or linked with an
+    // extension, it designates a file beside its source and is concrete; a loose word, or a name with no
+    // extension, is information only.
+    const lacksPlace = target.via === 'none' && !target.candidates && !/[/\\]/.test(path);
+    const unresolved = lacksPlace && (bare || !pathReference(path));
+    return {
+      ...target,
+      unresolved,
+      concrete: lacksPlace && !unresolved,
+      exists: present || skipped.has(target.path),
+      ignored:
+        !present && raw !== undefined && (skipped.has(target.path) || ignoredReference(raw, target.path)),
+    };
+  }
+
+  /** The kind of a file of the estate, when it is one. */
+  kindOf(path: string): string | undefined {
+    return this.files.get(path)?.kind;
   }
 
   scopeOf(path: string): string {
@@ -121,11 +137,17 @@ export class AtomBuilder {
     producedBy?: 'code' | 'model';
     situation?: string;
     fields?: Record<string, unknown>;
+    replyAct?: Atom['replyAct'];
     approved?: boolean;
   }): Atom {
     const base = `${atom.kind}.${this.scopeOf(atom.at.file)}.${slug(atom.title)}`;
     let id = base;
-    for (let count = 2; this.ids.has(id); count++) id = `${base}-${count}`;
+    if (this.ids.has(id)) {
+      let count = this.suffixes.get(base) ?? 2;
+      while (this.ids.has(`${base}-${count}`)) count++;
+      id = `${base}-${count}`;
+      this.suffixes.set(base, count + 1);
+    }
     this.ids.add(id);
     const producedBy = atom.producedBy ?? 'code';
     const built: Atom = {
@@ -140,10 +162,35 @@ export class AtomBuilder {
       evidence: atom.evidence,
       enforcement: [],
       ...(atom.fields ? { fields: atom.fields } : {}),
+      ...(atom.replyAct ? { replyAct: atom.replyAct } : {}),
     };
     this.atoms.push(built);
+    const inFile = this.byFile.get(built.provenance.file);
+    if (inFile) inFile.push(built);
+    else this.byFile.set(built.provenance.file, [built]);
     return built;
   }
+
+  /** The atoms built on a file, in the order they were added. */
+  atomsOf(path: string): readonly Atom[] {
+    return this.byFile.get(path) ?? [];
+  }
+}
+
+/**
+ * The verdict a guard source declares on a line of its own, in a comment or a docstring: `Verdict: deny`.
+ * It is read only for a guard the registry gives no verdict.
+ */
+export function declaredVerdict(text: string | undefined): string | undefined {
+  if (text === undefined) return undefined;
+  for (const line of text.split('\n')) {
+    const match =
+      /^\s*(?:[#*/]+\s*)?Verdict\s*:\s*(deny|block|warn|nudge|allow|ask)\s*\.?\s*(?:\*\/|""")?\s*$/i.exec(
+        line,
+      );
+    if (match?.[1]) return match[1].toLowerCase();
+  }
+  return undefined;
 }
 
 /** The name a trace gives a guard: a catalogue check's id, else its script's file name, else a slug of its command. */
@@ -177,6 +224,8 @@ export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]
 
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
 export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
+  raw = normativeEstate(raw);
+  builder.configure(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const { labels } = raw;
   const dispatch = (name: string): EvidencePredicate => ({
@@ -241,17 +290,47 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
     const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
+    // With no registry verdict, the guard's own source may declare it on a line of its own: `Verdict: deny`.
+    const declared = row?.verdict
+      ? undefined
+      : declaredVerdict(guard.script ? files.get(guard.script)?.text : undefined);
+    const verdict = row?.verdict ?? declared;
+    const script = guard.script ? files.get(guard.script) : undefined;
+    const ruleSources = [
+      ...(script ? guardRuleSources(script) : []),
+      ...registryRowsOf(guard, raw.registry).flatMap((entry) =>
+        entry.description
+          ? [{ ...(entry.descriptionAt ?? entry.at), kind: 'registry', text: entry.description }]
+          : [],
+      ),
+    ];
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
       at: guard.at,
-      evidence: [{ type: 'guard', name, ...(row?.verdict ? { verdict: row.verdict } : {}) }],
+      evidence: [{ type: 'guard', name, ...(verdict ? { verdict } : {}) }],
       fields: {
         name,
         event: guard.event,
         command: guard.command,
         anchored: guard.anchored,
         scope: guard.scope,
+        ...(declared ? { verdictFrom: 'source' } : {}),
+        ...(ruleSources.length > 0
+          ? {
+              ruleText: [...new Set(ruleSources.map((source) => source.text))].join('\n'),
+              ruleSources,
+              rules: registryRowsOf(guard, raw.registry)
+                .filter((entry) => entry.description)
+                .map((entry) => ({
+                  id: entry.id,
+                  description: entry.description,
+                  ...(entry.verdict ? { verdict: entry.verdict } : {}),
+                  ...(entry.state ? { state: entry.state } : {}),
+                  source: entry.descriptionAt ?? entry.at,
+                })),
+            }
+          : {}),
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
@@ -345,18 +424,42 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, files, builder);
-
-  const names = {
-    skills: new Set(raw.skills.map((skill) => skill.name)),
-    subagents: new Set(raw.subagents.map((helper) => helper.name)),
-  };
-  for (const chunk of raw.prose) {
-    referenceAtoms(chunk, files, raw, builder);
-    routeAtoms(chunk, files, names, raw, builder);
-    gateAtoms(chunk, files, raw, builder);
-    hazardAtoms(chunk, files, builder);
+  // Index declared roots at any depth. The nearest ancestor owns a file, so nested skills keep
+  // their own scripts even when names or owner labels differ from folder names after a rename.
+  // Walk path ancestors with root lookups, never scan every skill for each file.
+  const skillRoots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
+  const folderFiles = new Map<string, EstateFile[]>();
+  for (const file of raw.files) {
+    // Ownership comes from the folder, not from a document's role: a role limits what prose may declare.
+    if (file.kind !== 'skill_file') continue;
+    let folder = posix.dirname(posix.normalize(file.path));
+    while (!skillRoots.has(folder)) {
+      const parent = posix.dirname(folder);
+      if (parent === folder) break;
+      folder = parent;
+    }
+    if (!skillRoots.has(folder)) continue;
+    const held = folderFiles.get(folder);
+    if (held) held.push(file);
+    else folderFiles.set(folder, [file]);
   }
+  const proseOf = new Map<string, ProseChunk[]>();
+  for (const chunk of raw.prose) {
+    const held = proseOf.get(chunk.file);
+    if (held) held.push(chunk);
+    else proseOf.set(chunk.file, [chunk]);
+  }
+  for (const skill of raw.skills)
+    scriptAtoms(
+      skill.name,
+      skill.folder,
+      skill.file,
+      folderFiles.get(posix.normalize(skill.folder)) ?? [],
+      proseOf.get(skill.file) ?? [],
+      raw,
+      files,
+      builder,
+    );
 }
 
 /** One script atom per script file of a skill, anchored where the skill body names it, else in the script. */
@@ -364,19 +467,19 @@ function scriptAtoms(
   skill: string,
   folder: string,
   definition: string,
+  skillFiles: readonly EstateFile[],
+  bodyChunks: readonly ProseChunk[],
   raw: RawEstate,
   files: ReadonlyMap<string, EstateFile>,
   builder: AtomBuilder,
 ): void {
   // A long body may be cut into several chunks: the mention is looked for in each, in order.
-  const body = raw.prose
-    .filter((chunk) => chunk.file === definition)
-    .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
-  for (const file of raw.files) {
-    if (file.kind !== 'skill_file' || file.owner !== skill) continue;
+  const body = bodyChunks.flatMap((chunk) => chunkLines(chunk, files.get(definition)));
+  for (const file of skillFiles) {
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
+    // A script is named by its file name: the first line of the body that holds it.
     const mention = body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
@@ -391,74 +494,75 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: literal quoted file names and markdown link destinations. */
+/** A path and its spelling in the source, before notation is normalized. */
+export type NamedReference = {
+  path: string;
+  spelling: string;
+  start: number;
+  end: number;
+  /** Found as a loose word after a directive, not quoted, linked or backticked. */
+  bare: boolean;
+};
+
+/** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
-  const found: string[] = [];
-  const claimed: Array<[number, number]> = [];
-  // A section anchor or a query names the same file; a web address is no path.
-  const bare = (path: string) => path.replace(/[#?].*$/, '');
-  for (const match of line.matchAll(/`([^`\n]+)`/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
-    const token = match[1]?.trim();
-    // A quoted shell command is an example, not one file name. Spaces within a file name stay.
-    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
-      line.slice(0, match.index),
-    );
-    if (
-      token &&
-      !/^[a-z]+:\/\//i.test(token) &&
-      !/[|;&]/.test(token) &&
-      !/\s--?\w/.test(token) &&
-      !(execution && /\s/.test(token))
-    )
-      found.push(bare(token));
-  }
-  for (const match of line.matchAll(/\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
-    const target = match[1] ?? match[2];
-    if (target && !/^[a-z]+:/i.test(target)) found.push(bare(target));
-  }
-  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) {
-    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
-    const token = (match[1] ?? match[2])?.trim();
-    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
-      line.slice(0, match.index),
-    );
-    if (
-      token &&
-      !/^[a-z]+:/i.test(token) &&
-      !/[|;&]/.test(token) &&
-      !/\s--?\w/.test(token) &&
-      !(execution && /\s/.test(token))
-    )
-      found.push(bare(token));
-  }
-  return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
+  return pathMentions(line).map(({ path }) => path);
 }
 
-/** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
-export function positiveMention(
-  text: string,
-  name: string,
-  verbs: readonly string[],
-  bareNever = false,
-): boolean {
-  if (name === '') return false;
-  const forbidden = new RegExp(
-    `\\b(?:never|do not|don['’]t|must not|should not)\\s+(?:${verbs.join('|')})\\b[^.;!?]*$`,
-    'i',
-  );
-  let offset = text.indexOf(name);
-  while (offset >= 0) {
-    const prefix =
-      text
-        .slice(0, offset)
-        .split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i)
-        .at(-1) ?? '';
-    if (!forbidden.test(prefix) && !(bareNever && /\bnever\s*[`*]*$/i.test(prefix))) return true;
-    offset = text.indexOf(name, offset + name.length);
+export function pathMentions(line: string): NamedReference[] {
+  const found: NamedReference[] = [];
+  const claimed: Array<[number, number]> = [];
+  // `spaced`: the notation delimits the whole name (a link destination, a quotation), so a file name may hold
+  // spaces. A code span or a loose token holds one only when its first word is itself a path (`references/team notes.md`);
+  // a span led by a plain word (`python3 run.py`) is a command, not a file name.
+  const take = (
+    match: RegExpMatchArray,
+    token: string | undefined,
+    options: { wiki?: boolean; spaced?: boolean; bare?: boolean } = {},
+  ) => {
+    const start = match.index ?? 0;
+    if (claimed.some(([from, to]) => start >= from && start < to)) return;
+    claimed.push([start, start + match[0].length]);
+    if (!token) return;
+    const spelling = token.trim();
+    let path = spelling
+      .replace(/\\/g, '/')
+      .replace(/^@/, '')
+      .replace(/^\$(?:\{CLAUDE_PROJECT_DIR\}|CLAUDE_PROJECT_DIR)\//, '')
+      .replace(/[#?].*$/, '')
+      .replace(/:\d+(?::\d+)?$/, '');
+    if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
+    if (
+      /^[a-z]+:/i.test(path) ||
+      /[<>*?{}$|;&]/.test(path) ||
+      /\s--?\w/.test(path) ||
+      (!options.spaced && /\s/.test(path) && !/^[^\s]*[/.][^\s]*\s/.test(path)) ||
+      !/\.[A-Za-z0-9]+$/.test(path)
+    )
+      return;
+    found.push({ path, spelling, start, end: start + match[0].length, bare: options.bare === true });
+  };
+  for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
+  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
+    take(match, match[1] ?? match[2], { spaced: true });
+  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g))
+    take(match, match[1] ?? match[2], { spaced: true });
+  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g))
+    take(match, match[1], { wiki: true, spaced: true });
+  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/g)) take(match, match[1] ?? match[2]);
+  // Whole tokens, never a file name taken from inside a URL, a glob, an example or a link title. A loose token is
+  // a path when it holds a folder separator, starts with `@`, or ends in an extension of letters ("notes.md"):
+  // a dot alone ("e.g.", "v1.2") is not a file name.
+  for (const match of line.matchAll(/[^\s`"'<>()[\],;!]+/g)) {
+    if (
+      !match[0].startsWith('@') &&
+      !/[/\\]/.test(match[0]) &&
+      !/^[^.]+(?:\.[^.]+)*\.[A-Za-z][A-Za-z0-9]{1,5}[.:]*$/.test(match[0])
+    )
+      continue;
+    take(match, match[0].replace(/[.:]+$/, ''), { bare: true });
   }
-  return false;
+  return found;
 }
 
 /**
@@ -501,7 +605,7 @@ export type NamedTarget = {
 export function isExternal(path: string, externals: readonly string[] = []): boolean {
   const clean = path.replace(/^\.\//, '');
   if (clean.startsWith('~/') || clean.startsWith('/')) return true;
-  return externals.some((root) => clean.startsWith(root.endsWith('/') ? root : `${root}/`));
+  return externals.some((root) => clean === root || clean.startsWith(root.endsWith('/') ? root : `${root}/`));
 }
 
 /** The places of an estate that a named path is looked for in. */
@@ -545,6 +649,7 @@ export function locateNamed(
   if (known(placed)) return { path: placed, via: 'place' };
   // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
   if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
+  if (isExternal(placed, options.externals ?? [])) return { path: placed, via: 'external' };
   const [head, ...rest] = clean.split('/');
   const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
   for (const folder of folders) {
@@ -559,11 +664,32 @@ export function locateNamed(
   const named = byName.get(segments[segments.length - 1] ?? '') ?? [];
   for (let start = 0; start < segments.length; start++) {
     const tail = segments.slice(start).join('/');
-    const hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    const hits = endingIn(named, tail);
     if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
     if (hits.length > 1) return { path: placed, via: 'none', candidates: [...hits].sort() };
   }
   return { path: placed, via: 'none' };
+}
+
+/**
+ * The files of one file name whose path is `tail` or ends with `/tail`. Many lines name the same path, and a
+ * name such as `SKILL.md` is shared by many files, so the answer is kept per list of files and per tail. The
+ * scanner gives a name a new list when it learns a new file; a list that grows in place drops what was kept.
+ */
+const ENDINGS = new WeakMap<readonly string[], { size: number; byTail: Map<string, string[]> }>();
+function endingIn(named: readonly string[], tail: string): string[] {
+  let kept = ENDINGS.get(named);
+  if (!kept || kept.size !== named.length) {
+    kept = { size: named.length, byTail: new Map() };
+    ENDINGS.set(named, kept);
+  }
+  const { byTail } = kept;
+  let hits = byTail.get(tail);
+  if (!hits) {
+    hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    byTail.set(tail, hits);
+  }
+  return hits;
 }
 
 /** Every file of the estate (and every skipped file) by its file name. */
@@ -574,7 +700,9 @@ export function fileNames(
   const byName = new Map<string, string[]>();
   for (const path of [...files.keys(), ...skipped]) {
     const name = basename(path);
-    byName.set(name, [...(byName.get(name) ?? []), path]);
+    const paths = byName.get(name);
+    if (paths) paths.push(path);
+    else byName.set(name, [path]);
   }
   return byName;
 }
@@ -589,274 +717,74 @@ function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<stri
   return built;
 }
 
-function referenceAtoms(
-  chunk: ProseChunk,
-  files: ReadonlyMap<string, EstateFile>,
-  raw: RawEstate,
-  builder: AtomBuilder,
-): void {
-  const skipped = new Set(raw.ignored?.paths ?? []);
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const named of namedPaths(line.text)) {
-      if (!positiveMention(line.text, named, ['read', 'open', 'load'])) continue;
-      const located = locateNamed(named, chunk.file, files, {
-        bases: raw.bases ?? [],
-        skipped,
-        aliases: raw.aliases ?? {},
-        byName: names(raw, files),
-        externals: raw.externals ?? [],
-      });
-      const path = located.path;
-      const target = files.get(path);
-      const isSkipped = target === undefined && skipped.has(path);
-      if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
-      if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
-      builder.add({
-        kind: 'reference',
-        title: `Read ${named}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
-        situation: line.text,
-        fields: {
-          path,
-          exists: target !== undefined || isSkipped,
-          readWhen: line.text,
-          from: chunk.file,
-          ...(isSkipped ? { ignored: true } : {}),
-          ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
-          ...(located.candidates ? { candidates: located.candidates } : {}),
-          ...(located.via === 'external' ? { external: true } : {}),
-        },
-      });
-    }
-  }
+/** The paths the reader skipped, as a set built once per estate read. */
+const SKIPPED = new WeakMap<RawEstate, Set<string>>();
+function skippedOf(raw: RawEstate): Set<string> {
+  const cached = SKIPPED.get(raw);
+  if (cached) return cached;
+  const built = new Set(raw.ignored?.paths ?? []);
+  SKIPPED.set(raw, built);
+  return built;
 }
 
-function routeAtoms(
-  chunk: ProseChunk,
-  files: ReadonlyMap<string, EstateFile>,
-  names: { skills: Set<string>; subagents: Set<string> },
-  raw: RawEstate,
-  builder: AtomBuilder,
-): void {
-  const file = files.get(chunk.file);
-  if (!file) return;
-  for (const table of readTables(file.text, chunk.startLine, chunk.endLine)) {
-    for (const row of table.rows) {
-      const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
-      for (const cell of row.cells.slice(1)) {
-        const targets = new Set(Array.from(cell.matchAll(/`([^`]+)`/g), (match) => match[1] ?? ''));
-        const plain = cell.replace(/[`*]/g, '').trim();
-        if (names.skills.has(plain) || names.subagents.has(plain)) targets.add(plain);
-        const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
-        if (helper && names.subagents.has(helper)) targets.add(helper);
-        for (const target of targets) {
-          if (!positiveMention(cell, target, ['load', 'dispatch', 'call'], true)) continue;
-          const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
-          if (!isSkill && !names.subagents.has(target)) continue;
-          builder.add({
-            kind: 'route',
-            title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
-            at: { file: chunk.file, startLine: row.line, endLine: row.line, quote: row.text },
-            evidence: [
-              isSkill
-                ? { type: 'skill_loaded', name: target }
-                : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
-            ],
-            situation: ask,
-            fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via: 'table', ask },
-          });
-        }
+/**
+ * Existing files that non-normative documents (a changelog, a history, a template, an example) point at.
+ * Such a document is navigation: its links still say that a file is documented, so the file is named, but
+ * it supplies no atom, rule, gate or missing-file finding, and a link from it never makes a file reachable.
+ */
+export function navigationNames(raw: RawEstate): Set<string> {
+  const files = new Map(raw.files.map((file) => [file.path, file]));
+  const named = new Set<string>();
+  const skipped = skippedOf(raw);
+  const options = {
+    bases: raw.bases ?? [],
+    skipped,
+    aliases: raw.aliases ?? {},
+    byName: names(raw, files),
+    externals: raw.externals ?? [],
+  };
+  for (const file of raw.files) {
+    if (isNormative(file) || !/\.(?:md|markdown|txt)$/i.test(file.path)) continue;
+    const lineCount = file.text.split('\n').length;
+    const chunk: ProseChunk = {
+      id: file.path,
+      file: file.path,
+      startLine: 1,
+      endLine: lineCount,
+      text: file.text,
+    };
+    for (const line of chunkLines(chunk, file)) {
+      for (const name of namedPaths(line.text)) {
+        const located = locateNamed(name, file.path, files, options);
+        if (located.via === 'none' || located.via === 'external' || located.candidates) continue;
+        if (files.has(located.path) && located.path !== file.path) named.add(located.path);
       }
     }
   }
-}
-
-/** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
-const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
-  { form: 'before-colon-read', pattern: /\bbefore ([^:]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
-  { form: 'before-comma-read', pattern: /\bbefore ([^,:]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
-  { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
-  {
-    form: 'not-until-read',
-    pattern: /\bdo not ([^.;]+?) until you have read (?:the output of )?(`[^`]+`|[^.;]+)/i,
-    read: 2,
-    act: 1,
-  },
-];
-
-function gateAtoms(
-  chunk: ProseChunk,
-  files: ReadonlyMap<string, EstateFile>,
-  raw: RawEstate,
-  builder: AtomBuilder,
-): void {
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const { form, pattern, read, act } of GATE_FORMS) {
-      const match = pattern.exec(line.text);
-      if (!match) continue;
-      // Markup around the words (bold, backticks) is not part of the act or of what is read.
-      const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
-      const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
-      if (first === '' || trigger === '' || !isAct(trigger)) continue;
-      const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
-      // The file to read first is found as a reference's is: its place, an alias, then its ending.
-      const located = isFile
-        ? locateNamed(first, chunk.file, files, {
-            bases: raw.bases ?? [],
-            skipped: new Set(raw.ignored?.paths ?? []),
-            aliases: raw.aliases ?? {},
-            byName: names(raw, files),
-            externals: raw.externals ?? [],
-          })
-        : undefined;
-      const path = located?.path;
-      const before = isFile ? raw.labels.read : raw.labels.shell;
-      const after = actLabel(trigger, raw);
-      const evidence: EvidencePredicate[] = [
-        { type: 'ordered', before, after },
-        path
-          ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-          : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
-      ];
-      builder.add({
-        kind: 'gate',
-        title: `Read ${first} before ${trigger}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence,
-        situation: trigger,
-        fields: {
-          form,
-          first,
-          trigger,
-          ...(path ? { path } : {}),
-          ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
-          ...(located?.candidates ? { candidates: located.candidates } : {}),
-          ...(located?.via === 'external' ? { external: true } : {}),
-        },
-      });
-      break;
-    }
-  }
-}
-
-/** Verbs of the acts a gate can come before, with their -ing forms. */
-const ACT_VERBS = new Set(
-  [
-    ['edit', 'editing'],
-    ['write', 'writing'],
-    ['change', 'changing'],
-    ['modify', 'modifying'],
-    ['save', 'saving'],
-    ['create', 'creating'],
-    ['commit', 'committing'],
-    ['push', 'pushing'],
-    ['run', 'running'],
-    ['deploy', 'deploying'],
-    ['dispatch', 'dispatching'],
-    ['delegate', 'delegating'],
-    ['update', 'updating'],
-    ['rename', 'renaming'],
-    ['delete', 'deleting'],
-    ['remove', 'removing'],
-    ['merge', 'merging'],
-    ['send', 'sending'],
-    ['publish', 'publishing'],
-    ['release', 'releasing'],
-    ['reply', 'replying'],
-    ['answer', 'answering'],
-    ['call', 'calling'],
-    ['move', 'moving'],
-    ['copy', 'copying'],
-    ['install', 'installing'],
-    ['open', 'opening'],
-    ['close', 'closing'],
-  ].flat(),
-);
-
-/**
- * An act the agent performs: its first word, after a subject (you, we, the agent), is a verb of acting. A
- * time ("9 in the morning"), a meal or a past event ("the audit last year") is no act, nor is a feeling.
- */
-function isAct(trigger: string): boolean {
-  const words = trigger
-    .toLowerCase()
-    .replace(/^(you|we|i|the agent|the assistant)\s+/, '')
-    .split(/\s+/);
-  const first = words[0] ?? '';
-  // An -ing form names an act in a gate (matching a line, posting a reply); else a verb of the list.
-  if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing'))) return true;
-  // "every ticket edit", "each change": an act named as a noun after a quantifier.
-  return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
-}
-
-/** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
-function actLabel(act: string, raw: RawEstate): string {
-  const verb = act.toLowerCase();
-  if (/\b(edit|editing|change|changing|modify)\b/.test(verb)) return raw.labels.edit;
-  if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
-  if (/\b(commit|committing|push|pushing|run|running|deploy)\b/.test(verb)) return raw.labels.shell;
-  if (/\b(dispatch|dispatching|delegate)\b/.test(verb)) return raw.labels.dispatch;
-  return act;
-}
-
-function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
-  if (!files.has(chunk.file)) return;
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
-      builder.add({
-        kind: 'hazard',
-        title: `Recover from ${hazard.title.toLowerCase()}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: hazard.id } }],
-        situation: hazard.title,
-        fields: { hazard: hazard.id },
-      });
-    }
-  }
+  return named;
 }
 
 /**
- * An event with no owner is about the runtime in an instruction estate. Explicit owners still matter:
- * equipment restarts, commercial rate limits, customer messages and course sessions are domain work,
- * not events that interrupt the assistant. Keep incoming notifications from helpers as runtime events.
+ * The non-blank lines of a chunk, numbered as lines of its file. The reader and every code pass read each
+ * chunk, so the lines are kept per chunk and source; a caller reads them and never changes them.
  */
-function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
-  const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
-  switch (id) {
-    case 'compaction': {
-      const runtime = line.replace(
-        /\b(?:supplier|customer|client)(?:'s)?\s+(?:conversation|context)(?: window)? (?:is summari[sz]ed|fills? up|is full)\b/gi,
-        '',
-      );
-      return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
-    }
-    case 'restart':
-      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
-        line,
-      );
-    case 'rate_wave':
-      return !/\b(?:supplier|customer|client)(?:'s)?\s+rate[- ]limits?\b|\brate[- ]limits?\s+for\s+(?:orders|purchases|deliveries)\b/i.test(
-        line,
-      );
-    case 'notification':
-      return (
-        !/\b(?:send|deliver|post|email)\b[^.;!?]*\bnotifications?\b/i.test(line) ||
-        /\b(?:helper|subagent|worker|guard|hook)\b/i.test(line)
-      );
-    case 'session_boundary':
-      return !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(
-        line,
-      );
-    default:
-      return true;
-  }
-}
-
-/** The non-blank lines of a chunk, numbered as lines of its file. */
 const MASKED_PROSE = new WeakMap<EstateFile, string[]>();
+const CHUNK_LINES = new WeakMap<
+  ProseChunk,
+  { source: EstateFile | undefined; lines: Array<{ line: number; text: string; quote: string }> }
+>();
 export function chunkLines(
+  chunk: ProseChunk,
+  source?: EstateFile,
+): Array<{ line: number; text: string; quote: string }> {
+  const kept = CHUNK_LINES.get(chunk);
+  if (kept && kept.source === source) return kept.lines;
+  const lines = maskedChunkLines(chunk, source);
+  CHUNK_LINES.set(chunk, { source, lines });
+  return lines;
+}
+
+function maskedChunkLines(
   chunk: ProseChunk,
   source?: EstateFile,
 ): Array<{ line: number; text: string; quote: string }> {
@@ -875,7 +803,10 @@ export function chunkLines(
     }
     masked = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n');
   } else masked = blankFences(chunk.text);
-  const original = chunk.text.split('\n');
+  // The quote is the line as written in the file: masking never edits it.
+  const original = source
+    ? source.text.split('\n').slice(chunk.startLine - 1, chunk.endLine)
+    : chunk.text.split('\n');
   return linesOf(masked)
     .filter((line) => line.text !== '')
     .map((line) => ({

@@ -2,8 +2,11 @@ import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
+
+// Each test reads an estate again; under a loaded machine that takes more than the default.
+vi.setConfig({ testTimeout: 60_000 });
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
 const STATIC = join(FIXTURE, 'generated/static');
@@ -40,6 +43,38 @@ describe('driftbench estate static', () => {
     expect(by['estate.invariant.invariant.registry.the-check-registry-lists-every-guard']).toBe(false);
   });
 
+  it('counts the files the prose of a given map names: the one orphan is the planted one', async () => {
+    const test = join(STATIC, 'invariant/estate.invariant.invariant.standing.no-file-of-the-estate-is.json');
+    const alone = await run(['estate', 'static', test, '--estate', FIXTURE, '--json']);
+    const unnamed = JSON.parse(alone.out) as { results: Array<{ detail: string }> };
+    expect(unnamed.results[0]?.detail).toContain('matching-rules.md');
+    const mapped = await run([
+      'estate',
+      'static',
+      test,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'approved.yaml'),
+      '--json',
+    ]);
+    expect(mapped.code).toBe(1);
+    const named = JSON.parse(mapped.out) as { results: Array<{ detail: string }> };
+    expect(named.results[0]?.detail).toContain(
+      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
+    );
+    const bad = await run([
+      'estate',
+      'static',
+      test,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'nope.yaml'),
+    ]);
+    expect(bad.code).toBe(2);
+  });
+
   it('turns a setting test red on a copy whose settings changed', async () => {
     const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-static-'));
     await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
@@ -57,6 +92,48 @@ describe('driftbench estate static', () => {
     expect(mutant.code).toBe(1);
     expect(mutant.out).toContain('model is haiku, the map says opus');
   });
+
+  it('retires the test of a removed environment key and then skips it', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-retire-'));
+    await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
+    await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
+    const settings = join(root, '.claude/settings.json');
+    const value = JSON.parse(await readFile(settings, 'utf8')) as { env: Record<string, string> };
+    delete value.env.NORTHWIND_LEDGER_DIR;
+    await writeFile(settings, `${JSON.stringify(value, null, 2)}\n`);
+    const suite = join(root, 'suite');
+    await cp(join(FIXTURE, 'generated/static'), join(suite, 'static'), { recursive: true });
+    const answers = join(FIXTURE, 'answers.yaml');
+    const read = async (name: string, folder: string) => {
+      const out = join(root, `${name}.yaml`);
+      const result = await run(['estate', 'scan', folder, '--replay', answers, '--out', out, '--force']);
+      expect(result.code, result.err).toBeLessThanOrEqual(1);
+      return out;
+    };
+    const before = await read('before', FIXTURE);
+    const after = await read('after', root);
+    const diff = join(root, 'diff.json');
+    expect((await run(['estate', 'diff', before, after, '--out', diff])).code).toBe(0);
+    const impact = await run(['estate', 'impact', diff, '--tests', suite, '--write', '--json']);
+    const report = JSON.parse(impact.out.slice(impact.out.indexOf('{'))) as {
+      retire: Array<{ test: string; state: string }>;
+    };
+    expect(report.retire.map((entry) => [entry.test, entry.state])).toEqual([
+      ['estate.setting.setting.settings.setting-env-northwind-ledger-dir', 'written'],
+    ]);
+    const record = join(
+      suite,
+      'static/setting/estate.setting.setting.settings.setting-env-northwind-ledger-dir.json',
+    );
+    expect(JSON.parse(await readFile(record, 'utf8')).retired).toBe(
+      'atom setting.settings.setting-env-northwind-ledger-dir removed',
+    );
+    const rerun = await run(['estate', 'static', join(suite, 'static'), '--estate', root, '--json']);
+    const json = JSON.parse(rerun.out) as { results: Array<{ id: string }> };
+    expect(json.results.map((entry) => entry.id)).not.toContain(
+      'estate.setting.setting.settings.setting-env-northwind-ledger-dir',
+    );
+  }, 180_000);
 
   it('exits 2 with no estate, no test or a file that is no static test', async () => {
     expect((await run(['estate', 'static', STATIC])).code).toBe(2);

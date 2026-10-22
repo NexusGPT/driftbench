@@ -2,7 +2,7 @@ import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parsePlanText } from '@agent-nexus/driftbench-estate';
+import { loadEstateMap, parsePlanText, toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -32,36 +32,75 @@ async function folder(): Promise<string> {
 }
 
 describe('driftbench estate plan', () => {
-  it('writes the plan and its summary, and prints the summary', async () => {
+  it('writes the explicitly declared full plan and its summary, and prints the summary', async () => {
     const root = await folder();
-    const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root);
+    const result = await run(
+      ['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'],
+      root,
+    );
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Wrote plan.yaml: 1568 rows (361 from the contract, 10 journeys, 1197 pairwise), all proposed. Summary in plan.summary.json.',
+      'Wrote plan.yaml: 1424 rows (347 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in plan.summary.json.',
     );
-    expect(result.out).toContain('Covering array: 1197 rows, t = 2, 5092 of 5092 allowed 2-tuples covered');
-    expect(result.out).toContain('the full grid of 2531567001600 cells is never enumerated');
-    expect(result.out).toContain('Unenforced: 54 approved rules no guard enforces.');
-    expect(result.out).toContain('Cells with no approved phrase: 1429 of 1429.');
+    expect(result.out).toContain('Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered');
+    expect(result.out).toContain('the full grid of 1916337346560 cells is never enumerated');
+    expect(result.out).toContain('Unenforced: 44 approved rules no guard enforces.');
+    expect(result.out).toContain('Cells with no approved phrase: 1309 of 1309.');
     expect(result.out).toContain('Edges with no journey: 7.');
     expect(result.out).toContain('The map has no phrase bank yet');
     const summary = JSON.parse(await readFile(join(root, 'plan.summary.json'), 'utf8'));
-    expect(summary.coveringArraySize).toBe(1197);
+    expect(summary.coveringArraySize).toBe(1067);
     expect(summary.uncoveredEdges).toHaveLength(7);
     expect(parsePlanText(await readFile(join(root, 'plan.yaml'), 'utf8')).ok).toBe(true);
   }, 60_000);
 
   it('writes the same bytes on a second run, and the committed fixture plan is that output', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'a.yaml'], root)).code).toBe(0);
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'b.yaml'], root)).code).toBe(0);
+    const loaded = await loadEstateMap(join(root, 'approved.yaml'));
+    if (!loaded.ok) throw new Error('invalid fixture map');
+    await writeFile(join(root, 'legacy-space.json'), JSON.stringify(toEstateSpaceMap(loaded.map)));
+    expect(
+      (
+        await run(
+          ['estate', 'plan', 'approved.yaml', '--out', 'a.yaml', '--space', 'legacy-space.json'],
+          root,
+        )
+      ).code,
+    ).toBe(0);
+    expect(
+      (
+        await run(
+          ['estate', 'plan', 'approved.yaml', '--out', 'b.yaml', '--space', 'legacy-space.json'],
+          root,
+        )
+      ).code,
+    ).toBe(0);
     const a = await readFile(join(root, 'a.yaml'), 'utf8');
     expect(await readFile(join(root, 'b.yaml'), 'utf8')).toBe(a);
     expect(await readFile(join(root, 'b.summary.json'), 'utf8')).toBe(
       await readFile(join(root, 'a.summary.json'), 'utf8'),
     );
     expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(a);
+  }, 60_000);
+
+  it('adds no inferred relevance by default, and names the situations it leaves unresolved', async () => {
+    const root = await folder();
+    const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'focused.yaml'], root);
+    expect(result.code).toBe(0);
+    const summary = JSON.parse(await readFile(join(root, 'focused.summary.json'), 'utf8'));
+    expect(summary.relevanceConstraints).toEqual([]);
+    expect(summary.droppedConstraints).toBe(0);
+    expect(summary.notes).toContain(
+      'deviation=D5_language_switch: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.',
+    );
+    expect(summary.tuples.covered).toBe(summary.tuples.allowed);
+    const parsed = parsePlanText(await readFile(join(root, 'focused.yaml'), 'utf8'));
+    if (!parsed.ok) throw new Error('invalid focused plan');
+    const gate = 'gate.standing.read-claude-memory-memory-md-before';
+    const own = parsed.plan.rows.filter((row) => row.id.startsWith('pairwise.') && row.atomIds[0] === gate);
+    expect(own.length).toBeGreaterThan(0);
+    expect(own.some((row) => row.cell.deviation === 'D5_language_switch')).toBe(true);
   }, 60_000);
 
   it('takes a space map and a strength, and refuses one whose targets the map does not approve', async () => {
@@ -76,7 +115,7 @@ describe('driftbench estate plan', () => {
     await writeFile(
       join(root, 'bad.yaml'),
       space.replace(
-        '- { id: gate.standing.read-git-status-before-commit-to',
+        '- { id: gate.standing.read-claude-memory-memory-md-before',
         '- { id: gate.standing.not-in-the-map',
       ),
     );
@@ -107,7 +146,7 @@ describe('driftbench estate plan', () => {
     const text = await readFile(join(root, 'approved.yaml'), 'utf8');
     await writeFile(
       join(root, 'approved.yaml'),
-      text.replace('quote: Ask at most one question per reply.', 'quote: Ask two.'),
+      text.replace('quote: "**R9.** Ask at most one question per reply."', 'quote: "**R9.** Ask two."'),
     );
     const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'p.yaml'], root);
     expect(result.code).toBe(1);
@@ -118,9 +157,12 @@ describe('driftbench estate plan', () => {
 describe('driftbench estate plan approve', () => {
   it('lists the rows by status, strikes a row, approves the rest, and refuses an unknown row', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const list = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(list.out).toContain('plan.yaml: 1568 rows, 1568 proposed, 0 approved, 0 struck.');
+    expect(list.out).toContain('plan.yaml: 1424 rows, 1424 proposed, 0 approved, 0 struck.');
     const strike = await run(
       ['estate', 'plan', 'approve', 'plan.yaml', '--row', 'journey.01', '--strike'],
       root,
@@ -128,14 +170,14 @@ describe('driftbench estate plan approve', () => {
     expect(strike.code).toBe(0);
     expect(strike.out).toContain('Struck 1 row in plan.yaml');
     const all = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], root);
-    expect(all.out).toContain('Approved 1567 rows in plan.yaml');
+    expect(all.out).toContain('Approved 1423 rows in plan.yaml');
     const after = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(after.out).toContain('1568 rows, 0 proposed, 1567 approved, 1 struck.');
+    expect(after.out).toContain('1424 rows, 0 proposed, 1423 approved, 1 struck.');
     const before = await readFile(join(root, 'plan.yaml'), 'utf8');
     const again = await run(['estate', 'plan', 'approve', 'plan.yaml', '--out', 'plan2.yaml', '--all'], root);
     expect(again.code).toBe(0);
     expect(again.err).toBe('');
-    expect(again.out).toBe('Approved 0 rows in plan2.yaml; 1567 were already approved.\n');
+    expect(again.out).toBe('Approved 0 rows in plan2.yaml; 1423 were already approved.\n');
     expect(await readFile(join(root, 'plan2.yaml'), 'utf8')).toBe(before);
     expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
     const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);
@@ -145,7 +187,10 @@ describe('driftbench estate plan approve', () => {
 
   it('exits 2 when the options do not fit', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const both = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all', '--row', 'journey.01'], root);
     expect(both.code).toBe(2);
     const strikeAll = await run(['estate', 'plan', 'approve', 'plan.yaml', '--strike'], root);
@@ -158,7 +203,10 @@ describe('driftbench estate plan approve', () => {
 
   it('writes the approved plan to --out and leaves the plan it read untouched', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const before = await readFile(join(root, 'plan.yaml'), 'utf8');
     const result = await run(
       ['estate', 'plan', 'approve', 'plan.yaml', '--all', '--out', 'plan.approved.yaml'],
@@ -166,7 +214,7 @@ describe('driftbench estate plan approve', () => {
     );
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
-    expect(result.out).toContain('Approved 1568 rows in plan.approved.yaml');
+    expect(result.out).toContain('Approved 1424 rows in plan.approved.yaml');
     expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
     const written = await readFile(join(root, 'plan.approved.yaml'), 'utf8');
     const rowsApproved = before

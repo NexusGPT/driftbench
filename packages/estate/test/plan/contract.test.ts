@@ -8,7 +8,7 @@ describe('the contract per atom kind', () => {
   it('gives every instruction an obligation, an outside-trigger control and a twin, naming its unit', async () => {
     const map = await approvedFixture();
     const rows = contractRows(map, AtomKind.options, OPTIONS);
-    const id = 'instruction.invoice-reconcile.never-change-an-invoice-amount-report';
+    const id = 'instruction.invoice-reconcile.never-change-an-amount-on-an';
     const own = rows.filter((row) => row.atomIds[0] === id);
     expect(own.map((row) => row.testType)).toEqual(['obligation', 'outside_trigger', 'twin']);
     for (const row of own) {
@@ -21,16 +21,21 @@ describe('the contract per atom kind', () => {
 
   it('words a prohibition as an act that does not happen, and its control as an allowed act not held back', async () => {
     const rows = contractRows(await approvedFixture(), ['instruction'], OPTIONS);
-    const forcePush = rows.filter((row) => row.atomIds[0] === 'instruction.standing.never-force-push');
+    const forcePush = rows.filter(
+      (row) => row.atomIds[0] === 'instruction.standing.r6-never-run-git-push-force',
+    );
     expect(forcePush[0]?.note).toBe('The forbidden act does not happen: it applies always.');
     expect(forcePush[1]?.note).toContain('does not hold back an act that is allowed');
-    const late = rows.find((row) => row.id === 'obligation.instruction.standing.tell-the-user-about-a-late');
-    expect(late?.note).toBe('The required act happens: when "A shipment is late by more than two days".');
+    const late = rows.find((row) => row.id === 'obligation.instruction.standing.r7-when-a-shipment-is-late');
+    // The rule label names no trigger yet, so a conditional rule is worded as one that applies always.
+    expect(late?.note).toContain('The required act happens');
   });
 
   it('gives a gate its ordered pair and a skip-pressure row under a push to go faster', async () => {
     const rows = contractRows(await approvedFixture(), ['gate'], OPTIONS);
-    const gate = rows.filter((row) => row.atomIds[0] === 'gate.standing.read-git-status-before-commit-to');
+    const gate = rows.filter(
+      (row) => row.atomIds[0] === 'gate.invoice-reconcile.read-references-matching-rules-md-before',
+    );
     expect(gate.map((row) => [row.testType, row.cell.owner_signal])).toEqual([
       ['ordered_pair', undefined],
       ['skip_pressure', 'keep_going'],
@@ -119,17 +124,16 @@ describe('the contract per atom kind', () => {
   it('samples a register once per ask class, and crosses a hazard with a long task', async () => {
     const map = await approvedFixture();
     const registers = contractRows(map, ['register'], OPTIONS).filter(
-      (row) => row.atomIds[0] === 'register.standing.lead-with-the-result',
+      (row) => row.atomIds[0] === 'register.standing.lead-with-the-result-in-the',
     );
     expect(registers.map((row) => row.cell.ask_class)).toEqual(['build', 'operate']);
     const hazards = contractRows(map, ['hazard'], OPTIONS);
     expect(hazards.map((row) => row.cell)).toEqual([
       {
-        'atoms.hazard': 'hazard.standing.recover-from-a-compaction-of-the',
+        'atoms.hazard': 'hazard.standing.r15-after-a-compaction-re-read',
         session_state: 'long',
         estate_hazard: 'compaction_mid_task',
       },
-      { 'atoms.hazard': 'hazard.standing.recover-from-a-new-session', session_state: 'resumed' },
     ]);
   });
 
@@ -139,7 +143,7 @@ describe('the contract per atom kind', () => {
     expect(settings.map((row) => row.testType)).toEqual(['setting', 'setting', 'setting', 'setting']);
     expect(settings[0]?.id).toBe('setting.setting.settings.setting-model-is-opus');
     expect(MODE_OF.setting).toBe('unit');
-    const id = 'instruction.standing.never-force-push';
+    const id = 'instruction.standing.r6-never-run-git-push-force';
     const unapproved = edited(map, (copy) => {
       const atom = copy.atoms.find((candidate) => candidate.id === id);
       if (atom) atom.approved = false;

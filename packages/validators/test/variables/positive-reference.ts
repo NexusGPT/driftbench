@@ -175,8 +175,13 @@ export const variablesImpl: Omit<VariablesImpl, 'validate' | 'quotes'> = {
     // Wilson's score interval, computed independently of the production bank's statistics helper.
     const z = 1.959963984540054;
     const p = count / total;
-    const centre = (p + z ** 2 / (2 * total)) / (1 + z ** 2 / total);
-    const radius = (z * Math.sqrt((p * (1 - p)) / total + z ** 2 / (4 * total ** 2))) / (1 + z ** 2 / total);
+    const centre = (p + z ** 2 / 2 / total) / (1 + z ** 2 / total);
+    // From about 6.7e153 trials the square overflows; the root is then taken from its two parts, which stay finite.
+    const square = 4 * total ** 2;
+    const root = Number.isFinite(square)
+      ? Math.sqrt((p * (1 - p)) / total + z ** 2 / square)
+      : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(total), z / 2 / total);
+    const radius = (z * root) / (1 + z ** 2 / total);
     return [Math.max(0, centre - radius), Math.min(1, centre + radius)];
   },
 };

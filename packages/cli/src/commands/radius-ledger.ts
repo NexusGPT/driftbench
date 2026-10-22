@@ -93,7 +93,7 @@ export async function radiusLedgerCommand(
     io.err(`Cannot use the ledger ${show(ledgerPath, io)}: it is not a ledger\n`);
     return 2;
   }
-  const after = pointer.proseLedger(await reader.read(root), before);
+  const after = pointer.proseLedger(await reader.read(root), before, 'estate', map.documents ?? []);
   const changes = pointer.ledgerChanges(before, after);
   const rerun = pointer.rerunOf(changes, before);
   const manifest = pointer.ledgerChangeManifest(rerun, {

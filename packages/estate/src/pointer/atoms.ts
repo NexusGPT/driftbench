@@ -1,5 +1,5 @@
 import { foldQuote } from '@agent-nexus/driftbench-generate';
-import type { AtomBuilder } from '../scan/code';
+import { type AtomBuilder, namedPaths, pathMentions } from '../scan/code';
 import { PROSE_KINDS } from '../scan/prose';
 import { type Located, lineAt, quoteAtSpan } from '../scan/text';
 import type { Atom } from '../schema';
@@ -26,15 +26,28 @@ const TITLE_CHARACTERS = 90;
 type Template = {
   link(kind: string, property?: string): string | undefined;
   span(kind: string): string | undefined;
+  /** The texts of every span of this kind, in order, each an exact slice of the file. */
+  spans(kind: string): string[];
   code(): string | undefined;
+  named(): string | undefined;
   path(): string | undefined;
   unit(): string;
   file(): string;
+  /** Whether the labeller gave a span of this kind. */
+  hasSpan(kind: string): boolean;
+  /** Every file of the estate the unit names, in the order it names them. */
+  paths(): string[];
+  /** Every inline code span of the unit, in order. */
+  codes(): string[];
+  /** The inline code spans of the unit that lead to no file of the estate: commands, names, values. */
+  commands(): string[];
+  /** The item of the list an `each` form is walking, if any. */
+  item?: string;
 };
 
 const UNRESOLVED = Symbol('unresolved');
 const PLACEHOLDER =
-  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|code|path|unit|file)$/;
+  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|spans\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|commands|item|unit|file)$/;
 
 /**
  * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
@@ -56,17 +69,33 @@ function fill(value: unknown, template: Template): unknown {
     }
     const match = PLACEHOLDER.exec(value);
     if (!match) return value;
-    const found = match[1]
+    const found: unknown = match[1]
       ? template.link(match[1], match[2])
       : match[3]
         ? template.span(match[3])
-        : value === '$code'
-          ? template.code()
-          : value === '$path'
-            ? template.path()
-            : value === '$unit'
-              ? template.unit()
-              : template.file();
+        : match[4]
+          ? template.hasSpan(match[4])
+            ? true
+            : undefined
+          : match[5]
+            ? nonEmpty(template.spans(match[5]))
+            : value === '$code'
+              ? template.code()
+              : value === '$named'
+                ? template.named()
+                : value === '$path'
+                  ? template.path()
+                  : value === '$paths'
+                    ? template.paths()
+                    : value === '$codes'
+                      ? template.codes()
+                      : value === '$commands'
+                        ? template.commands()
+                        : value === '$item'
+                          ? template.item
+                          : value === '$unit'
+                            ? template.unit()
+                            : template.file();
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
@@ -74,9 +103,32 @@ function fill(value: unknown, template: Template): unknown {
     return out.includes(UNRESOLVED) ? UNRESOLVED : out;
   }
   if (value !== null && typeof value === 'object') {
+    const entries = Object.entries(value);
+    // `{ each: <list placeholder>, item: <template> }`: one filled item for each member of the list, with `$item`
+    // standing for the member; an item that does not fill is left out.
+    if (entries.length === 2 && 'each' in value && 'item' in value) {
+      const list = fill((value as { each: unknown }).each, template);
+      if (!Array.isArray(list)) return UNRESOLVED;
+      return list
+        .map((member) => fill((value as { item: unknown }).item, { ...template, item: String(member) }))
+        .filter((filled) => filled !== UNRESOLVED);
+    }
+    // `{ firstFilled: [a, b] }`: the first alternative whose placeholders are all filled.
+    if (entries.length === 1 && Array.isArray((value as { firstFilled?: unknown }).firstFilled)) {
+      for (const alternative of (value as { firstFilled: unknown[] }).firstFilled) {
+        const filled = fill(alternative, template);
+        if (filled !== UNRESOLVED) return filled;
+      }
+      return UNRESOLVED;
+    }
     const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
+    for (const [key, item] of entries) {
       const filled = fill(item, template);
+      // A key that ends in `?` is optional: it is left out, without its mark, when its value does not fill.
+      if (key.endsWith('?')) {
+        if (filled !== UNRESOLVED) out[key.slice(0, -1)] = filled;
+        continue;
+      }
       if (filled === UNRESOLVED) return UNRESOLVED;
       out[key] = filled;
     }
@@ -85,8 +137,14 @@ function fill(value: unknown, template: Template): unknown {
   return value;
 }
 
+/** A list placeholder that found nothing does not fill: `$spans.<kind>` with no span of that kind. */
+const nonEmpty = (list: string[]): string[] | undefined => (list.length > 0 ? list : undefined);
+
 /** The text between the first pair of backticks of a unit: a code span, by Markdown structure. */
 const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
+
+/** The first path a unit names, by the written forms of a name (code span, link, quoted, wiki), else its first code span. */
+const namedOf = (text: string): string | undefined => namedPaths(text)[0] ?? codeSpanOf(text);
 
 function titleOf(text: string): string {
   const flat = text
@@ -117,7 +175,7 @@ export function pointerAtoms(
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
     if (!primary) continue;
-    const named = `${item.path} unit ${item.id} (${item.label})`;
+    const where = `${item.path} unit ${item.id} (${item.label})`;
     const text = texts.get(item.path);
     if (text === undefined) continue;
     // A gate holds two units: the quote runs from the first to the end of the second, in file order.
@@ -131,7 +189,7 @@ export function pointerAtoms(
       quote: text.slice(start, end),
     };
     if (!quoteAtSpan(text, at)) {
-      refusals.push(`${named}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`);
+      refusals.push(`${where}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`);
       continue;
     }
     const folded = foldQuote(at.quote);
@@ -146,7 +204,7 @@ export function pointerAtoms(
       const here = text.slice(item.unit.start + span.from, item.unit.start + span.to);
       if (here === '' || here !== item.unit.text.slice(span.from, span.to)) {
         refusals.push(
-          `${named}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
+          `${where}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
         );
         continue;
       }
@@ -166,15 +224,27 @@ export function pointerAtoms(
         continue;
       }
       if (!builder.atoms.some((other) => other.id === link.to)) {
-        refusals.push(`${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
+        refusals.push(`${where}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
         continue;
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
     const code = codeSpanOf(item.unit.text);
-    const template: Template = {
+    // A line of a standing file that is `@path` is an import: the runtime loads it and the agent reads nothing.
+    const imported = (path: string): boolean =>
+      builder.kindOf(item.path) === 'standing' &&
+      item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
+    const bareNames = new Set(
+      pathMentions(item.unit.text)
+        .filter((reference) => reference.bare)
+        .map((reference) => reference.path),
+    );
+    const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
+    const firstNamed = namedOf(item.unit.text);
+    const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
+    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
       link: (kind, property) => {
-        const found = labelLinks.find((link) => link.kind === kind);
+        const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
         if (found?.atom === undefined) return undefined;
         if (property === undefined || property === 'id') return found.atom;
@@ -187,118 +257,173 @@ export function pointerAtoms(
         const span = labelSpans.find((entry) => entry.kind === kind);
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
+      spans: (kind) =>
+        labelSpans
+          .filter((entry) => entry.kind === kind)
+          .map((entry) => text.slice(start + entry.from, start + entry.to)),
       code: () => code,
-      path: () => (code === undefined ? undefined : builder.locate(code, item.path)),
+      named: () => namedPath,
+      path: () => (namedPath === undefined ? undefined : builder.locate(namedPath, item.path)),
       unit: () => item.unit.text,
       file: () => item.path,
-    };
+      hasSpan: (kind) => labelSpans.some((entry) => entry.kind === kind),
+      paths: () => [
+        ...new Set(
+          allNamed
+            .map((named) => builder.locate(named, item.path))
+            .filter((located): located is string => located !== undefined),
+        ),
+      ],
+      commands: () =>
+        [...item.unit.text.matchAll(/`([^`\n]+)`/g)]
+          .map((m) => m[1]?.trim() ?? '')
+          .filter((span) => span !== '' && !builder.resolve(span, item.path).exists),
+      codes: () =>
+        [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
+    });
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
-      if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
-        refusals.push(
-          `${named}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
-        );
-        continue;
-      }
-      const same = builder.atoms.find(
-        (other) =>
-          other.kind === mapping.kind &&
-          other.provenance.file === at.file &&
-          other.provenance.startLine <= at.endLine &&
-          at.startLine <= other.provenance.endLine &&
-          (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
+      const paths =
+        (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
+          ? allNamed
+          : [readable];
+      // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
+      // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
+      const kinds = new Set([...JSON.stringify(mapping).matchAll(/\$\{?link\.([\w-]+)/g)].map((m) => m[1]));
+      const repeated = [...kinds].find(
+        (kind) => labelLinks.filter((link) => link.kind === kind && link.atom !== undefined).length > 1,
       );
-      const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
-      const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
-      const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
-      const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
-      // An input-anchored order from exact spans is more precise than a legacy code gate over this unit.
-      // Resolve the mapping first: an incomplete answer must never displace the existing gate.
-      const replacesGate =
-        same?.producedBy === 'code' &&
-        same.kind === 'gate' &&
-        same.provenance.startLine === at.startLine &&
-        same.provenance.endLine === at.endLine &&
-        same.provenance.quote.endsWith(at.quote) &&
-        Array.isArray(mappedEvidence) &&
-        mappedEvidence.some(
-          (entry) => entry.type === 'ordered' && entry.before.includes('~') && entry.after.includes('~'),
-        );
-      if (same && !replacesGate) {
-        duplicates.push(`${named} repeats ${same.id}`);
-        continue;
-      }
-      // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
-      let located: Record<string, unknown> = {};
-      if (mapping.whenFile && (code === undefined || !builder.resolve(code, item.path).exists)) continue;
-      if (mapping.locate || mapping.whenFile) {
-        if (code === undefined) {
-          refusals.push(`${named}: the label ${item.label} locates a file, and the unit has no code span`);
+      const choices: Array<(typeof labelLinks)[number] | undefined> =
+        repeated === undefined
+          ? [undefined]
+          : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
+      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
+      for (const [namedPath, chosen] of pairs) {
+        const template = templateFor(namedPath, chosen);
+        // An atom built for one of several links of a kind keeps that link alone of its kind.
+        const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
+        if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
+          refusals.push(
+            `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
+          );
           continue;
         }
-        const target = builder.resolve(code, item.path);
-        located = {
-          path: target.path,
-          exists: target.exists,
-          ...(target.via === 'alias' || target.via === 'suffix' ? { resolvedBy: target.via } : {}),
-          ...(target.candidates ? { candidates: target.candidates } : {}),
-          ...(target.via === 'external' ? { external: true } : {}),
-        };
-      }
-      if (
-        situation === UNRESOLVED ||
-        title === UNRESOLVED ||
-        mappedFields === UNRESOLVED ||
-        mappedEvidence === UNRESOLVED
-      ) {
-        refusals.push(
-          `${named}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+        const same = builder.atoms.find(
+          (other) =>
+            other.kind === mapping.kind &&
+            other.provenance.file === at.file &&
+            other.provenance.startLine <= at.endLine &&
+            at.startLine <= other.provenance.endLine &&
+            other.fields?.unit !== item.id &&
+            (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
         );
-        continue;
-      }
-      if (same) builder.atoms.splice(builder.atoms.indexOf(same), 1);
-      kept = true;
-      accepted.push(
-        builder.add({
-          kind: mapping.kind as (typeof POINTER_KINDS)[number],
-          title: typeof title === 'string' ? title : titleOf(item.unit.text),
-          at,
-          ...(conditional.length > 0
-            ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
-            : typeof situation === 'string'
-              ? { situation }
-              : {}),
-          evidence: [
-            {
-              type: 'custom',
-              name: 'prose_pointer',
-              options: {
-                reviewRequired: true,
-                unit: item.id,
-                set: item.set.set,
-                label: item.label,
-                ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
-              },
-            },
-            ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
-          ],
-          producedBy: 'model',
-          fields: {
-            ...located,
+        if (same) {
+          duplicates.push(`${where} repeats ${same.id}`);
+          continue;
+        }
+        // A situation written `<placeholder>?` is optional: the atom is kept, without one, when it does not fill.
+        const optionalSituation = mapping.situation?.endsWith('?') === true;
+        const filledSituation =
+          mapping.situation === undefined
+            ? undefined
+            : fill(optionalSituation ? mapping.situation.slice(0, -1) : mapping.situation, template);
+        const situation = optionalSituation && filledSituation === UNRESOLVED ? undefined : filledSituation;
+        const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
+        const mappedReplyAct = mapping.replyAct === undefined ? undefined : fill(mapping.replyAct, template);
+        let mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+        // A declared ask names the act it exercises: the reply act of its own atom, typed by the map and read from
+        // no word. An ask on an atom without a reply act carries none, so the generator refuses it.
+        if (
+          mappedFields !== UNRESOLVED &&
+          mappedReplyAct !== undefined &&
+          mappedReplyAct !== UNRESOLVED &&
+          typeof (mappedFields as Record<string, unknown>).ask === 'object' &&
+          (mappedFields as Record<string, unknown>).ask !== null
+        ) {
+          const ask = (mappedFields as { ask: Record<string, unknown> }).ask;
+          mappedFields = {
             ...(mappedFields as Record<string, unknown>),
-            extraction: 'pointer',
-            unit: item.id,
-            labelSet: item.set.set,
-            label: item.label,
-            cassette: item.source,
-            labeler,
-            ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
-            ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
-            ...(labelSpans.length > 0 ? { labelSpans } : {}),
-            ...(labelLinks.length > 0 ? { labelLinks } : {}),
-          },
-        }),
-      );
+            ask: { ...ask, act: { kind: 'reply', name: (mappedReplyAct as { id: string }).id } },
+          };
+        }
+        const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
+        // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
+        let located: Record<string, unknown> = {};
+        if (mapping.whenFile && (namedPath === undefined || !builder.resolve(namedPath, item.path).exists))
+          continue;
+        if (mapping.locate || mapping.whenFile) {
+          if (namedPath === undefined) {
+            refusals.push(`${where}: the label ${item.label} locates a file, and the unit names none`);
+            continue;
+          }
+          const target = builder.resolve(namedPath, item.path, bareNames.has(namedPath));
+          located = {
+            path: target.path,
+            ...(target.unresolved ? { written: namedPath, unresolved: true } : {}),
+            ...(target.concrete ? { concrete: true } : {}),
+            exists: target.exists,
+            ...(target.ignored ? { ignored: true } : {}),
+            ...(target.via === 'alias' || target.via === 'suffix' ? { resolvedBy: target.via } : {}),
+            ...(target.candidates ? { candidates: target.candidates } : {}),
+            ...(target.via === 'external' ? { external: true } : {}),
+          };
+        }
+        if (
+          situation === UNRESOLVED ||
+          title === UNRESOLVED ||
+          mappedFields === UNRESOLVED ||
+          mappedEvidence === UNRESOLVED
+        ) {
+          refusals.push(
+            `${where}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+          );
+          continue;
+        }
+        kept = true;
+        accepted.push(
+          builder.add({
+            kind: mapping.kind as (typeof POINTER_KINDS)[number],
+            title: typeof title === 'string' ? title : titleOf(item.unit.text),
+            at,
+            ...(conditional.length > 0
+              ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
+              : typeof situation === 'string'
+                ? { situation }
+                : {}),
+            evidence: [
+              {
+                type: 'custom',
+                name: 'prose_pointer',
+                options: {
+                  reviewRequired: true,
+                  unit: item.id,
+                  set: item.set.set,
+                  label: item.label,
+                  ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+                },
+              },
+              ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
+            ],
+            producedBy: 'model',
+            ...(mappedReplyAct !== undefined && mappedReplyAct !== UNRESOLVED
+              ? { replyAct: mappedReplyAct as NonNullable<Atom['replyAct']> }
+              : {}),
+            fields: {
+              ...located,
+              ...(mappedFields as Record<string, unknown>),
+              extraction: 'pointer',
+              unit: item.id,
+              labelSet: item.set.set,
+              label: item.label,
+              labeler,
+              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+              ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
+              ...(labelSpans.length > 0 ? { labelSpans } : {}),
+              ...(ownLinks.length > 0 ? { labelLinks: ownLinks } : {}),
+            },
+          }),
+        );
+      }
     }
     if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
   }

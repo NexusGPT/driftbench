@@ -125,6 +125,28 @@ describe('the blind bank bound to the reader', () => {
     expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
   }, 120_000);
 
+  it('loses the six atom-building materialization items when the ledger loses the cassette key of a label', async () => {
+    const real = await realExports();
+    const losing = (keep: (source: string) => string) =>
+      withReplacedExports(
+        {
+          pointerScan: async (...args: unknown[]) => {
+            const out = await real.pointerScan(...args);
+            for (const entry of out.ledger.entries)
+              for (const label of Object.values(entry.labels) as Array<{ source: string }>)
+                label.source = keep(label.source);
+            return out;
+          },
+        },
+        () => labelsLevel(inProcess),
+      );
+    // A ledger that keeps no key, and one that names a key the scan did not record.
+    for (const passes of [await losing(() => 'none'), await losing(() => 'cassette:000000000000')]) {
+      for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
+      expect(passes.get('blind/labels.materialize.no-mapping')).toBe(false);
+    }
+  }, 240_000);
+
   it('counts a cutter that throws on an opaque unit as adapter errors, so the zero-error assertion goes red', async () => {
     const real = realReader();
     const throwing: PointerSut = {

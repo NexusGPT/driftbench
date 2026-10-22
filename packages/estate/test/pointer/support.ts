@@ -1,14 +1,18 @@
 import {
+  AGENT_RULES_SET,
   askedLabels,
+  Cassette,
   denseOpinions,
   type Labeler,
   type Labelled,
   type LabelSet,
   parseLabelSets,
   questionKey,
+  singleLabelling,
   type Window,
   yesNoOpinions,
 } from '../../src/pointer';
+import { namedPaths } from '../../src/scan/code';
 
 /** Reads label sets written in a test; a bad set is a failing test. */
 export function load(text: string): LabelSet[] {
@@ -144,5 +148,39 @@ export function fakeFetch(reply: unknown, calls: Call[] = [], status = 200) {
       status,
       headers: { 'content-type': 'application/json' },
     });
+  };
+}
+
+/**
+ * A planted system 2 labeler: the request cells of a table are routes, to the unit that follows them; any other
+ * unit that names a path is a reference, and the rest are none.
+ */
+export function plantedRoutes(links: Record<string, [string, string | string[]]>, path = 'CLAUDE.md') {
+  const labeler = plantedDense((window) =>
+    window.units.map((unit) => {
+      const found =
+        window.path === path ? Object.entries(links).find(([ask]) => unit.text.includes(ask)) : undefined;
+      if (!found)
+        return { units: String(unit.n), label: namedPaths(unit.text).length > 0 ? 'reference' : 'none' };
+      const [label, linked] = found[1];
+      const atoms = Array.isArray(linked) ? linked : [linked];
+      // A dispatch unit links the helper it hands work to; a route unit targets the unit that follows it.
+      if (label === 'dispatch')
+        return { units: String(unit.n), label, links: atoms.map((to) => ({ kind: 'dispatches', to })) };
+      return {
+        units: String(unit.n),
+        label,
+        target: unit.n + 1,
+        links: atoms.map((to) => ({ kind: label, to })),
+      };
+    }),
+  );
+  const sets = parseLabelSets(AGENT_RULES_SET);
+  if (!sets.ok) throw new Error(sets.message);
+  return {
+    sets: sets.sets,
+    labelling: singleLabelling(labeler),
+    cassette: new Cassette(),
+    mode: 'record' as const,
   };
 }

@@ -264,7 +264,7 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
   const lines = [
     `  Pointer reader: ${describe}.`,
-    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs gave different spans for ${done.spanSplit} units, which keep their label and lose the spans` : ''}; ${done.atoms} atoms.`,
+    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
   for (const entry of done.usage) {
@@ -277,7 +277,22 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   lines.push(
     `  Units since the last ledger: ${events.map(([event, count]) => `${event} ${count}`).join(', ')}.`,
   );
+  const roles = result.documentRoles;
+  if (roles) {
+    lines.push(
+      `  Document roles: ${Object.keys(roles.labelled).length} files labelled by the document-roles set; requests ${roles.windows} answered, ${roles.calls} sent, ${roles.recorded} recorded.`,
+    );
+    for (const entry of roles.usage) {
+      if (entry.input + entry.output === 0 && entry.calls === 0) continue;
+      lines.push(
+        `  Tokens, document roles, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
+      );
+    }
+    for (const failure of roles.failed) lines.push(`    document-role window failed: ${failure}`);
+  }
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
+  for (const note of done.dropped) lines.push(`    dropped: ${note}`);
+  for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   return lines;
 }

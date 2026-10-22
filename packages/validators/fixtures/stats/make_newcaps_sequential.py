@@ -409,4 +409,7 @@ functions.append(function("groupSequentialBoundariesObrienFleming", "spending", 
                           [[0, 2], [-1, 2], [2.5, 2], [3, 0], [3, -1.96], [3, "NaN"], [3, "Infinity"], ["NaN", 2]]))
 
 assert len(functions) == 16, len(functions)
+# Only the functions driftbench uses are in the bank (docs/validators.md 12.2: no padding).
+KEEP = ['eValueAverage']
+functions = [f for f in functions if f["fn"] in KEEP]
 write("sequential", "Exact values from Fractions and 120-digit Decimals (make_newcaps_sequential.py); each value cross-checked a second way.", functions)

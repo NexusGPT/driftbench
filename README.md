@@ -960,6 +960,17 @@ spec: refund.spec.yaml # The spec this persona plays
 
 </details>
 
+### The rest of this release
+
+Each item has a page with its commands and limits.
+
+- **The variable store.** One catalogue of the variables a situation varies on, shared by the prompt map and the estate map. It is filled from an estate or an owner interview. Planner v2 (opt-in) plans test rows from it. → [variables](docs/variables.md)
+- **Plugins and config.** The command line loads your own adapters, checks and judges from `plugins:` in `driftbench.yaml` or `--plugin`. The [`campaign:`](docs/reference/campaign.md) and [`objects:`](docs/reference/objects.md) keys, and a [`prices`](docs/running.md#the-budget) table for budgets, live in the same file. → [plugins](docs/plugins.md), [running](docs/running.md)
+- **Safer defaults.** Docker sandboxes are restricted by default. The local viewer refuses foreign origins and stale forms. Built-in targets [redact secrets and error bodies](docs/running.md#targets-from-settings). → [process adapter](docs/adapters/process.md), [viewer](docs/viewer.md)
+- **Rerun marks.** A block that is red with no change, or that flips under edits it has no link to, reruns on every prompt change. → [rerun marks](docs/concepts/blast-radius.md#rerun-marks)
+- **Nested spans.** A rule that makes one call wait for another call of the same tool becomes an ordered gate. → [nested spans](docs/estate-pointer-reader.md#nested-spans-two-calls-of-one-tool-in-order)
+- **A campaign on a code agent.** Four tasks on the fictional Northwind estate, with parents, simulated users, blame and the fix list, rehearsed free and run live with a spend cap. → [the Northwind campaign](docs/northwind-campaign.md)
+
 ## What it does
 
 <a href=".github/readme/areas-light.png">
@@ -1365,7 +1376,7 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
 
-<sub>The fault finder ships as rule files and a runner: five diagnostics (`code-agent-liability`, `fix-plan`, `flaky-block`, `liability-confirm`, `value-mismatch`) and the blame and placement rules they read ([reference](docs/reference/blame.md)), and a scorecard that shows two scores and a ranked fix list when it is given diagnoses. No command runs a diagnostic yet: a program registers the steps and calls `runSpec` ([diagnostics](packages/cli/help/running-diagnostics.md)).</sub>
+<sub>The fault finder ships as rule files and a runner: five diagnostics (`code-agent-liability`, `fix-plan`, `flaky-block`, `liability-confirm`, `value-mismatch`) and the blame and placement rules they read ([reference](docs/reference/blame.md)), and a scorecard that shows two scores and a ranked fix list. `driftbench report` and `driftbench view` list the fixes of a campaign from its stored diagnoses. A spec asks for a diagnostic with `uses.diagnostics`; see [the Northwind campaign](docs/northwind-campaign.md) and [diagnostics](packages/cli/help/running-diagnostics.md).</sub>
 
 ### Rerunning the blast radius
 
@@ -1603,7 +1614,7 @@ Exit codes are verdicts: 0 when the thing holds, 1 for a failing cell or a findi
 | `family instances`, `family verify` | Build variants of a code-agent task, and verify them on a reference build | `driftbench family instances examples/acme/families/price-sheet --n 3 --seed 1 --out family` |
 | `estate scan` | Read a code agent's instructions, skills and settings into testable rules | `driftbench estate scan examples/estates/fixture --no-model --out estate-map.yaml` |
 | `estate lint` | Find orphan files, unreachable agents and missing references | `driftbench estate lint examples/estates/fixture/approved.yaml` |
-| `estate mutate` | Delete one rule, so the tests must notice | `driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to mutant` |
+| `estate mutate` | Delete one rule, so the tests must notice | `driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to mutant` |
 | `validate floors` | Print the level each self-test suite must hold in CI | `driftbench validate floors` |
 
 `generate`, `space coverage` and `estate lint` exit 1 on the bundled example, by design: they report tests still incomplete, cells not yet covered, and six findings planted in the fixture. `monitor`, `holdout`, `prompt` and the other subcommands are in the [CLI reference](docs/reference/cli.md).

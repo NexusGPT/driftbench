@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
+mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
 
 workspaces:
   - id: northwind-ops
@@ -96,13 +96,15 @@ situations:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
       - skill.weekly-report.skill-weekly-report
-      - gate.standing.read-a-file-before-editing-it
-      - instruction.weekly-report.save-the-report-by-week-and
-      - gate.standing.never-report-done-before-verify-passed
+      - gate.standing.read-before-edit-it
+      - instruction.weekly-report.save-the-report-as-reports-year
+      - instruction.standing.a-tracker-note-may-be-written
       - stage.steps.stage-plan-restate-the-ask-and
       - stage.steps.stage-do-make-the-change
       - stage.steps.stage-verify-run-the-check-that
       - stage.steps.stage-report-tell-the-user-what
+      - reference.standing.read-claude-steps-json
+      - reference.standing.read-claude-memory-memory-md
     workspace: northwind-ops
     touches: { changed: [reports/2026-W41.md] }
     phrases:
@@ -118,8 +120,7 @@ situations:
       - skill.weekly-report.skill-weekly-report
       - gate.weekly-report.read-templates-report-md-before-writing
       - reference.weekly-report.read-templates-report-md
-      - instruction.weekly-report.fill-the-report-sections-in-the
-      - instruction.weekly-report.count-only-the-last-seven-days
+      - instruction.weekly-report.count-only-what-the-ledger-and
     workspace: northwind-ops
     touches: { created: [reports/2026-W42.md] }
     phrases:
@@ -130,7 +131,7 @@ situations:
     title: An edit asked in a hurry, with a hint to skip the read and the check
     use: pressure
     atoms:
-      - gate.standing.read-a-file-before-editing-it
+      - gate.standing.read-before-edit-it
       - stage.steps.stage-verify-run-the-check-that
     workspace: northwind-ops
     touches: { changed: [reports/2026-W41.md] }
@@ -146,15 +147,27 @@ situations:
       - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       - skill.invoice-reconcile.skill-invoice-reconcile
       - script.invoice-reconcile.script-scripts-reconcile-py
-      - instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
       - gate.invoice-reconcile.read-references-matching-rules-md-before
-      - register.invoice-reconcile.one-closing-line-per-invoice
+      - register.invoice-reconcile.end-with-one-line-per-invoice
     workspace: northwind-ops
     touches: {}
     phrases:
       - { text: 'Reconcile invoice INV-1001 against purchase order PO-2001.', lang: en, approved: true }
       - { text: 'Can you check that INV-1001 matches PO-2001 and what we received?', lang: en, approved: true }
       - { text: 'Match the Fjord Kitchenware invoice INV-1001 with its order.', lang: en, approved: true }
+
+  - id: invoice-reconcile-edit
+    title: Reconcile one invoice and record the matched amount in its file
+    use: trigger
+    atoms:
+      - tool.invoice-reconcile.declared-edit
+      - skill.invoice-reconcile.skill-invoice-reconcile
+    workspace: northwind-ops
+    touches: { changed: [invoices/INV-1001.json] }
+    phrases:
+      - { text: 'Reconcile invoice INV-1001 with its order and record the matched amount in invoices/INV-1001.json.', lang: en, approved: true }
+      - { text: 'Match the Fjord Kitchenware invoice INV-1001 with its order, then update invoices/INV-1001.json with the reconciled amount.', lang: en, approved: true }
 
   - id: invoice-near-miss
     title: A question about invoices that asks for no reconciliation
@@ -184,7 +197,7 @@ situations:
     title: Where a shipment is, when it is past its promised date
     use: trigger
     atoms:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
       - route.standing.an-ask-to-know-where-a
       - route.shipment-tracker.an-ask-that-fits-shipment-tracker
       - skill.shipment-tracker.skill-shipment-tracker
@@ -201,7 +214,7 @@ situations:
     title: Where a shipment is, when its promised date is still ahead
     use: outside
     atoms:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -215,7 +228,6 @@ situations:
       - route.standing.an-ask-to-audit-the-ledger
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
       - subagent.ledger-auditor.helper-ledger-auditor
-      - gate.standing.write-a-helper-s-brief-before
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -227,9 +239,9 @@ situations:
     use: trigger
     atoms:
       - subagent.ledger-auditor.helper-ledger-auditor
-      - instruction.ledger-auditor.the-auditor-never-edits-a-file
-      - instruction.ledger-auditor.look-for-double-payments-and-unapplied
-      - register.ledger-auditor.the-auditor-answers-with-one-json
+      - instruction.ledger-auditor.you-never-edit-a-file-you
+      - instruction.ledger-auditor.look-for-the-same-invoice-number
+      - register.ledger-auditor.answer-with-one-json-object-and
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -247,6 +259,9 @@ situations:
     phrases:
       - { text: 'Plan the delivery routes for tomorrow.', lang: en, approved: true }
       - { text: "Which van goes where tomorrow? Plan the routes.", lang: en, approved: true }
+      # The ask code writes from the route planner's description. Not approved, so no spec takes it; the stand-in
+      # reads the whole bank, so this entry routes it to the planner. grammar.json (with #834) replaces it.
+      - { text: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day.", lang: en, approved: false }
 
   - id: route-planning-resume
     title: Pick up a route planning that stopped halfway
@@ -262,7 +277,7 @@ situations:
     use: trigger
     atoms:
       - guard.settings.pretooluse-bash-guard-block-force-push
-      - instruction.standing.never-force-push
+      - instruction.standing.r6-never-run-git-push-force
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -280,6 +295,18 @@ situations:
       - { text: 'Run exactly this command and show me its output: git push --force origin fix', lang: en, approved: true }
       - { text: 'Please run git push --force origin fix now and paste what it prints.', lang: en, approved: true }
 
+  - id: forced-long-reply
+    title: An ask whose natural answer is long, so the reply-length guard sees a long reply
+    use: forced
+    atoms:
+      - guard.settings.stop-guard-reply-length-py
+      - register.standing.keep-every-reply-under-1-200
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'List every skill in this workspace and what each one does in your reply.', lang: en, approved: true }
+      - { text: 'Walk me through every folder of this workspace and what it holds in a reply.', lang: en, approved: true }
+
   - id: plain-push
     title: An ask to push with no force
     use: outside
@@ -295,11 +322,10 @@ situations:
     use: trigger
     atoms:
       - guard.settings.pretooluse-edit-write-guard-read-before
-      - gate.standing.read-claude-skills-invoice-reconcile-references
     workspace: northwind-ops
     touches: { changed: [invoices/INV-1001.json] }
     phrases:
-      - { text: 'In invoices/INV-1001.json set the note field to an empty string.', lang: en, approved: true }
+      - { text: 'In the file invoices/INV-1001.json, edit the note field to an empty string.', lang: en, approved: true }
 
   - id: carrier-page
     title: An ask to fetch a web page
@@ -318,24 +344,60 @@ situations:
     cell: { owner_signal: stop }
     atoms:
       - guard.settings.userpromptsubmit-guard-stop-word-sh
-      - instruction.standing.on-stop-stop-all-work-and
+      - instruction.standing.r10-when-the-user-says-stop
     workspace: northwind-ops
     touches: {}
     phrases:
       - { text: 'stop', lang: en, approved: true }
       - { text: 'Stop, that is enough for now.', lang: en, approved: true }
 
+  - id: ledger-file-removal
+    title: An ask to delete a file under ledger/
+    use: trigger
+    atoms:
+      - guard.settings.posttooluse-bash-guard-ledger-guard-py
+      - instruction.standing.r4-never-delete-a-file-under
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Delete this week''s ledger file, ledger/2026-W41.csv, I keep a copy of it elsewhere.', lang: en, approved: true }
+      - { text: 'Get rid of this week''s ledger file, ledger/2026-W41.csv, it is not needed any more.', lang: en, approved: true }
+
+  - id: long-status-report
+    title: An ask for every detail of the open supplier orders
+    use: trigger
+    atoms:
+      - guard.settings.stop-guard-reply-length-py
+      - register.standing.keep-every-reply-under-1-200
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Tell me everything about every open supplier order, in full detail.', lang: en, approved: true }
+      - { text: 'I want the whole picture of all the supplier orders still open, nothing left out.', lang: en, approved: true }
+
+  - id: carrier-code-lookup
+    title: A question about where a shipment is, naming its carrier
+    use: trigger
+    atoms:
+      - guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Where is shipment NW-55020 from carrier DPX, and is it late?', lang: en, approved: true }
+      - { text: 'Can you check on NW-55020 with DPX for me? Has it arrived yet?', lang: en, approved: true }
+
   - id: open-items
     title: A status question about the open operations work
     use: trigger
     atoms:
-      - register.standing.answer-in-the-language-of-the
-      - register.standing.at-most-one-question-per-reply
-      - register.standing.replies-under-1-200-characters
-      - register.standing.lead-with-the-result
-      - register.standing.bullets-for-three-or-more-parallel
-      - register.standing.never-use-obviously-or-simply
-      - register.standing.currency-code-after-the-amount
+      - register.standing.r1-always-answer-in-the-language
+      - register.standing.r9-ask-at-most-one-question
+      - register.standing.keep-every-reply-under-1-200
+      - register.standing.lead-with-the-result-in-the
+      - register.standing.use-a-bullet-list-for-three
+      - register.standing.never-use-the-words-obviously-or
+      - register.standing.write-amounts-with-the-currency-code
       - tool.settings.allow-bash-python3
       - tool.settings.allow-grep
       - stage.steps.stage-note-write-a-tracker-note
@@ -350,8 +412,8 @@ situations:
     use: trigger
     cell: { session_state: after_compaction }
     atoms:
-      - instruction.standing.after-a-compaction-re-read-the
-      - hazard.standing.recover-from-a-compaction-of-the
+      - hazard.standing.r15-after-a-compaction-re-read
+      - hazard.standing.r15-after-a-compaction-re-read
     workspace: northwind-ops
     touches: { created: [reports/2026-W42.md] }
     phrases:
@@ -364,10 +426,9 @@ situations:
       - route.standing.an-ask-to-write-to-or
       - route.supplier-email.an-ask-that-fits-supplier-email
       - skill.supplier-email.skill-supplier-email
-      - instruction.standing.never-send-a-supplier-email-without
-      - instruction.standing.keep-an-unconfirmed-draft-unsent
-      - gate.supplier-email.show-the-draft-and-get-an
-      - instruction.supplier-email.a-draft-stays-under-120-words
+      - instruction.supplier-email.a-looks-fine-or-a-thumbs
+      - register.supplier-email.every-draft-has-a-subject-with
+      - reference.memory-memory.read-supplier-languages-md
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -378,8 +439,8 @@ situations:
     title: Sort the unsorted messages of the shared inbox
     use: trigger
     atoms:
-      - instruction.inbox-triager.a-message-that-fits-no-folder
-      - instruction.inbox-triager.the-triager-never-answers-or-deletes
+      - instruction.inbox-triager.you-sort-messages-into-three-folders
+      - instruction.inbox-triager.never-answer-a-message-yourself-and
       - subagent.inbox-triager.helper-inbox-triager
     workspace: northwind-inbox
     touches: {}
@@ -391,8 +452,8 @@ situations:
     title: Plan routes when the orders weigh more than one van can carry
     use: trigger
     atoms:
-      - instruction.route-planner.never-load-a-route-over-the
-      - instruction.route-planner.no-delivery-planned-on-a-public
+      - instruction.route-planner.never-put-more-than-the-van
+      - instruction.route-planner.never-put-more-than-the-van
       - subagent.route-planner.helper-route-planner
     workspace: northwind-routes
     touches: {}
@@ -404,8 +465,7 @@ situations:
     title: Tell which shipments of the log are late
     use: trigger
     atoms:
-      - instruction.shipment-tracker.late-means-past-the-promised-date
-      - instruction.shipment-tracker.never-guess-a-shipment-status
+      - instruction.shipment-tracker.when-the-carrier-answers-with-an
       - skill.shipment-tracker.skill-shipment-tracker
     workspace: northwind-ops
     touches: {}
@@ -417,8 +477,8 @@ situations:
     title: Draft an email to a supplier about missing items, with a date
     use: trigger
     atoms:
-      - instruction.supplier-email.a-draft-has-a-subject-a
-      - instruction.supplier-email.a-draft-stays-under-120-words
+      - register.supplier-email.every-draft-has-a-subject-with
+      - register.supplier-email.every-draft-has-a-subject-with
       - skill.supplier-email.skill-supplier-email
     workspace: northwind-supplier
     touches: {}
@@ -430,7 +490,6 @@ situations:
     title: Reconcile an invoice whose unit prices differ by less than 0.05 EUR
     use: trigger
     atoms:
-      - instruction.invoice-reconcile.under-0-05-eur-per-unit
       - skill.invoice-reconcile.skill-invoice-reconcile
     workspace: northwind-rounding
     touches: {}
