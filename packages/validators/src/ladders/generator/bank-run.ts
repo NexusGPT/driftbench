@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { findRoot } from '../../root';
 import { hiddenSeed } from '../../seeds';
-import { BANK_LEVELS, bankItems, bankShape, causeOf, SeedData } from './bank';
+import { BANK_LEVELS, bankItems, bankShape, causeForReport, SeedData } from './bank';
 import { evaluate } from './index';
 import { type ScaleReport, scaleReport } from './scale';
 
@@ -36,7 +36,7 @@ async function child(seed: number, out: string): Promise<void> {
       id: item.id,
       pass: verdict.pass,
       detail: verdict.detail,
-      cause: causeOf(item, verdict),
+      cause: causeForReport(item, verdict),
     })),
   };
   writeFileSync(out, JSON.stringify(payload));
@@ -100,7 +100,7 @@ async function parent(args: string[]): Promise<void> {
         pass: found?.verdict.pass ?? false,
         failedOn: found?.verdict.pass ? [] : [String(seeds[0])],
         detail: found?.verdict.detail ?? '',
-        causes: found && !found.verdict.pass ? [causeOf(item, found.verdict)] : [],
+        causes: found && !found.verdict.pass ? [causeForReport(item, found.verdict)] : [],
       };
     }
     const failed = perSeed.flatMap((entry, index) => {

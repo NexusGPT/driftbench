@@ -1,4 +1,5 @@
 import type { BankItem } from '../bank/item';
+import { AUDIT_STEMS } from './families/audit';
 import { BOUNDARIES_STEMS } from './families/boundaries';
 import { BUDGET_STEMS } from './families/budget';
 import { COUNTER_STEMS } from './families/counter';
@@ -34,6 +35,7 @@ export const BLIND_STEMS: readonly Stem[] = [
   ...BUDGET_STEMS,
   ...COUNTER_STEMS,
   ...SCALE_STEMS,
+  ...AUDIT_STEMS,
 ];
 
 /** Every item of the blind bank, in family order. */
