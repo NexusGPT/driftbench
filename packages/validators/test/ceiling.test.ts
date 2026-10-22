@@ -53,10 +53,9 @@ describe('the base ref is read, and a base that cannot be read is an error', () 
 
   it('fails when the base copy is not valid JSON', () => {
     const dir = repo();
-    run(dir, 'checkout', '-q', 'base');
     writeFileSync(join(dir, 'validators/c.json'), '{broken');
     run(dir, 'commit', '-qam', 'broken');
-    run(dir, 'branch', '-f', 'base');
+    run(dir, 'branch', '-f', 'base', 'HEAD');
     writeFileSync(join(dir, 'validators/c.json'), '{"blind": 1}');
     expect(() => readCeilings(dir, 'validators/c.json', 'blind', 'base')).toThrow(/not valid JSON/);
   });

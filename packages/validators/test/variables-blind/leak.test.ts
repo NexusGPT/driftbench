@@ -67,7 +67,8 @@ describe('the failure messages of the blind bank repeat no expected value', () =
       );
     expect(report.leaking).toEqual([]);
     const { head, base } = readCeilings(
-      fileURLToPath(new URL('../../../../validators/variables/leak-ceilings.json', import.meta.url)),
+      fileURLToPath(new URL('../../../../', import.meta.url)),
+      'validators/variables/leak-ceilings.json',
       'blind',
     );
     expect(ceilingVerdict(report.unstructured, head, base)).toBeUndefined();
