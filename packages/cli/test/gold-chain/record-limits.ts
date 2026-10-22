@@ -23,7 +23,7 @@ import {
   loadGold,
 } from '../../../estate/test/gold/gold';
 import { LAYOUT } from './layout';
-import { cassettePath, chainSets, composite, LIMITS_SET_NAME } from './limits';
+import { cassettePath, chainSets, composite, DEFAULT_LIMITS_MODEL, LIMITS_RUNS, LIMITS_SET_NAME } from './limits';
 
 const PRICE_IN = 0.1 / 1_000_000;
 const PRICE_OUT = 0.5 / 1_000_000;
@@ -43,7 +43,7 @@ async function record(
     const planted = goldLabeller(
       gold.map((unit) => ({ ...unit, file: LAYOUT[estate][unit.file] ?? unit.file })),
     );
-    const model = pointer.createAnthropicLabeler({ key, runs: 1 });
+    const model = pointer.createAnthropicLabeler({ key, model: modelName, runs: LIMITS_RUNS });
     const cassette = new pointer.Cassette();
     const reader = readerFor('claude-code', { ignore: [] });
     if (reader === undefined) throw new Error('the claude-code reader is missing');
@@ -64,7 +64,7 @@ async function record(
     const kept = [...cassette.entries.values()].filter((entry) => entry.readable.set === LIMITS_SET_NAME);
     const only = new pointer.Cassette();
     for (const entry of kept) only.entries.set(entry.key, entry);
-    writeFileSync(cassettePath(estate), only.render());
+    writeFileSync(cassettePath(estate, modelName), only.render());
     return {
       input: kept.reduce((sum, entry) => sum + entry.answer.usage.input, 0),
       output: kept.reduce((sum, entry) => sum + entry.answer.usage.output, 0),
@@ -75,6 +75,7 @@ async function record(
   }
 }
 
+const modelName = process.env.GOLD_LIMITS_MODEL ?? DEFAULT_LIMITS_MODEL;
 const wanted = process.argv
   .slice(2)
   .filter((name): name is EstateName => (ESTATE_NAMES as readonly string[]).includes(name));
@@ -82,11 +83,12 @@ if (wanted.length === 0) throw new Error('name the estates to record: A, B, C');
 const key = readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
 let spend = 0;
 for (const estate of wanted) {
-  const used = await record(estate, key);
-  const cost = used.input * PRICE_IN + used.output * PRICE_OUT;
-  spend += cost;
+  const used = await record(estate, key, modelName);
+  // Only the default model has a price in the repository (docs/estate-pointer-reader.md section 11).
+  const cost = modelName === DEFAULT_LIMITS_MODEL ? used.input * PRICE_IN + used.output * PRICE_OUT : Number.NaN;
+  if (!Number.isNaN(cost)) spend += cost;
   console.log(
-    `estate ${estate}: ${used.requests} requests, ${used.input} tokens in, ${used.output} out, USD ${cost.toFixed(4)}`,
+    `estate ${estate}: ${used.requests} requests, ${used.input} tokens in, ${used.output} out, ${modelName}, USD ${Number.isNaN(cost) ? 'unpriced' : cost.toFixed(4)}`,
   );
 }
 console.log(`total USD ${spend.toFixed(4)}`);

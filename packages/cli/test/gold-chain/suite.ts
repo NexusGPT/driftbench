@@ -28,7 +28,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { chainSets, composite, loadLimitsCassette } from './limits';
+import { chainSets, composite, DEFAULT_LIMITS_MODEL, LIMITS_RUNS, loadLimitsCassette } from './limits';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -202,7 +202,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           scopes,
         );
         // The numbers come from the recorded labeller: its answers are replayed from the cassette of the estate.
-        const recorded = await loadLimitsCassette(estate);
+        const limitsModel = process.env.GOLD_LIMITS_MODEL ?? DEFAULT_LIMITS_MODEL;
+        const recorded = await loadLimitsCassette(estate, limitsModel);
         const scan = await scanEstate({
           root: estateDir,
           reader,
@@ -210,7 +211,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           ceiling: 40_000,
           pointer: {
             sets: chainSets(),
-            labelling: pointer.singleLabelling(composite(planted, pointer.createAnthropicLabeler())),
+            labelling: pointer.singleLabelling(composite(planted, pointer.createAnthropicLabeler({ model: limitsModel, runs: LIMITS_RUNS }))),
             cassette: recorded,
             mode: 'record',
             estateKey: GOLD_ESTATE_KEY,

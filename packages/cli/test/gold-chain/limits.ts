@@ -38,12 +38,24 @@ export function chainSets() {
   return parsed.sets;
 }
 
-export const cassettePath = (estate: EstateName): string =>
-  join(estateFolder(estate), 'limits.cassette.jsonl');
+/** The runs of a window, as the product labels its main sets: a unit takes what more than half of the runs give. */
+export const LIMITS_RUNS = 5;
+/** The model the gate replays. A comparison recording of another model sits beside it. */
+export const DEFAULT_LIMITS_MODEL = 'claude-haiku-5-5';
+
+/** The cassette of an estate for a model: the default model keeps the plain name. */
+export const cassettePath = (estate: EstateName, model: string = DEFAULT_LIMITS_MODEL): string =>
+  join(
+    estateFolder(estate),
+    model === DEFAULT_LIMITS_MODEL ? 'limits.cassette.jsonl' : `limits.${model}.cassette.jsonl`,
+  );
 
 /** The recorded limits of an estate: the cassette entries of the limits set, and nothing else. */
-export async function loadLimitsCassette(estate: EstateName): Promise<pointer.Cassette> {
-  const text = await readFile(cassettePath(estate), 'utf8');
+export async function loadLimitsCassette(
+  estate: EstateName,
+  model: string = DEFAULT_LIMITS_MODEL,
+): Promise<pointer.Cassette> {
+  const text = await readFile(cassettePath(estate, model), 'utf8');
   return pointer.Cassette.parse(text);
 }
 
@@ -58,6 +70,7 @@ export function composite(planted: pointer.Labeler, model: pointer.Labeler): poi
     cls: 'system2',
     family: 'composite',
     model: model.model,
+    runs: model.runs ?? 1,
     settings: {},
     maxUnits: (set, wanted) => pick(set).maxUnits(set, wanted),
     render: (set, window, context) => pick(set).render(set, window, context),
