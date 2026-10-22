@@ -35,6 +35,18 @@ describe('the cassette', () => {
     expect(recorded().get(WIRE, readableOf(WIRE, META)).answer).toEqual(ANSWER);
   });
 
+  it('refuses an entry whose readable field was changed under the key, and names the field', () => {
+    const cassette = recorded();
+    const key = requestKey(WIRE, readableOf(WIRE, META));
+    for (const field of ['path', 'window', 'set', 'setHash', 'model', 'cutDigest', 'promptVersion']) {
+      const copy = Cassette.parse(cassette.render());
+      const entry = copy.entries.get(key);
+      if (!entry) throw new Error('no entry');
+      entry.readable[field] = 'tampered';
+      expect(() => copy.get(WIRE, readableOf(WIRE, META))).toThrow(new RegExp(`differs in: ${field}\\b`));
+    }
+  });
+
   it('dumps the same bytes for the same content, and reads them back', () => {
     const text = recorded().render();
     expect(recorded().render()).toBe(text);
@@ -76,6 +88,30 @@ describe('the cassette', () => {
     expect(() => recorded().get({ ...WIRE, body: { ...WIRE.body, user: 'x' } }, readable)).toThrow(
       /no entry of the labeler planted for the same file, window and set/,
     );
+  });
+
+  it('names the window of a request it cannot answer, with a nearest entry or without one', () => {
+    // The window id is a field of the request (path and number): a reader finds the window to record again from it.
+    const nearWire: Wire = { ...WIRE, body: { ...WIRE.body, system: 'Label the units well.' } };
+    let near: CassetteMiss | undefined;
+    try {
+      recorded().get(nearWire, readableOf(nearWire, META));
+    } catch (cause) {
+      near = cause as CassetteMiss;
+    }
+    expect(near?.nearest).toBeDefined();
+    expect(near?.window).toBe(META.window);
+    expect(near?.message).toContain(META.window);
+    const other = readableOf(WIRE, { ...META, window: 'other.md#1', path: 'other.md' });
+    let none: CassetteMiss | undefined;
+    try {
+      recorded().get({ ...WIRE, body: { ...WIRE.body, user: 'x' } }, other);
+    } catch (cause) {
+      none = cause as CassetteMiss;
+    }
+    expect(none?.nearest).toBeUndefined();
+    expect(none?.window).toBe('other.md#1');
+    expect(none?.message).toContain('other.md#1');
   });
 
   it('names the labeler id of a request no entry of that labeler answers, as a token', () => {

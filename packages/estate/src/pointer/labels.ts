@@ -137,6 +137,25 @@ export function canonical(value: unknown): string {
 
 export type LabelSetsResult = { ok: true; sets: LabelSet[] } | { ok: false; message: string };
 
+/**
+ * Where in the sets a problem lies, by the names the writer gave: walking the path, an object that holds a `set`
+ * names a set, and one that holds a `name` names a label (or a span or link kind). A refusal then says which set
+ * and label it is about, whatever is wrong with them.
+ */
+function namedPlace(raw: unknown, path: ReadonlyArray<PropertyKey>): string {
+  const names: string[] = [];
+  let node: unknown = raw;
+  for (const key of path) {
+    if (node === null || typeof node !== 'object') break;
+    node = (node as Record<PropertyKey, unknown>)[key];
+    if (node === null || typeof node !== 'object') break;
+    const entry = node as { set?: unknown; name?: unknown };
+    if (typeof entry.set === 'string') names.push(`the set "${entry.set}"`);
+    else if (typeof entry.name === 'string') names.push(`"${entry.name}"`);
+  }
+  return names.join(', ');
+}
+
 /** Reads the `labels:` list of a YAML text, and refuses a duplicate set or label name. */
 export function parseLabelSets(text: string): LabelSetsResult {
   let raw: unknown;
@@ -152,7 +171,11 @@ export function parseLabelSets(text: string): LabelSetsResult {
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     const path = first?.path.map(String).join('.') ?? '';
-    return { ok: false, message: `${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}` };
+    const where = namedPlace(raw, first?.path ?? []);
+    return {
+      ok: false,
+      message: `${where ? `${where}, ` : ''}${path ? `${path}: ` : ''}${first?.message ?? 'unknown problem'}`,
+    };
   }
   const seen = new Set<string>();
   for (const set of parsed.data.labels) {
@@ -305,6 +328,8 @@ export type Checked = {
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
+  /** The refusals of the answer as a whole: a label, a unit or a target that does not exist. */
+  invalid: string[];
   /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
   dropped: string[];
 };
@@ -324,40 +349,45 @@ export function checkAnswer(
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
+  const invalid: string[] = [];
+  const refuse = (reason: string) => {
+    refusals.push(reason);
+    invalid.push(reason);
+  };
   const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refusals.push(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
       continue;
     }
     const numbers = expandUnits(entry.units);
     if (!numbers) {
-      refusals.push(`${window.id}: "${entry.units}" is no unit number or range`);
+      refuse(`${window.id}: "${entry.units}" is no unit number or range`);
       continue;
     }
     if (numbers.some((n) => !inWindow.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" leaves the window`);
+      refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
     if (numbers.some((n) => covered.has(n))) {
-      refusals.push(`${window.id}: "${entry.units}" names a unit that is already labelled`);
+      refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refusals.push(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label none takes no target`);
+      refuse(`${window.id}: the label none takes no target`);
       continue;
     }
     if (label?.target === 'required' && (entry.target === undefined || !inWindow.has(entry.target))) {
-      refusals.push(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
+      refuse(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
       continue;
     }
     if (label && label.target !== 'required' && entry.target !== undefined) {
-      refusals.push(`${window.id}: the label ${entry.label} takes no target`);
+      refuse(`${window.id}: the label ${entry.label} takes no target`);
       continue;
     }
     const extras = checkExtras(set, window, entry, numbers, label, context);
@@ -378,7 +408,7 @@ export function checkAnswer(
       }
     }
   }
-  return { accepted, covered, refusals, dropped };
+  return { accepted, covered, refusals, invalid, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
