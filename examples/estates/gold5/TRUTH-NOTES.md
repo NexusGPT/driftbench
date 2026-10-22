@@ -66,3 +66,15 @@ Not added:
 - B f25ttdrj3d: the rule states no number; the five minutes sits in an unagreed unit.
 Re-derived, unchanged: A byu5upblrc ge 10 trigger; A geryhklclh ge 5 constraint (telling it is lost is allowed from five working days); A 2ihgfbfpwv le 1 constraint; C bidpovjlre le 2 constraint.
 B cdm2x22n6i: NOTES earlier said lt 4; both NOTES lines now say ge 4 constraint, as the file does.
+
+# Revision: blind re-check of the added limits
+Sample: 36 units (18 added limits, 9 positive controls from the original truth, 9 decoys), judged without the model's answers or the truth values. Result: controls 9/9, decoys 0/9, added 16/18. Truth goes from 56 to 54 limits (A 24, B 11, C 19).
+- A 5fnrtqa4dt: removed. The blind judge rejected the entry. Limit entry `le 1 sentences` deleted.
+- B lwci7tropa: limit entry removed. The blind judge rejected the entry. The planted rule on this unit stays.
+
+# Disagreements between the blind judge and the truth on the 16 kept limits
+No value, comparison or role is changed here. Both sides agree on value, role and comparison for 14 of 16.
+- C bidpovjlre: judge `eq 2` (quote "Offer two rooms"), truth `le 2`. No ordering comparison fits "exactly two" in the judge's reading; the truth reads it as a ceiling of two rooms.
+- C 7xzbzyq5no: judge `lt 2`, truth `le 1`. Same range over whole numbers (one message or fewer). The two sides write the bound differently.
+- Role: no disagreement on any of the 16 (all constraint).
+- Governs, listed because the judge named another unit in 5 cases: A 2ihgfbfpwv (judge 2wovzmm6tr, the "Leave out the following in every message" prohibition), A ozfstdpufc, A nmk2xrp2r3 and A dptij3uzkt (judge kj526oai4b, the "A reply has three parts" rule), C txtsbyxu6a (judge bmyog2vp7t, the "Follow the steps in this order" gate). The truth names the unit that holds the number.

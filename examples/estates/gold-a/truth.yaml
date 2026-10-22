@@ -111,12 +111,6 @@ limits:
     role: constraint
     unit_of: "minutes"
     governs: 5fheyswkjr
-  - unit: 5fnrtqa4dt
-    limit: 1
-    comparison: le
-    role: constraint
-    unit_of: "sentences"
-    governs: 5fnrtqa4dt
   - unit: dptij3uzkt
     limit: 1
     comparison: le
