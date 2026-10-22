@@ -340,7 +340,12 @@ export async function estateRunCommand(
     try {
       const path = resolve(io.cwd, options.states);
       library = await loadStateLibrary(path);
-      libraryFile = { path, sha256: createHash('sha256').update(await readFile(path)).digest('hex') };
+      libraryFile = {
+        path,
+        sha256: createHash('sha256')
+          .update(await readFile(path))
+          .digest('hex'),
+      };
     } catch (cause) {
       io.err(`The state library ${options.states} cannot be read: ${describe(cause)}\n`);
       return 2;
