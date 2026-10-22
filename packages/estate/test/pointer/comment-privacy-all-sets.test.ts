@@ -233,7 +233,10 @@ async function labelers(): Promise<Member[]> {
   const moduleOne = sinkAt('__pointerSeenOne');
   const cwd = fileURLToPath(new URL('.', import.meta.url));
   const twoLabeler = await loadModuleLabeler(fixture('recording-labeler.mjs'), { cwd });
-  const oneLabeler = await loadModuleLabeler(fixture('recording-labeler-one.mjs'), { cwd });
+  const oneLabeler = await loadModuleLabeler(fixture('recording-labeler-one.mjs'), {
+    cwd,
+    skipTargetLabels: true,
+  });
   return [
     {
       name: 'anthropic',

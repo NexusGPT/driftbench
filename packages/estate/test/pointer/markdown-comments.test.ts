@@ -5,15 +5,13 @@ import {
   cut,
   denseUser,
   type LabelSet,
-  requestPathOf,
-  requestShownOf,
   requestTextOf,
-  shownOf,
   userRequest,
   windowLines,
   windowsOf,
   yesNoText,
 } from '../../src/pointer';
+import { requestPathOf, requestShownOf, shownOf } from '../../src/pointer/labels';
 
 // Invented text: a harbour office. A Markdown comment is a link reference definition used to hide a note:
 // label `//` or `comment`, destination `#` or `<>`, a title in ( ), " " or ' ' marks, on a line of its own.
