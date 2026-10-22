@@ -180,9 +180,15 @@ export function pointerAtoms(
   const duplicates: string[] = [];
   const conditions = new Map<string, LabelledUnit[]>();
   for (const item of labelled) {
-    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
-    const key = `${item.set.set}:${item.target.id}`;
-    conditions.set(key, [...(conditions.get(key) ?? []), item]);
+    // A condition scopes its target; any unit scopes the units it lists. All of them are scopes of that unit.
+    const isCondition = item.set.labels.find((label) => label.name === item.label)?.condition === true;
+    const scoped = [...(isCondition && item.target ? [item.target] : []), ...(item.scopes ?? [])];
+    for (const each of scoped) {
+      if (each.id === item.id) continue;
+      const key = `${item.set.set}:${each.id}`;
+      const held = conditions.get(key) ?? [];
+      if (!held.includes(item)) conditions.set(key, [...held, item]);
+    }
   }
   // A bound unit (a condition label with numeric links) gives its limits to the atoms of the unit it points at, in
   // whichever set that unit is labelled: a set of limits can sit beside the set of rules. So does a unit that carries
@@ -475,13 +481,15 @@ export function pointerAtoms(
       }
     }
     if (kept) {
-      for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
-      for (const condition of bound) attached.add(`${condition.set.set}:${condition.id}`);
+      // One key for each condition and target: a unit may scope several targets, and a bound unit of another set
+      // limits the atoms of the unit it points at.
+      for (const condition of [...conditional, ...bound]) attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
     }
   }
-  for (const items of conditions.values()) {
+  for (const [key, items] of conditions) {
+    const targetId = key.slice(key.indexOf(':') + 1);
     for (const condition of items) {
-      if (attached.has(`${condition.set.set}:${condition.id}`)) continue;
+      if (attached.has(`${condition.set.set}:${condition.id}>${targetId}`)) continue;
       refusals.push(
         `${condition.path} unit ${condition.id} (${condition.label}): the condition points at a unit that holds no atom`,
       );

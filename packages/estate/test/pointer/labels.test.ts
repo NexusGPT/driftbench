@@ -581,3 +581,37 @@ describe('spans and links in a label set', () => {
     expect(none.dropped[0]).toMatch(/carries no links/);
   });
 });
+
+describe('scopes: the other units a unit applies to', () => {
+  const counter = load(TWO_SETS)[1] as LabelSet;
+  const window = {
+    id: 'w',
+    path: 'notes.md',
+    headingPath: [],
+    units: [1, 2, 3].map((n) => ({ n, text: `unit ${n}`, index: n - 1 })),
+  };
+
+  it('keeps the scopes of a label, whatever the label', () => {
+    const checked = checkAnswer(counter, window, [
+      { units: '1', label: 'remark', scopes: [2, 3] },
+      { units: '2', label: 'order', target: 3, scopes: [1] },
+    ]);
+    expect(checked.refusals).toEqual([]);
+    expect(checked.accepted.get(1)?.scopes).toEqual([2, 3]);
+    expect(checked.accepted.get(2)?.scopes).toEqual([1]);
+  });
+
+  it('refuses a scope that is no unit of the window, the unit itself, a repeat, or sits on none', () => {
+    for (const entry of [
+      { units: '1', label: 'remark', scopes: [9] },
+      { units: '1', label: 'remark', scopes: [1] },
+      { units: '1', label: 'remark', scopes: [2, 2] },
+      { units: '1', label: 'remark', scopes: ['2' as unknown as number] },
+      { units: '1', label: 'none', scopes: [2] },
+    ] satisfies Labelled[]) {
+      const checked = checkAnswer(counter, window, [entry]);
+      expect(checked.refusals, JSON.stringify(entry)).toHaveLength(1);
+      expect(checked.accepted.size, JSON.stringify(entry)).toBe(0);
+    }
+  });
+});
