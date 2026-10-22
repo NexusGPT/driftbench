@@ -533,7 +533,16 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
       };
       const scaled = scenario.weighted ? plan(scaledStore(scenario.store, 3), { seed: 1 }) : undefined;
       const reordered = plan(reversedKeys(scenario.store) as VariableStore, { seed: 1 });
-      const rendered = shape.zeroWeight ? frame.product.renderPlanV2(full) : undefined;
+      // A product that cannot write its plan as JSON fails zero-weight-last; it does not stop every other item of
+      // the shape from reaching a verdict.
+      let rendered: string | undefined;
+      if (shape.zeroWeight) {
+        try {
+          rendered = frame.product.renderPlanV2(full);
+        } catch {
+          rendered = undefined;
+        }
+      }
       return {
         scenario,
         oracle,
