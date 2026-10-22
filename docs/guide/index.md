@@ -100,7 +100,7 @@ Each word is explained again where it first appears. This list is for looking on
 | Map | The list of all atoms of an estate. | `build/map.yaml`. |
 | Plan | The list of situations to test, chosen so that every pair of situations meets once. | `build/plan.yaml`. |
 | Ledger id | An id of a sentence of your prompt that stays the same when you edit the sentence. | `wrl4c7wlvb`. |
-| Blast radius | The tests that an edit can change. | 16 of 1251 blocks. |
+| Blast radius | The tests that an edit can change. | 17 of 1251 blocks. |
 | Interval | The range a rate could really lie in, given how many tests you ran. | 50% with an interval of 23% to 77%. |
 | Adapter | The piece that connects driftbench to your agent. | A function, a web address, a command. |
 | Stage | A step of the conversation that your agent goes through, named in the spec. | `address`, then `offer`, then `recap`. |

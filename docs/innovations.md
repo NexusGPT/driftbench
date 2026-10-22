@@ -185,7 +185,7 @@ blocks:
 
 The walkthrough [From a rule to its tests](rule-links.md) runs every command on the Northwind estate.
 `driftbench estate generate` writes the links of a block. This spec holds one block and its `rule` link, with the atom id and the ledger id of the unit. The change file is what `driftbench radius ledger` writes after an edit of that unit.
-The walkthrough runs `driftbench radius` over the generated suite with that file: 16 of 1251 blocks.
+The walkthrough runs `driftbench radius` over the generated suite with that file: 17 of 1251 blocks.
 
 ```yaml
 # file: rule-links.spec.yaml

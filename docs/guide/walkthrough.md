@@ -195,7 +195,7 @@ $ grep -A8 "^  links:" build/generated/specs/live/obligation/estate.obligation.i
       status: declared
 ```
 
-Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. Read the lines of the link like this. `kind: rule` says the test points at a rule. `rule` is the id of the atom. `ledger` is the id of the sentence. `relation: verifies` says the test checks that rule. `status: declared` says a generator wrote the link and nothing has checked it yet. The `status: live` that you see in `build/ledger.json` is a different thing: it says the sentence is still in your files. To check a link, `estate mutate` deletes the line of the rule from a copy of the estate. The tests then run again on the copy, and `estate prove` marks the link `verified` when its test now fails. The [rule links walkthrough](../rule-links.md) runs that check. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 16 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
+Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. Read the lines of the link like this. `kind: rule` says the test points at a rule. `rule` is the id of the atom. `ledger` is the id of the sentence. `relation: verifies` says the test checks that rule. `status: declared` says a generator wrote the link and nothing has checked it yet. The `status: live` that you see in `build/ledger.json` is a different thing: it says the sentence is still in your files. To check a link, `estate mutate` deletes the line of the rule from a copy of the estate. The tests then run again on the copy, and `estate prove` marks the link `verified` when its test now fails. The [rule links walkthrough](../rule-links.md) runs that check. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 17 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
 
 <details><summary>Look at the id, the atom and the test itself</summary>
 
@@ -355,11 +355,11 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 **Why you do this.** After an edit you want to know whether you broke something. Rerunning every test is slow and costs money. Rerunning only the tests the edit can reach is fast, and the saving is measured.
 
 
-**A baseline first.** To know whether an edit broke something, you need the results from before the edit. A **baseline** is a run of the tests on the unedited folder, kept in a store. In a real project the baseline is the whole suite (`build/generated/run-order.txt` lists it). With a real agent it is billed. Size it first. Count the tests and multiply by the cost of one test (0.0085 USD for the example test). Here, to stay short, the baseline is 24 tests: the 16 tests that name the sentence of step 2, and 8 others. The stand-in runs them free.
+**A baseline first.** To know whether an edit broke something, you need the results from before the edit. A **baseline** is a run of the tests on the unedited folder, kept in a store. In a real project the baseline is the whole suite (`build/generated/run-order.txt` lists it). With a real agent it is billed. Size it first. Count the tests and multiply by the cost of one test (0.0085 USD for the example test). Here, to stay short, the baseline is 25 tests: the 17 tests that name the sentence of step 2, and 8 others. The stand-in runs them free.
 
-- `grep -rl ... > rerun.txt`: lists the tests that name the sentence, as in step 2 · `-r` searches the folder, `-l` prints file names · it writes the 16 names to `rerun.txt`.
-- `find ... | grep -v ... | head -8 > others.txt`: picks 8 tests that do not name it · `grep -v -x -F -f rerun.txt` drops the 16 · it writes `others.txt`.
-- `driftbench estate run --order base.txt ... --agent-version v1`: runs the 24 tests and keeps the results · `--order` is the file of names. `--store before.db` is the store. `--agent-version v1` labels this version of your agent. The next steps use the label to carry results · it prints one line per test, and a last line that counts them.
+- `grep -rl ... > rerun.txt`: lists the tests that name the sentence, as in step 2 · `-r` searches the folder, `-l` prints file names · it writes the 17 names to `rerun.txt`.
+- `find ... | grep -v ... | head -8 > others.txt`: picks 8 tests that do not name it · `grep -v -x -F -f rerun.txt` drops the 17 · it writes `others.txt`.
+- `driftbench estate run --order base.txt ... --agent-version v1`: runs the 25 tests and keeps the results · `--order` is the file of names. `--store before.db` is the store. `--agent-version v1` labels this version of your agent. The next steps use the label to carry results · it prints one line per test, and a last line that counts them.
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | LC_ALL=C sort > rerun.txt
@@ -368,7 +368,7 @@ $ cat rerun.txt others.txt | LC_ALL=C sort > base.txt
 $ grep -c "" base.txt
 24
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store before.db --agent-version v1 --states northwind/live/states/library.json   # exit 1
-24 specs run live on a stand-in: 0 pass, 24 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 24 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
+25 specs run live on a stand-in: 0 pass, 25 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 25 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
 ```
 
 `estate run` has no flag to repeat each test. To repeat a run, run the same command again with a new `--store`, such as `before-2.db`.
@@ -404,11 +404,11 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 ```text
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+Mode F, free-running: 17 of 1251 blocks in the radius (17 direct, 0 forward), 1234 out. 17 of 1248 cells.
+  A cell reruns whole: 17 of 1251 blocks sent, 98.6% saved; 1231 of 1248 cells left to carry.
 ```
 
-Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, which saves 98.7%. The 1248 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1424 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1248 files hold 1251 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1251 blocks, 17 can be reached by that sentence. The other 1234 are not run, which saves 98.6%. The 1248 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1424 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1248 files hold 1251 blocks in all. The 17 files in the radius hold one block each, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
@@ -420,11 +420,11 @@ In the radius, mode F:
   estate.pairwise.0177                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
-Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. So the 16 blocks are 16 files, 3 named for the rule and 13 from the plan.
+Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. The last one is the `ordered_pair` test of the gate `gate.weekly-report.read-templates-report-md-before-writing`: that gate and this sentence are in the same section of the skill file, so the plan puts them in one row. So the 17 blocks are 17 files, 3 named for the rule, 13 from the plan and 1 for the gate of the same section.
 
 **Which id to grep for.** The first line of the radius output ends with `prompt:` and the id of the atom you changed. Here it is `instruction.weekly-report.count-only-what-the-ledger-and`. On your own agent it is the text after `prompt:`, without the final full stop. The tests that name an atom hold a line `- <atom id>` in their links, so a `grep` for that line finds them.
 
-**Rerun, and carry the rest.** Run the same 24 names again with the edited folder. Add `--from before.db`, `--change change.yaml` and `--agent-version v2`. The tests in the radius run fresh. A test outside it keeps its stored result from the baseline, and is marked `(carried)`. `--map` is left out because the files changed since the map was written. The shown lines leave out the per-test notes, and the campaign id changes at every run, so the page shows it as `<id>`:
+**Rerun, and carry the rest.** Run the same 25 names again with the edited folder. Add `--from before.db`, `--change change.yaml` and `--agent-version v2`. The tests in the radius run fresh. A test outside it keeps its stored result from the baseline, and is marked `(carried)`. `--map` is left out because the files changed since the map was written. The shown lines leave out the per-test notes, and the campaign id changes at every run, so the page shows it as `<id>`:
 
 - `--from before.db`: the store of the baseline. It is never written · it is where carried results come from.
 - `--change change.yaml`: the change file, so the command knows which tests the edit can reach.
@@ -433,15 +433,15 @@ Read each row as one test file: its name, how many of its blocks are in the radi
 ```console
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --agent-version v2 --from before.db --change change.yaml --states northwind/live/states/library.json   # exit 1
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-16 of 24 cells in the radius. 16 cells run fresh, 8 carried from estate-run-<id> in before.db.
+17 of 25 cells in the radius. 17 cells run fresh, 8 carried from estate-run-<id> in before.db.
 ✗ estate.dispatch.subagent.inbox-triager.helper-inbox-triager  (carried)
     failing: block 0: subagents.inbox-triager
 ✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
-16 specs run live on a stand-in and 8 carried: 0 pass, 24 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 16 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
+17 specs run live on a stand-in and 8 carried: 0 pass, 25 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 17 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
 ```
 
-Read it like this. The line "16 of 24 cells in the radius" counts the tests the edit can reach. Those 16 ran, and 8 were carried. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. The last line counts the fresh and the carried tests, and gives the cost. The stand-in has no judge, so all 24 tests show as failed here. With the real agent and a judge, they get a verdict. A **campaign** is one run of a set of tests, kept in the store under its id. In a real project the baseline is the whole suite, so one edit reruns 16 of 1248 tests and carries the other 1232.
+Read it like this. The line "17 of 25 cells in the radius" counts the tests the edit can reach. Those 17 ran, and 8 were carried. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. The last line counts the fresh and the carried tests, and gives the cost. The stand-in has no judge, so all 25 tests show as failed here. With the real agent and a judge, they get a verdict. A **campaign** is one run of a set of tests, kept in the store under its id. In a real project the baseline is the whole suite, so one edit reruns 17 of 1248 tests and carries the other 1231.
 
 **If the carry goes wrong.**
 
