@@ -37,6 +37,7 @@ for (const [module, what] of [
   ['./wide-window-one-short.ts', 'every entry but the last'],
   ['./wide-window-headings.ts', 'both headings replaced by sentence copies, the count unchanged'],
   ['./wide-window-label.ts', 'one entry under another label'],
+  ['./wide-window-padded.ts', 'one quote padded with a space'],
 ] as const) {
   it(`scale.wide-window fails a reader that returns ${what}`, async () => {
     expect((await withReader(module)).pass).toBe(false);
