@@ -75,6 +75,18 @@ describe('the cutter on a plain text file', () => {
     expect(new Set(rowsSeen).size).toBe(24_000);
   });
 
+  it('keeps a very long block quote and a very long list as the parser gives them', () => {
+    const quote = Array.from({ length: 12_000 }, (_, index) => `> Row ${index}`).join('\n');
+    for (const plain of [false, true]) {
+      const units = cut(quote, { plain }).units;
+      expect(units).toHaveLength(1);
+      expect(units[0]?.container).toBe('block_quote');
+      expect(units[0]?.text).toBe(quote);
+    }
+    const list = Array.from({ length: 12_000 }, (_, index) => `- item ${index}`).join('\n');
+    expect(cut(list, { plain: false }).units).toHaveLength(12_000);
+  });
+
   it('keeps the heading path after a very long paragraph', () => {
     const rows = Array.from({ length: 12_000 }, (_, index) => `Row ${index}`).join('\n');
     const source = `# Ropes\n\n## Coils\n\n${rows}\n\nNever coil a rope that another skipper holds, note a.\n`;
