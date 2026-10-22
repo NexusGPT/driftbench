@@ -106,7 +106,7 @@ export type LabelerUsage = {
 /**
  * A unit the runs of one labeler read two ways, near evenly: `kinds` counts the runs heard by what their label builds
  * (an atom kind such as `gate` or `instruction`; a label that points at another unit by its name; `no atom` for the
- * labels that build none), most given first. `label` is the label the vote gave, absent when it gave none.
+ * labels that build none), most given first. Such a unit is unlabeled.
  */
 export type Unstable = {
   unit: string;
@@ -114,7 +114,6 @@ export type Unstable = {
   set: string;
   labeler: string;
   kinds: Record<string, number>;
-  label?: string;
 };
 
 export type PointerResult = {
@@ -153,8 +152,8 @@ export type PointerResult = {
   failed: string[];
   /**
    * Units whose runs are one run from another outcome: the two kinds of atom most given (a gate and an instruction, or
-   * an atom and no atom) are at most one run apart, the second with two runs at least. The vote's label stands and is
-   * listed here with the count of each kind.
+   * an atom and no atom) are at most one run apart, the second with two runs at least, after the window was asked
+   * again (`SPLIT_REASK_MAX`). Such a unit is unlabeled and listed here with the count of each kind.
    */
   unstable: Unstable[];
   usage: LabelerUsage[];
@@ -271,14 +270,17 @@ export function missingForAtom(set: LabelSet, opinion: Opinion): string[] {
 /** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
 export const REASK_LIMIT = 3;
 
-/** How many more runs a window gets when the two most given labels of one of its units tie. */
+/**
+ * How many more runs a window gets when one of its units is undecided: its two most given labels tie, or its two most
+ * given kinds are one run apart (`unstable`).
+ */
 export const SPLIT_REASK_RUNS = 2;
 
-/** The most extra voices a window gets while one of its units still ties. */
-export const SPLIT_REASK_MAX = 4;
+/** The most extra voices a window gets while one of its units is still undecided: six, in pairs. */
+export const SPLIT_REASK_MAX = 6;
 
-/** The most asks a window gets for a split, those that slip included. */
-export const SPLIT_REASK_ATTEMPTS = 6;
+/** The most asks a window gets for an undecided unit, those that slip included. */
+export const SPLIT_REASK_ATTEMPTS = 8;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
@@ -874,6 +876,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const counts = [...tally.values()].map((group) => group.length).sort((a, b) => b - a);
     return counts.length >= 2 && counts[0] === counts[1];
   };
+  /** A unit more runs could settle: its two most given labels tie, or its two most given kinds are one run apart. */
+  const undecided = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+    mentionsFile = false,
+  ): boolean => tiedSplit(runs, index, set, mentionsFile) || unstableKinds(runs, index, set) !== undefined;
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
@@ -886,6 +895,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    // Two kinds one run apart are no decision, whatever label a vote would give: the unit was asked again, and if its
+    // runs are still that close it stays unlabeled (it is listed as unstable).
+    if (unstableKinds(runs, index, set)) {
+      if (present.length === given.length) split++;
+      return undefined;
+    }
     const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
@@ -917,8 +932,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     };
   };
 
-  // A window with a unit whose two most given labels tie, inside one atom kind (two runs of rule, two of prohibition)
-  // or across kinds (two of reply-rule, two of rule), with nothing else to decide it, is asked
+  // A window with an undecided unit (its two most given labels tie, inside one atom kind or across kinds, with nothing
+  // else to decide it; or its two most given kinds are one run apart) is asked
   // SPLIT_REASK_RUNS more times, as the runs after those the window already used; each answer in step is one more
   // voice on the units of that window. Keyed by run number like every run, so a replay reads the same answers; a
   // replay whose cassette holds none leaves the tie as it is.
@@ -930,15 +945,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     asked.add(where);
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
     const tied = task.window.units.filter((unit) =>
-      tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+      undecided(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
     );
     if (tied.length === 0) continue;
-    // Two voices in step at least; while a unit of the window still ties, two more, up to SPLIT_REASK_MAX; a re-ask
+    // Two voices in step at least; while a unit of the window is still undecided, two more, up to SPLIT_REASK_MAX; a re-ask
     // that slips is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
     let voices = 0;
     for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
       const stillTied = task.window.units.some((unit) =>
-        tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+        undecided(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
       );
       // Voices come in pairs, so one extra voice never breaks a tie on its own.
       if (voices >= SPLIT_REASK_RUNS && voices % 2 === 0 && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
@@ -985,14 +1000,22 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const index of [...want].sort((a, b) => a - b)) {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
-        const decision = labelling.decide(
-          byMember.map((runs) =>
-            opinionOf(runs, index, set, namedPaths(cuts.get(file.path)?.units[index]?.text ?? '').length > 0),
-          ),
-          set,
-        );
-        for (const [at, runs] of byMember.entries()) {
-          const kinds = unstableKinds(runs, index, set);
+        const close = byMember.map((runs) => unstableKinds(runs, index, set));
+        // A unit whose runs stay one run from another outcome is unlabeled: no other labeler decides it alone.
+        const decision = close.some((kinds) => kinds)
+          ? undefined
+          : labelling.decide(
+              byMember.map((runs) =>
+                opinionOf(
+                  runs,
+                  index,
+                  set,
+                  namedPaths(cuts.get(file.path)?.units[index]?.text ?? '').length > 0,
+                ),
+              ),
+              set,
+            );
+        for (const [at, kinds] of close.entries()) {
           if (!kinds) continue;
           unstable.push({
             unit: entry.id,
@@ -1000,7 +1023,6 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             set: set.set,
             labeler: labelling.members[at]?.id ?? '',
             kinds,
-            ...(decision ? { label: decision.label } : {}),
           });
         }
         if (!decision) {

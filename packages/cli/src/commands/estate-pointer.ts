@@ -300,7 +300,7 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
       .map(([kind, count]) => `${kind} ${count}`)
       .join(', ');
     lines.push(
-      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; ${entry.label ? `labelled ${entry.label}` : 'left unlabeled'}`,
+      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; left unlabeled`,
     );
   }
   return lines;
