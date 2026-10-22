@@ -25,6 +25,8 @@ jobs:
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Regenerate
         run: pnpm exec vitest run packages/cli/test/zz-regen.test.ts --maxWorkers=1
+      - name: Keep impact.txt as committed
+        run: git checkout -- examples/estates/fixture-v2/maintain/impact.txt
       - name: Format the data files
         run: pnpm exec biome format --write examples/estates/fixture-v2/maintain packages/cli/test/zz-regen.test.ts || true
       - name: Fix formatting of the PR source files
