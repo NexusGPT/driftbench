@@ -97,7 +97,10 @@ export function loadDispatch(env) {
       for (const phrase of situation.phrases ?? []) {
         if (typeof phrase.text !== 'string') continue;
         const at = phrase.text;
-        phrases.set(at, [...(phrases.get(at) ?? []), { use: situation.use, atoms: situation.atoms ?? [] }]);
+        phrases.set(at, [
+          ...(phrases.get(at) ?? []),
+          { use: situation.use, atoms: situation.atoms ?? [], changed: situation.touches?.changed ?? [] },
+        ]);
       }
   }
   const grammar = existsSync(grammarPath) ? readStructured(grammarPath) : undefined;
@@ -198,11 +201,13 @@ export function setOff(index, ask) {
   const banked = index.phrases.get(asked);
   if (banked) {
     const out = new Map();
+    const edits = [];
     for (const situation of banked) {
       if (situation.use === 'outside' || situation.use === 'near_miss') continue;
+      for (const path of situation.changed) if (!edits.includes(path)) edits.push(path);
       for (const id of situation.atoms) out.set(id, (out.get(id) ?? false) || situation.use === 'forced');
     }
-    return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [] };
+    return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [], edits };
   }
   const matched = matchAsk(index.grammar, ask);
   if (matched)

@@ -17,7 +17,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
 import {
   intentsOf,
   loadDispatch,
@@ -274,6 +274,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     unit?.kind === 'skill' && dispatch
       ? unitPlan(dispatch, { kind: 'skill', name: unit.name }, cwd)
       : { actions: [], gates: [], bans: [] };
+  // The files the situation of the ask declares it changes: each is edited, after the reads its gates order.
+  for (const path of setOffBy.edits ?? [])
+    if (unit?.kind === 'skill' && !plan.actions.some((o) => o.kind === 'Edit' && o.literal === path))
+      plan.actions.push({ kind: 'Edit', literal: path, folder: '' });
   const prohibited = prohibitions(plan.bans, cwd);
   const out = [];
   let id = 0;
@@ -514,6 +518,16 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           ? { error: true, content: `File not found: ${action.literal}` }
           : { content };
       });
+    } else if (action.kind === 'Edit') {
+      const path = fileTarget(action.literal, cwd, action.folder);
+      const before = read(path) ?? '';
+      const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
+      result = call(
+        'Edit',
+        { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added },
+        () => ({ content: `The file ${action.literal} has been updated.` }),
+      );
+      if (result && !result.error) out.push({ fake: 'write', path: relative(cwd, path), content: `${before}${added}` });
     } else if (action.kind === 'Bash') {
       // Resolve commands against the skill folder; omit unfilled placeholders as before.
       const command = action.literal
