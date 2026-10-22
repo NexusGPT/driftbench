@@ -333,16 +333,6 @@ export const GOLDEN_RULES: readonly GoldenRule[] = [
   },
   {
     lang: 'es',
-    n: 3,
-    title: 'Abbreviations',
-    sentences: [
-      'Hola Srta. Ledesma.',
-      'Buenos días, soy el Lic. Naser Pastoriza, y él es mi padre, el Dr. Naser.',
-    ],
-    joiner: ' ',
-  },
-  {
-    lang: 'es',
     n: 4,
     title: 'Numbers',
     sentences: [
@@ -357,17 +347,6 @@ export const GOLDEN_RULES: readonly GoldenRule[] = [
     n: 5,
     title: 'Quotations',
     sentences: ['«Ninguna mente extraordinaria está exenta de un toque de demencia.», dijo Aristóteles.'],
-    joiner: ' ',
-  },
-  {
-    lang: 'el',
-    n: 1,
-    title: 'Question mark to end sentence',
-    sentences: [
-      'Με συγχωρείτε· πού είναι οι τουαλέτες;',
-      'Τις Κυριακές δε δούλευε κανένας.',
-      'το κόστος του σπιτιού ήταν £260.950,00.',
-    ],
     joiner: ' ',
   },
   {
@@ -413,16 +392,6 @@ export const GOLDEN_RULES: readonly GoldenRule[] = [
     n: 1,
     title: 'Sentence ending punctuation',
     sentences: ['کیا حال ہے؟', 'ميرا نام ___ ەے۔', 'میں حالا تاوان دےدوں؟'],
-    joiner: ' ',
-  },
-  {
-    lang: 'nl',
-    n: 1,
-    title: 'Sentence starting with a number',
-    sentences: [
-      'Hij schoot op de JP8-brandstof toen de Surface-to-Air (sam)-missiles op hem af kwamen.',
-      '81 procent van de schoten was raak.',
-    ],
     joiner: ' ',
   },
   {

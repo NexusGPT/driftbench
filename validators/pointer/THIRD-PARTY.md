@@ -2,7 +2,7 @@
 
 ## Pragmatic Segmenter: the Golden Rules
 
-The `golden` family of the pointer bank (`packages/validators/src/ladders/pointer/kit/golden-rules.ts` and `bank/specs/golden.ts`) uses the Golden Rules of the Pragmatic Segmenter by Kevin S. Dias, https://github.com/diasks2/pragmatic_segmenter. The README section "The Golden Rules" lists edge cases of sentence segmentation, each with an input and its expected sentences. The bank keeps 53 of them, with their README numbers, titles and expected sentences verbatim. `bank/specs/golden.ts` lists every rule left out and why. The Pragmatic Segmenter is released under the MIT License:
+The `golden` family of the pointer bank (`packages/validators/src/ladders/pointer/kit/golden-rules.ts` and `bank/specs/golden.ts`) uses the Golden Rules of the Pragmatic Segmenter by Kevin S. Dias, https://github.com/diasks2/pragmatic_segmenter. The README section "The Golden Rules" lists edge cases of sentence segmentation, each with an input and its expected sentences. The bank keeps 50 of them, with their README numbers, titles and expected sentences verbatim. `bank/specs/golden.ts` lists every rule left out and why. The Pragmatic Segmenter is released under the MIT License:
 
     The MIT License (MIT)
 

@@ -18,6 +18,10 @@ import { type FamilySpec, row, type Spec } from './types';
  * - Inputs markdown reads otherwise: EN 31-39 (a line starting `1.`, `1)` or `a.` is a list item, one unit), EN 42
  *   (soft-wrapped lines are one paragraph).
  * - A comma or an ASCII colon as a sentence end: AR 1, 4 and 5; HY 1 and 3 (the README text uses U+003A).
+ * - Answers a shape-only cutter that merges when unsure cannot give: ES 3 (`Srta.` is a four-letter title, the limit
+ *   docs/estate-pointer-reader.md names with "Prof. Ito"), EL 1 (a sentence after a full stop that starts in lower
+ *   case, where the segmenter returns no boundary), NL 1 (a sentence that starts with a digit; the cutter test
+ *   `Use v2. 1 is old.` keeps that merged).
  * - Answers the design contradicts: EN 44 (`Yahoo! in` stays one sentence, while docs/estate-pointer-reader.md,
  *   "A clear sentence boundary returned by the masked segmenter is not erased solely because the next sentence starts
  *   with a lowercase character", keeps the break).
@@ -78,6 +82,6 @@ export const golden: FamilySpec = {
   component: 'cutter',
   needs: ['cut'],
   summary:
-    'The sentence-boundary edge cases of the Pragmatic Segmenter Golden Rules that a shape-only cutter can answer, in 15 languages.',
+    'The sentence-boundary edge cases of the Pragmatic Segmenter Golden Rules that a shape-only cutter can answer, in 14 languages.',
   specs: GOLDEN_GROUPS.map(specOf),
 };
