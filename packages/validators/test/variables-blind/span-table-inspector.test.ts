@@ -22,7 +22,11 @@ const post = (session: Session, method: string, params?: object): Promise<any> =
   });
 
 /** Attaches a conditional breakpoint to `fn` that copies its arguments out, runs `run`, and returns what it saw. */
-async function observe(fn: (...args: any[]) => unknown, argNames: string[], run: () => void): Promise<unknown[][]> {
+async function observe(
+  fn: (...args: any[]) => unknown,
+  argNames: string[],
+  run: () => void,
+): Promise<unknown[][]> {
   const g = globalThis as unknown as Record<string, unknown>;
   g.__observed = [];
   g.__target = fn;
