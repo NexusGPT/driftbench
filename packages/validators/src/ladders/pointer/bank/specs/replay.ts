@@ -215,8 +215,8 @@ export const replay: FamilySpec = {
       'failed-recording-keeps-valid-cassette',
       3,
       'A failed recording leaves a valid cassette',
-      'Fail the second request during a three-window record; inspect its output. Separately continue recording from an independently committed one-entry cassette.',
-      'The failed output contains exactly one valid JSON entry; the independent partial cassette completes with exactly two calls.',
+      'Fail the first request of the second window during a three-window record (a failed transport is a failed window, docs/estate-pointer-reader.md section 3 and the estate-scan validator help, which says a transport that fails is a failed window and records nothing); inspect its output. Separately continue recording from an independently committed cassette holding every run of the first window.',
+      'The failure is reported (a failed scan or a failed window); every entry of the output is valid JSON, the window asked in full holds all its runs and the failed window none; the independent partial cassette completes with two windows of calls.',
       'cassette:atomic-append',
     ),
     row(

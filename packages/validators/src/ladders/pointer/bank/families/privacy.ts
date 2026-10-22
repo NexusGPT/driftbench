@@ -160,7 +160,9 @@ export const privacyRuns: Record<string, Run> = {
       ['anthropic.key', 'haiku.key', 'jev.key', 'api.key'].map((n) => [`.nexus-secrets/${n}`, key]),
     );
     for (const arm of ['haiku', 'jev'] as const) {
-      const seen = await go(modelJob(files, arm, { fake: { echoHeaders: false } }), { homeFiles });
+      // The Jev arm asks a label that needs a target of no one: it gets a set without one, which it can label alone.
+      const labelsYaml = arm === 'jev' ? PROBE_YAML : RULES_YAML;
+      const seen = await go(modelJob(files, arm, { fake: { echoHeaders: false }, labelsYaml }), { homeFiles });
       const where = await withClean(seen, () => {
         const r = mustRun(seen);
         const text = `${JSON.stringify(r ?? {})}\n${seen.run.stdout}\n${seen.run.stderr}\n${seen.bodies.join('\n')}`;

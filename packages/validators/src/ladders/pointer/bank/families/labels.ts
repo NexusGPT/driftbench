@@ -1,7 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
-import { makeFixture } from '../../kit/fixture';
+import { makeFixture, runsOf } from '../../kit/fixture';
 import {
   constant,
   entriesFor,
@@ -1160,9 +1160,15 @@ labels:
     }));
     const fake = fakeTransport();
     const res = must(await modelScan(ctx, files, 'haiku', fake));
-    if (fake.count !== 2) return fail(`${fake.count} requests for 2 files, expected 2`);
+    const runs = runsOf('haiku').length;
+    if (fake.count !== 2 * runs)
+      return fail(`${fake.count} requests for 2 files, expected ${2 * runs} (${runs} runs of each window)`);
     const bad = fake.calls.find((c) => c.arm !== 'haiku' || c.units.length !== 9);
     if (bad) return fail(`a request lists ${bad.units.length} units, expected 9`);
+    const perWindow = new Map<string, number>();
+    for (const c of fake.calls) perWindow.set(c.window, (perWindow.get(c.window) ?? 0) + 1);
+    if (perWindow.size !== 2 || [...perWindow.values()].some((n) => n !== runs))
+      return fail(`the requests are spread ${JSON.stringify([...perWindow.values()])} over the windows, expected ${runs} each`);
     const texts = fake.calls.flatMap((c) => c.units.map((u) => u.text));
     const wrong = texts.find((t) => label(res.ledger, t) !== truthLabel(t));
     return wrong
@@ -1182,9 +1188,9 @@ labels:
       ? fail(
           `${show(wrong, 30)} has label ${label(res.ledger, wrong)}, the answer block said ${truthLabel(wrong)}`,
         )
-      : fake.count === 1
+      : fake.count === runsOf('haiku').length
         ? pass('answer block read, thinking ignored')
-        : fail(`${fake.count} calls, expected 1`);
+        : fail(`${fake.count} calls, expected ${runsOf('haiku').length} (one per run)`);
   },
   'haiku-stop-reason-refused': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
@@ -1199,8 +1205,9 @@ labels:
       });
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok || !res.ledger) return fail(`stop reason ${stop}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`stop reason ${stop}: ${fake.count} calls, expected 2 (refuse, retry once)`);
+      const expected = runsOf('haiku').length + 1;
+      if (fake.count !== expected)
+        return fail(`stop reason ${stop}: ${fake.count} calls, expected ${expected} (every run once, the refused one retried once)`);
       if (label(res.ledger, texts[0] as string) !== truthLabel(texts[0] as string))
         return fail(`stop reason ${stop}: the retry's answer did not apply`);
     }
@@ -1221,8 +1228,11 @@ labels:
       });
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok) return fail(`echo of another ${field}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`an answer echoing another ${field} was accepted: ${fake.count} calls, expected 2`);
+      const expected = runsOf('haiku').length + 1;
+      if (fake.count !== expected)
+        return fail(
+          `an answer echoing another ${field} was accepted: ${fake.count} calls, expected ${expected} (every run once, the refused one retried once)`,
+        );
     }
     return pass('wrong window and wrong set refused');
   },
