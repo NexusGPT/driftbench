@@ -58,21 +58,19 @@ const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 function mask(text: string): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
+  // An email address is one word: the dots inside it are no stops. An ellipsis in square brackets marks an omission.
+  // An ellipsis that opens a sentence after a stop reads as the capital of that sentence. Any other three dots,
+  // spaced or not, or the ellipsis character, never end a sentence: a fourth dot after them is the full stop.
   return text
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
-    // An email address is one word: the dots inside it are no stops.
     .replace(/[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
-    // An ellipsis in square brackets marks an omission, not a stop.
     .replace(/\[(?:\.\.\.|…)\]/g, letters)
-    // An ellipsis that opens a sentence after a stop reads as the capital of that sentence.
     .replace(
       /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
       (_match, lead: string, dots: string) => lead + 'X'.repeat(dots.length),
     )
-    // Any other three dots, spaced or not, or the ellipsis character, never end a sentence: a fourth dot after
-    // them is the full stop.
     .replace(/\.(?: ?\.){2}|…/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
