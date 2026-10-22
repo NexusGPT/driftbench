@@ -93,7 +93,7 @@ export const RETRY_NOTE =
 
 /**
  * The numbered units of a window, one per line: `[n] text`. An opaque unit of the run (a fence or a comment) is
- * shown where it stands, by its kind and first line, without a number: it is context and cannot be labelled.
+ * shown where it stands, by its kind (a fence also by its first line), without a number: it is context and cannot be labelled.
  */
 export function windowLines(window: Window): string[] {
   const shownAt = (after: number) =>

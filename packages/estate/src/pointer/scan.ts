@@ -166,14 +166,19 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     first = undefined;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
-    // first line (design: "shown to the labeler as the fence kind and its first line only").
+    // A fence or comment is opaque: no label can point at it. The labeler reads a fence as context, by its kind and
+    // its first line (the language of the fence), and a comment by its kind alone: the text of a comment may be
+    // private, so nothing of it leaves (design: "shown to the labeler as the fence kind and its first line only,
+    // and a comment as its kind only").
     if (unit.container === 'opaque') {
       const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
       shown.push({
         after: current.length,
-        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
-        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+        // A fence: only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        text:
+          kind === 'fence'
+            ? `(fence, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`
+            : '(comment, not labelable)',
       });
       continue;
     }

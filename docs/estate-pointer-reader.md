@@ -113,7 +113,7 @@ Units:
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
 | Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
-| Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
+| Fence and comment | Opaque: one unit each. A fence is shown to the labeler as its kind and its first line only; a comment is shown as its kind only, because its text may be private and nothing of it is sent. A label cannot be pointed at it. |
 
 Every prose character belongs to exactly one unit. Spans never overlap.
 
