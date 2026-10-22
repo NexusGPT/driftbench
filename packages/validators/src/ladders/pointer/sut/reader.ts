@@ -5,6 +5,9 @@ import type {
   Diagnostic,
   LedgerEntry,
   LedgerView,
+  Link,
+  LinkState,
+  LinksApi,
   PointerSut,
   ScanRequest,
   ScanResult,
@@ -136,6 +139,19 @@ export type ReaderExports = {
   parseLedger(text: string): RLedger | undefined;
   renderLedger(ledger: RLedger): string;
   setHash(set: RSet): string;
+  /** Optional layer C: the reader's own link functions, given the ledger view; the adapter forwards them unchanged. */
+  createLink?: (
+    ledger: LedgerView,
+    owner: string,
+    span: string,
+    relation: string,
+    createdBy?: string,
+  ) => Link;
+  classifyLinks?: (previous: LedgerView | null, current: LedgerView, links: Link[]) => LinkState[];
+  clearLink?: LinksApi['clear'] extends (...a: infer A) => infer R ? (...a: A) => R : never;
+  verifyLink?: LinksApi['verify'];
+  linkCoverage?: LinksApi['coverage'];
+  blastRadius?: LinksApi['blast'];
   pointerScan(input: Record<string, unknown>): Promise<RResult>;
   pointerAtoms(
     labelled: readonly RLabelledUnit[],
@@ -231,16 +247,41 @@ export async function loadReaderWithRetry(
   throw last;
 }
 
+/** The reader once it has loaded, for the links, whose functions are synchronous. */
+let loadedNow: ReaderExports | undefined;
+
 function load(timeoutMs?: number): Promise<ReaderExports> {
   // A failed load is not kept: the next call tries again instead of failing every later item the same way.
   loaded ??= loadReaderWithRetry(
     async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
     timeoutMs,
-  ).catch((cause: unknown) => {
-    loaded = undefined;
-    throw cause;
-  });
+  )
+    .then((reader) => {
+      loadedNow = reader;
+      return reader;
+    })
+    .catch((cause: unknown) => {
+      loaded = undefined;
+      throw cause;
+    });
   return loaded;
+}
+
+/** The links of the loaded reader. A call before the load, or on a reader that exports none, is not reachable. */
+function lazyLinks(): LinksApi {
+  const api = (): LinksApi => {
+    const found = loadedNow ? linksOf(loadedNow) : undefined;
+    if (!found) throw new ReaderNotReachable('the reader does not expose the links api (layer C)');
+    return found;
+  };
+  return {
+    create: (...a) => api().create(...a),
+    classify: (...a) => api().classify(...a),
+    clear: (...a) => api().clear(...a),
+    verify: (...a) => api().verify(...a),
+    coverage: (...a) => api().coverage(...a),
+    blast: (...a) => api().blast(...a),
+  };
 }
 
 /** A real baseline requires the actual reader exports before it runs any item or writes any score. */
@@ -570,6 +611,7 @@ export function realReader(): PointerSut {
       return { units: out.units.map(toUnit), cutDigest: out.digest };
     },
     scan: async (request) => scan(await load(), request),
+    links: lazyLinks(),
     stack: {
       margin: async (probabilities) => stackOf(await load()).margin(probabilities),
       decide: async (request) => stackOf(await load()).decide(request),
@@ -587,6 +629,22 @@ export function readerAdapter(reader: ReaderExports): PointerSut {
     },
     scan: (request) => scan(reader, request),
     stack: stackOf(reader),
+    ...(linksOf(reader) ? { links: linksOf(reader) as LinksApi } : {}),
+  };
+}
+
+/** The links of the reader, forwarded unchanged; absent when the reader exports none. */
+function linksOf(reader: ReaderExports): LinksApi | undefined {
+  const { createLink, classifyLinks, clearLink, verifyLink, linkCoverage, blastRadius } = reader;
+  if (!createLink || !classifyLinks || !clearLink || !verifyLink || !linkCoverage || !blastRadius)
+    return undefined;
+  return {
+    create: createLink,
+    classify: classifyLinks,
+    clear: clearLink,
+    verify: verifyLink,
+    coverage: linkCoverage,
+    blast: blastRadius,
   };
 }
 
