@@ -161,6 +161,12 @@ export class TerminalSubsumption {
         }),
       };
     }
+    // A metamorphic family keeps its variants aligned block by block: its members are never cut from the middle.
+    if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
+      spec = this.dropMiddle(draft, spec);
+      // The record of the cut end names the length the walk is written with, middle cuts included.
+      if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
+    }
     if (family?.variant === 1) {
       this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });
       original.blocks.forEach((_, index) => {
@@ -169,6 +175,46 @@ export class TerminalSubsumption {
       });
     }
     this.observeSpec(spec);
+  }
+
+  /**
+   * A stay (a block that leaves the walk at the stage it started from, with no new world and no fact of its own) that
+   * another written spec already says is cut from the middle of the walk, when the walk stays valid: the block after it
+   * starts from the same stage and the same world, so its Given is still reached. The same checks as the end of a walk
+   * hold: tuples, move pairs, allocation, phrases, recovery. A perturbation declared on the block stays with it.
+   */
+  private dropMiddle(draft: SpecDraft, start: Spec): Spec {
+    let spec = start;
+    for (let index = spec.blocks.length - 2; index >= 1; index -= 1) {
+      const block = draft.blocks[index];
+      const written = spec.blocks[index];
+      if (!block || !written || block.injection !== undefined || block.given !== undefined) continue;
+      const before = spec.blocks[index - 1]?.expect?.stage;
+      if (before === undefined || written.expect?.stage !== before) continue;
+      if (written.expect?.ledger_add !== undefined) continue;
+      if (spec.perturbations?.some((entry) => entry.inject_at === index)) continue;
+      const duplicate = this.blocks.get(this.key(spec, index));
+      if (!duplicate || !this.phrasesHold(written)) continue;
+      const candidate = {
+        ...draft,
+        blocks: draft.blocks.filter((_, at) => at !== index),
+        perturbations: draft.perturbations?.map((entry) =>
+          entry.inject_at > index ? { ...entry, inject_at: entry.inject_at - 1 } : entry,
+        ),
+      };
+      const rendered = renderDraft(this.prepared, candidate, this.run);
+      if (rendered.placeholders.length || rendered.noThen.length || rendered.reasons.length) continue;
+      const parsed = validateSpec(rendered.spec);
+      if (!parsed.ok || !this.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) continue;
+      if (!this.tuplesHold(spec, parsed.spec) || !this.pairsHold(spec, parsed.spec)) continue;
+      if (this.allocation && this.allocation.imbalanceWith(candidate) > this.allocation.imbalanceWith(draft))
+        continue;
+      draft.blocks = candidate.blocks;
+      draft.perturbations = candidate.perturbations;
+      draft.reducedMiddle = [{ block: block.id, duplicate_of: duplicate }, ...(draft.reducedMiddle ?? [])];
+      spec = parsed.spec;
+    }
+    return spec;
   }
 
   /** The messages a block says: its user turn, or the turns of a burst. */
@@ -262,8 +308,10 @@ export class TerminalSubsumption {
     return needed.length > 0;
   }
 
+  /** A walk on a path: two walks are twins only on the same path, whatever their blocks say. */
   private walkKey(spec: Spec): string {
-    return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    return contentHash([path, spec.blocks.map((_, index) => this.key(spec, index))]);
   }
 
   /** The judged criteria a block references, with their definitions: a criterion no kept spec covers is a lost check. */
