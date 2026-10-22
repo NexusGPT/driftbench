@@ -557,8 +557,31 @@ if («setup».command) {
     const «named» = «global» ? 'the global object' : «pathOf»(«was»);
     if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «named»;
     if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «named»;
+    // The global object: a name the product adds is no change to its caller, whose code names only what it knows
+    // (a library of the product keeps its settings in a global of its own name, as zod does). A name rebound or
+    // removed is one.
+    if («global») {
+      for (let «k» = 0; «k» < «was».keys.length; «k» += 1) {
+        const «bound» = «describe»(«was».thing, «was».keys[«k»]);
+        if («bound» === undefined) return 'the global name ' + «was».labels[«k»] + ' (removed)';
+        if (!«sameDescriptor»(«bound», «was».descs[«k»])) return 'the global name ' + «was».labels[«k»];
+      }
+      return undefined;
+    }
     const «keysNow» = «ownKeys»(«was».thing);
-    if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «named»;
+    if («keysNow».length !== «was».keys.length) {
+      // The first key added (or, when none was, removed), named when it is a string: the report is read by a person.
+      const «longer» = «keysNow».length > «was».keys.length ? «keysNow» : «was».keys;
+      const «shorter» = «longer» === «keysNow» ? «was».keys : «keysNow»;
+      let «odd»;
+      for (let «k» = 0; «k» < «longer».length && «odd» === undefined; «k» += 1) {
+        let «found» = false;
+        for (let «j» = 0; «j» < «shorter».length; «j» += 1) if («shorter»[«j»] === «longer»[«k»]) «found» = true;
+        if (!«found») «odd» = «longer»[«k»];
+      }
+      const «oddName» = typeof «odd» === 'string' ? ' (' + «odd» + ')' : '';
+      return («longer» === «keysNow» ? 'a property added to ' : 'a property removed from ') + «named» + «oddName»;
+    }
     for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
       if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «named»;
       if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»]))

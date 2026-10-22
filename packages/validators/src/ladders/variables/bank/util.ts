@@ -147,8 +147,24 @@ export function show(value: unknown, limit = 200): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
+/**
+ * The processor time of the implementation's calls, when it runs in other processes (the frame, docs/validators.md
+ * section 12.9): a mark of the calls so far, and the processor time of the calls since a mark, in milliseconds.
+ * Unset, the implementation runs in this process and its time is this process's.
+ */
+export type ProductClock = { mark(): number; since(mark: number): number };
+let clock: ProductClock | undefined;
+export function useProductClock(next: ProductClock | undefined): void {
+  clock = next;
+}
+
 /** Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. */
 export function cpuMs<T>(run: () => T): { value: T; ms: number } {
+  if (clock) {
+    const mark = clock.mark();
+    const value = run();
+    return { value, ms: clock.since(mark) };
+  }
   const start = process.cpuUsage();
   const value = run();
   const used = process.cpuUsage(start);

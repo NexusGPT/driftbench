@@ -1,4 +1,6 @@
-import { appendFileSync, readFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import {
@@ -6,6 +8,7 @@ import {
   planV2,
   type SpanLabel,
   variablesFromSources,
+  verifyVariableQuotes,
 } from '@agent-nexus/driftbench-generate';
 import {
   countVariableTuples,
@@ -132,7 +135,34 @@ function quotesWorkerOf(): NonNullable<typeof quotesWorker> {
   return quotesWorker;
 }
 
+/**
+ * The quote check run in this process, for the frame (docs/validators.md section 12.9): there the bank's call waits
+ * for the answer in another process, so the product function runs here as it is, asynchronous, on a fresh folder of
+ * the run's temporary folder, the one folder a confined run may write. The bank's child sets
+ * DRIFTBENCH_VARIABLES_FRAMED to 1 in every run; the answer is a promise the frame waits for.
+ */
+async function quotesDirect(store: FileStore, files: Record<string, string>): Promise<QuotesResult> {
+  const folder = mkdtempSync(join(tmpdir(), 'driftbench-variables-quotes-'));
+  try {
+    for (const [path, text] of Object.entries(files)) {
+      const target = join(folder, path);
+      if (!target.startsWith(folder)) continue;
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, text);
+    }
+    const issues = await verifyVariableQuotes(
+      { ...store, constraints: store.constraints ?? [] } as Parameters<typeof verifyVariableQuotes>[0],
+      folder,
+    );
+    return { errors: issues.map((issue) => ({ code: issue.code, path: issue.path })) };
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
+}
+
 function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
+  if (process.env.DRIFTBENCH_VARIABLES_FRAMED === '1')
+    return quotesDirect(store, files) as unknown as QuotesResult;
   const { worker, port, flag } = quotesWorkerOf();
   // One request in flight: the call blocks until the worker answers, so no second one can start.
   Atomics.store(flag, 0, 0);
@@ -297,10 +327,12 @@ function labels(): Map<string, SpanLabel> {
 /**
  * Collect mode: `DRIFTBENCH_VARIABLES_SPANS_OUT` names a file, and every condition span a run reads is appended to it
  * as one JSON line. The span collector job sets it; a labeller turns the spans into the cassette `labels` replays.
+ * Under the frame the bank's child writes the spans itself, from the data it sends (bank/run-child.ts): a confined run
+ * may write nowhere.
  */
 function recordSpans(sources: Sources): void {
   const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
-  if (!out) return;
+  if (!out || process.env.DRIFTBENCH_VARIABLES_FRAMED === '1') return;
   for (const rule of sources.estate?.rules ?? []) {
     for (const condition of rule.conditions)
       appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);

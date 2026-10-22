@@ -113,6 +113,16 @@ export type IsolateOptions = {
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
    */
   reads?: string[];
+  /**
+   * Variables every run gets, the same in each (run A, B, D and C): a setting the product reads, such as the path of
+   * a file granted in `reads`. Never a value that tells the runs apart.
+   */
+  env?: Record<string, string>;
+  /**
+   * Each run gets a fresh folder of its own that it may read and write, as its temporary folder (TMPDIR, TMP and
+   * TEMP): for a product that writes files only to read them back. It is removed with the run's folder.
+   */
+  scratch?: boolean;
 };
 
 export type Frame<T> = {
@@ -504,13 +514,30 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     return message;
   };
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
+    // The scratch folder of the run lies in the run's own folder, which the frame removes when it closes.
+    const scratch = options.scratch
+      ? join(plan.driverDir, drawnFolder(options.seed, `scratch:${tag}:${plan.run}`))
+      : undefined;
+    if (scratch) mkdirSync(scratch, { recursive: true });
+    const env =
+      options.env || scratch
+        ? {
+            ...(plan.env ?? (process.env as Record<string, string>)),
+            ...(options.env ?? {}),
+            ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+          }
+        : plan.env;
     const confined = confine(
       {
         ...plan,
+        ...(env ? { env } : {}),
         driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
         setup: { module: sealed, ...(plan.run === 'A' ? { writeBack: true } : {}) },
       },
-      { reads: [dirname(sealed), ...(options.reads ?? [])] },
+      {
+        reads: [dirname(sealed), ...(options.reads ?? []), ...(scratch ? [scratch] : [])],
+        ...(scratch ? { writes: [scratch] } : {}),
+      },
     );
     if (!plan.wrap) return confined;
     // Run D reaches the product through a wrapper module of the run's own folder.
@@ -522,6 +549,17 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed, aliasing: options.aliasing === true };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
+  if (plain && (options.env || options.scratch)) {
+    const scratch = options.scratch
+      ? join(plain.dir, drawnFolder(options.seed, `scratch:${tag}:C`))
+      : undefined;
+    if (scratch) mkdirSync(scratch, { recursive: true });
+    plain.env = {
+      ...plain.env,
+      ...(options.env ?? {}),
+      ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+    };
+  }
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
   const relay: Relay = {

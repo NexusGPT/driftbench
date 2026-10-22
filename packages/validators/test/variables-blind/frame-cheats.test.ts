@@ -1,9 +1,10 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { runIsolated } from '../../src/ladders/variables/bank/isolate';
+import { IMPL_SOURCES_ENV } from '../../src/ladders/variables/bank/run-child';
 import { IMPL_ENV } from '../../src/ladders/variables/impl';
 import { findRoot } from '../../src/root';
 
@@ -27,15 +28,33 @@ const work = mkdtempSync(join(ROOT, 'node_modules', '.cache', 'variables-frame-c
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 
 /** The outcomes of the named items on one seed, through the runner, with the implementation in `module`. */
-async function outcomes(module: string, ids: readonly string[], env: Record<string, string> = {}) {
+async function outcomes(
+  module: string,
+  ids: readonly string[],
+  env: Record<string, string> = {},
+  mayNotLoad = false,
+) {
   const items = variablesBank().filter((item) => ids.includes(item.id));
   expect(items.map((item) => item.id).sort()).toEqual([...ids].sort());
   const before = { ...process.env };
-  Object.assign(process.env, { [IMPL_ENV]: module, ...env });
+  // The fixtures import the test reference and the bank's span module: named sources, so the implementation loads
+  // under the frame, with its own copy of each module.
+  const sources = [
+    join(ROOT, 'packages/validators/src'),
+    join(ROOT, 'packages/validators/test/variables-blind'),
+  ];
+  Object.assign(process.env, { [IMPL_ENV]: module, [IMPL_SOURCES_ENV]: sources.join(delimiter), ...env });
   try {
     const run = await runIsolated(items, SEED, ROOT);
     // Each outcome is printed: a test that passes for a reason other than the property is visible in the log.
     for (const id of ids) console.log(`${id}: ${JSON.stringify(run.get(id))?.slice(0, 400)}`);
+    // A crash of the bank's child is no verdict on the implementation.
+    for (const id of ids) expect(run.get(id)?.detail ?? '', id).not.toMatch(/child process (died|ended)/);
+    // An implementation that does not load proves nothing about the property; only the inspector observer may fail
+    // to load (a confined run may refuse the inspector at load).
+    if (!mayNotLoad)
+      for (const id of ids)
+        expect(run.get(id)?.detail ?? '', id).not.toContain('does not load under the frame');
     return ids.map((id) => ({
       id,
       pass: run.get(id)?.pass === true,
@@ -83,7 +102,7 @@ describe('a product cannot learn what the bank means by a span', () => {
         '',
       ].join('\n'),
     );
-    const got = await outcomes(product, SPAN_ITEMS);
+    const got = await outcomes(product, SPAN_ITEMS, {}, true);
     expect(got.map((each) => each.pass)).toEqual([false, false]);
   });
 });
@@ -104,8 +123,9 @@ describe('the processor time of a call counts the work the product moves into a 
     expect(got.map((each) => each.pass)).toEqual([false]);
   });
 
-  it('the same 7 s in a child process fails it too', async () => {
+  it('the same 7 s in a child process fails it too: a confined run starts no process', async () => {
     const got = await outcomes(join(CHEATS, 'child-cpu.ts'), ids, { FIXTURE_IN_CHILD: '1' });
     expect(got.map((each) => each.pass)).toEqual([false]);
+    expect(got[0]?.detail).toContain('Access to this API has been restricted');
   });
 });
