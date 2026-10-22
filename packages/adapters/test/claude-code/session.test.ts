@@ -99,6 +99,36 @@ describe('a helper session: the calls of the sidechain', () => {
     expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ actor: 'helper', parentCallId: 'agent-9' });
   });
 
+  it('ties each call to its nearest enclosing Agent call when a helper starts a helper', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('A1', 'Agent', { subagent_type: 'outer' })], { uuid: 'a1' }),
+      assistant([use('B1', 'Agent', { subagent_type: 'inner' })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      assistant([use('c-inner', 'Bash', { command: 'ls inner' })], {
+        uuid: 'i1',
+        parentUuid: 'h1',
+        isSidechain: true,
+      }),
+      result('c-inner', 'ok', { uuid: 'i2', parentUuid: 'i1', isSidechain: true }),
+      result('B1', 'inner done', { uuid: 'h3', parentUuid: 'i2', isSidechain: true }),
+      assistant([use('c-outer', 'Bash', { command: 'ls outer' })], {
+        uuid: 'h4',
+        parentUuid: 'h3',
+        isSidechain: true,
+      }),
+      result('c-outer', 'ok', { uuid: 'h5', parentUuid: 'h4', isSidechain: true }),
+      result('A1', 'done'),
+    ]);
+    const parents = Object.fromEntries(
+      (blocks[0]?.observed.helperCalls ?? []).map((call) => [call.id, call.parentCallId]),
+    );
+    expect(parents).toEqual({ B1: 'A1', 'c-inner': 'B1', 'c-outer': 'A1' });
+  });
+
   it('treats parent_tool_use_id alone as a helper marker, with no isSidechain', () => {
     const { blocks } = map([
       user('go'),
