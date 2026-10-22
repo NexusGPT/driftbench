@@ -750,7 +750,9 @@ describe('a run out of step with the units of its window', () => {
         const call = (calls.get(window.path) ?? 0) + 1;
         calls.set(window.path, call);
         // Only the first of three runs is in step: one run heard is no vote.
-        return call >= 2 ? every(window, 'remark', Array(4).fill(unlocated)) : every(window, 'order', [located]);
+        return call >= 2
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
       },
       [],
       { runs: 3 },
