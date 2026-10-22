@@ -76,6 +76,10 @@ export const Cost = z.strictObject({
   /** Tokens the helpers used, apart from `inputTokens` and `outputTokens`, which are the agent's own. */
   helperInputTokens: z.number().int().nonnegative().optional(),
   helperOutputTokens: z.number().int().nonnegative().optional(),
+  /** The model the helpers ran on, when the records name one; the pricing key of the helper tokens. */
+  helperModel: z.string().min(1).optional(),
+  /** Dollars for the helper tokens: part of `usd`, which is the total, and reported apart. */
+  helperUsd: z.number().nonnegative().optional(),
 });
 export type Cost = z.infer<typeof Cost>;
 

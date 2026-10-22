@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Observed } from '../../src/schema/run';
 import { priceObserved, TokenPriceError } from '../../src/runner/pricing';
+import type { Observed } from '../../src/schema/run';
 
 const target = { adapter: 'echo', options: { model: 'fictional-agent' } };
 const prices = {

@@ -206,6 +206,7 @@ class BlockBuilder {
   /** The calls of the helpers' own conversations (sidechain records), each tied to the Agent call that began it. */
   readonly helperCalls: ToolCall[] = [];
   readonly helperUsage = new Map<string, { input: number; output: number }>();
+  readonly helperModels = new Set<string>();
   readonly executions: ExecutionRecord[] = [];
   readonly skills: NonNullable<RuntimeTrace['skills']> = [];
   readonly guards: NonNullable<RuntimeTrace['guards']> = [];
@@ -472,6 +473,7 @@ export function mapSession(input: SessionInput): ReplaySession {
       const usage = isRecord(message.usage) ? message.usage : undefined;
       if (usage) {
         const id = typeof message.id === 'string' ? message.id : `anonymous-helper-${anonymous++}`;
+        if (typeof message.model === 'string' && message.model !== '') block.helperModels.add(message.model);
         block.helperUsage.set(id, {
           input:
             num(usage.input_tokens) +
@@ -686,6 +688,7 @@ export function mapSession(input: SessionInput): ReplaySession {
       cost: {
         ...(block.usage.size > 0 ? { inputTokens, outputTokens } : {}),
         ...(block.helperUsage.size > 0 ? { helperInputTokens, helperOutputTokens } : {}),
+        ...(block.helperModels.size === 1 ? { helperModel: [...block.helperModels][0] as string } : {}),
       },
       latencyMs: elapsed(block.firstAt, block.lastAt) ?? 0,
       raw,
