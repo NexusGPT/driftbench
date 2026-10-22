@@ -17,6 +17,7 @@ import {
   pointerScan,
   REASK_LIMIT,
   renderLedger,
+  SPLIT_REASK_RUNS,
   singleLabelling,
   type Window,
   windowsOf,
@@ -575,8 +576,9 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
-    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie.
-    const result = await scan(['order', 'ban', 'order', 'ban', 'remark']);
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie; the two runs asked for the
+    // split say order and ban, so it still ties, 3 against 3.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban']);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
@@ -595,6 +597,44 @@ describe('runs that split between labels of one atom kind', () => {
       input(byRun(['remark', 'aside', 'order', 'aside', 'ban']), new Cassette(), { sets: load(ROLES) }),
     );
     expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it('asks a window with a tie inside a kind two more times, and the extra voices decide', async () => {
+    // order 2, ban 2, remark 1 tie inside the instruction kind; runs 6 and 7 say order, so order holds 4 of 7.
+    const cassette = new Cassette();
+    const labeler = byRun(['order', 'ban', 'order', 'ban', 'remark', 'order', 'order']);
+    const result = await pointerScan(input(labeler, cassette, { sets: load(KINDS) }));
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(SPLIT_REASK_RUNS).toBe(2);
+    expect(result.reasked).toHaveLength(files * SPLIT_REASK_RUNS);
+    expect(result.reasked[0]).toMatch(/asked again as run 6 for \d+ units split inside a kind/);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+    // The extra runs are recorded answers: a replay reads them with no call and gives the same ledger.
+    const replayed = await pointerScan(
+      input(replayOf(labeler), Cassette.parse(cassette.render()), { sets: load(KINDS), mode: 'replay' }),
+    );
+    expect(replayed.calls).toBe(0);
+    expect(renderLedger(replayed.ledger)).toBe(renderLedger(result.ledger));
+  });
+
+  it('asks no more runs for a split between atom kinds', async () => {
+    const calls: number[] = [];
+    const labels = ['order', 'voice', 'order', 'voice', 'remark'];
+    const byRunLogged = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (byRunLogged.get(window.path) ?? 0) + 1;
+        byRunLogged.set(window.path, call);
+        calls.push(call);
+        return [{ units: `1-${window.units.length}`, label: labels[call - 1] ?? 'order' }];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(KINDS) }));
+    expect(Math.max(...calls)).toBe(5);
+    expect(result.reasked).toEqual([]);
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
