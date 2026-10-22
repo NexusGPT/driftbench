@@ -11,7 +11,7 @@ import { type Frame, isolate } from '../../../frame';
 import { implModulePath } from '../impl';
 import type { Sources, VariablesImpl } from '../interface';
 import { runItem, variablesBank } from './index';
-import { useProductClock } from './util';
+import { useProductAmbient, useProductClock } from './util';
 
 /** The functions of the interface the bank calls. */
 const FUNCTIONS = ['buildStore', 'weightInterval', 'plan', 'coverage', 'validate', 'quotes'] as const;
@@ -83,12 +83,11 @@ export function implFrame(
     tag,
     sources: [dirname(implPath), ...extra.filter((each) => each !== '')],
     reads: cassette ? [cassette] : [],
-    env: {
-      DRIFTBENCH_VARIABLES_FRAMED: '1',
-      // The bank's child writes the collected spans (recordingSpans); the runs never do.
-      DRIFTBENCH_VARIABLES_SPANS_OUT: '',
-      ...(cassette ? { DRIFTBENCH_VARIABLES_CASSETTE: cassette } : {}),
-    },
+    // No variable of the validator's own reaches the runs: a variable every run gets alike would tell the product it
+    // is checked (review of PR 1403, codex run 39870167091). The cassette is an input a user's run has too.
+    ...(cassette ? { env: { DRIFTBENCH_VARIABLES_CASSETTE: cassette } } : {}),
+    // The bank's child writes the collected spans (recordingSpans); the runs never do.
+    unset: ['DRIFTBENCH_VARIABLES_SPANS_OUT', IMPL_SOURCES_ENV, 'DRIFTBENCH_VARIABLES_IMPL'],
     scratch: true,
   });
   return { frame, done: () => rmSync(folder, { recursive: true, force: true }) };
@@ -125,21 +124,36 @@ async function main(args: readonly string[], report: (line: object) => void): Pr
   }
   const { frame, done } = opened;
   useProductClock({ mark: () => frame.position(), since: (mark) => frame.cpuSince(mark) });
+  useProductAmbient((spec) => frame.ambient(spec));
   const impl = recordingSpans(frame.product);
   for (let index = start; index < items.length; index += 1) {
     const item = items[index] as (typeof items)[number];
     report({ start: index, id: item.id });
     const began = performance.now();
     const mark = frame.position();
-    const ran = await runItem(item, seed, root as string, impl, implPath);
-    // A call whose runs answered differently, or that changed a built-in object, fails the item whatever it concluded.
+    // An item that checks fresh results gets the identity watch: a copy of each answer hides a shared object.
+    frame.identity(item.fresh === true);
+    let ran: Awaited<ReturnType<typeof runItem>>;
+    try {
+      ran = await runItem(item, seed, root as string, impl, implPath);
+    } finally {
+      frame.identity(false);
+    }
+    // A call whose runs answered differently, that changed a built-in object or that returned a shared object to an
+    // item that checks fresh results, fails the item whatever it concluded.
     const split = frame.divergenceSince(mark);
     const altered = ran.pass ? frame.alteredSince(mark) : undefined;
+    const shared = ran.pass ? frame.sharedSince(mark) : undefined;
     const outcome = split
       ? { pass: false, detail: `the implementation's answer depends on how it is run: ${split}` }
       : altered
         ? { pass: false, detail: `the implementation changed a built-in object: ${altered}` }
-        : ran;
+        : shared
+          ? {
+              pass: false,
+              detail: `the implementation shared objects between results or with its input: ${shared}`,
+            }
+          : ran;
     report({
       done: index,
       id: item.id,

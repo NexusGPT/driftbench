@@ -163,6 +163,7 @@ export const VALUES: readonly StemDef[] = [
     oracle:
       'Writing to the first result changes neither the sources nor the second result: nothing is shared.',
     cause: 'buildStore returns objects that share nothing with its input or with an earlier result',
+    fresh: true,
     variants: [
       ['output-mutation-safe', 3],
       ['two-builds-independent', 3],

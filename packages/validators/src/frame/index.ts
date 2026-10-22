@@ -11,6 +11,7 @@ export {
   type SealDescriptor,
 } from './confine';
 export {
+  type Ambient,
   type CommandOptions,
   type CommandRun,
   type Frame,

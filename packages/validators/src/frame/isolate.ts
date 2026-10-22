@@ -119,11 +119,19 @@ export type IsolateOptions = {
    */
   env?: Record<string, string>;
   /**
+   * Variables no run gets, removed from the validator's environment too (run A and run C start from it): a setting of
+   * the validator's own that the product must not act on.
+   */
+  unset?: string[];
+  /**
    * Each run gets a fresh folder of its own that it may read and write, as its temporary folder (TMPDIR, TMP and
    * TEMP): for a product that writes files only to read them back. It is removed with the run's folder.
    */
   scratch?: boolean;
 };
+
+/** Ambient conditions of a call (`Frame.ambient`). */
+export type Ambient = { random?: boolean; clock?: number; crypto?: boolean };
 
 export type Frame<T> = {
   /** The product, as the item calls it: each call goes to both runs and answers what run A answered. */
@@ -153,6 +161,21 @@ export type Frame<T> = {
    * declares a purity check; the frame adds no rule to any other call.
    */
   strictArguments(on: boolean): void;
+  /**
+   * From now on, until switched off (undefined), every call runs under these ambient conditions in every run: a
+   * Math.random that throws, a clock that stands still at `clock` (ms), crypto random functions that throw. For an
+   * item that sets them around its calls in its own process; they hold for each call only.
+   */
+  ambient(spec: Ambient | undefined): void;
+  /**
+   * Switches the identity watch on (true: a fresh watch) or off. While it is on, each run counts the objects of a
+   * result that are also objects of the call's arguments or of a result returned since the watch began, and the frame
+   * reports such a call (`sharedSince`). For an item that checks that its results are fresh: a copy of the answer
+   * hides both from the caller.
+   */
+  identity(on: boolean): void;
+  /** The first call from the tape position `from` on whose result shares objects (option `identity`), or undefined. */
+  sharedSince(from: number): string | undefined;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
   /**
@@ -205,7 +228,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string; deepFreeze: string };
+  codecNames: Omit<ReturnType<typeof plainCodec>, 'source'>;
   count: number;
   /** The file of the calls run C makes, one JSON line each, in the order they were made. */
   calls: string;
@@ -458,6 +481,59 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
     changeInPlace(old as object, now as object, kind);
 }
 
+/**
+ * The states of the caller's own arguments, by path (keys of plain objects, indices of arrays): 'f' frozen, 's'
+ * sealed, 'x' not extensible. The runs give each decoded object the state its caller's object has (driver.ts,
+ * `markAll`). Every path to an object is listed, so an object reached twice is marked at both copies.
+ */
+function marksOf(args: readonly unknown[]): Array<[Array<string | number>, 'f' | 's' | 'x']> | undefined {
+  const out: Array<[Array<string | number>, 'f' | 's' | 'x']> = [];
+  const path: Array<string | number> = [];
+  const ancestors: object[] = [];
+  let visited = 0;
+  const walk = (value: unknown) => {
+    if (value === null || typeof value !== 'object' || ancestors.length > 1000 || visited > 1_000_000) return;
+    if (ancestors.includes(value)) return;
+    visited += 1;
+    const state = Object.isFrozen(value)
+      ? 'f'
+      : Object.isSealed(value)
+        ? 's'
+        : !Object.isExtensible(value)
+          ? 'x'
+          : undefined;
+    if (state) out.push([[...path], state]);
+    ancestors.push(value);
+    const visit = (key: string | number, child: unknown) => {
+      if (child === null || typeof child !== 'object') return;
+      path.push(key);
+      walk(child);
+      path.pop();
+    };
+    // A long array of numbers is read without a copy: the arguments of the scale items hold millions.
+    if (Array.isArray(value)) for (let at = 0; at < value.length; at += 1) visit(at, value[at]);
+    else if (isPlain(value))
+      for (const key of Object.keys(value)) visit(key, (value as Record<string, unknown>)[key]);
+    ancestors.pop();
+  };
+  args.forEach((arg, at) => {
+    path.push(at);
+    walk(arg);
+    path.pop();
+  });
+  return out.length > 0 ? out : undefined;
+}
+
+/** An environment without the named variables. */
+function withoutNames(
+  env: Record<string, string>,
+  names: readonly string[] | undefined,
+): Record<string, string> {
+  const out = { ...env };
+  for (const name of names ?? []) delete out[name];
+  return out;
+}
+
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
@@ -520,12 +596,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       : undefined;
     if (scratch) mkdirSync(scratch, { recursive: true });
     const env =
-      options.env || scratch
-        ? {
-            ...(plan.env ?? (process.env as Record<string, string>)),
-            ...(options.env ?? {}),
-            ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
-          }
+      options.env || scratch || options.unset
+        ? withoutNames(
+            {
+              ...(plan.env ?? (process.env as Record<string, string>)),
+              ...(options.env ?? {}),
+              ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+            },
+            options.unset,
+          )
         : plan.env;
     const confined = confine(
       {
@@ -549,16 +628,19 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed, aliasing: options.aliasing === true };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
-  if (plain && (options.env || options.scratch)) {
+  if (plain && (options.env || options.scratch || options.unset)) {
     const scratch = options.scratch
       ? join(plain.dir, drawnFolder(options.seed, `scratch:${tag}:C`))
       : undefined;
     if (scratch) mkdirSync(scratch, { recursive: true });
-    plain.env = {
-      ...plain.env,
-      ...(options.env ?? {}),
-      ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
-    };
+    plain.env = withoutNames(
+      {
+        ...plain.env,
+        ...(options.env ?? {}),
+        ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+      },
+      options.unset,
+    );
   }
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
@@ -678,12 +760,24 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
   };
   let strict = false;
+  let ambient: Ambient | undefined;
+  let identity: number | undefined;
+  let identityEpochs = 0;
+  const shared: Array<{ at: number; message: string }> = [];
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent, freeze: strict });
+    const marks = marksOf(args);
+    relay.port.postMessage({
+      call: name,
+      args: sent,
+      freeze: strict,
+      ...(marks ? { marks } : {}),
+      ...(ambient ? { ambient } : {}),
+      ...(identity !== undefined ? { identity } : {}),
+    });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
@@ -752,6 +846,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid: _invalid,
       written: _written,
       altered: _altered,
+      shared: sharedCounts,
       argsAfter,
       cannot,
       ...answer
@@ -760,9 +855,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid?: boolean;
       written?: boolean;
       altered?: string;
+      shared?: [number, number];
       argsAfter?: Json;
       cannot?: boolean;
     };
+    if (sharedCounts)
+      shared.push({
+        at: tape.length,
+        message: `${name}() returned ${sharedCounts[0]} object(s) of its own arguments and ${sharedCounts[1]} object(s) of a result it returned before (${describeRun(plans[0] as TwinPlan)}): a fresh result shares no object with either`,
+      });
     if (cannot)
       aliased.push({
         at: tape.length,
@@ -801,7 +902,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if (plain) {
       // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+      appendFileSync(
+        plain.calls,
+        `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}) })}\n`,
+      );
       recorded.push({
         call: name,
         entry,
@@ -854,6 +958,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return first;
     },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
+    ambient: (spec) => {
+      ambient = spec;
+    },
+    identity: (on) => {
+      identityEpochs += 1;
+      identity = on ? identityEpochs : undefined;
+    },
+    sharedSince: (from) => shared.find((each) => each.at >= from)?.message,
     strictArguments: (on) => {
       strict = on;
     },

@@ -65,6 +65,79 @@ function «deepFreeze»(«x») {
   }
   return «x»;
 }
+// The states the caller's own arguments have (frozen, sealed, not extensible), by path: each object at a path gets
+// the state its caller's object has, so a write the caller's object refuses, one that puts the old value back
+// included, is refused here too (review of PR 1403, codex run 39870167091: frozen inputs arrived as copies anyone
+// could write).
+const «sealIt» = Object.seal;
+const «stopIt» = Object.preventExtensions;
+function «markAll»(«root», «marks») {
+  if (!«marks») return «root»;
+  for (let «m» = 0; «m» < «marks».length; «m» += 1) {
+    const «mark» = «marks»[«m»];
+    const «path» = «mark»[0];
+    let «at» = «root»;
+    for (let «p» = 0; «p» < «path».length && «at» !== null && typeof «at» === 'object'; «p» += 1) {
+      const «step» = «descOf»(«at», «path»[«p»]);
+      «at» = «step» && 'value' in «step» ? «step».value : undefined;
+    }
+    if («at» === null || typeof «at» !== 'object') continue;
+    if («mark»[1] === 'f') «freezeIt»(«at»);
+    else if («mark»[1] === 's') «sealIt»(«at»);
+    else «stopIt»(«at»);
+  }
+  return «root»;
+}
+// Ambient conditions an item sets for its calls (review of PR 1403, codex run 39870167091): a Math.random that throws,
+// a clock that stands still at a given time, crypto random functions that throw. The caller's item sets them in its
+// own process; the product runs here, so each call carries them and they hold for that call only. The originals are
+// taken before the product loads, and every one is put back before the call is answered.
+const «mathObject» = Math;
+const «realRandom» = Math.random;
+const «RealDate» = Date;
+const «globalRef» = globalThis;
+const «defineIt» = Object.defineProperty;
+function «ambientOn»(«spec») {
+  const «undo» = [];
+  if («spec» && «spec».random) {
+    «mathObject».random = function () {
+      throw new Error('Math.random was called while planning: draw only from the seed');
+    };
+    «undo».push(() => {
+      «mathObject».random = «realRandom»;
+    });
+  }
+  if («spec» && typeof «spec».clock === 'number') {
+    const «stillAt» = «spec».clock;
+    class «Still» extends «RealDate» {
+      constructor(...«given») {
+        super(...(«given».length ? «given» : [«stillAt»]));
+      }
+      static now() {
+        return «stillAt»;
+      }
+    }
+    «globalRef».Date = «Still»;
+    «undo».push(() => {
+      «globalRef».Date = «RealDate»;
+    });
+  }
+  if («spec» && «spec».crypto && «globalRef».crypto) {
+    const «box» = «globalRef».crypto;
+    const «boom» = function () {
+      throw new Error('crypto random was called while planning: draw only from the seed');
+    };
+    «defineIt»(«box», 'getRandomValues', { value: «boom», configurable: true, writable: true });
+    «defineIt»(«box», 'randomUUID', { value: «boom», configurable: true, writable: true });
+    «undo».push(() => {
+      delete «box».getRandomValues;
+      delete «box».randomUUID;
+    });
+  }
+  return () => {
+    for (let «u» = «undo».length - 1; «u» >= 0; «u» -= 1) «undo»[«u»]();
+  };
+}
 let «counter» = 0;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
@@ -603,6 +676,64 @@ if («setup».command) {
     const «change» = «builtinChange»();
     return «change» === undefined ? {} : { altered: «change» };
   };
+  // Identity facts (review of PR 1403, codex run 39870167091), for an item that checks that its results are fresh:
+  // the objects of a result that are also objects of the call's arguments, or of a result returned before while the
+  // same watch is on. A copy of the answer hides both from the caller, who would see them in a call of its own
+  // process. Only the counts cross; the walk uses the references captured before the product loads.
+  let «identityEpoch»;
+  let «returned» = new «SeenSet»();
+  const «objectsOf» = («root», «into») => {
+    const «list» = [];
+    const «pending» = [«root»];
+    while («pending».length > 0 && «list».length < 1000000) {
+      const «x» = «pending».pop();
+      if («x» === null || typeof «x» !== 'object' || «isView»(«x») || «call»(«seenHas», «into», [«x»])) continue;
+      «call»(«seenAdd», «into», [«x»]);
+      «list».push(«x»);
+      if («isMapKind»(«x»)) {
+        const «entries» = «call»(«mapEntries», «x», []);
+        for (;;) {
+          const «step» = «call»(«mapNext», «entries», []);
+          if («step».done) break;
+          «pending».push(«step».value[0], «step».value[1]);
+        }
+        continue;
+      }
+      if («isSetKind»(«x»)) {
+        const «members» = «call»(«setValues», «x», []);
+        for (;;) {
+          const «step» = «call»(«setNext», «members», []);
+          if («step».done) break;
+          «pending».push(«step».value);
+        }
+        continue;
+      }
+      const «ks» = «ownKeys»(«x»);
+      for (let «k» = 0; «k» < «ks».length; «k» += 1) {
+        const «d» = «describe»(«x», «ks»[«k»]);
+        if («d» !== undefined && «hasOwn»(«d», 'value') && «d».value !== null && typeof «d».value === 'object') «pending».push(«d».value);
+      }
+    }
+    return «list»;
+  };
+  const «sharesOf» = («request», «args», «result») => {
+    if («request».identity === undefined) return {};
+    if («request».identity !== «identityEpoch») {
+      «identityEpoch» = «request».identity;
+      «returned» = new «SeenSet»();
+    }
+    const «argSet» = new «SeenSet»();
+    «objectsOf»(«args», «argSet»);
+    const «outs» = «objectsOf»(«result», new «SeenSet»());
+    let «withArgs» = 0;
+    let «withEarlier» = 0;
+    for (let «o» = 0; «o» < «outs».length; «o» += 1) {
+      if («call»(«seenHas», «argSet», [«outs»[«o»]])) «withArgs» += 1;
+      else if («call»(«seenHas», «returned», [«outs»[«o»]])) «withEarlier» += 1;
+    }
+    for (let «o» = 0; «o» < «outs».length; «o» += 1) «call»(«seenAdd», «returned», [«outs»[«o»]]);
+    return «withArgs» + «withEarlier» > 0 ? { shared: [«withArgs», «withEarlier»] } : {};
+  };
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
@@ -638,16 +769,23 @@ if («setup».command) {
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
       // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set).
       const «strict» = «request».freeze === true;
-      const «decoded» = «decode»(«request».args);
+      const «decoded» = «markAll»(«decode»(«request».args), «request».marks);
       const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
       «argsRef» = «args»;
       if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
       const «before» = «cpuNow»();
-      const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
+      const «ambientOff» = «ambientOn»(«request».ambient);
+      let «result»;
+      try {
+        «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
+      } finally {
+        «ambientOff»();
+      }
       const «used» = «cpuNow»(«before»);
       const «ret» = «encode»(«result»);
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
+      const «shares» = «sharesOf»(«request», «args», «result»);
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -670,7 +808,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...«after», ...«altered»() });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
@@ -717,15 +855,25 @@ export function wrapperModule(
 export function plainCodec(
   seed: number,
   tag: string,
-): { source: string; encode: string; decode: string; handles: string; deepFreeze: string } {
+): {
+  source: string;
+  encode: string;
+  decode: string;
+  handles: string;
+  deepFreeze: string;
+  markAll: string;
+  ambientOn: string;
+} {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')} };\n`;
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('markAll')}, ${name('ambientOn')} };\n`;
   return {
     source,
     encode: name('encode'),
     decode: name('decode'),
     handles: name('handles'),
     deepFreeze: name('deepFreeze'),
+    markAll: name('markAll'),
+    ambientOn: name('ambientOn'),
   };
 }
 
@@ -738,7 +886,14 @@ export function plainBatchEntry(
   seed: number,
   tag: string,
   paths: { module: string; codec: string; calls: string; out: string },
-  codec: { encode: string; decode: string; handles: string; deepFreeze: string },
+  codec: {
+    encode: string;
+    decode: string;
+    handles: string;
+    deepFreeze: string;
+    markAll: string;
+    ambientOn: string;
+  },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
@@ -748,7 +903,7 @@ export function plainBatchEntry(
   const error = name('error');
   return [
     // The codec first: it takes the functions it freezes with before the product module runs.
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')} } from ${JSON.stringify(paths.codec)};`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.markAll} as ${name('markAll')}, ${codec.ambientOn} as ${name('ambientOn')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
@@ -758,7 +913,13 @@ export function plainBatchEntry(
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('decode')}(${each}.args)) : ${name('decode')}(${each}.args)))) };`,
+    `    const ${name('given')} = ${name('markAll')}(${name('decode')}(${each}.args), ${each}.marks);`,
+    `    const ${name('off')} = ${name('ambientOn')}(${each}.ambient);`,
+    `    try {`,
+    `      ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('given')}) : ${name('given')}))) };`,
+    `    } finally {`,
+    `      ${name('off')}();`,
+    `    }`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,
@@ -830,7 +991,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}) });
   const sentAt = Date.now();
   const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ answers });

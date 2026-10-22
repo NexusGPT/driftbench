@@ -138,8 +138,8 @@ function quotesWorkerOf(): NonNullable<typeof quotesWorker> {
 /**
  * The quote check run in this process, for the frame (docs/validators.md section 12.9): there the bank's call waits
  * for the answer in another process, so the product function runs here as it is, asynchronous, on a fresh folder of
- * the run's temporary folder, the one folder a confined run may write. The bank's child sets
- * DRIFTBENCH_VARIABLES_FRAMED to 1 in every run; the answer is a promise the frame waits for.
+ * the run's temporary folder, the one folder a confined run may write. It is taken where this process may start no
+ * worker thread (a confined run); the answer is a promise the frame waits for.
  */
 async function quotesDirect(store: FileStore, files: Record<string, string>): Promise<QuotesResult> {
   const folder = mkdtempSync(join(tmpdir(), 'driftbench-variables-quotes-'));
@@ -160,9 +160,14 @@ async function quotesDirect(store: FileStore, files: Record<string, string>): Pr
   }
 }
 
+/** Whether this process may start a worker thread: not in a run of the permission model that forbids it. */
+function workersAllowed(): boolean {
+  const permission = (process as { permission?: { has(scope: string): boolean } }).permission;
+  return permission === undefined || permission.has('worker');
+}
+
 function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
-  if (process.env.DRIFTBENCH_VARIABLES_FRAMED === '1')
-    return quotesDirect(store, files) as unknown as QuotesResult;
+  if (!workersAllowed()) return quotesDirect(store, files) as unknown as QuotesResult;
   const { worker, port, flag } = quotesWorkerOf();
   // One request in flight: the call blocks until the worker answers, so no second one can start.
   Atomics.store(flag, 0, 0);
@@ -332,7 +337,7 @@ function labels(): Map<string, SpanLabel> {
  */
 function recordSpans(sources: Sources): void {
   const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
-  if (!out || process.env.DRIFTBENCH_VARIABLES_FRAMED === '1') return;
+  if (!out) return;
   for (const rule of sources.estate?.rules ?? []) {
     for (const condition of rule.conditions)
       appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);

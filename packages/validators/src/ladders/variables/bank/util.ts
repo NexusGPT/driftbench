@@ -158,6 +158,20 @@ export function useProductClock(next: ProductClock | undefined): void {
   clock = next;
 }
 
+/**
+ * The ambient conditions an item sets around its calls (a Math.random that throws, a clock that stands still, crypto
+ * random functions that throw), for an implementation that runs in other processes (the frame): the hook passes them
+ * on to every call until it is given undefined. Unset, the item's own patches of this process are the conditions.
+ */
+export type ProductAmbient = { random?: boolean; clock?: number; crypto?: boolean };
+let ambientHook: ((spec: ProductAmbient | undefined) => void) | undefined;
+export function useProductAmbient(hook: ((spec: ProductAmbient | undefined) => void) | undefined): void {
+  ambientHook = hook;
+}
+export function setProductAmbient(spec: ProductAmbient | undefined): void {
+  ambientHook?.(spec);
+}
+
 /** Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. */
 export function cpuMs<T>(run: () => T): { value: T; ms: number } {
   if (clock) {
