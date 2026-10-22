@@ -113,9 +113,11 @@ Units:
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
 | Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
-| Fence and comment | Opaque: one unit each. A fence is shown to the labeler as its kind and its first line only; a comment is shown as its kind only, because its text may be private and nothing of it is sent. A label cannot be pointed at it. |
+| Fence and comment | Opaque: one unit each. A fence is shown to the labeler as its kind and its first line only; a comment as its kind only, `(comment, not labelable)`. A label cannot be pointed at it. |
 
 Every prose character belongs to exactly one unit. Spans never overlap.
+
+**What a request carries.** No comment text reaches a labeler request (a privacy default for every comment, because its text may be private). An opaque comment is shown by its kind. A comment inside another unit (in a sentence, at the end of a line, after a heading marker or in a heading, in a table cell, a list item or a block quote) is replaced by `(comment)`, and the rest of the unit is sent as it is. The same holds for the heading path and the first line of a fence. A comment is `<!--` up to the next `-->`; one that never closes runs to the end of the file; a comment opened inside a fence is fence text. The comments are found on the whole file, so a comment the cutter splits across units is replaced in each of them. Only the request is changed: the unit text, the fingerprints, the ids, the ledger and the atoms keep the comment, and an offset or a quoted clause the labeler gives is carried back to the unit's own text.
 
 **Cut digest.** The cutter hashes the ordered list of unit fingerprints into a digest and stores it. Replay recomputes the cut and compares digests. A mismatch stops with an error that names the Node and ICU versions, so a cutter that varies between environments fails loudly instead of renumbering silently. Experiment 6 decides whether `Intl.Segmenter` may stay or a deterministic splitter must ship.
 

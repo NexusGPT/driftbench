@@ -22,6 +22,7 @@ import {
   type Labelled,
   type LabelSet,
   offsetSpans,
+  shownOf,
   type Window,
 } from './labels';
 
@@ -100,7 +101,7 @@ export function windowLines(window: Window): string[] {
     (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(line.text));
   return [
     ...shownAt(0),
-    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${squash(unit.text)}`, ...shownAt(at + 1)]),
+    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${shownOf(unit).text}`, ...shownAt(at + 1)]),
   ];
 }
 

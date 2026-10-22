@@ -12,7 +12,7 @@ import {
   refusingKey,
   usageOf,
 } from './labeler';
-import { type LabelContext, type LabelSet, offsetSpans, type Window } from './labels';
+import { type LabelContext, type LabelSet, offsetSpans, requestTextOf, type Window } from './labels';
 import {
   askedLabels,
   DEFAULT_MAX_QUESTIONS,
@@ -73,7 +73,7 @@ export function userRequest(
     id: window.id,
     path: window.path,
     headingPath: window.headingPath,
-    units: window.units.map((unit) => ({ n: unit.n, text: unit.text })),
+    units: window.units.map((unit) => ({ n: unit.n, text: requestTextOf(unit).text })),
   };
   if (cls === 'system2') {
     return {
