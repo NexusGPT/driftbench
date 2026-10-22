@@ -245,7 +245,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
 
 ## 4. Layer A: the ledger
 
