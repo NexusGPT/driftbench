@@ -107,6 +107,7 @@ for (let round = 1; round <= MAX_ROUNDS; round += 1) {
   const label = spawnSync(
     'node',
     [
+      ...['--import', 'tsx'],
       join(here, 'variables-label-spans.mjs'),
       ...['--sha', sha, '--spans', todo, '--out', out],
       ...['--usd-per-mtok-in', rateIn, '--usd-per-mtok-out', rateOut],

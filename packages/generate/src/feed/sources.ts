@@ -1,3 +1,4 @@
+import { shareSubjects } from './subjects';
 import { createHash } from 'node:crypto';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { QuoteIndex } from '../extract/quote';
@@ -572,6 +573,10 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
       }
     }
   }
+  // One quantity, one subject: clauses with the same text up to the first digit or symbol share the subject of the
+  // first of them in text order (./subjects.ts), so a reader that named one quantity two ways still gives one variable.
+  const shared = shareSubjects([...clauseLabel].map(([text, label]) => ({ text, label })));
+  for (const { text, label } of shared) if (label !== undefined) clauseLabel.set(text, label);
   const ruleVariables = new Map<string, Set<string>>();
   for (const rule of sources.estate?.rules ?? []) {
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();

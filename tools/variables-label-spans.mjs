@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Labels the condition spans a span-collector run found and writes the cassette the variables measure replays.
 //
-//   node tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
+//   node --import tsx tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
 //     --usd-per-mtok-in <rate> --usd-per-mtok-out <rate> [--cap <usd, default 2>] [--total-file <file>] [--total-cap <usd, default 8>]
 //     [--known <cassette file>]
 //
@@ -13,7 +13,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applySubjects, canonicalSubjects, shareSubjects } from './variables-subjects.mjs';
+import { applySubjects, canonicalSubjects, shareSubjects } from '../packages/generate/src/feed/subjects.ts';
 
 const MODEL = 'claude-haiku-5-5';
 const BATCH = 12;
@@ -185,7 +185,7 @@ for (let i = 0; i < texts.length; i += BATCH) {
   });
 }
 
-// One quantity, one subject (tools/variables-subjects.mjs): spans with the same text before their first digit or
+// One quantity, one subject (packages/generate/src/feed/subjects.ts): spans with the same text before their first digit or
 // symbol share a subject, then the model says which of the remaining subjects name one quantity.
 const SAME = [
   'You are given subjects: short noun phrases, each naming what a rule measures.',

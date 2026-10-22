@@ -29,9 +29,6 @@ export function prefixOf(text: string): string {
  * labels take part, and a prefix with no letters is left alone. Returns new clauses; the input is not changed.
  */
 export function shareSubjects<T extends LabelledClause>(clauses: readonly T[]): T[] {
-  return [...clauses];
-}
-function shareSubjectsReal<T extends LabelledClause>(clauses: readonly T[]): T[] {
   const first = new Map<string, string>();
   const ordered = [...clauses].sort((a, b) => (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
   for (const clause of ordered) {
@@ -80,10 +77,7 @@ export function soundMap(map: unknown, subjects: readonly string[]): Record<stri
 }
 
 /** Applies a map of subjects to clauses. Returns new clauses. */
-export function applySubjects<T extends LabelledClause>(clauses: readonly T[], _map: Record<string, string>): T[] {
-  return [...clauses];
-}
-function applySubjectsReal<T extends LabelledClause>(clauses: readonly T[], map: Record<string, string>): T[] {
+export function applySubjects<T extends LabelledClause>(clauses: readonly T[], map: Record<string, string>): T[] {
   return clauses.map((clause) => {
     const label = clause.label;
     if (label === undefined || !('subject' in label) || typeof label.subject !== 'string') return clause;
