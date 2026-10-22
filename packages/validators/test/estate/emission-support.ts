@@ -190,6 +190,9 @@ export const CLASS_PROOFS: Record<
       // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
       // `count`, so an absent count and `{ min: 1 }` give the same names.
       'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
+      // The scope of a some_call entry: only a count of 0 widens it to the helpers, and an absent count is `{ min: 1 }`,
+      // not zero, so an absent count and `{ min: 1 }` read the same scope.
+      "packages/checks/src/checks/estate.ts: const scope = entry.actor ?? (isZero(entry.count) ? 'any' : 'main');",
       "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
       'packages/checks/src/checks/estate.ts: `${plural(matching.length, what)} of ${plural(own.length, `${entry.label} call`)} in this block, expected ${describeCount(entry.count)}`,',
       'packages/checks/src/checks/estate.ts: const count = (entry.count ?? { min: 1 }) as Count;',
