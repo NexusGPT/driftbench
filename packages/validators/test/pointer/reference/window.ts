@@ -1,10 +1,13 @@
 import type { LabelDef, WindowMode } from '../../../src/ladders/pointer/sut/port';
 import type { NewUnit } from './anchor';
 import { referenceBugsB } from './bugs-b';
+import { referenceBugsPrivacy } from './bugs-privacy';
+import { sha256 } from './hash';
 import type { ParsedSet } from './labelset';
 
 /** What a request lists for each link kind of a set: the candidates a link may name, by kind. */
-export type Candidates = Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+export type Candidate = { id: string; label: string; shown?: string; raw?: string };
+export type Candidates = Readonly<Record<string, ReadonlyArray<Candidate>>>;
 
 /** About 100,000 tokens at four characters a token. */
 export const WINDOW_CHARS = 400_000;
@@ -23,13 +26,51 @@ export type WindowPlan = { id: string; file: string; path: string[]; units: Plan
 
 const flat = (text: string) => text.replace(/\s+/g, ' ').trim();
 
-/** What a labeller is shown for one unit: its text on one line; an opaque unit shows its kind and first line. */
+/** What a request carries in place of a comment inside a unit. */
+const COMMENT_MARKER = '(comment)';
+
+/** A comment is `<!--` up to and with the next `-->`, or up to the end of the text when it never closes. */
+const COMMENT = /<!--[\s\S]*?(?:-->|$)/g;
+
+/**
+ * The text of a unit as a request carries it: a comment inside it is replaced by `(comment)` and the rest stays.
+ * The ledger, the ids and the atoms read the unit itself; only the request is masked.
+ */
+export function requestText(text: string): string {
+  if (referenceBugsPrivacy.has('comment-text-sent')) return text;
+  if (!text.includes('<!--')) return text;
+  if (referenceBugsPrivacy.has('comment-unit-dropped')) return COMMENT_MARKER;
+  return text.replace(COMMENT, COMMENT_MARKER);
+}
+
+/**
+ * An atom as a request lists it as a link candidate. A title that holds a comment is listed with the comment
+ * replaced by `(comment)`, and under a hash of its id (`atom-` and ten hex digits), because the id is a slug of
+ * that title; the answer is carried back to the real id. A title with no comment is listed as it is.
+ */
+export function candidateOf(atom: { id: string; title: string }): Candidate {
+  if (referenceBugsPrivacy.has('candidate-comment-sent') || !atom.title.includes('<!--'))
+    return { id: atom.id, label: atom.title };
+  return {
+    id: atom.id,
+    label: requestText(atom.title),
+    shown: `atom-${sha256(atom.id).slice(0, 10)}`,
+    raw: atom.title,
+  };
+}
+
+/**
+ * What a labeller is shown for one unit: its text on one line, a comment inside it replaced by `(comment)`; an
+ * opaque comment shows its kind only, an opaque fence its kind and first line.
+ */
 export function displayText(unit: NewUnit, opaque: boolean): string {
   if (opaque) {
+    if (unit.container === 'comment' && !referenceBugsPrivacy.has('comment-text-sent'))
+      return '(comment, not labelable)';
     const first = unit.text.split(/\r?\n/)[0] ?? '';
     return `(${unit.container}) ${first.trim()}`;
   }
-  return flat(unit.text);
+  return flat(requestText(unit.text));
 }
 
 /** Splits a file's units into heading-bounded windows under the size bound and keeps those holding a unit to label. */
@@ -103,7 +144,7 @@ export function planWindows(
         mode,
         text: displayText(unit, opaque),
         container: unit.container,
-        path: unit.sectionPath,
+        path: unit.sectionPath.map(requestText),
       };
     });
     // A window whose units all kept their labels is not sent.
@@ -113,8 +154,8 @@ export function planWindows(
         file,
         path:
           first.container === 'heading'
-            ? [...first.sectionPath, first.text.replace(/\s+/g, ' ').trim()]
-            : first.sectionPath,
+            ? [...first.sectionPath, first.text.replace(/\s+/g, ' ').trim()].map(requestText)
+            : first.sectionPath.map(requestText),
         units: planUnits,
       });
     }
@@ -143,8 +184,15 @@ function linkLines(set: ParsedSet, candidates: Candidates): string[] {
   const lines = ['LINK KINDS:'];
   for (const kind of set.links) {
     lines.push(`- ${kind.name}: ${kind.description}`);
+    // Planted renderers (cr2-comment-privacy): one drops the candidates, one prints the title unmasked.
+    if (referenceBugsPrivacy.has('render-drops-candidates')) continue;
+    const raw = referenceBugsPrivacy.has('render-prints-raw-title');
     for (const candidate of candidates[kind.name] ?? [])
-      lines.push(`    ${candidate.id}  ${candidate.label}`);
+      lines.push(
+        raw
+          ? `    ${candidate.id}  ${candidate.raw ?? candidate.label}`
+          : `    ${candidate.shown ?? candidate.id}  ${candidate.label}`,
+      );
   }
   return lines;
 }

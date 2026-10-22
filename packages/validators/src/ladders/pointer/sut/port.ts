@@ -288,6 +288,24 @@ export type ScanResult = {
   /** Windows sent to the labeller or the model port in this scan, and how many calls reached it. */
   windows?: number;
   calls?: number;
+  /**
+   * The link candidates each request carried, read from the request body the transport received: one row per
+   * window, set and link kind. A candidate of the context the reader hands its renderer is listed only when its
+   * exact id and exact title occur in that body string (`sut/sent.ts`); the row keeps the string (`body`).
+   * `id` is the id the request carries and `title` the title it carries. A renderer that drops a candidate lists
+   * fewer; a request that never reached the transport lists nothing. Absent when the reader does not expose it.
+   */
+  listed?: ListedCandidates[];
+};
+
+export type ListedCandidates = {
+  file: string;
+  window: string;
+  set: string;
+  link: string;
+  candidates: Array<{ id: string; title: string }>;
+  /** The exact request body string the transport received, the one the candidates were read from. */
+  body?: string;
 };
 
 /* ----- layer C ----- */

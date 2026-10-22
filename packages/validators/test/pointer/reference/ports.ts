@@ -12,13 +12,16 @@ import {
 import type {
   CassetteMissView,
   Diagnostic,
+  FetchRequest,
   LabelAnswer,
   LabelEntry,
+  ListedCandidates,
   ModelArm,
   ScanArm,
   Transport,
   WarningRecord,
 } from '../../../src/ladders/pointer/sut/port';
+import { recordSent } from '../../../src/ladders/pointer/sut/sent';
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
@@ -287,6 +290,8 @@ export type ModelCtx = {
   keyHeader: string;
   /** What each set lists for its link kinds, by set name. */
   candidates?: ReadonlyMap<string, Candidates>;
+  /** Where the candidates each built request carries are recorded, after the request text was built. */
+  listed?: { rows: ListedCandidates[]; seen: Set<string> };
   /** The key of the `haiku` arm, read when a request of that arm leaves (the item may watch the read). */
   haikuKey?: () => string;
   /** The `http` arm: the address of the user labeler. */
@@ -294,6 +299,33 @@ export type ModelCtx = {
   /** A stack reads the vector of each unit of a choice answer: undefined when the vector is refused. */
   onVector?: (n: number, vector: Record<string, number> | undefined) => void;
 };
+
+/**
+ * Sends one request through the transport and records the candidates it carries, read from the very body string
+ * handed to the transport: the string is built once by the caller, recorded, and sent. Nothing is serialised here.
+ */
+function sendListed(
+  ctx: ModelCtx,
+  set: ParsedSet,
+  plan: WindowPlan,
+  candidates: Candidates,
+  request: FetchRequest,
+): ReturnType<Transport> {
+  if (ctx.listed) {
+    const byLink = Object.fromEntries(
+      Object.entries(candidates).map(([link, list]) => [
+        link,
+        list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+      ]),
+    );
+    recordSent(
+      ctx.listed,
+      { where: { file: plan.file, window: plan.id, set: set.set }, byLink },
+      request.body,
+    );
+  }
+  return ctx.transport(request);
+}
 
 /** Added after the system text of a request asked again after an answer that could not be read. */
 export const RETRY_NOTE =
@@ -464,7 +496,7 @@ export async function haiku(
     return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
   }
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
-  const response = await ctx.transport({
+  const response = await sendListed(ctx, set, plan, candidates, {
     url: HAIKU_URL,
     headers: {
       'content-type': 'application/json',
@@ -925,7 +957,7 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
   const hit = ctx.cassette.entries.get(key);
   if (hit) return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
-  const response = await ctx.transport({
+  const response = await sendListed(ctx, set, plan, candidates, {
     url: ctx.url ?? '',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),

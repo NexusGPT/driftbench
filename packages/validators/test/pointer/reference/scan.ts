@@ -6,6 +6,7 @@ import type {
   LabelRequest,
   LedgerEntry,
   LedgerView,
+  ListedCandidates,
   ScanRequest,
   ScanResult,
   WarningRecord,
@@ -15,6 +16,7 @@ import { referenceBugsA } from './bugs-a';
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
+import { referenceBugsPrivacy } from './bugs-privacy';
 import { cutText, fingerprintText, sha } from './cut';
 import type { Why } from './extras';
 import { base32Id, canonicalCompact, canonicalJson } from './hash';
@@ -32,7 +34,7 @@ import {
   validateAnswer,
 } from './ports';
 import { DEFAULT_MARGIN_CUT, stackWindow } from './stack-scan';
-import { type Candidates, planWindows, type WindowPlan } from './window';
+import { type Candidates, candidateOf, planWindows, type WindowPlan } from './window';
 
 /** A title holds at most this many characters, an ellipsis included (docs, section 6). */
 const TITLE_CHARACTERS = 90;
@@ -254,12 +256,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
 
   // ---- what each set lists for its link kinds: a closed list, or the atoms of the kinds it names, by id
   const linkCandidates = (to: readonly string[]) => {
+    if (referenceBugsPrivacy.has('candidates-all-withheld')) return [];
     const listed = (req.atoms ?? [])
       .filter((atom) => referenceBugsB.has('candidates-any-kind') || to.includes(atom.kind))
-      .map((atom) => ({ id: atom.id, label: atom.title }));
+      .map(candidateOf);
     return referenceBugsB.has('candidates-unsorted')
       ? listed
-      : listed.sort((a, b) => a.id.localeCompare(b.id));
+      : listed.sort((a, b) => (a.shown ?? a.id).localeCompare(b.shown ?? b.id));
   };
   const candidatesOf = new Map<string, Candidates>(
     sets.map((set) => [
@@ -273,6 +276,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         ]),
       ),
     ]),
+  );
+  const shownBack = new Map<string, string>(
+    [...candidatesOf.values()].flatMap((byKind) =>
+      Object.values(byKind).flatMap((list) =>
+        list.flatMap((c) => (c.shown === undefined ? [] : [[c.shown, c.id] as [string, string]])),
+      ),
+    ),
   );
   const linksOf = new Map<string, AnswerLink[]>();
 
@@ -314,7 +324,10 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   let callCount = 0;
   const cassetteKeyOf = new Map<string, string>();
   const gateTargets = new Map<string, number>();
+  const listed: ListedCandidates[] = [];
+  if (modelCtx) modelCtx.listed = { rows: listed, seen: new Set<string>() };
   const finish = (result: ScanResult): ScanResult => {
+    result.listed = listed;
     if (modelCtx) result.cassette = modelCtx.cassette.dump();
     result.warnings = warnings;
     result.warningRecords = warningRecords;
@@ -520,7 +533,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       const named = `${entry.path} unit ${entry.id} (${label.label})`;
       // A link to `none` names nothing; one to a closed list keeps its value; one to an atom needs that atom.
       const links: AnswerLink[] = [];
-      for (const link of linksOf.get(`${entry.id}|${set.set}`) ?? []) {
+      for (const given of linksOf.get(`${entry.id}|${set.set}`) ?? []) {
+        // the answer may name a candidate by the hash the request showed; it is carried back to the atom's id
+        const link = { ...given, to: shownBack.get(given.to) ?? given.to };
         if (link.to === 'none' && !referenceBugsB.has('none-link-refused')) continue;
         if (set.links?.find((kind) => kind.name === link.kind)?.values) links.push(link);
         else if (knownAtoms.has(link.to)) links.push(link);
