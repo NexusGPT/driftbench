@@ -147,6 +147,8 @@ export type PointerResult = {
   reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
+  /** Notes that do not stop a run: a returned model that differs from the one recorded. */
+  warnings: string[];
   /** The same windows, by window, set and labeler. */
   failedWindows: FailedWindow[];
   usage: LabelerUsage[];
@@ -439,6 +441,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     replayedOutput: 0,
   }));
 
+  const warnings: string[] = [];
+
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
     const wire = member.render(task.set, window, task.context);
@@ -466,6 +470,21 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // cannot be located is no such refusal: the run is out of step, and the vote handles it.
         const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
         if (refused.length > 0) throw new LabelerError(refused.join('; '));
+        // A model that returns another model id than the one recorded for the same labeler and request model is
+        // named, so a re-record that mixes two models of one name is seen.
+        for (const entry of cassette.entries.values()) {
+          const earlier = entry.answer.returnedModel;
+          if (
+            entry.readable.labeler === readable.labeler &&
+            entry.readable.model === readable.model &&
+            earlier !== answer.returnedModel &&
+            !entry.answer.refused
+          ) {
+            const note = `${readable.labeler} ${readable.model}: the returned model ${answer.returnedModel} differs from ${earlier} recorded before`;
+            if (!warnings.includes(note)) warnings.push(note);
+            break;
+          }
+        }
         cassette.put(wire, readable, answer);
         counts.recorded++;
         return { answer, key: requestKey(wire, readable) };
@@ -976,6 +995,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     outOfStep: outOfStepRuns,
     reasked,
     failed: failedWindows.map(describeFailure),
+    warnings,
     failedWindows,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
