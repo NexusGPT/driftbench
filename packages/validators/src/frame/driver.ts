@@ -143,6 +143,9 @@ const «isProxy» = «utilTypes».isProxy;
 const «hasOwn» = Object.hasOwn;
 const «floatArray» = Float64Array;
 const «isExt» = Object.isExtensible;
+const «isMapKind» = «utilTypes».isMap;
+const «isSetKind» = «utilTypes».isSet;
+const «isDateKind» = «utilTypes».isDate;
 const «isSealedIt» = Object.isSealed;
 const «ids» = new WeakMap();
 // The prototypes an argument has when the validator decodes it.
@@ -232,7 +235,9 @@ const «scan» = («root») => {
     «otherText» += «piece»;
     if («otherText».length > 65536) «otherFlush»();
   };
-  const «seen» = new «SeenSet»();
+  // The objects on the way down to the value being walked, by depth: a value met again below itself is a cycle. No
+  // set of every object met: the arguments of the scale items hold millions.
+  const «ancestors» = new Array(1002);
   // A stable number for a function, a prototype or an object: the same one the next time it is met.
   const «idOf» = («thing») => {
     try {
@@ -271,19 +276,21 @@ const «scan» = («root») => {
       case 'function': «put»('F;'); «putOther»('F' + «idOf»(«value») + ';'); return;
     }
     if («value» === null) { «put»('N;'); return; }
-    if («call»(«seenHas», «seen», [«value»])) { «put»('C;'); return; }
     if («level» > 1000) { «put»('D;'); return; }
-    «call»(«seenAdd», «seen», [«value»]);
+    for (let «up» = 0; «up» < «level»; «up» += 1) {
+      if («ancestors»[«up»] === «value») { «put»('C;'); return; }
+    }
+    «ancestors»[«level»] = «value»;
     const «proto» = «protoOf»(«value»);
     // Only a deviation is written (a prototype that is not a built-in one, a state other than extensible and open), so
     // an object the frame can copy back, which a product adds or removes, does not change the digest.
     if («proto» !== null && !«call»(«seenHas», «builtins», [«proto»])) «putOther»('P' + «idOf»(«proto») + ';');
-    const «state» = («isExt»(«value») ? 1 : 0) + '' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0);
-    if («state» !== '100') «putOther»('X' + «state» + ';');
+    // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
+    if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
     // The kind of the object, and its content.
     let «kind» = 0;
     let «entries»;
-    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
+    if («isMapKind»(«value»)) «entries» = «call»(«mapEntries», «value», []);
     let «values»;
     let «time»;
     if («entries» !== undefined) {
@@ -297,7 +304,7 @@ const «scan» = («root») => {
       }
       «put»('}');
     } else {
-      try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
+      if («isSetKind»(«value»)) «values» = «call»(«setValues», «value», []);
       if («values» !== undefined) {
         «kind» = 4;
         «put»('S{');
@@ -308,7 +315,7 @@ const «scan» = («root») => {
         }
         «put»('}');
       } else {
-        try { «time» = «call»(«dateTime», «value», []); } catch { «time» = undefined; }
+        if («isDateKind»(«value»)) «time» = «call»(«dateTime», «value», []);
         if («time» !== undefined) {
           «kind» = 5;
           «put»('T' + «time» + ';');
@@ -350,7 +357,7 @@ const «scan» = («root») => {
               «put»('h;');
               // A hole cannot cross as data (JSON has none): its place is a change the frame cannot copy back.
               «putOther»('h' + «i» + ';');
-            } else if (!«call»(«hasOwn», undefined, [«cell», 'value'])) {
+            } else if («cell».get !== undefined || «cell».set !== undefined) {
               «flushRun»();
               «sawInvalid» = true;
               «putOther»('G' + «i» + ':' + («cell».get === undefined ? 0 : «idOf»(«cell».get)) + ',' + («cell».set === undefined ? 0 : «idOf»(«cell».set)) + ';');
@@ -382,7 +389,9 @@ const «scan» = («root») => {
       if («kind» === 1 && «key» === 'length') continue;
       if ((«kind» === 1 || «kind» === 2) && «isIndex»(«key»)) continue;
       const «desc» = «describe»(«value», «key»);
-      const «isData» = «call»(«hasOwn», undefined, [«desc», 'value']);
+      // A descriptor with a getter or a setter is an accessor; a descriptor read through a polluted base prototype can only
+      // look like an accessor, which fails the item.
+      const «isData» = «desc».get === undefined && «desc».set === undefined;
       const «copyable» = «plain» && typeof «key» === 'string' && «isData» && «desc».writable && «desc».enumerable && «desc».configurable && !«inOther»;
       if («copyable») {
         «putData»('k' + «key».length + ':' + «key»);
