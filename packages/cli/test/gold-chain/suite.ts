@@ -343,7 +343,11 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const byAtom = new Map<string, Array<{ limit: number; comparison: string; unit?: string }>>();
         const atomUnits = new Map([...atomOf].map(([goldId, atom]) => [atom.id, goldId]));
         for (const atom of atomOf.values()) {
-          const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine);
+          const context = contextOf(
+            texts.get(atom.provenance.file) ?? '',
+            atom.provenance.startLine,
+            atom.situation,
+          );
           const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, asks, spent);
           const read = limitsOfAnswer(text);
           if (read.problem) problems.push(`answer unreadable on ${atomUnits.get(atom.id)}: ${read.problem}`);

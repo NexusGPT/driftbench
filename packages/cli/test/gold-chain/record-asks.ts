@@ -62,7 +62,7 @@ async function record(estate: EstateName, key: string) {
     const asks = new Map<string, { quote: string; context: string }>();
     for (const atom of scan.map.atoms) {
       if (atom.kind !== 'instruction' || atom.fields?.extraction !== 'pointer') continue;
-      const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine);
+      const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine, atom.situation);
       asks.set(`${atom.provenance.quote}\n${context}`, { quote: atom.provenance.quote, context });
     }
     const quotes = [...asks.values()];

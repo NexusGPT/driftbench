@@ -16,7 +16,7 @@ export type Limit = { limit: number; comparison: (typeof COMPARISONS)[number]; u
 
 export const ASK_SYSTEM =
   'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings ' +
-  'above it and the tables of its section. The place is context only, to read what the instruction refers to; ' +
+  'above it, the tables of its section and the units that scope it. The place is context only, to read what the instruction refers to; ' +
   'answer about the INSTRUCTION alone, never about another line of the section. ' +
   'Say whether the instruction states, or points at a table that gives, a number that limits ' +
   'it: a count, a duration, a size or a threshold that the instruction itself sets. Answer with one JSON object and ' +
@@ -30,7 +30,7 @@ export const ASK_SYSTEM =
  * Where an instruction sits, by the structure of the Markdown file: the headings above its first line, and the tables
  * of its section (runs of lines that start with a bar). No word of the file is read.
  */
-export function contextOf(text: string, line: number): string {
+export function contextOf(text: string, line: number, scopes?: string): string {
   const lines = text.split('\n');
   const stack: string[] = [];
   let sectionStart = 0;
@@ -60,7 +60,8 @@ export function contextOf(text: string, line: number): string {
   }
   if (run.length > 0) tables.push(run.join('\n'));
   const path = stack.filter((heading) => heading !== undefined && heading !== '').join(' > ');
-  return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}`;
+  const scoped = scopes === undefined || scopes.trim() === '' ? '' : `\nUNITS THAT SCOPE IT, linked by the map:\n${scopes.trim()}`;
+  return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}${scoped}`;
 }
 
 export const askBody = (model: string, quote: string, context: string): Record<string, unknown> => ({

@@ -20,6 +20,7 @@ limits:
     limit: 5                     # the number, as a finite number
     comparison: le               # lt, le, gt or ge: how the quantity compares with the limit
                                  # for the condition to hold ("within five days" is le)
+    role: constraint             # constraint or trigger, see "Role of a limit" below
     unit_of: working days        # optional: what the number counts
     governs: ab12cd34ef          # the gold id of the rule the limit belongs to (may be the same unit)
 
@@ -48,6 +49,16 @@ plan:
   same_row:                      # groups of units that apply in the same situation: one plan row
     - [ef56ab78cd, 78cd90ef12]   # must name all of them (use this for 2 to 4 units; 0 to 6 groups) (use this for 2 to 4 units; 0 to 6 groups)
 ```
+
+## Role of a limit
+
+Every limit has a `role`, and the comparison is read according to it.
+
+* `constraint`: the number bounds the act. The comparison gives the compliant range.
+  Example: "Keep each parcel label under 40 characters" is `limit: 40`, `comparison: lt`, `role: constraint`.
+  "Ship no parcel for fewer than three items" is `limit: 3`, `comparison: ge`, `role: constraint`.
+* `trigger`: the number says when the rule applies. The comparison gives the range where the rule applies.
+  Example: "If a parcel weighs more than 20 kilos, add a lift fee" is `limit: 20`, `comparison: gt`, `role: trigger`.
 
 ## Rules for the author
 
