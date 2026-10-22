@@ -66,12 +66,13 @@ function gateCheck(
 }
 
 /** A gate atom: the act it waits for (a part of the line) and the tool of that act, for the planted-truth labeller. */
-const gate = (owner: string, act: string, tool: string, command = false): Planted => ({
+const gate = (owner: string, act: string, tool: string, command = false, reads?: string): Planted => ({
   hid: `${owner}:gate`,
   kind: 'gate',
   act,
   tool,
   ...(command ? { command } : {}),
+  ...(reads !== undefined ? { reads } : {}),
 });
 const reference = (owner: string, key: string, tag = 'ref'): Planted => ({
   hid: `${owner}:${tag}`,
@@ -231,8 +232,8 @@ const GATES: Line[] = [
       `Before editing a ${n.noun}: read \`references/rules.md\`; before sending one: read \`references/send.md\`.`,
     files: ['references/rules.md', 'references/send.md'],
     atoms: (o, p, n) => [
-      gate(o, `editing a ${n.noun}`, 'Edit'),
-      { hid: `${o}:gate2`, kind: 'gate', act: 'sending one', tool: 'Edit' },
+      gate(o, `editing a ${n.noun}`, 'Edit', false, 'references/rules.md'),
+      { hid: `${o}:gate2`, kind: 'gate', act: 'sending one', tool: 'Edit', reads: 'references/send.md' },
       reference(o, p('references/rules.md')),
       reference(o, p('references/send.md'), 'ref2'),
     ],
