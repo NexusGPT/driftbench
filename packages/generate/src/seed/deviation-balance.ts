@@ -1,13 +1,34 @@
-import type { Spec } from '@agent-nexus/driftbench-core';
+import { canonicalGiven, contentHash, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { NONE, placeSpec } from '@agent-nexus/driftbench-space';
-import type { SpecDraft } from './assemble';
+import { renderDraft, type SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
 import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
+
+/** How many times a top-up looks for a probe that is a new test before it settles for a repeat of one. */
+const NEW_PROBE_TRIES = 40;
+
+/**
+ * The tests the injected blocks of a spec are, as a validator tells them apart: the class said, the path walked,
+ * the stage the block starts from, the tool answers it runs under and the Then it expects. A second probe of the
+ * same class with the same five is a repeat, however it is worded.
+ */
+export function probeKeys(spec: Spec): string[] {
+  const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+  return spec.blocks.flatMap((block, index) => {
+    if (!('injection' in block.when)) return [];
+    const { criteria: _criteria, ...machine } = block.expect ?? {};
+    const from =
+      block.given?.stage ?? (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage);
+    const world = canonicalGiven(spec, index).state.world as { tools?: unknown } | undefined;
+    return [contentHash([block.when.injection.class, path, from, world?.tools ?? null, machine])];
+  });
+}
 
 /** Actual probe counts, independent of seeder labels and output suite size. */
 export class DeviationBalance {
   private serial = 0;
   private readonly counts: Map<string, number>;
+  private readonly probes = new Set<string>();
 
   constructor(private readonly prepared: PreparedMap) {
     this.counts = new Map(
@@ -18,6 +39,7 @@ export class DeviationBalance {
   }
 
   observe(spec: Spec): void {
+    for (const key of probeKeys(spec)) this.probes.add(key);
     const dimension = this.prepared.deviation;
     if (dimension === undefined) return;
     for (const event of placeSpec(this.prepared.space, spec).events)
@@ -38,6 +60,7 @@ export class DeviationBalance {
     const target = Math.ceil(Math.max(0, ...this.counts.values()) / 3);
     let added = 0;
     for (const cls of this.counts.keys()) {
+      let repeats = 0;
       while ((this.counts.get(cls) ?? 0) < target && existing + added < context.max) {
         const before = this.counts.get(cls) ?? 0;
         const id = `gen-deviation-balance-${String(this.serial + 1).padStart(3, '0')}`;
@@ -60,6 +83,18 @@ export class DeviationBalance {
           { probe: { classId: cls, cut: true } },
         );
         if (!('draft' in built)) break;
+        // A probe that repeats a test the suite already has adds a placement and no test: the next draw is tried,
+        // and a repeat is written only when no new test is found, so the class still reaches its third.
+        if (context.run && repeats < NEW_PROBE_TRIES) {
+          const rendered = renderDraft(this.prepared, built.draft, context.run);
+          const parsed =
+            rendered.placeholders.length || rendered.noThen.length ? undefined : validateSpec(rendered.spec);
+          if (parsed?.ok && probeKeys(parsed.spec).some((key) => this.probes.has(key))) {
+            repeats += 1;
+            this.serial += 1;
+            continue;
+          }
+        }
         const value = this.prepared.space.dimensions[dimension]?.index.get(cls);
         if (value === undefined) break;
         built.draft.cell.push([dimension, value]);

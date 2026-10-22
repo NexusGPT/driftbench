@@ -274,6 +274,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     mapPath: options.mapPath,
     ...(options.sections ? { sections: options.sections } : {}),
   };
+  context.run = run;
   const reduceEnds = options.reduceEnds !== false;
   // Without a cap, each draft is reduced as it is written. With one, the cap decides what is written first and
   // the pass below reduces the specs that stay, in the order they were written.

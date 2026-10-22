@@ -1,13 +1,14 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { PerturbationSpec } from '@agent-nexus/driftbench-core';
+import { type PerturbationSpec, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { placeSpec } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { generateSuite } from '../../src/enumerate/generate';
 import { generateSuiteToDisk } from '../../src/enumerate/stream';
 import { Allocation } from '../../src/seed/allocation';
-import { DeviationBalance } from '../../src/seed/deviation-balance';
+import { renderDraft } from '../../src/seed/assemble';
+import { DeviationBalance, probeKeys } from '../../src/seed/deviation-balance';
 import { rngFor } from '../../src/seed/random';
 import { buildScenario } from '../../src/seed/scenario';
 import { fixture, split } from './desk';
@@ -33,6 +34,41 @@ function eventCounts(
 }
 
 describe('approved stage allocation', () => {
+  it('tops a class up with probes that are new tests before it repeats one the suite has', () => {
+    const prepared = fixture();
+    const run = { seed: 1031, mapPath: '../desk.yaml' };
+    const base = generateSuite(prepared, { seed: 1031, t: 2, mapPath: '../desk.yaml' }).complete;
+    const heavy = base.find((spec) => spec.blocks.some((block) => 'injection' in block.when));
+    if (!heavy) throw new Error('no probe in the suite');
+    const held = new Set(probeKeys(heavy));
+    // The probes a top-up writes for a class far below the most probed one, each observed once it is written.
+    const written = (aware: boolean, count: number) => {
+      const balance = new DeviationBalance(prepared);
+      for (let index = 0; index < 30; index++) balance.observe(heavy);
+      const context = { seed: 1031, t: 2, max: Number.POSITIVE_INFINITY, ...(aware ? { run } : {}) };
+      const out: string[][] = [];
+      for (const draft of balance.topUps(context, 0)) {
+        const parsed = validateSpec(renderDraft(prepared, draft, run).spec);
+        if (!parsed.ok) continue;
+        out.push(probeKeys(parsed.spec));
+        balance.observe(parsed.spec);
+        if (out.length >= count) break;
+      }
+      return out;
+    };
+    // The new tests the desk can give: every key a long blind run reaches that the suite does not hold.
+    const fresh = new Set(
+      written(false, 40)
+        .flat()
+        .filter((key) => !held.has(key)),
+    );
+    expect(fresh.size).toBeGreaterThan(1);
+    const aware = written(true, fresh.size).flat();
+    const blind = written(false, fresh.size).flat();
+    expect(new Set(aware).size).toBe(fresh.size);
+    expect(new Set(blind).size).toBeLessThan(fresh.size);
+  });
+
   it('counts declared recoveries when balancing classes, even without an inline injection', () => {
     const prepared = fixture();
     const spec = generateSuite(prepared, { seed: 1031, t: 2, mapPath: '../desk.yaml' }).complete[0];

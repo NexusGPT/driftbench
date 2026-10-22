@@ -105,6 +105,7 @@ function writeSuite(
     mapPath: options.mapPath,
     ...(options.sections ? { sections: options.sections } : {}),
   };
+  context.run = run;
   if (options.reduceEnds !== false)
     context.minimal = new TerminalSubsumption(prepared, run, t, context.allocation);
   const coverage = new StreamCoverage(prepared, t, scratch);

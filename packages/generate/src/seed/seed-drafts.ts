@@ -10,6 +10,7 @@ import {
   type UsesToolRelation,
 } from '../extract/proposal';
 import type { Allocation } from './allocation';
+import type { RunIdentity } from './assemble';
 import {
   type BlockDraft,
   choosePhrase,
@@ -44,6 +45,8 @@ export type SeedContext = {
   pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
   dimensionIndex?: ReadonlyMap<string, number>;
   allocation?: Allocation;
+  /** The run the drafts are rendered under: a seeder reads it to render a draft before it keeps it. */
+  run?: RunIdentity;
   /** Drops the terminal repeats of a walk before anything counts it. */
   minimal?: TerminalSubsumption;
   /** Consume each completed draft immediately instead of retaining the seeder output. */
