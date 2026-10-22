@@ -92,6 +92,10 @@ type RResult = {
   unlabeled: number;
   refusals: string[];
   failed: string[];
+  /** Observability extensions: absence is not an empty observation. */
+  failedWindows?: Array<{ window: string; set: string; labeler: string; reason: string }>;
+  unlabeledUnits?: Array<{ unit: string; set: string }>;
+  flips?: Array<{ unit: string; set: string; from: string; to?: string }>;
   recorded: number;
 };
 type RAtom = {
@@ -118,6 +122,7 @@ export type ReaderExports = {
       env: Record<string, string | undefined>;
       cwd: string;
       record: boolean;
+      runs?: number;
       threshold?: number;
       fetch?: unknown;
     },
@@ -372,6 +377,7 @@ const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_ROUTE: 'gateway',
 };
 
 function fetchOf(
@@ -432,6 +438,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
           record: mode === 'record',
           cwd: '.',
           env: TEST_ENV,
+          // One request per window and set: the bank's arms are single labelers, with nothing to vote against.
+          runs: 1,
           fetch: fetchOf(request.model.transport),
           ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
         },
@@ -472,7 +480,24 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   let atoms: Atom[] = [];
   const diagnostics: Diagnostic[] = [
     ...result.refusals.map((detail) => ({ code: 'refusal', detail })),
-    ...result.failed.map((detail) => ({ code: 'failed-window', detail })),
+    ...(
+      result.failedWindows ??
+      result.failed.map((detail) => ({ window: undefined, set: '', labeler: '', reason: detail }))
+    ).map((failed) => ({
+      code: 'failed-window',
+      ...(failed.window !== undefined ? { window: failed.window } : {}),
+      detail: `${failed.window ?? ''} (${failed.set}, ${failed.labeler}): ${failed.reason}`,
+    })),
+    ...(result.unlabeledUnits ?? []).map((gap) => ({
+      code: 'unlabeled',
+      unit: gap.unit,
+      detail: `the unit ${gap.unit} has no label in the set ${gap.set}`,
+    })),
+    ...(result.flips ?? []).map((flip) => ({
+      code: 'label_flip',
+      unit: flip.unit,
+      detail: `the unit ${flip.unit} went from ${flip.from} to ${flip.to ?? 'no label'} in the set ${flip.set}`,
+    })),
   ];
   try {
     const builder = new reader.AtomBuilder(new Map());
@@ -520,11 +545,15 @@ function atomOf(atom: RAtom): Atom {
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
     },
-    evidence: atom.evidence.map((e) => ({
-      type: String(e.type),
-      name: String(e.name ?? ''),
-      ...(typeof e.reviewRequired === 'boolean' ? { reviewRequired: e.reviewRequired } : {}),
-    })),
+    evidence: atom.evidence.map((e) => {
+      const options = (e.options ?? {}) as { reviewRequired?: unknown };
+      const reviewRequired = e.reviewRequired ?? options.reviewRequired;
+      return {
+        type: String(e.type),
+        name: String(e.name ?? ''),
+        ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
+      };
+    }),
   };
 }
 
