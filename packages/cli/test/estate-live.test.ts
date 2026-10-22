@@ -1019,22 +1019,25 @@ describe('driftbench estate run --from', () => {
     });
   });
 
-  it.each([
+  const LINKS = [
     ['a symbolic link', symlink],
     ['a hard link', link],
-  ])('refuses a --store that is %s to --from with exit 2 and leaves the old store as it was', async (_name, make) => {
-    const specs = small();
-    const calls = await counter();
-    const old = await firstRun(calls, specs);
-    const alias = join(await folder(), 'alias.db');
-    await make(old.store, alias);
-    const before = await readFile(old.store);
-    const next = await secondRun(calls, old.store, specs, '--change', await manifest(), '--store', alias);
-    expect(next.code).toBe(2);
-    expect(next.err).toContain('--store is the old store under another name');
-    expect(next.calls).toBe(0);
-    expect(await readFile(old.store)).toEqual(before);
-  });
+  ] as const;
+  for (const [what, make] of LINKS) {
+    it(`refuses a --store that is ${what} to --from with exit 2 and leaves the old store as it was`, async () => {
+      const specs = small();
+      const calls = await counter();
+      const old = await firstRun(calls, specs);
+      const alias = join(await folder(), 'alias.db');
+      await make(old.store, alias);
+      const before = await readFile(old.store);
+      const next = await secondRun(calls, old.store, specs, '--change', await manifest(), '--store', alias);
+      expect(next.code).toBe(2);
+      expect(next.err).toContain('--store is the old store under another name');
+      expect(next.calls).toBe(0);
+      expect(await readFile(old.store)).toEqual(before);
+    });
+  }
 
   it('refuses a bad combination of the flags with exit 2 and runs nothing', async () => {
     const specs = small().slice(0, 2);
