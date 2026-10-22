@@ -171,6 +171,18 @@ describe('the mean-shift items with a product that writes to its input afterward
     return { direct, framed };
   };
 
+  it.each([
+    ['Object.prototype', 'Object.setPrototypeOf(target, Object.prototype);'],
+    ['null', 'Object.setPrototypeOf(target, null);'],
+  ])(
+    "fails codex's prototype swap to %s (r11) through the frame, as it does directly",
+    async (_name, code) => {
+      const got = await verdicts2(`proto-${_name === 'null' ? 'null' : 'object'}`, code);
+      expect(got.direct).toEqual([false, false, false, false]);
+      expect(got.framed).toEqual(got.direct);
+    },
+  );
+
   it("fails codex's own-map product through the frame, as it does directly", async () => {
     const got = await verdicts2('codex-map', 'target.map = Array.prototype.filter;');
     expect(got.direct).toEqual([false, false, false, false]);

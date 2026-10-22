@@ -110,5 +110,7 @@ export const MEAN_WRITES: Array<{ name: string; code: string; copy: boolean }> =
     copy: false,
   },
   { name: 'proto', code: 'Object.setPrototypeOf(target, Object.create(Array.prototype));', copy: false },
+  { name: 'protoObject', code: 'Object.setPrototypeOf(target, Object.prototype);', copy: false },
+  { name: 'protoNull', code: 'Object.setPrototypeOf(target, null);', copy: false },
   { name: 'preventExt', code: 'Object.preventExtensions(target);', copy: false },
 ];

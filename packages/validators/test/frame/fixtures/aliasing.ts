@@ -139,17 +139,30 @@ export const WRITES: Record<string, { name: string; copy: boolean }[]> = {
       name,
       copy: true,
     })),
-    ...['delete', 'ownMap', 'hidden', 'extra', 'symbol', 'accessor', 'proto', 'preventExt'].map((name) => ({
+    ...[
+      'delete',
+      'ownMap',
+      'hidden',
+      'extra',
+      'symbol',
+      'accessor',
+      'proto',
+      'protoObject',
+      'protoNull',
+      'preventExt',
+    ].map((name) => ({
       name,
       copy: false,
     })),
   ],
   plain: [
     ...['set', 'delete', 'add'].map((name) => ({ name, copy: true })),
-    ...['hidden', 'symbol', 'accessor', 'fnValue', 'proto', 'preventExt'].map((name) => ({
-      name,
-      copy: false,
-    })),
+    ...['hidden', 'symbol', 'accessor', 'fnValue', 'proto', 'protoObject', 'protoNull', 'preventExt'].map(
+      (name) => ({
+        name,
+        copy: false,
+      }),
+    ),
   ],
   map: [...['set', 'delete', 'clear'].map((name) => ({ name, copy: true })), { name: 'extra', copy: false }],
   set: [...['add', 'delete', 'clear'].map((name) => ({ name, copy: true })), { name: 'extra', copy: false }],
@@ -248,6 +261,8 @@ export const applyWrites = (input: WriteTarget, program: Write[]) => {
         else if (kind === 'symbol') o[Symbol('s')] = 1;
         else if (kind === 'accessor') Object.defineProperty(o, 'acc', { get: () => 1, configurable: true });
         else if (kind === 'proto') Object.setPrototypeOf(o, Object.create(Object.getPrototypeOf(o)));
+        else if (kind === 'protoObject') Object.setPrototypeOf(o, Object.prototype);
+        else if (kind === 'protoNull') Object.setPrototypeOf(o, null);
         else if (kind === 'preventExt') Object.preventExtensions(o);
         else throw new Error(`no write ${TARGETS[target]?.kind}:${kind}`);
     }
