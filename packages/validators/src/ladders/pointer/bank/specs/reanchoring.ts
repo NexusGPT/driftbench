@@ -1,3 +1,4 @@
+import { reanchoringCapabilitySpecs } from './reanchoring-capabilities';
 import { type FamilySpec, row } from './types';
 
 /**
@@ -441,5 +442,6 @@ export const reanchoring: FamilySpec = {
       'anchor:no-wrong-anchor-invariant',
       { causeKind: 'composite' },
     ),
+    ...reanchoringCapabilitySpecs,
   ],
 };
