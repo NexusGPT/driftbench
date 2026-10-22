@@ -941,7 +941,8 @@ const STEMS: {
       if (!got) throw new Error('the store of this shape has no constraint');
       const [seed] = got.seeds as [PlanSeedRow];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
       );
