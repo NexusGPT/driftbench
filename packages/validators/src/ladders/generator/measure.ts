@@ -753,7 +753,24 @@ export function answersOf(spec: Spec, index: number): string {
 
 /** The stage a block starts from: part of its Given, so a copy said from another stage is another test. */
 export function startStageOf(spec: Spec, index: number): string {
-  return (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ?? '';
+  return (
+    declaredStageBefore(spec, index) ??
+    (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ??
+    ''
+  );
+}
+
+/**
+ * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
+ * block that starts from a prefix declares. Undefined when nothing is said, so a spec without one reads as before.
+ */
+export function declaredStageBefore(spec: Spec, index: number): string | undefined {
+  for (let at = index; at >= 0; at -= 1) {
+    const block = spec.blocks[at];
+    if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
+    if (block?.given?.stage !== undefined) return block.given.stage;
+  }
+  return undefined;
 }
 
 /** The follower's run and plan of every complete spec, once per generation. */

@@ -18,6 +18,7 @@ import { createFollower } from './follower';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
 import {
   type BlockRun,
+  declaredStageBefore,
   followerAdapter,
   type Generation,
   type GeneratorParts,
@@ -1926,11 +1927,7 @@ function modeItems(): BankItem[] {
               if (!block.when || !('injection' in block.when) || block.when.injection.class !== cls) return;
               const previousProblems = problems.length;
               seen += 1;
-              const pending =
-                [...spec.blocks.slice(0, index)]
-                  .reverse()
-                  .find((earlier) => earlier.expect?.stage !== undefined)?.expect?.stage ??
-                generated.hidden.start;
+              const pending = declaredStageBefore(spec, index) ?? generated.hidden.start;
               const wanted =
                 recovery?.stageAfter === 'pending'
                   ? cls === 'D8_tool_failure'

@@ -92,6 +92,24 @@ export function checkSemantics(spec: Spec): Issue[] {
         ),
       );
     }
+    if (block.given?.stage !== undefined && block.given.prefix === undefined) {
+      issues.push(
+        error(
+          'GIVEN_STAGE_WITHOUT_PREFIX',
+          `blocks.${index}.given.stage`,
+          'stage says where a prefix leaves the agent, and this block writes no prefix: add given.prefix or remove stage',
+        ),
+      );
+    }
+    if (block.given?.stage !== undefined && ctx.stages && !ctx.stages.has(block.given.stage)) {
+      issues.push(
+        error(
+          'STAGE_UNKNOWN',
+          `blocks.${index}.given.stage`,
+          `stage "${block.given.stage}" is not in the spec's stages`,
+        ),
+      );
+    }
     if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
     if (block.expect)
       checkRetention(
