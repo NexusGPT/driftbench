@@ -25,7 +25,7 @@ const wrap = (kind: string, text: string): string => {
     case 'fence':
       return `\`\`\`text\n${text}\n\`\`\``;
     case 'comment':
-      return `<!-- ${text} -->`;
+      return `<!--\n${text}\n-->`;
     case 'frontmatter':
       return `---\ndescription: "${text}"\n---`;
     case 'inline-code':
@@ -54,8 +54,92 @@ export function leaksPrivateFragment(value: unknown, markers: readonly string[])
   return markers.some((marker) => [...marker].some((character) => decoded.includes(character)));
 }
 
+/** A placement the reader treats as opaque: only its kind and its first line may reach a request. */
+const opaque = new Set<string>(['fence', 'comment']);
+const PADDING = 'Fictional public padding.';
+/** The accepted label: the one label of the set the scan is given. */
+const SET_LABEL = 'x';
+
 /** Public effects are measured by harness-owned sinks, never returned counters. */
 export function privacyItems(): BankItem[] {
+  return [...placementItems(), noRequestItem()];
+}
+
+/** A file holding only an opaque block has nothing to label and sends no request; beside a labelable unit it sends one. */
+function noRequestItem(): BankItem {
+  return {
+    id: 'privacy.fence.no-request',
+    family: 'privacy',
+    tier: 3,
+    level: 4,
+    component: 'pointer.private-recording',
+    title: 'a file holding only a fence sends no request; a fence beside a unit sends only its kind and first line',
+    cause: 'privacy:no-window-no-request',
+    design: '5: windows; 8: opaque units show kind and first line',
+    generate(seed) {
+      const probes: Probe[] = [0, 1].map((arm) => {
+        const salt = 400 + arm;
+        const t = token(seed, salt);
+        const secret = privateMarker(seed, salt);
+        const key = privateMarker(seed, salt + 31);
+        const source = arm ? `${PADDING}\n\n${wrap('fence', secret)}` : wrap('fence', secret);
+        const answer = {
+          labels: [{ units: '1', label: SET_LABEL }],
+          model: `model-${t}`,
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 31, output_tokens: 6 },
+        };
+        const expected: Json = arm
+          ? { labels: answer.labels, leaked: false, networkCalls: 1, status: 'ok' }
+          : { labels: [], leaked: false, networkCalls: 0, status: 'no-request' };
+        return {
+          request: {
+            operation: 'privacy',
+            input: {
+              mode: 'record',
+              private: true,
+              file: `fictional-${t}.md`,
+              source,
+              request: { system: `Process ${secret}`, messages: [{ role: 'user', content: source }] },
+              cassettePresent: false,
+            },
+          },
+          setup: { key, answer, cached: null },
+          expected,
+          sample: arm ? { labels: answer.labels, status: 'ok' } : { labels: [], status: 'no-request' },
+          sampleEffects: arm
+            ? [
+                { kind: 'key' as const },
+                { kind: 'fetch' as const, value: { messages: [{ role: 'user', content: PADDING }] } },
+              ]
+            : [],
+          observe(actual, trace) {
+            if (!actual || typeof actual !== 'object') return null;
+            const r = actual as Record<string, Json>;
+            return {
+              labels: r.labels,
+              leaked: leaksPrivateFragment(
+                {
+                  actual,
+                  writes: trace.writes,
+                  logs: trace.logs,
+                  plans: trace.plans,
+                  requests: trace.requests,
+                },
+                [secret, key],
+              ),
+              networkCalls: trace.networkCalls,
+              status: r.status,
+            };
+          },
+        };
+      });
+      return { probes };
+    },
+  };
+}
+
+function placementItems(): BankItem[] {
   return placements.flatMap((placement, p) =>
     ['record', 'ci-hit', 'ci-miss'].map(
       (mode, m): BankItem => ({
@@ -73,10 +157,15 @@ export function privacyItems(): BankItem[] {
             const t = token(seed, salt);
             const secret = privateMarker(seed, salt);
             const key = privateMarker(seed, salt + 31);
-            const label = `class-${t}`;
-            const source = wrap(placement, secret) + (arm ? '\n\nFictional public padding.' : '');
+            // An opaque block sits in a window beside labelable units; the answer names those and no other.
+            const beside = opaque.has(placement);
+            const label = mode === 'record' || beside ? SET_LABEL : `class-${t}`;
+            const source = beside
+              ? `${[PADDING, ...(arm ? [`${PADDING} Second.`] : [])].join('\n\n')}\n\n${wrap(placement, secret)}`
+              : wrap(placement, secret) + (arm ? `\n\n${PADDING}` : '');
+            const units = beside ? (arm ? '1-2' : '1') : mode === 'record' && arm ? '1-2' : '1';
             const answer = {
-              labels: [{ units: '1', label }],
+              labels: [{ units, label }],
               model: `model-${t}`,
               stop_reason: 'end_turn',
               usage: { input_tokens: 31 + arm, output_tokens: 6 },
@@ -115,7 +204,7 @@ export function privacyItems(): BankItem[] {
                 ...(mode === 'record'
                   ? [
                       { kind: 'key' as const },
-                      { kind: 'fetch' as const },
+                      { kind: 'fetch' as const, value: { messages: [{ role: 'user', content: PADDING }] } },
                       {
                         kind: 'write' as const,
                         path: '.cache/cassette.jsonl',
@@ -132,7 +221,14 @@ export function privacyItems(): BankItem[] {
                   labels: r.labels,
                   // Include the entire result, including unexpected fields and object keys.
                   leaked: leaksPrivateFragment(
-                    { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
+                    {
+                      actual,
+                      writes: trace.writes,
+                      logs: trace.logs,
+                      plans: trace.plans,
+                      // Every request body, whatever their number: an opaque block shows its kind and first line only.
+                      ...(beside ? { requests: trace.requests } : {}),
+                    },
                     [secret, key],
                   ),
                   networkCalls: trace.networkCalls,
