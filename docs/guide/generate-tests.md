@@ -255,7 +255,7 @@ task             67      71        67           0
 cover            11      48        11           0
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 708 files to generated.
+Wrote 704 files to generated.
 ```
 
 **How to read it.**

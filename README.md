@@ -204,7 +204,7 @@ metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 708 files to generated.
+Wrote 704 files to generated.
 ```
 
 Each **seeder** is a method that writes one family of tests, and the table has one row per seeder. `--t 2` sets how strong the `twise` family is: every pair of values is covered at least once. The coverage line says every allowed pair of values is covered. Exit 1 means some map entries have no approved phrase yet; their tests wait in `generated/incomplete/`. [Full description](docs/generating.md).
