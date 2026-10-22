@@ -404,11 +404,11 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 ```text
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 1251 specs, 1254 blocks.
-Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
-  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
+Mode F, free-running: 17 of 1254 blocks in the radius (17 direct, 0 forward), 1237 out. 17 of 1251 cells.
+  A cell reruns whole: 17 of 1254 blocks sent, 98.6% saved; 1234 of 1251 cells left to carry.
 ```
 
-Of 1254 blocks, 16 can be reached by that sentence. The other 1238 are not run, which saves 98.7%. The 1251 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1427 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1251 files hold 1254 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1254 blocks, 17 can be reached by that sentence. The other 1237 are not run, which saves 98.6%. The 1251 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1427 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1251 files hold 1254 blocks in all. The 17 files in the radius hold one block each, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:

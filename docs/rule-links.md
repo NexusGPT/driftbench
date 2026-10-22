@@ -155,8 +155,8 @@ driftbench radius generated/specs/live --change change.yaml
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 1251 specs, 1254 blocks.
-Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
-  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
+Mode F, free-running: 17 of 1254 blocks in the radius (17 direct, 0 forward), 1237 out. 17 of 1251 cells.
+  A cell reruns whole: 17 of 1254 blocks sent, 98.6% saved; 1234 of 1251 cells left to carry.
 ```
 
 <p align="center">
@@ -166,7 +166,7 @@ Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 12
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,238 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Seventeen blocks rerun and 1,237 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 `estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
 
