@@ -28,6 +28,7 @@ import {
 } from './deviation';
 import type { Edge, StageGraph } from './graph';
 import { behaviourSubject, dimensionId, type PreparedMap, phraseKey, valueId } from './map';
+import type { TerminalSubsumption } from './minimal';
 import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
 import { slotsOf } from './relations';
 import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
@@ -43,6 +44,8 @@ export type SeedContext = {
   pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
   dimensionIndex?: ReadonlyMap<string, number>;
   allocation?: Allocation;
+  /** Drops the terminal repeats of a walk before anything counts it. */
+  minimal?: TerminalSubsumption;
   /** Consume each completed draft immediately instead of retaining the seeder output. */
   emit?: (draft: SpecDraft) => void;
   /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */

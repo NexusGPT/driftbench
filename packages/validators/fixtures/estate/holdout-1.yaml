@@ -1110,6 +1110,9 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+          fields:
+            order:
+              key: file_path
           line: 14
         - kind: gate
           title: Before editing any menu file read its rules
@@ -1198,6 +1201,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/matching-rules.md
           line: 10
         - kind: instruction
           title: Run the match-lines.py script and show its summary
@@ -1238,6 +1246,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/menu-format.md
           line: 16
         - kind: gate
           title: Read the kitchen hours before you swap two dishes
@@ -1246,6 +1259,11 @@ recording:
             - type: ordered
               before: Read
               after: swap two dishes
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/kitchen-hours.md
           line: 17
         - kind: instruction
           title: Run the check-menu.py script and show its summary
@@ -1286,6 +1304,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/closing-rules.md
           line: 10
         - kind: instruction
           title: Run the list-parts.py script and show its summary
@@ -1337,6 +1360,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/count-rules.md
           line: 10
         - kind: instruction
           title: Run the sum-counts.py script and show its summary
