@@ -1,10 +1,7 @@
-import { appendFileSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import {
+  checkVariableQuotes,
   type PlanSeedRow,
   planV2,
-  type SpanLabel,
   variablesFromSources,
 } from '@agent-nexus/driftbench-generate';
 import {
@@ -33,10 +30,9 @@ import type {
  * planner to the neutral interface of the bank (interface.ts), as docs/variables.md "Adapter projection" says.
  *
  * - `validate` is `validateVariableStore` of @agent-nexus/driftbench-space.
- * - `quotes` is `verifyVariableQuotes` of @agent-nexus/driftbench-generate. The product reads the files from a
- *   folder and is asynchronous, and the bank's port is synchronous: one worker thread per run, started on the first
- *   call, writes the files the bank gives into a fresh folder and runs the product function on it, unchanged; the
- *   call waits on a shared flag for its answer, so one request is in flight at a time.
+ * - `quotes` is `checkVariableQuotes` of @agent-nexus/driftbench-generate: the quote check on the text of the files,
+ *   which `verifyVariableQuotes` runs after it has read a folder. The bank gives the files as text, so the product
+ *   runs with no file access, in the confined processes of the frame.
  * - `plan` is `planV2`: the StoreDoc projection is written as a store file, so the planner reads its rules as it
  *   reads any store's, from the passages its values quote.
  * - `weightInterval` is `wilson` of @agent-nexus/driftbench-stats, the two-sided 95 percent Wilson score interval
@@ -45,7 +41,8 @@ import type {
  *   the projection is written as.
  * - `buildStore` is `variablesFromSources` of @agent-nexus/driftbench-generate: tool evidence, the values of past
  *   conversations and what the owner says. It reads structure only, so an item that needs a condition span read
- *   from English fails until a reader labels the span.
+ *   from English fails until a reader labels the span. The labels a reader recorded are put on the spans by the
+ *   validator before the call (labels.ts); this module reads no file, no variable of the environment and no clock.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -65,93 +62,14 @@ function validate(value: unknown): ValidateResult {
     : { ok: false, errors: issuesOf(result.errors) };
 }
 
-/**
- * The worker of `quotes`, started once per run: it imports the product, then for each `{store, files}` it writes
- * the files into a fresh folder, runs the product function on it, unchanged, and answers the issues on its port.
- */
-const QUOTES_WORKER = `
-import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { workerData } from 'node:worker_threads';
-const { port, signal, generate } = workerData;
-const flag = new Int32Array(signal);
-const answer = (message) => {
-  port.postMessage(message);
-  Atomics.store(flag, 0, 1);
-  Atomics.notify(flag, 0);
-};
-let product;
-try {
-  product = await import(generate);
-} catch (error) {
-  product = { failed: String(error && error.stack ? error.stack : error) };
-}
-port.on('message', async ({ store, files }) => {
-  if (product.failed) return answer({ error: product.failed });
-  const folder = mkdtempSync(join(tmpdir(), 'driftbench-variables-quotes-'));
-  try {
-    for (const [path, text] of Object.entries(files)) {
-      const target = join(folder, path);
-      if (!target.startsWith(folder)) continue;
-      mkdirSync(dirname(target), { recursive: true });
-      writeFileSync(target, text);
-    }
-    const issues = await product.verifyVariableQuotes(store, folder);
-    answer({ errors: issues.map((issue) => ({ code: issue.code, path: issue.path })) });
-  } catch (error) {
-    answer({ error: String(error && error.stack ? error.stack : error) });
-  } finally {
-    rmSync(folder, { recursive: true, force: true });
-  }
-});
-`;
-
-const GENERATE_ENTRY = fileURLToPath(new URL('../../../../generate/src/index.ts', import.meta.url));
-
-/** How long one quote check may take before the worker is given up: the heavy item budget of the bank. */
-const QUOTES_TIMEOUT_MS = 300_000;
-
-/** The one worker of this run, started on the first call; `unref` so it never holds the process open. */
-let quotesWorker: { worker: Worker; port: MessagePort; flag: Int32Array } | undefined;
-
-function quotesWorkerOf(): NonNullable<typeof quotesWorker> {
-  if (quotesWorker) return quotesWorker;
-  const { port1, port2 } = new MessageChannel();
-  const signal = new SharedArrayBuffer(4);
-  const worker = new Worker(QUOTES_WORKER, {
-    eval: true,
-    execArgv: ['--import', 'tsx'],
-    workerData: { port: port2, signal, generate: GENERATE_ENTRY },
-    transferList: [port2],
-    stderr: false,
-  });
-  worker.unref();
-  port1.unref();
-  quotesWorker = { worker, port: port1, flag: new Int32Array(signal) };
-  return quotesWorker;
-}
-
 function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
-  const { worker, port, flag } = quotesWorkerOf();
-  // One request in flight: the call blocks until the worker answers, so no second one can start.
-  Atomics.store(flag, 0, 0);
   // The loader gives an absent list of constraints as an empty one (docs/variables.md: absent means every
   // combination can occur); the quote check takes the store after that default.
-  port.postMessage({ store: { ...store, constraints: store.constraints ?? [] }, files });
-  const waited = Atomics.wait(flag, 0, 0, QUOTES_TIMEOUT_MS);
-  const reply = receiveMessageOnPort(port)?.message as
-    | { errors: QuotesResult['errors'] }
-    | { error: string }
-    | undefined;
-  if (waited === 'timed-out' || reply === undefined) {
-    quotesWorker = undefined;
-    void worker.terminate();
-    throw new Error(`the quote check failed: no answer within ${QUOTES_TIMEOUT_MS / 1000} s`);
-  }
-  if ('error' in reply)
-    throw new Error(`the quote check failed: ${reply.error.split('\n').slice(0, 3).join(' ')}`);
-  return { errors: reply.errors };
+  const issues = checkVariableQuotes(
+    { ...store, constraints: store.constraints ?? [] } as unknown as VariableStore,
+    files,
+  );
+  return { errors: issues.map((issue) => ({ code: issue.code, path: issue.path })) };
 }
 
 /** The projection's provenance as a store file holds it, without its quotes: the rules are quoted apart. */
@@ -269,62 +187,9 @@ function coverage(
   );
 }
 
-let cassette: Map<string, SpanLabel> | undefined;
-
-/** A span with each run of white space folded to one space: the key of its label, so one clause has one label. */
-const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
-
-/**
- * The labels a reader wrote for condition spans, by span text with its white space folded: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
- * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
- * variable. This code reads the file and calls no model.
- */
-function labels(): Map<string, SpanLabel> {
-  if (cassette) return cassette;
-  const map = new Map<string, SpanLabel>();
-  const file = process.env.DRIFTBENCH_VARIABLES_CASSETTE;
-  if (file) {
-    for (const line of readFileSync(file, 'utf8').split('\n')) {
-      if (line.trim() === '') continue;
-      const row = JSON.parse(line) as { text: string; label: SpanLabel };
-      map.set(foldSpan(row.text), row.label);
-    }
-  }
-  cassette = map;
-  return map;
-}
-
-/**
- * Collect mode: `DRIFTBENCH_VARIABLES_SPANS_OUT` names a file, and every condition span a run reads is appended to it
- * as one JSON line. The span collector job sets it; a labeller turns the spans into the cassette `labels` replays.
- */
-function recordSpans(sources: Sources): void {
-  const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
-  if (!out) return;
-  for (const rule of sources.estate?.rules ?? []) {
-    for (const condition of rule.conditions)
-      appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);
-  }
-}
-
 function buildStore(sources: Sources): StoreDoc {
-  recordSpans(sources);
-  const known = labels();
-  const estate =
-    sources.estate === undefined
-      ? undefined
-      : {
-          ...sources.estate,
-          rules: sources.estate.rules.map((rule) => ({
-            ...rule,
-            conditions: rule.conditions.map((condition) => {
-              const label = known.get(foldSpan(condition.text));
-              return label === undefined ? condition : { ...condition, label };
-            }),
-          })),
-        };
   const built = variablesFromSources({
-    ...(estate === undefined ? {} : { estate }),
+    ...(sources.estate === undefined ? {} : { estate: sources.estate }),
     ...(sources.conversations === undefined ? {} : { conversations: sources.conversations }),
     ...(sources.owner === undefined ? {} : { owner: sources.owner }),
   });
@@ -352,6 +217,9 @@ function buildStore(sources: Sources): StoreDoc {
               ...(boundary.limit === undefined ? {} : { limit: boundary.limit }),
               ...(boundary.comparison === undefined ? {} : { comparison: boundary.comparison }),
               ...(boundary.unit === undefined ? {} : { unit: boundary.unit }),
+              ...(boundary.provenance === undefined
+                ? {}
+                : { provenance: boundary.provenance as Provenance[] }),
             })),
           }),
     })),
@@ -379,3 +247,6 @@ export const variablesImpl: Partial<VariablesImpl> = {
   weightInterval,
   coverage,
 };
+
+// The functions by name too: the frame calls a product module by its exports (impl.ts says how a module is read).
+export { buildStore, coverage, plan, quotes, validate, weightInterval };

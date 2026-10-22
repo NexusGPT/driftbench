@@ -115,6 +115,10 @@ export function formatProblems(store: StoreDoc): string[] {
         add(`the boundary of ${v.id} has a limit and a comparison only one of which is set`);
       if (b.unit !== undefined && b.limit === undefined)
         add(`the boundary of ${v.id} has a unit and no limit`);
+      for (const p of b.provenance ?? []) {
+        const problem = provenanceProblem(p);
+        if (problem) add(`the boundary of ${v.id}: ${problem}`);
+      }
       if (b.comparison === 'gt' || b.comparison === 'lt') {
         if (b.edge === b.holds)
           add(

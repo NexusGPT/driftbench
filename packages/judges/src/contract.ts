@@ -190,6 +190,8 @@ export type JudgeResult = {
   readonly unparsed?: boolean;
   /** What the call cost in US dollars, when the provider reports it (the claude command does). */
   readonly costUsd?: number;
+  /** The tokens the call used, when the provider reports them. A figure the provider leaves out is left out. */
+  readonly usage?: { readonly input?: number; readonly output?: number };
   /** True when the answer parsed only after the strict repair of unescaped quotes in its string values. */
   readonly repaired?: boolean;
 };

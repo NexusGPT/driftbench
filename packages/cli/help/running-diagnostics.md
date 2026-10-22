@@ -24,7 +24,7 @@ Each step has a cost class: `static` reads the record only, `run` runs the agent
 
 A block runs the diagnostics `uses.diagnostics` names. Without that key, it runs every shipped diagnostic marked `default: true`. `uses.diagnostics: []` runs none.
 
-In this release no command registers a diagnostic step. The CLI therefore refuses a diagnostic file whose steps no code registered. A program registers its steps with `registerDiagnosticStep`, then runs specs with `runSpec`.
+The shipped diagnostics, such as `code-agent-liability`, run in the CLI because the checks package registers their steps. No command registers a step of your own, so the CLI refuses a diagnostic file whose steps no code registered. A program registers its steps with `registerDiagnosticStep`, then runs specs with `runSpec`.
 
 ## When to use it
 
@@ -129,7 +129,7 @@ blocks:
     expect: { must: ['a phrase the agent never says'] }
 ```
 
-The CLI registers no diagnostic step, so it refuses the diagnostic:
+The CLI registers no step called `explain`, so it refuses the diagnostic:
 
 ```sh
 driftbench spec validate specs/diagnosed.yaml # exit 1

@@ -1,4 +1,4 @@
-import type { ItemContext } from '../../bank/item';
+import { type ItemContext, sameObjects } from '../../bank/item';
 import { clone, deepFreeze } from '../../bank/util';
 import type { Plan, Row, StoreDoc } from '../../interface';
 import {
@@ -624,21 +624,23 @@ export const SEEDS_STEMS: readonly Stem[] = [
       [
         'a-reused-store-edited-in-place-is-read-again',
         5,
-        (ctx) => {
-          const { store, ids } = axes(ctx, 3, 2);
-          const before = callPlan(ctx, store, { seed: ctx.seed });
-          must(
-            !before.rows.some((r) => r.values[ids[0] as string] === 'extra_value'),
-            () => 'the value was in the store before it was added',
-          );
-          (store.variables[0] as StoreDoc['variables'][number]).values.push({ id: 'extra_value' });
-          const second = callPlan(ctx, store, { seed: ctx.seed });
-          must(
-            second.rows.some((r) => r.values[ids[0] as string] === 'extra_value'),
-            () =>
-              'the same store object, edited in place, gave a plan without the new value: an object cache returned a stale plan',
-          );
-        },
+        (ctx) =>
+          // The same store object, edited in place, reaches the product as the same object (frame.sameObjects).
+          sameObjects(ctx, () => {
+            const { store, ids } = axes(ctx, 3, 2);
+            const before = callPlan(ctx, store, { seed: ctx.seed });
+            must(
+              !before.rows.some((r) => r.values[ids[0] as string] === 'extra_value'),
+              () => 'the value was in the store before it was added',
+            );
+            (store.variables[0] as StoreDoc['variables'][number]).values.push({ id: 'extra_value' });
+            const second = callPlan(ctx, store, { seed: ctx.seed });
+            must(
+              second.rows.some((r) => r.values[ids[0] as string] === 'extra_value'),
+              () =>
+                'the same store object, edited in place, gave a plan without the new value: an object cache returned a stale plan',
+            );
+          }),
       ],
     ],
   },

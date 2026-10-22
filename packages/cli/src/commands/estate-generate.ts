@@ -2,6 +2,7 @@ import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadEstateMap, Plan, readerFor } from '@agent-nexus/driftbench-estate';
 import {
+  defaultStateLibrary,
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
   ESTATE_ORDER_FILE,
@@ -14,7 +15,9 @@ import {
   readEstateYaml,
   renderEstateSummary,
   SessionIndex,
+  STATE_LIBRARY_FILE,
   STATIC_DIR,
+  stateIdsOf,
   UNIT_DIR,
   type YamlSchema,
 } from '@agent-nexus/driftbench-generate';
@@ -39,6 +42,8 @@ export type EstateGenerateOptions = {
   /** False with --no-judge: a domain predicate no code checks stays a gap. */
   judge?: boolean;
   focus?: string;
+  /** The state library of the run (`estate run --states`); else the one this command writes. */
+  states?: string;
   /** Section registries of prompts of the estate, `--sections`. */
   sections?: string[];
 };
@@ -46,6 +51,8 @@ export type EstateGenerateOptions = {
 /** The phrase bank and the session index the command looks for beside the map when none is named. */
 export const DEFAULT_PHRASES = 'phrases.yaml';
 export const DEFAULT_SESSIONS = join('sessions', 'index.yaml');
+/** The state library the command looks for beside the map when none is named. */
+export const DEFAULT_STATES = join('live', 'states', 'library.json');
 
 /**
  * Adds `estate generate` to `driftbench estate`: the approved plan rows of an estate become task specs, by
@@ -76,6 +83,10 @@ export function registerEstateGenerateCommand(
     .option(
       '--focus <file>',
       `atom ids, one per line, whose complete specs come first in ${ESTATE_ORDER_FILE} (then guards, gates, invariants)`,
+    )
+    .option(
+      '--states <file>',
+      `the state library the runs will use (estate run --states): a row is planned only for the session states and events it holds; default ${DEFAULT_STATES} beside the map, when present, else the library this command writes to ${STATE_LIBRARY_FILE}`,
     )
     .option('--sections <registry>', SECTIONS_OPTION, (value: string, previous: string[] = []) => [
       ...previous,
@@ -195,6 +206,25 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       : undefined;
   if ((options.sections ?? []).length > 0 && !sections) return 2;
 
+  // The state library the runs use: the one named, or the one this command writes beside the specs. A row whose
+  // cell needs a session state or an event the library lacks waits, named, never as a spec that stops at its turn.
+  let stateIds: ReturnType<typeof stateIdsOf>;
+  let statesPath: string | undefined;
+  if (options.states !== undefined) statesPath = resolve(io.cwd, options.states);
+  else {
+    const beside = join(dirname(mapPath), DEFAULT_STATES);
+    if (await exists(beside)) statesPath = beside;
+  }
+  const written = statesPath === undefined ? defaultStateLibrary() : undefined;
+  if (statesPath !== undefined) {
+    stateIds = stateIdsOf(await readFile(statesPath, 'utf8').catch(() => ''));
+    if (!stateIds) {
+      io.err(
+        `✗ ${display(statesPath, io)}  the state library cannot be read: one JSON object with states and events\n`,
+      );
+      return 2;
+    }
+  } else stateIds = written?.ids;
   const reportPath = join(outPath, ESTATE_REPORT_FILE);
   let result: EstateGenerateResult;
   try {
@@ -207,6 +237,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
         ...(files ? { files } : {}),
         ...(focus ? { focus } : {}),
         ...(sections ? { sections } : {}),
+        ...(stateIds ? { stateIds } : {}),
         paths: {
           map: portable(relative(outPath, mapPath)),
           plan: portable(relative(outPath, planPath)),
@@ -239,17 +270,36 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       ESTATE_ORDER_FILE,
       STATIC_DIR,
       UNIT_DIR,
+      'states',
     ]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }
   }
-  for (const file of result.files) {
+  for (const file of [...result.files, ...(written?.files ?? [])]) {
     const target = join(outPath, file.path);
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, file.text);
   }
 
   const report = result.report;
+  // Rows that wait for a session state or an event the library lacks: counted and named, so nobody misses them.
+  const waitingForStates = report.incomplete.filter((entry) =>
+    entry.reasons.some((reason) => reason.marker === 'needs-state-operation'),
+  );
+  if (waitingForStates.length > 0) {
+    const values = [
+      ...new Set(
+        waitingForStates.flatMap((entry) =>
+          entry.reasons
+            .filter((reason) => reason.marker === 'needs-state-operation')
+            .map((reason) => reason.detail),
+        ),
+      ),
+    ].sort();
+    io.err(
+      `${new Set(waitingForStates.map((entry) => entry.row)).size} rows need states not in the library: ${values.join(', ')}. Pass --states <library> that holds them, or add them to ${STATE_LIBRARY_FILE}.\n`,
+    );
+  }
   if (options.json) io.out(formatJson(report));
   else
     io.out(`${renderEstateSummary(report)}Wrote ${result.files.length} files to ${display(outPath, io)}.\n`);

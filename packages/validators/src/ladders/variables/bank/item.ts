@@ -1,3 +1,4 @@
+import type { Ambient } from '../../../frame';
 import type {
   CoverageResult,
   FileStore,
@@ -31,6 +32,16 @@ export type ItemContext = {
   root: string;
   /** The item's own stream of draws. */
   rng: Rng;
+  /**
+   * What an item may ask of the process that runs the product when it runs apart from the bank (the frame, docs/validators.md
+   * section 12.9); absent when the product runs in this process. `ambient` runs the calls it makes under the given clock or
+   * random sources.
+   */
+  watch?: {
+    ambient<R>(specs: readonly Ambient[], run: () => R): R;
+    /** Runs `run` with an object passed twice reaching the product as the same object, edits in place included. */
+    sameObjects<R>(run: () => R): R;
+  };
   /** The item id. */
   id: string;
 };
@@ -48,6 +59,11 @@ export type BankItem = {
   level: Level;
   component: string;
   cause: string;
+  /**
+   * The item declares a purity check: its calls are strict (the frame, docs/validators.md section 12.9), the arguments
+   * reach the product frozen at every depth and a write to one fails the item.
+   */
+  purity?: boolean;
   /** How long the validator lets the item run before it stops it. */
   budgetMs?: number;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;
@@ -55,6 +71,15 @@ export type BankItem = {
 
 export const ok = (detail = 'ok'): ItemOutcome => ({ pass: true, detail });
 export const fail = (detail: string): ItemOutcome => ({ pass: false, detail });
+
+/**
+ * Runs `run` so that an object the item passes to the product twice is the same object to the product, edited in place
+ * as the item edits it. The items that ask whether an edit in place is read again need it; in the validator's own
+ * process (no watch) every call already works that way.
+ */
+export function sameObjects<R>(ctx: ItemContext, run: () => R): R {
+  return ctx.watch ? ctx.watch.sameObjects(run) : run();
+}
 
 /** The outcome of a stem run: a Fail is a failed item with its message; any other error says what was thrown. */
 export async function outcomeOf(run: () => ReturnType<StemRun>): Promise<ItemOutcome> {

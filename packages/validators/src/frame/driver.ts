@@ -110,6 +110,95 @@ function «decode»(«x») {
   if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
+// Identity of the arguments (docs/validators.md section 12.9, "Objects the caller passes twice"): the parent names an
+// object it passes again by an id, and the run keeps the objects it first built, filled again in place with what the
+// parent sends now, nested objects too, so a product that keeps a cache keyed by an object it was given sees the
+// same keys and the edits made in place. Only calls made inside sameObjects() are pinned: every other argument is frozen.
+const «retained» = new Map();
+const «setOwn» = («target», «key», «value») => Object.defineProperty(«target», «key», { value: «value», writable: true, enumerable: true, configurable: true });
+function «fill»(«held», «fresh») {
+  if (Array.isArray(«held»)) {
+    for (let «i» = 0; «i» < «fresh».length; «i» += 1) {
+      const «was» = «held»[«i»];
+      const «now» = «fresh»[«i»];
+      if («was» !== null && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && Array.isArray(«was») === Array.isArray(«now»)) «fill»(«was», «now»);
+      else «setOwn»(«held», «i», «now»);
+    }
+    «held».length = «fresh».length;
+    return;
+  }
+  for (const «key» of Object.keys(«held»)) if (!Object.prototype.hasOwnProperty.call(«fresh», «key»)) delete «held»[«key»];
+  for (const «key» of Object.keys(«fresh»)) {
+    const «was» = Object.prototype.hasOwnProperty.call(«held», «key») ? «held»[«key»] : undefined;
+    const «now» = «fresh»[«key»];
+    if («was» !== null && «was» !== undefined && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && Array.isArray(«was») === Array.isArray(«now»)) «fill»(«was», «now»);
+    else «setOwn»(«held», «key», «now»);
+  }
+}
+function «pin»(«args», «ids», «forget») {
+  if («forget») «retained».clear();
+  for (let «i» = 0; «i» < «args».length; «i» += 1) {
+    const «arg» = «args»[«i»];
+    if («arg» === null || typeof «arg» !== 'object') continue;
+    const «id» = «ids»[«i»];
+    if («id» === null || «id» === undefined) continue;
+    const «held» = «retained».get(«id»);
+    if («held» === undefined || Array.isArray(«held») !== Array.isArray(«arg») || Object.isFrozen(«held»)) { «retained».set(«id», «arg»); continue; }
+    «fill»(«held», «arg»);
+    «args»[«i»] = «held»;
+  }
+  return «args»;
+}
+// The ambient state a call may be run under (the clock, the random sources): applied around one call, then undone.
+function «patchIn»(«specs») {
+  const «undo» = [];
+  if («specs») {
+    for (let «i» = 0; «i» < «specs».length; «i» += 1) {
+      const «spec» = «specs»[«i»];
+      if («spec».kind === 'random') {
+        const «saved» = Math.random;
+        Math.random = () => { throw new Error('Math.random was called while planning: draw only from the seed'); };
+        «undo»[«undo».length] = () => { Math.random = «saved»; };
+      } else if («spec».kind === 'clock') {
+        const «Real» = Date;
+        const «at» = «spec».at;
+        class «Frozen» extends «Real» {
+          constructor(...«rest») { super(...(«rest».length ? «rest» : [«at»])); }
+          static now() { return «at»; }
+        }
+        globalThis.Date = «Frozen»;
+        «undo»[«undo».length] = () => { globalThis.Date = «Real»; };
+      } else if («spec».kind === 'crypto') {
+        const «c» = globalThis.crypto;
+        const «savedValues» = «c».getRandomValues;
+        const «savedUuid» = «c».randomUUID;
+        const «boom» = () => { throw new Error('crypto random was called while planning: draw only from the seed'); };
+        Object.defineProperty(«c», 'getRandomValues', { value: «boom», configurable: true, writable: true });
+        Object.defineProperty(«c», 'randomUUID', { value: «boom», configurable: true, writable: true });
+        «undo»[«undo».length] = () => {
+          Object.defineProperty(«c», 'getRandomValues', { value: «savedValues», configurable: true, writable: true });
+          Object.defineProperty(«c», 'randomUUID', { value: «savedUuid», configurable: true, writable: true });
+        };
+      }
+    }
+  }
+  return () => { for (let «i» = «undo».length - 1; «i» >= 0; «i» -= 1) «undo»[«i»](); };
+}
+// A call made under ambient state: sync results are undone at once, a promise when it settles.
+function «under»(«specs», «run») {
+  const «undo» = «patchIn»(«specs»);
+  let «out»;
+  try {
+    «out» = «run»();
+  } catch («error») {
+    «undo»();
+    throw «error»;
+  }
+  if («out» !== null && typeof «out» === 'object' && typeof «out».then === 'function')
+    return «out».then((«value») => { «undo»(); return «value»; }, («error») => { «undo»(); throw «error»; });
+  «undo»();
+  return «out»;
+}
 `;
 
 const TWIN = String.raw`
@@ -445,6 +534,90 @@ const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
   return «parts».data + «parts».other;
 };
+// Shared objects (docs/validators.md section 12.9, "Objects the caller passes twice"): the objects a value reaches,
+// walked with the references captured above, so a product that patches the iteration methods cannot blind it.
+const «collect» = («root», «into») => {
+  const «stack» = [«root»];
+  let «top» = 1;
+  while («top» > 0) {
+    «top» -= 1;
+    const «value» = «stack»[«top»];
+    if («value» === null || (typeof «value» !== 'object' && typeof «value» !== 'function')) continue;
+    if («isProxy»(«value»)) continue;
+    if («call»(«seenHas», «into», [«value»])) continue;
+    «call»(«seenAdd», «into», [«value»]);
+    let «entries»;
+    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
+    if («entries» !== undefined) {
+      for (;;) {
+        const «step» = «call»(«mapNext», «entries», []);
+        if («step».done) break;
+        «stack»[«top»] = «step».value[0]; «top» += 1;
+        «stack»[«top»] = «step».value[1]; «top» += 1;
+      }
+      continue;
+    }
+    let «values»;
+    try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
+    if («values» !== undefined) {
+      for (;;) {
+        const «step» = «call»(«setNext», «values», []);
+        if («step».done) break;
+        «stack»[«top»] = «step».value; «top» += 1;
+      }
+      continue;
+    }
+    const «keys» = «ownKeys»(«value»);
+    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+      const «desc» = «describe»(«value», «keys»[«i»]);
+      if («desc» !== undefined && 'value' in «desc») { «stack»[«top»] = «desc».value; «top» += 1; }
+    }
+  }
+};
+// The first object a value reaches that is in the first set ('input') or in the second ('earlier'), or undefined.
+const «meets» = («root», «first», «second») => {
+  const «seen» = new «SeenSet»();
+  const «stack» = [«root»];
+  let «top» = 1;
+  while («top» > 0) {
+    «top» -= 1;
+    const «value» = «stack»[«top»];
+    if («value» === null || (typeof «value» !== 'object' && typeof «value» !== 'function')) continue;
+    if («isProxy»(«value»)) continue;
+    if («call»(«seenHas», «seen», [«value»])) continue;
+    «call»(«seenAdd», «seen», [«value»]);
+    if («call»(«seenHas», «first», [«value»])) return 'input';
+    if («call»(«seenHas», «second», [«value»])) return 'earlier';
+    let «entries»;
+    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
+    if («entries» !== undefined) {
+      for (;;) {
+        const «step» = «call»(«mapNext», «entries», []);
+        if («step».done) break;
+        «stack»[«top»] = «step».value[0]; «top» += 1;
+        «stack»[«top»] = «step».value[1]; «top» += 1;
+      }
+      continue;
+    }
+    let «values»;
+    try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
+    if («values» !== undefined) {
+      for (;;) {
+        const «step» = «call»(«setNext», «values», []);
+        if («step».done) break;
+        «stack»[«top»] = «step».value; «top» += 1;
+      }
+      continue;
+    }
+    const «keys» = «ownKeys»(«value»);
+    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+      const «desc» = «describe»(«value», «keys»[«i»]);
+      if («desc» !== undefined && 'value' in «desc») { «stack»[«top»] = «desc».value; «top» += 1; }
+    }
+  }
+  return undefined;
+};
+let «earlier» = new «SeenSet»();
 const «recent» = new Array(16);
 let «stored» = 0;
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
@@ -583,6 +756,13 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
+    // A product module may hold its functions in an export of that name (the option members), as an object.
+    if («setup».members) {
+      for (let «i» = 0; «i» < «setup».members.length; «i» += 1) {
+        const «held» = «product»[«setup».members[«i»]];
+        if («held» !== null && typeof «held» === 'object') { «product» = «held»; break; }
+      }
+    }
     «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
@@ -613,18 +793,39 @@ if («setup».command) {
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
-      // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set).
+      // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set). A call made inside
+      // sameObjects() keeps the identity of the objects it passes again: they are not frozen, and the same digest finds a
+      // write to them.
       const «strict» = «request».freeze === true;
+      const «pinned» = Boolean(«request».ids);
       const «decoded» = «decode»(«request».args);
-      const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
+      const «args» = «pinned» ? «pin»(«decoded», «request».ids, «request».forget) : «strict» ? «deepFreeze»(«decoded») : «decoded»;
       «argsRef» = «args»;
-      if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
+      if («request».forget) «earlier» = new «SeenSet»();
+      if («strict» || «pinned» || «setup».writeBack) «argsBefore» = «scan»(«args»);
+      // Sharing guard (docs/validators.md section 12.9, "Objects the caller passes twice"): a call under 'sharing' must
+      // return nothing that is, or holds, an object of its arguments or of an earlier guarded result. Only the finding
+      // crosses to the validator.
+      let «watchSharing» = false;
+      if («request».guard) {
+        for (let «i» = 0; «i» < «request».guard.length; «i» += 1) {
+          // 'sharing' may be limited to some functions by name.
+          if («request».guard[«i»] === 'sharing' && (!«request».guardNames || «request».guardNames.includes(«request».call))) «watchSharing» = true;
+        }
+      }
+      const «argObjects» = new «SeenSet»();
+      if («watchSharing») for (let «i» = 0; «i» < «args».length; «i» += 1) «collect»(«args»[«i»], «argObjects»);
       const «before» = «cpuNow»();
-      const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
+      const «result» = await «deeper»(«setup».depth, () => «under»(«request».ambient, () => «fn»(...«args»)));
       const «used» = «cpuNow»(«before»);
+      let «shared»;
+      if («watchSharing» && «result» !== null && typeof «result» === 'object') {
+        «shared» = «meets»(«result», «argObjects», «earlier»);
+        «collect»(«result», «earlier»);
+      }
       const «ret» = «encode»(«result»);
       const «after» = «afterState»();
-      const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
+      const «written» = («strict» || «pinned») && «argsBefore» !== undefined && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -647,7 +848,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}), ...«after», ...«altered»() });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
@@ -676,12 +877,14 @@ export function wrapperModule(
   seed: number,
   tag: string,
   product: string,
+  members: readonly string[] = [],
 ): { source: string; invoke: string } {
   const name = namer(seed, `wrapper:${tag}`);
   const source = [
     `import * as ${name('product')} from ${JSON.stringify(product)};`,
+    `const ${name('holder')} = ${JSON.stringify(members)}.map((${name('key')}) => ${name('product')}[${name('key')}]).find((${name('each')}) => ${name('each')} !== null && typeof ${name('each')} === 'object') ?? ${name('product')};`,
     `export const ${name('invoke')} = async (${name('call')}, ${name('args')}) => {`,
-    `  const ${name('fn')} = ${name('product')}[${name('call')}];`,
+    `  const ${name('fn')} = ${name('holder')}[${name('call')}];`,
     `  if (typeof ${name('fn')} !== 'function') throw new TypeError('the product has no function ' + ${name('call')});`,
     `  return [${name('args')}].map((${name('list')}) => Function.prototype.apply.call(${name('fn')}, undefined, ${name('list')}))[0];`,
     `};`,
@@ -694,15 +897,25 @@ export function wrapperModule(
 export function plainCodec(
   seed: number,
   tag: string,
-): { source: string; encode: string; decode: string; handles: string; deepFreeze: string } {
+): {
+  source: string;
+  encode: string;
+  decode: string;
+  handles: string;
+  deepFreeze: string;
+  pin: string;
+  under: string;
+} {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')} };\n`;
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('pin')}, ${name('under')} };\n`;
   return {
     source,
     encode: name('encode'),
     decode: name('decode'),
     handles: name('handles'),
     deepFreeze: name('deepFreeze'),
+    pin: name('pin'),
+    under: name('under'),
   };
 }
 
@@ -715,27 +928,32 @@ export function plainBatchEntry(
   seed: number,
   tag: string,
   paths: { module: string; codec: string; calls: string; out: string },
-  codec: { encode: string; decode: string; handles: string; deepFreeze: string },
+  codec: { encode: string; decode: string; handles: string; deepFreeze: string; pin: string; under: string },
+  members: readonly string[] = [],
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
+  const holder = name('holder');
   const each = name('each');
   const fn = name('fn');
   const answer = name('answer');
   const error = name('error');
   return [
     // The codec first: it takes the functions it freezes with before the product module runs.
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')} } from ${JSON.stringify(paths.codec)};`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.pin} as ${name('pin')}, ${codec.under} as ${name('under')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
+    `const ${holder} = ${JSON.stringify(members)}.map((${name('key')}) => ${product}[${name('key')}]).find((${name('item')}) => ${name('item')} !== null && typeof ${name('item')} === 'object') ?? ${product};`,
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
     `  const ${each} = JSON.parse(${name('line')});`,
     `  let ${answer};`,
     `  try {`,
-    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
+    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${holder}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('decode')}(${each}.args)) : ${name('decode')}(${each}.args)))) };`,
+    `    const ${name('decoded')} = ${name('decode')}(${each}.args);`,
+    `    const ${name('args')} = ${each}.ids ? ${name('pin')}(${name('decoded')}, ${each}.ids, ${each}.forget) : ${each}.freeze ? ${name('deepFreeze')}(${name('decoded')}) : ${name('decoded')};`,
+    `    ${answer} = { ret: ${name('encode')}(await ${name('under')}(${each}.ambient, () => ${fn}(...${name('args')}))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,
@@ -807,7 +1025,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ids: message.ids, forget: message.forget, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
   const sentAt = Date.now();
   const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ answers });

@@ -63,7 +63,12 @@ async function build(root: string, options: BuildOptions, answers?: boolean[]) {
   const questions: string[] = [];
   const code = await estateBuildCommand(
     'estate',
-    { out: 'b', ...(options.pointer ? {} : { replay: 'estate/answers.yaml' }), ...options },
+    {
+      out: 'b',
+      states: join(root, 'estate', 'live', 'states', 'library.json'),
+      ...(options.pointer ? {} : { replay: 'estate/answers.yaml' }),
+      ...options,
+    },
     seen.io,
     {
       now: NOW,
@@ -116,6 +121,7 @@ describe('driftbench estate build', () => {
           plan: join(root, 's', 'plan.yaml'),
           out: join(root, 's', 'generated'),
           force: true,
+          states: join(root, 'estate', 'live', 'states', 'library.json'),
         },
         by.io,
       ),
@@ -214,6 +220,28 @@ describe('driftbench estate build', () => {
     await writeFile(labels, `${pointer.AGENT_RULES_SET}\n# an edit of the label sets\n`);
     const edited = await build(root, pointed);
     expect(edited.out).not.toContain('1. Read the estate: unchanged');
+  }, 240_000);
+
+  it('prints what the labelers used, even without --verbose, and prices it when asked', async () => {
+    const root = await workspace();
+    const labels = join(root, 'labels.yaml');
+    await writeFile(labels, pointer.AGENT_RULES_SET);
+    await writeFile(
+      join(root, 'prices.yaml'),
+      'as_of: 2026-01-01\nmodels:\n  claude-haiku-5-5: { input: 0.1, output: 0.5, cached_input: 0.01 }\n',
+    );
+    const built = await build(root, {
+      yes: true,
+      pointer: true,
+      cassette: 'estate/cassette.jsonl',
+      labels: 'labels.yaml',
+      prices: 'prices.yaml',
+    });
+    expect(built.out).toMatch(
+      /Labelers: 0 requests sent; \d+ answers replayed from the cassette \(\d+ in, \d+ out\)\./,
+    );
+    expect(built.out).toMatch(/Cost when recorded: \d+\.\d{4} USD, without jev-latest\./);
+    expect(built.out).toContain('Note: the price table gives cached_input for claude-haiku-5-5.');
   }, 240_000);
 
   it('stops with exit 2 when the scan cannot read its replay file', async () => {

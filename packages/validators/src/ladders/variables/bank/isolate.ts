@@ -1,16 +1,25 @@
-import { spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { type BankItem, DEFAULT_ITEM_BUDGET_MS, type ItemOutcome } from './index';
 
 /**
  * Runs the items of one seed in child processes that stop an item past its budget. The child is `child.ts`,
- * loaded through tsx, so this isolation needs a source checkout (a built package runs in-process).
+ * loaded through tsx, so this isolation needs a source checkout (a built package runs in-process). Each child
+ * leads a process group of its own, so that stopping it also stops the confined processes of the frame it started.
  */
 
 const CHILD = fileURLToPath(new URL('./child.ts', import.meta.url));
 
-type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
+type Line = {
+  start?: number;
+  done?: number;
+  id: string;
+  pass?: boolean;
+  detail?: string;
+  ms?: number;
+  taint?: string;
+};
 
 /** The time a child process may take to load the bank before it runs its first item. */
 export const STARTUP_MS = 120_000;
@@ -30,16 +39,34 @@ export async function runIsolated(
   shards = DEFAULT_SHARDS,
 ): Promise<Map<string, ItemOutcome & { ms?: number }>> {
   const results = new Map<string, ItemOutcome & { ms?: number }>();
+  // A sampled call that a user's own process answered otherwise taints the seed: the product answers by how it is run.
+  const taints: string[] = [];
   const count = Math.max(1, Math.min(shards, items.length));
   // Round robin, so the heavy items spread over the children.
   const lists = Array.from({ length: count }, (_, k) => items.filter((_, i) => i % count === k));
   await Promise.all(
     lists.map(async (list) => {
       let next = 0;
-      while (next < list.length) next = await runFrom(next, list, seed, root, budget, results);
+      while (next < list.length) next = await runFrom(next, list, seed, root, budget, results, taints);
     }),
   );
+  if (taints[0] !== undefined)
+    for (const item of items)
+      results.set(item.id, {
+        pass: false,
+        detail: `the product's answer depends on how it is run, so no item of seed ${seed} counts: ${taints[0]}`,
+      });
   return results;
+}
+
+/** Stops a child and everything it started: its process group, then the child itself. */
+function stop(child: ChildProcess): void {
+  try {
+    if (child.pid !== undefined) process.kill(-child.pid, 'SIGKILL');
+  } catch {
+    // the group is gone already
+  }
+  child.kill('SIGKILL');
 }
 
 function runFrom(
@@ -49,11 +76,13 @@ function runFrom(
   root: string,
   budget: (item: BankItem) => number,
   results: Map<string, ItemOutcome & { ms?: number }>,
+  taints: string[],
 ): Promise<number> {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root, String(start)], {
       cwd: root,
       stdio: ['pipe', 'pipe', 'pipe'],
+      detached: true,
     });
     child.stdin.end(JSON.stringify(items.map((item) => item.id)));
     let buffer = '';
@@ -79,7 +108,7 @@ function runFrom(
           pass: false,
           detail: `did not finish within ${limit} ms on seed ${seed}: an endless loop or a path far too slow for this input; the validator stopped it`,
         });
-        child.kill('SIGKILL');
+        stop(child);
         finish(index + 1);
       }, limit);
     };
@@ -91,7 +120,7 @@ function runFrom(
           detail: `the bank's child process did not start within ${STARTUP_MS} ms on seed ${seed}`,
         });
       }
-      child.kill('SIGKILL');
+      stop(child);
       finish(start + 1);
     }, STARTUP_MS);
     child.stdout.setEncoding('utf8');
@@ -109,7 +138,9 @@ function runFrom(
         } catch {
           continue;
         }
-        if (line.start !== undefined) {
+        if (line.taint !== undefined) {
+          taints.push(line.taint);
+        } else if (line.start !== undefined) {
           arm(line.start);
         } else if (line.done !== undefined) {
           results.set(line.id, { pass: line.pass === true, detail: line.detail ?? '', ms: line.ms });

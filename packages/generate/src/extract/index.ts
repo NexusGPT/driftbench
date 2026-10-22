@@ -84,4 +84,4 @@ export {
   toSpaceMap,
 } from './space';
 export { type ToolsIssue, type ToolsPrepass, toolSlug, toolsPrepass } from './tools';
-export { proposalToVariables, verifyVariableQuotes } from './variables';
+export { checkVariableQuotes, proposalToVariables, verifyVariableQuotes } from './variables';

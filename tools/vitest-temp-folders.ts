@@ -1,9 +1,11 @@
-import fs, { realpathSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import fs, { existsSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import fsp from 'node:fs/promises';
 import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
-import { dirname, resolve } from 'node:path';
-import { afterAll } from 'vitest';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterAll, beforeAll } from 'vitest';
 
 /**
  * Keeps the machine's temporary folder clean after a test run. A test file makes its fixtures with
@@ -75,3 +77,47 @@ state();
 afterAll(() => {
   removeTempFolders();
 });
+
+/**
+ * The committed examples/ tree is read-only for tests. A test that runs a script or a command from the tree
+ * in place can leave a file in it (a log, an output) that another test file, in the same checkout, then reads
+ * as a change. This guard lists what `git status` shows under examples/ when a test file starts and fails the
+ * file if the list holds a new entry when it ends. A test that needs a writable tree copies it first.
+ */
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+
+function examplesState(): Set<string> {
+  const run = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', '--', 'examples'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  // Outside a git checkout (a source archive) there is no tree to guard.
+  if (run.status !== 0) return new Set();
+  return new Set(run.stdout.split('\n').filter(Boolean));
+}
+
+let examplesBefore: Set<string> | undefined;
+beforeAll(() => {
+  examplesBefore = examplesState();
+});
+afterAll(() => {
+  if (examplesBefore === undefined) return;
+  const added = [...examplesState()].filter((entry) => !examplesBefore?.has(entry));
+  if (added.length > 0)
+    throw new Error(
+      `a test left a change in the committed examples/ tree (copy the tree to a temporary folder first):\n${added.join('\n')}`,
+    );
+});
+
+/**
+ * A test that needs a working folder inside the repository (to find the repository's loader) makes it in `.tmp/`,
+ * which `.gitignore` lists. `git status --ignored` shows the folder as one entry once it holds a file, and a test
+ * that reads the tree for changes would see that entry appear while the other test runs. The placeholder keeps
+ * the entry in place from the start of every test file.
+ */
+try {
+  mkdirSync(join(ROOT, '.tmp'), { recursive: true });
+  if (!existsSync(join(ROOT, '.tmp', '.keep'))) writeFileSync(join(ROOT, '.tmp', '.keep'), '');
+} catch {
+  // A read-only checkout has nothing to keep in place.
+}

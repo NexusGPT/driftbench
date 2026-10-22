@@ -2,10 +2,14 @@ import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:
 import { dirname, join, resolve } from 'node:path';
 import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
 import {
+  type AgentAdapter,
   blocksOutcome,
   type Campaign,
+  carryRuns,
   contentHash,
+  planCampaign,
   type RunResult,
+  runProvenance,
   runSpec,
   type Store,
 } from '@agent-nexus/driftbench-core';
@@ -38,6 +42,8 @@ import {
 } from '../judge-options';
 import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
+import { campaignProvenance } from './campaign-provenance';
+import { carryRequestFrom, type EstateCarryFlags, isTheOldStore, planEstateCarry } from './estate-carry';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
@@ -116,6 +122,24 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
       '--progress <file>',
       'append one JSON line per finished spec to this file as each finishes, so a stopped batch keeps them',
     )
+    .option(
+      '--agent-version <label>',
+      'name the version of the estate this run measures: a later run carries from it, and the `to` of a change manifest is this label',
+    )
+    .option(
+      '--from <store>',
+      'carry from an old store: a spec the radius of --change leaves alone keeps its stored result (needs --agent-version)',
+    )
+    .option(
+      '--change <manifest>',
+      'with --from: the change manifest (radius ledger or radius auto) of the edit between the old run and this one',
+    )
+    .option(
+      '--from-campaign <id>',
+      'with --from: the campaign to carry from (default: the latest of the store)',
+    )
+    .option('--max-carry <n>', 'with --from: the most campaigns in a row a result is carried (default 5)')
+    .option('--max-age <days>', 'with --from: the most days since a carried result was measured (default 7)')
     .option('--json', 'print one JSON document');
   addRunCheckOptions(addJudgeOptions(run)).action(async (specs: string[], options: EstateRunOptions) => {
     setExit(await estateRunCommand(specs, options, io));
@@ -149,7 +173,8 @@ export type EstateRunOptions = {
   config?: string;
   json?: boolean;
 } & RunJudgeOptions &
-  RunCheckFlags;
+  RunCheckFlags &
+  EstateCarryFlags;
 
 export type RunLine = {
   spec: string;
@@ -168,6 +193,8 @@ export type RunLine = {
   notApplicable: boolean;
   /** Set when no block failed but a block was not run or blocked: neither a pass nor a fail, counted apart. */
   outcome?: 'not_run' | 'blocked';
+  /** True for a result carried from the old store (`--from`), not measured by this run. */
+  carried?: boolean;
   failing: string[];
   costUsd: number | null;
   /** What the judge spent on this spec, included in costUsd. */
@@ -356,6 +383,14 @@ export async function estateRunCommand(
   let store: Store;
   const storePath = resolve(io.cwd, options.store);
   const progressPath = options.progress === undefined ? undefined : resolve(io.cwd, options.progress);
+  const carry = carryRequestFrom(options, storePath, io);
+  if (carry === null) return 2;
+  if (carry && (await isTheOldStore(carry, storePath, io))) {
+    io.err(
+      '--store is the old store under another name (the same file, a symbolic link or a hard link): the run would write its results into it. Give --store a new file.\n',
+    );
+    return 2;
+  }
   try {
     store = await openStore(storePath);
   } catch (cause) {
@@ -364,23 +399,19 @@ export async function estateRunCommand(
   }
   const lines: RunLine[] = [];
   let campaignId: string;
+  let radiusNote: string | undefined;
+  let radiusRecord: Campaign['radius'] | undefined;
   try {
     const createdAt = new Date().toISOString();
-    const target = { adapter: 'claude-code', agent: pins[pins.length - 1]?.slice(0, 12) ?? 'unpinned' };
+    // A labelled run (--agent-version) names its target by the label, with one agent name for every version, so
+    // the cell of a spec is the same in the old store and the new one. Without a label the target is the pin.
+    const labelled = options.agentVersion !== undefined;
+    const target = labelled
+      ? { adapter: 'claude-code', agent: 'estate', variant: options.agentVersion as string }
+      : { adapter: 'claude-code', agent: pins[pins.length - 1]?.slice(0, 12) ?? 'unpinned' };
     const entries = specs.map((entry) => ({ id: entry.spec.id, hash: entry.hash }));
     campaignId = `estate-run-${contentHash({ entries, target, command, createdAt })}`;
     for (const entry of specs) await store.putSpec(entry);
-    const campaign: Campaign = {
-      campaignId,
-      specs: entries,
-      targets: [target],
-      modes: ['F'],
-      repeats: { T: 0, F: 1, P: 0 },
-      budgetUsd: 0,
-      judge: { mode: judge.mode, judges: judge.judges },
-      createdAt,
-    };
-    await store.putCampaign(campaign);
     const checks = replayChecks({
       judge: judge.check,
       piiJudge: judge.piiJudge,
@@ -392,7 +423,28 @@ export async function estateRunCommand(
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });
     const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
-    for (const entry of specs) {
+    // What a result depends on besides the estate and the spec: the runtime, its flags, its environment and its
+    // judge. A labelled run stamps it, so a result carried from a run made another way is refused, not copied.
+    const identity = contentHash({
+      command: commandPath,
+      args,
+      config,
+      standIn,
+      trustEstate: options.trustEstate === true,
+      disallow: options.disallow ?? [],
+      lockDeny: options.lockDeny ?? [],
+      timeoutMs: timeoutMs ?? null,
+      // The name and a digest of the value of every variable the run sets or passes on, never the value: a result made
+      // with another value of one is refused, and the stamp holds nothing a person could read back.
+      env: Object.keys(env)
+        .sort()
+        .map((name) => [name, contentHash({ name, value: env[name] })]),
+      library: library ?? null,
+      judge: judge.label,
+      toolPolicy: settings.toolPolicy ?? null,
+      piiOwner: settings.piiOwner,
+    });
+    const makeAdapter = (): AgentAdapter => {
       const adapter = claudeCodeLiveAdapter({
         command: commandPath,
         estateRoot: root,
@@ -411,15 +463,79 @@ export async function estateRunCommand(
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(standIn ? { retries: { backoffMs: 0 } } : {}),
       });
+      return labelled ? { ...adapter, cacheIdentity: identity } : adapter;
+    };
+    const runOptions = (adapter: AgentAdapter) => ({
+      adapter,
+      driver: createScriptedDriver(),
+      checks,
+      ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+      mode: 'F' as const,
+      repeat: 0,
+      target,
+      ...(labelled ? { agentVersion: options.agentVersion as string, recordProvenance: true } : {}),
+    });
+    const cells = planCampaign(
+      specs.map((entry) => ({ spec: entry.spec, hash: entry.hash })),
+      [target],
+      ['F'],
+      { F: 1 },
+    ).cells;
+    const campaign: Campaign = {
+      campaignId,
+      specs: entries,
+      targets: [target],
+      modes: ['F'],
+      repeats: { T: 0, F: 1, P: 0 },
+      budgetUsd: 0,
+      judge: { mode: judge.mode, judges: judge.judges },
+      createdAt,
+      ...(labelled
+        ? {
+            agentVersion: options.agentVersion as string,
+            provenance: campaignProvenance([target], () => makeAdapter()),
+          }
+        : {}),
+    };
+    // The cells the change leaves alone keep the result stored in the old store; the rest run.
+    let carried = new Set<string>();
+    let carriedPlan: Awaited<ReturnType<typeof planEstateCarry>> = null;
+    if (carry) {
+      carriedPlan = await planEstateCarry({
+        request: carry,
+        io,
+        cells,
+        specs: specs.map((entry) => ({ spec: entry.spec, hash: entry.hash })),
+        currentProvenance: (cell) => runProvenance({ ...runOptions(makeAdapter()), target: cell.target }),
+        checks,
+        now: new Date(),
+      });
+      if (carriedPlan === null) {
+        await store.close().catch(() => undefined);
+        return 2;
+      }
+      carried = new Set(carriedPlan.plan.carried.map((entry) => entry.cell.cellId));
+      radiusNote = carriedPlan.note;
+      radiusRecord = carriedPlan.record;
+      campaign.radius = carriedPlan.record;
+    }
+    await store.putCampaign(campaign);
+    const cellOf = new Map(cells.map((cell) => [`${cell.specId}@${cell.specHash}`, cell]));
+    if (carriedPlan) await carryRuns(store, campaignId, carriedPlan.plan.carried);
+    const stored = new Map((await store.listRuns({ campaignId })).map((run) => [run.runId, run]));
+    for (const entry of specs) {
+      const cell = cellOf.get(`${entry.spec.id}@${entry.hash}`);
+      const copy = cell && carried.has(cell.cellId) ? stored.get(cell.cellId) : undefined;
+      if (copy) {
+        const line = { ...lineOf(copy, 0), carried: true, costUsd: null };
+        lines.push(line);
+        if (progressPath !== undefined) await appendFile(progressPath, `${JSON.stringify(line)}\n`);
+        continue;
+      }
+      const adapter = makeAdapter();
       const spentBefore = judge.spend.usd;
       const result = await runSpec(entry.spec, {
-        adapter,
-        driver: createScriptedDriver(),
-        checks,
-        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
-        mode: 'F',
-        repeat: 0,
-        target,
+        ...runOptions(adapter),
         store,
         campaignId,
       });
@@ -435,6 +551,7 @@ export async function estateRunCommand(
   await store.close();
   await judge.save();
 
+  const nCarried = lines.filter((line) => line.carried).length;
   const passed = lines.filter((line) => line.pass).length;
   const undecided = lines.filter((line) => line.undecided).length;
   const notApplicable = lines.filter((line) => line.notApplicable).length;
@@ -444,10 +561,11 @@ export async function estateRunCommand(
   const total = costs.reduce((sum, cost) => sum + cost, 0);
   if (options.json) {
     io.out(
-      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed, undecided, notApplicable, ...(unscored > 0 ? { notRun: unscored } : {}), costUsd: total }, null, 2)}\n`,
+      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, ...(radiusRecord ? { radius: radiusRecord, carryNote: radiusNote } : {}), judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed, undecided, notApplicable, ...(unscored > 0 ? { notRun: unscored } : {}), costUsd: total }, null, 2)}\n`,
     );
   } else {
     for (const note of notes) io.out(`note: ${note}\n`);
+    if (radiusNote) io.out(radiusNote);
     for (const line of lines) {
       const mark =
         line.status !== 'completed'
@@ -459,14 +577,18 @@ export async function estateRunCommand(
               : line.outcome
                 ? '-'
                 : '✗';
-      const cost = line.costUsd === null ? 'no cost in the stream' : `${line.costUsd.toFixed(4)} USD`;
+      const cost = line.carried
+        ? 'carried'
+        : line.costUsd === null
+          ? 'no cost in the stream'
+          : `${line.costUsd.toFixed(4)} USD`;
       io.out(`${mark} ${line.spec}  (${cost})\n`);
       if (line.error) io.out(`    error: ${line.error}\n`);
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
       for (const verdict of line.judged) io.out(`    judged ${verdict.criterion}: ${verdict.outcome}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${failed} fail${undecided > 0 ? ` (${undecided} undecided: only inconclusive checks)` : ''}${notApplicable > 0 ? ` (${notApplicable} not applicable: no stage record)` : ''}${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
+      `${lines.length - nCarried} spec${lines.length - nCarried === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}${nCarried > 0 ? ` and ${nCarried} carried` : ''}: ${passed} pass, ${failed} fail${undecided > 0 ? ` (${undecided} undecided: only inconclusive checks)` : ''}${notApplicable > 0 ? ` (${notApplicable} not applicable: no stage record)` : ''}${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;

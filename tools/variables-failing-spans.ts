@@ -13,6 +13,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { variablesImpl } from '../packages/validators/src/ladders/variables/adapter';
 import { runItem, variablesBank } from '../packages/validators/src/ladders/variables/bank/index';
+import { withLabels } from '../packages/validators/src/ladders/variables/impl';
 
 const [reportFile, outDir] = process.argv.slice(2);
 if (reportFile === undefined || outDir === undefined) {
@@ -44,7 +45,7 @@ report.seeds.forEach(({ seed }, at) => {
 for (const { seed, id } of failing) {
   const item = bank.get(id);
   if (item === undefined) throw new Error(`the report names an item the bank lacks: ${id}`);
-  await runItem(item, seed, root, variablesImpl);
+  await runItem(item, seed, root, withLabels(variablesImpl));
 }
 
 const texts = new Set<string>();

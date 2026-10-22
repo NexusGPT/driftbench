@@ -3,9 +3,10 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Ambient } from '../../../../frame';
 import type { Plan, PlanOptions, Row, Sources, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
-import { build, type ItemContext, planOf, type StemRun } from '../item';
+import { build, type ItemContext, planOf, type StemRun, sameObjects } from '../item';
 import {
   forbidRandom,
   makeSpace,
@@ -125,6 +126,15 @@ const patchCrypto: Patch = () => {
     Object.defineProperty(c, 'randomUUID', { value: saved.randomUUID, configurable: true, writable: true });
   };
 };
+
+/** The patch of an ambient state, for a product that runs in this process. */
+function patchOf(spec: Ambient): Patch {
+  return spec.kind === 'random'
+    ? patchMathRandom
+    : spec.kind === 'crypto'
+      ? patchCrypto
+      : patchClock(spec.at);
+}
 
 function withPatches<T>(patches: readonly Patch[], run: () => T): T {
   const undo: Array<() => void> = [];
@@ -259,16 +269,20 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
   'determinism.no-ambient-randomness': (variant, ctx) => {
     const c = caseOf(ctx, 'rules-seeds-budget');
     const normal = planJson(planFresh(ctx, c));
-    const patches: Patch[][] =
+    const patches: Ambient[][] =
       variant === 'math-random-throws'
-        ? [[patchMathRandom]]
+        ? [[{ kind: 'random' }]]
         : variant === 'clock-frozen-differently'
-          ? [[patchClock(1_000_000_000_000)], [patchClock(2_000_000_000_000)]]
+          ? [[{ kind: 'clock', at: 1_000_000_000_000 }], [{ kind: 'clock', at: 2_000_000_000_000 }]]
           : variant === 'crypto-throws'
-            ? [[patchCrypto]]
-            : [[patchMathRandom, patchClock(1_700_000_000_000), patchCrypto]];
+            ? [[{ kind: 'crypto' }]]
+            : [[{ kind: 'random' }, { kind: 'clock', at: 1_700_000_000_000 }, { kind: 'crypto' }]];
     for (const set of patches) {
-      const got = withPatches(set, () => planJson(planFresh(ctx, c)));
+      // The product runs apart from the bank when the item has a watch: the process that runs it holds the ambient
+      // state for the calls, so the product cannot be told apart from the state of this process.
+      const got = ctx.watch
+        ? ctx.watch.ambient(set, () => planJson(planFresh(ctx, c)))
+        : withPatches(set.map(patchOf), () => planJson(planFresh(ctx, c)));
       must(
         got === normal,
         () =>
@@ -299,34 +313,37 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
   'determinism.json-round-trip': (variant, ctx) => {
     const c = caseOf(ctx, 'rules-seeds-budget');
     planFresh(ctx, c);
-    if (variant === 'store') {
-      const store = clone(c.store);
-      planOf(ctx, store, clone(c.options));
-      const v = store.variables[0];
-      must(!!v, 'the generator built no variable');
-      (v as NonNullable<typeof v>).values.push({
-        id: 'extra',
-        provenance: [{ kind: 'owner', words: 'added in place', date: OWNER_DATE }],
-      });
-      const reused = planJson(planOf(ctx, store, clone(c.options)));
-      const fresh = planJson(planOf(ctx, clone(store), clone(c.options)));
-      must(
-        reused === fresh,
-        () =>
-          `a store edited in place and planned again gives another plan than a copy of it: the plan keeps a cache keyed by the object (${show(reused, 80)} then ${show(fresh, 80)})`,
-      );
-    } else {
-      const options: PlanOptions = { ...clone(c.options), budget: 6 };
-      planOf(ctx, clone(c.store), options);
-      options.budget = 11;
-      const reused = planJson(planOf(ctx, clone(c.store), options));
-      const fresh = planJson(planOf(ctx, clone(c.store), { ...clone(c.options), budget: 11 }));
-      must(
-        reused === fresh,
-        () =>
-          `options edited in place and used again give another plan than a copy of them (${show(reused, 80)} then ${show(fresh, 80)})`,
-      );
-    }
+    // The object passed twice must be the same object to the product, edited in place (frame.sameObjects).
+    sameObjects(ctx, () => {
+      if (variant === 'store') {
+        const store = clone(c.store);
+        planOf(ctx, store, clone(c.options));
+        const v = store.variables[0];
+        must(!!v, 'the generator built no variable');
+        (v as NonNullable<typeof v>).values.push({
+          id: 'extra',
+          provenance: [{ kind: 'owner', words: 'added in place', date: OWNER_DATE }],
+        });
+        const reused = planJson(planOf(ctx, store, clone(c.options)));
+        const fresh = planJson(planOf(ctx, clone(store), clone(c.options)));
+        must(
+          reused === fresh,
+          () =>
+            `a store edited in place and planned again gives another plan than a copy of it: the plan keeps a cache keyed by the object (${show(reused, 80)} then ${show(fresh, 80)})`,
+        );
+      } else {
+        const options: PlanOptions = { ...clone(c.options), budget: 6 };
+        planOf(ctx, clone(c.store), options);
+        options.budget = 11;
+        const reused = planJson(planOf(ctx, clone(c.store), options));
+        const fresh = planJson(planOf(ctx, clone(c.store), { ...clone(c.options), budget: 11 }));
+        must(
+          reused === fresh,
+          () =>
+            `options edited in place and used again give another plan than a copy of them (${show(reused, 80)} then ${show(fresh, 80)})`,
+        );
+      }
+    });
   },
 
   'determinism.inputs-not-written': (variant, ctx) => {

@@ -3,6 +3,7 @@ import { bankSummary, formatItems } from '../../src/bank';
 import { runSeeds } from '../../src/ladder';
 import { BLIND_PROVENANCE, blindLevels } from '../../src/ladders/pointer/bank/blind';
 import { pointerBank, pointerBankLadder } from '../../src/ladders/pointer/bank/index';
+import { bankLadder } from '../../src/ladders/pointer/bank/ladder';
 import { referenceSut } from './reference/index';
 
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
@@ -65,10 +66,19 @@ describe('the second bank beside the first', () => {
   }, 120_000);
 
   it('reports the score of each label apart in the item listing', async () => {
-    const own = pointerBankLadder(async () => referenceSut());
+    // The listing names a label when an item of it ran. One item of the first label and the items of the second
+    // run here, not the 94 items of the labels level (56 s on a CI runner): the test is about the listing.
+    const items = pointerBank();
+    const added = items.filter((item) => item.provenance === 'maintainer-added');
+    const repaired = items.filter((item) => item.provenance === 'maintainer-repaired').slice(0, 1);
+    const own = bankLadder([...repaired, ...added], async () => referenceSut());
+    const blind = pointerBankLadder(async () => referenceSut()).levels[9];
     const ladder = {
       component: 'pointer',
-      levels: [own.levels[0], own.levels[1], own.levels[3], own.levels[9]].filter((l) => l !== undefined),
+      levels: [
+        ...own.levels.filter((level) => !level.metric.includes('(0)')),
+        ...(blind === undefined ? [] : [blind]),
+      ],
     };
     const report = await runSeeds(ladder, [{ seed: 1, hidden: false }], process.cwd(), { full: true });
     const text = formatItems(bankSummary(report), 'pointer');

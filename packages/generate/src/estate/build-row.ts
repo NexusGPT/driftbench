@@ -26,6 +26,7 @@ import type {
   Situation,
   SituationUse,
 } from './inputs';
+import { statesNeeded } from './states';
 import {
   addPair,
   addWorkspace,
@@ -382,6 +383,15 @@ export function build(
         recovery: { within_blocks: 1 },
       };
     }
+  }
+
+  // A state or an event the library of the run does not hold: the spec would stop at its first turn, so it waits.
+  if (ctx.stateIds && row.mode !== 'unit') {
+    const needed = statesNeeded(row.cell);
+    if (needed.state !== undefined && !ctx.stateIds.states.includes(needed.state))
+      gap(then, MARKERS.stateOperation, first, `session state ${needed.state}`);
+    if (needed.event !== undefined && !ctx.stateIds.events.includes(needed.event))
+      gap(then, MARKERS.stateOperation, first, `event ${needed.event}`);
   }
 
   const markers = new Set(then.gaps.map((entry) => entry.marker));
