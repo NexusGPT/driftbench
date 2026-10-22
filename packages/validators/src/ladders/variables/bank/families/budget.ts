@@ -3,7 +3,7 @@ import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
 import { groupsOf, indexRow, logWeight, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
 import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { must, show, stableStringify } from '../util';
 
 /** Spaces with skewed shares whose unbudgeted plan has dozens of rows. */

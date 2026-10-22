@@ -13,7 +13,7 @@ import {
   wilsonWidth,
   Z95,
 } from '../oracle/stats';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { must, type Rng, show, subRng } from '../util';
 import { type Base, baseStore, draw, evenMix } from './sources';
 
@@ -229,7 +229,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const picks = drawCategorical(rng, n, mix);
       const count = picks.filter((k) => k === 0).length;
       const [lo, hi] = callInterval(ctx, count, n);
-      must(
+      check(
         Number.isFinite(lo) &&
           Number.isFinite(hi) &&
           lo >= 0 &&

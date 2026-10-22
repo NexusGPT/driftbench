@@ -1,6 +1,6 @@
 import type { Plan, PlanOptions, Row } from '../../interface';
 import { type ItemContext, planOf } from '../item';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { must, type Rng, show } from '../util';
 import {
   type Coverage,

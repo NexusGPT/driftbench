@@ -15,7 +15,7 @@ import {
   type SpaceGroup,
   toStore,
 } from '../oracle/space';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { choose, cpuMs, must, type Rng, show } from '../util';
 import { toBig } from './counter';
 import { type Base, baseStore, checkCounts, draw } from './sources';

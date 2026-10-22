@@ -1,7 +1,7 @@
 import type { Plan, PlanRow, Row, StoreDoc, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { type ItemContext, planOf, type StemRun } from '../item';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { GeneralOracle } from '../oracle/general';
 import {
   forbid,

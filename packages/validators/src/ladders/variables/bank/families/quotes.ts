@@ -11,7 +11,7 @@ import {
   valueByQuote,
   variablesCiting,
 } from '../oracle/estate';
-import { check } from '../../../failure';
+import { check } from '../../../../failure';
 import { cpuMs, must, type Rng, show } from '../util';
 import { basicSpan } from './sources';
 
