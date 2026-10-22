@@ -90,7 +90,11 @@ async function record(estate: EstateName, key: string) {
         const ask = quotes[next++];
         if (ask === undefined) return;
         for (let run = 1; run <= ASK_RUNS; run++) {
-          await answerFor(estate, ASK_MODEL, ask.quote, ask.context, run, cache, spent, { key, capIn, capOut });
+          await answerFor(estate, ASK_MODEL, ask.quote, ask.context, run, cache, spent, {
+            key,
+            capIn,
+            capOut,
+          });
         }
       }
     };
