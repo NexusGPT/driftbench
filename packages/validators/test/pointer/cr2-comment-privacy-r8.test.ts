@@ -54,7 +54,8 @@ function sideBodyProduct(sideOf: (candidates: unknown[], other: string) => strin
           call: {
             value: async (wire: any, ...rest: any[]) => {
               const body = auxiliary.get(wire);
-              if (body !== undefined) await send('https://api.anthropic.com/v1/messages', { method: 'POST', body });
+              if (body !== undefined)
+                await send('https://api.anthropic.com/v1/messages', { method: 'POST', body });
               return (member.call as any).call(member, wire, ...rest);
             },
           },
