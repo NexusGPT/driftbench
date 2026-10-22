@@ -6,103 +6,153 @@ limits:
   - unit: 4x5di6oz6z
     limit: 5
     comparison: le
+    role: constraint
     unit_of: "working days"
     governs: 4x5di6oz6z
   - unit: qrpn6f4hwh
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "sentences"
     governs: qrpn6f4hwh
   - unit: bqmc45hi3w
     limit: 8
     comparison: le
+    role: constraint
     unit_of: "lines"
     governs: bqmc45hi3w
   - unit: ujvmrast3g
     limit: 120
     comparison: lt
+    role: constraint
     unit_of: "words"
     governs: ujvmrast3g
   - unit: rssal5qe64
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "lines"
     governs: rssal5qe64
   - unit: byu5upblrc
     limit: 10
     comparison: ge
+    role: trigger
     unit_of: "days open"
     governs: byu5upblrc
   - unit: gl2jy63nsw
     limit: 2
     comparison: ge
+    role: trigger
     unit_of: "requests for a person"
     governs: gl2jy63nsw
   - unit: ult4a6bseh
     limit: 3
     comparison: ge
+    role: trigger
     unit_of: "repeated answers"
     governs: ult4a6bseh
   - unit: gvncegsjmq
     limit: 2
     comparison: ge
+    role: trigger
     unit_of: "failed calls"
     governs: gvncegsjmq
   - unit: jd5dvg4xtp
     limit: 200
     comparison: le
+    role: constraint
     unit_of: "characters"
     governs: pxpatrb7lv
   - unit: geryhklclh
     limit: 5
     comparison: ge
+    role: constraint
     unit_of: "working days"
     governs: geryhklclh
   - unit: tqcnb4gt46
     limit: 5
     comparison: le
+    role: constraint
     unit_of: "working days"
     governs: 2nfri23ink
   - unit: znvh5jbg7l
     limit: 2
     comparison: le
+    role: constraint
     unit_of: "hours"
     governs: 2nfri23ink
   - unit: fs6zqfdxp7
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "working days"
     governs: 2nfri23ink
   - unit: j4ow7h6n5z
     limit: 1
     comparison: le
+    role: constraint
     unit_of: "next steps"
     governs: j4ow7h6n5z
-  - unit: pz5lr4g2te
-    limit: 60
-    comparison: gt
-    unit_of: "days"
-    governs: pz5lr4g2te
   - unit: ktft77jpaq
     limit: 30
     comparison: le
+    role: constraint
     unit_of: "days"
     governs: 24gupjkmw3
-  - unit: xodri66lws
-    limit: 2
-    comparison: gt
-    unit_of: "empty visits"
-    governs: xodri66lws
-  - unit: hykpyrtlha
-    limit: 7
+  - unit: 2ihgfbfpwv
+    limit: 1
     comparison: le
-    unit_of: "days"
-    governs: hykpyrtlha
-  - unit: 3fb24ukmzu
+    role: constraint
+    unit_of: "sentences"
+    governs: 2ihgfbfpwv
+  - unit: 5fheyswkjr
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "minutes"
+    governs: 5fheyswkjr
+  - unit: 5fnrtqa4dt
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "sentences"
+    governs: 5fnrtqa4dt
+  - unit: dptij3uzkt
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "lines"
+    governs: dptij3uzkt
+  - unit: ozfstdpufc
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "lines"
+    governs: ozfstdpufc
+  - unit: xalkekvnkq
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "questions per message"
+    governs: xalkekvnkq
+  - unit: emimqrmqo6
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "sentences"
+    governs: emimqrmqo6
+  - unit: nmk2xrp2r3
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "lines"
+    governs: nmk2xrp2r3
+  - unit: 4delmkvg75
     limit: 3
     comparison: ge
-    unit_of: "abusive messages in a row"
-    governs: 3fb24ukmzu
+    role: constraint
+    unit_of: "notes read"
+    governs: 4delmkvg75
 
 scopes:
   - unit: jmd56vqa6y

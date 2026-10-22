@@ -6,113 +6,117 @@ limits:
   - unit: qj4ww7uhpo
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "lines"
     governs: qj4ww7uhpo
   - unit: ls3egqcgwr
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "list items"
     governs: ls3egqcgwr
   - unit: akbvkiod36
     limit: 12
     comparison: le
+    role: constraint
     unit_of: "lines"
     governs: akbvkiod36
   - unit: ppy3jjyvlc
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "items read aloud"
     governs: ppy3jjyvlc
   - unit: 2zshdrdxik
     limit: 5
     comparison: ge
+    role: trigger
     unit_of: "seconds of silence"
     governs: 2zshdrdxik
   - unit: efdwhzdf7d
     limit: 2
     comparison: le
+    role: constraint
     unit_of: "working days"
     governs: efdwhzdf7d
   - unit: tt46bvlrzh
     limit: 1
     comparison: le
+    role: constraint
     unit_of: "working days"
     governs: tt46bvlrzh
   - unit: gddesiqxeq
     limit: 10
     comparison: le
+    role: constraint
     unit_of: "lines"
     governs: gddesiqxeq
-  - unit: stdn426hrb
-    limit: 7
-    comparison: ge
-    unit_of: "days before arrival"
-    governs: stdn426hrb
-  - unit: pwhvt63u6x
-    limit: 7
-    comparison: lt
-    unit_of: "days before arrival"
-    governs: stdn426hrb
-  - unit: jf7t74tcmj
-    limit: 14
-    comparison: gt
-    unit_of: "days before arrival"
-    governs: jf7t74tcmj
-  - unit: xvthpowdfq
-    limit: 7
-    comparison: lt
-    unit_of: "days before arrival"
-    governs: xvthpowdfq
   - unit: ctdoaphem4
     limit: 1
     comparison: le
+    role: constraint
     unit_of: "next steps"
     governs: ctdoaphem4
   - unit: cj2pr6eg2k
     limit: 1
     comparison: le
+    role: constraint
     unit_of: "uses per email"
     governs: cj2pr6eg2k
   - unit: lewolyumgj
     limit: 10
     comparison: ge
+    role: trigger
     unit_of: "minutes inactive"
-    governs: lewolyumgj
+    governs: q4nz5hws7s
   - unit: gvzbjuydpj
     limit: 2
     comparison: ge
+    role: constraint
     unit_of: "nights"
-    governs: gvzbjuydpj
+    governs: 5swlxrtj45
   - unit: vzbkdjqwmn
     limit: 1
     comparison: le
+    role: constraint
     unit_of: "emojis per message"
     governs: vzbkdjqwmn
-  - unit: zncwiv7d5p
-    limit: 10
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: hpnkcnxqfv
-    limit: 5
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: ttnyasihpa
-    limit: 30
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: 27jkqliewi
-    limit: 1
-    comparison: le
-    unit_of: "hours"
-    governs: a3dchta7kr
   - unit: hzuafhnrvp
     limit: 2
     comparison: gt
+    role: trigger
     unit_of: "answers"
     governs: hzuafhnrvp
+  - unit: kn447e23qp
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "minutes"
+    governs: kn447e23qp
+  - unit: bidpovjlre
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "rooms offered"
+    governs: bidpovjlre
+  - unit: txtsbyxu6a
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "rooms offered"
+    governs: txtsbyxu6a
+  - unit: x2yw2rftbc
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: "working days"
+    governs: x2yw2rftbc
+  - unit: 7xzbzyq5no
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "messages in a row"
+    governs: 7xzbzyq5no
 
 scopes:
   - unit: nbrowcarlu

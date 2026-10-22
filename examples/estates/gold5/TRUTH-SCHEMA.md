@@ -20,6 +20,8 @@ limits:
     limit: 5                     # the number, as a finite number
     comparison: le               # lt, le, gt or ge: how the quantity compares with the limit
                                  # for the condition to hold ("within five days" is le)
+    role: constraint             # constraint: the comparison is the compliant range of the act;
+                                 # trigger: the comparison is the range where the rule applies
     unit_of: working days        # optional: what the number counts
     governs: ab12cd34ef          # the gold id of the rule the limit belongs to (may be the same unit)
 
@@ -69,3 +71,13 @@ plan:
   points it at the target. Choose pairs where the condition unit and the target are in one section.
 * Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
 * An empty list is allowed only for `scopes`, `plan.same_row` and `limits` when the estate has none.
+
+## History of the limits in the truth files
+
+The truth files were first written from the prose alone by a lane that had not read the harness: 38 limits (A 16, B 8, C 14), without a `role`. They were extended afterwards, from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role`:
+
+* `d2e842d3c`: after the first per-atom recording, the units the producer had returned as extras were judged by the truth lane, which was sent the unit ids without the model's answers (per the lead's brief; the judge's own record is `TRUTH-NOTES.md`). 17 limits were added (A 9, B 3, C 5). All 17 were extras of that recording, so the judged list held only units the model had returned.
+* `4ef73174f`: `role: constraint | trigger` added to every limit, 45 constraints and 10 triggers.
+* `d6fca1583`: one more limit added after a further blind check (B `lwci7tropa`), which the producer had also returned as an extra.
+
+Because the added limits come from the model's extras, the answer key was enlarged with the model's own output. Figures against the 38-limit truth and the 56-limit truth must both be reported (see `docs/variables.md`). The judgements and the reason for each unit left out are in `TRUTH-NOTES.md`.

@@ -1,5 +1,6 @@
 import { readFile, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import type { TokenPrices } from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -33,8 +34,9 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
-import { exists, show, writeOut } from '../files';
+import { exists, reason, show, writeOut } from '../files';
 import type { Io } from '../io';
+import { pricesFromConfig } from '../token-prices';
 import { registerEstateBuildCommand } from './estate-build';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
@@ -85,6 +87,8 @@ export type EstateDeps = {
   now?: () => Date;
   /** The fetch the pointer labelers call with instead of the global one. Tests pass a fake. */
   fetch?: FetchLike;
+  /** Called with the result of a scan and the price table that was read, so a caller can report the usage. */
+  onScan?: (result: ScanEstateResult, prices: TokenPrices | undefined) => void;
 };
 
 /**
@@ -119,6 +123,10 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     )
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
     .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
+    .option(
+      '--prices <file>',
+      'with --pointer: a table of USD per million tokens (YAML), to print what the labelers cost',
+    )
     .option(
       '--labeler <spec>',
       'with --pointer: <class>:<client>[:<model>], class system1 or system2; repeat it for a stack of both (default: system1:jev and system2:anthropic)',
@@ -244,15 +252,25 @@ export async function estateScanCommand(
       options.update ||
       options.labels ||
       options.labeler?.length ||
+      options.prices ||
       options.jobs)
   ) {
     io.err(
-      'error: --cassette, --record, --ledger, --update, --labels, --labeler and --jobs need --pointer\n',
+      'error: --cassette, --record, --ledger, --update, --labels, --labeler, --prices and --jobs need --pointer\n',
     );
     return 2;
   }
   const ceiling = parseCeiling(options.ceiling, io);
   if (ceiling === undefined) return 2;
+  let prices: TokenPrices | undefined;
+  if (options.prices !== undefined) {
+    try {
+      prices = await pricesFromConfig({ prices: options.prices }, io.cwd);
+    } catch (cause) {
+      io.err(`${reason(cause)}\n`);
+      return 2;
+    }
+  }
   const root = resolve(io.cwd, rootArg);
   if (!(await isFolder(root))) {
     io.err(`Cannot find the estate folder ${show(root, io)}.\n`);
@@ -319,7 +337,8 @@ export async function estateScanCommand(
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
-  io.out(scanReport(result, out, io, handle?.describe));
+  io.out(scanReport(result, out, io, handle?.describe, prices));
+  deps.onScan?.(result, prices);
   const closing = handle ? await handle.finish(result) : 0;
   if (closing === 2) return 2;
   const failed =
@@ -343,7 +362,13 @@ function ignoredLines(result: ScanEstateResult): string[] {
   ];
 }
 
-function scanReport(result: ScanEstateResult, out: string, io: Io, describe = ''): string {
+function scanReport(
+  result: ScanEstateResult,
+  out: string,
+  io: Io,
+  describe = '',
+  prices?: TokenPrices,
+): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
   const lines = [
@@ -361,7 +386,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io, describe = ''
   }
   const prose = proseInventoryLines(proseInventory(result.raw), result.chunks.length > 0 || !!result.pointer);
   if (result.pointer) {
-    lines.push(...prose, ...pointerLines(result, describe));
+    lines.push(...prose, ...pointerLines(result, describe, prices));
   } else if (result.chunks.length === 0)
     lines.push('  No model call: structured atoms only (--no-model).', ...prose);
   else {
