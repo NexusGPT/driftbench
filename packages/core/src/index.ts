@@ -141,6 +141,7 @@ export {
   type UsedObject,
 } from './objects';
 export { bindObjectContext, objectContextOfSpec } from './objects/context';
+export { DENSE_SYSTEM, type DenseSystemSet, denseSystemFor, SPAN_RULE, TARGET_RULE } from './pointer-prompt';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,

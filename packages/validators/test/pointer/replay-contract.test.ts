@@ -152,6 +152,50 @@ describe('the fixture kit writes the request the reader sends', () => {
   }
 });
 
+describe("the system text of the kit is the reader's for a set with spans, links and targets", () => {
+  // biome-ignore lint/suspicious/noExplicitAny: the reader's namespace is loaded at run time.
+  const reader = async () => (await import('@agent-nexus/driftbench-estate')).pointer as Record<string, any>;
+  const head = 'labels:\n  - set: house\n    description: What the notes of a house ask.\n';
+  const clause = '    spans:\n      - { name: clause, description: the part that says what to do }\n';
+  const order = '      - name: order\n        description: A unit that tells what to do.\n';
+  const sets: Array<[string, string]> = [
+    ['a set with a span kind', `${head}${clause}    labels:\n${order}        spans: [clause]\n`],
+    [
+      'a set with a link kind',
+      `${head}    links:\n      - { name: topic, description: the route this is about, to: [route] }\n    labels:\n${order}        links: [topic]\n`,
+    ],
+    [
+      'a set with spans and a label that asks for a target',
+      `${head}${clause}    labels:\n${order}        spans: [clause]\n        target: required\n`,
+    ],
+    [
+      'a set of plain labels',
+      `${head}    labels:\n      - name: remark\n        description: A unit that only describes.\n`,
+    ],
+  ];
+
+  for (const [name, yaml] of sets) {
+    it(`${name}: the kit's system text equals the reader's`, async () => {
+      const pointer = await reader();
+      const parsed = pointer.parseLabelSets(yaml);
+      expect(parsed.ok, parsed.message).toBe(true);
+      const source = 'Lock the side door at six.\n';
+      const [window] = pointer.windowsOf(
+        'doc.md',
+        pointer.cut(source).units,
+        Number.POSITIVE_INFINITY,
+        source,
+      );
+      const sent = pointer.createAnthropicLabeler({}).render(parsed.sets[0], window).body as {
+        system: string;
+      };
+      const set = (parse(yaml) as { labels: LabelSetDef[] }).labels[0] as LabelSetDef;
+      const written = wireFor('haiku', set, window.id, [], []).body as { system: string };
+      expect(written.system).toBe(sent.system);
+    });
+  }
+});
+
 describe('committed replay oracles', () => {
   for (const arm of ['haiku', 'jev', 'jev-unit'] as const) {
     it(`${arm}: fixture is reproducible without running a reader, and every unit has its authored label`, async () => {
