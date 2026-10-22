@@ -40,7 +40,7 @@ export function usageLines(
   const who = `judge ${client.id}${client.model ? ` ${client.model}` : ''}`;
   if (usage.reported === 0)
     return [
-      `Tokens, ${who}: not reported${replayed ? ': the cassette holds no token counts' : ''}, so no cost is known.`,
+      `Tokens, ${who}: ${replayed ? 'no tokens recorded in this cassette' : 'no tokens reported by the provider'}, so no cost is known.`,
     ];
   const lines = [
     `${replayed ? 'Tokens replayed from the cassette' : 'Tokens'}, ${who}: ${usage.input} in, ${usage.output} out, ${usage.calls} calls.`,

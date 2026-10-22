@@ -503,6 +503,21 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
         expect(replay.out).not.toContain('0.0000 USD');
       });
 
+      it('replays a cassette recorded before token counts, with a note and no error', async () => {
+        const spec = await pluginSpec('grade-old-cassette.spec.json');
+        const table = join(dir, 'grade-old.prices.yaml');
+        await writeFile(table, prices);
+        const replay = await redteam(
+          ['grade', spec, '--target', 'function:acme-sales', '--cassette', CASSETTE, '--prices', table],
+          defaultDeps,
+          noLiveJudge,
+        );
+        expect(replay.err).toBe('');
+        expect(replay.out).toContain('no tokens recorded in this cassette, so no cost is known.');
+        expect(replay.out).not.toContain('0.0000 USD');
+        expect(replay.out).not.toContain('Cost');
+      });
+
       it('replays the committed cassette of the guide with a price table', async () => {
         const table = join(dir, 'grade-guide.prices.yaml');
         await writeFile(
