@@ -255,10 +255,10 @@ jobs:
       # The variables ladder reads the labels a reader recorded for the condition spans (docs/validators.md 12.5). The
       # spans of seeds 1 to 20 come from the bank, not from the commit, so the labels of every recording on the data
       # branch `cassettes/variables-spans` fit them: the leg replays the union of the files (a label is keyed by the
-      # text of its span; an old one that no span uses is never read). The hidden seed derives from the commit, so its
+      # text of its span; an old one that no span uses is never read). Every leg fetches them, the other validators read no
+      # label. The hidden seed derives from the commit, so its
       # spans have no label until that commit is recorded (tools/variables-record-spans.mjs): its leg runs without.
       - name: Fetch the span labels
-        if: matrix.component == 'variables'
         shell: bash
         run: |
           git fetch --depth=1 origin cassettes/variables-spans
