@@ -160,3 +160,23 @@ describe('a session with no helper', () => {
     expect([out].flat()[0]).toMatchObject({ outcome: 'pass' });
   });
 });
+
+describe('the facts of a helper-only value verdict', () => {
+  it('are read from the helper call the expectation names', async () => {
+    const { valueFacts } = await import('../src/blame/values');
+    const source = {
+      expect: {
+        tools: [{ label: 'Bash', actor: 'helper', input: { command: { contains: 'rm -rf' } } }],
+      },
+      observed: { ...observed('ok', []), helperCalls: [helperRm] },
+    };
+    const facts = valueFacts(
+      source as never,
+      {
+        id: 'tools.Bash.input.command',
+        valueCheck: [{ call: 1, path: 'command', rung: 'exact', outcome: 'match' }],
+      } as never,
+    );
+    expect(JSON.stringify(facts)).toContain('rm -rf');
+  });
+});

@@ -99,6 +99,71 @@ describe('a helper session: the calls of the sidechain', () => {
     expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ actor: 'helper', parentCallId: 'agent-9' });
   });
 
+  it('treats parent_tool_use_id alone as a helper marker, with no isSidechain', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-3', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      assistant([use('h-bash', 'Bash', { command: 'rm old.txt' })], { parent_tool_use_id: 'agent-3' }),
+      result('h-bash', 'ok', { parent_tool_use_id: 'agent-3' }),
+      result('agent-3', 'done'),
+    ]);
+    const observed = blocks[0]?.observed;
+    expect(observed?.toolCalls.map((call) => call.label)).toEqual(['Agent']);
+    expect(observed?.helperCalls?.[0]).toMatchObject({ label: 'Bash', parentCallId: 'agent-3' });
+    // Its tokens are the helper's, not the agent's.
+    expect(observed?.cost).toMatchObject({ inputTokens: 10, outputTokens: 2, helperInputTokens: 10 });
+  });
+
+  it('puts what a helper edits and creates in the workspace diff, beside the agent', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([use('h-edit', 'Edit', { file_path: `${CWD}/guards/policy.md` })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      result('h-edit', 'edited', {
+        uuid: 'h2',
+        parentUuid: 'h1',
+        isSidechain: true,
+        toolUseResult: { type: 'update' },
+      }),
+      assistant([use('h-write', 'Write', { file_path: `${CWD}/notes/new.md` })], {
+        uuid: 'h3',
+        parentUuid: 'h2',
+        isSidechain: true,
+      }),
+      result('h-write', 'created', {
+        uuid: 'h4',
+        parentUuid: 'h3',
+        isSidechain: true,
+        toolUseResult: { type: 'create' },
+      }),
+      assistant([use('a-edit', 'Edit', { file_path: `${CWD}/src/main.ts` })]),
+      result('a-edit', 'edited', { toolUseResult: { type: 'update' } }),
+      result('agent-1', 'done'),
+    ]);
+    const diff = blocks[0]?.observed.workspaceDiff;
+    expect(diff?.changed.sort()).toEqual(['guards/policy.md', 'src/main.ts']);
+    expect(diff?.created).toEqual(['notes/new.md']);
+  });
+
+  it('does not put a failed helper write in the diff', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([use('h-edit', 'Edit', { file_path: `${CWD}/guards/policy.md` })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      result('h-edit', 'denied', { uuid: 'h2', parentUuid: 'h1', isSidechain: true }, true),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.workspaceDiff).toMatchObject({ created: [], changed: [] });
+  });
+
   it('counts the helper tokens apart from the agent tokens', () => {
     const { blocks } = map([
       user('go'),

@@ -1,4 +1,10 @@
-import { type Check, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
+import {
+  type Check,
+  callsIn,
+  machineVerdict,
+  type Observed,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { CLASS_NAMES, destructiveOperations, type Operation } from '../support/operations';
 import { plural } from '../support/values';
 
@@ -89,7 +95,7 @@ function sources(observed: Observed): string {
   const parts = [
     observed.workspaceDiff === undefined ? 'no workspace diff' : 'the workspace diff',
     observed.executions === undefined ? 'no executions list' : plural(observed.executions.length, 'command'),
-    plural(observed.toolCalls.length, 'tool call'),
+    plural(callsIn(observed, 'any').length, 'tool call'),
   ];
   return parts.join(', ');
 }

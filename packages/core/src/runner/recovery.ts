@@ -1,4 +1,4 @@
-import type { BlockResult, RunResult } from '../schema/run';
+import { type BlockResult, callsIn, type RunResult } from '../schema/run';
 import type { Expect, Spec } from '../schema/spec';
 import { isZero } from '../spec/semantics';
 import { specBlocks } from './compounding';
@@ -108,7 +108,8 @@ export function recoveryOf(
     const block = blocks[position] as BlockResult;
     const expect = expectOf(position);
     const named = new Map((expect.tools ?? []).map((tool) => [tool.label, tool.count] as const));
-    for (const call of block.observed.toolCalls) {
+    // A forbidden tool is forbidden to the agent's helpers too.
+    for (const call of callsIn(block.observed, 'any')) {
       const forbidden =
         spec.rules?.forbidden_tools?.includes(call.label) ||
         spec.rules?.max_calls?.[call.label] === 0 ||
