@@ -20,8 +20,8 @@ async function installLines(page: string): Promise<string[]> {
   return lines.slice(0, lines.indexOf('driftbench --version') + 1);
 }
 
-/** The clone and the build take minutes and need the network: they run on CI, where the checkout is a clean tree. */
-const onCi = process.env.CI !== undefined && process.env.CI !== '';
+/** The clone and the build take minutes and need the network: only the CI job `guide-install` switches this on. */
+const onCi = process.env.DRIFTBENCH_GUIDE_INSTALL === '1';
 
 describe('install from source, as the guide shows it', () => {
   it.skipIf(!onCi)(

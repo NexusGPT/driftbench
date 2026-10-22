@@ -132,6 +132,7 @@ const CI_HEAVY = [
   'viewer-journey',
   'guard',
   'timing',
+  'guide-install',
 ];
 /**
  * The jobs of the validators workflow, each with the id a dispatch lists to run it: the legs and the job that
@@ -1314,7 +1315,7 @@ describe('merge train enforcement', () => {
   it('runs the timing tests in the timing job only, and lets a dispatch list that job', () => {
     assertTimingGuard(workflow);
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
-    expect(command).toContain(',guard,timing,fast,');
+    expect(command).toContain(',guard,timing,guide-install,fast,');
   });
   it('rejects a timing job that skips the timing tests, a pool that runs them, and a dispatch list without the job', () => {
     const skipping = structuredClone(workflow);
@@ -1330,7 +1331,8 @@ describe('merge train enforcement', () => {
     delete buildRunsThem.jobs.build.env;
     expect(() => assertTimingGuard(buildRunsThem)).toThrow();
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
-    expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+    const without = command.replace(',guard,timing,guide-install,fast,', ',guard,timing,fast,');
+    expect(() => assertGate(without)).toThrow();
   });
   it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
     assertCheckoutRetry(workflow);
