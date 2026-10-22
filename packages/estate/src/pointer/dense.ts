@@ -22,6 +22,10 @@ import {
   type Labelled,
   type LabelSet,
   offsetSpans,
+  requestPathOf,
+  requestShownOf,
+  shownIdOf,
+  shownOf,
   type Window,
 } from './labels';
 
@@ -55,7 +59,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
     for (const kind of set.links) {
       lines.push(`- ${kind.name}: ${kind.description}`);
       for (const candidate of context.candidates?.[kind.name] ?? [])
-        lines.push(`    ${candidate.id}  ${candidate.label}`);
+        lines.push(`    ${shownIdOf(candidate)}  ${candidate.label}`);
     }
   }
   return lines;
@@ -97,10 +101,10 @@ export const RETRY_NOTE =
  */
 export function windowLines(window: Window): string[] {
   const shownAt = (after: number) =>
-    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(line.text));
+    (window.shown ?? []).filter((line) => line.after === after).map((line) => squash(requestShownOf(line)));
   return [
     ...shownAt(0),
-    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${squash(unit.text)}`, ...shownAt(at + 1)]),
+    ...window.units.flatMap((unit, at) => [`[${unit.n}] ${shownOf(unit).text}`, ...shownAt(at + 1)]),
   ];
 }
 
@@ -111,7 +115,7 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
     ...set.labels.map(labelLine),
     '- none: no label of this set applies.',
     ...spanLines(set, context),
-    `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
+    `WINDOW ${window.id}  path: ${requestPathOf(window).join(' > ') || '(top)'}`,
     ...windowLines(window),
   ].join('\n');
 }
@@ -151,13 +155,17 @@ export type Expected = { window?: string; set?: string };
  */
 export function parseDenseAnswer(text: string, expected: Expected = {}): Labelled[] {
   const value = jsonObjectOf(text);
-  if (value === undefined) throw new LabelerError('the answer is not JSON');
+  if (value === undefined) throw new LabelerError('the answer is not JSON', { code: 'answer-not-json' });
   const named = value as Record<string, unknown>;
   if (expected.window !== undefined && named.window !== undefined && named.window !== expected.window) {
-    throw new LabelerError(`the answer is for another window than ${expected.window}`);
+    throw new LabelerError(`the answer is for another window than ${expected.window}`, {
+      code: 'answer-window-mismatch',
+    });
   }
   if (expected.set !== undefined && named.set !== undefined && named.set !== expected.set) {
-    throw new LabelerError(`the answer is for another set than ${expected.set}`);
+    throw new LabelerError(`the answer is for another set than ${expected.set}`, {
+      code: 'answer-set-mismatch',
+    });
   }
   return denseLabels(value);
 }
@@ -165,7 +173,7 @@ export function parseDenseAnswer(text: string, expected: Expected = {}): Labelle
 /** The labels of an answer already parsed: `{ labels: [{ units, label, target? }] }`. */
 export function denseLabels(value: unknown): Labelled[] {
   if (!isRecord(value) || !Array.isArray(value.labels)) {
-    throw new LabelerError('the answer has no labels list');
+    throw new LabelerError('the answer has no labels list', { code: 'answer-no-labels' });
   }
   const out: Labelled[] = [];
   for (const entry of value.labels) {
@@ -174,7 +182,7 @@ export function denseLabels(value: unknown): Labelled[] {
       (typeof entry.units !== 'string' && typeof entry.units !== 'number') ||
       typeof entry.label !== 'string'
     ) {
-      throw new LabelerError('a label entry is not {units, label}');
+      throw new LabelerError('a label entry is not {units, label}', { code: 'answer-entry-malformed' });
     }
     const target = entry.target;
     // A target that is no number is kept as written, so the check refuses it and the scan counts the refusal.

@@ -492,7 +492,7 @@ describe('the answer of a labeler', () => {
     const files = [{ path: 'notes.md', text: 'Move the crate.\n\nTie the bow line.\n' }];
     const cassette = new pointer.Cassette();
     const failing = plantedDense(() => [], [], {
-      fail: () => new pointer.LabelerError('the answer is not JSON'),
+      fail: () => new pointer.LabelerError('the answer is not JSON', { code: 'answer-not-json' }),
     });
     const recording = await pointer.pointerScan({
       files,
@@ -523,12 +523,83 @@ describe('the answer of a labeler', () => {
       files,
       sets: [set],
       labelling: pointer.singleLabelling(
-        plantedDense(() => [], [], { fail: () => new pointer.LabelerError('the answer has no labels list') }),
+        plantedDense(() => [], [], {
+          fail: () => new pointer.LabelerError('the answer has no labels list', { code: 'answer-no-labels' }),
+        }),
       ),
       cassette: new pointer.Cassette(),
       mode: 'record',
     });
     expect(other.failedRecords[0]).toMatchObject({ code: 'answer-no-labels' });
+  });
+
+  const FILES = [{ path: 'notes.md', text: 'Move the crate.\n\nTie the bow line.\n' }];
+  const scanWith = (error: Error, cassette: pointer.Cassette, mode: 'record' | 'replay') =>
+    pointer.pointerScan({
+      files: FILES,
+      sets: [set],
+      labelling: pointer.singleLabelling(plantedDense(() => [], [], { fail: () => error })),
+      cassette,
+      mode,
+    });
+
+  it('records the code of the error, and reads an entry with no code as unknown', async () => {
+    const coded = new pointer.Cassette();
+    const error = new pointer.LabelerError('a reason', { code: 'answer-not-json' });
+    await scanWith(error, coded, 'record');
+    const answers = [...coded.entries.values()].map((entry) => entry.answer);
+    expect(answers.length).toBeGreaterThan(0);
+    for (const answer of answers) {
+      expect(answer).toMatchObject({ refused: 'unreadable', code: 'answer-not-json' });
+    }
+    const old = pointer.Cassette.parse(coded.render());
+    for (const entry of old.entries.values()) delete entry.answer.code;
+    const replay = await scanWith(new Error('never called'), old, 'replay');
+    expect(replay.failed.length).toBeGreaterThan(0);
+    expect(replay.failed.every((text) => text.endsWith('a reason'))).toBe(true);
+    expect(replay.failedRecords.map((item) => item.code)).toEqual(replay.failed.map(() => 'unknown'));
+  });
+
+  it('gives an error raised with no code the one explicit code unknown', async () => {
+    const bare = new pointer.LabelerError('the answer is not JSON');
+    expect(bare.code).toBe(pointer.UNKNOWN_CODE);
+    expect(pointer.UNKNOWN_CODE).toBe('unknown');
+    const result = await scanWith(bare, new pointer.Cassette(), 'record');
+    expect(result.failed.length).toBeGreaterThan(0);
+    expect(result.failedRecords.map((item) => item.code)).toEqual(result.failed.map(() => 'unknown'));
+  });
+
+  it('sets the code of each unreadable answer where the answer is read', () => {
+    const thrown = (run: () => unknown): string => {
+      try {
+        run();
+      } catch (cause) {
+        return cause instanceof pointer.LabelerError ? cause.code : 'not a labeler error';
+      }
+      return 'no error';
+    };
+    const dense = (text: string, expected: { window?: string; set?: string } = {}) =>
+      thrown(() => pointer.parseDenseAnswer(text, expected));
+    expect(dense('Sure! Here you go')).toBe('answer-not-json');
+    expect(dense('{"window":"w#2","labels":[]}', { window: 'w#1' })).toBe('answer-window-mismatch');
+    expect(dense('{"set":"b","labels":[]}', { set: 'a' })).toBe('answer-set-mismatch');
+    expect(thrown(() => pointer.denseLabels({ note: 1 }))).toBe('answer-no-labels');
+    expect(dense('{"labels":[{"label":"x"}]}')).toBe('answer-entry-malformed');
+    const user = (cls: 'system1' | 'system2', payload: unknown): string =>
+      thrown(() => pointer.userAnswer(cls, payload, 'm'));
+    expect(user('system2', 'text')).toBe('answer-not-object');
+    expect(user('system1', { labels: [] })).toBe('answer-no-probabilities');
+  });
+
+  it('reads the code of an unlocated span from the field, never from its text', () => {
+    const unlocated = 'the text is not in the unit';
+    const span = (extra: Record<string, unknown>) => {
+      const spans = [{ kind: 'act', from: -1, to: -1, unlocated, ...extra }];
+      return check([{ units: '1', label: 'order', spans }]).droppedRecords[0];
+    };
+    expect(span({ unlocatedCode: 'span-text-repeated' })).toMatchObject({ code: 'span-text-repeated' });
+    expect(span({ unlocatedCode: 'span-text-absent' })).toMatchObject({ code: 'span-text-absent' });
+    expect(span({})).toMatchObject({ code: 'unknown', kind: 'act' });
   });
 });
 
@@ -750,5 +821,58 @@ describe('the settings file', () => {
       'ledger',
     ]);
     expect(detailed.ok ? 0 : detailed.issues.length).toBe(detailed.ok ? 0 : detailed.errors.length);
+  });
+});
+
+describe('the examples of a label', () => {
+  const fileWith = (examples: string) =>
+    `labels:\n  - set: harbour\n    description: A set.\n    labels:\n      - name: rule\n        description: A rule.\n        examples: ${examples}\n`;
+  const refusal = (examples: string) => {
+    const read = pointer.parseLabelSetsDetailed(fileWith(examples));
+    expect(read.ok).toBe(false);
+    return read;
+  };
+
+  it('gives four examples the count code', () => {
+    expect(refusal('[one, two, three, four]')).toMatchObject({
+      code: 'label-examples-too-many',
+      reason: 'more-than-three-examples',
+      set: 'harbour',
+      label: 'rule',
+    });
+  });
+
+  it.each(['false', '1', '{}', 'null', 'plain text', '"quoted"', '1.5', 'true'])(
+    'gives the non-list examples value %s its own code, not the count code',
+    (examples) => {
+      const read = refusal(examples);
+      expect(read).toMatchObject({
+        code: 'label-examples-not-a-list',
+        reason: 'not-a-list',
+        path: 'labels.0.labels.0.examples',
+        set: 'harbour',
+        label: 'rule',
+      });
+      expect(read).not.toMatchObject({ code: 'label-examples-too-many' });
+    },
+  );
+
+  it.each(['[1]', '[null]', '[{}]', '[[a]]', '[one, false]', '[""]'])(
+    'gives the list %s with a bad element its own code, neither of the list codes',
+    (examples) => {
+      const read = refusal(examples);
+      expect(read).toMatchObject({
+        code: 'label-example-invalid',
+        reason: 'example-not-text',
+        set: 'harbour',
+        label: 'rule',
+      });
+      expect(read).not.toMatchObject({ code: 'label-examples-not-a-list' });
+      expect(read).not.toMatchObject({ code: 'label-examples-too-many' });
+    },
+  );
+
+  it('still reads a list of up to three texts', () => {
+    expect(pointer.parseLabelSetsDetailed(fileWith('[one, two, three]')).ok).toBe(true);
   });
 });

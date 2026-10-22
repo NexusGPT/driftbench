@@ -16,7 +16,7 @@ import {
   refusingKey,
   usageOf,
 } from './labeler';
-import type { Label, LabelSet, Window } from './labels';
+import { type Label, type LabelSet, requestPathOf, type Window } from './labels';
 
 /**
  * The yes or no shape of a system 1 labeler: one question per unit and label, batched in one request per
@@ -37,7 +37,7 @@ export function yesNoQuestion(label: Label, n: number): string {
 
 /** The numbered text a question refers to: the heading path, then `[n] text` per unit. */
 export function yesNoText(window: Window): string {
-  return [`path: ${window.headingPath.join(' > ') || '(top)'}`, ...windowLines(window)].join('\n');
+  return [`path: ${requestPathOf(window).join(' > ') || '(top)'}`, ...windowLines(window)].join('\n');
 }
 
 /**

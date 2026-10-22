@@ -1,10 +1,9 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type PointerDiagnostic, record } from './codes';
-import { type Cut, cut, type Unit } from './cut';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
+import { type Cut, cut, sha, type Unit } from './cut';
 import {
-  answerCode,
   isTooLarge,
   type Labeler,
   type LabelerClass,
@@ -15,12 +14,16 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  type Candidate,
+  commentRanges,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
+  requestTextOf,
   type ShownLine,
   type SpanAnswer,
   setHash,
+  shownIdOf,
   type Window,
 } from './labels';
 import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
@@ -46,8 +49,16 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
-  /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
-  atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
+  /**
+   * The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. `at` is where
+   * the atom is read from; with it, an atom that sits on a comment of the file is listed without that comment.
+   */
+  atoms?: ReadonlyArray<{
+    id: string;
+    kind: string;
+    title: string;
+    at?: { file: string; startLine: number; endLine: number; quote?: string };
+  }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
   onPlan?: (plan: PointerPlan) => void;
 };
@@ -101,6 +112,12 @@ export type LabelerUsage = {
   recorded: number;
   input: number;
   output: number;
+  /** Answers taken from the cassette instead of the service. */
+  replayed: number;
+  /** The input tokens the replayed answers cost when they were recorded. */
+  replayedInput: number;
+  /** The output tokens the replayed answers cost when they were recorded. */
+  replayedOutput: number;
 };
 
 export type PointerResult = {
@@ -137,6 +154,8 @@ export type PointerResult = {
   droppedRecords: PointerDiagnostic[];
   /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
   outOfStep: string[];
+  /** Slipped runs whose window was asked again and answered in step, with the run that took their place. */
+  reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   /** One record for each text of `failed`, in the same order. */
@@ -146,6 +165,74 @@ export type PointerResult = {
   recorded: number;
 };
 
+/** A heading title or a fence line as a request carries it: a comment in it is replaced by `(comment)`. */
+const requestTitle = (text: string): string => requestTextOf({ text }).text;
+
+/**
+ * The comments of a file as [from, to) offsets, found once on the whole text: a comment the cutter split across
+ * units, or one that never closes, is still a comment in each unit it touches. A comment opened inside a fence
+ * is fence text.
+ */
+function fileCommentsOf(units: readonly Unit[], source: string): Array<[number, number]> {
+  const fenced = units
+    .filter((unit) => unit.container === 'opaque' && /^\s*(```|~~~)/.test(unit.text))
+    .map((unit): [number, number] => [unit.start, unit.end]);
+  return commentRanges(source, fenced);
+}
+
+/** What a request lists in place of the title of an atom that cannot be shown: its comment is not ours to send. */
+export const WITHHELD_TITLE = '(title withheld: it holds a comment)';
+
+/** The id a request lists for an atom whose own id is a slug of words of a comment: a hash, the same every run. */
+const handleOf = (id: string): string => `atom-${sha(id).slice(0, 10)}`;
+
+type AtomInput = NonNullable<PointerInput['atoms']>[number];
+
+/** A file of the run: its text and its comments as [from, to) offsets. */
+type Source = { text: string; comments: ReadonlyArray<readonly [number, number]> };
+
+/** The offset at which each line of a text starts. */
+function lineStarts(text: string): number[] {
+  const starts = [0];
+  for (let at = text.indexOf('\n'); at >= 0; at = text.indexOf('\n', at + 1)) {
+    starts.push(at + 1);
+  }
+  return starts;
+}
+
+/** The [from, to) offsets an atom is read from in its file: its quote when it is found on its lines, else its lines. */
+function sitOf(at: NonNullable<AtomInput['at']>, text: string): { from: number; to: number; exact: boolean } {
+  const starts = lineStarts(text);
+  const first = starts[at.startLine - 1];
+  if (first === undefined) return { from: 0, to: text.length, exact: false };
+  const last = starts[at.endLine] ?? text.length;
+  const found = at.quote ? text.indexOf(at.quote, first) : -1;
+  return found >= 0 && found < last
+    ? { from: found, to: found + (at.quote?.length ?? 0), exact: true }
+    : { from: first, to: last, exact: false };
+}
+
+/**
+ * An atom as a request lists it. The title of an atom is the text of its unit, comments included, and its id is a
+ * slug of that title, so both can carry a comment. An atom is listed as it is when no comment touches it. One
+ * whose title holds a comment, or whose place in its file overlaps a comment, is listed with the title masked as
+ * a unit is (or withheld when the comment began before the atom: the title then holds the end of it, with no
+ * opener to find), and under a hash of its id; the answer is carried back to the real id (`shown`).
+ */
+function candidateOf(atom: AtomInput, source: Source | undefined): Candidate {
+  let verdict: 'clean' | 'mask' | 'withhold' = commentRanges(atom.title).length > 0 ? 'mask' : 'clean';
+  if (atom.at && source) {
+    const sit = sitOf(atom.at, source.text);
+    const touching = source.comments.filter(([from, to]) => from < sit.to && to > sit.from);
+    if (touching.length > 0) {
+      verdict = !sit.exact || touching.some(([from]) => from < sit.from) ? 'withhold' : 'mask';
+    }
+  }
+  if (verdict === 'withhold') return { id: atom.id, label: WITHHELD_TITLE, shown: handleOf(atom.id) };
+  const label = requestTitle(atom.title);
+  return label === atom.title ? { id: atom.id, label } : { id: atom.id, label, shown: handleOf(atom.id) };
+}
+
 /**
  * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
  * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
@@ -153,6 +240,14 @@ export type PointerResult = {
  */
 export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
+  const fileComments = source === undefined ? undefined : fileCommentsOf(units, source);
+  const commentsOf = (unit: Unit): Array<[number, number]> | undefined =>
+    fileComments
+      ?.filter(([from, to]) => from < unit.end && to > unit.start)
+      .map(([from, to]): [number, number] => [
+        Math.max(from, unit.start) - unit.start,
+        Math.min(to, unit.end) - unit.start,
+      ]);
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
   let first: Unit | undefined;
@@ -165,7 +260,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     windows.push({
       id: `${path}#${windows.length + 1}`,
       path,
-      headingPath: first?.path ?? [],
+      headingPath: (first?.path ?? []).map(requestTitle),
       units: current,
       ...(shown.length > 0 ? { shown } : {}),
     });
@@ -185,7 +280,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
         // A fence: only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
         text:
           kind === 'fence'
-            ? `(fence, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`
+            ? `(fence, not labelable) ${requestTitle(unit.text.split(/\r\n|\r|\n/, 1)[0] ?? '')}`
             : '(comment, not labelable)',
       });
       continue;
@@ -203,7 +298,8 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     if (current.length >= size && !sameRow) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
-    current.push({ n: current.length + 1, text: unit.text, index });
+    const comments = commentsOf(unit);
+    current.push({ n: current.length + 1, text: unit.text, index, ...(comments ? { comments } : {}) });
   }
   flush();
   return windows;
@@ -217,6 +313,12 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
  */
 export const OUT_OF_STEP_SHARE = 0.25;
 export const OUT_OF_STEP_MIN = 4;
+
+/** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
+export const REASK_LIMIT = 3;
+
+/** How many more runs a window gets when the two most given labels of one of its units tie. */
+export const SPLIT_REASK_RUNS = 2;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
@@ -338,7 +440,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
 
-  // What each set lists in its requests for its links: the atoms of the kinds a link kind may name.
+  // What each set lists in its requests for its links: the atoms of the kinds a link kind may name. An atom is
+  // listed by `candidateOf`: its title and its id can hold words of a comment, and a request carries none.
+  const sources = new Map(
+    files.map((file) => [
+      file.path,
+      { text: file.text, comments: fileCommentsOf((cuts.get(file.path) as Cut).units, file.text) },
+    ]),
+  );
   const contexts = new Map<string, LabelContext>(
     input.sets.map((set) => [
       set.set,
@@ -350,8 +459,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
               ? kind.values.map((value) => ({ id: value, label: value }))
               : (input.atoms ?? [])
                   .filter((atom) => kind.to?.includes(atom.kind))
-                  .map((atom) => ({ id: atom.id, label: atom.title }))
-                  .sort((a, b) => a.id.localeCompare(b.id)),
+                  .map((atom) => candidateOf(atom, atom.at ? sources.get(atom.at.file) : undefined))
+                  .sort((a, b) => shownIdOf(a).localeCompare(shownIdOf(b))),
           ]),
         ),
       },
@@ -414,19 +523,30 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   // 3. The answers, `jobs` at a time. A window the service refuses as too large is halved.
-  const tally = labelling.members.map(() => ({ calls: 0, recorded: 0, input: 0, output: 0 }));
+  const tally = labelling.members.map(() => ({
+    calls: 0,
+    recorded: 0,
+    input: 0,
+    output: 0,
+    replayed: 0,
+    replayedInput: 0,
+    replayedOutput: 0,
+  }));
 
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
     const wire = member.render(task.set, window, task.context);
     const readable = readableFor(task, window);
+    const counts = tally[task.memberAt] as (typeof tally)[number];
     try {
       const hit = cassette.get(wire, readable);
+      counts.replayed++;
+      counts.replayedInput += hit.answer.usage.input;
+      counts.replayedOutput += hit.answer.usage.output;
       return { answer: hit.answer, key: hit.key };
     } catch (cause) {
       if (!(cause instanceof CassetteMiss) || input.mode === 'replay' || !member.call) throw cause;
     }
-    const counts = tally[task.memberAt] as (typeof tally)[number];
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
     let failure: unknown;
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -463,6 +583,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        code: failure.code,
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
@@ -495,7 +616,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     if (result.answer.refused === 'unreadable') {
       const reason = result.answer.error ?? 'the answer cannot be read';
-      return windowFailure(answerCode(reason), reason);
+      return windowFailure(result.answer.code ?? UNKNOWN_CODE, reason);
     }
     if (result.answer.refused !== 'too_large') {
       return {
@@ -553,6 +674,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const failed: string[] = [];
   const failedRecords: PointerDiagnostic[] = [];
   const outOfStepRuns: string[] = [];
+  const slippedLeaves: Array<{ task: Task; window: Window }> = [];
+  // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
+  const unheard = new WeakMap<Map<number, Opinion>, Set<number>>();
+  // A run asked for one window only (a re-ask on a split) is heard on that window's units alone.
+  const heardOnly = new WeakMap<Map<number, Opinion>, Set<number>>();
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
   const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
@@ -567,6 +693,23 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     return found;
   };
+  /** The opinions of one run of a member on a file and set. */
+  const runOf = (task: Task, run: number): Map<number, Opinion> =>
+    (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[run - 1] as Map<
+      number,
+      Opinion
+    >;
+  /** Reads an answer in step and puts its opinions in the place of run `run`. */
+  const hear = (task: Task, run: number, leaf: Leaf) => {
+    const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
+    refusals.push(...read.refusals);
+    refusalRecords.push(...(read.refusalRecords ?? []));
+    dropped.push(...(read.dropped ?? []));
+    droppedRecords.push(...(read.droppedRecords ?? []));
+    const target = runOf(task, run);
+    for (const [index, opinion] of read.byUnit)
+      target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
+  };
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
@@ -580,24 +723,62 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         outOfStepRuns.push(
           `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
         );
+        const run = runOf(task, task.run);
+        const off = unheard.get(run) ?? new Set<number>();
+        for (const unit of leaf.window.units) off.add(unit.index);
+        unheard.set(run, off);
+        slippedLeaves.push({ task, window: leaf.window });
         continue;
       }
-      const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
-      refusals.push(...read.refusals);
-      refusalRecords.push(...(read.refusalRecords ?? []));
-      dropped.push(...(read.dropped ?? []));
-      droppedRecords.push(...(read.droppedRecords ?? []));
-      const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
-        task.run - 1
-      ] as Map<number, Opinion>;
-      for (const [index, opinion] of read.byUnit)
-        target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
+      hear(task, task.run, leaf);
+    }
+  }
+
+  // A window that lost a run to a slip is asked again, as runs after the last (6, 7 and 8 of five), until the runs heard
+  // are as many as the runs asked or REASK_LIMIT re-asks are spent. A re-ask in step takes the place of the slipped
+  // run. A re-ask is keyed by its own run number, so a replay reads the same answers; a replay whose cassette holds no
+  // re-ask leaves the slipped run unheard.
+  const reasked: string[] = [];
+  const spent = new Map<string, number>();
+  for (const { task, window } of slippedLeaves) {
+    const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${window.id}`;
+    while ((spent.get(where) ?? 0) < REASK_LIMIT) {
+      const extra = (spent.get(where) ?? 0) + 1;
+      spent.set(where, extra);
+      const again: Task = { ...task, window, run: (task.member.runs ?? 1) + extra };
+      if (input.mode === 'replay') {
+        const wire = again.member.render(again.set, window, again.context);
+        if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
+      }
+      const answered = await resolve(again, window);
+      failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
+      const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
+      if (!leaf) break;
+      windows++;
+      const slipped = outOfStep(leaf.answer);
+      if (slipped) {
+        outOfStepRuns.push(
+          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+        );
+        continue;
+      }
+      // The re-ask takes the slipped run's place on the units of this window.
+      const run = runOf(task, task.run);
+      for (const unit of window.units) unheard.get(run)?.delete(unit.index);
+      hear(again, task.run, leaf);
+      reasked.push(
+        `${window.id} run ${task.run} of ${task.member.id}: asked again as run ${again.run}, in step`,
+      );
+      break;
     }
   }
 
   /**
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
-   * the runs gave: three of five by default. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * the runs heard gave: three of five by default. A run out of step in the unit's window is not heard: it counts
+   * neither for a label nor in the count, and with fewer than two runs heard the member has no opinion. A run that left
+   * the unit out counts for no label. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
@@ -624,12 +805,84 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   };
   /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
   const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  /**
+   * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
+   * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
+   * group of its own for each target it names. When a group holds more than half of the runs heard, the label most of its runs gave wins. A tie
+   * inside a group that builds an atom stays a split (an obligation against a prohibition builds two different
+   * atoms); inside the group that builds none, the earliest run's label stands. A split between atom kinds (a reply rule
+   * against a rule) stays a split: no group holds the majority, and the unit stays unlabeled.
+   */
+  const sameKind = (present: Opinion[], heard: number, set: LabelSet): Opinion[] | undefined =>
+    sameKindVote(present, heard, set).winners;
+  /** The group vote, and whether it ended on a tie inside a kind that builds an atom (a split more runs can settle). */
+  const sameKindVote = (
+    present: Opinion[],
+    heard: number,
+    set: LabelSet,
+  ): { winners?: Opinion[]; tiedInKind: boolean } => {
+    // A set whose labels build no atom (the document roles) has no kinds to vote by: its splits stay splits.
+    if (!set.labels.some((label) => label.atom)) return { tiedInKind: false };
+    // A label that points at another unit (a condition) acts through its target: each label and target is a group of
+    // its own, so runs that name different targets never vote together.
+    const kindOf = (label: string, target?: number) => {
+      const declared = set.labels.find((candidate) => candidate.name === label);
+      if (declared?.target) return `(label ${label} ${target ?? ''})`;
+      return declared?.atom?.kind ?? '(no atom)';
+    };
+    const byKind = new Map<string, Opinion[]>();
+    for (const opinion of present) {
+      const kind = kindOf(opinion.label, opinion.target);
+      byKind.set(kind, [...(byKind.get(kind) ?? []), opinion]);
+    }
+    const group = [...byKind.values()].find((members) => members.length * 2 > heard);
+    if (!group) return { tiedInKind: false };
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const counts = new Map<string, number>();
+    for (const opinion of group) counts.set(key(opinion), (counts.get(key(opinion)) ?? 0) + 1);
+    const top = Math.max(...counts.values());
+    const leaders = [...counts.entries()].filter(([, count]) => count === top);
+    // Two labels that build the same atom kind can still build different atoms (an obligation or a prohibition): a
+    // tie between them stays a split. Labels that build no atom give nothing either way: the earliest run's stands.
+    if (leaders.length > 1 && kindOf(group[0]?.label ?? '') !== '(no atom)') return { tiedInKind: true };
+    const pick = group.find((opinion) => counts.get(key(opinion)) === top) as Opinion;
+    return { winners: group.filter((opinion) => key(opinion) === key(pick)), tiedInKind: false };
+  };
+  /** The opinions of the runs heard on a unit: none when fewer than two of several runs are heard. */
+  const heardOn = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) => {
+    const heard = runs.filter(
+      (run) => !unheard.get(run)?.has(index) && (heardOnly.get(run)?.has(index) ?? true),
+    );
+    return runs.length > 1 && heard.length < 2 ? undefined : heard.map((run) => run.get(index));
+  };
+  /**
+   * Whether the runs heard on a unit are split with no label, tie break or group to decide it, and its two most given
+   * labels tie: inside one atom kind (two runs of rule, two of prohibition) or across kinds (two of reply-rule, two
+   * of rule).
+   */
+  const tiedSplit = (runs: ReadonlyArray<Map<number, Opinion>>, index: number, set: LabelSet): boolean => {
+    const given = heardOn(runs, index);
+    if (!given || given.length < 2) return false;
+    const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const tally = new Map<string, Opinion[]>();
+    for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
+    if ([...tally.values()].some((group) => group.length * 2 > given.length) || tieBroken(tally, set))
+      return false;
+    const grouped = sameKindVote(present, given.length, set);
+    if (grouped.winners) return false;
+    if (grouped.tiedInKind) return true;
+    const counts = [...tally.values()].map((group) => group.length).sort((a, b) => b - a);
+    return counts.length >= 2 && counts[0] === counts[1];
+  };
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
     set: LabelSet,
   ): Opinion | undefined => {
-    const given = runs.map((run) => run.get(index));
+    // The runs heard on the unit: a run left out of its window's vote counts neither for a label nor in the count.
+    const given = heardOn(runs, index);
+    if (!given) return undefined;
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
@@ -638,7 +891,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
     const majority =
-      [...tally.values()].find((group) => group.length * 2 > given.length) ?? tieBroken(tally, set);
+      [...tally.values()].find((group) => group.length * 2 > given.length) ??
+      tieBroken(tally, set) ??
+      sameKind(present, given.length, set);
     const winners = unanimous ? present : majority;
     if (!winners?.[0]) {
       if (present.length === given.length) split++;
@@ -659,6 +914,51 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       source: winners.map((opinion) => opinion.source ?? '').join('+'),
     };
   };
+
+  // A window with a unit whose two most given labels tie, inside one atom kind (two runs of rule, two of prohibition)
+  // or across kinds (two of reply-rule, two of rule), with nothing else to decide it, is asked
+  // SPLIT_REASK_RUNS more times, as the runs after those the window already used; each answer in step is one more
+  // voice on the units of that window. Keyed by run number like every run, so a replay reads the same answers; a
+  // replay whose cassette holds none leaves the tie as it is.
+  const asked = new Set<string>();
+  for (const task of tasks) {
+    if ((task.member.runs ?? 1) < 2) continue;
+    const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${task.window.id}`;
+    if (asked.has(where)) continue;
+    asked.add(where);
+    const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
+    const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
+    if (tied.length === 0) continue;
+    for (let more = 1; more <= SPLIT_REASK_RUNS; more++) {
+      const extra = (spent.get(where) ?? 0) + 1;
+      spent.set(where, extra);
+      const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
+      if (input.mode === 'replay') {
+        const wire = again.member.render(again.set, task.window, again.context);
+        if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
+      }
+      const answered = await resolve(again, task.window);
+      failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
+      const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
+      if (!leaf) break;
+      windows++;
+      const slipped = outOfStep(leaf.answer);
+      if (slipped) {
+        outOfStepRuns.push(
+          `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+        );
+        continue;
+      }
+      const voice = new Map<number, Opinion>();
+      runs.push(voice);
+      heardOnly.set(voice, new Set(task.window.units.map((unit) => unit.index)));
+      hear(again, runs.length, leaf);
+      reasked.push(
+        `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${tied.length} split units`,
+      );
+    }
+  }
 
   let unlabeled = 0;
   let decided = 0;
@@ -767,6 +1067,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     dropped,
     droppedRecords,
     outOfStep: outOfStepRuns,
+    reasked,
     failed,
     failedRecords,
     usage,

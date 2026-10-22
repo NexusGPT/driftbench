@@ -6,6 +6,12 @@
  */
 
 /**
+ * The one code of an error that was raised or recorded without a code (an old cassette entry, an error built
+ * with no code). It is assigned where the field is absent; no text is read to find another.
+ */
+export const UNKNOWN_CODE = 'unknown';
+
+/**
  * One structured diagnostic. `unit` is the id of an atom's unit when the record comes from the atoms, and the
  * number of a unit inside its window (`"3"`) when it comes from the answer of a labeler; `window` is the window id.
  */

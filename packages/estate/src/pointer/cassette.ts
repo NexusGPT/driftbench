@@ -24,6 +24,8 @@ export type Recorded = {
   refused?: 'too_large' | 'unreadable';
   /** With `refused: 'unreadable'`: why the answer could not be read, so a replay lists the same failed window. */
   error?: string;
+  /** With `refused: 'unreadable'`: the code the labeler error carried. Absent in an old entry. */
+  code?: string;
   usage: { input: number; output: number };
 };
 
