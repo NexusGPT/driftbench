@@ -416,6 +416,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             });
           }
         }
+        const planted = [...produced.keys()].find((k) => wanted.has(k));
+        if (planted !== undefined) produced.delete(planted);
         const limited = variables.withLimits(approved, asked.limits);
         const withLimits = variables.estateToVariables(limited, resolver);
         const conditions = withLimits.store.variables.filter((variable) =>
