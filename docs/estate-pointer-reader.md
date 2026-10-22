@@ -515,6 +515,7 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 | Window halving on a refused request | Built. The refusal is recorded, so a replay halves the same way. |
 | Links and blast radius (layer C), `scan --update` | Not built. |
 | Footnotes, GitHub alerts, TOML and JSON front matter, `Sentence_Terminal` in every script, directives and math blocks (section 2), and re-anchoring across files with edits (section 4) | Not built. Written into the design on 2026-10-23; the pointer bank holds failing items for them until they are. |
+| MDX components (markdown inside a component, prose props), lists and quotes in plain-text files | Known gaps, not designed yet: MDX is not parsed, and a `.txt` file reads title lines only. |
 | Removal of `candidates.ts`, `clause-rule.ts`, `prose.ts` | Not done: the flag is opt-in, and flipping the default is the first work package after the fair test. |
 
 ### Fixture recording (fictional Northwind estate, one run per arm)
