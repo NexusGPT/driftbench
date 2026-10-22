@@ -543,7 +543,11 @@ describe('spans and links in a label set', () => {
       { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
     ]);
     expect(plain).toEqual(entries[3]);
-    expect(range).toEqual(entries[4]);
+    // A range carries no spans, and the words of its spans stay out of the answer that is recorded.
+    expect(range?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the entry is not one unit of the window' },
+    ]);
+    expect(JSON.stringify(range)).not.toContain('Never edit it');
     expect(offsets).toEqual(entries[5]);
     // The drop that follows names why the words were not located, not a bad offset; the label stands.
     const dropped = checkAnswer(set, window, [absent as Labelled], context);
