@@ -761,8 +761,16 @@ export function startStageOf(spec: Spec, index: number, book: StageBook): string
   );
 }
 
-/** Per history, the stages the written specs of a suite reach after saying it (the hash of its messages). */
+/** Per history, the stages the written specs of a suite reach after saying it. */
 export type StageBook = Map<string, Set<string>>;
+
+/**
+ * A history as a stage book reads it: what the user says is not part of the test (docs/validators.md, section 3),
+ * so a user message counts as a turn; the replies and the tool calls with their results count in full.
+ */
+function historyKey(history: readonly Message[]): string {
+  return contentHash(history.map((message) => (message.role === 'user' ? { role: 'user' } : message)));
+}
 
 /**
  * What each written spec says about where a history leaves the agent: after block k - 1 of a spec, the history of
@@ -774,7 +782,7 @@ export function stageBookOf(specs: readonly Spec[]): StageBook {
     spec.blocks.forEach((block, index) => {
       const stage = block.expect?.stage;
       if (stage === undefined) return;
-      const key = contentHash(canonicalGiven(spec, index + 1).prefix);
+      const key = historyKey(canonicalGiven(spec, index + 1).prefix);
       book.set(key, (book.get(key) ?? new Set()).add(stage));
     });
   return book;
@@ -792,7 +800,7 @@ export function declaredStageBefore(spec: Spec, index: number, book: StageBook):
     if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
     const declared = block?.given?.stage;
     if (declared !== undefined && block?.given?.prefix !== undefined)
-      if (book.get(contentHash(block.given.prefix))?.has(declared)) return declared;
+      if (book.get(historyKey(block.given.prefix))?.has(declared)) return declared;
   }
   return undefined;
 }
