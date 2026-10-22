@@ -82,7 +82,15 @@ async function record(estate: EstateName, key: string) {
     };
     const produced = await variables.produceLimits(scan.map, {
       texts,
-      ask: process.env.GOLD_ASK_DRY ? dry : askPort(estate, MODEL, cache, spent, { key, capIn, capOut, ...(capUsd === undefined ? {} : { capUsd }), ...PRICES }),
+      ask: process.env.GOLD_ASK_DRY
+        ? dry
+        : askPort(estate, MODEL, cache, spent, {
+            key,
+            capIn,
+            capOut,
+            ...(capUsd === undefined ? {} : { capUsd }),
+            ...PRICES,
+          }),
       include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
     });
     if (process.env.GOLD_ASK_DRY) {
