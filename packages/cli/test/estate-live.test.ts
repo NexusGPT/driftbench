@@ -763,3 +763,295 @@ describe('estate run leaves no process behind', () => {
     }
   }, 120_000);
 });
+
+describe('driftbench estate run --from', () => {
+  type CarryJson = Omit<RunJson, 'runs'> & {
+    runs: Array<RunJson['runs'][number] & { carried?: boolean }>;
+    radius?: {
+      fresh: number;
+      carried: number;
+      outside: number;
+      from: string;
+      refused: Array<{ reason: string; cells: number }>;
+    };
+    carryNote?: string;
+  };
+  const manifestText = (from: string, to: string) =>
+    `from: ${from}\nto: ${to}\nchanges:\n  - kind: prompt\n    id: ${R7}\n    note: the line of R7 changed\n`;
+
+  async function manifest(from = 'v1', to = 'v2'): Promise<string> {
+    const path = join(await folder(), 'change.yaml');
+    await writeFile(path, manifestText(from, to));
+    return path;
+  }
+
+  /**
+   * A stand-in call is one line of the FAKE_CALLS file. The path is part of what a run depends on, so every run of
+   * a test uses the same file, emptied between runs.
+   */
+  async function counter() {
+    const path = join(await folder(), 'calls.jsonl');
+    return {
+      env: ['--set-env', `FAKE_CALLS=${path}`],
+      async take(): Promise<number> {
+        const text = await readFile(path, 'utf8').catch(() => '');
+        await writeFile(path, '');
+        return text === '' ? 0 : text.trim().split('\n').length;
+      },
+    };
+  }
+
+  /** The first run, labelled v1. */
+  async function firstRun(calls: Awaited<ReturnType<typeof counter>>, specs: string[], ...extra: string[]) {
+    const result = await estateRun(
+      FIXTURE,
+      specs,
+      '--map',
+      MAP,
+      '--agent-version',
+      'v1',
+      ...calls.env,
+      ...extra,
+    );
+    expect(result.err).toBe('');
+    await calls.take();
+    return { ...result, json: result.json as CarryJson };
+  }
+
+  async function secondRun(
+    calls: Awaited<ReturnType<typeof counter>>,
+    oldStore: string,
+    specs: string[],
+    ...extra: string[]
+  ) {
+    const result = await estateRun(
+      FIXTURE,
+      specs,
+      '--map',
+      MAP,
+      '--agent-version',
+      'v2',
+      '--from',
+      oldStore,
+      ...calls.env,
+      ...extra,
+    );
+    return { ...result, json: result.json as CarryJson | undefined, calls: await calls.take() };
+  }
+
+  /** The paths of the proof specs whose metadata names the atom. */
+  async function pathsOfAtom(atom: string): Promise<string[]> {
+    const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
+    const out: string[] = [];
+    for (const path of proofSpecs()) {
+      const loaded = await loadSpecFile(path);
+      if (!loaded.ok) throw new Error(path);
+      const estate = loaded.spec.metadata?.estate as { atoms?: string[] } | undefined;
+      if (estate?.atoms?.includes(atom)) out.push(path);
+    }
+    return out;
+  }
+
+  /**
+   * Four proof specs, one of them (the obligation) naming R7: the radius of a change to R7 is not the whole suite
+   * only when some spec in the run declares a dependency on the changed atom.
+   */
+  const small = () =>
+    [PROOF.obligation, PROOF.journey, PROOF.route_positive, PROOF.tool_denied].map((path) =>
+      join(LIVE, path ?? ''),
+    );
+
+  /** The stand-in calls a run of just these specs makes: what a carried result saves. */
+  async function callsOf(calls: Awaited<ReturnType<typeof counter>>, specs: string[]): Promise<number> {
+    await estateRun(FIXTURE, specs, '--map', MAP, ...calls.env);
+    return calls.take();
+  }
+
+  it('reruns the specs of the radius and carries the result of every other spec from the old store', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    expect(old.json.runs).toHaveLength(specs.length);
+    const change = await manifest();
+    const inRadius = await specsOfAtom(R7);
+    expect(inRadius.length).toBeGreaterThan(0);
+    expect(inRadius.length).toBeLessThan(specs.length);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', change);
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const json = next.json as CarryJson;
+    // The spec outcomes are the old ones: a carried result keeps its verdict, a rerun gives the same here.
+    expect(outcomes(json)).toEqual(outcomes(old.json));
+    expect(
+      json.runs
+        .filter((line) => line.carried !== true)
+        .map((line) => line.spec)
+        .sort(),
+    ).toEqual(inRadius);
+    expect(json.runs.filter((line) => line.carried === true)).toHaveLength(specs.length - inRadius.length);
+    expect(json.radius).toMatchObject({
+      fresh: inRadius.length,
+      carried: specs.length - inRadius.length,
+      from: old.json.campaignId,
+    });
+    // The stand-in is called only for the blocks of the radius: as many times as a run of those specs alone.
+    expect(next.calls).toBe(await callsOf(calls, await pathsOfAtom(R7)));
+    expect(next.calls).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(next.store);
+    const runs = await store.listRuns({ campaignId: json.campaignId });
+    await store.close();
+    expect(runs).toHaveLength(specs.length);
+    const carried = runs.filter((entry) => entry.carried !== undefined);
+    expect(carried).toHaveLength(specs.length - inRadius.length);
+    for (const entry of carried) {
+      expect(entry.carried?.fromCampaign).toBe(old.json.campaignId);
+      expect(entry.carried?.agentVersion).toBe('v1');
+      expect(entry.target.variant).toBe('v2');
+    }
+  });
+
+  it('refuses to carry when no run of the old store names the version the manifest starts from', async () => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest('v0'));
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.carryNote).toContain('holds no run of agent version v0');
+    expect(next.calls).toBeGreaterThan(0);
+  });
+
+  it('carries nothing from an old store whose runs were not labelled with a version', async () => {
+    const specs = small();
+    const calls = await counter();
+    const unlabelled = await estateRun(FIXTURE, specs, '--map', MAP, ...calls.env);
+    expect(unlabelled.json?.runs).toHaveLength(specs.length);
+    await calls.take();
+    const next = await secondRun(calls, unlabelled.store, specs, '--change', await manifest());
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.radius?.carried).toBe(0);
+    expect(json.carryNote).toContain('carry no agent version or execution stamp');
+  });
+
+  it('runs a spec fresh when it changed since the old run, and carries the specs that did not', async () => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const edited = join(await folder(), 'edited.yaml');
+    // The journey is outside the radius of R7; editing it changes its hash, so its old result is no sample of it.
+    const text = await readFile(specs[1] ?? '', 'utf8');
+    await writeFile(
+      edited,
+      text.replace(/^title: "?/m, (head) => `${head}edited: `),
+    );
+    const next = await secondRun(
+      calls,
+      old.store,
+      [specs[0] ?? '', edited, ...specs.slice(2)],
+      '--change',
+      await manifest(),
+    );
+    const json = next.json as CarryJson;
+    const fresh = json.runs.filter((line) => line.carried !== true).map((line) => line.spec);
+    expect(fresh.sort()).toEqual([old.json.runs[0]?.spec, old.json.runs[1]?.spec].sort());
+    expect(json.radius?.refused.map((entry) => entry.reason).join(' ')).toContain('holds no run of the cell');
+    expect(json.runs.filter((line) => line.carried === true).length).toBeGreaterThan(0);
+  });
+
+  it('refuses a result made with another runtime setting', async () => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const next = await secondRun(
+      calls,
+      old.store,
+      specs,
+      '--change',
+      await manifest(),
+      '--model',
+      'other-model',
+    );
+    const json = next.json as CarryJson;
+    expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
+      'current execution context differs or cannot be proved',
+    );
+  });
+
+  it('refuses a bad combination of the flags with exit 2 and runs nothing', async () => {
+    const specs = small().slice(0, 2);
+    const counted = await counter();
+    const old = await firstRun(counted, specs);
+    const change = await manifest();
+    const base = counted.env;
+    const only = await estateRun(FIXTURE, specs, '--agent-version', 'v2', '--from', old.store, ...base);
+    expect(only.code).toBe(2);
+    expect(only.err).toContain('go together');
+    const noChangeFrom = await estateRun(
+      FIXTURE,
+      specs,
+      '--agent-version',
+      'v2',
+      '--change',
+      change,
+      ...base,
+    );
+    expect(noChangeFrom.code).toBe(2);
+    const noVersion = await estateRun(FIXTURE, specs, '--from', old.store, '--change', change, ...base);
+    expect(noVersion.code).toBe(2);
+    expect(noVersion.err).toContain('--agent-version');
+    const dependent = await estateRun(FIXTURE, specs, '--max-carry', '2', ...base);
+    expect(dependent.code).toBe(2);
+    const same = await run([
+      'estate',
+      'run',
+      ...specs,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--store',
+      old.store,
+      '--agent-version',
+      'v2',
+      '--from',
+      old.store,
+      '--change',
+      change,
+    ]);
+    expect(same.code).toBe(2);
+    expect(same.err).toContain('cannot be the same file');
+    const missing = await estateRun(
+      FIXTURE,
+      specs,
+      '--agent-version',
+      'v2',
+      '--from',
+      join(await folder(), 'nowhere.db'),
+      '--change',
+      change,
+      ...base,
+    );
+    expect(missing.code).toBe(2);
+    expect(missing.err).toContain('not a file');
+    expect(await counted.take()).toBe(0);
+  });
+
+  it('writes the same target and campaign as before when no carry flag is given', async () => {
+    const result = await estateRun(FIXTURE, [proofSpecs()[0] ?? ''], '--map', MAP);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [campaign] = await store.listCampaigns();
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    expect(campaign?.agentVersion).toBeUndefined();
+    expect(campaign?.radius).toBeUndefined();
+    expect(stored?.target.variant).toBeUndefined();
+    expect(stored?.target.agent).toBe(result.json?.pins[0]?.slice(0, 12));
+  });
+});
