@@ -1,6 +1,15 @@
 import type { ItemContext } from '../../bank/item';
 import type { StoreDoc } from '../../interface';
-import { assertCovered, assertRowsSound, callPlan, makeStore, names, type Stem, spaceOf, valueIds } from '../kit';
+import {
+  assertCovered,
+  assertRowsSound,
+  callPlan,
+  makeStore,
+  names,
+  type Stem,
+  spaceOf,
+  valueIds,
+} from '../kit';
 
 /** Rules that the projection states apart from `rules`: a boundary that names a rule, a value with when or unless. */
 
@@ -17,7 +26,8 @@ export const PORTRULES_STEMS: readonly Stem[] = [
     rules: ['R6'],
     family: 'strength',
     component: 'planner/strength',
-    cause: 'the plan crosses at strength 3 every variable a rule names through a boundary or through when and unless',
+    cause:
+      'the plan crosses at strength 3 every variable a rule names through a boundary or through when and unless',
     cases: [
       [
         'boundary-names-a-rule-and-joins-it',
@@ -50,7 +60,10 @@ export const PORTRULES_STEMS: readonly Stem[] = [
               { id: z, values: valueIds(3) },
             ],
           });
-          (store.variables[0]?.values[0] as { when?: Record<string, string[]> }).when = { [y]: ['v0'], [z]: ['v1'] };
+          (store.variables[0]?.values[0] as { when?: Record<string, string[]> }).when = {
+            [y]: ['v0'],
+            [z]: ['v1'],
+          };
           planned(ctx, store);
         },
       ],
@@ -66,7 +79,10 @@ export const PORTRULES_STEMS: readonly Stem[] = [
               { id: z, values: valueIds(3) },
             ],
           });
-          (store.variables[1]?.values[2] as { unless?: Record<string, string[]> }).unless = { [x]: ['v0'], [z]: ['v2'] };
+          (store.variables[1]?.values[2] as { unless?: Record<string, string[]> }).unless = {
+            [x]: ['v0'],
+            [z]: ['v2'],
+          };
           planned(ctx, store);
         },
       ],
