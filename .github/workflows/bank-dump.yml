@@ -1,0 +1,31 @@
+name: bank dump
+# Temporary probe: dumps the estate bank verdicts of seeds 1 to 3. Removed before merge.
+on:
+  pull_request:
+    paths:
+      - packages/validators/test/estate/zz-dump.test.ts
+permissions:
+  contents: read
+concurrency:
+  group: bank-dump-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  dump:
+    name: bank dump
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/validators/test/estate/zz-dump.test.ts --maxWorkers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bank-dump
+          path: bank-dump.json
