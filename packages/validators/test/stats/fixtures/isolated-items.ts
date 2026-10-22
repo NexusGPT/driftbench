@@ -37,6 +37,8 @@ async function main() {
     const result = await item.check();
     process.stdout.write(`${JSON.stringify({ done: index, id: item.id, ...result })}\n`);
   }
+  // As the bank's child does: a last line once its frame is closed.
+  process.stdout.write(`${JSON.stringify({ closed: true })}\n`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

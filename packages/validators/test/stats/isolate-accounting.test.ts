@@ -32,10 +32,16 @@ async function runFaults(mode: string, budgetMs = 30_000) {
 describe('the isolation runner accounts for every item', { timeout: 120_000 }, () => {
   afterEach(() => vi.mocked(childProcess.spawn).mockClear());
 
+  // A child that ends without its last line ({closed: true}) never compared its calls with run C: the items it
+  // reported fail, and the runner goes on with the items after them.
+  const unclosed = /^the bank's child process on seed 1 ended without closing its frame \(/;
+
   it('runs the items a child left unreported when it ended with exit code 0', async () => {
     const { run, starts } = await runFaults('quits-once');
     expect([...run.keys()].sort()).toEqual(ids);
-    expect(ids.map((id) => run.get(id)?.pass)).toEqual([true, true, true, true, true]);
+    expect(ids.map((id) => run.get(id)?.pass)).toEqual([false, false, true, true, true]);
+    expect(run.get('fault.a')?.detail).toMatch(unclosed);
+    expect(run.get('fault.b')?.detail).toMatch(/ended without closing its frame \(exit 0\)/);
     // The first child reported two items and ended; a second one resumed at the third.
     expect(starts).toEqual(['0', '2']);
   });
@@ -48,7 +54,8 @@ describe('the isolation runner accounts for every item', { timeout: 120_000 }, (
     async (_name, mode) => {
       const { run, starts } = await runFaults(mode);
       expect([...run.keys()].sort()).toEqual(ids);
-      expect(ids.map((id) => run.get(id)?.pass)).toEqual([true, true, false, true, true]);
+      expect(ids.map((id) => run.get(id)?.pass)).toEqual([false, false, false, true, true]);
+      expect(run.get('fault.a')?.detail).toMatch(unclosed);
       expect(run.get('fault.c')?.detail).toMatch(/ended \(exit 0\) on seed 1 without reporting this item/);
       // One child up to the item, one that ends on it at once, one for the rest.
       expect(starts).toEqual(['0', '2', '3']);
@@ -57,8 +64,11 @@ describe('the isolation runner accounts for every item', { timeout: 120_000 }, (
 
   it('still fails an item slower than its budget, and runs the items after it', async () => {
     const { run } = await runFaults('slow', 2_000);
-    expect(ids.map((id) => run.get(id)?.pass)).toEqual([true, true, false, true, true]);
+    expect(ids.map((id) => run.get(id)?.pass)).toEqual([false, false, false, true, true]);
     expect(run.get('fault.c')?.detail).toMatch(/^did not finish within 2000 ms on seed 1/);
+    expect(run.get('fault.b')?.detail).toMatch(
+      /item fault\.c did not finish within 2000 ms and the child was stopped/,
+    );
   });
 
   it('reads every outcome when the output is far larger than a pipe holds', async () => {

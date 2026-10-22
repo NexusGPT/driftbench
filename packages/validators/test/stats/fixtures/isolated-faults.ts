@@ -46,8 +46,8 @@ async function main() {
     const result = await item.check({ seed: 1, s: {} as never, root: '', rng: Math.random });
     process.stdout.write(`${JSON.stringify({ done: index, id: item.id, ...result })}\n`);
   }
-  // As the bank's child does: exit when every line has left the process.
-  process.stdout.write('', () => process.exit(0));
+  // As the bank's child does: a last line once its frame is closed, then exit when every line has left the process.
+  process.stdout.write(`${JSON.stringify({ closed: true })}\n`, () => process.exit(0));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

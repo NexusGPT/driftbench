@@ -122,10 +122,23 @@ function runFrom(
     let errors = '';
     let timer: NodeJS.Timeout | undefined;
     let settled = false;
-    const finish = (resume: number) => {
+    // The ids this child reported, and whether it wrote its last line, {closed: true}, after closing its frame.
+    const reportedIds: string[] = [];
+    let closed = false;
+    const finish = (resume: number, why: string) => {
       if (settled) return;
       settled = true;
       if (timer) clearTimeout(timer);
+      // The frame compares every call with run C, and tells a taint, only when it closes. A child that ended without
+      // its last line never made that comparison, so none of its outcomes counts (review of PR 986, codex run
+      // 39831471814: a mean that breaks run C's output made the frame throw at close, and both mean-shift items it
+      // had already reported as passing were kept).
+      if (!closed)
+        for (const id of reportedIds)
+          results.set(id, {
+            pass: false,
+            detail: `the bank's child process on seed ${seed} ended without closing its frame (${why}), so its run C comparison never ran: this outcome does not count`,
+          });
       resolve(resume);
     };
     const arm = (index: number) => {
@@ -144,7 +157,7 @@ function runFrom(
           detail: `did not finish within ${limit} ms on seed ${seed}: an endless loop or a path far too slow for this input; the validator stopped it`,
         });
         child.kill('SIGKILL');
-        finish(index + 1);
+        finish(index + 1, `item ${item.id} did not finish within ${limit} ms and the child was stopped`);
       }, limit);
     };
     // The item budget starts when the child says it starts the item; loading the bank has its own limit.
@@ -158,7 +171,7 @@ function runFrom(
         });
       }
       child.kill('SIGKILL');
-      finish(start + 1);
+      finish(start + 1, `the child did not start within ${STARTUP_MS} ms`);
     }, STARTUP_MS);
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk: string) => {
@@ -178,6 +191,7 @@ function runFrom(
         if (line.taint !== undefined) {
           taints.push(line.taint);
         } else if (line.closed === true && reported + start >= items.length) {
+          closed = true;
           // The child closed its frame after its last item: every outcome and the taint are read. A child that then
           // does not end within DRAIN_MS is stopped; it holds nothing more (CI runs of PR 986: a child that wrote
           // "frame closed" never ended, and the parent waited CLOSE_MS, past the test's own limit).
@@ -190,7 +204,7 @@ function runFrom(
               `${JSON.stringify({ event: 'stats-bank-child-stopped', reason: 'no exit after its frame closed', seed, start, pid: child.pid, afterMs: DRAIN_MS })}\n`,
             );
             child.kill('SIGKILL');
-            finish(items.length);
+            finish(items.length, 'it closed its frame and was stopped');
           }, DRAIN_MS);
         } else if (line.start !== undefined) {
           traceLine(where, `child says item ${line.start} starts`);
@@ -208,6 +222,7 @@ function runFrom(
             ms: line.ms,
           });
           reported += 1;
+          reportedIds.push(line.id as string);
           // After the last item the child closes its frame; a child that does not end is a hang, not a slow item.
           if (reported + start >= items.length) {
             timer = setTimeout(() => {
@@ -215,7 +230,7 @@ function runFrom(
                 `the bank's child process did not end within ${CLOSE_MS} ms after its last item on seed ${seed}: the frame did not close`,
               );
               child.kill('SIGKILL');
-              finish(items.length);
+              finish(items.length, `it did not end within ${CLOSE_MS} ms after its last item`);
             }, CLOSE_MS);
           }
         }
@@ -230,17 +245,18 @@ function runFrom(
     const conclude = (code: number | null) => {
       if (drain) clearTimeout(drain);
       if (settled) return;
+      const ended = `exit ${code}${errors.trim() === '' ? '' : `: ${errors.trim().split('\n').slice(-3).join(' / ')}`}`;
       // The first item from the start that has no outcome: the one the child was on, or one it never reported.
       let first = start;
       while (first < items.length && results.has((items[first] as BankItem).id)) first += 1;
       if (first >= items.length) {
-        finish(items.length);
+        finish(items.length, ended);
         return;
       }
       const item = items[first] as BankItem;
       if (code === 0 && reported > 0) {
         // Exit code 0 with items unreported: run them in a new child, never count them as done.
-        finish(first);
+        finish(first, ended);
         return;
       }
       results.set(item.id, {
@@ -250,7 +266,7 @@ function runFrom(
             ? `the bank's child process ended (exit 0) on seed ${seed} without reporting this item or any other: the item ends the process, or its output is lost`
             : `the bank's child process died (exit ${code}) while running this item on seed ${seed}: ${errors.trim().split('\n').slice(-3).join(' / ')}`,
       });
-      finish(first + 1);
+      finish(first + 1, ended);
     };
     // The outcome is read when the output streams have closed, so no line still on its way is lost.
     child.on('exit', (code) => {
