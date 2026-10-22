@@ -1,0 +1,48 @@
+name: gate-b probe
+
+# Temporary: lint errors, formatter diff, and the A/B/C step 3 measurements with the planted fields.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Format and print the diff
+        run: |
+          pnpm exec biome check --write packages/cli/test/gold-chain packages/estate/src/limits packages/estate/src/variables packages/estate/test/variables || true
+          git diff
+      - name: Lint errors of the whole tree
+        continue-on-error: true
+        run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000
+      - name: Step 3 Haiku with the planted fields
+        continue-on-error: true
+        env:
+          GOLD_REFERS: "1"
+          GOLD_PRINT_STEP3: "1"
+        run: pnpm exec vitest run packages/cli/test/gold-chain/gold-chain-a.test.ts packages/cli/test/gold-chain/gold-chain-b.test.ts packages/cli/test/gold-chain/gold-chain-c.test.ts --maxWorkers=2
+      - name: Step 3 Sonnet, referred requests only
+        continue-on-error: true
+        env:
+          GOLD_REFERS: "1"
+          GOLD_TABLES: "0"
+          GOLD_ASK_MODEL: claude-sonnet-5-5
+          GOLD_PRINT_STEP3: "1"
+        run: pnpm exec vitest run packages/cli/test/gold-chain/gold-chain-a.test.ts packages/cli/test/gold-chain/gold-chain-b.test.ts packages/cli/test/gold-chain/gold-chain-c.test.ts --maxWorkers=2
+      - name: The gate as it is, and the unit tests
+        run: pnpm exec vitest run packages/cli/test/gold-chain packages/estate/test/variables/limits.test.ts --maxWorkers=2

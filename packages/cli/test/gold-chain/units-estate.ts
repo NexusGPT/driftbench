@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { type RefersEntry, readRefersEntries, readTableRanges, type TableRange } from './fields';
 
 /**
  * An estate that carries its own units table (examples/estates/<name>/truth.yaml) instead of gold5 ids: the prose
@@ -17,17 +18,18 @@ export type TruthLimit = {
   governs: string;
 };
 export type NonLimit = { unit: string; number: string; why: string };
-/** A unit that points at other units for its number (the labeller's `refersTo`, planted by the truth lane). */
-export type TruthRefers = { unit: string; targets: string[] };
-/** A standalone table whose rows state limits (the labeller's `limits-table`, planted): its header unit and data rows. */
-export type TruthTable = { header: string; rows: string[] };
+/** A unit that points at other units, or a range of them, for its number (the labeller's `refersTo`, planted). */
+export type TruthRefers = RefersEntry;
+/** A standalone table of numbers (the labeller's `number-table`, planted): from its header unit to its last row. */
+export type TruthTable = TableRange;
 export type UnitsTruth = {
   estate: string;
   units: UnitRow[];
   limits: TruthLimit[];
   nonLimits: NonLimit[];
   refersTo: TruthRefers[];
-  limitsTable: TruthTable[];
+  /** Every standalone table of numbers: the producer gets the tables, with no word on which ones hold a limit. */
+  tables: TruthTable[];
 };
 export type UnitsEstate = { truth: UnitsTruth; files: Array<{ path: string; text: string }> };
 
@@ -104,30 +106,27 @@ export function parseUnitsTruth(text: string): UnitsTruth {
     if (entry.unit !== '' && !ids.has(entry.unit))
       problems.push(`${entry.where}: ${entry.unit} is not a unit`);
   // Optional sections: absent means none. A present section is checked like the others.
-  const optional = (key: string): Array<[string, Record<string, unknown>]> =>
-    raw[key] === undefined ? [] : rows(key);
-  const refersTo = optional('refers_to').map(([where, entry]) => {
-    const unit = field(entry, where, 'unit');
-    const targets = Array.isArray(entry.targets)
-      ? entry.targets.map(String)
-      : [field(entry, where, 'target')].filter((id) => id !== '');
-    if (unit !== '' && !ids.has(unit)) problems.push(`${where}: ${unit} is not a unit`);
-    for (const id of targets) if (!ids.has(id)) problems.push(`${where}: ${id} is not a unit`);
-    return { unit, targets };
-  });
-  const limitsTable = optional('limits_table').map(([where, entry]) => {
-    const header = field(entry, where, 'header');
-    const tableRows = Array.isArray(entry.rows) ? entry.rows.map(String) : [];
-    if (tableRows.length === 0) problems.push(`${where}: no rows`);
-    if (header !== '' && !ids.has(header)) problems.push(`${where}: ${header} is not a unit`);
-    for (const id of tableRows) if (!ids.has(id)) problems.push(`${where}: ${id} is not a unit`);
-    return { header, rows: tableRows };
-  });
+  const refersTo = readRefersEntries(raw.refers_to, problems);
+  const tables = [
+    ...readTableRanges(raw.number_table, problems, 'number_table'),
+    ...readTableRanges(raw.limits_table, problems, 'limits_table'),
+  ];
+  const order = new Map(units.map((unit, at) => [unit.id, at]));
+  for (const entry of refersTo) {
+    if (!ids.has(entry.unit)) problems.push(`refers_to: ${entry.unit} is not a unit`);
+    for (const ref of entry.to)
+      for (const id of 'id' in ref ? [ref.id] : [ref.from, ref.to])
+        if (!ids.has(id)) problems.push(`refers_to: ${id} is not a unit`);
+  }
+  for (const range of tables) {
+    for (const id of [range.from, range.to]) if (!ids.has(id)) problems.push(`tables: ${id} is not a unit`);
+    if ((order.get(range.from) ?? 0) > (order.get(range.to) ?? 0)) problems.push(`tables: ${range.from} comes after ${range.to}`);
+  }
   if (problems.length > 0) throw new Error(`the truth file has problems:\n${problems.join('\n')}`);
   return {
     estate: field(raw, 'the file', 'estate'),
     refersTo,
-    limitsTable,
+    tables,
     units,
     limits: limits.map(({ where: _where, ...limit }) => limit),
     nonLimits: nonLimits.map(({ where: _where, ...entry }) => entry),

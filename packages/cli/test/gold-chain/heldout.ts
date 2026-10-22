@@ -5,6 +5,7 @@ import { pointer, readerFor, scanEstate, variables } from '@agent-nexus/driftben
 import { flat, GOLD_ESTATE_KEY, GOLD_SET_YAML } from '../../../estate/test/gold/gold';
 import { plantedDense } from '../../../estate/test/pointer/support';
 import { type LimitScore, type Produced, scoreLimits } from './heldout-score';
+import { unitsInRange } from './fields';
 import { loadUnitsEstate, type UnitsEstate } from './units-estate';
 
 /**
@@ -118,28 +119,31 @@ export async function runUnitsEstate(options: {
     // The planted fields of the truth lane: what a labeller would say. The referred text is copied by code from the table.
     const planted = options.planted ?? true;
     const textOf = new Map(estate.truth.units.map((unit) => [unit.id, unit.text]));
-    const targetsOf = new Map(estate.truth.refersTo.map((entry) => [entry.unit, entry.targets]));
+    const referredOf = new Map<string, string>();
+    for (const entry of estate.truth.refersTo) {
+      const parts = entry.to.flatMap((ref) =>
+        'id' in ref ? [ref.id] : unitsInRange(estate.truth.units, ref).map((unit) => unit.id),
+      );
+      referredOf.set(entry.unit, parts.map((id) => flat(textOf.get(id) ?? '')).join('\n'));
+    }
     const asked = await variables.produceLimits(scan.map, {
       texts,
       ask: options.ask,
       include: (atom) => tableId.has(atom.id),
-      ...(planted && targetsOf.size > 0
-        ? {
-            referred: (atom) => {
-              const targets = targetsOf.get(tableId.get(atom.id) ?? '');
-              return targets === undefined
-                ? undefined
-                : targets.map((id) => flat(textOf.get(id) ?? '')).join('\n');
-            },
-          }
+      ...(planted && referredOf.size > 0
+        ? { referred: (atom) => referredOf.get(tableId.get(atom.id) ?? '') }
         : {}),
     });
+    // Every standalone table of numbers is asked, whatever the truth says of its rows.
     const tables = planted
-      ? estate.truth.limitsTable.map((table, at) => ({
-          id: `table-${at + 1}`,
-          header: flat(textOf.get(table.header) ?? ''),
-          rows: table.rows.map((id) => ({ id, text: flat(textOf.get(id) ?? '') })),
-        }))
+      ? estate.truth.tables.map((range, at) => {
+          const cells = unitsInRange(estate.truth.units, range);
+          return {
+            id: `table-${at + 1}`,
+            header: flat(cells[0]?.text ?? ''),
+            rows: cells.slice(1).map((unit) => ({ id: unit.id, text: flat(unit.text) })),
+          };
+        })
       : [];
     const tabled = await variables.produceTableLimits(tables, { ask: options.ask });
     for (const table of tables) for (const row of table.rows) labelled.add(row.id);

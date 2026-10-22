@@ -32,7 +32,7 @@ import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
 import { askModel, askPort, loadAsks } from './limits-ask';
-import { referredBy, refersEnabled } from './refers';
+import { referredBy, refersEnabled, tablesEnabled, tablesOf } from './refers';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -426,6 +426,12 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             });
           }
         }
+        // GOLD_REFERS: every standalone number table is asked too; it holds no truth limit, so any limit it returns is an extra.
+        const tabled = tablesEnabled()
+          ? await variables.produceTableLimits(tablesOf({ estate, gold, truth, texts }), {
+              ask: askPort(estate, MODEL, asks, spent),
+            })
+          : undefined;
         const limited = variables.withLimits(approved, asked.limits);
         const withLimits = variables.estateToVariables(limited, resolver);
         const conditions = withLimits.store.variables.filter((variable) =>
@@ -472,6 +478,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
               truth38: original.length,
               found38: original.filter(([k]) => produced.has(k)).length,
               produced: produced.size,
+              tableRequests: tabled?.requests ?? 0,
+              tableLimits: [...(tabled?.limits.values() ?? [])].flat().length,
               missing: problems.filter((line) => line.startsWith('limit missing')),
               extra: problems.filter((line) => line.startsWith('limit not in the truth')),
             })}`,
