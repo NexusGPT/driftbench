@@ -552,6 +552,7 @@ function synthetic(
   return match;
 }
 
+/** `text` is what the parser decoded (a link's `url`, without its escapes); the offsets are those of the raw source. */
 type MarkdownToken = { start: number; end: number; tokenStart: number; tokenEnd: number; text: string };
 
 /**
@@ -608,7 +609,13 @@ function markdownTokens(line: string): { codes: MarkdownToken[]; links: Markdown
           tokenEnd++;
         }
       }
-      links.push({ start: from, end: to, tokenStart, tokenEnd, text: line.slice(tokenStart, tokenEnd) });
+      links.push({
+        start: from,
+        end: to,
+        tokenStart,
+        tokenEnd,
+        text: (node as unknown as { url: string }).url,
+      });
       for (const child of children) visit(child, true);
       return;
     }
@@ -627,7 +634,7 @@ export function pathMentions(line: string): NamedReference[] {
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
-    options: { wiki?: boolean; spaced?: boolean; bare?: boolean; group?: number } = {},
+    options: { wiki?: boolean; spaced?: boolean; bare?: boolean; group?: number; exact?: boolean } = {},
   ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
@@ -655,8 +662,9 @@ export function pathMentions(line: string): NamedReference[] {
     ];
     const [rawStart, rawEnd] = group ?? [start, start + match[0].length];
     const lead = (token.length - token.trimStart().length) | 0;
-    const tokenStart = rawStart + lead;
-    const tokenEnd = tokenStart + spelling.length;
+    // A token the parser decoded (a link destination with escapes) keeps the raw offsets of its source text.
+    const tokenStart = options.exact ? rawStart : rawStart + lead;
+    const tokenEnd = options.exact ? rawEnd : tokenStart + spelling.length;
     found.push({
       path,
       spelling,
@@ -676,6 +684,7 @@ export function pathMentions(line: string): NamedReference[] {
     take(synthetic(line, link.start, link.end, link.tokenStart, link.tokenEnd), link.text, {
       spaced: true,
       group: 1,
+      exact: true,
     });
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
     take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });

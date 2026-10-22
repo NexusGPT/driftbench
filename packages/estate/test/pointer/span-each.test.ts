@@ -230,6 +230,19 @@ describe('a mapping that builds one atom for each act span, with the file span l
     },
   );
 
+  it.each(['docs/ledger\\(draft\\).md', '<docs/ledger\\(draft\\).md>'])(
+    'binds the decoded file of an escaped destination %s',
+    async (destination) => {
+      const { found, atomRefusals } = await gates(
+        `Before editing a ledger: read [ledger](${destination}).`,
+        [{ act: 'editing a ledger', file: destination }],
+        ['docs/ledger(draft).md', 'docs/ledger/(draft/).md'],
+      );
+      expect(atomRefusals).toEqual([]);
+      expect(found).toEqual([['docs/ledger(draft).md', 'editing a ledger']]);
+    },
+  );
+
   it('accepts a file span written without the marks around the path', async () => {
     const { found } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',
