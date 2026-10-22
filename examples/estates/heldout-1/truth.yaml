@@ -392,6 +392,7 @@ units:
     text: "The note template is called handoff-v2."
 
 # Numeric limits: one entry for each number a test can cross. A range is two entries on one unit.
+# A `note` says why a limit governs its own unit: a table row whose table no rule refers to.
 limits:
   - unit: f61a2c2bba
     limit: 3
@@ -453,30 +454,35 @@ limits:
     role: constraint
     unit_of: "minutes"
     governs: 08d7b03244
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
   - unit: d709427125
     limit: 30
     comparison: ge
     role: constraint
     unit_of: "minutes"
     governs: d709427125
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
   - unit: 50d884ee7a
     limit: 60
     comparison: ge
     role: constraint
     unit_of: "minutes"
     governs: 50d884ee7a
+    note: "no unit refers to this table; the nearest rule on the same subject is 'Book the shortest slot that fits.' but it does not name the table, so the limit stays on its row"
   - unit: b0f83ecc60
     limit: 2
     comparison: le
     role: constraint
     unit_of: "pets in one booking"
     governs: b0f83ecc60
+    note: "no unit refers to this table and no rule states the pets limit; the limit stays on its row"
   - unit: 0f3a931cdd
     limit: 6
     comparison: le
     role: constraint
     unit_of: "pets in one booking"
     governs: 0f3a931cdd
+    note: "no unit refers to this table and no rule states the pets limit; the limit stays on its row"
   - unit: d6a83d38f7
     limit: 12
     comparison: le
@@ -603,12 +609,14 @@ limits:
     role: constraint
     unit_of: "boarders at one time"
     governs: 9c20f6ca82
+    note: "no unit refers to this table and no rule states the kennel limit; the limit stays on its row"
   - unit: cb9c8ecfd1
     limit: 4
     comparison: le
     role: constraint
     unit_of: "boarders at one time"
     governs: cb9c8ecfd1
+    note: "no unit refers to this table and no rule states the kennel limit; the limit stays on its row"
   - unit: c937e67b22
     limit: 14
     comparison: ge
@@ -723,24 +731,28 @@ limits:
     role: constraint
     unit_of: "megabytes"
     governs: 0b63d1431b
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
   - unit: f8bfecc990
     limit: 4
     comparison: le
     role: constraint
     unit_of: "photos"
     governs: f8bfecc990
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
   - unit: 86a003eebe
     limit: 320
     comparison: le
     role: constraint
     unit_of: "characters"
     governs: 86a003eebe
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
   - unit: 87595a49d6
     limit: 30
     comparison: ge
     role: trigger
     unit_of: "minutes idle"
     governs: 87595a49d6
+    note: "the file says it gives no instructions, so no rule refers to this table; the limit stays on its row"
   - unit: 0712937cef
     limit: 5
     comparison: le
