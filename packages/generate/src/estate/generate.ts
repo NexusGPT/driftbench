@@ -189,6 +189,7 @@ export function generateEstateSuite(
         .filter((name): name is string => typeof name === 'string'),
     ),
     customChecks: new Set(checks),
+    ...(options.stateIds ? { stateIds: options.stateIds } : {}),
   };
 
   const files: GeneratedFile[] = [];

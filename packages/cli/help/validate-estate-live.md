@@ -21,7 +21,9 @@ in a sandbox holding a copy of the estate, on the workspace seed each spec carri
 alone, never the test. Each block's trace (tool calls, skill loads, guard verdicts, stages, workspace
 changes) is checked against the spec, and the run is stored. `--map` pins the copy to the map's hash and
 refuses an estate that drifted from it. `--states` plants session states and hazards (a resumed session, a
-compaction, a dead helper) from a state library.
+compaction, a dead helper) from a state library. `estate generate` writes `states/library.json` beside the specs
+with the states it can build without the estate's own content, and plans a row only for the states and events the
+library holds; a row that needs one the library lacks waits as `needs-state-operation`.
 
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
