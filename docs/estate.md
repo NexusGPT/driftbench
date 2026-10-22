@@ -869,19 +869,20 @@ setting                4      4         4           0
 journey               10     10        10           0
 total                      1420      1414           6
 
-Asks of the complete specs: 415 approved phrases, 985 written by code, 6 recorded sessions, 8 with no ask.
+Asks of the complete specs: 419 approved phrases, 981 written by code, 6 recorded sessions, 8 with no ask.
 Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 911 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 353 no-delete, 8 static.
+Outcomes of the complete specs: 924 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 340 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 99.58%; distinct asks: 110 in 1406 complete asked tests (7.82 per 100).
+Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
+Complete share: 99.58%; distinct asks: 111 in 1406 complete asked tests (7.89 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
   needs-askable-act          6 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1448 files to _captures/docs3/estate/generated.
+Wrote 1451 files to _captures/docs3/estate/generated.
 ```
 
 It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the last line of the output):
