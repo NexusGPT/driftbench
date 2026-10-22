@@ -170,7 +170,7 @@ label(window, labelSet) -> { labels: [{ units, label, target? }], meta }
 
 ### Window
 
-A window is a heading-bounded run of units that stays under 100,000 tokens. A file is one window if it fits; otherwise it is split at headings. Units of neighbouring windows may appear as context-only lines (not labelable). The window prints each unit as `[n] text`, with the heading path as non-selectable lines.
+A window is a heading-bounded run of units that stays under 100,000 tokens. A file is one window if it fits; otherwise it is split at headings. A file is one window while its unit text stays under 400,000 characters (about 100,000 tokens); above that it is cut at a heading, and at a unit only when no heading falls inside the run. A labeler that takes fewer units per request (the system 1 client takes 30) also closes a window at that count. The window prints each line as `[n] text`; every line has one number among the lines of the window. A line the labeler cannot label keeps its number and says what it is: `[n] (context, not labelable) text` for a unit that already has its label (a rescan asks only about the units it needs), `[n] (opaque, not labelable) fence: first line` for a fence or a comment. An answer that names such a line is refused. The request opens with `SET <name>`, a `DESCRIPTION` line, `LABELS a | b | none`, one definition line per label, then `WINDOW id#n  path: <headings>`; when the window starts at a heading, the path ends with that heading.
 
 ```
 SET house-voice

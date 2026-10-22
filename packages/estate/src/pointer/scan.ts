@@ -13,10 +13,10 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  type DisplayLine,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
-  type ShownLine,
   type SpanAnswer,
   setHash,
   type Window,
@@ -59,7 +59,8 @@ export type PointerInput = {
   onPlan?: (plan: PointerPlan) => void;
 };
 
-export const DEFAULT_WINDOW_UNITS = 60;
+/** The units a request holds when the labeler sets no cap of its own: a file fits one window up to `WINDOW_CHARS`. */
+export const DEFAULT_WINDOW_UNITS = Number.POSITIVE_INFINITY;
 
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
 export type MemberPlan = {
@@ -165,62 +166,125 @@ export type PointerResult = {
   recorded: number;
 };
 
+/** The sections a window sits in: the headings above its first unit and, when it starts at a heading, that heading. */
+function pathOf(first: Unit | undefined): string[] {
+  if (!first) return [];
+  if (first.container !== 'heading') return first.path;
+  const title = (first.text.split(/\r\n|\r|\n/, 1)[0] ?? '')
+    .replace(/^\s*#{1,6}\s*/, '')
+    .replace(/\s+#+\s*$/, '')
+    .trim();
+  return title === '' ? first.path : [...first.path, title];
+}
+
 /**
- * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
- * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
- * the next needs both in the window.
+ * The characters of units one window holds before a file is split. About 100,000 tokens at four characters a token:
+ * a file under it is one window, whatever its headings.
  */
-export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
-  const windows: Window[] = [];
-  let current: Window['units'] = [];
-  let shown: ShownLine[] = [];
-  let first: Unit | undefined;
-  const flush = () => {
-    // A run with no unit to label is not a window: an opaque unit alone sends nothing.
-    if (current.length === 0) {
-      shown = [];
-      return;
-    }
-    windows.push({
-      id: `${path}#${windows.length + 1}`,
-      path,
-      headingPath: first?.path ?? [],
-      units: current,
-      ...(shown.length > 0 ? { shown } : {}),
-    });
-    current = [];
-    shown = [];
-    first = undefined;
+export const WINDOW_CHARS = 400_000;
+
+/**
+ * The windows of a file. A file that fits `budget` characters of unit text is one window; a longer one is split,
+ * and only at a heading (the last heading of the run when the next unit would overflow it, else at the unit). A
+ * member that takes fewer units per request (`size`) closes a window at that count. With the source text, a cut
+ * never falls inside a table row: a label that points from one cell to the next needs both in the window.
+ * A fence or comment is a line the labeler reads and cannot label: it keeps its place in the numbering, in the
+ * window it stands in or, after a window's last unit, the window before it. A run with no unit to label is no
+ * window.
+ */
+export function windowsOf(
+  path: string,
+  units: readonly Unit[],
+  size: number,
+  source?: string,
+  budget: number = WINDOW_CHARS,
+): Window[] {
+  // 1. The groups of labelable units, by index into `units`.
+  const groups: number[][] = [];
+  let current: number[] = [];
+  let chars = 0;
+  let lastHeading = -1;
+  const close = (keep: number[] = []) => {
+    if (current.length > 0) groups.push(current);
+    current = keep;
+    chars = keep.reduce((sum, at) => sum + (units[at]?.text.length ?? 0), 0);
+    lastHeading = -1;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
-    // first line (design: "shown to the labeler as the fence kind and its first line only").
-    if (unit.container === 'opaque') {
-      const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
-      shown.push({
-        after: current.length,
-        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
-        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
-      });
-      continue;
-    }
-    // A window filled to its cap is flushed only when the next unit to label arrives, so that an opaque unit that
-    // follows it still attaches to it as trailing context; a cell of the same table row as the last unit stays with
-    // it, so a row is never split across two windows.
+    if (unit.container === 'opaque') continue;
     const last = current.at(-1);
-    const previous = last === undefined ? undefined : units[last.index];
+    const previous = last === undefined ? undefined : units[last];
     const sameRow =
       source !== undefined &&
       previous?.container === 'table_cell' &&
       unit.container === 'table_cell' &&
       !source.slice(previous.end, unit.start).includes('\n');
-    if (current.length >= size && !sameRow) flush();
-    if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
-    first ??= unit;
-    current.push({ n: current.length + 1, text: unit.text, index });
+    if (current.length >= size && !sameRow) close();
+    else if (chars + unit.text.length > budget && current.length > 0 && !sameRow) {
+      // Over the budget: the run since its last heading moves to the next window.
+      if (lastHeading > 0) close(current.splice(lastHeading));
+      else close();
+    }
+    if (unit.container === 'heading' && current.length > 0) lastHeading = current.length;
+    current.push(index);
+    chars += unit.text.length;
   }
-  flush();
+  close();
+  // 2. Each group is a window; a fence or comment goes to the window its place falls in.
+  const windows: Window[] = [];
+  for (const [at, group] of groups.entries()) {
+    const from = at === 0 ? 0 : (group[0] as number);
+    const next = groups[at + 1]?.[0];
+    const to = next === undefined ? units.length : next;
+    const inGroup = new Set(group);
+    const listed: Array<{ index: number; opaque: boolean }> = [];
+    for (let index = from; index < to; index++) {
+      const unit = units[index] as Unit;
+      if (unit.container === 'opaque') listed.push({ index, opaque: true });
+      else if (inGroup.has(index)) listed.push({ index, opaque: false });
+    }
+    const members: Window['units'] = [];
+    const display: DisplayLine[] = [];
+    for (const [place, entry] of listed.entries()) {
+      const unit = units[entry.index] as Unit;
+      const n = place + 1;
+      if (!entry.opaque) members.push({ n, text: unit.text, index: entry.index });
+      else {
+        const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
+        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        display.push({
+          n,
+          mode: 'opaque',
+          text: `${kind}: ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+          index: entry.index,
+        });
+      }
+    }
+    windows.push({
+      id: `${path}#${at + 1}`,
+      path,
+      headingPath: pathOf(units[group[0] as number]),
+      units: members,
+      ...(display.length > 0 ? { display } : {}),
+    });
+  }
   return windows;
+}
+
+/**
+ * The window as one labeler is asked about it: the units that need a label stay units; the others keep their number
+ * and are shown as context, so a rescan sends the units it needs and the lines around them.
+ */
+function askedAbout(window: Window, want: ReadonlySet<number>): Window {
+  const context: DisplayLine[] = window.units
+    .filter((unit) => !want.has(unit.index))
+    .map((unit) => ({ n: unit.n, mode: 'context', text: unit.text, index: unit.index }));
+  if (context.length === 0) return window;
+  return {
+    ...window,
+    units: window.units.filter((unit) => want.has(unit.index)),
+    display: [...(window.display ?? []), ...context].sort((a, b) => a.n - b.n),
+  };
 }
 
 /**
@@ -411,8 +475,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // In a stack, a yes or no labeler is not asked about a set whose every label needs a target, a clause or a
         // link: it has no question to put, and the other labeler decides alone.
         if (labelling.members.length > 1 && member.cls === 'system1' && setNeedsSystem2(set)) continue;
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
-          if (!window.units.some((unit) => want.has(unit.index))) continue;
+        for (const whole of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
+          if (!whole.units.some((unit) => want.has(unit.index))) continue;
+          const window = askedAbout(whole, want);
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
@@ -583,31 +648,32 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         failures: [failure(task, window, 'the endpoint refused a window of one unit as too large')],
       };
     }
+    // Halved by the units asked about; the lines between them follow, and the numbers start again from one.
+    const lines = [
+      ...window.units.map((unit) => ({ n: unit.n, unit })),
+      ...(window.display ?? []).map((line) => ({ n: line.n, line })),
+    ].sort((a, b) => a.n - b.n);
     const half = Math.ceil(window.units.length / 2);
-    const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
-    // The shown lines follow their units: the first half keeps those up to the split, the second the rest.
-    const shownIn = (from: number, to: number): { shown?: ShownLine[] } => {
-      const lines = (window.shown ?? [])
-        .filter(
-          (line) =>
-            line.after >= from && (line.after < to || (to === window.units.length && line.after === to)),
-        )
-        .map((line) => ({ ...line, after: line.after - from }));
-      return lines.length > 0 ? { shown: lines } : {};
+    const cutAt = lines.findIndex(
+      (entry, at) => 'unit' in entry && lines.slice(0, at).filter((other) => 'unit' in other).length === half,
+    );
+    const part = (list: typeof lines, id: string): Window => {
+      const units: Window['units'] = [];
+      const display: DisplayLine[] = [];
+      for (const [at, entry] of list.entries()) {
+        if ('unit' in entry) units.push({ ...entry.unit, n: at + 1 });
+        else display.push({ ...entry.line, n: at + 1 });
+      }
+      return {
+        id,
+        path: window.path,
+        headingPath: window.headingPath,
+        units,
+        ...(display.length > 0 ? { display } : {}),
+      };
     };
-    const { shown: _shown, ...bare } = window;
-    const first = await resolve(task, {
-      ...bare,
-      id: `${window.id}a`,
-      units: renumber(window.units.slice(0, half)),
-      ...shownIn(0, half),
-    });
-    const second = await resolve(task, {
-      ...bare,
-      id: `${window.id}b`,
-      units: renumber(window.units.slice(half)),
-      ...shownIn(half, window.units.length),
-    });
+    const first = await resolve(task, part(lines.slice(0, cutAt), `${window.id}a`));
+    const second = await resolve(task, part(lines.slice(cutAt), `${window.id}b`));
     return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
   }
 
