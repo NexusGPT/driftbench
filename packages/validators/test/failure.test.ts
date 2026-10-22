@@ -102,4 +102,22 @@ describe('the failure of an item, in fields', () => {
     const part = new ItemFailure({ rule: 'a count', got: { count: 400 }, expected: 40 });
     expect(leaksOf(part)).toEqual([]);
   });
+
+  it('catches the wanted value in another form: a fraction for a decimal, a path with other separators, the whole sentence', () => {
+    const half = new ItemFailure({ rule: 'the share is 1/2', got: { share: 0.4 }, expected: 0.5 });
+    expect(leaksOf(half)).toEqual(['0.5']);
+    const percent = new ItemFailure({ rule: 'the share is 50%', got: { share: 0.4 }, expected: 0.5 });
+    expect(leaksOf(percent)).toEqual(['0.5']);
+    const path = new ItemFailure({ rule: 'the issue is at variables\\2\\values\\0', got: { path: 'variables.9' }, expected: 'variables/2/values/0' });
+    expect(leaksOf(path)).toEqual(['variables/2/values/0']);
+    const whole = new ItemFailure({
+      rule: 'the refusal says The quote is not in the file named',
+      got: { code: 'X' },
+      expected: 'The quote is not in the file named',
+    });
+    expect(leaksOf(whole)).toEqual(['The quote is not in the file named']);
+    // The same text printed by the product's own output is the product's.
+    const own = new ItemFailure({ rule: 'r', got: { reason: 'The quote is not in the file named' }, expected: 'The quote is not in the file named' });
+    expect(leaksOf(own)).toEqual([]);
+  });
 });
