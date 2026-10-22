@@ -3,7 +3,12 @@ import { pointerBank } from '../../src/ladders/pointer/bank';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import { HARDENING_PRIVACY_SPECS } from '../../src/ladders/pointer/bank/specs/hardening-privacy';
 import type { ListedCandidates, PointerSut } from '../../src/ladders/pointer/sut/port';
-import { recordingRender } from '../../src/ladders/pointer/sut/reader';
+import {
+  loadReaderWithRetry,
+  type ReaderExports,
+  readerAdapter,
+  recordingRender,
+} from '../../src/ladders/pointer/sut/reader';
 import { REFERENCE_MODULE } from './helpers';
 import { referenceSut } from './reference';
 import { type BugPrivacy, referenceBugsPrivacy } from './reference/bugs-privacy';
@@ -247,8 +252,107 @@ describe('the binding records the candidates a renderer sent, after it ran', () 
     expect(candidatesOf(rows)).toEqual([{ id: 'instruction.plain', title: 'a plain title' }]);
   });
 
+  it('lists none when the candidates sit in a field of the render result beside the body', () => {
+    const rows = rowsOf(() => ({
+      labeler: 'x',
+      body: { messages: [{ role: 'user', content: 'no candidate here' }] },
+      candidateDebug: JSON.stringify([{ id: 'atom-1234567890', title: 'a masked title' }]),
+      headers: { 'x-candidates': `${MASKED}\n${PLAIN}` },
+      url: `https://labeler.example/${MASKED}`,
+    }));
+    expect(candidatesOf(rows)).toEqual([]);
+  });
+
+  it('reads the body as the transport serialises it, quotes and line breaks included', () => {
+    const quoted = {
+      candidates: {
+        topic: [{ id: 'instruction.q', label: 'a "quoted"\ntitle' }],
+      },
+    } as unknown as RenderArgs[2];
+    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+    const body = { messages: [{ role: 'user', content: '    instruction.q  a "quoted"\ntitle' }] };
+    recordingRender({ render: (() => ({ labeler: 'x', body })) as never }, into)(set, window, quoted);
+    expect(candidatesOf(into.rows)).toEqual([{ id: 'instruction.q', title: 'a "quoted"\ntitle' }]);
+  });
+
   it('adds no row for an id the renderer made up', () => {
     const rows = rowsOf(prints(['    atom-0000000000  an unrelated title', MASKED]));
     expect(candidatesOf(rows).map((c) => c.id)).toEqual(['atom-1234567890']);
   });
+});
+
+type Wire = { labeler: string; body: Record<string, unknown> };
+type Context = { candidates?: Record<string, unknown[]> };
+type Member = { render(set: unknown, window: unknown, context: Context): Wire };
+
+/** The real reader with the renderer of every labeler replaced; the rest of the reader is untouched. */
+async function realWith(wrap: (member: Member, render: Member['render']) => Member['render']) {
+  const reader = await loadReaderWithRetry(
+    async () =>
+      (await import(/* @vite-ignore */ '@agent-nexus/driftbench-estate')) as Record<string, unknown>,
+  );
+  const product = {
+    ...reader,
+    buildLabelling: async (...args: Parameters<ReaderExports['buildLabelling']>) => {
+      const built = await reader.buildLabelling(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: wrap(member as unknown as Member, member.render.bind(member) as Member['render']),
+              },
+            }),
+          ),
+        },
+      };
+    },
+  } as unknown as ReaderExports;
+  return { ...readerAdapter(product), isolate: false } as PointerSut;
+}
+
+async function runReal(sut: PointerSut, seed: number) {
+  clearSeedFreeCache();
+  return runItem(item(CANDIDATE), seed, sut);
+}
+
+describe('the link candidate item on the real reader, whatever its renderer returns besides the body', () => {
+  it('passes when the renderer is the reader own', async () => {
+    const sut = await realWith((_member, render) => render);
+    for (const seed of [1, 2, 3]) expect((await runReal(sut, seed)).pass, `seed ${seed}`).toBe(true);
+  }, 300_000);
+
+  it('is red when the renderer drops the candidates it is handed', async () => {
+    const sut = await realWith(
+      (_member, render) => (set, window, context) => render(set, window, { ...context, candidates: {} }),
+    );
+    for (const seed of [1, 2, 3]) {
+      const planted = await runReal(sut, seed);
+      expect(planted.pass, `seed ${seed}`).toBe(false);
+      expect(planted.detail, `seed ${seed}`).toMatch(NO_CANDIDATE);
+    }
+  }, 300_000);
+
+  it('is red when the renderer keeps the candidates in a top level field that is never sent', async () => {
+    // The wrapper found by the codex audit (run 39750911993): the body holds no candidate, a `candidateDebug` field
+    // beside it holds all of them, and a binding that searched every string of the render result listed them.
+    const sut = await realWith((_member, render) => (set, window, context) => {
+      const wire = render(set, window, { ...context, candidates: {} });
+      const meant = Object.values(context?.candidates ?? {}).flatMap((list) =>
+        (list as Array<{ id: string; shown?: string; label: string }>).map((c) => ({
+          id: c.shown ?? c.id,
+          title: c.label,
+        })),
+      );
+      return { ...wire, candidateDebug: JSON.stringify(meant) } as Wire;
+    });
+    for (const seed of [1, 2, 3]) {
+      const planted = await runReal(sut, seed);
+      expect(planted.pass, `seed ${seed}`).toBe(false);
+      expect(planted.detail, `seed ${seed}`).toMatch(NO_CANDIDATE);
+    }
+  }, 300_000);
 });

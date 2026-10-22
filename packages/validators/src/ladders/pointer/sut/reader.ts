@@ -20,7 +20,7 @@ import type {
   Transport,
 } from './port';
 import { ReaderNotReachable } from './port';
-import { recordSent, stringLeaves } from './sent';
+import { recordSent, serialisedBody } from './sent';
 
 /**
  * The one file that knows the real pointer reader. It maps the reader's exports (names and types only, as listed in
@@ -364,8 +364,9 @@ function viewOf(reader: ReaderExports, ledger: RLedger, cuts: Map<string, RCut>)
 /**
  * The render of a labeler member, recording after it ran which candidates its request carries. The candidates
  * come from the context the reader handed in; a candidate is recorded only when its exact id and exact title
- * occur in a string of the request the member returned (see `sut/sent.ts`). A renderer that drops candidates, or
- * prints another title, records fewer.
+ * occur in the serialised `body` of the request the member returned, and in nothing else of what it returned
+ * (see `sut/sent.ts`). A renderer that drops candidates, prints another title, or keeps them in a field that is
+ * not sent, records fewer.
  */
 export function recordingRender(
   member: { render(set: RSet, window: RWindow, context?: RContext): RWire },
@@ -379,7 +380,7 @@ export function recordingRender(
         list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
       ]),
     );
-    recordSent(into, { file: window.path, window: window.id, set: set.set }, meant, stringLeaves(wire));
+    recordSent(into, { file: window.path, window: window.id, set: set.set }, meant, serialisedBody(wire));
     return wire;
   };
 }

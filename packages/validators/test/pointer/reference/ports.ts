@@ -246,13 +246,13 @@ export type ModelCtx = {
   onVector?: (n: number, vector: Record<string, number> | undefined) => void;
 };
 
-/** Records the candidates a request carries, read from the text that was built. */
+/** Records the candidates a request carries, read from the request body as it is serialised to be sent. */
 function listSent(
   ctx: ModelCtx,
   set: ParsedSet,
   plan: WindowPlan,
   candidates: Candidates,
-  text: string,
+  body: unknown,
 ): void {
   if (!ctx.listed) return;
   const meant = Object.fromEntries(
@@ -261,7 +261,7 @@ function listSent(
       list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
     ]),
   );
-  recordSent(ctx.listed, { file: plan.file, window: plan.id, set: set.set }, meant, [text]);
+  recordSent(ctx.listed, { file: plan.file, window: plan.id, set: set.set }, meant, JSON.stringify(body));
 }
 
 /** Added after the system text of a request asked again after an answer that could not be read. */
@@ -378,7 +378,6 @@ export async function haiku(
   const system = SYSTEM_TEXT;
   const candidates = ctx.candidates?.get(set.set) ?? {};
   const user = userText(set, plan, candidates);
-  listSent(ctx, set, plan, candidates, user);
   const output = { type: 'json_schema', labels: { enum: [...set.labels.map((l) => l.name), 'none'] } };
   const request = {
     model: 'claude-haiku-5-5',
@@ -387,6 +386,7 @@ export async function haiku(
     messages: [{ role: 'user', content: user }],
     output,
   };
+  listSent(ctx, set, plan, candidates, request);
   // The key is the first request's: a retry says that the answer could not be read, and records under that key.
   const key = sha256(canonicalCompact({ ...request, run }));
   const sent =
@@ -823,7 +823,6 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
   const id = httpLabelerId(ctx.url ?? '');
   const candidates = ctx.candidates?.get(set.set) ?? {};
   const prompt = { system: SYSTEM_TEXT, user: userText(set, plan, candidates) };
-  listSent(ctx, set, plan, candidates, prompt.user);
   const body = {
     set: {
       name: set.set,
@@ -833,6 +832,7 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
     window: { id: plan.id, path: plan.file, headingPath: plan.path },
     prompt,
   };
+  listSent(ctx, set, plan, candidates, body);
   const key = sha256(canonicalCompact({ body, labeler: id }));
   const want = {
     key,
