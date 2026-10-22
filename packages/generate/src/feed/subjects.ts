@@ -19,11 +19,17 @@ const hasSubject = (label: SpanLabel | undefined): label is Extract<SpanLabel, {
   (label.kind === 'numeric' || label.kind === 'range') &&
   typeof label.subject === 'string';
 
-/** The text of a clause up to the first digit or symbol, white space folded, case kept (a clause in capitals is another clause). */
+/**
+ * The text of a clause up to the first digit or sign that starts a number (a hyphen is a word mark, so only the
+ * plus sign, currency, percent, comparison and minus signs count), white space folded, case kept (a clause in capitals is another clause). It is
+ * empty when the clause has no such start or when the text before it holds anything but letters, spaces, apostrophes
+ * and hyphens: a clause whose words run into other symbols (a name with dots or brackets) is never grouped.
+ */
 export function prefixOf(text: string): string {
-  const cut = text.search(/[^\p{L}\s'’-]/u);
-  const head = cut < 0 ? text : text.slice(0, cut);
-  return head.replace(/\s+/g, ' ').trim();
+  const cut = text.search(/[\d+$€£%<>=≥≤−]/u);
+  if (cut < 0) return '';
+  const head = text.slice(0, cut).replace(/\s+/g, ' ').trim();
+  return /^[\p{L} '’-]+$/u.test(head) ? head : '';
 }
 
 /**
