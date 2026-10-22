@@ -247,6 +247,20 @@ export const GivenOverride = z
     origin: GivenOrigin.optional().describe(
       'Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash.',
     ),
+    stage: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written.',
+      ),
+    after: z
+      .string()
+      .regex(/^[^#\s]+#[^#\s]+$/)
+      .optional()
+      .describe(
+        'The block of a written spec this prefix is taken after, as <spec id>#<block id>. Only with a stage on the same block: a validator reads the stage only when that block leaves the agent at it after the same history.',
+      ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()
