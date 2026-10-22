@@ -344,5 +344,4 @@ Two blocks are the same test when they start from the same stage, expect the sam
 
 ## Scale time normalised (2026-10-22)
 
-`scale.<n>x.time` judges the product's raw CPU time times reference over the calibration of the runner, measured in the same process before the window (`scale-calibration.ts`). Caps unchanged. See [the journal](SWEEP-JOURNAL.md).
-
+`scale.<n>x.time` judges the product's raw CPU time times reference over the calibration of the runner, measured in the same process before the window (`scale-calibration.ts`: allocation, sha256, yaml, stat; weights 0.1, 0.4, 0.4, 0.1). Caps unchanged. Open: on a held-out batch two CPU types sit 12 to 18% off the line. See [the journal](SWEEP-JOURNAL.md).
