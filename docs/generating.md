@@ -369,7 +369,7 @@ A walk often ends the way another walk already ended: the same test, run from th
 * The block does not inject a deviation class: that block is the test of the class and the deviation of its row, and stays.
 * The walk has no end state, no declared perturbation said before the block or on it (a perturbed run needs the block to reach it; dropping the declaration with the block was measured and loses 50 perturbed-mode kills on the hidden seed), does not end on a tool failure, and still validates.
 
-The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. Exactly one walk ends on a block: a cut that stops with more than one block left, on a block another written walk ends on, is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
+The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. Exactly one walk ends on a block: a cut that stops with more than one block left, on a block another written walk ends on, is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. A stay in the middle of a walk (a block that leaves the walk at the stage it started from, with no world, no fact and no injection of its own) that another written spec already says is cut too, when the walk stays valid: the block after it starts from the same stage and the same world. The same checks hold, a block a declared perturbation names stays, and a metamorphic family is never cut from the middle; the cut is recorded in `reduced_middle`. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
 
 Each removed end block is recorded in the shortened spec's `metadata.generated.reduced_ends`.
 The record gives `from_blocks`, `to_blocks`, and `duplicates`: the removed block's `block` ID and
@@ -486,20 +486,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3109 of 4064 (76.5%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3105 of 4064 (76.4%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 955 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 959 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     793       153           3
+twise           156     792       153           3
 boundary         85     180        13          72
-deviation       137     526       137           0
+deviation       137     527       137           0
 metamorphic      42     188        42           0
 task             67      71        67           0
-cover            11      48        11           0
+cover            12      53        12           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -537,11 +537,11 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 607 files to generated.
+Wrote 708 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The text files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 436 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase and the approved phrases no walk could say (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 

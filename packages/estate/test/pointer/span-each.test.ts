@@ -4,21 +4,24 @@ import { Cassette, singleLabelling } from '../../src/pointer';
 import { estate, NOW } from '../support';
 import { load, plantedDense } from './support';
 
-// A test-only set: a unit that holds several gates gives one atom for each file it names, each with its own act.
+// A test-only set: the label lists the act span and the file span of each gate in the same order. The gate's file is
+// the one its file span names; nothing is bound by position.
 const SET = `labels:
   - set: each
     description: Several gates in one unit.
     spans:
       - name: act
         description: The act that waits.
+      - name: file
+        description: The file to read first.
     labels:
       - name: gates
-        description: A unit that holds several gates, each with its own act and its own file.
-        spans: [act]
+        description: A unit that holds several gates, each with its own act and file.
+        spans: [act, file]
         atom:
           kind: gate
-          locate: each
           spanEach: act
+          spanFile: file
           title: "Read \${named} before \${span.act}"
           situation: "\${span.act}"
           fields: { first: $named, trigger: "\${span.act}", path: $path }
@@ -27,15 +30,13 @@ const SET = `labels:
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
 `;
 
-const LINE = 'Before editing a ledger: read `docs/ledger.md`; before sending one: read `docs/send.md`.';
-const FILES = {
-  'CLAUDE.md': `# Gates\n\n${LINE}\n`,
-  'docs/ledger.md': '# Ledger\n',
-  'docs/send.md': '# Send\n',
-};
+type Gate = { act: string; file?: string; at?: number };
 
-async function gates(acts: string[], files: Record<string, string> = FILES) {
-  const root = await estate(files);
+async function gates(line: string, answer: Gate[], extra: string[] = ['docs/ledger.md', 'docs/send.md']) {
+  const root = await estate({
+    'CLAUDE.md': `# Gates\n\n${line}\n`,
+    ...Object.fromEntries(extra.map((path) => [path, '# File\n'])),
+  });
   const { map, pointer } = await scanEstate({
     root,
     reader: new ClaudeCodeReader(),
@@ -44,19 +45,27 @@ async function gates(acts: string[], files: Record<string, string> = FILES) {
       sets: load(SET),
       labelling: singleLabelling(
         plantedDense((window) =>
-          window.units.map((unit) =>
-            unit.text.startsWith('Before editing')
-              ? {
-                  units: String(unit.n),
-                  label: 'gates',
-                  spans: acts.map((act) => ({
-                    kind: 'act',
-                    from: unit.text.indexOf(act),
-                    to: unit.text.indexOf(act) + act.length,
-                  })),
-                }
-              : { units: String(unit.n), label: 'none' },
-          ),
+          window.units.map((unit) => {
+            if (!unit.text.includes('read')) return { units: String(unit.n), label: 'none' };
+            const at = (text: string, from = 0) => {
+              const i =
+                unit.text.indexOf(text, from) >= 0 ? unit.text.indexOf(text, from) : unit.text.indexOf(text);
+              return { from: i, to: i + text.length };
+            };
+            // The answer lists the act and the file of one gate, then of the next.
+            let cursor = 0;
+            const spans = answer.flatMap((gate) => {
+              const act = at(gate.act);
+              const out: Array<{ kind: string; from: number; to: number }> = [{ kind: 'act', ...act }];
+              if (gate.file !== undefined) {
+                const file = at(gate.file, cursor);
+                cursor = file.to;
+                out.push({ kind: 'file', ...file });
+              }
+              return out;
+            });
+            return { units: String(unit.n), label: 'gates', spans };
+          }),
         ),
       ),
       cassette: new Cassette(),
@@ -68,51 +77,83 @@ async function gates(acts: string[], files: Record<string, string> = FILES) {
       .filter((atom) => atom.kind === 'gate')
       .map((atom) => [atom.fields?.first, atom.fields?.trigger]),
     refusals: pointer?.refusals ?? [],
+    atomRefusals: pointer?.atomRefusals ?? [],
   };
 }
 
-describe('a mapping that takes the nth span for the nth path (spanEach)', () => {
-  it('builds a gate for each file the unit names, each with its own act', async () => {
-    const { found, refusals } = await gates(['editing a ledger', 'sending one']);
-    expect(refusals).toEqual([]);
+describe('a mapping that builds one atom for each act span, with the file span listed with it (spanEach)', () => {
+  it('builds a gate for each act with the file of its own span', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `docs/ledger.md`; before sending one: read `docs/send.md`.',
+      [
+        { act: 'editing a ledger', file: '`docs/ledger.md`' },
+        { act: 'sending one', file: '`docs/send.md`' },
+      ],
+    );
+    expect(atomRefusals).toEqual([]);
     expect(found).toEqual([
       ['docs/ledger.md', 'editing a ledger'],
       ['docs/send.md', 'sending one'],
     ]);
   });
 
-  it('gives a path with no span of its own the first span', async () => {
-    const { found } = await gates(['editing a ledger']);
-    expect(found).toEqual([
-      ['docs/ledger.md', 'editing a ledger'],
-      ['docs/send.md', 'editing a ledger'],
-    ]);
-  });
-
-  it('keeps one gate for each occurrence when two gates name one file', async () => {
-    const line = 'Before editing a ledger: read `docs/ledger.md`; before sending one: read `docs/ledger.md`.';
-    const { found, refusals } = await gates(['editing a ledger', 'sending one'], {
-      'CLAUDE.md': `# Gates\n\n${line}\n`,
-      'docs/ledger.md': '# Ledger\n',
-    });
-    expect(refusals).toEqual([]);
+  it('keeps one gate for each act when both name one file, with both paths before the second act', async () => {
+    const { found, atomRefusals } = await gates(
+      'Read `docs/ledger.md` before editing a ledger; read `docs/ledger.md` before sending one.',
+      [
+        { act: 'editing a ledger', file: '`docs/ledger.md`' },
+        { act: 'sending one', file: '`docs/ledger.md`' },
+      ],
+      ['docs/ledger.md'],
+    );
+    expect(atomRefusals).toEqual([]);
     expect(found).toEqual([
       ['docs/ledger.md', 'editing a ledger'],
       ['docs/ledger.md', 'sending one'],
     ]);
   });
 
-  it('drops an exact repeat inside one gate', async () => {
-    const line =
-      'Before editing a ledger: read `docs/ledger.md` (that is `docs/ledger.md`); before sending one: read `docs/send.md`.';
-    const { found } = await gates(['editing a ledger', 'sending one'], {
-      'CLAUDE.md': `# Gates\n\n${line}\n`,
-      'docs/ledger.md': '# Ledger\n',
-      'docs/send.md': '# Send\n',
-    });
+  it('finds a file written as a link in its span', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read [ledger](docs/ledger.md); before sending one: read `docs/send.md`.',
+      [
+        { act: 'editing a ledger', file: '[ledger](docs/ledger.md)' },
+        { act: 'sending one', file: '`docs/send.md`' },
+      ],
+    );
+    expect(atomRefusals).toEqual([]);
     expect(found).toEqual([
       ['docs/ledger.md', 'editing a ledger'],
       ['docs/send.md', 'sending one'],
     ]);
+  });
+
+  it('refuses a gate with no file span, and keeps the others', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `docs/ledger.md`; before sending one: ask first.',
+      [{ act: 'editing a ledger', file: '`docs/ledger.md`' }, { act: 'sending one' }],
+    );
+    expect(found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+    expect(atomRefusals.join('\n')).toContain(
+      'the gate 2 of the label gates has no file span that names a file',
+    );
+  });
+
+  it('refuses a file span that names no file', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `docs/ledger.md`; before sending one: ask first.',
+      [
+        { act: 'editing a ledger', file: '`docs/ledger.md`' },
+        { act: 'sending one', file: 'ask first' },
+      ],
+    );
+    expect(found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+    expect(atomRefusals.join('\n')).toContain('the gate 2');
+  });
+
+  it('builds no gate from a label that gives no span', async () => {
+    const { found, refusals } = await gates('Before editing a ledger: read `docs/ledger.md`.', []);
+    expect(found).toEqual([]);
+    expect(refusals.join('\n')).toContain('spans are a non-empty');
   });
 });

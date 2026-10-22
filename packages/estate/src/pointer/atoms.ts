@@ -229,49 +229,30 @@ export function pointerAtoms(
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
-    const code = codeSpanOf(item.unit.text);
+    // A unit that names no file of its own and has a target unit (an act asked in one unit, the file to read first
+    // given in the next) takes the paths of its target. A file is a path by structure (a slash, an extension, a link):
+    // a code span that is no path, such as a tool name, is not a file and does not block this.
+    const holder =
+      item.target !== undefined && namedPaths(item.unit.text).length === 0
+        ? item.target.unit.text
+        : item.unit.text;
+    const code = codeSpanOf(holder);
     // A line of a standing file that is `@path` is an import: the runtime loads it and the agent reads nothing.
     const imported = (path: string): boolean =>
       builder.kindOf(item.path) === 'standing' &&
-      item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
+      holder.split('\n').some((line) => line.trim() === `@${path}`);
     const bareNames = new Set(
-      pathMentions(item.unit.text)
+      pathMentions(holder)
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );
-    // The paths in the order they stand in the unit (by offset, not by the kind of notation that found them), so the
-    // nth path takes the nth span.
-    const mentions = pathMentions(item.unit.text).sort((a, b) => a.start - b.start);
-    const inOrder = mentions
-      .map(({ path }) => path)
-      .filter((path, index, all) => all.indexOf(path) === index);
-    const allNamed = inOrder.filter((path) => !imported(path));
-    const firstNamed = namedOf(item.unit.text);
-    // Under a `spanEach` mapping each gate binds its own path occurrence: the unit is cut at the start of each span of
-    // that kind, and an exact repeat is dropped only inside one gate's stretch, so two gates naming one file keep both.
-    const perGate = (kind: string): string[] => {
-      const starts = labelSpans
-        .filter((entry) => entry.kind === kind)
-        .map((entry) => entry.from)
-        .sort((a, b) => a - b);
-      if (starts.length < 2) return allNamed;
-      const stretchOf = (offset: number): number =>
-        starts.filter((from, index) => index > 0 && from <= offset).length;
-      return mentions
-        .filter(({ path }) => !imported(path))
-        .filter(
-          (mention, index, all) =>
-            all.findIndex(
-              (other) => other.path === mention.path && stretchOf(other.start) === stretchOf(mention.start),
-            ) === index,
-        )
-        .map(({ path }) => path);
-    };
+    const allNamed = namedPaths(holder).filter((path) => !imported(path));
+    const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
     const templateFor = (
       namedPath: string | undefined,
       chosen?: (typeof labelLinks)[number],
-      each?: { kind: string; index: number },
+      each?: { kind: string; from: number; to: number },
     ): Template => ({
       link: (kind, property) => {
         const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
@@ -284,8 +265,13 @@ export function pointerAtoms(
         return typeof field === 'string' ? field : undefined;
       },
       span: (kind) => {
-        const ofKind = labelSpans.filter((entry) => entry.kind === kind);
-        const span = each?.kind === kind ? (ofKind[each.index] ?? ofKind[0]) : ofKind[0];
+        // Under `spanEach` the span of the gate's own kind is this gate's; any other kind is the first of the answer.
+        const span =
+          each !== undefined && kind === each.kind
+            ? labelSpans.find(
+                (entry) => entry.kind === kind && entry.from === each.from && entry.to === each.to,
+              )
+            : labelSpans.find((entry) => entry.kind === kind);
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       spans: (kind) =>
@@ -312,13 +298,56 @@ export function pointerAtoms(
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
+    // The gates of a `spanEach` mapping: the label lists the act span and the file span of each gate, in the same
+    // order. The gate's file is the one its file span names; a gate whose file span is missing or names no file is
+    // refused.
+    const gatesOf = new Map<string, Array<{ kind: string; from: number; to: number; path: string }>>();
+    const eachGate = (kind: string, fileKind: string | undefined, label: string) => {
+      const known = gatesOf.get(kind);
+      if (known) return known;
+      const acts = labelSpans.filter((entry) => entry.kind === kind);
+      const files = fileKind === undefined ? [] : labelSpans.filter((entry) => entry.kind === fileKind);
+      if (acts.length === 0)
+        refusals.push(
+          `${where}: the label ${label} takes a ${kind} span for each gate and the answer gave none`,
+        );
+      const found: Array<{ kind: string; from: number; to: number; path: string }> = [];
+      for (const [index, act] of acts.entries()) {
+        const file = files[index];
+        const given =
+          file === undefined
+            ? undefined
+            : (pathMentions(item.unit.text).find(
+                (mention) =>
+                  mention.start + item.unit.start - start >= file.from &&
+                  mention.start + item.unit.start - start < file.to &&
+                  !imported(mention.path),
+              )?.path ??
+              namedPaths(text.slice(start + file.from, start + file.to)).find((path) => !imported(path)));
+        if (given === undefined) {
+          refusals.push(
+            `${where}: the gate ${index + 1} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
+          );
+          continue;
+        }
+        found.push({ kind, from: act.from, to: act.to, path: given });
+      }
+      gatesOf.set(kind, found);
+      return found;
+    };
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
-      const eachNamed = mapping.spanEach === undefined ? allNamed : perGate(mapping.spanEach);
-      const paths =
-        (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
-          ? eachNamed
-          : [readable];
+      // A mapping with `spanEach` builds one atom for each span of that kind the label gives, the span of one gate. The
+      // gate's file is the one the unit names inside that span, and the engine binds nothing by position: a span that
+      // holds no file is refused.
+      const gates =
+        mapping.spanEach === undefined ? undefined : eachGate(mapping.spanEach, mapping.spanFile, item.label);
+      const paths: Array<string | undefined> =
+        gates !== undefined
+          ? gates.map((gate) => gate.path)
+          : (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
+            ? allNamed
+            : [readable];
       // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
       // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
       const kinds = new Set([...JSON.stringify(mapping).matchAll(/\$\{?link\.([\w-]+)/g)].map((m) => m[1]));
@@ -329,13 +358,11 @@ export function pointerAtoms(
         repeated === undefined
           ? [undefined]
           : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
-      const pairs = paths.flatMap((path, index) => choices.map((link) => [path, link, index] as const));
-      for (const [namedPath, chosen, index] of pairs) {
-        const template = templateFor(
-          namedPath,
-          chosen,
-          mapping.spanEach !== undefined ? { kind: mapping.spanEach, index } : undefined,
-        );
+      const pairs = paths.flatMap((path, index) =>
+        choices.map((link) => [path, link, gates?.[index]] as const),
+      );
+      for (const [namedPath, chosen, gate] of pairs) {
+        const template = templateFor(namedPath, chosen, gate);
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
