@@ -1,0 +1,25 @@
+name: probe usage tests
+
+on:
+  push:
+    branches: [train/usage-tests-1]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: node tools/structure/api-surface.mjs --build --check
+      - name: the tests of the change
+        run: pnpm exec vitest run packages/cli/test/estate-pointer.test.ts packages/cli/test/estate-build.test.ts packages/cli/test/estate-user-layer.test.ts packages/estate/test --maxWorkers=2
