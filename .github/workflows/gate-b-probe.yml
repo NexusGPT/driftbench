@@ -1,0 +1,33 @@
+name: gate-b probe
+
+# Temporary: runs the gate B harness tests alone, with the formatter and the type checker, on a pull request that
+# touches them. Removed before the harness merges.
+on:
+  pull_request:
+    paths:
+      - packages/validators/test/estate/zz-probe.test.ts
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate-b-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Harness tests
+        run: pnpm exec vitest run packages/estate/test/gold packages/cli/test/gold-chain packages/estate/test/plan packages/estate/test/pointer packages/estate/test/map packages/generate/test/estate --maxWorkers=2
