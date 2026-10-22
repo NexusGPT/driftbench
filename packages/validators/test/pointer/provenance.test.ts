@@ -16,7 +16,9 @@ describe('the provenance of the first bank', () => {
 
   it('labels the stack and label-set validation items and the wide-window scale item as maintainer-added', () => {
     const added = pointerBank().filter((i) => i.provenance === 'maintainer-added');
-    expect(added.every((i) => /^labels\.(stack-|set-validation-)|^scale\.wide-window$/.test(i.id))).toBe(true);
+    expect(added.every((i) => /^labels\.(stack-|set-validation-)|^scale\.wide-window$/.test(i.id))).toBe(
+      true,
+    );
   });
 });
 

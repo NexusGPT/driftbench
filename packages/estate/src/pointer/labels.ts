@@ -318,20 +318,26 @@ export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
 
-/** `5` or `5-7` as its first and last number, without listing the numbers between. */
+/** `5` or `5-7` as the numbers it names, read with no window at hand: a range over 10,000 numbers is refused. */
+export function expandUnits(units: string): number[] | undefined {
+  const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
+  if (!match) return undefined;
+  const from = Number(match[1]);
+  const to = Number(match[2] ?? match[1]);
+  if (to < from || to - from > 10_000) return undefined;
+  return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
+}
+
+/**
+ * `5` or `5-7` as its first and last number, without listing the numbers between: what `expandUnits` reads, with no
+ * cap, for a reader that holds the window the range must stay in.
+ */
 export function unitRange(units: string): { from: number; to: number } | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
   if (!match) return undefined;
   const from = Number(match[1]);
   const to = Number(match[2] ?? match[1]);
   return to < from ? undefined : { from, to };
-}
-
-/** `5` or `5-7` as the numbers it names, read with no window at hand: a range over 10,000 numbers is refused. */
-export function expandUnits(units: string): number[] | undefined {
-  const range = unitRange(units);
-  if (!range || range.to - range.from > 10_000) return undefined;
-  return Array.from({ length: range.to - range.from + 1 }, (_, offset) => range.from + offset);
 }
 
 /** The last number of a window: its units and its shown lines share one numbering. */
