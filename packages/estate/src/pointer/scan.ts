@@ -315,7 +315,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       try {
         return [file.path, cut(file.text)];
       } catch (cause) {
-        if (cause instanceof CutError) throw new CutError(`${file.path}: ${cause.message}`);
+        if (cause instanceof CutError) throw cause.at(file.path);
         throw cause;
       }
     }),

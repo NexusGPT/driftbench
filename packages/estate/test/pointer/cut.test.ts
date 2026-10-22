@@ -235,3 +235,34 @@ describe('a file that nests too deep', () => {
     expect(cut(`${' '.repeat(400)}plain text\n`).units.length).toBeGreaterThan(0);
   });
 });
+
+describe('the nesting of a file counts list structure, not indent width', () => {
+  const nestedBy = (width: number, levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${' '.repeat(width * i)}- level ${i}`).join('\n')}\n`;
+
+  it('reads a list indented four spaces a level as deep as one indented two', () => {
+    expect(cut(nestedBy(4, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(2, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(4, MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('refuses a list one level over the limit, whatever its indent, with the depth in the error', () => {
+    for (const width of [1, 2, 4]) {
+      const refusal = (() => {
+        try {
+          return cut(nestedBy(width, MAX_NESTING + 1));
+        } catch (cause) {
+          return cause;
+        }
+      })();
+      expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    }
+  });
+
+  it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
+    const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
+    expect(cut(flat).units).toHaveLength(300);
+    const text = `${nestedBy(2, 90)}\nA paragraph.\n\n${nestedBy(2, 90)}`;
+    expect(cut(text).units.length).toBeGreaterThan(180);
+  });
+});
