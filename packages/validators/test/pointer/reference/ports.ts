@@ -470,7 +470,11 @@ function missError(
   };
 }
 
-function cutDigestError(window: string, want: { key: string; labeler: string }, nearest: string): ModelResult {
+function cutDigestError(
+  window: string,
+  want: { key: string; labeler: string },
+  nearest: string,
+): ModelResult {
   return {
     kind: 'error',
     message: `cassette miss for ${window}: cutDigest differs from the recording; the cutter ran under Node ${process.versions.node} with ICU ${process.versions.icu}, so the cut may differ between environments`,

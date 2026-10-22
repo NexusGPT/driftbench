@@ -667,7 +667,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   });
 }
 
-type Outcome = { abort: string; miss?: CassetteMissView } | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
+type Outcome =
+  | { abort: string; miss?: CassetteMissView }
+  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
 
 async function labelWindow(
   plan: WindowPlan,

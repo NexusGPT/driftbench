@@ -361,13 +361,10 @@ export const replayRuns: Record<string, Run> = {
       ['part.messages', 'part.user', 'cutDigest'],
     ),
   'miss-names-new-file': (ctx) =>
-    missWithoutSibling(
-      ctx,
-      (f, _t, yaml) => ({
-        files: [...f, { path: 'notes/d.md', text: compose([para(prose(ctx).next())]).text }],
-        yaml,
-      }),
-    ),
+    missWithoutSibling(ctx, (f, _t, yaml) => ({
+      files: [...f, { path: 'notes/d.md', text: compose([para(prose(ctx).next())]).text }],
+      yaml,
+    })),
   'miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', 'tampered'),
   'miss-names-labeler': async (ctx) => {
     for (const arm of ['haiku', 'jev'] as const) {
@@ -389,7 +386,10 @@ export const replayRuns: Record<string, Run> = {
     return pass('both arms refuse the other fixture and name the labeler id of the missing entry');
   },
   'miss-names-set-name': (ctx) =>
-    missWithoutSibling(ctx, (f, _t, yaml) => ({ files: f, yaml: yaml.replace('set: probe', 'set: renamed') })),
+    missWithoutSibling(ctx, (f, _t, yaml) => ({
+      files: f,
+      yaml: yaml.replace('set: probe', 'set: renamed'),
+    })),
   'miss-names-nearest-entry': async (ctx) => {
     const { fixture } = await positiveReplay(ctx);
     const edited = fixture.files.map((f, i) =>

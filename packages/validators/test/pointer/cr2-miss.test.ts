@@ -54,7 +54,8 @@ const PLANTED: Array<{ bug: BugMiss; id: string; detail: RegExp }> = [
     // The old oracle passed this one: the miss holds the word `labeler`, with the id of another labeler.
     bug: 'miss-names-cassette-labeler',
     id: 'replay.miss-names-labeler',
-    detail: /the miss does not name the labeler id anthropic of the missing entry: .*labeler of the miss: jev/,
+    detail:
+      /the miss does not name the labeler id anthropic of the missing entry: .*labeler of the miss: jev/,
   },
   {
     bug: 'haiku-retry-removed',
