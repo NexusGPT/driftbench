@@ -514,17 +514,48 @@ Pairwise: a covering array of strength t (default 2) over the situation axes, un
 
 ### Situation relevance in a proposed plan
 
-Which atoms a situation acts on is not inferred from the words of the estate: no title, quote, situation or description decides it (the estate path reads no English word list). Relevance comes from a declared space: `estate map --to space.yaml` exports one, and `estate plan --space` makes it authoritative, its values and constraints used as declared. Without a supplied space, each value of an event axis (`session_state`, `owner_signal`, `deviation`, `estate_hazard`) is reported as unresolved: its combinations remain in the plan, with a note naming the value. A missing relevance never removes an entire situation to obtain vacuous coverage. The baseline of each axis and an unperturbed long session remain available, and mandatory contract rows and journeys keep their own obligations. These are proposed rows, subject to approval like the rest of the plan.
+The default plan crosses each event value only with the atoms it can act on. It reads no word, id or path of an atom. A table keyed by the dimension and value ids of the axes of `estate map` names, for each value, the kinds of atom it acts on: a language switch acts on output rules (`register`) and instructions, a tool failure on tools, scripts, guards, helpers, skills and routes, a stale tracker on stages, and so on. A helper event (a dead helper, helpers running) also acts on the routes the map links to a helper, by a `route` or `dispatch` edge to a helper or by `targetKind: subagent`.
 
-The captured Northwind example below uses the explicit full space exported by `estate map`.
+The table, which a test compares with the one the planner holds, is:
+
+| Dimension | Value | Kinds it acts on | Also helper routes |
+|---|---|---|---|
+| `estate_hazard` | `dead_helper` | subagent | yes |
+| `session_state` | `helpers_running` | subagent | yes |
+| `estate_hazard` | `stale_tracker` | stage | no |
+| `deviation` | `D5_language_switch` | register, instruction | no |
+| `owner_signal` | `language_switch` | register, instruction | no |
+| `deviation` | `D8_tool_failure` | tool, script, guard, subagent, skill, route | no |
+| `deviation` | `D6_instruction_in_data` | instruction, gate, guard, register | no |
+| `deviation` | `D4_loose_confirmation` | instruction, gate, guard | no |
+| `estate_hazard` | `rate_wave` | tool, script, subagent, instruction, stage | no |
+| `estate_hazard` | `process_restart` | stage, subagent, instruction, gate | no |
+| `estate_hazard` | `compaction_mid_task` | instruction, gate, register, stage, skill, route | no |
+| `session_state` | `after_compaction` | instruction, gate, register, stage, skill, route | no |
+| `session_state` | `after_restart` | stage, subagent, instruction, gate | no |
+| `session_state` | `resumed` | stage, instruction, gate, skill, route | no |
+| `owner_signal` | `stop` | instruction, stage, subagent, guard | no |
+| `owner_signal` | `no_questions` | instruction, gate, register | no |
+| `deviation` | `D2_goal_shift` | route, skill, stage, instruction | no |
+| `deviation` | `D1_off_topic` | route, skill, instruction, register, stage | no |
+| `deviation` | `D9_out_of_scope` | route, skill, subagent, instruction | no |
+| `deviation` | `D7_silence_or_burst` | instruction, register, guard, subagent | no |
+
+A value the table does not name stays unresolved (below).
+
+For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the baseline of each axis and an unperturbed long session remain available. When a value has targets, inferred constraints exclude its combinations with the other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A value the table does not name, or one with no target in the estate, stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
+
+A kind is a coarse declaration: a rule that mentions a tool is an instruction and is crossed with a tool failure only if the table says instructions are. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions, and a value it adds is unresolved unless its own constraints say what it cannot meet. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
+
+The captured Northwind example below is the default plan: its counts include the inferred relevance, and the notes list the situation values the table does not name.
 
 The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1309 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1339 rows (378 from the contract, 10 journeys, 951 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1196 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 951 rows, t = 2, 4349 of 4349 allowed 2-tuples covered; the full grid of 1722054297600 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
     instruction    93
     gate           12
@@ -541,36 +572,36 @@ Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 jou
     hazard          1
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        435
-    outside_trigger    31
-    twin               31
-    ordered_pair       84
-    skip_pressure       6
-    route_positive    260
+    obligation        585
+    outside_trigger    45
+    twin               45
+    ordered_pair       32
+    skip_pressure       4
+    route_positive    192
     route_near_miss    13
     misroute           13
     read_when           8
     script_fixture      2
-    dispatch           42
+    dispatch           27
     contract_alone      3
     stop_resume         3
-    guard_positive     84
+    guard_positive     60
     guard_negative      6
     guard_hostile       6
     guard_speed         6
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        69
+    stage_order        39
     stage_skip          4
     stage_anytime       1
-    register_sample   280
-    hazard_recovery     1
+    register_sample   208
+    hazard_recovery     2
     invariant           4
     setting             4
     journey            10
-  Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1309 of 1309.
+  Unenforced: 57 approved rules no guard enforces.
+  Cells with no approved phrase: 1196 of 1196.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -580,16 +611,15 @@ Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 jou
     route.supplier-email.an-ask-that-fits-supplier-email route skill.supplier-email.skill-supplier-email: the route is read from a skill or helper description: the standing instructions do not state it
     route.weekly-report.an-ask-that-fits-weekly-report route skill.weekly-report.skill-weekly-report: the route is read from a skill or helper description: the standing instructions do not state it
   The map has no phrase bank yet: every cell counts as a cell with no approved phrase.
-  session_state=resumed: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  session_state=after_compaction: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  session_state=after_restart: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  session_state=helpers_running: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  owner_signal=hold: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  owner_signal=no_questions: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  owner_signal=keep_going: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  owner_signal=stop: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-  owner_signal=language_switch: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
-    and 20 more, all in _captures/docs3/estate/plan.summary.json under "notes".
+  owner_signal=hold: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  owner_signal=keep_going: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  owner_signal=frustration: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  owner_signal=limit_word: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  deviation=D3_contradiction: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  deviation=D10_return: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  deviation=D11_pii_leak: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  deviation=D12_prompt_extraction: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
+  1 reference to documents the map records as navigation only (examples, templates, histories) give no test.
 Next: driftbench estate plan approve _captures/docs3/estate/plan.yaml --all, or strike rows with --row <id> --strike
 ```
 
@@ -605,7 +635,7 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1424 rows, 1424 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1339 rows, 1339 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
