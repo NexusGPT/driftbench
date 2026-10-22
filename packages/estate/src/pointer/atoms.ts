@@ -351,7 +351,9 @@ export function pointerAtoms(
         const placed = LIMIT_KINDS.has(mapping.kind) ? limits : [];
         if (limits.length > 0 && placed.length === 0) {
           const givers = [item, ...bound].filter((unit) => limitsOf(unit).length > 0).map((unit) => unit.id);
-          refusals.push(`${where}: the ${mapping.kind} atom takes no limit; dropped the limits of unit ${givers.join(', ')}`);
+          refusals.push(
+            `${where}: the ${mapping.kind} atom takes no limit; dropped the limits of unit ${givers.join(', ')}`,
+          );
         }
         const same = builder.atoms.find(
           (other) =>
