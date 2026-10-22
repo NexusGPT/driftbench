@@ -151,6 +151,14 @@ const FAULTS: Fault[] = [
     passes: ids('answer/refuses-unknown-label'),
   },
   {
+    name: 'answer: an entry written twice is refused',
+    file: LABELS,
+    from: 'if (seenEntries.has(written)) continue;',
+    to: 'if (false) continue;',
+    fails: ids('answer/accepted', 'answer/refusal-keeps-rest'),
+    passes: ids('answer/refuses-named-twice'),
+  },
+  {
     name: 'answer: window not checked',
     file: LABELS,
     from: 'if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {',
