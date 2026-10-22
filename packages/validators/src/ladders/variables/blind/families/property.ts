@@ -110,7 +110,11 @@ function twoRulesWithPair(ctx: ItemContext): StoreDoc {
 }
 
 /** Four variables whose weights are given; `undefined` leaves a variable unweighted. */
-function weighted(ids: string[], weights: Array<number[] | undefined>, extra: Partial<Parameters<typeof makeStore>[0]> = {}): StoreDoc {
+function weighted(
+  ids: string[],
+  weights: Array<number[] | undefined>,
+  extra: Partial<Parameters<typeof makeStore>[0]> = {},
+): StoreDoc {
   return makeStore({
     vars: ids.map((id, i) => {
       const w = weights[i];
@@ -134,7 +138,10 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
   for (const row of newRows(plan)) {
     const expected = logWeightOf(space, row.values);
     if (expected === null) {
-      must(row.logWeight === null, () => `the row ${row.id} holds a zero weight and has logWeight ${show(row.logWeight)}`);
+      must(
+        row.logWeight === null,
+        () => `the row ${row.id} holds a zero weight and has logWeight ${show(row.logWeight)}`,
+      );
       sawNull = true;
       continue;
     }
@@ -222,7 +229,12 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           planOk(
             ctx,
             makeStore({
-              vars: ids.map((id, i) => ({ id, values: valueIds(3), shared: true, ...(i === 2 ? { approved: false } : {}) })),
+              vars: ids.map((id, i) => ({
+                id,
+                values: valueIds(3),
+                shared: true,
+                ...(i === 2 ? { approved: false } : {}),
+              })),
             }),
           );
         },
@@ -305,7 +317,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
     rules: ['R8'],
     family: 'seed-rows',
     component: 'planner/seeds',
-    cause: 'the plan keeps seeds as given and credits only the allowed tuples they hold, beside the rules of R6 and R7',
+    cause:
+      'the plan keeps seeds as given and credits only the allowed tuples they hold, beside the rules of R6 and R7',
     cases: [
       [
         'partial-seeds-beside-a-forbid',
@@ -339,7 +352,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const plan = planOk(ctx, store, [seed]);
           must(
             sameRow(plan.rows[0]?.values ?? {}, seed),
-            () => `the seed became ${show(plan.rows[0]?.values)}; a seed with an unapproved value is kept whole`,
+            () =>
+              `the seed became ${show(plan.rows[0]?.values)}; a seed with an unapproved value is kept whole`,
           );
           must(
             codes(plan).includes('seed_unapproved_value'),
@@ -369,7 +383,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
     rules: ['R9'],
     family: 'budget-order',
     component: 'planner/budget',
-    cause: 'the plan orders and cuts rows by the product of shares when weights meet constraints, seeds and budgets',
+    cause:
+      'the plan orders and cuts rows by the product of shares when weights meet constraints, seeds and budgets',
     cases: [
       [
         'zero-weight-rows-come-last',
@@ -411,7 +426,10 @@ export const PROPERTY_STEMS: readonly Stem[] = [
             weighted(ids, [(w[0] as number[]).map((x) => x * 7), w[1], w[2], undefined]),
             { seed: ctx.seed },
           );
-          must(jsonEqual(plain.rows, scaled.rows), () => 'multiplying every weight of one variable changed the plan');
+          must(
+            jsonEqual(plain.rows, scaled.rows),
+            () => 'multiplying every weight of one variable changed the plan',
+          );
         },
       ],
       [

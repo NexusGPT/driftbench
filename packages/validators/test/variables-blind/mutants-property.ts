@@ -145,7 +145,10 @@ export const PROPERTY_MUTANTS: readonly Mutant[] = [
   {
     name: 'plan writes a raw weight where a share belongs',
     families: ['budget-order'],
-    only: ['scaling-the-weights-of-a-variable-changes-nothing', 'unweighted-variables-beside-a-weighted-one-share-uniformly'],
+    only: [
+      'scaling-the-weights-of-a-variable-changes-nothing',
+      'unweighted-variables-beside-a-weighted-one-share-uniformly',
+    ],
     make: planChange((plan, store) => {
       for (const row of plan.rows) {
         if (row.kind !== 'new') continue;

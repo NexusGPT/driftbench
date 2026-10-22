@@ -1029,7 +1029,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'diff.cover': table([
-    ['a three-entry forbid inside a rule removes only the tuples it makes impossible', ['three-entry-forbid-inside-a-rule']],
+    [
+      'a three-entry forbid inside a rule removes only the tuples it makes impossible',
+      ['three-entry-forbid-inside-a-rule'],
+    ],
     [
       'a value no valid row can hold is warned about and the other tuples are still covered',
       ['unreachable-value-is-warned-and-the-rest-is-covered'],
@@ -1040,7 +1043,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
     ['a value nobody approved is neither planned nor required inside a rule', ['unapproved-value-in-a-rule']],
     ['a variable nobody approved is no axis and gets no value in a row', ['unapproved-variable-is-no-axis']],
-    ['a forbid nobody approved plans nothing, so its tuples stay required', ['unapproved-forbid-plans-nothing']],
+    [
+      'a forbid nobody approved plans nothing, so its tuples stay required',
+      ['unapproved-forbid-plans-nothing'],
+    ],
     [
       'two rules that share a variable are both crossed when a pair is impossible',
       ['two-rules-share-a-variable-beside-a-pair'],
@@ -1049,7 +1055,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       'a pair naming two values of one variable excludes nothing beside a real three-entry forbid',
       ['a-pair-of-one-variable-beside-a-real-forbid'],
     ],
-    ['a rule smaller than the strength is crossed in full minus the forbidden cell', ['rule-of-two-with-a-forbidden-cell']],
+    [
+      'a rule smaller than the strength is crossed in full minus the forbidden cell',
+      ['rule-of-two-with-a-forbidden-cell'],
+    ],
   ]),
   'diff.report': table([
     [
@@ -1063,7 +1072,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'diff.seeds': table([
-    ['a partial seed is kept as given and credits only the allowed tuples it assigns', ['partial-seeds-beside-a-forbid']],
+    [
+      'a partial seed is kept as given and credits only the allowed tuples it assigns',
+      ['partial-seeds-beside-a-forbid'],
+    ],
     [
       'a seed with an unapproved value is kept whole, warned about, and credits nothing for that entry',
       ['seed-with-an-unapproved-value-is-kept-warned-and-credits-nothing'],
@@ -1079,7 +1091,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       'a budget keeps a prefix of the uncut plan when weights, a forbid and seeds meet',
       ['budget-keeps-a-prefix-beside-seeds-and-a-forbid'],
     ],
-    ['weights are relative, so scaling the weights of one variable changes no share', ['scaling-the-weights-of-a-variable-changes-nothing']],
+    [
+      'weights are relative, so scaling the weights of one variable changes no share',
+      ['scaling-the-weights-of-a-variable-changes-nothing'],
+    ],
     [
       'a variable with no weights shares uniformly beside a weighted one',
       ['unweighted-variables-beside-a-weighted-one-share-uniformly'],
