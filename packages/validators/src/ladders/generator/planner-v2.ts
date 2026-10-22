@@ -970,7 +970,8 @@ const STEMS: {
       const [seed] = got.seeds as [PlanSeedRow];
       const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) =>
           warning.code === 'seed_unapproved_value' &&
