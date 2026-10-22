@@ -81,11 +81,19 @@ describe('the failure of an item, in fields', () => {
   });
 
   it('catches a short wanted value: a number of any length by value, and a short code', () => {
-    const rule = new ItemFailure({ rule: 'the limit is 40 units', got: { limit: 7 }, expected: { limit: 40 } });
+    const rule = new ItemFailure({
+      rule: 'the limit is 40 units',
+      got: { limit: 7 },
+      expected: { limit: 40 },
+    });
     expect(leaksOf(rule)).toEqual(['40']);
     const two = new ItemFailure({ rule: 'a count of 2', got: { count: 5 }, expected: 2 });
     expect(leaksOf(two)).toEqual(['2']);
-    const code = new ItemFailure({ rule: 'the refusal code E1 at the path', got: { code: 'E9' }, expected: { code: 'E1' } });
+    const code = new ItemFailure({
+      rule: 'the refusal code E1 at the path',
+      got: { code: 'E9' },
+      expected: { code: 'E1' },
+    });
     expect(leaksOf(code)).toEqual(['E1']);
     // The same number printed by the product's own output is the product's, not a leak.
     const own = new ItemFailure({ rule: 'a count', got: { count: 40 }, expected: 40 });
