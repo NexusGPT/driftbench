@@ -201,19 +201,24 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     // under it apart, so it is two windows, the first of more than 10,000 units. It is the shape measured for
     // issue 1376 (about 468,000 characters and 18,000 units). The labeller answers each window with one range
     // over all the units it may label, with a label that builds no atom: the item times the scan, not the atoms.
-    const part = (from: number, characters: number): string[] => {
-      const out: string[] = [];
+    const part = (from: number, characters: number): Block[] => {
+      const blocks: Block[] = [];
       let length = 0;
       for (let i = from; length < characters; i++) {
-        const paragraph = `Fictional public padding. Number ${i} of v226p9j.`;
-        out.push(paragraph);
-        length += paragraph.length;
+        const sentences = ['Fictional public padding.', `Number ${i} of v226p9j.`];
+        blocks.push({ kind: 'paragraph', sentences });
+        length += sentences.join(' ').length;
       }
-      return out;
+      return blocks;
     };
     const first = part(0, job.first);
     const second = part(first.length, job.second);
-    const text = ['# Part one', ...first, '# Part two', ...second].join('\n\n');
+    const doc = compose([
+      { kind: 'heading', level: 1, text: 'Part one' },
+      ...first,
+      { kind: 'heading', level: 1, text: 'Part two' },
+      ...second,
+    ]);
     let calls = 0;
     let widest = 0;
     const labeler: Labeler = (request) => {
@@ -225,7 +230,7 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
       return { labels: [{ units: `${low}-${high}`, label: 'description' }] };
     };
     const { value, ms } = await timed(() =>
-      sut.scan({ files: [{ path: 'wide.md', text }], labelsYaml: RULES_YAML, labeler }),
+      sut.scan({ files: [{ path: 'wide.md', text: doc.text }], labelsYaml: RULES_YAML, labeler }),
     );
     const ledger = ok(value, 'the scan');
     const live = ledger.entries.filter((e) => e.status === 'live');
@@ -233,24 +238,42 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.calls.push(calls);
     out.units = live.length;
     out.live.push(live.length);
-    // Every planted sentence must come back once, as a live entry with its planted label; the two headings too.
-    const planted = new Map<string, number>();
-    for (const paragraph of [...first, ...second])
-      for (const sentence of paragraph.split(/(?<=\.) /))
-        planted.set(sentence, (planted.get(sentence) ?? 0) + 1);
-    const returned = new Map<string, number>();
-    for (const entry of live)
-      if (entry.labels['agent-rules']?.label === 'description')
-        returned.set(entry.quote, (returned.get(entry.quote) ?? 0) + 1);
-    let missing = 0;
-    for (const [sentence, count] of planted) missing += Math.max(0, count - (returned.get(sentence) ?? 0));
+    // The ledger must equal the planted one exactly: every composed unit, headings included, once, with the
+    // planted label, and nothing else. Compared as a multiset of (container, comparable text, label).
+    const key = (container: string, text: string, label: string | undefined) =>
+      `${container} | ${norm(text, container)} | ${label ?? 'no label'}`;
+    const want = new Map<string, number>();
+    for (const unit of doc.units) {
+      const k = key(unit.container, unit.text, 'description');
+      want.set(k, (want.get(k) ?? 0) + 1);
+    }
+    const got = new Map<string, number>();
+    for (const entry of live) {
+      const k = key(entry.container, entry.quote, entry.labels['agent-rules']?.label);
+      got.set(k, (got.get(k) ?? 0) + 1);
+    }
+    let mismatch: string | null = null;
+    for (const unit of doc.units) {
+      const k = key(unit.container, unit.text, 'description');
+      if ((got.get(k) ?? 0) !== want.get(k)) {
+        mismatch = `${got.get(k) ?? 0} live entries for (${k}), planted ${want.get(k)}`;
+        break;
+      }
+    }
+    if (mismatch === null)
+      for (const entry of live) {
+        const k = key(entry.container, entry.quote, entry.labels['agent-rules']?.label);
+        if (!want.has(k)) {
+          mismatch = `a live entry (${k}) that was not planted`;
+          break;
+        }
+      }
     out.extra = {
-      characters: text.length,
+      characters: doc.text.length,
       windows: value.windows,
       widest,
-      expectedLive: 2 * (first.length + second.length) + 2,
-      missing,
-      unlabelled: live.filter((e) => e.labels['agent-rules']?.label !== 'description').length,
+      expectedLive: doc.units.length,
+      mismatch,
       failed: value.diagnostics.filter((d) => d.code === 'failed-window').length,
     };
   } else if (job.op === 'long-units') {
