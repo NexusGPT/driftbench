@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DriftClass, GivenOrigin, Message, TargetRef, WorldState } from './common';
+import { type Actor, DriftClass, GivenOrigin, Message, TargetRef, WorldState } from './common';
 import { Layer } from './object';
 import { BlockProvenance, CampaignProvenance, RejudgedFrom, RunProvenance } from './provenance';
 
@@ -44,8 +44,26 @@ export const ToolCall = z.strictObject({
   error: z.string().optional(),
   startedAt: z.string().optional(),
   latencyMs: z.number().nonnegative().optional(),
+  /** Who made the call: the agent (absent means the agent) or a helper it handed work to. */
+  actor: z.enum(['main', 'helper']).optional(),
+  /** For a helper's call: the id of the call that started the helper. */
+  parentCallId: z.string().optional(),
 });
 export type ToolCall = z.infer<typeof ToolCall>;
+
+/**
+ * The calls of a block in a scope. `main` is `toolCalls`, the agent's own; `helper` is `helperCalls`; `any` is
+ * both, the agent's first. A block with no helper calls gives the same list in every scope.
+ */
+export function callsIn(
+  observed: { toolCalls: readonly ToolCall[]; helperCalls?: readonly ToolCall[] | undefined },
+  scope: Actor,
+): ToolCall[] {
+  const helper = observed.helperCalls ?? [];
+  if (scope === 'main') return [...observed.toolCalls];
+  if (scope === 'helper') return [...helper];
+  return [...observed.toolCalls, ...helper];
+}
 
 export const Cost = z.strictObject({
   /** Exact pricing key; otherwise the runner uses target.options.model. */
@@ -55,6 +73,9 @@ export const Cost = z.strictObject({
   usd: z.number().nonnegative().optional(),
   inputTokens: z.number().int().nonnegative().optional(),
   outputTokens: z.number().int().nonnegative().optional(),
+  /** Tokens the helpers used, apart from `inputTokens` and `outputTokens`, which are the agent's own. */
+  helperInputTokens: z.number().int().nonnegative().optional(),
+  helperOutputTokens: z.number().int().nonnegative().optional(),
 });
 export type Cost = z.infer<typeof Cost>;
 
@@ -216,6 +237,8 @@ export const Observed = z.strictObject({
   segments: z.array(Segment),
   text: z.string(),
   toolCalls: z.array(ToolCall),
+  /** The calls helpers made, when the adapter records them; each has `actor: 'helper'` and its `parentCallId`. */
+  helperCalls: z.array(ToolCall).optional(),
   runtime: RuntimeTrace.optional(),
   artifacts: z.array(ArtifactRef).optional(),
   workspaceDiff: WorkspaceDiff.optional(),
