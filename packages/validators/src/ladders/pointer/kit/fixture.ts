@@ -94,6 +94,8 @@ export const DENSE_SYSTEM =
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
   'A target must be a unit that can be labelled, never a line marked not labelable. ' +
   'Never copy text from the units.';
+/** Added to the system text only for a set with a label that asks for a target, as the reader's TARGET_RULE does. */
+export const TARGET_RULE = 'A label that asks for a target always names one.';
 const examples = (label: LabelSetDef['labels'][number]) =>
   label.examples?.length ? ` Examples: ${label.examples.map((e) => JSON.stringify(e)).join('; ')}` : '';
 export function wireFor(
@@ -111,7 +113,7 @@ export function wireFor(
         model: 'claude-haiku-5-5',
         max_tokens: 4096,
         thinking: { type: 'disabled' },
-        system: DENSE_SYSTEM,
+        system: set.labels.some((l) => l.target) ? `${DENSE_SYSTEM} ${TARGET_RULE}` : DENSE_SYSTEM,
         messages: [
           {
             role: 'user',
