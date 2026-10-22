@@ -134,10 +134,12 @@ export function limitsOfAnswer(text: string): { limits: AskedLimit[]; problem?: 
   const limits: AskedLimit[] = [];
   for (const item of list) {
     const { limit, comparison, role, unit } = (item ?? {}) as Record<string, unknown>;
-    if (typeof limit !== 'number' || !Number.isFinite(limit)) return { limits: [], problem: 'a limit is no number' };
+    if (typeof limit !== 'number' || !Number.isFinite(limit))
+      return { limits: [], problem: 'a limit is no number' };
     if (!(LIMIT_COMPARISONS as readonly unknown[]).includes(comparison))
       return { limits: [], problem: 'a comparison is unknown' };
-    if (!(LIMIT_ROLES as readonly unknown[]).includes(role)) return { limits: [], problem: 'a role is unknown' };
+    if (!(LIMIT_ROLES as readonly unknown[]).includes(role))
+      return { limits: [], problem: 'a role is unknown' };
     const given: AskedLimit = {
       limit,
       comparison: comparison as AskedLimit['comparison'],

@@ -66,7 +66,9 @@ describe('the answer to a request', () => {
 
   it('reads limits with their comparison, role and unit, and makes one of a limit written twice', () => {
     const one = { limit: 2, comparison: 'le', role: 'constraint', unit: ' hours ' };
-    expect(limitsOfAnswer(answer([one, { ...one }, { limit: 3, comparison: 'gt', role: 'trigger' }])).limits).toEqual([
+    expect(
+      limitsOfAnswer(answer([one, { ...one }, { limit: 3, comparison: 'gt', role: 'trigger' }])).limits,
+    ).toEqual([
       { limit: 2, comparison: 'le', role: 'constraint', unit: 'hours' },
       { limit: 3, comparison: 'gt', role: 'trigger' },
     ]);
@@ -74,7 +76,9 @@ describe('the answer to a request', () => {
 
   it('reads an empty list as no limit, and an answer wrapped in other text', () => {
     expect(limitsOfAnswer(answer([]))).toEqual({ limits: [] });
-    expect(limitsOfAnswer(`Here it is: ${answer([{ limit: 1, comparison: 'ge', role: 'constraint' }])}`).limits).toHaveLength(1);
+    expect(
+      limitsOfAnswer(`Here it is: ${answer([{ limit: 1, comparison: 'ge', role: 'constraint' }])}`).limits,
+    ).toHaveLength(1);
   });
 
   it.each([
@@ -82,7 +86,10 @@ describe('the answer to a request', () => {
     ['JSON that does not parse', '{"limits": [}'],
     ['no list', '{"limits": 3}'],
     ['a limit that is a string', answer([{ limit: '2', comparison: 'le', role: 'constraint' }])],
-    ['a limit that is not finite', '{"limits": [{"limit": 1e999, "comparison": "le", "role": "constraint"}]}'],
+    [
+      'a limit that is not finite',
+      '{"limits": [{"limit": 1e999, "comparison": "le", "role": "constraint"}]}',
+    ],
     ['an unknown comparison', answer([{ limit: 2, comparison: 'more', role: 'constraint' }])],
     ['an unknown role', answer([{ limit: 2, comparison: 'le', role: 'maybe' }])],
     ['a missing role', answer([{ limit: 2, comparison: 'le' }])],
@@ -99,7 +106,11 @@ describe('producing the limits of a map', () => {
     quote: 'Never hand out a key without a signature.',
     span: { startLine: lineOf('Never hand out'), endLine: lineOf('Never hand out') },
   });
-  const guard = atom({ kind: 'guard', quote: QUOTE, span: { startLine: lineOf(QUOTE), endLine: lineOf(QUOTE) } });
+  const guard = atom({
+    kind: 'guard',
+    quote: QUOTE,
+    span: { startLine: lineOf(QUOTE), endLine: lineOf(QUOTE) },
+  });
 
   it('asks once for each instruction atom, lands each answer on its own atom, and asks about no other kind', async () => {
     const asked: string[] = [];
@@ -115,7 +126,9 @@ describe('producing the limits of a map', () => {
     expect(asked).toHaveLength(2);
     expect(produced.requests).toBe(2);
     expect([...produced.limits.keys()]).toEqual([rule.id]);
-    expect(produced.limits.get(rule.id)).toEqual([{ limit: 2, comparison: 'le', role: 'constraint', unit: 'hours' }]);
+    expect(produced.limits.get(rule.id)).toEqual([
+      { limit: 2, comparison: 'le', role: 'constraint', unit: 'hours' },
+    ]);
     expect(produced.unreadable).toEqual([]);
   });
 
@@ -132,8 +145,14 @@ describe('producing the limits of a map', () => {
       files: { 'CLAUDE.md': FILE },
       fields: { condition: ['abcdefghij'] },
     });
-    const map = withLimits(mapOf([withIds]), new Map([[withIds.id, [{ limit: 2, comparison: 'le', role: 'trigger', unit: 'hours' }]]]));
-    expect(map.atoms[0]?.fields?.condition).toEqual(['abcdefghij', { limit: 2, comparison: 'le', unit: 'hours' }]);
+    const map = withLimits(
+      mapOf([withIds]),
+      new Map([[withIds.id, [{ limit: 2, comparison: 'le', role: 'trigger', unit: 'hours' }]]]),
+    );
+    expect(map.atoms[0]?.fields?.condition).toEqual([
+      'abcdefghij',
+      { limit: 2, comparison: 'le', unit: 'hours' },
+    ]);
     const store = estateToVariables(map, provenanceResolver(TEXTS)).store;
     const conditions = store.variables.filter((variable) => variable.id.startsWith('condition.'));
     expect(conditions).toHaveLength(1);
