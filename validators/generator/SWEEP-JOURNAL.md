@@ -222,3 +222,11 @@ Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabli
 - Product measurement, main's real generation: `diff.feasible.cover` fails on all 31 measured seeds, and `diff.feasible.twise` fails on seeds 10 and 15. Cause 1: a cover spec's behaviour is not in its flow, 6787 blocks in total. Cause 2: the first move is recorded at the start stage, 25 blocks. No block sits in a written-constraint cell. These items are level 2, so the product stops there until the generator is fixed.
 - The baseline goal detour feeds only the replay cheater, which reads `expect.tools`. The detour lists no tool, so it feeds no verdict and stays unchanged.
 - Evidence: [feasible-impossible-pairs.json](evidence/feasible-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+## 2026-10-22: scale time normalised by a calibration run in the same process
+
+- Base: `c3387e66e`, release/next. On GitHub the same product commit measured up to 2x apart between runners on `scale.100x.time` (hidden seed 48,947 vs 99,384 ms), so the item measured the runner.
+- Ruling: the scale child runs a fixed deterministic CPU workload (`scale-calibration.ts`: allocation, strings, JSON, sorting, map lookups; no I/O; fastest of 3 rounds, about 1.3 s each) in the same process before the window. The item judges the raw CPU time times reference over calibration against the unchanged budget (60 s at 100x). The report carries raw, calibration, reference and normalised time. The reference, 1,354 ms, is the median of 12 hosted runs ([evidence](evidence/scale-calibration.json)).
+- Measured on 12 hosted runs (seeds 1, 2, 3, hidden, three runs each): normalised time stays within +11% and -8% of the median of its seed (raw: up to +31%). Two planted products, the real generator plus a busy loop of equal CPU time, measure 2.02x (seed 1) and 1.82x (seed 2) the normalised median of their seed. The bar is not changed: on the reference runner the normalised time equals the raw time.
+- Not claimed: the item still fails on every seed measured, because the product's normalised time (62 to 114 s) exceeds the 60 s budget; this ruling does not change that. A narrower window (PR 581) is a separate ruling.
+

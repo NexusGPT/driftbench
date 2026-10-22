@@ -1,0 +1,119 @@
+{
+  "reference_ms": 1354,
+  "how": "Median CPU time of the calibration (scale-calibration.ts, 3 rounds of 600,000 operations, fastest round) over the 12 unplanted runs below. Each run: GitHub Actions run 39767885557 (workflow scratch/gen-scale-calibration-proof, branch scratch/gen-scale-calibration-proof at b5a80a9df on 30ebfa279), one job per run on ubuntu-latest (4 CPUs), `node --import tsx proof/run.mts <seed> <planted>` calling scaleReport(100, seed). Normalised = raw x reference / calibration.",
+  "planted": "doubled = the real disk generator followed by a busy loop (no sleep) of equal CPU time",
+  "rows": [
+    {
+      "seed": "1",
+      "planted": "doubled",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 179140,
+      "cal": 1258.8,
+      "norm": 192688
+    },
+    {
+      "seed": "2",
+      "planted": "doubled",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 129209,
+      "cal": 1329,
+      "norm": 131640
+    },
+    {
+      "seed": "1",
+      "planted": "no",
+      "cpu": "AMD EPYC 9V74 80-Core ",
+      "raw": 81139,
+      "cal": 1230.2,
+      "norm": 89304
+    },
+    {
+      "seed": "1",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 117541,
+      "cal": 1671.8,
+      "norm": 95197
+    },
+    {
+      "seed": "1",
+      "planted": "no",
+      "cpu": "INTEL(R) XEON(R) PLATI",
+      "raw": 89555,
+      "cal": 1145.2,
+      "norm": 105883
+    },
+    {
+      "seed": "2",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 75173,
+      "cal": 1408.7,
+      "norm": 72254
+    },
+    {
+      "seed": "2",
+      "planted": "no",
+      "cpu": "INTEL(R) XEON(R) PLATI",
+      "raw": 63412,
+      "cal": 1188,
+      "norm": 72273
+    },
+    {
+      "seed": "2",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 75776,
+      "cal": 1322.4,
+      "norm": 77587
+    },
+    {
+      "seed": "3",
+      "planted": "no",
+      "cpu": "INTEL(R) XEON(R) PLATI",
+      "raw": 67520,
+      "cal": 1481.5,
+      "norm": 61709
+    },
+    {
+      "seed": "3",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 70148,
+      "cal": 1419.9,
+      "norm": 66892
+    },
+    {
+      "seed": "3",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 72170,
+      "cal": 1396.6,
+      "norm": 69969
+    },
+    {
+      "seed": "hidden",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 109173,
+      "cal": 1333.7,
+      "norm": 110835
+    },
+    {
+      "seed": "hidden",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 111591,
+      "cal": 1373.8,
+      "norm": 109983
+    },
+    {
+      "seed": "hidden",
+      "planted": "no",
+      "cpu": "AMD EPYC 7763 64-Core ",
+      "raw": 108500,
+      "cal": 1286.8,
+      "norm": 114166
+    }
+  ]
+}

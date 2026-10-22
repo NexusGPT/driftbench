@@ -17,11 +17,11 @@ export const CALIBRATION_SIZE = 600_000;
 export const CALIBRATION_ROUNDS = 3;
 
 /**
- * The reference calibration, in milliseconds of CPU time: the median of the calibrations of the measured
- * hosted runs listed in validators/generator/evidence/scale-calibration.json, which also records the command and
- * the commit. It is recorded once; changing it moves the bar for every machine.
+ * The reference calibration, in milliseconds of CPU time: the median of the calibrations of 12 hosted runs
+ * (ubuntu-latest, 4 CPUs; AMD EPYC and Intel Xeon), listed in validators/generator/evidence/scale-calibration.json
+ * with the command and the commit. It is recorded once; changing it moves the bar for every machine.
  */
-export const CALIBRATION_REFERENCE_MS = 1_000;
+export const CALIBRATION_REFERENCE_MS = 1_354;
 
 /** A fixed pseudo-random sequence: the workload never reads a clock or a random source. */
 function sequence(seed: number): () => number {

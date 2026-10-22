@@ -341,3 +341,8 @@ The product lane fixes these in `packages/generate`. Per-seed counts: [evidence]
 ## Same test needs the same tool answers: maintainer ruling (2026-10-21)
 
 Two blocks are the same test when they start from the same stage, expect the same Then and outcomes, and get the same tool answers, however the user turn is worded (docs/validators.md, section 3, Same test). The minimality items group blocks by `sameTestKey`: the stage the block starts from (`BlockRun.from`), the hash of the tool answers it runs against (`BlockRun.answers`) and the Then and outcomes (`vectorOf`). Before, the key was `vectorOf` alone, so a group could hold blocks that get other answers from a tool. In the printed sample of flagged groups on seeds 1 to 3 (run 39612743786), 42 of 55 groups held such blocks (for example `lookup_record` answering `found: true` to one and `found: false` to another). The channel, the persona and the declared perturbations are still not part of the key. No item, threshold or oracle step other than the group key changes. Test: `packages/validators/test/generator/minimal-tool-answers.test.ts`.
+
+## Scale time normalised (2026-10-22)
+
+`scale.<n>x.time` judges the product's raw CPU time times reference over the calibration of the runner, measured in the same process before the window (`scale-calibration.ts`). Caps unchanged. See [the journal](SWEEP-JOURNAL.md).
+
