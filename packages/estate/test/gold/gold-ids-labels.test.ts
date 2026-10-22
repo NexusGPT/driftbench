@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { Cassette, cut, nextLedger, pointerScan, singleLabelling } from '../../src/pointer';
 import {
   ESTATE_NAMES,
-  type EstateName,
   estateFiles,
+  type EstateName,
   flat,
   GOLD_ESTATE_KEY,
   GOLD_SET_NAME,

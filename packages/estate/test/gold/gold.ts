@@ -33,8 +33,7 @@ export type GoldUnit = {
 
 export const ESTATE_NAMES = ['A', 'B', 'C'] as const;
 export type EstateName = (typeof ESTATE_NAMES)[number];
-export const estateFolder = (estate: EstateName): string =>
-  join(ESTATES_DIR, `gold-${estate.toLowerCase()}`);
+export const estateFolder = (estate: EstateName): string => join(ESTATES_DIR, `gold-${estate.toLowerCase()}`);
 
 /** The gold file, after its hash is checked against the pinned one. */
 export async function loadGold(): Promise<GoldUnit[]> {
@@ -84,20 +83,17 @@ export function goldSets(): LabelSet[] {
   return parsed.sets;
 }
 
-/** The labeller of the gold: it answers each unit with the gold label, and gives no opinion on a unit the annotators disagreed on. */
+/** The labeller of the gold: it answers each unit with its gold label and gives no opinion where the annotators disagreed. */
 export function goldLabeller(units: readonly GoldUnit[], log: string[] = []) {
   const byUnit = new Map(units.map((unit) => [`${unit.file}#${unit.n}`, unit]));
-  return plantedDense(
-    (window: Window): Labelled[] => {
-      const answers: Labelled[] = [];
-      for (const unit of window.units) {
-        const gold = byUnit.get(`${window.path}#${unit.index + 1}`);
-        if (!gold?.agreed || gold.label === null) continue;
-        answers.push({ units: String(unit.n), label: gold.label });
-      }
-      return answers;
-    },
-    log,
-    { id: 'gold-planted' },
-  );
+  const answer = (window: Window): Labelled[] => {
+    const answers: Labelled[] = [];
+    for (const unit of window.units) {
+      const gold = byUnit.get(`${window.path}#${unit.index + 1}`);
+      if (!gold?.agreed || gold.label === null) continue;
+      answers.push({ units: String(unit.n), label: gold.label });
+    }
+    return answers;
+  };
+  return plantedDense(answer, log, { id: 'gold-planted' });
 }
