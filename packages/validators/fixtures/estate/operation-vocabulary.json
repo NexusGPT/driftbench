@@ -1,17 +1,26 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "6347a797515d19c4f5bdf9b42b36ff70f5bc6728ba6ce216b7659d2bd42f1092"
+    "sha256": "05ddb25f5db12209fc1beebec1610fc9d16bdaadb61445518cc9a953b4ce6863"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
-  "toolClasses": ["delete", "overwrite", "send", "pay", "push"],
+  "toolClasses": [
+    "delete",
+    "overwrite",
+    "send",
+    "pay",
+    "push"
+  ],
   "commandRules": [
     {
       "class": "push",
       "source": "\\bgit\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": ["git push", "git  push"],
+      "witnesses": [
+        "git push",
+        "git  push"
+      ],
       "gaps": []
     },
     {
@@ -34,7 +43,10 @@
       "source": "\\bdocker\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": ["docker push", "docker  push"],
+      "witnesses": [
+        "docker push",
+        "docker  push"
+      ],
       "gaps": []
     },
     {
@@ -135,7 +147,12 @@
       "source": "\\bgit\\s+(?:rm|clean)\\b",
       "flags": "",
       "needsNoDiff": true,
-      "witnesses": ["git rm", "git clean", "git  rm", "git  clean"],
+      "witnesses": [
+        "git rm",
+        "git clean",
+        "git  rm",
+        "git  clean"
+      ],
       "gaps": []
     },
     {
