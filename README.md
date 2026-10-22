@@ -117,7 +117,7 @@ New words are defined in the [glossary](docs/guide/index.md#words-used-in-the-gu
 
 You give driftbench what defines the agent: its prompt, its skills and its tool descriptions. driftbench reads them as a list of rules. A test can then point at the rule it checks.
 
-- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 16 of 1251 blocks. A **block** is one user message and the checks on the agent's reply ([walkthrough](docs/guide/walkthrough.md), run in CI).
+- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 17 of 1251 blocks. A **block** is one user message and the checks on the agent's reply ([walkthrough](docs/guide/walkthrough.md), run in CI).
 - **Agents that write files.** The same tests cover code agents. driftbench reads what the agent leaves behind, such as spreadsheet cells and documents. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read.
 
 <details><summary>How to do it: link a test to a rule</summary>
@@ -156,7 +156,7 @@ changes:
     note: 'unit wrl4c7wlvb: changed'
 ```
 
-The spec holds one block, and its link says: this block verifies the rule `wrl4c7wlvb`. `status: declared` means a generator wrote the link and nothing has checked it. It is not yet proved by a deletion. `estate mutate` deletes the rule's line, the tests run again, and a link whose test fails is marked `verified`. The change file says that rule changed. The [walkthrough](docs/guide/walkthrough.md) runs this on a full suite and prints 16 of 1251 blocks. [Full description](docs/innovations.md#rules-with-an-id-link-a-prompt-line-to-its-tests).
+The spec holds one block, and its link says: this block verifies the rule `wrl4c7wlvb`. `status: declared` means a generator wrote the link and nothing has checked it. It is not yet proved by a deletion. `estate mutate` deletes the rule's line, the tests run again, and a link whose test fails is marked `verified`. The change file says that rule changed. The [walkthrough](docs/guide/walkthrough.md) runs this on a full suite and prints 17 of 1251 blocks. [Full description](docs/innovations.md#rules-with-an-id-link-a-prompt-line-to-its-tests).
 
 </details>
 
@@ -732,7 +732,7 @@ The charts, the hard cases, the cost of a judgement and the way to rebuild the s
 |---|---|---|
 | Tests written by code | 5.8× fewer tests than all the combinations on the Acme map | [methods](docs/comparison/methods.md#tests-written-by-code) |
 | Blocks | A conversation score marks 413 blocks. The block verdicts mark the 86 that fail | [gate-report.json](examples/acme/gated/gate-report.json), [chart-facts.csv](docs/assets/data/chart-facts.csv) |
-| Rules with an id | One edit reruns 16 of 1251 blocks. Over 274 prompt mutants, selection by id with the rerun marks missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent), and on 9 without them | [walkthrough](docs/guide/walkthrough.md), [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md) |
+| Rules with an id | One edit reruns 17 of 1251 blocks. Over 274 prompt mutants, selection by id with the rerun marks missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent), and on 9 without them | [walkthrough](docs/guide/walkthrough.md), [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md) |
 | Mixture of judges | On sealed sets with GPT-6 Luna, 85.0 against promptfoo's 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, with 3.5 to 19.4 times fewer costly reasoning calls. On writing, a rule that picks the longer reply scores 69.7 | [RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json) |
 | A panel only when unsure | MM-Eval 89.49 to 91.54 on 1,212 sealed items | [mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json) |
 | Blast radius | 86 of 867 blocks, 90.1% fewer, with the same 86 failures as a full run | [blast-radius.md](docs/concepts/blast-radius.md), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts) |

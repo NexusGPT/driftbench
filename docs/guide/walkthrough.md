@@ -5,7 +5,7 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 <a href="../../.github/readme/walkthrough-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../../.github/readme/walkthrough-dark.png">
-    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,424 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 16 of 1251." src="../../.github/readme/walkthrough-light.png" width="100%">
+    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,424 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 17 of 1251." src="../../.github/readme/walkthrough-light.png" width="100%">
   </picture>
 </a>
 
