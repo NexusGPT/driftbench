@@ -46,7 +46,7 @@ describe('estate stats uses the documented report contract', () => {
     const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
     if (!loaded.ok) throw new Error(loaded.errors.map((error) => error.message).join('; '));
     // A reference to a navigation-only document (here the report template, and the currency table and the
-    // shipment data, read as fixtures) has its read test like any reference; only its edge has no journey.
+    // shipment data, read as fixtures) has its read test and is counted apart from the kinds.
     const navigation = navigationFiles(loaded.map.documents);
     const navigational = loaded.map.atoms.filter((atom) => navigationReference(atom, navigation));
     expect(navigational.map((atom) => atom.id)).toEqual([
@@ -56,7 +56,9 @@ describe('estate stats uses the documented report contract', () => {
     ]);
     expect(report.coverage.navigationReferences).toBe(navigational.length);
     for (const kind of new Set(loaded.map.atoms.map((atom) => atom.kind))) {
-      const atoms = loaded.map.atoms.filter((atom) => atom.approved && atom.kind === kind);
+      const atoms = loaded.map.atoms.filter(
+        (atom) => atom.approved && atom.kind === kind && !navigational.includes(atom),
+      );
       expect(report.coverage.kinds[kind]).toEqual({
         atoms: atoms.length,
         tested: 0,

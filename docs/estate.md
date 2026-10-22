@@ -794,8 +794,7 @@ A map may record `documents`: each file's authority (`normative`, or a navigatio
 navigation document keeps its `read_when` row: an order to read a file is a duty of the agent whatever role the
 file plays, and the role says only whether the file holds rules. It gets no journey edge and no covering-array
 target, because the document is a place to look and not a step of a path; the plan notes how many. `estate stats`
-counts such a reference as tested like any other, leaves only the edge that leads to it out of the edge counts and
-reports their number. A map without `documents`
+leaves such a reference out of the kind and edge counts, as before, and reports their number. A map without `documents`
 changes nothing: no file name is read as a role.
 A reference to a file outside the estate root (reached through a link to another repository) enters no journey:
 the run's workspace does not hold the file, so a path through it cannot be walked. Its `read_when` row stays.
