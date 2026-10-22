@@ -81,6 +81,27 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
       ['one-million-total', 4, exact(999_999, 1_000_000)],
       ['one-billion-total', 5, exact(123_456_789, 1_000_000_000)],
       [
+        'totals-beyond-the-square-root-of-the-largest-double',
+        5,
+        (ctx) => {
+          const z2 = Z * Z;
+          for (const total of [2 ** 512, 2 ** 600, 2 ** 900]) {
+            const [zl, zh] = callInterval(ctx, 0, total);
+            const upper = z2 / (total + z2);
+            must(
+              zl === 0 && Math.abs(zh - upper) <= upper * 1e-9,
+              () => `weightInterval(0, 2^${Math.log2(total)}) = [${zl}, ${zh}]; the Wilson interval is [0, ${upper}]`,
+            );
+            const [hl, hh] = callInterval(ctx, total / 2, total);
+            const half = Z * Math.sqrt(0.25 / total);
+            must(
+              hl < 0.5 && hh > 0.5 && Math.abs((hh - hl) / 2 - half) <= half * 1e-6,
+              () => `weightInterval(2^${Math.log2(total) - 1}, 2^${Math.log2(total)}) = [${hl}, ${hh}]; it holds 0.5 with half-width ${half}`,
+            );
+          }
+        },
+      ],
+      [
         'is-not-the-constant-zero-one',
         1,
         (ctx) => {

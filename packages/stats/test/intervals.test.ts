@@ -14,6 +14,7 @@ import {
   normalQuantile,
   normalSf,
   wilson,
+  Z95,
   zeroFailureBound,
 } from '../src/index';
 import { fixtures, near } from './support';
@@ -214,6 +215,25 @@ describe('bootstrapCI on equal values', () => {
         { iterations: 20, method: 'basic' },
       );
       expect([r.estimate, r.lower, r.upper]).toEqual([x, x, x]);
+    }
+  });
+});
+
+describe('wilson at counts beyond the square root of the largest double', () => {
+  const z2 = Z95 * Z95;
+  it('keeps the interval around its own estimate for 2^512, 2^600 and 2^900', () => {
+    for (const n of [2 ** 512, 2 ** 600, 2 ** 900]) {
+      const zero = wilson(0, n);
+      expect(zero.lower).toBe(0);
+      expect(Math.abs(zero.upper - z2 / (n + z2)) / (z2 / n)).toBeLessThan(1e-12);
+      const half = wilson(n / 2, n);
+      const width = Z95 * Math.sqrt(0.25 / n);
+      expect(half.lower).toBeLessThan(0.5);
+      expect(half.upper).toBeGreaterThan(0.5);
+      expect(Math.abs((half.upper - half.lower) / 2 - width) / width).toBeLessThan(1e-9);
+      const all = wilson(n, n);
+      expect(all.upper).toBe(1);
+      expect(all.lower).toBeLessThanOrEqual(1);
     }
   });
 });

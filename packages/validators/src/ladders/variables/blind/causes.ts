@@ -561,6 +561,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
     ['the interval keeps its precision for a total of a million', ['one-million-total']],
     ['the interval keeps its precision for a total of a billion', ['one-billion-total']],
+    [
+      'the interval stays around its estimate for totals beyond the square root of the largest double',
+      ['totals-beyond-the-square-root-of-the-largest-double'],
+    ],
     ['the interval is not the constant zero to one', ['is-not-the-constant-zero-one']],
     ['the interval is ordered and inside zero and one', ['inside-zero-one-and-ordered']],
     ['the interval contains the observed share', ['contains-the-observed-share']],

@@ -69,6 +69,7 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    naiveHugeTotals: false,
   });
 };
 const resetQuotes = (): void => {
@@ -138,6 +139,14 @@ const GATE_FUNCTIONS = [
 ] as const;
 
 export const MUTANTS: readonly Mutant[] = [
+  {
+    name: 'weightInterval squares the total and loses the interval above 2^512',
+    families: ['weights'],
+    only: ['totals-beyond-the-square-root-of-the-largest-double'],
+    make: flag(() => {
+      plannerMutation.naiveHugeTotals = true;
+    }, resetPlanner),
+  },
   // ---- the plan --------------------------------------------------------------------------------------------
   {
     name: 'plan drops its last new row',

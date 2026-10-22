@@ -25,14 +25,22 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  naiveHugeTotals: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
   const p = count / total;
   const d = 1 + (Z * Z) / total;
   const centre = (p + (Z * Z) / (2 * total)) / d;
-  const half = (Z * Math.sqrt((p * (1 - p)) / total + (Z * Z) / (4 * total * total))) / d;
-  return [Math.max(0, centre - half), Math.min(1, centre + half)];
+  // The square of a count above about 6.7e153 overflows; there the root is taken in scaled form.
+  const spread = 4 * total * total;
+  const root =
+    mutation.naiveHugeTotals || Number.isFinite(spread)
+      ? Math.sqrt((p * (1 - p)) / total + (Z * Z) / spread)
+      : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(total), Z / 2 / total);
+  const half = (Z * root) / d;
+  const low = count === 0 && !mutation.naiveHugeTotals ? 0 : centre - half;
+  return [Math.max(0, low), Math.min(1, centre + half)];
 }
 
 type Space = {
