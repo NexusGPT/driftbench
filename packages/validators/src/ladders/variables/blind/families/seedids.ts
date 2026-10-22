@@ -57,7 +57,8 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
             got[0] === 'seed.first.row' &&
               got[1] === 'seed.second.row' &&
               plan.rows.slice(0, 2).every((r) => r.kind === 'seed'),
-            () => `the seed rows are named ${show(got)}; the ids given were first.row and second.row, so the rows are seed.first.row and seed.second.row`,
+            () =>
+              `the seed rows are named ${show(got)}; the ids given were first.row and second.row, so the rows are seed.first.row and seed.second.row`,
           );
         },
       ],
