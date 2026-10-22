@@ -583,7 +583,7 @@ describe('the answer of a labeler', () => {
     expect(dense('Sure! Here you go')).toBe('answer-not-json');
     expect(dense('{"window":"w#2","labels":[]}', { window: 'w#1' })).toBe('answer-window-mismatch');
     expect(dense('{"set":"b","labels":[]}', { set: 'a' })).toBe('answer-set-mismatch');
-    expect(dense('{"labels":3}')).toBe('answer-no-labels');
+    expect(thrown(() => pointer.denseLabels({ note: 1 }))).toBe('answer-no-labels');
     expect(dense('{"labels":[{"label":"x"}]}')).toBe('answer-entry-malformed');
     const user = (cls: 'system1' | 'system2', payload: unknown): string =>
       thrown(() => pointer.userAnswer(cls, payload, 'm'));
