@@ -8,7 +8,8 @@ import {
   soundMap,
 } from './variables-subjects.mjs';
 
-const FILE = 'Escalate when the order value is at least 279 euros.\nEscalate when the order value is at least 57 euros.';
+const FILE =
+  'Escalate when the order value is at least 279 euros.\nEscalate when the order value is at least 57 euros.';
 const A = 'the order value is at least 279 euros';
 const B = 'the order value is at least 57 euros';
 const num = (subject, limit) => ({ kind: 'numeric', subject, limit, comparison: 'ge', unit: 'euros' });
@@ -71,7 +72,9 @@ describe('the sibling pass', () => {
   it('merges two subjects of one quantity when the model says so', async () => {
     const map = await canonicalSubjects(two, async () => ({ 'order amount': 'order value' }));
     expect(map).toEqual({ 'order amount': 'order value' });
-    expect(new Set(applySubjects(two, map).map((r) => r.label.subject))).toEqual(new Set(['order value', 'delay']));
+    expect(new Set(applySubjects(two, map).map((r) => r.label.subject))).toEqual(
+      new Set(['order value', 'delay']),
+    );
   });
 
   it('records only sound answers: unknown subjects, chains, cycles and self maps are dropped or resolved', () => {

@@ -13,6 +13,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { applySubjects, canonicalSubjects, shareSubjects } from './variables-subjects.mjs';
 
 const MODEL = 'claude-haiku-5-5';
 const BATCH = 12;
@@ -184,7 +185,48 @@ for (let i = 0; i < texts.length; i += BATCH) {
   });
 }
 
-writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
+// One quantity, one subject (tools/variables-subjects.mjs): spans with the same text before their first digit or
+// symbol share a subject, then the model says which of the remaining subjects name one quantity.
+const SAME = [
+  'You are given subjects: short noun phrases, each naming what a rule measures.',
+  'Some of them name the same quantity in different words (for example "order value" and "order amount").',
+  'Answer with one JSON object from a subject to the subject that names the same quantity, for every subject that',
+  'should be replaced, and nothing else. The value must be one of the given subjects, written exactly. Leave out a',
+  'subject that names a quantity of its own. Two quantities that differ in kind, owner or unit are different.',
+].join(' ');
+async function askSame(chunk) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 4096,
+      system: SAME,
+      messages: [{ role: 'user', content: chunk.map((s) => `- ${s}`).join('\n') }],
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok)
+    throw new Error(`labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`);
+  tokensIn += json.usage?.input_tokens ?? 0;
+  tokensOut += json.usage?.output_tokens ?? 0;
+  const text = (json.content ?? []).map((c) => c.text ?? '').join('');
+  try {
+    return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+  } catch {
+    return {};
+  }
+}
+let finished = shareSubjects([...rows].map(([text, label]) => ({ text, label })));
+if (spentBefore + spent() > totalCap || spent() > cap) {
+  console.error('stopped before a cap, before the sibling pass');
+  process.exit(3);
+}
+const sameMap = await canonicalSubjects(finished, askSame);
+finished = applySubjects(finished, sameMap);
+console.log(`subjects merged by the sibling pass: ${Object.keys(sameMap).length}`);
+
+writeFileSync(outFile, `${finished.map((row) => JSON.stringify(row)).join('\n')}\n`);
 const total = spentBefore + spent();
 if (totalFile) writeFileSync(totalFile, `${total}\n`);
 console.log(`labelled ${rows.size} spans (${bad} unusable answers recorded as none)`);

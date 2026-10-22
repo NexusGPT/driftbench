@@ -40,7 +40,9 @@ export function shareSubjects(rows) {
 
 /** The distinct subjects of rows, in a stable order. */
 export function subjectsOf(rows) {
-  return [...new Set(rows.flatMap((row) => (typeof row.label?.subject === 'string' ? [row.label.subject] : [])))].sort();
+  return [
+    ...new Set(rows.flatMap((row) => (typeof row.label?.subject === 'string' ? [row.label.subject] : []))),
+  ].sort();
 }
 
 /** Checks a map the model returned and keeps its sound entries: both ends known, and the target maps to itself. */
