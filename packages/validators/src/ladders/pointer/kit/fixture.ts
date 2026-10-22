@@ -51,6 +51,10 @@ export type Fixture = {
   wires: Wire[];
   documents: AuthoredFile[];
 };
+/** The runs a window is asked: a system 2 labeler is asked three times and must agree; a system 1 labeler once. */
+export function runsOf(arm: ModelArm): string[] {
+  return arm === 'haiku' ? ['1', '2', '3'] : ['1'];
+}
 /** The most units one Jev window request carries; a unit-state request carries one. */
 export const JEV_WINDOW_UNITS = 30;
 /** The units one request carries: a Jev unit-state request one, a Jev window request 30, a Haiku request 60. */
@@ -185,7 +189,6 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           selected.map((u, i) => ({ n: i + 1, text: u.text })),
           selected[0]?.path ?? [],
         );
-        wires.push(wire);
         const options = [...set.labels.filter((l) => l.target !== 'required').map((l) => l.name), 'none'];
         const probabilities = Object.fromEntries(
           selected.flatMap((u, i) =>
@@ -205,18 +208,22 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           model: String(wire.body.model),
           cutDigest: digest,
         });
-        rows.push({
-          key: keyOf(wire, readable),
-          readable,
-          answer: {
-            ...(arm === 'haiku'
-              ? { labels: selected.map((u, i) => ({ units: String(i + 1), label: u.label })) }
-              : { probabilities }),
-            returnedModel: String(wire.body.model),
-            stopReason: 'end_turn',
-            usage: { input: 10, output: 10 },
-          },
-        });
+        for (const run of runsOf(arm)) {
+          const recorded = { ...readable, run };
+          wires.push(wire);
+          rows.push({
+            key: keyOf(wire, recorded),
+            readable: recorded,
+            answer: {
+              ...(arm === 'haiku'
+                ? { labels: selected.map((u, i) => ({ units: String(i + 1), label: u.label })) }
+                : { probabilities }),
+              returnedModel: String(wire.body.model),
+              stopReason: 'end_turn',
+              usage: { input: 10, output: 10 },
+            },
+          });
+        }
       }
       for (const u of doc.units)
         expected.push({

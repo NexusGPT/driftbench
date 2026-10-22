@@ -15,3 +15,5 @@ All twelve legacy `replay.fixture-*` IDs retain their identities. Each performs 
 Four former unchanged-replay items now probe `part.messages`, `part.state`, `path`, and `window`. Their cause changes from `cassette:fixture-replays` to `cassette:miss-names-field`; the PR body records each item. Every remaining fixture ID keeps its cause.
 
 Recording-format items still inspect recording outputs. A bank-wide replay test corrupts every emitted recording key and requires every replay-family item to pass: no later input may depend on those outputs.
+
+Key and runs. A row's key is the SHA-256 of the canonical `{ wire, readable }`; `readable` carries `cls` (`system2` for the Haiku arm, `system1` for the Jev arms) and `run`. A system 2 window is asked three times and the answers must agree, so the Haiku fixture holds the same recorded answer under `run` 1, 2 and 3 for each window; a Jev window is asked once. The Jev request is one choice question per unit (`u<n>`), its options the labels of the set and `none`. The keys of every row were checked equal to the keys the pointer reader derives for the same files, sets and windows.

@@ -8,6 +8,7 @@ import {
   keyOf,
   NONE_DEFINITION,
   readableFor,
+  runsOf,
   windowCap,
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
@@ -687,6 +688,11 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     lastKey = key;
     const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
     let hit = rows.find((row) => row.key === key);
+    // Every run the arm is asked must be in the cassette, or the replay misses.
+    const missingRun = runsOf(ctx.arm).find(
+      (run) => !rows.some((row) => row.key === keyOf(wire, { ...want, run })),
+    );
+    if (hit && missingRun !== undefined && ctx.cassette.mode === 'replay') hit = undefined;
     if (!hit && ctx.cassette.mode === 'record') {
       const response = await ctx.transport({
         url: 'https://fixture.invalid',
