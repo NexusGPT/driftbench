@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,22 +67,35 @@ describe('install from source, as the guide shows it', () => {
     expect(quickstart).toEqual(index);
   });
 
-  it('links the built CLI, and the linked driftbench command prints its version', async () => {
+  it('links a copy of the built CLI, and the linked driftbench command prints its version', async () => {
     const cli = join(ROOT, 'packages/cli');
     if (!existsSync(join(cli, 'dist/bin.js'))) {
       await exec('pnpm', ['build'], { cwd: ROOT, timeout: 480_000, maxBuffer: 64 * 1024 * 1024 });
     }
-    const prefix = await mkdtemp(join(tmpdir(), 'driftbench-link-'));
+    // `npm link` changes the mode of the bin file it links. It runs on a copy, so that no file under a
+    // `dist` folder of this checkout changes: other tests of the same run read those files.
+    const shared = (await import(join(ROOT, 'tools/ci/shared-dist.mjs'))) as {
+      sharedDistSnapshot: (root: string) => Map<string, string>;
+      changedSharedDist: (before: Map<string, string>, after: Map<string, string>) => string[];
+    };
+    const before = shared.sharedDistSnapshot(ROOT);
+    expect(before.size).toBeGreaterThan(0);
+    const work = await mkdtemp(join(tmpdir(), 'driftbench-link-'));
     try {
+      const copy = join(work, 'cli');
+      await cp(cli, copy, { recursive: true, filter: (path) => !path.includes('/node_modules') });
+      await symlink(join(cli, 'node_modules'), join(copy, 'node_modules'));
+      const prefix = join(work, 'prefix');
       await exec('npm', ['link'], {
-        cwd: cli,
+        cwd: copy,
         timeout: 120_000,
-        env: { ...process.env, npm_config_prefix: prefix, npm_config_cache: join(prefix, 'cache') },
+        env: { ...process.env, npm_config_prefix: prefix, npm_config_cache: join(work, 'cache') },
       });
       const done = await exec(join(prefix, 'bin', 'driftbench'), ['--version'], { timeout: 60_000 });
       expect(done.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
     } finally {
-      await rm(prefix, { recursive: true, force: true });
+      await rm(work, { recursive: true, force: true });
     }
+    expect(shared.changedSharedDist(before, shared.sharedDistSnapshot(ROOT))).toEqual([]);
   }, 600_000);
 });
