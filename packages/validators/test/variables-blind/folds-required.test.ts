@@ -9,7 +9,10 @@ import * as f from '../../src/ladders/variables/blind/folds';
  */
 
 const SEEDS = Array.from({ length: 300 }, (_, i) => i + 1);
-const each = (make: (rng: ReturnType<typeof makeRng>) => f.Pair, check: (pair: f.Pair, seed: number) => void) => {
+const each = (
+  make: (rng: ReturnType<typeof makeRng>) => f.Pair,
+  check: (pair: f.Pair, seed: number) => void,
+) => {
   for (const seed of SEEDS) check(make(makeRng(seed)), seed);
 };
 
@@ -27,10 +30,12 @@ describe('every folding draw holds all the characters its fold handles', () => {
   it('zero width: the four marks in the file, or those and the byte order mark in the quote', () => {
     const four = ['​', '‌', '‍', '⁠'];
     each(f.zeroWidthInTheFile, ({ inFile }, seed) => {
-      for (const mark of four) expect(inFile.includes(mark), `seed ${seed} U+${mark.codePointAt(0)?.toString(16)}`).toBe(true);
+      for (const mark of four)
+        expect(inFile.includes(mark), `seed ${seed} U+${mark.codePointAt(0)?.toString(16)}`).toBe(true);
     });
     each(f.zeroWidthInTheQuote, ({ inQuote }, seed) => {
-      for (const mark of [...four, '﻿']) expect(inQuote.includes(mark), `seed ${seed} U+${mark.codePointAt(0)?.toString(16)}`).toBe(true);
+      for (const mark of [...four, '﻿'])
+        expect(inQuote.includes(mark), `seed ${seed} U+${mark.codePointAt(0)?.toString(16)}`).toBe(true);
     });
   });
 
@@ -43,10 +48,16 @@ describe('every folding draw holds all the characters its fold handles', () => {
       expect(inFile.includes('‘') && inFile.includes('’'), `seed ${seed}`).toBe(true);
     });
     each(f.typographicQuotesInTheQuote, ({ inQuote }, seed) => {
-      expect(inQuote.includes('“') && inQuote.includes('”') && inQuote.includes('’'), `seed ${seed}`).toBe(true);
+      expect(inQuote.includes('“') && inQuote.includes('”') && inQuote.includes('’'), `seed ${seed}`).toBe(
+        true,
+      );
     });
-    each(f.backslashBeforeAsterisk, ({ inFile }, seed) => expect(inFile.includes('\\*'), `seed ${seed}`).toBe(true));
-    each(f.backslashBeforeUnderscore, ({ inFile }, seed) => expect(inFile.includes('\\_'), `seed ${seed}`).toBe(true));
+    each(f.backslashBeforeAsterisk, ({ inFile }, seed) =>
+      expect(inFile.includes('\\*'), `seed ${seed}`).toBe(true),
+    );
+    each(f.backslashBeforeUnderscore, ({ inFile }, seed) =>
+      expect(inFile.includes('\\_'), `seed ${seed}`).toBe(true),
+    );
   });
 
   it('accents: an acute and a grave accent, composed on one side and decomposed on the other', () => {
