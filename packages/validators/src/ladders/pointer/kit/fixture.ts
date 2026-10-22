@@ -51,6 +51,20 @@ export type Fixture = {
   wires: Wire[];
   documents: AuthoredFile[];
 };
+/** The most units one Jev window request carries; a unit-state request carries one. */
+export const JEV_WINDOW_UNITS = 30;
+/** The units one request carries: a Jev unit-state request one, a Jev window request 30, a Haiku request 60. */
+export function windowCap(arm: ModelArm): number {
+  if (arm === 'jev-unit') return 1;
+  return arm === 'jev' ? JEV_WINDOW_UNITS : 60;
+}
+/** The definition of the option every choice question offers last. */
+export const NONE_DEFINITION = 'None of the other labels applies to this unit.';
+/** The probability vector of an authored unit: its label 0.9, the other options sharing the rest. */
+export function defaultVector(options: string[], label: string): Record<string, number> {
+  const rest = Math.round((0.1 / Math.max(1, options.length - 1)) * 1e4) / 1e4;
+  return Object.fromEntries(options.map((o) => [o, o === label ? 0.9 : rest]));
+}
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
@@ -79,13 +93,8 @@ export function wireFor(
           {
             role: 'user',
             content: [
-              `SET ${set.set}: ${set.description}`,
-              'LABELS:',
-              ...set.labels.map(
-                (l) =>
-                  `- ${l.name}: ${l.description}${examples(l)}${l.target ? ' (also give "target": the number of the unit that holds the other end)' : ''}`,
-              ),
-              '- none: no label of this set applies.',
+              `SET ${set.set}`,
+              `LABELS ${[...set.labels.map((l) => l.name), 'none'].join(' | ')}`,
               `WINDOW ${window}  path: ${path.join(' > ') || '(top)'}`,
               ...shown,
             ].join('\n'),
@@ -93,23 +102,25 @@ export function wireFor(
         ],
       },
     };
+  const askable = set.labels.filter((l) => l.target !== 'required');
+  const criteria = Object.fromEntries([
+    ...askable.map((l) => [l.name, `${l.description}${examples(l)}`]),
+    ['none', NONE_DEFINITION],
+  ]);
   return {
     labeler: arm,
     body: {
       model: 'jev-latest',
       state: { set: set.set, window, text: [`path: ${path.join(' > ') || '(top)'}`, ...shown].join('\n') },
       questions: Object.fromEntries(
-        units.flatMap((u) =>
-          set.labels.map((l) => [
-            `u${u.n}__${l.name}`,
-            {
-              type: 'noul',
-              instructions: {
-                question: `Label ${l.name}: ${l.description}${examples(l)} Does this label apply to unit [${u.n}] of the numbered text? Answer yes or no.`,
-              },
-            },
-          ]),
-        ),
+        units.map((u) => [
+          `u${u.n}`,
+          {
+            type: 'choice',
+            instructions: `Which label does unit [${u.n}] of the numbered text have?`,
+            criteria,
+          },
+        ]),
       ),
     },
   };
@@ -153,8 +164,7 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           )
           .join('\n'),
       );
-      const cap =
-        arm === 'jev-unit' ? 1 : Math.min(60, arm === 'jev' ? Math.floor(250 / set.labels.length) : 60);
+      const cap = windowCap(arm);
       for (let offset = 0; offset < doc.units.length; offset += cap) {
         const selected = doc.units.slice(offset, offset + cap),
           window = `${doc.path}#${Math.floor(offset / cap) + 1}`;
@@ -166,11 +176,12 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           selected[0]?.path ?? [],
         );
         wires.push(wire);
+        const options = [...set.labels.filter((l) => l.target !== 'required').map((l) => l.name), 'none'];
         const probabilities = Object.fromEntries(
           selected.flatMap((u, i) =>
-            set.labels.map((l) => [
-              `u${i + 1}__${l.name}`,
-              u.probabilities?.[l.name] ?? (l.name === u.label ? 0.95 : 0.05),
+            Object.entries(u.probabilities ?? defaultVector(options, u.label)).map(([option, p]) => [
+              `u${i + 1}__${option}`,
+              p,
             ]),
           ),
         );
@@ -228,7 +239,11 @@ export function loadFixture(arm: ModelArm): Fixture {
   return fixture;
 }
 /** Every expected source unit must occur exactly once with its authored label; zero, partial and all-one-label outputs fail. */
-export function requireFixtureLabels(result: ScanResult, fixture: Fixture, threshold?: number): void {
+export function requireFixtureLabels(
+  result: ScanResult,
+  fixture: Fixture,
+  decide?: (probabilities: Record<string, number>) => string,
+): void {
   if (!result.ok || !result.ledger)
     throw new Error(`positive witness: fixture replay failed: ${result.error ?? 'no ledger'}`);
   const live = result.ledger.entries.filter((e) => e.status === 'live');
@@ -246,10 +261,7 @@ export function requireFixtureLabels(result: ScanResult, fixture: Fixture, thres
   for (const expected of fixture.expected) {
     const match = groups.get(JSON.stringify([expected.path, expected.quote, expected.set]))?.shift();
     let want = expected.label;
-    if (threshold !== undefined && expected.probabilities) {
-      const [best] = Object.entries(expected.probabilities).sort((a, b) => b[1] - a[1]);
-      want = best && best[1] >= threshold ? best[0] : 'none';
-    }
+    if (decide && expected.probabilities) want = decide(expected.probabilities);
     if (match?.labels[expected.set]?.label !== want)
       throw new Error(
         `positive witness: fixture label ${expected.path} ${JSON.stringify(expected.quote)} must be ${want}`,

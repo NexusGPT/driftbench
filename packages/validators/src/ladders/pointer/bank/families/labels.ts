@@ -1,7 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
-import { makeFixture, requireFixtureLabels } from '../../kit/fixture';
+import { makeFixture } from '../../kit/fixture';
 import {
   constant,
   entriesFor,
@@ -91,11 +91,11 @@ async function modelScan(
   arm: ModelArm,
   transport: FakeTransport,
   extra: Partial<ScanRequest> = {},
-  threshold?: number,
+  stack: Stack = {},
 ) {
   const res = await ctx.sut.scan({
     files,
-    model: { arm, transport, ...(threshold !== undefined ? { threshold } : {}) },
+    model: { arm, transport, ...stack },
     cassette: { mode: 'record' },
     ...extra,
   });
@@ -124,46 +124,58 @@ const bodyText = (call: { body: string }): string => {
 /** Wraps the labels of a set into a labels file: the VOICE sets alone. */
 const VOICE_ONLY = `labels:\n${VOICE_YAML}`;
 
-/* ---------------- Jev helpers ---------------- */
+/* ---------------- Jev helpers: the choice protocol ---------------- */
 
-type Probs = Record<string, number>;
-const jevProbs = (table: Map<string, Probs>, fallback: Probs) => (text: string, name: string) =>
-  (table.get(text) ?? fallback)[name] ?? 0.05;
+type Vector = Record<string, number>;
+const NAMES = ['rule', 'prohibition', 'example'];
+const CUT = 0.65;
+const round6 = (x: number): number => Math.round(x * 1e6) / 1e6;
 
+/** A choice vector over the probe set and none whose top option leads the second likeliest by `margin`. */
+function vectorWithMargin(top: string, margin: number): Vector {
+  const rest = round6((1 - margin) / 3);
+  const second = NAMES[(NAMES.indexOf(top) + 1) % 3] as string;
+  const third = NAMES[(NAMES.indexOf(top) + 2) % 3] as string;
+  return { [top]: round6(rest + margin), [second]: rest, [third]: 0, none: rest };
+}
+
+/** A choice vector whose top option has probability `p`; the second option and none share the rest. */
+function vectorWithTop(top: string, p: number): Vector {
+  const second = NAMES[(NAMES.indexOf(top) + 1) % 3] as string;
+  const third = NAMES[(NAMES.indexOf(top) + 2) % 3] as string;
+  return { [top]: p, [second]: round6(1 - p - 0.1), [third]: 0, none: 0.1 };
+}
+
+type Stack = Pick<NonNullable<ScanRequest['model']>, 'second' | 'marginCut' | 'passAt' | 'failAt'>;
+
+/** One scan of a set of units on the fake endpoint; `vectors` answers system 1, `system2` is what system 2 says. */
 async function jevLabels(
   ctx: ItemContext,
   arm: ModelArm,
-  units: Array<{ text: string; probs: Probs }>,
-  threshold?: number,
-  yaml = PROBE_YAML,
+  units: Array<{ text: string; vector: Vector; system2?: string }>,
+  stack: Stack = {},
 ) {
-  const table = new Map(units.map((u) => [u.text, u.probs]));
-  const fake = fakeTransport({ probability: (text, name) => jevProbs(table, {})(text, name) });
+  const table = new Map(units.map((u) => [u.text, u]));
+  const fake = fakeTransport({
+    truth: (text) => table.get(text)?.system2 ?? 'none',
+    vector: (text, options) => {
+      const wanted = table.get(text)?.vector ?? {};
+      return Object.fromEntries(options.map((o) => [o, wanted[o] ?? 0]));
+    },
+  });
   const res = must(
-    await modelScan(ctx, docOf(units.map((u) => u.text)), arm, fake, { labelsYaml: yaml }, threshold),
+    await modelScan(ctx, docOf(units.map((u) => u.text)), arm, fake, { labelsYaml: PROBE_YAML }, stack),
   );
   return { res, fake };
 }
 
-const expectedJev = (probs: Probs, names: string[], threshold: number): string => {
-  let best: { name: string; p: number } | undefined;
-  for (const n of names) {
-    const p = probs[n] ?? 0.05;
-    if (!best || p > best.p) best = { name: n, p };
-  }
-  return best && best.p > threshold ? best.name : 'none';
-};
+/** The halves of a stack run: system 2 was asked or it was not. */
+const askedSystem2 = (fake: FakeTransport): number => fake.calls.filter((c) => c.arm === 'haiku').length;
 
-const NAMES = ['rule', 'prohibition', 'example'];
-
-function probsAround(i: number, level: number, step: number): Probs {
-  const top = NAMES[i % 3] as string;
-  const second = NAMES[(i + 1) % 3] as string;
-  const p: Probs = { rule: 0.05, prohibition: 0.05, example: 0.05 };
-  p[top] = i % 2 === 0 ? level + step : level - step;
-  if (i % 4 === 3) p[second] = (p[top] as number) - 0.1;
-  return p;
-}
+const sameOptions = (options: string[], labels: string[]): boolean =>
+  options.length === labels.length + 1 &&
+  labels.every((name, i) => options[i] === name) &&
+  options[labels.length] === 'none';
 
 const rewordOf = (_ctx: ItemContext, p: Prose, t: string) => rewordWords(p.random, t, 1);
 
@@ -910,32 +922,51 @@ labels:
     return res.atoms.length === 2 ? pass('none accepted') : fail(`${res.atoms.length} atoms, expected 2`);
   },
   'jev-threshold-window': async (ctx) => {
+    // Window state, the default stack: a unit whose lead over the second option is at the margin cut is decided
+    // by system 1, a unit under it by system 2.
     const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.4, 0.01) }));
-    const { res } = await jevLabels(ctx, 'jev', units, undefined);
-    for (const u of units) {
-      const want = expectedJev(u.probs, NAMES, 0.4);
+    const units = texts.map((text, i) => ({
+      text,
+      vector: vectorWithMargin(NAMES[i % 3] as string, i % 2 === 0 ? CUT + 0.01 : CUT - 0.01),
+      system2: NAMES[(i + 1) % 3] as string,
+    }));
+    const { res, fake } = await jevLabels(ctx, 'jev', units, { second: 'haiku' });
+    if (askedSystem2(fake) === 0) return fail('system 2 was never asked about a unit under the margin cut');
+    for (const [i, u] of units.entries()) {
+      const want = i % 2 === 0 ? NAMES[i % 3] : u.system2;
       const got = label(res.ledger, u.text, 'probe');
       if (got !== want)
-        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+        return fail(
+          `${show(u.text, 30)} with a lead of ${i % 2 === 0 ? 'cut + 0.01' : 'cut - 0.01'} has label ${got}, expected ${want}`,
+        );
     }
-    return pass('12 units around the 0.4 threshold');
+    return pass('12 units around the margin cut of 0.65, window state');
   },
   'jev-threshold-unit': async (ctx) => {
+    // Unit state with probability bounds: a unit whose top option is at pass-at or above is decided by system 1,
+    // a unit under it (and not under fail-at) by system 2.
     const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.7, 0.01) }));
-    const { res } = await jevLabels(ctx, 'jev-unit', units, undefined);
-    for (const u of units) {
-      const want = expectedJev(u.probs, NAMES, 0.7);
+    const units = texts.map((text, i) => ({
+      text,
+      vector: vectorWithTop(NAMES[i % 3] as string, i % 2 === 0 ? 0.71 : 0.69),
+      system2: NAMES[(i + 1) % 3] as string,
+    }));
+    const { res, fake } = await jevLabels(ctx, 'jev-unit', units, { second: 'haiku', passAt: 0.7, failAt: 0.1 });
+    if (askedSystem2(fake) === 0) return fail('system 2 was never asked about a unit under pass-at');
+    for (const [i, u] of units.entries()) {
+      const want = i % 2 === 0 ? NAMES[i % 3] : u.system2;
       const got = label(res.ledger, u.text, 'probe');
       if (got !== want)
-        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+        return fail(
+          `${show(u.text, 30)} with a top option of ${i % 2 === 0 ? 0.71 : 0.69} has label ${got}, expected ${want} at pass-at 0.7`,
+        );
     }
-    return pass('12 units around the 0.7 threshold');
+    return pass('12 units around pass-at 0.7, unit state');
   },
   'jev-highest-not-first': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 6);
-    const units = texts.map((text) => ({ text, probs: { rule: 0.5, prohibition: 0.8, example: 0.05 } }));
+    const vector: Vector = { rule: 0.35, prohibition: 0.55, example: 0.05, none: 0.05 };
+    const units = texts.map((text) => ({ text, vector }));
     const { res } = await jevLabels(ctx, 'jev', units);
     const bad = texts.find((t) => label(res.ledger, t, 'probe') !== 'prohibition');
     return bad
@@ -945,89 +976,130 @@ labels:
       : pass('highest wins');
   },
   'jev-none-below-threshold': async (ctx) => {
+    // Alone, none is an option and wins when it is the likeliest; in a stack with bounds, a unit whose likeliest
+    // option is none at pass-at or above is decided by system 1 and system 2 is never asked.
     const texts = distinctSentences(prose(ctx), 8);
-    const { res } = await jevLabels(
+    const alone = await jevLabels(
       ctx,
       'jev',
-      texts.map((text) => ({ text, probs: { rule: 0.2, prohibition: 0.15, example: 0.1 } })),
+      texts.map((text) => ({ text, vector: { rule: 0.2, prohibition: 0.15, example: 0.1, none: 0.55 } })),
     );
-    const bad = texts.find((t) => label(res.ledger, t, 'probe') !== 'none');
-    return bad
-      ? fail(`${show(bad, 30)} has label ${label(res.ledger, bad, 'probe')}, expected none`)
-      : res.atoms.length === 0
-        ? pass('all none, no atom')
-        : fail(`${res.atoms.length} atoms from labels below the threshold`);
+    const bad = texts.find((t) => label(alone.res.ledger, t, 'probe') !== 'none');
+    if (bad) return fail(`${show(bad, 30)} has label ${label(alone.res.ledger, bad, 'probe')}, expected none`);
+    if (alone.res.atoms.length !== 0) return fail(`${alone.res.atoms.length} atoms from units whose likeliest option is none`);
+    const stacked = await jevLabels(
+      ctx,
+      'jev',
+      texts.map((text) => ({
+        text,
+        vector: { rule: 0.02, prohibition: 0.02, example: 0.02, none: 0.94 },
+        system2: 'rule',
+      })),
+      { second: 'haiku', passAt: 0.9, failAt: 0.1 },
+    );
+    if (askedSystem2(stacked.fake) !== 0) return fail('system 2 was asked about units system 1 is sure are none');
+    const wrong = texts.find((t) => label(stacked.res.ledger, t, 'probe') !== 'none');
+    if (wrong)
+      return fail(`${show(wrong, 30)} has label ${label(stacked.res.ledger, wrong, 'probe')}, expected none`);
+    return stacked.res.atoms.length === 0
+      ? pass('all none, no atom, alone and in a stack')
+      : fail(`${stacked.res.atoms.length} atoms from units system 1 is sure are none`);
   },
   'jev-threshold-is-a-replay-setting': async (ctx) => {
+    // The stack settings are read when the cassette is replayed: a different margin cut or bounds change the
+    // decisions with no call and no new recording.
     const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({
-      text,
-      probs: { rule: i % 2 === 0 ? 0.95 : 0.5, prohibition: 0.05, example: 0.05 },
-    }));
-    const { res } = await jevLabels(ctx, 'jev', units);
-    if (!res.cassette) return fail('the record run returned no cassette');
-    const fixture = makeFixture(
+    const vectors = texts.map(
+      (_, i): Vector =>
+        i % 2 === 0
+          ? { rule: 0.7, prohibition: 0.2, example: 0, none: 0.1 }
+          : { rule: 0.88, prohibition: 0.06, example: 0, none: 0.06 },
+    );
+    const recorded = await jevLabels(
+      ctx,
+      'jev',
+      texts.map((text, i) => ({ text, vector: vectors[i] as Vector, system2: 'prohibition' })),
+      { second: 'haiku' },
+    );
+    if (!recorded.res.cassette) return fail('the record run returned no cassette');
+    const jev = makeFixture(
       'jev',
       [
         {
           path: 'doc.md',
-          units: units.map((unit) => ({ text: unit.text, label: 'rule', probabilities: unit.probs })),
+          units: texts.map((text, i) => ({ text, label: 'rule', probabilities: vectors[i] as Vector })),
         },
       ],
       PROBE_YAML,
     );
-    const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
-    const replay = await ctx.sut.scan({
-      files: fixture.files,
-      labelsYaml: PROBE_YAML,
-      model: { arm: 'jev', transport: closed, threshold: 0.9 },
-      cassette: { mode: 'replay', text: fixture.cassette },
-    });
-    if (!replay.ok || !replay.ledger) return fail(`the replay at another threshold failed: ${replay.error}`);
-    requireFixtureLabels(replay, fixture, 0.9);
-    if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
-    for (const [i, t] of texts.entries()) {
-      const want = i % 2 === 0 ? 'rule' : 'none';
-      if (label(replay.ledger, t, 'probe') !== want)
-        return fail(
-          `${show(t, 30)} has label ${label(replay.ledger, t, 'probe')} at threshold 0.9, expected ${want}`,
-        );
+    const system2 = makeFixture(
+      'haiku',
+      [{ path: 'doc.md', units: texts.map((text) => ({ text, label: 'prohibition' })) }],
+      PROBE_YAML,
+    );
+    const legs: Array<{ name: string; stack: Stack; want: (i: number) => string }> = [
+      { name: 'the default margin cut 0.65', stack: {}, want: (i) => (i % 2 === 0 ? 'prohibition' : 'rule') },
+      { name: 'margin cut 0.4', stack: { marginCut: 0.4 }, want: () => 'rule' },
+      { name: 'pass-at 0.9, fail-at 0.1', stack: { passAt: 0.9, failAt: 0.1 }, want: () => 'prohibition' },
+    ];
+    for (const leg of legs) {
+      const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
+      const replay = await ctx.sut.scan({
+        files: jev.files,
+        labelsYaml: PROBE_YAML,
+        model: { arm: 'jev', second: 'haiku', transport: closed, ...leg.stack },
+        cassette: { mode: 'replay', text: `${jev.cassette}${system2.cassette}` },
+      });
+      if (!replay.ok || !replay.ledger) return fail(`the replay at ${leg.name} failed: ${replay.error}`);
+      if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay at ${leg.name}`);
+      for (const [i, t] of texts.entries()) {
+        const got = label(replay.ledger, t, 'probe');
+        if (got !== leg.want(i))
+          return fail(`${show(t, 30)} has label ${got} at ${leg.name}, expected ${leg.want(i)}`);
+      }
     }
-    return pass('threshold changed with no call');
+    return pass('three settings, three decisions, no call');
   },
   'jev-question-keys': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
-    const keys = fake.calls.flatMap((c) => c.questions);
-    const re = /^u\d+__(one|two|three|four|five)$/;
-    if (keys.some((k) => !re.test(k)))
-      return fail(`a question key is not u<n>__<label>: ${keys.find((k) => !re.test(k))}`);
-    if (keys.length !== 100 || new Set(keys).size !== 100)
-      return fail(`${keys.length} questions (${new Set(keys).size} distinct), expected 100 pairs once`);
-    return pass('100 keyed questions');
+    const choices = fake.calls.flatMap((c) => c.choices);
+    const odd = choices.find((c) => !/^u\d+$/.test(c.key));
+    if (odd) return fail(`a question key is not u<n>: ${odd.key}`);
+    if (choices.length !== 20 || new Set(choices.map((c) => c.key)).size !== 20)
+      return fail(
+        `${choices.length} questions (${new Set(choices.map((c) => c.key)).size} distinct), expected 20 units once`,
+      );
+    const labels = ['one', 'two', 'three', 'four', 'five'];
+    const wrong = choices.find((c) => c.type !== 'choice' || !sameOptions(c.options, labels));
+    return wrong
+      ? fail(
+          `question ${wrong.key} is a ${wrong.type} question with options ${wrong.options.join(', ')}, expected a choice among the five labels and none, none last`,
+        )
+      : pass('20 keyed choice questions, every label and none offered');
   },
   'jev-window-cap': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 100);
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
-    if (fake.count < 2) return fail(`${fake.count} calls for 500 questions`);
-    const big = fake.calls.find((c) => c.questions.length > 250);
-    if (big) return fail(`a call carries ${big.questions.length} questions, the cap is 250`);
+    if (fake.count < 4) return fail(`${fake.count} calls for 100 units, expected at least 4`);
+    const big = fake.calls.find((c) => c.questions.length > 30);
+    if (big) return fail(`a call carries ${big.questions.length} questions, the cap is 30 units`);
     const total = fake.calls.reduce((s, c) => s + c.questions.length, 0);
-    return total === 500
-      ? pass(`${fake.count} calls, 500 questions`)
-      : fail(`${total} questions asked, expected 500`);
+    return total === 100
+      ? pass(`${fake.count} calls, 100 questions`)
+      : fail(`${total} questions asked, expected 100`);
   },
   'jev-halve-on-refusal': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 40);
     const fake = fakeTransport({
-      respond: (_i, call) => (call.questions.length > 130 ? TOO_LARGE : undefined),
+      respond: (_i, call) => (call.questions.length > 12 ? TOO_LARGE : undefined),
     });
     const res = must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
-    const refused = fake.calls.filter((c) => c.questions.length > 130).length;
+    const refused = fake.calls.filter((c) => c.questions.length > 12).length;
     if (refused > 3)
-      return fail(`${refused} refused calls, at most 3 are needed to halve 200 questions under 130`);
+      return fail(`${refused} refused calls, at most 3 are needed to halve 40 units under 12 per request`);
     const unlabeled = texts.filter((t) => label(res.ledger, t, 'five') === undefined);
     return unlabeled.length === 0
       ? pass(`${refused} refused, all 40 units labelled`)
@@ -1038,10 +1110,13 @@ labels:
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev-unit', fake, { labelsYaml: FIVE_YAML }));
     if (fake.count !== 25) return fail(`${fake.count} calls for 25 units, expected 25`);
-    const bad = fake.calls.find((c) => c.questions.length !== 5);
+    const labels = ['one', 'two', 'three', 'four', 'five'];
+    const bad = fake.calls.find((c) => c.choices.length !== 1 || !sameOptions(c.choices[0]?.options ?? [], labels));
     return bad
-      ? fail(`a call carries ${bad.questions.length} questions, expected 5`)
-      : pass('25 calls of 5 questions');
+      ? fail(
+          `a call carries ${bad.choices.length} questions with options ${(bad.choices[0]?.options ?? []).join(', ')}, expected one question with the five labels and none`,
+        )
+      : pass('25 calls of 1 question');
   },
   'jev-probabilities-recorded': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);
@@ -1059,11 +1134,11 @@ labels:
       }
     };
     for (const line of res.cassette.split('\n').filter(Boolean)) walk(JSON.parse(line));
-    const asked = new Set(fake.calls.flatMap((c) => c.questions));
+    const asked = new Set(fake.calls.flatMap((c) => c.choices.flatMap((q) => q.options.map((o) => `${q.key}__${o}`))));
     const missing = [...asked].filter((k) => !found.has(k));
     return missing.length === 0
       ? pass(`${asked.size} probabilities recorded`)
-      : fail(`${missing.length} asked questions have no recorded probability, e.g. ${missing[0]}`);
+      : fail(`${missing.length} asked options have no recorded probability, e.g. ${missing[0]}`);
   },
   'haiku-dense-request': async (ctx) => {
     const p = prose(ctx);

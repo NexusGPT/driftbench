@@ -22,7 +22,7 @@ export type Job =
       previousLedger?: string;
       labelsYaml?: string;
       labeler?: 'perfect' | 'none';
-      model?: { arm: ModelArm; threshold?: number };
+      model?: { arm: ModelArm; second?: 'haiku'; marginCut?: number; passAt?: number; failAt?: number };
       cassette?: { mode: 'record' | 'replay'; text?: string };
       /** Options of the fake transport; `echoHeaders` and `extraText` add text to every response, `throwWithRequest` makes the second call throw an error that holds the request. */
       fake?: FakeOptions & {
