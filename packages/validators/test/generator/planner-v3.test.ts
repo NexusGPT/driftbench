@@ -1,0 +1,44 @@
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it, vi } from 'vitest';
+import { evaluate, plannerItems, SeedData } from '../../src/ladders/generator';
+
+// Each call of the planner runs in three processes under the frame, so a seed takes minutes.
+vi.setConfig({ testTimeout: 1_800_000 });
+
+/**
+ * Ladder version 3 of the planner family: each new stem loses its item to a planner with the fault it names, on
+ * every seed from 1 to 3, on the shape the stem runs on. A load error or a throw is no catch.
+ */
+const PLANTED = [
+  ['full-product', 'row-cap', 'rule-of-six'],
+  ['counts-pinched', 'non-extendable-not-target', 'non-extendable'],
+  ['pairs-of-constraints-only', 'odd-size-forbids', 'odd-sizes'],
+  ['plans-unapproved', 'approved-only', 'unapproved'],
+] as const;
+
+const run = async (items: ReturnType<typeof plannerItems>, seed: number) =>
+  evaluate(
+    items,
+    new SeedData(seed, {}, async () => {
+      throw new Error('no scale run');
+    }),
+  );
+
+describe('the planner family, ladder version 3', () => {
+  it.each(PLANTED)('a planner with the fault %s loses %s on %s, on seeds 1 to 3', async (name, stem, shape) => {
+    const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${name}.ts`, import.meta.url));
+    const items = plannerItems(module, [shape]).filter((item) => item.id === `planner.${stem}.${shape}`);
+    expect(items).toHaveLength(1);
+    for (const seed of [1, 2, 3]) {
+      const [entry] = await run(items, seed);
+      expect(entry?.verdict.pass, `seed ${seed}`).toBe(false);
+      expect(entry?.verdict.detail ?? '').not.toMatch(/the item threw|did not load/);
+    }
+  });
+
+  it('runs every new stem on the shapes it names, under ids no other item holds', () => {
+    const ids = plannerItems().map((item) => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const [, stem, shape] of PLANTED) expect(ids).toContain(`planner.${stem}.${shape}`);
+  });
+});
