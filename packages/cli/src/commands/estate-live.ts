@@ -437,6 +437,7 @@ export async function estateRunCommand(
       ESTATE_SALT_KEY,
       (carry ? await oldStoreSalt(carry, io) : undefined) ?? randomBytes(16).toString('hex'),
     );
+    if (!options.json) io.out(`PROBE ${salt}\n`);
     // What a result depends on besides the estate and the spec: the runtime, its flags, its environment and its
     // judge. A labelled run stamps it, so a result carried from a run made another way is refused, not copied.
     const identity = contentHash({
@@ -574,7 +575,6 @@ export async function estateRunCommand(
   const failed = lines.length - passed - notApplicable - unscored;
   const costs = lines.map((line) => line.costUsd).filter((cost): cost is number => cost !== null);
   const total = costs.reduce((sum, cost) => sum + cost, 0);
-  if (!options.json) io.out(`PROBE ${await store.metaGet(ESTATE_SALT_KEY)}\n`);
   if (options.json) {
     io.out(
       `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, ...(radiusRecord ? { radius: radiusRecord, carryNote: radiusNote } : {}), judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed, undecided, notApplicable, ...(unscored > 0 ? { notRun: unscored } : {}), costUsd: total }, null, 2)}\n`,
