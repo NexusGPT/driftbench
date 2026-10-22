@@ -17,6 +17,7 @@ describe('a ceiling only goes down', () => {
     expect(ceilingVerdict(3494, 3494, 3493)).toMatch(/above the base/);
     expect(ceilingVerdict(10, 3494, 3493)).toMatch(/above the base/);
   });
+});
 
 describe('the base ref is read, and a base that cannot be read is an error', () => {
   const run = (cwd: string, ...args: string[]) => execFileSync('git', args, { cwd, stdio: 'pipe' });
