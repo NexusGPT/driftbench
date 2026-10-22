@@ -165,6 +165,55 @@ describe('the confined command', () => {
   });
 });
 
+describe('functions across the frame', () => {
+  type Fn = {
+    counter(start: number): () => number;
+    apply(values: number[], statistic: (xs: number[]) => number): number;
+    useCounter(next: () => number): number;
+    busy(ms: number): boolean;
+    LIMIT: number;
+  };
+  const frameOf = (options: Partial<Parameters<typeof isolate>[0]> = {}) => {
+    const frame = isolate<Fn>({
+      module: new URL('fixtures/cheater/functions.mjs', import.meta.url).pathname,
+      seed: 1,
+      plain: false,
+      ...options,
+    });
+    open.push(frame as Frame<unknown>);
+    return frame;
+  };
+
+  it('keeps a function the product returned as a handle that calls the product, in every run', () => {
+    const frame = frameOf();
+    const next = frame.product.counter(10);
+    expect([next(), next(), next()]).toEqual([11, 12, 13]);
+    expect(frame.divergence()).toBeUndefined();
+    expect(frame.product.useCounter(next)).toBe(14 + 15);
+  });
+
+  it('refuses a function argument unless the frame is told to send its source', () => {
+    expect(() => frameOf().product.apply([1, 2, 3], (xs) => xs.length)).toThrow(/cannot cross/);
+    const frame = frameOf({ functions: 'source' });
+    expect(frame.product.apply([1, 2, 3], (xs) => xs.length + 1)).toBe(4);
+    expect(frame.divergence()).toBeUndefined();
+  });
+
+  it('shows the exports of the product and nothing else', () => {
+    const frame = frameOf();
+    expect(frame.product.LIMIT).toBe(7);
+    expect('counter' in frame.product).toBe(true);
+    expect((frame.product as unknown as Record<string, unknown>).nothing).toBeUndefined();
+  });
+
+  it('reports the processor time the product used, measured in its own process', () => {
+    const frame = frameOf();
+    frame.product.busy(150);
+    expect(frame.cpuSince(0)).toBeGreaterThanOrEqual(150);
+    expect(frame.cpuSince(1)).toBe(0);
+  });
+});
+
 describe('a product that carries a stamp from run C to a later frame', () => {
   it('fails every frame, and the validator leaves the stamped source as the product wrote it', () => {
     const file = plant('stamp');

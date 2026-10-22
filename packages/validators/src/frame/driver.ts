@@ -46,6 +46,8 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
+let «counter» = 0;
+const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
 function «encode»(«value», «seen» = new WeakSet()) {
@@ -55,7 +57,8 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'number': return Number.isFinite(«value») ? (Object.is(«value», -0) ? { $n: '-0' } : «value») : { $n: String(«value») };
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
-    case 'symbol': case 'function': return { $opaque: typeof «value» };
+    case 'symbol': return { $opaque: typeof «value» };
+    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -83,7 +86,9 @@ function «decode»(«x») {
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
-  if ('$err' in «x») { const «e» = new Error(«x».$err.message); «e».name = «x».$err.name; return «e»; }
+  if ('$handle' in «x») return «handles».get(«x».$handle);
+  if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
+  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
 `;
@@ -117,6 +122,7 @@ const «next» = () =>
       : new Promise((«resolveIt») => «waiters».push(«resolveIt»));
 const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
+const «cpuNow» = process.cpuUsage.bind(process);
 const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
 
 if ('nodeOptions' in «setup») {
@@ -148,18 +154,25 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    «answer»({ ready: true });
+    «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
-    const «fn» = «setup».invoke ? (...«rest») => «product»[«setup».invoke](«request».call, «rest») : «product»[«request».call];
+    const «handle» = «request».call.startsWith('#');
+    const «fn» = «handle»
+      ? «handles».get(Number(«request».call.slice(1)))
+      : «setup».invoke
+        ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
+        : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       const «args» = «decode»(«request».args);
+      const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
-      «answer»({ id: «request».id, ret: «encode»(«result») });
+      const «used» = «cpuNow»(«before»);
+      «answer»({ id: «request».id, ret: «encode»(«result»), cpu: («used».user + «used».system) / 1000 });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }
@@ -202,36 +215,48 @@ export function wrapperModule(
   return { source, invoke: name('invoke') };
 }
 
-/** The codec module of run C: the value codec, exported under drawn names. */
-export function plainCodec(seed: number, tag: string): { source: string; encode: string; decode: string } {
+/** The codec module of run C: the value codec and the table of handles, exported under drawn names. */
+export function plainCodec(
+  seed: number,
+  tag: string,
+): { source: string; encode: string; decode: string; handles: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')} };\n`;
-  return { source, encode: name('encode'), decode: name('decode') };
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')} };\n`;
+  return { source, encode: name('encode'), decode: name('decode'), handles: name('handles') };
 }
 
 /**
- * The entry of run C for one call: it imports the product and the codec, reads the arguments from a file, makes the
- * call and writes the answer to a file. Paths are file URLs and the call's name is a string literal.
+ * The entry of run C: one fresh process that imports the product and the codec, reads the recorded calls from a file
+ * line by line, makes them in order and appends every answer to a file as one line. The state a call leaves (a
+ * counter, a handle, a cache) is kept from one call to the next, as in the confined runs. Paths are file URLs.
  */
-export function plainEntry(
+export function plainBatchEntry(
   seed: number,
   tag: string,
-  paths: { module: string; codec: string; args: string; out: string },
-  call: string,
-  codec: { encode: string; decode: string },
+  paths: { module: string; codec: string; calls: string; out: string },
+  codec: { encode: string; decode: string; handles: string },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
-  const out = name('out');
+  const each = name('each');
+  const fn = name('fn');
+  const answer = name('answer');
   const error = name('error');
   return [
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
-    `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')} } from ${JSON.stringify(paths.codec)};`,
-    `let ${out};`,
-    `try { ${out} = { ret: ${name('encode')}(await ${product}[${JSON.stringify(call)}](...${name('decode')}(JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.args)}), 'utf8'))))) }; }`,
-    `catch (${error}) { ${out} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
-    `${name('write')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${out}));`,
+    `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
+    `import { createInterface as ${name('lines')} } from 'node:readline';`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')} } from ${JSON.stringify(paths.codec)};`,
+    `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
+    `  const ${each} = JSON.parse(${name('line')});`,
+    `  let ${answer};`,
+    `  try {`,
+    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
+    `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
+    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('decode')}(${each}.args))) };`,
+    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
+    `}`,
     '',
   ].join('\n');
 }

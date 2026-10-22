@@ -4,7 +4,10 @@
  * it through the separately built child entry (see isolate.ts). `args` is <seed> <root> <start>, and the item ids to run come
  * as a JSON array on stdin.
  */
+import { appendFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { type Frame, isolate } from '../../../frame';
 import type { StatsImpl } from '../reference';
 import { installTrap } from './trap';
 
@@ -21,7 +24,18 @@ async function main(args: readonly string[]): Promise<void> {
     ...(implPath ? [dirname(implPath.startsWith('file://') ? new URL(implPath).pathname : implPath)] : []),
     join(root as string, 'packages', 'stats', 'src'),
   ]);
-  const s = (await import(implPath ?? '@agent-nexus/driftbench-stats')) as StatsImpl;
+  // The package under test runs in confined processes of the frame (docs/validators.md section 12.9): the bank
+  // calls it through a proxy and cannot be seen by it, and the expected values stay in this process.
+  const frame = isolate<StatsImpl>({
+    module: productModule(root as string, implPath),
+    seed,
+    tag: `stats:${seed}:${start}:${process.pid}`,
+    functions: 'source',
+  });
+  // The bank also imports the target transitively: load it only after the trap is active.
+  const { useProductClock } = await import('./scale');
+  useProductClock({ mark: () => frame.position(), since: (mark) => frame.cpuSince(mark) });
+  const s = frame.product;
   // The bank also imports the target transitively: load it only after the trap is active.
   const { runItem, statsBank } = await import('./index');
   const byId = new Map(statsBank(root as string).map((item) => [item.id, item]));
@@ -34,11 +48,39 @@ async function main(args: readonly string[]): Promise<void> {
     const item = items[index] as (typeof items)[number];
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
     const began = performance.now();
-    const outcome = await runItem(item, seed, root as string, s);
+    const mark = frame.position();
+    const ran = await runItem(item, seed, root as string, s);
+    // A call whose runs answered differently makes the item fail whatever the item concluded.
+    const split = frame.divergenceSince(mark);
+    const outcome = split
+      ? { pass: false, detail: `the product's answer depends on how it is run: ${split}` }
+      : ran;
     process.stdout.write(
       `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ms: Math.round(performance.now() - began) })}\n`,
     );
   }
+  closeFrame(frame);
+}
+
+/** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
+function productModule(root: string, implPath: string | undefined): string {
+  if (implPath) return implPath.startsWith('file://') ? fileURLToPath(implPath) : implPath;
+  const source = join(root, 'packages', 'stats', 'src', 'index.ts');
+  if (existsSync(source)) return source;
+  return fileURLToPath(import.meta.resolve('@agent-nexus/driftbench-stats'));
+}
+
+/** Ends the frame; a sampled run C call that differed is told to the parent, which fails every item of the seed. */
+function closeFrame(frame: Frame<StatsImpl>): void {
+  const taint = frame.tainted();
+  if (taint) process.stdout.write(`${JSON.stringify({ taint })}\n`);
+  const timing = process.env.DRIFTBENCH_FRAME_TIMING_FILE;
+  if (timing)
+    appendFileSync(
+      timing,
+      `${JSON.stringify({ pid: process.pid, ...frame.spent(), productMs: frame.cpuSince(0) })}\n`,
+    );
+  frame.close();
 }
 
 /** Runs the child and ends the process: exit 0 when every item ran, exit 1 with the cause on stderr otherwise. */
