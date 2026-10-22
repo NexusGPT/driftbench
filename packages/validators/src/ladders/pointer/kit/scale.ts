@@ -236,7 +236,8 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     // Every planted sentence must come back once, as a live entry with its planted label; the two headings too.
     const planted = new Map<string, number>();
     for (const paragraph of [...first, ...second])
-      for (const sentence of paragraph.split(/(?<=\.) /)) planted.set(sentence, (planted.get(sentence) ?? 0) + 1);
+      for (const sentence of paragraph.split(/(?<=\.) /))
+        planted.set(sentence, (planted.get(sentence) ?? 0) + 1);
     const returned = new Map<string, number>();
     for (const entry of live)
       if (entry.labels['agent-rules']?.label === 'description')
