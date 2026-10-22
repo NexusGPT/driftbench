@@ -111,8 +111,14 @@ const choiceCase =
     const v = store.variables.find((x) => x.values.some((y) => typeof y.sample === 'string'));
     must(!!v, () => `no variable with string samples for ${show(d.text)}`);
     const samples = (v?.values ?? []).map((y) => String(y.sample));
-    must(samples.some((s) => d.list.includes(s)), () => `samples ${show(samples)} lack a member of ${show(d.list)}`);
-    must(samples.some((s) => !d.list.includes(s)), () => `samples ${show(samples)} lack a value outside ${show(d.list)}`);
+    must(
+      samples.some((s) => d.list.includes(s)),
+      () => `samples ${show(samples)} lack a member of ${show(d.list)}`,
+    );
+    must(
+      samples.some((s) => !d.list.includes(s)),
+      () => `samples ${show(samples)} lack a value outside ${show(d.list)}`,
+    );
     must((v?.boundaries ?? []).length === 0, () => 'a membership condition has no numeric boundary');
   };
 
@@ -464,7 +470,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: {
               files: { [PATH]: policyFile(ctx.rng, texts) },
-              rules: texts.map((t, i) => ({ id: `rule.${i}`, source: PATH, conditions: [{ text: t }], tools: [] })),
+              rules: texts.map((t, i) => ({
+                id: `rule.${i}`,
+                source: PATH,
+                conditions: [{ text: t }],
+                tools: [],
+              })),
             },
           });
           const flags = store.variables.filter(
@@ -472,7 +483,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           must(
             flags.length === 1,
-            () => `${flags.length} true-or-false variables for a fact and its negation; they name one fact, so one`,
+            () =>
+              `${flags.length} true-or-false variables for a fact and its negation; they name one fact, so one`,
           );
           must(flags[0]?.values.length === 2, () => `${flags[0]?.values.length} values; true and false`);
         },

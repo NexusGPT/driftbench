@@ -396,16 +396,16 @@ export function drawRange(
       : style === 'half-open'
         ? `${subject} is at least ${lo} but under ${hi}${unit}`
         : style === 'to'
-      ? `${subject} is ${lo} to ${hi}${unit}`
-      : style === 'en-dash'
-        ? `${subject} is ${lo}\u2013${hi}${unit}`
-        : style === 'hyphen'
-          ? `${subject} is ${lo}-${hi}${unit}`
-          : rng.pick([
-              `${subject} is between ${lo} and ${hi}${unit}`,
-              `${subject} is from ${lo} to ${hi}${unit}`,
-              `${subject} lies between ${lo} and ${hi}${unit}`,
-            ]);
+          ? `${subject} is ${lo} to ${hi}${unit}`
+          : style === 'en-dash'
+            ? `${subject} is ${lo}\u2013${hi}${unit}`
+            : style === 'hyphen'
+              ? `${subject} is ${lo}-${hi}${unit}`
+              : rng.pick([
+                  `${subject} is between ${lo} and ${hi}${unit}`,
+                  `${subject} is from ${lo} to ${hi}${unit}`,
+                  `${subject} lies between ${lo} and ${hi}${unit}`,
+                ]);
   return { subject, text, lo, hi };
 }
 
@@ -444,21 +444,26 @@ export function drawMembership(rng: Rng): { subject: string; list: string[]; tex
   return { subject, list, text: `${subject} ${lead} ${joined}` };
 }
 
-
 /** A membership span written as an exclusion ("neither A nor B") or a choice ("either A or B"). */
-export function drawChoice(rng: Rng, kind: 'neither' | 'either'): { subject: string; list: string[]; text: string } {
+export function drawChoice(
+  rng: Rng,
+  kind: 'neither' | 'either',
+): { subject: string; list: string[]; text: string } {
   const [subject, pool] = rng.pick(SETS);
   const list = rng.sample(pool, 2);
   const [a, b] = list as [string, string];
   const text =
-    kind === 'neither'
-      ? `${subject} is neither ${a} nor ${b}`
-      : `${subject} is either ${a} or ${b}`;
+    kind === 'neither' ? `${subject} is neither ${a} nor ${b}` : `${subject} is either ${a} or ${b}`;
   return { subject, list, text };
 }
 
 /** A yes-or-no fact written both ways: the fact and its negation. */
-export function drawBooleanPair(rng: Rng): { subject: string; word: string; positive: string; negated: string } {
+export function drawBooleanPair(rng: Rng): {
+  subject: string;
+  word: string;
+  positive: string;
+  negated: string;
+} {
   const [subject, word] = rng.pick(BOOLEANS);
   return { subject, word, positive: `${subject} ${word}`, negated: `${subject} not ${word}` };
 }

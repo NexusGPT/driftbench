@@ -7,8 +7,8 @@ import {
   COMPONENTS,
   FAMILIES,
   FAMILY_LEVEL,
-  levelOf,
   LEVELS,
+  levelOf,
   STEMS,
   type StemDef,
   type Tier,
@@ -86,7 +86,9 @@ export function renderCatalogue(interfaceText: string, stems: readonly StemDef[]
       LEVELS.map((l, i) => [
         String(i + 1),
         l,
-        FAMILIES.filter((f) => items.some((it) => it.stem.family === f && levelOf(it.stem.family, it.stem.component) === l)).join(', '),
+        FAMILIES.filter((f) =>
+          items.some((it) => it.stem.family === f && levelOf(it.stem.family, it.stem.component) === l),
+        ).join(', '),
         String(items.filter((it) => levelOf(it.stem.family, it.stem.component) === l).length),
       ]),
     ),

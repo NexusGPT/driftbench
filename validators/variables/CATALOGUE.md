@@ -6,10 +6,10 @@ Written blind, from the specification alone, then bound to the variable store fo
 
 | Family | Level | Stems | Items | T1 | T2 | T3 | T4 | T5 | Causes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| sources | store | 22 | 69 | 10 | 23 | 26 | 9 | 1 | 29 |
-| quotes | store | 19 | 68 | 6 | 15 | 25 | 16 | 6 | 25 |
-| values | store | 12 | 48 | 4 | 9 | 20 | 9 | 6 | 26 |
-| boundaries | store | 18 | 63 | 9 | 20 | 24 | 8 | 2 | 22 |
+| sources | store-core | 22 | 69 | 10 | 23 | 26 | 9 | 1 | 29 |
+| quotes | store-core | 19 | 68 | 6 | 15 | 25 | 16 | 6 | 25 |
+| values | store-core | 12 | 48 | 4 | 9 | 20 | 9 | 6 | 26 |
+| boundaries | store-core | 18 | 63 | 9 | 20 | 24 | 8 | 2 | 22 |
 | impossible-pairs | constraints | 11 | 36 | 2 | 8 | 14 | 7 | 5 | 14 |
 | weights | constraints | 15 | 54 | 2 | 11 | 22 | 16 | 3 | 20 |
 | strength | strength | 12 | 43 | 5 | 9 | 17 | 11 | 1 | 12 |
@@ -24,13 +24,14 @@ Contract check (docs/validators.md 12.1): at least 300 items, no family under 20
 
 | Level | Name | Families | Items |
 | --- | --- | --- | --- |
-| 1 | store | sources, quotes, values, boundaries | 248 |
-| 2 | constraints | impossible-pairs, weights | 90 |
-| 3 | counter | counter | 42 |
-| 4 | strength | strength | 43 |
-| 5 | plan-order | seed-rows, budget-order | 67 |
-| 6 | determinism | determinism | 25 |
-| 7 | scale | scale | 24 |
+| 1 | store-core | sources, values, boundaries | 109 |
+| 2 | store-readers | sources, quotes, values | 139 |
+| 3 | constraints | impossible-pairs, weights | 90 |
+| 4 | counter | counter | 42 |
+| 5 | strength | strength | 43 |
+| 6 | plan-order | seed-rows, budget-order | 67 |
+| 7 | determinism | determinism | 25 |
+| 8 | scale | scale | 24 |
 
 Tiers: 1 the plain case with one capability and a small clean input; 2 ordinary variation (other wording, arity or size); 3 realistic combinations and required details (reasons, provenance, ordering); 4 hostile or boundary inputs, differentials against brute force, statistics; 5 adversarial inputs aimed at a likely shortcut, scale at ten or a hundred times, the strictest statistical regimes.
 
@@ -338,7 +339,7 @@ export type VariablesImpl = {
 
 Each stem: its component (the one place the fix goes), the clauses it serves, the rules of docs/variables.md it checks (Page), how its input is built (generator), how the answer is known without the component (oracle), and the one change that makes it pass (cause). Items are listed with their tier.
 
-### Family sources (level store): 69 items
+### Family sources (level store-core): 69 items
 
 #### `sources.estate.numeric-condition`
 
@@ -546,7 +547,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Variant ledger-shape: candidate cause C165: a ledger id must be 10 characters from a to z and 2 to 7.
 * Items: `sources.file.provenance-shape.count-over-total` (T2), `sources.file.provenance-shape.fractional-count` (T2), `sources.file.provenance-shape.extra-key` (T3), `sources.file.provenance-shape.uppercase-hash` (T2), `sources.file.provenance-shape.zero-total` (T2), `sources.file.provenance-shape.unreal-day` (T3), `sources.file.provenance-shape.blank-words` (T3), `sources.file.provenance-shape.ledger-shape` (T3)
 
-### Family quotes (level store): 68 items
+### Family quotes (level store-core): 68 items
 
 #### `quotes.accept.exact`
 
@@ -728,7 +729,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Variant unreadable-and-not-found: candidate cause C196: an unreadable file does not hide the wrong quotes of the files that are present.
 * Items: `quotes.verify.unreadable-file.missing-file` (T1), `quotes.verify.unreadable-file.once-per-file` (T4), `quotes.verify.unreadable-file.unreadable-and-not-found` (T3)
 
-### Family values (level store): 48 items
+### Family values (level store-core): 48 items
 
 #### `values.ids.variable-grammar`
 
@@ -853,7 +854,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Variant grid-empty: candidate cause C179: constraints that forbid every cell of the axes are refused.
 * Items: `values.file.references.duplicate-value` (T1), `values.file.references.duplicate-variable-id` (T1), `values.file.references.ambiguous-axis-value` (T3), `values.file.references.repeated-channel` (T2), `values.file.references.repeated-stage` (T2), `values.file.references.repeated-deviation` (T3), `values.file.references.unknown-deviation-class` (T3), `values.file.references.unknown-when-variable` (T2), `values.file.references.unknown-unless-value` (T3), `values.file.references.unknown-constraint-variable` (T2), `values.file.references.unknown-constraint-value` (T2), `values.file.references.empty-constraint` (T1), `values.file.references.duplicate-constraint-reordered` (T4), `values.file.references.grid-empty` (T4)
 
-### Family boundaries (level store): 63 items
+### Family boundaries (level store-core): 63 items
 
 #### `boundaries.greater-than`
 
@@ -1809,210 +1810,210 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 
 | Item | Family | Level | Tier | Cause |
 | --- | --- | --- | --- | --- |
-| `sources.estate.numeric-condition.one-rule` | sources | store | 1 | C1 |
-| `sources.estate.numeric-condition.long-file` | sources | store | 2 | C1 |
-| `sources.estate.boolean-condition.positive` | sources | store | 1 | C2 |
-| `sources.estate.boolean-condition.negated` | sources | store | 3 | C2 |
-| `sources.estate.boolean-condition.lacks-form` | sources | store | 4 | C2 |
-| `sources.estate.membership-condition.three-members` | sources | store | 2 | C3 |
-| `sources.estate.membership-condition.two-members` | sources | store | 2 | C3 |
-| `sources.estate.no-condition-no-variable.plain-rule` | sources | store | 1 | C4 |
-| `sources.estate.no-condition-no-variable.number-without-comparator` | sources | store | 4 | C4 |
-| `sources.estate.no-condition-no-variable.past-tense-limit` | sources | store | 5 | C4 |
-| `sources.estate.same-quantity-merges.two-spans` | sources | store | 3 | C5 |
-| `sources.estate.same-quantity-merges.three-spans` | sources | store | 3 | C5 |
-| `sources.estate.same-quantity-merges.two-files` | sources | store | 4 | C5 |
-| `sources.estate.same-quantity-merges.case-differs` | sources | store | 4 | C5 |
-| `sources.estate.different-quantities-split.two-nouns` | sources | store | 1 | C6 |
-| `sources.estate.different-quantities-split.shared-word` | sources | store | 3 | C6 |
-| `sources.estate.different-quantities-split.prefix-noun` | sources | store | 4 | C6 |
-| `sources.estate.rule-own-variables.condition-and-tool` | sources | store | 2 | C7 |
-| `sources.estate.rule-own-variables.condition-only` | sources | store | 2 | C7 |
-| `sources.estate.rule-own-variables.tool-only` | sources | store | 3 | C7 |
-| `sources.estate.rule-own-variables.two-and-two` | sources | store | 3 | C7 |
-| `sources.estate.rule-own-variables.shared-quantity-two-rules` | sources | store | 3 | C7 |
-| `sources.estate.tool-field-variable.enum-three` | sources | store | 2 | C8 |
-| `sources.estate.tool-field-variable.single-value` | sources | store | 3 | C8 |
-| `sources.conversations.counts.two-values` | sources | store | 1 | C9 |
-| `sources.conversations.counts.three-variables` | sources | store | 2 | C9 |
-| `sources.conversations.counts.unseen-estate-value` | sources | store | 3 | C9 |
-| `sources.conversations.partial-sessions.half-observed` | sources | store | 2 | C10 |
-| `sources.conversations.partial-sessions.never-observed` | sources | store | 3 | C10 |
-| `sources.conversations.new-value.one-new` | sources | store | 2 | C11 |
-| `sources.conversations.set-hash.hex-shape` | sources | store | 2 | C12 |
-| `sources.conversations.set-hash.stable` | sources | store | 2 | C12 |
-| `sources.conversations.set-hash.changes-with-a-session` | sources | store | 3 | C12 |
-| `sources.conversations.set-hash.order-free` | sources | store | 3 | C12 |
-| `sources.conversations.privacy.text-canary` | sources | store | 2 | C13 |
-| `sources.conversations.privacy.id-canary` | sources | store | 2 | C13 |
-| `sources.conversations.privacy.thousand-sessions` | sources | store | 4 | C13 |
-| `sources.owner.missing-value.one` | sources | store | 1 | C14 |
-| `sources.owner.missing-value.three` | sources | store | 2 | C14 |
-| `sources.owner.impossible-pair.one` | sources | store | 1 | C15 |
-| `sources.owner.impossible-pair.reversed-endpoints` | sources | store | 2 | C15 |
-| `sources.owner.weight.relative-scale` | sources | store | 1 | C16 |
-| `sources.owner.weight.full-distribution` | sources | store | 2 | C16 |
-| `sources.owner.weight.zero-weight` | sources | store | 3 | C16 |
-| `sources.owner.words-verbatim.accents` | sources | store | 2 | C17 |
-| `sources.owner.words-verbatim.multiline` | sources | store | 3 | C17 |
-| `sources.owner.words-verbatim.one-thousand-chars` | sources | store | 4 | C17 |
-| `sources.owner.words-verbatim.emoji-and-rtl` | sources | store | 4 | C17 |
-| `sources.owner.date-and-statement.day-kept` | sources | store | 2 | C18 |
-| `sources.owner.date-and-statement.unreal-day-refused` | sources | store | 3 | C18 |
-| `sources.owner.date-and-statement.badly-written-day-refused` | sources | store | 3 | C18 |
-| `sources.owner.date-and-statement.blank-words-refused` | sources | store | 3 | C18 |
-| `sources.merge.provenance-union.estate-owner` | sources | store | 3 | C19 |
-| `sources.merge.provenance-union.estate-conversations` | sources | store | 3 | C19 |
-| `sources.merge.provenance-union.all-three` | sources | store | 4 | C19 |
-| `sources.order-independent.rules-permuted` | sources | store | 3 | C20 |
-| `sources.order-independent.sessions-permuted` | sources | store | 3 | C20 |
-| `sources.order-independent.owner-entries-permuted` | sources | store | 3 | C20 |
-| `sources.empty-sources.nothing` | sources | store | 1 | C21 |
-| `sources.empty-sources.empty-estate` | sources | store | 1 | C21 |
-| `sources.empty-sources.empty-conversations` | sources | store | 2 | C21 |
-| `quotes.accept.exact.at-start` | quotes | store | 1 | C22 |
-| `quotes.accept.exact.middle` | quotes | store | 1 | C22 |
-| `quotes.accept.exact.at-end` | quotes | store | 2 | C22 |
-| `quotes.accept.exact.whole-file` | quotes | store | 2 | C22 |
-| `quotes.refuse.absent.unrelated-text` | quotes | store | 1 | C23 |
-| `quotes.refuse.absent.other-file-text` | quotes | store | 2 | C23 |
-| `quotes.refuse.absent.extra-word-appended` | quotes | store | 3 | C23 |
-| `quotes.refuse.unknown-source.missing-path` | quotes | store | 1 | C24 |
-| `quotes.refuse.unknown-source.path-case-differs` | quotes | store | 2 | C24 |
-| `quotes.refuse.unknown-source.empty-path` | quotes | store | 3 | C24 |
-| `quotes.refuse.empty-quote.empty` | quotes | store | 2 | C25 |
-| `quotes.refuse.empty-quote.blank` | quotes | store | 3 | C25 |
-| `quotes.refuse.inexact.all-caps` | quotes | store | 2 | C23 |
-| `quotes.refuse.inexact.first-letter-case` | quotes | store | 3 | C23 |
-| `quotes.refuse.inexact.inserted-char` | quotes | store | 3 | C23 |
-| `quotes.refuse.inexact.deleted-char` | quotes | store | 3 | C23 |
-| `quotes.refuse.inexact.substituted-char` | quotes | store | 3 | C23 |
-| `quotes.refuse.inexact.transposed-chars` | quotes | store | 4 | C23 |
-| `quotes.refuse.inexact.skipped-word` | quotes | store | 3 | C23 |
-| `quotes.refuse.inexact.joined-lines` | quotes | store | 4 | C23 |
-| `quotes.accept.multiline.lf` | quotes | store | 2 | C27 |
-| `quotes.accept.multiline.crlf` | quotes | store | 3 | C27 |
-| `quotes.plain-text-matching.dot-star-literal` | quotes | store | 4 | C28 |
-| `quotes.plain-text-matching.group-alternation-literal` | quotes | store | 4 | C28 |
-| `quotes.plain-text-matching.brackets-literal` | quotes | store | 4 | C28 |
-| `quotes.plain-text-matching.backslash-d-literal` | quotes | store | 4 | C28 |
-| `quotes.plain-text-matching.dot-star-lookalike` | quotes | store | 5 | C28 |
-| `quotes.plain-text-matching.alternation-lookalike` | quotes | store | 5 | C28 |
-| `quotes.accept.unicode.accents` | quotes | store | 2 | C29 |
-| `quotes.accept.unicode.cjk` | quotes | store | 3 | C29 |
-| `quotes.accept.unicode.emoji` | quotes | store | 4 | C29 |
-| `quotes.accept.unicode.rtl` | quotes | store | 4 | C29 |
-| `quotes.per-value-granularity.one-of-three` | quotes | store | 3 | C30 |
-| `quotes.per-value-granularity.two-of-three` | quotes | store | 3 | C30 |
-| `quotes.per-value-granularity.first-bad` | quotes | store | 3 | C30 |
-| `quotes.per-value-granularity.all-bad` | quotes | store | 3 | C155 |
-| `quotes.refusal-report.one` | quotes | store | 2 | C31 |
-| `quotes.refusal-report.two` | quotes | store | 3 | C31 |
-| `quotes.refusal-report.reason-text` | quotes | store | 3 | C31 |
-| `quotes.owner-conversation-exempt.owner-value` | quotes | store | 2 | C32 |
-| `quotes.owner-conversation-exempt.conversation-value` | quotes | store | 2 | C32 |
-| `quotes.owner-conversation-exempt.owner-words-quote-shaped` | quotes | store | 3 | C32 |
-| `quotes.condition-span-unfindable.edited-wording` | quotes | store | 3 | C33 |
-| `quotes.condition-span-unfindable.wrong-file` | quotes | store | 3 | C33 |
-| `quotes.condition-span-unfindable.one-char-off` | quotes | store | 4 | C33 |
-| `quotes.stored-verbatim.plain` | quotes | store | 2 | C34 |
-| `quotes.stored-verbatim.padded-spaces` | quotes | store | 4 | C34 |
-| `quotes.stored-verbatim.trailing-newline` | quotes | store | 4 | C34 |
-| `quotes.never-reads-disk.etc-hosts` | quotes | store | 4 | C35 |
-| `quotes.never-reads-disk.traversal` | quotes | store | 4 | C35 |
-| `quotes.never-reads-disk.absolute-path` | quotes | store | 5 | C35 |
-| `quotes.large-files.hundred-kb` | quotes | store | 4 | C36 |
-| `quotes.large-files.one-mb` | quotes | store | 5 | C36 |
-| `quotes.large-files.two-thousand-values` | quotes | store | 5 | C36 |
-| `values.ids.variable-grammar.spaces-and-caps` | values | store | 2 | C37 |
-| `values.ids.variable-grammar.punctuation` | values | store | 3 | C37 |
-| `values.ids.variable-grammar.leading-digit` | values | store | 4 | C37 |
-| `values.ids.variable-grammar.unicode-letters` | values | store | 4 | C37 |
-| `values.ids.value-grammar.owner-values` | values | store | 2 | C38 |
-| `values.ids.value-grammar.tool-values` | values | store | 3 | C38 |
-| `values.ids.value-grammar.hostile-characters` | values | store | 4 | C38 |
-| `values.ids.stable.two-calls` | values | store | 2 | C39 |
-| `values.ids.stable.after-other-build` | values | store | 3 | C39 |
-| `values.ids.collisions.value-collision` | values | store | 3 | C40 |
-| `values.ids.collisions.variable-collision` | values | store | 3 | C40 |
-| `values.ids.collisions.three-way` | values | store | 4 | C40 |
-| `values.owner-adds-to-existing.appended` | values | store | 1 | C41 |
-| `values.owner-adds-to-existing.others-unchanged` | values | store | 3 | C41 |
-| `values.owner-adds-to-existing.order-kept` | values | store | 3 | C41 |
-| `values.owner-value-already-present.same-id` | values | store | 2 | C42 |
-| `values.owner-value-already-present.same-id-twice` | values | store | 3 | C42 |
-| `values.hostile-names.constructor-variable` | values | store | 5 | C43 |
-| `values.hostile-names.to-string-variable` | values | store | 5 | C43 |
-| `values.hostile-names.has-own-property-variable` | values | store | 5 | C43 |
-| `values.hostile-names.proto-like-noun` | values | store | 5 | C43 |
-| `values.hostile-names.constructor-value` | values | store | 5 | C43 |
-| `values.large-variable.two-thousand-values` | values | store | 4 | C44 |
-| `values.large-variable.ten-thousand-values` | values | store | 5 | C44 |
-| `values.unapproved-not-planned.proposed-value` | values | store | 3 | C45 |
-| `values.unapproved-not-planned.proposed-variable` | values | store | 3 | C45 |
-| `values.unapproved-not-planned.proposed-value-in-a-pair` | values | store | 4 | C45 |
-| `values.unapproved-not-planned.approved-later` | values | store | 3 | C45 |
-| `values.unapproved-not-planned.approved-value-in-unapproved-variable` | values | store | 4 | C156 |
-| `values.fresh-objects.output-mutation-safe` | values | store | 3 | C46 |
-| `values.fresh-objects.two-builds-independent` | values | store | 3 | C46 |
-| `values.input-not-mutated.estate` | values | store | 3 | C47 |
-| `values.input-not-mutated.conversations` | values | store | 3 | C47 |
-| `values.input-not-mutated.owner` | values | store | 3 | C47 |
-| `boundaries.greater-than.over` | boundaries | store | 1 | C48 |
-| `boundaries.greater-than.more-than` | boundaries | store | 1 | C48 |
-| `boundaries.greater-than.exceeds` | boundaries | store | 2 | C48 |
-| `boundaries.greater-than.greater-than` | boundaries | store | 2 | C48 |
-| `boundaries.greater-than.symbol` | boundaries | store | 3 | C48 |
-| `boundaries.at-least.at-least` | boundaries | store | 1 | C49 |
-| `boundaries.at-least.no-less-than` | boundaries | store | 2 | C49 |
-| `boundaries.at-least.or-more` | boundaries | store | 3 | C49 |
-| `boundaries.at-least.symbol` | boundaries | store | 3 | C49 |
-| `boundaries.less-than.under` | boundaries | store | 1 | C50 |
-| `boundaries.less-than.below` | boundaries | store | 1 | C50 |
-| `boundaries.less-than.fewer-than` | boundaries | store | 2 | C50 |
-| `boundaries.less-than.symbol` | boundaries | store | 3 | C50 |
-| `boundaries.at-most.at-most` | boundaries | store | 1 | C51 |
-| `boundaries.at-most.no-more-than` | boundaries | store | 2 | C51 |
-| `boundaries.at-most.or-fewer` | boundaries | store | 3 | C51 |
-| `boundaries.at-most.symbol` | boundaries | store | 3 | C51 |
-| `boundaries.equal.exactly` | boundaries | store | 1 | C52 |
-| `boundaries.equal.equals` | boundaries | store | 2 | C52 |
-| `boundaries.equal.symbol` | boundaries | store | 3 | C52 |
-| `boundaries.not-equal.not-equal-to` | boundaries | store | 2 | C53 |
-| `boundaries.not-equal.other-than` | boundaries | store | 3 | C53 |
-| `boundaries.not-equal.symbol` | boundaries | store | 3 | C53 |
-| `boundaries.range.between-and` | boundaries | store | 3 | C54 |
-| `boundaries.range.from-to` | boundaries | store | 3 | C54 |
-| `boundaries.range.negative-range` | boundaries | store | 5 | C54 |
-| `boundaries.decimal.half` | boundaries | store | 2 | C55 |
-| `boundaries.decimal.two-places` | boundaries | store | 2 | C55 |
-| `boundaries.decimal.whole-as-decimal` | boundaries | store | 3 | C55 |
-| `boundaries.decimal.tenth-float` | boundaries | store | 4 | C55 |
-| `boundaries.negative.minus-sign` | boundaries | store | 3 | C56 |
-| `boundaries.negative.negative-decimal` | boundaries | store | 4 | C56 |
-| `boundaries.zero.more-than-zero` | boundaries | store | 3 | C57 |
-| `boundaries.zero.at-most-zero` | boundaries | store | 4 | C57 |
-| `boundaries.thousands-separator.comma` | boundaries | store | 3 | C58 |
-| `boundaries.thousands-separator.several-groups` | boundaries | store | 3 | C58 |
-| `boundaries.thousands-separator.thin-space` | boundaries | store | 4 | C58 |
-| `boundaries.large-number.billion` | boundaries | store | 3 | C59 |
-| `boundaries.large-number.above-32-bits` | boundaries | store | 4 | C59 |
-| `boundaries.large-number.trillion` | boundaries | store | 4 | C59 |
-| `boundaries.units.euros` | boundaries | store | 1 | C60 |
-| `boundaries.units.percent` | boundaries | store | 2 | C60 |
-| `boundaries.units.minutes` | boundaries | store | 2 | C60 |
-| `boundaries.units.currency-prefix` | boundaries | store | 3 | C60 |
-| `boundaries.number-words.three` | boundaries | store | 3 | C61 |
-| `boundaries.number-words.twenty-five` | boundaries | store | 4 | C61 |
-| `boundaries.number-words.one-hundred` | boundaries | store | 5 | C61 |
-| `boundaries.merge-thresholds.far-apart` | boundaries | store | 3 | C62 |
-| `boundaries.merge-thresholds.adjacent-overlap` | boundaries | store | 4 | C62 |
-| `boundaries.merge-thresholds.same-threshold-two-comparators` | boundaries | store | 3 | C62 |
-| `boundaries.integer-samples.count-noun` | boundaries | store | 2 | C63 |
-| `boundaries.integer-samples.money` | boundaries | store | 2 | C63 |
-| `boundaries.integer-samples.percent` | boundaries | store | 3 | C63 |
-| `boundaries.cites-span.each-value-cites` | boundaries | store | 2 | C64 |
-| `boundaries.cites-span.quote-findable` | boundaries | store | 3 | C64 |
+| `sources.estate.numeric-condition.one-rule` | sources | store-readers | 1 | C1 |
+| `sources.estate.numeric-condition.long-file` | sources | store-readers | 2 | C1 |
+| `sources.estate.boolean-condition.positive` | sources | store-readers | 1 | C2 |
+| `sources.estate.boolean-condition.negated` | sources | store-readers | 3 | C2 |
+| `sources.estate.boolean-condition.lacks-form` | sources | store-readers | 4 | C2 |
+| `sources.estate.membership-condition.three-members` | sources | store-readers | 2 | C3 |
+| `sources.estate.membership-condition.two-members` | sources | store-readers | 2 | C3 |
+| `sources.estate.no-condition-no-variable.plain-rule` | sources | store-readers | 1 | C4 |
+| `sources.estate.no-condition-no-variable.number-without-comparator` | sources | store-readers | 4 | C4 |
+| `sources.estate.no-condition-no-variable.past-tense-limit` | sources | store-readers | 5 | C4 |
+| `sources.estate.same-quantity-merges.two-spans` | sources | store-readers | 3 | C5 |
+| `sources.estate.same-quantity-merges.three-spans` | sources | store-readers | 3 | C5 |
+| `sources.estate.same-quantity-merges.two-files` | sources | store-readers | 4 | C5 |
+| `sources.estate.same-quantity-merges.case-differs` | sources | store-readers | 4 | C5 |
+| `sources.estate.different-quantities-split.two-nouns` | sources | store-readers | 1 | C6 |
+| `sources.estate.different-quantities-split.shared-word` | sources | store-readers | 3 | C6 |
+| `sources.estate.different-quantities-split.prefix-noun` | sources | store-readers | 4 | C6 |
+| `sources.estate.rule-own-variables.condition-and-tool` | sources | store-readers | 2 | C7 |
+| `sources.estate.rule-own-variables.condition-only` | sources | store-readers | 2 | C7 |
+| `sources.estate.rule-own-variables.tool-only` | sources | store-readers | 3 | C7 |
+| `sources.estate.rule-own-variables.two-and-two` | sources | store-readers | 3 | C7 |
+| `sources.estate.rule-own-variables.shared-quantity-two-rules` | sources | store-readers | 3 | C7 |
+| `sources.estate.tool-field-variable.enum-three` | sources | store-readers | 2 | C8 |
+| `sources.estate.tool-field-variable.single-value` | sources | store-readers | 3 | C8 |
+| `sources.conversations.counts.two-values` | sources | store-readers | 1 | C9 |
+| `sources.conversations.counts.three-variables` | sources | store-readers | 2 | C9 |
+| `sources.conversations.counts.unseen-estate-value` | sources | store-readers | 3 | C9 |
+| `sources.conversations.partial-sessions.half-observed` | sources | store-readers | 2 | C10 |
+| `sources.conversations.partial-sessions.never-observed` | sources | store-readers | 3 | C10 |
+| `sources.conversations.new-value.one-new` | sources | store-readers | 2 | C11 |
+| `sources.conversations.set-hash.hex-shape` | sources | store-readers | 2 | C12 |
+| `sources.conversations.set-hash.stable` | sources | store-readers | 2 | C12 |
+| `sources.conversations.set-hash.changes-with-a-session` | sources | store-readers | 3 | C12 |
+| `sources.conversations.set-hash.order-free` | sources | store-readers | 3 | C12 |
+| `sources.conversations.privacy.text-canary` | sources | store-readers | 2 | C13 |
+| `sources.conversations.privacy.id-canary` | sources | store-readers | 2 | C13 |
+| `sources.conversations.privacy.thousand-sessions` | sources | store-readers | 4 | C13 |
+| `sources.owner.missing-value.one` | sources | store-readers | 1 | C14 |
+| `sources.owner.missing-value.three` | sources | store-readers | 2 | C14 |
+| `sources.owner.impossible-pair.one` | sources | store-readers | 1 | C15 |
+| `sources.owner.impossible-pair.reversed-endpoints` | sources | store-readers | 2 | C15 |
+| `sources.owner.weight.relative-scale` | sources | store-readers | 1 | C16 |
+| `sources.owner.weight.full-distribution` | sources | store-readers | 2 | C16 |
+| `sources.owner.weight.zero-weight` | sources | store-readers | 3 | C16 |
+| `sources.owner.words-verbatim.accents` | sources | store-readers | 2 | C17 |
+| `sources.owner.words-verbatim.multiline` | sources | store-readers | 3 | C17 |
+| `sources.owner.words-verbatim.one-thousand-chars` | sources | store-readers | 4 | C17 |
+| `sources.owner.words-verbatim.emoji-and-rtl` | sources | store-readers | 4 | C17 |
+| `sources.owner.date-and-statement.day-kept` | sources | store-readers | 2 | C18 |
+| `sources.owner.date-and-statement.unreal-day-refused` | sources | store-readers | 3 | C18 |
+| `sources.owner.date-and-statement.badly-written-day-refused` | sources | store-readers | 3 | C18 |
+| `sources.owner.date-and-statement.blank-words-refused` | sources | store-readers | 3 | C18 |
+| `sources.merge.provenance-union.estate-owner` | sources | store-readers | 3 | C19 |
+| `sources.merge.provenance-union.estate-conversations` | sources | store-readers | 3 | C19 |
+| `sources.merge.provenance-union.all-three` | sources | store-readers | 4 | C19 |
+| `sources.order-independent.rules-permuted` | sources | store-readers | 3 | C20 |
+| `sources.order-independent.sessions-permuted` | sources | store-readers | 3 | C20 |
+| `sources.order-independent.owner-entries-permuted` | sources | store-readers | 3 | C20 |
+| `sources.empty-sources.nothing` | sources | store-readers | 1 | C21 |
+| `sources.empty-sources.empty-estate` | sources | store-readers | 1 | C21 |
+| `sources.empty-sources.empty-conversations` | sources | store-readers | 2 | C21 |
+| `quotes.accept.exact.at-start` | quotes | store-readers | 1 | C22 |
+| `quotes.accept.exact.middle` | quotes | store-readers | 1 | C22 |
+| `quotes.accept.exact.at-end` | quotes | store-readers | 2 | C22 |
+| `quotes.accept.exact.whole-file` | quotes | store-readers | 2 | C22 |
+| `quotes.refuse.absent.unrelated-text` | quotes | store-readers | 1 | C23 |
+| `quotes.refuse.absent.other-file-text` | quotes | store-readers | 2 | C23 |
+| `quotes.refuse.absent.extra-word-appended` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.unknown-source.missing-path` | quotes | store-readers | 1 | C24 |
+| `quotes.refuse.unknown-source.path-case-differs` | quotes | store-readers | 2 | C24 |
+| `quotes.refuse.unknown-source.empty-path` | quotes | store-readers | 3 | C24 |
+| `quotes.refuse.empty-quote.empty` | quotes | store-readers | 2 | C25 |
+| `quotes.refuse.empty-quote.blank` | quotes | store-readers | 3 | C25 |
+| `quotes.refuse.inexact.all-caps` | quotes | store-readers | 2 | C23 |
+| `quotes.refuse.inexact.first-letter-case` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.inexact.inserted-char` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.inexact.deleted-char` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.inexact.substituted-char` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.inexact.transposed-chars` | quotes | store-readers | 4 | C23 |
+| `quotes.refuse.inexact.skipped-word` | quotes | store-readers | 3 | C23 |
+| `quotes.refuse.inexact.joined-lines` | quotes | store-readers | 4 | C23 |
+| `quotes.accept.multiline.lf` | quotes | store-readers | 2 | C27 |
+| `quotes.accept.multiline.crlf` | quotes | store-readers | 3 | C27 |
+| `quotes.plain-text-matching.dot-star-literal` | quotes | store-readers | 4 | C28 |
+| `quotes.plain-text-matching.group-alternation-literal` | quotes | store-readers | 4 | C28 |
+| `quotes.plain-text-matching.brackets-literal` | quotes | store-readers | 4 | C28 |
+| `quotes.plain-text-matching.backslash-d-literal` | quotes | store-readers | 4 | C28 |
+| `quotes.plain-text-matching.dot-star-lookalike` | quotes | store-readers | 5 | C28 |
+| `quotes.plain-text-matching.alternation-lookalike` | quotes | store-readers | 5 | C28 |
+| `quotes.accept.unicode.accents` | quotes | store-readers | 2 | C29 |
+| `quotes.accept.unicode.cjk` | quotes | store-readers | 3 | C29 |
+| `quotes.accept.unicode.emoji` | quotes | store-readers | 4 | C29 |
+| `quotes.accept.unicode.rtl` | quotes | store-readers | 4 | C29 |
+| `quotes.per-value-granularity.one-of-three` | quotes | store-readers | 3 | C30 |
+| `quotes.per-value-granularity.two-of-three` | quotes | store-readers | 3 | C30 |
+| `quotes.per-value-granularity.first-bad` | quotes | store-readers | 3 | C30 |
+| `quotes.per-value-granularity.all-bad` | quotes | store-readers | 3 | C155 |
+| `quotes.refusal-report.one` | quotes | store-readers | 2 | C31 |
+| `quotes.refusal-report.two` | quotes | store-readers | 3 | C31 |
+| `quotes.refusal-report.reason-text` | quotes | store-readers | 3 | C31 |
+| `quotes.owner-conversation-exempt.owner-value` | quotes | store-readers | 2 | C32 |
+| `quotes.owner-conversation-exempt.conversation-value` | quotes | store-readers | 2 | C32 |
+| `quotes.owner-conversation-exempt.owner-words-quote-shaped` | quotes | store-readers | 3 | C32 |
+| `quotes.condition-span-unfindable.edited-wording` | quotes | store-readers | 3 | C33 |
+| `quotes.condition-span-unfindable.wrong-file` | quotes | store-readers | 3 | C33 |
+| `quotes.condition-span-unfindable.one-char-off` | quotes | store-readers | 4 | C33 |
+| `quotes.stored-verbatim.plain` | quotes | store-readers | 2 | C34 |
+| `quotes.stored-verbatim.padded-spaces` | quotes | store-readers | 4 | C34 |
+| `quotes.stored-verbatim.trailing-newline` | quotes | store-readers | 4 | C34 |
+| `quotes.never-reads-disk.etc-hosts` | quotes | store-readers | 4 | C35 |
+| `quotes.never-reads-disk.traversal` | quotes | store-readers | 4 | C35 |
+| `quotes.never-reads-disk.absolute-path` | quotes | store-readers | 5 | C35 |
+| `quotes.large-files.hundred-kb` | quotes | store-readers | 4 | C36 |
+| `quotes.large-files.one-mb` | quotes | store-readers | 5 | C36 |
+| `quotes.large-files.two-thousand-values` | quotes | store-readers | 5 | C36 |
+| `values.ids.variable-grammar.spaces-and-caps` | values | store-core | 2 | C37 |
+| `values.ids.variable-grammar.punctuation` | values | store-core | 3 | C37 |
+| `values.ids.variable-grammar.leading-digit` | values | store-core | 4 | C37 |
+| `values.ids.variable-grammar.unicode-letters` | values | store-core | 4 | C37 |
+| `values.ids.value-grammar.owner-values` | values | store-core | 2 | C38 |
+| `values.ids.value-grammar.tool-values` | values | store-core | 3 | C38 |
+| `values.ids.value-grammar.hostile-characters` | values | store-core | 4 | C38 |
+| `values.ids.stable.two-calls` | values | store-core | 2 | C39 |
+| `values.ids.stable.after-other-build` | values | store-core | 3 | C39 |
+| `values.ids.collisions.value-collision` | values | store-core | 3 | C40 |
+| `values.ids.collisions.variable-collision` | values | store-core | 3 | C40 |
+| `values.ids.collisions.three-way` | values | store-core | 4 | C40 |
+| `values.owner-adds-to-existing.appended` | values | store-readers | 1 | C41 |
+| `values.owner-adds-to-existing.others-unchanged` | values | store-readers | 3 | C41 |
+| `values.owner-adds-to-existing.order-kept` | values | store-readers | 3 | C41 |
+| `values.owner-value-already-present.same-id` | values | store-readers | 2 | C42 |
+| `values.owner-value-already-present.same-id-twice` | values | store-readers | 3 | C42 |
+| `values.hostile-names.constructor-variable` | values | store-core | 5 | C43 |
+| `values.hostile-names.to-string-variable` | values | store-core | 5 | C43 |
+| `values.hostile-names.has-own-property-variable` | values | store-core | 5 | C43 |
+| `values.hostile-names.proto-like-noun` | values | store-core | 5 | C43 |
+| `values.hostile-names.constructor-value` | values | store-core | 5 | C43 |
+| `values.large-variable.two-thousand-values` | values | store-core | 4 | C44 |
+| `values.large-variable.ten-thousand-values` | values | store-core | 5 | C44 |
+| `values.unapproved-not-planned.proposed-value` | values | store-core | 3 | C45 |
+| `values.unapproved-not-planned.proposed-variable` | values | store-core | 3 | C45 |
+| `values.unapproved-not-planned.proposed-value-in-a-pair` | values | store-core | 4 | C45 |
+| `values.unapproved-not-planned.approved-later` | values | store-core | 3 | C45 |
+| `values.unapproved-not-planned.approved-value-in-unapproved-variable` | values | store-core | 4 | C156 |
+| `values.fresh-objects.output-mutation-safe` | values | store-readers | 3 | C46 |
+| `values.fresh-objects.two-builds-independent` | values | store-readers | 3 | C46 |
+| `values.input-not-mutated.estate` | values | store-readers | 3 | C47 |
+| `values.input-not-mutated.conversations` | values | store-readers | 3 | C47 |
+| `values.input-not-mutated.owner` | values | store-readers | 3 | C47 |
+| `boundaries.greater-than.over` | boundaries | store-core | 1 | C48 |
+| `boundaries.greater-than.more-than` | boundaries | store-core | 1 | C48 |
+| `boundaries.greater-than.exceeds` | boundaries | store-core | 2 | C48 |
+| `boundaries.greater-than.greater-than` | boundaries | store-core | 2 | C48 |
+| `boundaries.greater-than.symbol` | boundaries | store-core | 3 | C48 |
+| `boundaries.at-least.at-least` | boundaries | store-core | 1 | C49 |
+| `boundaries.at-least.no-less-than` | boundaries | store-core | 2 | C49 |
+| `boundaries.at-least.or-more` | boundaries | store-core | 3 | C49 |
+| `boundaries.at-least.symbol` | boundaries | store-core | 3 | C49 |
+| `boundaries.less-than.under` | boundaries | store-core | 1 | C50 |
+| `boundaries.less-than.below` | boundaries | store-core | 1 | C50 |
+| `boundaries.less-than.fewer-than` | boundaries | store-core | 2 | C50 |
+| `boundaries.less-than.symbol` | boundaries | store-core | 3 | C50 |
+| `boundaries.at-most.at-most` | boundaries | store-core | 1 | C51 |
+| `boundaries.at-most.no-more-than` | boundaries | store-core | 2 | C51 |
+| `boundaries.at-most.or-fewer` | boundaries | store-core | 3 | C51 |
+| `boundaries.at-most.symbol` | boundaries | store-core | 3 | C51 |
+| `boundaries.equal.exactly` | boundaries | store-core | 1 | C52 |
+| `boundaries.equal.equals` | boundaries | store-core | 2 | C52 |
+| `boundaries.equal.symbol` | boundaries | store-core | 3 | C52 |
+| `boundaries.not-equal.not-equal-to` | boundaries | store-core | 2 | C53 |
+| `boundaries.not-equal.other-than` | boundaries | store-core | 3 | C53 |
+| `boundaries.not-equal.symbol` | boundaries | store-core | 3 | C53 |
+| `boundaries.range.between-and` | boundaries | store-core | 3 | C54 |
+| `boundaries.range.from-to` | boundaries | store-core | 3 | C54 |
+| `boundaries.range.negative-range` | boundaries | store-core | 5 | C54 |
+| `boundaries.decimal.half` | boundaries | store-core | 2 | C55 |
+| `boundaries.decimal.two-places` | boundaries | store-core | 2 | C55 |
+| `boundaries.decimal.whole-as-decimal` | boundaries | store-core | 3 | C55 |
+| `boundaries.decimal.tenth-float` | boundaries | store-core | 4 | C55 |
+| `boundaries.negative.minus-sign` | boundaries | store-core | 3 | C56 |
+| `boundaries.negative.negative-decimal` | boundaries | store-core | 4 | C56 |
+| `boundaries.zero.more-than-zero` | boundaries | store-core | 3 | C57 |
+| `boundaries.zero.at-most-zero` | boundaries | store-core | 4 | C57 |
+| `boundaries.thousands-separator.comma` | boundaries | store-core | 3 | C58 |
+| `boundaries.thousands-separator.several-groups` | boundaries | store-core | 3 | C58 |
+| `boundaries.thousands-separator.thin-space` | boundaries | store-core | 4 | C58 |
+| `boundaries.large-number.billion` | boundaries | store-core | 3 | C59 |
+| `boundaries.large-number.above-32-bits` | boundaries | store-core | 4 | C59 |
+| `boundaries.large-number.trillion` | boundaries | store-core | 4 | C59 |
+| `boundaries.units.euros` | boundaries | store-core | 1 | C60 |
+| `boundaries.units.percent` | boundaries | store-core | 2 | C60 |
+| `boundaries.units.minutes` | boundaries | store-core | 2 | C60 |
+| `boundaries.units.currency-prefix` | boundaries | store-core | 3 | C60 |
+| `boundaries.number-words.three` | boundaries | store-core | 3 | C61 |
+| `boundaries.number-words.twenty-five` | boundaries | store-core | 4 | C61 |
+| `boundaries.number-words.one-hundred` | boundaries | store-core | 5 | C61 |
+| `boundaries.merge-thresholds.far-apart` | boundaries | store-core | 3 | C62 |
+| `boundaries.merge-thresholds.adjacent-overlap` | boundaries | store-core | 4 | C62 |
+| `boundaries.merge-thresholds.same-threshold-two-comparators` | boundaries | store-core | 3 | C62 |
+| `boundaries.integer-samples.count-noun` | boundaries | store-core | 2 | C63 |
+| `boundaries.integer-samples.money` | boundaries | store-core | 2 | C63 |
+| `boundaries.integer-samples.percent` | boundaries | store-core | 3 | C63 |
+| `boundaries.cites-span.each-value-cites` | boundaries | store-core | 2 | C64 |
+| `boundaries.cites-span.quote-findable` | boundaries | store-core | 3 | C64 |
 | `impossible.rows-avoid-pairs.two-variables` | impossible-pairs | constraints | 1 | C65 |
 | `impossible.rows-avoid-pairs.five-variables` | impossible-pairs | constraints | 1 | C65 |
 | `impossible.rows-avoid-pairs.three-pairs` | impossible-pairs | constraints | 2 | C65 |
@@ -2282,55 +2283,55 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 | `scale.counter-big-plan.hundred-binary-t3` | scale | scale | 5 | C140 |
 | `scale.counter-big-plan.two-hundred-binary-t2` | scale | scale | 4 | C140 |
 | `scale.big-arity-axis.arity-two-hundred` | scale | scale | 4 | C141 |
-| `sources.file.provenance-shape.count-over-total` | sources | store | 2 | C158 |
-| `sources.file.provenance-shape.fractional-count` | sources | store | 2 | C159 |
-| `sources.file.provenance-shape.extra-key` | sources | store | 3 | C160 |
-| `sources.file.provenance-shape.uppercase-hash` | sources | store | 2 | C161 |
-| `sources.file.provenance-shape.zero-total` | sources | store | 2 | C162 |
-| `sources.file.provenance-shape.unreal-day` | sources | store | 3 | C163 |
-| `sources.file.provenance-shape.blank-words` | sources | store | 3 | C164 |
-| `sources.file.provenance-shape.ledger-shape` | sources | store | 3 | C165 |
-| `values.file.references.duplicate-value` | values | store | 1 | C166 |
-| `values.file.references.duplicate-variable-id` | values | store | 1 | C167 |
-| `values.file.references.ambiguous-axis-value` | values | store | 3 | C168 |
-| `values.file.references.repeated-channel` | values | store | 2 | C169 |
-| `values.file.references.repeated-stage` | values | store | 2 | C170 |
-| `values.file.references.repeated-deviation` | values | store | 3 | C171 |
-| `values.file.references.unknown-deviation-class` | values | store | 3 | C172 |
-| `values.file.references.unknown-when-variable` | values | store | 2 | C173 |
-| `values.file.references.unknown-unless-value` | values | store | 3 | C174 |
-| `values.file.references.unknown-constraint-variable` | values | store | 2 | C175 |
-| `values.file.references.unknown-constraint-value` | values | store | 2 | C176 |
-| `values.file.references.empty-constraint` | values | store | 1 | C177 |
-| `values.file.references.duplicate-constraint-reordered` | values | store | 4 | C178 |
-| `values.file.references.grid-empty` | values | store | 4 | C179 |
-| `boundaries.file.sides.strict-gt` | boundaries | store | 2 | C180 |
-| `boundaries.file.sides.strict-lt` | boundaries | store | 2 | C180 |
-| `boundaries.file.sides.inclusive-ge` | boundaries | store | 2 | C181 |
-| `boundaries.file.sides.inclusive-le` | boundaries | store | 2 | C181 |
-| `boundaries.file.sides.same-value-both-sides` | boundaries | store | 1 | C182 |
-| `boundaries.file.sides.unknown-edge` | boundaries | store | 2 | C183 |
-| `boundaries.file.sides.unknown-holds` | boundaries | store | 2 | C183 |
-| `boundaries.file.sides.limit-without-comparison` | boundaries | store | 3 | C184 |
+| `sources.file.provenance-shape.count-over-total` | sources | store-core | 2 | C158 |
+| `sources.file.provenance-shape.fractional-count` | sources | store-core | 2 | C159 |
+| `sources.file.provenance-shape.extra-key` | sources | store-core | 3 | C160 |
+| `sources.file.provenance-shape.uppercase-hash` | sources | store-core | 2 | C161 |
+| `sources.file.provenance-shape.zero-total` | sources | store-core | 2 | C162 |
+| `sources.file.provenance-shape.unreal-day` | sources | store-core | 3 | C163 |
+| `sources.file.provenance-shape.blank-words` | sources | store-core | 3 | C164 |
+| `sources.file.provenance-shape.ledger-shape` | sources | store-core | 3 | C165 |
+| `values.file.references.duplicate-value` | values | store-core | 1 | C166 |
+| `values.file.references.duplicate-variable-id` | values | store-core | 1 | C167 |
+| `values.file.references.ambiguous-axis-value` | values | store-core | 3 | C168 |
+| `values.file.references.repeated-channel` | values | store-core | 2 | C169 |
+| `values.file.references.repeated-stage` | values | store-core | 2 | C170 |
+| `values.file.references.repeated-deviation` | values | store-core | 3 | C171 |
+| `values.file.references.unknown-deviation-class` | values | store-core | 3 | C172 |
+| `values.file.references.unknown-when-variable` | values | store-core | 2 | C173 |
+| `values.file.references.unknown-unless-value` | values | store-core | 3 | C174 |
+| `values.file.references.unknown-constraint-variable` | values | store-core | 2 | C175 |
+| `values.file.references.unknown-constraint-value` | values | store-core | 2 | C176 |
+| `values.file.references.empty-constraint` | values | store-core | 1 | C177 |
+| `values.file.references.duplicate-constraint-reordered` | values | store-core | 4 | C178 |
+| `values.file.references.grid-empty` | values | store-core | 4 | C179 |
+| `boundaries.file.sides.strict-gt` | boundaries | store-core | 2 | C180 |
+| `boundaries.file.sides.strict-lt` | boundaries | store-core | 2 | C180 |
+| `boundaries.file.sides.inclusive-ge` | boundaries | store-core | 2 | C181 |
+| `boundaries.file.sides.inclusive-le` | boundaries | store-core | 2 | C181 |
+| `boundaries.file.sides.same-value-both-sides` | boundaries | store-core | 1 | C182 |
+| `boundaries.file.sides.unknown-edge` | boundaries | store-core | 2 | C183 |
+| `boundaries.file.sides.unknown-holds` | boundaries | store-core | 2 | C183 |
+| `boundaries.file.sides.limit-without-comparison` | boundaries | store-core | 3 | C184 |
 | `weights.file.validity.incomplete` | weights | constraints | 2 | C185 |
 | `weights.file.validity.all-zero` | weights | constraints | 2 | C186 |
 | `weights.file.validity.negative` | weights | constraints | 1 | C187 |
 | `weights.file.validity.nonfinite` | weights | constraints | 3 | C188 |
 | `weights.file.validity.fitted-without-source` | weights | constraints | 2 | C189 |
-| `quotes.verify.folded-forms.whitespace` | quotes | store | 2 | C190 |
-| `quotes.verify.folded-forms.typographic` | quotes | store | 3 | C191 |
-| `quotes.verify.folded-forms.unicode-composition` | quotes | store | 4 | C192 |
-| `quotes.verify.folded-forms.markdown-escape` | quotes | store | 3 | C193 |
-| `quotes.verify.folded-forms.invisible-characters` | quotes | store | 5 | C194 |
-| `quotes.verify.exact-forms.case-sensitive` | quotes | store | 2 | C147 |
-| `quotes.verify.exact-forms.punctuation-sensitive` | quotes | store | 3 | C147 |
-| `quotes.verify.not-found.inserted-word` | quotes | store | 1 | C148 |
-| `quotes.verify.not-found.changed-letter` | quotes | store | 2 | C148 |
-| `quotes.verify.not-found.swapped-words` | quotes | store | 3 | C148 |
-| `quotes.verify.not-found.changed-last-word` | quotes | store | 3 | C148 |
-| `quotes.verify.unreadable-file.missing-file` | quotes | store | 1 | C195 |
-| `quotes.verify.unreadable-file.once-per-file` | quotes | store | 4 | C149 |
-| `quotes.verify.unreadable-file.unreadable-and-not-found` | quotes | store | 3 | C196 |
+| `quotes.verify.folded-forms.whitespace` | quotes | store-readers | 2 | C190 |
+| `quotes.verify.folded-forms.typographic` | quotes | store-readers | 3 | C191 |
+| `quotes.verify.folded-forms.unicode-composition` | quotes | store-readers | 4 | C192 |
+| `quotes.verify.folded-forms.markdown-escape` | quotes | store-readers | 3 | C193 |
+| `quotes.verify.folded-forms.invisible-characters` | quotes | store-readers | 5 | C194 |
+| `quotes.verify.exact-forms.case-sensitive` | quotes | store-readers | 2 | C147 |
+| `quotes.verify.exact-forms.punctuation-sensitive` | quotes | store-readers | 3 | C147 |
+| `quotes.verify.not-found.inserted-word` | quotes | store-readers | 1 | C148 |
+| `quotes.verify.not-found.changed-letter` | quotes | store-readers | 2 | C148 |
+| `quotes.verify.not-found.swapped-words` | quotes | store-readers | 3 | C148 |
+| `quotes.verify.not-found.changed-last-word` | quotes | store-readers | 3 | C148 |
+| `quotes.verify.unreadable-file.missing-file` | quotes | store-readers | 1 | C195 |
+| `quotes.verify.unreadable-file.once-per-file` | quotes | store-readers | 4 | C149 |
+| `quotes.verify.unreadable-file.unreadable-and-not-found` | quotes | store-readers | 3 | C196 |
 | `budget.below-seed-count.zero-with-seeds` | budget-order | plan-order | 2 | C150 |
 | `budget.below-seed-count.one-below` | budget-order | plan-order | 3 | C150 |
 | `budget.below-seed-count.exactly-seeds` | budget-order | plan-order | 2 | C150 |
