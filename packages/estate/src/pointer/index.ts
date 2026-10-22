@@ -72,6 +72,7 @@ export {
   type SpanAnswer,
   SpanKind,
   setHash,
+  shownLabelDrops,
   type Window,
   type WindowUnit,
 } from './labels';
