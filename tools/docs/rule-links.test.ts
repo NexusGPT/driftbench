@@ -91,7 +91,18 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
         expect(step.code, `${argv.join(' ')}: ${step.err}`).toBe(0);
       }
       const generate = await cli(
-        ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'generated'],
+        [
+          'estate',
+          'generate',
+          '--map',
+          'approved.yaml',
+          '--plan',
+          'plan.yaml',
+          '--out',
+          'generated',
+          '--states',
+          'northwind/live/states/library.json',
+        ],
         dir,
       );
       expect(generate.err).toBe('');
