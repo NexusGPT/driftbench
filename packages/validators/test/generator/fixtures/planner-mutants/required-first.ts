@@ -42,8 +42,10 @@ export function requiredFirst(order: 'first' | 'last' = 'first', warn = true) {
       generated: numbered.length,
       cut: numbered.length - (rows.length - seeds.length),
       rows,
+      // The planner's own budget_drops_required (the planner may already give one) is replaced by this one, so
+      // the control and its faults do not depend on the planner's version.
       warnings: [
-        ...cut.warnings,
+        ...cut.warnings.filter((entry) => (entry.code as string) !== 'budget_drops_required'),
         ...(warn && dropped.length > 0 ? [warning as unknown as PlanV2['warnings'][number]] : []),
       ],
     };
