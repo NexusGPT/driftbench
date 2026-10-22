@@ -65,12 +65,16 @@ describe('the planner v2 family', () => {
     expect(lost.some((id) => id.startsWith(expected))).toBe(true);
   });
 
-  it('a planner that plans an omitted budget as zero loses each of the seven layers-agree items', async () => {
+  it('a planner that plans an omitted budget as zero loses every layers-agree item, the seven of version 2 among them', async () => {
     const module = fileURLToPath(
       new URL('./fixtures/planner-mutants/omitted-budget-is-zero.ts', import.meta.url),
     );
     const items = plannerItems(module).filter((item) => item.id.startsWith('planner.layers-agree.'));
-    expect(items).toHaveLength(7);
+    // The seven shapes of ladder version 2 keep their items; the shapes of version 3 add more.
+    const versionTwo = ['floor-only', 'one-variable-rule', 'rule-of-four', 'two-rules', 'constrained', 'weighted', 'wide'];
+    expect(items.map((item) => item.id)).toEqual(
+      expect.arrayContaining(versionTwo.map((shape) => `planner.layers-agree.${shape}`)),
+    );
     const out = await run(items, 1);
     expect(caught(out).sort()).toEqual(items.map((item) => item.id).sort());
   });
