@@ -296,6 +296,10 @@ export type Window = {
 export type Labelled = {
   units: string;
   label: string;
+  /** The first words of the unit the labeler meant, as it answered; `anchorUnits` turns them into `anchored`. */
+  anchor?: string;
+  /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
+  anchored?: number | null;
   target?: number;
   spans?: SpanInput[];
   links?: LinkAnswer[];
@@ -518,6 +522,34 @@ export function locateSpanText(
   if (first < 0) return { reason: 'the text is not in the unit' };
   if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
+}
+
+/**
+ * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
+ * it points, so the words never reach a cassette. The anchor is located as a span is (`locateSpanText`, on the text
+ * the labeler was shown, without regard to case), in every line of the window: `anchored` is 0 when it is in the
+ * first unit the entry names, the count of lines from that unit to the one line that holds it when the number
+ * slipped (-1 for the line before), or null when no line holds it, or several do and not the entry's own. An entry
+ * with no anchor, or an empty one, keeps none.
+ */
+export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
+  const lines = [
+    ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
+    ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
+  ];
+  return entries.map((entry) => {
+    const { anchor, ...rest } = entry;
+    const words = typeof anchor === 'string' ? flatten(anchor).text : '';
+    const first = expandUnits(entry.units)?.[0];
+    if (words === '' || first === undefined) return rest;
+    const holds = (text: string) => {
+      const found = locateSpanText(text, words);
+      return !('reason' in found) || found.reason === 'the text is found twice in the unit';
+    };
+    const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
+    const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
+    return { ...rest, anchored };
+  });
 }
 
 /**

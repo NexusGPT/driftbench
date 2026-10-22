@@ -1,0 +1,85 @@
+{
+  "note": "Fresh draws on the Mac, then a keyless replay of each cassette at the head named below. Spend is computed from the token counts of the scan at the docs rates (Haiku 0.10/0.50 per million, Jev 0.042 per million in).",
+  "draws": [
+    {
+      "estate": "examples/estates/fixture",
+      "cassette": "fixture.cassette.jsonl",
+      "cassetteSha256": "61b5df0568b0afe75986a48e4f1b4a682953e7d82afc3d0dc39d3702ad9a2460",
+      "usd": 0.0763,
+      "replay": {
+        "unlabeled": 1,
+        "atoms": 118,
+        "requestsSent": 0,
+        "gates": [
+          "gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice",
+          "gate.invoice-reconcile.read-references-currency-table-md-before",
+          "gate.invoice-reconcile.read-references-matching-rules-md-before",
+          "gate.standing.read-before-edit-it",
+          "gate.standing.read-claude-memory-memory-md-before",
+          "gate.standing.read-claude-skills-invoice-reconcile-references",
+          "gate.standing.read-git-status-before-commit-to",
+          "gate.weekly-report.read-templates-report-md-before-writing"
+        ],
+        "outOfStep": {
+          "units-missing": 1,
+          "anchor-slipped": 5
+        }
+      },
+      "unitsCoveredBySystem2Answers": {
+        "agent-rules": {
+          "units": 976,
+          "answers": 61
+        },
+        "document-roles": {
+          "units": 96,
+          "answers": 26
+        },
+        "gate-forms": {
+          "units": 729,
+          "answers": 60
+        },
+        "registry-roles": {
+          "units": 25,
+          "answers": 5
+        }
+      }
+    },
+    {
+      "estate": "examples/estates/reader-cases",
+      "cassette": "reader-cases.cassette.jsonl",
+      "cassetteSha256": "5722c8e028ae8220fea7589810d54d249b6f644f554773d988620abf8d1032d2",
+      "usd": 0.0423,
+      "replay": {
+        "unlabeled": 0,
+        "atoms": 62,
+        "requestsSent": 0,
+        "gates": [
+          "gate.parcel-claims.read-references-supplier-languages-md-before",
+          "gate.parcel-claims.read-scripts-track-sh-carrier-number",
+          "gate.standing.read-claude-memory-memory-md-before"
+        ],
+        "outOfStep": {
+          "units-missing": 2
+        }
+      },
+      "unitsCoveredBySystem2Answers": {
+        "agent-rules": {
+          "units": 370,
+          "answers": 45
+        },
+        "document-roles": {
+          "units": 71,
+          "answers": 20
+        },
+        "gate-forms": {
+          "units": 479,
+          "answers": 51
+        },
+        "registry-roles": {
+          "units": 59,
+          "answers": 15
+        }
+      }
+    }
+  ]
+}

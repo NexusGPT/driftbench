@@ -89,11 +89,12 @@ export function defaultVector(options: string[], label: string): Record<string, 
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
-  'Every unit must appear once. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
+  'An entry with a label other than none also gives "anchor": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. ' +
+  'Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
   'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
   'A target must be a unit that can be labelled, never a line marked not labelable. ' +
-  'Never copy text from the units.';
+  'Never copy text from the units, except an anchor and the words of a span.';
 /** Added to the system text only for a set with a label that asks for a target, as the reader's TARGET_RULE does. */
 export const TARGET_RULE = 'A label that asks for a target always names one.';
 const examples = (label: LabelSetDef['labels'][number]) =>
