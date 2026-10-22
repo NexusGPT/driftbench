@@ -69,7 +69,7 @@ driftbench estate plan approve plan.yaml --all
 ## 2. Blocks that carry the rule
 
 ```
-driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
+driftbench estate generate --map approved.yaml --plan plan.yaml --out generated --states northwind/live/states/library.json
 ```
 
 ```
