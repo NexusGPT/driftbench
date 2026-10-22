@@ -513,7 +513,25 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
           message: `${name}() was called after ${[...new Set(moved)].join(', ')} returned a result that has changed since (${describeRun(plan as TwinPlan)}): a result must stay as it was returned`,
         });
     }
-    const { moved: _moved, ...answer } = a as Outcome & { moved?: string[] };
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if ((each as { invalid?: boolean }).invalid)
+        aliased.push({
+          at: tape.length,
+          message: `${name}() returned a result that is a Proxy or holds one (${describeRun(plan as TwinPlan)}): an invalid result, since a Proxy runs the product's own code on every read`,
+        });
+    }
+    const {
+      moved: _moved,
+      invalid: _invalid,
+      ...answer
+    } = a as Outcome & {
+      moved?: string[];
+      invalid?: boolean;
+    };
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
     if (!('dead' in b)) entry.twin = b;

@@ -59,4 +59,21 @@ describe('aliased results under the frame', () => {
     expect(frame.aliasSince(0)).toContain('has changed since');
     expect(frame.aliasSince(later)).toBeUndefined();
   });
+
+  it.each(['proxied', 'holding'] as const)(
+    '%s: a result that is or holds a Proxy is an invalid result',
+    (name) => {
+      const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+      open.push(frame as Frame<unknown>);
+      frame.product[name]([1, 2, 3]);
+      expect(frame.aliasSince(0)).toContain('Proxy');
+    },
+  );
+
+  it('reports nothing for a Proxy result when the option is off', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: false, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.proxied([1, 2, 3]);
+    expect(frame.aliasSince(0)).toBeUndefined();
+  });
 });

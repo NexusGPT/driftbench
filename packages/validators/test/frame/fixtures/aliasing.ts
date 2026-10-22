@@ -10,6 +10,13 @@ export const shared = (xs: readonly number[]) => {
   return reused;
 };
 
+/** A Proxy over a correct result, and a plain result that holds one. */
+export const proxied = (xs: readonly number[]) => new Proxy({ total: xs.reduce((a, b) => a + b, 0) }, {});
+export const holding = (xs: readonly number[]) => ({
+  total: xs.reduce((a, b) => a + b, 0),
+  inner: new Proxy({}, {}),
+});
+
 let earlier: { total: number } | undefined;
 /** A new object on every call, and the earlier one overwritten with the new total. */
 export const overwrite = (xs: readonly number[]) => {

@@ -64,6 +64,15 @@ describe('the shifted bootstrap items under the frame', () => {
     },
   );
 
+  // A result that is a Proxy, or holds one, is an invalid result: the watch cannot read it without running the
+  // product's own code, and the product could answer it otherwise on later reads.
+  it.each(['proxy', 'proxy-nested'] as const)(
+    'fail a package that returns a result with a Proxy (%s)',
+    async (kind) => {
+      expect((await outcomes(kind)).filter((each) => each.pass)).toEqual([]);
+    },
+  );
+
   // A result padded with an unused large field must not switch the watch off (review of PR 986, probe 39702920607).
   it.each(['shared-padded', 'overwrite-padded'] as const)(
     'fail a package that pads its results with a field of 200,000 characters (%s)',

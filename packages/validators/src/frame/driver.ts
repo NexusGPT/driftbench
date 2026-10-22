@@ -96,6 +96,7 @@ function «decode»(«x») {
 const TWIN = String.raw`
 import { pathToFileURL as «toUrl» } from 'node:url';
 import { createHash as «createHash» } from 'node:crypto';
+import { types as «utilTypes» } from 'node:util';
 // What the aliasing watch uses, taken before the product loads and called only through these references, never
 // through a property the product can reach: a product that patches the hash, the serialiser, Reflect or the
 // iteration methods cannot blind the watch (review of PR 986, codex run 39709007729).
@@ -119,6 +120,7 @@ const «dateTime» = Date.prototype.getTime;
 const «seenHas» = WeakSet.prototype.has;
 const «seenAdd» = WeakSet.prototype.add;
 const «SeenSet» = WeakSet;
+const «isProxy» = «utilTypes».isProxy;
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -170,6 +172,7 @@ if («setup».uptimeShift > 0) {
 // held when it was returned. A later call that changed one of them, or filled the same object again, is reported in
 // its answer; only that finding crosses to the validator, whose item never sees the live object. The digest walks
 // the value with the captured references above, and builds its text with string concatenation only.
+let «sawProxy» = false;
 const «fingerprint» = («root») => {
   const «hash» = «call»(«hashStart», undefined, ['sha256']);
   let «chunk» = '';
@@ -182,6 +185,12 @@ const «fingerprint» = («root») => {
   };
   const «seen» = new «SeenSet»();
   const «walk» = («value», «level») => {
+    // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
+    if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
+      «sawProxy» = true;
+      «put»('P;');
+      return;
+    }
     switch (typeof «value») {
       case 'undefined': «put»('u;'); return;
       case 'boolean': «put»(«value» ? 't;' : 'f;'); return;
@@ -290,6 +299,7 @@ if («setup».command) {
       const «ret» = «encode»(«result»);
       const «moved» = [];
       let «movedCount» = 0;
+      let «invalid» = false;
       if («setup».aliasing) {
         const «kept» = «stored» < 16 ? «stored» : 16;
         for (let «i» = 0; «i» < «kept»; «i» += 1) {
@@ -298,13 +308,18 @@ if («setup».command) {
           // A change is reported by the one call after which it is seen, not again by the calls that follow.
           if («now» !== «each».digest) { «moved»[«movedCount»] = «each».call; «movedCount» += 1; «each».digest = «now»; }
         }
-        if («result» !== null && typeof «result» === 'object') {
+        if («result» !== null && (typeof «result» === 'object' || typeof «result» === 'function')) {
           // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
-          «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «fingerprint»(«result») };
-          «stored» += 1;
+          «sawProxy» = false;
+          const «digest» = «fingerprint»(«result»);
+          if («sawProxy») «invalid» = true;
+          else if (typeof «result» === 'object') {
+            «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «digest» };
+            «stored» += 1;
+          }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}) });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }
