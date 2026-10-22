@@ -80,7 +80,7 @@ describe('minimality protects the sole holder of each declared obligation', asyn
     expect(group).toEqual([]);
   }, 600_000);
 
-  it('protects one twin per declared axis: a channel twin and a persona twin', async () => {
+  it('protects the walk and one twin per declared axis: a channel twin and a persona twin', async () => {
     const [group] = await unprotectedOf(
       [
         cover,
@@ -103,14 +103,9 @@ describe('minimality protects the sole holder of each declared obligation', asyn
       ],
       [[cover.spec.id, 'twin-channel', 'twin-channel-again', 'twin-undeclared', 'twin-same']],
     );
-    // Two specs on one channel are repeats of each other, so neither the written walk nor its twin is protected.
-    expect(group).toEqual([
-      cover.spec.id,
-      'twin-channel',
-      'twin-channel-again',
-      'twin-undeclared',
-      'twin-same',
-    ]);
+    // The written walk is in both channel pairs, so removing it breaks both: it is kept. Each channel twin is a repeat
+    // of the other, whichever is listed first.
+    expect(group).toEqual(['twin-channel', 'twin-channel-again', 'twin-undeclared', 'twin-same']);
   }, 600_000);
 
   it('gives the same unprotected members whatever order the suite lists its specs in', async () => {
@@ -124,13 +119,12 @@ describe('minimality protects the sole holder of each declared obligation', asyn
     const [forward] = await unprotectedOf(suite, [ids]);
     const [backward] = await unprotectedOf([...suite].reverse(), [[...ids].reverse()]);
     expect([...(backward ?? [])].sort()).toEqual([...(forward ?? [])].sort());
-    expect(forward).toContain('twin-channel-again');
-    expect(forward).toContain('twin-channel');
+    expect(forward).toEqual(['twin-channel', 'twin-channel-again', 'twin-undeclared']);
   }, 600_000);
 
   it('protects the later-listed member of a pair when the earlier one is a repeat of another', async () => {
-    // The channel pair is cover + twin-channel; the third spec repeats the twin. Listed last or first, the repeats are
-    // the same two specs: the written walk is still the only spec on its channel and stays protected.
+    // The written walk is in every channel pair, so it stays protected; the two twins are repeats of each other.
+    // Listed in either order, the unprotected members are the same two specs.
     for (const order of [
       ['twin-channel', 'twin-channel-again'],
       ['twin-channel-again', 'twin-channel'],
