@@ -1,6 +1,7 @@
 import type { ItemContext } from '../../bank/item';
 import type { FileBoundary } from '../../interface';
-import { checkCondition, PATH, readSpans } from '../conditions';
+import { drawnCase, PATH, readSpans } from '../conditions';
+import { drawCondition } from '../draws';
 import { defect, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
 import { must, type Stem, show } from '../kit';
 import { numeric } from '../spans';
@@ -38,12 +39,6 @@ function edgeCase(c: Cmp, which: 'holds' | 'fails' | 'third') {
     else validateOk(ctx, b.store);
   };
 }
-
-const roles =
-  (subject: string, text: string, limit: number, c: Cmp, integer = true) =>
-  (ctx: ItemContext): void => {
-    checkCondition(readSpans(ctx, [numeric(text, subject, limit, c)]), limit, c, integer);
-  };
 
 export const BOUNDARIES_STEMS: readonly Stem[] = [
   {
@@ -291,37 +286,24 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
     cause:
       'a numeric condition yields three samples below, at and above its limit, with holds, fails and edge on the sides its comparison says',
     cases: [
-      ['more-than', 2, roles('the delay', 'the delay is more than 2 days', 2, 'gt')],
-      ['at-least', 2, roles('the refund', 'the refund is at least 5 euros', 5, 'ge')],
-      ['under', 2, roles('the draft', 'the draft is under 120 words', 120, 'lt')],
-      ['at-most', 2, roles('the reply', 'the reply holds at most 1 question', 1, 'le')],
-      [
-        'whole-limit-gives-whole-samples-gt',
-        3,
-        roles('the queue', 'the queue is more than 7 tickets', 7, 'gt', true),
-      ],
-      [
-        'whole-limit-gives-whole-samples-lt',
-        3,
-        roles('the queue', 'the queue is under 3 tickets', 3, 'lt', true),
-      ],
-      ['decimal-limit', 3, roles('the rating', 'the rating is more than 2.5 stars', 2.5, 'gt', false)],
-      ['zero-limit', 3, roles('the balance', 'the balance is under 0 euros', 0, 'lt', true)],
-      [
-        'negative-limit',
-        3,
-        roles('the temperature', 'the temperature is at most -3 degrees', -3, 'le', true),
-      ],
-      ['large-limit', 3, roles('the order', 'the order is at least 1000000 euros', 1_000_000, 'ge', true)],
+      ['more-than', 2, drawnCase('gt', 'plain')],
+      ['at-least', 2, drawnCase('ge', 'plain')],
+      ['under', 2, drawnCase('lt', 'plain')],
+      ['at-most', 2, drawnCase('le', 'plain')],
+      ['whole-limit-gives-whole-samples-gt', 3, drawnCase('gt', 'plain', { range: [3, 40] })],
+      ['whole-limit-gives-whole-samples-lt', 3, drawnCase('lt', 'plain', { range: [3, 40] })],
+      ['decimal-limit', 3, drawnCase('gt', 'decimal')],
+      ['zero-limit', 3, drawnCase('lt', 'plain', { limit: 0 })],
+      ['negative-limit', 3, drawnCase('le', 'negative-whole')],
+      ['large-limit', 3, drawnCase('ge', 'large')],
       [
         'edge-is-always-a-third-value',
         3,
         (ctx) => {
-          for (const [text, limit, c] of [
-            ['the delay is at least 4 days', 4, 'ge'],
-            ['the delay is at most 4 days', 4, 'le'],
-          ] as const) {
-            const r = readSpans(ctx, [numeric(text, 'the delay', limit, c)]);
+          const limit = ctx.rng.int(2, 60);
+          for (const c of ['ge', 'le'] as const) {
+            const d = drawCondition(ctx.rng, c, 'plain', { limit });
+            const r = readSpans(ctx, [numeric(d.text, d.subject, d.limit, d.cmp)]);
             const b = r.variable.boundaries?.find((x) => x.limit === limit && x.comparison === c);
             must(
               !!b && new Set([b.holds, b.fails, b.edge]).size === 3,
@@ -334,7 +316,8 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
         'samples-carry-the-span-and-its-file',
         3,
         (ctx) => {
-          const text = numeric('the delay is more than 2 days', 'the delay', 2, 'gt');
+          const d = drawCondition(ctx.rng, 'gt', 'plain');
+          const text = numeric(d.text, d.subject, d.limit, d.cmp);
           const r = readSpans(ctx, [text]);
           for (const s of r.samples) {
             const q = s.value.provenance?.find((p) => p.kind === 'quote');
@@ -350,15 +333,14 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
         'two-spans-of-one-quantity-share-samples-without-duplicates',
         4,
         (ctx) => {
-          const r = readSpans(ctx, [
-            numeric('the delay is more than 2 days', 'the delay', 2, 'gt'),
-            numeric('the delay is at least 2 days', 'the delay', 2, 'ge'),
-          ]);
+          const a = drawCondition(ctx.rng, 'gt', 'plain');
+          const b = drawCondition(ctx.rng, 'ge', 'plain', { limit: a.limit, subject: a.subject, unit: a.unit });
+          const r = readSpans(ctx, [numeric(a.text, a.subject, a.limit, a.cmp), numeric(b.text, b.subject, b.limit, b.cmp)]);
           const nums = r.samples.map((s) => s.sample);
           must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
           must(
-            nums.includes(2) && nums.some((n) => n < 2) && nums.some((n) => n > 2),
-            () => `samples ${show(nums)} lack a case below, at or above 2`,
+            nums.includes(a.limit) && nums.some((n) => n < a.limit) && nums.some((n) => n > a.limit),
+            () => `samples ${show(nums)} lack a case below, at or above ${a.limit}`,
           );
           must(
             r.store.variables.filter((v) => v.values.some((x) => typeof x.sample === 'number')).length === 1,
@@ -370,12 +352,16 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
         'two-limits-of-one-quantity-keep-all-samples',
         4,
         (ctx) => {
-          const r = readSpans(ctx, [
-            numeric('the delay is more than 2 days', 'the delay', 2, 'gt'),
-            numeric('the delay is more than 6 days', 'the delay', 6, 'gt'),
-          ]);
-          const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
-          for (const limit of [2, 6]) {
+          const low = ctx.rng.int(2, 30);
+          const a = drawCondition(ctx.rng, 'gt', 'plain', { limit: low });
+          const b = drawCondition(ctx.rng, 'gt', 'plain', {
+            limit: low + ctx.rng.int(3, 20),
+            subject: a.subject,
+            unit: a.unit,
+          });
+          const r = readSpans(ctx, [numeric(a.text, a.subject, a.limit, a.cmp), numeric(b.text, b.subject, b.limit, b.cmp)]);
+          const nums = r.samples.map((s) => s.sample).sort((x, y) => x - y);
+          for (const limit of [a.limit, b.limit]) {
             must(
               nums.some((n) => n < limit) && nums.includes(limit) && nums.some((n) => n > limit),
               () => `samples ${show(nums)} lack a case below, at or above ${limit}`,

@@ -1,7 +1,8 @@
 import type { ItemContext } from '../../bank/item';
 import { clone } from '../../bank/util';
 import type { FileProvenance, Row } from '../../interface';
-import { checkCondition, PATH, readSpans } from '../conditions';
+import { drawnCase, PATH, readSpans } from '../conditions';
+import { drawBoolean, drawCondition, drawEquality, drawMembership, drawRange, policyFile } from '../draws';
 import { baseFile, defect, errorsOf, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
 import { callBuild, callValidate, must, type Stem, show } from '../kit';
 import { conversationsOf, discover, estateFor, OWNER_DATE, pairOf, type ToolSpec, varOf } from '../scene';
@@ -55,12 +56,6 @@ const structEntry = (extra: Record<string, unknown> = {}) => ({
   hash: HASH,
   ...extra,
 });
-
-const cond =
-  (subject: string, text: string, limit: number, c: Cmp, integer = true) =>
-  (ctx: ItemContext): void => {
-    checkCondition(readSpans(ctx, [numeric(text, subject, limit, c)]), limit, c, integer);
-  };
 
 const TOOLS = (): ToolSpec[] => [
   { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta', 'gamma'] },
@@ -302,24 +297,16 @@ export const SOURCES_STEMS: readonly Stem[] = [
     cause:
       'the reader keeps the numeric quantity of a limit written with signs, separators, number words, currency signs and units',
     cases: [
-      ['thousands-separator', 3, cond('the order', 'the order is more than 1,000 euros', 1000, 'gt')],
-      ['number-word-two', 3, cond('the delay', 'the delay is more than two days', 2, 'gt')],
-      ['number-word-twelve', 3, cond('the batch', 'the batch holds at least twelve items', 12, 'ge')],
-      ['number-word-compound', 4, cond('the basket', 'the basket is under twenty-five items', 25, 'lt')],
-      ['dollar-sign', 3, cond('the refund', 'the refund is more than $20', 20, 'gt')],
-      ['euro-sign', 3, cond('the refund', 'the refund is at most €35', 35, 'le')],
-      ['percent-sign', 3, cond('the discount', 'the discount is under 15%', 15, 'lt')],
-      [
-        'decimal-with-thousands',
-        4,
-        cond('the invoice', 'the invoice is more than 1,250.50 euros', 1250.5, 'gt', false),
-      ],
-      ['leading-zero-decimal', 3, cond('the rating', 'the rating is at least 0.5 stars', 0.5, 'ge', false)],
-      [
-        'negative-limit-with-a-unit',
-        4,
-        cond('the margin', 'the margin is under -2.5 percent', -2.5, 'lt', false),
-      ],
+      ['thousands-separator', 3, drawnCase('gt', 'thousands')],
+      ['number-word-two', 3, drawnCase('gt', 'words', { range: [2, 9] })],
+      ['number-word-twelve', 3, drawnCase('ge', 'words', { range: [11, 19] })],
+      ['number-word-compound', 4, drawnCase('lt', 'words', { range: [21, 99], compound: true })],
+      ['dollar-sign', 3, drawnCase('gt', 'dollar')],
+      ['euro-sign', 3, drawnCase('le', 'euro')],
+      ['percent-sign', 3, drawnCase('lt', 'percent')],
+      ['decimal-with-thousands', 4, drawnCase('gt', 'decimal-thousands')],
+      ['leading-zero-decimal', 3, drawnCase('ge', 'leading-zero')],
+      ['negative-limit-with-a-unit', 4, drawnCase('lt', 'negative')],
     ],
   },
   {
@@ -334,17 +321,13 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'equality-keeps-all-three-cases',
         4,
         (ctx) => {
+          const d = drawEquality(ctx.rng, 'equal');
           const r = readSpans(ctx, [
-            declareSpan('the delay is exactly 2 days', {
-              kind: 'numeric',
-              subject: 'the delay',
-              limit: 2,
-              flavour: 'equal',
-            }),
+            declareSpan(d.text, { kind: 'numeric', subject: d.subject, limit: d.limit, flavour: 'equal' }),
           ]);
           const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
           must(
-            nums.length >= 3 && nums.some((n) => n < 2) && nums.includes(2) && nums.some((n) => n > 2),
+            nums.length >= 3 && nums.some((n) => n < d.limit) && nums.includes(d.limit) && nums.some((n) => n > d.limit),
             () => `samples ${show(nums)}; an equality keeps a case below, at and above its limit`,
           );
           for (const b of r.variable.boundaries ?? [])
@@ -358,17 +341,13 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'inequality-keeps-all-three-cases',
         4,
         (ctx) => {
+          const d = drawEquality(ctx.rng, 'unequal');
           const r = readSpans(ctx, [
-            declareSpan('the delay is other than 2 days', {
-              kind: 'numeric',
-              subject: 'the delay',
-              limit: 2,
-              flavour: 'unequal',
-            }),
+            declareSpan(d.text, { kind: 'numeric', subject: d.subject, limit: d.limit, flavour: 'unequal' }),
           ]);
           const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
           must(
-            nums.length >= 3 && nums.some((n) => n < 2) && nums.includes(2) && nums.some((n) => n > 2),
+            nums.length >= 3 && nums.some((n) => n < d.limit) && nums.includes(d.limit) && nums.some((n) => n > d.limit),
             () => `samples ${show(nums)}; an inequality keeps a case below, at and above its limit`,
           );
           for (const b of r.variable.boundaries ?? [])
@@ -382,23 +361,19 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'range-has-five-cases',
         5,
         (ctx) => {
+          const d = drawRange(ctx.rng);
           const r = readSpans(ctx, [
-            declareSpan('the delay is between 2 and 6 days', {
-              kind: 'range',
-              subject: 'the delay',
-              lo: 2,
-              hi: 6,
-            }),
+            declareSpan(d.text, { kind: 'range', subject: d.subject, lo: d.lo, hi: d.hi }),
           ]);
           const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
           must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
           must(
-            nums.some((n) => n < 2) &&
-              nums.includes(2) &&
-              nums.some((n) => n > 2 && n < 6) &&
-              nums.includes(6) &&
-              nums.some((n) => n > 6),
-            () => `samples ${show(nums)} lack one of: below 2, at 2, strictly inside, at 6, above 6`,
+            nums.some((n) => n < d.lo) &&
+              nums.includes(d.lo) &&
+              nums.some((n) => n > d.lo && n < d.hi) &&
+              nums.includes(d.hi) &&
+              nums.some((n) => n > d.hi),
+            () => `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
           );
         },
       ],
@@ -406,14 +381,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'boolean-has-true-and-false',
         5,
         (ctx) => {
-          const text = declareSpan('the customer is verified', {
-            kind: 'boolean',
-            subject: 'the customer is',
-            word: 'verified',
-          });
+          const d = drawBoolean(ctx.rng);
+          const text = declareSpan(d.text, { kind: 'boolean', subject: d.subject, word: d.word });
           const store = callBuild(ctx, {
             estate: {
-              files: { [PATH]: `Escalate when ${text}.` },
+              files: { [PATH]: policyFile(ctx.rng, [text]) },
               rules: [{ id: 'rule.flag', source: PATH, conditions: [{ text }], tools: [] }],
             },
           });
@@ -436,14 +408,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'membership-has-an-in-list-and-an-out-of-list-sample',
         5,
         (ctx) => {
-          const text = declareSpan('the country is one of FR, BE, NL', {
-            kind: 'member',
-            subject: 'the country',
-            list: ['FR', 'BE', 'NL'],
-          });
+          const d = drawMembership(ctx.rng);
+          const text = declareSpan(d.text, { kind: 'member', subject: d.subject, list: d.list });
           const store = callBuild(ctx, {
             estate: {
-              files: { [PATH]: `Escalate when ${text}.` },
+              files: { [PATH]: policyFile(ctx.rng, [text]) },
               rules: [{ id: 'rule.country', source: PATH, conditions: [{ text }], tools: [] }],
             },
           });
@@ -458,12 +427,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           const samples = (v?.values ?? []).map((y) => String(y.sample));
           must(
-            samples.some((s) => ['FR', 'BE', 'NL'].includes(s)),
-            () => `samples ${show(samples)} lack a country of the list`,
+            samples.some((s) => d.list.includes(s)),
+            () => `samples ${show(samples)} lack a member of the list ${show(d.list)}`,
           );
           must(
-            samples.some((s) => !['FR', 'BE', 'NL'].includes(s)),
-            () => `samples ${show(samples)} lack a country outside the list`,
+            samples.some((s) => !d.list.includes(s)),
+            () => `samples ${show(samples)} lack a value outside the list ${show(d.list)}`,
           );
           must((v?.boundaries ?? []).length === 0, () => 'a membership condition has no numeric boundary');
         },
@@ -482,13 +451,13 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'different-quantities-stay-distinct',
         3,
         (ctx) => {
-          const texts = [
-            numeric('the delay is more than 2 days', 'the delay', 2, 'gt'),
-            numeric('the refund is more than 50 euros', 'the refund', 50, 'gt'),
-          ];
+          const first = drawCondition(ctx.rng, 'gt', 'plain');
+          let second = drawCondition(ctx.rng, 'gt', 'plain');
+          while (second.subject === first.subject) second = drawCondition(ctx.rng, 'gt', 'plain');
+          const texts = [first, second].map((d) => numeric(d.text, d.subject, d.limit, d.cmp));
           const store = callBuild(ctx, {
             estate: {
-              files: { [PATH]: texts.map((t) => `Escalate when ${t}.`).join('\n') },
+              files: { [PATH]: policyFile(ctx.rng, texts) },
               rules: texts.map((t, i) => ({
                 id: `rule.${i}`,
                 source: PATH,
