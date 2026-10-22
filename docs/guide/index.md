@@ -38,6 +38,12 @@ This gives you the command `driftbench`. Every command in the guide starts with 
 | Find where a failure comes from, change a rule, and score the stored runs again | [Diagnose and fix](diagnose-and-fix.md) |
 | After an edit, rerun only the tests it can change, and carry the rest | [Rerun less](rerun-less.md) |
 | Check that driftbench itself reports the truth | [Prove the evaluator](prove-the-evaluator.md) |
+| Build a spec one field at a time, from the smallest valid file to a rich one | [Spec fields](spec-fields.md) |
+| See each kind of check pass and fail on a tiny agent, and read how a failing check names itself | [Checks](checks.md) |
+| Turn a table of rows into many specs, keep them as a versioned dataset, and plan the rows from a variable store | [Variables and datasets](variables-and-datasets.md) |
+| Know every command family, find help, pass options and read exit codes | [The command line](command-line.md) |
+| Set how driftbench reads your agent's folder, key by key, and check the file | [Estate settings](estate-settings.md) |
+| Plan, run, read and resume a campaign, with repeats, budgets and retries | [Campaigns](campaigns.md) |
 
 The reference pages below hold the detail of each area. Each guide part above links to them.
 
