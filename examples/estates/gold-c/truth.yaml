@@ -43,26 +43,6 @@ limits:
     comparison: le
     unit_of: "lines"
     governs: gddesiqxeq
-  - unit: stdn426hrb
-    limit: 7
-    comparison: ge
-    unit_of: "days before arrival"
-    governs: stdn426hrb
-  - unit: pwhvt63u6x
-    limit: 7
-    comparison: lt
-    unit_of: "days before arrival"
-    governs: stdn426hrb
-  - unit: jf7t74tcmj
-    limit: 14
-    comparison: gt
-    unit_of: "days before arrival"
-    governs: jf7t74tcmj
-  - unit: xvthpowdfq
-    limit: 7
-    comparison: lt
-    unit_of: "days before arrival"
-    governs: xvthpowdfq
   - unit: ctdoaphem4
     limit: 1
     comparison: le
@@ -77,37 +57,17 @@ limits:
     limit: 10
     comparison: ge
     unit_of: "minutes inactive"
-    governs: lewolyumgj
+    governs: q4nz5hws7s
   - unit: gvzbjuydpj
     limit: 2
     comparison: ge
     unit_of: "nights"
-    governs: gvzbjuydpj
+    governs: 5swlxrtj45
   - unit: vzbkdjqwmn
     limit: 1
     comparison: le
     unit_of: "emojis per message"
     governs: vzbkdjqwmn
-  - unit: zncwiv7d5p
-    limit: 10
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: hpnkcnxqfv
-    limit: 5
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: ttnyasihpa
-    limit: 30
-    comparison: le
-    unit_of: "minutes"
-    governs: a3dchta7kr
-  - unit: 27jkqliewi
-    limit: 1
-    comparison: le
-    unit_of: "hours"
-    governs: a3dchta7kr
   - unit: hzuafhnrvp
     limit: 2
     comparison: gt
