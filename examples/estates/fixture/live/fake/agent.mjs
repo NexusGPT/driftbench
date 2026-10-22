@@ -426,7 +426,9 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
    * the copy declares nothing, so its act is not done, or its call is no longer refused. Nothing reads a word of prose.
    */
   const helper = (name, parent) => {
-    const acts = dispatch ? helperPlan(dispatch, name, cwd) : { requires: [], bans: [] };
+    const acts = dispatch
+      ? helperPlan(dispatch, name, cwd, setOffBy.holds ?? [])
+      : { requires: [], bans: [] };
     const run = (command) =>
       spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
     const shown = (ran) => ({
