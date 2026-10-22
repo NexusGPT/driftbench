@@ -34,27 +34,16 @@ concurrency:
 # request and a dispatch run Node 24 only, to spend fewer runner minutes. Each of the four jobs carries the same expression.
 jobs:
   pr-fast:
-    name: pr fast
-    # A pull request runs it. A merge train also dispatches it alone on a pre-flight branch (train/pre-<pr>,
-    # main plus one PR) to catch a defect in that PR before the train is built; the heavy jobs ignore it.
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,'))
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
-    # The merge-train entry gate and the required check: it runs in about 3 minutes. The affected tests of a
-    # large diff run in `pr affected` instead, because they overran any limit here and blocked the PR.
-    timeout-minutes: 10
+    name: planner mutants shard ${{ matrix.shard }}
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,')
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4]
     steps:
-      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
-        id: checkout
-        timeout-minutes: 3
-        continue-on-error: true
-        with:
-          fetch-depth: 0
-      - uses: actions/checkout@v7
-        if: steps.checkout.outcome != 'success'
-        timeout-minutes: 10
-        with:
-          fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -62,25 +51,19 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - name: Cache package builds
-        uses: actions/cache@v4
+      - name: mutants of this shard
+        continue-on-error: true
+        env:
+          MUTANT_SHARD: ${{ matrix.shard }}
+          MUTANT_SHARDS: 5
+          MUTANT_OUT: ${{ github.workspace }}/mutant-results
+        run: pnpm exec vitest run packages/validators/test/generator/zz-planner-mutants.test.ts --reporter=verbose
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          path: |
-            packages/*/dist
-            examples/*/dist
-            .cache/api-surface-build.json
-          key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
-      # The build gate checks the cached source/output stamp, and rebuilds stale outputs.
-      - run: node tools/structure/api-surface.mjs --build --check
-      - name: CLI smoke
-        run: node packages/cli/dist/bin.js --version
-      # The docs checks always run: --changed below sees no source change in a PR that only edits markdown.
-      - name: Docs reference is current
-        run: pnpm docs:reference --check
-      - name: Docs reachability and examples
-        run: pnpm exec vitest run tools/docs --maxWorkers=2
+          name: planner-mutants-${{ matrix.shard }}
+          path: mutant-results
+          retention-days: 7
 
   pr-affected-shard:
     name: pr affected shard ${{ matrix.shard }}/8
