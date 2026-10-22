@@ -217,23 +217,36 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
   return undefined;
 }
 
-/** `Tool` or `Tool(pattern)`: the tool and the prefix of a pattern, a trailing `:*` or `*` dropped. */
-function parseRule(rule: string): { tool: string; prefix: string | undefined } | undefined {
+/** `Tool` or `Tool(pattern)`, the pattern with a `:*` suffix written as the trailing ` *` it stands for. */
+function parseRule(rule: string): { tool: string; pattern: string | undefined } | undefined {
   const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule.trim());
   if (!match) return undefined;
-  return { tool: match[1] as string, prefix: match[2]?.replace(/:\*$/, '').replace(/\*$/, '') };
+  return { tool: match[1] as string, pattern: match[2]?.replace(/:\*$/, ' *') };
 }
 
 /**
- * Whether the permission rule `allow` covers every call the rule `declared` covers: the same tool, and either no
- * pattern on `allow` (the whole tool) or a pattern on both where the declared prefix starts with the allowed one.
+ * Whether the permission rule `allow` certainly covers every call the rule `declared` covers, by the matching of
+ * Claude Code (https://code.claude.com/docs/en/permissions, "Wildcard patterns"): `*` is any sequence of
+ * characters; a rule with no `*` matches the exact command; a trailing ` *` (a space, then the only wildcard)
+ * matches the command followed by anything and also the bare command; `:*` at the end is that same trailing ` *`.
+ * So an allow rule covers a declared one only when it is the same tool and
+ * - has no pattern (the whole tool), or
+ * - has the same pattern, or
+ * - is `P *` with no other `*`, and the declared pattern is `P` or starts with `P ` before any wildcard.
+ * Anything else (an exact rule against a longer command, a `*` inside the pattern, `python` against `python3`) is
+ * not certain, and the mutant stays required.
  */
 function ruleCovers(allow: string, declared: string): boolean {
   const a = parseRule(allow);
   const d = parseRule(declared);
   if (!a || !d || a.tool !== d.tool) return false;
-  if (a.prefix === undefined) return true;
-  return d.prefix !== undefined && d.prefix.startsWith(a.prefix);
+  if (a.pattern === undefined) return true;
+  if (d.pattern === undefined) return false;
+  if (a.pattern === d.pattern) return true;
+  if (!a.pattern.endsWith(' *') || a.pattern.slice(0, -2).includes('*')) return false;
+  const base = a.pattern.slice(0, -2);
+  const literal = d.pattern.split('*')[0] as string;
+  return d.pattern === base || literal.startsWith(`${base} `);
 }
 
 /**
