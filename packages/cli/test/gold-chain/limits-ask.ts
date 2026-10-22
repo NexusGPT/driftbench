@@ -60,7 +60,10 @@ export function contextOf(text: string, line: number, scopes?: string): string {
   }
   if (run.length > 0) tables.push(run.join('\n'));
   const path = stack.filter((heading) => heading !== undefined && heading !== '').join(' > ');
-  const scoped = scopes === undefined || scopes.trim() === '' ? '' : `\nUNITS THAT SCOPE IT, linked by the map:\n${scopes.trim()}`;
+  const scoped =
+    scopes === undefined || scopes.trim() === ''
+      ? ''
+      : `\nUNITS THAT SCOPE IT, linked by the map:\n${scopes.trim()}`;
   return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}${scoped}`;
 }
 

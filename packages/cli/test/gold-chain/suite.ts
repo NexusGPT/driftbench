@@ -29,8 +29,8 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { appliedScopes } from './scopes';
 import { ASK_MODEL, answerFor, contextOf, limitsOfAnswer, loadAsks } from './limits-ask';
+import { appliedScopes } from './scopes';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step

@@ -23,8 +23,8 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
-import { appliedScopes } from './scopes';
 import { ASK_MODEL, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
+import { appliedScopes } from './scopes';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
@@ -73,7 +73,11 @@ async function record(estate: EstateName, key: string) {
     const asks = new Map<string, { quote: string; context: string }>();
     for (const atom of scan.map.atoms) {
       if (atom.kind !== 'instruction' || atom.fields?.extraction !== 'pointer') continue;
-      const context = contextOf(texts.get(atom.provenance.file) ?? '', atom.provenance.startLine, atom.situation);
+      const context = contextOf(
+        texts.get(atom.provenance.file) ?? '',
+        atom.provenance.startLine,
+        atom.situation,
+      );
       asks.set(`${atom.provenance.quote}\n${context}`, { quote: atom.provenance.quote, context });
     }
     const quotes = [...asks.values()];
