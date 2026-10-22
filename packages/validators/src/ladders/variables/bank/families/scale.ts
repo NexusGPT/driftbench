@@ -76,11 +76,7 @@ function verify(
   }
   const bound = Math.ceil((limits.factor ?? BOUND) * greedyBound(scan.required, 1 / maxChance)) + 1;
   const cap = Math.min(bound, limits.maxRows ?? bound);
-  must(
-    rows.length <= cap,
-    () =>
-      `${label}: ${rows.length} rows for ${scan.required} required tuples; a covering array needs at most ${cap}`,
-  );
+  check(rows.length <= cap, () => ({ rule: 'a covering array stays within the row bound of the page', input: { label, requiredTuples: scan.required }, got: { rows: rows.length }, expected: { atMost: cap } }));
   must(
     run.ms <= limits.budgetMs,
     () => `${label}: planning took ${Math.round(run.ms)} ms of processor time, over ${limits.budgetMs} ms`,
@@ -262,7 +258,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       30,
     )) {
       const hit = variablesCiting(store, texts[k] as string);
-      must(hit.length === 1, () => `the span "${texts[k]}" is cited by ${hit.length} variables, expected 1`);
+      check(hit.length === 1, () => ({ rule: 'a span is cited by one variable', input: { span: texts[k] }, got: { variables: hit.length }, expected: { variables: 1 } }));
     }
     const budget = spans <= 200 ? 5000 : spans <= 2000 ? 10_000 : 30_000;
     must(
@@ -306,10 +302,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const { value: result, ms } = cpuMs(() =>
       callCoverage(ctx, store, asRows, counterGroups(space, [group])),
     );
-    must(
-      toBig(result.allowed, 'allowed') === want,
-      () => `allowed ${show(result.allowed)}, expected ${want}`,
-    );
+    check(toBig(result.allowed, 'allowed') === want, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(result.allowed) }, expected: { allowed: String(want) } }));
     const covered = BigInt(scan.required - scan.missing);
     must(
       toBig(result.covered, 'covered') === covered,

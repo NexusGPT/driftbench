@@ -310,11 +310,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       });
       const reused = planJson(planOf(ctx, store, clone(c.options)));
       const fresh = planJson(planOf(ctx, clone(store), clone(c.options)));
-      must(
-        reused === fresh,
-        () =>
-          `a store edited in place and planned again gives another plan than a copy of it: the plan keeps a cache keyed by the object (${show(reused, 80)} then ${show(fresh, 80)})`,
-      );
+      check(reused === fresh, () => ({ rule: 'a store edited in place and planned again gives the plan of a copy of it', got: { reused: show(reused, 80), copy: show(fresh, 80) } }));
     } else {
       const options: PlanOptions = { ...clone(c.options), budget: 6 };
       planOf(ctx, clone(c.store), options);

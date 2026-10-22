@@ -19,17 +19,9 @@ const rowKey = (r: Plan['rows'][number]) => stableStringify({ id: r.id, kind: r.
 function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void {
   const want = full.rows.slice(0, Math.min(b, full.rows.length)).map(rowKey);
   const got = budgeted.rows.map(rowKey);
-  must(
-    got.length === want.length,
-    () =>
-      `${label}: budget ${b} gives ${got.length} rows, expected ${want.length} (the plan without a budget has ${full.rows.length})`,
-  );
+  check(got.length === want.length, () => ({ rule: 'a budget keeps a prefix of the plan, counting the seeds', input: { label, budget: b }, got: { rows: got.length }, expected: { rows: want.length, uncut: full.rows.length } }));
   for (let i = 0; i < want.length; i += 1) {
-    must(
-      got[i] === want[i],
-      () =>
-        `${label}: with budget ${b}, row ${i} is ${got[i]?.slice(0, 120)}; the plan without a budget has ${want[i]?.slice(0, 120)} there`,
-    );
+    check(got[i] === want[i], () => ({ rule: 'a budget keeps a prefix of the plan without a budget', input: { label, budget: b, row: i }, got: { row: got[i]?.slice(0, 120) }, expected: { row: want[i]?.slice(0, 120) } }));
   }
 }
 
@@ -112,19 +104,13 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       case 'every-budget-length':
         for (let b = 0; b <= total + 2; b += 1) {
           const got = run(b).rows.length;
-          must(
-            got === Math.min(b, total),
-            () => `${label}: budget ${b} gives ${got} rows, expected ${Math.min(b, total)}`,
-          );
+          check(got === Math.min(b, total), () => ({ rule: 'a budget gives as many rows as the budget, or the whole plan', input: { label, budget: b, plan: total }, got: { rows: got }, expected: { rows: Math.min(b, total) } }));
         }
         break;
       case 'seeds-plus-budget-length':
         for (let b = seeds.length; b <= total + 2; b += 1) {
           const plan = run(b);
-          must(
-            plan.rows.length === Math.min(b, total),
-            () => `${label}: budget ${b} gives ${plan.rows.length} rows, expected ${Math.min(b, total)}`,
-          );
+          check(plan.rows.length === Math.min(b, total), () => ({ rule: 'a budget gives as many rows as the budget, or the whole plan', input: { label, budget: b, plan: total }, got: { rows: plan.rows.length }, expected: { rows: Math.min(b, total) } }));
           must(
             plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'),
             () => `${label}: with budget ${b} the seeds do not lead the plan`,
@@ -133,10 +119,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         break;
       default: {
         const empty = planOf(ctx, st, { seed: ctx.seed, budget: 0 });
-        must(
-          empty.rows.length === 0,
-          () => `a budget of 0 with no seeds gives ${empty.rows.length} rows, expected none`,
-        );
+        check(empty.rows.length === 0, () => ({ rule: 'a budget of 0 with no seeds gives an empty plan', got: { rows: empty.rows.length } }));
       }
     }
   },
@@ -209,15 +192,9 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const bad: unknown =
       variant === 'negative' ? -1 : variant === 'nan' ? Number.NaN : variant === 'fraction' ? 1.5 : '10';
     const error = planError(ctx, toStore(space), { seed: ctx.seed, budget: bad as number });
-    must(
-      !!error,
-      () => `plan accepted the budget ${show(bad)}; it should throw a RangeError that names the budget`,
-    );
+    check(!!error, () => ({ rule: 'plan throws for a budget the page refuses', input: { budget: show(bad) }, got: 'no error', expected: { error: 'RangeError naming the budget' } }));
     const e = error as Error;
-    must(
-      e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'),
-      () => `plan threw ${e.name}: ${e.message}; expected a RangeError`,
-    );
+    check(e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'), () => ({ rule: 'the error of a refused budget is a RangeError', got: { name: e.name, message: e.message } }));
     must(
       e.message.toLowerCase().includes('budget'),
       () => `the error "${e.message}" does not name the budget`,

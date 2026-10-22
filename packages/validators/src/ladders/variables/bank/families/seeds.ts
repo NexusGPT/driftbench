@@ -353,10 +353,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, oracle, plan, { seeds, noCoverage: true });
     planIsSound(facts);
     seeds.forEach((s, i) => {
-      must(
-        plan.rows[i]?.values !== s,
-        () => `plan row ${i} is the caller's seed object; a plan row must be a copy`,
-      );
+      check(plan.rows[i]?.values !== s, () => ({ rule: 'a plan row is a copy of its seed, not the seed object', input: { row: i } }));
     });
     if (variant === 'later-mutation-safe') {
       const first = plan.rows[0]?.values as Row;

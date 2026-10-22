@@ -171,10 +171,7 @@ export function checkCounts(store: StoreDoc, base: Base, counts: number[][], obs
         );
         return;
       }
-      must(
-        prov.length === 1,
-        () => `value ${id} of ${v.id} carries ${prov.length} conversations provenance entries, expected 1`,
-      );
+      check(prov.length === 1, () => ({ rule: 'a value seen in conversations carries one conversations provenance entry', input: { value: id, variable: v.id }, got: { entries: prov.length }, expected: { entries: 1 } }));
       const p = prov[0] as Extract<Provenance, { kind: 'conversations' }>;
       must(
         p.count === planted && p.total === observed[i],
@@ -206,11 +203,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         `the condition "${span.text}" is a plain, findable span but the store refuses ${show(store.refused)}`,
     );
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-    must(
-      v.values.length === 3,
-      () =>
-        `the numeric condition "${span.text}" gives ${v.values.length} values, expected 3 (two sides and the boundary)`,
-    );
+    check(v.values.length === 3, () => ({ rule: 'a numeric condition gives its two sides and the boundary as values', input: { span: span.text }, got: { values: v.values.length }, expected: { values: 3 } }));
   },
 
   'sources.estate.boolean-condition': (variant, ctx) => {
@@ -224,20 +217,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       ]),
     });
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-    must(
-      v.values.length === 2,
-      () => `the boolean condition "${span.text}" gives ${v.values.length} values, expected 2`,
-    );
+    check(v.values.length === 2, () => ({ rule: 'a boolean condition gives two values', input: { span: span.text }, got: { values: v.values.length }, expected: { values: 2 } }));
     const samples = v.values.map((x) => x.sample);
-    must(
-      samples.includes(true) && samples.includes(false) && samples.every((s) => typeof s === 'boolean'),
-      () =>
-        `the boolean condition "${span.text}" gives samples ${show(samples)}, expected the booleans true and false`,
-    );
-    must(
-      citing(store, span.text).length === 2,
-      () => `each of the two values of "${span.text}" should cite the span`,
-    );
+    check(samples.includes(true) && samples.includes(false) && samples.every((s) => typeof s === 'boolean'), () => ({ rule: 'a boolean condition has the samples true and false', input: { span: span.text }, got: { samples: show(samples) } }));
+    check(citing(store, span.text).length === 2, () => ({ rule: 'each value of a boolean condition cites the span', input: { span: span.text }, got: { citing: citing(store, span.text).length } }));
   },
 
   'sources.estate.membership-condition': (variant, ctx) => {
@@ -252,10 +235,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     });
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
     const samples = v.values.map((x) => x.sample);
-    must(
-      samples.every((s) => typeof s === 'string'),
-      () => `the membership condition "${span.text}" gives samples ${show(samples)}, expected strings`,
-    );
+    check(samples.every((s) => typeof s === 'string'), () => ({ rule: 'a membership condition has string samples', input: { span: span.text }, got: { samples: show(samples) } }));
     must(
       samples.some((s) => span.members.includes(s as string)),
       () =>
@@ -266,15 +246,8 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       () =>
         `no value of "${span.text}" has a sample outside the list ${show(span.members)}: samples ${show(samples)}`,
     );
-    must(
-      v.values.length >= 2 && v.values.length <= span.members.length + 1,
-      () =>
-        `"${span.text}" gives ${v.values.length} values, expected between 2 and ${span.members.length + 1}`,
-    );
-    must(
-      citing(store, span.text).length === v.values.length,
-      () => `every value of "${span.text}" should cite the span`,
-    );
+    check(v.values.length >= 2 && v.values.length <= span.members.length + 1, () => ({ rule: 'a membership condition gives an in-list value, an out-of-list value and at most one per member', input: { span: span.text }, got: { values: v.values.length }, expected: { between: [2, span.members.length + 1] } }));
+    check(citing(store, span.text).length === v.values.length, () => ({ rule: 'every value of a membership condition cites the span', input: { span: span.text }, got: { citing: citing(store, span.text).length, values: v.values.length } }));
   },
 
   'sources.estate.no-condition-no-variable': (variant, ctx) => {
@@ -336,12 +309,9 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
           `"${s.text}" and "${spans[0]?.text}" name the same quantity "${quantity.noun}" but sit in different variables (${hit.id}, ${v.id})`,
       );
       const cited = citing(store, s.text).length;
-      must(cited === 3, () => `"${s.text}" is cited by ${cited} values, expected 3`);
+      check(cited === 3, () => ({ rule: 'a span is cited by each of the three values it gives', input: { span: s.text }, got: { cited }, expected: { cited: 3 } }));
     }
-    must(
-      v.values.length === 3 * count,
-      () => `the merged variable ${v.id} holds ${v.values.length} values, expected ${3 * count}`,
-    );
+    check(v.values.length === 3 * count, () => ({ rule: 'spans naming one quantity merge their values into one variable', input: { variable: v.id, spans: count }, got: { values: v.values.length }, expected: { values: 3 * count } }));
     const samples = v.values.map((x) => x.sample);
     must(
       new Set(samples).size === samples.length,
@@ -379,11 +349,8 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         `"${spans[0]?.text}" and "${spans[1]?.text}" name different quantities but share variable ${vars[0]?.id}`,
     );
     for (const v of vars)
-      must(v.values.length === 3, () => `variable ${v.id} holds ${v.values.length} values, expected 3`);
-    must(
-      store.variables.length === 2,
-      () => `the store holds ${store.variables.length} variables, expected 2`,
-    );
+      check(v.values.length === 3, () => ({ rule: 'a quantity gives three values', input: { variable: v.id }, got: { values: v.values.length }, expected: { values: 3 } }));
+    check(store.variables.length === 2, () => ({ rule: 'different quantities stay different variables', got: { variables: store.variables.length }, expected: { variables: 2 } }));
   },
 
   'sources.estate.rule-own-variables': (variant, ctx) => {
@@ -425,11 +392,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const files: Record<string, string> = { 'CLAUDE.md': fileOf(rng, claude, 5) };
     if (toolLines.length > 0) files['TOOLS.md'] = toolsFile(rng, toolLines);
     const store = build(ctx, { estate: estateOf(files, rules) });
-    must(
-      store.rules.length === rules.length,
-      () =>
-        `the store lists ${store.rules.length} rules, expected ${rules.length}: ${show(store.rules.map((r) => r.id))}`,
-    );
+    check(store.rules.length === rules.length, () => ({ rule: 'the store lists every rule of the estate', got: { rules: store.rules.map((r) => r.id) }, expected: { rules: rules.length } }));
     for (const r of rules) {
       const want = new Set<string>();
       for (const c of r.conditions) {
@@ -446,11 +409,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       const got = store.rules.find((x) => x.id === r.id);
       must(!!got, () => `the store lists no rule ${r.id}: ${show(store.rules)}`);
       const have = new Set((got as NonNullable<typeof got>).variables);
-      must(
-        have.size === want.size && [...want].every((x) => have.has(x)),
-        () =>
-          `rule ${r.id} lists the variables ${show([...have])}, expected ${show([...want])} (those its condition spans and tool evidence name)`,
-      );
+      check(have.size === want.size && [...want].every((x) => have.has(x)), () => ({ rule: 'a rule lists the variables its condition spans and tool evidence name', input: { rule: r.id }, got: { variables: [...have] }, expected: { variables: [...want] } }));
     }
   },
 
@@ -470,10 +429,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         `no single variable holds the ${n} values cited by the quotes of ${t.spec.tool} ${t.spec.field}: ${show(store.variables.map((v) => v.id))}`,
     );
     const { variable } = found as NonNullable<typeof found>;
-    must(
-      variable.values.length === n,
-      () => `variable ${variable.id} holds ${variable.values.length} values, expected ${n}`,
-    );
+    check(variable.values.length === n, () => ({ rule: 'a variable holds the values its source lists', input: { variable: variable.id }, got: { values: variable.values.length }, expected: { values: n } }));
     for (const v of t.spec.values) {
       const value = variable.values.find((x) =>
         (x.provenance ?? []).some((p) => p.kind === 'quote' && p.quote === v.quote),
@@ -481,10 +437,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       const prov = (value?.provenance ?? []).find((p) => p.kind === 'quote' && p.quote === v.quote) as
         | Extract<Provenance, { kind: 'quote' }>
         | undefined;
-      must(
-        prov?.path === 'TOOLS.md',
-        () => `the quote of value ${v.id} should cite the source path TOOLS.md, it cites ${show(prov?.path)}`,
-      );
+      check(prov?.path === 'TOOLS.md', () => ({ rule: 'the quote of a tool value cites the path of its file', input: { value: v.id }, got: { path: prov?.path }, expected: { path: 'TOOLS.md' } }));
     }
   },
 
@@ -563,10 +516,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         `the value ${novel} was seen in ${seenNovel} of ${n} sessions but ${variable.id} holds only ${show(variable.values.map((v) => v.id))}`,
     );
     const prov = convOf(added as StoreValue);
-    must(
-      prov.length === 1 && prov[0]?.count === seenNovel && prov[0]?.total === n,
-      () => `the new value ${novel} should carry seen ${seenNovel} of ${n}, it carries ${show(prov)}`,
-    );
+    check(prov.length === 1 && prov[0]?.count === seenNovel && prov[0]?.total === n, () => ({ rule: 'a new value from conversations carries how often it was seen', input: { value: novel, sessions: n }, got: { provenance: show(prov) }, expected: { seen: seenNovel } }));
     for (const id of bv.ids) must(!!valueById(variable, id), () => `the old value ${id} is gone`);
     must(
       (added as StoreValue).approved === false,
@@ -574,7 +524,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         `the new value ${novel} came from conversations, so it is a proposal (approved false); it carries approved ${show((added as StoreValue).approved)}`,
     );
     for (const id of bv.ids) {
-      must(valueById(variable, id)?.approved !== false, () => `the old value ${id} should keep its approval`);
+      check(valueById(variable, id)?.approved !== false, () => ({ rule: 'an old value keeps its approval when conversations add a new one', input: { value: id } }));
     }
   },
 
@@ -675,16 +625,9 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
           `the owner value ${a.value} is not on ${variable.id}: ${show(variable.values.map((v) => v.id))}`,
       );
       const prov = provOfKind(value as StoreValue, 'owner');
-      must(
-        prov.length === 1 && prov[0]?.words === a.words && prov[0]?.date === OWNER_DATE,
-        () =>
-          `the owner value ${a.value} should carry the owner's words, it carries ${show(value?.provenance)}`,
-      );
+      check(prov.length === 1 && prov[0]?.words === a.words && prov[0]?.date === OWNER_DATE, () => ({ rule: "an owner value carries the owner's words and day", input: { value: a.value }, got: { provenance: show(value?.provenance) } }));
     }
-    must(
-      variable.values.length === bv.ids.length + k,
-      () => `${variable.id} holds ${variable.values.length} values, expected ${bv.ids.length + k}`,
-    );
+    check(variable.values.length === bv.ids.length + k, () => ({ rule: 'owner values join the values of an existing variable', input: { variable: variable.id }, got: { values: variable.values.length }, expected: { values: bv.ids.length + k } }));
   },
 
   'sources.owner.impossible-pair': (variant, ctx) => {
@@ -699,25 +642,13 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       estate: base.estate,
       owner: { impossible: [{ a: first, b: second, words, date: OWNER_DATE }] },
     });
-    must(
-      store.impossible.length === 1,
-      () =>
-        `the store holds ${store.impossible.length} impossible pairs, expected 1: ${show(store.impossible)}`,
-    );
+    check(store.impossible.length === 1, () => ({ rule: 'an owner pair gives one impossible pair', got: { pairs: store.impossible } }));
     const p = store.impossible[0] as StoreDoc['impossible'][number];
     const same = (x: typeof a, y: { variable: string; value: string }) =>
       x.variable === y.variable && x.value === y.value;
-    must(
-      (same(a, p.a) && same(b, p.b)) || (same(a, p.b) && same(b, p.a)),
-      () => `the stored pair ${show([p.a, p.b])} is not the owner's pair ${show([a, b])}`,
-    );
+    check((same(a, p.a) && same(b, p.b)) || (same(a, p.b) && same(b, p.a)), () => ({ rule: "the stored pair is the owner's pair", got: { stored: show([p.a, p.b]) }, expected: { pair: show([a, b]) } }));
     const owner = (p.provenance ?? []).filter((x) => x.kind === 'owner');
-    must(
-      owner.length === 1 &&
-        (owner[0] as { words: string; date: string }).words === words &&
-        (owner[0] as { date: string }).date === OWNER_DATE,
-      () => `the pair should carry the owner's words, it carries ${show(p.provenance)}`,
-    );
+    check(owner.length === 1 && (owner[0] as { words: string; date: string }).words === words && (owner[0] as { date: string }).date === OWNER_DATE, () => ({ rule: "an owner pair carries the owner's words and day", got: { provenance: show(p.provenance) } }));
   },
 
   'sources.owner.weight': (variant, ctx) => {
@@ -749,11 +680,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       const prov = provOfKind(value as StoreValue, 'owner').filter(
         (p) => p.words === e.words && p.date === OWNER_DATE,
       );
-      must(
-        prov.length === 1,
-        () =>
-          `value ${e.value} should carry the owner's words for its weight, it carries ${show(value?.provenance)}`,
-      );
+      check(prov.length === 1, () => ({ rule: "an owner weight carries the owner's words", input: { value: e.value }, got: { provenance: show(value?.provenance) } }));
     }
   },
 
@@ -799,21 +726,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     if (variant === 'day-kept') {
       must(!!added, () => `the owner value latecase is not on ${variable.id}: ${show(store.refused)}`);
       const prov = provOfKind(added as StoreValue, 'owner');
-      must(
-        prov.length === 1 && prov[0]?.date === day,
-        () => `the day ${day} should be stored as given, it is stored as ${show(prov)}`,
-      );
+      check(prov.length === 1 && prov[0]?.date === day, () => ({ rule: 'a real day is stored as given', input: { day }, got: { provenance: show(prov) } }));
     } else {
-      must(
-        !added,
-        () =>
-          `the owner entry with the day ${show(day)} and words ${show(words)} should be refused, but the value was added: ${show(added)}`,
-      );
-      must(
-        store.refused.length >= 1 &&
-          store.refused.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''),
-        () => `the refusal list ${show(store.refused)} should name the entry with a reason`,
-      );
+      check(!added, () => ({ rule: 'an owner entry with a day that does not exist is refused', input: { day: show(day), words: show(words) }, got: { added: show(added) } }));
+      check(store.refused.length >= 1 && store.refused.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''), () => ({ rule: 'a refused owner entry is named with a reason', got: { refusals: store.refused } }));
       must(
         variable.values.length === bv.ids.length,
         () => `the refused entry changed ${variable.id}: ${show(variable.values.map((x) => x.id))}`,
@@ -878,7 +794,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       const b = build(ctx, { estate: estateOf({ 'CLAUDE.md': file }, [...rules].reverse()) });
       for (const span of spans) {
         const variable = exactlyOne(variablesCiting(a, span.text), `variables citing ${span.text}`);
-        must(variable.values.length === 3, `the condition ${span.text} must produce three values`);
+        check(variable.values.length === 3, () => ({ rule: 'a numeric condition produces three values', input: { span: span.text }, got: { values: variable.values.length } }));
       }
       same(a, b, 'the rules in reverse order');
     } else if (variant === 'sessions-permuted') {
@@ -954,10 +870,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         store.rules.length,
         store.refused.length,
       ];
-      must(
-        sizes.every((s) => s === 0),
-        () => `buildStore(${what}) should return an empty store, it returns ${show(store)}`,
-      );
+      check(sizes.every((s) => s === 0), () => ({ rule: 'buildStore of nothing is an empty store', input: { sources: what }, got: { store: show(store) } }));
     }
   },
 };

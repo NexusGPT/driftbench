@@ -207,11 +207,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
         impossible: [{ a: good, b: bad, date: OWNER_DATE, words: 'the owner says these never meet' }],
       },
     });
-    must(
-      store.impossible.length === 0,
-      () =>
-        `the pair names ${show(bad)}, which the store lacks, but the store keeps it: ${show(store.impossible)}`,
-    );
+    check(store.impossible.length === 0, () => ({ rule: 'a pair that names a variable or value the store lacks is refused', input: { pair: show(bad) }, got: { kept: show(store.impossible) } }));
     const named = refusalsMentioning(
       store,
       bad.variable === 'nosuchvariable' ? 'nosuchvariable' : 'nosuchvalue',
