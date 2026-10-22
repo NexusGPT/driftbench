@@ -322,11 +322,11 @@ export class TerminalSubsumption {
     });
   }
 
-  /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class. */
+  /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class (said how, not part of it). */
   private turnOf(block: Spec['blocks'][number] | undefined): unknown {
     const when = block?.when;
     if (when === undefined) return undefined;
-    if ('injection' in when) return { injection: when.injection };
+    if ('injection' in when) return { injection: when.injection.class };
     if ('burst' in when) return { burst: when.burst.length };
     return 'user';
   }
@@ -343,7 +343,6 @@ export class TerminalSubsumption {
       state: canonicalGiven(spec, index).state,
       from,
       turn: this.turnOf(block),
-      given: block?.given,
       expect: machine,
       criteria: this.criteriaOf(spec, block),
     });

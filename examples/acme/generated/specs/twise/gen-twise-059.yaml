@@ -80,19 +80,6 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
-  - id: b3-address-to-address
-    when:
-      user: The address is 21 Willow Court, Acmeville.
-    expect:
-      stage: address
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 21 Willow Court, Acmeville
-          input_closed: true
-      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
@@ -137,16 +124,14 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b3-address-to-address
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-address
-          coverage_result: not-in-map
-          stage: address
-        phrase:
-          dimension: stage_transition
-          value: address-to-address
+    reduced_ends:
+      from_blocks: 3
+      to_blocks: 2
+      duplicates:
+        - block: b3-address-to-address
+          duplicate_of:
+            spec: gen-twise-046
+            block: b3-address-to-address
   links:
     - block: b1-D6_instruction_in_data
       to:
@@ -191,38 +176,6 @@ metadata:
           coverage_result: not-in-map
           flow: new-home
           stage_transition: needs-to-address
-          stage: address
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-address-to-address
-      to:
-        kind: rule
-        rule: stage_transition=address-to-address
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-address-to-address
-      to:
-        kind: rule
-        rule: coverage_result=not-in-map
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-address-to-address
-      to:
-        kind: plan_row
-        row: gen-twise-059
-        values:
-          behaviour: B-005
-          channel: chat
-          user_type: new-customer
-          coverage_result: not-in-map
-          flow: new-home
-          stage_transition: address-to-address
           stage: address
       relation: derived_from
       status: declared

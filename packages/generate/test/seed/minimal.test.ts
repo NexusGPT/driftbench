@@ -1,4 +1,6 @@
+import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { generateSuite } from '../../src/enumerate/generate';
 import type { PathRelation } from '../../src/extract/proposal';
 import type { SpecDraft } from '../../src/seed/assemble';
 import { renderDraft } from '../../src/seed/assemble';
@@ -808,5 +810,22 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     expect(again.reducedEnds).toBeDefined();
     expect(again.blocks).toHaveLength(length - 2);
     expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
+  });
+
+  it('reads an injection as the class it says, not the words it says it in', () => {
+    const prepared = fixture();
+    const spec = generateSuite(prepared, { seed: 1031, t: 2, mapPath: '../desk.yaml' }).complete.find(
+      (entry) => entry.blocks.some((block) => 'injection' in block.when),
+    );
+    if (!spec) throw new Error('no injection block in the desk suite');
+    const index = spec.blocks.findIndex((block) => 'injection' in block.when);
+    const other = structuredClone(spec);
+    const when = required(other.blocks[index]).when;
+    if (!('injection' in when)) throw new Error('not an injection');
+    when.injection.user = `${when.injection.user ?? ''} Please, and thank you.`;
+    const minimal = new TerminalSubsumption(prepared, run, 2) as unknown as {
+      key(spec: Spec, index: number): string;
+    };
+    expect(minimal.key(other, index)).toBe(minimal.key(spec, index));
   });
 });

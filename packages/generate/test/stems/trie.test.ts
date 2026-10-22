@@ -90,8 +90,8 @@ describe('the stem finder', () => {
     expect(safe.saved).toBeLessThanOrEqual(all.saved);
     expect({ blocks: all.rows.length, all: all.saved, withoutEndState: safe.saved }).toMatchInlineSnapshot(`
       {
-        "all": 119,
-        "blocks": 1709,
+        "all": 110,
+        "blocks": 1703,
         "withoutEndState": 15,
       }
     `);
