@@ -741,10 +741,24 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           row.readable.path === plan.file && row.readable.window === window && row.readable.set === set.set,
       ) ??
       rows[0];
+    // Every run's record must agree with the request on every field but the run itself.
+    const records = hit
+      ? runsOf(ctx.arm).flatMap((run) => {
+          const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
+          return found ? [{ record: found.readable, expected: { ...want, run } }] : [];
+        })
+      : [];
     const differs = near
-      ? [...new Set([...Object.keys(want), ...Object.keys(near.readable)])].filter(
-          (k) => want[k] !== near.readable[k],
-        )
+      ? [
+          ...new Set(
+            (records.length > 0 ? records : [{ record: near.readable, expected: want }]).flatMap(
+              ({ record, expected }) =>
+                [...new Set([...Object.keys(expected), ...Object.keys(record)])].filter(
+                  (k) => expected[k] !== record[k],
+                ),
+            ),
+          ),
+        ]
       : [];
     if (!hit || differs.length) {
       const fields = differs.length ? differs.join(', ') : 'file, window';
