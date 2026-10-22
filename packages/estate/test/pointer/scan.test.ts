@@ -529,6 +529,66 @@ describe('a labeler that answers several times', () => {
   });
 });
 
+describe('runs that split between labels of one atom kind', () => {
+  const KINDS = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        atom: { kind: instruction, polarity: obligation }
+      - name: ban
+        description: A unit that tells the skipper what never to do.
+        atom: { kind: instruction, polarity: prohibition }
+      - name: voice
+        description: A unit about how the skipper words a reply.
+        atom: { kind: register }
+      - name: remark
+        description: A unit that only says how the quay is.
+      - name: aside
+        description: A unit that only tells a story about the quay.
+`;
+  /** Five runs; run n labels every unit of every window `labels[n - 1]`. */
+  const byRun = (labels: string[]) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        return [{ units: `1-${window.units.length}`, label: labels[call - 1] as string }];
+      },
+      [],
+      { runs: 5 },
+    );
+  };
+  const scan = (labels: string[]) => pointerScan(input(byRun(labels), new Cassette(), { sets: load(KINDS) }));
+  const labelsOf = (result: Awaited<ReturnType<typeof scan>>) =>
+    new Set(result.ledger.entries.map((entry) => entry.labels.duty?.label ?? '(unlabeled)'));
+
+  it('takes the label of the kind most runs give when no single label has a majority', async () => {
+    // order 2, ban 2, remark 1: no label has three of five, but four runs build an instruction. The two labels tie,
+    // so the earliest run's label, order, stands.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
+  it('decides between labels that build no atom, as one group', async () => {
+    // remark 1, aside 2, order 1, ban 1: three runs say the unit gives nothing; aside is the label most of them give.
+    const result = await scan(['remark', 'aside', 'order', 'aside', 'ban']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['aside']));
+  });
+
+  it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits; no kind
+    // holds three of five, so the unit stays unlabeled and counts as a split.
+    const result = await scan(['order', 'voice', 'order', 'voice', 'remark']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+    expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
 describe('what the cassette key holds', () => {
   it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
     const recorded = new Cassette();
@@ -750,7 +810,9 @@ describe('a run out of step with the units of its window', () => {
         const call = (calls.get(window.path) ?? 0) + 1;
         calls.set(window.path, call);
         // Only the first of three runs is in step: one run heard is no vote.
-        return call >= 2 ? every(window, 'remark', Array(4).fill(unlocated)) : every(window, 'order', [located]);
+        return call >= 2
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
       },
       [],
       { runs: 3 },
