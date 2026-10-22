@@ -262,7 +262,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, withDeclaredRead(atom, evidence.before));
       if (typeof pair === 'string') {
         if (ctx.judge) judgeRule(then, atom, 'positive');
         else gap(then, MARKERS.anchor, atom, pair);
@@ -530,6 +530,21 @@ function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): voi
       then.subagents.push({ name, count: { min: 1 } });
     return;
   }
+}
+
+/**
+ * The fields of a gate for its ordered end. A gate with no `path` field that declares its read as evidence (a
+ * `tool_called` of the pair's first tool whose `file_path` holds a text) names that file, as its path would: the pair
+ * then waits on a read of that file, not on any read before the change.
+ */
+function withDeclaredRead(atom: EstateAtom, before: string): EstateAtom['fields'] {
+  if (typeof atom.fields?.path === 'string') return atom.fields;
+  for (const item of atom.evidence) {
+    if (item.type !== 'tool_called' || item.label !== before) continue;
+    const named = (item.input as { file_path?: { contains?: unknown } } | undefined)?.file_path?.contains;
+    if (typeof named === 'string' && named.trim() !== '') return { ...atom.fields, path: named };
+  }
+  return atom.fields;
 }
 
 /** Tools that change a file named by `file_path`. */
