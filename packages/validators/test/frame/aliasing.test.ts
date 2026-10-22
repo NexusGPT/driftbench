@@ -1,8 +1,10 @@
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
+import { applyWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
@@ -208,5 +210,142 @@ describe('written arguments', () => {
     const frame = strictFrame();
     frame.strictArguments(false);
     expect(frame.product.sortsInPlace([1, 3, 2])).toBe(3);
+  });
+});
+
+// The product's changes to its arguments come back (docs/validators.md section 12.9, "Written inputs"): an item that
+// reads its own arguments after a call sees exactly what it would see if the product ran in its own process.
+describe('arguments the product changed come back to the caller', () => {
+  const open2 = (): Frame<Product> => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    open.push(frame as Frame<unknown>);
+    return frame;
+  };
+
+  it('applies a sort in place, a fill, a length change and a deleted or added key at every depth', () => {
+    const frame = open2();
+    const list = [3, 1, 2];
+    const sorted = [1, 3, 2];
+    expect(frame.product.sortsInPlace(sorted)).toBe(3);
+    expect(sorted).toEqual([3, 2, 1]);
+    const input = { list, tail: [1, 2, 3], keyed: { gone: 1, kept: 2 } as Record<string, number> };
+    const sameList = input.list;
+    expect(frame.product.changesAfterwards(input)).toBe(6);
+    expect(input.list).toBe(sameList);
+    expect(input).toEqual({ list: [10000, 10000, 10000], tail: [1, 7], keyed: { kept: 2, added: 1 } });
+  });
+
+  it('applies a change to a Map, a Set, a typed array and a Date', () => {
+    const frame = open2();
+    const input = {
+      table: new Map([['x', 1]]),
+      bag: new Set([1]),
+      bytes: new Uint8Array(3),
+      when: new Date(0),
+    };
+    const table = input.table;
+    frame.product.changesContainers(input);
+    expect(input.table).toBe(table);
+    expect([...input.table]).toEqual([['a', 5]]);
+    expect([...input.bag]).toEqual([1, 9]);
+    expect([...input.bytes]).toEqual([0, 8, 0]);
+    expect(input.when.getTime()).toBe(1000);
+  });
+
+  it('leaves the arguments of a product that writes only to a copy byte for byte as they were', () => {
+    const frame = open2();
+    const input = { list: [3, 1, 2] };
+    const before = JSON.stringify(input);
+    frame.product.writesToACopy(input);
+    expect(JSON.stringify(input)).toBe(before);
+  });
+
+  it('does not touch an argument the caller froze', () => {
+    const frame = open2();
+    const input = Object.freeze({ list: Object.freeze([3, 1, 2]) });
+    expect(frame.product.writesToACopy(input as never)).toBe(3);
+    expect(input.list).toEqual([3, 1, 2]);
+  });
+});
+
+// The class: random writes of every kind to random targets at random depths. What the frame can copy back must give
+// the caller exactly what the same writes give in the caller's own process; what it cannot copy back (a function
+// value, an accessor, a symbol or hidden key, an extra property of a container, the prototype, the extensibility)
+// must be reported as "cannot reproduce", never passed silently.
+describe('random writes to the arguments, at every depth', () => {
+  const rng = (seed: number) => {
+    let state = seed >>> 0;
+    return () => {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+  };
+  const names = Object.keys(TARGETS);
+  const draw = (random: () => number) => {
+    const length = 1 + Math.floor(random() * 3);
+    return Array.from({ length }, () => {
+      const target = names[Math.floor(random() * names.length)] as string;
+      const kinds = WRITES[TARGETS[target]?.kind as string] as { name: string; copy: boolean }[];
+      const kind = kinds[Math.floor(random() * kinds.length)] as { name: string; copy: boolean };
+      return { write: { target, kind: kind.name }, copy: kind.copy };
+    });
+  };
+
+  it('copies back what it can and reports the rest, over 150 random programs', () => {
+    const random = rng(986);
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    open.push(frame as Frame<unknown>);
+    let copied = 0;
+    let reported = 0;
+    for (let trial = 0; trial < 150; trial += 1) {
+      const drawn = draw(random);
+      const program = drawn.map((each) => each.write);
+      const canCopy = drawn.every((each) => each.copy);
+      const direct = writeTarget();
+      let directThrew = false;
+      try {
+        applyWrites(direct, program);
+      } catch {
+        directThrew = true;
+      }
+      const input = writeTarget();
+      const mark = frame.position();
+      let threw = false;
+      try {
+        (frame.product.applyWrites as (a: unknown, b: unknown) => unknown)(input, program);
+      } catch {
+        threw = true;
+      }
+      const note = JSON.stringify(program);
+      if (canCopy) {
+        expect(threw, note).toBe(directThrew);
+        expect(frame.aliasSince(mark), note).toBeUndefined();
+        if (!directThrew) expect(isDeepStrictEqual(input, direct), note).toBe(true);
+        copied += 1;
+      } else {
+        expect(threw || (frame.aliasSince(mark) ?? '').includes('cannot reproduce'), note).toBe(true);
+        reported += 1;
+      }
+    }
+    expect(copied).toBeGreaterThan(10);
+    expect(reported).toBeGreaterThan(40);
+  });
+});
+
+describe('results that differ only by function identity', () => {
+  it('finds a function field replaced by another function between two calls', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.swapsFunction();
+    frame.product.swapsFunction();
+    expect(frame.aliasSince(0)).toContain('has changed since');
+  });
+
+  it('finds nothing for new objects that hold the same function', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.keepsFunction();
+    frame.product.keepsFunction();
+    expect(frame.aliasSince(0)).toBeUndefined();
   });
 });

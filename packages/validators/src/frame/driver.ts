@@ -230,6 +230,20 @@ const «seenAdd» = WeakSet.prototype.add;
 const «SeenSet» = WeakSet;
 const «isProxy» = «utilTypes».isProxy;
 const «hasOwn» = Object.hasOwn;
+const «floatArray» = Float64Array;
+const «isExt» = Object.isExtensible;
+const «isMapKind» = «utilTypes».isMap;
+const «isSetKind» = «utilTypes».isSet;
+const «isDateKind» = «utilTypes».isDate;
+const «isSealedIt» = Object.isSealed;
+const «ids» = new WeakMap();
+// The prototypes an argument has when the validator decodes it.
+const «builtins» = new WeakSet();
+for (const «known» of [Object.prototype, Array.prototype, Map.prototype, Set.prototype, Date.prototype, DataView.prototype, «protoOf»(Uint8Array.prototype), Uint8Array.prototype, Int8Array.prototype, Uint16Array.prototype, Int16Array.prototype, Uint32Array.prototype, Int32Array.prototype, Float32Array.prototype, Float64Array.prototype, BigInt64Array.prototype, BigUint64Array.prototype, Uint8ClampedArray.prototype]) «call»(WeakSet.prototype.add, «builtins», [«known»]);
+const «idGet» = WeakMap.prototype.get;
+const «idSet» = WeakMap.prototype.set;
+let «idNext» = 0;
+const «byteArray» = Uint8Array;
 const «typedLength» = «describe»(«protoOf»(Uint8Array.prototype), 'length').get;
 const «viewByteLength» = «describe»(DataView.prototype, 'byteLength').get;
 const «viewByte» = DataView.prototype.getUint8;
@@ -280,49 +294,65 @@ if («setup».uptimeShift > 0) {
   Object.defineProperty(performance, 'now', { value: { now() { return «realNow»() + «shift» * 1000; } }.now, writable: true, configurable: true });
 }
 «codec»
-// Aliased results (docs/validators.md section 12.9): the live results of the last calls, each with a digest of what it
-// held when it was returned. A later call that changed one of them, or filled the same object again, is reported in
-// its answer; only that finding crosses to the validator, whose item never sees the live object. The digest walks
-// the value with the captured references above, and builds its text with string concatenation only.
+// Aliased results and written arguments (docs/validators.md section 12.9): the live results of the last calls, each
+// with a digest of what it held when it was returned, and the arguments of a call before and after it. The scan walks
+// a value with the captured references above and builds its text with string concatenation only. It writes two
+// digests: the DATA one holds what the frame can copy back to the caller (the values of array slots and their length,
+// the enumerable string keys of a plain object, the content of a Map, a Set, a Date and a typed array), and the OTHER
+// one holds everything it cannot copy back (a function value, an accessor, a symbol or non-enumerable key, an extra
+// property of a container, a descriptor flag, the prototype, extensibility). A change in the OTHER digest is a change
+// the frame cannot reproduce.
 let «sawInvalid» = false;
-const «fingerprint» = («root») => {
-  const «hash» = «call»(«hashStart», undefined, ['sha256']);
-  let «chunk» = '';
-  const «put» = («piece») => {
-    «chunk» += «piece»;
-    if («chunk».length > 65536) {
-      «call»(«hashUpdate», «hash», [«chunk»]);
-      «chunk» = '';
+const «scan» = («root») => {
+  const «dataHash» = «call»(«hashStart», undefined, ['sha256']);
+  const «otherHash» = «call»(«hashStart», undefined, ['sha256']);
+  let «dataText» = '';
+  let «otherText» = '';
+  const «dataFlush» = () => {
+    if («dataText».length > 0) «call»(«hashUpdate», «dataHash», [«dataText»]);
+    «dataText» = '';
+  };
+  const «otherFlush» = () => {
+    if («otherText».length > 0) «call»(«hashUpdate», «otherHash», [«otherText»]);
+    «otherText» = '';
+  };
+  const «putData» = («piece») => {
+    «dataText» += «piece»;
+    if («dataText».length > 65536) «dataFlush»();
+  };
+  const «putOther» = («piece») => {
+    «otherText» += «piece»;
+    if («otherText».length > 65536) «otherFlush»();
+  };
+  // The objects on the way down to the value being walked, by depth: a value met again below itself is a cycle. No
+  // set of every object met: the arguments of the scale items hold millions.
+  const «ancestors» = new Array(1002);
+  // A stable number for a function, a prototype or an object: the same one the next time it is met.
+  const «idOf» = («thing») => {
+    try {
+      let «known» = «call»(«idGet», «ids», [«thing»]);
+      if («known» === undefined) {
+        «idNext» += 1;
+        «known» = «idNext»;
+        «call»(«idSet», «ids», [«thing», «known»]);
+      }
+      return «known»;
+    } catch {
+      return -1;
     }
   };
-  const «seen» = new «SeenSet»();
-  // The own properties of a Map, Set, Date, array or typed array besides its content (an extra property can hold
-  // shared state): the same walk as for a plain object, without the index keys that the content already covered
-  // and without the length of an array. The kind is 1 for an array, 2 for a typed array, 0 for the others.
-  const «extras» = («value», «level», «kind») => {
-    const «all» = «ownKeys»(«value»);
-    for (let «i» = 0; «i» < «all».length; «i» += 1) {
-      const «key» = «all»[«i»];
-      if («kind» > 0 && typeof «key» === 'string') {
-        const «n» = +«key»;
-        if ('' + «n» === «key» && «n» >= 0 && «n» % 1 === 0) continue;
-        if («kind» === 1 && «key» === 'length') continue;
-      }
-      if (typeof «key» === 'symbol') «put»('y;');
-      else «put»('x' + «key».length + ':' + «key»);
-      const «desc» = «describe»(«value», «key»);
-      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
-      else {
-        «sawInvalid» = true;
-        «put»('G;');
-      }
-    }
+  const «isIndex» = («key») => {
+    if (typeof «key» !== 'string') return false;
+    const «n» = +«key»;
+    return '' + «n» === «key» && «n» >= 0 && «n» % 1 === 0 && «n» < 4294967295;
   };
-  const «walk» = («value», «level») => {
+  // The flag inOther: everything below goes to the OTHER digest (a value under a key the frame cannot copy back).
+  const «walk» = («value», «level», «inOther») => {
+    const «put» = «inOther» ? «putOther» : «putData»;
     // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
     if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
       «sawInvalid» = true;
-      «put»('P;');
+      «putOther»('P;');
       return;
     }
     switch (typeof «value») {
@@ -331,98 +361,154 @@ const «fingerprint» = («root») => {
       case 'number': «put»('n' + («same»(«value», -0) ? '-0' : '' + «value») + ';'); return;
       case 'bigint': «put»('b' + «value» + ';'); return;
       case 'string': «put»('s' + «value».length + ':' + «value» + ';'); return;
-      case 'symbol': «put»('y;'); return;
-      case 'function': «put»('F;'); return;
+      case 'symbol': «put»('y;'); «putOther»('Y' + «idOf»(«value») + ';'); return;
+      case 'function': «put»('F;'); «putOther»('F' + «idOf»(«value») + ';'); return;
     }
     if («value» === null) { «put»('N;'); return; }
-    if («call»(«seenHas», «seen», [«value»])) { «put»('C;'); return; }
     if («level» > 1000) { «put»('D;'); return; }
-    «call»(«seenAdd», «seen», [«value»]);
+    for (let «up» = 0; «up» < «level»; «up» += 1) {
+      if («ancestors»[«up»] === «value») { «put»('C;'); return; }
+    }
+    «ancestors»[«level»] = «value»;
+    const «proto» = «protoOf»(«value»);
+    // Only a deviation is written (a prototype that is not a built-in one, a state other than extensible and open), so
+    // an object the frame can copy back, which a product adds or removes, does not change the digest.
+    if («proto» !== null && !«call»(«seenHas», «builtins», [«proto»])) «putOther»('P' + «idOf»(«proto») + ';');
+    // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
+    if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
+    // The kind of the object, and its content.
+    let «kind» = 0;
     let «entries»;
-    try { «entries» = «call»(«mapEntries», «value», []); } catch { «entries» = undefined; }
+    if («isMapKind»(«value»)) «entries» = «call»(«mapEntries», «value», []);
+    let «values»;
+    let «time»;
     if («entries» !== undefined) {
+      «kind» = 3;
       «put»('M{');
       for (;;) {
         const «step» = «call»(«mapNext», «entries», []);
         if («step».done) break;
-        «walk»(«step».value[0], «level» + 1);
-        «walk»(«step».value[1], «level» + 1);
+        «walk»(«step».value[0], «level» + 1, «inOther»);
+        «walk»(«step».value[1], «level» + 1, «inOther»);
       }
       «put»('}');
-      «extras»(«value», «level», 0);
-      return;
-    }
-    let «values»;
-    try { «values» = «call»(«setValues», «value», []); } catch { «values» = undefined; }
-    if («values» !== undefined) {
-      «put»('S{');
-      for (;;) {
-        const «step» = «call»(«setNext», «values», []);
-        if («step».done) break;
-        «walk»(«step».value, «level» + 1);
-      }
-      «put»('}');
-      «extras»(«value», «level», 0);
-      return;
-    }
-    let «time»;
-    try { «time» = «call»(«dateTime», «value», []); } catch { «time» = undefined; }
-    if («time» !== undefined) { «put»('T' + «time» + ';'); «extras»(«value», «level», 0); return; }
-    if («isView»(«value»)) {
-      // The length of a typed array comes from the getter of %TypedArray%.prototype, never from the length
-      // property, which an instance can define as its own; a DataView has no such length and is read byte by byte.
-      let «size»;
-      try { «size» = «call»(«typedLength», «value», []); } catch { «size» = undefined; }
-      if («size» !== undefined) {
-        «put»('V' + «size» + ':');
-        for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
+    } else {
+      if («isSetKind»(«value»)) «values» = «call»(«setValues», «value», []);
+      if («values» !== undefined) {
+        «kind» = 4;
+        «put»('S{');
+        for (;;) {
+          const «step» = «call»(«setNext», «values», []);
+          if («step».done) break;
+          «walk»(«step».value, «level» + 1, «inOther»);
+        }
+        «put»('}');
       } else {
-        const «bytes» = «call»(«viewByteLength», «value», []);
-        «put»('W' + «bytes» + ':');
-        for (let «i» = 0; «i» < «bytes»; «i» += 1) «put»('' + «call»(«viewByte», «value», [«i»]) + ',');
-      }
-      «put»(';');
-      «extras»(«value», «level», 2);
-      return;
-    }
-    if («isArray»(«value»)) {
-      // Each index is read through its descriptor: an accessor element is an invalid result and is not called, and
-      // a hole is not read (a read would reach the prototype chain).
-      «put»('A' + «value».length + '[');
-      for (let «i» = 0; «i» < «value».length; «i» += 1) {
-        const «cell» = «describe»(«value», «i»);
-        if («cell» === undefined) «put»('h;');
-        else {
-          if («call»(«hasOwn», undefined, [«cell», 'value'])) «walk»(«cell».value, «level» + 1);
-          else {
-            «sawInvalid» = true;
-            «put»('G;');
+        if («isDateKind»(«value»)) «time» = «call»(«dateTime», «value», []);
+        if («time» !== undefined) {
+          «kind» = 5;
+          «put»('T' + «time» + ';');
+        } else if («isView»(«value»)) {
+          // The length of a typed array comes from the getter of %TypedArray%.prototype, never from the length
+          // property, which an instance can define as its own; a DataView has no such length and is read byte by byte.
+          let «size»;
+          try { «size» = «call»(«typedLength», «value», []); } catch { «size» = undefined; }
+          «kind» = 2;
+          if («size» !== undefined) {
+            «put»('V' + «size» + ':');
+            for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
+          } else {
+            const «bytes» = «call»(«viewByteLength», «value», []);
+            «put»('W' + «bytes» + ':');
+            for (let «i» = 0; «i» < «bytes»; «i» += 1) «put»('' + «call»(«viewByte», «value», [«i»]) + ',');
           }
+          «put»(';');
+        } else if («isArray»(«value»)) {
+          «kind» = 1;
+          // Each index is read through its descriptor: an accessor element is not called and a hole is not read. A run
+          // of numbers goes into the digest as the bytes of a Float64Array, not as text: the arguments of the scale
+          // items are millions of numbers, and a scan of them runs before and after every call.
+          const «length» = «value».length;
+          «put»('A' + «length» + '[');
+          const «run» = new «floatArray»(4096);
+          let «runLength» = 0;
+          const «flushRun» = () => {
+            if («runLength» === 0) return;
+            «put»('N' + «runLength» + ':');
+            if («inOther») «otherFlush»(); else «dataFlush»();
+            «call»(«hashUpdate», «inOther» ? «otherHash» : «dataHash», [new «byteArray»(«run».buffer, 0, «runLength» * 8)]);
+            «runLength» = 0;
+          };
+          for (let «i» = 0; «i» < «length»; «i» += 1) {
+            const «cell» = «describe»(«value», «i»);
+            if («cell» === undefined) {
+              «flushRun»();
+              «put»('h;');
+              // A hole cannot cross as data (JSON has none): its place is a change the frame cannot copy back.
+              «putOther»('h' + «i» + ';');
+            } else if («cell».get !== undefined || «cell».set !== undefined) {
+              «flushRun»();
+              «sawInvalid» = true;
+              «putOther»('G' + «i» + ':' + («cell».get === undefined ? 0 : «idOf»(«cell».get)) + ',' + («cell».set === undefined ? 0 : «idOf»(«cell».set)) + ';');
+              «put»('G;');
+            } else {
+              if (!«cell».writable || !«cell».enumerable || !«cell».configurable) «putOther»('f' + «i» + ':' + («cell».writable ? 1 : 0) + («cell».enumerable ? 1 : 0) + («cell».configurable ? 1 : 0) + ';');
+              if (typeof «cell».value === 'number') {
+                «run»[«runLength»] = «cell».value;
+                «runLength» += 1;
+                if («runLength» === 4096) «flushRun»();
+              } else {
+                «flushRun»();
+                «walk»(«cell».value, «level» + 1, «inOther»);
+              }
+            }
+          }
+          «flushRun»();
+          «put»(']');
         }
       }
-      «put»(']');
-      «extras»(«value», «level», 1);
-      return;
     }
+    // Own properties. The ones the frame can copy back (the enumerable string keys of a plain object) go to the data
+    // digest; every other one goes to the other digest with its descriptor, and what it holds.
     const «keys» = «ownKeys»(«value»);
-    «put»('O' + «keys».length + '{');
+    const «plain» = «kind» === 0;
+    if («plain») «put»('O{');
     for (let «i» = 0; «i» < «keys».length; «i» += 1) {
       const «key» = «keys»[«i»];
-      if (typeof «key» === 'symbol') «put»('y;');
-      else «put»('k' + «key».length + ':' + «key»);
+      if («kind» === 1 && «key» === 'length') continue;
+      if ((«kind» === 1 || «kind» === 2) && «isIndex»(«key»)) continue;
       const «desc» = «describe»(«value», «key»);
-      if («call»(«hasOwn», undefined, [«desc», 'value'])) «walk»(«desc».value, «level» + 1);
+      // A descriptor with a getter or a setter is an accessor; a descriptor read through a polluted base prototype can only
+      // look like an accessor, which fails the item.
+      const «isData» = «desc».get === undefined && «desc».set === undefined;
+      const «copyable» = «plain» && typeof «key» === 'string' && «isData» && «desc».writable && «desc».enumerable && «desc».configurable && !«inOther»;
+      if («copyable») {
+        «putData»('k' + «key».length + ':' + «key»);
+        «walk»(«desc».value, «level» + 1, false);
+        continue;
+      }
+      «putOther»('x' + (typeof «key» === 'symbol' ? 'Y' + «idOf»(«key») : «key».length + ':' + «key») + ':' + («desc».writable ? 1 : 0) + («desc».enumerable ? 1 : 0) + («desc».configurable ? 1 : 0) + ';');
+      if («isData») «walk»(«desc».value, «level» + 1, true);
       else {
         // An accessor runs the product's own code on every read: it is not called, it is reported.
         «sawInvalid» = true;
-        «put»('G;');
+        «putOther»('G' + («desc».get === undefined ? 0 : «idOf»(«desc».get)) + ',' + («desc».set === undefined ? 0 : «idOf»(«desc».set)) + ';');
       }
     }
-    «put»('}');
+    if («plain») «put»('}');
+    if («kind» === 1) {
+      const «lengthDesc» = «describe»(«value», 'length');
+      if (!«lengthDesc».writable) «putOther»('L0;');
+    }
   };
-  «walk»(«root», 0);
-  «call»(«hashUpdate», «hash», [«chunk»]);
-  return «call»(«hashDigest», «hash», ['hex']);
+  «walk»(«root», 0, false);
+  «dataFlush»();
+  «otherFlush»();
+  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']) };
+};
+const «fingerprint» = («root») => {
+  const «parts» = «scan»(«root»);
+  return «parts».data + «parts».other;
 };
 // Shared objects (docs/validators.md section 12.9, "Objects the caller passes twice"): the objects a value reaches,
 // walked with the references captured above, so a product that patches the iteration methods cannot blind it.
@@ -541,6 +627,21 @@ if («setup».command) {
       : «setup».invoke
         ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
         : «product»[«request».call];
+    // Write back (docs/validators.md section 12.9, "Written inputs"): run A takes a digest of the arguments before the
+    // call and, when the call changed them, answers with their state after it, so the validator can apply the change to
+    // the caller's own arguments exactly as a call in its own process would have changed them. A write that threw is
+    // reported the same way.
+    let «argsRef»;
+    let «argsBefore»;
+    const «afterState» = () => {
+      if («argsBefore» === undefined) return {};
+      const «now» = «scan»(«argsRef»);
+      // A change the frame cannot copy back (a function, an accessor, a symbol or hidden key, an extra property of a
+      // container, a descriptor, the prototype, extensibility) is reported as such, never copied.
+      if («now».other !== «argsBefore».other) return { cannot: true };
+      if («now».data === «argsBefore».data) return {};
+      return { argsAfter: «encode»(«argsRef») };
+    };
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
@@ -551,8 +652,9 @@ if («setup».command) {
       const «pinned» = Boolean(«request».ids);
       const «decoded» = «decode»(«request».args);
       const «args» = «pinned» ? «pin»(«decoded», «request».ids, «request».forget) : «strict» ? «deepFreeze»(«decoded») : «decoded»;
+      «argsRef» = «args»;
       if («request».forget) «earlier» = new «SeenSet»();
-      const «argsBefore» = «strict» || «pinned» ? «fingerprint»(«args») : undefined;
+      if («strict» || «pinned» || «setup».writeBack) «argsBefore» = «scan»(«args»);
       // Sharing guard (docs/validators.md section 12.9, "Objects the caller passes twice"): a call under 'sharing' must
       // return nothing that is, or holds, an object of its arguments or of an earlier guarded result. Only the finding
       // crosses to the validator.
@@ -574,7 +676,8 @@ if («setup».command) {
         «collect»(«result», «earlier»);
       }
       const «ret» = «encode»(«result»);
-      const «written» = («strict» || «pinned») && «fingerprint»(«args») !== «argsBefore»;
+      const «after» = «afterState»();
+      const «written» = («strict» || «pinned») && «argsBefore» !== undefined && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -597,9 +700,9 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}), ...«after» });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}) });
     }
   }
 }
