@@ -211,9 +211,7 @@ export function build(
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
   const own =
     row.mode === 'unit' || row.testType === 'contract_alone'
-      ? rowAtoms.filter(
-          (atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'),
-        )
+      ? rowAtoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
       : rowAtoms;
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;

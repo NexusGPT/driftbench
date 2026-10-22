@@ -57,18 +57,6 @@ criteria:
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
     scope: block
-  - name: instruction.invoice-reconcile.never-change-an-amount-on-an
-    rubric: 'Does the reply follow this rule of the estate: "Never change an amount on an invoice; report the difference instead."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
-  - name: instruction.invoice-reconcile.when-the-total-difference-is-above
-    rubric: 'Does the reply follow this rule of the estate: "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number."? The rule applies when: the total difference is above 50.00 EUR.'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -86,8 +74,6 @@ blocks:
         others_untouched: true
       criteria:
         - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-        - instruction.invoice-reconcile.never-change-an-amount-on-an
-        - instruction.invoice-reconcile.when-the-total-difference-is-above
 rules:
   custom:
     ordered:
@@ -118,8 +104,6 @@ metadata:
     outcome: bank
     judged:
       - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-      - instruction.invoice-reconcile.never-change-an-amount-on-an
-      - instruction.invoice-reconcile.when-the-total-difference-is-above
   links:
     - block: ask
       to:

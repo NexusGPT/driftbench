@@ -60,7 +60,10 @@ it('leaves a row of one atom, and the atoms of a journey, as they were', () => {
 });
 
 it('adds no expectation of a duty placed beside the first atom to the block', () => {
-  const gate: EstateAtom = { ...duty('g', 'gate'), evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }] };
+  const gate: EstateAtom = {
+    ...duty('g', 'gate'),
+    evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }],
+  };
   const alone = textOf([duty('a')], [row(['a'])]);
   const grouped = textOf([duty('a'), gate], [row(['a', 'g'])]);
   expect(alone).not.toContain('ordered');
