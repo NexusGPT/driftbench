@@ -12,10 +12,12 @@ import {
 import type {
   LabelAnswer,
   LabelEntry,
+  ListedCandidates,
   ModelArm,
   ScanArm,
   Transport,
 } from '../../../src/ladders/pointer/sut/port';
+import { recordSent } from '../../../src/ladders/pointer/sut/sent';
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
@@ -234,6 +236,8 @@ export type ModelCtx = {
   keyHeader: string;
   /** What each set lists for its link kinds, by set name. */
   candidates?: ReadonlyMap<string, Candidates>;
+  /** Where the candidates each built request carries are recorded, after the request text was built. */
+  listed?: { rows: ListedCandidates[]; seen: Set<string> };
   /** The key of the `haiku` arm, read when a request of that arm leaves (the item may watch the read). */
   haikuKey?: () => string;
   /** The `http` arm: the address of the user labeler. */
@@ -241,6 +245,24 @@ export type ModelCtx = {
   /** A stack reads the vector of each unit of a choice answer: undefined when the vector is refused. */
   onVector?: (n: number, vector: Record<string, number> | undefined) => void;
 };
+
+/** Records the candidates a request carries, read from the text that was built. */
+function listSent(
+  ctx: ModelCtx,
+  set: ParsedSet,
+  plan: WindowPlan,
+  candidates: Candidates,
+  text: string,
+): void {
+  if (!ctx.listed) return;
+  const meant = Object.fromEntries(
+    Object.entries(candidates).map(([link, list]) => [
+      link,
+      list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+    ]),
+  );
+  recordSent(ctx.listed, { file: plan.file, window: plan.id, set: set.set }, meant, [text]);
+}
 
 /** Added after the system text of a request asked again after an answer that could not be read. */
 export const RETRY_NOTE =
@@ -356,6 +378,7 @@ export async function haiku(
   const system = SYSTEM_TEXT;
   const candidates = ctx.candidates?.get(set.set) ?? {};
   const user = userText(set, plan, candidates);
+  listSent(ctx, set, plan, candidates, user);
   const output = { type: 'json_schema', labels: { enum: [...set.labels.map((l) => l.name), 'none'] } };
   const request = {
     model: 'claude-haiku-5-5',
@@ -800,6 +823,7 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
   const id = httpLabelerId(ctx.url ?? '');
   const candidates = ctx.candidates?.get(set.set) ?? {};
   const prompt = { system: SYSTEM_TEXT, user: userText(set, plan, candidates) };
+  listSent(ctx, set, plan, candidates, prompt.user);
   const body = {
     set: {
       name: set.set,

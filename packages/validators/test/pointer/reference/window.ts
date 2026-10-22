@@ -6,7 +6,7 @@ import { sha256 } from './hash';
 import type { ParsedSet } from './labelset';
 
 /** What a request lists for each link kind of a set: the candidates a link may name, by kind. */
-export type Candidate = { id: string; label: string; shown?: string };
+export type Candidate = { id: string; label: string; shown?: string; raw?: string };
 export type Candidates = Readonly<Record<string, ReadonlyArray<Candidate>>>;
 
 /** About 100,000 tokens at four characters a token. */
@@ -51,7 +51,12 @@ export function requestText(text: string): string {
 export function candidateOf(atom: { id: string; title: string }): Candidate {
   if (referenceBugsPrivacy.has('candidate-comment-sent') || !atom.title.includes('<!--'))
     return { id: atom.id, label: atom.title };
-  return { id: atom.id, label: requestText(atom.title), shown: `atom-${sha256(atom.id).slice(0, 10)}` };
+  return {
+    id: atom.id,
+    label: requestText(atom.title),
+    shown: `atom-${sha256(atom.id).slice(0, 10)}`,
+    raw: atom.title,
+  };
 }
 
 /**
@@ -179,8 +184,15 @@ function linkLines(set: ParsedSet, candidates: Candidates): string[] {
   const lines = ['LINK KINDS:'];
   for (const kind of set.links) {
     lines.push(`- ${kind.name}: ${kind.description}`);
+    // Planted renderers (cr2-comment-privacy): one drops the candidates, one prints the title unmasked.
+    if (referenceBugsPrivacy.has('render-drops-candidates')) continue;
+    const raw = referenceBugsPrivacy.has('render-prints-raw-title');
     for (const candidate of candidates[kind.name] ?? [])
-      lines.push(`    ${candidate.shown ?? candidate.id}  ${candidate.label}`);
+      lines.push(
+        raw
+          ? `    ${candidate.id}  ${candidate.raw ?? candidate.label}`
+          : `    ${candidate.shown ?? candidate.id}  ${candidate.label}`,
+      );
   }
   return lines;
 }

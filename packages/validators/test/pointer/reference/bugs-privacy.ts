@@ -11,6 +11,10 @@ export type BugPrivacy =
   /** A reader that lists a link candidate as the atom gives it: its title and its id hold the comment text. */
   | 'candidate-comment-sent'
   /** A reader that lists no link candidate at all: nothing leaks, and nothing is offered to the labeler. */
-  | 'candidates-all-withheld';
+  | 'candidates-all-withheld'
+  /** A renderer that drops the candidates it is handed: the request holds none, the context does. */
+  | 'render-drops-candidates'
+  /** A renderer that lists the candidate but prints its title and id unmasked, comment text included. */
+  | 'render-prints-raw-title';
 
 export const referenceBugsPrivacy = new Set<BugPrivacy>();

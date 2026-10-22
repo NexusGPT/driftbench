@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { pointerBank } from '../../src/ladders/pointer/bank';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import { HARDENING_PRIVACY_SPECS } from '../../src/ladders/pointer/bank/specs/hardening-privacy';
-import type { PointerSut } from '../../src/ladders/pointer/sut/port';
+import type { ListedCandidates, PointerSut } from '../../src/ladders/pointer/sut/port';
+import { recordingRender } from '../../src/ladders/pointer/sut/reader';
 import { REFERENCE_MODULE } from './helpers';
 import { referenceSut } from './reference';
 import { type BugPrivacy, referenceBugsPrivacy } from './reference/bugs-privacy';
@@ -173,4 +174,81 @@ describe('the link candidate item (a comment in the unit of an atom the scan lis
     expect(planted.pass).toBe(false);
     expect(planted.detail).toMatch(/is the planted atom/);
   }, 120_000);
+
+  it('is red on a reader whose renderer drops the candidates it is handed', async () => {
+    // The wrapper found by the codex audit (run 39745489599): the reader hands the candidates to its renderer, the
+    // renderer leaves them out, and a binding that copied them from the input context still listed them.
+    referenceBugsPrivacy.add('render-drops-candidates');
+    for (const seed of [1, 2, 3]) {
+      const planted = await run(CANDIDATE, seed);
+      expect(planted.pass, `seed ${seed}`).toBe(false);
+      expect(planted.detail, `seed ${seed}`).toMatch(NO_CANDIDATE);
+    }
+  }, 120_000);
+
+  it('is red on a reader whose renderer lists the candidate but prints its title unmasked', async () => {
+    referenceBugsPrivacy.add('render-prints-raw-title');
+    for (const seed of [1, 2, 3]) {
+      const planted = await run(CANDIDATE, seed);
+      expect(planted.pass, `seed ${seed}`).toBe(false);
+      expect(planted.detail, `seed ${seed}`).toMatch(LEAKED_CANDIDATE);
+    }
+  }, 120_000);
+});
+
+type Render = ReturnType<typeof recordingRender>;
+type RenderArgs = Parameters<Render>;
+
+describe('the binding records the candidates a renderer sent, after it ran', () => {
+  const set = { set: 'agent-rules', description: 'd', labels: [] } as unknown as RenderArgs[0];
+  const window = {
+    id: 'w1',
+    path: 'harbour/second.md',
+    headingPath: [],
+    units: [],
+  } as unknown as RenderArgs[1];
+  const context = {
+    candidates: {
+      topic: [
+        { id: 'instruction.a-slug', shown: 'atom-1234567890', label: 'a masked title' },
+        { id: 'instruction.plain', label: 'a plain title' },
+      ],
+    },
+  } as unknown as RenderArgs[2];
+  const rowsOf = (render: (set: RenderArgs[0], window: RenderArgs[1], context: RenderArgs[2]) => unknown) => {
+    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+    const recording = recordingRender({ render: render as never }, into);
+    recording(set, window, context);
+    return into.rows;
+  };
+  const prints = (lines: string[]) => () => ({
+    labeler: 'x',
+    body: { messages: [{ role: 'user', content: lines.join('\n') }] },
+  });
+  const MASKED = '    atom-1234567890  a masked title';
+  const PLAIN = '    instruction.plain  a plain title';
+  const candidatesOf = (rows: ListedCandidates[]) => rows.flatMap((row) => row.candidates);
+
+  it('lists every candidate the request carries', () => {
+    const rows = rowsOf(prints([MASKED, PLAIN]));
+    expect(rows).toHaveLength(1);
+    expect(candidatesOf(rows)).toEqual([
+      { id: 'atom-1234567890', title: 'a masked title' },
+      { id: 'instruction.plain', title: 'a plain title' },
+    ]);
+  });
+
+  it('lists none when the renderer drops the candidates of its context', () => {
+    expect(candidatesOf(rowsOf(prints(['no candidate here'])))).toEqual([]);
+  });
+
+  it('lists only the candidate whose id and title are both in the request', () => {
+    const rows = rowsOf(prints(['    atom-1234567890  a title the renderer wrote', PLAIN]));
+    expect(candidatesOf(rows)).toEqual([{ id: 'instruction.plain', title: 'a plain title' }]);
+  });
+
+  it('adds no row for an id the renderer made up', () => {
+    const rows = rowsOf(prints(['    atom-0000000000  an unrelated title', MASKED]));
+    expect(candidatesOf(rows).map((c) => c.id)).toEqual(['atom-1234567890']);
+  });
 });

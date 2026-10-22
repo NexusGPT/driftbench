@@ -319,6 +319,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const cassetteKeyOf = new Map<string, string>();
   const gateTargets = new Map<string, number>();
   const listed: ListedCandidates[] = [];
+  if (modelCtx) modelCtx.listed = { rows: listed, seen: new Set<string>() };
   const finish = (result: ScanResult): ScanResult => {
     result.listed = listed;
     if (modelCtx) result.cassette = modelCtx.cassette.dump();
@@ -364,15 +365,6 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         );
         for (const plan of plans) {
           windowCount += 1;
-          // What the request of this window lists for each link kind, as the structure the request is built from.
-          for (const [link, list] of Object.entries(candidatesOf.get(set.set) ?? {}))
-            listed.push({
-              file: plan.file,
-              window: plan.id,
-              set: set.set,
-              link,
-              candidates: list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
-            });
           const outcome = await labelWindow(
             plan,
             set,

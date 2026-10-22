@@ -20,6 +20,7 @@ import type {
   Transport,
 } from './port';
 import { ReaderNotReachable } from './port';
+import { recordSent, stringLeaves } from './sent';
 
 /**
  * The one file that knows the real pointer reader. It maps the reader's exports (names and types only, as listed in
@@ -360,6 +361,29 @@ function viewOf(reader: ReaderExports, ledger: RLedger, cuts: Map<string, RCut>)
 
 /* ----- labelers ----- */
 
+/**
+ * The render of a labeler member, recording after it ran which candidates its request carries. The candidates
+ * come from the context the reader handed in; a candidate is recorded only when its exact id and exact title
+ * occur in a string of the request the member returned (see `sut/sent.ts`). A renderer that drops candidates, or
+ * prints another title, records fewer.
+ */
+export function recordingRender(
+  member: { render(set: RSet, window: RWindow, context?: RContext): RWire },
+  into: { rows: ListedCandidates[]; seen: Set<string> },
+): (set: RSet, window: RWindow, context?: RContext) => RWire {
+  return (set, window, context) => {
+    const wire = member.render(set, window, context);
+    const meant = Object.fromEntries(
+      Object.entries(context?.candidates ?? {}).map(([link, list]) => [
+        link,
+        list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+      ]),
+    );
+    recordSent(into, { file: window.path, window: window.id, set: set.set }, meant, stringLeaves(wire));
+    return wire;
+  };
+}
+
 function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<string, RCut>): RLabeler {
   const planted = request.labeler;
   return {
@@ -529,31 +553,11 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
   }
   const listed: ListedCandidates[] = [];
-  const seen = new Set<string>();
+  const sent = { rows: listed, seen: new Set<string>() };
   labelling = {
     ...labelling,
     members: labelling.members.map((member) =>
-      Object.create(member, {
-        render: {
-          value: (set: RSet, window: RWindow, context?: RContext) => {
-            // The candidates are read from the structure the reader hands to its renderer, never from the text.
-            for (const [link, list] of Object.entries(context?.candidates ?? {})) {
-              const row: ListedCandidates = {
-                file: window.path,
-                window: window.id,
-                set: set.set,
-                link,
-                candidates: list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
-              };
-              const key = JSON.stringify(row);
-              if (seen.has(key)) continue;
-              seen.add(key);
-              listed.push(row);
-            }
-            return member.render(set, window, context);
-          },
-        },
-      }),
+      Object.create(member, { render: { value: recordingRender(member, sent) } }),
     ),
   };
   let result: RResult;

@@ -218,9 +218,11 @@ export type ScanResult = {
   windows?: number;
   calls?: number;
   /**
-   * The link candidates each request listed, as the reader built them for the request (not parsed from its
-   * text): one row per window, set and link kind. `id` is the id the request carries and `title` the title it
-   * carries. Absent when the reader does not expose it.
+   * The link candidates each request carried, recorded after the request was built: one row per window, set and
+   * link kind. A candidate of the context the reader hands its renderer is listed only when its exact id and
+   * exact title occur in the request that was returned (`sut/sent.ts`). `id` is the id the request carries and
+   * `title` the title it carries. A renderer that drops a candidate lists fewer. Absent when the reader does not
+   * expose it.
    */
   listed?: ListedCandidates[];
 };
