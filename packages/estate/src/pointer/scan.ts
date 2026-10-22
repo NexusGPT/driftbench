@@ -1,7 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type Cut, CutError, cut, type Unit } from './cut';
+import { type Cut, CutError, cut, isPlainTextPath, type Unit } from './cut';
 import {
   isTooLarge,
   type Labeler,
@@ -315,7 +315,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const cuts = new Map(
     files.map((file) => {
       try {
-        return [file.path, cut(file.text)];
+        return [file.path, cut(file.text, { plain: isPlainTextPath(file.path) })];
       } catch (cause) {
         if (cause instanceof CutError) throw new CutError(`${file.path}: ${cause.message}`);
         throw cause;

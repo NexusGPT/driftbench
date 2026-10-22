@@ -118,6 +118,8 @@ Units:
 
 Every prose character belongs to exactly one unit. Spans never overlap.
 
+**Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
+
 **Cut digest.** The cutter hashes the ordered list of unit fingerprints into a digest and stores it. Replay recomputes the cut and compares digests. A mismatch stops with an error that names the Node and ICU versions, so a cutter that varies between environments fails loudly instead of renumbering silently. Experiment 6 decides whether `Intl.Segmenter` may stay or a deterministic splitter must ship.
 
 ### Example
