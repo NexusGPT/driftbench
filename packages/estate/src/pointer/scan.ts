@@ -13,9 +13,11 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  commentRanges,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
+  requestTextOf,
   type ShownLine,
   type SpanAnswer,
   setHash,
@@ -138,6 +140,9 @@ export type PointerResult = {
   recorded: number;
 };
 
+/** A heading title or a fence line as a request carries it: a comment in it is replaced by `(comment)`. */
+const requestTitle = (text: string): string => requestTextOf({ text }).text;
+
 /**
  * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
  * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
@@ -145,6 +150,19 @@ export type PointerResult = {
  */
 export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
+  // The comments of the file, found once on the whole text: a comment the cutter split across units, or one that
+  // never closes, is still a comment in each unit it touches. A comment opened inside a fence is fence text.
+  const fenced = units
+    .filter((unit) => unit.container === 'opaque' && /^\s*(```|~~~)/.test(unit.text))
+    .map((unit): [number, number] => [unit.start, unit.end]);
+  const fileComments = source === undefined ? undefined : commentRanges(source, fenced);
+  const commentsOf = (unit: Unit): Array<[number, number]> | undefined =>
+    fileComments
+      ?.filter(([from, to]) => from < unit.end && to > unit.start)
+      .map(([from, to]): [number, number] => [
+        Math.max(from, unit.start) - unit.start,
+        Math.min(to, unit.end) - unit.start,
+      ]);
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
   let first: Unit | undefined;
@@ -157,7 +175,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     windows.push({
       id: `${path}#${windows.length + 1}`,
       path,
-      headingPath: first?.path ?? [],
+      headingPath: (first?.path ?? []).map(requestTitle),
       units: current,
       ...(shown.length > 0 ? { shown } : {}),
     });
@@ -177,7 +195,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
         // A fence: only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
         text:
           kind === 'fence'
-            ? `(fence, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`
+            ? `(fence, not labelable) ${requestTitle(unit.text.split(/\r\n|\r|\n/, 1)[0] ?? '')}`
             : '(comment, not labelable)',
       });
       continue;
@@ -195,7 +213,8 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     if (current.length >= size && !sameRow) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
-    current.push({ n: current.length + 1, text: unit.text, index });
+    const comments = commentsOf(unit);
+    current.push({ n: current.length + 1, text: unit.text, index, ...(comments ? { comments } : {}) });
   }
   flush();
   return windows;

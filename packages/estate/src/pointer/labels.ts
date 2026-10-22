@@ -224,7 +224,16 @@ function nestingProblem(set: LabelSet): string | undefined {
 export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 16);
 
 /** One unit as the labeler sees it: a number valid in this window only. */
-export type WindowUnit = { n: number; text: string; index: number };
+export type WindowUnit = {
+  n: number;
+  text: string;
+  index: number;
+  /**
+   * The comments inside `text` as [from, to) offsets of `text`, found on the whole file (a comment cut in two
+   * units is a comment in both). Absent: the comments are found on `text` alone.
+   */
+  comments?: Array<[number, number]>;
+};
 
 /** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind, and a fence by its first line. */
 export type ShownLine = { after: number; text: string };
@@ -387,6 +396,67 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/** What a request carries in place of a comment inside a unit. */
+export const COMMENT_MARKER = '(comment)';
+
+/**
+ * The comments of a text as [from, to) offsets: `<!--` up to and with the next `-->`, or up to the end of the
+ * text when it never closes. A comment opened inside a `skip` range (a fence) is not one. Line endings do not matter.
+ */
+export function commentRanges(
+  text: string,
+  skip: ReadonlyArray<readonly [number, number]> = [],
+): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  let at = 0;
+  for (;;) {
+    const open = text.indexOf('<!--', at);
+    if (open < 0) return ranges;
+    const fence = skip.find(([from, to]) => open >= from && open < to);
+    if (fence) {
+      at = fence[1];
+      continue;
+    }
+    const close = text.indexOf('-->', open + 4);
+    const end = close < 0 ? text.length : close + 3;
+    ranges.push([open, end]);
+    at = end;
+  }
+}
+
+/**
+ * The text of a unit as a request carries it: every comment in it replaced by `(comment)`. `at[i]` is the offset
+ * in the unit of the character `i` of the result (the marker maps onto the comment it replaces). This is the one
+ * place that decides what of a unit leaves in a request; the ledger, the ids and the atoms read the unit itself.
+ */
+export function requestTextOf(unit: Pick<WindowUnit, 'text' | 'comments'>): { text: string; at: number[] } {
+  const ranges = unit.comments ?? commentRanges(unit.text);
+  let text = '';
+  const at: number[] = [];
+  let pos = 0;
+  const copyTo = (to: number) => {
+    for (; pos < to; pos++) {
+      text += unit.text[pos] as string;
+      at.push(pos);
+    }
+  };
+  for (const [from, to] of ranges) {
+    copyTo(from);
+    text += COMMENT_MARKER;
+    for (let k = 0; k < COMMENT_MARKER.length; k++) at.push(k === COMMENT_MARKER.length - 1 ? to - 1 : from);
+    pos = to;
+  }
+  copyTo(unit.text.length);
+  return { text, at };
+}
+
+/** `flatten` of the request text of a unit; `at` carries an offset back to the unit's own text. */
+export function shownOf(unit: Pick<WindowUnit, 'text' | 'comments'>): { text: string; at: number[] } {
+  const masked = requestTextOf(unit);
+  const flat = flatten(masked.text);
+  return { text: flat.text, at: flat.at.map((index) => masked.at[index] as number) };
+}
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
  * kept is the unit's own text, never the copy. `reason` says why not.
@@ -419,7 +489,7 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(flatten(unit.text).text, text);
+        const found = locateSpanText(shownOf(unit).text, text);
         return 'reason' in found
           ? { ...rest, from: -1, to: -1, unlocated: found.reason }
           : { ...rest, ...found };
@@ -460,7 +530,7 @@ function checkExtras(
       const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
       const seen: SpanAnswer[] = [];
       const counted: Array<{ kind: string; from: number; to: number; where: string }> = [];
-      const shown = flatten(unit.text);
+      const shown = shownOf(unit);
       for (const span of entry.spans) {
         const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
         const refuse = (reason: string) => out.dropped.push(reason);
