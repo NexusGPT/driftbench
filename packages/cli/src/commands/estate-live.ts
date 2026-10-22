@@ -574,6 +574,7 @@ export async function estateRunCommand(
   const failed = lines.length - passed - notApplicable - unscored;
   const costs = lines.map((line) => line.costUsd).filter((cost): cost is number => cost !== null);
   const total = costs.reduce((sum, cost) => sum + cost, 0);
+  if (!options.json) io.out(`PROBE ${await store.metaGet(ESTATE_SALT_KEY)}\n`);
   if (options.json) {
     io.out(
       `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, ...(radiusRecord ? { radius: radiusRecord, carryNote: radiusNote } : {}), judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed, undecided, notApplicable, ...(unscored > 0 ? { notRun: unscored } : {}), costUsd: total }, null, 2)}\n`,
