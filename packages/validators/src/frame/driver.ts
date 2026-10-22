@@ -184,7 +184,11 @@ if («setup».command) {
       const «ret» = «encode»(«result»);
       const «moved» = [];
       if («setup».aliasing) {
-        for (const «each» of «recent») if («print»(«each».live) !== «each».text) «moved».push(«each».call);
+        for (const «each» of «recent») {
+          const «now» = «print»(«each».live);
+          // A change is reported by the one call after which it is seen, not again by the calls that follow.
+          if («now» !== «each».text) { «moved».push(«each».call); «each».text = «now»; }
+        }
         if («result» !== null && typeof «result» === 'object') {
           const «text» = «print»(«result»);
           if («text».length <= 50000) {

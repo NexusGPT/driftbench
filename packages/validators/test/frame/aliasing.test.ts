@@ -47,4 +47,16 @@ describe('aliased results under the frame', () => {
   it.each(['shared', 'overwrite'] as const)('%s: nothing is reported when the option is off', (name) => {
     expect(twoCalls(name, false).found).toBeUndefined();
   });
+
+  it('reports a change once, at the call after which it is seen', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.overwrite([1]);
+    frame.product.overwrite([2]);
+    const later = frame.position();
+    frame.product.fresh([3]);
+    frame.product.fresh([4]);
+    expect(frame.aliasSince(0)).toContain('has changed since');
+    expect(frame.aliasSince(later)).toBeUndefined();
+  });
 });
