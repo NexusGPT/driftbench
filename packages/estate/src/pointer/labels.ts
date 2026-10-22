@@ -298,13 +298,23 @@ export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
 
-/** `5` or `5-7` as the numbers it names. */
-export function expandUnits(units: string): number[] | undefined {
+/** The most numbers a range may name when the window's own size is not known. */
+export const MAX_RANGE = 10_000;
+
+/** The number of the last line of a window, units and shown lines: a range up to it is a range of this window. */
+export const lastLineOf = (window: Window): number =>
+  Math.max(0, ...window.units.map((unit) => unit.n), ...(window.display ?? []).map((line) => line.n));
+
+/**
+ * `5` or `5-7` as the numbers it names. A range may name `MAX_RANGE` numbers, or as many as the window has lines
+ * (`last`, from `lastLineOf`), so a window of any size takes a range over all of it and "1-999999999" is not expanded.
+ */
+export function expandUnits(units: string, last = 0): number[] | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
   if (!match) return undefined;
   const from = Number(match[1]);
   const to = Number(match[2] ?? match[1]);
-  if (to < from || to - from > 10_000) return undefined;
+  if (to < from || to - from > Math.max(MAX_RANGE, last)) return undefined;
   return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
 }
 
@@ -322,7 +332,7 @@ export function shownLabelDrops(
   const labels: Labelled[] = [];
   const dropped: Array<{ line: number; label: string }> = [];
   for (const entry of answer) {
-    const named = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    const named = typeof entry.units === 'string' ? expandUnits(entry.units, lastLineOf(window)) : undefined;
     if (
       entry.label !== 'none' &&
       (known === undefined || known.has(entry.label)) &&
@@ -377,7 +387,7 @@ export function checkAnswer(
       refuse(`${window.id}: label-not-in-set (${set.set})`);
       continue;
     }
-    const named = expandUnits(entry.units);
+    const named = expandUnits(entry.units, lastLineOf(window));
     if (!named) {
       refuse(`${window.id}: units-not-a-number-or-range`);
       continue;

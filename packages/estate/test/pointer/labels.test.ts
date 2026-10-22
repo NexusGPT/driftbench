@@ -236,6 +236,28 @@ describe('checking an answer', () => {
     ]);
   });
 
+  it('accepts a range over a window of more than 10,001 units, and still refuses one that leaves it', () => {
+    const big = {
+      id: 'big.md#1',
+      path: 'big.md',
+      headingPath: [],
+      units: Array.from({ length: 12_293 }, (_, at) => ({ n: at + 1, text: `unit ${at + 1}`, index: at })),
+    };
+    const whole = checkAnswer(counter, big, [{ units: '1-12293', label: 'greeting' }]);
+    expect(whole.refusals).toEqual([]);
+    expect(whole.accepted.size).toBe(12_293);
+    // A range that leaves the window is refused as leaving it, and a blow-up range is refused without being expanded.
+    expect(checkAnswer(counter, big, [{ units: '1-12294', label: 'greeting' }]).refusals).toEqual([
+      'big.md#1: "1-12294" leaves the window',
+    ]);
+    expect(checkAnswer(counter, big, [{ units: '1-999999999', label: 'greeting' }]).invalid).toEqual([
+      'big.md#1: units-not-a-number-or-range',
+    ]);
+    // The units of a recorded failure are stored as written when they are a range of this window.
+    expect(expandUnits('1-12293', 12_293)).toHaveLength(12_293);
+    expect(expandUnits('1-12293')).toBeUndefined();
+  });
+
   it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
     const same = checkAnswer(counter, window, [
       { units: '1-2', label: 'greeting' },

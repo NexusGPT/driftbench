@@ -50,6 +50,7 @@ export {
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
+  lastLineOf,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
