@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import type { Ambient } from '../../../../frame';
 import type { Plan, PlanOptions, Row, Sources, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
-import { build, type ItemContext, planOf, sameObjects, type StemRun } from '../item';
+import { build, type ItemContext, planOf, type StemRun, sameObjects } from '../item';
 import {
   forbidRandom,
   makeSpace,

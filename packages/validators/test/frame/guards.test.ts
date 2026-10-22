@@ -124,14 +124,10 @@ describe('the sharing guard around a call', () => {
 
   it('limited to named functions, it leaves the others alone', () => {
     const frame = frameOf();
-    const found = frame.guarded(
-      ['sharing'],
-      () => {
-        frame.product.returnsItsArgument({ items: [1] });
-        return frame.guardSince(0);
-      },
-      ['total'],
-    );
+    const found = frame.guarded(['sharing'], () => {
+      frame.product.returnsItsArgument({ items: [1] });
+      return frame.guardSince(0);
+    }, ['total']);
     expect(found).toBeUndefined();
   });
 

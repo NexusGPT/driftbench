@@ -649,7 +649,15 @@ export function wrapperModule(
 export function plainCodec(
   seed: number,
   tag: string,
-): { source: string; encode: string; decode: string; handles: string; deepFreeze: string; pin: string; under: string } {
+): {
+  source: string;
+  encode: string;
+  decode: string;
+  handles: string;
+  deepFreeze: string;
+  pin: string;
+  under: string;
+} {
   const name = namer(seed, `codec:${tag}`);
   const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('pin')}, ${name('under')} };\n`;
   return {
