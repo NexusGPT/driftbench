@@ -2,123 +2,35 @@ import { createHash } from 'node:crypto';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { pointer } from '@agent-nexus/driftbench-estate';
+import type { variables } from '@agent-nexus/driftbench-estate';
 import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
 
 /**
- * The numbers of a gold estate, asked one instruction at a time. After the labels, each instruction or gate atom
- * gets one structured request with its own quote: does it state a number that limits it? The answer lands on that
- * atom, so nothing is located and nothing is bound. The answers are recorded once (`record-asks.ts`) and replayed;
- * code reads no word of any quote.
+ * The model port of the limit producer (`variables.produceLimits`) for the gold estates: the answers are recorded
+ * once (`record-asks.ts`) in examples/estates/gold-<x>/limits.ask.<model>.jsonl and replayed by the hash of the request.
+ * A request with no recorded answer stops the run, so CI never reaches a model.
  */
 export const ASK_MODEL = 'claude-haiku-5-5';
-/** Runs of the same request; a limit stands when at least 2 of them agree on value, comparison and role. */
-export const ASK_RUNS = 3;
-export const COMPARISONS = ['lt', 'le', 'gt', 'ge'] as const;
-export const ROLES = ['constraint', 'trigger'] as const;
-export type Limit = {
-  limit: number;
-  comparison: (typeof COMPARISONS)[number];
-  role: (typeof ROLES)[number];
-  unit?: string;
-};
 
-export const ASK_SYSTEM = [
-  'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings above it,',
-  'the tables of its section, the units that scope it and the unit before and after it. The place is context only, to read what the instruction refers to;',
-  'answer about the INSTRUCTION alone, never about another line of the section.',
-  'A limit is a number that a rule constrains: a maximum, a minimum, a deadline or a count of an act. A number that only',
-  'names something is not a limit: a phone number, a size specification, a count of parts in a description.',
-  'Say whether the instruction states, or points at a table that gives, such a limit. Answer with one JSON object and nothing else:',
-  '{"limits": [{"limit": <the number as a JSON number>, "comparison": "lt" | "le" | "gt" | "ge", "role": "constraint" | "trigger",',
-  '"unit": <what the number counts, a short text, or leave it out>}]}. An empty list when there is none.',
-  'comparison is how the quantity compares with the limit for the condition to hold: lt less than, le at most, gt more than, ge at least.',
-  'role is constraint when the comparison is the compliant range of the act (what the rule allows), and trigger when the comparison is the',
-  'range where the rule applies (when it starts to act).',
-  'Examples, invented: "Answer a harbour call within two hours" gives limit 2, comparison le, role constraint, unit hours.',
-  '"Keep at least three spare keys in the cabinet" gives limit 3, comparison ge, role constraint, unit keys.',
-  '"If a parcel is late by more than four days, tell the sender" gives limit 4, comparison gt, role trigger, unit days.',
-  '"When fewer than five seats remain, close the booking" gives limit 5, comparison lt, role trigger, unit seats.',
-].join(' ');
-
-/**
- * Where an instruction sits, by the structure of the Markdown file: the headings above its first line, and the tables
- * of its section (runs of lines that start with a bar). No word of the file is read.
- */
-export function contextOf(text: string, line: number, scopes?: string, endLine: number = line): string {
-  const lines = text.split('\n');
-  const stack: string[] = [];
-  let sectionStart = 0;
-  for (let at = 0; at < Math.min(line, lines.length); at++) {
-    const heading = /^(#{1,6})\s+(.*)$/.exec(lines[at] ?? '');
-    if (heading?.[1] !== undefined) {
-      stack.length = heading[1].length - 1;
-      stack[heading[1].length - 1] = (heading[2] ?? '').trim();
-      sectionStart = at;
-    }
-  }
-  let sectionEnd = lines.length;
-  for (let at = Math.max(line, sectionStart + 1); at < lines.length; at++) {
-    if (/^#{1,6}\s+/.test(lines[at] ?? '')) {
-      sectionEnd = at;
-      break;
-    }
-  }
-  const tables: string[] = [];
-  let run: string[] = [];
-  for (const row of lines.slice(sectionStart, sectionEnd)) {
-    if (row.trimStart().startsWith('|')) run.push(row.trim());
-    else if (run.length > 0) {
-      tables.push(run.join('\n'));
-      run = [];
-    }
-  }
-  if (run.length > 0) tables.push(run.join('\n'));
-  const path = stack.filter((heading) => heading !== undefined && heading !== '').join(' > ');
-  // The unit before and the unit after the instruction, when they sit in the same section (the cut of the pointer reader).
-  const offsets: number[] = [];
-  let total = 0;
-  for (const row of lines) {
-    offsets.push(total);
-    total += row.length + 1;
-  }
-  const from = offsets[Math.min(line, lines.length) - 1] ?? 0;
-  const to = offsets[Math.min(endLine, lines.length)] ?? text.length;
-  const units = pointer.cut(text).units;
-  const first = units.findIndex((unit) => unit.end > from);
-  let last = first;
-  while (units[last + 1] !== undefined && (units[last + 1]?.start ?? Number.POSITIVE_INFINITY) < to) last++;
-  const sameSection = (index: number) =>
-    units[index] !== undefined && first >= 0 && units[index]?.path.join('>') === units[first]?.path.join('>');
-  const around = [
-    sameSection(first - 1) ? `PREVIOUS UNIT: ${units[first - 1]?.text.trim()}` : '',
-    sameSection(last + 1) ? `NEXT UNIT: ${units[last + 1]?.text.trim()}` : '',
-  ].filter((row) => row !== '');
-  const neighbours = around.length === 0 ? '' : `\n${around.join('\n')}`;
-  const scoped =
-    scopes === undefined || scopes.trim() === ''
-      ? ''
-      : `\nUNITS THAT SCOPE IT, linked by the map:\n${scopes.trim()}`;
-  return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}${scoped}`;
-}
-
-export const askBody = (model: string, quote: string, context: string): Record<string, unknown> => ({
+export const askBody = (model: string, request: variables.LimitRequest): Record<string, unknown> => ({
   model,
   max_tokens: 400,
   ...(model === ASK_MODEL ? { thinking: { type: 'disabled' } } : {}),
-  system: ASK_SYSTEM,
-  messages: [{ role: 'user', content: `PLACE:\n${context}\n\nINSTRUCTION:\n${quote}` }],
+  system: request.system,
+  messages: [{ role: 'user', content: request.user }],
 });
 
+/** One answer per request: the key is the hash of the body and the run number, which is always 1. */
 export const askKey = (body: Record<string, unknown>): string =>
-  createHash('sha256').update(JSON.stringify(body)).digest('hex');
+  `${createHash('sha256').update(JSON.stringify(body)).digest('hex')}#1`;
 
 type Entry = { key: string; quote: string; text: string; usage: { input: number; output: number } };
+export type Spent = { input: number; output: number; requests: number };
 
 export const askPath = (estate: EstateName, model: string): string =>
   join(estateFolder(estate), `limits.ask.${model}.jsonl`);
 
-function load(estate: EstateName, model: string): Map<string, Entry> {
+export function loadAsks(estate: EstateName, model: string): Map<string, Entry> {
   const path = askPath(estate, model);
   const out = new Map<string, Entry>();
   if (!existsSync(path)) return out;
@@ -130,115 +42,61 @@ function load(estate: EstateName, model: string): Map<string, Entry> {
   return out;
 }
 
-/** The limits an answer text states, or why it cannot be read. The answer is JSON; anything else gives no limit. */
-export function limitsOfAnswer(text: string): { limits: Limit[]; problem?: string } {
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start < 0 || end < start) return { limits: [], problem: 'no JSON object' };
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    return { limits: [], problem: 'the JSON does not parse' };
-  }
-  const list = (parsed as { limits?: unknown }).limits;
-  if (!Array.isArray(list)) return { limits: [], problem: 'no limits list' };
-  const limits: Limit[] = [];
-  for (const item of list) {
-    const { limit, comparison, role, unit } = (item ?? {}) as Record<string, unknown>;
-    if (typeof limit !== 'number' || !Number.isFinite(limit))
-      return { limits: [], problem: 'a limit is no number' };
-    if (!(COMPARISONS as readonly unknown[]).includes(comparison))
-      return { limits: [], problem: 'a comparison is unknown' };
-    if (!(ROLES as readonly unknown[]).includes(role)) return { limits: [], problem: 'a role is unknown' };
-    limits.push({
-      limit,
-      comparison: comparison as Limit['comparison'],
-      role: role as Limit['role'],
-      ...(typeof unit === 'string' && unit.trim() !== '' ? { unit: unit.trim() } : {}),
-    });
-  }
-  return { limits };
-}
-
-export type Spent = { input: number; output: number; requests: number };
-
-/** The answer for a quote: replayed from the cassette; recorded live only when the recorder asks for it. */
-export async function answerFor(
-  estate: EstateName,
-  model: string,
-  quote: string,
-  context: string,
-  run: number,
-  cache: Map<string, Entry>,
-  spent: Spent,
-  record?: { key: string; capIn: number; capOut: number },
-): Promise<string> {
-  const body = askBody(model, quote, context);
-  const key = `${askKey(body)}#${run}`;
-  const hit = cache.get(key);
-  if (hit) return hit.text;
-  if (!record)
-    throw new Error(`no recorded answer for a quote of estate ${estate} (${model}): run record-asks.ts`);
-  if (spent.input >= record.capIn || spent.output >= record.capOut) {
-    throw new Error(
-      `the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`,
-    );
-  }
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': record.key,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok)
-    throw new Error(`the provider answered ${response.status}: ${(await response.text()).slice(0, 300)}`);
-  const payload = (await response.json()) as {
-    content: Array<{ type: string; text?: string }>;
-    usage: { input_tokens: number; output_tokens: number };
-  };
-  const text = payload.content
-    .filter((block) => block.type === 'text')
-    .map((block) => block.text ?? '')
-    .join('');
-  const entry: Entry = {
-    key,
-    quote,
-    text,
-    usage: { input: payload.usage.input_tokens, output: payload.usage.output_tokens },
-  };
-  appendFileSync(askPath(estate, model), `${JSON.stringify(entry)}\n`);
-  cache.set(key, entry);
-  spent.input += entry.usage.input;
-  spent.output += entry.usage.output;
-  spent.requests++;
-  return text;
-}
-
-export const loadAsks = load;
 export const readKey = (): string =>
   readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
 
-/** The vote of the runs: a limit stands when at least 2 runs give the same value, comparison and role. */
-export function voteLimits(texts: readonly string[]): { limits: Limit[]; unreadable: number } {
-  const reads = texts.map((text) => limitsOfAnswer(text));
-  const seen = new Map<string, { limit: Limit; runs: number }>();
-  for (const read of reads) {
-    const once = new Set<string>();
-    for (const limit of read.limits) {
-      const key = `${limit.limit}|${limit.comparison}|${limit.role}`;
-      if (once.has(key)) continue;
-      once.add(key);
-      const known = seen.get(key);
-      if (known) known.runs++;
-      else seen.set(key, { limit, runs: 1 });
+/** The port: replays the recorded answer; with `record`, asks the provider on a miss and appends the answer. */
+export function askPort(
+  estate: EstateName,
+  model: string,
+  cache: Map<string, Entry>,
+  spent: Spent,
+  record?: { key: string; capIn: number; capOut: number },
+): variables.LimitAsk {
+  return async (request) => {
+    const body = askBody(model, request);
+    const key = askKey(body);
+    const hit = cache.get(key);
+    if (hit) return hit.text;
+    if (!record) {
+      throw new Error(`no recorded answer for a request of estate ${estate} (${model}): run record-asks.ts`);
     }
-  }
-  return {
-    limits: [...seen.values()].filter((entry) => entry.runs >= 2).map((entry) => entry.limit),
-    unreadable: reads.filter((read) => read.problem !== undefined).length,
+    if (spent.input >= record.capIn || spent.output >= record.capOut) {
+      throw new Error(
+        `the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`,
+      );
+    }
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': record.key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error(`the provider answered ${response.status}: ${(await response.text()).slice(0, 300)}`);
+    }
+    const payload = (await response.json()) as {
+      content: Array<{ type: string; text?: string }>;
+      usage: { input_tokens: number; output_tokens: number };
+    };
+    const text = payload.content
+      .filter((block) => block.type === 'text')
+      .map((block) => block.text ?? '')
+      .join('');
+    const entry: Entry = {
+      key,
+      quote: request.user.slice(request.user.lastIndexOf('INSTRUCTION:\n') + 13),
+      text,
+      usage: { input: payload.usage.input_tokens, output: payload.usage.output_tokens },
+    };
+    appendFileSync(askPath(estate, model), `${JSON.stringify(entry)}\n`);
+    cache.set(key, entry);
+    spent.input += entry.usage.input;
+    spent.output += entry.usage.output;
+    spent.requests++;
+    return text;
   };
 }

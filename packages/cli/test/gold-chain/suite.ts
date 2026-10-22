@@ -30,7 +30,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, ASK_RUNS, answerFor, contextOf, loadAsks, voteLimits } from './limits-ask';
+import { ASK_MODEL, askPort, loadAsks } from './limits-ask';
 import { appliedScopes } from './scopes';
 
 /**
@@ -339,46 +339,25 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         const asks = loadAsks(estate, ASK_MODEL);
         const spent = { input: 0, output: 0, requests: 0 };
-        const produced = new Map<string, { atomId: string; unit?: string }>();
-        const byAtom = new Map<string, Array<{ limit: number; comparison: string; unit?: string }>>();
         const atomUnits = new Map([...atomOf].map(([goldId, atom]) => [atom.id, goldId]));
-        for (const atom of atomOf.values()) {
-          const context = contextOf(
-            texts.get(atom.provenance.file) ?? '',
-            atom.provenance.startLine,
-            atom.situation,
-            atom.provenance.endLine,
-          );
-          const texts3: string[] = [];
-          for (let run = 1; run <= ASK_RUNS; run++) {
-            texts3.push(await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, run, asks, spent));
-          }
-          const read = voteLimits(texts3);
-          if (read.unreadable >= 2)
-            problems.push(
-              `answers unreadable on ${atomUnits.get(atom.id)}: ${read.unreadable} of ${ASK_RUNS}`,
-            );
-          if (read.limits.length > 0) {
-            // The feed reads { limit, comparison, unit? }; the role is kept for the check above.
-            byAtom.set(
-              atom.id,
-              read.limits.map(({ role: _role, ...rest }) => rest),
-            );
-          }
-          for (const found of read.limits) {
-            produced.set(key(atom.id, found.limit, found.comparison, found.role), {
-              atomId: atom.id,
+        const asked = await variables.produceLimits(approved, {
+          texts,
+          ask: askPort(estate, ASK_MODEL, asks, spent),
+          include: (atom) => atomUnits.has(atom.id),
+        });
+        for (const entry of asked.unreadable) {
+          problems.push(`answer unreadable on ${atomUnits.get(entry.atom)}: ${entry.reason}`);
+        }
+        const produced = new Map<string, { atomId: string; unit?: string }>();
+        for (const [atomId, list] of asked.limits) {
+          for (const found of list) {
+            produced.set(key(atomId, found.limit, found.comparison, found.role), {
+              atomId,
               ...(found.unit === undefined ? {} : { unit: found.unit }),
             });
           }
         }
-        const limited: EstateMap = {
-          ...approved,
-          atoms: approved.atoms.map((atom) => {
-            const found = byAtom.get(atom.id);
-            return found ? { ...atom, fields: { ...atom.fields, condition: found } } : atom;
-          }),
-        };
+        const limited = variables.withLimits(approved, asked.limits);
         const withLimits = variables.estateToVariables(limited, resolver);
         const conditions = withLimits.store.variables.filter((variable) =>
           variable.id.startsWith('condition.'),
@@ -403,7 +382,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const others = approved.atoms
           .filter((atom) => !atomUnits.has(atom.id) && !refusedAtoms.has(atom.id))
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
-        const producedCount = [...byAtom.values()].reduce((sum, list) => sum + list.length, 0);
+        const producedCount = [...asked.limits.values()].reduce((sum, list) => sum + list.length, 0);
         if (conditions.length !== producedCount + others) {
           problems.push(
             `${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`,

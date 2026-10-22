@@ -11,7 +11,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { pointer, readerFor, scanEstate } from '@agent-nexus/driftbench-estate';
+import { pointer, readerFor, scanEstate, variables } from '@agent-nexus/driftbench-estate';
 import {
   ESTATE_NAMES,
   type EstateName,
@@ -23,7 +23,7 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, ASK_RUNS, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
+import { ASK_MODEL, askPort, loadAsks, readKey } from './limits-ask';
 import { appliedScopes } from './scopes';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
@@ -70,35 +70,14 @@ async function record(estate: EstateName, key: string) {
     const texts = new Map<string, string>();
     for (const path of Object.values(LAYOUT[estate]))
       texts.set(path, await readFile(join(dir, path), 'utf8'));
-    const asks = new Map<string, { quote: string; context: string }>();
-    for (const atom of scan.map.atoms) {
-      if (atom.kind !== 'instruction' || atom.fields?.extraction !== 'pointer') continue;
-      const context = contextOf(
-        texts.get(atom.provenance.file) ?? '',
-        atom.provenance.startLine,
-        atom.situation,
-        atom.provenance.endLine,
-      );
-      asks.set(`${atom.provenance.quote}\n${context}`, { quote: atom.provenance.quote, context });
-    }
-    const quotes = [...asks.values()];
     const cache = loadAsks(estate, ASK_MODEL);
     const spent = { input: 0, output: 0, requests: 0 };
-    let next = 0;
-    const worker = async () => {
-      for (;;) {
-        const ask = quotes[next++];
-        if (ask === undefined) return;
-        for (let run = 1; run <= ASK_RUNS; run++) {
-          await answerFor(estate, ASK_MODEL, ask.quote, ask.context, run, cache, spent, {
-            key,
-            capIn,
-            capOut,
-          });
-        }
-      }
-    };
-    await Promise.all([worker(), worker(), worker(), worker()]);
+    const produced = await variables.produceLimits(scan.map, {
+      texts,
+      ask: askPort(estate, ASK_MODEL, cache, spent, { key, capIn, capOut }),
+      include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
+    });
+    const quotes = { length: produced.requests };
     return { ...spent, quotes: quotes.length };
   } finally {
     await rm(dir, { recursive: true, force: true });
