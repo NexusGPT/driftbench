@@ -155,6 +155,11 @@ export type Frame<T> = {
   tainted(): string | undefined;
   /** Ends both runs and removes their files. */
   close(): void;
+  /**
+   * Resolves when the relay worker thread of a closed frame has ended. A process that exits while the worker is still
+   * shutting down can fail to exit (bank children on Node 24, PR 986); wait for this before `process.exit`.
+   */
+  ended(): Promise<void>;
 };
 
 type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
@@ -550,6 +555,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   let first: string | undefined;
   let taint: string | undefined;
   let closed = false;
+  let ended: Promise<void> = Promise.resolve();
   const close = () => {
     if (closed) return;
     trace('close begin');
@@ -566,7 +572,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     } catch {
       // the runs are ended by terminate below
     }
-    void relay.worker.terminate();
+    // Kept, so that a caller about to end its process can wait for the worker thread to be gone first (ended).
+    ended = relay.worker.terminate().then(() => {
+      trace('relay worker ended');
+    });
     for (const plan of plans) {
       rmSync(plan.driverDir, { recursive: true, force: true });
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
@@ -827,6 +836,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return taint;
     },
     close,
+    ended: () => ended,
   };
 }
 
