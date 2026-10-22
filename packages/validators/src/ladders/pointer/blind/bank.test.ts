@@ -20,6 +20,8 @@ function stub(
   item: BankItem,
   seed: number,
   mutate?: (response: Json, io: PointerIO, probe: Probe) => unknown,
+  /** The body a scripted fetch sends instead of the clean one. */
+  fetchBody?: (probe: Probe) => Json,
 ): PointerAdapter {
   const probes = item.generate(seed).probes;
   let i = 0;
@@ -34,7 +36,7 @@ function stub(
             io.readKey();
             break;
           case 'fetch':
-            await io.fetch({ body: effect.value ?? null });
+            await io.fetch({ body: fetchBody ? fetchBody(p) : (effect.value ?? null) });
             break;
           case 'cache':
             io.readCassette();
@@ -469,6 +471,46 @@ describe('blind pointer bank harness', () => {
       };
       expect((await runItem(item, 1, fake)).pass, item.id).toBe(false);
     }
+  });
+
+  it('passes the scripted honest transport on every privacy item and fails one that sends an opaque block whole', async () => {
+    const opaque = bank.filter((i) => i.family === 'privacy' && /^privacy\.(fence|comment)\./.test(i.id));
+    expect(opaque.map((i) => i.id).sort()).toEqual([
+      'privacy.comment.ci-hit',
+      'privacy.comment.ci-miss',
+      'privacy.comment.record',
+      'privacy.fence.ci-hit',
+      'privacy.fence.ci-miss',
+      'privacy.fence.no-request',
+      'privacy.fence.record',
+    ]);
+    for (const item of bank.filter((i) => i.family === 'privacy'))
+      for (const seed of [1, 2, 3]) {
+        const outcome = await runItem(item, seed, stub(item, seed));
+        expect(outcome.pass, item.id).toBe(true);
+      }
+    // Only the items that send a request can leak through it.
+    for (const item of opaque.filter((i) => /record$|no-request$/.test(i.id)))
+      for (const seed of [1, 2, 3]) {
+        const whole = stub(item, seed, undefined, (p) => (p.request.input as { source: Json }).source);
+        const outcome = await runItem(item, seed, whole);
+        expect(outcome.pass, `${item.id} seed ${seed}`).toBe(false);
+      }
+  });
+
+  it('fails a reader that never sends a request beside an opaque block, and one that sends one for a fence alone', async () => {
+    const item = bank.find((i) => i.id === 'privacy.fence.no-request') as BankItem;
+    const quiet: PointerAdapter = { execute: () => ({ labels: [], status: 'no-request' }) };
+    expect((await runItem(item, 1, quiet)).pass).toBe(false);
+    const chatty: PointerAdapter = {
+      execute: async (request, io) => {
+        if (!io) throw new Error('no io');
+        io.readKey();
+        await io.fetch({ body: { messages: [{ role: 'user', content: 'Fictional public padding.' }] } });
+        return { labels: [{ units: '1', label: 'x' }], status: 'ok' };
+      },
+    };
+    expect((await runItem(item, 1, chatty)).pass).toBe(false);
   });
 
   it('detects every marker character and every split, including escaped values and object keys', () => {
