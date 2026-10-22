@@ -39,6 +39,8 @@ export {
   usageOf,
 } from './labeler';
 export {
+  ANCHOR_REACH,
+  anchorUnits,
   type Checked,
   canonical,
   checkAnswer,

@@ -276,6 +276,10 @@ export type Window = {
 export type Labelled = {
   units: string;
   label: string;
+  /** The first words of the unit the labeler meant, as it answered; `anchorUnits` turns them into `anchored`. */
+  anchor?: string;
+  /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
+  anchored?: number | null;
   target?: number;
   spans?: SpanInput[];
   links?: LinkAnswer[];
@@ -484,6 +488,48 @@ export function locateSpanText(
   if (first < 0) return { reason: 'the text is not in the unit' };
   if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
+}
+
+/** How far an anchor words are from the start of a line: they must begin within its first words. */
+export const ANCHOR_REACH = 6;
+
+/** The letters and digits of a text, lower case, as words: what an anchor is compared on. */
+const anchorWords = (text: string): string[] =>
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+    .split(' ')
+    .filter((word) => word !== '');
+
+/**
+ * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
+ * it points, so the words never reach a cassette: `anchored` is the number of lines from the first unit the entry
+ * names to the line the anchor starts (0 when it starts that unit, -1 for the line before), or null when it starts
+ * no line, or several and not the entry's own. A line starts with an anchor when its words hold the anchor's words in
+ * a row, beginning within its first `ANCHOR_REACH` words, so a rule number or a list mark before them is no
+ * mismatch. An entry with no anchor, or an empty one, keeps none.
+ */
+export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
+  const lines = [
+    ...window.units.map((unit): [number, string[]] => [unit.n, anchorWords(unit.text)]),
+    ...(window.display ?? []).map((line): [number, string[]] => [line.n, anchorWords(line.text)]),
+  ];
+  return entries.map((entry) => {
+    const { anchor, ...rest } = entry;
+    const words = typeof anchor === 'string' ? anchorWords(anchor) : [];
+    const first = expandUnits(entry.units)?.[0];
+    if (words.length === 0 || first === undefined) return rest;
+    const starts = (line: string[]) => {
+      for (let at = 0; at < ANCHOR_REACH && at + words.length <= line.length; at++) {
+        if (words.every((word, offset) => line[at + offset] === word)) return true;
+      }
+      return false;
+    };
+    const found = lines.filter(([, line]) => starts(line)).map(([n]) => n);
+    const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
+    return { ...rest, anchored };
+  });
 }
 
 /**

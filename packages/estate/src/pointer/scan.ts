@@ -312,13 +312,22 @@ export const REASK_LIMIT = 3;
 /** How many more runs a window gets when the two most given labels of one of its units tie. */
 export const SPLIT_REASK_RUNS = 2;
 
-/** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
-export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
+/**
+ * The counts of an out-of-step answer, or undefined when the run is in step: the clauses it quotes and those not in
+ * their unit, and the entries whose anchor starts another line than the unit they name (`slipped`). One
+ * slipped entry is enough: its anchor says which unit the labeler meant, and it is not the one it numbered.
+ */
+export function outOfStep(
+  answer: unknown,
+): { quoted: number; unlocated: number; slipped: number } | undefined {
   const labels = (answer as { labels?: unknown })?.labels;
   if (!Array.isArray(labels)) return undefined;
   let quoted = 0;
   let unlocated = 0;
+  let slipped = 0;
   for (const entry of labels) {
+    const anchored = (entry as { anchored?: unknown })?.anchored;
+    if (typeof anchored === 'number' && anchored !== 0) slipped++;
     const spans = (entry as { spans?: unknown })?.spans;
     if (!Array.isArray(spans)) continue;
     for (const span of spans) {
@@ -326,10 +335,16 @@ export function outOfStep(answer: unknown): { quoted: number; unlocated: number 
       if (typeof (span as { unlocated?: unknown })?.unlocated === 'string') unlocated++;
     }
   }
-  return unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE
-    ? { quoted, unlocated }
+  return slipped > 0 || (unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE)
+    ? { quoted, unlocated, slipped }
     : undefined;
 }
+
+/** Why a run is out of step, for the report. */
+const slipReason = (slipped: { quoted: number; unlocated: number; slipped: number }): string =>
+  slipped.slipped > 0
+    ? `${slipped.slipped} entries are anchored on another line than the one they number`
+    : `${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit`;
 
 // A refused answer (a refusal, a stop at max_tokens) is retried once like an unreadable one, then fails.
 const RETRYABLE = (cause: unknown): boolean =>
@@ -761,7 +776,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer) : undefined;
       if (slipped) {
         outOfStepRuns.push(
-          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; the run is left out of the vote`,
         );
         const run = runOf(task, task.run);
         const off = unheard.get(run) ?? new Set<number>();
@@ -798,7 +813,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const slipped = outOfStep(leaf.answer);
       if (slipped) {
         outOfStepRuns.push(
-          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipReason(slipped)}; the run is left out of the vote`,
         );
         continue;
       }
@@ -984,7 +999,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const slipped = outOfStep(leaf.answer);
       if (slipped) {
         outOfStepRuns.push(
-          `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipReason(slipped)}; the run is left out of the vote`,
         );
         continue;
       }
