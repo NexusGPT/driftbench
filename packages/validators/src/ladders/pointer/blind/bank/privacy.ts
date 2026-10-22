@@ -1,3 +1,4 @@
+import type { SampleEffect } from './io';
 import { type BankItem, type Json, type Probe, token } from './types';
 
 const placements = [
@@ -182,6 +183,16 @@ function placementItems(): BankItem[] {
               status: mode === 'ci-miss' ? 'miss' : 'ok',
               plans: [{ characters: source.length }],
             };
+            const effects: SampleEffect[] = [
+              { kind: 'plan', value: { characters: source.length } },
+              ...(mode === 'record'
+                ? ([
+                    { kind: 'key' },
+                    { kind: 'fetch', value: { messages: [{ role: 'user', content: PADDING }] } },
+                    { kind: 'write', path: '.cache/cassette.jsonl', value: [answer], committed: false },
+                  ] satisfies SampleEffect[])
+                : ([{ kind: 'cache' }] satisfies SampleEffect[])),
+            ];
             return {
               request: {
                 operation: 'privacy',
@@ -200,21 +211,7 @@ function placementItems(): BankItem[] {
                 labels: mode === 'ci-miss' ? [] : answer.labels,
                 status: mode === 'ci-miss' ? 'miss' : 'ok',
               },
-              sampleEffects: [
-                { kind: 'plan', value: { characters: source.length } },
-                ...(mode === 'record'
-                  ? [
-                      { kind: 'key' as const },
-                      { kind: 'fetch' as const, value: { messages: [{ role: 'user', content: PADDING }] } },
-                      {
-                        kind: 'write' as const,
-                        path: '.cache/cassette.jsonl',
-                        value: [answer],
-                        committed: false,
-                      },
-                    ]
-                  : [{ kind: 'cache' as const }]),
-              ],
+              sampleEffects: effects,
               observe(actual, trace) {
                 if (!actual || typeof actual !== 'object') return null;
                 const r = actual as Record<string, Json>;
