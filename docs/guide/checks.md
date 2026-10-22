@@ -213,7 +213,7 @@ $ driftbench campaign run specs/tools-pass.yaml
 ✓ tools-pass · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench campaign run fail/tools-fail.yaml   # exit 1
-✗ tools-fail · function:acme-sales · F · repeat 0  fail  block 0 tools.coverage.check.count, block 1 tools.order.create.count, block 1 tool_f1.f1, block 1 forbidden.catalog.search
+✗ tools-fail · function:acme-sales · F · repeat 0  fail  block 0 tools.coverage.check.count, block 1 tools.order.create.count, block 1 forbidden.catalog.search, block 1 tool_f1.f1
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
 
@@ -330,6 +330,10 @@ metadata:
       properties: { address: { type: string } }
       required: [address]
 blocks:
+  - user: Hello, I'm new here and looking for home internet.
+    expect:
+      must: ['Acme']
+
   - user: 3 Orchard Way, Acmeville
     expect:
       must: ['Acme']
@@ -346,6 +350,10 @@ metadata:
       type: object
       properties: { street: { type: string } }
 blocks:
+  - user: Hello, I'm new here and looking for home internet.
+    expect:
+      must: ['Acme']
+
   - user: 3 Orchard Way, Acmeville
     expect:
       must: ['Acme']
@@ -353,10 +361,10 @@ blocks:
 
 ```console
 $ driftbench campaign run specs/schema-pass.yaml
-✓ schema-pass · function:acme-sales · F · repeat 0  pass  1 block
+✓ schema-pass · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench campaign run fail/schema-fail.yaml   # exit 1
-✗ schema-fail · function:acme-sales · F · repeat 0  fail  block 0 schema_strict.coverage.check.1
+✗ schema-fail · function:acme-sales · F · repeat 0  fail  block 1 schema_strict.coverage.check.1
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
 
@@ -449,7 +457,14 @@ $ driftbench campaign run fail/safety-fail.yaml --process-command "[\"node\",\"$
 $ driftbench campaign run fail/text-fail.yaml --process-command "[\"node\",\"$PWD/agent.mjs\"]" --store runs.db   # exit 1
 ✗ text-fail · process:my-agent · F · repeat 0  fail  block 0 must.0, block 1 must_not.0, block 2 exact.0, block 3 regex.0, block 4 starts_with.0, block 5 length.words
 $ driftbench campaign status --store runs.db --json   # exit 1
-        "specId": "text-fail",
+      "specId": "text-fail",
+      "state": "fail",
+      "failing": [
+        "block 0 must.0",
+              "id": "must.0",
+              "outcome": "fail",
+              "gating": true,
+              "evidence": "/\\$12/ is missing; visible text \"The Basic plan costs $10 a month.\""
 ```
 
 **How to read it.**

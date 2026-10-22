@@ -9,7 +9,7 @@ This part shows how values get into a test, and how one table of rows becomes ma
 **You need.**
 
 - Node 22 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
-- A folder for your files, with a folder `intro` for a first spec.
+- A folder for your files, with a folder `intro` for a first spec. Make it inside your clone of this repository, so that `../examples` is the examples folder of the clone.
 
 **Relevant commands.**
 
@@ -184,8 +184,9 @@ block:
 
 ```console
 $ driftbench import csv orders.csv --mapping broken/missing-column.yaml --out broken/out   # exit 2
-$ driftbench import csv examples/acme/import/cases.xlsx --mapping examples/acme/import/mapping.yaml --out broken/out   # exit 2
-import csv reads a .csv or .tsv file; examples/acme/import/cases.xlsx is not one.
+ZZZ
+$ driftbench import csv ../examples/acme/import/cases.xlsx --mapping ../examples/acme/import/mapping.yaml --out broken/out   # exit 2
+import csv reads a .csv or .tsv file; ../examples/acme/import/cases.xlsx is not one.
 ```
 
 ## 3. What each loader accepts
@@ -206,12 +207,12 @@ The Acme example ships a workbook and a mapping. The same rows give the same spe
 
 **Relevant commands.**
 
-- `driftbench import xlsx`: turns one sheet of a workbook into spec files · `examples/acme/import/cases.xlsx` is the workbook. `--mapping` is the mapping, which names the sheet `Cases`. `--out` is the folder that receives the specs · it prints one line per spec and a count.
+- `driftbench import xlsx`: turns one sheet of a workbook into spec files · `../examples/acme/import/cases.xlsx` is the workbook. `--mapping` is the mapping, which names the sheet `Cases`. `--out` is the folder that receives the specs · it prints one line per spec and a count.
 
 **You type.**
 
 ```console
-$ driftbench import xlsx examples/acme/import/cases.xlsx --mapping examples/acme/import/mapping.yaml --out acme-specs
+$ driftbench import xlsx ../examples/acme/import/cases.xlsx --mapping ../examples/acme/import/mapping.yaml --out acme-specs
 ✓ acme-specs/acme-imported-upgrade.yaml  acme-imported-upgrade · 2 blocks · rows 2, 3
 ✓ acme-specs/acme-imported-porting.yaml  acme-imported-porting · 1 block · row 4
 Imported 2 specs from 3 rows of cases.xlsx into acme-specs.
@@ -249,13 +250,17 @@ A-4004,paid,A-4004|paid
 
 ```console
 $ driftbench dataset push order-specs specs --store runs.db --note 'three orders'
-Pushed dataset order-specs@1 (hash 000000000000): 3 files from specs.
+Pushed dataset order-specs@1 (hash 0b20174121e0): 3 files from specs.
 $ driftbench import csv orders.csv --mapping mapping.yaml --out specs --force
 Imported 4 specs from 4 rows of orders.csv into specs.
 $ driftbench dataset push order-specs specs --store runs.db --note 'four orders'
-Pushed dataset order-specs@2 (hash 000000000000): 4 files from specs.
+Pushed dataset order-specs@2 (hash cc0c5a9e18b8): 4 files from specs.
 $ driftbench dataset diff order-specs@2 --store runs.db   # exit 1
+ZZZ
 $ driftbench dataset restore order-specs@1 --store runs.db --out restored
+ZZZ
+$ driftbench dataset list order-specs --store runs.db
+ZZZ
 ```
 
 **How to read it.**
@@ -292,10 +297,11 @@ $ driftbench campaign run --dataset order-specs --campaign c-orders --store runs
 ✓ order-A-4004 · process:my-agent · F · repeat 0  pass  1 block
 4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench campaign status c-orders --store runs.db
-✓ order-A-1042 · process:my-agent · F · repeat 0  pass  1 block
-4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
+ZZZ
 $ driftbench campaign export c-orders --store runs.db --out bundles
+ZZZ
 $ grep -A6 '"sources"' bundles/c-orders/campaign.json
+ZZZ
 ```
 
 **How to read it.**
@@ -392,6 +398,7 @@ main();
 ```console
 $ npx tsx plan.ts
 variables.yaml: 2 variables
+ZZZ
 broken-variables.yaml: VARIABLES_WEIGHT_INCOMPLETE variables.0.values.1.weight
 ```
 

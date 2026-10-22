@@ -58,9 +58,10 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/coverage.yaml
-✓ specs/coverage.yaml  coverage-check · 1 block · hash 0000000000aa
-Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+✓ specs/coverage.yaml  coverage-check · 1 block · hash b7b900096288
+Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 $ driftbench spec lint specs/coverage.yaml
+ZZZ
 $ driftbench spec validate broken/no-user.yaml   # exit 1
 ✗ broken/no-user.yaml
     blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`
@@ -121,7 +122,7 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/coverage.yaml
-✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 0000000000aa
+✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 2802909b66bd
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/bad-pattern.yaml   # exit 1
 ✗ broken/bad-pattern.yaml
@@ -184,6 +185,7 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/no-adapter.yaml   # exit 1
+ZZZ
 ```
 
 **How to read it.**
@@ -255,9 +257,10 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/coverage.yaml
-✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 0000000000aa
+✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 3e13973916e3
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/bad-label.yaml   # exit 1
+ZZZ
 ```
 
 **How to read it.** The labels change the hash and nothing else about the run. A schema error names the field in its path and says what shape it expects.
@@ -343,10 +346,11 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/coverage.yaml specs/prefix.yaml
-✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 0000000000aa
-✓ specs/prefix.yaml  prefix-example · 1 block · hash 0000000000aa
+✓ specs/coverage.yaml  coverage-check · 2 blocks · hash 15b4957bc5b0
+✓ specs/prefix.yaml  prefix-example · 1 block · hash 4e219c76805c
 Checked 2 specs: 2 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/origin-alone.yaml   # exit 1
+ZZZ
 $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
@@ -409,11 +413,11 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/forms.yaml
-✓ specs/forms.yaml  stimulus-forms · 3 blocks · hash 0000000000aa
+✓ specs/forms.yaml  stimulus-forms · 3 blocks · hash bfbf435c20a4
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/two-stimuli.yaml   # exit 1
 ✗ broken/two-stimuli.yaml
-    blocks.0  BLOCK_STIMULUS_AMBIGUOUS  a block needs exactly one of `user`, `burst` or `when`
+    blocks.0  BLOCK_STIMULUS_AMBIGUOUS  a block takes exactly one of `user`, `burst` or `when`; this one has user and burst
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
@@ -583,6 +587,7 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/forbidden-expected.yaml   # exit 1
+ZZZ
 ```
 
 **How to read it.** `pass  2 blocks` means the stage, the two tools with their inputs, the text and the rules all held. If the assistant offered a plan before it looked up the address, the `tool_order` and `count` checks would fail.
@@ -807,6 +812,7 @@ $ driftbench campaign run specs/coverage.yaml
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  4 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/end-state-empty.yaml   # exit 1
+ZZZ
 ```
 
 **How to read it.** `pass  4 blocks` means every block held and the recorded lead matched the end state. The phone number is made up: it sits in the reserved range for fiction, `+1 202 555 0100` to `0199`.
@@ -954,7 +960,7 @@ perturbations:
 
 ```console
 $ driftbench spec validate specs/coverage.yaml
-✓ specs/coverage.yaml  coverage-check · 4 blocks · 2 perturbations · hash 0000000000aa
+✓ specs/coverage.yaml  coverage-check · 4 blocks · 2 perturbations · hash 9fe012b787c2
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench campaign run specs/coverage.yaml --mode F,P
 ✓ coverage-check · function:acme-sales · F · repeat 0  pass  4 blocks
@@ -962,6 +968,7 @@ $ driftbench campaign run specs/coverage.yaml --mode F,P
 ✓ coverage-check · function:acme-sales · P · repeat 0 · free-fiber  pass  5 blocks
 3 cells: 3 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench spec validate broken/inject-too-far.yaml   # exit 1
+ZZZ
 ```
 
 **How to read it.**
@@ -987,7 +994,6 @@ schema_version: 1
 id: rest-of-the-fields
 target: { adapter: function, agent: acme-sales }
 operations: { coverage.check: read, notify_sales: send }
-uses: { gating: default }
 end: { verdict: success, reason: The customer reached a callback, atBlock: 1 }
 blocks:
   - id: greet
@@ -1012,7 +1018,7 @@ metadata:
 - `id` on a block names it. `parent` names a block of the same spec whose recorded end state this block starts from. The parent runs first.
 - `budget` caps one block: `steps`, `cost_usd` and `latency_ms`.
 - `operations` says what class each tool is: `read`, `modify`, `delete`, `overwrite`, `send`, `pay` or `push`. The safety checks read this table, and a tool it does not name is unknown.
-- `uses` names the rule sets the spec uses, by role, such as `gating`. A role you leave out uses the shipped default. See [objects](../reference/objects.md).
+- `uses` names the rule sets the spec uses, by role, such as `gating`. Each name must be a rule set that your project defines. See [objects](../reference/objects.md).
 - `end` stops the run after block `atBlock` with a verdict, `success` or `failure`.
 - `metadata` is free. Its `links` entry ties a block to a prompt section, a spec clause or a past turn, and stays out of the spec hash.
 - `schema_version` names the spec format. `1` is the only version today.
@@ -1038,9 +1044,10 @@ $ driftbench spec validate specs/rest.yaml
 ✓ specs/rest.yaml  rest-of-the-fields · 2 blocks · hash 0000000000aa
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench spec validate broken/uses-unknown.yaml   # exit 1
+ZZZ
 ```
 
-**How to read it.** The spec is valid with all of its fields. A change to `metadata.links` leaves the hash alone, but a change to `budget`, `uses` or `end` changes it.
+**How to read it.** The spec is valid with all of its fields. A change to `metadata.links` leaves the hash alone, but a change to `budget` or `end` changes it.
 
 **If it goes wrong.**
 
