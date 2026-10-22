@@ -317,28 +317,34 @@ export function pointerAtoms(
     const eachGate = (kind: string, fileKind: string | undefined, label: string) => {
       const known = gatesOf.get(kind);
       if (known) return known;
-      const acts = labelSpans.filter((entry) => entry.kind === kind);
-      const files = fileKind === undefined ? [] : labelSpans.filter((entry) => entry.kind === fileKind);
-      if (acts.length === 0)
+      const listed = labelSpans.filter((entry) => entry.kind === kind || entry.kind === fileKind);
+      if (!listed.some((entry) => entry.kind === kind))
         refusals.push(
           `${where}: the label ${label} takes a ${kind} span for each gate and the answer gave none`,
         );
       const found: Array<{ kind: string; from: number; to: number; path: string }> = [];
-      for (const [index, act] of acts.entries()) {
-        const file = files[index];
+      // The labeler lists a gate as its act span and, right after it, its file span. A gate whose next listed span is
+      // another act has no file span of its own: it is refused alone and no other gate moves.
+      let gate = 0;
+      for (const [index, act] of listed.entries()) {
+        if (act.kind !== kind) continue;
+        gate += 1;
+        const next = listed[index + 1];
+        const file = next?.kind === fileKind ? next : undefined;
+        // The file span must hold a whole path, not the start of one.
         const given =
           file === undefined
             ? undefined
             : (pathMentions(item.unit.text).find(
                 (mention) =>
                   mention.start + item.unit.start - start >= file.from &&
-                  mention.start + item.unit.start - start < file.to &&
+                  mention.end + item.unit.start - start <= file.to &&
                   !imported(mention.path),
               )?.path ??
               namedPaths(text.slice(start + file.from, start + file.to)).find((path) => !imported(path)));
         if (given === undefined) {
           refusals.push(
-            `${where}: the gate ${index + 1} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
+            `${where}: the gate ${gate} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
           );
           continue;
         }

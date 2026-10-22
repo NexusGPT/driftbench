@@ -586,7 +586,11 @@ function checkExtras(
         }
       }
       const spans = seen.filter((_, index) => kept[index]);
-      if (spans.length > 0) out.spans = spans.sort((a, b) => a.from - b.from || b.to - a.to);
+      // A label whose atom pairs each gate's act span with its file span (`spanFile`) keeps the spans in the order the
+      // labeler listed them: the file span that follows an act span is that gate's own. Any other label is sorted.
+      if (spans.length > 0)
+        out.spans =
+          label?.atom?.spanFile !== undefined ? spans : spans.sort((a, b) => a.from - b.from || b.to - a.to);
     }
   }
   if (entry.links !== undefined) {
