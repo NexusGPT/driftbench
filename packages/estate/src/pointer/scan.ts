@@ -23,6 +23,7 @@ import {
   type SpanAnswer,
   setHash,
   shownLabelDrops,
+  unitRange,
   type Window,
 } from './labels';
 import {
@@ -688,7 +689,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     // that are no number or range, are stored as the marker `unknown`.
     const known = new Set([...task.set.labels.map((label) => label.name), 'none']);
     const safe = (label: string) => (known.has(label) ? label : 'unknown');
-    const safeUnits = (units: string) => (expandUnits(units) ? units.trim() : 'unknown');
+    const safeUnits = (units: string) => (unitRange(units) ? units.trim() : 'unknown');
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;

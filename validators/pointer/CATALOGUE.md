@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **419 items**, 11 families, 256 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **420 items**, 11 families, 257 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -17,9 +17,9 @@ Bank: **419 items**, 11 families, 256 distinct causes, 9 levels. This file is ge
 | privacy | privacy | 21 | 2 | 8 | 10 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
 | radius | links | 23 | 4 | 6 | 9 | 3 | 1 |
-| scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
+| scale | scale | 25 | 1 | 1 | 5 | 14 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **419** | **47** | **138** | **167** | **53** | **14** |
+| **all** | | **420** | **47** | **138** | **167** | **54** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 17 |
+| maintainer-added | 18 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -551,6 +551,7 @@ Level `scale`, default component `perf`, default needs scan, child. Cutting, sca
 | `scale.radius-100x` | maintainer-repaired | 4 | 30,000 rules, 50,000 blocks; delete 100 rules. (seed-free) | Rerun set equals the linked blocks; under 20 s. | `perf:radius-100x` | perf | scan,links,child |
 | `scale.replay-100x` | maintainer-repaired | 4 | Record 30,000 units on a fake transport, replay. (seed-free) | Ledger equal to the recording run; zero calls; replay under 40 s. | `perf:replay-index` | perf | transport,cassette,child |
 | `scale.long-paragraph` | maintainer-repaired | 4 | A 1 MB paragraph of 12,000 sentences. (seed-free) | Exact cut of 12,000 units; under 10 s. | `perf:sentence-segmentation-linear` | perf | scan,child |
+| `scale.wide-window` | maintainer-added | 4 | One file of about 470,000 characters of short sentences in two parts under top-level headings (about 18,000 units, two windows); the labeller answers each window with one range over all its units. (seed-free) | Two windows, the first over 10,000 units; one call per window; every live entry has the container of its planted unit, its quote is the source slice at its own span byte for byte, that span lies inside the unit with the same content, its label is the planted one, and every planted unit, headings included, is named by exactly one entry; no failed window; the scan under 5 s (measured 0.9 s on the CI runner, issue 1376). | `labeler:range-within-window` | perf | scan,child |
 | `scale.wide-table` | maintainer-repaired | 4 | 100 rows by 100 columns. (seed-free) | 10,000 cell units; under 10 s. | `perf:table-cells-linear` | perf | scan,child |
 | `scale.many-small-files` | maintainer-repaired | 4 | 5,000 files of 6 units. (seed-free) | Ledger holds 30,000 entries; under 60 s; under 1.5 GB. | `perf:many-files` | perf | scan,child |
 | `scale.long-units-fingerprint` | maintainer-repaired | 4 | 3,000 units of 5,000 characters. (seed-free) | Exact cut; under 15 s. | `perf:fingerprint-long-units` | perf | scan,child |
