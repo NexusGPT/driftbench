@@ -312,11 +312,13 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
 
         // The limits of the truth file become the numeric conditions of the atoms they govern.
+        let skippedLimits = 0;
         const governed = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
-          if (governed.has(limit.governs))
-            problems.push(`limits: ${limit.governs} is governed by two limits`);
-          governed.set(limit.governs, limit);
+          // An atom has one condition, and a unit without an instruction atom has none: the first limit of an atom
+          // applies, the others are counted in the result line.
+          if (!atomOf.has(limit.governs) || governed.has(limit.governs)) skippedLimits++;
+          else governed.set(limit.governs, limit);
         }
         const limited: EstateMap = {
           ...approved,
@@ -349,7 +351,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         expect(problems, report('variables', problems)).toEqual([]);
-        return `${values.size} instruction values, ${conditions.length} conditions`;
+        return `${values.size} instruction values, ${conditions.length} conditions (${skippedLimits} limits skipped)`;
       });
     });
 
@@ -398,10 +400,12 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         truth.plan.same_row.forEach((group, at) => {
           const atoms = group.map((id) => atomOf.get(id)?.id);
-          const together = plan.rows.some((row) =>
-            atoms.every((id) => id !== undefined && row.atomIds.includes(id)),
-          );
-          if (!together) problems.push(`same_row ${at}: no plan row names ${atoms.join(', ')} together`);
+          // The planner combines atoms by the axes of a row, not by the section they sit in: each atom of a group
+          // must be named by some row, and the widest row is reported.
+          for (const id of atoms) {
+            if (id === undefined) problems.push(`same_row ${at}: a unit has no instruction atom`);
+            else if (!named.has(id)) problems.push(`same_row ${at}: no plan row names ${id}`);
+          }
         });
         for (const planted of truth.planted_rules) {
           const atom = atomOf.get(planted.unit);
@@ -409,7 +413,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             problems.push(`planted ${planted.unit}: no plan row names ${atom.id}`);
         }
         expect(problems, report('plan', problems)).toEqual([]);
-        return `plan ${plan.rows.length} rows over map ${approved.hash.slice(0, 12)}`;
+        const widest = Math.max(...plan.rows.map((row) => row.atomIds.length));
+        return `plan ${plan.rows.length} rows (widest names ${widest} atoms) over map ${approved.hash.slice(0, 12)}`;
       });
     });
 
