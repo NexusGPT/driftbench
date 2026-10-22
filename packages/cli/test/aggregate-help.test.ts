@@ -14,7 +14,8 @@ async function helpOf(command: string): Promise<{ code: number; text: string }> 
     cwd: process.cwd(),
   };
   const code = await main([command, '--help'], io);
-  return { code, text };
+  // The help wraps its lines: compare the words, not the line breaks.
+  return { code, text: text.replace(/\s+/g, ' ') };
 }
 
 describe('the --aggregate help', () => {
