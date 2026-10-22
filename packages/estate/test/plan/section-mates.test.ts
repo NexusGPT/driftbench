@@ -1,6 +1,16 @@
 import { expect, it } from 'vitest';
 import { buildPlan } from '../../src/index';
-import { approvedFixture, edited } from './support';
+import { approvedFixture as committedFixture, edited } from './support';
+
+/** The fixture map with no section on any atom, so each test lays out its own sections. */
+async function approvedFixture() {
+  return edited(await committedFixture(), (copy) => {
+    for (const atom of copy.atoms) {
+      const { section: _section, ...rest } = atom.fields ?? {};
+      atom.fields = rest;
+    }
+  });
+}
 
 /** The first file of the fixture that holds at least `count` instruction atoms, with those atoms. */
 async function crowd(count: number) {
