@@ -71,6 +71,15 @@ export {
 } from './reader';
 export { createScopedConditionProposer } from './scoped-proposer';
 export {
+  applySubjects,
+  canonicalSubjects,
+  type LabelledClause,
+  prefixOf,
+  shareSubjects,
+  soundMap,
+  subjectsOf,
+} from './subjects';
+export {
   type SourceRefusal,
   type SpanLabel,
   type VariableSources,
