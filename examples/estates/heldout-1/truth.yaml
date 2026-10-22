@@ -21,9 +21,9 @@ units:
   - id: f61a2c2bba
     file: H-standing-instructions.md
     text: "Answer in no more than three sentences unless the owner asks for detail."
-  - id: fada0fe892
+  - id: 8edc34d328
     file: H-standing-instructions.md
-    text: "You may do five things:"
+    text: "Your duties, five in all, are these:"
   - id: 68f8795397
     file: H-standing-instructions.md
     text: "Book, move and cancel appointments"
@@ -771,7 +771,7 @@ non_limits:
   - unit: debc5256bb
     number: "4"
     why: "count of clinics"
-  - unit: fada0fe892
+  - unit: 8edc34d328
     number: "5"
     why: "count of the items listed below it"
   - unit: 20bf60a998
