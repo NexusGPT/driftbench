@@ -18,8 +18,13 @@ const PLANTED = [
   ['drops-forbidden-seed', 'seed-forbidden-kept', 'constrained'],
   ['drops-unapproved-entry', 'seed-unapproved-covers-nothing', 'unapproved'],
   ['repeats-a-row', 'new-row-novel', 'floor-only'],
+  // The review of 4abcaf2c8: a wrong id on a partial seed row, and on a seed row with a value nobody approved.
+  ['partial-seed-wrong-ids', 'partial-seed-credit', 'rule-of-four'],
+  ['unapproved-seed-wrong-id', 'seed-unapproved-covers-nothing', 'unapproved'],
   ['raw-weights', 'weight-scale-invariance', 'weighted'],
   ['zero-weight-first', 'zero-weight-last', 'zero-weight'],
+  // The review of 3f1eebd93: every finite weight is 999 on the zero-weight shape.
+  ['finite-weights-999', 'zero-weight-last', 'zero-weight'],
   ['key-order-sensitive', 'key-order-invariance', 'two-rules'],
   ['unweighted-as-one', 'traffic-weight-of-a-row', 'mixed-weights'],
   ['edge-budget-cuts-one', 'budget-edges', 'floor-only'],
