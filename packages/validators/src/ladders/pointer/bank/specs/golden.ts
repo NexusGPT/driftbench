@@ -18,6 +18,9 @@ import { type FamilySpec, row, type Spec } from './types';
  * - Inputs markdown reads otherwise: EN 31-39 (a line starting `1.`, `1)` or `a.` is a list item, one unit), EN 42
  *   (soft-wrapped lines are one paragraph).
  * - A comma or an ASCII colon as a sentence end: AR 1, 4 and 5; HY 1 and 3 (the README text uses U+003A).
+ * - Answers the design contradicts: EN 44 (`Yahoo! in` stays one sentence, while docs/estate-pointer-reader.md,
+ *   "A clear sentence boundary returned by the masked segmenter is not erased solely because the next sentence starts
+ *   with a lowercase character", keeps the break).
  * EN 27 to 30, the four double-punctuation rules, are one item with one cause.
  */
 
