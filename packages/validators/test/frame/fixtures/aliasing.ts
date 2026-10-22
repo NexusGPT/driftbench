@@ -17,6 +17,12 @@ export const holding = (xs: readonly number[]) => ({
   inner: new Proxy({}, {}),
 });
 
+/** Results that hold an accessor property: a getter, and a setter alone. */
+export const withGetter = (xs: readonly number[]) =>
+  Object.defineProperty({ total: 0 }, 'sum', { enumerable: true, get: () => xs.reduce((a, b) => a + b, 0) });
+export const withSetter = (xs: readonly number[]) =>
+  Object.defineProperty({ total: xs.reduce((a, b) => a + b, 0) }, 'note', { enumerable: true, set() {} });
+
 let earlier: { total: number } | undefined;
 /** A new object on every call, and the earlier one overwritten with the new total. */
 export const overwrite = (xs: readonly number[]) => {

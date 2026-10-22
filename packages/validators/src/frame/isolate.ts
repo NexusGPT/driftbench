@@ -521,7 +521,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if ((each as { invalid?: boolean }).invalid)
         aliased.push({
           at: tape.length,
-          message: `${name}() returned a result that is a Proxy or holds one (${describeRun(plan as TwinPlan)}): an invalid result, since a Proxy runs the product's own code on every read`,
+          message: `${name}() returned a result that is a Proxy, or holds a Proxy or an accessor property (a getter or a setter) (${describeRun(plan as TwinPlan)}): an invalid result, since each runs the product's own code on every read`,
         });
     }
     const {

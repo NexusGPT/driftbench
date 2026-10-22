@@ -172,7 +172,7 @@ if («setup».uptimeShift > 0) {
 // held when it was returned. A later call that changed one of them, or filled the same object again, is reported in
 // its answer; only that finding crosses to the validator, whose item never sees the live object. The digest walks
 // the value with the captured references above, and builds its text with string concatenation only.
-let «sawProxy» = false;
+let «sawInvalid» = false;
 const «fingerprint» = («root») => {
   const «hash» = «call»(«hashStart», undefined, ['sha256']);
   let «chunk» = '';
@@ -187,7 +187,7 @@ const «fingerprint» = («root») => {
   const «walk» = («value», «level») => {
     // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
     if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
-      «sawProxy» = true;
+      «sawInvalid» = true;
       «put»('P;');
       return;
     }
@@ -255,8 +255,11 @@ const «fingerprint» = («root») => {
       let «isData» = false;
       for (let «j» = 0; «j» < «descKeys».length; «j» += 1) if («descKeys»[«j»] === 'value') «isData» = true;
       if («isData») «walk»(«desc».value, «level» + 1);
-      else if (typeof «desc».get === 'function') «walk»(«call»(«desc».get, «value», []), «level» + 1);
-      else «put»('g;');
+      else {
+        // An accessor runs the product's own code on every read: it is not called, it is reported.
+        «sawInvalid» = true;
+        «put»('G;');
+      }
     }
     «put»('}');
   };
@@ -310,9 +313,9 @@ if («setup».command) {
         }
         if («result» !== null && (typeof «result» === 'object' || typeof «result» === 'function')) {
           // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
-          «sawProxy» = false;
+          «sawInvalid» = false;
           const «digest» = «fingerprint»(«result»);
-          if («sawProxy») «invalid» = true;
+          if («sawInvalid») «invalid» = true;
           else if (typeof «result» === 'object') {
             «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «digest» };
             «stored» += 1;

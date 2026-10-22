@@ -13,7 +13,9 @@ export type Aliasing =
   | 'patch-stringify'
   | 'patch-reflect'
   | 'proxy'
-  | 'proxy-nested';
+  | 'proxy-nested'
+  | 'getter'
+  | 'setter';
 
 const SIGNATURE =
   'export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {';
@@ -40,6 +42,26 @@ Reflect.apply = () => undefined;
 };
 
 const WRAPPERS: Record<Aliasing, string> = {
+  // A getter on a field of a correct result: the first read is the real number, later reads are zero.
+  getter: `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  let reads = 0;
+  const lower = real.lower;
+  return Object.defineProperty(real, 'lower', {
+    enumerable: true,
+    get() {
+      reads += 1;
+      return reads <= 1 ? lower : 0;
+    },
+  });
+}
+`,
+  // A setter-only accessor in a field of a correct result.
+  setter: `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {
+  const real = { ...realBootstrapCI(values, options) };
+  return Object.defineProperty(real, 'note', { enumerable: true, set() {} });
+}
+`,
   // A Proxy over a correct result that answers the first reads (the frame's own encoding of the answer) as the
   // real result and every later read with zeros: whatever reads it afterwards sees other numbers.
   proxy: `export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {

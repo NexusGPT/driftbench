@@ -70,6 +70,16 @@ describe('aliased results under the frame', () => {
     },
   );
 
+  it.each(['withGetter', 'withSetter'] as const)(
+    '%s: a result that holds an accessor property is an invalid result',
+    (name) => {
+      const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+      open.push(frame as Frame<unknown>);
+      frame.product[name]([1, 2, 3]);
+      expect(frame.aliasSince(0)).toContain('accessor');
+    },
+  );
+
   it('reports nothing for a Proxy result when the option is off', () => {
     const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: false, plain: false });
     open.push(frame as Frame<unknown>);
