@@ -6,7 +6,7 @@ import { approvedFixture, edited } from './support';
 async function crowd(count: number) {
   const map = await approvedFixture();
   const byFile = new Map<string, string[]>();
-  for (const atom of map.atoms.filter((candidate) => candidate.approved && candidate.kind === 'instruction')) {
+  for (const atom of map.atoms.filter((one) => one.approved && one.kind === 'instruction')) {
     byFile.set(atom.provenance.file, [...(byFile.get(atom.provenance.file) ?? []), atom.id]);
   }
   const found = [...byFile.values()].find((ids) => ids.length >= count);
@@ -30,7 +30,9 @@ it('puts the atoms that read the same section of one file in one plan row', asyn
   const row = firstRow(after, head);
   expect(row?.atomIds).toEqual([...(firstRow(before, head)?.atomIds ?? []), second, third]);
   // Only the first atom of the section carries the group; the rows of the others keep their own atoms.
-  for (const id of [second, third]) expect(firstRow(after, id)?.atomIds).toEqual(firstRow(before, id)?.atomIds);
+  for (const id of [second, third]) {
+    expect(firstRow(after, id)?.atomIds).toEqual(firstRow(before, id)?.atomIds);
+  }
   expect(after.rows.map((candidate) => candidate.id)).toEqual(before.rows.map((candidate) => candidate.id));
 });
 
@@ -57,7 +59,7 @@ it('keeps atoms of different sections, and atoms that name no section, in rows o
 it('never groups atoms of one section path that sit in two files', async () => {
   const map = await approvedFixture();
   const files = new Map<string, string>();
-  for (const atom of map.atoms.filter((candidate) => candidate.approved && candidate.kind === 'instruction')) {
+  for (const atom of map.atoms.filter((one) => one.approved && one.kind === 'instruction')) {
     if (!files.has(atom.provenance.file)) files.set(atom.provenance.file, atom.id);
   }
   const pair = [...files.values()].slice(0, 2);
@@ -86,7 +88,7 @@ it('ignores an empty section path and a section path that is not a list of headi
   }
 });
 
-it('groups a gate with the instructions of its section, on the first contract row of the first atom', async () => {
+it('groups a gate with the instructions of its section on the first row of the first atom', async () => {
   const map = await approvedFixture();
   const gate = map.atoms.find((atom) => atom.approved && atom.kind === 'gate');
   if (!gate) throw new Error('the fixture holds no approved gate');

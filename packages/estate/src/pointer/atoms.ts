@@ -420,6 +420,7 @@ export function pointerAtoms(
               ...(mappedFields as Record<string, unknown>),
               extraction: 'pointer',
               unit: item.id,
+              ...(item.unit.path.length > 0 ? { section: item.unit.path } : {}),
               labelSet: item.set.set,
               label: item.label,
               labeler,
