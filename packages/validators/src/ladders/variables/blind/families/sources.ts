@@ -2,7 +2,15 @@ import type { ItemContext } from '../../bank/item';
 import { clone } from '../../bank/util';
 import type { FileProvenance, Row } from '../../interface';
 import { drawnCase, PATH, readSpans } from '../conditions';
-import { drawBoolean, drawCondition, drawEquality, drawMembership, drawRange, policyFile } from '../draws';
+import {
+  drawBoolean,
+  drawCondition,
+  drawEquality,
+  drawMembership,
+  drawRange,
+  policyFile,
+  type RangeStyle,
+} from '../draws';
 import { baseFile, defect, errorsOf, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
 import { callBuild, callValidate, must, type Stem, show } from '../kit';
 import { lex } from '../lexicon';
@@ -66,6 +74,23 @@ const structEntry = (extra: Record<string, unknown> = {}) => ({
   hash: HASH,
   ...extra,
 });
+
+const rangeCase =
+  (style?: RangeStyle) =>
+  (ctx: ItemContext): void => {
+    const d = drawRange(ctx.rng, style);
+    const r = readSpans(ctx, [declareSpan(d.text, { kind: 'range', subject: d.subject, lo: d.lo, hi: d.hi })]);
+    const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
+    must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
+    must(
+      nums.some((n) => n < d.lo) &&
+        nums.includes(d.lo) &&
+        nums.some((n) => n > d.lo && n < d.hi) &&
+        nums.includes(d.hi) &&
+        nums.some((n) => n > d.hi),
+      () => `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
+    );
+  };
 
 const TOOLS = (): ToolSpec[] => [
   { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta'), lex('gamma')] },
@@ -317,6 +342,24 @@ export const SOURCES_STEMS: readonly Stem[] = [
       ['decimal-with-thousands', 4, drawnCase('gt', 'decimal-thousands')],
       ['leading-zero-decimal', 3, drawnCase('ge', 'leading-zero')],
       ['negative-limit-with-a-unit', 4, drawnCase('lt', 'negative')],
+      ['space-thousands', 4, drawnCase('gt', 'space-thousands')],
+      ['narrow-no-break-thousands', 4, drawnCase('ge', 'narrow-thousands')],
+      ['apostrophe-thousands', 4, drawnCase('lt', 'apostrophe-thousands')],
+      ['european-decimal-comma', 4, drawnCase('gt', 'european')],
+      ['iso-code-before-the-number', 3, drawnCase('le', 'iso-before')],
+      ['iso-code-after-the-number', 3, drawnCase('ge', 'iso-after')],
+      ['unicode-minus-sign', 4, drawnCase('lt', 'unicode-minus')],
+      ['plus-sign', 3, drawnCase('gt', 'plus-sign')],
+      ['unit-attached-to-the-number', 3, drawnCase('ge', 'attached-unit')],
+      ['hundreds-in-words', 4, drawnCase('gt', 'hundreds-in-words')],
+      ['thousands-in-words', 4, drawnCase('lt', 'thousands-in-words')],
+      ['and-in-words', 5, drawnCase('ge', 'and-in-words')],
+      ['symbol-greater-than', 3, drawnCase('gt', 'sym-gt')],
+      ['symbol-at-least-two-characters', 3, drawnCase('ge', 'sym-ge-ascii')],
+      ['symbol-at-least-one-character', 4, drawnCase('ge', 'sym-ge-unicode')],
+      ['symbol-less-than', 3, drawnCase('lt', 'sym-lt')],
+      ['symbol-at-most-two-characters', 3, drawnCase('le', 'sym-le-ascii')],
+      ['symbol-at-most-one-character', 4, drawnCase('le', 'sym-le-unicode')],
     ],
   },
   {
@@ -373,27 +416,10 @@ export const SOURCES_STEMS: readonly Stem[] = [
             );
         },
       ],
-      [
-        'range-has-five-cases',
-        5,
-        (ctx) => {
-          const d = drawRange(ctx.rng);
-          const r = readSpans(ctx, [
-            declareSpan(d.text, { kind: 'range', subject: d.subject, lo: d.lo, hi: d.hi }),
-          ]);
-          const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
-          must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
-          must(
-            nums.some((n) => n < d.lo) &&
-              nums.includes(d.lo) &&
-              nums.some((n) => n > d.lo && n < d.hi) &&
-              nums.includes(d.hi) &&
-              nums.some((n) => n > d.hi),
-            () =>
-              `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
-          );
-        },
-      ],
+      ['range-has-five-cases', 5, rangeCase()],
+      ['range-written-with-to', 5, rangeCase('to')],
+      ['range-written-with-an-en-dash', 5, rangeCase('en-dash')],
+      ['range-written-with-a-hyphen', 5, rangeCase('hyphen')],
       [
         'boolean-has-true-and-false',
         5,

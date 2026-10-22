@@ -20,7 +20,25 @@ export type Form =
   | 'decimal'
   | 'negative'
   | 'negative-whole'
-  | 'large';
+  | 'large'
+  | 'space-thousands'
+  | 'narrow-thousands'
+  | 'apostrophe-thousands'
+  | 'european'
+  | 'iso-before'
+  | 'iso-after'
+  | 'unicode-minus'
+  | 'plus-sign'
+  | 'attached-unit'
+  | 'hundreds-in-words'
+  | 'thousands-in-words'
+  | 'and-in-words'
+  | 'sym-gt'
+  | 'sym-ge-ascii'
+  | 'sym-ge-unicode'
+  | 'sym-lt'
+  | 'sym-le-ascii'
+  | 'sym-le-unicode';
 
 /** A quantity and the unit its number is written with. */
 const QUANTITIES: ReadonlyArray<readonly [subject: string, unit: string]> = [
@@ -86,9 +104,22 @@ export function words(n: number): string {
   return n % 10 === 0 ? tens : `${tens}-${ONES[n % 10]}`;
 }
 
-/** A whole number with a comma between each group of three digits. */
-export function grouped(n: number): string {
-  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+/** A whole number with a mark between each group of three digits (a comma unless another is given). */
+export function grouped(n: number, mark = ','): string {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, mark);
+}
+
+/** English number words for 100 to 9999, with an `and` before the last part when asked. */
+export function wordsBig(n: number, and = false): string {
+  const thousands = Math.floor(n / 1000);
+  const rest = n % 1000;
+  const hundreds = Math.floor(rest / 100);
+  const last = rest % 100;
+  const parts: string[] = [];
+  if (thousands > 0) parts.push(`${words(thousands)} thousand`);
+  if (hundreds > 0) parts.push(`${words(hundreds)} hundred`);
+  if (last > 0) parts.push(and && parts.length > 0 ? `and ${words(last)}` : words(last));
+  return parts.join(' ');
 }
 
 export type Drawn = {
@@ -115,6 +146,7 @@ export type DrawOptions = {
 /** One numeric condition span of the given comparison and form, with its meaning. */
 export function drawCondition(rng: Rng, cmp: Cmp, form: Form, options: DrawOptions = {}): Drawn {
   const phrase = rng.pick(PHRASES[cmp]);
+  const symbol = (marks: readonly string[]): string => rng.pick(marks);
   const pickSubject = (names: readonly string[]): string => options.subject ?? rng.pick(names);
   const make = (subject: string, limit: number, written: string, unit: string, integer: boolean): Drawn => ({
     subject,
@@ -184,6 +216,97 @@ export function drawCondition(rng: Rng, cmp: Cmp, form: Form, options: DrawOptio
       const n = options.limit ?? -rng.int(1, 30);
       return make(pickSubject(GAUGES), n, String(n), ' degrees', true);
     }
+    case 'space-thousands': {
+      const n = options.limit ?? rng.int(2, 98) * 500;
+      return make(pickSubject(MONEY), n, grouped(n, ' '), ' euros', true);
+    }
+    case 'narrow-thousands': {
+      const n = options.limit ?? rng.int(2, 98) * 500;
+      return make(pickSubject(MONEY), n, grouped(n, rng.pick(['\u202f', '\u00a0'])), ' euros', true);
+    }
+    case 'apostrophe-thousands': {
+      const n = options.limit ?? rng.int(2, 98) * 500;
+      return make(pickSubject(MONEY), n, grouped(n, '\u2019'), ' CHF', true);
+    }
+    case 'european': {
+      const whole = rng.int(1, 90) * 1000 + rng.int(0, 9) * 10;
+      const cents = rng.pick([25, 50, 75]);
+      const n = options.limit ?? Number(`${whole}.${cents}`);
+      const [w, c] = String(n).split('.');
+      return make(pickSubject(MONEY), n, `${grouped(Number(w), '.')},${c}`, ' euros', false);
+    }
+    case 'iso-before': {
+      const n = number(5, 900);
+      const code = rng.pick(['EUR', 'USD', 'GBP', 'CHF', 'SEK']);
+      return make(pickSubject(MONEY), n, `${code} ${n}`, '', true);
+    }
+    case 'iso-after': {
+      const n = number(5, 900);
+      const code = rng.pick(['EUR', 'USD', 'GBP', 'CHF', 'SEK']);
+      return make(pickSubject(MONEY), n, `${n} ${code}`, '', true);
+    }
+    case 'unicode-minus': {
+      const n = options.limit ?? -(rng.int(1, 20) + 0.5);
+      return make(pickSubject(GAUGES), n, `\u2212${Math.abs(n)}`, ' degrees', false);
+    }
+    case 'plus-sign': {
+      const n = number(2, 90);
+      const [name, unit] = options.subject
+        ? [options.subject, options.unit ?? ' units']
+        : rng.pick(QUANTITIES);
+      return make(name, n, `+${n}`, options.unit ?? unit, true);
+    }
+    case 'attached-unit': {
+      const n = number(2, 90);
+      const [name, unit] = rng.pick([
+        ['the wait', 'min'],
+        ['the parcel', 'kg'],
+        ['the attachment', 'MB'],
+        ['the shift', 'h'],
+        ['the trip', 'km'],
+      ] as const);
+      return make(options.subject ?? name, n, String(n), options.unit ?? unit, true);
+    }
+    case 'hundreds-in-words': {
+      const n = options.limit ?? rng.int(1, 9) * 100 + rng.pick([0, 5, 12, 25, 40, 75]);
+      const [name, unit] = rng.pick(QUANTITIES);
+      return make(options.subject ?? name, n, wordsBig(n), options.unit ?? unit, true);
+    }
+    case 'thousands-in-words': {
+      const n = options.limit ?? rng.int(1, 9) * 1000 + rng.pick([0, 500, 200, 100]);
+      const [name, unit] = rng.pick(QUANTITIES);
+      return make(options.subject ?? name, n, wordsBig(n), options.unit ?? unit, true);
+    }
+    case 'and-in-words': {
+      const n = options.limit ?? rng.int(1, 9) * 100 + rng.pick([3, 8, 15, 42, 60]);
+      const [name, unit] = rng.pick(QUANTITIES);
+      return make(options.subject ?? name, n, wordsBig(n, true), options.unit ?? unit, true);
+    }
+    case 'sym-gt':
+    case 'sym-ge-ascii':
+    case 'sym-ge-unicode':
+    case 'sym-lt':
+    case 'sym-le-ascii':
+    case 'sym-le-unicode': {
+      const marks = {
+        'sym-gt': ['>'],
+        'sym-ge-ascii': ['>='],
+        'sym-ge-unicode': ['\u2265'],
+        'sym-lt': ['<'],
+        'sym-le-ascii': ['<='],
+        'sym-le-unicode': ['\u2264'],
+      }[form];
+      const n = number(2, 400);
+      const [name, unit] = options.subject ? [options.subject, options.unit ?? ' units'] : rng.pick(QUANTITIES);
+      return {
+        subject: name,
+        text: `${name} ${symbol(marks)} ${n}${options.unit ?? unit}`,
+        limit: n,
+        cmp,
+        integer: true,
+        unit: options.unit ?? unit,
+      };
+    }
     case 'large': {
       const n = options.limit ?? rng.int(1, 9) * 1_000_000;
       return make(pickSubject(MONEY), n, String(n), ' euros', true);
@@ -230,15 +353,27 @@ export function drawEquality(rng: Rng, flavour: 'equal' | 'unequal'): DrawnNumbe
 }
 
 /** A range span with its two limits. */
-export function drawRange(rng: Rng): { subject: string; text: string; lo: number; hi: number } {
+export type RangeStyle = 'between' | 'to' | 'en-dash' | 'hyphen';
+
+export function drawRange(
+  rng: Rng,
+  style?: RangeStyle,
+): { subject: string; text: string; lo: number; hi: number } {
   const [subject, unit] = rng.pick(QUANTITIES);
   const lo = rng.int(2, 40);
   const hi = lo + rng.int(3, 25);
-  const text = rng.pick([
-    `${subject} is between ${lo} and ${hi}${unit}`,
-    `${subject} is from ${lo} to ${hi}${unit}`,
-    `${subject} lies between ${lo} and ${hi}${unit}`,
-  ]);
+  const text =
+    style === 'to'
+      ? `${subject} is ${lo} to ${hi}${unit}`
+      : style === 'en-dash'
+        ? `${subject} is ${lo}\u2013${hi}${unit}`
+        : style === 'hyphen'
+          ? `${subject} is ${lo}-${hi}${unit}`
+          : rng.pick([
+              `${subject} is between ${lo} and ${hi}${unit}`,
+              `${subject} is from ${lo} to ${hi}${unit}`,
+              `${subject} lies between ${lo} and ${hi}${unit}`,
+            ]);
   return { subject, text, lo, hi };
 }
 
