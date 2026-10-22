@@ -951,7 +951,11 @@ labels:
       vector: vectorWithTop(NAMES[i % 3] as string, i % 2 === 0 ? 0.71 : 0.69),
       system2: NAMES[(i + 1) % 3] as string,
     }));
-    const { res, fake } = await jevLabels(ctx, 'jev-unit', units, { second: 'haiku', passAt: 0.7, failAt: 0.1 });
+    const { res, fake } = await jevLabels(ctx, 'jev-unit', units, {
+      second: 'haiku',
+      passAt: 0.7,
+      failAt: 0.1,
+    });
     if (askedSystem2(fake) === 0) return fail('system 2 was never asked about a unit under pass-at');
     for (const [i, u] of units.entries()) {
       const want = i % 2 === 0 ? NAMES[i % 3] : u.system2;
@@ -985,8 +989,10 @@ labels:
       texts.map((text) => ({ text, vector: { rule: 0.2, prohibition: 0.15, example: 0.1, none: 0.55 } })),
     );
     const bad = texts.find((t) => label(alone.res.ledger, t, 'probe') !== 'none');
-    if (bad) return fail(`${show(bad, 30)} has label ${label(alone.res.ledger, bad, 'probe')}, expected none`);
-    if (alone.res.atoms.length !== 0) return fail(`${alone.res.atoms.length} atoms from units whose likeliest option is none`);
+    if (bad)
+      return fail(`${show(bad, 30)} has label ${label(alone.res.ledger, bad, 'probe')}, expected none`);
+    if (alone.res.atoms.length !== 0)
+      return fail(`${alone.res.atoms.length} atoms from units whose likeliest option is none`);
     const stacked = await jevLabels(
       ctx,
       'jev',
@@ -997,7 +1003,8 @@ labels:
       })),
       { second: 'haiku', passAt: 0.9, failAt: 0.1 },
     );
-    if (askedSystem2(stacked.fake) !== 0) return fail('system 2 was asked about units system 1 is sure are none');
+    if (askedSystem2(stacked.fake) !== 0)
+      return fail('system 2 was asked about units system 1 is sure are none');
     const wrong = texts.find((t) => label(stacked.res.ledger, t, 'probe') !== 'none');
     if (wrong)
       return fail(`${show(wrong, 30)} has label ${label(stacked.res.ledger, wrong, 'probe')}, expected none`);
@@ -1111,7 +1118,9 @@ labels:
     must(await modelScan(ctx, docOf(texts), 'jev-unit', fake, { labelsYaml: FIVE_YAML }));
     if (fake.count !== 25) return fail(`${fake.count} calls for 25 units, expected 25`);
     const labels = ['one', 'two', 'three', 'four', 'five'];
-    const bad = fake.calls.find((c) => c.choices.length !== 1 || !sameOptions(c.choices[0]?.options ?? [], labels));
+    const bad = fake.calls.find(
+      (c) => c.choices.length !== 1 || !sameOptions(c.choices[0]?.options ?? [], labels),
+    );
     return bad
       ? fail(
           `a call carries ${bad.choices.length} questions with options ${(bad.choices[0]?.options ?? []).join(', ')}, expected one question with the five labels and none`,
@@ -1134,7 +1143,9 @@ labels:
       }
     };
     for (const line of res.cassette.split('\n').filter(Boolean)) walk(JSON.parse(line));
-    const asked = new Set(fake.calls.flatMap((c) => c.choices.flatMap((q) => q.options.map((o) => `${q.key}__${o}`))));
+    const asked = new Set(
+      fake.calls.flatMap((c) => c.choices.flatMap((q) => q.options.map((o) => `${q.key}__${o}`))),
+    );
     const missing = [...asked].filter((k) => !found.has(k));
     return missing.length === 0
       ? pass(`${asked.size} probabilities recorded`)

@@ -436,7 +436,8 @@ async function jevYesNo(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
 
 /* ---------- the choice protocol ---------- */
 
-const askedLabels = (set: { labels: ParsedSet['labels'] }) => set.labels.filter((l) => l.target !== 'required');
+const askedLabels = (set: { labels: ParsedSet['labels'] }) =>
+  set.labels.filter((l) => l.target !== 'required');
 
 /** Why a probability vector is no vector: a missing option, a figure outside 0 to 1, a sum off one by over 0.01. */
 export function vectorProblem(vector: Record<string, unknown>, options: string[]): string | undefined {
@@ -467,7 +468,8 @@ export function sureLabel(vector: Record<string, number>, ctx: ModelCtx): string
   const top = ranked[0];
   if (!top) return undefined;
   const settings = ctx.fault === 'settings-ignored';
-  const bounds = !settings && ctx.fault !== 'bounds-ignored' && (ctx.passAt !== undefined || ctx.failAt !== undefined);
+  const bounds =
+    !settings && ctx.fault !== 'bounds-ignored' && (ctx.passAt !== undefined || ctx.failAt !== undefined);
   if (bounds) {
     if (top[1] >= (ctx.passAt ?? DEFAULT_PASS_AT)) return top[0];
     if (top[1] < (ctx.failAt ?? DEFAULT_FAIL_AT)) return 'none';
@@ -560,7 +562,9 @@ async function jevChoice(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
       used = {};
       for (const u of units) {
         const given = data.answers[`u${u.n}`]?.probabilities ?? {};
-        const top = vectorProblem(given, options) ? undefined : topOption(given as Record<string, number>, options);
+        const top = vectorProblem(given, options)
+          ? undefined
+          : topOption(given as Record<string, number>, options);
         for (const option of options) {
           const p = given[option];
           if (typeof p !== 'number') continue;
@@ -710,7 +714,10 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
             : {
                 probabilities: Object.fromEntries(
                   Object.entries(body.answers ?? {}).flatMap(([unit, answer]) =>
-                    Object.entries(answer.probabilities ?? {}).map(([option, p]) => [`${unit}__${option}`, p]),
+                    Object.entries(answer.probabilities ?? {}).map(([option, p]) => [
+                      `${unit}__${option}`,
+                      p,
+                    ]),
                   ),
                 ),
               }),

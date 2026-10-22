@@ -379,7 +379,10 @@ export const replayRuns: Record<string, Run> = {
         { second: 'haiku', ...stack },
       );
       requireFixtureLabels(res, fixture);
-      if (fake.count !== 0) return fail(`a margin cut of ${(stack as { marginCut?: number }).marginCut ?? 'default'} called transport`);
+      if (fake.count !== 0)
+        return fail(
+          `a margin cut of ${(stack as { marginCut?: number }).marginCut ?? 'default'} called transport`,
+        );
     }
     return pass('stack settings are outside the key');
   },
