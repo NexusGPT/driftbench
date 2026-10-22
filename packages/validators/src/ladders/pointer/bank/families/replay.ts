@@ -530,8 +530,7 @@ export const replayRuns: Record<string, Run> = {
       model: { arm: 'haiku', transport: flaky },
       cassette: { mode: 'record' },
     });
-    const reported =
-      !failedRun.ok || failedRun.diagnostics.some((d) => d.code === 'failed-window');
+    const reported = !failedRun.ok || failedRun.diagnostics.some((d) => d.code === 'failed-window');
     if (!reported)
       return fail('a transport failure was reported neither as a failed scan nor as a failed window');
     const entries = lines(failedRun.cassette ?? '');
