@@ -26,12 +26,12 @@ describe('README, personas and the fault finder', () => {
     expect(topic).toContain(printed);
   });
 
-  it('names no pull request for the fault finder and says no command runs it', async () => {
+  it('names no pull request for the fault finder and says no command registers a step of your own', async () => {
     const readme = await readFile(`${ROOT}/docs/innovations.md`, 'utf8');
     expect(readme).not.toMatch(/fault find(?:er|ing) is on its way/i);
     expect(readme).not.toContain('no command runs it yet');
     expect(readme).toContain('stored diagnoses');
     const topic = await readFile(`${ROOT}/packages/cli/help/running-diagnostics.md`, 'utf8');
-    expect(topic).toContain('no command registers a diagnostic step');
+    expect(topic).toContain('No command registers a step of your own');
   });
 });

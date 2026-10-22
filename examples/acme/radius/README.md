@@ -44,8 +44,8 @@ Audit: 20 cells drawn from the 162 outside the radius (seed 1) and run fresh: 0 
 9 of 171 cells in the radius. 29 cells run fresh, 142 carried from c-base.
   20 cells outside the radius run fresh: drawn for the audit.
 171 cells: 171 pass, 0 fail, 0 failed, 20 reused, 142 carried. Spent $0.00.
-Fresh: 29 cells, 142 blocks sent to the agent. Carried from c-base: 142 cells, 690 blocks not sent (agent version acme-v1; this campaign runs acme-v2).
-Saved: 690 of 832 blocks, 82.9%. The pass and fail counts above merge fresh and carried results.
+Fresh: 29 cells, 160 blocks sent to the agent. Carried from c-base: 142 cells, 672 blocks not sent (agent version acme-v1; this campaign runs acme-v2).
+Saved: 672 of 832 blocks, 80.8%. The pass and fail counts above merge fresh and carried results.
 ```
 
 `--audit-seed <n>` changes which cells the audit draws (default 1). `--max-carry` and `--max-age` bound how long a result stays carried. `driftbench ci --change` gates on the same radius. The rules are on the [blast radius](../../../docs/concepts/blast-radius.md) page.

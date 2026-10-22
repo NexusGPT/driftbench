@@ -32,6 +32,7 @@ export {
   type Opinion,
   type Opinions,
   PROMPT_VERSION,
+  refusingKey,
   SCHEMA_VERSION,
   usageOf,
 } from './labeler';
@@ -97,6 +98,8 @@ export {
   type PointerPlan,
   type PointerResult,
   pointerScan,
+  REASK_LIMIT,
+  SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';
 export {
