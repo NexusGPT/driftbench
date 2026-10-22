@@ -30,7 +30,7 @@ describe('a prefix-started walk says where it starts', async () => {
   const at = source.spec.blocks.findIndex(
     (block, index) => index >= 2 && block.when && 'injection' in block.when,
   );
-  const cls = (source.spec.blocks[at]?.when as { injection: { class: string } }).injection.class;
+  const cls = (required(source.spec.blocks[at]).when as { injection: { class: string } }).injection.class;
   const real = required(source.spec.blocks[at - 1]?.expect?.stage);
 
   // The same walk started from the prefix its first `at` blocks leave, with the stage it declares (or none).
