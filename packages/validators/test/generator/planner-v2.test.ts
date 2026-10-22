@@ -30,6 +30,12 @@ const MUTANTS = [
   ['pairs-only', 'planner.own-rule-tuples'],
 ] as const;
 
+/**
+ * Items of ladder version 3 that the planner does not pass yet: docs/variables.md asks for the order and the
+ * warning of required values under a budget (Values, R9), and the planner has neither. They are hardness items.
+ */
+const PLANNER_GAPS = ['planner.required-survives-budget.required', 'planner.budget-below-required.required'];
+
 /** A lost item counts as caught only when a check failed: a load error or a throw is no verdict. */
 const caught = (out: Awaited<ReturnType<typeof run>>) =>
   out
@@ -46,13 +52,16 @@ const run = async (items: ReturnType<typeof plannerItems>, seed: number) =>
   );
 
 describe('the planner v2 family', () => {
-  it('passes on the real planner on seed 1', async () => {
+  it('passes on the real planner on seed 1, except the gaps of the planner the bank names', async () => {
     const items = plannerItems();
     const out = await run(items, 1);
     const failing = out
-      .filter((entry) => !entry.verdict.pass)
+      .filter((entry) => !entry.verdict.pass && !PLANNER_GAPS.includes(entry.item.id))
       .map((entry) => `${entry.item.id}: ${entry.verdict.detail}`);
     expect(failing).toEqual([]);
+    // A gap the planner closes passes here and must leave the list.
+    for (const id of PLANNER_GAPS)
+      expect(out.find((entry) => entry.item.id === id)?.verdict.pass, `${id} still fails`).toBe(false);
     expect(out.length).toBe(items.length);
     expect(new Set(items.map((item) => item.id)).size).toBe(items.length);
   });
