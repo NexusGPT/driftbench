@@ -440,8 +440,11 @@ async function labelWindow(
           model,
         );
       } catch (cause) {
-        // The message of a thrown transport error may quote the request, which holds unit text: it is not repeated.
-        return { abort: `the model call failed (${cause instanceof Error ? cause.name : typeof cause})` };
+        // A failed transport is a failed window, like an answer that is refused: the window is asked once more, then
+        // listed as failed, and the other windows are still asked. The message of a thrown transport error may quote
+        // the request, which holds unit text: only its name is kept.
+        reason = `the model call failed (${cause instanceof Error ? cause.name : typeof cause})`;
+        continue;
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {

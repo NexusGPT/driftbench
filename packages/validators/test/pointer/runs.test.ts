@@ -39,7 +39,9 @@ describe('run counts, failed recordings and the model key', { timeout: 600_000 }
       name: 'torn',
       scan: async (request: ScanRequest) => {
         const out = await ref.scan(request);
-        return out.ok ? out : { ...out, cassette: `${out.cassette ?? ''}{"key":"` };
+        // A failed run is a scan that failed or one that reported a failed window.
+        const failedRun = !out.ok || out.diagnostics.some((d) => d.code === 'failed-window');
+        return failedRun ? { ...out, cassette: `${out.cassette ?? ''}{"key":"` } : out;
       },
     };
     const out = await tally(torn, only([FAILED]));
