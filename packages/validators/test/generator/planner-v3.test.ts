@@ -22,6 +22,9 @@ const PLANTED = [
   ['zero-weight-first', 'zero-weight-last', 'zero-weight'],
   ['key-order-sensitive', 'key-order-invariance', 'two-rules'],
   ['unweighted-as-one', 'traffic-weight-of-a-row', 'mixed-weights'],
+  ['edge-budget-cuts-one', 'budget-edges', 'floor-only'],
+  ['required-last', 'required-survives-budget', 'required'],
+  ['required-no-warning', 'budget-below-required', 'required'],
 ] as const;
 
 /** The wrong planners of the version 3 plan: each loses at least one item of the shape on seeds 1 to 3. */
@@ -71,6 +74,16 @@ describe('the planner family, ladder version 3', () => {
       }
     },
   );
+
+  it('passes both required items on a planner that keeps required rows first and warns, on seeds 1 to 3', async () => {
+    const module = fileURLToPath(new URL('./fixtures/planner-mutants/required-first.ts', import.meta.url));
+    const items = plannerItems(module, ['required']).filter((item) =>
+      ['planner.required-survives-budget.required', 'planner.budget-below-required.required'].includes(item.id),
+    );
+    expect(items).toHaveLength(2);
+    for (const seed of [1, 2, 3])
+      for (const { item, verdict } of await run(items, seed)) expect(verdict.pass, `${item.id} seed ${seed}: ${verdict.detail}`).toBe(true);
+  });
 
   it('runs every new stem on the shapes it names, under ids no other item holds', () => {
     const ids = plannerItems().map((item) => item.id);
