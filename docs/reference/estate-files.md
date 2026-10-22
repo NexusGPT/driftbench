@@ -20,6 +20,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [Atom replyAct](#atom-replyact)
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
+* [EstateMap registryRoles](#estatemap-registryroles)
 * [EstateMap producedBy](#estatemap-producedby)
 * [Plan](#plan)
 * [PlanRow](#planrow)
@@ -50,6 +51,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `space` | string | no |  | Path of the exported space map of the situation axes |
 | `ignore` | list of strings, each not empty | no |  | Globs the scan skipped beside the runtime defaults; lint reads the estate with them again |
 | `userSkills` | `true` | no |  | true when the scan read a user-level skill layer; lint then needs the folder to read it again |
+| `registryRoles` | [EstateMap registryRoles](#estatemap-registryroles) | no |  | The recorded roles of the registry-table columns; later code-only reads use them again |
 | `followedLinks` | list of strings, each not empty | no |  | Links, relative to the estate root, that the scan read through to a real path outside the root |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
@@ -324,6 +326,15 @@ The act of the agent reply that the atom governs, when it governs one.
 | `allows` | A skill or helper to a tool or skill it may use. |
 | `next` | A stage to the stage that follows it. |
 | `cites` | A rule to a rule its words name by label. |
+
+## EstateMap registryRoles
+
+The recorded roles of the registry-table columns; later code-only reads use them again
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `columns` | map of string to one of `id`, `guard`, `enforces`, `watches`, `event`, `verdict`, `state`, `description` | yes |  | The role of each header cell of the registry tables, as the labeler recorded it |
+| `offStates` | list of strings, each not empty | yes |  | The values of a state column under which a check enforces nothing, as recorded |
 
 ## EstateMap producedBy
 
