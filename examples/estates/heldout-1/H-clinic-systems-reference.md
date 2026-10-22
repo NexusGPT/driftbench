@@ -5,11 +5,11 @@ description: Reference for the limits and the behaviour of the clinic systems th
 
 # Clinic systems reference
 
-This file describes the systems as they behave today. It does not tell you what to do; the other files do.
+This file describes the systems as they behave today. Nothing here is an instruction; the instructions are in the other files.
 
 ## Limits
 
-| Limit | Value | What happens at the limit |
+| Item | Size | Result when it is reached |
 |---|---|---|
 | Attachment size per message | Ten megabytes | The message is refused |
 | Photos in one message | Four | The extra photos are dropped |
