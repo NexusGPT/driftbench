@@ -148,9 +148,8 @@ const «isSetKind» = «utilTypes».isSet;
 const «isDateKind» = «utilTypes».isDate;
 const «isSealedIt» = Object.isSealed;
 const «ids» = new WeakMap();
-// The prototypes an argument has when the validator decodes it.
-const «builtins» = new WeakSet();
-for (const «known» of [Object.prototype, Array.prototype, Map.prototype, Set.prototype, Date.prototype, DataView.prototype, «protoOf»(Uint8Array.prototype), Uint8Array.prototype, Int8Array.prototype, Uint16Array.prototype, Int16Array.prototype, Uint32Array.prototype, Int32Array.prototype, Float32Array.prototype, Float64Array.prototype, BigInt64Array.prototype, BigUint64Array.prototype, Uint8ClampedArray.prototype]) «call»(WeakSet.prototype.add, «builtins», [«known»]);
+// The prototype of each kind of argument as the validator decodes it, by kind: plain, array, typed, Map, Set, Date.
+const «canonical» = [Object.prototype, Array.prototype, null, Map.prototype, Set.prototype, Date.prototype];
 const «idGet» = WeakMap.prototype.get;
 const «idSet» = WeakMap.prototype.set;
 let «idNext» = 0;
@@ -282,9 +281,7 @@ const «scan» = («root») => {
     }
     «ancestors»[«level»] = «value»;
     const «proto» = «protoOf»(«value»);
-    // Only a deviation is written (a prototype that is not a built-in one, a state other than extensible and open), so
-    // an object the frame can copy back, which a product adds or removes, does not change the digest.
-    if («proto» !== null && !«call»(«seenHas», «builtins», [«proto»])) «putOther»('P' + «idOf»(«proto») + ';');
+
     // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
     if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
     // The kind of the object, and its content.
@@ -379,6 +376,13 @@ const «scan» = («root») => {
         }
       }
     }
+    // The prototype, by identity, for every object whose prototype is not the one the validator's own decoding gives
+    // its kind (the base object prototype for a plain object, the array prototype for an array, the Map, Set and Date ones). A
+    // swap to null, to a built-in one or to a custom one always changes the digest (review of PR 986, codex run
+    // 39756451516). The canonical prototype is left out only so that an object a product adds or removes, which the
+    // frame copies back and decodes with exactly that prototype, does not count as a change; a typed array and a
+    // DataView are always recorded.
+    if («kind» === 2 || «proto» !== «canonical»[«kind»]) «putOther»('P' + («proto» === null ? 0 : «idOf»(«proto»)) + ';');
     // Own properties. The ones the frame can copy back (the enumerable string keys of a plain object) go to the data
     // digest; every other one goes to the other digest with its descriptor, and what it holds.
     const «keys» = «ownKeys»(«value»);
