@@ -264,7 +264,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         similarity(flat(entry).quote, flat(first).quote),
         similarity(flat(entry).quote, flat(second).quote),
       );
-      if (joined > alone + 0.1 && joined >= LADDER.threshold + LADDER.joinMargin) {
+      if (joined > alone && joined >= LADDER.threshold + LADDER.joinMargin) {
         result.set(entry.id, { event: 'split', to: [first, second] });
         used.add(first);
         used.add(second);
@@ -291,8 +291,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         Math.max(
           similarity(flat(first).quote, flat(best.item).quote),
           similarity(flat(second).quote, flat(best.item).quote),
-        ) +
-          0.1
+        )
     ) {
       result.set(first.id, { event: 'merged', to: [best.item] });
       result.set(second.id, { event: 'merged', to: [best.item] });
