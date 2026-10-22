@@ -141,8 +141,8 @@ export const replay: FamilySpec = {
     row(
       'key-ignores-threshold',
       3,
-      'The Jev threshold is not part of the key',
-      'Replay the committed Jev fixture at its default threshold, then at 0.9.',
+      'The stack settings are not part of the key',
+      'Replay the committed Jev and Haiku fixtures as a stack at the default margin cut, then at 0.99.',
       'Both runs retain every authored label without a transport call.',
       'cassette:threshold-not-in-key',
       { needs: ['transport', 'cassette'] },
