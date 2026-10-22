@@ -243,6 +243,31 @@ describe('a mapping that builds one atom for each act span, with the file span l
     },
   );
 
+  it.each([false, true])(
+    'refuses a file span that is a prefix of the raw destination as long as the decoded path (angle %s)',
+    async (angle) => {
+      const raw = 'docs/ledger\\(draft\\).md';
+      const partial = raw.slice(0, 'docs/ledger(draft).md'.length);
+      const { found, atomRefusals } = await gates(
+        `Before editing a ledger: read [ledger](${angle ? `<${raw}>` : raw}).`,
+        [{ act: 'editing a ledger', file: partial }],
+        ['docs/ledger(draft).md', 'docs/ledger/(draft/).md'],
+      );
+      expect(found).toEqual([]);
+      expect(atomRefusals.length).toBeGreaterThan(0);
+    },
+  );
+
+  it('keeps the decoded leading space of an angle-delimited destination', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read [ledger](< docs/ledger.md>).',
+      [{ act: 'editing a ledger', file: '< docs/ledger.md>' }],
+      [' docs/ledger.md', 'docs/ledger.md'],
+    );
+    expect(atomRefusals).toEqual([]);
+    expect(found).toEqual([[' docs/ledger.md', 'editing a ledger']]);
+  });
+
   it('accepts a file span written without the marks around the path', async () => {
     const { found } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',
