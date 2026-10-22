@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  defineLadder,
   FLOORS_FILE,
   ladderVersion,
   readFloors,
@@ -808,6 +809,37 @@ describe('driftbench validate for auditors', () => {
     });
     // g4 fails on seed 2 above that seed's first failing level: only a full run sees it there.
     expect(report.failingItems[1].seeds).toEqual(['1', '2']);
+  });
+
+  it('--all-levels --json: a ladder reporting them apart gives the levels beyond a section', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder([2]);
+    const apart = defineLadder({ ...ladder, beyondApart: true });
+    const d = { ladders: () => ({ banked: apart }), root } as ValidateDeps;
+    const json = capture(root);
+    const code = await validateCommand('banked', { seeds: '1..2', allLevels: true, json: true }, json.io, d);
+    const stopping = capture(root);
+    expect(await validateCommand('banked', { seeds: '1..2', json: true }, stopping.io, d)).toBe(code);
+    const report = JSON.parse(json.output.out);
+    const plain = JSON.parse(stopping.output.out);
+    expect(report.level).toBe(plain.level);
+    // Seed 2 fails level 1: its level 2, measured beyond, is shown as not run.
+    expect(report.seeds[1].rows[1]).toMatchObject({ level: 2, observed: null, pass: null, itemCount: null });
+    expect(report.beyondTheFirstFailingLevel.note).toMatch(/beyond the first failing level/);
+    expect(report.beyondTheFirstFailingLevel.seeds).toEqual([
+      expect.objectContaining({ seed: 2, firstFailingLevel: 1 }),
+    ]);
+    expect(report.beyondTheFirstFailingLevel.seeds[0].levels[0]).toMatchObject({ level: 2, metThreshold: false });
+    expect(report.beyondTheFirstFailingLevel.seeds[0].levels[0]).not.toHaveProperty('pass');
+  });
+
+  it('--all-levels --json: any other ladder keeps the levels beyond in its rows, as before', async () => {
+    const { root, d } = await banked();
+    const json = capture(root);
+    await validateCommand('banked', { seeds: '1..2', allLevels: true, json: true }, json.io, d);
+    const report = JSON.parse(json.output.out);
+    expect(report.seeds[1].rows[1]).toMatchObject({ level: 2, beyond: true, pass: false });
+    expect(report).not.toHaveProperty('beyondTheFirstFailingLevel');
   });
 
   it('--blind strips causes and Fix: hints from text and JSON', async () => {
