@@ -14,6 +14,7 @@ import {
 } from './labeler';
 import {
   type DisplayLine,
+  expandUnits,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
@@ -555,6 +556,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
     let failure: unknown;
     const refusedAnswers: NonNullable<Recorded['refusedAnswers']> = [];
+    // What a cassette keeps of a refused answer is never text the model chose: a label outside the set, and units
+    // that are no number or range, are stored as the marker `unknown`.
+    const known = new Set([...task.set.labels.map((label) => label.name), 'none']);
+    const safe = (label: string) => (known.has(label) ? label : 'unknown');
+    const safeUnits = (units: string) => (expandUnits(units) ? units.trim() : 'unknown');
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;
@@ -563,7 +569,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         counts.output += answer.usage.output;
         // On the last try, a label put on shown lines alone is dropped and listed, and the rest of the answer stands.
         if (attempt === 2 && answer.labels) {
-          const split = shownLabelDrops(window, answer.labels);
+          const split = shownLabelDrops(window, answer.labels, known);
           if (split.dropped.length > 0)
             answer = { ...answer, labels: split.labels, shownDropped: split.dropped };
         }
@@ -574,8 +580,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (refused.length > 0) {
           refusedAnswers.push(
             (answer.labels ?? []).map((entry) => ({
-              units: entry.units,
-              label: entry.label,
+              units: safeUnits(String(entry.units)),
+              label: safe(String(entry.label)),
               ...(typeof entry.target === 'number' ? { target: entry.target } : {}),
             })),
           );

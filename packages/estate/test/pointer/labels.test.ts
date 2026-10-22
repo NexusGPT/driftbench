@@ -236,21 +236,24 @@ describe('checking an answer', () => {
     ]);
   });
 
-  it('keeps one entry of an exact duplicate and refuses a unit named twice with another label', () => {
+  it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
     const same = checkAnswer(counter, window, [
       { units: '1-2', label: 'greeting' },
-      { units: '2', label: 'greeting' },
+      { units: '1-2', label: 'greeting' },
       { units: '3', label: 'none' },
       { units: '3', label: 'none' },
     ]);
     expect(same.refusals).toEqual([]);
     expect([...same.accepted.keys()]).toEqual([1, 2]);
     expect([...same.covered]).toEqual([1, 2, 3]);
-    const other = checkAnswer(counter, window, [
-      { units: '1-2', label: 'greeting' },
+    // Another label, or the same label on a unit inside a range already given, is a unit named twice.
+    for (const second of [
       { units: '2', label: 'price-claim' },
-    ]);
-    expect(other.invalid).toEqual(['notes.md#1: "2" names a unit that is already labelled']);
+      { units: '2', label: 'greeting' },
+    ]) {
+      const other = checkAnswer(counter, window, [{ units: '1-2', label: 'greeting' }, second]);
+      expect(other.invalid).toEqual(['notes.md#1: "2" names a unit that is already labelled']);
+    }
   });
 
   it('splits the entries that put a real label on shown lines alone from the rest of an answer', () => {
@@ -275,6 +278,11 @@ describe('checking an answer', () => {
       { line: 3, label: 'greeting' },
       { line: 5, label: 'greeting' },
     ]);
+    // A label the set does not have is not dropped with the shown lines: it stays, and the check refuses it.
+    const known = new Set(['greeting', 'none']);
+    const unknown = shownLabelDrops(shown, [{ units: '3', label: 'mystery' }], known);
+    expect(unknown.dropped).toEqual([]);
+    expect(unknown.labels).toHaveLength(1);
     // The entries that stand are checked as before.
     expect(checkAnswer(counter, shown, split.labels).refusals).toEqual([]);
   });
