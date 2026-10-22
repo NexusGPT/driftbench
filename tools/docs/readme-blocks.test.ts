@@ -17,7 +17,7 @@ describe('README, personas and the fault finder', () => {
   const summary = 'Define the simulated user in the block';
 
   it('shows the block spec and the run lines that the help topic and the simulated user page hold', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const readme = await readFile(`${ROOT}/docs/innovations.md`, 'utf8');
     const topic = await readFile(`${ROOT}/packages/cli/help/running-simulate.md`, 'utf8');
     const page = await readFile(`${ROOT}/docs/simulated-user.md`, 'utf8');
     const spec = block(readme, summary, 'A block can carry its own simulated user');
@@ -27,9 +27,10 @@ describe('README, personas and the fault finder', () => {
   });
 
   it('names no pull request for the fault finder and says no command registers a step of your own', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const readme = await readFile(`${ROOT}/docs/innovations.md`, 'utf8');
     expect(readme).not.toMatch(/fault find(?:er|ing) is on its way/i);
-    expect(readme).toContain('no command runs it yet');
+    expect(readme).not.toContain('no command runs it yet');
+    expect(readme).toContain('stored diagnoses');
     const topic = await readFile(`${ROOT}/packages/cli/help/running-diagnostics.md`, 'utf8');
     expect(topic).toContain('No command registers a step of your own');
   });

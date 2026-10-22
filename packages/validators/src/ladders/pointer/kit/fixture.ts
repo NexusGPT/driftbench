@@ -51,6 +51,24 @@ export type Fixture = {
   wires: Wire[];
   documents: AuthoredFile[];
 };
+/** The runs a window is asked: the reader asks a system 2 labeler for five runs, a system 1 labeler for one. */
+export function runsOf(arm: ModelArm): string[] {
+  return arm === 'haiku' ? ['1', '2', '3', '4', '5'] : ['1'];
+}
+/** The most units one Jev window request carries; a unit-state request carries one. */
+export const JEV_WINDOW_UNITS = 30;
+/** The units one request carries: a Jev unit-state request one, a Jev window request 30, a Haiku request 60. */
+export function windowCap(arm: ModelArm): number {
+  if (arm === 'jev-unit') return 1;
+  return arm === 'jev' ? JEV_WINDOW_UNITS : 60;
+}
+/** The definition of the option every choice question offers last. */
+export const NONE_DEFINITION = 'None of the other labels applies to this unit.';
+/** The probability vector of an authored unit: its label 0.9, the other options sharing the rest. */
+export function defaultVector(options: string[], label: string): Record<string, number> {
+  const rest = Math.round((0.1 / Math.max(1, options.length - 1)) * 1e4) / 1e4;
+  return Object.fromEntries(options.map((o) => [o, o === label ? 0.9 : rest]));
+}
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
@@ -69,7 +87,7 @@ export function wireFor(
   const shown = units.map((u) => `[${u.n}] ${u.text.replace(/\s+/g, ' ').trim()}`);
   if (arm === 'haiku')
     return {
-      labeler: arm,
+      labeler: 'anthropic',
       body: {
         model: 'claude-haiku-5-5',
         max_tokens: 4096,
@@ -93,30 +111,37 @@ export function wireFor(
         ],
       },
     };
+  const askable = set.labels.filter((l) => l.target !== 'required');
+  const criteria = Object.fromEntries([
+    ...askable.map((l) => [l.name, `${l.description}${examples(l)}`]),
+    ['none', NONE_DEFINITION],
+  ]);
   return {
     labeler: arm,
     body: {
       model: 'jev-latest',
       state: { set: set.set, window, text: [`path: ${path.join(' > ') || '(top)'}`, ...shown].join('\n') },
       questions: Object.fromEntries(
-        units.flatMap((u) =>
-          set.labels.map((l) => [
-            `u${u.n}__${l.name}`,
-            {
-              type: 'noul',
-              instructions: {
-                question: `Label ${l.name}: ${l.description}${examples(l)} Does this label apply to unit [${u.n}] of the numbered text? Answer yes or no.`,
-              },
-            },
-          ]),
-        ),
+        units.map((u) => [
+          `u${u.n}`,
+          {
+            type: 'choice',
+            instructions: `Which label does unit [${u.n}] of the numbered text have?`,
+            criteria,
+          },
+        ]),
       ),
     },
   };
 }
+/** The key of a request: the hash of the canonical wire and its readable record, `cls` and `run` included. */
+export const keyOf = (wire: Wire, readable: Record<string, string>): string =>
+  hash(canonical({ wire, readable }));
 export function readableFor(wire: Wire, meta: Record<string, string>): Record<string, string> {
   return {
     ...meta,
+    cls: wire.labeler === 'anthropic' ? 'system2' : 'system1',
+    run: '1',
     labeler: wire.labeler,
     ...Object.fromEntries(
       Object.entries(wire.body).map(([k, v]) => [`part.${k}`, hash(canonical(v)).slice(0, 12)]),
@@ -153,8 +178,7 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           )
           .join('\n'),
       );
-      const cap =
-        arm === 'jev-unit' ? 1 : Math.min(60, arm === 'jev' ? Math.floor(250 / set.labels.length) : 60);
+      const cap = windowCap(arm);
       for (let offset = 0; offset < doc.units.length; offset += cap) {
         const selected = doc.units.slice(offset, offset + cap),
           window = `${doc.path}#${Math.floor(offset / cap) + 1}`;
@@ -165,36 +189,41 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           selected.map((u, i) => ({ n: i + 1, text: u.text })),
           selected[0]?.path ?? [],
         );
-        wires.push(wire);
+        const options = [...set.labels.filter((l) => l.target !== 'required').map((l) => l.name), 'none'];
         const probabilities = Object.fromEntries(
           selected.flatMap((u, i) =>
-            set.labels.map((l) => [
-              `u${i + 1}__${l.name}`,
-              u.probabilities?.[l.name] ?? (l.name === u.label ? 0.95 : 0.05),
+            Object.entries(u.probabilities ?? defaultVector(options, u.label)).map(([option, p]) => [
+              `u${i + 1}__${option}`,
+              p,
             ]),
           ),
         );
-        rows.push({
-          key: hash(canonical(wire)),
-          readable: readableFor(wire, {
-            path: doc.path,
-            window,
-            promptVersion: 'p1',
-            schemaVersion: 's1',
-            set: set.set,
-            setHash: hash(canonical(set)).slice(0, 16),
-            model: String(wire.body.model),
-            cutDigest: digest,
-          }),
-          answer: {
-            ...(arm === 'haiku'
-              ? { labels: selected.map((u, i) => ({ units: String(i + 1), label: u.label })) }
-              : { probabilities }),
-            returnedModel: String(wire.body.model),
-            stopReason: 'end_turn',
-            usage: { input: 10, output: 10 },
-          },
+        const readable = readableFor(wire, {
+          path: doc.path,
+          window,
+          promptVersion: 'p1',
+          schemaVersion: 's1',
+          set: set.set,
+          setHash: hash(canonical(set)).slice(0, 16),
+          model: String(wire.body.model),
+          cutDigest: digest,
         });
+        for (const run of runsOf(arm)) {
+          const recorded = { ...readable, run };
+          wires.push(wire);
+          rows.push({
+            key: keyOf(wire, recorded),
+            readable: recorded,
+            answer: {
+              ...(arm === 'haiku'
+                ? { labels: selected.map((u, i) => ({ units: String(i + 1), label: u.label })) }
+                : { probabilities }),
+              returnedModel: String(wire.body.model),
+              stopReason: 'end_turn',
+              usage: { input: 10, output: 10 },
+            },
+          });
+        }
       }
       for (const u of doc.units)
         expected.push({
@@ -228,7 +257,11 @@ export function loadFixture(arm: ModelArm): Fixture {
   return fixture;
 }
 /** Every expected source unit must occur exactly once with its authored label; zero, partial and all-one-label outputs fail. */
-export function requireFixtureLabels(result: ScanResult, fixture: Fixture, threshold?: number): void {
+export function requireFixtureLabels(
+  result: ScanResult,
+  fixture: Fixture,
+  decide?: (probabilities: Record<string, number>) => string,
+): void {
   if (!result.ok || !result.ledger)
     throw new Error(`positive witness: fixture replay failed: ${result.error ?? 'no ledger'}`);
   const live = result.ledger.entries.filter((e) => e.status === 'live');
@@ -246,10 +279,7 @@ export function requireFixtureLabels(result: ScanResult, fixture: Fixture, thres
   for (const expected of fixture.expected) {
     const match = groups.get(JSON.stringify([expected.path, expected.quote, expected.set]))?.shift();
     let want = expected.label;
-    if (threshold !== undefined && expected.probabilities) {
-      const [best] = Object.entries(expected.probabilities).sort((a, b) => b[1] - a[1]);
-      want = best && best[1] >= threshold ? best[0] : 'none';
-    }
+    if (decide && expected.probabilities) want = decide(expected.probabilities);
     if (match?.labels[expected.set]?.label !== want)
       throw new Error(
         `positive witness: fixture label ${expected.path} ${JSON.stringify(expected.quote)} must be ${want}`,
