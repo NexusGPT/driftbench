@@ -133,12 +133,12 @@ describe('terminal subsumption', () => {
   });
 
   describe('a block that injects a class', () => {
-    const setup = (seeder: 'twise' | 'deviation') => {
+    const setup = () => {
       const prepared = fixture();
       const path = prepared.relations.paths[0];
       if (!path) throw new Error('missing parcel path');
       const context: SeedContext = { seed: 1031, t: 2, max: 100 };
-      const probe = (id: string) => {
+      const probe = (id: string, seeder: 'twise' | 'deviation') => {
         const built = scenarioDraft(
           prepared,
           context,
@@ -156,9 +156,9 @@ describe('terminal subsumption', () => {
     };
 
     it('is cut like any other block when a written probe of its class on the path already holds it', () => {
-      const { minimal, probe } = setup('deviation');
-      const first = probe('first');
-      const second = probe('second');
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
+      const second = probe('second', 'deviation');
       const length = second.blocks.length;
       minimal.reduce(first);
       minimal.reduce(second);
@@ -169,21 +169,30 @@ describe('terminal subsumption', () => {
     });
 
     it('stays in the first probe of its class on a path', () => {
-      const { minimal, probe } = setup('deviation');
-      const first = probe('first');
-      const length = first.blocks.length;
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
       minimal.reduce(first);
       expect(first.blocks.some((block) => block.injection)).toBe(true);
-      expect(first.blocks.length).toBeLessThanOrEqual(length);
     });
 
-    it('stays in a t-wise spec, which holds the tuples of its row alone', () => {
-      const { minimal, probe } = setup('twise');
-      const first = probe('first');
-      const second = probe('second');
+    it('stays in a t-wise spec when no written t-wise spec holds its tuples, whoever probed the class', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
+      const second = probe('second', 'twise');
       minimal.reduce(first);
       minimal.reduce(second);
+      // The class is probed on the path, but the t-wise items read t-wise specs alone: the tuples stay with it.
       expect(second.blocks.some((block) => block.injection)).toBe(true);
+    });
+
+    it('is cut from a t-wise spec once a written t-wise spec holds the same tuples', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'twise');
+      const second = probe('second', 'twise');
+      const length = second.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(second.blocks.length).toBeLessThan(length);
     });
   });
 

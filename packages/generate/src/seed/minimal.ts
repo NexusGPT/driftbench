@@ -28,7 +28,7 @@ function failsAtEnd(spec: Spec): boolean {
  * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
  * a class is a block like any other: a second probe of a class a written spec already tests on the path is cut by the same
- * checks; the first probe of a class on a path stays, and so do the injection blocks of a t-wise spec. A walk with an end state,
+ * checks; a cut keeps every obligation of the blocks it drops held by a written spec (a probe of a class per path; the row of a t-wise spec). A walk with an end state,
  * a task and a spec that is not complete are never reduced. Metamorphic variants follow their first variant.
  *
  * This is subsumption by what has been written, not a proof of a smallest suite, and it reads no agent.
@@ -47,6 +47,8 @@ export class TerminalSubsumption {
   private readonly ends = new Set<string>();
   /** The classes already probed on each path, by a written spec: `<path>|<class>`. */
   private readonly probed = new Set<string>();
+  /** The rows (cell and deviation class) of the written t-wise specs: the t-wise items read those specs alone. */
+  private readonly twiseRows = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
   /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
@@ -110,14 +112,6 @@ export class TerminalSubsumption {
       while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
         if (!this.blocks.has(this.key(spec, last))) break;
-        // A block that injects a class is cut like any other block, with two exceptions the items count: a t-wise
-        // spec holds the tuples of its row (the t-wise items read those specs alone), and the first probe of a class on
-        // a path stays, because each path owes every class its flow requires a probe.
-        const injected = spec.blocks[last]?.when;
-        if (injected && 'injection' in injected) {
-          if (draft.seeder === 'twise') break;
-          if (!this.probed.has(`${draft.path ?? ''}|${injected.injection.class}`)) break;
-        }
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
@@ -129,6 +123,7 @@ export class TerminalSubsumption {
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
+        if (!this.obligationsHold(draft.seeder, spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
         spec = reduced.spec;
@@ -278,6 +273,8 @@ export class TerminalSubsumption {
         });
     });
     this.ends.add(this.key(spec, spec.blocks.length - 1));
+    if ((spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'twise')
+      this.twiseRows.add(this.twiseRow(spec));
     const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
     for (const block of spec.blocks)
       if ('injection' in block.when) this.probed.add(`${path}|${block.when.injection.class}`);
@@ -394,6 +391,34 @@ export class TerminalSubsumption {
         (code) => projection.allowed[code] !== 1 || newCodes.has(code) || held[index]?.[code] === 1,
       );
     });
+  }
+
+  /**
+   * What the suite owes that tuples and pairs do not say: a cut keeps every obligation of the blocks it drops held by
+   * a written spec. A probe of a class on a path is owed once per path and class; a t-wise spec owes the tuples of its
+   * row to the items that read t-wise specs alone.
+   */
+  private obligationsHold(seeder: string | undefined, before: Spec, after: Spec): boolean {
+    const path = (before.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const probes = (spec: Spec) =>
+      new Set(
+        spec.blocks.flatMap((block) =>
+          'injection' in block.when ? [`${path}|${block.when.injection.class}`] : [],
+        ),
+      );
+    const kept = probes(after);
+    for (const probe of probes(before)) if (!kept.has(probe) && !this.probed.has(probe)) return false;
+    if (seeder !== 'twise') return true;
+    // A t-wise spec stands for its row: the values of its cell and the class of its first injected block. A cut that
+    // changes the class changes the row, and the old row must be one another written t-wise spec has.
+    const row = (spec: Spec) => this.twiseRow(spec);
+    return row(before) === row(after) || this.twiseRows.has(row(before));
+  }
+
+  private twiseRow(spec: Spec): string {
+    const cell = (spec.metadata?.generated as { cell?: unknown } | undefined)?.cell ?? {};
+    const injected = spec.blocks.find((block) => 'injection' in block.when)?.when;
+    return contentHash([cell, injected && 'injection' in injected ? injected.injection.class : 'none']);
   }
 
   private pairsHold(before: Spec, after: Spec): boolean {
