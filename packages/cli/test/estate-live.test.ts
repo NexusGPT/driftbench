@@ -1206,6 +1206,9 @@ describe('driftbench estate run --from', () => {
       await second.close();
       expect(salt).toMatch(/^[0-9a-f]{32}$/);
       expect(textSalt).toMatch(/^[0-9a-f]{32}$/);
+      // An empty list would pass the scan with nothing checked: both text-run lists must hold records.
+      expect(textRuns.length).toBeGreaterThan(0);
+      expect(textCampaigns.length).toBeGreaterThan(0);
       expect(text.out).toContain('estate.journey.03');
       const seen = [
         ['stdout', JSON.stringify(json.json)],
