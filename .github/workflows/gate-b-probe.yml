@@ -1,0 +1,27 @@
+name: gate-b probe
+
+# Temporary: prints the errors of the whole-repository lint.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Lint errors only
+        run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000
