@@ -73,6 +73,31 @@ limits:
     comparison: gt
     unit_of: "answers"
     governs: hzuafhnrvp
+  - unit: kn447e23qp
+    limit: 1
+    comparison: le
+    unit_of: "minutes"
+    governs: kn447e23qp
+  - unit: bidpovjlre
+    limit: 2
+    comparison: le
+    unit_of: "rooms offered"
+    governs: bidpovjlre
+  - unit: txtsbyxu6a
+    limit: 2
+    comparison: le
+    unit_of: "rooms offered"
+    governs: txtsbyxu6a
+  - unit: x2yw2rftbc
+    limit: 2
+    comparison: le
+    unit_of: "working days"
+    governs: x2yw2rftbc
+  - unit: 7xzbzyq5no
+    limit: 1
+    comparison: le
+    unit_of: "messages in a row"
+    governs: 7xzbzyq5no
 
 scopes:
   - unit: nbrowcarlu
