@@ -210,3 +210,58 @@ describe('written arguments', () => {
     expect(frame.product.sortsInPlace([1, 3, 2])).toBe(3);
   });
 });
+
+// The product's changes to its arguments come back (docs/validators.md section 12.9, "Written inputs"): an item that
+// reads its own arguments after a call sees exactly what it would see if the product ran in its own process.
+describe('arguments the product changed come back to the caller', () => {
+  const open2 = (): Frame<Product> => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    open.push(frame as Frame<unknown>);
+    return frame;
+  };
+
+  it('applies a sort in place, a fill, a length change and a deleted or added key at every depth', () => {
+    const frame = open2();
+    const list = [3, 1, 2];
+    const sorted = [1, 3, 2];
+    expect(frame.product.sortsInPlace(sorted)).toBe(3);
+    expect(sorted).toEqual([3, 2, 1]);
+    const input = { list, tail: [1, 2, 3], keyed: { gone: 1, kept: 2 } as Record<string, number> };
+    const sameList = input.list;
+    expect(frame.product.changesAfterwards(input)).toBe(6);
+    expect(input.list).toBe(sameList);
+    expect(input).toEqual({ list: [10000, 10000, 10000], tail: [1, 7], keyed: { kept: 2, added: 1 } });
+  });
+
+  it('applies a change to a Map, a Set, a typed array and a Date', () => {
+    const frame = open2();
+    const input = {
+      table: new Map([['x', 1]]),
+      bag: new Set([1]),
+      bytes: new Uint8Array(3),
+      when: new Date(0),
+    };
+    const table = input.table;
+    frame.product.changesContainers(input);
+    expect(input.table).toBe(table);
+    expect([...input.table]).toEqual([['a', 5]]);
+    expect([...input.bag]).toEqual([1, 9]);
+    expect([...input.bytes]).toEqual([0, 8, 0]);
+    expect(input.when.getTime()).toBe(1000);
+  });
+
+  it('leaves the arguments of a product that writes only to a copy byte for byte as they were', () => {
+    const frame = open2();
+    const input = { list: [3, 1, 2] };
+    const before = JSON.stringify(input);
+    frame.product.writesToACopy(input);
+    expect(JSON.stringify(input)).toBe(before);
+  });
+
+  it('does not touch an argument the caller froze', () => {
+    const frame = open2();
+    const input = Object.freeze({ list: Object.freeze([3, 1, 2]) });
+    expect(frame.product.writesToACopy(input as never)).toBe(3);
+    expect(input.list).toEqual([3, 1, 2]);
+  });
+});

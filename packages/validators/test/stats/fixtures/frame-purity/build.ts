@@ -34,3 +34,19 @@ export function purityPackage(root: string, kind: Purity, into: string): string 
   mkdirSync(into, { recursive: true });
   return join(src, 'index.ts');
 }
+
+/** A copy of the statistics package at `root` whose `mean` fills a 1000-value argument with 10000 after it computed the answer. */
+export function fillingMeanPackage(root: string, into: string): string {
+  const src = join(into, 'src');
+  cpSync(join(root, 'packages', 'stats', 'src'), src, { recursive: true });
+  const file = join(src, 'basics.ts');
+  const text = readFileSync(file, 'utf8');
+  const head = 'export function mean(values: readonly number[]): number {';
+  if (!text.includes(head)) throw new Error('the mean signature changed: update the purity builder');
+  writeFileSync(
+    file,
+    `${text.replace(head, 'function originalMean(values: readonly number[]): number {')}\nexport function mean(values: readonly number[]): number {\n  const result = originalMean(values);\n  if (values.length === 1000) (values as number[]).fill(10000);\n  return result;\n}\n`,
+  );
+  mkdirSync(into, { recursive: true });
+  return join(src, 'index.ts');
+}

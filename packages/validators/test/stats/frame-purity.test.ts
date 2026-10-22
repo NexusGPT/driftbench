@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest';
 import { runItem, statsBank } from '../../src/ladders/stats/bank/index';
 import { runIsolated } from '../../src/ladders/stats/bank/isolate';
 import { findRoot } from '../../src/root';
-import { type Purity, purityPackage } from './fixtures/frame-purity/build';
+import { fillingMeanPackage, type Purity, purityPackage } from './fixtures/frame-purity/build';
 
 /**
  * The purity items (`roadmap-purity.*`) fail a method that changes its arguments. The frame sends arguments as data,
@@ -70,5 +70,36 @@ describe(`the purity item ${ID} under the frame`, () => {
       direct: [true, true, true],
       framed: [true, true, true],
     });
+  });
+});
+
+// A product computes the right mean, then fills the caller's 1000-value array with 10000. The mean-shift items read
+// that array again, so they reject it directly; the frame has to give the caller the product's write (review of
+// PR 986, codex run 39733374457).
+describe('the mean-shift items under the frame with a product that fills its input afterwards', () => {
+  const shifts = statsBank(ROOT).filter((each) => each.id.startsWith('stability.mean-shift-'));
+  it('fail through the frame as they do directly', async () => {
+    expect(shifts.map((each) => each.id)).toEqual([
+      'stability.mean-shift-1000000',
+      'stability.mean-shift-1000000000',
+    ]);
+    const index = fillingMeanPackage(ROOT, join(work, 'fills-mean'));
+    const impl = (await import(index)) as never;
+    const before = process.env.DRIFTBENCH_STATS_IMPL;
+    const direct: boolean[] = [];
+    const framed: boolean[] = [];
+    for (const seed of [1, 2, 3]) {
+      for (const each of shifts) direct.push((await runItem(each, seed, ROOT, impl)).pass);
+      process.env.DRIFTBENCH_STATS_IMPL = index;
+      try {
+        const run = await runIsolated(shifts, seed, ROOT);
+        for (const each of shifts) framed.push(run.get(each.id)?.pass === true);
+      } finally {
+        if (before === undefined) delete process.env.DRIFTBENCH_STATS_IMPL;
+        else process.env.DRIFTBENCH_STATS_IMPL = before;
+      }
+    }
+    expect(direct).toEqual([false, false, false, false, false, false]);
+    expect(framed).toEqual(direct);
   });
 });

@@ -141,6 +141,8 @@ const «seenAdd» = WeakSet.prototype.add;
 const «SeenSet» = WeakSet;
 const «isProxy» = «utilTypes».isProxy;
 const «hasOwn» = Object.hasOwn;
+const «floatArray» = Float64Array;
+const «byteArray» = Uint8Array;
 const «typedLength» = «describe»(«protoOf»(Uint8Array.prototype), 'length').get;
 const «viewByteLength» = «describe»(DataView.prototype, 'byteLength').get;
 const «viewByte» = DataView.prototype.getUint8;
@@ -199,12 +201,15 @@ let «sawInvalid» = false;
 const «fingerprint» = («root») => {
   const «hash» = «call»(«hashStart», undefined, ['sha256']);
   let «chunk» = '';
-  const «put» = («piece») => {
-    «chunk» += «piece»;
-    if («chunk».length > 65536) {
+  const «flushText» = () => {
+    if («chunk».length > 0) {
       «call»(«hashUpdate», «hash», [«chunk»]);
       «chunk» = '';
     }
+  };
+  const «put» = («piece») => {
+    «chunk» += «piece»;
+    if («chunk».length > 65536) «flushText»();
   };
   const «seen» = new «SeenSet»();
   // The own properties of a Map, Set, Date, array or typed array besides its content (an extra property can hold
@@ -300,17 +305,36 @@ const «fingerprint» = («root») => {
       // Each index is read through its descriptor: an accessor element is an invalid result and is not called, and
       // a hole is not read (a read would reach the prototype chain).
       «put»('A' + «value».length + '[');
+      // A run of numbers goes into the digest as the bytes of a Float64Array, not as text: the arguments of the
+      // scale items are millions of numbers, and a digest of them runs before and after every call.
+      const «run» = new «floatArray»(4096);
+      let «runLength» = 0;
+      const «flushRun» = () => {
+        if («runLength» === 0) return;
+        «put»('N' + «runLength» + ':');
+        «flushText»();
+        «call»(«hashUpdate», «hash», [new «byteArray»(«run».buffer, 0, «runLength» * 8)]);
+        «runLength» = 0;
+      };
       for (let «i» = 0; «i» < «value».length; «i» += 1) {
         const «cell» = «describe»(«value», «i»);
-        if («cell» === undefined) «put»('h;');
-        else {
-          if («call»(«hasOwn», undefined, [«cell», 'value'])) «walk»(«cell».value, «level» + 1);
-          else {
-            «sawInvalid» = true;
-            «put»('G;');
-          }
+        if («cell» === undefined) {
+          «flushRun»();
+          «put»('h;');
+        } else if (!«call»(«hasOwn», undefined, [«cell», 'value'])) {
+          «flushRun»();
+          «sawInvalid» = true;
+          «put»('G;');
+        } else if (typeof «cell».value === 'number') {
+          «run»[«runLength»] = «cell».value;
+          «runLength» += 1;
+          if («runLength» === 4096) «flushRun»();
+        } else {
+          «flushRun»();
+          «walk»(«cell».value, «level» + 1);
         }
       }
+      «flushRun»();
       «put»(']');
       «extras»(«value», «level», 1);
       return;
@@ -361,6 +385,16 @@ if («setup».command) {
       : «setup».invoke
         ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
         : «product»[«request».call];
+    // Write back (docs/validators.md section 12.9, "Written inputs"): run A takes a digest of the arguments before the
+    // call and, when the call changed them, answers with their state after it, so the validator can apply the change to
+    // the caller's own arguments exactly as a call in its own process would have changed them. A write that threw is
+    // reported the same way.
+    let «argsRef»;
+    let «argsDigest»;
+    const «afterState» = () => {
+      if («argsDigest» === undefined || «fingerprint»(«argsRef») === «argsDigest») return {};
+      return { argsAfter: «encode»(«argsRef») };
+    };
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
@@ -368,11 +402,14 @@ if («setup».command) {
       const «strict» = «request».freeze === true;
       const «decoded» = «decode»(«request».args);
       const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
-      const «argsBefore» = «strict» ? «fingerprint»(«args») : undefined;
+      «argsRef» = «args»;
+      const «argsBefore» = «strict» || «setup».writeBack ? «fingerprint»(«args») : undefined;
+      if («setup».writeBack) «argsDigest» = «argsBefore»;
       const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
       const «used» = «cpuNow»(«before»);
       const «ret» = «encode»(«result»);
+      const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore»;
       const «moved» = [];
       let «movedCount» = 0;
@@ -396,9 +433,9 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after» });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}) });
     }
   }
 }

@@ -78,3 +78,39 @@ export const fillsMap = (input: { table: Map<string, number> }) => {
   input.table.set('x', 1);
   return input.table.size;
 };
+
+/** Computes its answer, then fills the argument, shortens another and deletes a key of a third. */
+export const changesAfterwards = (input: {
+  list: number[];
+  tail: number[];
+  keyed: Record<string, number>;
+}) => {
+  const total = input.list.reduce((a, b) => a + b, 0);
+  input.list.fill(10000);
+  input.tail.length = 1;
+  input.tail.push(7);
+  delete input.keyed.gone;
+  input.keyed.added = 1;
+  return total;
+};
+
+/** Changes a Map, a Set, a typed array and a Date argument in place. */
+export const changesContainers = (input: {
+  table: Map<string, number>;
+  bag: Set<number>;
+  bytes: Uint8Array;
+  when: Date;
+}) => {
+  input.table.clear();
+  input.table.set('a', 5);
+  input.bag.add(9);
+  input.bytes[1] = 8;
+  input.when.setTime(1000);
+  return input.table.size;
+};
+
+/** Writes only to its own copy, never to an argument. */
+export const writesToACopy = (input: { list: number[] }) => {
+  const copy = [...input.list].sort((a, b) => b - a);
+  return copy.length;
+};

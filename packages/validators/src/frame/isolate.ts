@@ -311,6 +311,78 @@ const outcomeText = (outcome: Outcome | { dead: string }) =>
       ? `threw ${shortText(outcome.throws, 80)}`
       : shortText(outcome.ret, 80);
 
+const isPlain = (value: object): boolean => {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+/** The kind of a value that can be changed in place, or undefined. */
+function kindOf(value: unknown): string | undefined {
+  if (value === null || typeof value !== 'object') return undefined;
+  if (Array.isArray(value)) return 'array';
+  if (ArrayBuffer.isView(value) && !(value instanceof DataView)) return 'typed';
+  if (value instanceof Map) return 'map';
+  if (value instanceof Set) return 'set';
+  if (value instanceof Date) return 'date';
+  return isPlain(value) ? 'object' : undefined;
+}
+
+/**
+ * The value a slot holds after a write-back: the old object, changed in place, when the old value and the state after
+ * the call are the same kind of object (so a caller's references to it stay valid and see the change); the state
+ * after the call otherwise. A function the caller holds stays.
+ */
+function merged(old: unknown, now: unknown): unknown {
+  if (typeof old === 'function') return old;
+  const kind = kindOf(old);
+  if (kind !== undefined && kind === kindOf(now) && !Object.isFrozen(old)) {
+    changeInPlace(old as object, now as object, kind);
+    return old;
+  }
+  return now;
+}
+
+/** Makes `target` read like `source`, keeping `target` the same object (arrays, typed arrays, Maps, Sets, Dates, plain objects). */
+function changeInPlace(target: object, source: object, kind: string): void {
+  if (kind === 'array') {
+    const to = target as unknown[];
+    const from = source as unknown[];
+    to.length = from.length;
+    for (let at = 0; at < from.length; at += 1) to[at] = merged(to[at], from[at]);
+  } else if (kind === 'typed') {
+    const to = target as unknown as Record<number, unknown> & { length: number };
+    const from = source as unknown as Record<number, unknown> & { length: number };
+    if (to.length === from.length) for (let at = 0; at < to.length; at += 1) to[at] = from[at];
+  } else if (kind === 'map') {
+    const to = target as Map<unknown, unknown>;
+    const entries = [...(source as Map<unknown, unknown>).entries()].map(
+      ([key, value]) => [key, to.has(key) ? merged(to.get(key), value) : value] as const,
+    );
+    to.clear();
+    for (const [key, value] of entries) to.set(key, value);
+  } else if (kind === 'set') {
+    const to = target as Set<unknown>;
+    const values = [...(source as Set<unknown>).values()];
+    to.clear();
+    for (const value of values) to.add(value);
+  } else if (kind === 'date') {
+    (target as Date).setTime((source as Date).getTime());
+  } else {
+    const to = target as Record<string, unknown>;
+    const from = source as Record<string, unknown>;
+    for (const key of Object.keys(to)) if (!(key in from)) delete to[key];
+    for (const key of Object.keys(from)) to[key] = merged(to[key], from[key]);
+  }
+}
+
+/** Applies the state of one argument after the call to the caller's argument: only an object can be changed in place. */
+function writeBack(args: unknown[], at: number, now: unknown): void {
+  const old = args[at];
+  const kind = kindOf(old);
+  if (kind !== undefined && kind === kindOf(now) && !Object.isFrozen(old))
+    changeInPlace(old as object, now as object, kind);
+}
+
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
@@ -366,7 +438,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
-      { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
+      {
+        ...plan,
+        driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
+        setup: { module: sealed, ...(plan.run === 'A' ? { writeBack: true } : {}) },
+      },
       { reads: [dirname(sealed), ...(options.reads ?? [])] },
     );
     if (!plan.wrap) return confined;
@@ -546,12 +622,22 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       moved: _moved,
       invalid: _invalid,
       written: _written,
+      argsAfter,
       ...answer
     } = a as Outcome & {
       moved?: string[];
       invalid?: boolean;
       written?: boolean;
+      argsAfter?: Json;
     };
+    // The product changed its arguments in run A: apply the state after the call to the caller's own arguments, as a
+    // call in the caller's process would have changed them (applyBack, below).
+    if (argsAfter !== undefined) {
+      const state = decode(argsAfter, revive);
+      if (Array.isArray(state)) {
+        for (let at = 0; at < args.length && at < state.length; at += 1) writeBack(args, at, state[at]);
+      }
+    }
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
     if (!('dead' in b)) entry.twin = b;
