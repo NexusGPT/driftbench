@@ -152,6 +152,35 @@ describe('a mapping that builds one atom for each act span, with the file span l
     ]);
   });
 
+  it('refuses a file span that is only the start of the longer path the unit names', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `docs/ledger.md.bak`.',
+      [{ act: 'editing a ledger', file: 'docs/ledger.md' }],
+      ['docs/ledger.md', 'docs/ledger.md.bak'],
+    );
+    expect(found).toEqual([]);
+    expect(atomRefusals.length).toBeGreaterThan(0);
+  });
+
+  it('refuses a file span that is only the end of the longer path the unit names', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `archive/docs/ledger.md`.',
+      [{ act: 'editing a ledger', file: 'docs/ledger.md' }],
+      ['docs/ledger.md', 'archive/docs/ledger.md'],
+    );
+    expect(found).toEqual([]);
+    expect(atomRefusals.length).toBeGreaterThan(0);
+  });
+
+  it('accepts a file span written without the marks around the path', async () => {
+    const { found } = await gates(
+      'Before editing a ledger: read `docs/ledger.md`.',
+      [{ act: 'editing a ledger', file: 'docs/ledger.md' }],
+      ['docs/ledger.md'],
+    );
+    expect(found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+  });
+
   it('refuses a file span that holds only the start of a path', async () => {
     const { found, atomRefusals } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',
