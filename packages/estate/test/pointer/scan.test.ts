@@ -817,7 +817,17 @@ describe('a unit that names a file to read is no condition alone', () => {
     ).toBe('condition');
   });
 
-  it('leaves unlabeled a unit that names a file when only conditions are given for it', async () => {
+  it('asks a file-naming unit that every run calls a condition again, and the two new voices decide it', async () => {
+    // As reader-cases draw 1: five runs of five read the supplier unit as a condition; runs 6 and 7 read a reference.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(
+      await scanUnit(text, [condition, condition, condition, condition, condition, reference, reference]),
+    ).toBe('reference');
+  });
+
+  it('leaves unlabeled a unit that names a file when only conditions are given for it, after every re-ask', async () => {
     const text =
       'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
     expect(await scanUnit(text, [condition, condition, condition, condition, condition])).toBeUndefined();
