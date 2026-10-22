@@ -20,7 +20,39 @@ async function installLines(page: string): Promise<string[]> {
   return lines.slice(0, lines.indexOf('driftbench --version') + 1);
 }
 
+/** The clone and the build take minutes and need the network: they run on CI, where the checkout is a clean tree. */
+const onCi = process.env.CI !== undefined && process.env.CI !== '';
+
 describe('install from source, as the guide shows it', () => {
+  it.skipIf(!onCi)(
+    'runs the exact install lines of the quickstart in a fresh clone of this checkout',
+    async () => {
+      const lines = await installLines('docs/guide/quickstart.md');
+      const work = await mkdtemp(join(tmpdir(), 'driftbench-quickstart-'));
+      try {
+        // The page clones the public address. The test clones this checkout instead, so it tests this commit.
+        const local = `git clone ${JSON.stringify(ROOT)} driftbench`;
+        const script = lines.map((line) => (line.startsWith('git clone ') ? local : line)).join('\n');
+        const prefix = join(work, 'prefix');
+        const done = await exec('sh', ['-ec', script], {
+          cwd: work,
+          timeout: 840_000,
+          maxBuffer: 256 * 1024 * 1024,
+          env: {
+            ...process.env,
+            npm_config_prefix: prefix,
+            npm_config_cache: join(work, 'npm-cache'),
+            PATH: `${join(prefix, 'bin')}:${process.env.PATH ?? ''}`,
+          },
+        });
+        expect(done.stdout.trim().split('\n').pop()).toMatch(/^\d+\.\d+\.\d+/);
+      } finally {
+        await rm(work, { recursive: true, force: true });
+      }
+    },
+    900_000,
+  );
+
   it('shows the same install commands in the guide index and in the quickstart', async () => {
     const index = await installLines('docs/guide/index.md');
     const quickstart = await installLines('docs/guide/quickstart.md');
