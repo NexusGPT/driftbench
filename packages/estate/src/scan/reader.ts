@@ -127,6 +127,8 @@ export type SettingDecl = { key: string; value?: string; at: Located };
 export type RegistryTable = {
   file: string;
   header: string[];
+  /** The line of the header row in the file. */
+  headerLine: number;
   rows: Array<{ cells: string[]; line: number; text: string }>;
 };
 

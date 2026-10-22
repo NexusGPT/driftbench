@@ -1,5 +1,5 @@
-import { ClaudeCodeReader } from './claude-code';
 import type { RegistryRoles } from '../pointer/registry-roles-set';
+import { ClaudeCodeReader } from './claude-code';
 import type { EstateReader } from './reader';
 
 export {
