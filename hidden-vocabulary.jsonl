@@ -16012,7 +16012,7 @@
 {"text": "the batch size is over 53 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 53, "subject": "batch size", "unit": "rows"}}
 {"text": "the batch size is over 653 rows", "label": {"comparison": "gt", "kind": "numeric", "limit": 653, "subject": "Batch size", "unit": "rows"}}
 {"text": "the customer has no account", "label": {"kind": "boolean", "subject": "customer has an account"}}
-{"text": "the customer is not verified", "label": {"kind": "boolean", "subject": "customer is not verified"}}
+{"text": "the customer is not verified", "label": {"kind": "boolean", "subject": "customer is verified"}}
 {"text": "the customer is verified", "label": {"kind": "boolean", "subject": "customer is verified"}}
 {"text": "the delay is at least 2 days", "label": {"comparison": "ge", "kind": "numeric", "limit": 2, "subject": "delay", "unit": "days"}}
 {"text": "the delay is at least 4 days", "label": {"comparison": "ge", "kind": "numeric", "limit": 4, "subject": "delay", "unit": "days"}}
@@ -16052,7 +16052,7 @@
 {"text": "the history length is over 173 turns", "label": {"comparison": "gt", "kind": "numeric", "limit": 173, "subject": "history length", "unit": "turns"}}
 {"text": "the history length is over 5 turns", "label": {"comparison": "gt", "kind": "numeric", "limit": 5, "subject": "history length", "unit": "turns"}}
 {"text": "the invoice is approved", "label": {"kind": "boolean", "subject": "invoice is approved"}}
-{"text": "the invoice is more than 1,250.50 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1250.5, "subject": "invoice total", "unit": "euros"}}
+{"text": "the invoice is more than 1,250.50 euros", "label": {"comparison": "gt", "kind": "numeric", "limit": 1250.5, "subject": "Invoice Total", "unit": "euros"}}
 {"text": "the invoice is not approved", "label": {"kind": "boolean", "subject": "Invoice approved"}}
 {"text": "the invoice total is at most 602", "label": {"comparison": "le", "kind": "numeric", "limit": 602, "subject": "Invoice total"}}
 {"text": "the invoice total is at most 603 euros", "label": {"comparison": "le", "kind": "numeric", "limit": 603, "subject": "invoice total", "unit": "euros"}}
@@ -16071,7 +16071,7 @@
 {"text": "the loop depth is fewer than 15", "label": {"comparison": "lt", "kind": "numeric", "limit": 15, "subject": "loop depth"}}
 {"text": "the loop depth is greater than 27", "label": {"comparison": "gt", "kind": "numeric", "limit": 27, "subject": "loop depth"}}
 {"text": "the loop depth is more than 0", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "loop depth"}}
-{"text": "the loop depth is no more than 0", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "loop depth"}}
+{"text": "the loop depth is no more than 0", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "Loop depth"}}
 {"text": "the loop depth is no more than 2", "label": {"comparison": "le", "kind": "numeric", "limit": 2, "subject": "loop depth"}}
 {"text": "the loop depth is not equal to 5", "label": {"comparison": "ne", "kind": "numeric", "limit": 5, "subject": "loop depth"}}
 {"text": "the loop depth is over 20", "label": {"comparison": "gt", "kind": "numeric", "limit": 20, "subject": "loop depth"}}
@@ -16108,7 +16108,7 @@
 {"text": "the queue length is at most 53 items", "label": {"comparison": "le", "kind": "numeric", "limit": 53, "subject": "queue length", "unit": "items"}}
 {"text": "the queue length is below 2 items", "label": {"comparison": "lt", "kind": "numeric", "limit": 2, "subject": "queue length", "unit": "items"}}
 {"text": "the queue length is more than 0 items", "label": {"comparison": "gt", "kind": "numeric", "limit": 0, "subject": "queue length", "unit": "items"}}
-{"text": "the queue length is no more than 0 items", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "queue length", "unit": "items"}}
+{"text": "the queue length is no more than 0 items", "label": {"comparison": "le", "kind": "numeric", "limit": 0, "subject": "Queue length", "unit": "items"}}
 {"text": "the queue length is no more than 2 items", "label": {"comparison": "le", "kind": "numeric", "limit": 2, "subject": "queue length", "unit": "items"}}
 {"text": "the queue length is no more than 20 items", "label": {"comparison": "le", "kind": "numeric", "limit": 20, "subject": "queue size", "unit": "items"}}
 {"text": "the queue length is over 27 items", "label": {"comparison": "gt", "kind": "numeric", "limit": 27, "subject": "queue length", "unit": "items"}}
@@ -16169,3 +16169,32 @@
 {"text": "the wait time is at most 120 minutes", "label": {"comparison": "le", "kind": "numeric", "limit": 120, "subject": "wait time", "unit": "minutes"}}
 {"text": "the wait time is at most 5 minutes", "label": {"comparison": "le", "kind": "numeric", "limit": 5, "subject": "wait time", "unit": "minutes"}}
 {"text": "the wait time is under 120 minutes", "label": {"comparison": "lt", "kind": "numeric", "limit": 120, "subject": "Wait time", "unit": "minutes"}}
+{"text": "Always greet the user by name.", "label": {"kind": "none"}}
+{"text": "Answer in complete sentences.", "label": {"kind": "none"}}
+{"text": "Ask one question at a time.", "label": {"kind": "none"}}
+{"text": "Call the helper with template 7.", "label": {"kind": "none"}}
+{"text": "Check the tracker before you promise a date.", "label": {"kind": "none"}}
+{"text": "Close every answer with one next step.", "label": {"kind": "none"}}
+{"text": "Do not repeat the question back.", "label": {"kind": "none"}}
+{"text": "Greet the customer by first name.", "label": {"kind": "none"}}
+{"text": "In 2019 the ceiling was 90 days.", "label": {"kind": "none"}}
+{"text": "Keep answers short and polite.", "label": {"kind": "none"}}
+{"text": "Keep replies short.", "label": {"kind": "none"}}
+{"text": "Last quarter the cap was 40 items.", "label": {"kind": "none"}}
+{"text": "Never invent a price.", "label": {"kind": "none"}}
+{"text": "Never share internal notes.", "label": {"kind": "none"}}
+{"text": "Page 40 holds the price list.", "label": {"kind": "none"}}
+{"text": "Quote the invoice number in the first line.", "label": {"kind": "none"}}
+{"text": "Reply in the language of the user.", "label": {"kind": "none"}}
+{"text": "Say what you did and what comes next.", "label": {"kind": "none"}}
+{"text": "Section 12 lists the tools.", "label": {"kind": "none"}}
+{"text": "Sign every message with the team name.", "label": {"kind": "none"}}
+{"text": "Thank the customer for waiting.", "label": {"kind": "none"}}
+{"text": "The limit was 500 last year.", "label": {"kind": "none"}}
+{"text": "The threshold used to be 3 retries.", "label": {"kind": "none"}}
+{"text": "Use plain words, no jargon.", "label": {"kind": "none"}}
+{"text": "Use the 500 euro template.", "label": {"kind": "none"}}
+{"text": "Write dates as day, month, year.", "label": {"kind": "none"}}
+{"text": "a reference is attached", "label": {"kind": "boolean", "subject": "reference attached"}}
+{"text": "a reference is not attached", "label": {"kind": "boolean", "subject": "reference attached"}}
+{"text": "no reference is attached", "label": {"kind": "boolean", "subject": "reference attached"}}

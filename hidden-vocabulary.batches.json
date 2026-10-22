@@ -1,0 +1,64 @@
+{
+ "note": "Audit trail of the batches labelled with the audit-enabled labeller: per batch the response ids, model and token usage, and the SHA-256 of each text labelled (no text). Batches labelled before the trail existed (the other rows of hidden-vocabulary.jsonl) have no ids.",
+ "batches": [
+  {
+   "batch": 1,
+   "responses": [
+    {
+     "id": "msg_011CgHfEeBLEeKG5NvHKyQ6G",
+     "model": "claude-haiku-5-5",
+     "usage": {
+      "input_tokens": 776,
+      "output_tokens": 437
+     }
+    }
+   ],
+   "rows": [
+    "75bed54e3a541e0f4fcf955ea354314ff935f79e79bebc8d9cc799fc206f4833",
+    "c5a0a3faa8e910e103245ccafb8ec587f2bff9eb7977a928168b900b0db71efb",
+    "9f72ff268c9e2cb5b5fdaed287806624ab9ff7e84d88a4eb7be09c9faa451589",
+    "7339175ad0b92b753e2a779f2732d35d65c6ae026df61a809f547f5ff9aead8d",
+    "8d88fedab26ac292aca8ba3853d6d8e41d47f965b5de676e3120798bd5bb3968",
+    "898160e64031a0acc0bf757afaaa2f3cb43ed66f74813c6feeedb2c53e6b9a8d",
+    "5a29990dff1549489aa227ec0ffe42894a3e678fe46b607bcacd2086bf9793ce",
+    "44ee40e38a9352beade81a49d450f76d5e8721f1c1bb0c004e2a00331b356505",
+    "58b795e3e520e267dc669a70deb8cbd474f54e691a58aec5469c28072a20fbc9",
+    "2a918ba33db28f235c4e57067500c265b8f23abf6fff32d70ca22b1c27e15bf7",
+    "2e16dc048cbd91893a0a9d0dece3f231a3505615d9138003dbc40614dbc17460",
+    "7b16da6bef34b1cd14e4cbd839967207b0c9b6a20b5cb35b7de01082fce9530f",
+    "305eaece2a96093c9f87d63e2d1af1a2b8620e092d2b8a542a4451d524c8fc8d",
+    "449c9ee5c8f2a6e163c2d071a99fea78e9f10ec80f45ecb24fc841d5ff305bde",
+    "dd4c8da56a2053157360a21afdebb11dad8123b75ffca47d662a4e5d29f517aa"
+   ]
+  },
+  {
+   "batch": 2,
+   "responses": [
+    {
+     "id": "msg_011CgHfEo4d3K5fRv3nDESSk",
+     "model": "claude-haiku-5-5",
+     "usage": {
+      "input_tokens": 759,
+      "output_tokens": 637
+     }
+    }
+   ],
+   "rows": [
+    "b22f253955c2eda799ebe80e7bb663d90374c6a669d68e63dc2240fdb9fae698",
+    "20b0288d36ae5ce6d4114be940c2c7a7e907c88c4d9bc7c09b3640930b6f19c6",
+    "0f577a659e03a6c127fa25fe968dd6f9dbf859ff31bc42222c6e05c9c8366be3",
+    "3a4f97d6d61de47706a56db359cd149945073119727d145b499738566810faec",
+    "c3397abdaffc7877b3d9654c159aa778084f6ccc8ad2175660bb03cc0c55ecff",
+    "bd7d379620886435971880c999915551a12e86f3a30cd23c82902f702c3ff02d",
+    "17bf74537f20c39abea7274f390874d318a467229c570a0eaf4f0e3add3513ff",
+    "15d6cc047e5142991e931ec0466d9a7127603431b769fa40d2b7da427893bb7e",
+    "8eebe1bc9c9c882c9be5d42945f116e26b8b0139feb185a8aee28dec8e428973",
+    "dedd4c747379c71dcf2fddd7e15030421095631108fcf5a83edad3db24dd5b5c",
+    "d14f091a825a212b009b1428a5001cd9fb2658415ebf76451123efed9b7bba1a",
+    "455b7eeba941b55d97cceb934c7cb461ca9bd3253c85839b680802745d5c8003",
+    "0559e0aae18b89272d59464c23673e86053f4e9e8af7005d45b5692b4d93f580",
+    "591c06858e0e6c538e8c51a86fab399118f617cd8b3bb5065e31c81eb0ecb475"
+   ]
+  }
+ ]
+}
