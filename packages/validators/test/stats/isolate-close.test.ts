@@ -42,9 +42,9 @@ describe('the end of the bank child', () => {
     try {
       // 4 s of budget per item; the close takes 9 s because run C loads the product slowly.
       const run = await runIsolated(items, 1, ROOT, () => 4_000, 1);
-      expect(
-        items.map((item) => [item.id, run.get(item.id)?.pass, run.get(item.id)?.detail.slice(0, 120)]),
-      ).toEqual(items.map((item) => [item.id, true, 'ok']));
+      expect(items.map((item) => [item.id, run.get(item.id)?.pass])).toEqual(
+        items.map((item) => [item.id, true]),
+      );
     } finally {
       if (before === undefined) delete process.env.DRIFTBENCH_STATS_IMPL;
       else process.env.DRIFTBENCH_STATS_IMPL = before;

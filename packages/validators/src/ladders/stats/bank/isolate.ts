@@ -77,6 +77,12 @@ export async function runIsolated(
   return results;
 }
 
+/**
+ * The time a child process may take to close its frame after its last item (the frame makes every call again in one
+ * unconfined process; its own limit is 1,800,000 ms): a hang backstop, not a budget.
+ */
+export const CLOSE_MS = 2_100_000;
+
 /** The time a child process may take to load the bank before it runs its first item. */
 export const STARTUP_MS = 120_000;
 
@@ -126,6 +132,8 @@ function runFrom(
       if (!item) return;
       const limit = budget(item);
       timer = setTimeout(() => {
+        // An item that already reported keeps its verdict: this timer only stops an item that is still running.
+        if (results.has(item.id)) return;
         results.set(item.id, {
           pass: false,
           detail: `did not finish within ${limit} ms on seed ${seed}: an endless loop or a path far too slow for this input; the validator stopped it`,
@@ -166,12 +174,28 @@ function runFrom(
         } else if (line.start !== undefined) {
           arm(line.start);
         } else if (line.done !== undefined) {
+          // The item is over: its budget is over with it. What the child does next (the frame closes and makes every
+          // call again in an unconfined process) is not the item's time. The last item has no next start to replace
+          // this timer, so before this line an honest last item that passed was failed "did not finish" while the
+          // frame closed (CI runs of PR 986, 120 s).
+          if (timer) clearTimeout(timer);
+          timer = undefined;
           results.set(line.id as string, {
             pass: line.pass === true,
             detail: line.detail ?? '',
             ms: line.ms,
           });
           reported += 1;
+          // After the last item the child closes its frame; a child that does not end is a hang, not a slow item.
+          if (reported + start >= items.length) {
+            timer = setTimeout(() => {
+              taints.push(
+                `the bank's child process did not end within ${CLOSE_MS} ms after its last item on seed ${seed}: the frame did not close`,
+              );
+              child.kill('SIGKILL');
+              finish(items.length);
+            }, CLOSE_MS);
+          }
         }
       }
     });
