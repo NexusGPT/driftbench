@@ -85,6 +85,24 @@ const TOKEN = /[A-Za-z0-9_.\-/]+/g;
  * - no token of the expected value that is at least three characters long (two with a digit), and no number of any length by value, unless it is in the input, the got or the item id,
  *   may appear as a token of the message.
  */
+/** A text with path separators and white space in one form, so another spelling of the same value matches. */
+const normal = (text: string): string => text.replace(/\\/g, '/').replace(/\s+/g, ' ').trim();
+
+/** Every number a text writes, by value: a decimal, a fraction a/b, and a percent (as its share). */
+function numbersIn(text: string): number[] {
+  const out: number[] = [];
+  for (const m of text.matchAll(/(-?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g)) {
+    const d = Number(m[2]);
+    if (d !== 0) out.push(Number(m[1]) / d);
+  }
+  for (const m of text.matchAll(/(-?\d+(?:\.\d+)?)\s*%/g)) out.push(Number(m[1]) / 100);
+  for (const token of text.match(/-?\d+(?:\.\d+)?/g) ?? []) out.push(Number(token));
+  return out;
+}
+
+const near = (a: number, b: number): boolean =>
+  Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+
 export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
   const out: string[] = [];
@@ -92,31 +110,34 @@ export function leaksOf(failure: ItemFailure): string[] {
   if (fields.expected === undefined) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.
-  const allowed = new Set<string>([
-    ...atomsOf(fields.input),
-    ...atomsOf(fields.got),
-    ...atomsOf(fields.item),
-  ]);
+  const own = [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''].map(normal);
+  const allowed = new Set<string>();
+  for (const atom of [...atomsOf(fields.input), ...atomsOf(fields.got), ...atomsOf(fields.item)])
+    allowed.add(normal(atom));
   // Whatever the input and the output of the product print, in the words a message would read them, is theirs.
-  for (const text of [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''])
-    for (const token of text.match(TOKEN) ?? []) allowed.add(token);
-  const words = new Set<string>(failure.message.match(TOKEN) ?? []);
-  const numbers = new Set<number>();
-  for (const token of failure.message.match(/-?\d+(?:\.\d+)?/g) ?? []) numbers.add(Number(token));
-  // A number of any length is compared by value: the pilot learned counts, limits and positions from messages.
-  const ownNumbers = new Set<number>();
-  for (const text of [showValue(fields.input, 4000), showValue(fields.got, 4000)])
-    for (const token of text.match(/-?\d+(?:\.\d+)?/g) ?? []) ownNumbers.add(Number(token));
-  for (const atom of atomsOf(fields.expected)) {
+  for (const text of own) for (const token of text.match(TOKEN) ?? []) allowed.add(token);
+  const message = normal(failure.message);
+  const words = new Set<string>(message.match(TOKEN) ?? []);
+  // A number of any length is compared by value, whatever its form (0.5, 1/2, 50%): the pilot learned counts, limits
+  // and positions from messages.
+  const messageNumbers = numbersIn(message);
+  const ownNumbers = own.flatMap(numbersIn);
+  for (const raw of atomsOf(fields.expected)) {
+    const atom = normal(raw);
     if (/^-?\d+(?:\.\d+)?$/.test(atom)) {
       const value = Number(atom);
-      if (!ownNumbers.has(value) && numbers.has(value)) out.push(atom);
+      if (!ownNumbers.some((n) => near(n, value)) && messageNumbers.some((n) => near(n, value)))
+        out.push(atom);
       continue;
     }
     // A short code (two characters with a digit, such as E1) counts; a short plain word does not.
     if (atom.length < 3 && !(atom.length === 2 && /\d/.test(atom))) continue;
     if (allowed.has(atom)) continue;
-    if (words.has(atom)) out.push(atom);
+    // A text with white space is found whole; a token is found as a token.
+    if (
+      /\s/.test(atom) ? message.includes(atom) && !own.some((text) => text.includes(atom)) : words.has(atom)
+    )
+      out.push(atom);
   }
   return out;
 }

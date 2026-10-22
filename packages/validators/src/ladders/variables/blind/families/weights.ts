@@ -22,12 +22,12 @@ const exact =
   (ctx: ItemContext): void => {
     const [lo, hi] = callInterval(ctx, count, total);
     const [wl, wh] = wilson(count, total);
-    check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, {
+    check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, () => ({
       rule: 'weightInterval returns the two-sided 95 percent Wilson interval of the count over the total',
       input: { count, total },
       got: [lo, hi],
       expected: [wl, wh],
-    });
+    }));
   };
 
 const TOOLS = (): ToolSpec[] => [
