@@ -171,6 +171,7 @@ export function nestingOf(source: string): number {
   let deepest = 0;
   let fence: string | undefined;
   const open: number[] = [];
+  let blank = true;
   for (const line of source.split(/\r\n|\r|\n/)) {
     const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
     if (mark !== undefined) {
@@ -180,12 +181,23 @@ export function nestingOf(source: string): number {
     }
     if (fence !== undefined) continue;
     const quotes = /^(?:\s{0,3}>)+/.exec(line)?.[0].split('>').length ?? 1;
-    if (line.trim() === '') continue;
-    const indent = /^( *)(?:[-+*]|\d+[.)])\s/.exec(line)?.[1]?.length;
-    const own = /^ */.exec(line)?.[0].length ?? 0;
-    // A list is a stack of the indents of its open items: an item closes the items at its indent or deeper, and so
-    // does any other line that starts at or left of them. The depth is the stack, whatever the indent per level.
-    while (open.length > 0 && (open.at(-1) as number) >= (indent ?? own)) open.pop();
+    if (line.trim() === '') {
+      blank = true;
+      continue;
+    }
+    const lead = /^[ \t]*/.exec(line)?.[0] ?? '';
+    // A tab advances to the next multiple of four columns, as a list item reads it.
+    let own = 0;
+    for (const char of lead) own = char === '\t' ? own + 4 - (own % 4) : own + 1;
+    const item = /^[ \t]*(?:[-+*]|\d+[.)])[ \t]/.test(line);
+    const indent = item ? own : undefined;
+    // A list is a stack of the indents of its open items: an item closes the items at its indent or deeper. Any
+    // other line closes the items at or right of its own indent, except a paragraph line straight after a line of
+    // text (not a heading or a quote), which continues the paragraph of the last item whatever its indent (a lazy line).
+    if (indent !== undefined || blank || /^[ \t]{0,3}(?:#{1,6}(?:[ \t]|$)|>)/.test(line)) {
+      while (open.length > 0 && (open.at(-1) as number) >= (indent ?? own)) open.pop();
+    }
+    blank = false;
     if (indent !== undefined) open.push(indent);
     deepest = Math.max(deepest, quotes - 1, open.length);
   }

@@ -260,6 +260,29 @@ describe('the nesting of a file counts list structure, not indent width', () => 
     }
   });
 
+  const refusalOf = (text: string): unknown => {
+    try {
+      return cut(text);
+    } catch (cause) {
+      return cause;
+    }
+  };
+
+  it('refuses a list indented by tabs one level over the limit, and reads one at the limit', () => {
+    const tabbed = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'\t'.repeat(i)}- level ${i}`).join('\n')}\n`;
+    expect(cut(tabbed(MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+    expect(refusalOf(tabbed(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(tabbed(150))).toMatchObject({ code: 'nesting', depth: 150 });
+  });
+
+  it('keeps a list open across a lazy paragraph line, so levels split by one are still counted', () => {
+    const lazy = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'  '.repeat(i)}- level ${i}\nlazy line ${i}`).join('\n')}\n`;
+    expect(refusalOf(lazy(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(lazy(150))).toMatchObject({ code: 'nesting', depth: 150 });
+  });
+
   it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
     const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
     expect(cut(flat).units).toHaveLength(300);
