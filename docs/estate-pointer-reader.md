@@ -202,12 +202,12 @@ Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`),
 
 ### Implementations
 
-The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one yes or no question per unit and label and reads a probability of yes; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
+The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one choice question per unit, with the labels of the set and `none` as options, and reads a probability for each option; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
 
 | Class | Client | How it answers | Notes |
 |---|---|---|---|
 | system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set; JSON with the labels of the set; response blocks read by type (thinking blocks may precede the text); hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. |
-| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; the unit state is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
+| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One choice question per unit, keyed `u<n>`: which label does unit `[n]` of the numbered text have, with each label and `none` as an option and its definition. The answer is a probability vector over the options (each from 0 to 1, summing to 1 within 0.01; never normalised). A request carries a window of up to 30 units. The stack reads the margin between the two likeliest options (section 3, the default stack). State is the numbered window with its heading path; the unit state is the other state (one unit, one request per unit). | The probabilities are kept in the cassette so the margin cut can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
 | system 1 | `openai-decisions` | The public example of the class: the same questions as predicates to `POST /v1/decisions`. | The shapes follow the provider's public description; no live call has confirmed them here. |
 | either | `http:<url>`, `module:<path>` | A user labeler: the request is `{ set, window, prompt }` (system 2) or `{ set, window, state, questions }` (system 1), the answer is `{ labels }` or `{ probabilities }`. | Recorded and replayed through the cassette like the others, with the id in every key: a hash of the address, or `module:<id>`. |
 | any | replay | Reads a cassette; no network. | Used by CI and validators. |
@@ -257,7 +257,7 @@ Unit numbers change with every edit. The ledger gives each unit a stable identit
 
 - **Id.** One id per unit that is labelled or linked: the first ten base32 characters of the hash of (estate key, path, fingerprint, occurrence index), minted once and then persisted and never recomputed. Derivation keeps independent clones consistent; persistence keeps the id after edits.
 - **Fingerprint.** NFC-normalised text, white space collapsed, container markers (bullets, `>`, pipes) stripped. Case and emphasis are kept, because prompts use capitals and bold for force. No NFKC.
-- **Sidecar.** The ledger is a committed file beside the estate (for example `driftbench.ledger.json`), canonical sorted JSON with no timestamps. The estate's own files are never changed by the scan. `scan --update` writes it; `scan --check` fails in CI when files changed but the committed ledger did not, like a lockfile check.
+- **Sidecar.** The ledger is a committed file beside the estate (for example `driftbench.ledger.json`), canonical sorted JSON with no timestamps. The estate's own files are never changed by the scan. `scan --update` writes it; `scan --ledger-check` fails in CI when files changed but the committed ledger did not, like a lockfile check.
 
 Entry:
 
@@ -290,7 +290,7 @@ Entry:
 
 A label is stored under its set name in a map without a prototype, so a set may be named `constructor` or `__proto__`. A set name holds letters, digits, underscores and hyphens.
 
-`checkLedger(previousRaw, current)` is what `scan --check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
+`checkLedger(previousRaw, current)` is what `scan --ledger-check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
 
 ### Re-anchoring on a changed file
 
@@ -485,7 +485,7 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 ## 13. Build order
 
 1. Unit cutter, fingerprints, cut digest; experiments 3 to 6.
-2. Ledger with the ladder and `scan --check`/`--update`; experiments 9, 10.
+2. Ledger with the ladder and `scan --ledger-check`/`--update`; experiments 9, 10.
 3. Cassette, replay seam, planted labeler; experiments 12, 14, 15.
 4. Label sets, prompt builder, Haiku port, window carry-forward.
 5. Links and blast radius.
