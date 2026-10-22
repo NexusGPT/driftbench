@@ -523,15 +523,15 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1309 (a cell is the atoms of a row crossed with its situation values).
+Wrote _captures/docs3/estate/plan.yaml: 1427 rows (350 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1312 (a cell is the atoms of a row crossed with its situation values).
   Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
     instruction    93
     gate           12
     route          65
-    skill         114
-    reference       8
+    skill         117
+    reference      11
     script          2
     subagent       72
     guard          30
@@ -550,7 +550,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 jou
     route_positive    260
     route_near_miss    13
     misroute           13
-    read_when           8
+    read_when          11
     script_fixture      2
     dispatch           42
     contract_alone      3
@@ -571,7 +571,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 jou
     setting             4
     journey            10
   Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1309 of 1309.
+  Cells with no approved phrase: 1312 of 1312.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -606,7 +606,7 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1424 rows, 1424 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1427 rows, 1427 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
@@ -791,10 +791,10 @@ one Edit call in this workspace."), or the next step of the task when it watches
 
 A map may record `documents`: each file's authority (`normative`, or a navigation role such as `example`,
 `template`, `history`, `changelog`, `journal`, `fixture`, `archive`). A reference whose target is a
-navigation document is a place to look and gets no `read_when` row, no journey edge and no covering-array
-target; the plan notes how many. A prerequisite to read such a file stays a gate. `estate stats` leaves
-those references out of the coverage counts and reports their number. A plan made before the map recorded
-roles still lists the row; generation writes it incomplete with that reason. A map without `documents`
+navigation document keeps its `read_when` row: an order to read a file is a duty of the agent whatever role the
+file plays, and the role says only whether the file holds rules. It gets no journey edge and no covering-array
+target, because the document is a place to look and not a step of a path; the plan notes how many. `estate stats`
+leaves such a reference out of the kind and edge counts, as before, and reports their number. A map without `documents`
 changes nothing: no file name is read as a role.
 A reference to a file outside the estate root (reached through a link to another repository) enters no journey:
 the run's workspace does not hold the file, so a path through it cannot be walked. Its `read_when` row stays.
@@ -833,7 +833,7 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
 Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash db9e07132a1b: 116 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1424 rows, 1424 approved, 0 waiting, 0 struck.
+Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1427 rows, 1427 approved, 0 waiting, 0 struck.
 Phrases ../../../../examples/estates/fixture/phrases.yaml: 31 situations, 60 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
@@ -847,7 +847,7 @@ skip_pressure          6      6         6           0
 route_positive       260    253       253           0
 route_near_miss       13     13        13           0
 misroute              13     13        13           0
-read_when              8      8         8           0
+read_when             11     11        11           0
 script_fixture         2      2         2           0
 dispatch              42     42        42           0
 contract_alone         3      3         3           0
@@ -867,15 +867,15 @@ hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1417      1411           6
+total                      1420      1414           6
 
-Asks of the complete specs: 414 approved phrases, 983 written by code, 6 recorded sessions, 8 with no ask.
+Asks of the complete specs: 415 approved phrases, 985 written by code, 6 recorded sessions, 8 with no ask.
 Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 351 no-delete, 8 static.
+Outcomes of the complete specs: 911 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 353 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 99.58%; distinct asks: 110 in 1403 complete asked tests (7.84 per 100).
+Complete share: 99.58%; distinct asks: 110 in 1406 complete asked tests (7.82 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):

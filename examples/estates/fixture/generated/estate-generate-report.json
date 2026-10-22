@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1424,
-    "approved": 1424,
+    "rows": 1427,
+    "approved": 1427,
     "proposed": 0,
     "struck": 0
   },
@@ -42,9 +42,9 @@
     "judge": true
   },
   "summary": {
-    "specs": 1417,
-    "blocks": 1412,
-    "complete": 1411,
+    "specs": 1420,
+    "blocks": 1415,
+    "complete": 1414,
     "incomplete": 6,
     "judged": 777
   },
@@ -206,10 +206,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9957657021877205,
-    "askedTests": 1403,
+    "completeShare": 0.995774647887324,
+    "askedTests": 1406,
     "distinctAsks": 110,
-    "distinctAsksPer100": 7.840342124019958
+    "distinctAsksPer100": 7.823613086770981
   },
   "unit": {
     "tests": 29,
@@ -226,17 +226,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 414,
-      "code": 983,
+      "bank": 415,
+      "code": 985,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 910,
+      "bank": 911,
       "no-change:guard": 26,
       "no-change:negative": 44,
       "no-change:read-only": 72,
-      "no-delete": 351,
+      "no-delete": 353,
       "static": 8
     },
     "judged": 496
@@ -292,9 +292,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 8,
-      "specs": 8,
-      "complete": 8,
+      "rows": 11,
+      "specs": 11,
+      "complete": 11,
       "incomplete": 0
     },
     "script_fixture": {
@@ -426,9 +426,9 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1381,
-      "specs": 1374,
-      "complete": 1370,
+      "rows": 1384,
+      "specs": 1377,
+      "complete": 1373,
       "incomplete": 4
     }
   },
