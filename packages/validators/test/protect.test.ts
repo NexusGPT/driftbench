@@ -717,6 +717,15 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
     0,
   ],
+  // the guide-install job is a heavy job a dispatch can list
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
+    0,
+  ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
   ['workflow_dispatch', '', 'main', 'build,python,bench', OK, 1],
   ['workflow_dispatch', '', 'train-lookalike', 'build', OK, 1],
@@ -780,6 +789,21 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'train/9a',
     'build',
     'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,failure',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,cancelled',
     1,
   ],
 ];
