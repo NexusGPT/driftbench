@@ -9,7 +9,8 @@ export const planV2 = planted((plan, store) => {
       values: variable.values.filter((value) => value.approved ?? variable.approved).map((value) => value.id),
     }));
   const cells = variables.reduce<Record<string, string>[]>(
-    (rows, variable) => rows.flatMap((row) => variable.values.map((value) => ({ ...row, [variable.id]: value }))),
+    (rows, variable) =>
+      rows.flatMap((row) => variable.values.map((value) => ({ ...row, [variable.id]: value }))),
     [{}],
   );
   const width = Math.max(3, String(cells.length).length);
@@ -19,5 +20,9 @@ export const planV2 = planted((plan, store) => {
     values,
     logWeight: 0,
   }));
-  return { ...plan, generated: planned.length, rows: [...plan.rows.filter((row) => row.source === 'seed'), ...planned] };
+  return {
+    ...plan,
+    generated: planned.length,
+    rows: [...plan.rows.filter((row) => row.source === 'seed'), ...planned],
+  };
 });

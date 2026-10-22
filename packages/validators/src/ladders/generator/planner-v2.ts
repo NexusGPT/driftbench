@@ -88,7 +88,15 @@ const SHAPES: Shape[] = [
   { name: 'wide', tier: 4, axes: 7, detail: true, rules: [4, 3], forbids: 2, weighted: true, width: 3 },
   // Ladder version 3: the shapes the strength items need (R6, R7, R14).
   { name: 'rule-of-six', tier: 3, axes: 7, detail: false, rules: [6], forbids: 0, width: 2 },
-  { name: 'non-extendable', tier: 4, axes: 5, detail: true, rules: [3], forbids: 0, special: 'non-extendable' },
+  {
+    name: 'non-extendable',
+    tier: 4,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    special: 'non-extendable',
+  },
   { name: 'odd-sizes', tier: 3, axes: 5, detail: true, rules: [3], forbids: 0, special: 'odd-sizes' },
   { name: 'unapproved', tier: 3, axes: 5, detail: true, rules: [3], forbids: 1, unapproved: true },
 ];

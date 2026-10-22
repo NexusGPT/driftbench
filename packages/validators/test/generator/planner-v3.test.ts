@@ -25,16 +25,19 @@ const run = async (items: ReturnType<typeof plannerItems>, seed: number) =>
   );
 
 describe('the planner family, ladder version 3', () => {
-  it.each(PLANTED)('a planner with the fault %s loses %s on %s, on seeds 1 to 3', async (name, stem, shape) => {
-    const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${name}.ts`, import.meta.url));
-    const items = plannerItems(module, [shape]).filter((item) => item.id === `planner.${stem}.${shape}`);
-    expect(items).toHaveLength(1);
-    for (const seed of [1, 2, 3]) {
-      const [entry] = await run(items, seed);
-      expect(entry?.verdict.pass, `seed ${seed}`).toBe(false);
-      expect(entry?.verdict.detail ?? '').not.toMatch(/the item threw|did not load/);
-    }
-  });
+  it.each(PLANTED)(
+    'a planner with the fault %s loses %s on %s, on seeds 1 to 3',
+    async (name, stem, shape) => {
+      const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${name}.ts`, import.meta.url));
+      const items = plannerItems(module, [shape]).filter((item) => item.id === `planner.${stem}.${shape}`);
+      expect(items).toHaveLength(1);
+      for (const seed of [1, 2, 3]) {
+        const [entry] = await run(items, seed);
+        expect(entry?.verdict.pass, `seed ${seed}`).toBe(false);
+        expect(entry?.verdict.detail ?? '').not.toMatch(/the item threw|did not load/);
+      }
+    },
+  );
 
   it('runs every new stem on the shapes it names, under ids no other item holds', () => {
     const ids = plannerItems().map((item) => item.id);

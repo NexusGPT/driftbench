@@ -5,7 +5,12 @@ export const planV2 = planted((plan) => ({
   ...plan,
   layers: plan.layers.map((layer) =>
     layer.layer === 'shared'
-      ? { ...layer, targets: layer.targets + 1, infeasible: layer.infeasible - 1, uncovered: layer.uncovered + 1 }
+      ? {
+          ...layer,
+          targets: layer.targets + 1,
+          infeasible: layer.infeasible - 1,
+          uncovered: layer.uncovered + 1,
+        }
       : layer,
   ),
 }));
