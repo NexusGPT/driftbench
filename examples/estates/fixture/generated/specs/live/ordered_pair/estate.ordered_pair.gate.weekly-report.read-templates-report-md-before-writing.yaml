@@ -13,6 +13,8 @@ tags:
   - mode:live
   - kind:gate
   - kind:skill
+  - kind:instruction
+  - judged
 target:
   adapter: claude-code
 given:
@@ -48,6 +50,19 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
+criteria:
+  - name: instruction.weekly-report.count-only-what-the-ledger-and
+    rubric: 'Does the reply follow this rule of the estate: "Count only what the ledger and the shipment log show for the last seven days."?'
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
+  - name: instruction.weekly-report.save-the-report-as-reports-year
+    rubric: 'Does the reply follow this rule of the estate: "Save the report as `reports/<year>-W<week>.md` and never overwrite an earlier week."? The rule applies when: never overwrite an earlier week.'
+    pass: The reply does what the rule asks, or avoids what it forbids.
+    fail: The reply breaks the rule, or ignores it where it applies.
+    gating: true
+    scope: block
 blocks:
   - id: ask
     when:
@@ -65,6 +80,9 @@ blocks:
         created:
           - reports/2026-W42.md
         others_untouched: true
+      criteria:
+        - instruction.weekly-report.count-only-what-the-ledger-and
+        - instruction.weekly-report.save-the-report-as-reports-year
 rules:
   custom:
     ordered:
@@ -76,6 +94,8 @@ metadata:
     atoms:
       - gate.weekly-report.read-templates-report-md-before-writing
       - skill.weekly-report.skill-weekly-report
+      - instruction.weekly-report.count-only-what-the-ledger-and
+      - instruction.weekly-report.save-the-report-as-reports-year
     planRow: ordered_pair.gate.weekly-report.read-templates-report-md-before-writing
     cell:
       atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
@@ -90,6 +110,9 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+    judged:
+      - instruction.weekly-report.count-only-what-the-ledger-and
+      - instruction.weekly-report.save-the-report-as-reports-year
   links:
     - block: ask
       to:
@@ -105,6 +128,24 @@ metadata:
         kind: rule
         rule: skill.weekly-report.skill-weekly-report
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.count-only-what-the-ledger-and
+        ledger: wrl4c7wlvb
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.save-the-report-as-reports-year
+        ledger: 4u2gwiyt2j
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

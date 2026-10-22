@@ -1332,6 +1332,8 @@ atoms:
       from: .claude/memory/MEMORY.md
       extraction: pointer
       unit: gv2geffhvz
+      section:
+        - Memory
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1353,6 +1355,8 @@ atoms:
     fields:
       extraction: pointer
       unit: 7wqtvpz2nv
+      section:
+        - Memory
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -1376,6 +1380,8 @@ atoms:
     fields:
       extraction: pointer
       unit: klbhgsbv5o
+      section:
+        - Supplier languages
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1405,6 +1411,8 @@ atoms:
     fields:
       extraction: pointer
       unit: vbhqgyxxpc
+      section:
+        - Supplier languages
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1446,6 +1454,8 @@ atoms:
       path: .claude/skills/invoice-reconcile/references/matching-rules.md
       extraction: pointer
       unit: 4wfcnk2irw
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1482,6 +1492,8 @@ atoms:
       from: .claude/skills/invoice-reconcile/SKILL.md
       extraction: pointer
       unit: 4wfcnk2irw
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1516,6 +1528,8 @@ atoms:
       from: .claude/skills/invoice-reconcile/SKILL.md
       extraction: pointer
       unit: gfz5utnqh3
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1542,6 +1556,8 @@ atoms:
         text: Run
       extraction: pointer
       unit: mc2fjnpbks
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1570,6 +1586,8 @@ atoms:
     fields:
       extraction: pointer
       unit: ldaywjqflr
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -1593,6 +1611,8 @@ atoms:
     fields:
       extraction: pointer
       unit: pfiujep4mk
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: dispatch
       labeler: jev+anthropic
@@ -1624,6 +1644,8 @@ atoms:
     fields:
       extraction: pointer
       unit: hkxeghi3ug
+      section:
+        - Invoice reconcile
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1657,6 +1679,8 @@ atoms:
         text: Ask for the tracking number
       extraction: pointer
       unit: kwkaapewgh
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1685,6 +1709,8 @@ atoms:
         text: Always pass the carrier code to track.sh
       extraction: pointer
       unit: 2pgcgb6enm
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1720,6 +1746,8 @@ atoms:
       from: .claude/skills/shipment-tracker/SKILL.md
       extraction: pointer
       unit: 2pgcgb6enm
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1749,6 +1777,8 @@ atoms:
         context: When the carrier answers with an error
       extraction: pointer
       unit: iax6q7xbmz
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1784,6 +1814,8 @@ atoms:
       from: .claude/skills/shipment-tracker/SKILL.md
       extraction: pointer
       unit: z5gnpvsklr
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1811,6 +1843,8 @@ atoms:
       from: .claude/skills/supplier-email/SKILL.md
       extraction: pointer
       unit: dgwysklcdn
+      section:
+        - Supplier email
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1837,6 +1871,8 @@ atoms:
     fields:
       extraction: pointer
       unit: lnoao4ftra
+      section:
+        - Supplier email
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1868,6 +1904,8 @@ atoms:
     fields:
       extraction: pointer
       unit: 2hpjnbkcu3
+      section:
+        - Supplier email
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1903,6 +1941,8 @@ atoms:
         text: ask once more
       extraction: pointer
       unit: dn435raxki
+      section:
+        - Supplier email
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1931,6 +1971,8 @@ atoms:
     fields:
       extraction: pointer
       unit: xxhhucduvn
+      section:
+        - Supplier email
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -1959,6 +2001,8 @@ atoms:
       path: .claude/skills/weekly-report/templates/report.md
       extraction: pointer
       unit: kb4qkuf4z2
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1995,6 +2039,8 @@ atoms:
       from: .claude/skills/weekly-report/SKILL.md
       extraction: pointer
       unit: kb4qkuf4z2
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -2023,6 +2069,8 @@ atoms:
     fields:
       extraction: pointer
       unit: zccykz54pt
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2044,6 +2092,8 @@ atoms:
     fields:
       extraction: pointer
       unit: wrl4c7wlvb
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2078,6 +2128,8 @@ atoms:
       from: .claude/skills/weekly-report/SKILL.md
       extraction: pointer
       unit: 47fkb6hjzb
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -2102,6 +2154,8 @@ atoms:
     fields:
       extraction: pointer
       unit: 4u2gwiyt2j
+      section:
+        - Weekly report
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2132,6 +2186,9 @@ atoms:
     fields:
       extraction: pointer
       unit: 7c77n3lgl5
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2159,6 +2216,9 @@ atoms:
     fields:
       extraction: pointer
       unit: 6juqj4iyft
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2196,6 +2256,9 @@ atoms:
         key: file_path
       extraction: pointer
       unit: oeowulj3qm
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: gate-same
       labeler: jev+anthropic
@@ -2226,6 +2289,9 @@ atoms:
     fields:
       extraction: pointer
       unit: woijaqquri
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2257,6 +2323,9 @@ atoms:
       path: .claude/skills/invoice-reconcile/references/matching-rules.md
       extraction: pointer
       unit: 7cv2d5ktjq
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -2293,6 +2362,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: 7cv2d5ktjq
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -2321,6 +2393,9 @@ atoms:
     fields:
       extraction: pointer
       unit: josrxaogo4
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2346,6 +2421,9 @@ atoms:
     fields:
       extraction: pointer
       unit: emz6tmbir7
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2372,6 +2450,9 @@ atoms:
     fields:
       extraction: pointer
       unit: jixkl7ilvt
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2394,6 +2475,9 @@ atoms:
     fields:
       extraction: pointer
       unit: h7d22dl6s4
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2422,6 +2506,9 @@ atoms:
           name: acknowledge
       extraction: pointer
       unit: hexjxf5hak
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2461,6 +2548,9 @@ atoms:
     fields:
       extraction: pointer
       unit: xi6od5jvxp
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2490,6 +2580,9 @@ atoms:
       trigger: commit to git
       extraction: pointer
       unit: zuie2qo5us
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: gate-command
       labeler: jev+anthropic
@@ -2523,6 +2616,9 @@ atoms:
       hazard: compaction
       extraction: pointer
       unit: ndszu34jlz
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: hazard-compaction
       labeler: jev+anthropic
@@ -2558,6 +2654,9 @@ atoms:
           name: report
       extraction: pointer
       unit: ggatj5jijq
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2597,6 +2696,9 @@ atoms:
     fields:
       extraction: pointer
       unit: snwqcymbbi
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2619,6 +2721,9 @@ atoms:
     fields:
       extraction: pointer
       unit: bluhvywt5m
+      section:
+        - Northwind ops assistant
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2647,6 +2752,9 @@ atoms:
       ask: reconcile an invoice against a purchase order
       extraction: pointer
       unit: cku6elyza2
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -2677,6 +2785,9 @@ atoms:
       ask: know where a shipment is
       extraction: pointer
       unit: bt4ppn3ukn
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -2707,6 +2818,9 @@ atoms:
       ask: write to or chase a supplier
       extraction: pointer
       unit: umxazowctg
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -2737,6 +2851,9 @@ atoms:
       ask: prepare the weekly report
       extraction: pointer
       unit: exnaqevdtv
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -2767,6 +2884,9 @@ atoms:
       ask: audit the ledger for duplicate payments
       extraction: pointer
       unit: d3pn74rs46
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-helper
       labeler: jev+anthropic
@@ -2797,6 +2917,9 @@ atoms:
       ask: plan the delivery routes for the next two days
       extraction: pointer
       unit: bmndxkevkn
+      section:
+        - Northwind ops assistant
+        - Routing
       labelSet: agent-rules
       label: route-helper
       labeler: jev+anthropic
@@ -2822,6 +2945,9 @@ atoms:
     fields:
       extraction: pointer
       unit: mnlr5rno4r
+      section:
+        - Northwind ops assistant
+        - Process
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2856,6 +2982,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: mnlr5rno4r
+      section:
+        - Northwind ops assistant
+        - Process
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2883,6 +3012,9 @@ atoms:
     fields:
       extraction: pointer
       unit: ceowdbcrfy
+      section:
+        - Northwind ops assistant
+        - Process
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -2907,6 +3039,9 @@ atoms:
     fields:
       extraction: pointer
       unit: i7uw67ztqh
+      section:
+        - Northwind ops assistant
+        - Process
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -2929,6 +3064,9 @@ atoms:
     fields:
       extraction: pointer
       unit: nycwt7y6ix
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2950,6 +3088,9 @@ atoms:
     fields:
       extraction: pointer
       unit: pjmwg6jomd
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2971,6 +3112,9 @@ atoms:
     fields:
       extraction: pointer
       unit: akbpjlr55w
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -2992,6 +3136,9 @@ atoms:
     fields:
       extraction: pointer
       unit: w5v46k2lbi
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -3013,6 +3160,9 @@ atoms:
     fields:
       extraction: pointer
       unit: uhveskza77
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -3040,6 +3190,9 @@ atoms:
       path: .claude/memory/MEMORY.md
       extraction: pointer
       unit: 2z5lfdx7uu
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -3076,6 +3229,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: 2z5lfdx7uu
+      section:
+        - Northwind ops assistant
+        - Output
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -3342,5 +3498,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T11:48:59.364Z
+  at: 2026-10-11T00:00:00.000Z
 hash: 0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260

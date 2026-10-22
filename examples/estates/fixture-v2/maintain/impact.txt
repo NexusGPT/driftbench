@@ -32,3 +32,4 @@ Needs a person: 6.
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
   - the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now
   - review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file
+Wrote examples/estates/fixture-v2/maintain/impact.json.

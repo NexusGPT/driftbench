@@ -46,7 +46,7 @@
     "blocks": 1412,
     "complete": 1411,
     "incomplete": 6,
-    "judged": 777
+    "judged": 779
   },
   "incomplete": [
     {
@@ -239,7 +239,7 @@
       "no-delete": 351,
       "static": 8
     },
-    "judged": 496
+    "judged": 498
   },
   "focus": null,
   "perTestType": {

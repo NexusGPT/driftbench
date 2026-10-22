@@ -441,12 +441,10 @@ export function build(
   // The prompt sections that hold the atoms' quotes, when the estate has prompts with a section registry.
   const sections = atoms.flatMap((atom) =>
     atom.provenance?.file !== undefined && ctx.sections
-      ? ctx.sections
-          .locate(atom.provenance.file, atom.provenance.quote)
-          .map((ref) => ({
-            ...ref,
-            ...(polarity === 'negative' || exercised.has(atom.id) ? { relation: 'exercises' as const } : {}),
-          }))
+      ? ctx.sections.locate(atom.provenance.file, atom.provenance.quote).map((ref) => ({
+          ...ref,
+          ...(polarity === 'negative' || exercised.has(atom.id) ? { relation: 'exercises' as const } : {}),
+        }))
       : [],
   );
   const written = writeBlocks(
