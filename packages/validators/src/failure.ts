@@ -82,7 +82,7 @@ const TOKEN = /[A-Za-z0-9_.\-/]+/g;
 /**
  * What of the expected value a message repeats. Two checks, both on fields:
  * - the message must be exactly the rendering of item, rule, input and got, so nothing was added to it by hand;
- * - no token of the expected value that is at least three characters long, and not in the input, the got or the item id,
+ * - no token of the expected value that is at least three characters long (two with a digit), and no number of any length by value, unless it is in the input, the got or the item id,
  *   may appear as a token of the message.
  */
 export function leaksOf(failure: ItemFailure): string[] {
@@ -101,8 +101,21 @@ export function leaksOf(failure: ItemFailure): string[] {
   for (const text of [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''])
     for (const token of text.match(TOKEN) ?? []) allowed.add(token);
   const words = new Set<string>(failure.message.match(TOKEN) ?? []);
+  const numbers = new Set<number>();
+  for (const token of failure.message.match(/-?\d+(?:\.\d+)?/g) ?? []) numbers.add(Number(token));
+  // A number of any length is compared by value: the pilot learned counts, limits and positions from messages.
+  const ownNumbers = new Set<number>();
+  for (const text of [showValue(fields.input, 4000), showValue(fields.got, 4000)])
+    for (const token of text.match(/-?\d+(?:\.\d+)?/g) ?? []) ownNumbers.add(Number(token));
   for (const atom of atomsOf(fields.expected)) {
-    if (atom.length < 3 || allowed.has(atom)) continue;
+    if (/^-?\d+(?:\.\d+)?$/.test(atom)) {
+      const value = Number(atom);
+      if (!ownNumbers.has(value) && numbers.has(value)) out.push(atom);
+      continue;
+    }
+    // A short code (two characters with a digit, such as E1) counts; a short plain word does not.
+    if (atom.length < 3 && !(atom.length === 2 && /\d/.test(atom))) continue;
+    if (allowed.has(atom)) continue;
     if (words.has(atom)) out.push(atom);
   }
   return out;
