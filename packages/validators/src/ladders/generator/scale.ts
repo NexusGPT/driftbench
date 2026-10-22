@@ -34,6 +34,8 @@ export type ScaleReport = {
   referenceMs: number;
   /** `ms` scaled to the reference machine: ms x referenceMs / calibrationMs. The item judges this. */
   normalisedMs: number;
+  /** True when the credit a slow calibration earns was capped (scale-calibration.ts, CALIBRATION_MAX_CREDIT). */
+  creditCapped: boolean;
   invalid: number;
   lint: number;
   bytesSame: boolean;
@@ -78,6 +80,7 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
     calibrationMs: 0,
     referenceMs: CALIBRATION_REFERENCE_MS,
     normalisedMs: budgetMs,
+    creditCapped: false,
     invalid: -1,
     lint: -1,
     bytesSame: false,

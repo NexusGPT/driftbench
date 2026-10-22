@@ -1,12 +1,21 @@
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData } from '../../src/ladders/generator/bank';
-import type { ScaleReport } from '../../src/ladders/generator/scale';
+import { type ScaleReport, scaleReport } from '../../src/ladders/generator/scale';
 import {
+  CALIBRATION_MAX_CREDIT,
   CALIBRATION_REFERENCE_MS,
   calibrate,
+  calibrationFactor,
   calibrationRound,
   normalisedMs,
 } from '../../src/ladders/generator/scale-calibration';
+
+const ORDER = fileURLToPath(new URL('./fixtures/calibration-order.ts', import.meta.url));
+const CHILD = fileURLToPath(new URL('../../src/ladders/generator/scale-child.ts', import.meta.url));
 
 const REF = CALIBRATION_REFERENCE_MS;
 
@@ -19,6 +28,7 @@ function report(ms: number, calibrationMs: number): ScaleReport {
     calibrationMs,
     referenceMs: REF,
     normalisedMs: normalisedMs(ms, calibrationMs),
+    creditCapped: calibrationFactor(calibrationMs).capped,
     invalid: 0,
     lint: 0,
     bytesSame: true,
@@ -59,13 +69,25 @@ describe('the normalised CPU time', () => {
     expect(normalisedMs(61_234, REF)).toBe(61_234);
   });
 
-  it('divides out a machine that runs the same work in twice the time', () => {
-    expect(normalisedMs(120_000, 2 * REF)).toBe(60_000);
+  it('divides out a machine that is slower, up to the cap on its credit', () => {
+    expect(normalisedMs(72_000, 1.2 * REF)).toBe(60_000);
+    expect(calibrationFactor(1.2 * REF).capped).toBe(false);
+  });
+
+  it('caps the credit of a runner more than 1.5 times slower than the reference, and says so', () => {
+    expect(calibrationFactor(2 * REF)).toEqual({ factor: 1 / CALIBRATION_MAX_CREDIT, capped: true });
+    expect(normalisedMs(120_000, 2 * REF)).toBe(80_000);
+    expect(normalisedMs(120_000, 10 * REF)).toBe(80_000);
+  });
+
+  it('multiplies the time of a faster machine, with no cap', () => {
     expect(normalisedMs(30_000, REF / 2)).toBe(60_000);
+    expect(calibrationFactor(REF / 4).capped).toBe(false);
   });
 
   it('leaves the raw time alone when the meter reports no calibration', () => {
     expect(normalisedMs(5_000, 0)).toBe(5_000);
+    expect(calibrationFactor(0)).toEqual({ factor: 1, capped: false });
   });
 });
 
@@ -75,20 +97,54 @@ describe('scale.100x.time on a runner of any speed', () => {
     expect((await timeItem(report(118_000, REF))).pass).toBe(false);
   });
 
-  it('passes the same product on a runner that takes twice as long for everything', async () => {
-    const verdict = await timeItem(report(98_000, 2 * REF));
+  it('passes the same product on a runner that takes 1.4 times as long for everything', async () => {
+    const verdict = await timeItem(report(83_000, 1.4 * REF));
     expect(verdict.pass, verdict.detail).toBe(true);
+    expect(verdict.detail).not.toContain('capped');
+  });
+
+  it('caps the credit of a very slow runner, and the detail says so', async () => {
+    // Raw 98,000 ms on a runner 2 times slower would be 49,000 uncapped; the cap makes it 65,333.
+    const verdict = await timeItem(report(98_000, 2 * REF));
+    expect(verdict.pass).toBe(false);
+    expect(verdict.detail).toContain('capped');
+    expect(verdict.detail).toContain('65333 ms normalised');
   });
 
   it('fails a product twice as slow on a fast runner that the raw budget would pass', async () => {
-    // Raw 40,000 ms is under 60,000; on a runner twice as fast as the reference the work is 80,000 normalised.
+    // Raw 40,000 ms is under 60,000; on a runner twice as fast as the reference it is 80,000 normalised.
     const verdict = await timeItem(report(40_000, REF / 2));
     expect(verdict.pass).toBe(false);
     expect(verdict.detail).toContain('40000 ms of CPU time (raw)');
     expect(verdict.detail).toContain('80000 ms normalised');
   });
 
-  it('fails a product twice as slow on a slow runner, where the raw time is four times the budget', async () => {
+  it('fails a product twice as slow on a slow runner, whose raw time is far over', async () => {
     expect((await timeItem(report(236_000, 2 * REF))).pass).toBe(false);
   });
+});
+
+describe('the calibration runs before any product code is loaded', () => {
+  it('starts the child with the calibration module alone, and loads the body after it', () => {
+    const source = readFileSync(CHILD, 'utf8');
+    const imports = source.split('\n').filter((line) => line.startsWith('import '));
+    expect(imports).toEqual(["import { CALIBRATION_ENV, calibrate } from './scale-calibration';"]);
+    expect(source.indexOf('calibrate()')).toBeLessThan(source.indexOf("await import('./scale-child-run')"));
+  });
+
+  it('has measured the calibration when the override module is imported', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'calibration-order-'));
+    const file = join(dir, 'seen.txt');
+    process.env.DRIFTBENCH_ORDER_FILE = file;
+    try {
+      const report = await scaleReport(1, 1, 8_000, { generator: ORDER });
+      expect(report.error).toBeUndefined();
+      const seen = Number(readFileSync(file, 'utf8'));
+      expect(seen).toBeGreaterThan(0);
+      expect(Math.abs(seen - report.calibrationMs)).toBeLessThan(0.1);
+    } finally {
+      delete process.env.DRIFTBENCH_ORDER_FILE;
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 180_000);
 });
