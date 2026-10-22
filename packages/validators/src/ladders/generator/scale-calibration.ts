@@ -7,7 +7,7 @@ import { parse } from 'yaml';
 /**
  * The calibration of a scale run. CPU time is not the same work on every machine: the same product commit
  * measures up to twice as long on one hosted runner as on another. So the child first runs a fixed workload
- * in the same process, before any product code is imported, records its CPU time, and the scale time item
+ * in a process of its own just before the timed child, records its CPU time, and the scale time item
  * divides the product's CPU time by the ratio of this calibration to the reference below. A product at the old
  * speed on the reference machine scores as before; a product twice as slow scores twice as slow on any machine.
  *
@@ -18,8 +18,9 @@ import { parse } from 'yaml';
  * no network. Its size is a count of operations, never a duration.
  *
  * The calibration is the weighted sum of the fastest time of each part, with the weights below. The weights
- * were chosen on 40 hosted runs of the first allocation part; the reference was re-recorded on 40 runs of this one (validators/generator/evidence/scale-calibration.json): the CPU types differ
- * more in sha256 hashing and string parsing than in allocation, so those two carry most of the weight.
+ * were chosen on 40 hosted runs of the first allocation part; the reference was re-recorded on 40 runs of
+ * this one (validators/generator/evidence/scale-calibration.json). The CPU types differ more in sha256
+ * hashing and string parsing than in allocation, so those two carry most of the weight.
  */
 
 /** Rows of the allocation and sort part, per round. */
@@ -42,7 +43,7 @@ export const CALIBRATION_REFERENCE_MS = 250;
 /** The most credit a slow calibration earns: the normalised time is never below the raw time over this. */
 export const CALIBRATION_MAX_CREDIT = 1.5;
 
-/** The environment variable through which the child's first module hands the calibration to its second. */
+/** The environment variable through which the parent hands the calibration to the timed child. */
 export const CALIBRATION_ENV = 'DRIFTBENCH_SCALE_CALIBRATION_MS';
 
 /** Weight of each part in the calibration. */

@@ -16,6 +16,7 @@ import {
 
 const ORDER = fileURLToPath(new URL('./fixtures/calibration-order.ts', import.meta.url));
 const CHILD = fileURLToPath(new URL('../../src/ladders/generator/scale-child.ts', import.meta.url));
+const SCALE = fileURLToPath(new URL('../../src/ladders/generator/scale.ts', import.meta.url));
 
 const REF = CALIBRATION_REFERENCE_MS;
 
@@ -124,15 +125,18 @@ describe('scale.100x.time on a runner of any speed', () => {
   });
 });
 
-describe('the calibration runs before any product code is loaded', () => {
-  it('starts the child with the calibration module alone, and loads the body after it', () => {
-    const source = readFileSync(CHILD, 'utf8');
-    const imports = source.split('\n').filter((line) => line.startsWith('import '));
-    expect(imports).toEqual(["import { CALIBRATION_ENV, calibrate } from './scale-calibration';"]);
-    expect(source.indexOf('calibrate()')).toBeLessThan(source.indexOf("await import('./scale-child-run')"));
+describe('the calibration is measured in a process of its own, before the timed child', () => {
+  it('keeps the calibration out of the timed child: it imports no calibration code', () => {
+    const child = readFileSync(CHILD, 'utf8');
+    expect(child).not.toMatch(/calibrate\(/);
+    expect(child).toContain('CALIBRATION_ENV');
+    const parent = readFileSync(SCALE, 'utf8');
+    const measured = parent.indexOf('await measureCalibration()');
+    expect(measured).toBeGreaterThan(-1);
+    expect(measured).toBeLessThan(parent.indexOf("'--import'", measured));
   });
 
-  it('has measured the calibration when the override module is imported', async () => {
+  it('hands the timed child the calibration it saw measured, before the override module is imported', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'calibration-order-'));
     const file = join(dir, 'seen.txt');
     process.env.DRIFTBENCH_ORDER_FILE = file;
@@ -147,4 +151,10 @@ describe('the calibration runs before any product code is loaded', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   }, 180_000);
+
+  it('runs the timed child under a small heap with the calibration measured outside it', async () => {
+    const report = await scaleReport(1, 1, 600_000, { heapMb: 128 });
+    expect(report.error).toBeUndefined();
+    expect(report.calibrationMs).toBeGreaterThan(0);
+  }, 300_000);
 });

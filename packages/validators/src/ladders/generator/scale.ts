@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { type HiddenSpec, hiddenSpec } from './hidden';
-import { CALIBRATION_REFERENCE_MS } from './scale-calibration';
+import { CALIBRATION_ENV, CALIBRATION_REFERENCE_MS } from './scale-calibration';
 
 /**
  * The scale items (docs/validators.md section 12.2, item 4): the hidden specification of a seed with its
@@ -102,12 +102,41 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
  * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
  * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
  */
-export function scaleReport(
+/**
+ * Measures the calibration (scale-calibration.ts) in a short-lived process of its own on this machine. Its
+ * result goes to the timed child through the environment, so the timed child's heap is not touched by it.
+ */
+export function measureCalibration(): Promise<number | string> {
+  const child = fileURLToPath(new URL('./scale-calibrate.ts', import.meta.url));
+  return new Promise((resolve) => {
+    const proc = spawn(process.execPath, ['--import', 'tsx', child], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    let err = '';
+    proc.stdout.on('data', (chunk) => {
+      out += String(chunk);
+    });
+    proc.stderr.on('data', (chunk) => {
+      err += String(chunk);
+    });
+    proc.on('close', (code) => {
+      const value = Number(out.trim().split('\n').at(-1));
+      resolve(
+        Number.isFinite(value) && value > 0
+          ? value
+          : `the calibration exited ${code} without a value: ${err.trim().split('\n').slice(-3).join(' ')}`,
+      );
+    });
+  });
+}
+
+export async function scaleReport(
   factor: number,
   seed: number,
   budgetMs = SCALE_BUDGET_MS[factor] ?? 60_000,
   options: { heapMb?: number; generator?: string } = {},
 ): Promise<ScaleReport> {
+  const calibration = await measureCalibration();
+  if (typeof calibration === 'string') return failed(factor, budgetMs, calibration);
   const child = fileURLToPath(new URL('./scale-child.ts', import.meta.url));
   return new Promise((resolve) => {
     const proc = spawn(
@@ -122,7 +151,7 @@ export function scaleReport(
         String(budgetMs),
         ...(options.generator ? [options.generator] : []),
       ],
-      { stdio: ['ignore', 'pipe', 'pipe'] },
+      { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, [CALIBRATION_ENV]: String(calibration) } },
     );
     let out = '';
     let err = '';
