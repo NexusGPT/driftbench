@@ -155,8 +155,8 @@ driftbench radius generated/specs/live --change change.yaml
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+Mode F, free-running: 17 of 1251 blocks in the radius (17 direct, 0 forward), 1234 out. 17 of 1248 cells.
+  A cell reruns whole: 17 of 1251 blocks sent, 98.6% saved; 1231 of 1248 cells left to carry.
 ```
 
 <p align="center">

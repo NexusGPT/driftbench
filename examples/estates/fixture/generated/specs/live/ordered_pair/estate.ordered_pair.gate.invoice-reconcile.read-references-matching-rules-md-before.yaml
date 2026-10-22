@@ -14,7 +14,6 @@ tags:
   - kind:gate
   - kind:skill
   - kind:instruction
-  - judged
 target:
   adapter: claude-code
 given:
@@ -50,13 +49,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-    rubric: 'Does the reply follow this rule of the estate: "Run `python3 scripts/reconcile.py <invoice> <order>` and show the summary it prints."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -72,8 +64,6 @@ blocks:
             min: 1
       workspace:
         others_untouched: true
-      criteria:
-        - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
 rules:
   custom:
     ordered:
@@ -102,8 +92,6 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
-    judged:
-      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
   links:
     - block: ask
       to:
@@ -127,7 +115,7 @@ metadata:
         kind: rule
         rule: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
         ledger: mc2fjnpbks
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b
