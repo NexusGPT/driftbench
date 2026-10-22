@@ -15,13 +15,28 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ADDED = {
-  A: ['2ihgfbfpwv', '5fheyswkjr', '5fnrtqa4dt', 'dptij3uzkt', 'ozfstdpufc', 'xalkekvnkq', 'emimqrmqo6', 'nmk2xrp2r3', '4delmkvg75'],
+  A: [
+    '2ihgfbfpwv',
+    '5fheyswkjr',
+    '5fnrtqa4dt',
+    'dptij3uzkt',
+    'ozfstdpufc',
+    'xalkekvnkq',
+    'emimqrmqo6',
+    'nmk2xrp2r3',
+    '4delmkvg75',
+  ],
   B: ['2yxq6pbpcn', 'ttzfbmyzfz', 'erb2rbwa26', 'lwci7tropa'],
   C: ['kn447e23qp', 'bidpovjlre', 'txtsbyxu6a', 'x2yw2rftbc', '7xzbzyq5no'],
 };
 
 const args = Object.fromEntries(
-  process.argv.slice(2).reduce((pairs, value, at, all) => (value.startsWith('--') ? [...pairs, [value.slice(2), all[at + 1]]] : pairs), []),
+  process.argv
+    .slice(2)
+    .reduce(
+      (pairs, value, at, all) => (value.startsWith('--') ? [...pairs, [value.slice(2), all[at + 1]]] : pairs),
+      [],
+    ),
 );
 for (const name of ['seed', 'returned', 'out-units', 'out-key']) {
   if (args[name] === undefined) throw new Error(`missing --${name}`);
@@ -36,13 +51,15 @@ if (!['added-and-decoys', 'v3'].includes(sample)) throw new Error('--sample is a
 
 const units = JSON.parse(readFileSync(goldPath, 'utf8')).units;
 const byId = new Map(units.map((unit) => [unit.id, unit]));
-for (const ids of Object.values(ADDED)) for (const id of ids) if (!byId.has(id)) throw new Error(`${id} is no gold unit`);
+for (const ids of Object.values(ADDED))
+  for (const id of ids) if (!byId.has(id)) throw new Error(`${id} is no gold unit`);
 
 // Units that the truth names: the `unit:` and `governs:` ids of the truth files (the current file holds both versions).
 const named = new Set();
 for (const estate of ['a', 'b', 'c']) {
   const text = readFileSync(join(truthDir, `gold-${estate}`, 'truth.yaml'), 'utf8');
-  for (const match of text.matchAll(/^\s*(?:- )?(?:unit|governs):\s*([a-z0-9]{10})\s*$/gm)) named.add(match[1]);
+  for (const match of text.matchAll(/^\s*(?:- )?(?:unit|governs):\s*([a-z0-9]{10})\s*$/gm))
+    named.add(match[1]);
 }
 const returned = new Set(
   readFileSync(args.returned, 'utf8')
@@ -74,7 +91,10 @@ const shuffle = (list) => {
 
 const pool = (estate, exclude, test) =>
   units
-    .filter((unit) => unit.estate === estate && !named.has(unit.id) && !returned.has(unit.id) && !exclude.has(unit.id))
+    .filter(
+      (unit) =>
+        unit.estate === estate && !named.has(unit.id) && !returned.has(unit.id) && !exclude.has(unit.id),
+    )
     .filter(test)
     .sort((a, b) => (a.id < b.id ? -1 : 1));
 const hasDigit = (unit) => /\d/.test(unit.text);
@@ -86,8 +106,10 @@ if (sample === 'added-and-decoys') {
   const decoys = [];
   for (const [estate, ids] of Object.entries(ADDED)) {
     const found = pool(estate, new Set(ids), filter === 'digit' ? hasDigit : isInstruction);
-    if (found.length < ids.length) throw new Error(`estate ${estate}: ${found.length} decoy candidates for ${ids.length} places`);
-    for (const unit of shuffle(found).slice(0, ids.length)) decoys.push({ estate, id: unit.id, kind: 'decoy' });
+    if (found.length < ids.length)
+      throw new Error(`estate ${estate}: ${found.length} decoy candidates for ${ids.length} places`);
+    for (const unit of shuffle(found).slice(0, ids.length))
+      decoys.push({ estate, id: unit.id, kind: 'decoy' });
   }
   all = shuffle([
     ...Object.entries(ADDED).flatMap(([estate, ids]) => ids.map((id) => ({ estate, id, kind: 'added' }))),
@@ -104,21 +126,33 @@ if (sample === 'added-and-decoys') {
     for (const entry of block.split(/\n\s*- unit:/).slice(1)) {
       const unit = /^\s*([a-z0-9]{10})/.exec(entry)?.[1];
       const governs = /governs:\s*([a-z0-9]{10})/.exec(entry)?.[1];
-      if (unit !== undefined && unit === governs && !addedIds.has(unit)) original.set(unit, estate.toUpperCase());
+      if (unit !== undefined && unit === governs && !addedIds.has(unit))
+        original.set(unit, estate.toUpperCase());
     }
   }
   const controls = [];
   for (const estate of ['A', 'B', 'C']) {
-    const candidates = [...original].filter(([, e]) => e === estate).map(([id]) => id).sort();
+    const candidates = [...original]
+      .filter(([, e]) => e === estate)
+      .map(([id]) => id)
+      .sort();
     if (candidates.length < 3) throw new Error(`estate ${estate}: ${candidates.length} control candidates`);
     for (const id of shuffle(candidates).slice(0, 3)) controls.push({ estate, id, kind: 'control' });
   }
   const decoys = [];
-  const wanted = { A: ['digit', 'digit', 'instruction'], B: ['digit', 'instruction', 'instruction'], C: ['instruction', 'instruction', 'digit'] };
+  const wanted = {
+    A: ['digit', 'digit', 'instruction'],
+    B: ['digit', 'instruction', 'instruction'],
+    C: ['instruction', 'instruction', 'digit'],
+  };
   const taken = new Set();
   for (const [estate, kinds] of Object.entries(wanted)) {
     for (const kind of kinds) {
-      const found = pool(estate, new Set([...addedIds, ...taken]), kind === 'digit' ? hasDigit : isInstruction);
+      const found = pool(
+        estate,
+        new Set([...addedIds, ...taken]),
+        kind === 'digit' ? hasDigit : isInstruction,
+      );
       const unit = shuffle(found)[0];
       if (unit === undefined) throw new Error(`estate ${estate}: no ${kind} decoy`);
       taken.add(unit.id);
