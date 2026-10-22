@@ -351,8 +351,9 @@ export async function loadStateLibraryWithDigest(
     if (typeof file !== 'string') throw new Error(`${path}: prefix ${name} names no file`);
     const content = await readFile(resolve(folder, file));
     prefixes.set(name, readSessionRecords(content.toString('utf8')));
-    digests[name] = { file, sha256: sha256Of(content) };
-    hash.update(`prefix ${name} ${file} ${digests[name].sha256}\n`);
+    const sha256 = sha256Of(content);
+    digests[name] = { file, sha256 };
+    hash.update(`prefix ${name} ${file} ${sha256}\n`);
   }
   const ops = (part: 'states' | 'events'): Record<string, LiveOp[]> => {
     const table = isRecord(raw[part]) ? raw[part] : {};
