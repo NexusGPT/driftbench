@@ -27,8 +27,8 @@ function failsAtEnd(spec: Spec): boolean {
  * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
  * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
- * a class is a block like any other: a second probe of a class a written spec already tests is cut by the same checks, the
- * first one written stays. A walk with an end state,
+ * a class is a block like any other: a second probe of a class a written spec already tests on the path is cut by the same
+ * checks; the first probe of a class on a path stays, and so do the injection blocks of a t-wise spec. A walk with an end state,
  * a task and a spec that is not complete are never reduced. Metamorphic variants follow their first variant.
  *
  * This is subsumption by what has been written, not a proof of a smallest suite, and it reads no agent.
@@ -45,6 +45,8 @@ export class TerminalSubsumption {
   private readonly said = new Set<string>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
+  /** The classes already probed on each path, by a written spec: `<path>|<class>`. */
+  private readonly probed = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
   /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
@@ -108,6 +110,14 @@ export class TerminalSubsumption {
       while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
         if (!this.blocks.has(this.key(spec, last))) break;
+        // A block that injects a class is cut like any other block, with two exceptions the items count: a t-wise
+        // spec holds the tuples of its row (the t-wise items read those specs alone), and the first probe of a class on
+        // a path stays, because each path owes every class its flow requires a probe.
+        const injected = spec.blocks[last]?.when;
+        if (injected && 'injection' in injected) {
+          if (draft.seeder === 'twise') break;
+          if (!this.probed.has(`${draft.path ?? ''}|${injected.injection.class}`)) break;
+        }
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
@@ -268,6 +278,9 @@ export class TerminalSubsumption {
         });
     });
     this.ends.add(this.key(spec, spec.blocks.length - 1));
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    for (const block of spec.blocks)
+      if ('injection' in block.when) this.probed.add(`${path}|${block.when.injection.class}`);
     const walk = this.walkKey(spec);
     const contexts = this.walks.get(walk) ?? new Set<string>();
     contexts.add(this.contextOf(spec));

@@ -132,35 +132,59 @@ describe('terminal subsumption', () => {
     expect(second.blocks.length).toBeLessThan(length);
   });
 
-  it('cuts a second probe of a class the suite already tests, the tuples, pairs and allocation deciding', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const context: SeedContext = { seed: 1031, t: 2, max: 100 };
-    const probe = (id: string) => {
-      const built = scenarioDraft(
-        prepared,
-        context,
-        id,
-        'twise',
-        id,
-        [],
-        { preferred: [path], others: [] },
-        { probe: { classId: 'D5_language_switch', stage: 'address' } },
-      );
-      if (!('draft' in built)) throw new Error(`${id} did not build`);
-      return built.draft;
+  describe('a block that injects a class', () => {
+    const setup = (seeder: 'twise' | 'deviation') => {
+      const prepared = fixture();
+      const path = prepared.relations.paths[0];
+      if (!path) throw new Error('missing parcel path');
+      const context: SeedContext = { seed: 1031, t: 2, max: 100 };
+      const probe = (id: string) => {
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          seeder,
+          id,
+          [],
+          { preferred: [path], others: [] },
+          { probe: { classId: 'D5_language_switch', stage: 'address' } },
+        );
+        if (!('draft' in built)) throw new Error(`${id} did not build`);
+        return built.draft;
+      };
+      return { minimal: new TerminalSubsumption(prepared, run, 2), probe };
     };
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = probe('first');
-    const second = probe('second');
-    const length = second.blocks.length;
-    minimal.reduce(first);
-    minimal.reduce(second);
-    // The first probe holds the class: it keeps its injection block, and the repeat after it is cut with its own.
-    expect(first.blocks.some((block) => block.injection)).toBe(true);
-    expect(second.blocks.length).toBeLessThan(length);
-    expect(second.blocks.some((block) => block.injection)).toBe(false);
+
+    it('is cut like any other block when a written probe of its class on the path already holds it', () => {
+      const { minimal, probe } = setup('deviation');
+      const first = probe('first');
+      const second = probe('second');
+      const length = second.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      // The first probe holds the class on the path and keeps its injection; the repeat goes with its blocks.
+      expect(first.blocks.some((block) => block.injection)).toBe(true);
+      expect(second.blocks.length).toBeLessThan(length);
+      expect(second.blocks.some((block) => block.injection)).toBe(false);
+    });
+
+    it('stays in the first probe of its class on a path', () => {
+      const { minimal, probe } = setup('deviation');
+      const first = probe('first');
+      const length = first.blocks.length;
+      minimal.reduce(first);
+      expect(first.blocks.some((block) => block.injection)).toBe(true);
+      expect(first.blocks.length).toBeLessThanOrEqual(length);
+    });
+
+    it('stays in a t-wise spec, which holds the tuples of its row alone', () => {
+      const { minimal, probe } = setup('twise');
+      const first = probe('first');
+      const second = probe('second');
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(second.blocks.some((block) => block.injection)).toBe(true);
+    });
   });
 
   it('keeps the end of a walk that says another turn than any written block', () => {
