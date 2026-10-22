@@ -9,7 +9,7 @@
 // once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
 // (the collector writes the spans folded, and the adapter folds a clause before it looks the label up). The cost is computed from the token
 // counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -155,7 +155,19 @@ async function ask(batch) {
 
 const rows = new Map();
 let bad = 0;
+// Each batch is appended to the out file as it arrives, and a rerun keeps the lines already there: a stopped run loses
+// at most one batch.
+if (existsSync(outFile)) {
+  for (const line of readFileSync(outFile, 'utf8').split('\n')) {
+    if (line.trim() === '') continue;
+    const row = JSON.parse(line);
+    rows.set(row.text, row.label);
+    noteSubjects(row.label);
+  }
+  console.log(`kept ${rows.size} labels already in ${outFile}`);
+}
 for (let i = 0; i < texts.length; i += BATCH) {
+  if (texts.slice(i, i + BATCH).every((text) => rows.has(text))) continue;
   if (spentBefore + spent() > totalCap || spent() > cap) {
     console.error(
       `stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`,
@@ -182,9 +194,13 @@ for (let i = 0; i < texts.length; i += BATCH) {
       rows.set(text, { kind: 'none' });
     }
   });
+  appendFileSync(
+    outFile,
+    `${batch.map((text) => JSON.stringify({ text, label: rows.get(text) })).join('\n')}\n`,
+  );
+  console.log(`batch ${i / BATCH + 1}: tokens in ${tokensIn}, out ${tokensOut} so far`);
 }
 
-writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
 const total = spentBefore + spent();
 if (totalFile) writeFileSync(totalFile, `${total}\n`);
 console.log(`labelled ${rows.size} spans (${bad} unusable answers recorded as none)`);
