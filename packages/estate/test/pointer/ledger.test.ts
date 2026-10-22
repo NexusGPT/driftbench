@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cut, type Ledger, nextLedger, renderLedger } from '../../src/pointer';
+import { freeId, mintId } from '../../src/pointer/ledger';
 
 // Invented files: a hall with crates, keys and keepers.
 const HALL = [
@@ -216,5 +217,74 @@ describe('the ledger', () => {
     );
     expect(olds.every((id) => id !== undefined)).toBe(true);
     expect(olds).not.toContain(idOf(second, 'shed.md', 'Stop.'));
+  });
+});
+
+describe('minting a free id', () => {
+  it('walks up the occurrence numbers past the taken ids', () => {
+    const taken = new Set([mintId('hall', 'a.md', 'fp', 0), mintId('hall', 'a.md', 'fp', 1)]);
+    const id = freeId((at) => mintId('hall', 'a.md', 'fp', at), taken, 0);
+    expect(id).toBe(mintId('hall', 'a.md', 'fp', 2));
+    expect(taken.has(id)).toBe(false);
+    const fresh = freeId((at) => mintId('hall', 'a.md', 'fp', at), new Set(), 0);
+    expect(fresh).toBe(mintId('hall', 'a.md', 'fp', 0));
+  });
+
+  it('stops with an error within the bound when the id base ignores the occurrence number', () => {
+    // The planted bug of the audit: the occurrence is left out of the hash, so every occurrence gets the same id.
+    const ignoring = (_at: number) => mintId('hall', 'a.md', 'fp', 0);
+    for (const size of [1, 2, 5]) {
+      const taken = new Set(Array.from({ length: size }, (_, at) => mintId('hall', 'b.md', `fp${at}`, 0)));
+      taken.add(ignoring(0));
+      let calls = 0;
+      const counted = (at: number) => {
+        calls++;
+        return ignoring(at);
+      };
+      expect(() => freeId(counted, taken, 0)).toThrow(
+        /is taken and was minted again on attempt \d+.*ignores the occurrence/s,
+      );
+      // one call for the first id, then at most one per taken id: never an endless loop
+      expect(calls).toBeLessThanOrEqual(taken.size + 1);
+    }
+  });
+
+  it('names the id and the attempt count in the error', () => {
+    const id = mintId('hall', 'a.md', 'fp', 0);
+    expect(() => freeId(() => id, new Set([id]), 3)).toThrow(
+      `The id ${id} is taken and was minted again on attempt 2 for occurrences 3 to 4 (1 ids taken)`,
+    );
+  });
+});
+
+describe('the quote of an entry', () => {
+  const source = `\uFEFF${[
+    '# Hall',
+    '',
+    'Count the crates twice and write the number on the wall,',
+    'then lock the door when the hall is empty.',
+    '',
+    '- Return the keys before',
+    '  you leave the hall',
+    '',
+  ].join('\r\n')}`;
+
+  it('is the slice of the source its units name, with the source around it as context', () => {
+    const { ledger } = nextLedger([{ path: 'hall.md', cut: cut(source), source }], undefined, 'hall');
+    expect(ledger.entries.length).toBeGreaterThan(2);
+    for (const entry of ledger.entries) {
+      const unit = cut(source).units[entry.index];
+      expect(entry.quote, entry.id).toBe(source.slice(unit?.start, unit?.end));
+      expect(source.includes(`${entry.prefix}${entry.quote}${entry.suffix}`), entry.id).toBe(true);
+      expect(entry.prefix.length).toBeLessThanOrEqual(24);
+      expect(entry.suffix.length).toBeLessThanOrEqual(24);
+    }
+  });
+
+  it('keeps every id and label of a ledger written without the source', () => {
+    const old = nextLedger([{ path: 'hall.md', cut: cut(source) }], undefined, 'hall').ledger;
+    const now = nextLedger([{ path: 'hall.md', cut: cut(source), source }], old, 'hall');
+    expect(now.ledger.entries.map((entry) => entry.id)).toEqual(old.entries.map((entry) => entry.id));
+    expect(now.events.unchanged).toBe(old.entries.length);
   });
 });

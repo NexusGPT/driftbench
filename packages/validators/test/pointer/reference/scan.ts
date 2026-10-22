@@ -98,7 +98,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     for (const [at, g] of globals.entries()) {
       const before = news[globals[at - 1] ?? -1]?.fp ?? '';
       const after = news[globals[at + 1] ?? -1]?.fp ?? '';
-      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}`);
+      // The heading path above the unit is part of its context, as the neighbours are.
+      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}|${(news[g] as NewUnit).sectionPath.join('>')}`);
     }
   }
 
@@ -358,13 +359,35 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         }
       }
       const key = cassetteKeyOf.get(`${entry.id}|${set.set}`);
+      // An atom of the same kind on the same lines with the same quote as one already built is a repeat.
+      const quote = text.slice(start, end);
+      const startLine = lineOf(text, start);
+      const endLine = lineOf(text, Math.max(start, end - 1));
+      const squash = (value: string) => value.replace(/\s+/g, ' ').trim();
+      if (
+        atoms.some(
+          (other) =>
+            other.kind === def.atom?.kind &&
+            other.file === entry.path &&
+            other.startLine <= endLine &&
+            startLine <= other.endLine &&
+            squash(other.quote) === squash(quote),
+        )
+      ) {
+        diagnostics.push({
+          code: 'duplicate',
+          unit: entry.id,
+          detail: `the unit ${entry.id} repeats an atom of kind ${def.atom.kind}`,
+        });
+        continue;
+      }
       atoms.push({
         kind: def.atom.kind,
         ...(def.atom.polarity ? { polarity: def.atom.polarity } : {}),
         file: entry.path,
-        startLine: lineOf(text, start),
-        endLine: lineOf(text, Math.max(start, end - 1)),
-        quote: text.slice(start, end),
+        startLine,
+        endLine,
+        quote,
         producedBy: 'model',
         approved: false,
         fields: {
@@ -373,9 +396,38 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
           labelSet: set.set,
           ...(key ? { cassette: key } : {}),
         },
-        evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true }],
+        evidence: [
+          { type: 'custom', name: 'prose_pointer', reviewRequired: true, options: { reviewRequired: true } },
+        ],
       });
     }
+  }
+  // ---- conditions: the text of a condition unit is the situation of the atom built from its target
+  const conditions = new Map<Atom, Array<{ start: number; text: string; id: string }>>();
+  for (const entry of ledger.entries) {
+    if (entry.status !== 'live') continue;
+    for (const set of sets) {
+      const label = entry.labels[set.set];
+      if (!label || !set.labels.find((l) => l.name === label.label)?.condition) continue;
+      const targetIndex = gateTargets.get(`${entry.id}|${set.set}`);
+      const g = fileUnits.get(entry.path)?.[targetIndex ?? -1];
+      const targetId = g === undefined ? undefined : byG.get(g)?.entry.id;
+      const atom = atoms.find((a) => a.fields.unit === targetId && a.fields.labelSet === set.set);
+      if (!atom) continue;
+      conditions.set(atom, [
+        ...(conditions.get(atom) ?? []),
+        { start: entry.hint?.start ?? 0, text: entry.quote.trim(), id: entry.id },
+      ]);
+    }
+  }
+  for (const [atom, list] of conditions) {
+    list.sort((x, y) => x.start - y.start);
+    atom.situation = list.map((c) => c.text).join(' ');
+    // The prose pointer names the units that set the situation, in file order.
+    const ids = list.map((c) => c.id);
+    atom.fields.condition = ids;
+    const pointer = atom.evidence.find((e) => e.name === 'prose_pointer');
+    if (pointer) pointer.options = { ...pointer.options, condition: ids };
   }
   const events: Record<string, string> = {};
   const eventCounts: Record<string, number> = {};
@@ -418,8 +470,9 @@ async function labelWindow(
       let result: Awaited<ReturnType<typeof askModel>>;
       try {
         result = await askModel(plan, set, model);
-      } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
+      } catch {
+        // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
+        return { abort: `the model call failed for ${plan.id}` };
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {

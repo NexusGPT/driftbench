@@ -235,7 +235,7 @@ export const adversarial: FamilySpec = {
       'Exchanged texts follow their ids',
       'Exchange the texts of two long units that sit 10 units apart; everything else stays.',
       'Each id keeps its own text (both `moved`), neither is `changed` or `deleted`.',
-      'anchor:exact-match-moved',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(
@@ -244,7 +244,7 @@ export const adversarial: FamilySpec = {
       'Swapped near-duplicates keep their own ids',
       'Two units 0.75 similar to each other and adjacent; swap their positions.',
       'Each id keeps its own exact text.',
-      'anchor:exact-before-similar',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(
@@ -253,7 +253,7 @@ export const adversarial: FamilySpec = {
       'Editing one of three identical units changes only that one',
       'Three identical units separated by unique units; reword the middle one.',
       'The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`.',
-      'anchor:duplicate-with-unique-anchors',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(

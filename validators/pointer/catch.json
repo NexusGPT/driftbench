@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "cutting.url-query-capital-after-mark",
+      "guards": "bug:B03"
+    },
+    {
+      "id": "ids.id-unique-for-repeated-text",
+      "guards": "bug:B07"
+    },
+    {
+      "id": "re-anchoring.neighbour-edit-relabels",
+      "guards": "bug:B09"
+    },
+    {
+      "id": "re-anchoring.short-repeated-text-stays-in-file",
+      "guards": "bug:B11"
+    },
+    {
+      "id": "radius.deleted-unit-reruns-its-links",
+      "guards": "bug:B12"
+    },
+    {
+      "id": "radius.new-unit-falls-back-to-whole-file",
+      "guards": "bug:B13"
+    },
+    {
+      "id": "radius.context-edit-is-advisory",
+      "guards": "bug:B14"
+    },
+    {
+      "id": "grouping.same-unit-in-two-sets-is-one-atom",
+      "guards": "bug:B16"
+    },
+    {
+      "id": "grouping.conditions-join-in-file-order",
+      "guards": "bug:B17"
+    },
+    {
+      "id": "labels.settings-threshold-range-refused",
+      "guards": "bug:B20"
+    },
+    {
+      "id": "labels.settings-inherited-threshold-key-refused",
+      "guards": "bug:B22"
+    },
+    {
+      "id": "adversarial.verdict-channel-is-not-the-readers",
+      "guards": "cheat:verdict-channel"
+    },
+    {
+      "id": "adversarial.sut-env-not-trusted-in-reader-process",
+      "guards": "cheat:sut-env"
+    },
+    {
+      "id": "adversarial.reader-imports-no-bank",
+      "guards": "cheat:reader-imports-bank"
+    }
+  ]
+}

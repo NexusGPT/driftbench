@@ -1,7 +1,18 @@
 export type Tier = 1 | 2 | 3 | 4 | 5;
 
 /** What an item needs from the reader binding (the seam of the catalogue preface). */
-export type Need = 'cut' | 'scan' | 'transport' | 'cassette' | 'prompt' | 'links' | 'child' | 'cli' | 'stack';
+export type Need =
+  | 'cut'
+  | 'scan'
+  | 'transport'
+  | 'cassette'
+  | 'prompt'
+  | 'links'
+  | 'rerun'
+  | 'settings'
+  | 'child'
+  | 'cli'
+  | 'stack';
 
 /** One row of the bank: the data the catalogue prints and the code zips with its runner. */
 export type Spec = {
@@ -20,6 +31,10 @@ export type Spec = {
   needs?: Need[];
   /** The input does not depend on the seed: judged once per process. */
   seedFree?: boolean;
+  /** The longest the item may take, in milliseconds. */
+  capMs?: number;
+  /** `catch`: passes on the reader and guards it against a planted bug; pinned in `validators/pointer/catch.json`. */
+  role?: 'catch';
 };
 
 export type FamilySpec = {
@@ -41,7 +56,7 @@ export function row(
   gen: string,
   oracle: string,
   cause: string,
-  extra: Partial<Pick<Spec, 'component' | 'needs' | 'seedFree' | 'causeKind'>> = {},
+  extra: Partial<Pick<Spec, 'component' | 'needs' | 'seedFree' | 'causeKind' | 'capMs' | 'role'>> = {},
 ): Spec {
   return { key, tier, title, gen, oracle, cause, ...extra };
 }

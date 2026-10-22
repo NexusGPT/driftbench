@@ -19,7 +19,7 @@ export const reanchoring: FamilySpec = {
       'An identical rescan keeps everything',
       '40 long units over 4 files; rescan the same files with the first ledger.',
       'Every old id is live with event `unchanged` at its own text; no new id, no deleted entry.',
-      'anchor:unchanged-by-histogram-diff',
+      'scan:events-by-id',
     ),
     row(
       'rewrap',
@@ -27,7 +27,7 @@ export const reanchoring: FamilySpec = {
       'Rewrapping paragraphs is not a change',
       'Rewrap every paragraph at a different column.',
       'Every old id live, event `unchanged`, same quote text after white space collapse.',
-      'fingerprint:collapse-whitespace',
+      'scan:events-by-id',
     ),
     row(
       'crlf-conversion',
@@ -35,7 +35,7 @@ export const reanchoring: FamilySpec = {
       'A line-ending conversion is not a change',
       'Convert all files from LF to CRLF.',
       'Every old id live and `unchanged`.',
-      'fingerprint:collapse-whitespace',
+      'scan:events-by-id',
     ),
     row(
       'bullet-swap',
@@ -43,7 +43,7 @@ export const reanchoring: FamilySpec = {
       'Changing bullet characters is not a change',
       'Swap `-` to `*` in every list.',
       'Every old id live and `unchanged`.',
-      'fingerprint:strip-bullet-marker',
+      'scan:events-by-id',
     ),
     row(
       'renumber',
@@ -51,7 +51,7 @@ export const reanchoring: FamilySpec = {
       'Renumbering an ordered list is not a change',
       'Shift every ordered list number by 3.',
       'Every old id live and `unchanged`.',
-      'fingerprint:strip-ordered-marker',
+      'scan:events-by-id',
     ),
     row(
       'blank-lines',
@@ -59,7 +59,7 @@ export const reanchoring: FamilySpec = {
       'Adding and removing blank lines is not a change',
       'Add two blank lines between blocks and remove one elsewhere.',
       'Every old id live and `unchanged`.',
-      'anchor:unchanged-by-histogram-diff',
+      'scan:events-by-id',
     ),
     row(
       'paragraph-break-between-sentences',
@@ -67,7 +67,7 @@ export const reanchoring: FamilySpec = {
       'Splitting a paragraph between sentences changes no unit',
       'Insert a blank line between two sentences of a paragraph.',
       'Every old id live and `unchanged`; no split or merge event.',
-      'anchor:unchanged-by-histogram-diff',
+      'scan:events-by-id',
     ),
     row(
       'heading-rename-keeps-units',
@@ -75,7 +75,7 @@ export const reanchoring: FamilySpec = {
       'Renaming a heading keeps the units below',
       'Rename the heading `## Closing duties` to `## Locking rounds`; the six units below stay as they are.',
       'The six units keep ids, quotes and event `unchanged`, and their sectionPath now ends `Locking rounds`.',
-      'anchor:context-change-keeps-id',
+      'scan:events-by-id',
     ),
     row(
       'move-within-file',
@@ -83,7 +83,7 @@ export const reanchoring: FamilySpec = {
       'A long unit moved far keeps its id',
       'Move one 120 character unit from the top to the bottom of a 30-unit file.',
       'Its id is live, event `moved`, same quote, at the new position; the other 29 ids are `unchanged`.',
-      'anchor:exact-match-moved',
+      'scan:events-by-id',
     ),
     row(
       'move-section',
@@ -91,7 +91,7 @@ export const reanchoring: FamilySpec = {
       'A moved section keeps all its ids',
       'Move a heading and its four long units from the top to the bottom of a file of six sections.',
       'The four long units keep their ids with event `moved`; the heading keeps its text and (it is under the length floor) its id with event `moved` or `changed`; the other units `unchanged`.',
-      'anchor:exact-match-moved',
+      'scan:events-by-id',
     ),
     row(
       'move-swap-two',
@@ -99,7 +99,7 @@ export const reanchoring: FamilySpec = {
       'Swapping two units keeps each id with its text',
       'Exchange the positions of two long paragraphs.',
       'Each id still carries its own text (no swap of ids); events `moved` or `unchanged`.',
-      'anchor:exact-match-moved',
+      'scan:events-by-id',
     ),
     row(
       'move-across-files',
@@ -107,7 +107,7 @@ export const reanchoring: FamilySpec = {
       'A unit moved to another file keeps its id',
       'Move one long unit from file A to file B.',
       'Its id is live, event `moved`, path is B, quote unchanged.',
-      'anchor:cross-file-move',
+      'scan:events-by-id',
     ),
     row(
       'file-rename',
@@ -115,7 +115,7 @@ export const reanchoring: FamilySpec = {
       "A renamed file keeps its units' ids",
       'Rename a file holding 12 long units, content unchanged.',
       'All 12 ids live with the new path and the same quotes; events `moved` or `unchanged`; nothing deleted.',
-      'anchor:cross-file-move',
+      'scan:events-by-id',
     ),
     row(
       'directory-rename',
@@ -123,7 +123,7 @@ export const reanchoring: FamilySpec = {
       'A renamed folder keeps the ids of its files',
       'Rename a folder holding 3 files of 10 long units.',
       'All 30 ids live with new paths and the same quotes; nothing deleted.',
-      'anchor:cross-file-move',
+      'scan:events-by-id',
     ),
     row(
       'move-and-reword',
@@ -131,7 +131,7 @@ export const reanchoring: FamilySpec = {
       'A moved and slightly reworded unit keeps its id',
       'Move a long unit to the bottom and replace one word.',
       'Its id is live, event `changed`, quote is the new text.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'move-ambiguous-two-targets',
@@ -139,7 +139,7 @@ export const reanchoring: FamilySpec = {
       'A unit whose text now appears twice is ambiguous',
       'Remove unit U from its place and add two copies of its exact text at other places.',
       "U's id has event `ambiguous`; both copies are live entries; neither is reported as a certain move.",
-      'anchor:ambiguous-multiple-matches',
+      'scan:events-by-id',
     ),
     row(
       'twin-delete-is-not-a-move',
@@ -147,7 +147,7 @@ export const reanchoring: FamilySpec = {
       'Deleting a unit that has a twin elsewhere is a delete',
       'Files A and B hold the same long unit U; delete U from A only.',
       "A's U is deleted (event `deleted`, quote kept); B's U keeps its id, event `unchanged`.",
-      'anchor:twin-is-not-a-move',
+      'scan:events-by-id',
     ),
     row(
       'copy-keeps-original',
@@ -155,7 +155,7 @@ export const reanchoring: FamilySpec = {
       'Copying a unit leaves the original anchored',
       'Append a copy of a long unit at the end of the file.',
       'The original keeps its id and event `unchanged`; the copy has a fresh id.',
-      'anchor:duplicate-is-new-unit',
+      'scan:events-by-id',
     ),
     row(
       'duplicate-section-insert',
@@ -171,7 +171,7 @@ export const reanchoring: FamilySpec = {
       'One changed word keeps the id',
       'Replace one word of a 110 character sentence.',
       'Id live, event `changed`, quote the new text.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-two-words',
@@ -179,7 +179,7 @@ export const reanchoring: FamilySpec = {
       'Two changed words keep the id',
       'Replace two words of a 110 character sentence.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-append-clause',
@@ -187,7 +187,7 @@ export const reanchoring: FamilySpec = {
       'An appended clause keeps the id',
       'Append `, and log it` to a 100 character sentence.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-prepend-clause',
@@ -195,7 +195,7 @@ export const reanchoring: FamilySpec = {
       'A prepended clause keeps the id',
       'Prepend `In every case, ` to a 100 character sentence.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-case-flip-word',
@@ -203,7 +203,7 @@ export const reanchoring: FamilySpec = {
       'A case change on one word is a change that keeps the id',
       'Change `never` to `NEVER` in a 110 character sentence.',
       'Id live, event `changed` (the fingerprint keeps case), quote the new text.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-negation',
@@ -211,7 +211,7 @@ export const reanchoring: FamilySpec = {
       'Inserting a negation keeps the id',
       'Change `do` to `do not` in a 100 character sentence.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-number',
@@ -219,7 +219,7 @@ export const reanchoring: FamilySpec = {
       'Changing a number keeps the id',
       'Change `3` to `4` in a 100 character sentence.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-list-item',
@@ -227,7 +227,7 @@ export const reanchoring: FamilySpec = {
       'A reworded list item keeps the id',
       'Replace one word in a long list item.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-table-cell',
@@ -235,7 +235,7 @@ export const reanchoring: FamilySpec = {
       'A reworded table cell keeps the id',
       'Replace one word in a long table cell.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-heading',
@@ -243,7 +243,7 @@ export const reanchoring: FamilySpec = {
       'A reworded heading keeps the id',
       'Replace one word of a 60 character heading.',
       'Id live, event `changed`; the units below keep their ids.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-quote-paragraph',
@@ -251,7 +251,7 @@ export const reanchoring: FamilySpec = {
       'A reworded quote paragraph keeps the id',
       'Replace one word in a wrapped quote paragraph.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-front-matter-value',
@@ -259,7 +259,7 @@ export const reanchoring: FamilySpec = {
       'A reworded front matter value keeps the id',
       'Replace one word of a `description:` value.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'reword-moderate',
@@ -267,7 +267,7 @@ export const reanchoring: FamilySpec = {
       'A third of the words changed still keeps the id',
       'Replace words of a 170 character sentence until its measured similarity to the source lies in 0.6 to 0.8.',
       'Id live, event `changed`.',
-      'anchor:pairwise-similarity-changed',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-sentence',
@@ -275,7 +275,7 @@ export const reanchoring: FamilySpec = {
       'A full rewrite is a delete and a new unit',
       'Replace a 120 character sentence with an unrelated one (text similarity under 0.25), neighbours unchanged.',
       'The old id is deleted (quote kept); the new unit has a fresh id; no `changed` event.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-list-item',
@@ -283,7 +283,7 @@ export const reanchoring: FamilySpec = {
       'A rewritten list item is a delete and a new unit',
       'Replace a list item with an unrelated one in place.',
       'Old id deleted, new unit fresh.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-table-cell',
@@ -291,7 +291,7 @@ export const reanchoring: FamilySpec = {
       'A rewritten table cell is a delete and a new unit',
       'Replace a table cell with unrelated text in place.',
       'Old id deleted, new unit fresh.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-heading',
@@ -299,7 +299,7 @@ export const reanchoring: FamilySpec = {
       'A rewritten heading is a delete and a new unit',
       'Replace a heading with an unrelated one in place; the units below stay.',
       'Heading id deleted, new heading fresh; the units below keep their ids.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-ten-in-a-row',
@@ -307,7 +307,7 @@ export const reanchoring: FamilySpec = {
       'Ten rewritten units in a row are all deletes',
       'Replace 10 consecutive units by unrelated ones (the offline run of design 10a mapped 47 of 50 such rewrites to the old unit).',
       'All ten old ids deleted; ten fresh ids; zero wrong anchors.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'rewrite-similar-to-neighbour',
@@ -315,7 +315,7 @@ export const reanchoring: FamilySpec = {
       "A rewrite that resembles a neighbour does not take the neighbour's id",
       "Rewrite unit A into A' which is 0.7 similar to its unchanged neighbour B.",
       "B keeps its id and event `unchanged`; A is deleted; A' has a fresh id.",
-      'anchor:no-anchor-to-claimed-unit',
+      'scan:events-by-id',
     ),
     row(
       'reword-sweep-monotone',
@@ -323,7 +323,7 @@ export const reanchoring: FamilySpec = {
       'Re-anchoring uses both text and context, with the text floor',
       'Five independently generated text-similarity bands, each scanned with unchanged and replaced context; every edit has its own scan pair.',
       'Keep the original id exactly when text similarity exceeds 0.4 and 0.6 × text + 0.4 × context exceeds 0.45; otherwise retain the old tombstone and assign a fresh id. Every replacement has positive source evidence.',
-      'anchor:weighted-text-context-threshold',
+      'scan:events-by-id',
     ),
     row(
       'split-sentence',
@@ -331,7 +331,7 @@ export const reanchoring: FamilySpec = {
       'A sentence split in two is a split',
       'Turn `A, and b.` (A about 80 percent of the text) into the sentences `A.` and `B.`.',
       'The old id is live with event `split` and the quote of one half; the other half has a fresh id; nothing deleted.',
-      'anchor:split-detection',
+      'scan:events-by-id',
     ),
     row(
       'split-list-item',
@@ -339,7 +339,7 @@ export const reanchoring: FamilySpec = {
       'A list item split in two is a split',
       'Turn one long item into two items.',
       'Old id live with event `split`; one fresh id.',
-      'anchor:split-detection',
+      'scan:events-by-id',
     ),
     row(
       'split-three-way',
@@ -347,7 +347,7 @@ export const reanchoring: FamilySpec = {
       'A unit split in three is a split',
       'Turn `A, B and C.` into three sentences.',
       'Old id live with event `split`; two fresh ids.',
-      'anchor:split-detection',
+      'scan:events-by-id',
     ),
     row(
       'merge-sentences',
@@ -355,7 +355,7 @@ export const reanchoring: FamilySpec = {
       'Two sentences joined are a merge',
       'Join two adjacent sentences with `, and`.',
       'One old id is live with event `merged` and the joined quote; the other old id is deleted or merged and not live with different text; the live count equals the new unit count.',
-      'anchor:merge-detection',
+      'scan:events-by-id',
     ),
     row(
       'merge-list-items',
@@ -363,7 +363,7 @@ export const reanchoring: FamilySpec = {
       'Two list items joined are a merge',
       'Join two adjacent items into one.',
       'Same oracle as the sentence merge.',
-      'anchor:merge-detection',
+      'scan:events-by-id',
     ),
     row(
       'merge-with-reword',
@@ -371,7 +371,7 @@ export const reanchoring: FamilySpec = {
       'Two sentences joined and reworded are a merge',
       'Join two sentences and replace one word.',
       'Same oracle as the sentence merge.',
-      'anchor:merge-detection',
+      'scan:events-by-id',
     ),
     row(
       'delete-one',
@@ -379,7 +379,7 @@ export const reanchoring: FamilySpec = {
       'A deleted unit keeps its quote',
       'Remove one long unit.',
       'Its entry has event `deleted`, status not live, the old quote; all other ids `unchanged`.',
-      'anchor:deleted-keeps-quote',
+      'scan:events-by-id',
     ),
     row(
       'delete-section',
@@ -387,7 +387,7 @@ export const reanchoring: FamilySpec = {
       'A deleted section deletes its units',
       'Remove a heading and its five units.',
       'Six entries `deleted` with quotes kept; the others `unchanged`.',
-      'anchor:deleted-keeps-quote',
+      'scan:events-by-id',
     ),
     row(
       'delete-file',
@@ -395,7 +395,7 @@ export const reanchoring: FamilySpec = {
       'A deleted file deletes its units',
       'Remove one file of 10 units from an estate of 4 files.',
       'Ten entries `deleted` with quotes kept; other files `unchanged`.',
-      'anchor:deleted-keeps-quote',
+      'scan:events-by-id',
     ),
     row(
       'replace-whole-file',
@@ -403,7 +403,7 @@ export const reanchoring: FamilySpec = {
       'A file replaced by unrelated text is all deletes and new units',
       'Replace a 20-unit file by 20 unrelated units under the same path.',
       '20 deleted, 20 fresh ids, zero wrong anchors.',
-      'anchor:text-similarity-floor',
+      'scan:events-by-id',
     ),
     row(
       'script-mixed-6',
@@ -411,7 +411,7 @@ export const reanchoring: FamilySpec = {
       'Six mixed edits on 40 units anchor as scripted',
       'Segment script of 6 edits (reword, rewrite, delete, insert, move, split) among 30 kept units; every text that leaves is under 0.39 alike to every text that enters.',
       "Every old unit's outcome class equals the script's; inserted units fresh; live count equals the new unit count.",
-      'anchor:mixed-edit-script',
+      'scan:events-by-id',
       { causeKind: 'composite' },
     ),
     row(
@@ -420,7 +420,7 @@ export const reanchoring: FamilySpec = {
       'Twenty mixed edits on 120 units anchor as scripted',
       'Segment script of 20 edits (all kinds including merge) among 100 kept units, same constraint.',
       'Same oracle.',
-      'anchor:mixed-edit-script',
+      'scan:events-by-id',
       { causeKind: 'composite' },
     ),
     row(
@@ -429,7 +429,7 @@ export const reanchoring: FamilySpec = {
       'Edits across 10 files, with cross-file moves, anchor as scripted',
       '10 files and about 165 units; 15 edits including three moves to another file.',
       'Same oracle, with the path of each moved unit.',
-      'anchor:multi-file-anchoring',
+      'scan:events-by-id',
       { causeKind: 'composite' },
     ),
     row(

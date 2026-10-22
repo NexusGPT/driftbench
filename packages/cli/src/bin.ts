@@ -20,6 +20,13 @@ process.emitWarning = function (warning: string | Error, typeOrOptions?: unknown
   Reflect.apply(emitWarning, this, [warning, typeOrOptions, ...rest]);
 };
 
+// The pointer bank names the module of its reader in DRIFTBENCH_POINTER_SUT (the tests of the bank set it). Keep the
+// value it has now and remove it, before any module loads that holds a reader: a reader that sets the variable when it
+// loads changes nothing in this process, and the process takes the module from the kept value.
+(globalThis as Record<symbol, unknown>)[Symbol.for('driftbench.pointer.sut')] =
+  process.env.DRIFTBENCH_POINTER_SUT ?? '';
+delete process.env.DRIFTBENCH_POINTER_SUT;
+
 // Install the filter before command modules can load SQLite.
 const { main } = await import('./main');
 

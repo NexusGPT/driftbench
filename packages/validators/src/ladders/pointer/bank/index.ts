@@ -6,6 +6,7 @@ import { blindLevels } from './blind';
 import { adversarialRuns } from './families/adversarial';
 import { cuttingRuns } from './families/cutting';
 import { groupingRuns } from './families/grouping';
+import { HARDENING_RUNS } from './families/hardening';
 import { idsRuns } from './families/ids';
 import { labelsRuns } from './families/labels';
 import { linksRuns } from './families/links';
@@ -37,7 +38,7 @@ const RUNNERS: Record<string, Record<string, Run>> = {
 export function pointerBank(): PointerItem[] {
   const items: PointerItem[] = [];
   for (const family of FAMILIES) {
-    const runners = RUNNERS[family.id] ?? {};
+    const runners = { ...(RUNNERS[family.id] ?? {}), ...(HARDENING_RUNS[family.id] ?? {}) };
     for (const spec of family.specs) {
       const run: Run =
         runners[spec.key] ?? (async () => fail(`the item ${family.id}.${spec.key} has no runner yet`));
@@ -55,6 +56,8 @@ export function pointerBank(): PointerItem[] {
         oracle: spec.oracle,
         needs: spec.needs ?? family.needs,
         seedFree: spec.seedFree === true,
+        ...(spec.capMs !== undefined ? { capMs: spec.capMs } : {}),
+        ...(spec.role !== undefined ? { role: spec.role } : {}),
         run,
       });
     }
@@ -67,11 +70,13 @@ export function missingRunners(): string[] {
   const missing: string[] = [];
   for (const family of FAMILIES) {
     for (const spec of family.specs) {
-      if (!RUNNERS[family.id]?.[spec.key]) missing.push(`${family.id}.${spec.key}`);
+      if (!RUNNERS[family.id]?.[spec.key] && !HARDENING_RUNS[family.id]?.[spec.key])
+        missing.push(`${family.id}.${spec.key}`);
     }
   }
   const known = new Set(FAMILIES.flatMap((f) => f.specs.map((s) => `${f.id}.${s.key}`)));
-  for (const [familyId, runners] of Object.entries(RUNNERS)) {
+  for (const familyId of new Set([...Object.keys(RUNNERS), ...Object.keys(HARDENING_RUNS)])) {
+    const runners = { ...(RUNNERS[familyId] ?? {}), ...(HARDENING_RUNS[familyId] ?? {}) };
     for (const key of Object.keys(runners)) {
       if (!known.has(`${familyId}.${key}`)) missing.push(`${familyId}.${key} (runner without a row)`);
     }

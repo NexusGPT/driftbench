@@ -1,13 +1,17 @@
+import { parse as parseYaml } from 'yaml';
 import type {
   Atom,
   CutResult,
   CutUnit,
   Diagnostic,
+  EditClass,
   LedgerEntry,
   LedgerView,
   PointerSut,
+  RerunApi,
   ScanRequest,
   ScanResult,
+  SettingsApi,
   SourceFile,
   StackApi,
   Transport,
@@ -96,6 +100,7 @@ type RResult = {
 };
 type RAtom = {
   kind: string;
+  situation?: string;
   provenance: { file: string; startLine: number; endLine: number; quote: string };
   producedBy: string;
   approved: boolean;
@@ -103,7 +108,22 @@ type RAtom = {
   evidence: Array<Record<string, unknown>>;
 };
 
+type RChange = { id: string; class: string; path: string; sectionPath: string[]; quote: string };
+type RRerun = { units: Map<string, string[]>; advisory: Map<string, string[]>; whole: string | null };
+
+type RSettings =
+  | {
+      ok: true;
+      settings: { threshold?: { labeler?: number; passAt?: number; failAt?: number; marginCut?: number } };
+    }
+  | { ok: false; errors: string[] };
+
 export type ReaderExports = {
+  /** Optional reader of the settings file. */
+  parsePointerSettings?(value: unknown): RSettings;
+  /** Optional rerun rule of the ledger: absent exports fail the items that need them, explicitly. */
+  ledgerChanges?(before: RLedger, after: RLedger): RChange[];
+  rerunOf?(changes: readonly RChange[], before: RLedger): RRerun;
   /** Optional stack observables. Unsupported rules fail explicitly. */
   margin?: StackApi['margin'];
   stackDecision?: StackApi['decide'];
@@ -368,10 +388,16 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
   };
 }
 
+/**
+ * The offline environment of a recording scan. Every labeler needs its key and, for the system 1 client, an address
+ * before the reader lets a run record. Nothing here is real: the address is a reserved `.invalid` name, and the
+ * scan sends every request through the fake transport of the item, so no socket opens.
+ */
 const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_URL: 'https://jev.invalid/v1/systemone',
 };
 
 function fetchOf(
@@ -508,6 +534,7 @@ function atomOf(atom: RAtom): Atom {
   return {
     kind: atom.kind,
     ...(polarity ? { polarity } : {}),
+    ...(typeof atom.situation === 'string' && atom.situation !== '' ? { situation: atom.situation } : {}),
     file: atom.provenance.file,
     startLine: atom.provenance.startLine,
     endLine: atom.provenance.endLine,
@@ -519,12 +546,83 @@ function atomOf(atom: RAtom): Atom {
       unit: String(fields.unit ?? ''),
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
+      ...(Array.isArray(fields.condition) ? { condition: fields.condition.map(String) } : {}),
     },
-    evidence: atom.evidence.map((e) => ({
-      type: String(e.type),
-      name: String(e.name ?? ''),
-      ...(typeof e.reviewRequired === 'boolean' ? { reviewRequired: e.reviewRequired } : {}),
-    })),
+    evidence: atom.evidence.map((e) => {
+      // The reader keeps the settings of a custom check under `options`; the binding passes them on whole.
+      const options =
+        typeof e.options === 'object' && e.options !== null
+          ? (e.options as Record<string, unknown>)
+          : undefined;
+      const reviewRequired =
+        typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options?.reviewRequired;
+      return {
+        type: String(e.type),
+        name: String(e.name ?? ''),
+        ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
+        ...(options ? { options } : {}),
+      };
+    }),
+  };
+}
+
+/** The settings reader of the reader: the text is parsed as YAML here, every decision about it is the reader's. */
+function settingsOf(reader: ReaderExports): SettingsApi {
+  const keys = { labeler: 'labeler', passAt: 'pass_at', failAt: 'fail_at', marginCut: 'margin_cut' } as const;
+  return {
+    parse(text) {
+      if (!reader.parsePointerSettings)
+        throw new ReaderNotReachable('the reader does not export parsePointerSettings');
+      let value: unknown;
+      try {
+        value = parseYaml(text);
+      } catch (cause) {
+        return {
+          ok: false,
+          errors: [cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause)],
+        };
+      }
+      const out = reader.parsePointerSettings(value);
+      if (!out.ok) return { ok: false, errors: out.errors };
+      const thresholds: Record<string, number> = {};
+      for (const [name, key] of Object.entries(keys)) {
+        const given = out.settings.threshold?.[name as keyof typeof keys];
+        if (given !== undefined) thresholds[key] = given;
+      }
+      return { ok: true, thresholds };
+    },
+  };
+}
+
+/** The rerun rule of the reader's ledger, mapped onto the port without any decision of the adapter's own. */
+function rerunOf(reader: ReaderExports): RerunApi {
+  const parse = (view: LedgerView): RLedger => {
+    const ledger = reader.parseLedger(view.raw);
+    if (!ledger) throw new ReaderNotReachable('the reader cannot read the ledger it wrote');
+    return ledger;
+  };
+  const changes = (previous: LedgerView, current: LedgerView): { before: RLedger; list: RChange[] } => {
+    if (!reader.ledgerChanges || !reader.rerunOf)
+      throw new ReaderNotReachable('the reader does not export ledgerChanges and rerunOf');
+    const before = parse(previous);
+    return { before, list: reader.ledgerChanges(before, parse(current)) };
+  };
+  return {
+    classify(previous, current) {
+      return changes(previous, current).list.map((change) => ({
+        id: change.id,
+        class: change.class as EditClass,
+      }));
+    },
+    rerun(previous, current) {
+      const { before, list } = changes(previous, current);
+      const out = (reader.rerunOf as NonNullable<ReaderExports['rerunOf']>)(list, before);
+      return {
+        units: [...out.units.keys()].sort(),
+        advisory: [...out.advisory.keys()].sort(),
+        whole: out.whole,
+      };
+    },
   };
 }
 
@@ -532,6 +630,7 @@ function atomOf(atom: RAtom): Atom {
 export function realReader(): PointerSut {
   return {
     name: 'pointer-reader',
+    isolate: true,
     ready: async () => {
       await load();
     },
@@ -541,6 +640,11 @@ export function realReader(): PointerSut {
       return { units: out.units.map(toUnit), cutDigest: out.digest };
     },
     scan: async (request) => scan(await load(), request),
+    rerun: {
+      classify: async (previous, current) => rerunOf(await load()).classify(previous, current),
+      rerun: async (previous, current) => rerunOf(await load()).rerun(previous, current),
+    },
+    settings: { parse: async (text) => settingsOf(await load()).parse(text) },
     stack: {
       margin: async (probabilities) => stackOf(await load()).margin(probabilities),
       decide: async (request) => stackOf(await load()).decide(request),
@@ -557,6 +661,8 @@ export function readerAdapter(reader: ReaderExports): PointerSut {
       return { units: out.units.map(toUnit), cutDigest: out.digest };
     },
     scan: (request) => scan(reader, request),
+    rerun: rerunOf(reader),
+    settings: settingsOf(reader),
     stack: stackOf(reader),
   };
 }

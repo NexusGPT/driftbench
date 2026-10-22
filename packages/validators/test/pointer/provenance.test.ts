@@ -3,19 +3,27 @@ import { bankSummary, formatItems } from '../../src/bank';
 import { runSeeds } from '../../src/ladder';
 import { BLIND_PROVENANCE, blindLevels } from '../../src/ladders/pointer/bank/blind';
 import { pointerBank, pointerBankLadder } from '../../src/ladders/pointer/bank/index';
+import { HARDENING_IDS } from '../../src/ladders/pointer/bank/specs/provenance';
 import { referenceSut } from './reference/index';
 
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
+/** The 419 items of the repaired bank, and the items the four audits added after it. */
+const REPAIRED = 419;
+const AUDITED = HARDENING_IDS.size;
 
 describe('the provenance of the first bank', () => {
-  it('labels every item, and the labels cover the 419 items', () => {
-    expect(pointerBank()).toHaveLength(419);
-    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(419);
+  it('labels every item, and the labels cover the 419 items and those the audits added', () => {
+    expect(pointerBank()).toHaveLength(REPAIRED + AUDITED);
+    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(
+      REPAIRED + AUDITED,
+    );
   });
 
-  it('labels the stack and label-set validation items as maintainer-added', () => {
+  it('labels the stack, label-set validation and audit items as maintainer-added', () => {
     const added = pointerBank().filter((i) => i.provenance === 'maintainer-added');
-    expect(added.every((i) => /^labels\.(stack-|set-validation-)/.test(i.id))).toBe(true);
+    expect(
+      added.every((i) => /^labels\.(stack-|set-validation-)/.test(i.id) || HARDENING_IDS.has(i.id)),
+    ).toBe(true);
   });
 });
 
@@ -24,9 +32,9 @@ describe('the first bank claims no blind item', () => {
     expect(pointerBank().filter((i) => i.provenance === 'blind')).toEqual([]);
   });
 
-  it('labels the 402 original items maintainer-repaired and the 17 later ones maintainer-added', () => {
+  it('labels the 402 original items maintainer-repaired and the 17 later ones, with the audit items, maintainer-added', () => {
     expect(count('maintainer-repaired')).toBe(402);
-    expect(count('maintainer-added')).toBe(17);
+    expect(count('maintainer-added')).toBe(17 + AUDITED);
   });
 });
 

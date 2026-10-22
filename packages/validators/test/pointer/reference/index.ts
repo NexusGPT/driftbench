@@ -1,7 +1,9 @@
 import type { PointerSut } from '../../../src/ladders/pointer/sut/port';
 import { cutText } from './cut';
 import { referenceLinks } from './links';
+import { referenceRerun } from './rerun';
 import { scanEstate } from './scan';
+import { referenceSettings } from './settings';
 import { referenceStack } from './stack';
 
 /**
@@ -19,6 +21,8 @@ export function referenceSut(): PointerSut {
       return scanEstate(request);
     },
     links: referenceLinks,
+    rerun: referenceRerun,
+    settings: referenceSettings,
     stack: referenceStack,
   };
 }

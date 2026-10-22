@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { resolveSut } from '../sut/adapter';
+import { pinSut, resolveSut } from '../sut/adapter';
 import type { ModelArm, ScanRequest, SourceFile } from '../sut/port';
 import { constant, perfect } from './labellers';
 import { runScaleOp, type ScaleOp } from './scale';
@@ -40,6 +40,8 @@ export type JobOutput =
   | { ok: false; error: string };
 
 async function run(job: Job): Promise<JobOutput> {
+  // Before the reader loads: a change of the variable from now on changes nothing.
+  pinSut();
   const sut = await resolveSut();
   if (job.kind === 'cut') return { ok: true, result: await sut.cut(job.file) };
   if (job.kind === 'scale') return { ok: true, result: await runScaleOp(job, sut) };

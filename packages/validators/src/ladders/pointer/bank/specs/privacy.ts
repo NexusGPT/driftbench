@@ -54,7 +54,7 @@ export const privacy: FamilySpec = {
       'The model key is never printed or recorded',
       'Key files with a planted key value placed under the sandbox `~/.nexus-secrets/` under four plausible names; Haiku port on a fake transport.',
       'The key value is absent from the cassette, ledger, atoms, stdout, stderr and thrown errors.',
-      'privacy:key-never-printed',
+      'transport:scan-completes-with-the-key-present',
       { needs: ['transport', 'cassette', 'child'] },
     ),
     row(

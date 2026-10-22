@@ -51,7 +51,10 @@ export function planWindows(
   let groupSize = 0;
   for (const section of sections) {
     const sectionSize = size(section);
-    if (group.length > 0 && groupSize + sectionSize > WINDOW_CHARS) {
+    // A window ends where the next top-level heading starts, and when the next section would pass the size bound.
+    const first = units[section[0] as number] as NewUnit;
+    const topLevel = first.container === 'heading' && first.sectionPath.length === 0;
+    if (group.length > 0 && (topLevel || groupSize + sectionSize > WINDOW_CHARS)) {
       groups.push(group);
       group = [];
       groupSize = 0;

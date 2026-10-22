@@ -72,7 +72,16 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
           `the label "${name}" in the set "${set.set}" has target ${JSON.stringify(label.target)}, only "required" is allowed`,
         );
       }
+      if (label.condition !== undefined && label.condition !== true)
+        fail(
+          `the label "${name}" in the set "${set.set}" has condition ${JSON.stringify(label.condition)}, only true is allowed`,
+        );
+      if (label.condition === true && label.target !== 'required')
+        fail(`the label "${name}" is a condition and needs target: required`);
+      if (label.condition === true && label.atom !== undefined)
+        fail(`the label "${name}" is a condition and builds no atom of its own: it takes no atom mapping`);
       const def: LabelDef = { name, description: label.description };
+      if (label.condition === true) def.condition = true;
       if (Array.isArray(label.examples)) def.examples = label.examples.map(String);
       if (label.target === 'required') def.target = 'required';
       if (label.atom && typeof label.atom === 'object') {

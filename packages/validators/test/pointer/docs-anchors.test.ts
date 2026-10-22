@@ -34,7 +34,7 @@ const FAMILY_SECTIONS: Record<string, string[]> = {
   replay: ['5-cache-and-cassette', 'cassette-integrity-on-a-key-hit'],
   privacy: ['11-model-key-and-cost'],
   links: ['7-layer-c-links-and-monitoring'],
-  radius: ['7-layer-c-links-and-monitoring'],
+  radius: ['7-layer-c-links-and-monitoring', 'rerun-after-an-edit'],
   scale: ['2-layer-a-cutting'],
   adversarial: ['2-layer-a-cutting', 'sentence-boundaries-and-generic-templates'],
 };
