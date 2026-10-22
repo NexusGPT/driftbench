@@ -1,8 +1,8 @@
 # Quickstart
 
-About two minutes, most of it the install. You need Node 22.13 or newer and npm. No API key: the agent below is a short script that stands in for yours.
+About two minutes once driftbench is installed. The install needs Node 22.13 or newer, git, pnpm 10 and a clone of the repository, as the [guide index](index.md#install) shows. The build takes a few minutes. No API key is needed: the agent below is a short script that stands in for yours.
 
-This page uses `campaign run`, which runs test files you wrote against any target. If your agent is a Claude Code folder and you want driftbench to write the tests, use `estate run` in the [walkthrough](walkthrough.md) instead.
+This page uses `campaign run`, which runs test files you wrote against any target. A **campaign** is one run of all your tests, kept under an id. If your agent is a Claude Code folder and you want driftbench to write the tests, use `estate run` in the [walkthrough](walkthrough.md) instead.
 
 **1. Make a folder and install.**
 
@@ -45,7 +45,9 @@ if (/refund/i.test(message)) {
 }
 ```
 
-**3. Create `specs/refund.yaml`.** Each block is one test, with its starting conditions (`given`), the user's message and the expected reply. The spec-level `given` seeds order A-1042 in the agent's working folder and sets the channel. Block 2 starts from a `prefix`, so it runs without replaying block 1.
+**If it goes wrong (step 2).** The script fails when you run it by hand. It reads `DRIFTBENCH_HISTORY_FILE`, which driftbench sets during a run. Create a file that holds `[]` with `echo '[]' > h.json`, then pipe a message in: `echo refund | DRIFTBENCH_HISTORY_FILE=h.json node agent.mjs`.
+
+**3. Create `specs/refund.yaml`.** Each block is one test, with its starting conditions (`given`), the user's message and the expected reply. The spec-level `given` seeds order A-1042 in the agent's working folder and sets the channel. The second block starts from a `prefix`. A prefix is the earlier messages of the conversation. It lets the block run without replaying the first block.
 
 **Why.** A spec is the test: what the user says and what the agent must answer. Everything driftbench reports comes from specs.
 
@@ -94,7 +96,9 @@ $ driftbench campaign run specs --target process:my-agent --process-command "[\"
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
 
-**5. Break the agent and run again.** Change `Refund started for order` to `Started a return for` in `agent.mjs`. The run now exits 1 and names the block and the check:
+The `hash` after the spec is a short fingerprint of its content. It changes when you edit the file. A **cell** is one test run once. Here there is one test, so there is one cell.
+
+**5. Break the agent and run again.** Change `Refund started for order` to `Started a return for` in `agent.mjs`. The run now exits 1 and names the block and the check. The output counts blocks from 0, so `block 1` is the second block:
 
 **Why.** A test that cannot fail proves nothing. Breaking the agent on purpose shows you what a failure looks like, and that the report names the block and the check.
 
@@ -103,6 +107,8 @@ $ driftbench campaign run specs --target process:my-agent --process-command "[\"
 ✗ refund-happy-path · process:my-agent · F · repeat 0  fail  block 1 must.0
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
+
+**If it goes wrong.** The run still passes: the text you changed is not the text the agent prints. Search `agent.mjs` for `Refund started for order` and change exactly that. The run exits 0 with a different error: the folder or the command changed. Run step 4 again to check the starting point.
 
 **6. Keep the runs and open the scorecard.** Run step 4 again with `--repeats 3 --store runs.db`, then write the scorecard.
 

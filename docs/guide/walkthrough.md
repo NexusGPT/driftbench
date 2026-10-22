@@ -92,7 +92,9 @@ export ANTHROPIC_LABELER_MODEL=claude-haiku-5-5
 driftbench estate build my-agent --out build --pointer --labeler system2:anthropic --cassette my-agent.cassette.jsonl --record
 ```
 
-`--labeler system2:anthropic` picks the labeler: `system2` is the careful kind, a large model that reads each sentence. A `system1` labeler is a quick, cheap one that answers yes or no. `anthropic` is who runs it. `--cassette my-agent.cassette.jsonl` is where its answers are kept, and `--record` writes them there, so the next run is free.
+`ANTHROPIC_LABELER_MODEL` is read by the `anthropic` labeler. It names the model that labels your sentences. Without it the labeler uses `claude-haiku-5-5`, so the line is optional. `--labeler system2:anthropic` picks the labeler: `system2` is the careful kind, a large model that reads each sentence. A `system1` labeler is a quick, cheap one that answers yes or no. `anthropic` is who runs it. `--cassette my-agent.cassette.jsonl` is where its answers are kept, and `--record` writes them there, so the next run is free.
+
+**What it costs.** We ran this command once on the example agent with `claude-haiku-5-5`. It sent 100 requests to the model, one for each chunk of prose, and it found 114 atoms, 67 of them from prose. The command prints no cost and we did not measure one, so check your spend on the Anthropic console after the first run. The numbers differ from the recorded example, because a live model answers differently each time.
 
 **Why you do this.** The example replays recorded answers, so it needs no key. Your own prose has no recording yet, so a model must read it once, and the cassette keeps what it said.
 
@@ -106,6 +108,10 @@ driftbench estate build my-agent --out build --pointer --labeler system2:anthrop
   - `estate plan build/approved.yaml --space build/space.yaml --out build/plan.yaml`: chooses which situations to test, so that every pair of situations is covered at least once · `--space` is the file above, `--out` the plan · it produces `build/plan.yaml`, with one row per test.
   - `estate plan approve build/plan.yaml --all`: **second question.** You approve the planned tests · `--all` approves every row · it updates `build/plan.yaml`. If you say no, no test is written and the command stops.
   - `estate generate --map build/approved.yaml --plan build/plan.yaml --out build/generated`: writes one test file per planned test · the three paths are the inputs and the output folder · it produces `build/generated`, with the tests and a report of what each incomplete test still needs.
+
+**Why it runs in these steps.** Each step needs the file the step before it wrote. The two questions stop the chain before it spends effort on atoms or tests you do not want.
+
+**If a step fails.** `estate build` stops at that step and keeps the files of the steps before it. Read the message, fix the cause, and run the same command again. A step whose input did not change is skipped, so nothing is repeated. To run one step by hand, use the single command shown in the list above.
 
 **Look at and decide.** Run it without `--yes`. In a terminal it asks. Here there is no terminal, so it stops at the first question and tells you what to type:
 
@@ -231,7 +237,7 @@ $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" bu
 
 `producedBy: model` says that a model, not code, found this atom in prose, so you approved it in step 1. An atom that code read from a heading, a list or a settings file says `producedBy: code`, and needs no approval. `quote` and `hash` let driftbench check later that the sentence in your file is still the one the atom quotes.
 
-The first three of the tests that name it:
+The first three of the tests that name it. The files named `pairwise` are tests of the plan. They cross this rule with other situations, such as a kind of ask with a kind of session:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | sort | head -3
@@ -317,7 +323,7 @@ The folders under `live` group the tests by kind. The folder `obligation` holds 
 
 **Relevant commands.**
 
-- `estate run`: starts the agent in a throw-away copy of your folder, sends the test's message and checks what the agent did · `<test file>` is the test to run. `--estate northwind` is your agent's folder, copied for the run. `--runtime claude-code` is the only runtime today. `--command northwind/live/fake/claude.mjs` is the program that stands in for the agent. For your agent it is `claude`. `--set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json"` hands the stand-in the file of its recorded answers. `--store original.db` is the file where the run is kept. `--map build/approved.yaml` checks that the copy is the folder you approved. `--states northwind/live/states/library.json` is a file of session states the stand-in plays · it prints one line per test and writes the run to `original.db`.
+- `estate run`: starts the agent in a throw-away copy of your folder, sends the test's message and checks what the agent did · `<test file>` is the test to run. `--estate northwind` is your agent's folder, copied for the run. `--runtime claude-code` is the only runtime today. `--command northwind/live/fake/claude.mjs` is the program that stands in for the agent. For your agent it is `claude`. `--set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json"` hands the stand-in the file of its recorded answers. `--store original.db` is the file where the run is kept. `--map build/approved.yaml` checks that the copy is the folder you approved. `--states northwind/live/states/library.json` is a file of session states the stand-in plays. A **session state** is where the conversation stands when a test starts, such as `resumed`. The file is a **state library** · it prints one line per test and writes the run to `original.db`.
 
 ```console
 $ driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map build/approved.yaml --states northwind/live/states/library.json   # exit 1
@@ -367,6 +373,10 @@ $ driftbench radius ledger build/map.yaml --ledger build/ledger.json --out chang
 $ driftbench radius build/generated/specs/live --change change.yaml
 ```
 
+**Why two commands.** The first turns your edit into a change file. The second reads the links of the tests and lists those the change can reach.
+
+**If these fail.** `Cannot find build/map.yaml`: you are not in the folder that holds `build`. `Units: ... 0 changed`: the file you edited is not under the estate folder, or it was not saved. An empty list: the edited sentence holds no atom, so reword it as an instruction and build again.
+
 **You get and how to read it.** The output uses four words. A **block** is one test message with its checks. A **cell** is one test file run once. **Mode F** means the agent runs the whole conversation on its own replies. The **manifest** is a short id of the change file. First the count, then the list:
 
 ```text
@@ -382,6 +392,8 @@ Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, 
 In the radius, mode F:
   spec                                                                             blocks in  from  why
   estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and       1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and  1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.twin.instruction.weekly-report.count-only-what-the-ledger-and             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
   estate.pairwise.0107                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
   estate.pairwise.0177                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
@@ -389,6 +401,15 @@ In the radius, mode F:
 Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. So the 16 blocks are 16 files, 3 named for the rule and 13 from the plan.
 
 **Which id to grep for.** The first line of the radius output ends with `prompt:` and the id of the atom you changed. Here it is `instruction.weekly-report.count-only-what-the-ledger-and`. On your own agent it is the text after `prompt:`, without the final full stop. The tests that name an atom hold a line `- <atom id>` in their links, so a `grep` for that line finds them.
+
+**How to get a baseline.** A baseline is a full run before the edit. You compare the rerun with it. Run all tests once on the unedited folder, and keep the store. For the stand-in, in the example, that is:
+
+```bash
+find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort > all.txt
+driftbench estate run --order all.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store before.db --states northwind/live/states/library.json
+```
+
+This page does not run it, because the stand-in reruns of the other steps already show the same output. With a real agent, the full run is billed, so size it first. `estate run` has no flag to repeat each test. To repeat a run, run the same command again with a new `--store`, such as `before-2.db`.
 
 **Rerun them.** Write the 16 names into a file, count them, and run exactly those with the same `estate run` as in step 3. `--order` takes the file of names. `--map` is left out because the files changed since the map was written:
 
@@ -404,7 +425,7 @@ note: the estate copy is not pinned to a map hash; pass --map to pin it
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 ```
 
-The last line of the output reads `16 specs run live on a stand-in: 0 pass, 16 fail (1 undecided: only inconclusive checks).` It then gives the cost and a campaign id that changes at every run. A **campaign** is one run of a set of tests, kept in the store under that id. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 1235 blocks are not run. This walkthrough ran only one test, so it has no earlier results for them. In a real project you run the whole suite once with `estate run`, and the results of the untouched tests stay in that first store. `edited.db` holds only the 16 you reran, because `estate run` has no option that copies old results into a new store.  The [rerun less](rerun-less.md) part shows `campaign run --change --from`, which does carry old results for suites run with `campaign run`. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
+The last line of the output reads `16 specs run live on a stand-in: 0 pass, 16 fail (1 undecided: only inconclusive checks).` The 1 undecided test is counted inside the 16 that did not pass. It has no verdict, so it cannot pass. The line then gives the cost and a campaign id that changes at every run. A **campaign** is one run of a set of tests, kept in the store under that id. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 1235 blocks are not run. This walkthrough ran only one test, so it has no earlier results for them. In a real project you run the whole suite once with `estate run`, and the results of the untouched tests stay in that first store. `edited.db` holds only the 16 you reran, because `estate run` has no option that copies old results into a new store.  The [rerun less](rerun-less.md) part shows `campaign run --change --from`, which does carry old results for suites run with `campaign run`. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
 
 **Rerun them on your own agent.** Use the real agent and a judge, as in step 3. It is billed, so the judge cap and the test cap stay. Not every test of the list can run on a real agent. The 13 `pairwise` tests start the agent in a session state such as `resumed` or `after_compaction`. A **session state** is where the conversation stands when the test starts. For example, `resumed` means the user comes back to an earlier session, and `after_compaction` means the agent has just shortened a long conversation. A **state library** is a file that tells driftbench how to put the agent in each state. A real agent needs one. Without one, those tests stop with an error. The 3 tests named for the rule need no state. Run these 3 first. The `rerun-rule.txt` file holds them:
 

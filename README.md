@@ -122,7 +122,7 @@ You give driftbench what defines the agent: its prompt, its skills and its tool 
 
 <details><summary>How to do it: link a test to a rule</summary>
 
-Each rule of the prompt gets an id. A block names it in `metadata.links`. After an edit, the change file says which rule changed, and `driftbench radius` lists the blocks to rerun.
+Each rule of the prompt gets an id. A block names it in `metadata.links`. After an edit, the change file says which rule changed, and `driftbench radius` lists the blocks to rerun. That list is the **blast radius**: the blocks an edit can affect. The **ledger** is the file of sentence ids that driftbench keeps beside the map, and a **ledger id** is the id of one sentence.
 
 ```yaml
 # file: rule-links.spec.yaml
@@ -156,7 +156,7 @@ changes:
     note: 'unit wrl4c7wlvb: changed'
 ```
 
-The spec holds one block, and its link says: this block verifies the rule `wrl4c7wlvb`. The change file says that rule changed. The [walkthrough](docs/guide/walkthrough.md) runs this on a full suite and prints 16 of 1251 blocks. [Full description](docs/innovations.md#rules-with-an-id-link-a-prompt-line-to-its-tests).
+The spec holds one block, and its link says: this block verifies the rule `wrl4c7wlvb`. `status: declared` means a generator wrote the link and nothing has checked it. It is not yet proved by a deletion. `estate mutate` deletes the rule's line, the tests run again, and a link whose test fails is marked `verified`. The change file says that rule changed. The [walkthrough](docs/guide/walkthrough.md) runs this on a full suite and prints 16 of 1251 blocks. [Full description](docs/innovations.md#rules-with-an-id-link-a-prompt-line-to-its-tests).
 
 </details>
 
@@ -191,7 +191,7 @@ You do not write the tests one by one. You list what the agent can face, and you
 
 <details><summary>How to do it: generate the tests of the example agent</summary>
 
-The command reads an approved map of the situations of the Acme example agent and writes the tests. No model is called.
+The command reads an approved map of the situations of the Acme example agent and writes the tests. No model is called. Use `driftbench generate` with a map of situations that you approved. Use `driftbench estate build` or `estate generate` when the tests come from an agent folder, as in the [walkthrough](docs/guide/walkthrough.md).
 
 ```console
 $ driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2   # exit 1
