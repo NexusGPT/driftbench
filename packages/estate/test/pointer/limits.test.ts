@@ -273,7 +273,9 @@ describe('a labeller returns a numeric limit as structured fields', () => {
   });
 
   it('accepts a limit on a gate atom', async () => {
-    const root = await estate({ 'CLAUDE.md': ['# Harbour office', '', '- Check the tide table', ''].join('\n') });
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Check the tide table', ''].join('\n'),
+    });
     const labeler = plantedDense((window) =>
       window.path === 'CLAUDE.md'
         ? ([
@@ -286,14 +288,23 @@ describe('a labeller returns a numeric limit as structured fields', () => {
       root,
       reader: new ClaudeCodeReader(),
       now: NOW,
-      pointer: { sets: sets(), labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
     });
-    const gate = result.map.atoms.find((atom) => atom.kind === 'gate' && atom.provenance.quote === 'Check the tide table');
+    const gate = result.map.atoms.find(
+      (atom) => atom.kind === 'gate' && atom.provenance.quote === 'Check the tide table',
+    );
     expect(gate?.fields?.condition).toEqual([{ limit: 2, comparison: 'le', unit: 'hours' }]);
   });
 
   it('drops a limit on any other kind of atom, and says which unit gave it', async () => {
-    const root = await estate({ 'CLAUDE.md': ['# Harbour office', '', '- Reply in the skipper language', ''].join('\n') });
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Reply in the skipper language', ''].join('\n'),
+    });
     const labeler = plantedDense((window) =>
       window.path === 'CLAUDE.md'
         ? ([
@@ -306,7 +317,12 @@ describe('a labeller returns a numeric limit as structured fields', () => {
       root,
       reader: new ClaudeCodeReader(),
       now: NOW,
-      pointer: { sets: sets(), labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
     });
     const register = result.map.atoms.find((atom) => atom.kind === 'register');
     expect(register).toBeDefined();
