@@ -165,6 +165,17 @@ export type PointerResult = {
   recorded: number;
 };
 
+/** The sections a window sits in: the headings above its first unit and, when it starts at a heading, that heading. */
+function pathOf(first: Unit | undefined): string[] {
+  if (!first) return [];
+  if (first.container !== 'heading') return first.path;
+  const title = (first.text.split(/\r\n|\r|\n/, 1)[0] ?? '')
+    .replace(/^\s*#{1,6}\s*/, '')
+    .replace(/\s+#+\s*$/, '')
+    .trim();
+  return title === '' ? first.path : [...first.path, title];
+}
+
 /**
  * The characters of units one window holds before a file is split. About 100,000 tokens at four characters a token:
  * a file under it is one window, whatever its headings.
@@ -251,7 +262,7 @@ export function windowsOf(
     windows.push({
       id: `${path}#${at + 1}`,
       path,
-      headingPath: units[group[0] as number]?.path ?? [],
+      headingPath: pathOf(units[group[0] as number]),
       units: members,
       ...(display.length > 0 ? { display } : {}),
     });

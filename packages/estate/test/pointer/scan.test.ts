@@ -1412,3 +1412,19 @@ describe('a rescan sends the units it needs and shows the others as context', ()
     }
   });
 });
+
+describe('the path of a window and the layout of its request', () => {
+  it('names the heading a window starts at, after the headings above it', () => {
+    const text = '# Emails\n\nGreet the client.\n\n## Tone\n\nStay calm.\n';
+    const [window] = windowsOf('emails.md', cut(text).units, 1000, text);
+    expect(window?.headingPath).toEqual(['Emails']);
+    const body = createAnthropicLabeler({}).render(load(SETS)[0] as LabelSet, window as Window).body as {
+      messages: Array<{ content: string }>;
+    };
+    const lines = (body.messages[0]?.content ?? '').split('\n');
+    expect(lines[0]).toBe('SET duty');
+    expect(lines[1]).toMatch(/^DESCRIPTION /);
+    expect(lines[2]).toBe('LABELS order | remark | none');
+    expect(lines.find((line) => line.startsWith('WINDOW '))).toBe('WINDOW emails.md#1  path: Emails');
+  });
+});
