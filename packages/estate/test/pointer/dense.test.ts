@@ -33,6 +33,7 @@ describe('the dense request', () => {
   });
 
   it('tells the labeler in the first request that a line marked not labelable takes no label, none included', () => {
+    expect(DENSE_SYSTEM).toContain('A label that asks for a target always names one.');
     expect(DENSE_SYSTEM).toContain(
       'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
     );
@@ -295,6 +296,35 @@ describe('the second request after a refused answer', () => {
     // A window with no shown line adds nothing beyond the note of the first retry.
     await labeler.call?.(wire, BAKE, windowOf(1), 2);
     expect(String(calls[2]?.body.system)).not.toContain('not labelable: give');
+  });
+
+  it('names, from the set, the labels that ask for a target, and says each entry with one names its target', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const needing = RULES.labels.filter((label) => label.target === 'required').map((label) => label.name);
+    expect(needing.length).toBeGreaterThan(1);
+    const wire = labeler.render(RULES, windowOf(1));
+    await labeler.call?.(wire, RULES, windowOf(1), 1);
+    await labeler.call?.(wire, RULES, windowOf(1), 2);
+    expect(String(calls[0]?.body.system)).not.toContain('ask for a target:');
+    expect(String(calls[1]?.body.system)).toContain(
+      `Labels that ask for a target: ${needing.join(', ')}. An entry with one of them always names its target.`,
+    );
+    // A set whose labels ask for no target adds nothing.
+    const plain = labeler.render(BAKE, windowOf(1));
+    await labeler.call?.(plain, BAKE, windowOf(1), 2);
+    expect(String(calls[2]?.body.system)).not.toContain('ask for a target:');
   });
 });
 
