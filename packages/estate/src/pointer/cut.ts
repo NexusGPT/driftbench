@@ -58,14 +58,15 @@ const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 function mask(text: string): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
-  // An email address is one word: the dots inside it are no stops. An ellipsis in square brackets marks an omission.
+  // An email address is one word: the dots inside it are no stops (tried only where a run of its characters starts,
+  // so a long run without an @ is read once). An ellipsis in square brackets marks an omission.
   // An ellipsis that opens a sentence after a stop reads as the capital of that sentence. Any other three dots,
   // spaced or not, or the ellipsis character, never end a sentence: a fourth dot after them is the full stop.
   return text
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
-    .replace(/[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
+    .replace(/(?<![\p{L}\p{N}._%+-])[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
     .replace(/\[(?:\.\.\.|…)\]/g, letters)
     .replace(
       /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
