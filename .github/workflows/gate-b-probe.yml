@@ -49,4 +49,4 @@ jobs:
         continue-on-error: true
         run: pnpm typecheck
       - name: Harness tests
-        run: pnpm exec vitest run packages/estate/test/pointer packages/estate/test/gold packages/cli/test/gold-chain --maxWorkers=2
+        run: pnpm exec vitest run packages/estate/test/variables packages/estate/test/gold packages/cli/test/gold-chain --maxWorkers=2
