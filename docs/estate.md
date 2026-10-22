@@ -135,7 +135,7 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
     invariant      4
   Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).
   Pointer reader: system 1 <choice labeler> then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
+  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 136.
   Document roles: 5 files labelled by the document-roles set; requests 30 answered, 0 sent, 0 recorded.
@@ -153,6 +153,7 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
     refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (gate): the label gate needs a span, a link or a code span that the unit does not give
     refused: .claude/skills/supplier-email/SKILL.md unit dgwysklcdn (gate): the label gate needs a span, a link or a code span that the unit does not give
     refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate-same): the label gate-same needs a span, a link or a code span that the unit does not give
+    refused: CLAUDE.md unit nm5qvlsrod (gate-command): the label gate-command needs a span, a link or a code span that the unit does not give
     dropped: .claude/agents/route-planner.md#1: unit [7] span {"from":0,"kind":"governed-action","to":38}: the kind "governed-action" is not one the label rule may carry
     dropped: .claude/agents/route-planner.md#1: unit [7] span {"from":0,"kind":"ask-text","polarity":"positive","to":38}: the kind ask-text carries no polarity
     dropped: .claude/skills/invoice-reconcile/SKILL.md#2: unit [3] span {"from":0,"kind":"situation","to":30}: the kind "situation" is not one the label gate may carry
