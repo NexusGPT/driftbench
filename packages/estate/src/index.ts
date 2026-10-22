@@ -159,7 +159,12 @@ export {
   validatePlan,
 } from './plan';
 export * as pointer from './pointer';
-export type { RegistryRole, RegistryRoles } from './pointer/registry-roles-set';
+export type {
+  RegistryRole,
+  RegistryRoles,
+  RegistryRolesInput,
+  RegistryTableRef,
+} from './pointer/registry-roles-set';
 export {
   AtomBuilder,
   acceptProse,

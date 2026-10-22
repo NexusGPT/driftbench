@@ -1,4 +1,4 @@
-import type { RegistryRoles } from '../pointer/registry-roles-set';
+import type { RegistryRolesInput } from '../pointer/registry-roles-set';
 import { ClaudeCodeReader } from './claude-code';
 import type { EstateReader } from './reader';
 
@@ -108,7 +108,7 @@ export const RUNTIMES = ['claude-code'] as const;
 /** A reader for a runtime, or undefined for a runtime the scanner does not know. */
 export function readerFor(
   runtime: string,
-  options: { ignore?: readonly string[]; userSkills?: string; registryRoles?: RegistryRoles } = {},
+  options: { ignore?: readonly string[]; userSkills?: string; registryRoles?: RegistryRolesInput } = {},
 ): EstateReader | undefined {
   return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
 }

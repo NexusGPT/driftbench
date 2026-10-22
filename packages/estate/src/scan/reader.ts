@@ -129,6 +129,8 @@ export type RegistryTable = {
   header: string[];
   /** The line of the header row in the file. */
   headerLine: number;
+  /** The place of the table among the tables of its file, from 0. */
+  index: number;
   rows: Array<{ cells: string[]; line: number; text: string }>;
 };
 

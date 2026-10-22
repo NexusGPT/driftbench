@@ -21,6 +21,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
 * [EstateMap registryRoles](#estatemap-registryroles)
+* [EstateMap registryRoles tables](#estatemap-registryroles-tables)
 * [EstateMap producedBy](#estatemap-producedby)
 * [Plan](#plan)
 * [PlanRow](#planrow)
@@ -333,8 +334,16 @@ The recorded roles of the registry-table columns; later code-only reads use them
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `columns` | map of string to one of `id`, `guard`, `enforces`, `watches`, `event`, `verdict`, `state`, `description` | yes |  | The role of each header cell of the registry tables, as the labeler recorded it |
+| `tables` | list of [EstateMap registryRoles tables](#estatemap-registryroles-tables) | yes |  | The role of each column of each registry table, as the labeler recorded it |
 | `offStates` | list of strings, each not empty | yes |  | The values of a state column under which a check enforces nothing, as recorded |
+
+## EstateMap registryRoles tables
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `file` | string, not empty | yes |  | The file that holds the registry table |
+| `index` | integer, at least 0 | yes |  | The place of the table among the tables of its file, from 0 |
+| `roles` | list of one of `id`, `guard`, `enforces`, `watches`, `event`, `verdict`, `state`, `description` or `null` | yes |  | The role of each column of the table in order, null for a column of free text |
 
 ## EstateMap producedBy
 
