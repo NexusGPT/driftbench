@@ -40,6 +40,8 @@ function fieldsOf(differs: string[], request: Obj, entry: Obj): string[] {
     else if (name === 'model') out.add('model');
     else if (name === 'cutDigest') out.add('cutDigest');
     else if (name === 'labeler') out.add('labelerId');
+    // The reader's readable field `set` is the name of the label set: the bank's field `set.name`.
+    else if (name === 'set') out.add('set.name');
     else if (name === 'setHash') {
       const a = request.set as Obj;
       const b = entry.set as Obj;
