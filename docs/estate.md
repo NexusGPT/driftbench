@@ -553,9 +553,9 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1339 rows (378 from the contract, 10 journeys, 951 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1196 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 951 rows, t = 2, 4349 of 4349 allowed 2-tuples covered; the full grid of 1722054297600 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1163 rows (347 from the contract, 10 journeys, 806 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1048 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 806 rows, t = 2, 3863 of 3863 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
     instruction    93
     gate           12
@@ -572,11 +572,11 @@ Wrote _captures/docs3/estate/plan.yaml: 1339 rows (378 from the contract, 10 jou
     hazard          1
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        585
-    outside_trigger    45
-    twin               45
-    ordered_pair       32
-    skip_pressure       4
+    obligation        403
+    outside_trigger    31
+    twin               31
+    ordered_pair       48
+    skip_pressure       6
     route_positive    192
     route_near_miss    13
     misroute           13
@@ -595,13 +595,13 @@ Wrote _captures/docs3/estate/plan.yaml: 1339 rows (378 from the contract, 10 jou
     stage_order        39
     stage_skip          4
     stage_anytime       1
-    register_sample   208
-    hazard_recovery     2
+    register_sample   224
+    hazard_recovery     1
     invariant           4
     setting             4
     journey            10
-  Unenforced: 57 approved rules no guard enforces.
-  Cells with no approved phrase: 1196 of 1196.
+  Unenforced: 44 approved rules no guard enforces.
+  Cells with no approved phrase: 1048 of 1048.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -619,11 +619,11 @@ Wrote _captures/docs3/estate/plan.yaml: 1339 rows (378 from the contract, 10 jou
   deviation=D10_return: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
   deviation=D11_pii_leak: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
   deviation=D12_prompt_extraction: no relevant target is declared for this situation value or none exists in the estate; relevance is unresolved, so the declared combinations are retained.
-  1 reference to documents the map records as navigation only (examples, templates, histories) give no test.
+  3 references to documents the map records as navigation only (examples, templates, histories) give no test.
 Next: driftbench estate plan approve _captures/docs3/estate/plan.yaml --all, or strike rows with --row <id> --strike
 ```
 
-The written plan and summary are byte for byte the committed `examples/estates/fixture/plan.yaml` and `plan.summary.json`. How to read the counts:
+This is the default plan, with the relevance the table above infers. The committed `examples/estates/fixture/plan.yaml` and `plan.summary.json` are the plan of the full declared space instead (step 4 of the fixture's regeneration below), where `--space` makes the space authoritative and nothing is inferred. How to read the counts:
 
 * "Mandatory rows per kind" counts contract rows, a row once for each kind it names: the skill line (111) holds its routes, instructions, references and scripts. "Rows per test type" counts every row, journeys and pairwise included.
 * The console prints a summary, never a line per item: each list (the edges with no journey, the rows adjusted to the space map, the notes) shows its first 10 lines, then one line that counts the rest and names `<plan>.summary.json`, which holds every one under `uncoveredEdges`, `adjusted` and `notes`. A list of 10 or fewer prints whole. A real estate with thousands of unreached edges prints under 100 lines.
@@ -635,12 +635,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1339 rows, 1339 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1163 rows, 1163 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1423 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1162 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
