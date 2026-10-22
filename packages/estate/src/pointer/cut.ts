@@ -62,6 +62,18 @@ function mask(text: string): string {
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
+    // An email address is one word: the dots inside it are no stops.
+    .replace(/[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
+    // An ellipsis in square brackets marks an omission, not a stop.
+    .replace(/\[(?:\.\.\.|…)\]/g, letters)
+    // An ellipsis that opens a sentence after a stop reads as the capital of that sentence.
+    .replace(
+      /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
+      (_match, lead: string, dots: string) => lead + 'X'.repeat(dots.length),
+    )
+    // Any other three dots, spaced or not, or the ellipsis character, never end a sentence: a fourth dot after
+    // them is the full stop.
+    .replace(/\.(?: ?\.){2}|…/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
@@ -78,7 +90,8 @@ function mask(text: string): string {
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
 function shouldMerge(before: string, after: string): boolean {
-  const head = before.trimEnd();
+  // Directional and other format marks (U+202A around a stop in right-to-left text) are not part of the shape.
+  const head = before.replace(/\p{Cf}/gu, '').trimEnd();
   // A short capitalised word or a single-letter abbreviation before the stop: "Dr.", "e.g.", "A."
   if (/(?:^|[\s(])(\p{Lu}\p{Ll}{0,2}|\p{L}|\p{L}\.\p{L})\.$/u.test(head)) return true;
   if (/\d\.$/.test(head) && /^\d/.test(after.trimStart())) return true;
@@ -174,14 +187,31 @@ function trimSpan(source: string, from: number, to: number): [number, number] {
   return [start, end];
 }
 
+/**
+ * The segments, each also cut after a stop that has no space before a capitalised word (`world.Today`): a word in
+ * lower case or a number, the stop, then a capital and a lower-case letter. Addresses and code are masked by then.
+ */
+function unspacedStops(segments: Iterable<{ index: number; segment: string }>): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const segment of segments) {
+    let start = segment.index;
+    const end = start + segment.segment.length;
+    for (const stop of segment.segment.matchAll(/[\p{Ll}\p{N}][.!?]['"”’)\]]*(?=\p{Lu}\p{Ll})/gu)) {
+      const cut = segment.index + (stop.index ?? 0) + stop[0].length;
+      out.push([start, cut]);
+      start = cut;
+    }
+    out.push([start, end]);
+  }
+  return out;
+}
+
 /** The sentence spans of `source[from, to)`, merged when unsure: a wrong merge costs granularity, a wrong split a wrong quote. */
 export function sentenceSpans(source: string, from: number, to: number): Array<[number, number]> {
   const masked = mask(source.slice(from, to));
   const spans: Array<[number, number]> = [];
   let current: [number, number] | undefined;
-  for (const segment of SEGMENTER.segment(masked)) {
-    const start = segment.index;
-    const end = start + segment.segment.length;
+  for (const [start, end] of unspacedStops(SEGMENTER.segment(masked))) {
     if (masked.slice(start, end).trim() === '') continue;
     if (current && shouldMerge(masked.slice(current[0], current[1]), masked.slice(start, end))) {
       current[1] = end;
