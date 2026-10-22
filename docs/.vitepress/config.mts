@@ -98,6 +98,7 @@ export default defineConfig({
   themeConfig: {
     siteTitle: 'driftbench',
     nav: [
+      { text: 'Guide', link: '/guide/' },
       { text: 'Concepts', link: '/concepts/block' },
       { text: 'Running', link: '/running' },
       { text: 'Reference', link: '/reference/cli' },
@@ -114,6 +115,36 @@ export default defineConfig({
     ],
     sidebar: [
       { text: 'Overview', items: [{ text: 'driftbench docs', link: '/' }] },
+      {
+        text: 'Guide',
+        items: [
+          { text: 'The driftbench guide', link: '/guide/' },
+          { text: 'Quickstart', link: '/guide/quickstart' },
+          { text: 'A walkthrough on your own agent', link: '/guide/walkthrough' },
+          { text: 'Write tests by hand', link: '/guide/write-tests' },
+          { text: 'Generate tests', link: '/guide/generate-tests' },
+          { text: 'Run your agent', link: '/guide/run-your-agent' },
+          { text: 'Judge answers', link: '/guide/judge-answers' },
+          { text: 'Read the numbers', link: '/guide/read-the-numbers' },
+          { text: 'Diagnose and fix', link: '/guide/diagnose-and-fix' },
+          { text: 'Rerun less', link: '/guide/rerun-less' },
+          { text: 'Prove the evaluator', link: '/guide/prove-the-evaluator' },
+          { text: 'Spec fields', link: '/guide/spec-fields' },
+          { text: 'Checks', link: '/guide/checks' },
+          { text: 'Variables and datasets', link: '/guide/variables-and-datasets' },
+          { text: 'The command line', link: '/guide/command-line' },
+          { text: 'Estate settings', link: '/guide/estate-settings' },
+          { text: 'Campaigns', link: '/guide/campaigns' },
+          { text: 'Connect your agent', link: '/guide/connect-adapters' },
+          { text: 'Adapters for SDKs', link: '/guide/sdk-adapters' },
+          { text: 'Claude Code and Nexus agents', link: '/guide/claude-code-and-nexus' },
+          { text: 'Plugins', link: '/guide/plugins' },
+          { text: 'Python', link: '/guide/python' },
+          { text: 'Vitest', link: '/guide/vitest' },
+          { text: 'Traces', link: '/guide/traces' },
+          { text: 'The viewer and scorecards', link: '/guide/viewer' },
+        ],
+      },
       {
         text: 'Concepts',
         items: [

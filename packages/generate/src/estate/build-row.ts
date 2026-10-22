@@ -5,7 +5,7 @@ import { type BlockOrigin, type RuleRef, writeBlocks } from '../blocks/writer';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
 import { type AskBuild, codeAsk, DEVIATION_ASKS } from './asks';
-import { guardRuleIds, navigationReference, taskAtoms } from './context';
+import { guardRuleIds, taskAtoms } from './context';
 import {
   type AskSource,
   type Built,
@@ -26,6 +26,7 @@ import type {
   Situation,
   SituationUse,
 } from './inputs';
+import { compilePredicate } from './predicates';
 import { statesNeeded } from './states';
 import {
   addPair,
@@ -224,16 +225,6 @@ export function build(
   if (noSession) {
     gap(then, MARKERS.session, first, `no recorded session of ${situation?.id ?? 'this situation'}`);
   }
-  // A plan made before the map recorded document roles can still hold a read test of an example or a
-  // template. Such a document is a place to look, never a rule: the row stays visible and incomplete.
-  if (navigationReference(first, ctx.navigation)) {
-    gap(
-      then,
-      MARKERS.askable,
-      first,
-      `no test: ${first.id} reads a navigation-only document (an example, template or history), which holds no rule`,
-    );
-  }
   if (then.ordered.length > 0 && !ctx.customChecks.has('ordered')) {
     gap(then, MARKERS.registered, first, 'ordered');
   }
@@ -310,6 +301,28 @@ export function build(
 
   // A reply in the language of the ask: the phrase's language, once it is known.
   if (then.langFromAsk && phrase && then.lang === undefined) then.lang = phrase.lang.toUpperCase();
+
+  // A reply of one line per input item: the items, and so their count, are the inputs the situation declares, taken
+  // only when the ask is one of that situation's phrases. Without them no check can count the lines: a gap.
+  const inputs =
+    situation && phrase && situation.phrases.some((entry) => entry.text === phrase?.text)
+      ? (situation.inputs ?? [])
+      : [];
+  for (const id of then.perItem) {
+    const compiled = compilePredicate('one_line_per_item', { items: inputs });
+    if (!compiled) {
+      gap(
+        then,
+        MARKERS.registered,
+        id,
+        `one_line_per_item: ${situation ? `${situation.id} declares no inputs for this ask` : 'no situation declares the inputs of the ask'}`,
+      );
+      continue;
+    }
+    for (const pattern of compiled.must ?? []) if (!then.must.includes(pattern)) then.must.push(pattern);
+    for (const pattern of compiled.mustNot ?? [])
+      if (!then.mustNot.includes(pattern)) then.mustNot.push(pattern);
+  }
 
   // Blocks.
   const placeholder = `[no approved phrase: ${use} situation for ${first.id}]`;

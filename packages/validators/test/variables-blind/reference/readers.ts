@@ -33,8 +33,20 @@ export function slug(raw: string): string {
  * span itself and declares its meaning (blind/spans.ts), and this reference looks the declared meaning up by the
  * exact text, so no word list reads English here (.cursor/BUGBOT.md rule 1).
  */
-function parseCondition(text: string): SpanMeaning | undefined {
-  return meaningOf(text);
+function parseCondition(condition: { text: string; label?: unknown }): SpanMeaning | undefined {
+  // A label put on the span by the validator (a reader's reading, recorded) decides, as the page says; else the declared meaning.
+  const label = condition.label as
+    | { kind?: string; subject?: string; limit?: number; comparison?: 'lt' | 'le' | 'gt' | 'ge' }
+    | undefined;
+  if (label?.kind === 'numeric' && typeof label.subject === 'string' && typeof label.limit === 'number')
+    return {
+      kind: 'numeric',
+      subject: label.subject,
+      limit: label.limit,
+      cmp: label.comparison ?? 'gt',
+      flavour: 'cmp',
+    };
+  return meaningOf(condition.text);
 }
 
 function fmt(n: number): string {
@@ -159,7 +171,7 @@ export function buildStore(sources: Sources): StoreDoc {
         refuse(b, `${rule.id}: ${c.text}`, 'the condition text is not in the file it names');
         continue;
       }
-      const parsed = parseCondition(c.text);
+      const parsed = parseCondition(c);
       if (!parsed) {
         refuse(b, `${rule.id}: ${c.text}`, 'the condition has no reading the reader knows');
         continue;

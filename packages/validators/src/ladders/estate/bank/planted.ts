@@ -42,6 +42,8 @@ export type Planted = {
   tool?: string;
   /** The gate orders a command to run first, not a file to read. */
   command?: boolean;
+  /** The file the gate reads first, as the line writes it: a line that holds several gates names each gate's file. */
+  reads?: string;
   /** A route: the request as the item planted it, a part of the line. */
   ask?: string;
 };
@@ -266,6 +268,7 @@ export class PlantedEstate {
             tool: planted.tool as string,
             ...(planted.act === undefined ? { whole: true } : {}),
             ...(planted.command ? { command: true } : {}),
+            ...(planted.reads !== undefined ? { reads: planted.reads } : {}),
           };
         });
       const answers = new Map([...this.answers].map(([file, list]) => [file, [...list]]));
@@ -274,7 +277,7 @@ export class PlantedEstate {
         const prose = { ...hint.prose, line: hint.line };
         answers.set(hint.file, [...(answers.get(hint.file) ?? []), prose]);
       }
-      const truth = truthPointer({ files: texts, atoms, answers, gates });
+      const truth = truthPointer({ files: texts, atoms, answers, gates, edges: this.edges });
       const reader = readerFor(RUNTIME);
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
       const started = Date.now();

@@ -52,12 +52,12 @@ async function replay(
   arm: ModelArm,
   cassette: string,
   extra: Partial<ScanRequest> = {},
-  threshold?: number,
+  stack: Pick<NonNullable<ScanRequest['model']>, 'second' | 'marginCut' | 'passAt' | 'failAt'> = {},
 ): Promise<{ res: ScanResult; fake: FakeTransport }> {
   const fake = closed();
   const res = await ctx.sut.scan({
     files,
-    model: { arm, transport: fake, ...(threshold !== undefined ? { threshold } : {}) },
+    model: { arm, transport: fake, ...stack },
     cassette: { mode: 'replay', text: cassette },
     ...extra,
   });
@@ -364,17 +364,27 @@ export const replayRuns: Record<string, Run> = {
     return new Set(keys).size === keys.length ? pass(`${keys.length} keys`) : fail('two entries share a key');
   },
   'key-ignores-threshold': async (ctx) => {
+    // The stack settings are not part of a key: the committed Jev and Haiku rows serve a stack at the default
+    // margin cut and at another one, and the authored labels come out of both with no call.
     const { fixture } = await positiveReplay(ctx, 'jev');
-    const { res, fake } = await replay(
-      ctx,
-      fixture.files,
-      'jev',
-      fixture.cassette,
-      { labelsYaml: fixture.labelsYaml },
-      0.9,
-    );
-    requireFixtureLabels(res, fixture);
-    return fake.count === 0 ? pass('threshold is outside key') : fail('threshold change called transport');
+    const system2 = loadFixture('haiku');
+    const cassette = `${fixture.cassette}${system2.cassette}`;
+    for (const stack of [{}, { marginCut: 0.99 }]) {
+      const { res, fake } = await replay(
+        ctx,
+        fixture.files,
+        'jev',
+        cassette,
+        { labelsYaml: fixture.labelsYaml },
+        { second: 'haiku', ...stack },
+      );
+      requireFixtureLabels(res, fixture);
+      if (fake.count !== 0)
+        return fail(
+          `a margin cut of ${(stack as { marginCut?: number }).marginCut ?? 'default'} called transport`,
+        );
+    }
+    return pass('stack settings are outside the key');
   },
   'key-ignores-clone-path': async (ctx) => {
     const { fixture, res: a } = await positiveReplay(ctx);

@@ -31,6 +31,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [Situation](#situation)
 * [SituationUse](#situationuse)
 * [Touches](#touches)
+* [Situation provokes](#situation-provokes)
 * [BankPhrase](#bankphrase)
 * [PhraseBank deviations](#phrasebank-deviations)
 * [SessionIndex](#sessionindex)
@@ -444,6 +445,7 @@ Counts and lists that describe the plan.
 | `cell` | map of string to string | no |  | Situation axis values the phrases express; a plan row must agree with each of them |
 | `workspace` | string matching `^[a-z0-9][a-z0-9._-]*$` | no |  | The workspace seed the ask starts from |
 | `touches` | [Touches](#touches) | no |  | The workspace paths the ask may touch; every other path stays untouched |
+| `provokes` | [Situation provokes](#situation-provokes) | no |  | A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches |
 | `phrases` | list of [BankPhrase](#bankphrase), at least 1 item | yes |  | The asks that put the agent in the situation, each approved or not. |
 
 ## SituationUse
@@ -467,6 +469,15 @@ The workspace paths the ask may touch; every other path stays untouched
 | `created` | list of strings, each not empty | no | `[]` | The workspace paths the ask may create. |
 | `changed` | list of strings, each not empty | no | `[]` | The workspace paths the ask may change. |
 | `deleted` | list of strings, each not empty | no | `[]` | The workspace paths the ask may delete. |
+
+## Situation provokes
+
+A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | string, not empty | yes |  | The tool of the call, such as Bash. |
+| `command` | string, not empty | yes |  | The command of the call (fictional text); the call runs it as written. |
 
 ## BankPhrase
 

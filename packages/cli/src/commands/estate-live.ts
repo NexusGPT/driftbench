@@ -1,6 +1,12 @@
+import { randomBytes } from 'node:crypto';
 import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
-import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import {
+  claudeCodeLiveAdapter,
+  loadStateLibraryWithDigest,
+  type StateLibrary,
+  type StateLibraryDigest,
+} from '@agent-nexus/driftbench-adapters';
 import {
   type AgentAdapter,
   blocksOutcome,
@@ -26,7 +32,7 @@ import {
   renderEstateMap,
 } from '@agent-nexus/driftbench-estate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { openStore } from '@agent-nexus/driftbench-store';
+import { openStore, type SqliteStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -43,7 +49,14 @@ import {
 import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { campaignProvenance } from './campaign-provenance';
-import { carryRequestFrom, type EstateCarryFlags, isTheOldStore, planEstateCarry } from './estate-carry';
+import {
+  carryRequestFrom,
+  ESTATE_SALT_KEY,
+  type EstateCarryFlags,
+  isTheOldStore,
+  oldStoreSalt,
+  planEstateCarry,
+} from './estate-carry';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
@@ -334,9 +347,13 @@ export async function estateRunCommand(
   }
 
   let library: StateLibrary | undefined;
+  let libraryFile: ({ path: string } & StateLibraryDigest) | undefined;
   if (options.states !== undefined) {
     try {
-      library = await loadStateLibrary(resolve(io.cwd, options.states));
+      const path = resolve(io.cwd, options.states);
+      const loaded = await loadStateLibraryWithDigest(path);
+      library = loaded.library;
+      libraryFile = { path: recordedPath(io.cwd, path), ...loaded.digest };
     } catch (cause) {
       io.err(`The state library ${options.states} cannot be read: ${describe(cause)}\n`);
       return 2;
@@ -380,7 +397,7 @@ export async function estateRunCommand(
     return 2;
   }
 
-  let store: Store;
+  let store: SqliteStore;
   const storePath = resolve(io.cwd, options.store);
   const progressPath = options.progress === undefined ? undefined : resolve(io.cwd, options.progress);
   const carry = carryRequestFrom(options, storePath, io);
@@ -423,6 +440,12 @@ export async function estateRunCommand(
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });
     const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
+    // The salt of the digests below: random per store, kept in the store, and copied by --from, so a result carried
+    // from the old store compares like for like while the same value in another store gives another stamp.
+    const salt = await store.metaInit(
+      ESTATE_SALT_KEY,
+      (carry ? await oldStoreSalt(carry, io) : undefined) ?? randomBytes(16).toString('hex'),
+    );
     // What a result depends on besides the estate and the spec: the runtime, its flags, its environment and its
     // judge. A labelled run stamps it, so a result carried from a run made another way is refused, not copied.
     const identity = contentHash({
@@ -434,11 +457,12 @@ export async function estateRunCommand(
       disallow: options.disallow ?? [],
       lockDeny: options.lockDeny ?? [],
       timeoutMs: timeoutMs ?? null,
-      // The name and a digest of the value of every variable the run sets or passes on, never the value: a result made
-      // with another value of one is refused, and the stamp holds nothing a person could read back.
+      // The name and a salted digest of the value of every variable the run sets or passes on, never the value: a result
+      // made with another value of one is refused, and the stamp holds nothing a person could read back or match
+      // against another store.
       env: Object.keys(env)
         .sort()
-        .map((name) => [name, contentHash({ name, value: env[name] })]),
+        .map((name) => [name, contentHash({ salt, name, value: env[name] })]),
       library: library ?? null,
       judge: judge.label,
       toolPolicy: settings.toolPolicy ?? null,
@@ -452,6 +476,7 @@ export async function estateRunCommand(
         provider: localProvider(),
         pins,
         ...(library === undefined ? {} : { library }),
+        ...(libraryFile === undefined ? {} : { libraryFile }),
         env,
         args,
         config,
@@ -592,6 +617,16 @@ export async function estateRunCommand(
     );
   }
   return passed === lines.length ? 0 : 1;
+}
+
+/**
+ * The path a run record names for a file: relative to the working folder of the run when the file is inside it, so
+ * that no folder of a person's home lands in a stored record, and absolute when the file is outside it.
+ */
+export function recordedPath(cwd: string, path: string): string {
+  const inside = relative(cwd, path);
+  if (inside === '' || inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside)) return path;
+  return inside.split(sep).join('/');
 }
 
 /** The line of one run: pass, undecided (only inconclusive checks), the failing checks and the cost. */

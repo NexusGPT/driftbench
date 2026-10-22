@@ -865,6 +865,17 @@ describe('the settings file of the estate', () => {
     );
   });
 
+  it('exits 2 with the file and the depth when radius ledger meets a file nested too deep', async () => {
+    const { root } = await base();
+    const deep = `${Array.from({ length: 150 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join('\n')}\n`;
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md'] ?? ''}\n${deep}`);
+    const result = await run(['radius', 'ledger', 'map.yaml', '--out', 'change.yaml'], root);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('CLAUDE.md');
+    expect(result.err).toContain('150 levels deep');
+    expect(result.out).toBe('');
+  });
+
   it('loads a labeler module the file names from beside the estate, scanned from another folder', async () => {
     const root = await estate();
     await writeFile(

@@ -19,6 +19,7 @@ import { createFollower } from './follower';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
 import {
   type BlockRun,
+  declaredStageBefore,
   followerAdapter,
   type Generation,
   type GeneratorParts,
@@ -34,6 +35,7 @@ import {
   runCombinations,
   runContext,
   STABILITY_OFFSETS,
+  stageBookOf,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import { plannerItems } from './planner-v2';
@@ -1921,6 +1923,7 @@ function modeItems(): BankItem[] {
         component: `${C.relations}#recoveryFor`,
         async check(data) {
           const generated = await data.generated();
+          const book = stageBookOf(generated.complete.map((entry) => entry.spec));
           const recovery = generated.hidden.recoveries.find((entry) => entry.class === cls);
           const problems: string[] = [];
           let seen = 0;
@@ -1929,11 +1932,7 @@ function modeItems(): BankItem[] {
               if (!block.when || !('injection' in block.when) || block.when.injection.class !== cls) return;
               const previousProblems = problems.length;
               seen += 1;
-              const pending =
-                [...spec.blocks.slice(0, index)]
-                  .reverse()
-                  .find((earlier) => earlier.expect?.stage !== undefined)?.expect?.stage ??
-                generated.hidden.start;
+              const pending = declaredStageBefore(spec, index, book) ?? generated.hidden.start;
               const wanted =
                 recovery?.stageAfter === 'pending'
                   ? cls === 'D8_tool_failure'
@@ -2524,9 +2523,10 @@ function scaleItems(): BankItem[] {
           return verdict(pass, detail);
         },
       });
+    // The budget is for the reference machine: the raw CPU time is scaled by the calibration of this machine.
     add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
-      r.ms <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms of CPU time; the budget is ${r.budgetMs / 2} ms`,
+      r.normalisedMs <= r.budgetMs / 2,
+      `two runs took ${r.ms} ms of CPU time (raw), the calibration took ${r.calibrationMs} ms against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms`,
     ]);
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,

@@ -252,6 +252,20 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
+      # The variables ladder reads the labels a reader recorded for the condition spans (docs/validators.md 12.5). The
+      # spans of seeds 1 to 20 come from the bank, not from the commit, so the labels of every recording on the data
+      # branch `cassettes/variables-spans` fit them: the leg replays the union of the files (a label is keyed by the
+      # text of its span; an old one that no span uses is never read). Every leg fetches them, the other validators read no
+      # label. The hidden seed derives from the commit, so its
+      # spans have no label until that commit is recorded (tools/variables-record-spans.mjs): its leg runs without.
+      - name: Fetch the span labels
+        shell: bash
+        run: |
+          git fetch --no-tags origin cassettes/variables-spans
+          git worktree add --detach "$RUNNER_TEMP/spans" FETCH_HEAD
+          # One label per text: the vocabulary recording wins for its texts, else the newest recording (tools/variables-span-union.mjs).
+          node tools/variables-span-union.mjs "$RUNNER_TEMP/spans" "$RUNNER_TEMP/spans-union.jsonl"
+          echo "DRIFTBENCH_VARIABLES_CASSETTE=$RUNNER_TEMP/spans-union.jsonl" >> "$GITHUB_ENV"
       - name: Run this leg
         shell: bash
         env:
