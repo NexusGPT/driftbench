@@ -13,6 +13,7 @@ tags:
   - mode:live
   - kind:gate
   - kind:skill
+  - kind:instruction
 target:
   adapter: claude-code
 given:
@@ -74,6 +75,9 @@ metadata:
     atoms:
       - gate.invoice-reconcile.read-references-matching-rules-md-before
       - skill.invoice-reconcile.skill-invoice-reconcile
+      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+      - instruction.invoice-reconcile.never-change-an-amount-on-an
+      - instruction.invoice-reconcile.when-the-total-difference-is-above
     planRow: ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before
     cell:
       atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before
@@ -103,6 +107,33 @@ metadata:
         kind: rule
         rule: skill.invoice-reconcile.skill-invoice-reconcile
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+        ledger: mc2fjnpbks
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.never-change-an-amount-on-an
+        ledger: ldaywjqflr
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.when-the-total-difference-is-above
+        ledger: pfiujep4mk
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

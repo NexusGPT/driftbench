@@ -41,6 +41,8 @@ metadata:
   estate:
     atoms:
       - instruction.standing.every-task-follows-the-step-list
+      - instruction.standing.a-tracker-note-may-be-written
+      - instruction.standing.never-report-a-task-as-done
     planRow: obligation.instruction.standing.every-task-follows-the-step-list
     cell:
       atoms.instruction: instruction.standing.every-task-follows-the-step-list
@@ -80,6 +82,24 @@ metadata:
         rule: instruction.standing.every-task-follows-the-step-list
         ledger: mnlr5rno4r
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.a-tracker-note-may-be-written
+        ledger: ceowdbcrfy
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-report-a-task-as-done
+        ledger: i7uw67ztqh
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

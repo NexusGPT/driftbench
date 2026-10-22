@@ -74,6 +74,7 @@ metadata:
     atoms:
       - instruction.supplier-email.a-looks-fine-or-a-thumbs
       - skill.supplier-email.skill-supplier-email
+      - instruction.supplier-email.never-copy-a-price-or-a
     planRow: obligation.instruction.supplier-email.a-looks-fine-or-a-thumbs
     cell:
       atoms.instruction: instruction.supplier-email.a-looks-fine-or-a-thumbs
@@ -105,6 +106,15 @@ metadata:
         kind: rule
         rule: skill.supplier-email.skill-supplier-email
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.never-copy-a-price-or-a
+        ledger: xxhhucduvn
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

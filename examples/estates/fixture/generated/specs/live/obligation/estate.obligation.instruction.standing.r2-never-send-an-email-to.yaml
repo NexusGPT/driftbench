@@ -12,6 +12,7 @@ tags:
   - test:obligation
   - mode:live
   - kind:instruction
+  - kind:gate
   - ask:code
   - judged
 target:
@@ -41,6 +42,17 @@ metadata:
   estate:
     atoms:
       - instruction.standing.r2-never-send-an-email-to
+      - gate.standing.read-before-edit-it
+      - instruction.standing.r4-never-delete-a-file-under
+      - gate.standing.read-claude-skills-invoice-reconcile-references
+      - instruction.standing.r6-never-run-git-push-force
+      - instruction.standing.r7-when-a-shipment-is-late
+      - instruction.standing.r8-do-not-invent-order-numbers
+      - instruction.standing.r10-when-the-user-says-stop
+      - instruction.standing.r11-never-paste-the-contents-of
+      - gate.standing.read-git-status-before-commit-to
+      - instruction.standing.r16-if-a-tool-fails-twice
+      - instruction.standing.r17-report-a-number-only-when
     planRow: obligation.instruction.standing.r2-never-send-an-email-to
     cell:
       atoms.instruction: instruction.standing.r2-never-send-an-email-to
@@ -74,6 +86,105 @@ metadata:
         rule: instruction.standing.r2-never-send-an-email-to
         ledger: 6juqj4iyft
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-before-edit-it
+        ledger: oeowulj3qm
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r4-never-delete-a-file-under
+        ledger: woijaqquri
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-claude-skills-invoice-reconcile-references
+        ledger: 7cv2d5ktjq
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r6-never-run-git-push-force
+        ledger: josrxaogo4
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r7-when-a-shipment-is-late
+        ledger: emz6tmbir7
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r8-do-not-invent-order-numbers
+        ledger: jixkl7ilvt
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r10-when-the-user-says-stop
+        ledger: hexjxf5hak
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r11-never-paste-the-contents-of
+        ledger: xi6od5jvxp
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-git-status-before-commit-to
+        ledger: zuie2qo5us
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r16-if-a-tool-fails-twice
+        ledger: ggatj5jijq
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r17-report-a-number-only-when
+        ledger: snwqcymbbi
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b
