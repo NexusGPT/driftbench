@@ -4,9 +4,9 @@ The bank is not merge-ready under docs/validators.md §12.7. These are pending i
 
 ## The blind bank joins the ladder
 
-`variablesBank()` now returns the first bank (536 items) and the blind bank (522 items, ids `blind.*`, `packages/validators/src/ladders/variables/blind/`), 1,058 items in all. The first audit of the 1,037-item bank (four seats, base `7812b7f33`) added 21 blind items: a gate per function of the interface (`blind.reach.*`), a value id shared by axes of different kinds (`blind.values.file.ambiguous-value.*`), a pair of two values of one variable worded in other ways beside a one-entry constraint (`blind.impossible.same-variable.*`), the quote check on a store file with no `constraints` key (`blind.quotes.no-constraints.*`) and each wrong quote among 2,000 named by its path (`blind.scale.readers.quotes-2000-reports-each-wrong-one`). Each has a mutant of the reference in `test/variables-blind/mutants.ts`. The blind bank was written from `docs/variables.md` and `docs/validators.md` by a lane that read none of the store, the readers or the planner. The journal row of iteration 0 (536 items, 142 passing) describes the first bank only; the next iteration 0 row is measured on the full bank and replaces it as the base of the pilot.
+`variablesBank()` now returns the first bank (539 items) and the blind bank (522 items, ids `blind.*`, `packages/validators/src/ladders/variables/blind/`), 1,061 items in all. The first audit of the 1,037-item bank (four seats, base `7812b7f33`) added 21 blind items: a gate per function of the interface (`blind.reach.*`), a value id shared by axes of different kinds (`blind.values.file.ambiguous-value.*`), a pair of two values of one variable worded in other ways beside a one-entry constraint (`blind.impossible.same-variable.*`), the quote check on a store file with no `constraints` key (`blind.quotes.no-constraints.*`) and each wrong quote among 2,000 named by its path (`blind.scale.readers.quotes-2000-reports-each-wrong-one`). Each has a mutant of the reference in `test/variables-blind/mutants.ts`. The blind bank was written from `docs/variables.md` and `docs/validators.md` by a lane that read none of the store, the readers or the planner. The journal row of iteration 0 (536 items, 142 passing) describes the first bank only; the next iteration 0 row is measured on the full bank and replaces it as the base of the pilot.
 
-Each blind item that asks a permissive answer is followed by a paired witness (`blind/witness.ts`): the functions it called must also refuse a wrong store, report a missing quote, build a plan that holds every pair, count a known space or give a known interval. The constant empty implementation scores zero on all 1,058 items (`empty-bank.test.ts`).
+Each blind item that asks a permissive answer is followed by a paired witness (`blind/witness.ts`): the functions it called must also refuse a wrong store, report a missing quote, build a plan that holds every pair, count a known space or give a known interval. The constant empty implementation scores zero on all 1,061 items (`empty-bank.test.ts`).
 
 ### Commands for the independent seats
 
@@ -22,7 +22,7 @@ gh run download <run-id> -n variables-items-0
 
 | Seat | Starts from | Does | Records |
 |---|---|---|---|
-| seat: iteration 0 (builder) | `variables-measure-full` on the head of this bank | the iteration 0 row of the 1,037 items | `measure-row.ts --iteration 0 --executor builder`, then `--journal` |
+| seat: iteration 0 (builder) | `variables-measure-full` on the head of this bank | the iteration 0 row of the 1,061 items | `measure-row.ts --iteration 0 --executor builder`, then `--journal` |
 | seat: blind pilot | `pnpm driftbench validate variables --brief --fresh`, nothing else | ten iterations, one cause each, on its own `exec/` branch; each iteration measured with `variables-measure-one`, then the whole set with `variables-measure` | rows with `--executor blind`; `HANDOVER.md` is not touched |
 | seat: cheater | the same brief | raises the score without making a component correct (fixed seeds, reading the oracle, matching item ids, special-casing fixture names, answering what the checks look for) | the bank score from a `variables-items` artifact before and after; each gain becomes a new item |
 | seat: cause review | the artifact of `variables-measure-full` with the causes and the `Fix:` hints removed: `jq 'walk(if type == "object" then del(.cause) \| (if has("detail") then .detail \|= sub("(?i)fix:.*"; "") else . end) else . end)' variables-items.json` | samples 30 failing items, writes the fix it would make for each, then reads the tags | agreement with the tags; the reviewed number of distinct causes |
@@ -43,7 +43,7 @@ The verdicts go in the table below, one row per check, written by the seat and n
 
 ## Builder repair evidence
 
-`test/variables/empty-bank.test.ts` requires zero credited items, including subprocesses. `positive-checks.test.ts` retains the 51 positive-witness cases, nine nonempty mutants and four local-correct/child-empty cases. `contract.test.ts` covers the corrected source/file provenance distinction, valid IDs with accented titles, normalized quote acceptance, case/punctuation rejection, and the two separate granularity defects. These test helpers are deliberately limited witnesses, not full product implementations or independent auditors.
+`test/variables/empty-bank.test.ts` requires zero credited items, including subprocesses. `positive-checks.test.ts` retains the 54 positive-witness cases, nine nonempty mutants and four local-correct/child-empty cases. `contract.test.ts` covers the corrected source/file provenance distinction, valid IDs with accented titles, normalized quote acceptance, case/punctuation rejection, and the two separate granularity defects. These test helpers are deliberately limited witnesses, not full product implementations or independent auditors.
 
 ## Cause-count correction
 
