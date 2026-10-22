@@ -366,7 +366,7 @@ documents:
 ```console
 $ driftbench estate build bld --out build --pointer --cassette bld/settings-cassette.jsonl --yes   # exit 1
 1. Read the estate: 114 atoms, 67 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
-5. Write the tests: 1547 tests written. 1378 are complete and 169 still wait for something (the report lists what).
+5. Write the tests: 1547 tests written. 816 are complete and 731 still wait for something (the report lists what).
 $ ls build | grep ledger
 ledger.json
 $ ls bld | grep driftbench.ledger   # exit 1

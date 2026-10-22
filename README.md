@@ -632,7 +632,7 @@ A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the f
 
 ### 6. Pick which tests to rerun
 
-After a fix, driftbench does not rerun everything. Every block declares what it uses in its `metadata.links`, as the example in step 1 shows. An edit selects the blocks that use it, and the blocks that inherit their state. With `campaign run --change <manifest> --from <campaign>`, the cells outside the radius are carried from the stored baseline campaign. `estate run` has no such option today: it runs only the tests you list. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
+After a fix, driftbench does not rerun everything. Every block declares what it uses in its `metadata.links`, as the example in step 1 shows. An edit selects the blocks that use it, and the blocks that inherit their state. With `campaign run --change <manifest> --from <campaign>`, the cells outside the radius are carried from the stored baseline campaign. `estate run` has the same `--from` and `--change` options for its tests. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
 
 <a href=".github/readme/blast-light.png">
   <picture>

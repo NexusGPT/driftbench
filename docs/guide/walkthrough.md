@@ -82,7 +82,7 @@ $ cd walk
 
 **Relevant commands.**
 
-- `estate build`: reads your agent's files and lists what they tell the agent to do. It makes a **plan** (the list of situations to test) and writes the tests. It asks you twice before it goes on · `northwind` is your agent's folder. `--out build` is the folder where every file goes. `--pointer` gives each sentence of your prompt an id that survives edits, which step 4 needs. It keeps the ids in `build/ledger.json`. Your own files, `CLAUDE.md` included, are never changed. `--cassette northwind/cassette.jsonl` replays recorded answers of the model that labels the sentences, so no model is called in this example. `--states northwind/live/states/library.json` is the state library: a file that says how to put the agent in each session state (explained in step 3), so the tests that need a state are written complete; `--yes` answers yes to both questions · it writes the map `build/map.yaml`, the approved map `build/approved.yaml`, the plan `build/plan.yaml` and the tests in `build/generated`.
+- `estate build`: reads your agent's files and lists what they tell the agent to do. It makes a **plan** (the list of situations to test) and writes the tests. It asks you twice before it goes on · `northwind` is your agent's folder. `--out build` is the folder where every file goes. `--pointer` gives each sentence of your prompt an id that survives edits, which step 4 needs. It keeps the ids in `build/ledger.json`. Your own files, `CLAUDE.md` included, are never changed. `--cassette northwind/cassette.jsonl` replays recorded answers of the model that labels the sentences, so no model is called in this example. `--states northwind/live/states/library.json` is the state library. It says how to put the agent in each session state, as step 3 explains. With it, the tests that need a state are written complete; `--yes` answers yes to both questions · it writes the map `build/map.yaml`, the approved map `build/approved.yaml`, the plan `build/plan.yaml` and the tests in `build/generated`.
 
 **On your own agent** a model has to read your prose, so you need an Anthropic API key. The labeler is this model. Create one in your Anthropic account (console.anthropic.com, under API keys). Then set it, and name the model that reads your prose, and swap the `--cassette` option:
 
@@ -355,11 +355,11 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 **Why you do this.** After an edit you want to know whether you broke something. Rerunning every test is slow and costs money. Rerunning only the tests the edit can reach is fast, and the saving is measured.
 
 
-**A baseline first.** To know whether an edit broke something, you need the results from before the edit. A **baseline** is a run of the tests on the unedited folder, kept in a store. In a real project the baseline is the whole suite (`build/generated/run-order.txt` lists it). It is billed with a real agent, so size it first: count the tests and multiply by the cost of one test (0.0085 USD for the example test). Here, to stay short, the baseline is 24 tests: the 16 tests that name the sentence of step 2, and 8 others. The stand-in runs them free.
+**A baseline first.** To know whether an edit broke something, you need the results from before the edit. A **baseline** is a run of the tests on the unedited folder, kept in a store. In a real project the baseline is the whole suite (`build/generated/run-order.txt` lists it). With a real agent it is billed. Size it first. Count the tests and multiply by the cost of one test (0.0085 USD for the example test). Here, to stay short, the baseline is 24 tests: the 16 tests that name the sentence of step 2, and 8 others. The stand-in runs them free.
 
 - `grep -rl ... > rerun.txt`: lists the tests that name the sentence, as in step 2 · `-r` searches the folder, `-l` prints file names · it writes the 16 names to `rerun.txt`.
 - `find ... | grep -v ... | head -8 > others.txt`: picks 8 tests that do not name it · `grep -v -x -F -f rerun.txt` drops the 16 · it writes `others.txt`.
-- `driftbench estate run --order base.txt ... --agent-version v1`: runs the 24 tests and keeps the results · `--order` is the file of names; `--store before.db` is the store; `--agent-version v1` is a label for this version of your agent, which the next steps use to carry results · it prints one line per test, and a last line that counts them.
+- `driftbench estate run --order base.txt ... --agent-version v1`: runs the 24 tests and keeps the results · `--order` is the file of names. `--store before.db` is the store. `--agent-version v1` labels this version of your agent. The next steps use the label to carry results · it prints one line per test, and a last line that counts them.
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | LC_ALL=C sort > rerun.txt
@@ -368,7 +368,7 @@ $ cat rerun.txt others.txt | LC_ALL=C sort > base.txt
 $ grep -c "" base.txt
 24
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store before.db --agent-version v1 --states northwind/live/states/library.json   # exit 1
-(pending baseline)
+24 specs run live on a stand-in: 0 pass, 24 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 24 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
 ```
 
 `estate run` has no flag to repeat each test. To repeat a run, run the same command again with a new `--store`, such as `before-2.db`.
@@ -387,7 +387,7 @@ $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 
 **Relevant commands.**
 
-- `radius ledger`: finds what you changed by the ids of step 1 and writes a **change file** · `build/map.yaml` is the map from step 1; `--ledger build/ledger.json` is the file of sentence ids; `--from-version v1` and `--to-version v2` name the two versions of your agent, as the baseline did; `--out change.yaml` is where the change file goes · it prints how many sentences changed and writes `change.yaml`.
+- `radius ledger`: finds what you changed by the ids of step 1 and writes a **change file** · `build/map.yaml` is the map from step 1. `--ledger build/ledger.json` is the file of sentence ids. `--from-version v1` and `--to-version v2` name the two versions of your agent, as the baseline did. `--out change.yaml` is where the change file goes · it prints how many sentences changed and writes `change.yaml`.
 - `radius`: reads the change file and the links of every test, and lists the tests the change can reach. That list is the **blast radius** · `build/generated/specs/live` is the folder of tests to look through; `--change change.yaml` is the change file · it prints the count and the list, and runs nothing.
 
 ```console
@@ -432,7 +432,13 @@ Read each row as one test file: its name, how many of its blocks are in the radi
 
 ```console
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --agent-version v2 --from before.db --change change.yaml --states northwind/live/states/library.json   # exit 1
-(pending carry)
+Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+16 of 24 cells in the radius. 16 cells run fresh, 8 carried from estate-run-<id> in before.db.
+✗ estate.dispatch.subagent.inbox-triager.helper-inbox-triager  (carried)
+    failing: block 0: subagents.inbox-triager
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+16 specs run live on a stand-in and 8 carried: 0 pass, 24 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 16 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.
 ```
 
 Read it like this. The line "16 of 24 cells in the radius" counts the tests the edit can reach. Those 16 ran, and 8 were carried. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. The last line counts the fresh and the carried tests, and gives the cost. The stand-in has no judge, so all 24 tests show as failed here. With the real agent and a judge, they get a verdict. A **campaign** is one run of a set of tests, kept in the store under its id. In a real project the baseline is the whole suite, so one edit reruns 16 of 1248 tests and carries the other 1232.
@@ -443,13 +449,13 @@ Read it like this. The line "16 of 24 cells in the radius" counts the tests the 
 - `--from` is refused: it needs `--change` and `--agent-version` too.
 - A carried result looks old: `--max-age` (7 days) and `--max-carry` (5 campaigns in a row) limit how long a result is carried. Past the limit the test runs fresh.
 
-**Rerun them on a real agent.** Use the real agent and a judge, as in step 3, on the 16 tests of the sentence. It is billed, so the caps stay: `--max-budget-usd 0.05` for each test and `--judge-budget 0.2` for all the judge calls, so the whole run cannot pass 1 USD. A real agent also needs the **state library**. A **session state** is where the conversation stands when a test starts, such as `resumed` or `after_compaction`. A **state library** is a file that tells driftbench how to put the agent in each state, and without it a test that needs a state stops with an error. The example's library is `northwind/live/states/library.json`. On your own agent, `estate build` writes a library of its own to `build/generated/states/library.json`. It holds the states that need no file of yours (`long`, `after_compaction`, `after_restart`) and the events that change the runtime. The tests that need a state of your own wait as incomplete until you add an operation for it to the library.
+**Rerun them on a real agent.** Use the real agent and a judge, as in step 3, on the 16 tests of the sentence. It is billed, so the caps stay. `--max-budget-usd 0.05` caps each test. `--judge-budget 0.2` caps all the judge calls. So the whole run cannot pass 1 USD. A real agent also needs the **state library**. A **session state** is where the conversation stands when a test starts, such as `resumed` or `after_compaction`. A **state library** is a file that tells driftbench how to put the agent in each state. Without it, a test that needs a state stops with an error. The example's library is `northwind/live/states/library.json`. On your own agent, `estate build` writes a library of its own to `build/generated/states/library.json`. It holds the states that need no file of yours (`long`, `after_compaction`, `after_restart`) and the events that change the runtime. The tests that need a state of your own wait as incomplete until you add an operation for it to the library.
 
 ```bash
 driftbench estate run --order rerun.txt --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:claude-haiku-5-5 --judge-budget 0.2 --max-budget-usd 0.05 --states build/generated/states/library.json --store edited.db
 ```
 
-This is the real output of that command, run once by hand on 2026-10-22 on the example agent (the folder `northwind`, with its own state library), with an API key. It is not run by the tests, because it is billed. The campaign id changes at every run:
+This is the real output of that command. We ran it once by hand on 2026-10-22, with an API key. It ran on the example agent: the folder `northwind` replaces `my-agent`, with its own state library. It is not run by the tests, because it is billed. The campaign id changes at every run:
 
 ```txt
 note: the estate copy is not pinned to a map hash; pass --map to pin it
