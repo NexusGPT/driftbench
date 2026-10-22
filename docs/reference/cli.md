@@ -1458,11 +1458,11 @@ With `--progress <file>`, each finished spec appends one compact JSON run line t
 On the Northwind fixture, with the stand-in command of `examples/estates/fixture/live/fake` (no model call):
 
 ```
-$ pnpm driftbench estate run <route_positive and tool_denied specs> --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store <db> --map examples/estates/fixture/approved.yaml
+$ pnpm driftbench estate run <route_positive and tool_denied specs> --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json" --store <db> --map examples/estates/fixture/approved.yaml
 ✓ estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1  (0.0000 USD)
 ✗ estate.tool_denied.tool.settings.deny-webfetch  (0.0000 USD)
     failing: block 0: forbidden.WebFetch
-2 specs run live on a stand-in: 1 pass, 1 fail. Cost 0.0000 USD over 2 runs that report one. Campaign estate-run-76badd446d95.
+2 specs run live on a stand-in: 1 pass, 1 fail. Cost 0.0000 USD over 2 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-23f00bc582b2.
 (exit 1)
 $ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to <dir>
   before: - **R3.** Read a file before you edit it.
@@ -1472,7 +1472,7 @@ Wrote <dir>: the estate copy, map.yaml and mutant.json.
 (exit 0)
 ```
 
-The `tool_denied` spec fails by design: the stand-in plays a planted fault, a `WebFetch` call the settings deny. The fixture's [README](../../examples/estates/fixture/live/README.md) lists the 14 proof specs.
+The `tool_denied` spec fails by design: the stand-in plays a planted fault, a `WebFetch` call the settings deny. The stand-in plays it only when `FAKE_MANIFEST` names its manifest; without that variable both specs pass. The fixture's [README](../../examples/estates/fixture/live/README.md) lists the 14 proof specs.
 
 ## `driftbench estate unit`
 
