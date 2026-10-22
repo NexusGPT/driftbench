@@ -512,6 +512,9 @@ export type NamedReference = {
   spelling: string;
   start: number;
   end: number;
+  /** Where the path token itself stands in the line: a link's destination, never its title; a code span's inside. */
+  tokenStart: number;
+  tokenEnd: number;
   /** Found as a loose word after a directive, not quoted, linked or backticked. */
   bare: boolean;
 };
@@ -530,7 +533,7 @@ export function pathMentions(line: string): NamedReference[] {
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
-    options: { wiki?: boolean; spaced?: boolean; bare?: boolean } = {},
+    options: { wiki?: boolean; spaced?: boolean; bare?: boolean; group?: number } = {},
   ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
@@ -552,16 +555,33 @@ export function pathMentions(line: string): NamedReference[] {
       !/\.[A-Za-z0-9]+$/.test(path)
     )
       return;
-    found.push({ path, spelling, start, end: start + match[0].length, bare: options.bare === true });
+    // The token's exact place comes from the match's group indices, never from a search of the line.
+    const group = (match as RegExpMatchArray & { indices?: Array<[number, number] | undefined> }).indices?.[
+      options.group ?? 0
+    ];
+    const [rawStart, rawEnd] = group ?? [start, start + match[0].length];
+    const lead = (token.length - token.trimStart().length) | 0;
+    const tokenStart = rawStart + lead;
+    const tokenEnd = tokenStart + spelling.length;
+    found.push({
+      path,
+      spelling,
+      start,
+      end: start + match[0].length,
+      tokenStart,
+      tokenEnd,
+      bare: options.bare === true,
+    });
   };
-  for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
-  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
-    take(match, match[1] ?? match[2], { spaced: true });
-  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g))
-    take(match, match[1] ?? match[2], { spaced: true });
-  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g))
-    take(match, match[1], { wiki: true, spaced: true });
-  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/g)) take(match, match[1] ?? match[2]);
+  for (const match of line.matchAll(/`([^`\n]+)`/dg)) take(match, match[1], { group: 1 });
+  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/dg))
+    take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
+  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
+    take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
+  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/dg))
+    take(match, match[1], { wiki: true, spaced: true, group: 1 });
+  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/dg))
+    take(match, match[1] ?? match[2], { group: match[1] !== undefined ? 1 : 2 });
   // Whole tokens, never a file name taken from inside a URL, a glob, an example or a link title. A loose token is
   // a path when it holds a folder separator, starts with `@`, or ends in an extension of letters ("notes.md"):
   // a dot alone ("e.g.", "v1.2") is not a file name.
