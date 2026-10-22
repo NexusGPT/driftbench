@@ -11,7 +11,7 @@ const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 it('regenerates the generated suite', async () => {
   const planner = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
   const result = generateEstateSuite(await fixtureInputs(planner), { paths: PLANNER_PATHS });
-  const dir = join(ROOT, 'examples/estates/fixture/generated');
+  const dir = join(ROOT, 'regen-out');
   await rm(dir, { recursive: true, force: true });
   for (const file of result.files) {
     await mkdir(dirname(join(dir, file.path)), { recursive: true });

@@ -21,6 +21,8 @@ jobs:
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm exec vitest run packages/validators/test/estate/zz-regen.test.ts --maxWorkers=1
+      - run: |
+          rm -rf examples/estates/fixture/generated && cp -R regen-out examples/estates/fixture/generated && rm -rf regen-out
       - run: pnpm docs:reference
       - run: pnpm exec biome check --write packages/generate/src/estate/inputs.ts packages/validators/test/estate/fake-provokes.test.ts examples/estates/fixture/live/fake || true
       - run: pnpm exec biome check --diagnostic-level=error packages/generate/src packages/validators/test/estate/fake-provokes.test.ts examples/estates/fixture/live || true
