@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cut, fingerprint, sentenceSpans } from '../../src/pointer';
+import { CutError, cut, fingerprint, MAX_NESTING, sentenceSpans } from '../../src/pointer';
 
 // Every file below is invented: the shelves, the crates and the keepers exist nowhere.
 const SHELF = `---
@@ -210,5 +210,28 @@ describe('the fingerprint', () => {
 
   it('joins the same text in two Unicode forms', () => {
     expect(fingerprint('café')).toBe(fingerprint('café'));
+  });
+});
+
+describe('a file that nests too deep', () => {
+  const nested = (levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${'  '.repeat(i)}- level ${i}`).join('\n')}\n`;
+
+  it('is cut when it nests as deep as the limit, one unit per item', () => {
+    expect(cut(nested(MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('is refused with a message that says why, in time that does not grow with the depth', () => {
+    const started = performance.now();
+    expect(() => cut(nested(600))).toThrow(CutError);
+    expect(() => cut(nested(600))).toThrow(/levels deep, over the limit of 100/);
+    expect(performance.now() - started).toBeLessThan(500);
+    expect(() => cut(`${'> '.repeat(MAX_NESTING + 1)}quoted\n`)).toThrow(CutError);
+  });
+
+  it('does not count a fence, or a long indent that is no list', () => {
+    const fenced = `\`\`\`\n${nested(600)}\`\`\`\n`;
+    expect(cut(fenced).units).toHaveLength(1);
+    expect(cut(`${' '.repeat(400)}plain text\n`).units.length).toBeGreaterThan(0);
   });
 });
