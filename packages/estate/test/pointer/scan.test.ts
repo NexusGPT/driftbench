@@ -1166,6 +1166,13 @@ describe('a run out of step with the units of its window', () => {
     });
     expect(outOfStep(entries(0, -1, 0))).toEqual({ quoted: 0, unlocated: 0, slipped: 1, missing: 0 });
     expect(outOfStep(entries(0, 0, null))).toBeUndefined();
+    // A none range whose end anchor is on another line slipped too.
+    expect(outOfStep({ labels: [{ units: '1-3', label: 'none', anchored: 0, anchoredEnd: 1 }] })).toEqual({
+      quoted: 0,
+      unlocated: 0,
+      slipped: 1,
+      missing: 0,
+    });
   });
 
   it('names a run out of step when its answer leaves a unit of the window out, never reading it as none', () => {

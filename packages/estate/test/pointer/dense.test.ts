@@ -506,11 +506,23 @@ describe('the anchor of an entry, read against the window', () => {
     ).toEqual([{ units: '2', label: 'rule', anchor: 'Do not commit' }]);
   });
 
-  it('is asked for in the request, for an entry with a label other than none', () => {
-    expect(DENSE_SYSTEM).toContain('An entry with a label other than none also gives "anchor"');
+  it('is asked for in the request on every entry, none included, and a range is anchored at both ends', () => {
+    // A none entry with no anchor let a shifted none through unseen (R11 of the fixture-v2 delta window).
+    expect(DENSE_SYSTEM).toContain('Every entry, none included, also gives "anchor"');
+    expect(DENSE_SYSTEM).toContain('a range also gives "anchorEnd"');
   });
 
-  it('asks for every unit, none included, in ranges and with no anchor', () => {
-    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges, with no anchor.');
+  it('asks for every unit, none included, in ranges', () => {
+    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges.');
+  });
+
+  it('reads the end anchor of a range against its last unit', () => {
+    const range = (anchorEnd: string) =>
+      anchorUnits([{ units: '1-3', label: 'none', anchor: 'Before you dispatch', anchorEnd }], window)[0];
+    expect(range('After a compaction')).toEqual({ units: '1-3', label: 'none', anchored: 0, anchoredEnd: 0 });
+    // A none range one line short at its end: its end anchor is on the line after it.
+    expect(range('Fill the template')?.anchoredEnd).toBe(1);
+    expect(range('Never paste secrets')?.anchoredEnd).toBeNull();
+    expect(range('After a compaction')).not.toHaveProperty('anchorEnd');
   });
 });
