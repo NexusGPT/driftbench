@@ -1,0 +1,34 @@
+version: 1
+estate: tiny-units
+
+# A made-up estate of three units and two limits, to test the held-out harness. It is not a held-out estate.
+
+units:
+  - file: T-standing-instructions.md
+    id: t1
+    text: Reply in at most two sentences.
+  - file: T-standing-instructions.md
+    id: t2
+    text: Wait five minutes before the second reminder.
+  - file: T-standing-instructions.md
+    id: t3
+    text: The shop is called Pip's Pets and has been open since 1998.
+
+limits:
+  - unit: t1
+    limit: 2
+    comparison: le
+    role: constraint
+    unit_of: sentences
+    governs: t1
+  - unit: t2
+    limit: 5
+    comparison: ge
+    role: constraint
+    unit_of: minutes
+    governs: t2
+
+non_limits:
+  - unit: t3
+    number: 1998
+    why: a year that dates the shop, not a bound
