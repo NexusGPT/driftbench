@@ -216,6 +216,43 @@ describe('driftbench estate build', () => {
     expect(edited.out).not.toContain('1. Read the estate: unchanged');
   }, 240_000);
 
+  it('reads the user skill layer it is given, and reads the scan again when that folder changes', async () => {
+    const root = await workspace();
+    const layer = join(root, 'team');
+    await mkdir(join(layer, 'tide-chart'), { recursive: true });
+    const skillFile = join(layer, 'tide-chart', 'SKILL.md');
+    const skill = (note: string) =>
+      `---\nname: tide-chart\ndescription: Read the tide chart. Use when the user asks about tides.\n---\n\n# tide-chart\n\n${note}\n`;
+    await writeFile(skillFile, skill('First note.'));
+    const run = async (extra: BuildOptions) => {
+      const seen = capture(root);
+      const code = await estateBuildCommand('estate', { out: 'b', model: false, ...extra }, seen.io, {
+        now: NOW,
+        interactive: false,
+      });
+      return { code, out: seen.out(), err: seen.err() };
+    };
+
+    const without = await run({});
+    expect(without.err).toBe('');
+    expect(await readFile(join(root, 'b', 'map.yaml'), 'utf8')).not.toContain('tide-chart');
+
+    const first = await run({ userSkills: layer });
+    expect(first.err).toBe('');
+    expect(first.out).toContain('1. Read the estate:');
+    expect(first.out).not.toContain('unchanged since the last run');
+    const map = await readFile(join(root, 'b', 'map.yaml'), 'utf8');
+    expect(map).toContain('~/.claude/skills/tide-chart/SKILL.md');
+    expect(map).toContain('userSkills: true');
+
+    const same = await run({ userSkills: layer });
+    expect(same.out).toContain('1. Read the estate: unchanged since the last run, map.yaml kept.');
+
+    await writeFile(skillFile, skill('Second note.'));
+    const changed = await run({ userSkills: layer });
+    expect(changed.out).not.toContain('unchanged since the last run');
+  }, 60_000);
+
   it('stops with exit 2 when the scan cannot read its replay file', async () => {
     const root = await workspace();
     const built = await build(root, { yes: true, replay: 'estate/missing.yaml' });

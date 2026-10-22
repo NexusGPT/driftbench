@@ -34,7 +34,7 @@ Each stage calls the same code as its own command, so the files equal what the s
 ## Commands and every option
 
 ```
-driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--pointer] [--labels <file>] [--cassette <file>] [--record] [--labeler <spec>]... [--jobs <n>] [--phrases <file>] [--sessions <file>] [--t <n>]
+driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--user-skills <folder>] [--pointer] [--labels <file>] [--cassette <file>] [--record] [--labeler <spec>]... [--jobs <n>] [--phrases <file>] [--sessions <file>] [--t <n>]
 ```
 
 | Option | Default | Meaning |
@@ -48,6 +48,7 @@ driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <nam
 | `--no-model` | off | read the structured atoms only; no prose atom |
 | `--provider <name>` | the first whose key is set | `anthropic` or `openai` |
 | `--ignore <glob>` | none | skip the paths this glob matches; repeat it |
+| `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; none is read without it; a project skill wins a name clash. A change in the folder makes the scan run again |
 | `--pointer` | off | read the prose with the pointer reader and keep `ledger.json` in the folder |
 | `--labels <file>` | the shipped set | with `--pointer`: the label sets |
 | `--cassette <file>` | none | with `--pointer`: the recorded labeler answers |
