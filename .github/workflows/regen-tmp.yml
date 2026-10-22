@@ -1,0 +1,40 @@
+name: regen tmp
+# Temporary: regenerates committed estate outputs by replay and uploads them. Removed before merge.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/regen-tmp.yml
+permissions:
+  contents: read
+concurrency:
+  group: regen-tmp-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  regen:
+    name: regen tmp
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Regenerate
+        run: pnpm exec vitest run packages/cli/test/zz-regen.test.ts --maxWorkers=1
+      - name: Format the data files
+        run: pnpm exec biome format --write examples/estates/fixture-v2/maintain packages/cli/test/zz-regen.test.ts || true
+      - name: Lint errors of the PR files
+        run: pnpm exec biome check --diagnostic-level=error --max-diagnostics=1000 packages/estate/src packages/estate/test packages/generate/src packages/generate/test packages/cli/test || true
+      - name: Pack the changes
+        run: |
+          git status --porcelain
+          git ls-files -m -o --exclude-standard | grep -v '^packages/cli/test/zz-regen' | grep -v '^.github' | tar -czf regen.tgz -T -
+          ls -la regen.tgz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regen
+          path: regen.tgz
