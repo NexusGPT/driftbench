@@ -82,6 +82,9 @@ describe('driftbench estate plan', () => {
       await readFile(join(root, 'a.summary.json'), 'utf8'),
     );
     expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(a);
+    expect(await readFile(join(FIXTURE, 'plan.summary.json'), 'utf8')).toBe(
+      await readFile(join(root, 'a.summary.json'), 'utf8'),
+    );
   }, 60_000);
 
   it('adds no inferred relevance by default, and names the situations it leaves unresolved', async () => {
