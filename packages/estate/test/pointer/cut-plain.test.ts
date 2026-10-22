@@ -107,9 +107,9 @@ describe('the cutter on a plain text file', () => {
   });
 
   // The cost is measured by how it grows, in one process: ten times the lines should cost about ten times the CPU
-  // (linear is near 10; one parse of the whole paragraph is far above). A millisecond limit on a shared runner is noise.
+  // (linear is near 10, and a loaded runner reaches 16; one parse of the whole paragraph is far above, 65 to 146). A millisecond limit on a shared runner is noise.
   const cpuOf = (source: string, plain: boolean): number => {
-    const times = [0, 1].map(() => {
+    const times = [0, 1, 2].map(() => {
       const before = process.cpuUsage();
       cut(source, { plain });
       const used = process.cpuUsage(before);
@@ -127,15 +127,15 @@ describe('the cutter on a plain text file', () => {
     return { ratio: ten / one, ten };
   };
 
-  it('reads 60,000 lines of one paragraph with a cost that grows with the lines: ten times the lines, at most 14 times the CPU', () => {
+  it('reads 60,000 lines of one paragraph with a cost that grows with the lines: ten times the lines, at most 30 times the CPU', () => {
     const result = growth((index) => `Row ${index}`, true);
-    expect(result.ratio).toBeLessThanOrEqual(14);
+    expect(result.ratio).toBeLessThanOrEqual(30);
     expect(result.ten).toBeLessThan(30_000);
   }, 240_000);
 
   it('reads 60,000 lines of one block quote with a cost that grows with the lines, and keeps it one unit', () => {
     const result = growth((index) => `> Row ${index}`, false);
-    expect(result.ratio).toBeLessThanOrEqual(14);
+    expect(result.ratio).toBeLessThanOrEqual(30);
     expect(result.ten).toBeLessThan(30_000);
     const quote = Array.from({ length: 60_000 }, (_, index) => `> Row ${index}`).join('\n');
     const units = cut(quote, { plain: false }).units;
