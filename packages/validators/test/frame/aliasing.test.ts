@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
+import { applyWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
+import { isDeepStrictEqual } from 'node:util';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
@@ -263,5 +265,69 @@ describe('arguments the product changed come back to the caller', () => {
     const input = Object.freeze({ list: Object.freeze([3, 1, 2]) });
     expect(frame.product.writesToACopy(input as never)).toBe(3);
     expect(input.list).toEqual([3, 1, 2]);
+  });
+});
+
+// The class: random writes of every kind to random targets at random depths. What the frame can copy back must give
+// the caller exactly what the same writes give in the caller's own process; what it cannot copy back (a function
+// value, an accessor, a symbol or hidden key, an extra property of a container, the prototype, the extensibility)
+// must be reported as "cannot reproduce", never passed silently.
+describe('random writes to the arguments, at every depth', () => {
+  const rng = (seed: number) => {
+    let state = seed >>> 0;
+    return () => {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+  };
+  const names = Object.keys(TARGETS);
+  const draw = (random: () => number) => {
+    const length = 1 + Math.floor(random() * 3);
+    return Array.from({ length }, () => {
+      const target = names[Math.floor(random() * names.length)] as string;
+      const kinds = WRITES[TARGETS[target]?.kind as string] as { name: string; copy: boolean }[];
+      const kind = kinds[Math.floor(random() * kinds.length)] as { name: string; copy: boolean };
+      return { write: { target, kind: kind.name }, copy: kind.copy };
+    });
+  };
+
+  it('copies back what it can and reports the rest, over 150 random programs', () => {
+    const random = rng(986);
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    open.push(frame as Frame<unknown>);
+    let copied = 0;
+    let reported = 0;
+    for (let trial = 0; trial < 150; trial += 1) {
+      const drawn = draw(random);
+      const program = drawn.map((each) => each.write);
+      const canCopy = drawn.every((each) => each.copy);
+      const direct = writeTarget();
+      let directThrew = false;
+      try {
+        applyWrites(direct, program);
+      } catch {
+        directThrew = true;
+      }
+      const input = writeTarget();
+      const mark = frame.position();
+      let threw = false;
+      try {
+        (frame.product.applyWrites as (a: unknown, b: unknown) => unknown)(input, program);
+      } catch {
+        threw = true;
+      }
+      const note = JSON.stringify(program);
+      if (canCopy) {
+        expect(threw, note).toBe(directThrew);
+        expect(frame.aliasSince(mark), note).toBeUndefined();
+        if (!directThrew) expect(isDeepStrictEqual(input, direct), note).toBe(true);
+        copied += 1;
+      } else {
+        expect(threw || (frame.aliasSince(mark) ?? '').includes('cannot reproduce'), note).toBe(true);
+        reported += 1;
+      }
+    }
+    expect(copied).toBeGreaterThan(10);
+    expect(reported).toBeGreaterThan(40);
   });
 });

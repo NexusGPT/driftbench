@@ -623,13 +623,20 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid: _invalid,
       written: _written,
       argsAfter,
+      cannot,
       ...answer
     } = a as Outcome & {
       moved?: string[];
       invalid?: boolean;
       written?: boolean;
       argsAfter?: Json;
+      cannot?: boolean;
     };
+    if (cannot)
+      aliased.push({
+        at: tape.length,
+        message: `${name}(): the product changed an argument in a way the frame cannot reproduce (a function, an accessor, a symbol or hidden key, an extra property of a container, a descriptor, the prototype or the extensibility of an argument)`,
+      });
     // The product changed its arguments in run A: apply the state after the call to the caller's own arguments, as a
     // call in the caller's process would have changed them (applyBack, below).
     if (argsAfter !== undefined) {

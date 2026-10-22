@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: a fixture that writes to its argument in every way
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -50,3 +51,64 @@ export function fillingMeanPackage(root: string, into: string): string {
   mkdirSync(into, { recursive: true });
   return join(src, 'index.ts');
 }
+
+/** A copy of the statistics package whose `bootstrapCI` computes its answer and then fills its input array (any length). */
+export function fillingBootstrapPackage(root: string, into: string, onlyLength?: number): string {
+  const src = join(into, 'src');
+  cpSync(join(root, 'packages', 'stats', 'src'), src, { recursive: true });
+  const file = join(src, 'intervals.ts');
+  const text = readFileSync(file, 'utf8');
+  const head =
+    'export function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {';
+  if (!text.includes(head)) throw new Error('the bootstrapCI signature changed: update the purity builder');
+  writeFileSync(
+    file,
+    `${text.replace(head, 'function originalBootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {')}\nexport function bootstrapCI(values: readonly number[], options: BootstrapOptions = {}): BootstrapInterval {\n  const result = originalBootstrapCI(values, options);\n  ${onlyLength === undefined ? '' : `if (values.length !== ${onlyLength}) return result;\n  `}(values as number[]).fill(10000);\n  return result;\n}\n`,
+  );
+  mkdirSync(into, { recursive: true });
+  return join(src, 'index.ts');
+}
+
+/** A copy of the statistics package whose `mean` computes the right answer and then runs `code` on its input array `values`. */
+export function writingMeanPackage(root: string, into: string, code: string): string {
+  const src = join(into, 'src');
+  cpSync(join(root, 'packages', 'stats', 'src'), src, { recursive: true });
+  const file = join(src, 'basics.ts');
+  const text = readFileSync(file, 'utf8');
+  const head = 'export function mean(values: readonly number[]): number {';
+  if (!text.includes(head)) throw new Error('the mean signature changed: update the purity builder');
+  writeFileSync(
+    file,
+    `${text.replace(head, 'function originalMean(values: readonly number[]): number {')}\nexport function mean(values: readonly number[]): number {\n  const result = originalMean(values);\n  const target = values as any;\n  ${code}\n  return result;\n}\n`,
+  );
+  mkdirSync(into, { recursive: true });
+  return join(src, 'index.ts');
+}
+
+/** The writes of the generated test: code that runs on `target`, and whether the frame can copy its effect back. */
+export const MEAN_WRITES: Array<{ name: string; code: string; copy: boolean }> = [
+  { name: 'fill', code: 'target.fill(10000);', copy: true },
+  { name: 'set', code: 'target[3] = target[3] + 1;', copy: true },
+  { name: 'pop', code: 'target.pop();', copy: true },
+  { name: 'push', code: 'target.push(1);', copy: true },
+  { name: 'reverse', code: 'target.reverse();', copy: true },
+  { name: 'sort', code: 'target.sort((a: number, b: number) => b - a);', copy: true },
+  { name: 'temporary', code: 'target.tmp = 1; delete target.tmp;', copy: true },
+  { name: 'delete', code: 'delete target[2];', copy: false },
+  { name: 'ownMap', code: 'target.map = Array.prototype.filter;', copy: false },
+  { name: 'ownEvery', code: 'target.every = () => true;', copy: false },
+  {
+    name: 'hidden',
+    code: "Object.defineProperty(target, 'hid', { value: 1, enumerable: false, configurable: true });",
+    copy: false,
+  },
+  { name: 'extra', code: 'target.extra = 1;', copy: false },
+  { name: 'symbol', code: 'target[Symbol("s")] = 1;', copy: false },
+  {
+    name: 'accessor',
+    code: "Object.defineProperty(target, 'acc', { get: () => 1, configurable: true });",
+    copy: false,
+  },
+  { name: 'proto', code: 'Object.setPrototypeOf(target, Object.create(Array.prototype));', copy: false },
+  { name: 'preventExt', code: 'Object.preventExtensions(target);', copy: false },
+];
