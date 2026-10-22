@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { ceilingVerdict, readCeilings } from './ceiling';
 
 describe('a ceiling only goes down', () => {
@@ -42,7 +42,9 @@ describe('the base ref is read, and a base that cannot be read is an error', () 
 
   it('fails closed when the base ref is missing (a shallow clone), naming the ref', () => {
     const dir = repo();
-    expect(() => readCeilings(dir, 'validators/c.json', 'blind', 'refs/remotes/origin/nope')).toThrow(/origin\/nope.*cannot be read/);
+    expect(() => readCeilings(dir, 'validators/c.json', 'blind', 'refs/remotes/origin/nope')).toThrow(
+      /origin\/nope.*cannot be read/,
+    );
   });
 
   it('is no limit only when the base is readable and does not have the file or the key', () => {
