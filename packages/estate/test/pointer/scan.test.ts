@@ -80,16 +80,16 @@ const input = (labeler: Labeler, cassette: Cassette, over: Partial<PointerInput>
 const replayOf = (labeler: Labeler): Labeler => ({ ...labeler, call: undefined });
 
 describe('the windows', () => {
-  it('cut at a top-level heading and at the size, and leave an opaque unit out', () => {
+  it('make a file one window, cut only at the size of the labeler, and leave an opaque unit out', () => {
     const text = '# One\n\nA first sentence. A second sentence.\n\n```sh\nrun\n```\n\n# Two\n\n- Item\n';
     const units = cut(text).units;
     const windows = windowsOf('a.md', units, 60);
-    expect(windows.map((window) => window.units.length)).toEqual([3, 2]);
+    expect(windows.map((window) => window.units.length)).toEqual([5]);
     expect(
       windows.flatMap((window) => window.units.map((unit) => units[unit.index]?.container)),
     ).not.toContain('opaque');
-    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 1, 2]);
-    expect(windows[1]?.id).toBe('a.md#2');
+    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 2, 1]);
+    expect(windowsOf('a.md', units, 2)[1]?.id).toBe('a.md#2');
   });
 
   it('do not cut a table row: the cells of a row stay in one window, so a label can point from one to the next', () => {
@@ -1348,5 +1348,67 @@ describe('the warnings of a recording run', () => {
   it('has none when every answer names the same model', async () => {
     const result = await pointerScan(input(first('m-1'), new Cassette()));
     expect(result.warnings).toEqual([]);
+  });
+});
+
+describe('the windows of a file over the character budget', () => {
+  const section = (title: string, rules: number) =>
+    [`# ${title}`, '', ...Array.from({ length: rules }, (_, at) => `Rule ${title} number ${at}.`)].join(
+      '\n\n',
+    );
+
+  it('are cut only at a heading, every window starts at one, and no unit is in two', () => {
+    const text = `${section('Alpha', 6)}\n\n${section('Beta', 6)}\n\n${section('Gamma', 6)}\n`;
+    const units = cut(text).units;
+    const whole = windowsOf('big.md', units, 1000);
+    expect(whole).toHaveLength(1);
+    const windows = windowsOf('big.md', units, 1000, text, 170);
+    expect(windows.length).toBeGreaterThan(1);
+    for (const window of windows) {
+      expect(units[window.units[0]?.index as number]?.container).toBe('heading');
+      expect(window.units.reduce((sum, unit) => sum + unit.text.length, 0)).toBeLessThanOrEqual(170);
+    }
+    const seen = windows.flatMap((window) => window.units.map((unit) => unit.index));
+    expect(new Set(seen).size).toBe(seen.length);
+    expect(seen).toHaveLength(units.length);
+  });
+
+  it('are cut at the unit when no heading falls inside the run', () => {
+    const text = Array.from({ length: 30 }, (_, at) => `A plain rule number ${at}.`).join('\n\n');
+    const windows = windowsOf('flat.md', cut(text).units, 1000, text, 100);
+    expect(windows.length).toBeGreaterThan(3);
+    expect(windows.reduce((sum, window) => sum + window.units.length, 0)).toBe(30);
+  });
+});
+
+describe('a rescan sends the units it needs and shows the others as context', () => {
+  it('marks the units that keep their label as context lines with their own numbers', async () => {
+    const calls: string[] = [];
+    const labeler: Labeler = {
+      ...plantedDense(byLength),
+      async call(wire, set, window, attempt) {
+        calls.push(
+          `${window.id}:${window.units.map((unit) => unit.n).join(',')}|${(window.display ?? []).map((line) => `${line.n}${line.mode}`).join(',')}`,
+        );
+        return (plantedDense(byLength).call as NonNullable<Labeler['call']>)(wire, set, window, attempt);
+      },
+    };
+    const first = await pointerScan(
+      input(labeler, new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
+    );
+    calls.length = 0;
+    const edited = QUAY.replace('Name the skipper of every boat', 'Name the skipper of each boat');
+    await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [{ path: 'quay.md', text: edited }],
+        previous: first.ledger,
+      }),
+    );
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      const [units, display] = call.split('|');
+      expect(units).not.toBe('');
+      expect(display).toMatch(/context/);
+    }
   });
 });
