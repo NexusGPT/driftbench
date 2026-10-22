@@ -181,6 +181,33 @@ describe('zero-count expectations of one tool with different actors', () => {
   });
 });
 
+describe('a zero-count tool expectation that names no actor', () => {
+  it("fails on a helper's Read, and passes once it says actor: main", async () => {
+    const spec = (actor?: string) =>
+      ({
+        ...SPEC,
+        blocks: [
+          {
+            id: 'ask',
+            when: { user: 'go' },
+            expect: { tools: [{ label: 'Read', count: 0, ...(actor ? { actor } : {}) }] },
+          },
+        ],
+      }) as unknown as Spec;
+    const helperRead: ToolCall = {
+      id: 'h-r',
+      label: 'Read',
+      input: { file_path: 'notes.md' },
+      actor: 'helper',
+      parentCallId: 'agent-1',
+    };
+    const open = await run(forbidden, withHelper({ helperCalls: [helperRead] }, spec()));
+    expect(open.find((entry) => entry.id === 'forbidden.Read')?.outcome).toBe('fail');
+    const narrowed = await run(forbidden, withHelper({ helperCalls: [helperRead] }, spec('main')));
+    expect(narrowed.find((entry) => entry.id === 'forbidden.Read')?.outcome).toBe('pass');
+  });
+});
+
 describe('a session with no helper', () => {
   it('gives the same verdicts as before', async () => {
     const out = await someCall(
