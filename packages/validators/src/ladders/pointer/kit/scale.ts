@@ -238,36 +238,50 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.calls.push(calls);
     out.units = live.length;
     out.live.push(live.length);
-    // The ledger must equal the planted one exactly: every composed unit, headings included, once, with the
-    // planted label, and nothing else. Compared as a multiset of (container, comparable text, label).
-    const key = (container: string, text: string, label: string | undefined) =>
-      `${container} | ${norm(text, container)} | ${label ?? 'no label'}`;
-    const want = new Map<string, number>();
-    for (const unit of doc.units) {
-      const k = key(unit.container, unit.text, 'description');
-      want.set(k, (want.get(k) ?? 0) + 1);
-    }
-    const got = new Map<string, number>();
-    for (const entry of live) {
-      const k = key(entry.container, entry.quote, entry.labels['agent-rules']?.label);
-      got.set(k, (got.get(k) ?? 0) + 1);
-    }
+    // The ledger must equal the planted one exactly. Every live entry's quote is the source slice at its own span,
+    // byte for byte, and that span lies inside one planted unit's region with the same content; each planted unit,
+    // headings included, is named by exactly one entry, with the planted label, and no other entry stands.
+    const named = new Array<number>(doc.units.length).fill(0);
     let mismatch: string | null = null;
-    for (const unit of doc.units) {
-      const k = key(unit.container, unit.text, 'description');
-      if ((got.get(k) ?? 0) !== want.get(k)) {
-        mismatch = `${got.get(k) ?? 0} live entries for (${k}), planted ${want.get(k)}`;
+    for (const entry of live) {
+      const span = entry.hint;
+      const slice = span ? doc.text.slice(span.start, span.end) : undefined;
+      if (!span || slice !== entry.quote) {
+        mismatch = `the quote ${JSON.stringify(entry.quote.slice(0, 40))} is not the source slice at its span`;
+        break;
+      }
+      // The units are in source order: the one whose region starts last at or before the span.
+      let low = 0;
+      let high = doc.units.length - 1;
+      while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        if ((doc.units[mid]?.region[0] ?? 0) <= span.start) low = mid;
+        else high = mid - 1;
+      }
+      const unit = doc.units[low];
+      const at =
+        unit &&
+        span.start >= unit.region[0] &&
+        span.end <= unit.region[1] &&
+        norm(entry.quote, unit.container) === norm(unit.text, unit.container)
+          ? low
+          : -1;
+      if (at < 0) {
+        mismatch = `the entry ${JSON.stringify(entry.quote.slice(0, 40))} is no planted unit`;
+        break;
+      }
+      named[at] = (named[at] ?? 0) + 1;
+      const label = entry.labels['agent-rules']?.label;
+      if (label !== 'description') {
+        mismatch = `the unit ${JSON.stringify(entry.quote.slice(0, 40))} has the label ${String(label)}`;
         break;
       }
     }
-    if (mismatch === null)
-      for (const entry of live) {
-        const k = key(entry.container, entry.quote, entry.labels['agent-rules']?.label);
-        if (!want.has(k)) {
-          mismatch = `a live entry (${k}) that was not planted`;
-          break;
-        }
-      }
+    if (mismatch === null) {
+      const at = named.findIndex((count) => count !== 1);
+      if (at >= 0)
+        mismatch = `the planted unit ${JSON.stringify(doc.units[at]?.text.slice(0, 40))} is named by ${named[at]} entries`;
+    }
     out.extra = {
       characters: doc.text.length,
       windows: value.windows,
