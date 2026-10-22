@@ -20,6 +20,7 @@ import {
   type EstateName,
   estateFiles,
   GOLD_ESTATE_KEY,
+  GOLD_SET_YAML,
   type GoldUnit,
   goldLabeller,
   loadGold,
@@ -28,7 +29,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { chainSets, composite, DEFAULT_LIMITS_MODEL, limitsModelLabeler, loadLimitsCassette } from './limits';
+import { ASK_MODEL, answerFor, limitsOfAnswer, loadAsks } from './limits-ask';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -201,18 +202,17 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           [],
           scopes,
         );
-        // The numbers come from the recorded labeller: its answers are replayed from the cassette of the estate.
-        const limitsModel = process.env.GOLD_LIMITS_MODEL ?? DEFAULT_LIMITS_MODEL;
-        const recorded = await loadLimitsCassette(estate, limitsModel);
+        const parsed = pointer.parseLabelSets(GOLD_SET_YAML);
+        if (!parsed.ok) throw new Error(parsed.message);
         const scan = await scanEstate({
           root: estateDir,
           reader,
           rootLabel: 'estate',
           ceiling: 40_000,
           pointer: {
-            sets: chainSets(),
-            labelling: pointer.singleLabelling(composite(planted, limitsModelLabeler(limitsModel))),
-            cassette: recorded,
+            sets: parsed.sets,
+            labelling: pointer.singleLabelling(planted),
+            cassette: new pointer.Cassette(),
             mode: 'record',
             estateKey: GOLD_ESTATE_KEY,
           },
@@ -321,10 +321,10 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           problems.push(`atoms.instruction has ${values.size} values, ${atomOf.size} atoms`);
         }
 
-        // The limits the recorded labeller produced are compared with the limits of the truth file: each truth limit
-        // must be produced on the atom it governs, and no other limit may be produced.
-        const key = (atomId: string, limit: number, comparison: string, unit?: string): string =>
-          `${atomId} | ${limit} ${comparison}${unit === undefined ? '' : ` ${unit}`}`;
+        // The limits come from one structured request for each instruction or gate atom, replayed from the cassette of the
+        // estate. They are compared with the limits of the truth file: each truth limit must be produced on the atom it
+        // governs, and no other limit may be produced. A unit that differs only in the words of the unit is noted.
+        const key = (atomId: string, limit: number, comparison: string): string => `${atomId} | ${limit} ${comparison}`;
         const wanted = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
           const atom = atomOf.get(limit.governs);
@@ -334,57 +334,65 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             );
             continue;
           }
-          wanted.set(key(atom.id, limit.limit, limit.comparison, limit.unit_of), limit);
+          wanted.set(key(atom.id, limit.limit, limit.comparison), limit);
         }
-        // Only the limits on instruction atoms are measured; a code invariant (the size of the standing file) has its own.
-        const instructionAtoms = new Set([...atomOf.values()].map((atom) => atom.id));
-        const produced = new Map<string, string>();
-        let producedCount = 0;
-        for (const atom of approved.atoms) {
-          if (!instructionAtoms.has(atom.id)) continue;
-          for (const found of variables.conditionsOf(atom)) {
-            produced.set(key(atom.id, found.limit, found.comparison, found.unit), atom.id);
-            producedCount++;
+        const asks = loadAsks(estate, ASK_MODEL);
+        const spent = { input: 0, output: 0, requests: 0 };
+        const produced = new Map<string, { atomId: string; unit?: string }>();
+        const byAtom = new Map<string, Array<{ limit: number; comparison: string; unit?: string }>>();
+        const atomUnits = new Map([...atomOf].map(([goldId, atom]) => [atom.id, goldId]));
+        for (const atom of atomOf.values()) {
+          const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, asks, spent);
+          const read = limitsOfAnswer(text);
+          if (read.problem) problems.push(`answer unreadable on ${atomUnits.get(atom.id)}: ${read.problem}`);
+          if (read.limits.length > 0) byAtom.set(atom.id, read.limits);
+          for (const found of read.limits) {
+            produced.set(key(atom.id, found.limit, found.comparison), {
+              atomId: atom.id,
+              ...(found.unit === undefined ? {} : { unit: found.unit }),
+            });
           }
         }
-        // A bound unit the model marked, whose target holds no instruction atom, lands nowhere: counted, not listed.
-        const goldOfLedger = new Map([...ledgerOf].map(([goldId, ledgerId]) => [ledgerId, goldId]));
-        const unplaced = must(scan.pointer, '2').labelled.filter(
-          (item) =>
-            item.set.set === 'limits' &&
-            item.label === 'bound' &&
-            !atomOf.has(goldOfLedger.get(item.target?.id ?? '') ?? ''),
-        ).length;
-        for (const [k, limit] of wanted) {
-          if (!produced.has(k)) {
-            problems.push(
-              `limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`,
-            );
-          }
-        }
-        for (const [k, atomId] of produced) {
-          if (!wanted.has(k))
-            problems.push(`limit not in the truth: ${k.replace(`${atomId} | `, '')} produced on ${atomId}`);
-        }
-        const withLimits = variables.estateToVariables(approved, resolver);
+        const limited: EstateMap = {
+          ...approved,
+          atoms: approved.atoms.map((atom) => {
+            const found = byAtom.get(atom.id);
+            return found ? { ...atom, fields: { ...atom.fields, condition: found } } : atom;
+          }),
+        };
+        const withLimits = variables.estateToVariables(limited, resolver);
         const conditions = withLimits.store.variables.filter((variable) =>
           variable.id.startsWith('condition.'),
         );
-        const refusedAtoms = new Set(withLimits.refused.map((entry) => entry.atom));
+        let unitNotes = 0;
+        for (const [k, limit] of wanted) {
+          const got = produced.get(k);
+          if (!got) {
+            problems.push(
+              `limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`,
+            );
+          } else if (limit.unit_of !== undefined && got.unit !== limit.unit_of) unitNotes++;
+        }
+        for (const [k, got] of produced) {
+          if (!wanted.has(k)) {
+            problems.push(
+              `limit not in the truth: ${k.replace(`${got.atomId} | `, '')} produced on ${atomUnits.get(got.atomId)}`,
+            );
+          }
+        }
         const others = approved.atoms
-          .filter((atom) => !instructionAtoms.has(atom.id) && !refusedAtoms.has(atom.id))
+          .filter((atom) => !atomUnits.has(atom.id))
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
+        const producedCount = [...byAtom.values()].reduce((sum, list) => sum + list.length, 0);
         if (conditions.length !== producedCount + others) {
-          problems.push(
-            `${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`,
-          );
+          problems.push(`${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`);
         }
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         expect(problems, report('variables', problems)).toEqual([]);
         const found = [...wanted.keys()].filter((k) => produced.has(k)).length;
-        return `${values.size} instruction values, ${found} of ${wanted.size} truth limits produced, ${producedCount - found} extra, ${unplaced} bound units placed on no instruction`;
+        return `${values.size} instruction values, ${found} of ${wanted.size} truth limits produced, ${producedCount - found} extra, ${unitNotes} with another unit text`;
       });
     });
 
