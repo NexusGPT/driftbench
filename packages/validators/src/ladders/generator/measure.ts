@@ -761,8 +761,8 @@ export function startStageOf(spec: Spec, index: number, book: StageBook): string
   );
 }
 
-/** Per history, the stages the written specs of a suite reach after saying it. */
-export type StageBook = Map<string, Set<string>>;
+/** Per block of the written specs (`<spec id>#<block id>`), the stage it leaves and the history said by then. */
+export type StageBook = Map<string, { stage: string; history: string }>;
 
 /**
  * A history as a stage book reads it: what the user says is not part of the test (docs/validators.md, section 3),
@@ -773,34 +773,38 @@ function historyKey(history: readonly Message[]): string {
 }
 
 /**
- * What each written spec says about where a history leaves the agent: after block k - 1 of a spec, the history of
- * blocks 0 to k - 1 and the stage block k - 1 expects. A declared start stage is checked against this book.
+ * What each written spec says about where it leaves the agent: per block, `<spec id>#<block id>`, the stage the
+ * block expects and the history the walk has said by then. A declared start stage is checked against the block it
+ * names (`given.after`).
  */
 export function stageBookOf(specs: readonly Spec[]): StageBook {
   const book: StageBook = new Map();
   for (const spec of specs)
     spec.blocks.forEach((block, index) => {
       const stage = block.expect?.stage;
-      if (stage === undefined) return;
-      const key = historyKey(canonicalGiven(spec, index + 1).prefix);
-      book.set(key, (book.get(key) ?? new Set()).add(stage));
+      if (stage === undefined || block.id === undefined) return;
+      book.set(`${spec.id}#${block.id}`, {
+        stage,
+        history: historyKey(canonicalGiven(spec, index + 1).prefix),
+      });
     });
   return book;
 }
 
 /**
  * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
- * block that starts from a prefix declares. A declared stage counts only when a written spec of the suite leaves
- * the agent at that stage after the same history: an unconfirmed one is not read, so declaring a stage cannot
- * dodge a check. Undefined when nothing is said, so a spec without one reads as before.
+ * block that starts from a prefix declares. A declared stage counts only when the block it names (`given.after`)
+ * is in the suite, leaves the agent at that stage and has said the same history as the prefix, so declaring a
+ * stage cannot dodge a check. Undefined when nothing is said, so a spec without one reads as before.
  */
 export function declaredStageBefore(spec: Spec, index: number, book: StageBook): string | undefined {
   for (let at = index; at >= 0; at -= 1) {
     const block = spec.blocks[at];
     if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
-    const declared = block?.given?.stage;
-    if (declared !== undefined && block?.given?.prefix !== undefined)
-      if (book.get(historyKey(block.given.prefix))?.has(declared)) return declared;
+    const given = block?.given;
+    if (given?.stage === undefined || given.prefix === undefined || given.after === undefined) continue;
+    const named = book.get(given.after);
+    if (named?.stage === given.stage && named.history === historyKey(given.prefix)) return given.stage;
   }
   return undefined;
 }

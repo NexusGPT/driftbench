@@ -34,7 +34,8 @@ describe('a prefix-started walk says where it starts', async () => {
   const real = required(source.spec.blocks[at - 1]?.expect?.stage);
 
   // The same walk started from the prefix its first `at` blocks leave, with the stage it declares (or none).
-  const started = (stage: string | undefined): Generation['complete'][number] => {
+  const parent = `${source.spec.id}#${required(source.spec.blocks[at - 1]).id}`;
+  const started = (stage: string | undefined, after: string = parent): Generation['complete'][number] => {
     const spec = structuredClone(source.spec);
     const start = canonicalGiven(source.spec, at);
     const rest = spec.blocks.slice(at);
@@ -42,7 +43,7 @@ describe('a prefix-started walk says where it starts', async () => {
     first.given = {
       prefix: start.prefix,
       origin: 'canonical',
-      ...(stage === undefined ? {} : { stage }),
+      ...(stage === undefined ? {} : { stage, after }),
     };
     spec.blocks = rest;
     spec.perturbations = undefined;
@@ -93,6 +94,26 @@ describe('a prefix-started walk says where it starts', async () => {
     expect(verdict.pass).toBe(false);
     expect(startStageOf(started(real).spec, 0, stageBookOf([]))).toBe(source.spec.stages?.[0] ?? '');
   }, 600_000);
+
+  it('reads the stage the named block leaves, whatever else the suite says about the history', () => {
+    const other = required(source.spec.stages?.find((stage) => stage !== real));
+    const twin = structuredClone(source.spec);
+    twin.id = 'leaves-elsewhere';
+    required(twin.blocks[at - 1]).expect = { ...required(twin.blocks[at - 1]).expect, stage: other };
+    const book = stageBookOf([source.spec, twin]);
+    const twinRef = `${twin.id}#${required(twin.blocks[at - 1]).id}`;
+    // The named block decides: the parent confirms the true stage, the twin (same history, another stage) does not.
+    expect(startStageOf(started(real).spec, 0, book)).toBe(real);
+    expect(startStageOf(started(real, twinRef).spec, 0, book)).toBe(source.spec.stages?.[0] ?? '');
+    expect(startStageOf(started(other, twinRef).spec, 0, book)).toBe(other);
+  });
+
+  it('does not read a stage whose named block has said another history', () => {
+    const earlier = `${source.spec.id}#${required(source.spec.blocks[at - 2]).id}`;
+    expect(startStageOf(started(real, earlier).spec, 0, stageBookOf([source.spec]))).toBe(
+      source.spec.stages?.[0] ?? '',
+    );
+  });
 
   it('reads a walk with no declared stage as before', async () => {
     const verdict = await recovery(started(undefined));

@@ -368,7 +368,8 @@ Initial conditions set on one block. A prefix lets the block start without repla
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
 | `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
-| `stage` | string | no |  | The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written. |
+| `stage` | string, not empty | no |  | The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written. |
+| `after` | string matching `^[^#\s]+#[^#\s]+$` | no |  | The block of a written spec this prefix is taken after, as <spec id>#<block id>. Only with a stage on the same block: a validator reads the stage only when that block leaves the agent at it after the same history. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
