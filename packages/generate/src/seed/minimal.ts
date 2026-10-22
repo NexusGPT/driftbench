@@ -107,8 +107,6 @@ export class TerminalSubsumption {
       while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
         if (!this.blocks.has(this.key(spec, last))) break;
-        // A block that injects a class is that class's test, and the deviation of its row: it stays.
-        if ('injection' in (spec.blocks[last]?.when ?? {})) break;
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
