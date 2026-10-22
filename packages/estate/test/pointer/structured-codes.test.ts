@@ -94,7 +94,10 @@ describe('malformed set and label names', () => {
       'more than three examples',
       `labels:\n${set(
         'many',
-        label('voice', '        examples: ["one is here.", "two is here.", "three is here.", "four is here."]\n'),
+        label(
+          'voice',
+          '        examples: ["one is here.", "two is here.", "three is here.", "four is here."]\n',
+        ),
       )}`,
       { code: 'label-examples-too-many', reason: 'more-than-three-examples', set: 'many', label: 'voice' },
     ],
@@ -263,7 +266,10 @@ describe('a choice answer that is no vector', () => {
       async call(_wire, set, window) {
         const probabilities: Record<string, number> = {};
         for (const unit of window.units) {
-          const row = unit.n === 1 ? { greeting: 0.5, 'price-claim': 0.5, 'allergen-line': 0.5, none: 0.5 } : { none: 1 };
+          const row =
+            unit.n === 1
+              ? { greeting: 0.5, 'price-claim': 0.5, 'allergen-line': 0.5, none: 0.5 }
+              : { none: 1 };
           for (const name of [...pointer.askedLabels(set, true).map((entry) => entry.name), 'none']) {
             probabilities[pointer.choiceKey(unit.n, name)] = (row as Record<string, number>)[name] ?? 0;
           }
@@ -354,7 +360,12 @@ describe('the answer of a labeler', () => {
     const none = check([{ units: '1', label: 'pair' }]);
     expect(none.accepted.size).toBe(0);
     expect(none.refusalRecords).toEqual([
-      expect.objectContaining({ code: 'target-required', label: 'pair', units: '1', detail: none.refusals[0] }),
+      expect.objectContaining({
+        code: 'target-required',
+        label: 'pair',
+        units: '1',
+        detail: none.refusals[0],
+      }),
     ]);
     expect(check([{ units: '1', label: 'remark', target: 2 }]).refusalRecords[0]).toMatchObject({
       code: 'target-not-taken',
@@ -368,7 +379,8 @@ describe('the answer of a labeler', () => {
   });
 
   it('gives a dropped span its code, the unit, the kind and the clause', () => {
-    const text = (words: string) => check([{ units: '1', label: 'order', spans: [{ kind: 'act', text: words }] }]);
+    const text = (words: string) =>
+      check([{ units: '1', label: 'order', spans: [{ kind: 'act', text: words }] }]);
     expect(text('the red crate').droppedRecords[0]).toMatchObject({
       code: 'span-text-repeated',
       unit: '1',
@@ -504,7 +516,9 @@ describe('the answer of a labeler', () => {
       cassette: pointer.Cassette.parse(cassette.render()),
       mode: 'replay',
     });
-    expect(replay.failedRecords.map((item) => item.code)).toEqual(recording.failedRecords.map((item) => item.code));
+    expect(replay.failedRecords.map((item) => item.code)).toEqual(
+      recording.failedRecords.map((item) => item.code),
+    );
     const other = await pointer.pointerScan({
       files,
       sets: [set],
