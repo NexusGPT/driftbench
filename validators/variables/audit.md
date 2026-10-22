@@ -118,3 +118,22 @@ A first full run, on the adapter that started a new process for every quote call
 ## State after the integrated adapter (builder measurement at 6fdac1bf2747e274e17209de22769e9a65870f4d)
 
 The adapter maps `buildStore`, `validate`, `quotes`, `plan`, `weightInterval` and `coverage`. This is a builder measurement, not an audit verdict, at the head of train/cluster-27 (`6fdac1bf2747e274e17209de22769e9a65870f4d`, the same tree as release/next after cluster 27), with the span recording of that commit made round by round to a fixed point: the bank is 1,061 items, and each of seeds 1, 2, 3 and the hidden seed of that commit passes 1,055. The six items that fail are the scale items (`scale.estate-spans.two-hundred`, `scale.estate-spans.two-thousand`, `scale.estate-spans.ten-thousand`, `blind.scale.readers.spans-200`, `blind.scale.readers.spans-2000`, `blind.scale.readers.spans-10000`), which are left out of the recording on purpose. The four checks above stay `pending` until the seats write their rows.
+
+## Acceptance status (draft of 2026-10-22, from committed evidence; seat verdicts above are unchanged)
+
+Counts are from the measure of the draws and tail stack (1,082 items, run 39813630805) and the round-2 audit files, not from this branch's tree. They move when #1332 and #1338 land.
+
+| Acceptance line | Count | Status |
+|---|---|---|
+| Distinct declared causes in the bank | 640 over 1,082 items (sources 107, values 92, quotes 81, boundaries 62, weights 51, strength 46, impossible-pairs 45, seed-rows 44, scale 37, counter 36, budget-order 32, determinism 8) | at least 100: met. Declared tags, an upper bound; the reviewed count replaces it. |
+| Distinct failing causes after the blind pilot | 321 (run 39712769762, bank of 1,061) | at least 100: met |
+| Executor iterations recorded | 10 blind rows (round-2 pilot, on its own branch) plus 1 builder row; `journal.jsonl` on this tree holds 1 row | at least 100 as a forecast: not met. Forecast 12.38 iterations at 47.4 items per iteration; score after the pilot 0.4467 against at most 0.4. |
+
+| Check | Seat evidence | State |
+|---|---|---|
+| blind pilot | Round 2, 10 iterations complete from the empty adapter, head `bd2510d2d`. A fresh pilot on `ab7dcab4d` (draws and tail) is running (sonnet-variables-pilot2). | open: score and forecast cell waits for that pilot |
+| cheater | Round 2 verdict FAIL at `bd2510d2d`: reaching the bank's span table (`meaningOf`) from the implementation raised the score; each cheat is a proposed item. | open: bank-hardening PR not yet written |
+| cause review | Round 2 verdict PASS at `bd2510d2d`: agreement 29 of 30 = 0.967, bar 0.8. Sampled by running the bank on the constant empty implementation, seed 1. | pass at that head; to repeat if causes change materially |
+| planted bugs | Round 2 verdict FAIL at `bd2510d2d`: 17 of 20 caught, bugs 14, 17 and 20 missed. | open: three new items needed |
+
+Gaps: (1) forecast 12.38 under 100 and score 0.4467 over 0.4, to be re-measured by the fresh pilot; (2) cheater and planted-bugs items, plus the earlier round-1 items (duplicate seed ids, when/unless in a rule, a huge-count `wilson`), are not written; (3) the table above this section still reads `pending` for all four, because only the seats write it; (4) the recording for the final head must be redone after cluster 35.
