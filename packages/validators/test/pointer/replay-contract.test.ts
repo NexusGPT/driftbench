@@ -12,6 +12,7 @@ import {
   requireFixtureLabels,
   type Wire,
 } from '../../src/ladders/pointer/kit/fixture';
+import { PROBE_YAML } from '../../src/ladders/pointer/kit/sets';
 import { fakeTransport } from '../../src/ladders/pointer/kit/transport';
 import type { PointerSut } from '../../src/ladders/pointer/sut/port';
 import { referenceSut } from './reference';
@@ -44,6 +45,35 @@ const changedPaths = (before: unknown, after: unknown, prefix = ''): string[] =>
     );
   return [prefix];
 };
+
+describe('the haiku request of the fixtures', () => {
+  // docs/estate-pointer-reader.md, section Window: the request opens with `SET <name>`, a `DESCRIPTION` line and
+  // `LABELS a | b | none`. A fixture written in another layout misses on part.messages for every haiku window.
+  const headOf = (wire: { body: Record<string, unknown> }) =>
+    ((wire.body.messages as Array<{ content: string }>)[0]?.content ?? '').split('\n').slice(0, 3);
+
+  it('opens with the documented SET, DESCRIPTION and LABELS lines', () => {
+    const authored = makeFixture(
+      'haiku',
+      [{ path: 'doc.md', units: [{ text: 'Lock the door.', label: 'rule' }] }],
+      PROBE_YAML,
+    );
+    expect(headOf(authored.wires[0] as { body: Record<string, unknown> })).toEqual([
+      'SET probe',
+      'DESCRIPTION A set of plain labels for probing a labeller.',
+      'LABELS rule | prohibition | example | none',
+    ]);
+  });
+
+  it('is the documented layout in every committed haiku row', () => {
+    for (const wire of loadFixture('haiku').wires) {
+      const [set, description, labels] = headOf(wire);
+      expect(set).toMatch(/^SET [A-Za-z0-9_-]+$/);
+      expect(description).toMatch(/^DESCRIPTION \S/);
+      expect(labels).toMatch(/^LABELS [a-z0-9-]+( \| [a-z0-9-]+)* \| none$/);
+    }
+  });
+});
 
 describe('committed replay oracles', () => {
   for (const arm of ['haiku', 'jev', 'jev-unit'] as const) {
