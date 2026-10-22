@@ -3,17 +3,18 @@ import { describe, expect, it } from 'vitest';
 import * as spans from '../../src/ladders/variables/blind/spans';
 
 /**
- * The residual of the span table, written as a test (review of #1365, run 39837191979). The table is no longer
- * reachable by import or by the public sink, but the bank still declares each meaning by calling `declareSpan` in the
- * process that loads the implementation. A product can attach a conditional breakpoint to that function through
- * node:inspector, read its two arguments and label spans from them, without ever calling `setSpanSink`.
+ * The residuals of the span table, written as tests (review of #1365, run 39837191979). The importable map is gone
+ * from the validator's code, but the bank still declares each meaning by calling `declareSpan` in the process that
+ * loads the implementation, and `setSpanSink` is still exported. A product can (1) install its own sink, or (2) attach
+ * a conditional breakpoint to `declareSpan` through node:inspector and read its two arguments. Neither needs the
+ * test-side table.
  *
- * The real fix is that the meanings never exist in the product's process: the bank declares them in the validator's
- * process and the product only receives texts (the frame isolation work of docs/validators.md 12.9, queued for
- * opus-stats-986). Until then:
- * - the first test pins that the attack works today, so nobody reads the claim as closed;
- * - the second test states the property the frame work must give and is an expected failure (`it.fails`), so it turns
- *   into a failing test the day the frame work makes the property true and the marker must go.
+ * Both close when the meanings never exist in the product's process: the bank declares them in the validator's
+ * process and the product only receives texts (the frame isolation work of docs/validators.md 12.9, board row
+ * 887c6e52). Until then:
+ * - the pinning tests state that each capture works today, so nobody reads the claim as closed;
+ * - the `it.fails` tests state the property the frame work must give. They are expected failures, never skipped: the
+ *   day the property becomes true they turn red and the marker must go.
  */
 
 const post = (session: Session, method: string, params?: object): Promise<any> =>
@@ -71,6 +72,30 @@ describe('the span table against an observer inside the process', () => {
     const seen = await observe(spans.declareSpan, ['text', 'meaning'], () => {
       spans.numeric('the audit value is above 12 euros', 'the audit value', 12, 'gt');
     });
+    expect(seen.length).toBe(0);
+  });
+
+  it('today a product that installs its own sink reads the meaning of every declared span', () => {
+    const seen: Array<[string, unknown]> = [];
+    spans.setSpanSink((text, meaning) => seen.push([text, meaning]));
+    try {
+      spans.numeric('the audit value is above 12 euros', 'the audit value', 12, 'gt');
+    } finally {
+      spans.setSpanSink(undefined);
+    }
+    expect(seen.length).toBe(1);
+    expect(seen[0]?.[1]).toMatchObject({ kind: 'numeric', limit: 12 });
+  });
+
+  // Expected failure until the implementation runs in its own process (board row 887c6e52).
+  it.fails('a product cannot install a sink that receives the meanings', () => {
+    const seen: unknown[] = [];
+    spans.setSpanSink((_text, meaning) => seen.push(meaning));
+    try {
+      spans.numeric('the audit value is above 12 euros', 'the audit value', 12, 'gt');
+    } finally {
+      spans.setSpanSink(undefined);
+    }
     expect(seen.length).toBe(0);
   });
 });
