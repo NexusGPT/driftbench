@@ -10,6 +10,8 @@ import { sha } from './cut';
  */
 
 const LABEL_NAME = /^[a-z][a-z0-9-]*$/;
+/** A set name is data, not an identifier: it is stored as a key and sent in a request, so it holds no punctuation. */
+const SET_NAME = /^[\p{L}\p{N}_-]+$/u;
 
 /** A kind of span a labeler may point at inside one unit: a clause by offsets, never by words. */
 export const SpanKind = z.strictObject({
@@ -99,7 +101,7 @@ export const Label = z.strictObject({
 export type Label = z.infer<typeof Label>;
 
 export const LabelSet = z.strictObject({
-  set: z.string().regex(LABEL_NAME, { error: 'a set name is lower case letters, digits and hyphens' }),
+  set: z.string().regex(SET_NAME, { error: 'a set name is letters, digits, underscores and hyphens' }),
   description: z.string().min(1),
   spans: z.array(SpanKind).min(1).optional(),
   links: z.array(LinkKind).min(1).optional(),

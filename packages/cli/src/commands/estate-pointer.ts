@@ -245,13 +245,14 @@ export async function openPointer(
       if (record && done.recorded > 0 && !(await writeAtomic(cassettePath, cassette.render(), io))) return 2;
       if (!ledgerPath) return 0;
       const text = pointer.renderLedger(done.ledger);
+      const checked = pointer.checkLedger(previousText, done.ledger);
       if (options.ledgerCheck) {
-        if (text === previousText) return 0;
+        if (checked.ok) return 0;
         io.err(`The ledger ${show(ledgerPath, io)} is out of date: rescan with --update and commit it\n`);
         return 1;
       }
       if (options.update) return (await writeOut(ledgerPath, text, io)) ? 0 : 2;
-      if (text !== previousText)
+      if (!checked.ok)
         io.out(`The ledger ${show(ledgerPath, io)} is not written: pass --update to write it.\n`);
       return 0;
     },
