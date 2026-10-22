@@ -417,7 +417,19 @@ export class TerminalSubsumption {
   }
 
   /** The turn, the stage it is said from and what it expects, in the language and under the rules it is said in. */
+  /** The key of each block of a spec, once: a spec object is not changed after it is parsed. */
+  private readonly keys = new WeakMap<Spec, Array<string | undefined>>();
+
   private key(spec: Spec, index: number): string {
+    let own = this.keys.get(spec);
+    if (!own) {
+      own = [];
+      this.keys.set(spec, own);
+    }
+    return (own[index] ??= this.keyOf(spec, index));
+  }
+
+  private keyOf(spec: Spec, index: number): string {
     const block = spec.blocks[index];
     const { criteria: _criteria, ...machine } = block?.expect ?? {};
     const from = index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage;
