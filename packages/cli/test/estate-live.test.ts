@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -292,6 +293,86 @@ describe('driftbench estate run', () => {
     expect(guarded?.blocks[0]?.observed.runtime?.skills?.map((skill) => skill.name)).toEqual([
       'invoice-reconcile',
     ]);
+  });
+
+  /** The `live` record of the raw part of an observed block. */
+  const liveOf = (raw: unknown): { stateLibrary?: unknown } | undefined =>
+    (raw as { live?: { stateLibrary?: unknown } } | undefined)?.live;
+
+  /** The record the run is expected to carry for a library: the digest the test computes from the files. */
+  const digestOf = (file: string, path: string) => {
+    const sha = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
+    const text = readFileSync(file);
+    const named = (JSON.parse(text.toString('utf8')) as { prefixes: Record<string, string> }).prefixes;
+    const prefixes: Record<string, { file: string; sha256: string }> = {};
+    let joined = `library ${sha(text)}\n`;
+    for (const name of Object.keys(named).sort()) {
+      const entry = {
+        file: named[name] ?? '',
+        sha256: sha(readFileSync(join(dirname(file), named[name] ?? ''))),
+      };
+      prefixes[name] = entry;
+      joined += `prefix ${name} ${entry.file} ${entry.sha256}\n`;
+    }
+    return { path, sha256: sha(joined), prefixes };
+  };
+
+  /** The `stateLibrary` record of the first block of the first run of a store. */
+  async function recordOf(result: Awaited<ReturnType<typeof estateRun>>): Promise<unknown> {
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    return liveOf(stored?.blocks[0]?.observed.raw)?.stateLibrary;
+  }
+
+  it('records the state library of a run: a path inside the working folder is relative, with its digest', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(FIXTURE, [spec]);
+    expect(result.code).toBe(0);
+    const recorded = await recordOf(result);
+    expect(recorded).toEqual(digestOf(STATES, relative(ROOT, STATES).split(sep).join('/')));
+    expect(JSON.stringify(recorded)).not.toContain(ROOT);
+    // A run with no library names none.
+    const bare = join(await folder(), 'bare.db');
+    const without = await run([
+      'estate',
+      'run',
+      spec,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--set-env',
+      `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+      '--store',
+      bare,
+      '--json',
+    ]);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const other = await openStore(bare);
+    const [plain] = await other.listRuns({ campaignId: (JSON.parse(without.out) as RunJson).campaignId });
+    await other.close();
+    expect(liveOf(plain?.blocks[0]?.observed.raw)).not.toHaveProperty('stateLibrary');
+  });
+
+  it('records the absolute path of a library outside the working folder, and the digest of its prefix files', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const copy = join(await folder(), 'states');
+    await cp(dirname(STATES), copy, { recursive: true });
+    const library = join(copy, 'library.json');
+    const first = await recordOf(await estateRun(FIXTURE, [spec], '--states', library));
+    expect(first).toEqual(digestOf(library, library));
+    // A prefix file changes, the library file does not: the recorded digest changes.
+    const prefix = join(copy, 'prefixes', 'long.jsonl');
+    await writeFile(prefix, `${readFileSync(prefix, 'utf8')}\n`);
+    const second = (await recordOf(await estateRun(FIXTURE, [spec], '--states', library))) as {
+      sha256: string;
+    };
+    expect(second).toEqual(digestOf(library, library));
+    expect(second.sha256).not.toBe((first as { sha256: string }).sha256);
   });
 
   it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
