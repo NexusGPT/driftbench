@@ -141,6 +141,26 @@ function noRequestItem(): BankItem {
   };
 }
 
+/**
+ * The characters of unit text a file holds and stays one window; a longer file is cut at a heading
+ * (docs/estate-pointer-reader.md, section Window).
+ */
+const WINDOW_BUDGET = 400_000;
+/** The first line of a planted fence: the kind line a request may show of it. */
+const FENCE_FIRST_LINE = '```text';
+
+/** Public paragraphs of at least `characters` characters in all, numbered from `from`. */
+function filler(from: number, characters: number, t: string): string[] {
+  const out: string[] = [];
+  let length = 0;
+  for (let i = from; length < characters; i++) {
+    const paragraph = `${PADDING} Number ${i} of ${t}.`;
+    out.push(paragraph);
+    length += paragraph.length;
+  }
+  return out;
+}
+
 /** Two windows, two requests: the private text of an opaque block in the second window must not reach the second request. */
 function secondRequestItem(): BankItem {
   return {
@@ -158,10 +178,17 @@ function secondRequestItem(): BankItem {
         const t = token(seed, salt);
         const secret = privateMarker(seed, salt);
         const key = privateMarker(seed, salt + 31);
-        // Arm 0: a hundred paragraphs fill several windows, the opaque block closes the last: several requests.
-        // Arm 1: three paragraphs and the block: one request.
-        const paragraphs = Array.from({ length: arm ? 3 : 100 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
-        const source = `${paragraphs.join('\n\n')}\n\n${wrap('fence', secret)}`;
+        // Arm 0: two parts under headings, past the window budget together and under it apart, so the file
+        // is cut at the second heading into two windows; the opaque block closes the second part: two
+        // requests, the block in the second. Arm 1: three paragraphs and the block: one request.
+        const twoParts = (): string[] => {
+          const first = filler(0, (WINDOW_BUDGET * 3) / 4, t);
+          const second = filler(first.length, (WINDOW_BUDGET * 3) / 8, t);
+          return [`# Part one of ${t}`, ...first, `# Part two of ${t}`, ...second];
+        };
+        const few = (): string[] => Array.from({ length: 3 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
+        const parts = arm ? few() : twoParts();
+        const source = `${parts.join('\n\n')}\n\n${wrap('fence', secret)}`;
         const answer = {
           labels: [],
           model: `model-${t}`,
@@ -170,6 +197,8 @@ function secondRequestItem(): BankItem {
         };
         const calls = arm ? 1 : 2;
         const clean: Json = { messages: [{ role: 'user', content: PADDING }] };
+        // The request that holds the opaque block shows its first line (its kind), never its text.
+        const shown: Json = { messages: [{ role: 'user', content: `${PADDING}\n${FENCE_FIRST_LINE}` }] };
         return {
           request: {
             operation: 'privacy',
@@ -183,11 +212,19 @@ function secondRequestItem(): BankItem {
             },
           },
           setup: { key, answer, cached: null, labelAll: SET_LABEL },
-          expected: { leaked: false, requests: arm ? 'one' : 'several', status: 'ok' },
+          expected: {
+            leaked: false,
+            requests: arm ? 'one' : 'several',
+            fenceShownIn: arm ? 'first' : 'second',
+            status: 'ok',
+          },
           sample: { status: 'ok' },
           sampleEffects: [
             { kind: 'key' as const },
-            ...Array.from({ length: calls }, () => ({ kind: 'fetch' as const, value: clean })),
+            ...Array.from({ length: calls }, (_, at) => ({
+              kind: 'fetch' as const,
+              value: at === calls - 1 ? shown : clean,
+            })),
           ],
           observe(actual, trace) {
             if (!actual || typeof actual !== 'object') return null;
@@ -199,6 +236,7 @@ function secondRequestItem(): BankItem {
                   key,
                 ]) || leaksPrivateFragment(trace.requests, [secret, key]),
               requests: trace.networkCalls > 1 ? 'several' : 'one',
+              fenceShownIn: shownIn(trace.requests),
               status: r.status,
             };
           },
@@ -207,6 +245,13 @@ function secondRequestItem(): BankItem {
       return { probes };
     },
   };
+}
+
+/** Which request shows the first line of the fence: `first`, `second`, a `later` one, or `none`. */
+function shownIn(requests: readonly Json[]): string {
+  const at = requests.findIndex((body) => (JSON.stringify(body) ?? '').includes(FENCE_FIRST_LINE));
+  const name = ['first', 'second'][at] ?? 'later';
+  return at < 0 ? 'none' : name;
 }
 
 function placementItems(): BankItem[] {
