@@ -38,3 +38,5 @@ describe('the generate transcript of docs/estate.md', () => {
     expect(doc('Phrases ')).toBe(counts('Phrases '));
   });
 });
+
+// probe: touched so the affected-test selection runs this file
