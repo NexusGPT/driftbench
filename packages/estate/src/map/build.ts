@@ -245,7 +245,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
 /** SHA-256 over the sorted atom hashes (with their ids) and the sorted edges. Approval does not change it. */
 export function mapHash(atoms: readonly Atom[], edges: readonly Edge[]): string {
   const lines = [
-    ...atoms.map((atom) => `${atom.id} ${atom.provenance.hash}`).sort(),
+    ...atoms.map((atom) => `${atom.id} ${atom.provenance.hash} ${JSON.stringify(atom.fields?.rules ?? [])}`).sort(),
     ...edges.map((edge) => `${edge.from} ${edge.kind} ${edge.to}`).sort(),
   ];
   return sha256(lines.join('\n'));
