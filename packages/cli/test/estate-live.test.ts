@@ -867,6 +867,36 @@ describe('driftbench estate run --from', () => {
     return calls.take();
   }
 
+  it('carries a failure as a failure: status, reasons and evidence stay what the old store holds', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest());
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const lines = (next.json as CarryJson).runs;
+    const carried = lines.filter((line) => line.carried === true && !line.pass);
+    expect(carried.length).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const oldStore = openStore(old.store);
+    const newStore = openStore(next.store);
+    const oldRuns = await oldStore.listRuns();
+    const newRuns = await newStore.listRuns();
+    await oldStore.close();
+    await newStore.close();
+    for (const line of carried) {
+      const was = oldRuns.find((entry) => entry.specId === line.spec);
+      const now = newRuns.find((entry) => entry.specId === line.spec);
+      expect(was, line.spec).toBeDefined();
+      expect(now, line.spec).toBeDefined();
+      expect(now?.status).toBe(was?.status);
+      expect(line.failing.length).toBeGreaterThan(0);
+      expect(line.failing).toEqual(old.json.runs.find((entry) => entry.spec === line.spec)?.failing);
+      expect(JSON.stringify(now?.blocks)).toBe(JSON.stringify(was?.blocks));
+    }
+  });
+
   it('reruns the specs of the radius and carries the result of every other spec from the old store', async () => {
     const specs = proofSpecs();
     const calls = await counter();
@@ -1003,6 +1033,52 @@ describe('driftbench estate run --from', () => {
       expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
         'current execution context differs or cannot be proved',
       );
+    });
+
+    it('gives the same value another stamp in another store, and the same stamp through --from', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const stampsOf = async (path: string) => {
+        const store = await openStore(path);
+        const runs = await store.listRuns();
+        const salt = await store.metaGet('estate.salt');
+        await store.close();
+        return { salt, stamps: new Set(runs.map((entry) => entry.provenance?.adapter.cacheIdentityHash)) };
+      };
+      const one = await firstRun(calls, specs, '--pass-env', NAME);
+      const two = await firstRun(calls, specs, '--pass-env', NAME);
+      const first = await stampsOf(one.store);
+      const second = await stampsOf(two.store);
+      expect(first.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).not.toBe(first.salt);
+      expect(first.stamps.size).toBe(1);
+      expect(second.stamps.size).toBe(1);
+      expect([...second.stamps][0]).not.toBe([...first.stamps][0]);
+      // Carry copies the salt, so the new store's digests are the old store's and the result is carried.
+      const change = await manifest();
+      const carried = await secondRun(calls, one.store, specs, '--change', change, '--pass-env', NAME);
+      expect((carried.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      expect((await stampsOf(carried.store)).salt).toBe(first.salt);
+    });
+
+    it('carries nothing from a store whose meta table holds no salt row, and runs fresh without error', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const { DatabaseSync } = await import('node:sqlite');
+      const raw = new DatabaseSync(old.store);
+      raw.exec("DELETE FROM meta WHERE key = 'estate.salt'");
+      raw.close();
+      const change = await manifest();
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect(next.err).toBe('');
+      const json = next.json as CarryJson;
+      expect(json.runs.length).toBeGreaterThan(0);
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
     });
 
     it('keeps the value out of the store', async () => {
