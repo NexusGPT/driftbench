@@ -1013,7 +1013,7 @@ describe('driftbench estate run --from', () => {
       const stampsOf = async (path: string) => {
         const store = await openStore(path);
         const runs = await store.listRuns();
-        const salt = await store.metaGet('estate.salt');
+        const salt = await (store as unknown as { metaGet(k: string): Promise<string | undefined>; metaInit(k: string, v: string): Promise<string> }).metaGet('estate.salt');
         await store.close();
         return { salt, stamps: new Set(runs.map((entry) => entry.provenance?.adapter.cacheIdentityHash)) };
       };
