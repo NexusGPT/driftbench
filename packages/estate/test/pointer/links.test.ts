@@ -5,10 +5,12 @@ import {
   clearLink,
   createLink,
   cut,
+  impactOf,
   type Ledger,
   type Link,
   linkCoverage,
   nextLedger,
+  verifiedSpans,
   verifyLink,
 } from '../../src/pointer';
 
@@ -45,7 +47,16 @@ describe('a link', () => {
 
   it('holds its span, the fingerprint, the relation, who made it and whether it was accepted, and no position', () => {
     const [one] = links as [Link];
-    expect(Object.keys(one).sort()).toEqual(['accepted', 'createdBy', 'fp', 'owner', 'relation', 'span']);
+    expect(Object.keys(one).sort()).toEqual([
+      'accepted',
+      'createdBy',
+      'ctxFp',
+      'fp',
+      'owner',
+      'relation',
+      'sectionPath',
+      'span',
+    ]);
     expect(one.relation).toBe('verifies');
     expect(() => createLink(first, 'block', 'nosuchspan', 'verifies')).toThrow(RangeError);
   });
@@ -191,5 +202,61 @@ describe('the blast radius', () => {
       ...links.slice(1),
     ]);
     expect(radius.rerun).toEqual(['test-c']);
+  });
+});
+
+describe('the context a link holds', () => {
+  const first = label(scan({ 'depot.md': file(RULES) }));
+  const link = createLink(first, 'block', idOf(first, RULES[2] as string), 'verifies', 'verified');
+
+  it('keeps a link advisory until it is accepted again, however many scans pass', () => {
+    const moved = scan({ 'depot.md': file(RULES, 'Duties') }, first);
+    const again = scan({ 'depot.md': file(RULES, 'Duties') }, moved);
+    expect(classifyLinks(first, moved, [link])).toEqual(['advisory']);
+    expect(classifyLinks(moved, again, [link])).toEqual(['advisory']);
+    const cleared = clearLink(link, 'cosmetic', again);
+    expect(cleared.ok && classifyLinks(again, again, [cleared.link])).toEqual(['ok']);
+  });
+
+  it('is cleared by a review that is no ledger, and holds that review', () => {
+    const cleared = clearLink(link, 'test-updated', { fp: 'fp:new', ctxFp: 'ctx:new', sectionPath: ['A'] });
+    expect(cleared).toMatchObject({
+      ok: true,
+      link: { fp: 'fp:new', ctxFp: 'ctx:new', sectionPath: ['A'], reason: 'test-updated' },
+    });
+  });
+});
+
+describe('a claim and an impact from given states', () => {
+  it('names the spans of verified links once each, sorted, and none for a proposal', () => {
+    expect(
+      verifiedSpans([
+        { span: 'b', createdBy: 'verified' },
+        { span: 'a', createdBy: 'verified' },
+        { span: 'b', createdBy: 'verified' },
+        { span: 'c', createdBy: 'proposed' },
+      ]),
+    ).toEqual(['a', 'b']);
+  });
+
+  it('reruns the owners of suspect links, whoever made them, and reports the touched sections apart', () => {
+    const section = { path: 'x.md', sectionPath: ['S'] };
+    expect(
+      impactOf(
+        [
+          { owner: 't1', state: 'suspect' },
+          { owner: 't1', state: 'suspect' },
+          { owner: 't2', state: 'advisory' },
+          { owner: 't3', state: 'ambiguous' },
+          { owner: 't0', state: 'suspect' },
+        ],
+        [
+          { owner: 't9', section },
+          { owner: 't9', section },
+          { owner: 't8', section: { path: 'x.md', sectionPath: ['Other'] } },
+        ],
+        [section],
+      ),
+    ).toEqual({ rerun: ['t0', 't1'], advisory: ['t9'] });
   });
 });
