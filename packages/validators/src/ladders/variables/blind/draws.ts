@@ -297,7 +297,9 @@ export function drawCondition(rng: Rng, cmp: Cmp, form: Form, options: DrawOptio
         'sym-le-unicode': ['\u2264'],
       }[form];
       const n = number(2, 400);
-      const [name, unit] = options.subject ? [options.subject, options.unit ?? ' units'] : rng.pick(QUANTITIES);
+      const [name, unit] = options.subject
+        ? [options.subject, options.unit ?? ' units']
+        : rng.pick(QUANTITIES);
       return {
         subject: name,
         text: `${name} ${symbol(marks)} ${n}${options.unit ?? unit}`,

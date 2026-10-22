@@ -79,7 +79,9 @@ const rangeCase =
   (style?: RangeStyle) =>
   (ctx: ItemContext): void => {
     const d = drawRange(ctx.rng, style);
-    const r = readSpans(ctx, [declareSpan(d.text, { kind: 'range', subject: d.subject, lo: d.lo, hi: d.hi })]);
+    const r = readSpans(ctx, [
+      declareSpan(d.text, { kind: 'range', subject: d.subject, lo: d.lo, hi: d.hi }),
+    ]);
     const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
     must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
     must(
@@ -88,7 +90,8 @@ const rangeCase =
         nums.some((n) => n > d.lo && n < d.hi) &&
         nums.includes(d.hi) &&
         nums.some((n) => n > d.hi),
-      () => `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
+      () =>
+        `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
     );
   };
 

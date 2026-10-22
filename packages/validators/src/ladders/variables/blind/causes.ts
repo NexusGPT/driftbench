@@ -103,7 +103,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['the reader reads thousands written in English words', ['thousands-in-words']],
     ['the reader reads an and inside a number written in English words', ['and-in-words']],
     ['the reader reads the greater-than symbol as a comparison', ['symbol-greater-than']],
-    ['the reader reads the two-character at-least symbol as a comparison', ['symbol-at-least-two-characters']],
+    [
+      'the reader reads the two-character at-least symbol as a comparison',
+      ['symbol-at-least-two-characters'],
+    ],
     ['the reader reads the one-character at-least symbol as a comparison', ['symbol-at-least-one-character']],
     ['the reader reads the less-than symbol as a comparison', ['symbol-less-than']],
     ['the reader reads the two-character at-most symbol as a comparison', ['symbol-at-most-two-characters']],
