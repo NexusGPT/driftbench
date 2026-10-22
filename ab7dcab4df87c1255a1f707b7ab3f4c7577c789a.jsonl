@@ -588,3 +588,7 @@
 {"text":"the 請求 score is at least 676","label":{"kind":"numeric","subject":"請求 score","limit":676,"comparison":"ge"}}
 {"text":"the 請求 score is over 499","label":{"kind":"numeric","subject":"請求 score","limit":499,"comparison":"gt"}}
 {"text":"the 請求 score is under 590","label":{"kind":"numeric","subject":"請求 score","limit":590,"comparison":"lt"}}
+{"text":"the basket is at most 23 items","label":{"kind":"numeric","subject":"basket","limit":23,"comparison":"le","unit":"items"}}
+{"text":"the loan is not over 55 months","label":{"kind":"numeric","subject":"loan term","limit":55,"comparison":"le","unit":"months"}}
+{"text":"the order is no more than 13 euros","label":{"kind":"numeric","subject":"order value","limit":13,"comparison":"le","unit":"euros"}}
+{"text":"the refund does not exceed 46 euros","label":{"kind":"numeric","subject":"refund amount","limit":46,"comparison":"le","unit":"euros"}}
