@@ -602,10 +602,23 @@ describe('spans and links in a label set', () => {
 
   it('locates words in a text: one place, none, or several', () => {
     expect(locateSpanText('Read the log first.', 'THE LOG')).toEqual({ from: 5, to: 12 });
-    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({ reason: 'the text is not in the unit' });
+    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({
+      code: 'not-found',
+      reason: 'the text is not in the unit',
+    });
     expect(locateSpanText('the log, the log', 'the log')).toEqual({
+      code: 'ambiguous',
       reason: 'the text is found twice in the unit',
     });
+  });
+
+  it('gives a code beside the message, and no check reads the message of a miss', async () => {
+    // A check branches on the code: rewording a message changes no outcome. The anchor reader once compared the
+    // message text of an ambiguous match.
+    const { readFile } = await import('node:fs/promises');
+    const source = await readFile(new URL('../../src/pointer/labels.ts', import.meta.url), 'utf8');
+    expect(source).not.toMatch(/\.reason\s*[!=]==?\s*['"`]/);
+    expect(source).not.toMatch(/['"`]\s*[!=]==?\s*[\w.]*\.reason\b/);
   });
 
   it('turns the words of a span into offsets before the answer is recorded, and keeps the reason of a miss', () => {
