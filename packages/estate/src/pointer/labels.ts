@@ -645,5 +645,15 @@ function checkExtras(
       if (links.length > 0) out.links = links;
     }
   }
+  // A label that builds no atom and lists a numeric link kind exists to carry limits: an entry with none is refused,
+  // so the labeller's mark does not pass for a limit that is not there.
+  if (label && !label.atom) {
+    const numeric = (set.links ?? [])
+      .filter((kind) => kind.number && label.links?.includes(kind.name))
+      .map((kind) => kind.name);
+    if (numeric.length > 0 && !(out.links ?? []).some((link) => numeric.includes(link.kind))) {
+      return `units "${entry.units}": the label ${entry.label} carries limits and the entry gave no limit link`;
+    }
+  }
   return out;
 }

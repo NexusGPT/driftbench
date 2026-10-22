@@ -29,6 +29,14 @@ const SET = `labels:
         atom: { kind: instruction, polarity: obligation }
       - name: remark
         description: A unit that states how things are.
+      - name: check
+        description: A unit that tells the reader to check something first.
+        links: [limit]
+        atom: { kind: gate }
+      - name: wording
+        description: A unit that sets how the reader replies.
+        links: [limit]
+        atom: { kind: register }
       - name: bound
         description: A unit that states a number that limits another unit.
         target: required
@@ -143,6 +151,107 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atom && variables.conditionsOf(atom).map((entry) => entry.limit)).toEqual([5]);
   });
 
+  it('lets a set of limits sit beside the set of rules: the bound unit points across sets', async () => {
+    const two = `${SET.replace(/ {6}- name: bound[\s\S]*$/, '')}  - set: bounds
+    description: The numbers of the harbour notes.
+    links:
+      - name: limit
+        description: A number the unit sets, with how a quantity is compared with it.
+        values: [lt, le, gt, ge]
+        number: true
+    labels:
+      - name: bound
+        description: A unit that states a number that limits another unit.
+        target: required
+        condition: true
+        links: [limit]
+`;
+    const parsed = pointer.parseLabelSets(two);
+    if (!parsed.ok) throw new Error(parsed.message);
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Warn the skipper', '- Five minutes', ''].join('\n'),
+    });
+    const labeler = plantedDense((window, set) => {
+      if (window.path !== 'CLAUDE.md') return [{ units: `1-${window.units.length}`, label: 'none' }];
+      return set.set === 'duty'
+        ? [
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'order' },
+            { units: '3', label: 'remark' },
+          ]
+        : ([
+            { units: '1-2', label: 'none' },
+            {
+              units: '3',
+              label: 'bound',
+              target: 2,
+              links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }],
+            },
+          ] as pointer.Labelled[]);
+    });
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: parsed.sets,
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    expect(atomOf(result, 'Warn the skipper')?.fields?.condition).toEqual([
+      { limit: 5, comparison: 'le', unit: 'minutes' },
+    ]);
+    expect(result.pointer?.atomRefusals).toEqual([]);
+  });
+
+  it('lets a unit that states its own limit give it to its atom in another set', async () => {
+    const two = `${SET.replace(/ {6}- name: bound[\s\S]*$/, '')}  - set: bounds
+    description: The numbers of the harbour notes.
+    links:
+      - name: limit
+        description: A number the unit sets, with how a quantity is compared with it.
+        values: [lt, le, gt, ge]
+        number: true
+    labels:
+      - name: own
+        description: A unit that is an instruction and states a number that limits it.
+        links: [limit]
+`;
+    const parsed = pointer.parseLabelSets(two);
+    if (!parsed.ok) throw new Error(parsed.message);
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Warn the skipper within five minutes', ''].join('\n'),
+    });
+    const labeler = plantedDense((window, set) => {
+      if (window.path !== 'CLAUDE.md') return [{ units: `1-${window.units.length}`, label: 'none' }];
+      return set.set === 'duty'
+        ? [
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'order' },
+          ]
+        : ([
+            { units: '1', label: 'none' },
+            { units: '2', label: 'own', links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+          ] as pointer.Labelled[]);
+    });
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: parsed.sets,
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    expect(atomOf(result, 'Warn the skipper within five minutes')?.fields?.condition).toEqual([
+      { limit: 5, comparison: 'le', unit: 'minutes' },
+    ]);
+  });
+
   it.each([
     ['an unknown comparison', { kind: 'limit', to: 'more', value: 2 }],
     ['an empty unit', { kind: 'limit', to: 'le', value: 2, unit: '  ' }],
@@ -161,6 +270,103 @@ describe('a labeller returns a numeric limit as structured fields', () => {
       { limit: 2, comparison: 'le', unit: 'days' },
       { limit: 3, comparison: 'le', unit: 'days' },
     ]);
+  });
+
+  it('accepts a limit on a gate atom', async () => {
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Check the tide table', ''].join('\n'),
+    });
+    const labeler = plantedDense((window) =>
+      window.path === 'CLAUDE.md'
+        ? ([
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'check', links: [{ kind: 'limit', to: 'le', value: 2, unit: 'hours' }] },
+          ] as pointer.Labelled[])
+        : [{ units: `1-${window.units.length}`, label: 'none' }],
+    );
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    const gate = result.map.atoms.find(
+      (atom) => atom.kind === 'gate' && atom.provenance.quote === 'Check the tide table',
+    );
+    expect(gate?.fields?.condition).toEqual([{ limit: 2, comparison: 'le', unit: 'hours' }]);
+  });
+
+  it('drops a limit on any other kind of atom, and says which unit gave it', async () => {
+    const root = await estate({
+      'CLAUDE.md': ['# Harbour office', '', '- Reply in the skipper language', ''].join('\n'),
+    });
+    const labeler = plantedDense((window) =>
+      window.path === 'CLAUDE.md'
+        ? ([
+            { units: '1', label: 'remark' },
+            { units: '2', label: 'wording', links: [{ kind: 'limit', to: 'le', value: 2, unit: 'lines' }] },
+          ] as pointer.Labelled[])
+        : [{ units: `1-${window.units.length}`, label: 'none' }],
+    );
+    const result = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
+    });
+    const register = result.map.atoms.find((atom) => atom.kind === 'register');
+    expect(register).toBeDefined();
+    expect(register?.fields).not.toHaveProperty('condition');
+    expect(result.pointer?.atomRefusals).toHaveLength(1);
+  });
+
+  describe('a label that exists to carry limits', () => {
+    const set = (() => {
+      const found = sets()[0];
+      if (!found) throw new Error('the set is missing');
+      return found;
+    })();
+    const window = {
+      id: 'w',
+      path: 'w.md',
+      headingPath: [],
+      units: [
+        { n: 1, text: 'Warn the skipper', index: 0 },
+        { n: 2, text: 'Five minutes', index: 1 },
+      ],
+    };
+    const check = (entry: Record<string, unknown>) =>
+      pointer.checkAnswer(set, window, [{ units: '2', label: 'bound', target: 1, ...entry }]);
+
+    it('refuses an entry that gives no limit, and names the label', () => {
+      const none = check({});
+      expect(none.accepted.size).toBe(0);
+      expect(none.refusals).toHaveLength(1);
+      expect(none.refusals[0]).toContain('bound');
+      expect(none.refusals[0]).toContain('limit');
+    });
+
+    it('refuses an entry whose only limit was dropped', () => {
+      const bad = check({ links: [{ kind: 'limit', to: 'le', value: '2' }] });
+      expect(bad.accepted.size).toBe(0);
+      expect(bad.refusals).toHaveLength(1);
+    });
+
+    it('accepts an entry that gives a limit', () => {
+      const good = check({ links: [{ kind: 'limit', to: 'le', value: 2, unit: 'days' }] });
+      expect(good.refusals).toEqual([]);
+      expect(good.accepted.get(2)?.links).toEqual([{ kind: 'limit', to: 'le', value: 2, unit: 'days' }]);
+    });
   });
 
   it('puts no condition on a unit that gave no limit', async () => {
