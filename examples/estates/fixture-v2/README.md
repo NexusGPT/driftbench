@@ -21,8 +21,10 @@ touches no test, and neither does R2's wrap (white space only). The size invaria
 Files:
 
 - `CLAUDE.md`, `.claude/`: the estate, a copy of the first version with the changes above.
+- `cassette.jsonl`: the recorded labels of the first version with the same changes. The scan replays it and
+  calls no model.
 - `answers.yaml`: the recorded answers of the first version with the same changes, as a model would have
-  copied the new text.
+  copied the new text. The commands that regenerate the fixture do not read it.
 - `map.yaml`: the scan of this version.
 - `guard-state.yaml`: the enforcement state of this version's guards, read against `map.yaml`.
 - `maintain/guard-state.v1.yaml`: the enforcement state of the first version, read against

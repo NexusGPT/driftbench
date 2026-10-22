@@ -5,7 +5,7 @@ import { type BlockOrigin, type RuleRef, writeBlocks } from '../blocks/writer';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
 import { type AskBuild, codeAsk, DEVIATION_ASKS } from './asks';
-import { guardRuleIds, navigationReference, taskAtoms } from './context';
+import { guardRuleIds, taskAtoms } from './context';
 import {
   type AskSource,
   type Built,
@@ -224,16 +224,6 @@ export function build(
   }
   if (noSession) {
     gap(then, MARKERS.session, first, `no recorded session of ${situation?.id ?? 'this situation'}`);
-  }
-  // A plan made before the map recorded document roles can still hold a read test of an example or a
-  // template. Such a document is a place to look, never a rule: the row stays visible and incomplete.
-  if (navigationReference(first, ctx.navigation)) {
-    gap(
-      then,
-      MARKERS.askable,
-      first,
-      `no test: ${first.id} reads a navigation-only document (an example, template or history), which holds no rule`,
-    );
   }
   if (then.ordered.length > 0 && !ctx.customChecks.has('ordered')) {
     gap(then, MARKERS.registered, first, 'ordered');

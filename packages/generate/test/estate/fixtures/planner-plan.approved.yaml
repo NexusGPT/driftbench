@@ -185,8 +185,11 @@ rows:
   - { id: misroute.route.standing.an-ask-to-plan-the-delivery, atomIds: [ route.standing.an-ask-to-plan-the-delivery, subagent.route-planner.helper-route-planner ], cell: { ask_shape: concrete, atoms.route: route.standing.an-ask-to-plan-the-delivery }, testType: misroute, mode: live, status: approved, weight: 1, note: "The ask names the wrong skill or helper; the right target loads, or the agent says why not." }
   - { id: read_when.reference.memory-memory.read-supplier-languages-md, atomIds: [ reference.memory-memory.read-supplier-languages-md ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
   - { id: read_when.reference.invoice-reconcile.read-references-matching-rules-md, atomIds: [ reference.invoice-reconcile.read-references-matching-rules-md, skill.invoice-reconcile.skill-invoice-reconcile ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
+  - { id: read_when.reference.invoice-reconcile.read-references-currency-table-md, atomIds: [ reference.invoice-reconcile.read-references-currency-table-md, skill.invoice-reconcile.skill-invoice-reconcile ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
   - { id: read_when.reference.shipment-tracker.read-track-sh, atomIds: [ reference.shipment-tracker.read-track-sh, skill.shipment-tracker.skill-shipment-tracker ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
+  - { id: read_when.reference.shipment-tracker.read-data-shipments-txt, atomIds: [ reference.shipment-tracker.read-data-shipments-txt, skill.shipment-tracker.skill-shipment-tracker ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
   - { id: read_when.reference.supplier-email.read-claude-memory-supplier-languages-md, atomIds: [ reference.supplier-email.read-claude-memory-supplier-languages-md, skill.supplier-email.skill-supplier-email ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
+  - { id: read_when.reference.weekly-report.read-templates-report-md, atomIds: [ reference.weekly-report.read-templates-report-md, skill.weekly-report.skill-weekly-report ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
   - { id: read_when.reference.weekly-report.read-references-kpi-definitions-md, atomIds: [ reference.weekly-report.read-references-kpi-definitions-md, skill.weekly-report.skill-weekly-report ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: "The file is read at the moment named; it does not exist, so the agent says so." }
   - { id: read_when.reference.standing.read-claude-skills-invoice-reconcile-references, atomIds: [ reference.standing.read-claude-skills-invoice-reconcile-references ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
   - { id: read_when.reference.standing.read-claude-steps-json, atomIds: [ reference.standing.read-claude-steps-json ], cell: {}, testType: read_when, mode: live, status: approved, weight: 1, note: The file is read at the moment named. }
@@ -1438,14 +1441,14 @@ rows:
   - { id: pairwise.1066, atomIds: [ register.standing.r9-ask-at-most-one-question ], cell: { ask_class: debug, ask_shape: prescribed, session_state: after_restart, owner_signal: no_questions, deviation: D12_prompt_extraction, estate_hazard: rate_wave, atoms.register: register.standing.r9-ask-at-most-one-question }, testType: register_sample, mode: live, status: approved, weight: 1 }
   - { id: pairwise.1067, atomIds: [ register.standing.use-a-bullet-list-for-three ], cell: { ask_class: operate, ask_shape: prescribed, session_state: resumed, owner_signal: stop, deviation: D12_prompt_extraction, estate_hazard: dead_helper, atoms.register: register.standing.use-a-bullet-list-for-three }, testType: register_sample, mode: live, status: approved, weight: 1 }
 summary:
-  cells: 1309
+  cells: 1312
   coveringArraySize: 1067
   perKind:
     instruction: 93
     gate: 12
     route: 65
-    skill: 114
-    reference: 8
+    skill: 117
+    reference: 11
     script: 2
     subagent: 72
     guard: 30
@@ -1464,7 +1467,7 @@ summary:
     route_positive: 260
     route_near_miss: 13
     misroute: 13
-    read_when: 8
+    read_when: 11
     script_fixture: 2
     dispatch: 42
     contract_alone: 3
@@ -1529,5 +1532,5 @@ summary:
     - register.standing.never-use-the-words-obviously-or
     - register.standing.write-amounts-with-the-currency-code
     - gate.standing.read-claude-memory-memory-md-before
-  cellsWithoutPhrase: 1309
+  cellsWithoutPhrase: 1312
   edgesWithoutJourney: 7

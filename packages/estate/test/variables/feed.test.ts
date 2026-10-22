@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { verifyVariableQuotes } from '@agent-nexus/driftbench-generate';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
-import { cut, nextLedger } from '../../src/pointer';
+import { CutError, cut, nextLedger } from '../../src/pointer';
 import {
   estateToVariables,
   ledgerResolver,
@@ -379,5 +379,19 @@ describe('the store the feed makes', () => {
     const first = renderVariableStore(estateToVariables(map, resolver()).store);
     expect(renderVariableStore(estateToVariables(map, resolver()).store)).toBe(first);
     expect(first.startsWith('# driftbench variable store')).toBe(true);
+  });
+});
+
+describe('ledgerResolver on a file nested too deep', () => {
+  it('refuses with the file, the code and the depth, and does not crash on an unnamed error', () => {
+    const deep = `${Array.from({ length: 150 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join('\n')}\n`;
+    let refusal: unknown;
+    try {
+      ledgerResolver(new Map([...Object.entries(HALL), ['notes/deep.md', deep]]));
+    } catch (cause) {
+      refusal = cause;
+    }
+    expect(refusal).toBeInstanceOf(CutError);
+    expect(refusal).toMatchObject({ code: 'nesting', path: 'notes/deep.md', depth: 150 });
   });
 });

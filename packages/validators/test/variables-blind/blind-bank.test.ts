@@ -7,6 +7,7 @@ import { CAUSES } from '../../src/ladders/variables/blind/causes';
 import { BLIND_FAMILIES, BLIND_STEMS, blindBank, blindCount } from '../../src/ladders/variables/blind/index';
 import type { VariablesImpl } from '../../src/ladders/variables/interface';
 import { MUTANTS } from './mutants';
+import { PROPERTY_MUTANTS } from './mutants-property';
 import { referenceImpl } from './reference/index';
 
 /**
@@ -154,7 +155,7 @@ describe('the blind variables bank', () => {
   }, 120_000);
 
   describe('loses at least one item on every planted mutant', () => {
-    for (const mutant of MUTANTS) {
+    for (const mutant of [...MUTANTS, ...PROPERTY_MUTANTS]) {
       it(mutant.name, async () => {
         const { impl, reset } = mutant.make(referenceImpl);
         try {
