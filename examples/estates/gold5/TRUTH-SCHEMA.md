@@ -95,6 +95,6 @@ Four states, in order. Counts are limits per estate (A, B, C), read from the fil
 
 4. This change: a blind re-check of the 18 added limits (below) removed two, A `5fnrtqa4dt` and B `lwci7tropa`. 54 limits (A 24, B 11, C 19), 44 constraints and 10 triggers. B `lwci7tropa` stays a planted rule; only its limit entry is gone.
 
-The blind re-check judged a mixed sample of 36 units without the model's answers or the truth values: the 18 added limits, 9 positive controls taken from the original truth and 9 decoys. The judge confirmed 9 of 9 controls, 0 of 9 decoys and 16 of 18 added limits. The two it rejected are removed.
+The blind re-check judged a mixed sample of 36 units without the model's answers or the truth values: the 18 added limits, 9 positive controls taken from the original truth and 9 decoys. The judge confirmed 9 of 9 controls, 0 of 7 judged decoys (2 decoys were missing from the dumps the judge read) and 16 of 18 added limits. The two it rejected are removed.
 
 An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 54-limit truth, the 38-limit figure first (see `docs/variables.md`).
