@@ -1,4 +1,5 @@
 import { ANCHOR, GUARDS_DIR, helperFile, MEMORY, ROOT, STANDING, skillFile } from '../layout';
+import { plantedHeader } from '../registry-record';
 import { anchored, type BodyLine, type GuardLine, namesFor, plantSkill, writeSettings } from './common';
 import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
@@ -141,9 +142,17 @@ function guard(
 }
 
 function registry(build: Build, rows: string[], file = 'CHECK-REGISTRY.md'): void {
-  build.estate
-    .file(`${GUARDS_DIR}/${file}`, build.owner)
-    .lines_(['# Check registry', '', '| Id | Guard | Enforces |', '|---|---|---|', ...rows]);
+  build.estate.file(`${GUARDS_DIR}/${file}`, build.owner).lines_([
+    '# Check registry',
+    '',
+    plantedHeader([
+      ['id', 'Id'],
+      ['guard', 'Guard'],
+      ['enforces', 'Enforces'],
+    ]),
+    '|---|---|---|',
+    ...rows,
+  ]);
 }
 
 const DEFECTS: Case[] = [
@@ -629,9 +638,15 @@ const CLEAN: Case[] = [
     plant: (b) => {
       skill(b, 'a');
       const g = guard(b, 'g');
-      b.estate
-        .file(`${GUARDS_DIR}/CHECK-REGISTRY.md`, b.owner)
-        .lines_(['| Id | Adapter | Event |', '|---|---|---|', `| G1 | ${g.name} | PreToolUse |`]);
+      b.estate.file(`${GUARDS_DIR}/CHECK-REGISTRY.md`, b.owner).lines_([
+        plantedHeader([
+          ['id', 'Id'],
+          ['guard', 'Adapter'],
+          ['event', 'Event'],
+        ]),
+        '|---|---|---|',
+        `| G1 | ${g.name} | PreToolUse |`,
+      ]);
       return [];
     },
   },

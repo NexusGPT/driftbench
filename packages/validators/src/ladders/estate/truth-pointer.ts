@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { type PointerScanOptions, pointer } from '@agent-nexus/driftbench-estate';
+import { plantedColumn, plantedIsOff } from './registry-record';
 import type { ExpectedAtom, ProseEntry } from './render';
 
 /**
@@ -437,6 +438,31 @@ export function truthPointer(truth: Truth): TruthPointer {
             }
             return none;
           }),
+          returnedModel: 'planted-truth-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
+      // The registry-roles questions: the planter recorded the role of each column of the header line it wrote
+      // (registry-record.ts). A unit it recorded nothing for (a free-text column) is none.
+      if (set.set === pointer.REGISTRY_ROLES_SET_NAME) {
+        // One question per table: the path names the header line and the file, and a unit is a column by its
+        // position. The state values are asked together, and the planter recorded which of them it wrote as off.
+        const table = /^registry-roles\/(\d+)\/(.*)\.md$/.exec(window.path);
+        const headerLine = table
+          ? (truth.files[table[2] as string] ?? '').split('\n')[Number(table[1]) - 1]
+          : undefined;
+        return {
+          labels: window.units.map((unit) => ({
+            units: String(unit.n),
+            label:
+              headerLine !== undefined
+                ? (plantedColumn(headerLine, unit.n - 1) ?? 'none')
+                : window.path === 'registry-roles/states.md' &&
+                    plantedIsOff(unit.text.replace(/^[-*]\s+/, '').trim())
+                  ? 'state-off'
+                  : 'none',
+          })),
           returnedModel: 'planted-truth-1',
           stopReason: 'end_turn',
           usage: { input: 0, output: 0 },
