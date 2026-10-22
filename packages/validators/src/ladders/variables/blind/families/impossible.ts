@@ -588,7 +588,9 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'Never together, says the owner.')] },
+            owner: {
+              impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'Never together, says the owner.')],
+            },
           });
           const hit = store.impossible.find((p) => samePair(p, [v1, lex('alpha')], [v2, lex('north')]));
           must(!!hit, () => `the owner pair is not in the store: ${show(store.impossible)}`);
@@ -676,7 +678,10 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
             owner: {
-              impossible: [pairOf([v1, lex('gamma')], [v2, lex('south')]), pairOf([v1, lex('alpha')], [v2, 'nowhere'])],
+              impossible: [
+                pairOf([v1, lex('gamma')], [v2, lex('south')]),
+                pairOf([v1, lex('alpha')], [v2, 'nowhere']),
+              ],
             },
           });
           must(
@@ -699,7 +704,9 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
         (ctx) => {
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
-          const store = d.build({ owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], '   ')] } });
+          const store = d.build({
+            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], '   ')] },
+          });
           must(store.impossible.length === 0, () => 'a pair with blank owner words entered the store');
           must(store.refused.length >= 1, () => 'a pair with blank owner words is not in refused');
         },
@@ -711,7 +718,9 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'We know it.', '2026-02-30')] },
+            owner: {
+              impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'We know it.', '2026-02-30')],
+            },
           });
           must(store.impossible.length === 0, () => 'a pair dated 2026-02-30 entered the store');
           must(store.refused.length >= 1, () => 'a pair with an unreal date is not in refused');

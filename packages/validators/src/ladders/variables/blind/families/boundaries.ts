@@ -334,8 +334,15 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
         4,
         (ctx) => {
           const a = drawCondition(ctx.rng, 'gt', 'plain');
-          const b = drawCondition(ctx.rng, 'ge', 'plain', { limit: a.limit, subject: a.subject, unit: a.unit });
-          const r = readSpans(ctx, [numeric(a.text, a.subject, a.limit, a.cmp), numeric(b.text, b.subject, b.limit, b.cmp)]);
+          const b = drawCondition(ctx.rng, 'ge', 'plain', {
+            limit: a.limit,
+            subject: a.subject,
+            unit: a.unit,
+          });
+          const r = readSpans(ctx, [
+            numeric(a.text, a.subject, a.limit, a.cmp),
+            numeric(b.text, b.subject, b.limit, b.cmp),
+          ]);
           const nums = r.samples.map((s) => s.sample);
           must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
           must(
@@ -359,7 +366,10 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             subject: a.subject,
             unit: a.unit,
           });
-          const r = readSpans(ctx, [numeric(a.text, a.subject, a.limit, a.cmp), numeric(b.text, b.subject, b.limit, b.cmp)]);
+          const r = readSpans(ctx, [
+            numeric(a.text, a.subject, a.limit, a.cmp),
+            numeric(b.text, b.subject, b.limit, b.cmp),
+          ]);
           const nums = r.samples.map((s) => s.sample).sort((x, y) => x - y);
           for (const limit of [a.limit, b.limit]) {
             must(

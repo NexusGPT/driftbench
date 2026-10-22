@@ -441,7 +441,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             !!v && v.approved === false,
             () => `newcomer is ${show(v)}; a value seen but unknown is an unapproved proposal`,
           );
-          const [a, n] = [weightOf(store, id, lex('alpha')), weightOf(store, id, lex('newcomer'))] as [number, number];
+          const [a, n] = [weightOf(store, id, lex('alpha')), weightOf(store, id, lex('newcomer'))] as [
+            number,
+            number,
+          ];
           must(
             typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9,
             () => `weights ${a} and ${n} are not in the ratio of the counts 5 and 2`,
@@ -461,7 +464,9 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             words: `Traffic is mostly ${value}.`,
             date: OWNER_DATE,
           });
-          const store = d.build({ owner: { weights: [w(lex('alpha'), 60), w(lex('beta'), 30), w(lex('gamma'), 10)] } });
+          const store = d.build({
+            owner: { weights: [w(lex('alpha'), 60), w(lex('beta'), 30), w(lex('gamma'), 10)] },
+          });
           must(
             weightOf(store, id, lex('alpha')) === 60 &&
               weightOf(store, id, lex('beta')) === 30 &&
@@ -479,10 +484,15 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const store = d.build({
             owner: {
-              weights: [{ variable: id, value: lex('alpha'), weight: -2, words: 'Minus two.', date: OWNER_DATE }],
+              weights: [
+                { variable: id, value: lex('alpha'), weight: -2, words: 'Minus two.', date: OWNER_DATE },
+              ],
             },
           });
-          must(weightOf(store, id, lex('alpha')) === undefined, () => 'a negative owner weight entered the store');
+          must(
+            weightOf(store, id, lex('alpha')) === undefined,
+            () => 'a negative owner weight entered the store',
+          );
           must(
             store.refused.length >= 1 &&
               store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
@@ -499,7 +509,9 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (const weight of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
             const store = d.build({
               owner: {
-                weights: [{ variable: id, value: lex('beta'), weight, words: 'Not a number.', date: OWNER_DATE }],
+                weights: [
+                  { variable: id, value: lex('beta'), weight, words: 'Not a number.', date: OWNER_DATE },
+                ],
               },
             });
             must(

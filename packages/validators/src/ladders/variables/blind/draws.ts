@@ -91,7 +91,14 @@ export function grouped(n: number): string {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export type Drawn = { subject: string; text: string; limit: number; cmp: Cmp; integer: boolean; unit: string };
+export type Drawn = {
+  subject: string;
+  text: string;
+  limit: number;
+  cmp: Cmp;
+  integer: boolean;
+  unit: string;
+};
 
 export type DrawOptions = {
   /** Use this number instead of drawing one. */
@@ -193,7 +200,12 @@ const LEADS: ReadonlyArray<(text: string) => string> = [
   (t) => `* Escalate once ${t}.`,
   (t) => `Rule: ask for review when ${t}.`,
 ];
-const HEADS = ['', '# Escalation\n\n', '## Policy notes\n\n', 'Notes for the desk\n==================\n\n'] as const;
+const HEADS = [
+  '',
+  '# Escalation\n\n',
+  '## Policy notes\n\n',
+  'Notes for the desk\n==================\n\n',
+] as const;
 const TAILS = ['', '\n\nNever share internal notes.', '\n\nThis line states no condition.', '\n'] as const;
 
 /** The text of a file that holds each span once, in a layout the seed picks. The spans stay verbatim in it. */

@@ -12,7 +12,24 @@ import { itemRng, type Rng } from '../bank/util';
  * item starts. Outside an item, a token stands for itself.
  */
 
-const SYLLABLES = ['ba', 'ko', 'mi', 'ru', 'te', 'so', 'la', 've', 'ni', 'do', 'pa', 'gu', 'hi', 'za', 'fe', 'jo'] as const;
+const SYLLABLES = [
+  'ba',
+  'ko',
+  'mi',
+  'ru',
+  'te',
+  'so',
+  'la',
+  've',
+  'ni',
+  'do',
+  'pa',
+  'gu',
+  'hi',
+  'za',
+  'fe',
+  'jo',
+] as const;
 
 type Lexicon = { rng: Rng; names: Map<string, string>; frame?: number; layout?: number };
 

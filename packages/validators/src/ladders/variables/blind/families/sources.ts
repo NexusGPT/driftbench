@@ -337,7 +337,10 @@ export const SOURCES_STEMS: readonly Stem[] = [
           ]);
           const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
           must(
-            nums.length >= 3 && nums.some((n) => n < d.limit) && nums.includes(d.limit) && nums.some((n) => n > d.limit),
+            nums.length >= 3 &&
+              nums.some((n) => n < d.limit) &&
+              nums.includes(d.limit) &&
+              nums.some((n) => n > d.limit),
             () => `samples ${show(nums)}; an equality keeps a case below, at and above its limit`,
           );
           for (const b of r.variable.boundaries ?? [])
@@ -357,7 +360,10 @@ export const SOURCES_STEMS: readonly Stem[] = [
           ]);
           const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
           must(
-            nums.length >= 3 && nums.some((n) => n < d.limit) && nums.includes(d.limit) && nums.some((n) => n > d.limit),
+            nums.length >= 3 &&
+              nums.some((n) => n < d.limit) &&
+              nums.includes(d.limit) &&
+              nums.some((n) => n > d.limit),
             () => `samples ${show(nums)}; an inequality keeps a case below, at and above its limit`,
           );
           for (const b of r.variable.boundaries ?? [])
@@ -383,7 +389,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
               nums.some((n) => n > d.lo && n < d.hi) &&
               nums.includes(d.hi) &&
               nums.some((n) => n > d.hi),
-            () => `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
+            () =>
+              `samples ${show(nums)} lack one of: below ${d.lo}, at ${d.lo}, strictly inside, at ${d.hi}, above ${d.hi}`,
           );
         },
       ],
@@ -490,8 +497,16 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'repeated-tool-field-merges-by-field',
         3,
         (ctx) => {
-          const t1: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
-          const t2: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('beta'), lex('gamma')] };
+          const t1: ToolSpec = {
+            tool: lex('router_tool'),
+            field: lex('queue'),
+            values: [lex('alpha'), lex('beta')],
+          };
+          const t2: ToolSpec = {
+            tool: lex('router_tool'),
+            field: lex('queue'),
+            values: [lex('beta'), lex('gamma')],
+          };
           const q = (t: ToolSpec, v: string) => quoteFor(t, v);
           const text = [...t1.values.map((v) => q(t1, v)), ...t2.values.map((v) => q(t2, v))].join('\n');
           const estate = {
@@ -517,7 +532,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           const ids = (store.variables[0]?.values ?? []).map((x) => x.id).sort();
           must(
-            JSON.stringify(ids) === JSON.stringify([lex('alpha'), lex('beta'), lex('gamma')]),
+            JSON.stringify(ids) === JSON.stringify([lex('alpha'), lex('beta'), lex('gamma')].sort()),
             () => `values ${show(ids)}; the union of both rules, each once`,
           );
         },
@@ -542,7 +557,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'a-rule-lists-every-variable-it-names',
         3,
         (ctx) => {
-          const tool: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
+          const tool: ToolSpec = {
+            tool: lex('router_tool'),
+            field: lex('queue'),
+            values: [lex('alpha'), lex('beta')],
+          };
           const q = (v: string) => quoteFor(tool, v);
           const spans = [
             numeric('the delay is more than 2 days', 'the delay', 2, 'gt'),
@@ -604,7 +623,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'a-variable-shared-by-two-rules-is-in-both',
         4,
         (ctx) => {
-          const tool: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
+          const tool: ToolSpec = {
+            tool: lex('router_tool'),
+            field: lex('queue'),
+            values: [lex('alpha'), lex('beta')],
+          };
           const q = (v: string) => quoteFor(tool, v);
           const mk = (id: string) => ({
             id,
@@ -985,7 +1008,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
             ),
             owner: {
               values: [
-                { variable: b, value: lex('curt'), words: 'We sometimes write curt mails.', date: OWNER_DATE },
+                {
+                  variable: b,
+                  value: lex('curt'),
+                  words: 'We sometimes write curt mails.',
+                  date: OWNER_DATE,
+                },
               ],
               impossible: [pairOf([a, lex('alpha')], [b, lex('curt')])],
               weights: [
@@ -995,12 +1023,18 @@ export const SOURCES_STEMS: readonly Stem[] = [
               ],
             },
           });
-          must(!!varOf(store, [lex('warm'), lex('brisk'), lex('curt')]), () => 'the owner value is not in the variable');
+          must(
+            !!varOf(store, [lex('warm'), lex('brisk'), lex('curt')]),
+            () => 'the owner value is not in the variable',
+          );
           must(
             store.impossible.length === 1,
             () => `${store.impossible.length} impossible pairs; the owner gave one`,
           );
-          must(convOf(store, a, lex('alpha'))?.kind === 'conversations', () => 'the conversation counts are gone');
+          must(
+            convOf(store, a, lex('alpha'))?.kind === 'conversations',
+            () => 'the conversation counts are gone',
+          );
           const weightOf = (value: string): number | undefined =>
             store.variables.find((v) => v.id === b)?.values.find((x) => x.id === value)?.weight;
           const w = [lex('warm'), lex('brisk'), lex('curt')].map(weightOf);

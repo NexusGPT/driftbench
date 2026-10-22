@@ -1,7 +1,7 @@
 import type { ItemContext } from '../bank/item';
 import type { StoreDoc, StoreValue, StoreVariable } from '../interface';
-import { callBuild, must, show } from './kit';
 import { type DrawOptions, drawCondition, type Form, policyFile } from './draws';
+import { callBuild, must, show } from './kit';
 import { type Cmp, numeric } from './spans';
 
 /** Reading condition spans from one file, and the checks every numeric condition must pass. */
