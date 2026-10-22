@@ -129,6 +129,9 @@ export type ReaderExports = {
       env: Record<string, string | undefined>;
       cwd: string;
       record: boolean;
+      marginCut?: number;
+      passAt?: number;
+      failAt?: number;
       runs?: number;
       threshold?: number;
       fetch?: unknown;
@@ -432,7 +435,7 @@ const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
-  JEV_ROUTE: 'gateway',
+  JEV_URL: 'https://jev.invalid/v1/systemone',
 };
 
 function fetchOf(
@@ -488,13 +491,16 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
             cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
             client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
           },
+          ...(request.model.second ? [{ cls: 'system2' as const, client: 'anthropic' }] : []),
         ],
         {
           record: mode === 'record',
           cwd: '.',
           env: TEST_ENV,
           fetch: fetchOf(request.model.transport),
-          ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
+          ...(request.model.marginCut !== undefined ? { marginCut: request.model.marginCut } : {}),
+          ...(request.model.passAt !== undefined ? { passAt: request.model.passAt } : {}),
+          ...(request.model.failAt !== undefined ? { failAt: request.model.failAt } : {}),
         },
       );
       if (!built.ok) return fail(built.message);

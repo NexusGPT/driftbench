@@ -5,10 +5,12 @@ import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run'
 import {
   canonical,
   hash,
+  keyOf,
   loadFixture,
   makeFixture,
   perturb,
   requireFixtureLabels,
+  type Wire,
 } from '../../src/ladders/pointer/kit/fixture';
 import { fakeTransport } from '../../src/ladders/pointer/kit/transport';
 import type { PointerSut } from '../../src/ladders/pointer/sut/port';
@@ -49,7 +51,7 @@ describe('committed replay oracles', () => {
       const fixture = loadFixture(arm);
       expect(makeFixture(arm, fixture.documents, fixture.labelsYaml)).toEqual(fixture);
       fixture.rows.forEach((row, index) => {
-        expect(row.key).toBe(hash(canonical(fixture.wires[index])));
+        expect(row.key).toBe(keyOf(fixture.wires[index] as Wire, row.readable));
       });
       const transport = fakeTransport({
         respond: () => {
