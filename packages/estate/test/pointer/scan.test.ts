@@ -266,6 +266,42 @@ describe('the pointer scan', () => {
     expect(result.unlabeled).toBeGreaterThan(0);
   });
 
+  it('keeps the entries of a refused answer in the failure it records, and replays it as the same failure', async () => {
+    const bad = (window: Window, set: LabelSet): Labelled[] =>
+      set.set === 'duty'
+        ? [
+            { units: '99', label: 'order', spans: [{ kind: 'x', quote: 'copied unit text' }] as never },
+            { units: '1', label: 'rotate', target: 2 },
+          ]
+        : byLength(window, set);
+    const cassette = new Cassette();
+    const result = await pointerScan(
+      input(plantedDense(bad), cassette, { files: [FILES[0] as (typeof FILES)[number]] }),
+    );
+    const failed = [...cassette.entries.values()].filter((entry) => entry.answer.refused === 'unreadable');
+    expect(failed.length).toBeGreaterThan(0);
+    // One list per try, with units, label and target only: no span, no copied text.
+    expect(failed[0]?.answer.refusedAnswers).toEqual([
+      [
+        { units: '99', label: 'order' },
+        { units: '1', label: 'rotate', target: 2 },
+      ],
+      [
+        { units: '99', label: 'order' },
+        { units: '1', label: 'rotate', target: 2 },
+      ],
+    ]);
+    expect(cassette.render()).not.toContain('copied unit text');
+    const replay = await pointerScan(
+      input(replayOf(plantedDense(bad)), Cassette.parse(cassette.render()), {
+        mode: 'replay',
+        files: [FILES[0] as (typeof FILES)[number]],
+      }),
+    );
+    expect(replay.calls).toBe(0);
+    expect(replay.failedWindows).toEqual(result.failedWindows);
+  });
+
   it('retries an unreadable answer once, then lists the window as failed and records the failure', async () => {
     const log: string[] = [];
     const cassette = new Cassette();
