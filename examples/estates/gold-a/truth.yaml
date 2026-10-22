@@ -78,31 +78,11 @@ limits:
     comparison: le
     unit_of: "next steps"
     governs: j4ow7h6n5z
-  - unit: pz5lr4g2te
-    limit: 60
-    comparison: gt
-    unit_of: "days"
-    governs: pz5lr4g2te
   - unit: ktft77jpaq
     limit: 30
     comparison: le
     unit_of: "days"
     governs: 24gupjkmw3
-  - unit: xodri66lws
-    limit: 2
-    comparison: gt
-    unit_of: "empty visits"
-    governs: xodri66lws
-  - unit: hykpyrtlha
-    limit: 7
-    comparison: le
-    unit_of: "days"
-    governs: hykpyrtlha
-  - unit: 3fb24ukmzu
-    limit: 3
-    comparison: ge
-    unit_of: "abusive messages in a row"
-    governs: 3fb24ukmzu
 
 scopes:
   - unit: jmd56vqa6y

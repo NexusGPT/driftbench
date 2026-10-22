@@ -43,31 +43,6 @@ limits:
     comparison: ge
     unit_of: "readings of the message"
     governs: lhxxqkxm3l
-  - unit: dfextlhqyw
-    limit: 5
-    comparison: le
-    unit_of: "minutes"
-    governs: dfextlhqyw
-  - unit: f4ijkrloht
-    limit: 1
-    comparison: le
-    unit_of: "gigabytes"
-    governs: f4ijkrloht
-  - unit: rz5dshtstc
-    limit: 20
-    comparison: le
-    unit_of: "megabytes"
-    governs: rz5dshtstc
-  - unit: mhmxsdrbtw
-    limit: 200
-    comparison: le
-    unit_of: "files"
-    governs: mhmxsdrbtw
-  - unit: odec4vbjg5
-    limit: 4
-    comparison: le
-    unit_of: "lines"
-    governs: odec4vbjg5
 
 scopes:
   - unit: 7u66fhgg6x
