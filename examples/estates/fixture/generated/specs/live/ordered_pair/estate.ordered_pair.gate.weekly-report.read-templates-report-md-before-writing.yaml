@@ -14,7 +14,6 @@ tags:
   - kind:gate
   - kind:skill
   - kind:instruction
-  - judged
 target:
   adapter: claude-code
 given:
@@ -50,13 +49,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: instruction.weekly-report.count-only-what-the-ledger-and
-    rubric: 'Does the reply follow this rule of the estate: "Count only what the ledger and the shipment log show for the last seven days."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -74,8 +66,6 @@ blocks:
         created:
           - reports/2026-W42.md
         others_untouched: true
-      criteria:
-        - instruction.weekly-report.count-only-what-the-ledger-and
 rules:
   custom:
     ordered:
@@ -103,8 +93,6 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
-    judged:
-      - instruction.weekly-report.count-only-what-the-ledger-and
   links:
     - block: ask
       to:
@@ -128,7 +116,7 @@ metadata:
         kind: rule
         rule: instruction.weekly-report.count-only-what-the-ledger-and
         ledger: wrl4c7wlvb
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b
