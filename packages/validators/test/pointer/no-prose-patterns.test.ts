@@ -1081,6 +1081,12 @@ const ALLOWED: Allowance[] = [
       "reads a key or field name of the READER's JSON (question keys u<n>__label, cassette fields), not prose",
   },
   {
+    file: 'sut/blind-binding/labels.ts',
+    anchor: 'named',
+    expr: "from.startsWith('cassette:')",
+    reason: 'reads the source id a ledger label carries (cassette:<key>), written by the reader, not prose',
+  },
+  {
     file: 'sut/blind-binding/replay.ts',
     anchor: 'fieldsOf',
     expr: "name.startsWith('part.')",
