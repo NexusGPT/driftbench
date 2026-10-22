@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { generateEstateSuite } from '@agent-nexus/driftbench-generate';
+import { generateEstateSuite } from '../../generate/src/estate/generate';
 import { ClaudeCodeReader, renderEstateMap, scanEstate } from '@agent-nexus/driftbench-estate';
 import { it, vi } from 'vitest';
 import { fixtureInputs, PLANNER_PATHS } from '../../generate/test/estate/support';
