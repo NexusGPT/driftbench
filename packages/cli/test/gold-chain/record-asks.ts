@@ -24,7 +24,6 @@ import {
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
 import { ASK_MODEL, askPort, loadAsks, readKey } from './limits-ask';
-import { appliedScopes } from './scopes';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
@@ -41,7 +40,7 @@ async function record(estate: EstateName, key: string) {
     // The scopes of the truth file are planted as the chain plants them, so the atoms and their situations are the same.
     const { truth } = await loadTruth(estate, gold);
     const placeOf = new Map(gold.map((unit) => [unit.id, `${LAYOUT[estate][unit.file]}#${unit.n}`]));
-    const scopes = [...appliedScopes(gold, truth.scopes).applied.values()].map((scope) => ({
+    const scopes = truth.scopes.map((scope) => ({
       unit: placeOf.get(scope.unit) ?? '',
       target: placeOf.get(scope.target) ?? '',
     }));

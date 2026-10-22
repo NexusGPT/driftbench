@@ -32,7 +32,6 @@ import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
 import { ASK_MODEL, askPort, loadAsks } from './limits-ask';
-import { appliedScopes } from './scopes';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
