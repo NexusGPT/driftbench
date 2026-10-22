@@ -171,6 +171,15 @@ export const scale: FamilySpec = {
       { seedFree: true },
     ),
     row(
+      'wide-window',
+      4,
+      'A window of more than 10,000 units is labelled by one range, in time',
+      'One file of about 470,000 characters of short sentences in two parts under top-level headings (about 18,000 units, two windows); the labeller answers each window with one range over all its units.',
+      'Two windows, the first over 10,000 units; one call per window; every unit labelled; no failed window; the scan under 5 s (measured 0.9 s on the CI runner, issue 1376).',
+      'labeler:range-within-window',
+      { seedFree: true },
+    ),
+    row(
       'wide-table',
       4,
       'A table of 10,000 cells cuts in time',

@@ -225,6 +225,20 @@ export const scaleRuns: Record<string, Run> = {
           : `${o.units} units for ${String(o.extra.expected)} sentences`,
       { ms: 10_000 },
     ),
+  'wide-window': (ctx) =>
+    viaChild(
+      ctx,
+      { op: 'wide-window', first: 300_000, second: 150_000 },
+      (o) => {
+        if (Number(o.extra.widest) <= 10_000 || Number(o.extra.windows) < 2)
+          return `positive witness: ${String(o.extra.windows)} windows, the widest of ${String(o.extra.widest)} units; expected two, one over 10,000`;
+        if (o.calls[0] !== o.extra.windows)
+          return `${o.calls[0]} labeller calls for ${String(o.extra.windows)} windows: a whole-window range was refused and asked again`;
+        if (o.extra.failed !== 0) return `${String(o.extra.failed)} windows failed`;
+        return o.extra.unlabelled === 0 ? undefined : `${String(o.extra.unlabelled)} units have no label`;
+      },
+      { ms: 5000 },
+    ),
   'wide-table': (ctx) =>
     viaChild(
       ctx,

@@ -1,5 +1,5 @@
 import { rngFor } from '@agent-nexus/driftbench-generate';
-import type { LedgerView, Link, PointerSut, ScanResult, SourceFile } from '../sut/port';
+import type { Labeler, LedgerView, Link, PointerSut, ScanResult, SourceFile } from '../sut/port';
 import { type Block, compose } from './compose';
 import { makeFixture, requireFixtureLabels } from './fixture';
 import { perfect, truthLabel } from './labellers';
@@ -34,7 +34,8 @@ export type ScaleOp =
   | { op: 'replay'; spec: ScaleSpec }
   | { op: 'long-paragraph'; sentences: number }
   | { op: 'wide-table'; rows: number; cols: number }
-  | { op: 'long-units'; units: number; chars: number };
+  | { op: 'long-units'; units: number; chars: number }
+  | { op: 'wide-window'; first: number; second: number };
 
 const alien = (rng: Rng, i: number): string => {
   const letters = 'jkqvwxz';
@@ -195,6 +196,50 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.ms.push(ms);
     out.units = value.units.length;
     out.extra = { expected: (job.rows + 1) * job.cols };
+  } else if (job.op === 'wide-window') {
+    // One file of short sentences in two parts under top-level headings: past the window budget together and
+    // under it apart, so it is two windows, the first of more than 10,000 units. It is the shape measured for
+    // issue 1376 (about 468,000 characters and 18,000 units). The labeller answers each window with one range
+    // over all the units it may label, with a label that builds no atom: the item times the scan, not the atoms.
+    const part = (from: number, characters: number): string[] => {
+      const out: string[] = [];
+      let length = 0;
+      for (let i = from; length < characters; i++) {
+        const paragraph = `Fictional public padding. Number ${i} of v226p9j.`;
+        out.push(paragraph);
+        length += paragraph.length;
+      }
+      return out;
+    };
+    const first = part(0, job.first);
+    const second = part(first.length, job.second);
+    const text = ['# Part one', ...first, '# Part two', ...second].join('\n\n');
+    let calls = 0;
+    let widest = 0;
+    const labeler: Labeler = (request) => {
+      calls += 1;
+      const numbers = request.window.units.filter((u) => u.mode === 'label').map((u) => u.n);
+      const low = numbers.reduce((a, b) => Math.min(a, b), Number.POSITIVE_INFINITY);
+      const high = numbers.reduce((a, b) => Math.max(a, b), 0);
+      widest = Math.max(widest, numbers.length);
+      return { labels: [{ units: `${low}-${high}`, label: 'description' }] };
+    };
+    const { value, ms } = await timed(() =>
+      sut.scan({ files: [{ path: 'wide.md', text }], labelsYaml: RULES_YAML, labeler }),
+    );
+    const ledger = ok(value, 'the scan');
+    const live = ledger.entries.filter((e) => e.status === 'live');
+    out.ms.push(ms);
+    out.calls.push(calls);
+    out.units = live.length;
+    out.live.push(live.length);
+    out.extra = {
+      characters: text.length,
+      windows: value.windows,
+      widest,
+      unlabelled: live.filter((e) => e.labels['agent-rules']?.label !== 'description').length,
+      failed: value.diagnostics.filter((d) => d.code === 'failed-window').length,
+    };
   } else if (job.op === 'long-units') {
     const rng = rngFor(1, 'long-units');
     const make = (i: number) => {
