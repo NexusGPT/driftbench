@@ -48,6 +48,7 @@ import {
   type SessionFile,
   type SessionRecord,
   type StateLibrary,
+  type StateLibraryDigest,
   sessionFileText,
 } from './states';
 import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
