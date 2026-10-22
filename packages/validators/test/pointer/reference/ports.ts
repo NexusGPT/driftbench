@@ -742,24 +742,18 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       ) ??
       rows[0];
     // Every run's record must agree with the request on every field but the run itself.
-    const records = hit
-      ? runsOf(ctx.arm).flatMap((run) => {
-          const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
-          return found ? [{ record: found.readable, expected: { ...want, run } }] : [];
-        })
-      : [];
-    const differs = near
-      ? [
-          ...new Set(
-            (records.length > 0 ? records : [{ record: near.readable, expected: want }]).flatMap(
-              ({ record, expected }) =>
-                [...new Set([...Object.keys(expected), ...Object.keys(record)])].filter(
-                  (k) => expected[k] !== record[k],
-                ),
-            ),
-          ),
-        ]
-      : [];
+    const pairs: Array<[Record<string, string>, Record<string, string>]> = [];
+    if (hit)
+      for (const run of runsOf(ctx.arm)) {
+        const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
+        if (found) pairs.push([found.readable, { ...want, run }]);
+      }
+    if (pairs.length === 0 && near) pairs.push([near.readable, want]);
+    const differing = new Set<string>();
+    for (const [record, expected] of pairs)
+      for (const k of new Set([...Object.keys(expected), ...Object.keys(record)]))
+        if (expected[k] !== record[k]) differing.add(k);
+    const differs = [...differing];
     if (!hit || differs.length) {
       const fields = differs.length ? differs.join(', ') : 'file, window';
       return Promise.resolve({
