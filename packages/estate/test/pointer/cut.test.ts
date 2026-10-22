@@ -196,6 +196,54 @@ describe('sentence spans', () => {
     ]);
   });
 
+  // The Pragmatic Segmenter's Golden Rules (MIT; validators/pointer/THIRD-PARTY.md) that a shape-only cutter answers.
+  it('reads an ellipsis by its shape: three dots never end a sentence, a stop after them does', () => {
+    // EN 47: an ellipsis in square brackets marks an omission.
+    expect(split('"Vale [...] kept the keys [...]" (Lowe 12).')).toEqual([
+      '"Vale [...] kept the keys [...]" (Lowe 12).',
+    ]);
+    // EN 50: three spaced dots before a capital continue the sentence.
+    expect(split('I was not really . . . I did not mean it.')).toEqual([
+      'I was not really . . . I did not mean it.',
+    ]);
+    // EN 48: a fourth dot is the full stop.
+    expect(split('The list stops here . . . . Next sentence.')).toEqual([
+      'The list stops here . . . .',
+      'Next sentence.',
+    ]);
+    // HY 2: three unspaced dots before a capital continue the sentence.
+    expect(split('It rained...Then it stopped.')).toEqual(['It rained...Then it stopped.']);
+    // EN 49: four unspaced dots end it.
+    expect(split('I never meant that.... She left.')).toEqual(['I never meant that....', 'She left.']);
+  });
+
+  it('starts a sentence at an ellipsis that follows a full stop (NL 2)', () => {
+    expect(split('The shop was full. ...and then it rained.')).toEqual([
+      'The shop was full.',
+      '...and then it rained.',
+    ]);
+  });
+
+  it('ends a sentence at a stop with no space before the next capitalised word (EN 52)', () => {
+    expect(split('Hello world.Today is Tuesday.Mr. Vale bought 1,000.That is a lot.')).toEqual([
+      'Hello world.',
+      'Today is Tuesday.',
+      'Mr. Vale bought 1,000.',
+      'That is a lot.',
+    ]);
+    expect(split('Write to ana.Lowe@example.com. I read it.')).toEqual([
+      'Write to ana.Lowe@example.com.',
+      'I read it.',
+    ]);
+  });
+
+  it('reads a one-letter abbreviation through directional marks around its stop (AR 2)', () => {
+    expect(split('وقال د\u202a.\u202c سامي إنه وصل. ثم غادر.')).toEqual([
+      'وقال د\u202a.\u202c سامي إنه وصل.',
+      'ثم غادر.',
+    ]);
+  });
+
   it('keeps a boundary when the next sentence starts in lower case', () => {
     expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
       'We bake rye daily.',
