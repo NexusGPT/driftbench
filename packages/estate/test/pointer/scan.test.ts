@@ -17,6 +17,7 @@ import {
   pointerScan,
   REASK_LIMIT,
   renderLedger,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   singleLabelling,
   type Window,
@@ -576,9 +577,9 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
-    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie; the two runs asked for the
-    // split say order and ban, so it still ties, 3 against 3.
-    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban']);
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie. The runs asked for the split
+    // say order and ban, then, as it still ties, order and ban again: 4 against 4 at the most voices it gets.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban', 'order', 'ban']);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
@@ -668,6 +669,43 @@ describe('runs that split between labels of one atom kind', () => {
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
+  it('asks again a split re-ask that slips, and asks two more while the unit still ties', async () => {
+    // order 2, ban 2, remark 1. Run 6 slips and is asked again (run 7); runs 7 and 8 say order and ban, so it still
+    // ties; runs 9 and 10 say order: order holds 5 of 9.
+    const calls = new Map<string, number>();
+    const plan = ['order', 'ban', 'order', 'ban', 'remark', 'slip', 'order', 'ban', 'order', 'order'];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const label = plan[call - 1] ?? 'remark';
+        if (label === 'slip')
+          return window.units.map(
+            (unit) =>
+              ({
+                units: String(unit.n),
+                label: 'remark',
+                spans: Array(4).fill({
+                  kind: 'act',
+                  from: -1,
+                  to: -1,
+                  unlocated: 'the text is not in the unit',
+                }),
+              }) as Labelled,
+          );
+        return [{ units: `1-${window.units.length}`, label }];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(KINDS) }));
+    expect(SPLIT_REASK_MAX).toBe(4);
+    expect(result.outOfStep.some((note) => /run 6 of planted \(asked again for a split\)/.test(note))).toBe(
+      true,
+    );
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
   it('asks a window with a tie inside a kind two more times, and the extra voices decide', async () => {
     // order 2, ban 2, remark 1 tie inside the instruction kind; runs 6 and 7 say order, so order holds 4 of 7.
     const cassette = new Cassette();
@@ -696,10 +734,20 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The two
-    // runs asked for the split say order and voice, so no label or kind holds four of seven: the unit stays unlabeled
-    // and counts as a split.
-    const result = await scan(['order', 'voice', 'order', 'voice', 'remark', 'order', 'voice']);
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The four
+    // runs asked for the split say order, voice, order, voice, so no label or kind holds five of nine: the unit stays
+    // unlabeled and counts as a split.
+    const result = await scan([
+      'order',
+      'voice',
+      'order',
+      'voice',
+      'remark',
+      'order',
+      'voice',
+      'order',
+      'voice',
+    ]);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
     expect(result.split).toBe(result.ledger.entries.length);
   });
