@@ -101,6 +101,7 @@ Parser and offsets:
 
 - Parse with `unified`, `remark-parse`, `remark-gfm` and `remark-frontmatter`. Every node carries UTF-16 start and end offsets; a unit's text is always `source.slice(start, end)`, never a node's `value` (a blockquote's value drops the `> ` markers).
 - A leading byte-order mark is stripped and its length recorded as a base offset, so every offset still points into the original file.
+- Lists and block quotes may nest 100 levels deep. A file that nests deeper is refused by the cutter with a message that names the depth and the limit, and the scan names the file, because the parser takes more than linear time on deep nesting. Fenced code does not count.
 
 Units:
 

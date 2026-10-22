@@ -142,8 +142,45 @@ type Context = { inList?: boolean; inQuote?: boolean };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
+/** How deep lists and block quotes may nest in a file. The parser takes time that grows faster than the file does. */
+export const MAX_NESTING = 100;
+
+/** A file the cutter refuses, with the reason. */
+export class CutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CutError';
+  }
+}
+
+/** The deepest nesting of list items and block quotes by their markers, outside fences, in one pass. */
+function nestingOf(source: string): number {
+  let deepest = 0;
+  let fence: string | undefined;
+  for (const line of source.split(/\r\n|\r|\n/)) {
+    const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (mark !== undefined) {
+      if (fence === undefined) fence = mark.charAt(0);
+      else if (mark.charAt(0) === fence) fence = undefined;
+      continue;
+    }
+    if (fence !== undefined) continue;
+    const quotes = /^(?:\s{0,3}>)+/.exec(line)?.[0].split('>').length ?? 1;
+    const indent = /^( *)(?:[-+*]|\d+[.)])\s/.exec(line)?.[1]?.length;
+    const lists = indent === undefined ? 0 : Math.floor(indent / 2) + 1;
+    deepest = Math.max(deepest, quotes - 1, lists);
+  }
+  return deepest;
+}
+
 /** Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. */
 export function cut(rawSource: string): Cut {
+  const nesting = nestingOf(rawSource);
+  if (nesting > MAX_NESTING) {
+    throw new CutError(
+      `the file nests lists or quotes ${nesting} levels deep, over the limit of ${MAX_NESTING}: it cannot be cut`,
+    );
+  }
   const base = rawSource.charCodeAt(0) === 0xfeff ? 1 : 0;
   const source = rawSource.slice(base);
   const units: Unit[] = [];

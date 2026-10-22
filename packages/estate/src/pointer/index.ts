@@ -10,7 +10,16 @@ export {
   requestKey,
   type Wire,
 } from './cassette';
-export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
+export {
+  type Container,
+  type Cut,
+  CutError,
+  cut,
+  fingerprint,
+  MAX_NESTING,
+  sentenceSpans,
+  type Unit,
+} from './cut';
 export {
   type AnthropicLabelerOptions,
   createAnthropicLabeler,
