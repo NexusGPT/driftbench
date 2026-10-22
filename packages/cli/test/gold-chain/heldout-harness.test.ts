@@ -58,7 +58,7 @@ describe('the held-out harness on a made-up estate', () => {
         { unit: 'b', limit: 5, comparison: 'ge', role: 'constraint', governs: 'b' },
         { unit: 'c', limit: 9, comparison: 'le', role: 'constraint', governs: 'c' },
       ],
-      nonLimits: [{ unit: 'd', number: 1998, why: 'a year' }],
+      nonLimits: [{ unit: 'd', number: '1998', why: 'a year' }],
     };
     const score = scoreLimits(truth, [
       { unit: 'a', limit: 2, comparison: 'le', role: 'constraint' },
@@ -90,5 +90,59 @@ describe('the held-out harness on a made-up estate', () => {
     expect(result.score.produced).toEqual({ total: 3, matched: 2, nonLimitHits: 1, otherExtras: 0 });
     expect(result.score.nonLimits).toEqual({ truth: 1, hit: ['t3'] });
     expect(result.score.precision).toBeCloseTo(2 / 3);
+  });
+
+  it('names a unit of the table that the scan does not cut, and a unit of the scan that the table does not list', async () => {
+    const result = await runUnitsEstate({
+      folder: join(dirname(fileURLToPath(import.meta.url)), 'fixtures/tiny-mismatch'),
+      ask: async () => JSON.stringify({ limits: [{ limit: 2, comparison: 'le', role: 'constraint' }] }),
+    });
+    expect(result.unmatched).toEqual(['m2']);
+    // The heading is a unit of the scan too, and the table does not list it.
+    expect(result.outside).toEqual([
+      'CLAUDE.md#1: # Tiny, a second made-up estate',
+      'CLAUDE.md#3: Close the chat after ten idle minutes.',
+    ]);
+    expect(result.requests).toBe(1);
+    expect(result.score.limits).toEqual({ truth: 1, found: 1, exact: 1, missing: [] });
+  });
+
+  it('names every bad entry of a truth file, and drops none', () => {
+    const text = [
+      'version: 1',
+      'estate: x',
+      'units:',
+      '  - id: u1',
+      '    file: a.md',
+      '    text: "A."',
+      '  - just a string',
+      '  - id: u3',
+      '    file: a.md',
+      'limits:',
+      '  - unit: u1',
+      '    limit: two',
+      '    comparison: le',
+      '    role: constraint',
+      '  - nonsense',
+      'non_limits:',
+      '  - unit: u9',
+      '    number: "1"',
+      '    why: "a year"',
+    ].join('\n');
+    let message = '';
+    try {
+      parseUnitsTruth(text);
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message.split('\n')).toEqual([
+      'the truth file has problems:',
+      'units[1]: not a mapping',
+      'units[2]: no text',
+      'limits[1]: not a mapping',
+      'limits[0]: no governs',
+      'limits[0] (u1): the limit is not a number',
+      'non_limits[0]: u9 is not a unit',
+    ]);
   });
 });

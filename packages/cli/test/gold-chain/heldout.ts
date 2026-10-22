@@ -38,6 +38,8 @@ export type UnitsRun = {
   produced: Produced[];
   /** Ids of the units of the table that the scan did not cut as the table does. */
   unmatched: string[];
+  /** Units of the scan that the table does not list (`file#number: text`, headings included): they get no request and are not scored. */
+  outside: string[];
   /** Requests sent to the producer, and answers it could not read. */
   requests: number;
   unreadable: number;
@@ -65,10 +67,14 @@ export async function runUnitsEstate(options: {
       idOf.set(`${layout[unit.file] ?? unit.file}\n${flat(unit.text)}`, unit.id);
     }
     const placeId = new Map<string, string>();
+    const outside = new Map<string, string>();
     const labeller = plantedDense((window) =>
       window.units.flatMap((unit) => {
         const id = idOf.get(`${window.path}\n${flat(unit.text)}`);
-        if (id === undefined) return [];
+        if (id === undefined) {
+          outside.set(`${window.path}#${unit.index + 1}`, flat(unit.text));
+          return [];
+        }
         placeId.set(`${window.path}#${unit.index + 1}`, id);
         return [{ units: String(unit.n), label: 'rule' }];
       }),
@@ -124,6 +130,7 @@ export async function runUnitsEstate(options: {
       score: scoreLimits(estate.truth, produced),
       produced,
       unmatched,
+      outside: [...outside].map(([place, text]) => `${place}: ${text}`),
       requests: asked.requests,
       unreadable: asked.unreadable.length,
     };

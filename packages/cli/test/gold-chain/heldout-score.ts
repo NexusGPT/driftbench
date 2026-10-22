@@ -21,7 +21,9 @@ const ratio = (part: number, whole: number): number => (whole === 0 ? 0 : part /
  * Scores the producer against a units-table truth. Limits and non-limits are scored apart: recall is over the limits
  * of the truth, precision over the limits produced, and a limit produced on a unit that the truth lists as a
  * non-limit counts as a hit on that non-limit and as an extra. The comparison and the role are compared as written,
- * with no normal form: the units table does not say which units are prohibitions.
+ * with no normal form: the units table does not say which units are prohibitions. So `exactRecall` understates: a
+ * prohibition read as its trigger (more than 5) instead of its constraint (at most 5) is found by number but not exact.
+ * Read `recall` (the number on the governed unit) first and `exactRecall` second.
  */
 export function scoreLimits(truth: UnitsTruth, produced: readonly Produced[]): LimitScore {
   const seen = new Set<string>();

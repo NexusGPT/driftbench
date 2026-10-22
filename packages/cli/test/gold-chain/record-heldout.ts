@@ -32,10 +32,15 @@ console.log(
 );
 console.log(`units of the table not cut as the table does: ${run.unmatched.length}`);
 for (const id of run.unmatched) console.log(`  unmatched ${id}`);
+console.log(`units of the scan that the table does not list: ${run.outside.length}`);
+for (const line of run.outside) console.log(`  outside ${line}`);
 if (!dry) {
   const { score } = run;
   console.log(
-    `limits: ${score.limits.found} of ${score.limits.truth} found (recall ${score.recall.toFixed(2)}), ${score.limits.exact} exact (${score.exactRecall.toFixed(2)})`,
+    `limits found by number on the governed unit: ${score.limits.found} of ${score.limits.truth} (recall ${score.recall.toFixed(2)})`,
+  );
+  console.log(
+    `limits exact (also the comparison and the role as written; understates, there is no normal form): ${score.limits.exact} of ${score.limits.truth} (${score.exactRecall.toFixed(2)})`,
   );
   console.log(
     `produced ${score.produced.total}: ${score.produced.matched} matched (precision ${score.precision.toFixed(2)}), ${score.produced.nonLimitHits} on non-limits, ${score.produced.otherExtras} elsewhere; ${run.unreadable} unreadable answers`,

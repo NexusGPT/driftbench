@@ -16,7 +16,7 @@ export type TruthLimit = {
   unit_of?: string;
   governs: string;
 };
-export type NonLimit = { unit: string; number: string | number; why: string };
+export type NonLimit = { unit: string; number: string; why: string };
 export type UnitsTruth = { estate: string; units: UnitRow[]; limits: TruthLimit[]; nonLimits: NonLimit[] };
 export type UnitsEstate = { truth: UnitsTruth; files: Array<{ path: string; text: string }> };
 
@@ -26,52 +26,78 @@ const ROLES = new Set(['constraint', 'trigger']);
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** The truth of a units-table estate, checked: a problem is named, never repaired. */
+/**
+ * The truth of a units-table estate, checked. Every bad entry is named by its list and position, never dropped and
+ * never turned into the text "undefined": an entry that is not a mapping, or that lacks a field, is a problem.
+ */
 export function parseUnitsTruth(text: string): UnitsTruth {
   // Every scalar stays a string: an id such as 9651728e54 is a number in the default schema. Numbers go through Number().
   const raw: unknown = parseYaml(text, { schema: 'failsafe' });
   const problems: string[] = [];
   if (!isRecord(raw)) throw new Error('the truth file is not a mapping');
-  const list = (key: string): Array<Record<string, unknown>> => {
+  const field = (entry: Record<string, unknown>, where: string, key: string): string => {
+    const value = entry[key];
+    if (typeof value !== 'string' || value === '') {
+      problems.push(`${where}: no ${key}`);
+      return '';
+    }
+    return value;
+  };
+  const rows = (key: string): Array<[string, Record<string, unknown>]> => {
     const value = raw[key];
     if (!Array.isArray(value)) {
       problems.push(`${key}: not a list`);
       return [];
     }
-    return value.filter(isRecord);
+    const out: Array<[string, Record<string, unknown>]> = [];
+    value.forEach((entry: unknown, at: number) => {
+      const where = `${key}[${at}]`;
+      if (isRecord(entry)) out.push([where, entry]);
+      else problems.push(`${where}: not a mapping`);
+    });
+    return out;
   };
-  const units = list('units').map((entry) => ({
-    file: String(entry.file),
-    id: String(entry.id),
-    text: String(entry.text),
+  const units = rows('units').map(([where, entry]) => ({
+    file: field(entry, where, 'file'),
+    id: field(entry, where, 'id'),
+    text: field(entry, where, 'text'),
   }));
   const ids = new Set(units.map((unit) => unit.id));
   if (ids.size !== units.length) problems.push('units: an id is used twice');
-  const limits = list('limits').map((entry) => ({
-    unit: String(entry.unit),
-    limit: Number(entry.limit),
-    comparison: String(entry.comparison),
-    role: String(entry.role),
-    ...(entry.unit_of === undefined ? {} : { unit_of: String(entry.unit_of) }),
-    governs: String(entry.governs),
+  const limits = rows('limits').map(([where, entry]) => ({
+    where,
+    unit: field(entry, where, 'unit'),
+    limit: Number(field(entry, where, 'limit')),
+    comparison: field(entry, where, 'comparison'),
+    role: field(entry, where, 'role'),
+    ...(typeof entry.unit_of === 'string' ? { unit_of: entry.unit_of } : {}),
+    governs: field(entry, where, 'governs'),
   }));
   for (const limit of limits) {
-    if (!ids.has(limit.unit)) problems.push(`limits: ${limit.unit} is not a unit`);
-    if (!ids.has(limit.governs)) problems.push(`limits: ${limit.governs} is not a unit`);
-    if (!Number.isFinite(limit.limit)) problems.push(`limits: ${limit.unit} has no number`);
-    if (!COMPARISONS.has(limit.comparison))
-      problems.push(`limits: ${limit.unit} comparison ${limit.comparison}`);
-    if (!ROLES.has(limit.role)) problems.push(`limits: ${limit.unit} role ${limit.role}`);
+    const at = `${limit.where} (${limit.unit})`;
+    if (limit.unit !== '' && !ids.has(limit.unit)) problems.push(`${at}: ${limit.unit} is not a unit`);
+    if (limit.governs !== '' && !ids.has(limit.governs)) problems.push(`${at}: ${limit.governs} is not a unit`);
+    if (limit.unit !== '' && !Number.isFinite(limit.limit)) problems.push(`${at}: the limit is not a number`);
+    if (limit.comparison !== '' && !COMPARISONS.has(limit.comparison))
+      problems.push(`${at}: comparison ${limit.comparison}`);
+    if (limit.role !== '' && !ROLES.has(limit.role)) problems.push(`${at}: role ${limit.role}`);
   }
-  const nonLimits = list('non_limits').map((entry) => ({
-    unit: String(entry.unit),
-    number: typeof entry.number === 'number' ? entry.number : String(entry.number),
-    why: String(entry.why),
+  const nonLimits = rows('non_limits').map(([where, entry]) => ({
+    where,
+    unit: field(entry, where, 'unit'),
+    number: field(entry, where, 'number'),
+    why: field(entry, where, 'why'),
   }));
   for (const entry of nonLimits)
-    if (!ids.has(entry.unit)) problems.push(`non_limits: ${entry.unit} is not a unit`);
+    if (entry.unit !== '' && !ids.has(entry.unit))
+      problems.push(`${entry.where}: ${entry.unit} is not a unit`);
   if (problems.length > 0) throw new Error(`the truth file has problems:\n${problems.join('\n')}`);
-  return { estate: String(raw.estate), units, limits, nonLimits };
+  return {
+    estate: field(raw, 'the file', 'estate'),
+    units,
+    limits: limits.map(({ where: _where, ...limit }) => limit),
+    nonLimits: nonLimits.map(({ where: _where, ...entry }) => entry),
+  };
 }
 
 /** The units table and the prose files (every .md file of the folder, in name order) of a units-table estate. */
