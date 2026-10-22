@@ -32,6 +32,30 @@ describe('the dense request', () => {
     expect(outside(BAKE)).not.toMatch(forbidden);
   });
 
+  it('tells the labeler in the first request that a line marked not labelable takes no label, none included', () => {
+    expect(DENSE_SYSTEM).toContain(
+      'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
+    );
+    expect(DENSE_SYSTEM).toContain(
+      'A target must be a unit that can be labelled, never a line marked not labelable.',
+    );
+    const shown = {
+      ...windowOf(1),
+      display: [
+        { n: 2, mode: 'read' as const, text: 'read line' },
+        { n: 3, mode: 'context' as const, text: 'context line' },
+        { n: 4, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const lines = denseUser(BAKE, shown).split('\n');
+    for (const [n, mode] of [
+      [2, 'read'],
+      [3, 'context'],
+      [4, 'opaque'],
+    ] as const)
+      expect(lines.find((line) => line.startsWith(`[${n}] `))).toContain(`(${mode}, not labelable)`);
+  });
+
   it('numbers the units, flattens their wrapped lines and gives the heading path', () => {
     const text = denseUser(BAKE, windowOf(2));
     expect(text).toContain('WINDOW notes.md#1  path: Counter > Mornings');

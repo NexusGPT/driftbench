@@ -608,6 +608,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
     let failure: unknown;
+    const refusedAnswers: NonNullable<Recorded['refusedAnswers']> = [];
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;
@@ -618,7 +619,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
         // cannot be located is no such refusal: the run is out of step, and the vote handles it.
         const refused = member.opinions(answer, task.set, window, task.context).invalid ?? [];
-        if (refused.length > 0) throw new LabelerError(refused.join('; '));
+        if (refused.length > 0) {
+          refusedAnswers.push(
+            (answer.labels ?? []).map((entry) => ({
+              units: entry.units,
+              label: entry.label,
+              ...(typeof entry.target === 'number' ? { target: entry.target } : {}),
+            })),
+          );
+          throw new LabelerError(refused.join('; '));
+        }
         // A model that returns another model id than the one recorded for the same labeler and request model is
         // named, so a re-record that mixes two models of one name is seen.
         for (const entry of cassette.entries.values()) {
@@ -662,6 +672,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        ...(refusedAnswers.length > 0 ? { refusedAnswers } : {}),
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
