@@ -928,8 +928,27 @@ describe('a run out of step with the units of its window', () => {
     const entries = (...anchored: Array<number | null>) => ({
       labels: anchored.map((at, n) => ({ units: String(n + 1), label: 'order', anchored: at })),
     });
-    expect(outOfStep(entries(0, -1, 0))).toEqual({ quoted: 0, unlocated: 0, slipped: 1 });
+    expect(outOfStep(entries(0, -1, 0))).toEqual({ quoted: 0, unlocated: 0, slipped: 1, missing: 0 });
     expect(outOfStep(entries(0, 0, null))).toBeUndefined();
+  });
+
+  it('names a run out of step when its answer leaves a unit of the window out, never reading it as none', () => {
+    const window = {
+      id: 'notes.md#1',
+      path: 'notes.md',
+      headingPath: [],
+      units: [1, 2, 3, 4].map((n) => ({ n, index: n - 1, text: `Line ${n}` })),
+      display: [{ n: 5, mode: 'read', text: 'Read already' }],
+    } as unknown as Window;
+    const answer = (...units: string[]) => ({ labels: units.map((u) => ({ units: u, label: 'none' })) });
+    expect(outOfStep(answer('1-2', '4'), window)).toEqual({
+      quoted: 0,
+      unlocated: 0,
+      slipped: 0,
+      missing: 1,
+    });
+    // A shown line is no unit: an answer that leaves it out covers the window.
+    expect(outOfStep(answer('1-4'), window)).toBeUndefined();
   });
 
   it('counts the quoted clauses and those not in their unit, and names a run out of step only past both bounds', () => {
@@ -939,6 +958,7 @@ describe('a run out of step with the units of its window', () => {
       quoted: 22,
       unlocated: 7,
       slipped: 0,
+      missing: 0,
     });
     // 2 of 11 and 2 of 20, as the runs in step: in step.
     expect(outOfStep(answer([...Array(2).fill(unlocated), ...Array(9).fill(located)]))).toBeUndefined();

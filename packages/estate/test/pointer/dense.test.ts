@@ -477,9 +477,11 @@ describe('the anchor of an entry, read against the window', () => {
   const anchored = (units: string, anchor?: string) =>
     anchorUnits([{ units, label: 'rule', ...(anchor === undefined ? {} : { anchor }) }], window)[0];
 
-  it('is 0 when the first unit the entry names starts with it, past a rule number', () => {
+  it('is 0 when the anchor is located in the first unit the entry names, as a span is', () => {
     expect(anchored('2', 'Do not commit')).toEqual({ units: '2', label: 'rule', anchored: 0 });
-    expect(anchored('1-2', 'R13 Before you')).toEqual({ units: '1-2', label: 'rule', anchored: 0 });
+    expect(anchored('1-2', 'Before you dispatch')).toEqual({ units: '1-2', label: 'rule', anchored: 0 });
+    // Located without regard to case, as a span is, and anywhere in the unit.
+    expect(anchored('2', 'do not COMMIT')?.anchored).toBe(0);
   });
 
   it('counts the lines to the unit it starts when the number slipped, either way', () => {
@@ -506,5 +508,9 @@ describe('the anchor of an entry, read against the window', () => {
 
   it('is asked for in the request, for an entry with a label other than none', () => {
     expect(DENSE_SYSTEM).toContain('An entry with a label other than none also gives "anchor"');
+  });
+
+  it('asks for every unit, none included, in ranges and with no anchor', () => {
+    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges, with no anchor.');
   });
 });
