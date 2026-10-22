@@ -15,6 +15,14 @@ There are three kinds of repair: a puncture fix, a standard service and a full o
 | Standard service | At least 90 minutes |
 | Full overhaul | At least 4 hours |
 
+## Prices
+
+| Repair | Price |
+|---|---|
+| Puncture fix | 12 pounds |
+| Standard service | 85 pounds |
+| Full overhaul | 190 pounds |
+
 ## Booking rules
 
 Book no further ahead than 10 weeks. Book the first service of a new bike for between 60 and 90 minutes.

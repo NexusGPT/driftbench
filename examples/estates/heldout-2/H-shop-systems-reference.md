@@ -16,6 +16,14 @@ This file describes the systems as they behave today. Nothing here is an instruc
 | Characters in one text message | 480 | The text is cut |
 | Idle time before sign-out | 20 minutes | Spoke is signed out |
 
+## Opening history
+
+| Year | Workshops open |
+|---|---|
+| 2011 | 1 |
+| 2014 | 2 |
+| 2019 | 3 |
+
 ## Behaviour you should know
 
 **The booking board saves a change at once.** There is no undo.

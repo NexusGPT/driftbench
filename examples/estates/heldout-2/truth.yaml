@@ -105,6 +105,18 @@ units:
   - id: "4383d6bc6c"
     file: H-repair-booking-skill.md
     text: "| Full overhaul | At least 4 hours |"
+  - id: "e11e5af3bd"
+    file: H-repair-booking-skill.md
+    text: "| Repair | Price |"
+  - id: "71fb74f342"
+    file: H-repair-booking-skill.md
+    text: "| Puncture fix | 12 pounds |"
+  - id: "738dcc446c"
+    file: H-repair-booking-skill.md
+    text: "| Standard service | 85 pounds |"
+  - id: "a52e045908"
+    file: H-repair-booking-skill.md
+    text: "| Full overhaul | 190 pounds |"
   - id: "f9d4af6e9f"
     file: H-repair-booking-skill.md
     text: "Book no further ahead than 10 weeks."
@@ -318,6 +330,18 @@ units:
   - id: "774718b034"
     file: H-shop-systems-reference.md
     text: "| Idle time before sign-out | 20 minutes | Spoke is signed out |"
+  - id: "c46a42be37"
+    file: H-shop-systems-reference.md
+    text: "| Year | Workshops open |"
+  - id: "717c9645aa"
+    file: H-shop-systems-reference.md
+    text: "| 2011 | 1 |"
+  - id: "61ab42f28d"
+    file: H-shop-systems-reference.md
+    text: "| 2014 | 2 |"
+  - id: "cdc62cc39e"
+    file: H-shop-systems-reference.md
+    text: "| 2019 | 3 |"
   - id: "c80fa52d64"
     file: H-shop-systems-reference.md
     text: "**The booking board saves a change at once.** There is no undo."
@@ -862,6 +886,33 @@ non_limits:
   - unit: "f5dfa6a450"
     number: "3"
     why: "version in a name"
+  - unit: "71fb74f342"
+    number: "12"
+    why: "price quoted as a fact"
+  - unit: "738dcc446c"
+    number: "85"
+    why: "price quoted as a fact"
+  - unit: "a52e045908"
+    number: "190"
+    why: "price quoted as a fact"
+  - unit: "717c9645aa"
+    number: "2011"
+    why: "year"
+  - unit: "717c9645aa"
+    number: "1"
+    why: "count of workshops open"
+  - unit: "61ab42f28d"
+    number: "2014"
+    why: "year"
+  - unit: "61ab42f28d"
+    number: "2"
+    why: "count of workshops open"
+  - unit: "cdc62cc39e"
+    number: "2019"
+    why: "year"
+  - unit: "cdc62cc39e"
+    number: "3"
+    why: "count of workshops open"
 
 hard_cases:
   about-numbers:
@@ -965,3 +1016,12 @@ limits_table:
       - "028ce90c32"
       - "2ad199d05d"
       - "774718b034"
+
+# number_table: every standalone table whose cells state numbers (no rule points at it), limit or not, as the range of its rows, header included.
+# limits_table above lists only the ones whose rows carry truth limits.
+number_table:
+  - { from: "ee8c8d43c3", to: "4383d6bc6c" }
+  - { from: "66b303f216", to: "69342a2ef5" }
+  - { from: "80c02b8bdd", to: "774718b034" }
+  - { from: "e11e5af3bd", to: "a52e045908" }
+  - { from: "c46a42be37", to: "cdc62cc39e" }
