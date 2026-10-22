@@ -7,7 +7,7 @@ import { parse, stringify } from 'yaml';
 
 const FIXTURE = fileURLToPath(new URL('../../../../examples/estates/fixture/', import.meta.url));
 const REGISTER = 'register.ledger-auditor.answer-with-one-json-object-and';
-const ASK = 'Audit ledger/2026-W41.csv for double payments and unapproved credit notes. Answer with one JSON object.';
+const ASK = 'Audit ledger/2026-W41.csv for double payments and unapplied credit notes. Answer with one JSON object.';
 const folders: string[] = [];
 afterEach(() => {
   for (const folder of folders.splice(0)) rmSync(folder, { recursive: true, force: true });
@@ -45,12 +45,10 @@ async function reply(options: { withoutRegister?: boolean }): Promise<string> {
 
 describe('the stand-in agent answers in the shape a reply rule in force declares', () => {
   it('answers one JSON object when the register that declares json_only is in force', async () => {
-    expect(() => JSON.parse(reply_(await reply({})))).not.toThrow();
+    expect(() => JSON.parse(await reply({}))).not.toThrow();
   });
 
   it('answers in prose when that register is gone from the estate copy', async () => {
-    expect(() => JSON.parse(reply_(await reply({ withoutRegister: true })))).toThrow();
+    expect(() => JSON.parse(await reply({ withoutRegister: true }))).toThrow();
   });
 });
-
-const reply_ = (text: string) => text;
