@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **525 items**, 11 families, 333 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **526 items**, 11 families, 334 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -14,12 +14,12 @@ Bank: **525 items**, 11 families, 333 distinct causes, 9 levels. This file is ge
 | grouping | labels | 32 | 5 | 12 | 14 | 1 | 0 |
 | labels | labels | 110 | 4 | 51 | 54 | 1 | 0 |
 | replay | replay | 47 | 3 | 10 | 24 | 10 | 0 |
-| privacy | privacy | 27 | 2 | 9 | 15 | 1 | 0 |
+| privacy | privacy | 28 | 2 | 9 | 16 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
 | radius | links | 34 | 4 | 6 | 20 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 33 | 0 | 4 | 15 | 10 | 4 |
-| **all** | | **525** | **47** | **162** | **246** | **56** | **14** |
+| **all** | | **526** | **47** | **162** | **247** | **56** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 123 |
+| maintainer-added | 124 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -559,6 +559,7 @@ Level `privacy`, default component `privacy`, default needs scan, child. A plant
 | `privacy.comment-text-never-leaves-eol` | maintainer-added | 3 | A file of a plain sentence and a seeded sentence split at a seeded word across two lines, a comment holding a seeded private marker at the end of the first line after its words; a recording scan of the `haiku` arm on a fake transport. | A request leaves and holds the plain sentence; no request holds a character of the marker; a request holds the words before the comment and a request holds the words after it. | `privacy:comment-text-never-leaves-eol` | privacy | scan,transport |
 | `privacy.comment-text-never-leaves-heading` | maintainer-added | 3 | A file of a heading of seeded words followed by a comment holding a seeded private marker, and a plain sentence under the heading; a recording scan of the `haiku` arm on a fake transport. | A request leaves and holds the plain sentence; no request holds a character of the marker; a request holds the words of the heading. | `privacy:comment-text-never-leaves-heading` | privacy | scan,transport |
 | `privacy.comment-text-never-leaves-table` | maintainer-added | 3 | A file of a plain sentence and a table of one row whose first cell is a seeded sentence split at a seeded word with a comment holding a seeded private marker between the two halves; a recording scan of the `haiku` arm on a fake transport. | A request leaves and holds the plain sentence; no request holds a character of the marker; a request holds the first half and a request holds the second half of the cell. | `privacy:comment-text-never-leaves-table` | privacy | scan,transport |
+| `privacy.comment-text-never-leaves-link-candidate` | maintainer-added | 3 | A label set with a link kind that names an atom kind; a file of a plain sentence and a seeded sentence split at a seeded word with a comment holding a seeded private marker between the two halves; an atom of that kind handed to the scan as the real scan builds it (its title the unit text with the comment, its id a slug of that title); a file of another seeded sentence the labeler is asked to label; a recording scan of the `haiku` arm on a fake transport. | A request leaves for the second file and lists the atom (the words around its comment, or a hashed id); no request holds a character of the marker. | `privacy:comment-text-never-leaves-link-candidate` | privacy | scan,transport |
 
 ## links
 

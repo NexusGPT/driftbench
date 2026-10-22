@@ -11,9 +11,9 @@ import type {
 import { anchorUnits, type NewUnit } from './anchor';
 import { referenceBugsA } from './bugs-a';
 import { referenceBugsB } from './bugs-b';
-import { referenceBugsPrivacy } from './bugs-privacy';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
+import { referenceBugsPrivacy } from './bugs-privacy';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalCompact, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
