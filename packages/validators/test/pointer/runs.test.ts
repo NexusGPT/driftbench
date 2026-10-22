@@ -49,7 +49,8 @@ describe('run counts, failed recordings and the model key', { timeout: 600_000 }
   it('a scan that drops, misattributes or duplicates the entries of the third window fails the failed recording', async () => {
     const ref = referenceSut();
     type Row = Record<string, unknown>;
-    const windowOf = (row: Row) => String((row.readable as { window?: string } | undefined)?.window ?? row.window ?? '');
+    const windowOf = (row: Row) =>
+      String((row.readable as { window?: string } | undefined)?.window ?? row.window ?? '');
     const mutate = (change: (rows: Row[]) => Row[]): PointerSut => ({
       ...ref,
       name: 'third-window',
@@ -60,7 +61,12 @@ describe('run counts, failed recordings and the model key', { timeout: 600_000 }
           .split('\n')
           .filter((l) => l.trim() !== '')
           .map((l) => JSON.parse(l) as Row);
-        return { ...out, cassette: `${change(rows).map((r) => JSON.stringify(r)).join('\n')}\n` };
+        return {
+          ...out,
+          cassette: `${change(rows)
+            .map((r) => JSON.stringify(r))
+            .join('\n')}\n`,
+        };
       },
     });
     const third = (r: Row) => windowOf(r) === 'notes/c.md#1';
@@ -68,13 +74,18 @@ describe('run counts, failed recordings and the model key', { timeout: 600_000 }
       mutate((rows) => rows.filter((r) => !third(r))),
       mutate((rows) => rows.filter((r, i) => !third(r) || i !== rows.findIndex(third))),
       mutate((rows) =>
-        rows.map((r) => (third(r) ? { ...r, readable: { ...(r.readable as object), window: 'notes/b.md#1' } } : r)),
+        rows.map((r) =>
+          third(r) ? { ...r, readable: { ...(r.readable as object), window: 'notes/b.md#1' } } : r,
+        ),
       ),
       mutate((rows) => rows.map((r) => (third(r) ? { ...r, key: 'same' } : r))),
     ];
     for (const [i, variant] of variants.entries()) {
       const out = await tally(variant, only([FAILED]));
-      expect(out.failed.map((f) => f.id), `variant ${i}`).toEqual([FAILED]);
+      expect(
+        out.failed.map((f) => f.id),
+        `variant ${i}`,
+      ).toEqual([FAILED]);
     }
   });
 
