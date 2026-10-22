@@ -702,10 +702,10 @@ function shellLineProblem(command: string): string | undefined {
  * What git sees changed or added under examples/ and packages/ of the repository, plus every file at the
  * repository root, ignored ones included (a stray store such as `estate-runs.db`), as one text.
  */
-function repositoryState(): string {
+function repositoryState(root = ROOT): string {
   const status = (args: string[]) => {
     const run = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', ...args], {
-      cwd: ROOT,
+      cwd: root,
       encoding: 'utf8',
     });
     if (run.status !== 0) throw new Error(`git status failed: ${run.stderr}`);
@@ -876,21 +876,27 @@ describe('every worked example runs', () => {
     ] as const) {
       expect(shellLineProblem(line), line).toBe(problem);
     }
-    const planted = join(ROOT, 'examples', `.help-confinement-probe-${process.pid}`);
-    const before = repositoryState();
+    // The detector is proved in a scratch repository of its own: a probe file planted in the real examples/ tree
+    // shows up, for the length of the test, in the guard of every test file running at the same time (tools/vitest-temp-folders.ts).
+    const probe = mkdtempSync(join(tmpdir(), 'help-confinement-'));
     try {
+      expect(spawnSync('git', ['init', '-q'], { cwd: probe, encoding: 'utf8' }).status).toBe(0);
+      mkdirSync(join(probe, 'examples'));
+      mkdirSync(join(probe, 'packages'));
+      writeFileSync(join(probe, 'examples', '.keep'), '');
+      const before = repositoryState(probe);
+      const planted = join(probe, 'examples', `.help-confinement-probe-${process.pid}`);
       writeFileSync(planted, 'x');
-      expect(repositoryState()).not.toBe(before);
-    } finally {
+      expect(repositoryState(probe)).not.toBe(before);
       rmSync(planted, { force: true });
-    }
-    expect(repositoryState()).toBe(before);
-    const rootStore = join(ROOT, `help-confinement-probe-${process.pid}.db`);
-    try {
+      expect(repositoryState(probe)).toBe(before);
+      const rootStore = join(probe, `help-confinement-probe-${process.pid}.db`);
       writeFileSync(rootStore, 'x');
-      expect(repositoryState()).not.toBe(before);
-    } finally {
+      expect(repositoryState(probe)).not.toBe(before);
       rmSync(rootStore, { force: true });
+      expect(repositoryState(probe)).toBe(before);
+    } finally {
+      rmSync(probe, { recursive: true, force: true });
     }
     expect(() => scratchPath('/tmp/s', '../x.yaml')).toThrow();
     expect(scratchPath('/tmp/s', 'out/x.yaml')).toBe('/tmp/s/out/x.yaml');
