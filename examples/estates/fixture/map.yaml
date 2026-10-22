@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-22T15:39:13.978Z
+readAt: 2026-10-22T15:44:35.842Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -1101,6 +1101,32 @@ atoms:
         - kind: forbidden-material
           from: 0
           to: 52
+  - id: instruction.ledger-auditor.you-never-edit-a-file-you
+    kind: instruction
+    title: "You never edit a file: you read and you report."
+    provenance:
+      file: .claude/agents/ledger-auditor.md
+      startLine: 9
+      endLine: 9
+      quote: "You never edit a file: you read and you report."
+      hash: 57808a27da99d8accd28640c405abd497c77724f5bfd896cee11d1ec381f73ee
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: wf65yszjnc, set: agent-rules, label: prohibition } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: wf65yszjnc
+      labelSet: agent-rules
+      label: prohibition
+      labeler: jev+anthropic
+      polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 10
+          to: 21
   - id: instruction.route-planner.never-put-more-than-the-van
     kind: instruction
     title: Never put more than the van capacity on one route.
@@ -3028,5 +3054,5 @@ registryRoles:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-22T15:39:13.978Z
-hash: 5dc4ad21fbc9a46ff91d6120dc70c07d112b26d5f6ff9cf98c528a7f2d1d0784
+  at: 2026-10-22T15:44:35.842Z
+hash: 6e432799889d1090ffc08425def951e024cec7c0d8e283f7a2a0b87cff6cf7e7
