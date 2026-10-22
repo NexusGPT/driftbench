@@ -57,6 +57,8 @@ type Scenario = {
   excluded: { values: Cell; variables: string[]; forbids: Cell[] };
   /** A pair of values that no constraint names and no valid row can hold (shape `non-extendable`). */
   pinched?: Cell;
+  /** The values marked `required`, variable to value (shape `required`). */
+  required: Cell;
 };
 
 type Shape = {
@@ -82,6 +84,11 @@ type Shape = {
   weightedSome?: boolean;
   /** With `weighted`, the last value of the last axis weighs 0: its rows weigh minus infinity (R9). */
   zeroWeight?: boolean;
+  /**
+   * With `weighted`, the last value of the last axis is `required` and the rarest of its variable: the plan must
+   * put the rows that hold it first, so a budget keeps them (docs/variables.md, Values and R9).
+   */
+  required?: boolean;
 };
 
 const SHAPES: Shape[] = [
@@ -117,6 +124,8 @@ const SHAPES: Shape[] = [
     weightedSome: true,
   },
   { name: 'zero-weight', tier: 4, axes: 4, detail: false, rules: [3], forbids: 0, weighted: true, zeroWeight: true },
+  // Ladder version 3: the shape the budget items need (R9, required values).
+  { name: 'required', tier: 4, axes: 5, detail: true, rules: [3], forbids: 0, weighted: true, required: true },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -138,7 +147,13 @@ function draw(seed: number, shape: Shape): Scenario {
     const values = Array.from({ length: count }, (_, j) => name(`v${k}.${j}`));
     const weights =
       shape.weighted && !(shape.weightedSome && k % 2 === 1)
-        ? values.map((_, j) => (shape.zeroWeight && k === shape.axes - 1 && j === count - 1 ? 0 : int(1, 9)))
+        ? values.map((_, j) => {
+            const last = k === shape.axes - 1;
+            if (shape.zeroWeight && last && j === count - 1) return 0;
+            // The required value weighs 1 against at least 5 for the others of its variable: the rarest.
+            if (shape.required && last) return j === count - 1 ? 1 : int(5, 9);
+            return int(1, 9);
+          })
         : undefined;
     variables.push({
       id,
@@ -228,6 +243,9 @@ function draw(seed: number, shape: Shape): Scenario {
           ...(hosted ? { polarity: 'must', when: hosted } : {}),
           ...(j === 0 && polar.has(variable.id) ? { polarity: 'must' } : {}),
           ...(excluded.values[variable.id] === value ? { approved: false } : {}),
+          ...(shape.required && variable.id === axes.at(-1)?.id && j === variable.values.length - 1
+            ? { required: true }
+            : {}),
         };
       }),
     })),
@@ -260,6 +278,9 @@ function draw(seed: number, shape: Shape): Scenario {
     weighted: shape.weighted === true,
     excluded,
     ...(pinched ? { pinched } : {}),
+    required: shape.required
+      ? { [(axes.at(-1) as Variable).id]: (axes.at(-1) as Variable).values.at(-1) as string }
+      : {},
   };
 }
 
@@ -419,6 +440,12 @@ type Answers = {
   reordered: PlanV2;
   /** The JSON text of the plan without a budget, on a store with a value of weight 0. */
   rendered?: string;
+  /** The plan without seeds at a budget of every new row, and of three more (R9). */
+  edges: Map<number, PlanV2>;
+  /** The plan with seeds at a budget of exactly the number of seeds. */
+  seedsOnly: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** On a store with a required value: the plan at budgets of 1 and of 0. */
+  requiredCuts?: Map<number, PlanV2>;
   divergence?: string;
 };
 
@@ -525,6 +552,12 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
       const scaled = scenario.weighted ? plan(scaledStore(scenario.store, 3), { seed: 1 }) : undefined;
       const reordered = plan(reversedKeys(scenario.store) as VariableStore, { seed: 1 });
       const rendered = shape.zeroWeight ? frame.product.renderPlanV2(full) : undefined;
+      const edges = new Map<number, PlanV2>();
+      for (const budget of new Set([planned, planned + 3])) edges.set(budget, plan(scenario.store, { seed: 1, budget }));
+      const seedsOnly = { seeds, plan: plan(scenario.store, { seed: 1, seeds, budget: seeds.length }) };
+      const requiredCuts = shape.required
+        ? new Map([0, 1].map((budget) => [budget, plan(scenario.store, { seed: 1, budget })] as const))
+        : undefined;
       return {
         scenario,
         oracle,
@@ -540,6 +573,9 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         ...(scaled ? { scaled } : {}),
         reordered,
         ...(rendered === undefined ? {} : { rendered }),
+        edges,
+        seedsOnly,
+        ...(requiredCuts ? { requiredCuts } : {}),
         divergence: frame.divergence(),
       };
     } finally {
@@ -765,7 +801,8 @@ const STEMS: {
   {
     id: 'rarest-cut-first',
     cause: `${FILES.plan}: order new rows from the most common to the rarest`,
-    when: () => true,
+    // On the required shape the rows of the required value come first: required-survives-budget checks that order.
+    when: (shape) => !shape.required,
     tier: 3,
     check: (a) => {
       const weights = logOf(a.full).map((row) => a.oracle.logWeight(row.values));
@@ -1124,6 +1161,77 @@ const STEMS: {
           .join('|');
       const same = rows && layers && rules(a.reordered) === rules(a.full);
       return verdict(same, `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`);
+    },
+  },
+  // Ladder version 3, budget (R9 and required values).
+  {
+    id: 'budget-edges',
+    cause: `${FILES.plan}: a budget of every new row or more cuts nothing; a budget of the seeds keeps the seeds alone`,
+    when: () => true,
+    check: (a) => {
+      const wrong: string[] = [];
+      for (const [budget, plan] of a.edges)
+        if (
+          JSON.stringify(plan.rows) !== JSON.stringify(a.full.rows) ||
+          plan.cut !== 0 ||
+          plan.budget !== budget ||
+          plan.generated !== a.full.generated
+        )
+          wrong.push(`at a budget of ${budget} the plan is not the whole plan with nothing cut`);
+      const { seeds, plan } = a.seedsOnly;
+      if (
+        plan.rows.length !== seeds.length ||
+        plan.rows.some((row) => row.source !== 'seed') ||
+        plan.cut !== plan.generated
+      )
+        wrong.push(`at a budget of the ${seeds.length} seeds: ${plan.rows.length} rows, cut ${plan.cut} of ${plan.generated}`);
+      return verdict(wrong.length === 0, wrong.join('; '));
+    },
+  },
+  {
+    id: 'required-survives-budget',
+    cause: `${FILES.plan}: put the new rows that hold a required value first, then the rest, each from the most common to the rarest`,
+    when: (shape) => shape.required === true,
+    tier: 4,
+    check: (a) => {
+      const required = Object.entries(a.scenario.required);
+      const holdsRequired = (row: { values: Cell }) =>
+        required.some(([variable, value]) => row.values[variable] === value);
+      const planned = logOf(a.full);
+      const wrong: string[] = [];
+      const flags = planned.map(holdsRequired);
+      if (!flags.some(Boolean)) wrong.push('no new row holds the required value');
+      if (flags.some((flag, at) => flag && flags.slice(0, at).some((earlier) => !earlier)))
+        wrong.push('a row with the required value comes after a row without it');
+      for (const group of [true, false]) {
+        const weights = planned.filter((_, at) => flags[at] === group).map((row) => row.logWeight);
+        if (weights.some((weight, at) => at > 0 && weight > (weights[at - 1] as number) + 1e-9))
+          wrong.push(`the rows ${group ? 'with' : 'without'} the required value are not from the most common`);
+      }
+      const one = a.requiredCuts?.get(1);
+      if (!one?.rows.some(holdsRequired)) wrong.push('at a budget of 1 the kept row does not hold the required value');
+      for (const plan of [a.full, one])
+        if (plan?.warnings.some((warning) => (warning.code as string) === 'budget_drops_required'))
+          wrong.push('a plan that keeps the required value warns that a budget dropped it');
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  {
+    id: 'budget-below-required',
+    cause: `${FILES.plan}: warn budget_drops_required, naming each value a budget left in no row`,
+    when: (shape) => shape.required === true,
+    tier: 4,
+    check: (a) => {
+      const zero = a.requiredCuts?.get(0);
+      const [variable, value] = Object.entries(a.scenario.required)[0] as [string, string];
+      const warning = zero?.warnings.find((entry) => (entry.code as string) === 'budget_drops_required') as
+        | { values?: Array<{ variable?: unknown; value?: unknown }> }
+        | undefined;
+      const named = (warning?.values ?? []).some((entry) => entry.variable === variable && entry.value === value);
+      return verdict(
+        zero?.rows.length === 0 && named,
+        `${zero?.rows.length} rows at a budget of 0; warning ${warning ? 'given' : 'missing'}, the required value ${named ? 'named' : 'not named'}`,
+      );
     },
   },
 ];
