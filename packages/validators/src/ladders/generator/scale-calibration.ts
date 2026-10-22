@@ -16,9 +16,10 @@ import { parse } from 'yaml';
  * hash), yaml parsing (loading every spec), and fs.statSync / existsSync of every parent directory of a path
  * (the spec validator resolving files). The only I/O is one small temp tree, created before the first round
  * and removed after the last, and stat calls on it; there is no network. Its size is a count of operations,
- * never a duration.
- * The parts are weighted by hand toward the profile of the 100x window: allocation and sorting about half,
- * yaml and stat each about a seventh, hashing about a tenth.
+ * never a duration. *
+ * The calibration is the weighted sum of the fastest time of each part, with the weights below. The weights
+ * were chosen on 40 hosted runs (validators/generator/evidence/scale-calibration.json): the CPU types differ
+ * more in sha256 hashing and string parsing than in allocation, so those two carry most of the weight.
  */
 
 /** Rows of the allocation and sort part, per round. */
@@ -32,7 +33,7 @@ const TREE_DEPTH = 8;
 const STAT_PATHS = 8_000;
 
 /** The reference calibration, in milliseconds of CPU time. See validators/generator/evidence/scale-calibration.json. */
-export const CALIBRATION_REFERENCE_MS = 1_354;
+export const CALIBRATION_REFERENCE_MS = 271;
 
 /** A fixed pseudo-random sequence: the workload never reads a clock or a random source. */
 function sequence(seed: number): () => number {
@@ -125,22 +126,48 @@ export function calibrationRound(size = CALIBRATION_SIZE, tree?: { root: string;
   }
 }
 
-/** The CPU time of the calibration in milliseconds: the fastest of the rounds. 0 when the meter reports none. */
+/** Weight of each part in the calibration. */
+export const CALIBRATION_WEIGHTS = { allocation: 0.1, hash: 0.4, yaml: 0.4, stat: 0.1 } as const;
+
+/** The CPU time of one call of a function, in milliseconds. */
+function cpuMs(work: () => number): { ms: number; checksum: number } {
+  const before = process.cpuUsage();
+  const checksum = work();
+  const used = process.cpuUsage(before);
+  return { ms: (used.user + used.system) / 1000, checksum };
+}
+
+/**
+ * The CPU time of the calibration in milliseconds: per part the fastest of the rounds, then the weighted sum.
+ * 0 when the meter reports none.
+ */
 export function calibrate(rounds = CALIBRATION_ROUNDS, size = CALIBRATION_SIZE, paths = STAT_PATHS): number {
   const tree = makeTree();
-  let best = Number.POSITIVE_INFINITY;
+  const next = sequence(20261016);
+  const best = { allocation: Number.POSITIVE_INFINITY, hash: Number.POSITIVE_INFINITY, yaml: Number.POSITIVE_INFINITY, stat: Number.POSITIVE_INFINITY };
   let checksum = 0;
   try {
     for (let round = 0; round < rounds; round += 1) {
-      const before = process.cpuUsage();
-      checksum += calibrationRound(size, tree, paths);
-      const used = process.cpuUsage(before);
-      best = Math.min(best, (used.user + used.system) / 1000);
+      for (const [name, work] of [
+        ['allocation', () => allocationPart(next, size)],
+        ['hash', () => hashPart(next, size)],
+        ['yaml', () => yamlPart(size)],
+        ['stat', () => statPart(tree, paths)],
+      ] as const) {
+        const done = cpuMs(work);
+        checksum += done.checksum;
+        best[name] = Math.min(best[name], done.ms);
+      }
     }
   } finally {
     rmSync(tree.root, { recursive: true, force: true });
   }
-  return checksum >= 0 && Number.isFinite(best) ? best : 0;
+  const total =
+    CALIBRATION_WEIGHTS.allocation * best.allocation +
+    CALIBRATION_WEIGHTS.hash * best.hash +
+    CALIBRATION_WEIGHTS.yaml * best.yaml +
+    CALIBRATION_WEIGHTS.stat * best.stat;
+  return checksum >= 0 && Number.isFinite(total) ? total : 0;
 }
 
 /** The CPU time of a run on the reference machine: raw time times reference over calibration. */
