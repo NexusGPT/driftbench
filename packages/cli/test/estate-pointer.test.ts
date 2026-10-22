@@ -205,9 +205,7 @@ describe('driftbench estate scan --pointer', () => {
     expect(replay.out).toContain(
       'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests.',
     );
-    expect(replay.out).toContain(
-      'Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0105 USD.',
-    );
+    expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
     expect(replay.out).not.toContain('requests sent.');
   });
 
