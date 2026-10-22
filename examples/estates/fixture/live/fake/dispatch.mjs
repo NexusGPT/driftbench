@@ -379,6 +379,7 @@ export function unitPlan(index, entry, cwd) {
             first: text(fields.first),
             second: text(fields.second),
             path: text(fields.path),
+            orderKey: text(fields.order?.key),
             folder: own,
           });
     const conditional = Array.isArray(fields.condition) && fields.condition.length > 0;

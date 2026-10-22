@@ -262,7 +262,20 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
+      // A gate that declares its read as evidence (a tool_called of the same tool on a file) names that file for the
+      // ordered end, as its `path` field would.
+      const declared = atom.evidence.find(
+        (item) => item.type === 'tool_called' && item.label === evidence.before,
+      );
+      const contains = (declared?.type === 'tool_called' ? declared.input : undefined) as
+        | { file_path?: { contains?: unknown } }
+        | undefined;
+      const named = contains?.file_path?.contains;
+      const fields =
+        typeof atom.fields?.path !== 'string' && typeof named === 'string'
+          ? { ...atom.fields, path: named }
+          : atom.fields;
+      const pair = anchorPair(evidence.before, evidence.after, ctx, fields);
       if (typeof pair === 'string') {
         if (ctx.judge) judgeRule(then, atom, 'positive');
         else gap(then, MARKERS.anchor, atom, pair);

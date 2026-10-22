@@ -66,3 +66,14 @@ it('kill.fake delete-gate-2: the calls the fake made', async () => {
   say(`verdict ${JSON.stringify(out.get(spec.id))}`);
   say(`CALLS ${existsSync('/tmp/probe-calls.jsonl') ? read('/tmp/probe-calls.jsonl', 'utf8').slice(0, 6000) : 'none'}`);
 });
+
+it('with the patches: kill.fake and mutant.agent gate items', async () => {
+  const { killFamily } = await import('../../src/ladders/estate/bank/kill');
+  const { mutantFamily } = await import('../../src/ladders/estate/bank/loop');
+  const kill = await killFamily().evaluate(1);
+  for (const [k, v] of kill) if (k.includes('gate')) say(`KILL ${k} ${v.pass} ${v.detail}`);
+  for (const seed of [1, 2]) {
+    const m = await mutantFamily().evaluate(seed);
+    for (const [k, v] of m) if (k.includes('gate') || !v.pass) say(`MUT seed ${seed} ${k} ${v.pass} ${v.detail.slice(0, 300)}`);
+  }
+});

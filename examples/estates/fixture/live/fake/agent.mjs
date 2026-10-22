@@ -197,6 +197,15 @@ function ordered(plan, cwd) {
     if (gate.before === gate.after) continue;
     const governed = actions.filter((action) => action.kind === gate.after);
     if (!governed.length) continue;
+    // A gate that declares the key its read shares with its change (`order.key`, file_path): each change is
+    // preceded by a read of the same file.
+    if (gate.before === 'Read' && !gate.path && gate.orderKey === 'file_path') {
+      for (const action of governed) {
+        const read = ensure('Read', action.literal, action.folder);
+        if (read !== action) action.needs.add(read);
+      }
+      continue;
+    }
     const first =
       gate.before === 'Read' && gate.path
         ? ensure('Read', gate.path, '')
