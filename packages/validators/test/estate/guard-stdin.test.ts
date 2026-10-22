@@ -28,7 +28,7 @@ describe('a guard script runs whether or not it reads its payload', () => {
     expect(Number(result.stdout.trim())).toBe(LARGE.length);
   });
 
-  it('runs the generated holdout guard that never reads its payload (the cause of the CI EPIPE)', () => {
+  it('runs the generated holdout guard that does not read its whole payload (the cause of the CI EPIPE)', () => {
     const estate = drawEstate(1, 'holdout');
     const files = renderEstate(estate).files;
     const ignoring = estate.guards

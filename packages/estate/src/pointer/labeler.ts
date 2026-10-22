@@ -80,6 +80,23 @@ export class LabelerConfigError extends Error {
   }
 }
 
+/**
+ * Runs a request of a labeler and turns a refused key (HTTP 401 or 403) into a `LabelerConfigError` that names where
+ * the request went (a route name or a host, never a full URL, which may hold a secret). A key the endpoint refuses is
+ * a configuration error and stops the run; any other failure (429, 5xx, network) passes through unchanged.
+ */
+export async function refusingKey<T>(where: string, request: () => Promise<T>): Promise<T> {
+  try {
+    return await request();
+  } catch (cause) {
+    if (cause instanceof ModelError && (cause.status === 401 || cause.status === 403))
+      throw new LabelerConfigError(
+        `${where} refused the key (status ${cause.status}): check the key and the route`,
+      );
+    throw cause;
+  }
+}
+
 /** Whether a failure says the request was too large for the endpoint: the scan halves the window and asks again. */
 export function isTooLarge(cause: unknown): boolean {
   return cause instanceof ModelError && cause.status === 400 && /max_tokens_exceeded/.test(cause.message);
