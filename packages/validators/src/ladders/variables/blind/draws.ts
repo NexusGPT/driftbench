@@ -65,7 +65,8 @@ const QUANTITIES: ReadonlyArray<readonly [subject: string, unit: string]> = [
 /** Quantities that read naturally with a money sign or a percent sign in front of or behind the number. */
 const MONEY = ['the refund', 'the order', 'the invoice', 'the deposit', 'the fee', 'the claim'] as const;
 const RATES = ['the discount', 'the margin', 'the tax rate', 'the fill rate', 'the error rate'] as const;
-const SCORES = ['the rating', 'the review score', 'the trust score', 'the quality score'] as const;
+// Four quantities no reader could take for one another: a model that merges near-synonyms must not merge these.
+const SCORES = ['the rating', 'the cleanliness grade', 'the punctuality grade', 'the noise level'] as const;
 const GAUGES = ['the temperature', 'the balance', 'the drift', 'the offset'] as const;
 
 const PHRASES: Record<Cmp, readonly string[]> = {
