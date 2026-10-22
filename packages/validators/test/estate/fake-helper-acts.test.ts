@@ -94,7 +94,15 @@ type MapAtom = {
  * An estate copy with the inbox seed planted, and a map whose helper rules are those above, as the scan of the
  * changed file labels them. `without` removes one rule's words from the copy: that rule is then not in force.
  */
-async function run(ask: string, without?: string): Promise<string> {
+/**
+ * `scope`: the condition units the rule against `rm` is scoped by (`fields.condition`, as the scan writes the ids of
+ * its condition units), and the condition units the tidy situation declares hold in it (`holds`).
+ */
+async function run(
+  ask: string,
+  without?: string,
+  scope: { condition?: string[]; holds?: string[] } = {},
+): Promise<string> {
   const cwd = mkdtempSync(join(tmpdir(), 'fake-helper-acts-'));
   folders.push(cwd);
   cpSync(FIXTURE, cwd, { recursive: true, filter: (src) => !src.includes('/generated') });
@@ -108,6 +116,8 @@ async function run(ask: string, without?: string): Promise<string> {
     if (!phrase) throw new Error('situations');
     phrase.text = text;
   }
+  const tidy: Record<string, unknown> | undefined = added.find((entry) => entry.id === 'inbox-tidy');
+  if (tidy && scope.holds) tidy.holds = scope.holds;
   const ids = new Set(added.map((situation) => situation.id));
   bank.situations = [...bank.situations.filter((entry) => !ids.has(entry.id)), ...added];
   const bankPath = join(cwd, 'helper-phrases.yaml');
@@ -129,7 +139,11 @@ async function run(ask: string, without?: string): Promise<string> {
       ...template,
       id: rule.id,
       provenance: { file: FILE, quote: rule.quote, startLine: rule.startLine, endLine: rule.endLine, hash },
-      fields: { ...template.fields, unitCases: rule.unitCases },
+      fields: {
+        ...template.fields,
+        unitCases: rule.unitCases,
+        ...(rule.id === RULES[1].id && scope.condition ? { condition: scope.condition } : {}),
+      },
     });
   }
   const mapPath = join(cwd, 'helper-map.yaml');
@@ -185,5 +199,15 @@ describe('a dispatched stand-in helper does what its rules in force declare, on 
   it('writes the invited answer once the rule against answering is gone from the copy', async () => {
     const cwd = await run(REPLY, RULES[2].id);
     expect(existsSync(join(cwd, 'outbox/005-reply.txt'))).toBe(true);
+  });
+
+  it('makes the invited rm when the rule is scoped by a condition the situation does not hold', async () => {
+    const cwd = await run(TIDY, undefined, { condition: ['u-handled'] });
+    expect(existsSync(join(cwd, 'inbox/003-copperline-credit.txt'))).toBe(false);
+  });
+
+  it('refuses the invited rm when the situation declares the condition of the forbid rule held', async () => {
+    const cwd = await run(TIDY, undefined, { condition: ['u-handled'], holds: ['u-handled'] });
+    expect(existsSync(join(cwd, 'inbox/003-copperline-credit.txt'))).toBe(true);
   });
 });

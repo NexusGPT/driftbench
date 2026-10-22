@@ -108,6 +108,7 @@ export function loadDispatch(env) {
             provokes: situation.provokes,
             inputs: Array.isArray(situation.inputs) ? situation.inputs : [],
             invites: Array.isArray(situation.invites) ? situation.invites : [],
+            holds: Array.isArray(situation.holds) ? situation.holds : [],
           },
         ]);
       }
@@ -214,6 +215,7 @@ export function setOff(index, ask) {
     const provokes = [];
     const inputs = [];
     const invites = [];
+    const holds = [];
     for (const situation of banked) {
       if (situation.use === 'outside' || situation.use === 'near_miss') continue;
       for (const path of situation.changed) if (!edits.includes(path)) edits.push(path);
@@ -221,6 +223,7 @@ export function setOff(index, ask) {
         provokes.push(situation.provokes);
       for (const id of situation.atoms) out.set(id, (out.get(id) ?? false) || situation.use === 'forced');
       for (const item of situation.inputs) if (!inputs.includes(item)) inputs.push(item);
+      for (const unit of situation.holds) if (!holds.includes(unit)) holds.push(unit);
       for (const call of situation.invites) {
         const bash = call?.tool === 'Bash' && typeof call.command === 'string';
         const write = call?.tool === 'Write' && typeof call.file_path === 'string';
@@ -238,6 +241,7 @@ export function setOff(index, ask) {
       provokes,
       inputs,
       invites,
+      holds,
     };
   }
   const matched = matchAsk(index.grammar, ask);
@@ -435,10 +439,12 @@ export function unitPlan(index, entry, cwd) {
 /**
  * What a dispatched helper's rules in force declare it does, from declared fields only (`fields.unitCases` of the
  * atoms written in the helper's own file): `requires`, the places a `require` case sends things to (a tool and its
- * material, such as Write to a folder), and `bans`, the calls a `forbid` case refuses, marked `conditional` when the
- * rule holds a condition no field resolves. A rule no longer in force declares nothing.
+ * material, such as Write to a folder), and `bans`, the calls a `forbid` case refuses. A rule scoped by conditions
+ * (`fields.condition`, the ids of its condition units) applies only when the situation of the ask declares every one
+ * of them held (`holds`): its cases are left out otherwise, so an unresolved condition never refuses or requires a
+ * call. A rule no longer in force declares nothing.
  */
-export function helperPlan(index, name, cwd) {
+export function helperPlan(index, name, cwd, holds = []) {
   const plan = { requires: [], bans: [] };
   const unit = [...index.atoms.values()].find(
     (atom) =>
@@ -448,13 +454,13 @@ export function helperPlan(index, name, cwd) {
   for (const atom of index.atoms.values()) {
     if (atom === unit || carrierOf(atom, index.atoms) !== unit || !inForce(atom, cwd)) continue;
     const fields = atom.fields ?? {};
-    const conditional = Array.isArray(fields.condition) && fields.condition.length > 0;
+    const scope = Array.isArray(fields.condition) ? fields.condition : [];
+    if (!scope.every((unit) => holds.includes(unit))) continue;
     for (const unitCase of Array.isArray(fields.unitCases) ? fields.unitCases : []) {
       if (!text(unitCase?.tool) || !text(unitCase?.material)) continue;
       if (unitCase.effect === 'require')
         plan.requires.push({ tool: unitCase.tool, material: unitCase.material });
-      if (unitCase.effect === 'forbid')
-        plan.bans.push({ tool: unitCase.tool, material: unitCase.material, conditional });
+      if (unitCase.effect === 'forbid') plan.bans.push({ tool: unitCase.tool, material: unitCase.material });
     }
   }
   return plan;
