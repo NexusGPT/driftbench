@@ -232,7 +232,7 @@ const GATES: Line[] = [
     files: ['references/rules.md', 'references/send.md'],
     atoms: (o, p, n) => [
       gate(o, `editing a ${n.noun}`, 'Edit'),
-      { hid: `${o}:gate2`, kind: 'gate' },
+      { hid: `${o}:gate2`, kind: 'gate', act: 'sending one', tool: 'Edit' },
       reference(o, p('references/rules.md')),
       reference(o, p('references/send.md'), 'ref2'),
     ],

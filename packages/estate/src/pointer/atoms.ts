@@ -171,6 +171,7 @@ export function pointerAtoms(
     conditions.set(key, [...(conditions.get(key) ?? []), item]);
   }
   const attached = new Set<string>();
+  const annotations: Array<{ path: string; unit: string; fields: Record<string, unknown> }> = [];
   for (const item of labelled) {
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
@@ -298,6 +299,17 @@ export function pointerAtoms(
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
+    if (label?.paths) {
+      // Each place the unit names a file counts, so two gates that read one file still make two.
+      const own = pathMentions(item.unit.text).length;
+      const { min = 0, max = Number.POSITIVE_INFINITY } = label.paths;
+      if (own < min || own > max) {
+        refusals.push(
+          `${where}: the unit names ${own} files and the label ${item.label} takes ${min} to ${max}`,
+        );
+        continue;
+      }
+    }
     // The gates of a `spanEach` mapping: the label lists the act span and the file span of each gate, in the same
     // order. The gate's file is the one its file span names; a gate whose file span is missing or names no file is
     // refused.
@@ -375,6 +387,14 @@ export function pointerAtoms(
           refusals.push(
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
           );
+          continue;
+        }
+        if (label?.annotate) {
+          // An annotation builds nothing: its fields go to the atoms other labels built for this unit.
+          const added = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+          if (added !== UNRESOLVED && Object.keys(added as Record<string, unknown>).length > 0)
+            annotations.push({ path: item.path, unit: item.id, fields: added as Record<string, unknown> });
+          kept = true;
           continue;
         }
         const same = builder.atoms.find(
@@ -495,6 +515,12 @@ export function pointerAtoms(
       }
     }
     if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+  }
+  for (const note of annotations) {
+    for (const atom of accepted) {
+      if (atom.fields?.unit !== note.unit || atom.provenance.file !== note.path) continue;
+      atom.fields = { ...note.fields, ...atom.fields };
+    }
   }
   for (const items of conditions.values()) {
     for (const condition of items) {
