@@ -1,5 +1,6 @@
 import type { ItemContext } from '../bank/item';
 import type { StoreDoc, StoreValue, StoreVariable } from '../interface';
+import { check } from '../../../failure';
 import { callBuild, must, show } from './kit';
 import type { Cmp } from './spans';
 
@@ -43,43 +44,32 @@ export function readSpans(ctx: ItemContext, texts: string[]): Read {
 
 /** The three samples of one condition and the roles of the boundary against its comparison. */
 export function checkCondition(r: Read, limit: number, c: Cmp, integer: boolean): void {
-  must(
-    r.samples.length === 3,
-    () =>
-      `${r.samples.length} samples ${show(r.samples.map((s) => s.sample))}; a condition has three: below, at and above its limit`,
+  const rule = 'a numeric condition gives three samples, below, at and above its limit, with the roles its comparison names';
+  const samples = r.samples.map((s) => s.sample).sort((a, b) => a - b);
+  const input = { file: r.text };
+  check(r.samples.length === 3, { rule, input, got: { samples }, expected: { count: 3 } });
+  check(new Set(samples).size === 3, { rule, input, got: { samples }, expected: 'three distinct samples' });
+  check(
+    (samples[0] as number) < limit && (samples[1] as number) === limit && (samples[2] as number) > limit,
+    { rule, input, got: { samples }, expected: { limit } },
   );
-  const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
-  must(new Set(nums).size === 3, () => `samples ${show(nums)} are not distinct`);
-  must(
-    (nums[0] as number) < limit && (nums[1] as number) === limit && (nums[2] as number) > limit,
-    () => `samples ${show(nums)} are not below, at and above ${limit}`,
-  );
-  if (integer)
-    must(
-      nums.every(Number.isInteger),
-      () => `samples ${show(nums)} are not whole numbers for the whole limit ${limit}`,
-    );
+  if (integer) check(samples.every(Number.isInteger), { rule, input, got: { samples }, expected: 'whole samples' });
   const b = r.variable.boundaries?.find((x) => x.limit === limit && x.comparison === c);
-  must(!!b, () => `no boundary with limit ${limit} and comparison ${c}: ${show(r.variable.boundaries)}`);
+  check(!!b, { rule, input, got: { boundaries: r.variable.boundaries }, expected: { limit, comparison: c } });
   const bound = b as NonNullable<typeof b>;
   const sampleOf = (id: string): number | undefined =>
     r.variable.values.find((x) => x.id === id)?.sample as number | undefined;
   const hs = sampleOf(bound.holds) as number;
   const fs = sampleOf(bound.fails) as number;
   const es = sampleOf(bound.edge) as number;
-  must(
-    new Set([bound.holds, bound.fails, bound.edge]).size === 3,
-    () => `holds, fails and edge are not three values: ${show(bound)}`,
-  );
-  must(es === limit, () => `the edge value has sample ${es}, not the limit ${limit}`);
-  if (c === 'gt' || c === 'ge')
-    must(
-      hs > limit && fs < limit,
-      () => `for ${c}, holds has sample ${hs} and fails ${fs} against the limit ${limit}`,
-    );
-  else
-    must(
-      hs < limit && fs > limit,
-      () => `for ${c}, holds has sample ${hs} and fails ${fs} against the limit ${limit}`,
-    );
+  const got = { holds: hs, fails: fs, edge: es };
+  check(new Set([bound.holds, bound.fails, bound.edge]).size === 3, { rule, input, got: { boundary: bound }, expected: 'three values' });
+  check(es === limit, { rule, input, got, expected: { edge: limit } });
+  const upward = c === 'gt' || c === 'ge';
+  check(upward ? hs > limit && fs < limit : hs < limit && fs > limit, {
+    rule,
+    input,
+    got,
+    expected: { comparison: c, limit },
+  });
 }

@@ -8,6 +8,7 @@ import type {
   FileVariable,
   ValidateResult,
 } from '../interface';
+import { check } from '../../../failure';
 import { callValidate, must, names, show } from './kit';
 
 /**
@@ -138,25 +139,29 @@ export function errorsOf(r: ValidateResult): FileIssue[] {
 /** The store is refused, with an issue of this code (and this path, when given). */
 export function validateIssue(ctx: ItemContext, value: unknown, code: string, path?: string): FileIssue[] {
   const r = callValidate(ctx, value);
-  must(
-    !r.ok,
-    () =>
-      `a store with the defect was accepted; the page refuses it with ${code}${path ? ` at ${path}` : ''}`,
-  );
+  check(!r.ok, { rule: 'a store with the defect is refused', got: 'the store was accepted', expected: { code, path } });
   const errors = errorsOf(r);
   const hit = errors.find((e) => e.code === code && (path === undefined || e.path === path));
-  must(!!hit, () => `no ${code}${path ? ` at ${path}` : ''} among ${show(errors, 300)}`);
+  check(!!hit, {
+    rule: 'the refusal names the code of the defect, at the place of the defect',
+    got: errors.map((e) => ({ code: e.code, path: e.path })).slice(0, 8),
+    expected: { code, path },
+  });
   return errors;
 }
 
 /** The store is refused and some issue is reported at this path or below it, whatever its code. */
 export function validateIssueAt(ctx: ItemContext, value: unknown, path: string): FileIssue[] {
   const r = callValidate(ctx, value);
-  must(!r.ok, () => `a store with the defect was accepted; the page refuses it at ${path}`);
+  check(!r.ok, { rule: 'a store with the defect is refused', got: 'the store was accepted', expected: { path } });
   const errors = errorsOf(r);
-  must(
+  check(
     errors.some((e) => e.path === path || e.path.startsWith(`${path}.`)),
-    () => `no issue at ${path} among ${show(errors, 300)}`,
+    {
+      rule: 'some issue is reported at the place of the defect',
+      got: errors.map((e) => ({ code: e.code, path: e.path })).slice(0, 8),
+      expected: { path },
+    },
   );
   return errors;
 }
