@@ -529,6 +529,142 @@ describe('a labeler that answers several times', () => {
   });
 });
 
+describe('runs that split between labels of one atom kind', () => {
+  const KINDS = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        atom: { kind: instruction, polarity: obligation }
+      - name: ban
+        description: A unit that tells the skipper what never to do.
+        atom: { kind: instruction, polarity: prohibition }
+      - name: voice
+        description: A unit about how the skipper words a reply.
+        atom: { kind: register }
+      - name: remark
+        description: A unit that only says how the quay is.
+      - name: aside
+        description: A unit that only tells a story about the quay.
+`;
+  /** Five runs; run n labels every unit of every window `labels[n - 1]`. */
+  const byRun = (labels: string[]) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        return [{ units: `1-${window.units.length}`, label: labels[call - 1] as string }];
+      },
+      [],
+      { runs: 5 },
+    );
+  };
+  const scan = (labels: string[]) => pointerScan(input(byRun(labels), new Cassette(), { sets: load(KINDS) }));
+  const labelsOf = (result: Awaited<ReturnType<typeof scan>>) =>
+    new Set(result.ledger.entries.map((entry) => entry.labels.duty?.label ?? '(unlabeled)'));
+
+  it('takes the label of the kind most runs give when no single label has a majority', async () => {
+    // order 2, ban 1, remark 1, aside 1: no label has three of five, but three runs build an instruction, and order is
+    // the label most of them give.
+    const result = await scan(['order', 'remark', 'ban', 'aside', 'order']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
+  it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it('decides between labels that build no atom, as one group', async () => {
+    // remark 1, aside 2, order 1, ban 1: three runs say the unit gives nothing; aside is the label most of them give.
+    const result = await scan(['remark', 'aside', 'order', 'aside', 'ban']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['aside']));
+  });
+
+  it('never lets runs that point a condition at different units vote together', async () => {
+    // when 2 at unit 2, when 1 at unit 3, ban 2: three runs say the first unit is a condition, but they split on
+    // which unit it scopes, so no group holds three of five and the unit stays unlabeled.
+    const SCOPED = `${KINDS}      - name: when
+        description: A unit that only says when another unit applies.
+        target: required
+        condition: true
+`;
+    const calls = new Map<string, number>();
+    const plan: Array<[string, number?]> = [['when', 2], ['ban'], ['when', 2], ['ban'], ['when', 3]];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (window.units.length < 3) return [{ units: `1-${window.units.length}`, label: 'remark' }];
+        const [label, target] = plan[call - 1] ?? ['remark'];
+        return [
+          { units: '1', label, ...(target ? { target } : {}) } as Labelled,
+          { units: `2-${window.units.length}`, label: 'remark' },
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SCOPED) }));
+    const firsts = result.ledger.entries.filter((entry) => entry.index === 0 && entry.path === 'office.md');
+    expect(firsts.length).toBeGreaterThan(0);
+    expect(firsts.map((entry) => entry.labels.duty?.label)).toEqual(firsts.map(() => undefined));
+  });
+
+  it('keeps a condition out of the group of labels that build no atom', async () => {
+    // when 1, remark 1, aside 1, order 1, ban 1: remark and aside build no atom, two of five. A condition acts through
+    // its target, so it is not a third voice for that group, and the unit stays unlabeled.
+    const SCOPED = `${KINDS}      - name: when
+        description: A unit that only says when another unit applies.
+        target: required
+        condition: true
+`;
+    const calls = new Map<string, number>();
+    const plan: Array<[string, number?]> = [['when', 2], ['remark'], ['aside'], ['order'], ['ban']];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (window.units.length < 3) return [{ units: `1-${window.units.length}`, label: 'remark' }];
+        const [label, target] = plan[call - 1] ?? ['remark'];
+        return [
+          { units: '1', label, ...(target ? { target } : {}) } as Labelled,
+          { units: `2-${window.units.length}`, label: 'remark' },
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SCOPED) }));
+    const firsts = result.ledger.entries.filter((entry) => entry.index === 0 && entry.path === 'office.md');
+    expect(firsts.length).toBeGreaterThan(0);
+    expect(firsts.map((entry) => entry.labels.duty?.label)).toEqual(firsts.map(() => undefined));
+  });
+
+  it('leaves the splits of a set whose labels build no atom as they are', async () => {
+    // The same labels with no atom, as the document roles: remark 1, aside 2, order 1, ban 1. No label has three of
+    // five and the labels do not group, so every unit stays unlabeled.
+    const ROLES = KINDS.replace(/\n {8}atom: \{[^}]*\}/g, '');
+    const result = await pointerScan(
+      input(byRun(['remark', 'aside', 'order', 'aside', 'ban']), new Cassette(), { sets: load(ROLES) }),
+    );
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits; no kind
+    // holds three of five, so the unit stays unlabeled and counts as a split.
+    const result = await scan(['order', 'voice', 'order', 'voice', 'remark']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+    expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
 describe('what the cassette key holds', () => {
   it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
     const recorded = new Cassette();
@@ -558,12 +694,16 @@ describe('an even split of the runs between the generic rule and a specific labe
     labels:
       - name: rule
         description: A unit that tells the skipper to do something.
+        atom: { kind: instruction, polarity: obligation }
       - name: gate
         description: A unit that sets one act before another.
+        atom: { kind: gate }
       - name: hazard-compaction
         description: A unit about what the skipper does after the log was cut short.
+        atom: { kind: hazard }
       - name: prohibition
         description: A unit that forbids.
+        atom: { kind: instruction, polarity: prohibition }
       - name: condition
         description: A unit that only says when another unit applies.
         target: required
