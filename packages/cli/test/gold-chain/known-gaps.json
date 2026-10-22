@@ -1,28 +1,15 @@
 {
   "A": {
-    "notPassed": ["2 labels", "3 variables", "4 plan"],
+    "notPassed": [
+      "3 variables"
+    ],
     "limits38": {
       "truth": 16,
       "found": 9,
       "produced": 24
     },
     "gaps": {
-      "2 labels": [
-        "scope dropped: 2rfkpiuwua is an instruction (rule) and cannot also be a condition; target atvdtii5dv",
-        "scope dropped: 6edv7stprm is an instruction (rule) and cannot also be a condition; target dhx6gp52gz",
-        "scope dropped: 6o3ah2cnt5 is an instruction (rule) and cannot also be a condition; target 5fheyswkjr",
-        "scope dropped: jmd56vqa6y is an instruction (gate) and cannot also be a condition; target kvo7cz4xw3",
-        "scope dropped: jmd56vqa6y is an instruction (gate) and cannot also be a condition; target uhsso72pz4",
-        "scope dropped: jmd56vqa6y is an instruction (gate) and cannot also be a condition; target z4rlqu4r3x",
-        "scope dropped: mbba4myat5 is an instruction (rule) and cannot also be a condition; target s4ccmjeqq6",
-        "scope dropped: nb7mwozaco is an instruction (rule) and cannot also be a condition; target lmwwbjc2g2",
-        "scope dropped: rirhs3hhpy is an instruction (gate) and cannot also be a condition; target pvpoflwzui",
-        "scope dropped: rirhs3hhpy is an instruction (gate) and cannot also be a condition; target u3fof5lwue",
-        "scope dropped: rjrfzgzul7 is an instruction (rule) and cannot also be a condition; target 4x5di6oz6z",
-        "scope dropped: sbv4vvdpqj is an instruction (prohibition) and cannot also be a condition; target 2enwhm6o5f",
-        "scope dropped: tfffmmulhu is an instruction (rule) and cannot also be a condition; target eigbno4mvj",
-        "scope dropped: wanm6nhinp is an instruction (prohibition) and cannot also be a condition; target iewuis7wv4"
-      ],
+      "2 labels": [],
       "3 variables": [
         "limit missing: 5fheyswkjr (1 le constraint) on 5fheyswkjr was not produced",
         "limit missing: byu5upblrc (10 ge trigger) on byu5upblrc was not produced",
@@ -43,31 +30,20 @@
         "limit not in the truth: 5 lt constraint produced on geryhklclh",
         "limit not in the truth: 8 gt trigger produced on 2wwl74onpb"
       ],
-      "4 plan": [
-        "same_row 0: no plan row names z4rlqu4r3x, uhsso72pz4, kvo7cz4xw3 together (widest row holds 1 of 3)",
-        "same_row 1: no plan row names h5dou55wu3, td7hr3qiji, nt3b65ldei together (widest row holds 1 of 3)",
-        "same_row 2: no plan row names u3fof5lwue, pvpoflwzui, 24gupjkmw3 together (widest row holds 1 of 3)",
-        "same_row 3: no plan row names xalkekvnkq, igzesiei4c together (widest row holds 1 of 2)",
-        "same_row 4: no plan row names f2lszyu7ak, yjskahdxy6 together (widest row holds 1 of 2)"
-      ]
+      "4 plan": []
     }
   },
   "B": {
-    "notPassed": ["2 labels", "3 variables", "4 plan"],
+    "notPassed": [
+      "3 variables"
+    ],
     "limits38": {
       "truth": 8,
       "found": 8,
       "produced": 16
     },
     "gaps": {
-      "2 labels": [
-        "scope dropped: 2uaoelmjsn is an instruction (gate) and cannot also be a condition; target a7faudg7cr",
-        "scope dropped: 2uaoelmjsn is an instruction (gate) and cannot also be a condition; target jomhopmzce",
-        "scope dropped: 2uaoelmjsn is an instruction (gate) and cannot also be a condition; target rfdkrhuali",
-        "scope dropped: 7u66fhgg6x is an instruction (gate) and cannot also be a condition; target lcoi4jq5co",
-        "scope dropped: 7u66fhgg6x is an instruction (gate) and cannot also be a condition; target msp3hmr4kd",
-        "scope dropped: 7u66fhgg6x is an instruction (gate) and cannot also be a condition; target p4pkpnul4a"
-      ],
+      "2 labels": [],
       "3 variables": [
         "limit missing: 2yxq6pbpcn (1 le constraint) on 2yxq6pbpcn was not produced",
         "limit missing: lwci7tropa (0 le constraint) on lwci7tropa was not produced",
@@ -80,33 +56,20 @@
         "limit not in the truth: 5 gt trigger produced on f25ttdrj3d",
         "limit not in the truth: 6 le constraint produced on vx4qow5cwm"
       ],
-      "4 plan": [
-        "same_row 0: no plan row names mv3l2nq6kn, gi3ae3fm7s, 5zbws5zbmh together (widest row holds 1 of 3)",
-        "same_row 1: no plan row names lcoi4jq5co, msp3hmr4kd, p4pkpnul4a together (widest row holds 1 of 3)",
-        "same_row 2: no plan row names fbmm6pav4t, qpvok5x4q5, ebwykg53kb together (widest row holds 1 of 3)",
-        "same_row 3: no plan row names a7faudg7cr, jomhopmzce, rfdkrhuali together (widest row holds 1 of 3)"
-      ]
+      "4 plan": []
     }
   },
   "C": {
-    "notPassed": ["2 labels", "3 variables", "4 plan"],
+    "notPassed": [
+      "3 variables"
+    ],
     "limits38": {
       "truth": 14,
       "found": 12,
       "produced": 19
     },
     "gaps": {
-      "2 labels": [
-        "scope dropped: 2jgefmg3eq has a second target ppy3jjyvlc (first ohm47s5x27); a unit takes one target",
-        "scope dropped: 3r3umsqvvn has a second target ryl4uv7pdu (first akbvkiod36); a unit takes one target",
-        "scope dropped: 4agtry4l7q has a second target tztgdwobld (first x4ukhzeq5b); a unit takes one target",
-        "scope dropped: af3635cq24 is an instruction (gate) and cannot also be a condition; target ahkc4uxxcc",
-        "scope dropped: af3635cq24 is an instruction (gate) and cannot also be a condition; target aow32cbgod",
-        "scope dropped: af3635cq24 is an instruction (gate) and cannot also be a condition; target vx3kl22k3o",
-        "scope dropped: nbrowcarlu has a second target kn447e23qp (first qj4ww7uhpo); a unit takes one target",
-        "scope dropped: nbrowcarlu has a second target tr4tjylixq (first qj4ww7uhpo); a unit takes one target",
-        "scope dropped: yqeoxskruk has a second target gddesiqxeq (first tt46bvlrzh); a unit takes one target"
-      ],
+      "2 labels": [],
       "3 variables": [
         "limit missing: 7xzbzyq5no (1 le constraint) on 7xzbzyq5no was not produced",
         "limit missing: bidpovjlre (2 le constraint) on bidpovjlre was not produced",
@@ -117,11 +80,7 @@
         "limit not in the truth: 2 lt constraint produced on 7xzbzyq5no",
         "limit not in the truth: 3 ge constraint produced on rh27exxc4i"
       ],
-      "4 plan": [
-        "same_row 0: no plan row names qj4ww7uhpo, iwmdgvmcph, tr4tjylixq, ls3egqcgwr together (widest row holds 1 of 4)",
-        "same_row 1: no plan row names hjplp76mno, 7yiqnf7tt2, 7ibzeqookm together (widest row holds 1 of 3)",
-        "same_row 2: no plan row names ahkc4uxxcc, aow32cbgod, vx3kl22k3o together (widest row holds 1 of 3)"
-      ]
+      "4 plan": []
     }
   }
 }
