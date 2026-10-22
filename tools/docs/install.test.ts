@@ -18,9 +18,10 @@ describe('install from source, as the guide index shows it', () => {
     }
     const prefix = await mkdtemp(join(tmpdir(), 'driftbench-link-'));
     try {
-      await exec('npm', ['link', '--prefix', prefix, '--cache', join(prefix, 'cache')], {
+      await exec('npm', ['link'], {
         cwd: cli,
         timeout: 120_000,
+        env: { ...process.env, npm_config_prefix: prefix, npm_config_cache: join(prefix, 'cache') },
       });
       const done = await exec(join(prefix, 'bin', 'driftbench'), ['--version'], { timeout: 60_000 });
       expect(done.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
