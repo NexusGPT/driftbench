@@ -120,7 +120,7 @@ function covers(matcher, tool) {
 }
 
 /** Whether a permission rule of the settings denies a call. */
-function covers(rules, tool, input) {
+function ruleCovers(rules, tool, input) {
   return rules.some((rule) => {
     const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule);
     if (!match || match[1] !== tool) return false;
@@ -131,7 +131,7 @@ function covers(rules, tool, input) {
 }
 
 function denied(settings, tool, input) {
-  return covers(settings?.permissions?.deny ?? [], tool, input);
+  return ruleCovers(settings?.permissions?.deny ?? [], tool, input);
 }
 
 /** Tools a headless run in the default permission mode makes with no permission rule: they read or hand off. */
@@ -292,7 +292,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   // A call needs an allow rule of the settings or a tool the loaded skill declares (the default mode, headless: no
   // one answers a prompt), unless the tool needs no permission.
   const allowRules = [...(estate.settings?.permissions?.allow ?? []), ...(plan.allowed ?? [])];
-  const permitted = (tool, input) => NO_PERMISSION_NEEDED.has(tool) || covers(allowRules, tool, input);
+  const permitted = (tool, input) => NO_PERMISSION_NEEDED.has(tool) || ruleCovers(allowRules, tool, input);
   const out = [];
   let id = 0;
   let blocked = false;
