@@ -72,6 +72,17 @@ describe('the held-out harness on a made-up estate', () => {
     const apart = scoreLimits(truth, [], new Set(['a', 'b']));
     expect(apart.limits.unreachable).toEqual(['c']);
     expect(apart.limits.missing).toEqual(['a', 'b', 'c']);
+    // Two of the three limits are found, and one of the three is unreachable: 2 / (3 - 1) = 1, against 2 / 3 over all.
+    const withUnreachable = scoreLimits(
+      truth,
+      [
+        { unit: 'a', limit: 2, comparison: 'le', role: 'constraint' },
+        { unit: 'b', limit: 5, comparison: 'ge', role: 'constraint' },
+      ],
+      new Set(['a', 'b']),
+    );
+    expect(withUnreachable.recall).toBeCloseTo(2 / 3);
+    expect(withUnreachable.reachableRecall).toBeCloseTo(1);
     expect(score.recall).toBeCloseTo(2 / 3);
     expect(score.exactRecall).toBeCloseTo(1 / 3);
     expect(score.precision).toBeCloseTo(2 / 4);

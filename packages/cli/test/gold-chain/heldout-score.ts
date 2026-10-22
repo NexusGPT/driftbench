@@ -11,6 +11,8 @@ export type LimitScore = {
   /** Non-limits of the truth that got a limit on their unit. */
   nonLimits: { truth: number; hit: string[] };
   recall: number;
+  /** Found, over the limits whose governed unit got a request: found / (truth - unreachable). */
+  reachableRecall: number;
   exactRecall: number;
   precision: number;
 };
@@ -73,6 +75,7 @@ export function scoreLimits(
     produced: { total: unique.length, matched, nonLimitHits, otherExtras },
     nonLimits: { truth: nonLimitUnits.size, hit: [...hits] },
     recall: ratio(found.size, truth.limits.length),
+    reachableRecall: ratio(found.size, truth.limits.length - unreachable.length),
     exactRecall: ratio(exact.size, truth.limits.length),
     precision: ratio(matched, unique.length),
   };
