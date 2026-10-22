@@ -21,7 +21,15 @@ import { describe, expect, it } from 'vitest';
  *   `startsWith` or `endsWith` with a literal holding a letter, `replace` or `replaceAll` with a pattern not
  *   known at the call, and a literal word list (an array of strings holding letters) searched or iterated
  *   over a text test;
+ * - a Set built from literal words (or given them with `add`) searched with `has`; a word built from pieces
+ *   (`'ne' + 'ver'`, a template of pieces, `join`, `concat`) searched or edited as a literal word is read as
+ *   that word; a word array searched with `includes`, `indexOf`, or iterated with `some` or `every` over a
+ *   text test or a comparison of its element;
  * - each of these methods reached by bracket access (`text['match'](..)`) as by a dot.
+ * The guard is a LINT, not a proof: it catches the ordinary forms of a pattern or a word list read in prose.
+ * Deliberate obfuscation is OUT of its scope: a hex-escaped or computed regular expression, a borrowed
+ * String.prototype method reached through a name the guard cannot resolve, a string built by `fromCharCode` or
+ * a decoder. Review of the item code, not this guard, covers those.
  * A site that reads text the generator did not write (the reader's own output, request bodies, source code,
  * ids, the vocabulary constants) is allowed only by a named entry below: the file, the enclosing function and
  * the exact expression, with its reason. An entry matches its sites exactly (`count`, one by default), so a
@@ -52,13 +60,6 @@ const ALLOWED: Allowance[] = [
     file: 'bank/families/adversarial.ts',
     anchor: 'crashed',
     expr: '/not reachable/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
-  },
-  {
-    file: 'bank/families/adversarial.ts',
-    anchor: 'clearMessage',
-    expr: '/depth|nest|deep|too (large|big|long)|limit|exceed/i',
     reason:
       "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
@@ -1097,6 +1098,75 @@ const ALLOWED: Allowance[] = [
     expr: '/\\bICU \\d[\\w.]*/',
     reason: "reads the READER's own message (the field names and versions it names), not prose",
   },
+  {
+    file: 'bank/families/adversarial.ts',
+    anchor: 'label-named-like-prototype',
+    expr: 'names.has(l)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'bank/families/hardening-bugs-c.ts',
+    anchor: 'refused',
+    expr: 'REFUSED.has(d.code)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'bank/specs/provenance.ts',
+    anchor: 'provenanceOf',
+    expr: 'ADDED.has(id)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'bank/specs/reanchoring.ts',
+    anchor: 'withTwin',
+    expr: 'WITHOUT_TWIN.has(spec.key)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'kit/anchor-case.ts',
+    anchor: 'dropOneBlock',
+    expr: 'REMOVABLE.has(block.kind)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'kit/anchor-case.ts',
+    anchor: 'dropOneBlock',
+    expr: 'PROSE_UNITS.has(u.container)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'kit/estate.ts',
+    anchor: 'checkPlanted',
+    expr: 'PROSE_CONTAINERS.has(unit.container)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'kit/oracle.ts',
+    anchor: 'compareCut',
+    expr: 'EXACT_SPAN.has(want.container)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'blind/bank/structure.ts',
+    anchor: 'cause',
+    expr: 'carryNotCallable.has(`grouping/${name}/interaction-${variant + 1}`)',
+    reason:
+      'tests a unit container, block kind, diagnostic code, label or id against a fixed set of names the item or the reader defines; no prose word is read',
+  },
+  {
+    file: 'bank/families/hardening-bugs-c.ts',
+    anchor: 'other',
+    expr: 'PROBE.find((name) => twice.every((t) => own.get(t) !== name))',
+    reason: 'picks a probe label name the item defines by comparing names; no prose word is read',
+  },
 ];
 
 /** Whether the body of a regular expression matches letters or words (see the file comment). */
@@ -1149,6 +1219,8 @@ const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
 /** The methods of a text that read it, and the ones that test it for a word. */
 const READERS = new Set(['split', 'match', 'matchAll', 'search', 'replace', 'replaceAll']);
 const TESTERS = new Set(['includes', 'indexOf', 'lastIndexOf', 'startsWith', 'endsWith']);
+/** The iterators whose callback answers whether a list holds an element. */
+const PREDICATES = new Set(['some', 'every', 'find', 'findIndex', 'filter']);
 const ITERATORS = new Set([
   'some',
   'every',
@@ -1215,22 +1287,116 @@ export function findingsOf(file: string, source: string): Finding[] {
     return b;
   };
 
-  /** The static text of a string or template argument, holes left out; undefined when not a literal. */
-  const staticText = (node: ts.Node | undefined): string | undefined => {
+  /**
+   * The text an expression builds when it is made of string pieces: a literal, a template, a `+` of pieces, a
+   * `join` or `concat` of pieces, or one of these with its case or ends changed. `text` holds the pieces that are
+   * known, in order; `full` says that no piece is unknown. Undefined when the expression is not made of pieces.
+   */
+  const piecesOf = (node: ts.Node | undefined, depth = 0): { text: string; full: boolean } | undefined => {
     const n = resolve(node);
-    if (!n) return undefined;
-    if (ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) return n.text;
-    if (ts.isTemplateExpression(n))
-      return n.head.text + n.templateSpans.map((span) => span.literal.text).join('');
+    if (!n || depth > 8) return undefined;
+    if (ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) return { text: n.text, full: true };
+    if (ts.isTemplateExpression(n)) {
+      let text = n.head.text;
+      let full = true;
+      for (const span of n.templateSpans) {
+        const piece = piecesOf(span.expression, depth + 1);
+        text += (piece?.text ?? '') + span.literal.text;
+        if (!piece?.full) full = false;
+      }
+      return { text, full };
+    }
+    if (ts.isBinaryExpression(n) && n.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+      const left = piecesOf(n.left, depth + 1);
+      const right = piecesOf(n.right, depth + 1);
+      if (!left && !right) return undefined;
+      return { text: (left?.text ?? '') + (right?.text ?? ''), full: !!left?.full && !!right?.full };
+    }
+    if (
+      ts.isCallExpression(n) &&
+      (ts.isPropertyAccessExpression(n.expression) || ts.isElementAccessExpression(n.expression))
+    ) {
+      const method = memberName(n.expression);
+      const receiver = n.expression.expression;
+      if (
+        method &&
+        ['toLowerCase', 'toUpperCase', 'trim', 'trimStart', 'trimEnd', 'toString'].includes(method)
+      )
+        return piecesOf(receiver, depth + 1);
+      if (method === 'concat') {
+        const parts = [receiver, ...n.arguments].map((a) => piecesOf(a, depth + 1));
+        if (!parts[0]) return undefined;
+        return {
+          text: parts.map((x) => x?.text ?? '').join(''),
+          full: parts.every((x) => x?.full),
+        };
+      }
+      if (method === 'join') {
+        const list = resolve(receiver);
+        if (!list || !ts.isArrayLiteralExpression(list)) return undefined;
+        const parts = list.elements.map((e) => piecesOf(e, depth + 1));
+        if (parts.every((x) => x === undefined)) return undefined;
+        const glue = n.arguments[0] ? piecesOf(n.arguments[0], depth + 1) : { text: ',', full: true };
+        return {
+          text: parts.map((x) => x?.text ?? '').join(glue?.text ?? ''),
+          full: parts.every((x) => x?.full) && !!glue?.full,
+        };
+      }
+    }
     return undefined;
   };
 
-  /** Whether an expression is (or is bound to) an array of string literals of which one holds a letter. */
-  const isWordList = (node: ts.Node | undefined): boolean => {
+  /** The static text of a string made only of known pieces; undefined otherwise. */
+  const staticText = (node: ts.Node | undefined): string | undefined => {
+    const piece = piecesOf(node);
+    return piece?.full ? piece.text : undefined;
+  };
+
+  /** Whether an expression is made of string pieces of which the known ones hold a letter. */
+  const hasLiteralLetter = (node: ts.Node | undefined): boolean => {
+    const piece = piecesOf(node);
+    return piece !== undefined && hasLetter(piece.text);
+  };
+
+  /** Whether an expression is (or is bound to) an array with an element that is a literal word. */
+  const isWordList = (node: ts.Node | undefined, depth = 0): boolean => {
     const n = resolve(node);
-    if (!n || !ts.isArrayLiteralExpression(n) || n.elements.length === 0) return false;
-    const texts = n.elements.map((e) => staticText(e));
-    return texts.every((t) => t !== undefined) && texts.some((t) => hasLetter(t as string));
+    if (!n || depth > 8) return false;
+    if (ts.isCallExpression(n) && n.arguments.length === 1) {
+      const callee = n.expression.getText(sf);
+      if (callee === 'Object.freeze' || callee === 'Array.from') return isWordList(n.arguments[0], depth + 1);
+    }
+    if (!ts.isArrayLiteralExpression(n)) return false;
+    return n.elements.some((e) =>
+      ts.isSpreadElement(e) ? isWordList(e.expression, depth + 1) : hasLiteralLetter(e),
+    );
+  };
+
+  /** Names of the consts that hold a Set started empty and given a literal word with `add`. */
+  const addedTo = new Set<string>();
+  const collectAdds = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && memberName(node.expression) === 'add') {
+      const callee = node.expression;
+      const receiver =
+        ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)
+          ? bare(callee.expression)
+          : undefined;
+      if (receiver && ts.isIdentifier(receiver) && hasLiteralLetter(node.arguments[0]))
+        addedTo.add(receiver.text);
+    }
+    ts.forEachChild(node, collectAdds);
+  };
+
+  /** Whether an expression is (or is bound to) a Set built from a word list or given literal words. */
+  const isWordSet = (node: ts.Node | undefined): boolean => {
+    const raw = node ? bare(node) : undefined;
+    if (raw && ts.isIdentifier(raw) && addedTo.has(raw.text)) return true;
+    const n = resolve(node);
+    if (!n) return false;
+    if (!ts.isNewExpression(n) || !ts.isIdentifier(n.expression) || n.expression.text !== 'Set') return false;
+    const arg = n.arguments?.[0];
+    if (!arg) return false;
+    return isWordList(arg);
   };
 
   /** The method name of a property or a bracket access with a known key. */
@@ -1291,12 +1457,36 @@ export function findingsOf(file: string, source: string): Finding[] {
     return ts.forEachChild(body, (child) => testsWith(child, name) || undefined) ?? false;
   };
 
+  /** Whether `body` compares the identifier `name` with something that is not a literal (`w === word`). */
+  const comparesWith = (body: ts.Node, name: string): boolean => {
+    if (
+      ts.isBinaryExpression(body) &&
+      [
+        ts.SyntaxKind.EqualsEqualsEqualsToken,
+        ts.SyntaxKind.ExclamationEqualsEqualsToken,
+        ts.SyntaxKind.EqualsEqualsToken,
+        ts.SyntaxKind.ExclamationEqualsToken,
+      ].includes(body.operatorToken.kind)
+    ) {
+      const left = bare(body.left);
+      const right = bare(body.right);
+      const literal = (n: ts.Node) => ts.isStringLiteralLike(n) || ts.isNumericLiteral(n);
+      if (ts.isIdentifier(left) && left.text === name && !literal(right)) return true;
+      if (ts.isIdentifier(right) && right.text === name && !literal(left)) return true;
+    }
+    return ts.forEachChild(body, (child) => comparesWith(child, name) || undefined) ?? false;
+  };
+
   /** Whether a callback tests a text for its first parameter (an element of the list it iterates). */
-  const testsElement = (callback: ts.Node): boolean => {
+  const testsElement = (callback: ts.Node, compares: boolean): boolean => {
     const fn = bare(callback);
     if (!ts.isArrowFunction(fn) && !ts.isFunctionExpression(fn)) return false;
     const param = fn.parameters[0]?.name;
-    return param !== undefined && ts.isIdentifier(param) && testsWith(fn.body, param.text);
+    return (
+      param !== undefined &&
+      ts.isIdentifier(param) &&
+      (testsWith(fn.body, param.text) || (compares && comparesWith(fn.body, param.text)))
+    );
   };
 
   /** Whether a for-of loop tests a text for its loop variable. */
@@ -1310,10 +1500,12 @@ export function findingsOf(file: string, source: string): Finding[] {
   const checkSplit = (node: ts.CallExpression, first: ts.Expression | undefined) => {
     if (!first) return;
     const target = resolve(first);
-    const text = staticText(first);
-    if (text !== undefined) {
-      if (text.includes(' ')) add(node, 'a split at spaces (word picking)');
-      else if (hasLetter(text)) add(node, 'a split at a literal word');
+    const piece = piecesOf(first);
+    if (piece !== undefined) {
+      if (piece.text.includes(' ')) add(node, 'a split at spaces (word picking)');
+      else if (hasLetter(piece.text)) add(node, 'a split at a literal word');
+      else if (!piece.full && !ts.isTemplateExpression(bare(first)))
+        add(node, 'a split by a separator not known at the call');
     } else if (target && target.kind === ts.SyntaxKind.RegularExpressionLiteral) {
       if (splitsWords(regexBody(target.getText(sf))))
         add(node, 'a split by a pattern at spaces or letters (word picking)');
@@ -1333,8 +1525,8 @@ export function findingsOf(file: string, source: string): Finding[] {
         parent.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword &&
         parent.right === node;
       if (called) {
-        const text = staticText((parent as ts.NewExpression | ts.CallExpression).arguments?.[0]);
-        if (text === undefined || readsLetters(text)) add(parent, 'a RegExp built to match letters');
+        const piece = piecesOf((parent as ts.NewExpression | ts.CallExpression).arguments?.[0]);
+        if (piece === undefined || readsLetters(piece.text)) add(parent, 'a RegExp built to match letters');
       } else if (!typeOnly && !instance) add(node, 'RegExp taken as a value (an alias)');
     } else if (ts.isBindingElement(node)) {
       const key = node.propertyName ?? node.name;
@@ -1366,21 +1558,27 @@ export function findingsOf(file: string, source: string): Finding[] {
       else if (name === 'search' || name === 'match' || name === 'matchAll') add(node, `a ${name} call`);
       else if (name === 'replace' || name === 'replaceAll') {
         const target = resolve(first);
-        const text = staticText(first);
-        if (text !== undefined) {
-          if (hasLetter(text)) add(node, `a ${name} of a literal word`);
+        const piece = piecesOf(first);
+        if (piece !== undefined) {
+          if (hasLetter(piece.text)) add(node, `a ${name} of a literal word`);
         } else if (!target || target.kind !== ts.SyntaxKind.RegularExpressionLiteral)
           add(node, `a ${name} by a pattern not known at the call`);
       } else if (name && TESTERS.has(name)) {
-        const text = staticText(first);
         if (isWordList(receiver)) add(node, 'a literal word list searched');
-        else if (text !== undefined && hasLetter(text)) add(node, `a test for a literal word (${name})`);
-      } else if (name && ITERATORS.has(name) && isWordList(receiver) && args.some(testsElement))
+        else if (hasLiteralLetter(first)) add(node, `a test for a literal word (${name})`);
+      } else if (name === 'has' && isWordSet(receiver)) add(node, 'a Set of literal words searched');
+      else if (
+        name &&
+        ITERATORS.has(name) &&
+        isWordList(receiver) &&
+        args.some((a) => testsElement(a, PREDICATES.has(name)))
+      )
         add(node, 'a literal word list tested against a text');
     } else if (ts.isForOfStatement(node) && isWordList(node.expression) && loopTests(node))
       add(node.expression, 'a literal word list tested against a text');
     ts.forEachChild(node, visit);
   };
+  collectAdds(sf);
   visit(sf);
   return found;
 }
@@ -1414,6 +1612,33 @@ const BYPASSES: Record<string, string[]> = {
     "export const reads = (text: string) => { for (const w of ['never', 'not']) if (text.includes(w)) return w; };",
     "export const reads = (text: string) => text.includes('never');",
     "export const reads = (text: string) => text.replace('never', 'always');",
+  ],
+  'a Set of words searched with has': [
+    "const NOT = new Set(['never', 'not']); export const reads = (w: string) => NOT.has(w);",
+    "export const reads = (w: string) => new Set(['never', 'not']).has(w);",
+    "const WORDS = ['never', 'not']; const NOT = new Set(WORDS); export const reads = (w: string) => NOT.has(w);",
+    "const NOT = new Set<string>(); NOT.add('never'); export const reads = (w: string) => NOT.has(w);",
+    "const NOT = new Set([...['never', 'not']]); export const reads = (w: string) => NOT.has(w);",
+  ],
+  'a word built from pieces searched in a text': [
+    "export const reads = (text: string) => text.includes('ne' + 'ver');",
+    "export const reads = (text: string) => text.includes(`${'ne'}${'ver'}`);",
+    "const HEAD = 'ne'; export const reads = (text: string) => text.indexOf(HEAD + 'ver') >= 0;",
+    "export const reads = (text: string) => text.includes(['ne', 'ver'].join(''));",
+    "export const reads = (text: string) => text.startsWith('ne'.concat('ver'));",
+    "export const reads = (text: string) => text.replace('ne' + 'ver', 'always');",
+    "export const reads = (text: string, tail: string) => text.endsWith('ne' + tail);",
+  ],
+  'a word array searched with some and includes': [
+    "export const reads = (text: string) => ['never', 'always'].some((w) => text.includes(w));",
+    "export const reads = (text: string) => ['never', 'always'].every((w) => text.startsWith(w));",
+    "export const reads = (word: string) => ['never', 'always'].includes(word);",
+    "export const reads = (word: string) => ['never', 'always'].indexOf(word) >= 0;",
+    "const W = ['never', 'always']; export const reads = (word: string) => W.some((w) => w === word);",
+    "const W = ['never', 'always'] as const; export const reads = (w: string) => W.includes(w as never);",
+    "const W = Object.freeze(['never', 'always']); export const reads = (w: string) => W.includes(w);",
+    "const A = ['never']; const W = [...A, 'must']; export const reads = (w: string) => W.includes(w);",
+    "export const reads = (text: string, extra: string) => [extra, 'never'].some((w) => text.includes(w));",
   ],
   'a bracket-access match': [
     "export const reads = (text: string) => text['match'](/x/);",
@@ -1474,6 +1699,21 @@ describe('no letter pattern on generated prose in the pointer bank', () => {
       for (const source of sources)
         expect(findingsOf('bank/families/ids.ts', source).length, source).toBeGreaterThan(0);
     });
+
+  it('does not find the ordinary tests of names, numbers and ids', () => {
+    for (const source of [
+      'const SEEN = new Set<string>(); export const seen = (id: string) => SEEN.has(id);',
+      'export const has = (ids: Set<number>, n: number) => ids.has(n) || new Set([1, 2]).has(n);',
+      "export const a = (text: string) => text.includes('.') && text.startsWith('#') && text.endsWith('\\n');",
+      'export const b = (items: string[], x: string) => items.includes(x) || [1, 2].includes(x.length);',
+      "export const c = (parts: string[]) => parts.join('') + `${parts.length}:${parts[0]}`.toString();",
+      'export const d = (n: number, list: number[]) => list.some((v) => v === n);',
+    ])
+      expect(
+        findingsOf('bank/families/ids.ts', source).map((f) => f.why),
+        source,
+      ).toEqual([]);
+  });
 
   it('names the enclosing function of a site', () => {
     const source = [

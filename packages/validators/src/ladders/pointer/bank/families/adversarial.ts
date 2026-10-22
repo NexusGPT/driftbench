@@ -61,7 +61,7 @@ const rules = (texts: string[], label = 'rule'): Pick[] => texts.map((text) => (
 async function childCut(
   file: SourceFile,
   timeoutMs = 60_000,
-): Promise<{ cut?: CutResult; error?: string; ms: number; crashed: boolean }> {
+): Promise<{ cut?: CutResult; error?: string; code?: string; ms: number; crashed: boolean }> {
   const c = await runChild({ kind: 'cut', file }, { timeoutMs });
   try {
     if (c.timedOut) return { ms: c.ms, crashed: true, error: `no result within ${timeoutMs / 1000} s` };
@@ -72,14 +72,21 @@ async function childCut(
         crashed: true,
         error: `the child died: ${c.stderr.slice(0, 160).replace(/\s+/g, ' ')}`,
       };
-    if (!o.ok) return { ms: c.ms, crashed: /not reachable/.test(o.error), error: o.error };
+    if (!o.ok)
+      return {
+        ms: c.ms,
+        crashed: /not reachable/.test(o.error),
+        error: o.error,
+        ...(o.code ? { code: o.code } : {}),
+      };
     return { cut: o.result as CutResult, ms: c.ms, crashed: false };
   } finally {
     c.cleanup();
   }
 }
 
-const clearMessage = (m: string) => /depth|nest|deep|too (large|big|long)|limit|exceed/i.test(m);
+/** The code a reader's refusal of a too deeply nested file carries (a stable property of the error, not its text). */
+const NESTING_CODE = 'nesting-too-deep';
 
 export const adversarialRuns: Record<string, Run> = {
   'deontic-words-labelled-none': async (ctx) => {
@@ -251,7 +258,7 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive an alias bomb: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return clearMessage(r.error) || /alias|yaml/i.test(r.error)
+      return r.code === NESTING_CODE || /alias|yaml/i.test(r.error)
         ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
         : fail(`the failure message is unclear: ${r.error}`);
     return r.cut?.units.some((u) => u.text === sentenceText)
@@ -296,9 +303,9 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive 600 nested list levels: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return clearMessage(r.error)
-        ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message does not say why: ${r.error}`);
+      return r.code === NESTING_CODE
+        ? pass(`refused with the code ${NESTING_CODE}: ${r.error.slice(0, 80)}`)
+        : fail(`the failure carries no ${NESTING_CODE} code: ${r.error}`);
     return r.cut?.units.length === 600
       ? pass('600 list item units')
       : fail(`${r.cut?.units.length} units for 600 levels`);
@@ -312,9 +319,9 @@ export const adversarialRuns: Record<string, Run> = {
     const r = await childCut({ path: 'deepq.md', text }, 60_000);
     if (r.crashed) return fail(`the cut did not survive 1000 nested quote levels: ${r.error}`);
     if (r.error)
-      return clearMessage(r.error)
-        ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message does not say why: ${r.error}`);
+      return r.code === NESTING_CODE
+        ? pass(`refused with the code ${NESTING_CODE}: ${r.error.slice(0, 80)}`)
+        : fail(`the failure carries no ${NESTING_CODE} code: ${r.error}`);
     if (!r.cut?.units.some((u) => u.text === text.slice(u.start, u.end) && u.text.includes(inner)))
       return fail('positive witness: a successful deep cut must return the quoted source text');
     return r.cut && r.cut.units.length >= 1

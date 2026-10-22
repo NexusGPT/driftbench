@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { pointerBank } from '../../src/ladders/pointer/bank/index';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import type { LedgerEntry, PointerSut, ScanResult } from '../../src/ladders/pointer/sut/port';
-import { fingerprintText } from './reference/cut';
+import { cutText, fingerprintText } from './reference/cut';
 import { referenceSut } from './reference/index';
 
 /**
@@ -90,3 +91,56 @@ for (const mode of ['case', 'emphasis'] as const) {
     }, 600_000);
   });
 }
+
+/**
+ * The refusal of a too deeply nested file is checked by its code, not by its text (the guard has no allowance
+ * for a message pattern). The reference reader's error carries `code: 'nesting-too-deep'`; an item that
+ * checks the code rejects a reader whose refusal has the right words and no code, and accepts one whose
+ * refusal has the code and other words.
+ */
+const REFERENCE_MODULE = fileURLToPath(new URL('./reference/index.ts', import.meta.url));
+const MESSAGE_ONLY = fileURLToPath(new URL('./reference/deep-message-only.ts', import.meta.url));
+const CODE_ONLY = fileURLToPath(new URL('./reference/deep-code-only.ts', import.meta.url));
+
+async function withChild(module: string, id: string): Promise<{ pass: boolean; detail: string }> {
+  const before = process.env.DRIFTBENCH_POINTER_SUT;
+  try {
+    process.env.DRIFTBENCH_POINTER_SUT = module;
+    clearSeedFreeCache();
+    return await runItem(item(id), 1, ref);
+  } finally {
+    clearSeedFreeCache();
+    if (before === undefined) delete process.env.DRIFTBENCH_POINTER_SUT;
+    else process.env.DRIFTBENCH_POINTER_SUT = before;
+  }
+}
+
+describe('the refusal of a too deeply nested file is checked by its code', () => {
+  it('the reference reader throws an error with the code nesting-too-deep', () => {
+    let thrown: unknown;
+    try {
+      cutText(`${'> '.repeat(600)}Some text here.\n`);
+    } catch (cause) {
+      thrown = cause;
+    }
+    expect((thrown as { code?: string } | undefined)?.code).toBe('nesting-too-deep');
+  });
+
+  for (const id of ['adversarial.deep-nested-quotes', 'adversarial.deep-nested-lists']) {
+    it(`${id} is green when the refusal carries the code`, async () => {
+      const out = await withChild(REFERENCE_MODULE, id);
+      expect(out.pass, out.detail).toBe(true);
+    }, 120_000);
+
+    it(`${id} is green when the refusal carries the code and other words`, async () => {
+      const out = await withChild(CODE_ONLY, id);
+      expect(out.pass, out.detail).toBe(true);
+    }, 120_000);
+
+    it(`${id} is red when the refusal has the right words and no code`, async () => {
+      const out = await withChild(MESSAGE_ONLY, id);
+      expect(out.pass, `${id} accepted a refusal without the code`).toBe(false);
+      expect(out.detail).toMatch(/nesting-too-deep/);
+    }, 120_000);
+  }
+});
