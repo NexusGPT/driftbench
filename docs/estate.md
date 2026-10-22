@@ -875,7 +875,7 @@ Outcomes of the complete specs: 924 bank, 26 no-change:guard, 44 no-change:negat
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
+Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
 Complete share: 99.58%; distinct asks: 111 in 1406 complete asked tests (7.89 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).

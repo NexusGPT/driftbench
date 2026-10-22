@@ -304,7 +304,7 @@ Outcomes of the complete specs: 43 bank, 1 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 1 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 5 in unit/ (2 guards, 1 scripts, 12 payloads), run by driftbench estate unit: --record on the original first, then on any copy.
-Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
+Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
 Replay: 12 specs aligned to sessions, 10 planned to pass, 2 to fail.
 Wrote 51 files to out.
 (exit 0)
