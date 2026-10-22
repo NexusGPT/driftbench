@@ -51,6 +51,76 @@ function map(records: unknown[], more: Partial<Parameters<typeof mapSession>[0]>
   return mapSession({ transcript: lines(records), ...more });
 }
 
+describe('a helper session: the calls of the sidechain', () => {
+  const sidechain = [
+    user('clean the scratch folder'),
+    assistant([use('agent-1', 'Agent', { subagent_type: 'tidy', prompt: 'clear /work/demo/scratch' })], {
+      uuid: 'a1',
+    }),
+    assistant([use('h-bash', 'Bash', { command: 'rm -rf /work/demo/scratch/old' })], {
+      uuid: 'h1',
+      parentUuid: 'a1',
+      isSidechain: true,
+    }),
+    result('h-bash', 'removed', { uuid: 'h2', parentUuid: 'h1', isSidechain: true }),
+    result('agent-1', 'done'),
+    assistant([{ type: 'text', text: 'The helper tidied it.' }]),
+  ];
+
+  it('keeps the helper calls apart from the agent calls, tied to their Agent call and marked by actor', () => {
+    const { blocks, meta } = map(sidechain);
+    const observed = blocks[0]?.observed;
+    expect(observed?.toolCalls.map((call) => call.label)).toEqual(['Agent']);
+    expect(observed?.helperCalls).toHaveLength(1);
+    expect(observed?.helperCalls?.[0]).toMatchObject({
+      id: 'h-bash',
+      label: 'Bash',
+      actor: 'helper',
+      parentCallId: 'agent-1',
+      output: 'removed',
+    });
+    // The helper's words are not the agent's words.
+    expect(observed?.text).toBe('The helper tidied it.');
+    expect(meta.issues).toEqual([]);
+    expect(Observed.safeParse(observed).success).toBe(true);
+  });
+
+  it('ties a helper call to the Agent call by parent_tool_use_id when the stream gives one', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-9', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      assistant([use('h-read', 'Read', { file_path: '/work/demo/a.md' })], {
+        isSidechain: true,
+        parent_tool_use_id: 'agent-9',
+      }),
+      result('h-read', 'text', { isSidechain: true, parent_tool_use_id: 'agent-9' }),
+      result('agent-9', 'done'),
+    ]);
+    expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ actor: 'helper', parentCallId: 'agent-9' });
+  });
+
+  it('counts the helper tokens apart from the agent tokens', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([{ type: 'text', text: 'working' }], { uuid: 'h1', parentUuid: 'a1', isSidechain: true }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost).toMatchObject({
+      inputTokens: 10,
+      outputTokens: 2,
+      helperInputTokens: 10,
+      helperOutputTokens: 2,
+    });
+  });
+
+  it('adds nothing to a session with no helper', () => {
+    const { blocks } = map([user('go'), assistant([{ type: 'text', text: 'hi' }])]);
+    expect(blocks[0]?.observed.helperCalls).toBeUndefined();
+    expect(blocks[0]?.observed.cost).toEqual({ inputTokens: 10, outputTokens: 2 });
+  });
+});
+
 describe('parseJsonl', () => {
   it('skips blank lines and keeps a line that is not JSON with its error', () => {
     const parsed = parseJsonl('{"a":1}\n\n not json\n');
