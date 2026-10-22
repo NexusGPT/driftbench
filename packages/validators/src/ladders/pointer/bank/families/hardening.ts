@@ -908,7 +908,11 @@ const labels: Record<string, Run> = {
         const out = await api.parse(`threshold: { ${key}: ${bad} }\n`);
         if (out.ok)
           return fail(`the threshold ${key}: ${bad} was accepted; a threshold is a number from 0 to 1`);
-        if (!out.issues?.some((i) => i.code === 'threshold-out-of-range' && i.key === key && i.reason === 'out-of-range'))
+        if (
+          !out.issues?.some(
+            (i) => i.code === 'threshold-out-of-range' && i.key === key && i.reason === 'out-of-range',
+          )
+        )
           return fail(
             `the refusal of ${key}: ${bad} does not name the key by code threshold-out-of-range: ${JSON.stringify(out.issues ?? out.errors)}`,
           );
@@ -969,7 +973,11 @@ const labels: Record<string, Run> = {
       const out = await api.parse(`threshold: { ${key}: 0.5 }\n`);
       if (out.ok)
         return fail(`the threshold key ${key} was accepted; only the four keys of the file are thresholds`);
-      if (!out.issues?.some((i) => i.code === 'threshold-unknown-key' && i.key === key && i.reason === 'not-a-threshold'))
+      if (
+        !out.issues?.some(
+          (i) => i.code === 'threshold-unknown-key' && i.key === key && i.reason === 'not-a-threshold',
+        )
+      )
         return fail(
           `the refusal of ${key} does not name the key by code threshold-unknown-key: ${JSON.stringify(out.issues ?? out.errors)}`,
         );

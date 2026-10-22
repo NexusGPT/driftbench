@@ -95,7 +95,10 @@ const NESTING_CODE = 'nesting-too-deep';
  * the package's, not the reader's, so it cannot carry a code of ours: the error class and the package's own text
  * name it.
  */
-const YAML_ALIAS_LIMIT = { name: 'ReferenceError', text: 'Excessive alias count indicates a resource exhaustion attack' };
+const YAML_ALIAS_LIMIT = {
+  name: 'ReferenceError',
+  text: 'Excessive alias count indicates a resource exhaustion attack',
+};
 
 export const adversarialRuns: Record<string, Run> = {
   'deontic-words-labelled-none': async (ctx) => {
@@ -267,9 +270,12 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive an alias bomb: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return r.code === NESTING_CODE || (r.name === YAML_ALIAS_LIMIT.name && r.error === YAML_ALIAS_LIMIT.text)
+      return r.code === NESTING_CODE ||
+        (r.name === YAML_ALIAS_LIMIT.name && r.error === YAML_ALIAS_LIMIT.text)
         ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure carries no ${NESTING_CODE} code and is not the alias limit of the yaml package: ${r.error}`);
+        : fail(
+            `the failure carries no ${NESTING_CODE} code and is not the alias limit of the yaml package: ${r.error}`,
+          );
     return r.cut?.units.some((u) => u.text === sentenceText)
       ? pass('bounded, the sentence is still a unit')
       : fail('the sentence after the alias bomb is not a unit');

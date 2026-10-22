@@ -439,7 +439,11 @@ const grouping: Record<string, Run> = {
         `${instructions.length} instruction atoms for a rule written twice on one line, expected one`,
       );
     const second = twins.sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0))[1] as LedgerEntry;
-    if (!result.diagnostics.some((d) => d.code === 'duplicate' && d.reason === 'atom-duplicate' && d.unit === second.id))
+    if (
+      !result.diagnostics.some(
+        (d) => d.code === 'duplicate' && d.reason === 'atom-duplicate' && d.unit === second.id,
+      )
+    )
       return fail('positive witness: the repeat of the rule is not reported as a duplicate');
     if (instructions[0]?.situation !== undefined)
       return fail('the atom of the first rule takes the situation of a condition that points at its repeat');

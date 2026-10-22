@@ -33,7 +33,11 @@ export function makeSettings(upper = 1, inherited = false): SettingsApi {
       if (given !== undefined) {
         if (given === null || typeof given !== 'object' || Array.isArray(given)) {
           errors.push(`threshold: a mapping of ${KEYS.join(', ')}`);
-          issues.push({ code: 'settings-threshold-not-a-mapping', key: 'threshold', reason: 'not-a-mapping' });
+          issues.push({
+            code: 'settings-threshold-not-a-mapping',
+            key: 'threshold',
+            reason: 'not-a-mapping',
+          });
         } else {
           for (const [key, number] of Object.entries(given)) {
             const known = inherited ? TABLE[key] !== undefined : (KEYS as readonly string[]).includes(key);

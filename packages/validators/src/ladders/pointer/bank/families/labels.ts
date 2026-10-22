@@ -841,8 +841,7 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (second.events?.[id] === undefined)
-        return missing(`the reader does not expose an event for ${id}`);
+      if (second.events?.[id] === undefined) return missing(`the reader does not expose an event for ${id}`);
       if (second.events[id] !== 'unchanged')
         return fail(`${show(t, 36)} has event ${second.events[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')

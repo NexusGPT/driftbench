@@ -68,7 +68,8 @@ type Names = Partial<Omit<Diagnostic, 'code' | 'reason' | 'detail'>>;
  */
 const gave = (res: ScanResult, reason: string, names: Names = {}): boolean =>
   res.diagnostics.some(
-    (d) => d.reason === reason && Object.entries(names).every(([key, value]) => d[key as keyof Names] === value),
+    (d) =>
+      d.reason === reason && Object.entries(names).every(([key, value]) => d[key as keyof Names] === value),
   );
 /** A cause an item expects of a refusal: the `reason` and the names it carries. */
 type Cause = { reason: string; names: Names };
@@ -468,7 +469,10 @@ const extras: Record<string, Run> = {
     return refusedThenTaken(
       unit,
       over,
-      { reason: 'span-outside-parent', names: { kind: 'condition', parent: 'action', span: `${from}-${end}` } },
+      {
+        reason: 'span-outside-parent',
+        names: { kind: 'condition', parent: 'action', span: `${from}-${end}` },
+      },
       inside,
       `its condition span [${from}, ${end}) runs past the action span [0, ${close})`,
     );
@@ -845,7 +849,11 @@ const settings: Record<string, Run> = {
       const nan = ['.nan', '.NaN', '.NAN'][between(r, 0, 2)] as string;
       const out = await api.parse(`threshold: { ${key}: ${nan} }\n`);
       if (out.ok) return fail(`the threshold ${key}: ${nan} was accepted; not a number is no threshold`);
-      if (!out.issues?.some((i) => i.code === 'threshold-not-finite' && i.key === key && i.reason === 'not-finite'))
+      if (
+        !out.issues?.some(
+          (i) => i.code === 'threshold-not-finite' && i.key === key && i.reason === 'not-finite',
+        )
+      )
         return fail(
           `the refusal of ${key}: ${nan} does not name the key by code threshold-not-finite: ${JSON.stringify(out.issues ?? out.errors)}`,
         );

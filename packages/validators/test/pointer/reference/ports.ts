@@ -498,10 +498,7 @@ export async function haiku(
     return refused('the answer is not the agreed JSON', 'answer-not-json');
   }
   if (parsed.window !== plan.id)
-    return refused(
-      `the answer is for another window (${String(parsed.window)})`,
-      'answer-window-mismatch',
-    );
+    return refused(`the answer is for another window (${String(parsed.window)})`, 'answer-window-mismatch');
   if (parsed.set !== set.set)
     return refused(`the answer is for another set (${String(parsed.set)})`, 'answer-set-mismatch');
   if (!Array.isArray(parsed.labels)) return refused('the answer has no labels list', 'answer-no-labels');

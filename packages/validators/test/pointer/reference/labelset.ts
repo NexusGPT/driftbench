@@ -132,7 +132,9 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
   for (const raw of root.labels as unknown[]) {
     const set = raw as Record<string, unknown>;
     if (typeof set.set !== 'string' || set.set === '')
-      fail('a label set has no `set:` name', 'set-name-invalid', 'not-an-identifier', { set: written(set.set) });
+      fail('a label set has no `set:` name', 'set-name-invalid', 'not-an-identifier', {
+        set: written(set.set),
+      });
     if (names.has(set.set))
       fail(`the set name "${set.set}" is used twice`, 'set-duplicate', 'duplicate', { set: set.set });
     names.add(set.set);
@@ -154,7 +156,7 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
           `the link kind ${String(kind.name)} names \`to\` or \`values\`, one of the two`,
           'link-kind-shape-invalid',
           'to-or-values',
-          { set: set.set, kind: written(kind.name) },
+          { set: written(set.set), kind: written(kind.name) },
         );
       return {
         name: kind.name as string,

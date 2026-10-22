@@ -172,7 +172,9 @@ type BuildLabelling = (
     marginCut?: number;
     fetch?: unknown;
   },
-) => Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string; code?: string; set?: string }>;
+) => Promise<
+  { ok: true; labelling: RLabelling } | { ok: false; message: string; code?: string; set?: string }
+>;
 
 export type ReaderExports = {
   /** Optional reader of the settings file. */

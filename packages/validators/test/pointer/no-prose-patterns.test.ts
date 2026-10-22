@@ -263,16 +263,10 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/hardening.ts',
-    anchor: 'settings-threshold-range-refused',
-    expr: "['labeler', 'pass_at', 'fail_at', 'margin_cut']",
-    reason: 'tests the parse errors the READER wrote for the threshold key the item sent, not prose',
-  },
-  {
-    file: 'bank/families/hardening.ts',
     anchor: 'settings-inherited-threshold-key-refused',
     expr: "['constructor', 'toString', 'hasOwnProperty', 'valueOf']",
-    reason: 'tests the parse errors the READER wrote for the threshold key the item sent, not prose',
-    count: 2,
+    reason:
+      'names every object has by inheritance, sent to the reader as threshold keys; the item reads the issue the reader gives for each, not prose',
   },
   {
     file: 'bank/families/hardening.ts',

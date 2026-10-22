@@ -3,7 +3,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { pointerBank } from '../../src/ladders/pointer/bank';
 import { readerGainedNothing } from '../../src/ladders/pointer/bank/harness-probe';
 import { clearSeedFreeCache, executeHere, runItem, stopItemChild } from '../../src/ladders/pointer/bank/run';
-import { fail, missing, type Outcome, type PointerItem, pass, Problem } from '../../src/ladders/pointer/bank/types';
+import {
+  fail,
+  missing,
+  type Outcome,
+  type PointerItem,
+  Problem,
+  pass,
+} from '../../src/ladders/pointer/bank/types';
 import type {
   Diagnostic,
   PointerSut,
@@ -59,7 +66,8 @@ const diagnostics = (name: string, change: (d: Diagnostic) => Diagnostic): Point
 /** The words of a diagnostic and its class, none of its cause or fields. */
 const wordsOnly = (d: Diagnostic): Diagnostic => ({ code: d.code, detail: d.detail });
 /** The same diagnostic with another cause. */
-const otherCause = (d: Diagnostic): Diagnostic => (d.reason === undefined ? d : { ...d, reason: 'another-cause' });
+const otherCause = (d: Diagnostic): Diagnostic =>
+  d.reason === undefined ? d : { ...d, reason: 'another-cause' };
 
 /* ----- the items that read the cause and the names of a diagnostic ----- */
 
@@ -83,7 +91,8 @@ const READS: Reads[] = [
 describe('the items that read the cause of a refusal read its code and its names', () => {
   for (const read of READS) {
     it(`${read.id}: the right code and names pass on two seeds`, async () => {
-      for (const seed of [1, 2]) expect(await run(read.id, ref, seed), `seed ${seed}`).toMatchObject({ pass: true });
+      for (const seed of [1, 2])
+        expect(await run(read.id, ref, seed), `seed ${seed}`).toMatchObject({ pass: true });
     }, 120_000);
 
     it(`${read.id}: the right words with no code or field fail`, async () => {
@@ -156,14 +165,41 @@ describe('the items that read why a label file was refused read its code, reason
     it(`${id}: the right failure passes; words with no failure, another code, another set and another label fail`, async () => {
       expect(await run(id, ref), 'reference').toMatchObject({ pass: true });
       expect((await run(id, dropFailure('no-failure'))).pass, 'no failure').toBe(false);
-      expect((await run(id, changeFailure('code', (f) => ({ ...f, code: 'label-file-invalid' })))).pass, 'code').toBe(false);
-      expect((await run(id, changeFailure('reason', (f) => ({ ...f, reason: 'invalid-file' })))).pass, 'reason').toBe(false);
-      expect((await run(id, changeFailure('set', (f) => ({ ...f, set: 'zz-wrong' })))).pass, 'set').toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            changeFailure('code', (f) => ({ ...f, code: 'label-file-invalid' })),
+          )
+        ).pass,
+        'code',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            changeFailure('reason', (f) => ({ ...f, reason: 'invalid-file' })),
+          )
+        ).pass,
+        'reason',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            changeFailure('set', (f) => ({ ...f, set: 'zz-wrong' })),
+          )
+        ).pass,
+        'set',
+      ).toBe(false);
     }, 120_000);
   }
 
   it('labels.set-validation-reserved-none fails another label under the right code', async () => {
-    const out = await run('labels.set-validation-reserved-none', changeFailure('label', (f) => ({ ...f, label: 'zz' })));
+    const out = await run(
+      'labels.set-validation-reserved-none',
+      changeFailure('label', (f) => ({ ...f, label: 'zz' })),
+    );
     expect(out.pass).toBe(false);
   }, 120_000);
 
@@ -203,17 +239,57 @@ describe('the items that read why a label file was refused read its code, reason
     const id = 'ids.ledger-check-mode';
     expect(await run(id, ref)).toMatchObject({ pass: true });
     expect((await run(id, dropFailure('no-failure'))).pass, 'no failure').toBe(false);
-    expect((await run(id, changeFailure('no-files', (f) => ({ code: f.code })))).pass, 'no files').toBe(false);
-    expect((await run(id, changeFailure('other-files', (f) => ({ ...f, files: ['zz/other.md'] })))).pass, 'files').toBe(false);
-    expect((await run(id, changeFailure('other-code', (f) => ({ ...f, code: 'ledger-stale' })))).pass, 'code').toBe(false);
+    expect(
+      (
+        await run(
+          id,
+          changeFailure('no-files', (f) => ({ code: f.code })),
+        )
+      ).pass,
+      'no files',
+    ).toBe(false);
+    expect(
+      (
+        await run(
+          id,
+          changeFailure('other-files', (f) => ({ ...f, files: ['zz/other.md'] })),
+        )
+      ).pass,
+      'files',
+    ).toBe(false);
+    expect(
+      (
+        await run(
+          id,
+          changeFailure('other-code', (f) => ({ ...f, code: 'ledger-stale' })),
+        )
+      ).pass,
+      'code',
+    ).toBe(false);
   }, 120_000);
 
   it('labels.system1-refuses-link-labels reads the code and the set of the failure', async () => {
     const id = 'labels.system1-refuses-link-labels';
     expect(await run(id, ref)).toMatchObject({ pass: true });
     expect((await run(id, dropFailure('no-failure'))).pass, 'no failure').toBe(false);
-    expect((await run(id, changeFailure('other-set', (f) => ({ ...f, set: 'zz-wrong' })))).pass, 'set').toBe(false);
-    expect((await run(id, changeFailure('other-code', (f) => ({ ...f, code: 'labeler-config' })))).pass, 'code').toBe(false);
+    expect(
+      (
+        await run(
+          id,
+          changeFailure('other-set', (f) => ({ ...f, set: 'zz-wrong' })),
+        )
+      ).pass,
+      'set',
+    ).toBe(false);
+    expect(
+      (
+        await run(
+          id,
+          changeFailure('other-code', (f) => ({ ...f, code: 'labeler-config' })),
+        )
+      ).pass,
+      'code',
+    ).toBe(false);
   }, 120_000);
 });
 
@@ -248,12 +324,46 @@ describe('the settings items read the code, the key and the reason of an issue',
   for (const [id, code] of ITEMS) {
     it(`${id}: the right issue passes; no issue, another code, another key and another reason fail`, async () => {
       expect(await run(id, ref), 'reference').toMatchObject({ pass: true });
-      expect((await run(id, settingsWith('no-issues', () => undefined))).pass, 'no issues').toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            settingsWith('no-issues', () => undefined),
+          )
+        ).pass,
+        'no issues',
+      ).toBe(false);
       const map = (change: (issue: SettingsIssue) => SettingsIssue) =>
-        settingsWith('changed', (issues) => issues?.map((issue) => (issue.code === code ? change(issue) : issue)));
-      expect((await run(id, map((i) => ({ ...i, code: 'settings-labels-invalid' })))).pass, 'code').toBe(false);
-      expect((await run(id, map((i) => ({ ...i, key: 'zz-wrong' })))).pass, 'key').toBe(false);
-      expect((await run(id, map((i) => ({ ...i, reason: 'shape' })))).pass, 'reason').toBe(false);
+        settingsWith('changed', (issues) =>
+          issues?.map((issue) => (issue.code === code ? change(issue) : issue)),
+        );
+      expect(
+        (
+          await run(
+            id,
+            map((i) => ({ ...i, code: 'settings-labels-invalid' })),
+          )
+        ).pass,
+        'code',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            map((i) => ({ ...i, key: 'zz-wrong' })),
+          )
+        ).pass,
+        'key',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            map((i) => ({ ...i, reason: 'shape' })),
+          )
+        ).pass,
+        'reason',
+      ).toBe(false);
     }, 120_000);
   }
 });
@@ -274,13 +384,31 @@ describe('the items that read the model-mismatch warning read its record', () =>
   for (const id of ITEMS) {
     it(`${id}: the record passes; the words alone, swapped models and no record fail`, async () => {
       expect(await run(id, ref), 'reference').toMatchObject({ pass: true });
-      expect((await run(id, withRecords('words-only', () => undefined))).pass, 'words only').toBe(false);
-      expect((await run(id, withRecords('empty', () => []))).pass, 'empty').toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            withRecords('words-only', () => undefined),
+          )
+        ).pass,
+        'words only',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            withRecords('empty', () => []),
+          )
+        ).pass,
+        'empty',
+      ).toBe(false);
       const swapped = withRecords('swapped', (records) =>
         records.map((r) => ({ ...r, recorded: r.returned, returned: r.recorded })),
       );
       expect((await run(id, swapped)).pass, 'swapped').toBe(false);
-      const other = withRecords('other-model', (records) => records.map((r) => ({ ...r, returned: 'zz-model' })));
+      const other = withRecords('other-model', (records) =>
+        records.map((r) => ({ ...r, returned: 'zz-model' })),
+      );
       expect((await run(id, other)).pass, 'other model').toBe(false);
     }, 120_000);
   }
@@ -314,9 +442,33 @@ describe('the items that read the versions of a cut digest miss read its environ
   for (const id of IDS) {
     it(`${id}: the environment passes; none, another Node and another ICU fail`, async () => {
       expect(await run(id, ref), 'reference').toMatchObject({ pass: true });
-      expect((await run(id, miss('none', () => undefined))).pass, 'none').toBe(false);
-      expect((await run(id, miss('node', (e) => e && { ...e, node: '0.0.1' }))).pass, 'node').toBe(false);
-      expect((await run(id, miss('icu', (e) => e && { ...e, icu: '0.0.1' }))).pass, 'icu').toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            miss('none', () => undefined),
+          )
+        ).pass,
+        'none',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            miss('node', (e) => e && { ...e, node: '0.0.1' }),
+          )
+        ).pass,
+        'node',
+      ).toBe(false);
+      expect(
+        (
+          await run(
+            id,
+            miss('icu', (e) => e && { ...e, icu: '0.0.1' }),
+          )
+        ).pass,
+        'icu',
+      ).toBe(false);
     }, 120_000);
 
     it(`${id}: a message that names both versions does not stand for the environment`, async () => {
@@ -389,7 +541,11 @@ describe('the harness reads the kind of a failure, not its words', () => {
   const NOTE = 'Behaviour under test: the oracle of the synthetic item';
 
   it('a failure of the kind missing-observation names the behaviour under test, once', async () => {
-    const out = await executeHere(synthetic(async () => missing('the reader offers nothing')), 1, ref);
+    const out = await executeHere(
+      synthetic(async () => missing('the reader offers nothing')),
+      1,
+      ref,
+    );
     expect(out).toMatchObject({ pass: false, kind: 'missing-observation', annotated: true });
     expect(out.detail).toBe(`the reader offers nothing. ${NOTE}`);
     const again = await executeHere(
@@ -401,7 +557,11 @@ describe('the harness reads the kind of a failure, not its words', () => {
   });
 
   it('the words alone do not name the behaviour: a failure with the words of a missing observation and no kind', async () => {
-    const out = await executeHere(synthetic(async () => fail('the reader does not expose an event')), 1, ref);
+    const out = await executeHere(
+      synthetic(async () => fail('the reader does not expose an event')),
+      1,
+      ref,
+    );
     expect(out.detail).toBe('the reader does not expose an event');
     expect(out.annotated).toBeUndefined();
   });
@@ -427,7 +587,11 @@ describe('the harness reads the kind of a failure, not its words', () => {
   });
 
   it('a passing outcome is left as it is', async () => {
-    const out = await executeHere(synthetic(async () => pass('fine')), 1, ref);
+    const out = await executeHere(
+      synthetic(async () => pass('fine')),
+      1,
+      ref,
+    );
     expect(out).toEqual({ pass: true, detail: 'fine' });
   });
 

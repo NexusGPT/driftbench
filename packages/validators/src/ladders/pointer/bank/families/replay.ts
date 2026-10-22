@@ -200,7 +200,8 @@ async function staleCassette(
   // The Node and ICU versions of a cut digest miss are the fields of its environment, never words of its message.
   if (environment) {
     const seen = miss.environment;
-    if (!seen) return fail('the miss carries no environment: the Node and ICU versions of the run are missing');
+    if (!seen)
+      return fail('the miss carries no environment: the Node and ICU versions of the run are missing');
     if (seen.node !== process.versions.node)
       return fail(`the miss omits the Node version of the run: its environment is ${JSON.stringify(seen)}`);
     if (seen.icu !== (process.versions.icu ?? ''))

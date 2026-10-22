@@ -150,7 +150,8 @@ export function extrasProblem(
     const shown = flatten(unit.text);
     for (const span of entry.spans as unknown[]) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
-      if (!isObject(span)) return { reason: `${where} is no span`, why: { reason: 'span-malformed', ...here } };
+      if (!isObject(span))
+        return { reason: `${where} is no span`, why: { reason: 'span-malformed', ...here } };
       const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
       if (!kind || !label.spans.includes(kind.name))
         return {
@@ -242,7 +243,8 @@ export function extrasProblem(
     const given: string[] = [];
     for (const link of entry.links as unknown[]) {
       const where = `units "${written}" link ${JSON.stringify(link)}`;
-      if (!isObject(link)) return { reason: `${where} is no link`, why: { reason: 'link-malformed', ...own } };
+      if (!isObject(link))
+        return { reason: `${where} is no link`, why: { reason: 'link-malformed', ...own } };
       const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
       if (!kind || !label.links.includes(kind.name))
         return {
