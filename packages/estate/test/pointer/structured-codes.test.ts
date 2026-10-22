@@ -583,7 +583,7 @@ describe('the answer of a labeler', () => {
     expect(dense('Sure! Here you go')).toBe('answer-not-json');
     expect(dense('{"window":"w#2","labels":[]}', { window: 'w#1' })).toBe('answer-window-mismatch');
     expect(dense('{"set":"b","labels":[]}', { set: 'a' })).toBe('answer-set-mismatch');
-    expect(dense('{"note":"no list"}')).toBe('answer-no-labels');
+    expect(dense('{"labels":3}')).toBe('answer-no-labels');
     expect(dense('{"labels":[{"label":"x"}]}')).toBe('answer-entry-malformed');
     const user = (cls: 'system1' | 'system2', payload: unknown): string =>
       thrown(() => pointer.userAnswer(cls, payload, 'm'));
@@ -593,10 +593,10 @@ describe('the answer of a labeler', () => {
 
   it('reads the code of an unlocated span from the field, never from its text', () => {
     const unlocated = 'the text is not in the unit';
-    const span = (extra: Record<string, unknown>) =>
-      check([
-        { units: '1', label: 'order', spans: [{ kind: 'act', from: -1, to: -1, unlocated, ...extra }] },
-      ]).droppedRecords[0];
+    const span = (extra: Record<string, unknown>) => {
+      const spans = [{ kind: 'act', from: -1, to: -1, unlocated, ...extra }];
+      return check([{ units: '1', label: 'order', spans }]).droppedRecords[0];
+    };
     expect(span({ unlocatedCode: 'span-text-repeated' })).toMatchObject({ code: 'span-text-repeated' });
     expect(span({ unlocatedCode: 'span-text-absent' })).toMatchObject({ code: 'span-text-absent' });
     expect(span({})).toMatchObject({ code: 'unknown', kind: 'act' });
