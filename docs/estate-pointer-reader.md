@@ -278,7 +278,15 @@ Entry:
 }
 ```
 
-`twinOf` marks identical boilerplate in another file so duplicates are not confused with moves.
+`quote` is the unit as the file holds it, `source.slice(hint.start, hint.end)`, and `prefix` and `suffix` are the 24 characters of the file on each side, so `prefix + quote + suffix` occurs in the file. The ladder compares units with white space collapsed.
+
+`lineage` lists what the scans that changed the ledger decided for the unit, oldest first, the last eight kept. A unit that is new starts it with `new`. A scan that finds the unit as it was adds nothing, so rescanning unchanged files writes the same bytes. `scan` counts the versions of the ledger, not the runs. The scan result also lists the event of every id of that run, `eventsById`.
+
+`twinOf` marks identical boilerplate in another file so duplicates are not confused with moves: a live unit whose text equals the text of a live unit in an earlier file names the first such unit; the first of a text, and a text that repeats only inside one file, have `null`.
+
+A label is stored under its set name in a map without a prototype, so a set may be named `constructor` or `__proto__`. A set name holds letters, digits, underscores and hyphens.
+
+`checkLedger(previousRaw, current)` is what `scan --check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
 
 ### Re-anchoring on a changed file
 

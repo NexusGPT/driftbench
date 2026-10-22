@@ -110,6 +110,8 @@ export type LabelerUsage = {
 export type PointerResult = {
   ledger: Ledger;
   events: Record<Event, number>;
+  /** What the ladder decided for each id of this scan. */
+  eventsById: Record<string, Event>;
   cuts: Map<string, Cut>;
   labelled: LabelledUnit[];
   plan: PointerPlan;
@@ -312,7 +314,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
   const next = nextLedger(
-    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut })),
+    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, text: file.text })),
     input.previous,
     estateKey,
   );
@@ -669,7 +671,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * side; undefined for any other tally (three labels, two specific ones, a single run on a side).
    */
   const tieBroken = (tally: ReadonlyMap<string, Opinion[]>, set: LabelSet): Opinion[] | undefined => {
-    const rule = tieBreaks[set.set];
+    const rule = tieBreaks.get(set.set);
     const groups = [...tally.values()];
     if (!rule || groups.length !== 2) return undefined;
     const [one, two] = groups as [Opinion[], Opinion[]];
@@ -681,7 +683,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     return undefined;
   };
   /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
-  const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  const tieBreaks = new Map<string, typeof AGENT_RULES_TIE_BREAK>([['agent-rules', AGENT_RULES_TIE_BREAK]]);
   /**
    * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
    * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
@@ -925,6 +927,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   return {
     ledger: next.ledger,
     events: next.events,
+    eventsById: next.eventsById,
     cuts,
     labelled,
     plan,
