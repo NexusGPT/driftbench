@@ -343,6 +343,11 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       context.minimal?.reduce(draft);
+      // A walk reduced to a repeat of a whole spec is not written (see TerminalSubsumption.dropsWhole).
+      if (draft.dropped) {
+        totals.cut_blocks += draft.blocks.length;
+        continue;
+      }
       context.allocation?.observeDraft(draft);
       const rendered: Rendered = renderDraft(prepared, draft, run);
       if (options.specCap !== undefined && reduceEnds) draftOf.set(rendered.id, draft);
@@ -543,6 +548,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     if (reduceEnds) {
       const written = new Allocation(prepared);
       const minimal = new TerminalSubsumption(prepared, run, t, written);
+      minimal.dropsSpecs = false;
       for (const [index, spec] of all.entries()) {
         const draft = draftOf.get(spec.id);
         if (!draft) {

@@ -47,6 +47,8 @@ export class TerminalSubsumption {
   private readonly ends = new Set<string>();
   /** The classes already probed on each path, by a written spec: `<path>|<class>`. */
   private readonly probed = new Set<string>();
+  /** Whether a walk reduced to a repeat of a whole spec is dropped (the pass after a spec cap writes it instead). */
+  dropsSpecs = true;
   /** The rows (cell and deviation class) of the written t-wise specs: the t-wise items read those specs alone. */
   private readonly twiseRows = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
@@ -178,7 +180,57 @@ export class TerminalSubsumption {
         if (!this.familyBlocks.has(key)) this.familyBlocks.set(key, family.family);
       });
     }
+    const duplicate = this.dropsSpecs
+      ? this.dropsWhole(draft, spec, original, originalBlocks, family)
+      : undefined;
+    if (duplicate) {
+      draft.dropped = { duplicate_of: duplicate };
+      return;
+    }
     this.observeSpec(spec);
+  }
+
+  /**
+   * A walk cut down to one block that a written spec already says, which holds no obligation that no written spec holds
+   * (every tuple and pair it placed, every probe of a class on its path, its t-wise row), and whose absence leaves the
+   * stages and classes no further from balance, is not written at all: it is a repeat of a whole spec.
+   */
+  private dropsWhole(
+    draft: SpecDraft,
+    spec: Spec,
+    original: Spec,
+    originalBlocks: SpecDraft['blocks'],
+    family: unknown,
+  ): { spec: string; block: string } | undefined {
+    if (family !== undefined || spec.kind !== 'conversation' || spec.end_state !== undefined)
+      return undefined;
+    if (spec.blocks.length !== 1 || original.blocks.length < 2 || (draft.perturbations?.length ?? 0) > 0)
+      return undefined;
+    if (this.keepsPair(original)) return undefined;
+    const duplicate = this.blocks.get(this.key(spec, 0));
+    if (!duplicate || !this.phrasesHold(spec.blocks[0])) return undefined;
+    const path = (original.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    for (const block of original.blocks)
+      if ('injection' in block.when && !this.probed.has(`${path}|${block.when.injection.class}`))
+        return undefined;
+    if (!this.pairsOf(original).every((pair) => this.pairs.has(pair))) return undefined;
+    const placed = placeSpec(this.space, original);
+    const held = this.projections.every((projection, index) => {
+      const codes = new Set<number>();
+      for (const event of placed.events) addEventCodes(projection, event, codes);
+      return [...codes].every((code) => projection.allowed[code] !== 1 || this.held[index]?.[code] === 1);
+    });
+    if (!held) return undefined;
+    if (draft.seeder === 'twise' && !this.twiseRows.has(this.twiseRow(original))) return undefined;
+    if (this.allocation) {
+      const whole = { blocks: originalBlocks, perturbations: draft.perturbations };
+      if (
+        this.allocation.imbalanceWith({ blocks: [], perturbations: [] }) >
+        this.allocation.imbalanceWith(whole)
+      )
+        return undefined;
+    }
+    return duplicate;
   }
 
   /**

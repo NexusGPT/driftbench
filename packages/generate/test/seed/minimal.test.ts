@@ -858,4 +858,45 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     expect(again.blocks).toHaveLength(length - 2);
     expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
   });
+
+  describe('a walk reduced to a repeat of a whole spec', () => {
+    const setup = () => {
+      const long = desk([
+        {
+          id: 'parcel',
+          stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+          classes: ['D5_language_switch'],
+        },
+      ]);
+      const longPath = long.relations.paths[0];
+      if (!longPath) throw new Error('missing parcel path');
+      const plain = (id: string) => {
+        const draft = walk(long, id, longPath);
+        draft.perturbations = undefined;
+        return draft;
+      };
+      return { long, plain };
+    };
+
+    it('is not written when every obligation it holds is held by a written spec', () => {
+      const { long, plain } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const second = plain('second');
+      const third = plain('third');
+      for (const draft of [first, second, third]) minimal.reduce(draft);
+      expect(first.dropped).toBeUndefined();
+      // The second walk is cut to one block (and ends on a block the first ends on); the third is its repeat.
+      expect([second.dropped, third.dropped].filter(Boolean).length).toBeGreaterThan(0);
+    });
+
+    it('is written when the switch is off', () => {
+      const { long, plain } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      minimal.dropsSpecs = false;
+      const drafts = [plain('first'), plain('second'), plain('third')];
+      for (const draft of drafts) minimal.reduce(draft);
+      expect(drafts.some((draft) => draft.dropped)).toBe(false);
+    });
+  });
 });
