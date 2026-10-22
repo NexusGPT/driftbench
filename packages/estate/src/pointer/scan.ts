@@ -2,7 +2,7 @@ import { ModelError } from '@agent-nexus/driftbench-generate';
 import { namedPaths } from '../scan/code';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type Cut, cut, type Unit } from './cut';
+import { type Cut, cut, isPlainTextPath, type Unit } from './cut';
 import {
   isTooLarge,
   type Labeler,
@@ -459,7 +459,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const estateKey = input.estateKey ?? 'estate';
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
-  const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  const cuts = new Map(
+    files.map((file) => [file.path, cut(file.text, { plain: isPlainTextPath(file.path) })]),
+  );
   // The units the code already reads (a skill's description): no label is asked of them; the labeler sees them as read.
   const readUnits = new Map<string, Set<number>>();
   for (const file of files) {

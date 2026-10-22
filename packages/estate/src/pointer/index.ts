@@ -18,7 +18,16 @@ export {
   requestKey,
   type Wire,
 } from './cassette';
-export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
+export {
+  type Container,
+  type Cut,
+  type CutOptions,
+  cut,
+  fingerprint,
+  isPlainTextPath,
+  sentenceSpans,
+  type Unit,
+} from './cut';
 export {
   type AnthropicLabelerOptions,
   createAnthropicLabeler,
