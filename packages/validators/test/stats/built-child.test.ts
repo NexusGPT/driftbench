@@ -75,7 +75,10 @@ function build(name = 'compiled', mutation?: { file: string; change: (source: st
  * ends itself that way so that the native teardown of Node.js 24 cannot hold it (docs/validators.md section 12.9).
  * Any other signal, or a signal with no closed line, is not a clean end.
  */
-function endedClean(result: { status: number | null; signal?: string | null; stdout: unknown }): boolean {
+function endedClean(
+  result: { status: number | null; signal?: string | null; stdout: unknown },
+  _expectedItems = 0,
+): boolean {
   if (result.status === 0) return true;
   return (
     result.status === null && result.signal === 'SIGKILL' && String(result.stdout).includes('"closed":true')
@@ -250,5 +253,40 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
       if (held) expect(String(result.stdout) + String(result.stderr)).not.toContain('PRETRAP_');
       else expect(String(result.stdout)).toContain('PRETRAP_');
     }
+  });
+});
+
+describe('what counts as a clean end of the compiled bank child', () => {
+  const item = (id: string) =>
+    `{"start":0,"id":"${id}"}\n{"done":0,"id":"${id}","pass":true,"detail":"ok","ms":1}\n`;
+  const SELF_END = '{"closed":true,"selfEnd":true}\n';
+
+  it('takes exit 0', () => {
+    expect(endedClean({ status: 0, stdout: SELF_END })).toBe(true);
+  });
+
+  it('takes its own SIGKILL after the self-end marker, every result before it', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') + SELF_END }, 1)).toBe(true);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END }, 0)).toBe(true);
+  });
+
+  it('refuses a SIGKILL with no self-end marker (an outside kill, the OOM killer), even after a closed line', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') + '{"closed":true}\n' }, 1)).toBe(
+      false,
+    );
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') }, 1)).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: '' }, 0)).toBe(false);
+  });
+
+  it('refuses the self-end marker when a result is missing before it', () => {
+    expect(
+      endedClean({ status: null, signal: 'SIGKILL', stdout: '{"start":0,"id":"a"}\n' + SELF_END }, 1),
+    ).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END }, 1)).toBe(false);
+  });
+
+  it('refuses the marker followed by more output, and any other signal', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END + item('a') }, 1)).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGTERM', stdout: item('a') + SELF_END }, 1)).toBe(false);
   });
 });
