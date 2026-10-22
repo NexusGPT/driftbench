@@ -557,6 +557,48 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const entries = new Map<string, LedgerEntry>(next.ledger.entries.map((entry) => [entry.id, entry]));
   const unitId = (path: string, index: number): string => next.ids.get(unitKey(path, index)) as string;
 
+  /**
+   * The kept units a label of `set` on a unit of `want` can point to: the cells of the same table row (cells with no
+   * line break between them), and units whose ledger label in the set points at a unit of `want`, or that the ledger
+   * label of a unit of `want` pointed at. Opaque and read units are never among them.
+   */
+  const partners = (
+    path: string,
+    fileCut: Cut,
+    text: string,
+    set: string,
+    want: ReadonlySet<number>,
+  ): number[] => {
+    const usable = (index: number) =>
+      fileCut.units[index]?.container !== 'opaque' && !readUnits.get(path)?.has(index);
+    const out = new Set<number>();
+    const row: number[] = [];
+    const flush = () => {
+      if (row.some((index) => want.has(index))) for (const index of row) out.add(index);
+      row.length = 0;
+    };
+    for (const [index, unit] of fileCut.units.entries()) {
+      const last = row.at(-1);
+      const before = last === undefined ? undefined : fileCut.units[last];
+      const sameRow =
+        unit.container === 'table_cell' &&
+        before !== undefined &&
+        !text.slice(before.end, unit.start).includes('\n');
+      if (!sameRow) flush();
+      if (unit.container === 'table_cell') row.push(index);
+    }
+    flush();
+    const ids = new Map(fileCut.units.map((_, index) => [unitId(path, index), index]));
+    for (const [index] of fileCut.units.entries()) {
+      const target = entries.get(unitId(path, index))?.labels[set]?.target;
+      const pointed = target === undefined ? undefined : ids.get(target);
+      if (pointed === undefined) continue;
+      if (want.has(pointed)) out.add(index);
+      if (want.has(index)) out.add(pointed);
+    }
+    return [...out].filter(usable).sort((a, b) => a - b);
+  };
+
   // 1. The units that need a label: none yet, or one made by other sets or other labelers.
   const hashes = new Map(input.sets.map((set) => [set.set, setHash(set)]));
   const needed = new Map<string, Set<number>>();
@@ -572,6 +614,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const found = entries.get(unitId(file.path, index))?.labels[set.set];
         if (found && found.setHash === hashes.get(set.set) && found.labeler === labelling.hash) carried++;
         else want.add(index);
+      }
+      // A set with a label that points at another unit asks, with each unit it asks, the units such a label can point
+      // to that the ledger kept: the other cells of a table row, and a unit whose label points at it or that its
+      // label pointed at. Shown as not labelable, a kept unit could be no target, and the answer was refused.
+      if (want.size > 0 && set.labels.some((label) => label.target)) {
+        for (const index of partners(file.path, fileCut, file.text, set.set, want)) {
+          if (want.has(index)) continue;
+          want.add(index);
+          carried--;
+        }
       }
       needed.set(`${file.path}\0${set.set}`, want);
     }
