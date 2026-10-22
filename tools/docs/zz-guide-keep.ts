@@ -204,7 +204,7 @@ export async function runGuidePage(root: string, page: string): Promise<string[]
             continue;
           }
           const got = await execute(step.command, cwd);
-          for (const line of got.lines) printed.add(line);
+          for (const line of got.lines) { printed.add(line); if (/Mode F|A cell reruns|blocks in the radius|cells left/.test(line)) console.log('PRINTEDLINE ' + line); }
           const found = mismatch(step, got);
           if (found.length > 0) {
             const lines = got.lines.map((line) => line.slice(0, 400)).join('\n');

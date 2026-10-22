@@ -10,6 +10,7 @@ it('probe: which spec names the sentence', async () => {
   console.log = (...a: unknown[]) => {
     const s = String(a[0]);
     if (s.startsWith('BASE ')) base = s.slice(5);
+    if (s.startsWith('PRINTEDLINE')) log(s);
   };
   const problems = await runGuidePage(ROOT, 'docs/guide/walkthrough.md');
   console.log = log;
