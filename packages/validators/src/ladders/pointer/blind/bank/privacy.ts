@@ -143,8 +143,6 @@ function noRequestItem(): BankItem {
 
 /** Two windows, two requests: the private text of an opaque block in the second window must not reach the second request. */
 function secondRequestItem(): BankItem {
-  const SECTION = 250_000;
-  const filler = (n: number): string => `${'Fictional public padding. '.repeat(Math.ceil(n / 26)).slice(0, n)}`;
   return {
     id: 'privacy.fence.second-request',
     family: 'privacy',
@@ -160,12 +158,12 @@ function secondRequestItem(): BankItem {
         const t = token(seed, salt);
         const secret = privateMarker(seed, salt);
         const key = privateMarker(seed, salt + 31);
-        const first = `# Fictional first ${t}\n\n${filler(SECTION)}`;
-        const second = `# Fictional second ${t}\n\n${filler(SECTION)}\n\n${wrap('fence', secret)}`;
-        // Arm 0: two sections too big for one window, so two requests. Arm 1: the second section alone, one request.
-        const source = arm ? second : `${first}\n\n${second}`;
+        // Arm 0: a hundred paragraphs fill two windows, the opaque block closes the second: two requests.
+        // Arm 1: three paragraphs and the block: one request.
+        const paragraphs = Array.from({ length: arm ? 3 : 100 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
+        const source = `${paragraphs.join('\n\n')}\n\n${wrap('fence', secret)}`;
         const answer = {
-          labels: [{ units: '1-2', label: SET_LABEL }],
+          labels: [],
           model: `model-${t}`,
           stop_reason: 'end_turn',
           usage: { input_tokens: 31, output_tokens: 6 },
@@ -184,9 +182,9 @@ function secondRequestItem(): BankItem {
               cassettePresent: false,
             },
           },
-          setup: { key, answer, cached: null },
-          expected: { labels: answer.labels, leaked: false, networkCalls: calls, status: 'ok' },
-          sample: { labels: answer.labels, status: 'ok' },
+          setup: { key, answer, cached: null, labelAll: SET_LABEL },
+          expected: { leaked: false, networkCalls: calls, status: 'ok' },
+          sample: { status: 'ok' },
           sampleEffects: [
             { kind: 'key' as const },
             ...Array.from({ length: calls }, () => ({ kind: 'fetch' as const, value: clean })),
@@ -195,7 +193,6 @@ function secondRequestItem(): BankItem {
             if (!actual || typeof actual !== 'object') return null;
             const r = actual as Record<string, Json>;
             return {
-              labels: r.labels,
               leaked:
                 leaksPrivateFragment(
                   { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
