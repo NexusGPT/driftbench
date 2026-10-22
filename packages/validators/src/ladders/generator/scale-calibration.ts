@@ -18,7 +18,7 @@ import { parse } from 'yaml';
  * no network. Its size is a count of operations, never a duration.
  *
  * The calibration is the weighted sum of the fastest time of each part, with the weights below. The weights
- * were chosen on 40 hosted runs (validators/generator/evidence/scale-calibration.json): the CPU types differ
+ * were chosen on 40 hosted runs of the first allocation part; the reference was re-recorded on 40 runs of this one (validators/generator/evidence/scale-calibration.json): the CPU types differ
  * more in sha256 hashing and string parsing than in allocation, so those two carry most of the weight.
  */
 
@@ -37,7 +37,7 @@ const STAT_PATHS = 8_000;
  * (ubuntu-latest, 4 CPUs; AMD EPYC and Intel Xeon), listed in validators/generator/evidence/scale-calibration.json
  * with the command and the commit. It is recorded once; changing it moves the bar for every machine.
  */
-export const CALIBRATION_REFERENCE_MS = 271;
+export const CALIBRATION_REFERENCE_MS = 250;
 
 /** The most credit a slow calibration earns: the normalised time is never below the raw time over this. */
 export const CALIBRATION_MAX_CREDIT = 1.5;
