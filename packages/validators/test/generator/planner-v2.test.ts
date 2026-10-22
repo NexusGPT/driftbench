@@ -80,7 +80,15 @@ describe('the planner v2 family', () => {
     );
     const items = plannerItems(module).filter((item) => item.id.startsWith('planner.layers-agree.'));
     // The seven shapes of ladder version 2 keep their items; the shapes of version 3 add more.
-    const versionTwo = ['floor-only', 'one-variable-rule', 'rule-of-four', 'two-rules', 'constrained', 'weighted', 'wide'];
+    const versionTwo = [
+      'floor-only',
+      'one-variable-rule',
+      'rule-of-four',
+      'two-rules',
+      'constrained',
+      'weighted',
+      'wide',
+    ];
     expect(items.map((item) => item.id)).toEqual(
       expect.arrayContaining(versionTwo.map((shape) => `planner.layers-agree.${shape}`)),
     );

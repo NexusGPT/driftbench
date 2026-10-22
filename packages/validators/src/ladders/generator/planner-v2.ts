@@ -1093,7 +1093,8 @@ const STEMS: {
       const [seed] = got.seeds as [PlanSeedRow];
       const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) =>
           warning.code === 'seed_unapproved_value' &&
@@ -1174,10 +1175,7 @@ const STEMS: {
           wrong.push(`${row.id} weighs ${row.logWeight} in memory, not minus infinity`);
         // Every other row weighs the sum of the logarithms of its shares, a finite number (R9).
         const wanted = a.oracle.logWeight(row.values);
-        if (
-          !holding[at] &&
-          !(Number.isFinite(row.logWeight) && Math.abs(row.logWeight - wanted) <= 1e-6)
-        )
+        if (!holding[at] && !(Number.isFinite(row.logWeight) && Math.abs(row.logWeight - wanted) <= 1e-6))
           wrong.push(`${row.id} weighs ${row.logWeight}, not the sum of log shares ${wanted}`);
       });
       let written: Array<{ id?: unknown; logWeight?: unknown }> = [];
