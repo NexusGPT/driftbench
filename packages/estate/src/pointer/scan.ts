@@ -213,6 +213,12 @@ export const REASK_LIMIT = 3;
 /** How many more runs a window gets when the two most given labels of one of its units tie. */
 export const SPLIT_REASK_RUNS = 2;
 
+/** The most extra voices a window gets while one of its units still ties. */
+export const SPLIT_REASK_MAX = 4;
+
+/** The most asks a window gets for a split, those that slip included. */
+export const SPLIT_REASK_ATTEMPTS = 6;
+
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
   const labels = (answer as { labels?: unknown })?.labels;
@@ -789,7 +795,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
     const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
     if (tied.length === 0) continue;
-    for (let more = 1; more <= SPLIT_REASK_RUNS; more++) {
+    // Two voices in step at least; while a unit of the window still ties, up to SPLIT_REASK_MAX; a re-ask that slips
+    // is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
+    let voices = 0;
+    for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
+      const stillTied = task.window.units.some((unit) => tiedSplit(runs, unit.index, task.set));
+      if (voices >= SPLIT_REASK_RUNS && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
       const extra = (spent.get(where) ?? 0) + 1;
       spent.set(where, extra);
       const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
@@ -813,6 +824,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       runs.push(voice);
       heardOnly.set(voice, new Set(task.window.units.map((unit) => unit.index)));
       hear(again, runs.length, leaf);
+      voices++;
       reasked.push(
         `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${tied.length} split units`,
       );

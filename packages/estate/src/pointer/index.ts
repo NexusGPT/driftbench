@@ -98,6 +98,8 @@ export {
   type PointerResult,
   pointerScan,
   REASK_LIMIT,
+  SPLIT_REASK_ATTEMPTS,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';
