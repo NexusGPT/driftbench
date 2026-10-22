@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import fs, { realpathSync, rmSync } from 'node:fs';
+import fs, { existsSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import fsp from 'node:fs/promises';
 import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll } from 'vitest';
 
@@ -108,3 +108,16 @@ afterAll(() => {
       `a test left a change in the committed examples/ tree (copy the tree to a temporary folder first):\n${added.join('\n')}`,
     );
 });
+
+/**
+ * A test that needs a working folder inside the repository (to find the repository's loader) makes it in `.tmp/`,
+ * which `.gitignore` lists. `git status --ignored` shows the folder as one entry once it holds a file, and a test
+ * that reads the tree for changes would see that entry appear while the other test runs. The placeholder keeps
+ * the entry in place from the start of every test file.
+ */
+try {
+  mkdirSync(join(ROOT, '.tmp'), { recursive: true });
+  if (!existsSync(join(ROOT, '.tmp', '.keep'))) writeFileSync(join(ROOT, '.tmp', '.keep'), '');
+} catch {
+  // A read-only checkout has nothing to keep in place.
+}

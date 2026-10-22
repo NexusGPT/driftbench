@@ -7,7 +7,6 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -51,9 +50,10 @@ beforeAll(() => {
   mkdirSync(join(work, 'oracle'));
   oracle = join(work, 'oracle', 'expected.json');
   writeFileSync(oracle, '137');
-  // Outside the repository and outside node_modules (esbuild applies no tsconfig.json inside it), so that no folder
-  // appears in the tracked tree while the test runs.
-  outside = realpathSync(mkdtempSync(join(tmpdir(), 'zz-rev5-')));
+  // Inside the repository's ignored .tmp folder: the loader of run C (resolved from its working folder) is found,
+  // esbuild applies a tsconfig.json there (not inside node_modules), and no folder appears in the tracked tree.
+  // The shared test setup keeps .tmp/.keep in place, so the .tmp entry of `git status --ignored` never changes.
+  outside = realpathSync(mkdtempSync(join(repo, '.tmp', 'zz-rev5-')));
   writeFileSync(join(outside, 'pnpm-workspace.yaml'), 'packages: []\n');
   tsconfig = join(outside, 'tsconfig.json');
   writeFileSync(tsconfig, tsconfigBefore);
