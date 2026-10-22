@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { Plan } from '../../interface';
 import { type StemRun, tryPlan } from '../item';
 import { groupsOf, indexRow, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';

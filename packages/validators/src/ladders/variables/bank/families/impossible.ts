@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { Plan } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, type StemRun, tryPlan } from '../item';

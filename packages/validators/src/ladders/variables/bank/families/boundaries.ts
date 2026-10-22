@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { StoreDoc, StoreVariable } from '../../interface';
 import { build, type ItemContext, type StemRun } from '../item';
 import {

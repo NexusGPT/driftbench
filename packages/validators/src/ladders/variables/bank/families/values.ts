@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { OwnerInput, Sources, StoreDoc, StoreValue, StoreVariable } from '../../interface';
 import { BANK_SET_HASH, OWNER_DATE } from '../constants';
 import { build, type ItemContext, planOf, type StemRun } from '../item';
