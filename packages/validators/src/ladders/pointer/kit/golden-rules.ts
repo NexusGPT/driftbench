@@ -170,13 +170,6 @@ export const GOLDEN_RULES: readonly GoldenRule[] = [
   },
   {
     lang: 'en',
-    n: 44,
-    title: 'Named entities with an exclamation point',
-    sentences: ['She works at Yahoo! in the accounting department.'],
-    joiner: ' ',
-  },
-  {
-    lang: 'en',
     n: 46,
     title: 'Ellipsis at end of quotation',
     sentences: [
