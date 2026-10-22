@@ -76,7 +76,8 @@ export function parseUnitsTruth(text: string): UnitsTruth {
   for (const limit of limits) {
     const at = `${limit.where} (${limit.unit})`;
     if (limit.unit !== '' && !ids.has(limit.unit)) problems.push(`${at}: ${limit.unit} is not a unit`);
-    if (limit.governs !== '' && !ids.has(limit.governs)) problems.push(`${at}: ${limit.governs} is not a unit`);
+    if (limit.governs !== '' && !ids.has(limit.governs))
+      problems.push(`${at}: ${limit.governs} is not a unit`);
     if (limit.unit !== '' && !Number.isFinite(limit.limit)) problems.push(`${at}: the limit is not a number`);
     if (limit.comparison !== '' && !COMPARISONS.has(limit.comparison))
       problems.push(`${at}: comparison ${limit.comparison}`);
