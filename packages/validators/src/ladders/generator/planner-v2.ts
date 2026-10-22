@@ -123,9 +123,27 @@ const SHAPES: Shape[] = [
     weighted: true,
     weightedSome: true,
   },
-  { name: 'zero-weight', tier: 4, axes: 4, detail: false, rules: [3], forbids: 0, weighted: true, zeroWeight: true },
+  {
+    name: 'zero-weight',
+    tier: 4,
+    axes: 4,
+    detail: false,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    zeroWeight: true,
+  },
   // Ladder version 3: the shape the budget items need (R9, required values).
-  { name: 'required', tier: 4, axes: 5, detail: true, rules: [3], forbids: 0, weighted: true, required: true },
+  {
+    name: 'required',
+    tier: 4,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    required: true,
+  },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -553,7 +571,8 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
       const reordered = plan(reversedKeys(scenario.store) as VariableStore, { seed: 1 });
       const rendered = shape.zeroWeight ? frame.product.renderPlanV2(full) : undefined;
       const edges = new Map<number, PlanV2>();
-      for (const budget of new Set([planned, planned + 3])) edges.set(budget, plan(scenario.store, { seed: 1, budget }));
+      for (const budget of new Set([planned, planned + 3]))
+        edges.set(budget, plan(scenario.store, { seed: 1, budget }));
       const seedsOnly = { seeds, plan: plan(scenario.store, { seed: 1, seeds, budget: seeds.length }) };
       const requiredCuts = shape.required
         ? new Map([0, 1].map((budget) => [budget, plan(scenario.store, { seed: 1, budget })] as const))
@@ -1036,7 +1055,8 @@ const STEMS: {
       if (!got) throw new Error('the store of this shape has no constraint');
       const [seed] = got.seeds as [PlanSeedRow];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
       );
@@ -1107,8 +1127,11 @@ const STEMS: {
         scaled.rows.every((row, at) => {
           const other = a.full.rows[at];
           const close =
-            row.logWeight === other?.logWeight || Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
-          return row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close;
+            row.logWeight === other?.logWeight ||
+            Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
+          return (
+            row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close
+          );
         });
       return verdict(same, 'the plan changes when every weight is three times as large');
     },
@@ -1140,7 +1163,8 @@ const STEMS: {
       for (const row of planned) {
         const out = written.find((entry) => entry.id === row.id);
         const held = row.values[axis.id] === zero;
-        if (held && out?.logWeight !== null) wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
+        if (held && out?.logWeight !== null)
+          wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
         if (!held && typeof out?.logWeight !== 'number') wrong.push(`${row.id} is written without a number`);
       }
       return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
@@ -1160,7 +1184,10 @@ const STEMS: {
           .sort()
           .join('|');
       const same = rows && layers && rules(a.reordered) === rules(a.full);
-      return verdict(same, `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`);
+      return verdict(
+        same,
+        `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`,
+      );
     },
   },
   // Ladder version 3, budget (R9 and required values).
@@ -1184,7 +1211,9 @@ const STEMS: {
         plan.rows.some((row) => row.source !== 'seed') ||
         plan.cut !== plan.generated
       )
-        wrong.push(`at a budget of the ${seeds.length} seeds: ${plan.rows.length} rows, cut ${plan.cut} of ${plan.generated}`);
+        wrong.push(
+          `at a budget of the ${seeds.length} seeds: ${plan.rows.length} rows, cut ${plan.cut} of ${plan.generated}`,
+        );
       return verdict(wrong.length === 0, wrong.join('; '));
     },
   },
@@ -1206,10 +1235,13 @@ const STEMS: {
       for (const group of [true, false]) {
         const weights = planned.filter((_, at) => flags[at] === group).map((row) => row.logWeight);
         if (weights.some((weight, at) => at > 0 && weight > (weights[at - 1] as number) + 1e-9))
-          wrong.push(`the rows ${group ? 'with' : 'without'} the required value are not from the most common`);
+          wrong.push(
+            `the rows ${group ? 'with' : 'without'} the required value are not from the most common`,
+          );
       }
       const one = a.requiredCuts?.get(1);
-      if (!one?.rows.some(holdsRequired)) wrong.push('at a budget of 1 the kept row does not hold the required value');
+      if (!one?.rows.some(holdsRequired))
+        wrong.push('at a budget of 1 the kept row does not hold the required value');
       for (const plan of [a.full, one])
         if (plan?.warnings.some((warning) => (warning.code as string) === 'budget_drops_required'))
           wrong.push('a plan that keeps the required value warns that a budget dropped it');
@@ -1227,7 +1259,9 @@ const STEMS: {
       const warning = zero?.warnings.find((entry) => (entry.code as string) === 'budget_drops_required') as
         | { values?: Array<{ variable?: unknown; value?: unknown }> }
         | undefined;
-      const named = (warning?.values ?? []).some((entry) => entry.variable === variable && entry.value === value);
+      const named = (warning?.values ?? []).some(
+        (entry) => entry.variable === variable && entry.value === value,
+      );
       return verdict(
         zero?.rows.length === 0 && named,
         `${zero?.rows.length} rows at a budget of 0; warning ${warning ? 'given' : 'missing'}, the required value ${named ? 'named' : 'not named'}`,

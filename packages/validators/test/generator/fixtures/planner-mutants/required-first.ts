@@ -15,7 +15,9 @@ export function requiredFirst(order: 'first' | 'last' = 'first', warn = true) {
     const whole = real(store, rest);
     const cut = budget === undefined ? whole : real(store, options);
     const required = store.variables.flatMap((variable) =>
-      variable.values.filter((value) => value.required === true).map((value) => [variable.id, value.id] as const),
+      variable.values
+        .filter((value) => value.required === true)
+        .map((value) => [variable.id, value.id] as const),
     );
     const holds = (row: PlanV2['rows'][number]) => required.some(([k, v]) => row.values[k] === v);
     const seeds = whole.rows.filter((row) => row.source === 'seed');

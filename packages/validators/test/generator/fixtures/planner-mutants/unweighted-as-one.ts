@@ -9,7 +9,9 @@ export const planV2 = planted((plan, store) => {
   );
   const share = (id: string) => {
     const variable = store.variables.find((entry) => entry.id === id);
-    return variable ? Math.log(1 / variable.values.filter((value) => value.approved ?? variable.approved).length) : 0;
+    return variable
+      ? Math.log(1 / variable.values.filter((value) => value.approved ?? variable.approved).length)
+      : 0;
   };
   return {
     ...plan,

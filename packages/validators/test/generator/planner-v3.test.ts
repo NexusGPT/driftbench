@@ -61,28 +61,28 @@ describe('the planner family, ladder version 3', () => {
     },
   );
 
-  it.each(WRONG_PLANNERS)(
-    'a wrong planner, %s, loses an item of %s on seeds 1 to 3',
-    async (name, shape) => {
-      const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${name}.ts`, import.meta.url));
-      const items = plannerItems(module, [shape]).filter((item) => item.id.endsWith(`.${shape}`));
-      for (const seed of [1, 2, 3]) {
-        const lost = (await run(items, seed)).filter(
-          (entry) => !entry.verdict.pass && !/the item threw|did not load/.test(entry.verdict.detail),
-        );
-        expect(lost.length, `seed ${seed}`).toBeGreaterThan(0);
-      }
-    },
-  );
+  it.each(WRONG_PLANNERS)('a wrong planner, %s, loses an item of %s on seeds 1 to 3', async (name, shape) => {
+    const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${name}.ts`, import.meta.url));
+    const items = plannerItems(module, [shape]).filter((item) => item.id.endsWith(`.${shape}`));
+    for (const seed of [1, 2, 3]) {
+      const lost = (await run(items, seed)).filter(
+        (entry) => !entry.verdict.pass && !/the item threw|did not load/.test(entry.verdict.detail),
+      );
+      expect(lost.length, `seed ${seed}`).toBeGreaterThan(0);
+    }
+  });
 
   it('passes both required items on a planner that keeps required rows first and warns, on seeds 1 to 3', async () => {
     const module = fileURLToPath(new URL('./fixtures/planner-mutants/required-first.ts', import.meta.url));
     const items = plannerItems(module, ['required']).filter((item) =>
-      ['planner.required-survives-budget.required', 'planner.budget-below-required.required'].includes(item.id),
+      ['planner.required-survives-budget.required', 'planner.budget-below-required.required'].includes(
+        item.id,
+      ),
     );
     expect(items).toHaveLength(2);
     for (const seed of [1, 2, 3])
-      for (const { item, verdict } of await run(items, seed)) expect(verdict.pass, `${item.id} seed ${seed}: ${verdict.detail}`).toBe(true);
+      for (const { item, verdict } of await run(items, seed))
+        expect(verdict.pass, `${item.id} seed ${seed}: ${verdict.detail}`).toBe(true);
   });
 
   it('runs every new stem on the shapes it names, under ids no other item holds', () => {
