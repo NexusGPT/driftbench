@@ -18,9 +18,16 @@ describe('the failure of an item, in fields', () => {
 
   it('catches a message that repeats the expected value, in the rendering or added by hand', () => {
     // The product's own output may repeat words the wanted value has; only the wanted token itself would leak.
-    const viaGot = new ItemFailure({ rule: 'the refusal names its code', got: 'the code WRONG_CODE_HERE', expected: 'RIGHT_CODE_HERE' });
+    const viaGot = new ItemFailure({
+      rule: 'the refusal names its code',
+      got: 'the code WRONG_CODE_HERE',
+      expected: 'RIGHT_CODE_HERE',
+    });
     expect(leaksOf(viaGot)).toEqual([]);
-    const viaRule = new ItemFailure({ rule: 'expected RIGHT_CODE_HERE at the path', expected: 'RIGHT_CODE_HERE' });
+    const viaRule = new ItemFailure({
+      rule: 'expected RIGHT_CODE_HERE at the path',
+      expected: 'RIGHT_CODE_HERE',
+    });
     expect(leaksOf(viaRule)).toEqual(['RIGHT_CODE_HERE']);
     const byHand = new ItemFailure({ rule: 'a rule', expected: 'RIGHT_CODE_HERE' });
     byHand.message = `${byHand.message}; expected RIGHT_CODE_HERE`;
@@ -28,7 +35,12 @@ describe('the failure of an item, in fields', () => {
   });
 
   it('does not count the input or the output of the product as a leak when the wanted value shares an atom', () => {
-    const f = new ItemFailure({ rule: 'r', input: { path: 'variables.2.values.0' }, got: [], expected: { path: 'variables.2.values.0' } });
+    const f = new ItemFailure({
+      rule: 'r',
+      input: { path: 'variables.2.values.0' },
+      got: [],
+      expected: { path: 'variables.2.values.0' },
+    });
     expect(leaksOf(f)).toEqual([]);
   });
 
@@ -44,7 +56,12 @@ describe('the failure of an item, in fields', () => {
     const report = leakReport([
       { item: 'a', error: thrown },
       { item: 'b', error: new Error('free text') },
-      { item: 'c', error: Object.assign(new ItemFailure({ rule: 'r', expected: 'SECRET_VALUE' }), { message: 'r; SECRET_VALUE' }) },
+      {
+        item: 'c',
+        error: Object.assign(new ItemFailure({ rule: 'r', expected: 'SECRET_VALUE' }), {
+          message: 'r; SECRET_VALUE',
+        }),
+      },
     ]);
     expect(report.structured).toBe(2);
     expect(report.unstructured).toBe(1);

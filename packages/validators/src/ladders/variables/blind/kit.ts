@@ -1,3 +1,4 @@
+import { check } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import { FAMILY_LEVEL, type Family, type Tier } from '../bank/manifest/types';
@@ -15,7 +16,6 @@ import type {
   ValidateResult,
   VariablesImpl,
 } from '../interface';
-import { check } from '../../../failure';
 import { CAUSES } from './causes';
 
 /**
@@ -486,7 +486,11 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
   const rule = 'a plan row is complete, valid, unique and has its own id';
   const ids = new Set<string>();
   for (const r of plan.rows) {
-    check(typeof r.id === 'string' && r.id.length > 0, { rule, got: { id: r.id }, expected: 'a nonempty string id' });
+    check(typeof r.id === 'string' && r.id.length > 0, {
+      rule,
+      got: { id: r.id },
+      expected: 'a nonempty string id',
+    });
     check(!ids.has(r.id), { rule, got: { repeatedId: r.id }, expected: 'distinct ids' });
     ids.add(r.id);
   }
@@ -495,7 +499,11 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
   for (const r of fresh) {
     for (const v of space.vars) {
       const x = r.values[v];
-      check(x !== undefined, { rule, got: { row: r.id, variableWithoutValue: v }, expected: 'a value for every variable' });
+      check(x !== undefined, {
+        rule,
+        got: { row: r.id, variableWithoutValue: v },
+        expected: 'a value for every variable',
+      });
       check((space.dom[v] as string[]).includes(x as string), {
         rule,
         got: { row: r.id, variable: v, value: x },
@@ -515,7 +523,12 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
     const key = space.vars.map((v) => r.values[v]).join('\u0001');
     check(!seen.has(key), { rule, got: { repeatedRow: r.id }, expected: 'distinct new rows' });
     seen.add(key);
-    for (const s of seeds) check(!sameRow(s, r.values), { rule, got: { row: r.id, repeatsASeed: true }, expected: 'no seed repeated' });
+    for (const s of seeds)
+      check(!sameRow(s, r.values), {
+        rule,
+        got: { row: r.id, repeatsASeed: true },
+        expected: 'no seed repeated',
+      });
   }
   return fresh;
 }

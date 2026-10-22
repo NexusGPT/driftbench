@@ -1,3 +1,4 @@
+import { check } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import { clone } from '../bank/util';
 import type {
@@ -8,7 +9,6 @@ import type {
   FileVariable,
   ValidateResult,
 } from '../interface';
-import { check } from '../../../failure';
 import { callValidate, must, names, show } from './kit';
 
 /**
@@ -139,7 +139,11 @@ export function errorsOf(r: ValidateResult): FileIssue[] {
 /** The store is refused, with an issue of this code (and this path, when given). */
 export function validateIssue(ctx: ItemContext, value: unknown, code: string, path?: string): FileIssue[] {
   const r = callValidate(ctx, value);
-  check(!r.ok, { rule: 'a store with the defect is refused', got: 'the store was accepted', expected: { code, path } });
+  check(!r.ok, {
+    rule: 'a store with the defect is refused',
+    got: 'the store was accepted',
+    expected: { code, path },
+  });
   const errors = errorsOf(r);
   const hit = errors.find((e) => e.code === code && (path === undefined || e.path === path));
   check(!!hit, {
@@ -153,7 +157,11 @@ export function validateIssue(ctx: ItemContext, value: unknown, code: string, pa
 /** The store is refused and some issue is reported at this path or below it, whatever its code. */
 export function validateIssueAt(ctx: ItemContext, value: unknown, path: string): FileIssue[] {
   const r = callValidate(ctx, value);
-  check(!r.ok, { rule: 'a store with the defect is refused', got: 'the store was accepted', expected: { path } });
+  check(!r.ok, {
+    rule: 'a store with the defect is refused',
+    got: 'the store was accepted',
+    expected: { path },
+  });
   const errors = errorsOf(r);
   check(
     errors.some((e) => e.path === path || e.path.startsWith(`${path}.`)),

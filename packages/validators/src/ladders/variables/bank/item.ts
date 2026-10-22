@@ -1,3 +1,4 @@
+import { ItemFailure } from '../../../failure';
 import type {
   CoverageResult,
   FileStore,
@@ -13,7 +14,6 @@ import type {
 } from '../interface';
 import { formatProblems } from './format';
 import type { Level, Tier } from './manifest/types';
-import { ItemFailure } from '../../../failure';
 import { attempt, Fail, must, type Rng, show } from './util';
 
 /**

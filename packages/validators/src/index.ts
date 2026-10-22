@@ -26,6 +26,8 @@ export {
   NO_TIER,
 } from './bank';
 export { statsBankHash } from './bank-fingerprint';
+export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
+export { CatchFileSchema, catchFile, readCatchList } from './catch';
 export {
   check,
   type FailureFields,
@@ -36,8 +38,6 @@ export {
   renderFailure,
   showValue,
 } from './failure';
-export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
-export { CatchFileSchema, catchFile, readCatchList } from './catch';
 export {
   checkFloors,
   emptyFloors,

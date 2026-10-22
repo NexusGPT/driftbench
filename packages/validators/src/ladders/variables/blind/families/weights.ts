@@ -1,7 +1,7 @@
+import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Row } from '../../interface';
 import { baseFile, defect, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
-import { check } from '../../../../failure';
 import { callInterval, must, type Stem, show } from '../kit';
 import { conversationsOf, discover, OWNER_DATE, type ToolSpec } from '../scene';
 

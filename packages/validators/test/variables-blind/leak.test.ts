@@ -29,12 +29,19 @@ describe('the failure messages of the blind bank repeat no expected value', () =
           for (const item of list) {
             let outcome: { pass: boolean; detail: string; failure?: unknown };
             try {
-              outcome = await item.check({ seed, impl, root: '/nonexistent', id: item.id, rng: itemRng(seed, item.id) });
+              outcome = await item.check({
+                seed,
+                impl,
+                root: '/nonexistent',
+                id: item.id,
+                rng: itemRng(seed, item.id),
+              });
             } catch (error) {
               failures.push({ item: item.id, error });
               continue;
             }
-            if (!outcome.pass) failures.push({ item: item.id, error: outcome.failure ?? new Error(outcome.detail) });
+            if (!outcome.pass)
+              failures.push({ item: item.id, error: outcome.failure ?? new Error(outcome.detail) });
           }
         }
       } finally {
@@ -42,7 +49,18 @@ describe('the failure messages of the blind bank repeat no expected value', () =
       }
     }
     const report = leakReport(failures);
-    console.log(`leak report: ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking`);
+    console.log(
+      `leak report: ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking`,
+    );
+    const byRule = new Map<string, { n: number; atoms: Set<string> }>();
+    for (const l of report.leaking) {
+      const e = byRule.get(l.rule) ?? { n: 0, atoms: new Set<string>() };
+      e.n += 1;
+      for (const x of l.atoms.slice(0, 3)) e.atoms.add(x);
+      byRule.set(l.rule, e);
+    }
+    for (const [rule, e] of [...byRule].sort((x, y) => y[1].n - x[1].n).slice(0, 12))
+      console.log(`leak ${e.n} x ${rule.slice(0, 80)} :: ${[...e.atoms].slice(0, 4).join(' | ').slice(0, 160)}`);
     expect(report.leaking).toEqual([]);
     expect(report.unstructured).toBeLessThanOrEqual(UNSTRUCTURED_MAX);
     expect(report.structured).toBeGreaterThan(0);
