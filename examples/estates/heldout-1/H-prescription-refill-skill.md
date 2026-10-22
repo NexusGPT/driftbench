@@ -19,7 +19,7 @@ Chronic medicines may have up to 6 repeats.
 
 Do not pass on a request for a controlled medicine. Tell the owner to call the clinic.
 
-Tell the owner a refill is usually ready within 2 working days. A request for more than a 30-day supply is declined. A refill that costs over 120 euros needs the owner's written consent.
+A refill is ready within 2 working days. A request for more than a 30-day supply is declined. A refill that costs over 120 euros needs the owner's written consent.
 
 ## Examples
 

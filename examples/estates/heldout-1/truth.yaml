@@ -21,9 +21,9 @@ units:
   - id: f61a2c2bba
     file: H-standing-instructions.md
     text: "Answer in no more than three sentences unless the owner asks for detail."
-  - id: fada0fe892
+  - id: 8edc34d328
     file: H-standing-instructions.md
-    text: "You may do five things:"
+    text: "Your duties, five in all, are these:"
   - id: 68f8795397
     file: H-standing-instructions.md
     text: "Book, move and cancel appointments"
@@ -198,9 +198,9 @@ units:
   - id: e83c938556
     file: H-prescription-refill-skill.md
     text: "Tell the owner to call the clinic."
-  - id: d4795d3115
+  - id: a44e81348d
     file: H-prescription-refill-skill.md
-    text: "Tell the owner a refill is usually ready within 2 working days."
+    text: "A refill is ready within 2 working days."
   - id: 40864dce25
     file: H-prescription-refill-skill.md
     text: "A request for more than a 30-day supply is declined."
@@ -333,12 +333,12 @@ units:
   - id: cc4146eb03
     file: H-clinic-systems-reference.md
     text: "This file describes the systems as they behave today."
-  - id: 35b93684a4
+  - id: 404248548f
     file: H-clinic-systems-reference.md
-    text: "It does not tell you what to do; the other files do."
-  - id: 0a7093718e
+    text: "Nothing here is an instruction; the instructions are in the other files."
+  - id: 79043fca40
     file: H-clinic-systems-reference.md
-    text: "| Limit | Value | What happens at the limit |"
+    text: "| Item | Size | Result when it is reached |"
   - id: 0b63d1431b
     file: H-clinic-systems-reference.md
     text: "| Attachment size per message | Ten megabytes | The message is refused |"
@@ -567,12 +567,12 @@ limits:
     role: constraint
     unit_of: "repeats"
     governs: 3f7550d6d2
-  - unit: d4795d3115
+  - unit: a44e81348d
     limit: 2
     comparison: le
     role: constraint
     unit_of: "working days"
-    governs: d4795d3115
+    governs: a44e81348d
   - unit: 40864dce25
     limit: 30
     comparison: gt
@@ -699,6 +699,12 @@ limits:
     role: constraint
     unit_of: "emoji in a message"
     governs: f17cbc77e7
+  - unit: f17cbc77e7
+    limit: 0
+    comparison: le
+    role: constraint
+    unit_of: "emoji in a complaint"
+    governs: f17cbc77e7
   - unit: 3bc99abfff
     limit: 2
     comparison: le
@@ -765,7 +771,7 @@ non_limits:
   - unit: debc5256bb
     number: "4"
     why: "count of clinics"
-  - unit: fada0fe892
+  - unit: 8edc34d328
     number: "5"
     why: "count of the items listed below it"
   - unit: 20bf60a998
@@ -867,6 +873,7 @@ hard_cases:
     - 40864dce25
     - d97b2c364a
     - b31a0855be
+    - f17cbc77e7
     - 3bc99abfff
     - 1c77ce9f85
     - ea537b06c0
