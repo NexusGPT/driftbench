@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BEYOND_NOTE, defineLadder, runSeeds, seedSpecs, splitBeyond } from '../src/index';
+import { BEYOND_NOTE, defineLadder, registeredLadders, runSeeds, seedSpecs, splitBeyond } from '../src/index';
 import { bankLadder } from './support';
 
 describe('the levels measured beyond the first failing level', () => {
@@ -38,5 +38,12 @@ describe('the levels measured beyond the first failing level', () => {
     expect(await runSeeds(ladder, seedSpecs([1]))).not.toHaveProperty('beyondApart');
     const apart = defineLadder({ ...ladder, beyondApart: true });
     expect((await runSeeds(apart, seedSpecs([1]))).beyondApart).toBe(true);
+  });
+
+  it('is declared by the estate ladder only, among the registered ladders', () => {
+    const apart = Object.entries(registeredLadders())
+      .filter(([, ladder]) => ladder.beyondApart)
+      .map(([name]) => name);
+    expect(apart).toEqual(['estate']);
   });
 });

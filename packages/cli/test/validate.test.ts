@@ -829,7 +829,10 @@ describe('driftbench validate for auditors', () => {
     expect(report.beyondTheFirstFailingLevel.seeds).toEqual([
       expect.objectContaining({ seed: 2, firstFailingLevel: 1 }),
     ]);
-    expect(report.beyondTheFirstFailingLevel.seeds[0].levels[0]).toMatchObject({ level: 2, metThreshold: false });
+    expect(report.beyondTheFirstFailingLevel.seeds[0].levels[0]).toMatchObject({
+      level: 2,
+      metThreshold: false,
+    });
     expect(report.beyondTheFirstFailingLevel.seeds[0].levels[0]).not.toHaveProperty('pass');
   });
 
