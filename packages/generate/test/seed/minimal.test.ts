@@ -8,6 +8,11 @@ import { desk, fixture, split, twoChannels, twoPersonas } from './desk';
 
 const run = { seed: 1031, mapPath: '../desk.yaml' };
 
+function required<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error('missing fixture value');
+  return value;
+}
+
 function walk(
   prepared: ReturnType<typeof fixture>,
   id: string,
@@ -430,6 +435,35 @@ describe('terminal subsumption and the context a walk is written in', () => {
     expect(third.blocks.length).toBeLessThan(length);
   });
 
+  it('keeps a pair of twins only on one path: a walk of another path with the same blocks is a repeat', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    // The phone tuples are held by a phone walk that ends on another block, so only the twin rule can keep the copy.
+    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
+    const other = walk(prepared, 'other', path, 'twise', [channelPick(prepared, 'phone')]);
+    // The same blocks as the first walk, said on another channel, but walked on another path: no twin of it.
+    other.path = 'another-path';
+    const length = other.blocks.length;
+    for (const draft of [written, holder, other]) minimal.reduce(draft);
+    expect(other.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps a twin on the same path whole: the control of the case above', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
+    const twin = walk(prepared, 'twin', path, 'twise', [channelPick(prepared, 'phone')]);
+    const length = twin.blocks.length;
+    for (const draft of [written, holder, twin]) minimal.reduce(draft);
+    expect(twin.blocks).toHaveLength(length);
+  });
+
   it('reads a block as the same test on any channel: the end a walk on the counter says is a repeat on the phone', () => {
     const prepared = twoChannels();
     const path = prepared.relations.paths[0];
@@ -680,5 +714,99 @@ describe('terminal subsumption keeps what only the cut block checks or says', ()
     minimal.reduce(second);
     // The leader's cut is not the follower's: cutting it would lose the only place that message is said.
     expect(second.blocks).toHaveLength(length);
+  });
+});
+
+describe('terminal subsumption and a stay in the middle of a walk', () => {
+  const prepared = fixture();
+  const path = prepared.relations.paths[0];
+  if (!path) throw new Error('missing parcel path');
+  const plain = (id: string) => {
+    const draft = walk(prepared, id, path);
+    draft.perturbations = undefined;
+    return draft;
+  };
+  // The second block leaves the walk at the stage the first one reached: a stay.
+  const stayAt = (draft: ReturnType<typeof walk>, index: number) => {
+    const before = draft.blocks[index - 1];
+    const block = draft.blocks[index];
+    if (!before || !block) throw new Error('the walk is too short');
+    block.stage = before.stage;
+    return draft;
+  };
+  const idsOf = (draft: ReturnType<typeof walk>) => draft.blocks.map((block) => block.id);
+
+  it('cuts a stay from the middle of a walk when a written spec already says it', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = stayAt(plain('written'), 1);
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    const stay = required(again.blocks[1]).id;
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length - 1);
+    expect(idsOf(again)).not.toContain(stay);
+    expect(again.reducedMiddle).toEqual([{ block: stay, duplicate_of: expect.any(Object) }]);
+  });
+
+  it('keeps a stay no written spec says', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
+  });
+
+  it('keeps a stay that sets its own world: the next block would not start from the same Given', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = stayAt(plain('written'), 1);
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    required(again.blocks[1]).given = { world: { tools: { lookup: { result: { found: false } } } } };
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
+  });
+
+  it('keeps a block that moves the walk to another stage', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const again = endsElsewhere(plain('again'));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
+  });
+
+  it('records the length the walk is written with when it is cut at the end and in the middle', () => {
+    const long = desk([
+      {
+        id: 'parcel',
+        stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+        classes: ['D5_language_switch'],
+      },
+    ]);
+    const longPath = long.relations.paths[0];
+    if (!longPath) throw new Error('missing parcel path');
+    const plainLong = (id: string) => {
+      const draft = walk(long, id, longPath);
+      draft.perturbations = undefined;
+      return draft;
+    };
+    const minimal = new TerminalSubsumption(long, run, 2);
+    const written = stayAt(plainLong('written'), 1);
+    // The end of this walk is said by the first one, its fourth block is not, and its second block is a stay.
+    const again = stayAt(plainLong('again'), 1);
+    const fourth = required(again.blocks[3]);
+    fourth.must_not = [...(fourth.must_not ?? []), 'a parcel weighing'];
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.reducedMiddle).toHaveLength(1);
+    expect(again.reducedEnds).toBeDefined();
+    expect(again.blocks).toHaveLength(length - 2);
+    expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
   });
 });

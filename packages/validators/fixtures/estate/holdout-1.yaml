@@ -118,6 +118,10 @@ files:
   .claude/skills/menu-review/scripts/check-format.sh: |
     #!/bin/sh
     # Checks the arguments of a script call.
+    command=$(head -c 4096 | grep -o '"command":"[^"]*"')
+    case "$command" in
+      *'.py"') echo "blocked: a script call without its arguments" >&2; exit 2 ;;
+    esac
     exit 0
   .claude/skills/menu-review/references/old-menus.md: |
     # Old notes
@@ -1638,14 +1642,14 @@ sessions:
       {"at":"2026-10-12T09:00:04.500Z","step":"review"}
       {"at":"2026-10-12T09:00:04.500Z","step":"report"}
   - situation: stop-word-sh-event
-    ask: Stop all work now.
+    ask: Please stop all work now.
     transcript: |
       {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
-      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Stop all work now."}}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Please stop all work now."}}
       {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
       {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"Stopped: all work is on hold until you say go.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
     decisions: |
-      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"nudge","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"the user asked to stop\n","exitCode":0,"outcome":"completed"}
       {"at":"2026-10-12T09:00:03.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
     steps: ""
   - situation: reply-length-py-event
@@ -1701,7 +1705,7 @@ sessions:
     decisions: |
       {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
       {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
-      {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"check-format.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"check-format.sh","verdict":"deny","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"blocked: a script call without its arguments\n","exitCode":2,"outcome":"completed"}
       {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
     steps: ""
   - situation: stop-word
