@@ -3,7 +3,7 @@ import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
 import { groupsOf, indexRow, logWeight, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
-import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
 import { must, show, stableStringify } from '../util';
 
 /** Spaces with skewed shares whose unbudgeted plan has dozens of rows. */
@@ -231,7 +231,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     for (const v of space.vars) v.weights = [share, 1 - share];
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), plan, { noCoverage: true });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     ordered(freshLogs(space, plan, 0), `${n} variables with shares ${share}`);
     const distinct = new Set(freshLogs(space, plan, 0).map((x) => x.toFixed(3))).size;
     must(distinct >= 2, 'the generator should give rows of different weights');
@@ -263,7 +263,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const st = store(space);
     const full = planOf(ctx, st, { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), full);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     const total = full.rows.length;
     const b = Math.max(1, Math.floor(total / 2));
     samePrefix(full, planOf(ctx, st, { seed: ctx.seed, budget: b }), b, variant);
@@ -290,7 +290,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         : randomSpace(rng, { vars: 6, minArity: 2, maxArity: 4, shared: 3, rules: [3], weights: true });
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), plan);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     let previous = Number.POSITIVE_INFINITY;
     for (const [i, r] of plan.rows.entries()) {
       const want = logWeight(space, indexRow(space, r.values));

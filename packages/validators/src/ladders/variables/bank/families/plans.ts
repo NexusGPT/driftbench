@@ -14,7 +14,7 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
 import { clone, must, show, stableStringify } from '../util';
 import { LOG_TOLERANCE } from './budget';
 
@@ -161,7 +161,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       },
     );
     // A forbidden seed holds an impossible pair on purpose; only the new rows are held to the pairs.
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
   },
 
   'weights.plan-shares': (variant, ctx) => {
@@ -185,7 +185,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const plan = planOf(ctx, store, { seed: ctx.seed });
     const oracle = new SpaceOracle(space);
     const facts = checkPlan(space, oracle, plan);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     if (variant === 'scale-invariant') {
       const scaled = clone(store);
       for (const variable of scaled.variables)

@@ -15,7 +15,7 @@ import {
   toStore,
   withWeights,
 } from '../oracle/space';
-import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
 import { clone, deepFreeze, must, plainStringify, show, stableStringify } from '../util';
 import { fullSources } from './values';
 
@@ -74,7 +74,7 @@ function planFresh(ctx: ItemContext, c: Case, extra: Partial<PlanOptions> = {}):
     seeds: options.seeds ?? [],
     noCoverage: options.budget !== undefined,
   });
-  must(facts.problems.length === 0, () => facts.problems.join('; '));
+  planIsSound(facts);
   return plan;
 }
 

@@ -1,7 +1,7 @@
 import type { Plan } from '../../interface';
 import { type StemRun, tryPlan } from '../item';
 import { groupsOf, indexRow, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
-import { checkPlan, describeSpace, planAndCheck, randomSeeds, randomSpace } from '../oracle/spaces';
+import {checkPlan, describeSpace, planAndCheck, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
 import { must, show } from '../util';
 import { toBig } from './counter';
 
@@ -196,7 +196,7 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const { plan, error } = tryPlan(ctx, store, { seed: ctx.seed, ...(seeds.length ? { seeds } : {}) });
     must(!error, () => `plan threw ${error?.name}: ${error?.message}`);
     const facts = checkPlan(space, oracle, plan as Plan, { seeds });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     const report = (plan as Plan).report;
     must(
       !!report && report.allowed !== undefined && report.covered !== undefined,

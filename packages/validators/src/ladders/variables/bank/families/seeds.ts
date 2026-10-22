@@ -13,14 +13,12 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import {
-  checkPlan,
+import {checkPlan,
   describeSpace,
   planAndCheck,
   randomSeeds,
   randomSpace,
-  randomValidRow,
-} from '../oracle/spaces';
+  randomValidRow, planIsSound } from '../oracle/spaces';
 import { cpuMs, deepEqual, must, type Rng, show, stableStringify } from '../util';
 
 const BOUND = 1.25;
@@ -231,7 +229,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     );
     must(stableStringify(plain) === stableStringify(other), 'an empty or absent seed list changed the plan');
     const facts = checkPlan(space, new SpaceOracle(space), plain);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
   },
 
   'seeds.credit-at-every-strength': (variant, ctx) => {
@@ -353,7 +351,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const given = seeds.map((s) => ({ ...s }));
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed, seeds });
     const facts = checkPlan(space, oracle, plan, { seeds, noCoverage: true });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     seeds.forEach((s, i) => {
       must(
         plan.rows[i]?.values !== s,

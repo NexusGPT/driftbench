@@ -12,7 +12,7 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import { checkPlan, planAndCheck, randomSeeds, randomSpace, randomValidRow } from '../oracle/spaces';
+import {checkPlan, planAndCheck, randomSeeds, randomSpace, randomValidRow, planIsSound } from '../oracle/spaces';
 import { must, type Rng, show, stableStringify } from '../util';
 import { type Base, baseStore } from './sources';
 
@@ -137,7 +137,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planA = planStore(ctx, a, ctx.seed);
     const planB = planStore(ctx, b, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planA);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     must(
       stableStringify(planA) === stableStringify(planB),
       'declaring the pairs the other way round changed the plan: an impossible pair is unordered',
@@ -156,7 +156,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planOnce = planStore(ctx, once, ctx.seed);
     const planMany = planStore(ctx, many, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planOnce);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     must(
       stableStringify(planOnce) === stableStringify(planMany),
       'declaring a pair more than once changed the plan: repeated pairs count once',
@@ -184,7 +184,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planA = planStore(ctx, withPair, ctx.seed);
     const planB = planStore(ctx, without, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planA);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     must(
       stableStringify(planA) === stableStringify(planB),
       'a pair of two values of one variable changed the plan',
