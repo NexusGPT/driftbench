@@ -69,8 +69,8 @@ Proof: [bank.test.ts](../packages/validators/test/bank.test.ts), [hardness.test.
 **A code agent is tested as an estate.** Its instructions, skills, subagents, guards, tools and settings are read into atoms, approved by a person and turned into tests; recorded sessions replay offline; a mutant deletes one rule so the tests must notice ([testing an estate](estate.md)). Of the six code-agent benchmarks below, none grades office files in the pages read.
 
 ```text
-$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to <dir>
-Mutant: delete gate.standing.read-a-file-before-editing-it in CLAUDE.md.
+$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to <dir>
+Mutant: delete instruction.standing.r3-read-a-file-before-you in CLAUDE.md.
   before: - **R3.** Read a file before you edit it.
   after:  (the line is gone)
   map be2e7a0919cb -> 046d83f242ed

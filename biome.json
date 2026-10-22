@@ -19,6 +19,7 @@
       "!.lane-inputs",
       "!docs/lanes",
       "!docs/lane-dag.json",
+      "!examples/estates/*/ledger.json",
       "!.github/readme",
       "!comparisons/deepeval/judge/ours-prompts.json",
       "!comparisons/hard-peers/**/*.json",

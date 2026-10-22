@@ -1,5 +1,5 @@
 import { helperFile, STANDING, skillFile } from '../../layout';
-import { BASE, type Check, type FileWriter, type PlantedEstate } from '../planted';
+import { BASE, type Check, type FileWriter, type Hint, type PlantedEstate, planting } from '../planted';
 
 /**
  * Pieces shared by the blind families. A blind item plants its files under the base owner, so the judge
@@ -14,14 +14,26 @@ export const LINT = 'packages/estate/src/lint/lint.ts';
 
 export type Kind = string;
 
-/** An atom of the kind sits on the line of the file. */
-export function atomAt(kind: Kind, file: string, line: number): Check {
-  return (scan) => {
+/**
+ * An atom of the kind sits on the line of the file. A gate, reference or hazard is read through the pointer
+ * reader, so the check also plants the atom for the planted-truth labeller: a hazard names its id (`key`), a gate
+ * waits for an Edit unless the item says another tool.
+ */
+export function atomAt(kind: Kind, file: string, line: number, key?: string, tool?: string): Check {
+  const check: Check = (scan) => {
     const found = scan.map.atoms.filter(
       (atom) => atom.kind === kind && atom.provenance.file === file && atom.provenance.startLine === line,
     );
     return found.length === 0 ? `no ${kind} atom at ${file}:${line}` : undefined;
   };
+  if (kind !== 'gate' && kind !== 'reference' && kind !== 'hazard') return check;
+  return planting(check, {
+    kind,
+    file,
+    line,
+    ...(key !== undefined ? { key } : {}),
+    ...(kind === 'gate' ? { tool: tool ?? 'Edit' } : {}),
+  });
 }
 
 /** No atom of the kind sits on any of the lines of the file. */
@@ -95,7 +107,7 @@ export function edgeBetween(
   from: { kind: Kind; file: string; line?: number },
   to: { kind: Kind; file?: string; line?: number; name?: string } | { event: string },
 ): Check {
-  return (scan) => {
+  const check: Check = (scan) => {
     const atoms = scan.map.atoms;
     const starts = atoms.filter(
       (atom) =>
@@ -117,6 +129,15 @@ export function edgeBetween(
       ? undefined
       : `no ${kind} edge from ${from.kind} at ${from.file}${from.line ? `:${from.line}` : ''}`;
   };
+  // A route to a skill from a row is read through the pointer reader: plant the row for the labeller.
+  const row = kind === 'route' && from.kind === 'route' && from.line !== undefined;
+  if (row && 'name' in to && (to.kind === 'skill' || to.kind === 'subagent')) {
+    const route = { kind: 'route' as const, file: from.file, line: from.line as number, key: to.name };
+    // A route to a helper also tells the labeller that the name is a helper, not a skill.
+    const helper = { kind: 'subagent' as const, file: from.file, line: from.line as number, key: to.name };
+    return planting(check, to.kind === 'skill' ? route : [route, helper]);
+  }
+  return check;
 }
 
 /** No edge of the kind leaves an atom of the file. */
@@ -129,6 +150,44 @@ export function noEdgeFrom(kind: string, file: string): Check {
       ? `a ${kind} edge leaves ${file}`
       : undefined;
   };
+}
+
+/** A body line, or a line with the atom the planted-truth labeller must find on it. */
+export type Body = string | { text: string; hint: Omit<Hint, 'file' | 'line'> };
+
+/** A body line that names a reference file. */
+export function naming(text: string): Body {
+  return { text, hint: { kind: 'reference' } };
+}
+
+/** A body line that hands work to a helper. */
+export function handing(helper: string | readonly string[], text: string): Body {
+  const helpers = typeof helper === 'string' ? [helper] : helper;
+  return {
+    text,
+    hint: {
+      kind: 'instruction',
+      prose: {
+        kind: 'instruction',
+        title: `Dispatch ${helpers.join(' and ')}`,
+        quote: text,
+        evidence: helpers.map((name) => ({
+          type: 'tool_called' as const,
+          label: 'Agent',
+          input: { subagent_type: name },
+        })),
+      },
+    },
+  };
+}
+
+/** Writes the body lines of a file; returns the line of each. */
+function writeBody(estate: PlantedEstate, writer: FileWriter, body: readonly Body[]): number[] {
+  return body.map((entry) => {
+    const line = writer.line(typeof entry === 'string' ? entry : entry.text);
+    if (typeof entry !== 'string') estate.hint({ ...entry.hint, file: writer.path, line });
+    return line;
+  });
 }
 
 /** The standing file as a free writer: a title first. */
@@ -146,7 +205,7 @@ export function freeSkill(
   estate: PlantedEstate,
   name: string,
   description: string,
-  body: readonly string[],
+  body: readonly Body[],
   options: { folder?: string; extraFront?: readonly string[] } = {},
 ): { path: string; lines: number[]; nameLine: number; descriptionLine: number } {
   const path = skillFile(options.folder ?? name, 'SKILL.md');
@@ -160,7 +219,7 @@ export function freeSkill(
   writer.line('');
   writer.line(`# ${name}`);
   writer.line('');
-  const lines = body.map((text) => writer.line(text));
+  const lines = writeBody(estate, writer, body);
   return { path, lines, nameLine, descriptionLine };
 }
 
@@ -168,12 +227,12 @@ export function freeSkill(
 export function freeHelper(
   estate: PlantedEstate,
   name: string,
-  body: readonly string[],
+  body: readonly Body[],
 ): { path: string; lines: number[] } {
   const path = helperFile(name);
   const writer = estate.file(path, BASE);
   writer.lines_(['---', `name: ${name}`, 'description: Checks harbour records.', 'tools: Read', '---', '']);
-  const lines = body.map((text) => writer.line(text));
+  const lines = writeBody(estate, writer, body);
   return { path, lines };
 }
 

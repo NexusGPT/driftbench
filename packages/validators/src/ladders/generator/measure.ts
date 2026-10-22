@@ -120,6 +120,23 @@ export type BlockRun = {
   answers: string;
   /** The stage the block starts from: the previous block's stage, or the first stage of the spec. */
   from: string;
+  /** The path the spec walks (its generated metadata), '' for a spec that records none. */
+  path: string;
+  /** What the whole walk of the spec says, apart from who it is written for: twins share it. */
+  walk: string;
+  /** The channel and the persona the spec is written for. */
+  channel: string;
+  persona: string;
+  /** The classes of the perturbations declared on this block or after it: a perturbed run reaches the block. */
+  perturbed: string;
+  /** The metamorphic family the spec belongs to, '' for a spec that is none. */
+  family: string;
+  /** The number of the variant inside its metamorphic family, 0 for a spec that is none. */
+  variant: number;
+  /** The size the spec declares for its metamorphic family, 0 for a spec that is none. */
+  of: number;
+  /** What the spec says apart from its labels: the user turns and the givens of every block. */
+  words: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -654,6 +671,29 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
         from: startStageOf(spec, index),
+        path: (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '',
+        walk: contentHash(
+          spec.blocks.map((_, at) => [
+            answersOf(spec, at),
+            startStageOf(spec, at),
+            machineSignature(spec, at),
+          ]),
+        ),
+        channel: spec.channel ?? '',
+        persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
+        of: (spec.metadata?.generated as { metamorphic?: { of?: number } } | undefined)?.metamorphic?.of ?? 0,
+        words: wordsOf(spec),
+        variant:
+          (spec.metadata?.generated as { metamorphic?: { variant?: number } } | undefined)?.metamorphic
+            ?.variant ?? 0,
+        family:
+          (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic
+            ?.family ?? '',
+        perturbed: (spec.perturbations ?? [])
+          .filter((entry) => entry.inject_at >= index)
+          .map((entry) => entry.class)
+          .sort()
+          .join(','),
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
@@ -671,6 +711,38 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     });
   }
   return { blocks, faults: [...records.values()], errors };
+}
+
+/** A user turn as the oracle reads it: trimmed and with runs of whitespace squeezed. */
+function squeeze(text: string): string {
+  return text.trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * What a spec says apart from its labels, in the forms the rest of the oracle compares: the normalised turns and the
+ * canonical Given of every block. An empty Given, another key order or padding whitespace does not make it other words.
+ */
+export function wordsOf(spec: Spec): string {
+  return contentHash(
+    spec.blocks.map((block, index) => {
+      const when = block.when;
+      const turn =
+        when === undefined
+          ? null
+          : 'user' in when
+            ? { user: squeeze(when.user) }
+            : 'burst' in when
+              ? { burst: when.burst.map(squeeze) }
+              : { injection: { class: when.injection.class, user: squeeze(when.injection.user ?? '') } };
+      // Only the canonical Given: what the block starts from, never how the spec wrote it down.
+      const given = canonicalGiven(spec, index);
+      return [
+        turn,
+        given.state,
+        given.prefix.map((message) => ({ ...message, content: squeeze(message.content) })),
+      ];
+    }),
+  );
 }
 
 /** The tool answers a block runs against: part of its Given, so two blocks with other answers are other tests. */

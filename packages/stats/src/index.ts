@@ -51,6 +51,7 @@ export {
   type EffectiveWilsonOptions,
   wilsonEffective,
 } from './effective';
+export { eValueAverage } from './evalues';
 export { hypergeometricPmf, signTestExact } from './exact';
 export {
   type HierarchicalInterval,

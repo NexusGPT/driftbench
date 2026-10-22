@@ -660,6 +660,9 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+          fields:
+            order:
+              key: file_path
           line: 8
         - kind: instruction
           title: Report a number only when it was read during the task
@@ -772,6 +775,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/menu-format.md
           line: 10
         - kind: instruction
           title: Run the check-menu.py script and show its summary
@@ -823,6 +831,11 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: references/closing-rules.md
           line: 10
         - kind: instruction
           title: Run the list-parts.py script and show its summary

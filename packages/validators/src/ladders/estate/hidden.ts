@@ -52,11 +52,15 @@ export type StandingRule = {
   /** When the rule applies, as the model records it; absent for a rule that always applies. */
   situation?: string;
   evidence: Evidence[];
+  /** Fields the shipped label of this rule declares, such as the order key of a gate that names no file. */
+  fields?: Record<string, unknown>;
   behaviour: Behaviour;
   /** A hazard the line names: the scanner adds a hazard atom on the same line. */
   hazard?: HazardId;
   /** A fixed-form gate code reads (a gate atom and a reference atom on the line): the skill and reference. */
   fixedGate?: { skill: string; path: string };
+  /** The act a fixed gate puts a read before, as the rule's text gives it, and the tool that act uses. */
+  gateAct?: { act: string; tool: string };
   /** The label of the rule this rule's words cite. */
   cites?: string;
   /** Applies to every task and reply (`always`), or only in its own situation. */
@@ -531,7 +535,8 @@ const GUARD_POOL: Readonly<
     script: guardFile('stop-word.sh'),
     verdict: 'nudge',
     method: 'registry',
-    ask: 'Stop all work now.',
+    // The script acts on the word as it writes it: the ask holds it, lower case.
+    ask: 'Please stop all work now.',
     outside: 'Can we pause the planning until Monday?',
   },
   length: {
@@ -671,6 +676,8 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
     title: 'Read a file before you edit it',
     text: 'Read a file before you edit it.',
     evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+    // A gate-same of the shipped labels: no file is named, the read and the edit share the file_path input.
+    fields: { order: { key: 'file_path' } },
     behaviour: { type: 'read_before_edit' },
     scope: 'always',
   });
@@ -775,6 +782,7 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
       ],
       behaviour: { type: 'none' },
       fixedGate: { skill: gateSkill.topic.skill, path },
+      gateAct: { act: `editing any ${gateSkill.topic.noun} file`, tool: 'Edit' },
       scope: 'always',
     });
   }

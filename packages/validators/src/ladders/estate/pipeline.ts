@@ -15,7 +15,6 @@ import {
   type Atom,
   buildPlan,
   type EstateMap,
-  estateRecordingPort,
   type LintResult,
   lintEstate,
   type PlanResult,
@@ -36,6 +35,7 @@ import { drawEstate, type HiddenEstate, type Profile } from './hidden';
 import { RUNTIME } from './layout';
 import { type ExpectedAtom, type Rendered, renderEstate } from './render';
 import { type HiddenSituation, phraseBank, sessionIndex, situationsOf } from './situations';
+import { truthOf, truthPointer } from './truth-pointer';
 
 /**
  * The estate loop on a generated estate, by code: render the hidden estate into a temporary folder, scan it
@@ -81,6 +81,8 @@ export type EstateRun = {
   scanned: Scanned;
   lint: LintResult;
   plan: PlanResult;
+  /** A plan built over a declared relevance space, handed in by a test of plan.relevance; absent in a real run. */
+  relevancePlan?: PlanResult;
   situations: HiddenSituation[];
   bank: PhraseBank;
   sessions: SessionIndex;
@@ -165,7 +167,7 @@ export async function scanRendered(rendered: Rendered): Promise<Scanned> {
     const result = await scanEstate({
       root,
       reader,
-      port: estateRecordingPort(rendered.recording),
+      pointer: truthPointer(truthOf(rendered)),
       now: SCAN_CLOCK,
     });
     const map: EstateMap = {

@@ -1,6 +1,7 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
+import { plantedRoutes } from './pointer/support';
 import { answer, estate, NOW, scanFixture } from './support';
 
 const SETTINGS = (command: string) =>
@@ -60,6 +61,107 @@ describe('what a guard enforces', () => {
   it("by a message in the guard source that repeats the rule's words", async () => {
     const result = await oneRule('#!/bin/sh\necho "never touch the vault folder at all" >&2\nexit 2\n');
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
+  });
+
+  it('by a message that holds the part of the rule after its condition', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "stop all work and confirm in one line" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.stop', by: 'quote' }]);
+  });
+
+  it.each([
+    ['a piece of the action part', 'stop all work and confirm'],
+    ['the condition and the start of the action', 'the user asks to stop, stop all work'],
+  ])('by a message that holds %s', async (_name, message) => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': `#!/bin/sh\necho "${message}" >&2\nexit 2\n`,
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.stop', by: 'quote' }]);
+  });
+
+  it('not by a message that holds only the condition of the rule', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "the user asks to stop" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([]);
+  });
+
+  it('not by a message that quotes only a part of the rule', async () => {
+    const result = await oneRule('#!/bin/sh\necho "never touch the vault" >&2\nexit 2\n');
+    expect(result.enforces).toEqual([]);
+    expect(result.enforced).toEqual([]);
+  });
+
+  it("by a message that repeats the rule's words when the rule's quote opens with its label", async () => {
+    // A pointer atom quotes its whole unit, label included; the guard repeats the words after the label.
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** Never touch the vault folder at all.\n- **R2.** Always log the run.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "denied: Never touch the vault folder at all." >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'No vault',
+          quote: '**R1.** Never touch the vault folder at all.',
+          evidence: [{ type: 'custom', name: 'v' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
 
   it('by a rule id the guard source cites in the R#n form, against rules labelled R#n', async () => {
@@ -145,14 +247,14 @@ describe('the fixture graph', () => {
         ]),
       ),
     ).toEqual({
-      'block-force-push.sh': ['registry instruction.standing.never-force-push'],
+      'block-force-push.sh': ['registry instruction.standing.r6-never-run-git-push-force'],
       'read-before-edit.py': [
-        'registry gate.standing.read-a-file-before-editing-it',
+        'registry gate.standing.read-before-edit-it',
         'registry gate.standing.read-claude-skills-invoice-reconcile-references',
       ],
-      'ledger-guard.py': ['registry instruction.standing.never-delete-a-ledger-file-archive'],
-      'stop-word.sh': ['registry instruction.standing.on-stop-stop-all-work-and'],
-      'reply-length.py': ['quote register.standing.replies-under-1-200-characters'],
+      'ledger-guard.py': ['registry instruction.standing.r4-never-delete-a-file-under'],
+      'stop-word.sh': ['registry instruction.standing.r10-when-the-user-says-stop'],
+      'reply-length.py': ['quote register.standing.keep-every-reply-under-1-200'],
       'check-carrier.sh': ['registry instruction.shipment-tracker.always-pass-the-carrier-code-to'],
     });
   });
@@ -163,24 +265,16 @@ describe('the fixture graph', () => {
     for (const edge of map.edges) kinds[edge.kind] = (kinds[edge.kind] ?? 0) + 1;
     expect(kinds).toEqual({
       allows: 15,
-      cites: 1,
       dispatch: 1,
       enforces: 7,
       event: 6,
       next: 4,
-      reference: 5,
+      reference: 7,
       route: 13,
       script: 2,
     });
     const has = (from: string, kind: string, to: string) =>
       map.edges.some((edge) => edge.from === from && edge.kind === kind && edge.to === to);
-    expect(
-      has(
-        'instruction.standing.keep-an-unconfirmed-draft-unsent',
-        'cites',
-        'instruction.standing.never-send-a-supplier-email-without',
-      ),
-    ).toBe(true);
     expect(
       has(
         'skill.invoice-reconcile.skill-invoice-reconcile',
@@ -214,8 +308,8 @@ describe('the fixture graph', () => {
     ]);
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(61);
-    expect(analysis.unenforced).toHaveLength(54);
+    expect(rules).toHaveLength(51);
+    expect(analysis.unenforced).toHaveLength(44);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });
@@ -234,15 +328,50 @@ describe('reachability', () => {
       '.claude/skills/notes/SKILL.md': skill,
       '.claude/skills/notes/ref.md': 'x\n',
     });
+    const skillAtom = 'skill.notes.skill-notes';
     for (const [root, reachable] of [
       [lone, false],
       [routed, true],
     ] as const) {
-      const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map, raw } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: plantedRoutes({ 'take a note': ['route-skill', skillAtom] }),
+      });
       const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
       expect(analysis.reachableFiles.has('.claude/skills/notes/ref.md')).toBe(reachable);
       expect(analysis.unreachableFiles.includes('.claude/skills/notes/SKILL.md')).toBe(!reachable);
       expect(analysis.orphans).toEqual([]);
     }
+  });
+});
+
+describe('dispatch edges', () => {
+  const files = {
+    '.claude/skills/parcels/SKILL.md':
+      '---\nname: parcels\ndescription: Review parcels.\n---\n\nHand the batch to parcel-check.\n\nNever use parcel-check for weather.\n',
+    '.claude/agents/parcel-check.md': '---\nname: parcel-check\ndescription: Check parcels.\n---\n',
+  };
+  const helper = 'subagent.parcel-check.helper-parcel-check';
+  const dispatches = async (links: Record<string, [string, string]>) => {
+    const { map } = await scanEstate({
+      root: await estate(files),
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: plantedRoutes(links, '.claude/skills/parcels/SKILL.md'),
+    });
+    return map.edges.filter((edge) => edge.kind === 'dispatch');
+  };
+
+  it('has an edge from the unit that carries a dispatches link, and from nothing else', async () => {
+    expect(await dispatches({ 'Hand the batch': ['dispatch', helper] })).toEqual([
+      { from: 'skill.parcels.skill-parcels', to: helper, kind: 'dispatch' },
+    ]);
+    expect(await dispatches({})).toEqual([]);
+  });
+
+  it('drops a dispatches link to an atom the estate does not hold', async () => {
+    expect(await dispatches({ 'Hand the batch': ['dispatch', 'subagent.ghost.helper-ghost'] })).toEqual([]);
   });
 });
