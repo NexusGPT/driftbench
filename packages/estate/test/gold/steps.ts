@@ -1,7 +1,7 @@
 import { Cassette, cut, nextLedger, pointerScan, singleLabelling } from '../../src/pointer';
 import {
-  estateFiles,
   type EstateName,
+  estateFiles,
   flat,
   GOLD_ESTATE_KEY,
   GOLD_SET_NAME,

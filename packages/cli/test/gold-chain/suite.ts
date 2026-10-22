@@ -17,8 +17,8 @@ import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import {
-  estateFiles,
   type EstateName,
+  estateFiles,
   GOLD_ESTATE_KEY,
   GOLD_SET_YAML,
   type GoldUnit,
@@ -125,7 +125,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
   }
 
   const must = <T>(value: T | undefined, step: string): T => {
-    if (value === undefined) throw new Error(`step ${step} left nothing for this step to read: it did not finish`);
+    if (value === undefined)
+      throw new Error(`step ${step} left nothing for this step to read: it did not finish`);
     return value;
   };
 
@@ -173,7 +174,10 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         const byId = new Map(gold.map((unit) => [unit.id, unit]));
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
-        const scopes = truth.scopes.map((scope) => ({ unit: place(scope.unit), target: place(scope.target) }));
+        const scopes = truth.scopes.map((scope) => ({
+          unit: place(scope.unit),
+          target: place(scope.target),
+        }));
         const reader = readerFor('claude-code', { ignore: [] });
         if (reader === undefined) throw new Error('the claude-code reader is missing');
         const parsed = pointer.parseLabelSets(GOLD_SET_YAML);
@@ -220,11 +224,15 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         for (const unit of gold) {
           const wants = unit.agreed && INSTRUCTION.has(unit.label ?? '') && !asCondition.has(unit.id);
           const atom = atomOf.get(ledgerOf.get(unit.id) ?? '');
-          if (wants && !atom) problems.push(`${placeOf(unit)}: gold label ${unit.label} built no instruction atom`);
-          if (!wants && atom) problems.push(`${placeOf(unit)}: an instruction atom for gold label ${unit.label}`);
+          if (wants && !atom)
+            problems.push(`${placeOf(unit)}: gold label ${unit.label} built no instruction atom`);
+          if (!wants && atom)
+            problems.push(`${placeOf(unit)}: an instruction atom for gold label ${unit.label}`);
           const polarity = unit.label === 'prohibition' ? 'prohibition' : 'obligation';
           if (wants && atom && atom.fields?.polarity !== polarity) {
-            problems.push(`${placeOf(unit)}: polarity ${String(atom.fields?.polarity)}, gold label ${unit.label}`);
+            problems.push(
+              `${placeOf(unit)}: polarity ${String(atom.fields?.polarity)}, gold label ${unit.label}`,
+            );
           }
         }
         for (const scope of truth.scopes) {
@@ -256,7 +264,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const scan = must(chain.scan, '2');
         const ledgerOf = must(chain.ledgerOf, '2');
         const atomOf = must(chain.atomOf, '2');
-        const approving = await cli(['estate', 'approve', join(work, 'map.yaml'), '--all', '--to', join(work, 'approved.yaml')]);
+        const approving = await cli([
+          'estate',
+          'approve',
+          join(work, 'map.yaml'),
+          '--all',
+          '--to',
+          join(work, 'approved.yaml'),
+        ]);
         expect(approving.err).toBe('');
         expect(approving.code).toBe(0);
         const approved = await loadMap(join(work, 'approved.yaml'));
@@ -292,7 +307,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         // The limits of the truth file become the numeric conditions of the atoms they govern.
         const governed = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
-          if (governed.has(limit.governs)) problems.push(`limits: ${limit.governs} is governed by two limits`);
+          if (governed.has(limit.governs))
+            problems.push(`limits: ${limit.governs} is governed by two limits`);
           governed.set(limit.governs, limit);
         }
         const limited: EstateMap = {
@@ -306,20 +322,25 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }),
         };
         const withLimits = variables.estateToVariables(limited, resolver);
-        const conditions = withLimits.store.variables.filter((variable) => variable.id.startsWith('condition.'));
+        const conditions = withLimits.store.variables.filter((variable) =>
+          variable.id.startsWith('condition.'),
+        );
         if (conditions.length !== governed.size) {
           problems.push(`${conditions.length} condition variables for ${governed.size} governed atoms`);
         }
         const shape = (limit: number, comparison: string | undefined): string => `${limit} ${comparison}`;
         const wanted = [...governed.values()].map((entry) => shape(entry.limit, entry.comparison)).sort();
         const found = conditions
-          .map((variable) => shape(variable.boundaries?.[0]?.limit ?? Number.NaN, variable.boundaries?.[0]?.comparison))
+          .map((variable) =>
+            shape(variable.boundaries?.[0]?.limit ?? Number.NaN, variable.boundaries?.[0]?.comparison),
+          )
           .sort();
         if (wanted.join('|') !== found.join('|')) {
           problems.push(`condition boundaries ${found.join(', ')} vs the limits ${wanted.join(', ')}`);
         }
         const valid = validateVariableStore(withLimits.store);
-        if (!valid.ok) problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
+        if (!valid.ok)
+          problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         expect(problems, report('variables', problems)).toEqual([]);
         return `${values.size} instruction values, ${conditions.length} conditions`;
       });
@@ -370,12 +391,15 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         truth.plan.same_row.forEach((group, at) => {
           const atoms = group.map((id) => atomOf.get(id)?.id);
-          const together = plan.rows.some((row) => atoms.every((id) => id !== undefined && row.atomIds.includes(id)));
+          const together = plan.rows.some((row) =>
+            atoms.every((id) => id !== undefined && row.atomIds.includes(id)),
+          );
           if (!together) problems.push(`same_row ${at}: no plan row names ${atoms.join(', ')} together`);
         });
         for (const planted of truth.planted_rules) {
           const atom = atomOf.get(planted.unit);
-          if (atom && !named.has(atom.id)) problems.push(`planted ${planted.unit}: no plan row names ${atom.id}`);
+          if (atom && !named.has(atom.id))
+            problems.push(`planted ${planted.unit}: no plan row names ${atom.id}`);
         }
         expect(problems, report('plan', problems)).toEqual([]);
         return `plan ${plan.rows.length} rows over map ${approved.hash.slice(0, 12)}`;
@@ -391,7 +415,11 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const situations = truth.planted_rules.flatMap((planted, at) => {
           const atom = atomOf.get(planted.unit);
           if (!atom) return [];
-          const trigger = { id: `ask-${at + 1}`, title: `An ask that sets off rule ${at + 1}`, use: 'trigger' };
+          const trigger = {
+            id: `ask-${at + 1}`,
+            title: `An ask that sets off rule ${at + 1}`,
+            use: 'trigger',
+          };
           const outside = { id: `near-${at + 1}`, title: `An ask next to rule ${at + 1}`, use: 'near_miss' };
           const phrase = (text: string) => [{ text, lang: 'en', approved: true }];
           return [
@@ -444,10 +472,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           if (!atom) continue;
           const naming = specs.filter((entry) => entry.spec.metadata.estate.atoms.includes(atom.id));
           const complete = naming.filter((entry) => entry.folder.startsWith('specs/live'));
-          const asked = complete.filter((entry) => entry.spec.blocks.some((b) => b.when?.user === planted.ask));
+          const asked = complete.filter((entry) =>
+            entry.spec.blocks.some((b) => b.when?.user === planted.ask),
+          );
           if (asked.length === 0) {
             const where = naming.map((entry) => entry.folder).join(', ');
-            problems.push(`${planted.unit}: no complete live spec asks "${planted.ask}" (specs naming ${atom.id}: ${where})`);
+            problems.push(
+              `${planted.unit}: no complete live spec asks "${planted.ask}" (specs naming ${atom.id}: ${where})`,
+            );
             continue;
           }
           const linked = asked.some((entry) =>
@@ -458,7 +490,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
                 link.to.ledger === ledgerOf.get(planted.unit),
             ),
           );
-          if (!linked) problems.push(`${planted.unit}: no spec links its ask block to ${atom.id} with the ledger id`);
+          if (!linked)
+            problems.push(`${planted.unit}: no spec links its ask block to ${atom.id} with the ledger id`);
         }
         expect(problems, report('blocks', problems)).toEqual([]);
         return `${specs.length} specs, ${specs.filter((s) => s.folder.startsWith('specs/live')).length} live complete`;
@@ -481,7 +514,16 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             .filter((entry) => entry.spec.metadata.estate.atoms.includes(atom.id))
             .map((entry) => entry.path);
           const mutant = join(work, `mutant-${at + 1}`);
-          const made = await cli(['estate', 'mutate', join(work, 'approved.yaml'), '--atom', atom.id, '--delete', '--to', mutant]);
+          const made = await cli([
+            'estate',
+            'mutate',
+            join(work, 'approved.yaml'),
+            '--atom',
+            atom.id,
+            '--delete',
+            '--to',
+            mutant,
+          ]);
           if (made.code !== 0) {
             problems.push(`${planted.unit}: mutate exited ${made.code}: ${made.err.trim()}`);
             continue;
@@ -492,8 +534,26 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             `FAKE_GRAMMAR=${join(work, 'no-grammar.json')}`,
           ].flatMap((pair) => ['--set-env', pair]);
           const run = async (root: string, store: string, extra: string[]) =>
-            cli(['estate', 'run', ...paths, '--estate', root, '--runtime', 'claude-code', '--command', FAKE, ...env, '--store', store, ...JUDGE, ...extra]);
-          const before = await run(estateDir, join(work, `original-${at + 1}.db`), ['--map', join(work, 'approved.yaml')]);
+            cli([
+              'estate',
+              'run',
+              ...paths,
+              '--estate',
+              root,
+              '--runtime',
+              'claude-code',
+              '--command',
+              FAKE,
+              ...env,
+              '--store',
+              store,
+              ...JUDGE,
+              ...extra,
+            ]);
+          const before = await run(estateDir, join(work, `original-${at + 1}.db`), [
+            '--map',
+            join(work, 'approved.yaml'),
+          ]);
           const after = await run(mutant, join(work, `mutant-${at + 1}.db`), []);
           if (before.err !== '' || after.err !== '') {
             problems.push(`${planted.unit}: run said ${before.err.trim()} ${after.err.trim()}`);
@@ -517,9 +577,11 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }
           const proof = JSON.parse(proved.out) as Proof;
           const counts = proof.counts;
-          if (counts.verified < 1) problems.push(`${planted.unit}: no link verified (${JSON.stringify(counts)})`);
+          if (counts.verified < 1)
+            problems.push(`${planted.unit}: no link verified (${JSON.stringify(counts)})`);
           if (counts.refuted > 0) problems.push(`${planted.unit}: ${counts.refuted} links refuted`);
-          if (counts.unlinkedFlips > 0) problems.push(`${planted.unit}: ${counts.unlinkedFlips} blocks flip with no link`);
+          if (counts.unlinkedFlips > 0)
+            problems.push(`${planted.unit}: ${counts.unlinkedFlips} blocks flip with no link`);
           verified += counts.verified;
         }
         expect(problems, report('links', problems)).toEqual([]);
