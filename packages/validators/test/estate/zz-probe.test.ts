@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, it, vi } from 'vitest';
 import { FIXTURE, fixtureSuite, runOnFakeDetailed } from '../../src/ladders/estate/bank/fixture-suite';
+import { follow } from '../../src/ladders/estate/follower';
 import { agentMutants } from '../../src/ladders/estate/levels';
 import { estateRun } from '../../src/ladders/estate/pipeline';
 
@@ -38,4 +39,18 @@ it('mutant.agent.gate: which gate atom lives, and why', async () => {
     say(`seed ${seed} gate mutants: ${mutants.filter((x) => x.kind === 'gate').map((x) => `${x.atom}:${x.killed ? 'killed' : x.equivalent ? 'equiv' : x.untestable ? 'untest' : 'alive'}`).join(' ')}`);
   }
   expect(true).toBe(true);
+});
+
+it('mutant.agent.gate: the spec and the follower session with and without the gate', async () => {
+  const run = await estateRun(1);
+  const id = 'estate.ordered_pair.gate.menu-review.read-the-menu-format-before-you';
+  const spec = run.specs.find((s) => s.record.id === id);
+  say(`SPEC ${spec?.text.split('\n').filter((l) => /user:|before:|after:|key:|changed|others|tools|skills|called|- /.test(l)).join(' | ')}`);
+  const asks = (spec?.loaded?.spec.blocks ?? []).map((b) => String((b.when as { user?: string } | undefined)?.user ?? ''));
+  say(`asks ${JSON.stringify(asks)}`);
+  for (const mutant of [undefined, 'gate:menu-review']) {
+    const session = follow(run.estate, run.situations, asks, { ...(mutant ? { mutant } : {}), events: asks.map(() => undefined) });
+    const calls = session.transcript.split('\n').filter((l) => l.includes('tool_use')).map((l) => { const j = JSON.parse(l); return JSON.stringify((j.message?.content ?? []).filter((c: { type: string }) => c.type === 'tool_use').map((c: { name: string; input: unknown }) => [c.name, c.input])); });
+    say(`mutant=${mutant} calls=${calls.join(' ; ')}`);
+  }
 });
