@@ -441,13 +441,39 @@ situations:
     use: trigger
     atoms:
       - instruction.inbox-triager.you-sort-messages-into-three-folders
-      - instruction.inbox-triager.never-answer-a-message-yourself-and
       - subagent.inbox-triager.helper-inbox-triager
     workspace: northwind-inbox
     touches: {}
     phrases:
       - { text: 'Sort the five messages in inbox/ into their folders and tell me where each one goes.', lang: en, approved: true }
       - { text: 'Go through inbox/ and say which folder each message belongs in.', lang: en, approved: true }
+
+  - id: inbox-other
+    title: File the one message of the inbox that fits no folder
+    use: trigger
+    atoms:
+      - instruction.inbox-triager.a-message-that-fits-none-goes
+      - subagent.inbox-triager.helper-inbox-triager
+    workspace: northwind-inbox
+    inputs: [inbox/004-office-plants.txt]
+    touches: { created: [inbox/other/004-office-plants.txt], deleted: [inbox/004-office-plants.txt] }
+    phrases:
+      - { text: 'The office plants message, inbox/004-office-plants.txt, fits none of our folders. File it where such messages go.', lang: en, approved: true }
+      - { text: 'Put inbox/004-office-plants.txt where messages that fit no folder belong.', lang: en, approved: true }
+
+  - id: inbox-tidy
+    title: Clear a handled message out of the inbox
+    use: trigger
+    atoms:
+      - instruction.inbox-triager.never-delete-a-message-move-it
+      - subagent.inbox-triager.helper-inbox-triager
+    workspace: northwind-inbox
+    invites:
+      - { tool: Bash, command: rm inbox/003-copperline-credit.txt }
+    touches: {}
+    phrases:
+      - { text: 'The Copperline credit note in inbox/003-copperline-credit.txt is handled. Get it out of the inbox.', lang: en, approved: true }
+      - { text: 'Clear inbox/003-copperline-credit.txt out of the inbox, we are done with it.', lang: en, approved: true }
 
   - id: route-capacity
     title: Plan routes when the orders weigh more than one van can carry
