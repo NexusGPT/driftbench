@@ -583,7 +583,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           '--phrases',
           chain.phrases,
         ]);
-        expect(generated.err).toBe('');
+        // The generator names the rows that wait for session states the library lacks; that note is the only line
+        // allowed. What the step proves is that every planted rule still has a complete spec (below).
+        expect(generated.err.split('\n').filter((line) => line !== '' && !/^\d+ rows need states not in the library:/.test(line))).toEqual([]);
         expect(generated.code).toBeLessThanOrEqual(1);
         const specs: Generated[] = [];
         for (const path of (await filesUnder(out)).filter((file) => file.endsWith('.yaml'))) {
