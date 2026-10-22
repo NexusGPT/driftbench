@@ -907,8 +907,10 @@ function buildGridKeyProbe(seed: number, salt: number): Probe {
     return sentence(words);
   };
   // Unrelated sentences that copy feature words: first, fifth, last word, token and digit word.
-  const filler = GRID_WORDS.filter((word) => !original.flat().includes(word));
-  const copyOf = (n: number, salt2: number): string => {
+  const used = new Set(original.flat());
+  const filler = GRID_WORDS.filter((word) => !used.has(word));
+  // A copy is kept as the words the item chose: its sentence is only their rendering.
+  const copyOf = (n: number, salt2: number): string[] => {
     const own = original[n] as string[];
     const words = Array.from({ length: GRID_SLOTS + 2 }, () => pick(filler));
     words[0] = own[0] as string;
@@ -917,24 +919,26 @@ function buildGridKeyProbe(seed: number, salt: number): Probe {
     words[DIGIT_SLOT + 2] = own[DIGIT_SLOT] as string;
     words[words.length - 1] = own[GRID_SLOTS - 1] as string;
     void salt2;
-    return sentence(words);
+    return words;
   };
-  const all = Array.from({ length: GRID_UNITS }, (_, n) => sentence(original[n] as string[]));
-  // Cheap screen first (shared words), the edit-distance similarity only for the survivors of the screen.
-  const wordsOf = (text: string) => new Set(text.replace('.', '').split(' '));
-  const unrelated = (candidate: string): boolean => {
-    const w = wordsOf(candidate);
-    return all.every((u) => {
-      const shared = [...wordsOf(u)].filter((x) => w.has(x)).length;
-      return shared / w.size <= 0.45 && textSimilarity(u, candidate) < 0.5;
+  // Cheap screen first (shared words, from the word arrays the item chose, never from the rendered sentences),
+  // the edit-distance similarity only for the survivors of the screen.
+  const unrelated = (candidate: string[]): boolean => {
+    const w = new Set(candidate);
+    const text = sentence(candidate);
+    return original.every((unit) => {
+      const shared = [...new Set(unit)].filter((x) => w.has(x)).length;
+      return shared / w.size <= 0.45 && textSimilarity(sentence(unit), text) < 0.5;
     });
   };
-  let replacement = copyOf(7, 0);
-  let distractor = copyOf(2, 1);
-  for (let tries = 0; tries < 200 && !(unrelated(replacement) && unrelated(distractor)); tries++) {
-    replacement = copyOf(7, tries);
-    distractor = copyOf(2, tries + 1);
+  let replacementWords = copyOf(7, 0);
+  let distractorWords = copyOf(2, 1);
+  for (let tries = 0; tries < 200 && !(unrelated(replacementWords) && unrelated(distractorWords)); tries++) {
+    replacementWords = copyOf(7, tries);
+    distractorWords = copyOf(2, tries + 1);
   }
+  const replacement = sentence(replacementWords);
+  const distractor = sentence(distractorWords);
 
   type Placement = { path: string; texts: { id: number; text: string }[] };
   type Phase = { placements: Placement[]; gone: number[] };

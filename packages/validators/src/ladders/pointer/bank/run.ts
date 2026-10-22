@@ -6,7 +6,7 @@ import { rngFor } from '@agent-nexus/driftbench-generate';
 import { sutModule } from '../sut/adapter';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
 import type { Control } from './controls';
-import { fail, type Outcome, type PointerItem, Problem } from './types';
+import { type FailureKind, fail, type Outcome, type PointerItem, Problem } from './types';
 
 /** The longest an item may take before it fails, in milliseconds. */
 export const ITEM_TIMEOUT_MS = 180_000;
@@ -29,22 +29,14 @@ export function limitOf(item: PointerItem): number {
   return Number.isFinite(override) && override > 0 ? Math.min(own, override) : own;
 }
 
-/** A failure that says the reader does not give the observation the item reads, not that it gave a wrong one. */
-const MISSING_OBSERVATION = /does not expose|offers no |exports no |records no /;
-
 /**
  * A failure for a missing observation names the behaviour under test: the exact oracle of the item. Without it the
  * message is the same for every item that reads the observation (an event, a link state), and says nothing of what
  * the reader must do with it.
  */
 function named(item: PointerItem, outcome: Outcome): Outcome {
-  if (
-    outcome.pass ||
-    !MISSING_OBSERVATION.test(outcome.detail) ||
-    outcome.detail.includes('Behaviour under test')
-  )
-    return outcome;
-  return { ...outcome, detail: `${outcome.detail}. Behaviour under test: ${item.oracle}` };
+  if (outcome.pass || outcome.kind !== 'missing-observation' || outcome.annotated) return outcome;
+  return { ...outcome, detail: `${outcome.detail}. Behaviour under test: ${item.oracle}`, annotated: true };
 }
 
 /**
@@ -77,7 +69,7 @@ export async function executeHere(
     return named(item, await Promise.race([work, timeout]));
   } catch (cause) {
     if (cause instanceof ReaderNotReachable) return fail(cause.message);
-    if (cause instanceof Problem) return named(item, fail(cause.message));
+    if (cause instanceof Problem) return named(item, fail(cause.message, cause.kind));
     return fail(`the item threw: ${cause instanceof Error ? cause.message : String(cause)}`);
   } finally {
     if (timer) clearTimeout(timer);
@@ -186,7 +178,7 @@ export async function isolated<T>(
     | { blind: { id: string; seed: number } }
     | { control: Control },
   limit: number,
-  stopped: (why: string) => T,
+  stopped: (why: string, kind?: FailureKind) => T,
   pool: Pool = shared,
 ): Promise<T | undefined> {
   pool.worker ??= spawnWorker(pool);
@@ -223,7 +215,7 @@ export async function isolated<T>(
     };
     const onExit = (code: number | null) => {
       pool.worker = undefined;
-      end(stopped(`the item stopped the reader's process (exit code ${code})`));
+      end(stopped(`the item stopped the reader's process (exit code ${code})`, 'reader-process-ended'));
     };
     live.child.on('message', onMessage);
     live.child.on('exit', onExit);
@@ -257,7 +249,9 @@ process.on('exit', () => {
 async function execute(item: PointerItem, seed: number, sut: PointerSut): Promise<Outcome> {
   if (sut.isolate === true && !IN_ITEM_CHILD) {
     const limit = limitOf(item);
-    const outcome = await isolated<Outcome>({ run: { id: item.id, seed } }, limit, (why) => fail(why));
+    const outcome = await isolated<Outcome>({ run: { id: item.id, seed } }, limit, (why, kind) =>
+      fail(why, kind),
+    );
     if (outcome) return outcome;
   }
   return executeHere(item, seed, sut);

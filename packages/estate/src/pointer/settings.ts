@@ -40,6 +40,14 @@ export type PointerSettings = {
 
 export type SettingsResult = { ok: true; settings: PointerSettings } | { ok: false; errors: string[] };
 
+/** One refused key of the file, beside its text in `errors`: a stable `code`, the `key` as written, the `reason`. */
+export type SettingsIssue = { code: string; key: string; reason: string };
+
+/** The same as `SettingsResult`, and a refusal that also lists one structured issue for each text of `errors`. */
+export type SettingsOutcome =
+  | { ok: true; settings: PointerSettings }
+  | { ok: false; errors: string[]; issues: SettingsIssue[] };
+
 const THRESHOLDS = {
   labeler: 'labeler',
   pass_at: 'passAt',
@@ -47,33 +55,70 @@ const THRESHOLDS = {
   margin_cut: 'marginCut',
 } as const;
 
+/** Why a threshold value is refused: not a number, not finite (NaN or infinite), or outside 0 to 1. */
+function thresholdReason(value: unknown): string {
+  if (typeof value !== 'number') return 'not-a-number';
+  return Number.isFinite(value) ? 'out-of-range' : 'not-finite';
+}
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /** Reads the pointer keys of a parsed configuration file; other keys belong to the scan and the unit runner. */
 export function parsePointerSettings(value: unknown): SettingsResult {
+  const read = parsePointerSettingsDetailed(value);
+  return read.ok ? read : { ok: false, errors: read.errors };
+}
+
+/**
+ * The same read as `parsePointerSettings`. Each refusal also has an issue with a `code`, the `key` of the file it
+ * is about (for a threshold, the name written under `threshold`) and a short `reason`.
+ */
+export function parsePointerSettingsDetailed(value: unknown): SettingsOutcome {
   const settings: PointerSettings = { keys: [] };
   if (value === undefined || value === null) return { ok: true, settings };
-  if (!isRecord(value)) return { ok: false, errors: [`${SETTINGS_FILE} is not a mapping`] };
+  if (!isRecord(value)) {
+    return {
+      ok: false,
+      errors: [`${SETTINGS_FILE} is not a mapping`],
+      issues: [{ code: 'settings-not-a-mapping', key: SETTINGS_FILE, reason: 'not-a-mapping' }],
+    };
+  }
   const errors: string[] = [];
+  const issues: SettingsIssue[] = [];
+  const refuse = (text: string, code: string, key: string, reason: string) => {
+    errors.push(text);
+    issues.push({ code, key, reason });
+  };
   const { labels, labeler, threshold, ledger } = value;
   if (labels !== undefined) {
     if (typeof labels === 'string' && labels.trim() !== '') settings.labels = { path: labels.trim() };
     else if (Array.isArray(labels) && labels.length > 0) settings.labels = { text: stringify({ labels }) };
-    else errors.push('labels: a file of label sets, or a list of sets');
+    else {
+      refuse('labels: a file of label sets, or a list of sets', 'settings-labels-invalid', 'labels', 'shape');
+    }
   }
   if (labeler !== undefined) {
     const list = typeof labeler === 'string' ? [labeler] : labeler;
     if (!Array.isArray(list) || list.length === 0 || !list.every((item) => typeof item === 'string')) {
-      errors.push('labeler: a labeler, or a list of one per class, such as system2:anthropic');
+      refuse(
+        'labeler: a labeler, or a list of one per class, such as system2:anthropic',
+        'settings-labeler-invalid',
+        'labeler',
+        'shape',
+      );
     } else {
       for (const text of list as string[]) {
         const parsed = parseLabelerSpec(text);
-        if (!parsed.ok) errors.push(`labeler: ${parsed.message}`);
-        else if (parsed.spec.model !== undefined) {
+        if (!parsed.ok) {
+          refuse(`labeler: ${parsed.message}`, 'settings-labeler-spec-invalid', 'labeler', 'spec');
+        } else if (parsed.spec.model !== undefined) {
           const variable = MODEL_VARIABLES[parsed.spec.client];
-          errors.push(
+          refuse(
             `labeler: "${text}" names a model; a model is set by environment variable${variable ? `, ${variable} for ${parsed.spec.client}` : ''}`,
+            'settings-labeler-names-model',
+            'labeler',
+            'model-in-file',
           );
         }
       }
@@ -81,27 +126,39 @@ export function parsePointerSettings(value: unknown): SettingsResult {
     }
   }
   if (threshold !== undefined) {
-    if (!isRecord(threshold)) errors.push(`threshold: a mapping of ${Object.keys(THRESHOLDS).join(', ')}`);
-    else {
+    if (!isRecord(threshold)) {
+      refuse(
+        `threshold: a mapping of ${Object.keys(THRESHOLDS).join(', ')}`,
+        'settings-threshold-not-a-mapping',
+        'threshold',
+        'not-a-mapping',
+      );
+    } else {
       settings.threshold = {};
       for (const [key, number] of Object.entries(threshold)) {
         // Own keys only: constructor, toString and the other names every object inherits are not thresholds.
         const name = Object.hasOwn(THRESHOLDS, key) ? THRESHOLDS[key as keyof typeof THRESHOLDS] : undefined;
         if (name === undefined) {
-          errors.push(
+          refuse(
             `threshold: ${key} is not a threshold; the thresholds are ${Object.keys(THRESHOLDS).join(', ')}`,
+            'threshold-unknown-key',
+            key,
+            'not-a-threshold',
           );
         } else if (typeof number !== 'number' || !Number.isFinite(number) || number < 0 || number > 1) {
-          errors.push(`threshold: ${key} is a number from 0 to 1`);
+          const reason = thresholdReason(number);
+          refuse(`threshold: ${key} is a number from 0 to 1`, `threshold-${reason}`, key, reason);
         } else settings.threshold[name] = number;
       }
     }
   }
   if (ledger !== undefined) {
     if (typeof ledger === 'string' && ledger.trim() !== '') settings.ledger = ledger.trim();
-    else errors.push('ledger: the path of the ledger file');
+    else {
+      refuse('ledger: the path of the ledger file', 'settings-ledger-invalid', 'ledger', 'shape');
+    }
   }
-  if (errors.length > 0) return { ok: false, errors };
+  if (errors.length > 0) return { ok: false, errors, issues };
   settings.keys = ['labels', 'labeler', 'threshold', 'ledger'].filter((key) => value[key] !== undefined);
   return { ok: true, settings };
 }

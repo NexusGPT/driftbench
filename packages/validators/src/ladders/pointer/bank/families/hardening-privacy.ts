@@ -2,7 +2,7 @@ import { leaksPrivateFragment, privateMarker } from '../../blind/bank/privacy';
 import { liveByText } from '../../kit/estate';
 import { PROBE_YAML } from '../../kit/sets';
 import { fakeTransport } from '../../kit/transport';
-import { headingText, Prose } from '../../kit/words';
+import { headingText, Prose, writtenOf } from '../../kit/words';
 import type { SourceFile } from '../../sut/port';
 import { fail, type ItemContext, pass, type Run } from '../types';
 
@@ -15,11 +15,17 @@ import { fail, type ItemContext, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 
-/** A sentence cut at a seeded word boundary, away from both ends: the text before and after a comment. */
+/**
+ * A sentence cut at a seeded word boundary, away from both ends: the text before and after a comment. The words
+ * and their offsets are the ones the generator wrote (`writtenOf`); no word is found by splitting the text.
+ */
 function halves(ctx: ItemContext, sentence: string): { head: string; tail: string } {
-  const words = sentence.split(' ');
+  const { text, words } = writtenOf(sentence);
   const at = 2 + Math.floor(ctx.rng() * Math.max(1, words.length - 4));
-  return { head: words.slice(0, at).join(' '), tail: words.slice(at).join(' ') };
+  const before = words[at - 1];
+  const after = words[at];
+  if (!before || !after) throw new Error('the generator wrote too few words to cut the sentence');
+  return { head: text.slice(0, before.start + before.text.length), tail: text.slice(after.start) };
 }
 
 type Placed = {

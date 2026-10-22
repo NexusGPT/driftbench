@@ -317,7 +317,7 @@ export async function runTwin(
     });
   } catch (cause) {
     if (cause instanceof Problem)
-      throw new Problem(`the twin edit (the same files, a second script): ${cause.message}`);
+      throw new Problem(`the twin edit (the same files, a second script): ${cause.message}`, cause.kind);
     throw cause;
   }
   return `twin edit: ${gone.length} removed, ${probe.fates.length} scripted fates`;

@@ -6,7 +6,7 @@ import { perfect, truthLabel } from './labellers';
 import { norm } from './norm';
 import { RULES_YAML } from './sets';
 import { fakeTransport } from './transport';
-import { type Rng, rewordWords, sentence } from './words';
+import { beforeStop, type Rng, rewordWords, sentence } from './words';
 import { tag } from './world';
 
 /**
@@ -73,7 +73,7 @@ export function makeEstate(spec: ScaleSpec): Estate {
       const dup = spec.dupShare !== undefined && rng() < spec.dupShare;
       const raw = dup
         ? (BOILER[Math.floor(rng() * BOILER.length)] as string)
-        : sentence(rng).replace(/\.$/, ` ${tag(n)}.`);
+        : beforeStop(sentence(rng), ` ${tag(n)}.`);
       ts.push(dup ? raw : raw);
       n += 1;
     }

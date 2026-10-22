@@ -16,7 +16,7 @@ import type {
   ScanResult,
   SourceFile,
 } from '../../sut/port';
-import { fail, type ItemContext, Problem, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, Problem, pass, type Run } from '../types';
 
 /**
  * The runners of `specs/hardening-bugs-b.ts`: items for the planted bugs of the round 3 audit (seat 4) in the
@@ -57,6 +57,7 @@ function rerunApi(ctx: ItemContext): RerunApi {
   if (!api)
     throw new Problem(
       'the reader exports no rerun rule: it must say, for each unit between two ledgers, whether it is unchanged, context, moved, changed, deleted or new, and which old units rerun',
+      'missing-observation',
     );
   return api;
 }
@@ -66,6 +67,7 @@ function manifestApi(ctx: ItemContext): NonNullable<RerunApi['manifest']> {
   if (!api.manifest)
     throw new Problem(
       'the reader exports no change manifest: it must turn the rerun set of an edit into prompt changes of the atoms on the units and unit changes',
+      'missing-observation',
     );
   return api.manifest.bind(api);
 }
@@ -319,7 +321,9 @@ function titleFor(text: string): string {
 }
 
 const atomOn = (result: ScanResult, id: string) => result.atoms.filter((atom) => atom.fields.unit === id);
-const naming = (result: ScanResult, id: string) => result.diagnostics.filter((d) => d.detail.includes(id));
+/** The diagnostics about a unit, by the fields that hold a unit id: the unit, the target it points at, the unit it repeats. */
+const naming = (result: ScanResult, id: string) =>
+  result.diagnostics.filter((d) => d.unit === id || d.target === id || d.repeats === id);
 
 const CONDITION_YAML = `labels:
   - set: agent-rules
@@ -389,7 +393,7 @@ const grouping: Record<string, Run> = {
       const [atom] = atomOn(result, idOf(result.ledger, text));
       if (!atom) return fail(`positive witness: the unit ${JSON.stringify(text.slice(0, 30))} built no atom`);
       if (atom.title === undefined)
-        return fail(
+        return missing(
           'the reader does not expose the title of an atom: the title is part of the atom it builds',
         );
       const want = titleFor(text);
@@ -435,11 +439,17 @@ const grouping: Record<string, Run> = {
         `${instructions.length} instruction atoms for a rule written twice on one line, expected one`,
       );
     const second = twins.sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0))[1] as LedgerEntry;
-    if (!result.diagnostics.some((d) => d.code === 'duplicate' && d.detail.includes(second.id)))
+    if (
+      !result.diagnostics.some(
+        (d) => d.code === 'duplicate' && d.reason === 'atom-duplicate' && d.unit === second.id,
+      )
+    )
       return fail('positive witness: the repeat of the rule is not reported as a duplicate');
     if (instructions[0]?.situation !== undefined)
       return fail('the atom of the first rule takes the situation of a condition that points at its repeat');
-    return naming(result, conditionId).some((d) => d.code !== 'duplicate')
+    return result.diagnostics.some(
+      (d) => d.reason === 'condition-unattached' && d.unit === conditionId && d.target === second.id,
+    )
       ? pass('a condition whose target built no atom is reported')
       : fail(
           `nothing reports the condition ${conditionId}: its target repeats an atom and holds none, so the condition sets no situation and must say so`,
@@ -495,7 +505,7 @@ const grouping: Record<string, Run> = {
       return fail(
         `a unit with no code span built an atom whose situation is ${JSON.stringify(built[0]?.situation)}: a placeholder the unit does not fill refuses the atom`,
       );
-    return naming(result, bare).length > 0
+    return naming(result, bare).some((d) => d.reason === 'template-unfilled' && d.unit === bare)
       ? pass('a template filled by the unit builds; one the unit cannot fill refuses the atom and says why')
       : fail('the unit whose template stays unfilled built nothing and nothing says why');
   },

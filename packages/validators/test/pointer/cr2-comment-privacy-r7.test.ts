@@ -96,6 +96,24 @@ it('a renderer that drops candidate context must fail even though render was han
         },
       };
     },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: (set: any, window: any, context: any) =>
+                  member.render(set, window, { ...context, candidates: {} }),
+              },
+            }),
+          ),
+        },
+      };
+    },
   };
   const sut = readerAdapter(product as unknown as ReaderExports);
   let observed: any;
@@ -153,6 +171,29 @@ it('candidate debug fields outside the transmitted body cannot satisfy the posit
     ...estate,
     buildLabelling: async (...args: Parameters<typeof estate.buildLabelling>) => {
       const built = await estate.buildLabelling(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: (set: any, window: any, context: any) => {
+                  const wire = member.render(set, window, { ...context, candidates: {} });
+                  const candidates = Object.values(context?.candidates ?? {}).flatMap((list: any) =>
+                    list.map((c: any) => ({ id: c.shown ?? c.id, title: c.label })),
+                  );
+                  return { ...wire, candidateDebug: JSON.stringify(candidates) };
+                },
+              },
+            }),
+          ),
+        },
+      };
+    },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
       if (!built.ok) return built;
       return {
         ...built,
@@ -259,6 +300,36 @@ it('the actual item must reject a body whose later transport serialization drops
         },
       };
     },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: (set: any, window: any, context: any) => {
+                  const full = member.render(set, window, context);
+                  const dropped = member.render(set, window, { ...context, candidates: {} });
+                  let serializations = 0;
+                  return {
+                    ...full,
+                    body: Object.defineProperty({ ...full.body }, 'toJSON', {
+                      value() {
+                        serializations += 1;
+                        return serializations === 1 ? full.body : dropped.body;
+                      },
+                    }),
+                  };
+                },
+              },
+            }),
+          ),
+        },
+      };
+    },
   };
   const sut = readerAdapter(product as unknown as ReaderExports);
   let observed: any;
@@ -322,6 +393,48 @@ it('an unrendered nested request must not supply the missing candidate of the ac
     },
     buildLabelling: async (...args: Parameters<typeof estate.buildLabelling>) => {
       const built = await estate.buildLabelling(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: (set: any, window: any, context: any) => {
+                  const dropped = member.render(set, window, { ...context, candidates: {} });
+                  const candidates = Object.values(context?.candidates ?? {}).flatMap((list: any) =>
+                    list.map((c: any) => ({ id: c.shown ?? c.id, title: c.label })),
+                  );
+                  sideBodies.set(dropped, {
+                    ...dropped.body,
+                    messages: [{ role: 'user', content: JSON.stringify(candidates) }],
+                  });
+                  return dropped;
+                },
+              },
+              call: {
+                value: async (wire: any, ...rest: any[]) => {
+                  if (depth === 0 && sideBodies.has(wire)) {
+                    depth += 1;
+                    try {
+                      await wrapped.call({ ...wire, body: sideBodies.get(wire) }, ...rest);
+                    } catch (error) {
+                      console.log('SIDE_REQUEST_ERROR', String(error));
+                    } finally {
+                      depth -= 1;
+                    }
+                  }
+                  return (member.call as any).call(member, wire, ...rest);
+                },
+              },
+            }),
+          ),
+        },
+      };
+    },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
       if (!built.ok) return built;
       return {
         ...built,

@@ -426,3 +426,49 @@ export function parseLedger(text: string): Ledger | undefined {
     return undefined;
   }
 }
+
+/** The result of checking a ledger file against a scan: fresh, or out of date for the listed files. */
+export type LedgerCheck =
+  | { ok: true }
+  | {
+      ok: false;
+      /** Stable, kebab-case: what the check found. */
+      code: 'ledger-out-of-date';
+      /** The paths whose entries or cut digest differ between the file and the scan, sorted. */
+      files: string[];
+      error: string;
+    };
+
+/**
+ * Checks the text of a ledger file against the ledger a scan gives. The check passes when the scan renders to the
+ * same bytes; otherwise it fails with the paths that changed, so a check reads them as a list and never from the text.
+ */
+export function checkLedger(previous: string | undefined, current: Ledger): LedgerCheck {
+  if (previous !== undefined && previous === renderLedger(current)) return { ok: true };
+  const before = previous === undefined ? undefined : parseLedger(previous);
+  const entriesOf = (ledger: Ledger | undefined): Map<string, string> => {
+    const byPath = new Map<string, LedgerEntry[]>();
+    for (const entry of ledger?.entries ?? []) {
+      byPath.set(entry.path, [...(byPath.get(entry.path) ?? []), entry]);
+    }
+    return new Map([...byPath].map(([path, list]) => [path, canonical(list)]));
+  };
+  const was = entriesOf(before);
+  const now = entriesOf(current);
+  const changed = new Set<string>();
+  for (const path of new Set([...was.keys(), ...now.keys()])) {
+    if (was.get(path) !== now.get(path)) changed.add(path);
+  }
+  const digests = new Set([...Object.keys(before?.cutDigests ?? {}), ...Object.keys(current.cutDigests)]);
+  for (const path of digests) {
+    if (before?.cutDigests[path] !== current.cutDigests[path]) changed.add(path);
+  }
+  const files = [...changed].sort();
+  return {
+    ok: false,
+    code: 'ledger-out-of-date',
+    files,
+    error:
+      files.length > 0 ? `the ledger is out of date for: ${files.join(', ')}` : 'the ledger is out of date',
+  };
+}

@@ -7,6 +7,7 @@ import { keyOf, numberOf, PROBE_YAML, RULES_YAML } from '../../kit/sets';
 import { type FakeTransport, fakeTransport, haikuResponse, type ParsedCall } from '../../kit/transport';
 import { Prose, type Rng, word } from '../../kit/words';
 import type {
+  Diagnostic,
   FetchResponse,
   LabelRequest,
   LedgerView,
@@ -58,16 +59,25 @@ const PROBE_NAMES: readonly string[] = PROBE;
 /** The labels of `agent-rules` that need no target. */
 const PLAIN = ['rule', 'prohibition', 'example', 'description'] as const;
 
-/** Whether a diagnostic says the words: the reason a reader gives for an answer it did not take. */
-const said = (res: ScanResult, words: string | RegExp): boolean =>
-  res.diagnostics.some((d) => (typeof words === 'string' ? d.detail.includes(words) : words.test(d.detail)));
+/** The names a reader's diagnostic carries besides its cause: the fields an item asks a cause to hold. */
+type Names = Partial<Omit<Diagnostic, 'code' | 'reason' | 'detail'>>;
+
+/**
+ * Whether a diagnostic gives the cause: its stable `reason` and each of the names asked for, as the fields of the
+ * diagnostic. The words of its `detail` are never read.
+ */
+const gave = (res: ScanResult, reason: string, names: Names = {}): boolean =>
+  res.diagnostics.some(
+    (d) =>
+      d.reason === reason && Object.entries(names).every(([key, value]) => d[key as keyof Names] === value),
+  );
+/** A cause an item expects of a refusal: the `reason` and the names it carries. */
+type Cause = { reason: string; names: Names };
 /** The codes a reader gives an entry or a window it refused: a refusal, or a window that failed. */
 const REFUSED = new Set(['refusal', 'failed-window', 'window_failed']);
 const refused = (res: ScanResult): boolean => res.diagnostics.some((d) => REFUSED.has(d.code));
 const details = (res: ScanResult): string =>
   JSON.stringify(res.diagnostics.slice(0, 3).map((d) => d.detail.slice(0, 120)));
-/** A range `a-b` as a whole: no digit before or after it. */
-const rangeWords = (text: string): RegExp => new RegExp(`(^|[^0-9])${text}([^0-9]|$)`);
 
 /** The number of a unit in the window a planted labeller is shown; the item fails without it. */
 function nOf(request: LabelRequest, text: string): number {
@@ -139,7 +149,7 @@ const ranges: Record<string, Run> = {
       if (got !== undefined)
         return fail(`${show(t, 30)} holds ${got} from ${named}: a range written backwards names no unit`);
     }
-    if (!said(back, rangeWords(named)))
+    if (!gave(back, 'units-malformed', { units: named }))
       return fail(`no refusal names the backwards range ${named}: it was passed over (${details(back)})`);
     const forth = await scanOk(ctx.sut, { files, labeler: answer(false), labelsYaml: PROBE_YAML });
     for (const t of run) {
@@ -197,7 +207,7 @@ const ranges: Record<string, Run> = {
       if (got !== undefined)
         return fail(`${show(t, 30)} holds ${got} from the range ${named}, which runs past the window`);
     }
-    if (!said(past, rangeWords(named)))
+    if (!gave(past, 'units-leave-window', { units: named }))
       return fail(`no refusal names the range ${named} that leaves the window (${details(past)})`);
     const inside = await scanOk(ctx.sut, { files, labeler: answer(false), labelsYaml: PROBE_YAML });
     const wrong = tail.find((t) => labelOf(inside.ledger, t, 'probe') !== label);
@@ -248,7 +258,7 @@ const dense: Record<string, Run> = {
     });
     if (labelOf(second.ledger, gate, 'agent-rules') === 'gate')
       return fail(`${show(gate, 30)} holds gate with a null target: a gate needs a target`);
-    if (!said(second, 'needs a target'))
+    if (!gave(second, 'target-required', { label: 'gate' }))
       return fail(`no refusal says the gate with a null target needs a target (${details(second)})`);
     return pass('three null targets read as none, every label stands; a gate with a null target is refused');
   },
@@ -277,7 +287,8 @@ const dense: Record<string, Run> = {
       if (got !== undefined)
         return fail(`${show(t, 30)} holds ${got} from an answer with two fenced objects: it holds no answer`);
     }
-    if (!said(two, 'not JSON')) return fail(`no failure says the answer is not JSON (${details(two)})`);
+    if (!gave(two, 'answer-not-json'))
+      return fail(`no failure says the answer is not JSON (${details(two)})`);
     const one = await scanOk(ctx.sut, {
       files,
       labelsYaml: PROBE_YAML,
@@ -367,16 +378,19 @@ const spaces = (text: string): number[] => [...text.matchAll(/ /g)].map((m) => m
 function refusedThenTaken(
   unit: string,
   bad: Awaited<ReturnType<typeof clauseScan>>,
-  reason: string,
+  cause: Cause,
   good: Awaited<ReturnType<typeof clauseScan>>,
   what: string,
 ): Outcome {
   const got = bad.held(unit);
   if (got !== undefined) return fail(`${show(unit, 30)} holds ${got} although ${what}: it must be refused`);
-  if (!said(bad.res, reason)) return fail(`no refusal says "${reason}" (${details(bad.res)})`);
+  if (!gave(bad.res, cause.reason, cause.names))
+    return fail(
+      `no refusal gives the cause ${cause.reason} with ${JSON.stringify(cause.names)} (${details(bad.res)})`,
+    );
   const taken = good.held(unit);
   if (taken !== 'rule') return fail(`${show(unit, 30)} holds ${taken} from the valid entry, expected rule`);
-  return pass(`refused with "${reason}"; the valid entry is taken`);
+  return pass(`refused with ${cause.reason}; the valid entry is taken`);
 }
 
 const extras: Record<string, Run> = {
@@ -389,8 +403,8 @@ const extras: Record<string, Run> = {
     const span = (text: string) => new Map([[unit, { spans: [{ kind: 'action', text }] }]]);
     const twice = await clauseScan(ctx, texts, yaml, span(`${a} ${b}`));
     const once = await clauseScan(ctx, texts, yaml, span(`to the ${c}`));
-    const reason = 'the text is found twice in the unit';
-    return refusedThenTaken(unit, twice, reason, once, `"${a} ${b}" is in it twice`);
+    const cause = { reason: 'span-text-repeated', names: { kind: 'action', span: `${a} ${b}` } };
+    return refusedThenTaken(unit, twice, cause, once, `"${a} ${b}" is in it twice`);
   },
   'adjacent-spans-do-not-overlap': async (ctx) => {
     const r = prose(ctx).random;
@@ -422,7 +436,7 @@ const extras: Record<string, Run> = {
     const shared = sharing.held(unit);
     if (shared !== undefined)
       return fail(`${show(unit, 30)} holds ${shared} with spans that share the character at ${at}`);
-    if (!said(sharing.res, 'overlaps another span of the unit'))
+    if (!gave(sharing.res, 'span-overlap', { kind: 'action', span: `${at}-${end}` }))
       return fail(`no refusal says the span overlaps another span of the unit (${details(sharing.res)})`);
     return pass(`spans that touch at ${at} are taken; spans that share a character are refused`);
   },
@@ -455,7 +469,10 @@ const extras: Record<string, Run> = {
     return refusedThenTaken(
       unit,
       over,
-      'that is not inside a span of the kind action',
+      {
+        reason: 'span-outside-parent',
+        names: { kind: 'condition', parent: 'action', span: `${from}-${end}` },
+      },
       inside,
       `its condition span [${from}, ${end}) runs past the action span [0, ${close})`,
     );
@@ -473,7 +490,7 @@ const extras: Record<string, Run> = {
     const got = bad.held(dotted);
     if (got !== undefined)
       return fail(`${show(dotted, 30)} holds ${got}: its lower case is longer, so no text is located in it`);
-    if (!said(bad.res, 'the text is not in the unit'))
+    if (!gave(bad.res, 'span-text-absent', { kind: 'action', span: clause }))
       return fail(`no refusal says the text is not in the unit (${details(bad.res)})`);
     const good = await clauseScan(ctx, withUnit(ctx, plain).texts, yaml, span(plain));
     const taken = good.held(plain);
@@ -492,8 +509,8 @@ const extras: Record<string, Run> = {
     const links = (list: string[]) => new Map([[unit, { links: list.map((to) => ({ kind: 'tool', to })) }]]);
     const twice = await clauseScan(ctx, texts, yaml, links([v1, v2]), true);
     const once = await clauseScan(ctx, texts, yaml, links([v1]), true);
-    const reason = 'the kind tool is given twice';
-    return refusedThenTaken(unit, twice, reason, once, 'it links the kind tool twice');
+    const cause = { reason: 'link-kind-repeated', names: { kind: 'tool', target: v2 } };
+    return refusedThenTaken(unit, twice, cause, once, 'it links the kind tool twice');
   },
   'link-unlisted-value-refused': async (ctx) => {
     const p = prose(ctx);
@@ -519,7 +536,7 @@ const extras: Record<string, Run> = {
     const outcome = refusedThenTaken(
       unit,
       bad,
-      `${stranger} is not an atom the request listed for tool`,
+      { reason: 'link-target-unlisted', names: { kind: 'tool', target: stranger } },
       good,
       `it links ${stranger}, which the request did not list`,
     );
@@ -590,7 +607,9 @@ const system1: Record<string, Run> = {
         return fail(`${show(c.text, 30)} holds ${got} from a vector of sum ${sum}, not ${highest(c.vector)}`);
       }
     }
-    const reasons = res.diagnostics.filter((d) => d.code === 'refusal' && /no vector/.test(d.detail)).length;
+    // The class of the diagnostic (a refusal) and its cause (no vector): both are read, as the old check read both.
+    const refusedUnits = res.diagnostics.filter((d) => d.code === 'refusal' && d.reason === 'no-vector');
+    const reasons = new Set(refusedUnits.map((d) => `${d.window}/${d.unit}`)).size;
     return reasons >= off
       ? pass(`${off} answers 0.02 or more from 1 refused by name; ${cases.length - off} within 0.005 read`)
       : fail(`${reasons} refusals say the probabilities are no vector, expected ${off} (${details(res)})`);
@@ -681,7 +700,10 @@ ${link ? linkLabel : ''}`;
     const asked = await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: yaml(true) });
     if (asked.ok)
       return fail(`a system 1 labeler alone took the set ${set}, whose label ${withLinks} carries links`);
-    if (!asked.error?.includes(set)) return fail(`the refusal does not name the set ${set}: ${asked.error}`);
+    if (asked.failure?.code !== 'set-needs-system2' || asked.failure.set !== set)
+      return fail(
+        `the refusal does not name the set ${set} by code set-needs-system2: ${JSON.stringify(asked.failure ?? null)}`,
+      );
     if (fake.calls.some((call) => call.labels.includes(withLinks)))
       return fail(`a call offered the label ${withLinks}, which carries links`);
     const plain = fakeTransport();
@@ -819,14 +841,23 @@ const settings: Record<string, Run> = {
   'settings-threshold-nan-refused': async (ctx) => {
     const api = ctx.sut.settings;
     if (!api)
-      throw new Problem('the reader exports no settings reader: it must refuse a threshold of not a number');
+      throw new Problem(
+        'the reader exports no settings reader: it must refuse a threshold of not a number',
+        'missing-observation',
+      );
     const r = prose(ctx).random;
     for (const key of shuffled(r, ['labeler', 'pass_at', 'fail_at', 'margin_cut'])) {
       const nan = ['.nan', '.NaN', '.NAN'][between(r, 0, 2)] as string;
       const out = await api.parse(`threshold: { ${key}: ${nan} }\n`);
       if (out.ok) return fail(`the threshold ${key}: ${nan} was accepted; not a number is no threshold`);
-      if (!out.errors.some((error) => error.includes(key)))
-        return fail(`the refusal of ${key}: ${nan} does not name the key: ${JSON.stringify(out.errors)}`);
+      if (
+        !out.issues?.some(
+          (i) => i.code === 'threshold-not-finite' && i.key === key && i.reason === 'not-finite',
+        )
+      )
+        return fail(
+          `the refusal of ${key}: ${nan} does not name the key by code threshold-not-finite: ${JSON.stringify(out.issues ?? out.errors)}`,
+        );
       const value = Math.round(r() * 100) / 100;
       const good = await api.parse(`threshold: { ${key}: ${value} }\n`);
       if (!good.ok) return fail(`the threshold ${key}: ${value} was refused: ${good.errors.join('; ')}`);

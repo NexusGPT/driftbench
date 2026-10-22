@@ -74,11 +74,11 @@ const drifts = (): PointerSut => {
   });
 };
 
-/** A reader whose miss says only that the cassette has no answer: it names no field. */
+/** A reader whose miss carries no structured fields: it names no field of the request. */
 const unnamedMiss = (): PointerSut =>
   mutant('miss-names-nothing', async (request) => {
-    const out = await ref.scan(request);
-    return out.ok ? out : { ...out, error: 'the cassette has no answer' };
+    const { miss: _miss, ...rest } = await ref.scan(request);
+    return rest;
   });
 
 /** A reader that asks one request per window and set, whatever the number of independent runs. */
@@ -113,7 +113,7 @@ describe('a replay item fails only for the cause it names', () => {
       /replay used random transport or changed ledger/,
     ],
     ['replay.replay-twice-identical', drifts, /two fixture replays differ/],
-    ['replay.miss-names-new-file', unnamedMiss, /miss does not name/],
+    ['replay.miss-names-new-file', unnamedMiss, /carries no structured cassette miss/],
     ['replay.fixture-haiku-replays-committed', acceptsStale, /a one-field stale cassette was accepted/],
     ['replay.fixture-miss-names-prompt-version', acceptsStale, /a one-field stale cassette was accepted/],
     ['replay.fixture-miss-names-model', acceptsStale, /a one-field stale cassette was accepted/],

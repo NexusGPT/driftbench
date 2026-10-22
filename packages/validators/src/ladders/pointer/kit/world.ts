@@ -1,5 +1,5 @@
 import type { Block, ListItem } from './compose';
-import { headingText, type Prose, type Rng, shortRule, word } from './words';
+import { beforeStop, headingText, type Prose, type Rng, shortRule, word } from './words';
 
 const pickFrom = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
 
@@ -144,7 +144,7 @@ export function bigDoc(
     while (used < per) {
       const sentences: string[] = [];
       for (let k = 0; k < 5; k += 1) {
-        const t = make(rng).replace(/\.$/, ` ${tag(counter)}.`);
+        const t = beforeStop(make(rng), ` ${tag(counter)}.`);
         counter += 1;
         sentences.push(t);
         texts.push(t);

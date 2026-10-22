@@ -219,7 +219,10 @@ function paragraphUnits(ctx: Ctx, lines: Line[]): void {
 /* ---------- block parser ---------- */
 
 function parseBlocks(all: Line[], ctx: Ctx): void {
-  if (ctx.depth > 500) throw new Error('the nesting is too deep to cut (limit 500 levels)');
+  if (ctx.depth > 500)
+    throw Object.assign(new Error('the nesting is too deep to cut (limit 500 levels)'), {
+      code: 'nesting-too-deep',
+    });
   let i = 0;
   while (i < all.length) {
     const line = all[i] as Line;

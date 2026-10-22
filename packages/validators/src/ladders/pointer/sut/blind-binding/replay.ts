@@ -83,7 +83,11 @@ export async function replayOp(input: Obj): Promise<unknown> {
     };
   } catch (thrown) {
     if (!(thrown instanceof pointer.CassetteMiss)) throw thrown;
-    const cause = thrown as { nearest?: string; differs: string[] };
+    const cause = thrown as {
+      nearest?: string;
+      differs: string[];
+      environment?: { node?: unknown; icu?: unknown };
+    };
     if (cause.nearest === undefined)
       throw new Unsupported(
         'replay',
@@ -106,9 +110,9 @@ export async function replayOp(input: Obj): Promise<unknown> {
         'replay',
         `the reader named ${fields.length} differing fields: ${fields.join(', ')}`,
       );
-    // A cut mismatch reports the runtimes only when the reader's own diagnostic names both versions.
-    const named = (thrown as Error).message;
-    const versionsRequired = /\bNode \d[\w.]*/.test(named) && /\bICU \d[\w.]*/.test(named);
+    // A cut mismatch reports the runtimes only when the reader's miss carries both versions as fields.
+    const versionsRequired =
+      typeof cause.environment?.node === 'string' && typeof cause.environment.icu === 'string';
     return {
       status: 'miss',
       differingField: fields[0],

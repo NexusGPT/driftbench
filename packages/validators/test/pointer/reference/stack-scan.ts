@@ -1,3 +1,4 @@
+import type { CassetteMissView } from '../../../src/ladders/pointer/sut/port';
 import { referenceBugsD } from './bugs-d';
 import type { ParsedSet } from './labelset';
 import { askableOf, askModel, haiku, type ModelCtx, type ModelResult } from './ports';
@@ -12,7 +13,7 @@ const SYSTEM2_RUNS = 3;
 type Vote = { label: string; target?: number };
 
 export type StackOutcome =
-  | { abort: string }
+  | { abort: string; miss?: CassetteMissView }
   | { labels: Map<number, Vote>; key?: string; fellBack: number; calls: number };
 
 /** The margin of a choice vector: the top option and its lead over the second. `none` must be an option. */
@@ -58,7 +59,7 @@ export async function stackWindow(
     ctx.onVector = undefined;
   }
   // A cassette miss in a replay stops the run, as it does for one labeler; a failed call leaves no opinion.
-  if (first.kind === 'error' && /^cassette miss/.test(first.message)) return { abort: first.message };
+  if (first.kind === 'error' && first.miss) return { abort: first.message, miss: first.miss };
 
   const runs: Array<Map<number, Vote> | undefined> = [];
   let key: string | undefined = first.kind === 'answer' ? first.key : undefined;
@@ -67,7 +68,7 @@ export async function stackWindow(
       calls += 1;
       return haiku(plan, set, ctx, run);
     });
-    if (answer.kind === 'error' && /^cassette miss/.test(answer.message)) return { abort: answer.message };
+    if (answer.kind === 'error' && answer.miss) return { abort: answer.message, miss: answer.miss };
     if (answer.kind !== 'answer') {
       runs.push(undefined);
       continue;

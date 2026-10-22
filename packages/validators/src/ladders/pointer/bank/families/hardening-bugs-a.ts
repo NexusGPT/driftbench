@@ -132,7 +132,10 @@ const filesFor = (w: World): SourceFile[] => build(filesOf(w)).files;
 /** The count of an event the reader reports for a scan; a reader without counts earns no credit. */
 function counted(result: ScanResult, event: string): number {
   if (!result.eventCounts)
-    throw new Problem(`the reader does not expose event counts: the ${event} count is read from them`);
+    throw new Problem(
+      `the reader does not expose event counts: the ${event} count is read from them`,
+      'missing-observation',
+    );
   return result.eventCounts[event] ?? 0;
 }
 

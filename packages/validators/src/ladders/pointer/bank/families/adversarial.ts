@@ -7,10 +7,25 @@ import { build, byId, checkPlanted, eventNow, liveOf, scanOk } from '../../kit/e
 import { perfect, recording } from '../../kit/labellers';
 import { rewordSim } from '../../kit/segments';
 import { keyOf, labelByText, type Pick, RULES_YAML } from '../../kit/sets';
-import { headingText, longMake, Prose, rewordWords, shortRule } from '../../kit/words';
-import type { CutResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import {
+  beforeStop,
+  headingText,
+  insertAt,
+  insideWord,
+  longMake,
+  Prose,
+  rewordWords,
+  shortRule,
+  wordAfterStart,
+} from '../../kit/words';
+import { type CutResult, READER_NOT_REACHABLE, type SourceFile } from '../../sut/port';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 
+/** The end of the first word the generator wrote after the start of a sentence: its second word or so. */
+const endOfSecond = (t: string): number => {
+  const word = wordAfterStart(t);
+  return word.start + word.text.length;
+};
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const para = (t: string): Block => ({ kind: 'paragraph', sentences: [t] });
 const DEONTIC = ['must', 'never', 'always', 'shall', 'should', 'required', 'forbidden'];
@@ -46,7 +61,7 @@ const rules = (texts: string[], label = 'rule'): Pick[] => texts.map((text) => (
 async function childCut(
   file: SourceFile,
   timeoutMs = 60_000,
-): Promise<{ cut?: CutResult; error?: string; ms: number; crashed: boolean }> {
+): Promise<{ cut?: CutResult; error?: string; code?: string; name?: string; ms: number; crashed: boolean }> {
   const c = await runChild({ kind: 'cut', file }, { timeoutMs });
   try {
     if (c.timedOut) return { ms: c.ms, crashed: true, error: `no result within ${timeoutMs / 1000} s` };
@@ -57,14 +72,33 @@ async function childCut(
         crashed: true,
         error: `the child died: ${c.stderr.slice(0, 160).replace(/\s+/g, ' ')}`,
       };
-    if (!o.ok) return { ms: c.ms, crashed: /not reachable/.test(o.error), error: o.error };
+    if (!o.ok)
+      return {
+        ms: c.ms,
+        crashed: o.code === READER_NOT_REACHABLE,
+        error: o.error,
+        ...(o.code ? { code: o.code } : {}),
+        ...(o.name ? { name: o.name } : {}),
+      };
     return { cut: o.result as CutResult, ms: c.ms, crashed: false };
   } finally {
     c.cleanup();
   }
 }
 
-const clearMessage = (m: string) => /depth|nest|deep|too (large|big|long)|limit|exceed/i.test(m);
+/** The code a reader's refusal of a too deeply nested file carries (a stable property of the error, not its text). */
+const NESTING_CODE = 'nesting-too-deep';
+
+/**
+ * The refusal of the `yaml` package for a document whose aliases expand past its limit: a `ReferenceError` that
+ * package throws with this fixed text, and no code (maxAliasCount, src/nodes/toJS.ts of the package). The error is
+ * the package's, not the reader's, so it cannot carry a code of ours: the error class and the package's own text
+ * name it.
+ */
+const YAML_ALIAS_LIMIT = {
+  name: 'ReferenceError',
+  text: 'Excessive alias count indicates a resource exhaustion attack',
+};
 
 export const adversarialRuns: Record<string, Run> = {
   'deontic-words-labelled-none': async (ctx) => {
@@ -129,7 +163,7 @@ export const adversarialRuns: Record<string, Run> = {
   'bold-decoy': async (ctx) => {
     const p = prose(ctx);
     // A sentence that opens with bold words is one unit. The bold ones are labelled none, the plain ones rule.
-    const boldFull = p.many(6).map((t) => t.replace(/^(\S+ \S+)/, '**$1**'));
+    const boldFull = p.many(6).map((t) => insertAt(insertAt(t, endOfSecond(t), '**'), 0, '**'));
     const plain = p.many(6);
     const blocks: Block[] = [...boldFull, ...plain].map(para);
     return decoy(ctx, blocks, [...rules(boldFull, 'none'), ...rules(plain)]);
@@ -236,9 +270,12 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive an alias bomb: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return clearMessage(r.error) || /alias|yaml/i.test(r.error)
+      return r.code === NESTING_CODE ||
+        (r.name === YAML_ALIAS_LIMIT.name && r.error === YAML_ALIAS_LIMIT.text)
         ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message is unclear: ${r.error}`);
+        : fail(
+            `the failure carries no ${NESTING_CODE} code and is not the alias limit of the yaml package: ${r.error}`,
+          );
     return r.cut?.units.some((u) => u.text === sentenceText)
       ? pass('bounded, the sentence is still a unit')
       : fail('the sentence after the alias bomb is not a unit');
@@ -262,7 +299,7 @@ export const adversarialRuns: Record<string, Run> = {
       if (c.written.some((w) => /CANARY/.test(w))) return fail('a YAML tag ran code: a canary file appeared');
       if (!o) return fail(`the child gave no output: ${c.stderr.slice(0, 160)}`);
       if (!o.ok)
-        return /not reachable/.test(o.error) ? fail(o.error) : pass(`refused: ${o.error.slice(0, 80)}`);
+        return o.code === READER_NOT_REACHABLE ? fail(o.error) : pass(`refused: ${o.error.slice(0, 80)}`);
       const cut = o.result as CutResult;
       return cut.units.some((u) => u.container === 'front_matter' && u.text === 'Checks the shelf.') &&
         cut.units.some((u) => u.text === sentenceText)
@@ -281,9 +318,9 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive 600 nested list levels: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return clearMessage(r.error)
-        ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message does not say why: ${r.error}`);
+      return r.code === NESTING_CODE
+        ? pass(`refused with the code ${NESTING_CODE}: ${r.error.slice(0, 80)}`)
+        : fail(`the failure carries no ${NESTING_CODE} code: ${r.error}`);
     return r.cut?.units.length === 600
       ? pass('600 list item units')
       : fail(`${r.cut?.units.length} units for 600 levels`);
@@ -297,9 +334,9 @@ export const adversarialRuns: Record<string, Run> = {
     const r = await childCut({ path: 'deepq.md', text }, 60_000);
     if (r.crashed) return fail(`the cut did not survive 1000 nested quote levels: ${r.error}`);
     if (r.error)
-      return clearMessage(r.error)
-        ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message does not say why: ${r.error}`);
+      return r.code === NESTING_CODE
+        ? pass(`refused with the code ${NESTING_CODE}: ${r.error.slice(0, 80)}`)
+        : fail(`the failure carries no ${NESTING_CODE} code: ${r.error}`);
     if (!r.cut?.units.some((u) => u.text === text.slice(u.start, u.end) && u.text.includes(inner)))
       return fail('positive witness: a successful deep cut must return the quoted source text');
     return r.cut && r.cut.units.length >= 1
@@ -328,8 +365,10 @@ export const adversarialRuns: Record<string, Run> = {
   },
   'bom-in-middle': async (ctx) => {
     const p = prose(ctx);
-    const a = p.next().replace(/ (\w+) /, ' $1\uFEFF ');
-    const b = p.next().replace(/(\w{4})(\w{3})/, '$1\uFEFF$2');
+    const one = p.next();
+    const a = insertAt(one, endOfSecond(one), '\uFEFF');
+    const two = p.next();
+    const b = insertAt(two, insideWord(two, 7, 4), '\uFEFF');
     return cutCase(
       ctx,
       [
@@ -367,17 +406,19 @@ export const adversarialRuns: Record<string, Run> = {
   'zero-width-and-bidi': async (ctx) => {
     const p = prose(ctx);
     const marks = ['​', '‍', '‎', '‮'];
-    const make = (m: string) => p.next().replace(/(\w{3})(\w{3})/, `$1${m}$2`);
+    const make = (m: string) => {
+      const t = p.next();
+      return insertAt(t, insideWord(t, 6, 3), m);
+    };
     return cutCase(ctx, [{ kind: 'paragraph', sentences: marks.map(make) }]);
   },
   'emoji-zwj-sequences': async (ctx) => {
     const p = prose(ctx);
     const seq = ['👨‍👩‍👧‍👦', '🏳️‍🌈', '🇧🇪', '👩🏽‍🍳'];
-    const make = (e: string) =>
-      p
-        .next()
-        .replace(/ (\w+) (\w+)/, ` $1 ${e} $2`)
-        .replace(/\.$/, ` ${e}.`);
+    const make = (e: string) => {
+      const t = p.next();
+      return beforeStop(insertAt(t, endOfSecond(t), ` ${e}`), ` ${e}.`);
+    };
     return cutCase(ctx, [{ kind: 'paragraph', sentences: seq.map(make) }]);
   },
   'huge-heading-text': async (ctx) => {
@@ -411,7 +452,7 @@ export const adversarialRuns: Record<string, Run> = {
         `${live.length} entries, ${new Set(live.map((e) => e.id)).size} distinct ids, expected 800 and 800`,
       );
     if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
-      return fail('the reader does not expose twinOf for every live unit');
+      return missing('the reader does not expose twinOf for every live unit');
     const twins = live.filter((e) => e.twinOf !== null && e.twinOf !== undefined).length;
     if (twins < 792) return fail(`${twins} twin marks, expected at least 792 (every copy but the first)`);
     const again = await scanOk(ctx.sut, { files, previousLedger: first.ledger.raw, labeler: perfect() });

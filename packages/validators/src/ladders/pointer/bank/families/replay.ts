@@ -13,8 +13,15 @@ import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
 import { type FakeTransport, fakeTransport, seededModels } from '../../kit/transport';
-import { headingText, Prose, rewordWords } from '../../kit/words';
-import type { FetchRequest, ModelArm, ScanRequest, ScanResult, SourceFile } from '../../sut/port';
+import { headingText, Prose, word } from '../../kit/words';
+import type {
+  CassetteMissView,
+  FetchRequest,
+  ModelArm,
+  ScanRequest,
+  ScanResult,
+  SourceFile,
+} from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
@@ -89,10 +96,13 @@ function keysOf(v: unknown, out: Map<string, unknown> = new Map(), prefix = ''):
   return out;
 }
 
-const mentions = (error: string | undefined, names: string[]): boolean => {
-  const e = (error ?? '').toLowerCase();
-  return names.some((n) => e.includes(n.toLowerCase()));
-};
+/**
+ * The cassette miss of a failed replay, as the reader's structured fields (the key of the request, the names of
+ * the readable fields that differ from the nearest entry, that entry's key, the labeler id of the request). An
+ * item reads these, never the words of the failure message.
+ */
+const missOf = (res: ScanResult): CassetteMissView | string =>
+  res.miss ?? `the failed replay carries no structured cassette miss: ${res.error}`;
 
 /** The one labeler id every entry of a committed fixture declares: the id its requests carry. */
 function declaredLabeler(fixture: Pick<Fixture, 'rows'>): string {
@@ -103,11 +113,6 @@ function declaredLabeler(fixture: Pick<Fixture, 'rows'>): string {
   return id;
 }
 
-const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-/** Whether `text` holds `token` whole: not inside a longer id such as `jev-unit` for `jev`. */
-const namesToken = (text: string | undefined, token: string): boolean =>
-  new RegExp(`(^|[^A-Za-z0-9_-])${escaped(token)}($|[^A-Za-z0-9_-])`).test(text ?? '');
-
 async function positiveReplay(ctx: ItemContext, arm: ModelArm = 'haiku') {
   const fixture = loadFixture(arm);
   const { res, fake } = await replay(ctx, fixture.files, arm, fixture.cassette, {
@@ -117,12 +122,12 @@ async function positiveReplay(ctx: ItemContext, arm: ModelArm = 'haiku') {
   if (fake.count) throw new Error('fixture replay called transport');
   return { fixture, res };
 }
-async function missCase(
+/** Replays the committed fixture of `arm` with one input changed: the failed replay and the fixture it came from. */
+async function changedReplay(
   ctx: ItemContext,
   edit: (files: SourceFile[], texts: string[][], yaml: string) => { files: SourceFile[]; yaml: string },
-  names: string[],
-  arm: ModelArm = 'haiku',
-): Promise<Outcome> {
+  arm: ModelArm,
+) {
   const { fixture } = await positiveReplay(ctx, arm);
   const changed = edit(
     fixture.files,
@@ -134,9 +139,45 @@ async function missCase(
   const { res, fake } = await replay(ctx, changed.files, arm, fixture.cassette, { labelsYaml: changed.yaml });
   if (res.ok) return fail('changed request incorrectly replayed');
   if (fake.count) return fail('miss reached network');
-  return mentions(res.error, names)
+  const miss = missOf(res);
+  return typeof miss === 'string' ? fail(miss) : { fixture, miss };
+}
+/** A changed input whose nearest recorded entry differs from it in (at least) one of `fields`, by the reader's field names. */
+async function missCase(
+  ctx: ItemContext,
+  edit: (files: SourceFile[], texts: string[][], yaml: string) => { files: SourceFile[]; yaml: string },
+  fields: string[],
+  arm: ModelArm = 'haiku',
+): Promise<Outcome> {
+  const seen = await changedReplay(ctx, edit, arm);
+  if ('pass' in seen) return seen;
+  const { miss } = seen;
+  return fields.some((field) => miss.differs.includes(field))
     ? pass('miss names changed input')
-    : fail(`miss does not name ${names.join(', ')}: ${res.error}`);
+    : fail(`the miss differs in [${miss.differs.join(', ')}], in none of ${fields.join(', ')}`);
+}
+/**
+ * A changed input no recorded entry shares a file, a window and a set with (a new file, a renamed set): the miss
+ * has no nearest entry and no differing field, it carries the id of the labeler the request carries, and its key
+ * is no recorded key, so the entries the cassette holds for the unchanged inputs all still answer.
+ */
+async function missWithoutSibling(
+  ctx: ItemContext,
+  edit: (files: SourceFile[], texts: string[][], yaml: string) => { files: SourceFile[]; yaml: string },
+  arm: ModelArm = 'haiku',
+): Promise<Outcome> {
+  const seen = await changedReplay(ctx, edit, arm);
+  if ('pass' in seen) return seen;
+  const { fixture, miss } = seen;
+  if (miss.nearest !== undefined || miss.differs.length > 0)
+    return fail(
+      `the miss names a nearest entry (it differs in [${miss.differs.join(', ')}]) for an input no entry shares a file, a window and a set with`,
+    );
+  if (miss.labeler !== declaredLabeler(fixture))
+    return fail(`the miss carries the labeler id ${String(miss.labeler)}, not ${declaredLabeler(fixture)}`);
+  return fixture.rows.some((row) => row.key === miss.key)
+    ? fail('the missing request has the key of a recorded entry')
+    : pass('miss has no nearest entry, names the labeler id, and is no recorded request');
 }
 async function staleCassette(
   ctx: ItemContext,
@@ -144,8 +185,7 @@ async function staleCassette(
   arm: ModelArm,
   field: string,
   value: string,
-  names: string[],
-  extra: string[] = [],
+  environment = false,
 ): Promise<Outcome> {
   const changed = perturb(fixture, arm, ctx.seed, field, value);
   const { res, fake } = await replay(ctx, fixture.files, arm, changed.cassette, {
@@ -153,22 +193,34 @@ async function staleCassette(
   });
   if (res.ok) return fail('a one-field stale cassette was accepted');
   if (fake.count) return fail('the miss reached the network');
-  if (!mentions(res.error, names)) return fail(`the miss does not name ${names.join(', ')}: ${res.error}`);
-  for (const part of extra) if (!(res.error ?? '').includes(part)) return fail(`the miss omits ${part}`);
+  const miss = missOf(res);
+  if (typeof miss === 'string') return fail(miss);
+  if (!miss.differs.includes(field))
+    return fail(`the miss differs in [${miss.differs.join(', ')}], not in ${field}`);
+  // The Node and ICU versions of a cut digest miss are the fields of its environment, never words of its message.
+  if (environment) {
+    const seen = miss.environment;
+    if (!seen)
+      return fail('the miss carries no environment: the Node and ICU versions of the run are missing');
+    if (seen.node !== process.versions.node)
+      return fail(`the miss omits the Node version of the run: its environment is ${JSON.stringify(seen)}`);
+    if (seen.icu !== (process.versions.icu ?? ''))
+      return fail(`the miss omits the ICU version of the run: its environment is ${JSON.stringify(seen)}`);
+  }
   return pass(`miss names ${field}`);
 }
 const fixtureMissCase =
-  (arm: ModelArm, field: string, value: string, names: string[], extra: string[] = []): Run =>
+  (arm: ModelArm, field: string, value: string, environment = false): Run =>
   async (ctx) => {
     const { fixture } = await positiveReplay(ctx, arm);
-    return staleCassette(ctx, fixture, arm, field, value, names, extra);
+    return staleCassette(ctx, fixture, arm, field, value, environment);
   };
 
 export const replayRuns: Record<string, Run> = {
   // Legacy IDs are retained. Each now pairs exhaustive valid replay with exactly one stale input field.
-  'fixture-haiku-replays-committed': fixtureMissCase('haiku', 'part.messages', 'changed', ['part.messages']),
-  'fixture-jev-replays-committed': fixtureMissCase('jev', 'part.state', 'changed', ['part.state']),
-  'fixture-jev-unit-replays-committed': fixtureMissCase('jev-unit', 'path', 'changed.md', ['path']),
+  'fixture-haiku-replays-committed': fixtureMissCase('haiku', 'part.messages', 'changed'),
+  'fixture-jev-replays-committed': fixtureMissCase('jev', 'part.state', 'changed'),
+  'fixture-jev-unit-replays-committed': fixtureMissCase('jev-unit', 'path', 'changed.md'),
   'fixture-replay-twice-identical': async (ctx) => {
     // The original check: replaying the committed fixture again, with the first ledger as the previous one, gives the same ledger bytes.
     const { fixture, res: first } = await positiveReplay(ctx, 'haiku');
@@ -181,37 +233,16 @@ export const replayRuns: Record<string, Run> = {
     if (fake.count) return fail('the second replay reached the network');
     if (second.ledger.raw !== firstRaw) return fail('the second replay changed the ledger');
     // Kept beside it: a one-field stale window in the cassette is refused by name.
-    return staleCassette(ctx, fixture, 'haiku', 'window', 'changed#1', ['window']);
+    return staleCassette(ctx, fixture, 'haiku', 'window', 'changed#1');
   },
-  'fixture-miss-names-model': fixtureMissCase('haiku', 'model', 'claude-haiku-4-0', ['model']),
-  'fixture-miss-names-prompt-version': fixtureMissCase('haiku', 'promptVersion', 'p0', [
-    'promptVersion',
-    'prompt version',
-  ]),
-  'fixture-miss-names-schema-version': fixtureMissCase('haiku', 'schemaVersion', 's0', [
-    'schemaVersion',
-    'schema version',
-  ]),
-  'fixture-miss-names-set-hash': fixtureMissCase('haiku', 'setHash', '0000000000000000', [
-    'setHash',
-    'set hash',
-  ]),
-  'fixture-miss-names-labeler': fixtureMissCase('haiku', 'labeler', 'jev', ['labeler']),
-  'fixture-miss-names-system-part': fixtureMissCase('haiku', 'part.system', '000000000000', [
-    'part.system',
-    'system',
-  ]),
-  'fixture-miss-names-questions-part': fixtureMissCase('jev-unit', 'part.questions', '000000000000', [
-    'part.questions',
-    'questions',
-  ]),
-  'fixture-miss-names-cut-digest': fixtureMissCase(
-    'haiku',
-    'cutDigest',
-    '0'.repeat(64),
-    ['cutDigest', 'cut digest'],
-    [process.versions.node, process.versions.icu ?? ''],
-  ),
+  'fixture-miss-names-model': fixtureMissCase('haiku', 'model', 'claude-haiku-4-0'),
+  'fixture-miss-names-prompt-version': fixtureMissCase('haiku', 'promptVersion', 'p0'),
+  'fixture-miss-names-schema-version': fixtureMissCase('haiku', 'schemaVersion', 's0'),
+  'fixture-miss-names-set-hash': fixtureMissCase('haiku', 'setHash', '0000000000000000'),
+  'fixture-miss-names-labeler': fixtureMissCase('haiku', 'labeler', 'jev'),
+  'fixture-miss-names-system-part': fixtureMissCase('haiku', 'part.system', '000000000000'),
+  'fixture-miss-names-questions-part': fixtureMissCase('jev-unit', 'part.questions', '000000000000'),
+  'fixture-miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', '0'.repeat(64), true),
   'record-then-replay-identical': async (ctx) => {
     const { fixture, res } = await positiveReplay(ctx);
     const fake = fakeTransport({
@@ -320,11 +351,13 @@ export const replayRuns: Record<string, Run> = {
       ctx,
       (f, t, yaml) => {
         const p = prose(ctx);
+        const was = t[1]?.[2] as string;
         const edited = f.map((file, i) =>
           i === 1
             ? {
                 ...file,
-                text: file.text.replace(t[1]?.[2] as string, rewordWords(p.random, t[1]?.[2] as string, 1)),
+                // The unit comes from a committed fixture, not from the generator: a drawn word is added to it.
+                text: file.text.replace(was, `${was.replace(/\.$/, '')} ${word(p.random)}.`),
               }
             : file,
         );
@@ -333,15 +366,11 @@ export const replayRuns: Record<string, Run> = {
       ['part.messages', 'part.user', 'cutDigest'],
     ),
   'miss-names-new-file': (ctx) =>
-    missCase(
-      ctx,
-      (f, _t, yaml) => ({
-        files: [...f, { path: 'notes/d.md', text: compose([para(prose(ctx).next())]).text }],
-        yaml,
-      }),
-      ['part.user', 'file', 'path', 'window'],
-    ),
-  'miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', 'tampered', ['cutDigest']),
+    missWithoutSibling(ctx, (f, _t, yaml) => ({
+      files: [...f, { path: 'notes/d.md', text: compose([para(prose(ctx).next())]).text }],
+      yaml,
+    })),
+  'miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', 'tampered'),
   'miss-names-labeler': async (ctx) => {
     for (const arm of ['haiku', 'jev'] as const) {
       const own = await positiveReplay(ctx, arm),
@@ -354,35 +383,30 @@ export const replayRuns: Record<string, Run> = {
         labelsYaml: own.fixture.labelsYaml,
       });
       if (res.ok || fake.count) return fail(`wrong-arm cassette did not fail offline: ${res.error}`);
-      if (!namesToken(res.error, id))
+      if (res.miss?.labeler !== id)
         return fail(
-          `the ${arm} arm on the cassette of ${foreign}: the miss does not name the labeler id ${id} of the missing entry: ${res.error}`,
+          `the ${arm} arm on the cassette of ${foreign}: the miss does not name the labeler id ${id} of the missing entry: labeler of the miss: ${res.miss ? String(res.miss.labeler) : `no structured miss (${res.error})`}`,
         );
     }
     return pass('both arms refuse the other fixture and name the labeler id of the missing entry');
   },
   'miss-names-set-name': (ctx) =>
-    missCase(ctx, (f, _t, yaml) => ({ files: f, yaml: yaml.replace('set: probe', 'set: renamed') }), [
-      'setName',
-      'set',
-    ]),
+    missWithoutSibling(ctx, (f, _t, yaml) => ({
+      files: f,
+      yaml: yaml.replace('set: probe', 'set: renamed'),
+    })),
   'miss-names-nearest-entry': async (ctx) => {
     const { fixture } = await positiveReplay(ctx);
     const edited = fixture.files.map((f, i) =>
       i === 1 ? { ...f, text: f.text.replace('receipt', 'voucher') } : f,
     );
     const { res } = await replay(ctx, edited, 'haiku', fixture.cassette, { labelsYaml: fixture.labelsYaml });
-    return !res.ok && (res.error ?? '').includes('notes/b.md#1')
+    const near = fixture.rows.find((row) => row.key === res.miss?.nearest);
+    return !res.ok && near?.readable.path === 'notes/b.md' && near.readable.window === 'notes/b.md#1'
       ? pass('nearest window named')
-      : fail(`nearest window missing: ${res.error}`);
+      : fail(`nearest window missing: the nearest entry is ${near ? near.readable.window : 'none'}`);
   },
-  'cut-digest-mismatch-names-versions': fixtureMissCase(
-    'haiku',
-    'cutDigest',
-    'tampered',
-    ['cutDigest'],
-    [process.versions.node, process.versions.icu ?? ''],
-  ),
+  'cut-digest-mismatch-names-versions': fixtureMissCase('haiku', 'cutDigest', 'tampered', true),
   'repeat-run-is-part-of-key': async (ctx) => {
     const { files } = threeFiles(ctx);
     const fake = fakeTransport();
@@ -531,14 +555,22 @@ export const replayRuns: Record<string, Run> = {
     };
     const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`re-record failed: ${res.error}`);
-    if (!res.warnings?.some((w) => w.includes(recorded) && w.includes(returned)))
+    if (
+      !res.warningRecords?.some(
+        (w) => w.code === 'model-mismatch' && w.recorded === recorded && w.returned === returned,
+      ) ||
+      !res.warnings?.some((w) => w.includes(recorded) && w.includes(returned))
+    )
       return fail('returned-model warning missing');
     const same = await reRecord(recorded, recorded);
     if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
-    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
-    return same.warnings.length === 0
+    if (!Array.isArray(same.warnings) || !Array.isArray(same.warningRecords))
+      return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0 && same.warningRecords.length === 0
       ? pass('both model IDs named; models that agree give no warning')
-      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
+      : fail(
+          `a re-record whose models agree warns: ${JSON.stringify([...same.warnings, ...same.warningRecords]).slice(0, 120)}`,
+        );
   },
   'carry-forward-needs-only-dirty-entries': async (ctx) => {
     const { fixture, res: before } = await positiveReplay(ctx);
@@ -577,7 +609,12 @@ export const replayRuns: Record<string, Run> = {
         .join('\n'),
       { labelsYaml: fixture.labelsYaml },
     );
-    return !res.ok && fake.count === 0 && /window|#\d/i.test(res.error ?? '')
+    const removed = fixture.rows.filter((row) => row.readable.window === first).map((row) => row.key);
+    return !res.ok &&
+      fake.count === 0 &&
+      res.miss !== undefined &&
+      res.miss.nearest === undefined &&
+      removed.includes(res.miss.key)
       ? pass('missing window named')
       : fail('fresh replay did not reject missing entry');
   },
@@ -662,7 +699,7 @@ export const replayRuns: Record<string, Run> = {
     const { res, fake } = await replay(ctx, fixture.files, 'jev-unit', other.cassette, {
       labelsYaml: fixture.labelsYaml,
     });
-    return !res.ok && fake.count === 0 && mentions(res.error, ['labeler', 'model'])
+    return !res.ok && fake.count === 0 && res.miss?.labeler === declaredLabeler(fixture)
       ? pass('own fixture works, other arm refused')
       : fail('wrong arm accepted or unnamed');
   },

@@ -19,7 +19,7 @@ import { runControl } from '../controls';
 import { PLANTS, probe, readerGainedNothing } from '../harness-probe';
 import { MARKER_PLANTED } from '../plants/broken';
 import { importsOfValidators } from '../reader-imports';
-import { fail, type ItemContext, type Outcome, Problem, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, type Outcome, Problem, pass, type Run } from '../types';
 
 /**
  * The runners of the items the audits added (`specs/hardening.ts`). Each item is written so that a correct reader
@@ -60,6 +60,7 @@ const history = (ledger: LedgerView, id: string): string[] => {
   if (!entry.lineage)
     throw new Problem(
       `the reader records no lineage for ${id}: each entry must keep its history, one step per change of the unit`,
+      'missing-observation',
     );
   return entry.lineage.map((step) => step.event);
 };
@@ -345,7 +346,8 @@ const carryRuns: Record<string, Run> = {
 /** The event the reader reports for one id; an absent observation earns no credit. */
 const reported = (result: ScanResult, id: string): string => {
   const event = result.events?.[id];
-  if (event === undefined) throw new Problem(`the reader does not expose an event for ${id}`);
+  if (event === undefined)
+    throw new Problem(`the reader does not expose an event for ${id}`, 'missing-observation');
   return event;
 };
 
@@ -593,22 +595,30 @@ const privacy: Record<string, Run> = {
     };
     const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`the re-record failed: ${res.error}`);
-    if (!Array.isArray(res.warnings))
-      return fail(
+    if (!Array.isArray(res.warnings) || !Array.isArray(res.warningRecords))
+      return missing(
         'the reader does not expose warnings: a returned model that differs from the cassette must be reported as a warning that names both models',
       );
-    const named = res.warnings.filter((w) => w.includes(recorded) && w.includes(returned));
-    if (named.length === 0)
-      return fail(`no warning names both models; the warnings are ${JSON.stringify(res.warnings)}`);
+    const named = res.warningRecords.filter(
+      (w) => w.code === 'model-mismatch' && w.recorded === recorded && w.returned === returned,
+    );
+    const worded = res.warnings.filter((w) => w.includes(recorded) && w.includes(returned));
+    if (named.length === 0 || worded.length === 0)
+      return fail(
+        `no warning names both models; the warnings are ${JSON.stringify([...res.warnings, ...res.warningRecords])}`,
+      );
     const units = fixture.documents.flatMap((d) => d.units.map((u) => u.text.replace(/\s+/g, ' ').trim()));
     const quoted = res.warnings.find((w) => units.some((u) => u.length >= 20 && w.includes(u.slice(0, 20))));
     if (quoted) return fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`);
     const same = await reRecord(recorded, recorded);
     if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
-    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
-    return same.warnings.length === 0
+    if (!Array.isArray(same.warnings) || !Array.isArray(same.warningRecords))
+      return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0 && same.warningRecords.length === 0
       ? pass('the warning names both models and no unit text; models that agree give no warning')
-      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
+      : fail(
+          `a re-record whose models agree warns: ${JSON.stringify([...same.warnings, ...same.warningRecords]).slice(0, 120)}`,
+        );
   },
 };
 
@@ -623,6 +633,7 @@ async function rerunWorld(
   if (!api)
     throw new Problem(
       'the reader exports no rerun rule: it must say, for each unit between two ledgers, whether it is unchanged, context, moved, changed, deleted or new, and which old units rerun',
+      'missing-observation',
     );
   const p = prose(ctx);
   const w = worldOf(p, { files: 1, perFile: 8 });
@@ -645,6 +656,7 @@ const radius: Record<string, Run> = {
     if (!api)
       throw new Problem(
         'the reader exports no rerun rule: it must say, for each unit between two ledgers, whether it is unchanged, context, moved, changed, deleted or new, and which old units rerun',
+        'missing-observation',
       );
     const p = prose(ctx);
     const w = worldOf(p, { files: 2, perFile: 8 });
@@ -893,14 +905,21 @@ const labels: Record<string, Run> = {
     if (!api)
       throw new Problem(
         'the reader exports no settings reader: it must refuse a threshold outside 0 to 1 and name the key',
+        'missing-observation',
       );
     for (const key of ['labeler', 'pass_at', 'fail_at', 'margin_cut']) {
       for (const bad of [1.5, 2, -0.1, 100]) {
         const out = await api.parse(`threshold: { ${key}: ${bad} }\n`);
         if (out.ok)
           return fail(`the threshold ${key}: ${bad} was accepted; a threshold is a number from 0 to 1`);
-        if (!out.errors.some((error) => error.includes(key)))
-          return fail(`the refusal of ${key}: ${bad} does not name the key: ${JSON.stringify(out.errors)}`);
+        if (
+          !out.issues?.some(
+            (i) => i.code === 'threshold-out-of-range' && i.key === key && i.reason === 'out-of-range',
+          )
+        )
+          return fail(
+            `the refusal of ${key}: ${bad} does not name the key by code threshold-out-of-range: ${JSON.stringify(out.issues ?? out.errors)}`,
+          );
       }
       for (const good of [0, 0.4, 1]) {
         const out = await api.parse(`threshold: { ${key}: ${good} }\n`);
@@ -951,14 +970,21 @@ const labels: Record<string, Run> = {
     if (!api)
       throw new Problem(
         'the reader exports no settings reader: it must refuse a threshold key that is not one of the four, and name it',
+        'missing-observation',
       );
     // Names every object has by inheritance: a lookup in a table of the four keys must not find them.
     for (const key of ['constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
       const out = await api.parse(`threshold: { ${key}: 0.5 }\n`);
       if (out.ok)
         return fail(`the threshold key ${key} was accepted; only the four keys of the file are thresholds`);
-      if (!out.errors.some((error) => error.includes(key)))
-        return fail(`the refusal of ${key} does not name the key: ${JSON.stringify(out.errors)}`);
+      if (
+        !out.issues?.some(
+          (i) => i.code === 'threshold-unknown-key' && i.key === key && i.reason === 'not-a-threshold',
+        )
+      )
+        return fail(
+          `the refusal of ${key} does not name the key by code threshold-unknown-key: ${JSON.stringify(out.issues ?? out.errors)}`,
+        );
     }
     const own = await api.parse('threshold: { labeler: 0.5 }\n');
     if (!own.ok) return fail(`the threshold labeler: 0.5 was refused: ${own.errors.join('; ')}`);

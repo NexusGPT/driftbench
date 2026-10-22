@@ -102,7 +102,9 @@ export function userRequest(
 
 /** Reads an answer in the shape of the class; anything else is an answer that cannot be read. */
 export function userAnswer(cls: LabelerClass, payload: unknown, model: string, window?: Window): Recorded {
-  if (!isRecord(payload)) throw new LabelerError('the answer is not a JSON object');
+  if (!isRecord(payload)) {
+    throw new LabelerError('the answer is not a JSON object', { code: 'answer-not-object' });
+  }
   const common = {
     returnedModel: typeof payload.model === 'string' ? payload.model : model,
     stopReason: 'answered',
@@ -113,7 +115,9 @@ export function userAnswer(cls: LabelerClass, payload: unknown, model: string, w
     return { labels: window ? offsetSpans(labels, window) : labels, ...common };
   }
   const probabilities = payload.probabilities;
-  if (!isRecord(probabilities)) throw new LabelerError('the answer has no probabilities object');
+  if (!isRecord(probabilities)) {
+    throw new LabelerError('the answer has no probabilities object', { code: 'answer-no-probabilities' });
+  }
   const checked: Record<string, number> = {};
   for (const [key, p] of Object.entries(probabilities)) {
     if (typeof p === 'number' && p >= 0 && p <= 1) checked[key] = p;

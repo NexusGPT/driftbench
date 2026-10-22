@@ -11,8 +11,8 @@ import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML } from '../../kit/sets';
 import { fakeTransport, seededModels } from '../../kit/transport';
 import { headingText, Prose } from '../../kit/words';
-import type { ModelArm, ScanResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, pass, type Run } from '../types';
+import { type ModelArm, READER_NOT_REACHABLE, type ScanResult, type SourceFile } from '../../sut/port';
+import { fail, type ItemContext, missing, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const para = (text: string) => ({ kind: 'paragraph' as const, sentences: [text] });
@@ -49,7 +49,7 @@ async function go(job: Job, options: Parameters<typeof runChild>[1] = {}): Promi
   const run = await runChild(job, options);
   const out: JobOutput | undefined = run.output;
   // A reader that cannot be reached leaks nothing because it did nothing: that is a failure, never a pass.
-  if (out && !out.ok && /not reachable/.test(out.error)) {
+  if (out && !out.ok && out.code === READER_NOT_REACHABLE) {
     run.cleanup();
     throw new Error(out.error);
   }
@@ -419,7 +419,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     const failing = await withClean(seen, () => {
       const out = seen.run.output;
       const r = out?.ok ? (out.result as ScanResult) : undefined;
-      if (r && !Array.isArray(r.warnings)) return fail('the reader does not expose warnings');
+      if (r && !Array.isArray(r.warnings)) return missing('the reader does not expose warnings');
       const text = `${r?.error ?? ''}\n${JSON.stringify(r?.diagnostics ?? [])}\n${JSON.stringify(r?.warnings ?? [])}\n${seen.run.stdout}\n${seen.run.stderr}`;
       const leak = hit(text, secrets);
       if (leak) return fail(`${leak} is in a failure message`);
@@ -447,7 +447,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     const again = await go(job);
     return withClean(again, () => {
       const r = mustRun(again);
-      if (!Array.isArray(r.warnings)) return fail('the reader does not expose warnings');
+      if (!Array.isArray(r.warnings)) return missing('the reader does not expose warnings');
       const out = [
         JSON.stringify(r.warnings),
         JSON.stringify(r.diagnostics),

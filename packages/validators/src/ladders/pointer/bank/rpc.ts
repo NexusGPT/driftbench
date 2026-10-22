@@ -1,5 +1,5 @@
 import { Unsupported } from '../sut/blind-binding/reader';
-import { ReaderNotReachable } from '../sut/port';
+import { READER_NOT_REACHABLE, ReaderNotReachable } from '../sut/port';
 
 /**
  * The wire between the process that holds the oracle of an item and the process that holds the reader (`reader-link.ts`
@@ -46,6 +46,9 @@ export function reviveError(wire: WireError): Error {
   Object.defineProperty(error, 'name', { value: wire.name, writable: true, configurable: true });
   if (wire.stack !== undefined)
     Object.defineProperty(error, 'stack', { value: wire.stack, writable: true, configurable: true });
+  // The class keeps its code across the wire: a check on a failure reads the code and never the words.
+  if (wire.name === 'ReaderNotReachable')
+    Object.defineProperty(error, 'code', { value: READER_NOT_REACHABLE, writable: true, configurable: true });
   return error;
 }
 

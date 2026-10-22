@@ -4,7 +4,7 @@ import { constant, entriesFor } from '../../kit/labellers';
 import { type LinkWorld, linksApi, linkWorld, scanRules } from '../../kit/links-world';
 import { show } from '../../kit/oracle';
 import { splitParts } from '../../kit/segments';
-import { Prose, rewordWords } from '../../kit/words';
+import { editWords, Prose, rewordWords, writtenOf } from '../../kit/words';
 import type { Labeler, LedgerView, Link, LinkState } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
@@ -195,7 +195,8 @@ export const linksRuns: Record<string, Run> = {
     const above = pickRule(lw, 7);
     const target = pickRule(lw, 8);
     const { states } = await afterEdit(ctx, lw, (w) => {
-      w.texts[0]![7] = above.replace(/ (\w+)\.$/, ' otherwise.');
+      // The last word the generator wrote (the one before the full stop) becomes `otherwise`.
+      w.texts[0]![7] = editWords(above, new Map([[writtenOf(above).words.length - 1, 'otherwise']]));
     });
     return verdict(
       checkStates(

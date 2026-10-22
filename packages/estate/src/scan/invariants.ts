@@ -1,5 +1,11 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
-import { type PointerInput, type PointerResult, pointerAtoms, pointerScan } from '../pointer';
+import {
+  type PointerDiagnostic,
+  type PointerInput,
+  type PointerResult,
+  pointerAtoms,
+  pointerScan,
+} from '../pointer';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
@@ -73,7 +79,14 @@ export type ScanAtoms = {
   duplicates: string[];
   calls: number;
   /** What the pointer reader did, when it ran instead of the model port. */
-  pointer?: PointerResult & { atoms: number; atomRefusals: string[] };
+  pointer?: PointerResult & {
+    atoms: number;
+    atomRefusals: string[];
+    /** One record for each text of `atomRefusals`, in the same order. */
+    atomRefusalRecords: PointerDiagnostic[];
+    /** One record for each repeat the atom builder listed, in the same order as `duplicates`. */
+    atomDuplicateRecords: PointerDiagnostic[];
+  };
 };
 
 /** Code atoms first, in a fixed order, then each prose chunk through the model when a port is given. */
@@ -114,7 +127,13 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
       refusals,
       duplicates: built.duplicates,
       calls: pointed.calls,
-      pointer: { ...pointed, atoms: built.accepted.length, atomRefusals: built.refusals },
+      pointer: {
+        ...pointed,
+        atoms: built.accepted.length,
+        atomRefusals: built.refusals,
+        atomRefusalRecords: built.refusalRecords,
+        atomDuplicateRecords: built.duplicateRecords,
+      },
     };
   }
   if (options.port) {

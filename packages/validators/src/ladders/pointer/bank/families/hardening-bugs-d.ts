@@ -48,10 +48,9 @@ const CLOSED: FetchResponse = {
   status: 400,
   body: JSON.stringify({ error: { type: 'invalid_request_error', message: 'closed' } }),
 };
-/** The fields a miss names as differing from its nearest entry; none when it names no nearest entry. */
-function fieldsNamed(error: string | undefined): string[] {
-  const m = /differs in:?\s*([^;]*)/.exec(error ?? '');
-  return m ? (m[1] as string).split(/[,\s]+/).filter((field) => field !== '') : [];
+/** The fields a miss names as differing from its nearest entry (its structured `differs`); none for no miss. */
+function fieldsNamed(res: ScanResult): string[] {
+  return res.miss?.differs ?? [];
 }
 
 /* ----- the default stack: a choice system 1 arm in front of the haiku arm ----- */
@@ -540,14 +539,14 @@ const cassetteRuns: Record<string, Run> = {
     const edited = await replay(editedYaml(r), jev.cassette);
     if (edited.res.ok || edited.fake.count !== 0)
       return fail('positive witness: a changed label description replayed, or reached the transport');
-    if (!fieldsNamed(edited.res.error).includes('setHash'))
+    if (!fieldsNamed(edited.res).includes('setHash'))
       return fail(
         `positive witness: the miss of a changed description names no setHash: ${edited.res.error}`,
       );
     const foreign = await replay(PROBE_YAML, haiku.cassette);
     if (foreign.res.ok || foreign.fake.count !== 0)
       return fail('the cassette of another labeller replayed, or the miss reached the transport');
-    const named = fieldsNamed(foreign.res.error);
+    const named = fieldsNamed(foreign.res);
     return named.includes('labeler')
       ? fail(
           `the miss names an entry of another labeller as the nearest (it differs in ${named.join(', ')}): the nearest entry is one of the same file, window, set and labeller, and there is none: ${foreign.res.error}`,
@@ -575,7 +574,7 @@ const cassetteRuns: Record<string, Run> = {
     const edited = await replay(editedYaml(r));
     if (edited.res.ok || edited.fake.count !== 0)
       return fail('a changed label description replayed, or the miss reached the transport');
-    const named = fieldsNamed(edited.res.error);
+    const named = fieldsNamed(edited.res);
     if (!named.includes('setHash'))
       return fail(`the miss does not name the set hash among the fields that differ: ${edited.res.error}`);
     return named.includes('run')

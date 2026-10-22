@@ -50,13 +50,14 @@ async function main(): Promise<void> {
           resolve(
             fail(
               `${CONTROL_FAILED}: the reader gave no answer within ${CONTROL_ANSWER_MS / 1000} s, and its process was stopped`,
+              'control-failed',
             ),
           );
         }, CONTROL_ANSWER_MS);
       });
       const outcome = await Promise.race([runControl(message.control, session.sut), silent]);
       if (timer) clearTimeout(timer);
-      await answer(lost() ? fail(lost() as string) : outcome);
+      await answer(lost() ? fail(lost() as string, 'reader-process-ended') : outcome);
       return;
     }
     if (message.blind) {
@@ -73,7 +74,7 @@ async function main(): Promise<void> {
     const outcome: Outcome = item
       ? await executeHere(item, message.run.seed, session.sut, session.stop)
       : fail(`the child holds no item ${message.run.id}`);
-    await answer(lost() ? fail(lost() as string) : outcome);
+    await answer(lost() ? fail(lost() as string, 'reader-process-ended') : outcome);
   });
   process.send?.({ ready: true });
 }

@@ -370,10 +370,12 @@ async function realWith(wrap: (member: Member, render: Member['render']) => Memb
     async () =>
       (await import(/* @vite-ignore */ '@agent-nexus/driftbench-estate')) as Record<string, unknown>,
   );
-  const product = {
-    ...reader,
-    buildLabelling: async (...args: Parameters<ReaderExports['buildLabelling']>) => {
-      const built = await reader.buildLabelling(...args);
+  type Build = ReaderExports['buildLabelling'];
+  // The binding builds through `buildLabellingDetailed` when the reader has it: both builds are wrapped.
+  const wrapped =
+    (build: Build): Build =>
+    async (...args) => {
+      const built = await build(...args);
       if (!built.ok) return built;
       return {
         ...built,
@@ -388,7 +390,12 @@ async function realWith(wrap: (member: Member, render: Member['render']) => Memb
           ),
         },
       };
-    },
+    };
+  const detailed = reader.buildLabellingDetailed;
+  const product = {
+    ...reader,
+    buildLabelling: wrapped(reader.buildLabelling),
+    ...(detailed ? { buildLabellingDetailed: wrapped(detailed) } : {}),
   } as unknown as ReaderExports;
   return { ...readerAdapter(product), isolate: false } as PointerSut;
 }

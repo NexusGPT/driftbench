@@ -127,6 +127,37 @@ it('the actual item rejects a body whose later transport serialisation drops the
         },
       };
     },
+    buildLabellingDetailed: async (...args: Parameters<typeof estate.buildLabellingDetailed>) => {
+      const built = await estate.buildLabellingDetailed(...args);
+      if (!built.ok) return built;
+      return {
+        ...built,
+        labelling: {
+          ...built.labelling,
+          members: built.labelling.members.map((member) =>
+            Object.create(member, {
+              render: {
+                value: (set: unknown, window: unknown, context: { candidates?: object }) => {
+                  const own = member as unknown as Member;
+                  const full = own.render(set, window, context);
+                  const dropped = own.render(set, window, { ...context, candidates: {} });
+                  let serializations = 0;
+                  return {
+                    ...full,
+                    body: Object.defineProperty({ ...full.body }, 'toJSON', {
+                      value() {
+                        serializations += 1;
+                        return serializations === 1 ? full.body : dropped.body;
+                      },
+                    }),
+                  };
+                },
+              },
+            }),
+          ),
+        },
+      };
+    },
   };
   const sut: PointerSut = { ...readerAdapter(product as unknown as ReaderExports), isolate: false };
   const item = pointerBank().find((x) => x.id === CANDIDATE);
