@@ -551,6 +551,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
         return {
           content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
           error: ran.status !== 0,
+          // The script ran: its exit status is its result, which the agent shows, not a refusal of the call.
+          ran: true,
         };
       });
     } else {
@@ -563,7 +565,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
     // A read the map declares missing (`exists: false`) answers file-not-found and the run goes on, as an agent's does.
     if (action.missing && result?.error) continue;
-    if (!result || result.error) {
+    if (!result || (result.error && !result.ran)) {
       text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
