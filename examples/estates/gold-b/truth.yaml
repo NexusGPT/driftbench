@@ -51,6 +51,12 @@ limits:
     role: constraint
     unit_of: "readings of the message"
     governs: lhxxqkxm3l
+  - unit: lwci7tropa
+    limit: 0
+    comparison: le
+    role: constraint
+    unit_of: "axis start value"
+    governs: lwci7tropa
   - unit: 2yxq6pbpcn
     limit: 1
     comparison: le
