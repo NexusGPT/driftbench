@@ -135,6 +135,19 @@ export const Touches = z
   .describe('The workspace paths the ask may touch; every other path stays untouched');
 export type Touches = z.infer<typeof Touches>;
 
+export const Provokes = z
+  .strictObject({
+    tool: z.string().min(1).describe('The tool of the call, such as Bash.'),
+    command: z
+      .string()
+      .min(1)
+      .describe('The command of the call (fictional text); the call runs it as written.'),
+  })
+  .describe(
+    'A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches',
+  );
+export type Provokes = z.infer<typeof Provokes>;
+
 export const Situation = z.strictObject({
   id: Slug.describe('A short id, unique among the situations of the bank.'),
   title: z.string().min(1).describe('What the situation is, in a few words.'),
@@ -148,6 +161,7 @@ export const Situation = z.strictObject({
     .describe('Situation axis values the phrases express; a plan row must agree with each of them'),
   workspace: Slug.optional().describe('The workspace seed the ask starts from'),
   touches: Touches.optional(),
+  provokes: Provokes.optional(),
   inputs: z
     .array(z.string().min(1))
     .min(1)

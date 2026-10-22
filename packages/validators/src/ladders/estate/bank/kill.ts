@@ -191,7 +191,62 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
       ? `the name line of ${atom.provenance.file} repeats its folder, ${folder}, and the runtime names a skill by its folder`
       : undefined;
   }
+  if (atom.kind === 'tool' && atom.fields?.effect === 'declared') {
+    // The scan keeps the tool of a declared entry in `rule` and can drop its pattern (`Bash(python3 *)` is `Bash`): the
+    // entry as the skill wrote it is the quote of the atom, which names the same tool when it holds a pattern.
+    const written = parseRule(atom.provenance.quote);
+    const rule =
+      written && written.tool === atom.fields.tool
+        ? atom.provenance.quote.trim()
+        : typeof atom.fields.rule === 'string'
+          ? atom.fields.rule
+          : undefined;
+    const granted = rule
+      ? estate.atoms.find(
+          (other) =>
+            other.kind === 'tool' &&
+            other.fields?.effect === 'allow' &&
+            typeof other.fields.rule === 'string' &&
+            ruleCovers(other.fields.rule, rule),
+        )
+      : undefined;
+    return granted
+      ? `${rule} is declared by the skill and the settings allow ${String(granted.fields?.rule)} (${granted.id}): the runtime grants the call with or without the declaration`
+      : undefined;
+  }
   return undefined;
+}
+
+/** `Tool` or `Tool(pattern)`, the pattern with a `:*` suffix written as the trailing ` *` it stands for. */
+function parseRule(rule: string): { tool: string; pattern: string | undefined } | undefined {
+  const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule.trim());
+  if (!match) return undefined;
+  return { tool: match[1] as string, pattern: match[2]?.replace(/:\*$/, ' *') };
+}
+
+/**
+ * Whether the permission rule `allow` certainly covers every call the rule `declared` covers, by the matching of
+ * Claude Code (https://code.claude.com/docs/en/permissions, "Wildcard patterns"): `*` is any sequence of
+ * characters; a rule with no `*` matches the exact command; a trailing ` *` (a space, then the only wildcard)
+ * matches the command followed by anything and also the bare command; `:*` at the end is that same trailing ` *`.
+ * So an allow rule covers a declared one only when it is the same tool and
+ * - has no pattern (the whole tool), or
+ * - has the same pattern, or
+ * - is `P *` with no other `*`, and the declared pattern is `P` or starts with `P ` before any wildcard.
+ * Anything else (an exact rule against a longer command, a `*` inside the pattern, `python` against `python3`) is
+ * not certain, and the mutant stays required.
+ */
+function ruleCovers(allow: string, declared: string): boolean {
+  const a = parseRule(allow);
+  const d = parseRule(declared);
+  if (!a || !d || a.tool !== d.tool) return false;
+  if (a.pattern === undefined) return true;
+  if (d.pattern === undefined) return false;
+  if (a.pattern === d.pattern) return true;
+  if (!a.pattern.endsWith(' *') || a.pattern.slice(0, -2).includes('*')) return false;
+  const base = a.pattern.slice(0, -2);
+  const literal = d.pattern.split('*')[0] as string;
+  return d.pattern === base || literal.startsWith(`${base} `);
 }
 
 /**

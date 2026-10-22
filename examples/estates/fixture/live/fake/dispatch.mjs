@@ -104,6 +104,8 @@ export function loadDispatch(env) {
           {
             use: situation.use,
             atoms: situation.atoms ?? [],
+            changed: situation.touches?.changed ?? [],
+            provokes: situation.provokes,
             inputs: Array.isArray(situation.inputs) ? situation.inputs : [],
             invites: Array.isArray(situation.invites) ? situation.invites : [],
             holds: Array.isArray(situation.holds) ? situation.holds : [],
@@ -209,11 +211,16 @@ export function setOff(index, ask) {
   const banked = index.phrases.get(asked);
   if (banked) {
     const out = new Map();
+    const edits = [];
+    const provokes = [];
     const inputs = [];
     const invites = [];
     const holds = [];
     for (const situation of banked) {
       if (situation.use === 'outside' || situation.use === 'near_miss') continue;
+      for (const path of situation.changed) if (!edits.includes(path)) edits.push(path);
+      if (situation.provokes && !provokes.some((call) => call.command === situation.provokes.command))
+        provokes.push(situation.provokes);
       for (const id of situation.atoms) out.set(id, (out.get(id) ?? false) || situation.use === 'forced');
       for (const item of situation.inputs) if (!inputs.includes(item)) inputs.push(item);
       for (const unit of situation.holds) if (!holds.includes(unit)) holds.push(unit);
@@ -227,7 +234,15 @@ export function setOff(index, ask) {
         if (!invites.some((known) => JSON.stringify(known) === JSON.stringify(entry))) invites.push(entry);
       }
     }
-    return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [], inputs, invites, holds };
+    return {
+      atoms: [...out].map(([id, provoke]) => ({ id, provoke })),
+      named: [],
+      edits,
+      provokes,
+      inputs,
+      invites,
+      holds,
+    };
   }
   const matched = matchAsk(index.grammar, ask);
   if (matched)
@@ -362,7 +377,7 @@ function commandOf(script, folder) {
  *   call of the code span of its own line that names it; an obligation's `dispatches` link is an Agent call of the
  *   helper it names, while that helper's atom is in force;
  * - `gates`: each `ordered` evidence of a gate (`before`, `after`), with the file or the command it names first
- *   (`first`, `path`) and, for two calls of one tool, the call that comes second (`second`);
+ *   (`first`, `path`), or the key its read shares with its change (`order.key`) and, for two calls of one tool, the call that comes second (`second`);
  * - `bans`: each declared `forbid` case of a passage (`fields.unitCases`: a tool and the material it may not take),
  *   marked `conditional` when the passage holds a condition (`fields.condition`), which no field resolves.
  * Paths and commands of a skill's passage are relative to the skill's folder; those of a standing passage, to the
@@ -393,7 +408,7 @@ export function unitPlan(index, entry, cwd) {
     const own = carrier === unit ? folder : '';
     if (carrier === unit) {
       if (atom.kind === 'reference' && text(fields.path))
-        add({ kind: 'Read', literal: fields.path, folder: '' });
+        add({ kind: 'Read', literal: fields.path, folder: '', missing: fields.exists === false });
       if (atom.kind === 'script' && text(fields.path)) add({ kind: 'Bash', ...commandOf(atom, folder) });
       for (const link of Array.isArray(fields.labelLinks) ? fields.labelLinks : []) {
         const helper = link?.kind === 'dispatches' ? index.atoms.get(link.atom) : undefined;
@@ -410,6 +425,7 @@ export function unitPlan(index, entry, cwd) {
             first: text(fields.first),
             second: text(fields.second),
             path: text(fields.path),
+            orderKey: text(fields.order?.key),
             folder: own,
           });
     const conditional = Array.isArray(fields.condition) && fields.condition.length > 0;

@@ -318,6 +318,8 @@ function buildStore(sources: Sources): StoreDoc {
           rules: sources.estate.rules.map((rule) => ({
             ...rule,
             conditions: rule.conditions.map((condition) => {
+              // A label the span already carries is the reader's reading: the recording never replaces it.
+              if ((condition as { label?: unknown }).label !== undefined) return condition;
               const label = known.get(foldSpan(condition.text));
               return label === undefined ? condition : { ...condition, label };
             }),

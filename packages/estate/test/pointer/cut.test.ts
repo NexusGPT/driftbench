@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { cut, fingerprint, sentenceSpans } from '../../src/pointer';
+import { CutError, cut, fingerprint, MAX_NESTING, sentenceSpans } from '../../src/pointer';
+import { nestingOf } from '../../src/pointer/cut';
 
 // Every file below is invented: the shelves, the crates and the keepers exist nowhere.
 const SHELF = `---
@@ -160,6 +161,57 @@ describe('sentence spans', () => {
       'Lock up.',
     ]);
   });
+  it('ends a sentence at the full stop that closes a URL', () => {
+    expect(split('Open https://shop.example/a.b/menu. Then order.')).toEqual([
+      'Open https://shop.example/a.b/menu.',
+      'Then order.',
+    ]);
+    expect(split('Open (https://shop.example/a.b) now. Then order.')).toEqual([
+      'Open (https://shop.example/a.b) now.',
+      'Then order.',
+    ]);
+  });
+
+  it('does not cut at a carriage return inside a sentence', () => {
+    expect(split('Put the crate\r\non the shelf. Lock up.')).toEqual([
+      'Put the crate\r\non the shelf.',
+      'Lock up.',
+    ]);
+  });
+
+  it('does not split before an all lower-case word, a name that starts lower case with a capital inside does', () => {
+    expect(split('Smith et al. apply the rule to every crate.')).toEqual([
+      'Smith et al. apply the rule to every crate.',
+    ]);
+    expect(split('She said "lock up now." and then she left.')).toEqual([
+      'She said "lock up now." and then she left.',
+    ]);
+    expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
+      'We bake rye daily.',
+      'iOS bakers prefer wheat.',
+    ]);
+    expect(split('Order it online. eBay lists the price.')).toEqual([
+      'Order it online.',
+      'eBay lists the price.',
+    ]);
+  });
+
+  it('keeps a boundary when the next sentence starts in lower case', () => {
+    expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
+      'We bake rye daily.',
+      'iOS bakers prefer wheat.',
+    ]);
+  });
+});
+
+describe('a folded front matter scalar', () => {
+  it('is one unit that starts after its header line', () => {
+    const source = '---\ndescription: >\n  First line here.\n  Second line here.\n---\nBody text.\n';
+    const units = cut(source).units.filter((unit) => unit.container === 'front_matter_value');
+    expect(units).toHaveLength(1);
+    expect(units[0]?.text).toBe('First line here.\n  Second line here.');
+    expect(source.slice(units[0]?.start, units[0]?.end)).toBe(units[0]?.text);
+  });
 });
 
 describe('the fingerprint', () => {
@@ -176,5 +228,97 @@ describe('the fingerprint', () => {
 
   it('joins the same text in two Unicode forms', () => {
     expect(fingerprint('café')).toBe(fingerprint('café'));
+  });
+});
+
+describe('a file that nests too deep', () => {
+  const nested = (levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${'  '.repeat(i)}- level ${i}`).join('\n')}\n`;
+
+  it('is cut when it nests as deep as the limit, one unit per item', () => {
+    expect(cut(nested(MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('is refused with a message that says why, in time that does not grow with the depth', () => {
+    const started = performance.now();
+    expect(() => cut(nested(600))).toThrow(CutError);
+    expect(() => cut(nested(600))).toThrow(/levels deep, over the limit of 100/);
+    expect(performance.now() - started).toBeLessThan(500);
+    expect(() => cut(`${'> '.repeat(MAX_NESTING + 1)}quoted\n`)).toThrow(CutError);
+  });
+
+  it('does not count a fence, or a long indent that is no list', () => {
+    const fenced = `\`\`\`\n${nested(600)}\`\`\`\n`;
+    expect(cut(fenced).units).toHaveLength(1);
+    expect(cut(`${' '.repeat(400)}plain text\n`).units.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the nesting of a file counts list structure, not indent width', () => {
+  const nestedBy = (width: number, levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${' '.repeat(width * i)}- level ${i}`).join('\n')}\n`;
+
+  it('reads a list indented four spaces a level as deep as one indented two', () => {
+    expect(cut(nestedBy(4, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(2, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(4, MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('refuses a list one level over the limit, whatever its indent, with the depth in the error', () => {
+    for (const width of [1, 2, 4]) {
+      const refusal = (() => {
+        try {
+          return cut(nestedBy(width, MAX_NESTING + 1));
+        } catch (cause) {
+          return cause;
+        }
+      })();
+      expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    }
+  });
+
+  it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
+    const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
+    expect(cut(flat).units).toHaveLength(300);
+    const text = `${nestedBy(2, 90)}\nA paragraph.\n\n${nestedBy(2, 90)}`;
+    expect(cut(text).units.length).toBeGreaterThan(180);
+  });
+});
+
+describe('the cost of the nesting check on a large file', () => {
+  const cpu = (run: () => void): number => {
+    const before = process.cpuUsage();
+    run();
+    const used = process.cpuUsage(before);
+    return (used.user + used.system) / 1000;
+  };
+  const rows = (count: number) => Array.from({ length: count }, (_, index) => `Row ${index}`).join('\n');
+
+  it('reads 150,000 lines to refuse a deep list at their end in well under the time the parser needs for one block', () => {
+    const deep = Array.from({ length: MAX_NESTING + 5 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join(
+      '\n',
+    );
+    const text = `${rows(150_000)}\n\n${deep}\n`;
+    let refusal: unknown;
+    const used = cpu(() => {
+      try {
+        cut(text);
+      } catch (cause) {
+        refusal = cause;
+      }
+    });
+    expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 5 });
+    // The refusal comes before the parse; a pass that did work per line of a large file twice would show here.
+    expect(used).toBeLessThan(2_000);
+  });
+
+  it('is one pass: twice the lines cost under three times the CPU, and 150,000 lines under a second', () => {
+    const small = rows(150_000);
+    const large = rows(300_000);
+    nestingOf(small);
+    const one = cpu(() => nestingOf(small));
+    const two = cpu(() => nestingOf(large));
+    expect(one).toBeLessThan(1_000);
+    expect(two).toBeLessThan(Math.max(one, 20) * 3);
   });
 });
