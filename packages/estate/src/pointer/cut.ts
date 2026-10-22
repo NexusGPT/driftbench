@@ -272,6 +272,12 @@ const startsParagraph = (line: string): boolean => {
   return children.length === 1 && children[0]?.type === 'paragraph';
 };
 
+/** Whether a line, read as the start of a file, is a block quote of one paragraph: the parser decides. */
+const startsQuote = (line: string): boolean => {
+  const children = (PROCESSOR.parse(line) as unknown as Node).children ?? [];
+  return children.length === 1 && children[0]?.type === 'blockquote';
+};
+
 /**
  * The offsets at which a text is read in parts. The markdown parser's cost grows much faster than the lines of one
  * paragraph (150,000 lines take a minute, in parts of 5,000 about a second), so a paragraph over `SLAB_LINES` lines
@@ -279,35 +285,40 @@ const startsParagraph = (line: string): boolean => {
  * a paragraph and is linear: only a paragraph it finds is cut, at the start of a line that the parser also reads as
  * a paragraph alone, so no fence, heading, table or front matter is cut. A sentence over a cut is two units.
  */
-function cutsOf(text: string): number[] {
+function cutsOf(text: string): Array<{ at: number; join: boolean }> {
   if (linesIn(text) <= SLAB_LINES) return [];
   PROCESSOR.freeze();
   const extensions = (PROCESSOR.data('micromarkExtensions') as never[] | undefined) ?? [];
-  const events = parse({ extensions })
-    .flow()
-    .write(preprocess()(text, undefined, true));
-  const cuts: number[] = [];
-  for (const [kind, token] of events) {
-    if (kind !== 'enter' || token.type !== 'paragraph') continue;
-    if (token.end.line - token.start.line + 1 <= SLAB_LINES) continue;
+  const chunks = preprocess()(text, undefined, true);
+  const cuts: Array<{ at: number; join: boolean }> = [];
+  const along = (from: number, to: number, ok: (line: string) => boolean, join: boolean) => {
     let lines = 0;
-    let at = text.lastIndexOf('\n', token.start.offset) + 1;
-    while (at < token.end.offset) {
+    let at = text.lastIndexOf('\n', from) + 1;
+    while (at < to) {
       const end = text.indexOf('\n', at);
       const next = end === -1 ? text.length : end + 1;
-      if (
-        lines >= SLAB_LINES &&
-        next <= token.end.offset &&
-        startsParagraph(text.slice(at, end === -1 ? undefined : end))
-      ) {
-        cuts.push(at);
+      if (lines >= SLAB_LINES && next <= to && ok(text.slice(at, end === -1 ? undefined : end))) {
+        cuts.push({ at, join });
         lines = 0;
       }
       lines++;
       at = next;
     }
+  };
+  for (const [kind, token] of parse({ extensions }).flow().write(chunks)) {
+    if (kind === 'enter' && token.type === 'paragraph' && token.end.line - token.start.line + 1 > SLAB_LINES)
+      along(token.start.offset, token.end.offset, startsParagraph, false);
   }
-  return cuts;
+  // A block quote holds its paragraph one container deep, where the flow pass does not look: its lines are
+  // cut at a line that the parser reads as a quote alone, and the parts are joined back into one unit.
+  let until = -1;
+  for (const [kind, token] of parse({ extensions }).document().write(chunks)) {
+    if (kind !== 'enter' || token.type !== 'blockQuote' || token.start.offset < until) continue;
+    until = token.end.offset;
+    if (token.start.column === 1 && token.end.line - token.start.line + 1 > SLAB_LINES)
+      along(token.start.offset, token.end.offset, startsQuote, true);
+  }
+  return cuts.sort((x, y) => x.at - y.at);
 }
 
 export type CutOptions = {
@@ -385,8 +396,9 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
   ) => {
     const cuts = sliced ? [] : cutsOf(text);
     if (cuts.length > 0) {
-      const edges = [0, ...cuts, text.length];
-      for (let part = 0; part + 1 < edges.length; part++)
+      const edges = [0, ...cuts.map((cutAt) => cutAt.at), text.length];
+      for (let part = 0; part + 1 < edges.length; part++) {
+        const before = units.length;
         markdown(
           text.slice(edges[part], edges[part + 1]),
           offset + (edges[part] as number),
@@ -395,6 +407,16 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           trail,
           true,
         );
+        // The parts of one block quote are one unit: the first unit of this part joins the last of the one before.
+        if (part > 0 && cuts[part - 1]?.join && units.length > before && before > 0) {
+          const joined = units[before - 1] as Unit;
+          const next = units[before] as Unit;
+          if (joined.container === 'block_quote' && next.container === 'block_quote') {
+            const text = source.slice(joined.start - base, next.end - base);
+            units.splice(before - 1, 2, { ...joined, end: next.end, text, fp: fingerprint(text) });
+          }
+        }
+      }
       return;
     }
     const tree = PROCESSOR.parse(text) as unknown as Node;

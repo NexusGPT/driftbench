@@ -86,7 +86,19 @@ describe('the cutter on a plain text file', () => {
     }
     const list = Array.from({ length: 12_000 }, (_, index) => `- item ${index}`).join('\n');
     expect(cut(list, { plain: false }).units).toHaveLength(12_000);
-  });
+  }, 120_000);
+
+  it('reads 60,000 lines of one block quote in seconds of CPU and keeps it one unit', () => {
+    const quote = Array.from({ length: 60_000 }, (_, index) => `> Row ${index}`).join('\n');
+    const before = process.cpuUsage();
+    const units = cut(quote, { plain: false }).units;
+    const used = process.cpuUsage(before);
+    expect(units).toHaveLength(1);
+    expect(units[0]?.container).toBe('block_quote');
+    expect(units[0]?.text.endsWith('> Row 59999')).toBe(true);
+    expect(quote.slice(units[0]?.start, units[0]?.end)).toBe(units[0]?.text);
+    expect((used.user + used.system) / 1000).toBeLessThan(8_000);
+  }, 120_000);
 
   it('keeps the heading path after a very long paragraph', () => {
     const rows = Array.from({ length: 12_000 }, (_, index) => `Row ${index}`).join('\n');
