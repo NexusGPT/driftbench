@@ -322,7 +322,7 @@
     {
       "seed": "hidden",
       "planted": "no",
-      "cpu": "Xeon Platinum 8370C",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
       "raw": 102756,
       "cal": 262.4
     },
@@ -836,7 +836,7 @@
     },
     {
       "seed": "2",
-      "cpu": "Xeon Platinum 8370C",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
       "raw": 73847,
       "parts": { "alloc": 1268.2, "hash": 127.6, "yaml": 250.7, "stat": 80.6 },
       "cal": 286.2
@@ -1011,7 +1011,7 @@
     },
     {
       "seed": "hidden",
-      "cpu": "Xeon Platinum 8370C",
+      "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
       "raw": 83659,
       "parts": { "alloc": 1263, "hash": 128, "yaml": 244.2, "stat": 81.6 },
       "cal": 283.3
