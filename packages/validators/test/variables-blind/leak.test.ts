@@ -12,7 +12,7 @@ import { referenceImpl } from './reference/index';
  * 3 and their failures are checked on fields (`leakReport`). A failure that is not structured is counted, and the count
  * may only go down: UNSTRUCTURED_MAX is lowered as the sites are converted.
  */
-const UNSTRUCTURED_MAX = Number.POSITIVE_INFINITY;
+const UNSTRUCTURED_MAX = 3493;
 
 const items = blindBank().filter((i) => i.family !== 'scale');
 
