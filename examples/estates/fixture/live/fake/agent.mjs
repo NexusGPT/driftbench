@@ -483,7 +483,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           return under || call.file_path === entry.material;
         }
         const words = call.command.trim().split(/\s+/);
-        return entry.material.trim().split(/\s+/).every((word, at) => words[at] === word);
+        return entry.material
+          .trim()
+          .split(/\s+/)
+          .every((word, at) => words[at] === word);
       });
     for (const invited of setOffBy.invites ?? []) {
       if (refused(invited)) continue;
