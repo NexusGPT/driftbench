@@ -69,4 +69,57 @@ describe('kill.fake: a declared tool the settings already allow is an equivalent
     expect(equivalent(del, DECLARED_BASH, bare)).toBeUndefined();
     expect(equivalent(del, DECLARED_BASH, withAllow('Edit'))).toBeUndefined();
   });
+
+  // Claude Code, "Configure permissions", wildcard patterns: `*` matches any sequence of characters; a trailing ` *`
+  // (a space, then the only wildcard) also matches the bare command; `Bash(ls *)` does not match `lsof`; the `:*`
+  // suffix is equivalent to a trailing ` *` (`Bash(ls:*)` is `Bash(ls *)`), and is recognised only at the end of
+  // a pattern; a rule with no `*` matches the exact command. https://code.claude.com/docs/en/permissions
+  describe('an allow rule exempts only the calls it certainly covers', () => {
+    const covered = async (allow: string, declared: string) => {
+      const map = await fixtureMap();
+      const changed = {
+        ...map,
+        atoms: map.atoms.map((atom) =>
+          atom.id === 'tool.settings.allow-bash-python3'
+            ? { ...atom, fields: { ...atom.fields, rule: allow } }
+            : atom.id === DECLARED_BASH
+              ? { ...atom, provenance: { ...atom.provenance, quote: declared } }
+              : atom,
+        ),
+      };
+      return equivalent(del, DECLARED_BASH, changed) !== undefined;
+    };
+
+    it.each([
+      ['Bash(python3 *)', 'Bash(python3 *)'],
+      ['Bash(python3 *)', 'Bash(python3 -m pip *)'],
+      ['Bash(python3 *)', 'Bash(python3)'],
+      ['Bash(python3:*)', 'Bash(python3 *)'],
+      ['Bash(python3 *)', 'Bash(python3:*)'],
+      ['Bash(git push origin main)', 'Bash(git push origin main)'],
+      ['Bash', 'Bash(anything *)'],
+    ])('exempts %s declared as %s', async (allow, declared) => {
+      expect(await covered(allow, declared)).toBe(true);
+    });
+
+    it.each([
+      // An allow rule with no `*` matches the exact command only.
+      ['Bash(python3)', 'Bash(python3 -m pip *)'],
+      ['Bash(ls)', 'Bash(ls -la *)'],
+      // A `*` that is not the trailing one: the text around it is matched as written.
+      ['Bash(git * main)', 'Bash(git * main --force)'],
+      // The `:*` suffix is a trailing ` *`: it needs the space, so `python` does not cover `python3`.
+      ['Bash(python:*)', 'Bash(python3 *)'],
+      ['Bash(python *)', 'Bash(python3 *)'],
+      // A star with no space before it matches more commands than the declared prefix says, and the declared
+      // pattern may match commands the rule does not.
+      ['Bash(python3 *)', 'Bash(python3*)'],
+      // A declared tool with no pattern grants the whole tool.
+      ['Bash(python3 *)', 'Bash'],
+      // Another tool.
+      ['Edit', 'Bash(python3 *)'],
+    ])('still requires the kill of %s declared as %s', async (allow, declared) => {
+      expect(await covered(allow, declared)).toBe(false);
+    });
+  });
 });
