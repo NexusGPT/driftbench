@@ -390,7 +390,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             sectionCuts.set(
               `${window.id}`,
               `${window.id}: the window ends at its ceiling of ${window.units.length} units inside the section ` +
-                `${JSON.stringify(window.headingPath)}; a unit in it cannot scope a later unit of that section`,
+                `${JSON.stringify(fileCut.units[window.units.at(-1)?.index ?? 0]?.path ?? window.headingPath)}; a unit in it cannot scope a later unit of that section`,
             );
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
