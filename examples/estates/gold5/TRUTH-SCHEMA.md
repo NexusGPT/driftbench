@@ -93,3 +93,21 @@ number_table:
   `limits_table` (the heldout truth files) is a table whose rows carry truth limits. A table is never both.
 * An empty list is allowed only for `scopes`, `plan.same_row`, `limits`, `refers_to` and `number_table` when
   the estate has none. `refers_to` and `number_table` may be left out; they read as empty.
+
+## Known candidate gaps, not in the published truths
+
+Six `refers_to` entries point at a place that holds a number, but the published truths (the 38 truth of
+c0359aee7 and the 55 truth of 4ef73174f) carry no limit there. They stay out of those truths. A truth version
+that adds them comes only from a separate blind truth PR with its own review.
+
+| Estate | Referring unit | Place referred to |
+|---|---|---|
+| A | fko2ua5tpt | hykpyrtlha |
+| C | uehscl2a2r | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | n5imuntsdk | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | 652yfeeguc | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | a3dchta7kr | the urgency table, p77uihinyk to 27jkqliewi |
+| C | k6g63ac7qe | the urgency table, p77uihinyk to 27jkqliewi |
+
+A scorer that reads these places finds numbers that the published truths do not count: a producer that returns
+them there is scored as returning extras.
