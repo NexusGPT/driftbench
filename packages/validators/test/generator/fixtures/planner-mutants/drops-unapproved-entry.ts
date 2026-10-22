@@ -11,7 +11,10 @@ export const planV2 = planted((plan, store) => {
     ...plan,
     rows: plan.rows.map((row) =>
       row.source === 'seed'
-        ? { ...row, values: Object.fromEntries(Object.entries(row.values).filter(([k, v]) => approved(k, v))) }
+        ? {
+            ...row,
+            values: Object.fromEntries(Object.entries(row.values).filter(([k, v]) => approved(k, v))),
+          }
         : row,
     ),
   };

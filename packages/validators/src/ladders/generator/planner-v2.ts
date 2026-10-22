@@ -450,7 +450,10 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
       const two = scenario.variables.slice(0, 2).map((variable) => variable.id);
       const partialSeeds: PlanSeedRow[] = [pick[0], pick.at(-1)]
         .filter((cell): cell is Cell => cell !== undefined)
-        .map((cell, index) => ({ id: `p${index}`, values: Object.fromEntries(two.map((id) => [id, cell[id] as string])) }));
+        .map((cell, index) => ({
+          id: `p${index}`,
+          values: Object.fromEntries(two.map((id) => [id, cell[id] as string])),
+        }));
       const partial = { seeds: partialSeeds, plan: plan(scenario.store, { seed: 1, seeds: partialSeeds }) };
       const first = scenario.forbids[0];
       const forbiddenSeeds: PlanSeedRow[] | undefined =
@@ -912,7 +915,8 @@ const STEMS: {
       const kept = head.every(
         (row, at) => row.source === 'seed' && sameValues(row.values, seeds[at]?.values),
       );
-      if (!kept) return verdict(false, 'the partial seeds do not lead the plan with exactly their own values');
+      if (!kept)
+        return verdict(false, 'the partial seeds do not lead the plan with exactly their own values');
       const missing = [
         ...a.oracle.uncovered('own', rowsOf(plan)),
         ...a.oracle.uncovered('axes', rowsOf(plan)),
