@@ -93,7 +93,7 @@ function readEstate(cwd) {
   return { skills, helpers, settings, steps };
 }
 
-/** The step list in its order: from the stage no next enters, along the first next; anytime steps last. */
+/** The step list in its order: from the stage no next enters, along the first next; anytime steps listed apart. */
 function walk(steps) {
   const flow = steps.filter((step) => step && !step.anytime && typeof step.id === 'string');
   const targets = new Set(flow.flatMap((step) => step.next ?? []));
@@ -569,11 +569,13 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       return { records: out, blocked: true };
     }
   }
+  // The flow in its order, a step allowed at any point inside it, and the closing stage last: the stage the runtime
+  // reports at the end of the block is the closing stage, not the step that may come anywhere.
   const rest = order.slice(1);
-  if (rest[0]) step(rest[0]);
-
-  for (const name of rest.slice(1)) step(name);
+  const closing = rest.at(-1);
+  for (const name of rest.slice(0, -1)) step(name);
   for (const name of anytime) step(name);
+  if (closing) step(closing);
   return close(undefined, longerThan);
 }
 
