@@ -235,7 +235,7 @@ describe('the real-reader adapter maps observations without implementing behavio
 
   it('forwards the product margin and independent-vote decision without implementing voting', async () => {
     const { sut, reader } = fixture();
-    reader.margin = vi.fn(() => ({ label: 'product-choice', margin: 0.17 }));
+    reader.stackMargin = vi.fn(() => ({ label: 'product-choice', margin: 0.17 }));
     reader.stackDecision = vi.fn(() => ({ label: 'product-choice', by: 'system2' as const }));
     const input = { probabilities: { x: 0.95, y: 0.05 }, system2Votes: ['y', 'y', 'y'], marginCut: 0.65 };
     expect(await sut.stack?.margin(input.probabilities)).toEqual({ label: 'product-choice', margin: 0.17 });
@@ -249,6 +249,6 @@ describe('the real-reader adapter maps observations without implementing behavio
     const { sut } = fixture();
     const input = { probabilities: { x: 1 }, system2Votes: ['x', 'x', 'x'], marginCut: 0.65 };
     expect(() => sut.stack?.decide(input)).toThrow('stackDecision');
-    expect(() => sut.stack?.margin(input.probabilities)).toThrow('margin');
+    expect(() => sut.stack?.margin(input.probabilities)).toThrow('stackMargin');
   });
 });
