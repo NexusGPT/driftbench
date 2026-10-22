@@ -128,6 +128,40 @@ describe('a mapping that builds one atom for each act span, with the file span l
     ]);
   });
 
+  it('refuses the gate whose own file span is missing, and moves no other gate (first file span absent)', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: ask first; before sending one: read `docs/send.md`.',
+      [{ act: 'editing a ledger' }, { act: 'sending one', file: '`docs/send.md`' }],
+    );
+    expect(found).toEqual([['docs/send.md', 'sending one']]);
+    expect(atomRefusals.join(' ')).toContain('gate 1');
+  });
+
+  it('keeps the pairs the label declares when the files stand in another order than the acts', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger and sending one, read the matching file: `docs/send.md` for sending one, `docs/ledger.md` for editing a ledger.',
+      [
+        { act: 'editing a ledger', file: '`docs/ledger.md`' },
+        { act: 'sending one', file: '`docs/send.md`' },
+      ],
+    );
+    expect(atomRefusals).toEqual([]);
+    expect(found).toEqual([
+      ['docs/ledger.md', 'editing a ledger'],
+      ['docs/send.md', 'sending one'],
+    ]);
+  });
+
+  it('refuses a file span that holds only the start of a path', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read `docs/ledger.md`.',
+      [{ act: 'editing a ledger', file: '`docs/' }],
+      ['docs/ledger.md'],
+    );
+    expect(found).toEqual([]);
+    expect(atomRefusals.length).toBeGreaterThan(0);
+  });
+
   it('refuses a gate with no file span, and keeps the others', async () => {
     const { found, atomRefusals } = await gates(
       'Before editing a ledger: read `docs/ledger.md`; before sending one: ask first.',
