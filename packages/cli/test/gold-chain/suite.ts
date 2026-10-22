@@ -730,6 +730,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
       const summary = process.env.GITHUB_STEP_SUMMARY;
       if (summary !== undefined && summary !== '') {
         appendFileSync(summary, `${verdict}\n\n\`\`\`\n${lines.join('\n')}\n\`\`\`\n`);
+        // Read the file back: the line must be in the job summary, and the log says where it was written.
+        expect(readFileSync(summary, 'utf8')).toContain(verdict);
+        console.log(`summary line written to ${summary}`);
       }
       expect(rows.length).toBe(6);
       expect(rows.filter((row) => row.verified === 'NO').map((row) => row.step)).toEqual([]);
