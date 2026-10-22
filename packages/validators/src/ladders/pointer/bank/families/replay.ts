@@ -5,7 +5,7 @@ import { loadFixture, makeFixture, perturb, requireFixtureLabels, runsOf } from 
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
-import { type FakeTransport, fakeTransport } from '../../kit/transport';
+import { type FakeTransport, fakeTransport, parseCall } from '../../kit/transport';
 import { headingText, Prose, rewordWords } from '../../kit/words';
 import type { FetchRequest, ModelArm, ScanRequest, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
@@ -519,12 +519,10 @@ export const replayRuns: Record<string, Run> = {
     // answered is recorded as failed). Whatever the scan does with it, the cassette it leaves stays valid.
     const { files } = threeFiles(ctx);
     const runs = runsOf('haiku').length;
-    let n = 0;
     const base = fakeTransport();
     const flaky = ((r: FetchRequest) => {
-      n += 1;
-      // The first request of the second window: the first window has been asked in full.
-      if (n === runs + 1) throw new Error('network down');
+      // Every request of the second window fails, however often it is retried; the others are answered.
+      if (parseCall(r).window === 'notes/b.md#1') throw new Error('network down');
       return base(r);
     }) as FakeTransport;
     const failedRun = await ctx.sut.scan({
