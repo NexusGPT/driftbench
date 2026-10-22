@@ -36,11 +36,11 @@ The lines that matter:
 
 ```
 Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
-  Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
+  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
 ```
 
-Code cut 11 prose files into 136 units. A labeler pointed at 133 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
+Code cut 11 prose files into 136 units. A labeler pointed at 134 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
 
 ```
 {
@@ -222,7 +222,7 @@ The command exits 0 when the blocks that flip are exactly the linked blocks, and
 ## Limits
 
 * The asks of the blocks written in step 2 come from code, not from approved phrases, and most of those blocks carry a judged criterion. A judged criterion has no verdict without a configured judge, so step 5 runs the 15 specs of the committed suite that name a gate, which machine checks decide.
-* A model labeler is not exact. In the scan above, 3 of 136 units have no label and the runs of one labeler disagreed on 1 unit. A unit without a label is not an atom, so no block links to it.
+* A model labeler is not exact. In the scan above, 2 of 136 units have no label and the runs of one labeler disagreed on 2 units. A unit without a label is not an atom, so no block links to it.
 * A `unit` change, the change of a unit that holds no atom, keeps the radius the whole suite and prints an advisory selection. The edit above hit a unit with an atom, so it became a `prompt` change and selected 16 blocks.
 * Measured on one suite, the Acme stand-in, with one agent model: on 274 mutants of the prompt, the selection of the ledger path with the rerun marks missed a flipped block on 0 of 274 (Wilson 95% upper bound 1.38%, mean selection ratio 0.513). Without the marks it missed 9 of 274 (6.12%). The result does not say that the procedure holds on another suite. Source: `research/ledger-h7/RESULT-ledger.md`.
 * The proof is as good as the runs behind it. The stand-in follows the rules of the estate in its folder, so a flip shows that the specs test the rule, not how a real agent behaves.

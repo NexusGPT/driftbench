@@ -9,6 +9,7 @@ import type { Io } from '../io';
 import * as estateCommands from './estate';
 import { estateGenerateCommand } from './estate-generate';
 import { estatePlanApproveCommand, estatePlanCommand } from './estate-plan';
+import { usageSummary } from './estate-pointer';
 
 export type EstateBuildOptions = estateCommands.EstateScanOptions & {
   /** The folder every file is written into. */
@@ -133,6 +134,7 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
     .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
     .option('--labeler <spec>', 'with --pointer: <class>:<client>[:<model>]; repeat it', collect)
+    .option('--prices <file>', 'with --pointer: a table of USD per million tokens (YAML), to print the cost')
     .option('--jobs <n>', 'with --pointer: requests in flight at once')
     .option('--phrases <file>', 'the approved phrase bank for estate generate')
     .option('--sessions <file>', 'the index of recorded sessions for estate generate')
@@ -216,10 +218,17 @@ export async function estateBuildCommand(
             ...(options.record ? { record: true } : {}),
             ...(options.labeler ? { labeler: options.labeler } : {}),
             ...(options.jobs ? { jobs: options.jobs } : {}),
+            ...(options.prices ? { prices: options.prices } : {}),
           }
         : {}),
     };
-    const code = await estateCommands.estateScanCommand(root, scanOptions, step.io, deps);
+    let usage: string[] = [];
+    const code = await estateCommands.estateScanCommand(root, scanOptions, step.io, {
+      ...deps,
+      onScan: (result, prices) => {
+        usage = usageSummary(result, prices);
+      },
+    });
     if (code === 2 || !(await exists(file('map.yaml')))) return 2;
     stamp.stages.scan = { input: scanInput, code };
     delete stamp.stages.approve;
@@ -229,6 +238,7 @@ export async function estateBuildCommand(
       `1. Read the estate: ${counts.atoms} atoms, ${counts.waiting} of them split from prose by a model and waiting for approval. Wrote ${shown('map.yaml')}.\n`,
     );
     if (code === 1) io.out(SCAN_WARNING);
+    for (const line of usage) io.out(`${line}\n`);
     await saveStamp();
   }
 
