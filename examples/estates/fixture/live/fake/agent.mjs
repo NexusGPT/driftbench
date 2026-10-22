@@ -16,8 +16,9 @@
  * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
 import {
   intentsOf,
   loadDispatch,
@@ -92,7 +93,7 @@ function readEstate(cwd) {
   return { skills, helpers, settings, steps };
 }
 
-/** The step list in its order: from the stage no next enters, along the first next; anytime steps last. */
+/** The step list in its order: from the stage no next enters, along the first next; anytime steps listed apart. */
 function walk(steps) {
   const flow = steps.filter((step) => step && !step.anytime && typeof step.id === 'string');
   const targets = new Set(flow.flatMap((step) => step.next ?? []));
@@ -197,6 +198,15 @@ function ordered(plan, cwd) {
     if (gate.before === gate.after) continue;
     const governed = actions.filter((action) => action.kind === gate.after);
     if (!governed.length) continue;
+    // A gate that declares the key its read shares with its change (`order.key`, file_path) and names no file: each
+    // change is preceded by a read of the same file.
+    if (gate.before === 'Read' && !gate.path && gate.orderKey === 'file_path') {
+      for (const action of governed) {
+        const read = ensure('Read', action.literal, action.folder);
+        if (read !== action) action.needs.add(read);
+      }
+      continue;
+    }
     const first =
       gate.before === 'Read' && gate.path
         ? ensure('Read', gate.path, '')
@@ -265,6 +275,13 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     unit?.kind === 'skill' && dispatch
       ? unitPlan(dispatch, { kind: 'skill', name: unit.name }, cwd)
       : { actions: [], gates: [], bans: [] };
+  // The files the situation of the ask declares it changes: each is edited, after the reads its gates order.
+  for (const path of setOffBy.edits ?? [])
+    if (
+      unit?.kind === 'skill' &&
+      !plan.actions.some((other) => other.kind === 'Edit' && other.literal === path)
+    )
+      plan.actions.push({ kind: 'Edit', literal: path, folder: '' });
   const prohibited = prohibitions(plan.bans, cwd);
   const out = [];
   let id = 0;
@@ -307,9 +324,15 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           hook_name: name,
           hook_event: event,
         });
+        // The runtime hands a hook the path of the session's transcript, which holds the calls made so far.
+        const transcript = join(
+          tmpdir(),
+          `fake-transcript-${cwd.replace(/[^A-Za-z0-9]/g, '-')}-${sessionId}.jsonl`,
+        );
+        writeFileSync(transcript, out.map((record) => JSON.stringify(record)).join('\n'));
         const ran = spawnSync('/bin/sh', ['-c', hook.command], {
           cwd,
-          input: `${JSON.stringify({ session_id: sessionId, cwd, hook_event_name: event, ...payload })}\n`,
+          input: `${JSON.stringify({ session_id: sessionId, cwd, hook_event_name: event, transcript_path: transcript, ...payload })}\n`,
           env: { ...env, CLAUDE_PROJECT_DIR: cwd },
           encoding: 'utf8',
           timeout: (hook.timeout ?? 60) * 1000,
@@ -505,6 +528,17 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           ? { error: true, content: `File not found: ${action.literal}` }
           : { content };
       });
+    } else if (action.kind === 'Edit') {
+      const path = fileTarget(action.literal, cwd, action.folder);
+      const before = read(path) ?? '';
+      const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
+      result = call(
+        'Edit',
+        { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added },
+        () => ({ content: `The file ${action.literal} has been updated.` }),
+      );
+      if (result && !result.error)
+        out.push({ fake: 'write', path: relative(cwd, path), content: `${before}${added}` });
     } else if (action.kind === 'Bash') {
       // Resolve commands against the skill folder; omit unfilled placeholders as before.
       const command = action.literal
@@ -527,17 +561,21 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       );
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
+    // A read the map declares missing (`exists: false`) answers file-not-found and the run goes on, as an agent's does.
+    if (action.missing && result?.error) continue;
     if (!result || result.error) {
       text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }
   }
+  // The flow in its order, a step allowed at any point inside it, and the closing stage last: the stage the runtime
+  // reports at the end of the block is the closing stage, not the step that may come anywhere.
   const rest = order.slice(1);
-  if (rest[0]) step(rest[0]);
-
-  for (const name of rest.slice(1)) step(name);
+  const closing = rest.at(-1);
+  for (const name of rest.slice(0, -1)) step(name);
   for (const name of anytime) step(name);
+  if (closing) step(closing);
   return close(undefined, longerThan);
 }
 

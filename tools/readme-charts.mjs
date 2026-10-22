@@ -1498,7 +1498,7 @@ function detailPage() {
   return `${[
     '# Public judge benchmarks',
     '',
-    'The README shows one chart per benchmark: driftbench beside every competitor on one model. This page holds the rest: one chart and one table per benchmark with every model that was run, and a "not run" where a contestant was not. Bars run from the highest score to the lowest, on one scale of 0 to 100. A refused item counts as wrong, and the table says how many. The sets, the rules and the limits of each result are in [how the README numbers were measured](../methods.md#public-benchmarks-against-promptfoo). A correction across the whole family of cells is pending, so no cell is called a win or a loss.',
+    'The [benchmarks page](../../public-benchmarks.md) shows one chart per benchmark: driftbench beside every competitor on one model. This page holds the rest: one chart and one table per benchmark with every model that was run, and a "not run" where a contestant was not. Bars run from the highest score to the lowest, on one scale of 0 to 100. A refused item counts as wrong, and the table says how many. The sets, the rules and the limits of each result are in [how the README numbers were measured](../methods.md#public-benchmarks-against-promptfoo). A correction across the whole family of cells is pending, so no cell is called a win or a loss.',
     '',
     'DeepEval, Inspect, Langfuse and LangWatch were run on Claude Haiku 5.5 only. promptfoo and driftbench were also run on GPT-6 Luna and Gemini 3.5 Flash-Lite. Paired tests, wins, losses and spend per benchmark are in the [all-competitors tables](judgebench-all-peers.md).',
     '',
@@ -1531,6 +1531,7 @@ function detailPage() {
 // ---------------------------------------------------------------------------------------------
 
 const README = 'README.md';
+const BENCHMARKS = 'docs/public-benchmarks.md';
 
 const TASK = {
   'bench-judgebench': 'picks the correct answer',
@@ -1563,7 +1564,13 @@ function benefit(chart) {
 const IDENTITY_NOTE =
   'Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).';
 
-function readmeCharts() {
+/** A repository path as the page at `base` links it: the README at the root, a docs page under docs/. */
+function linkTo(path, base) {
+  if (base !== 'docs') return path;
+  return path.startsWith('docs/') ? path.slice(5) : `../${path}`;
+}
+
+function readmeCharts(base = 'root') {
   const parts = [
     ['bench-judgebench', 'judgebench', 'JudgeBench', 'pair ledger'],
     ['bench-mm-eval', 'mm-eval', 'MM-Eval', 'pair ledger'],
@@ -1585,7 +1592,7 @@ function readmeCharts() {
         ? 'driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report)'
         : `driftbench runs its opt-in ${mode}`;
       const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; ${setting}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
-      return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n\n${IDENTITY_NOTE}\n`;
+      return `**${label}.** ${benefit(chart)}\n\n<a href="${linkTo(`docs/assets/bench-${file}-light.png`, base)}">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="${linkTo(`docs/assets/bench-${file}-dark.png`, base)}">\n    <img alt="${alt}" src="${linkTo(`docs/assets/bench-${file}-light.png`, base)}" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n\n${IDENTITY_NOTE}\n`;
     })
     .join('\n');
 }
@@ -1613,7 +1620,8 @@ function readmeTable() {
   return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\n${footnote}`;
 }
 
-function readmeV7() {
+function readmeV7(base = 'root') {
+  const H = base === 'docs' ? '##' : '###';
   const analysis = json(SOURCES.readmeV7);
   const returned = [...new Map(analysis.rows.map((r) => [r.dataset, r.returned])).values()].reduce(
     (sum, n) => sum + n,
@@ -1624,13 +1632,13 @@ function readmeV7() {
     .filter((r) => r.n !== r.verdicts)
     .map((r) => `${r.row}: ${r.n - r.verdicts}`)
     .join('; ');
-  const image = (name, alt) => `<a href=".github/readme/${name}-light.png">
+  const image = (name, alt) => `<a href="${linkTo(`.github/readme/${name}-light.png`, base)}">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/${name}-dark.png">
-    <img alt="${alt}" src=".github/readme/${name}-light.png" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="${linkTo(`.github/readme/${name}-dark.png`, base)}">
+    <img alt="${alt}" src="${linkTo(`.github/readme/${name}-light.png`, base)}" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>`;
+<p align="center"><sub><a href="${linkTo('docs/comparison/methods.md', base)}#the-judge-on-hard-cases">How we measured</a></sub></p>`;
   const groups = judgeRows(null);
   const alt = (rows) =>
     rows.map((r) => `${r.label}: ${r.ours} against ${r.theirs} of ${r.n}, ${r.standing}.`).join(' ');
@@ -1641,10 +1649,10 @@ function readmeV7() {
       `| ${r.row}${r.setting ? ' *' : ''} | ${r.n.toLocaleString('en-US')} | ${(r.row === current.row ? current.correct : r.v7).toLocaleString('en-US')} | ${r.peer.toLocaleString('en-US')} | ${r.standing} |`,
   );
   return [
-    '### The shipped judge against DeepEval',
+    `${H} The shipped judge against DeepEval`,
     image('judge-leads', `default-on-v7 against the recorded DeepEval default. ${alt(leads)}`),
     'On hallucination, faithfulness, turn relevancy, completeness and role adherence, default-on-v7 scores above DeepEval beyond the separate 95% intervals.',
-    '### Hard cases, framework by framework',
+    `${H} Hard cases, framework by framework`,
     `The v7 run returns ${returned.toLocaleString('en-US')} items across ${analysis.rows.length} rows on Claude Haiku 5.5. Peers keep their recorded answers. Earlier driftbench rows used \`claude -p\` with old prompts (knowledge retention mostly used the Messages API); v7 uses \`createDefaultJudge\` over the Anthropic Messages API. The transport difference is part of this comparison.`,
     ...['deepeval', 'promptfoo', 'langfuse'].map((tool) =>
       image(
@@ -1660,22 +1668,32 @@ function readmeV7() {
     '* G-Eval strict is the v8 default on a metric declaring request-fulfillment: 480/480, against the same recorded peer’s 451/480. This replaces the historical v7 result of 479/480. G-Eval strict and knowledge retention retain exact paired tests, Holm over those two rows. Other standings retain separate Wilson 95% intervals. Close means no separation under that rule.',
     `For the fourteen other README datasets: ${IDENTITY_NOTE}`,
     `Inconclusive answers count wrong (${missing}). They stay in the score denominator and leave the peer paired tests. Grader panel falls from ${panel.earlierJudge} to ${panel.v7} correct against the earlier driftbench answers; this is included in the secondary analysis.`,
-    '[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.',
+    `[Results, analysis and reproduction](${linkTo('comparisons/default-on/readme-v7/RESULT.md', base)}). Historical public benchmark rows below retain their recorded judge versions and settings.`,
   ].join('\n\n');
 }
 
+/** Replaces what lies between the markers `<!-- tag:start -->` and `<!-- tag:end -->` of a page. */
+function swapBlock(text, file, tag, body) {
+  const start = `<!-- ${tag}:start -->`;
+  const end = `<!-- ${tag}:end -->`;
+  const a = text.indexOf(start);
+  const b = text.indexOf(end);
+  if (a < 0 || b < 0) throw new Error(`${file}: the markers ${start} and ${end} are missing`);
+  return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
+}
+
+// The README keeps the summary chart and the table. The page of the public benchmarks keeps the five charts,
+// the table, the held-out judge rows and the cost chart.
 function readmeText() {
-  const swap = (text, tag, body) => {
-    const start = `<!-- ${tag}:start -->`;
-    const end = `<!-- ${tag}:end -->`;
-    const a = text.indexOf(start);
-    const b = text.indexOf(end);
-    if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
-    return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
-  };
-  let text = swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
-  text = swap(text, 'readme-summary', readmeSummary());
-  text = swap(text, 'readme-v7', readmeV7());
+  const withTable = swapBlock(read(README), README, 'readme-table', readmeTable());
+  return swapBlock(withTable, README, 'readme-summary', readmeSummary());
+}
+
+function benchmarksText() {
+  let text = read(BENCHMARKS);
+  text = swapBlock(text, BENCHMARKS, 'readme-charts', readmeCharts('docs'));
+  text = swapBlock(text, BENCHMARKS, 'readme-table', readmeTable());
+  text = swapBlock(text, BENCHMARKS, 'readme-v7', readmeV7('docs'));
   const costs = costRows(false);
   const panelCost = costs.find((r) => r.label === 'Inspect, grader panel');
   const panelScore = json(SOURCES.readmeV7).rows.find((r) => r.row === 'Grader panel');
@@ -1684,7 +1702,7 @@ function readmeText() {
     `On Inspect's grader panel, default-on-v7 spends $${panelCost.ours.toFixed(3)} per 100 cases against $${panelCost.theirs.toFixed(3)}, and scores ${panelScore.v7} of ${panelScore.n} against ${panelScore.peer}. Lower cost does not establish equal accuracy.`,
   );
   return text.replace(
-    /alt="[^"]*"(?= src="\.github\/readme\/judge-cost-light\.png")/,
+    /alt="[^"]*"(?= src="\.\.\/\.github\/readme\/judge-cost-light\.png")/,
     `alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. ${costRows(
       false,
     )
@@ -1696,6 +1714,7 @@ function readmeText() {
 const files = new Map();
 files.set(join(ROOT, DETAIL), detailPage());
 files.set(join(ROOT, README), readmeText());
+files.set(join(ROOT, BENCHMARKS), benchmarksText());
 files.set(
   join(ROOT, '.github', 'readme', 'src', 'chart-data.js'),
   `// Written by tools/readme-charts.mjs from the result files it names. Do not edit by hand.\nwindow.CHART_DATA = ${JSON.stringify(data, null, 2)};\n`,

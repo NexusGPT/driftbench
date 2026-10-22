@@ -129,7 +129,7 @@ export function buildPlan(map: EstateMap, options: PlanOptions = {}): PlanResult
   const navigational = approved.filter((atom) => navigationReference(atom, navigation)).length;
   if (navigational > 0) {
     notes.push(
-      `${navigational} reference${navigational === 1 ? '' : 's'} to documents the map records as navigation only (examples, templates, histories) give no test.`,
+      `${navigational} reference${navigational === 1 ? '' : 's'} to documents the map records as navigation only (examples, templates, histories) get a read test, no journey and no covering-array target.`,
     );
   }
   if (pairwise.covered < pairwise.allowed) {
