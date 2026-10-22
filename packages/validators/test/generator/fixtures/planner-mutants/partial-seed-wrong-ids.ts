@@ -8,7 +8,9 @@ export const planV2 = planted((plan, store) => {
   return {
     ...plan,
     rows: plan.rows.map((row) =>
-      row.source === 'seed' && Object.keys(row.values).length < approved ? { ...row, id: `seed.wrong-${n++}` } : row,
+      row.source === 'seed' && Object.keys(row.values).length < approved
+        ? { ...row, id: `seed.wrong-${n++}` }
+        : row,
     ),
   };
 });
