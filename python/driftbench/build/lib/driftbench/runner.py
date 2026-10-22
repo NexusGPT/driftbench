@@ -77,9 +77,7 @@ def run_specs(
     Runs spec files or folders with `driftbench campaign run --json` and returns the result. With `agent`, a
     Python function (`module:function` or a module-level callable) is the target, through the process
     adapter: the target is `process:<function name>` unless `target` names another. Without either, each spec
-    runs on its own target. Exit codes 0, 1 and 3 give a result: 3 is the command's "nothing failed, but a cell
-    was not run or blocked", read by `verdict_of(result)` as not_run or blocked, never as a pass. Anything else
-    raises DriftbenchError.
+    runs on its own target. Exit codes 0 and 1 give a result; anything else raises DriftbenchError.
     """
     argv = [*cli_command(cli), "campaign", "run", *specs, "--json", "--mode", mode, "--repeats", str(repeats)]
     if agent is not None:
@@ -93,7 +91,7 @@ def run_specs(
     if concurrency is not None:
         argv += ["--concurrency", str(concurrency)]
     done = subprocess.run(argv, capture_output=True, text=True, cwd=cwd, timeout=timeout, check=False)
-    if done.returncode not in (0, 1, 3):
+    if done.returncode not in (0, 1):
         raise DriftbenchError(done.stderr.strip() or f"driftbench exited {done.returncode}", done.returncode)
     try:
         doc = json.loads(done.stdout)
