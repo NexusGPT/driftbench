@@ -14,6 +14,13 @@ import { type BankItem, fail, ok, show } from './item';
  * They are the last level, `capabilities`, so a missing capability never hides a regression in the levels below.
  */
 
+/**
+ * The family of every item here. The functions are exact statistics checked against exact values, like the
+ * capabilities of `exact-capabilities`, and a family under 20 items is refused (docs/validators.md 12.1), which
+ * one family per group would be.
+ */
+const FAMILY = 'exact-estimators';
+
 const DIR = 'packages/validators/fixtures/stats';
 const FILE = /^newcaps-([a-z0-9-]+)\.json$/;
 
@@ -89,14 +96,14 @@ function missing(error: Error): boolean {
   return error.message.includes('is not exported');
 }
 
-function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
+function itemsOf(entry: FunctionEntry): BankItem[] {
   const cause = `${entry.fn} is missing from @agent-nexus/driftbench-stats`;
   const component = `packages/stats/src/${entry.module}.ts`;
   const tol: Tol = { ...DEFAULT_TOL, ...entry.tol };
   const where = `${entry.fn} is defined in ${entry.doc}; add it to ${component} and export it from packages/stats/src/index.ts`;
   const values: BankItem = {
     id: `newcap.${entry.fn}.values`,
-    family: `newcap-${group}`,
+    family: FAMILY,
     tier: 3,
     level: 'capabilities',
     component,
@@ -126,7 +133,7 @@ function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
   };
   const domain: BankItem = {
     id: `newcap.${entry.fn}.domain`,
-    family: `newcap-${group}`,
+    family: FAMILY,
     tier: 2,
     level: 'capabilities',
     component,
@@ -172,5 +179,5 @@ function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
 export function newcapItems(root: string, only?: readonly string[]): BankItem[] {
   return newcapGroups(root)
     .filter((g) => only === undefined || only.includes(g.group))
-    .flatMap((g) => g.functions.flatMap((entry) => itemsOf(g.group, entry)));
+    .flatMap((g) => g.functions.flatMap((entry) => itemsOf(entry)));
 }

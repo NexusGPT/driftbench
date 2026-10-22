@@ -13,6 +13,7 @@ it('runs no turn, with the reason, when the stand-in cannot resolve a skill obli
   const skill = join(estateRoot, '.claude/skills/invoice-audit');
   await mkdir(skill, { recursive: true });
   await writeFile(join(estateRoot, 'CLAUDE.md'), '# Fictional invoice assistant\n');
+  const gate = 'Before publishing the package, read `references/policy.md`.';
   await writeFile(
     join(skill, 'SKILL.md'),
     [
@@ -20,13 +21,19 @@ it('runs no turn, with the reason, when the stand-in cannot resolve a skill obli
       'name: invoice-audit',
       'description: Match supplier invoice amounts with order amounts.',
       '---',
-      'Before publishing the package, read `references/policy.md`.',
+      gate,
     ].join('\n'),
   );
-  // The stand-in is handed the map of its estate: one route atom that declares the ask and names the skill, with
-  // the span and hash the map records for the description line.
-  const quote = 'description: Match supplier invoice amounts with order amounts.';
+  // The stand-in is handed the map of its estate: the route that declares the ask and names the skill, the skill,
+  // and a gate on two commands the skill holds neither of, each with the span and hash the map records.
   const file = '.claude/skills/invoice-audit/SKILL.md';
+  const provenance = (quote: string, line: number) => ({
+    file,
+    quote,
+    startLine: line,
+    endLine: line,
+    hash: createHash('sha256').update(`${file}\n${line}-${line}\n${quote}`).digest('hex'),
+  });
   const map = join(work.dir, 'fake-map.json');
   await writeFile(
     map,
@@ -35,14 +42,21 @@ it('runs no turn, with the reason, when the stand-in cannot resolve a skill obli
         {
           id: 'route.invoice-audit',
           kind: 'route',
-          provenance: {
-            file,
-            quote,
-            startLine: 3,
-            endLine: 3,
-            hash: createHash('sha256').update(`${file}\n3-3\n${quote}`).digest('hex'),
-          },
+          provenance: provenance('description: Match supplier invoice amounts with order amounts.', 3),
           fields: { target: 'invoice-audit', targetKind: 'skill', ask: { text: ASK_INVOICE } },
+        },
+        {
+          id: 'skill.invoice-audit',
+          kind: 'skill',
+          provenance: provenance('name: invoice-audit', 2),
+          fields: { name: 'invoice-audit' },
+        },
+        {
+          id: 'gate.invoice-audit.publish',
+          kind: 'gate',
+          provenance: provenance(gate, 5),
+          fields: { first: 'check', second: 'publish' },
+          evidence: [{ type: 'ordered', before: 'Bash~check', after: 'Bash~publish' }],
         },
       ],
     }),

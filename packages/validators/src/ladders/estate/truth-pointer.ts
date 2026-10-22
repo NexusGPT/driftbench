@@ -33,8 +33,12 @@ const REFERENCE: AlsoMapping = {
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: '$path' } } }],
 };
 
-const HAZARDS: Readonly<Record<string, { situation: string }>> = {
-  compaction: { situation: 'A compaction of the context' },
+/**
+ * The hazards a planted line names. The planted compaction rule reads "After a compaction, re-read this file before
+ * you continue." (hidden.ts): its reread is the file the line is in, the reread-self span of the shipped label.
+ */
+const HAZARDS: Readonly<Record<string, { situation: string; rereadSelf?: boolean }>> = {
+  compaction: { situation: 'A compaction of the context', rereadSelf: true },
   restart: { situation: 'A process restart' },
   rate_wave: { situation: 'A wave of rate limits' },
   session_boundary: { situation: 'A new session' },
@@ -56,7 +60,15 @@ const hazardMapping = (hazard: string): AlsoMapping => ({
   kind: 'hazard',
   situation: HAZARDS[hazard]?.situation ?? hazard,
   fields: { hazard },
-  evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard } }],
+  // The options the shipped hazard labels build: the hazard, the named files to read again (none here) and the
+  // reread of the file the unit is in when the unit orders it.
+  evidence: [
+    {
+      type: 'custom',
+      name: 'hazard_recovery',
+      options: { hazard, reread: [], ...(HAZARDS[hazard]?.rereadSelf ? { rereadSelf: true } : {}) },
+    },
+  ],
 });
 
 /** The line (from 1) of a text in a file, by where the text first sits. */
@@ -170,6 +182,7 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
+          ...(entry.fields ? { fields: entry.fields as NonNullable<Mapping['fields']> } : {}),
           ...(also.length > 0 ? { also } : {}),
         },
       });
@@ -177,6 +190,34 @@ export function truthPointer(truth: Truth): TruthPointer {
       const helpers = dispatchedHelpers(entry);
       if (helpers.length > 0) helperAt.set(`${file}:${entry.line}`, helpers);
     }
+  }
+  // A line that names several hazards and has no record: one planted label builds the first hazard and carries the
+  // others as `also`, because a shipped hazard label builds a single hazard.
+  const hazardsOn = new Map<string, string[]>();
+  for (const atom of truth.atoms) {
+    if (atom.kind !== 'hazard') continue;
+    const at = `${atom.file}:${atom.line}`;
+    hazardsOn.set(at, [...(hazardsOn.get(at) ?? []), atom.key]);
+  }
+  const manyHazards = new Map<string, string>();
+  for (const [at, ids] of hazardsOn) {
+    const [first, ...rest] = [...new Set(ids)];
+    if (first === undefined || rest.length === 0 || byLine.has(at)) continue;
+    const digest = createHash('sha1').update(ids.join(',')).digest('hex').slice(0, 8);
+    const name = `planted-hazards-${digest}-${manyHazards.size}`;
+    labels.push({
+      name,
+      description: `The hazards planted at ${at}.`,
+      links: ['dispatches'],
+      atom: {
+        kind: 'hazard',
+        situation: HAZARDS[first]?.situation ?? first,
+        fields: { hazard: first },
+        evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: first, reread: [] } }],
+        also: rest.map((id) => hazardMapping(id)),
+      },
+    } as unknown as pointer.LabelSet['labels'][number]);
+    manyHazards.set(at, name);
   }
   const text = JSON.stringify({ labels: [{ ...base, set: SET_NAME, labels }] });
   const parsed = pointer.parseLabelSets(text);
@@ -187,7 +228,7 @@ export function truthPointer(truth: Truth): TruthPointer {
   for (const atom of truth.atoms) {
     const label = atom.kind === 'hazard' ? HAZARD_LABEL[atom.key] : undefined;
     const at = `${atom.file}:${atom.line}`;
-    if (label && !hazardLines.has(at)) hazardLines.set(at, label);
+    if (label && !hazardLines.has(at)) hazardLines.set(at, manyHazards.get(at) ?? label);
   }
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),

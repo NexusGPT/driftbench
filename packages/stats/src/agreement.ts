@@ -210,3 +210,79 @@ export function krippendorffAlpha(
   const alpha = expected === 0 ? 1 : 1 - observed / expected;
   return { alpha, observed, expected, pairable: n };
 }
+
+/**
+ * Gwet's AC1 between two raters over the same subjects. po is the share of subjects with equal labels;
+ * pi_c is the share of the 2n labels that equal c; the chance agreement is
+ * pe = sum(pi_c (1 - pi_c)) / (q - 1) over the q distinct labels, and the result is (po - pe) / (1 - pe).
+ * One distinct label gives 1.
+ */
+export function gwetAc1(a: readonly number[], b: readonly number[]): number {
+  assertSameLength(a, b, 'gwetAc1', ["'a'", "'b'"]);
+  const n = a.length;
+  if (n === 0) throw new RangeError("gwetAc1: 'a' and 'b' must not be empty");
+  const counts = new Map<number, number>();
+  let agree = 0;
+  for (let i = 0; i < n; i += 1) {
+    const x = a[i] as number;
+    const y = b[i] as number;
+    if (!Number.isSafeInteger(x)) throw new RangeError(`gwetAc1: a[${i}] must be an integer label, got ${x}`);
+    if (!Number.isSafeInteger(y)) throw new RangeError(`gwetAc1: b[${i}] must be an integer label, got ${y}`);
+    if (x === y) agree += 1;
+    counts.set(x, (counts.get(x) ?? 0) + 1);
+    counts.set(y, (counts.get(y) ?? 0) + 1);
+  }
+  const q = counts.size;
+  if (q === 1) return 1;
+  let spread = 0;
+  for (const count of counts.values()) {
+    const share = count / (2 * n);
+    spread += share * (1 - share);
+  }
+  const pe = spread / (q - 1);
+  return (agree / n - pe) / (1 - pe);
+}
+
+/**
+ * Weighted kappa from a square table of counts, one row and column per ordered category: cell [i][j] counts the
+ * subjects rater A put in category i and rater B in category j. With the disagreement weight w_ij = |i - j|
+ * (linear) or (i - j)^2 (quadratic), the result is 1 - D_o / D_e, D_o = sum(w_ij t_ij) / n and
+ * D_e = sum(w_ij r_i c_j) / n^2. One category in use by both raters (D_e = 0) gives 1.
+ */
+export function weightedKappa(
+  table: readonly (readonly number[])[],
+  weights: 'linear' | 'quadratic',
+): number {
+  if (weights !== 'linear' && weights !== 'quadratic')
+    throw new RangeError(`weightedKappa: weights must be 'linear' or 'quadratic', got ${weights}`);
+  const k = table.length;
+  if (k === 0) throw new RangeError('weightedKappa: table must have at least one row');
+  const rows = new Array<number>(k).fill(0);
+  const cols = new Array<number>(k).fill(0);
+  let n = 0;
+  for (let i = 0; i < k; i += 1) {
+    const row = table[i] as readonly number[];
+    if (row.length !== k) throw new RangeError(`weightedKappa: row ${i} of ${k} has ${row.length} cells`);
+    for (let j = 0; j < k; j += 1) {
+      const count = row[j] as number;
+      if (!Number.isSafeInteger(count) || count < 0)
+        throw new RangeError(`weightedKappa: cell [${i}][${j}] must be a non-negative integer, got ${count}`);
+      rows[i] = (rows[i] as number) + count;
+      cols[j] = (cols[j] as number) + count;
+      n += count;
+    }
+  }
+  if (n === 0) throw new RangeError('weightedKappa: table has no subject (every cell is 0)');
+  let observed = 0;
+  let expected = 0;
+  for (let i = 0; i < k; i += 1) {
+    for (let j = 0; j < k; j += 1) {
+      const d = Math.abs(i - j);
+      const w = weights === 'linear' ? d : d * d;
+      observed += w * ((table[i] as readonly number[])[j] as number);
+      expected += w * (rows[i] as number) * (cols[j] as number);
+    }
+  }
+  if (expected === 0) return 1;
+  return 1 - observed / n / (expected / (n * n));
+}

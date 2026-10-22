@@ -90,9 +90,13 @@ hashes, timing channels or all possible exfiltration. The real adapter must expo
 all sinks; hostile adapters bypassing callbacks need external process instrumentation.
 
 Materialization adds two label actions. `materialize` supplies source, already-cut
-units with ledger ids and UTF-16 spans, a label set, and planted labels. Its
-observation is `{ledgerLabels:[{id,label}],atoms}`. Atoms project to kind, polarity
-when present, provenance file/quote, producedBy, approved, pointer fields, and
+units with ledger ids and UTF-16 spans, a label set, planted labels and the name of
+the cassette entry that holds the answer. Its observation is
+`{ledgerLabels:[{id,label,source}],atoms}`: `source` is the ledger's
+`cassette:<key>` for the label, under the planted name when the key is the one the
+scan recorded. Atoms project to kind, polarity when present, provenance file/quote,
+producedBy, approved, the pointer fields (extraction, unit, label set; no cassette
+key, which the ledger holds), and
 one evidence predicate normalized as `{type:'custom',name:'prose_pointer',reviewRequired:true}`.
 Other implementation atom fields are not part of this observation. `rerecord`
 processes one explicitly selected set against an existing entry and returns
