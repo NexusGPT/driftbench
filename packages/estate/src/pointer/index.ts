@@ -38,8 +38,10 @@ export {
 } from './labeler';
 export {
   type Checked,
+  COMMENT_MARKER,
   canonical,
   checkAnswer,
+  commentRanges,
   expandUnits,
   Label,
   type LabelContext,
@@ -51,6 +53,7 @@ export {
   locateSpanText,
   offsetSpans,
   parseLabelSets,
+  requestTextOf,
   type ShownLine,
   type SpanAnswer,
   SpanKind,
