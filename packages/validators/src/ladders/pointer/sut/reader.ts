@@ -159,6 +159,10 @@ export type ReaderExports = {
   verifyLink?: LinksApi['verify'];
   linkCoverage?: LinksApi['coverage'];
   blastRadius?: LinksApi['blast'];
+  /** Optional: the spans of each file the reader already reads (a skill's description), from file text. */
+  readSpansOf?(
+    files: ReadonlyArray<{ path: string; text: string }>,
+  ): Map<string, Array<{ start: number; end: number }>>;
   pointerScan(input: Record<string, unknown>): Promise<RResult>;
   pointerAtoms(
     labelled: readonly RLabelledUnit[],
@@ -519,6 +523,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       labelling,
       cassette,
       mode,
+      // The reader's own list of the spans it reads; absent, the scan asks about every unit.
+      ...(reader.readSpansOf ? { read: reader.readSpansOf(request.files) } : {}),
       ...(previous ? { previous } : {}),
     });
   } catch (cause) {
