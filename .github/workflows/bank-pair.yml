@@ -1,0 +1,44 @@
+name: bank pair
+# Temporary: the estate bank dump (seeds 1 to 3) at two refs, as two jobs of one run. Removed with the branch.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/bank-pair.yml
+permissions:
+  contents: read
+jobs:
+  dump:
+    name: dump ${{ matrix.name }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: base
+            ref: 1e87ffa6b06747ee292a80b5ca20f46187729178
+          - name: head
+            ref: 87a6bd52c
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Go to the ref
+        run: |
+          cp packages/validators/test/estate/zz-dump.test.ts /tmp/zz-dump.test.ts
+          git checkout -q ${{ matrix.ref }}
+          git rev-parse HEAD
+          cp /tmp/zz-dump.test.ts packages/validators/test/estate/zz-dump.test.ts
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/validators/test/estate/zz-dump.test.ts --maxWorkers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bank-dump-${{ matrix.name }}
+          path: bank-dump.json
