@@ -287,9 +287,14 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
       // The key is read here, when the request leaves, unless the run already asked for it in `ready`.
       const key = keyNow();
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
+      const shown = (window.display ?? []).map((line) => line.n).sort((x, y) => x - y);
+      const shownNote =
+        shown.length > 0
+          ? ` Lines ${shown.map((n) => `[${n}]`).join(', ')} are not labelable: give them no label. A range may cross them.`
+          : '';
       const body =
         attempt > 1
-          ? { ...wire.body, system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}` }
+          ? { ...wire.body, system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}${shownNote}` }
           : wire.body;
       const payload = await postJson(
         `${base}/v1/messages`,

@@ -239,6 +239,41 @@ describe('an answer that wraps the object in words', () => {
   });
 });
 
+describe('the second request after a refused answer', () => {
+  const object = '{"labels":[{"units":"1","label":"greeting"}]}';
+
+  it('names the numbers of the shown lines of the window, which take no label', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const window = {
+      ...windowOf(1),
+      display: [
+        { n: 7, mode: 'read' as const, text: 'read line' },
+        { n: 9, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const wire = labeler.render(BAKE, window);
+    await labeler.call?.(wire, BAKE, window, 1);
+    await labeler.call?.(wire, BAKE, window, 2);
+    expect(String(calls[0]?.body.system)).not.toContain('[7]');
+    expect(String(calls[1]?.body.system)).toContain('Lines [7], [9] are not labelable: give them no label');
+    // A window with no shown line adds nothing beyond the note of the first retry.
+    await labeler.call?.(wire, BAKE, windowOf(1), 2);
+    expect(String(calls[2]?.body.system)).not.toContain('not labelable: give');
+  });
+});
+
 describe('the dense request for a set with spans and links', () => {
   const WITH = load(`labels:
   - set: counter-voice
