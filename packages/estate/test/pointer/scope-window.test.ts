@@ -108,10 +108,7 @@ describe('a condition keeps a target past the window cap', () => {
         .map((target) => target?.unit.text);
     // The control: with the cap alone the second target sits in another window and the answer loses it.
     expect(reach(await run({ keepSections: false }))).toEqual(['Note 2 for the night watch']);
-    expect(reach(kept)).toEqual([
-      'Note 2 for the night watch',
-      'Note 6 for the night watch',
-    ]);
+    expect(reach(kept)).toEqual(['Note 2 for the night watch', 'Note 6 for the night watch']);
     expect(kept.failed).toEqual([]);
   });
 });

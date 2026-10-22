@@ -222,9 +222,7 @@ export function denseOpinions(
     byUnit.set(unit.index, {
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
-      ...(accepted?.scopes
-        ? { scopes: scopeIndexes(accepted.scopes, window) }
-        : {}),
+      ...(accepted?.scopes ? { scopes: scopeIndexes(accepted.scopes, window) } : {}),
       ...(accepted?.spans ? { spans: accepted.spans } : {}),
       ...(accepted?.links ? { links: accepted.links } : {}),
     });
