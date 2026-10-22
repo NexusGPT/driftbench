@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { meaningOf } from './span-table';
 import type {
   Plan,
   PlanOptions,
@@ -11,6 +10,7 @@ import type {
 } from '../../src/ladders/variables/interface';
 import { mutation as plannerMutation } from './reference/planner';
 import { quoteMutation } from './reference/validate';
+import { meaningOf } from './span-table';
 
 /**
  * Mutants of the reference: one wrong behaviour each, the kind of mistake a product makes. The bank must lose at

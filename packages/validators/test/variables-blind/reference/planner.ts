@@ -31,7 +31,9 @@ export const mutation = {
 export function weightInterval(count: number, total: number): [number, number] {
   if (!mutation.noCountGuard) {
     if (!Number.isInteger(count) || !Number.isInteger(total) || total < 1 || count < 0 || count > total)
-      throw new RangeError(`weightInterval needs whole numbers with 0 <= count <= total and total >= 1, got ${count} of ${total}`);
+      throw new RangeError(
+        `weightInterval needs whole numbers with 0 <= count <= total and total >= 1, got ${count} of ${total}`,
+      );
   }
   const p = count / total;
   const d = 1 + (Z * Z) / total;

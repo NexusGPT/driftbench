@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import type { SpanMeaning } from '../../../src/ladders/variables/blind/spans';
-import { meaningOf } from '../span-table';
 import type {
   ImpossiblePair,
   Provenance,
@@ -12,6 +11,7 @@ import type {
   StoreValue,
   StoreVariable,
 } from '../../../src/ladders/variables/interface';
+import { meaningOf } from '../span-table';
 import { fold } from './validate';
 
 /**

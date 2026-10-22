@@ -1,4 +1,15 @@
-import { callCoverage, callInterval, makeStore, must, names, planError, type Stem, show, valueIds, need } from '../kit';
+import {
+  callCoverage,
+  callInterval,
+  makeStore,
+  must,
+  names,
+  need,
+  planError,
+  type Stem,
+  show,
+  valueIds,
+} from '../kit';
 
 /**
  * Items added after the audit of round 2 (validators/variables/audit.md): one for each planted bug the bank did not
@@ -10,10 +21,11 @@ const at = (list: readonly string[], i: number): string => list[i] as string;
 export const HARDENING_STEMS: readonly Stem[] = [
   {
     id: 'hardening.interval',
-    rules: ['R13', 'R10'],
+    rules: ['R13'],
     family: 'weights',
     component: 'store/weights',
-    cause: 'weightInterval refuses a count above its total, a negative count and a total below 1 with a RangeError',
+    cause:
+      'weightInterval refuses a count above its total, a negative count and a total below 1 with a RangeError',
     cases: [
       [
         'count-above-total-is-refused',
@@ -33,7 +45,8 @@ export const HARDENING_STEMS: readonly Stem[] = [
             }
             must(
               threw instanceof RangeError,
-              () => `weightInterval(${count}, ${total}) returned ${show(got)}; a count above its total is a RangeError`,
+              () =>
+                `weightInterval(${count}, ${total}) returned ${show(got)}; a count above its total is a RangeError`,
             );
           }
           // The edge stays valid: a count equal to its total is an interval.
@@ -88,7 +101,10 @@ export const HARDENING_STEMS: readonly Stem[] = [
             });
           const groups = [{ variables: [a, b], strength: 2 }];
           const off = callCoverage(ctx, plain(false), [], groups);
-          must(Number(off.allowed) === 4, () => `allowed ${String(off.allowed)} with a forbid nobody approved; it excludes nothing, so 4`);
+          must(
+            Number(off.allowed) === 4,
+            () => `allowed ${String(off.allowed)} with a forbid nobody approved; it excludes nothing, so 4`,
+          );
           const on = callCoverage(ctx, plain(true), [], groups);
           must(Number(on.allowed) === 3, () => `allowed ${String(on.allowed)} with the forbid approved; 3`);
         },
