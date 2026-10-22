@@ -57,6 +57,41 @@ describe('the cutter on a plain text file', () => {
     expect(cut(source, { plain: true }).units.length).toBeGreaterThan(0);
   }, 120_000);
 
+  it('cuts a very long run of lines in slabs at line breaks: every unit a slice, every row once, a fence in the run whole', () => {
+    const rows = (from: number, count: number) =>
+      Array.from({ length: count }, (_, index) => `Row ${from + index}`).join('\n');
+    const fence = `\`\`\`\n${rows(0, 7_000)}\n\`\`\``;
+    const source = `${rows(0, 12_000)}\n${fence}\n${rows(12_000, 12_000)}`;
+    const cutIt = cut(source, { plain: true });
+    for (const unit of cutIt.units) expect(source.slice(unit.start, unit.end)).toBe(unit.text);
+    // The fence is one opaque unit over all its lines, even though the run of lines around it is far over a slab.
+    const opaque = cutIt.units.filter((unit) => unit.container === 'opaque');
+    expect(opaque).toHaveLength(1);
+    expect(opaque[0]?.text).toBe(fence);
+    // Every row outside the fence is in exactly one unit, in order.
+    const rowsSeen = cutIt.units
+      .filter((unit) => unit.container !== 'opaque')
+      .flatMap((unit) => unit.text.match(/Row \d+/g) ?? []);
+    expect(rowsSeen).toHaveLength(24_000);
+    expect(new Set(rowsSeen).size).toBe(24_000);
+  });
+
+  it('does not read the start of a later slab as a front matter', () => {
+    const head = Array.from({ length: 5_000 }, (_, index) => `Row ${index}`).join('\n');
+    const source = `${head}\n---\nname: not-front-matter\n---\nRow after.\n`;
+    expect(cut(source, { plain: true }).units.some((unit) => unit.container === 'front_matter_value')).toBe(
+      false,
+    );
+  });
+
+  it('reads 60,000 lines of one paragraph in a few seconds of CPU, not the quadratic time of one parse', () => {
+    const source = Array.from({ length: 60_000 }, (_, index) => `Row ${index}`).join('\n');
+    const before = process.cpuUsage();
+    cut(source, { plain: true });
+    const used = process.cpuUsage(before);
+    expect((used.user + used.system) / 1000).toBeLessThan(8_000);
+  }, 120_000);
+
   it('keeps a second title under a first one together with it: a recall limit, taken so that no sentence is split', () => {
     const source = 'PART 1\nROPES\nNever coil a rope that another skipper holds, note a.\n';
     expect(texts(source)).toEqual([source.trimEnd()]);

@@ -256,6 +256,41 @@ export function nestingOf(source: string): number {
   return deepest;
 }
 
+/** The most lines of one run of lines (no blank line between them) the markdown parser reads in one call. */
+export const SLAB_LINES = 5_000;
+
+/**
+ * The parts of a text the markdown parser reads one by one: the text itself when no run of lines is longer than
+ * `SLAB_LINES`, else the text cut after every `SLAB_LINES` lines of a run, never inside a fence.
+ */
+function slabsOf(text: string): Array<[number, number]> {
+  const cuts: number[] = [];
+  let fence: string | undefined;
+  let run = 0;
+  let at = 0;
+  while (at < text.length) {
+    const end = text.indexOf('\n', at);
+    const next = end === -1 ? text.length : end + 1;
+    const line = text.slice(at, end === -1 ? text.length : end);
+    const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (mark !== undefined) {
+      if (fence === undefined) fence = mark.charAt(0);
+      else if (mark.charAt(0) === fence) fence = undefined;
+    }
+    if (line.trim() === '') run = 0;
+    else {
+      run++;
+      if (run >= SLAB_LINES && fence === undefined && mark === undefined && next < text.length) {
+        cuts.push(next);
+        run = 0;
+      }
+    }
+    at = next;
+  }
+  if (cuts.length === 0) return [[0, text.length]];
+  return [0, ...cuts].map((from, index): [number, number] => [from, cuts[index] ?? text.length]);
+}
+
 export type CutOptions = {
   /** The file is plain text (`isPlainTextPath`): a title line ends at its line break. */
   plain?: boolean;
@@ -322,6 +357,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
   };
 
   const markdown = (text: string, offset: number, inherited: string[], depth: number) => {
+    // The markdown parser's cost grows much faster than the number of lines of one run of lines (a hundred and fifty
+    // thousand lines of one paragraph take a minute, in slabs of five thousand a second). A run over `SLAB_LINES`
+    // is read in slabs cut at line breaks, outside fences; a sentence that runs over a slab edge is two units.
+    const slabs = slabsOf(text);
+    if (slabs.length > 1) {
+      for (const [from, to] of slabs) markdown(text.slice(from, to), offset + from, inherited, depth);
+      return;
+    }
     const tree = PROCESSOR.parse(text) as unknown as Node;
     const trail: Array<{ depth: number; title: string }> = [];
     const here = () => [...inherited, ...trail.map((entry) => entry.title)];
@@ -357,7 +400,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       let end = node.position?.end.offset ?? 0;
       switch (node.type) {
         case 'yaml':
-          if (depth === 0) frontMatter(start, end);
+          if (depth === 0 && offset === 0) frontMatter(start, end);
           return;
         case 'heading': {
           const kids = node.children ?? [];
