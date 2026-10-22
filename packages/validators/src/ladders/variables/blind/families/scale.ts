@@ -179,22 +179,47 @@ function lettersOf(i: number): string {
   return out;
 }
 
+/** How an English condition compares a quantity with a limit: every wording of the four ordered comparisons the blind bank uses. */
+const SPAN_WORDINGS: ReadonlyArray<readonly [phrase: string, cmp: 'gt' | 'ge' | 'lt' | 'le']> = [
+  ['is more than', 'gt'],
+  ['is over', 'gt'],
+  ['exceeds', 'gt'],
+  ['is greater than', 'gt'],
+  ['is at least', 'ge'],
+  ['is no less than', 'ge'],
+  ['is under', 'lt'],
+  ['is below', 'lt'],
+  ['is fewer than', 'lt'],
+  ['is at most', 'le'],
+  ['is no more than', 'le'],
+];
+
+/** The spans of the blind vocabulary: the text of span `index` is a function of `index` alone (docs/validators.md 12.9). */
+const BLIND_VOCABULARY = 10_000;
+function blindSpan(index: number): { text: string; subject: string; limit: number; cmp: 'gt' | 'ge' | 'lt' | 'le' } {
+  const [phrase, cmp] = SPAN_WORDINGS[(index * 5 + Math.floor(index / SPAN_WORDINGS.length)) % SPAN_WORDINGS.length] as (typeof SPAN_WORDINGS)[number];
+  const limit = (index % 90) + 5;
+  const subject = `the quantity ${lettersOf(index)}`;
+  return { text: `${subject} ${phrase} ${limit} days`, subject, limit, cmp };
+}
+
 function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
   const files: Record<string, string[]> = {};
   const rules: NonNullable<Sources['estate']>['rules'] = [];
-  for (let i = 0; i < count; i += 1) {
+  // The seed picks which spans of the vocabulary, their order and their files, never the text of a span.
+  const picked = ctx.rng.sample(
+    Array.from({ length: BLIND_VOCABULARY }, (_, i) => i),
+    count,
+  );
+  picked.forEach((index, i) => {
     const path = `docs/file${i % 20}.md`;
-    const text = numeric(
-      `the quantity ${lettersOf(i)} is more than ${(i % 90) + 5} days`,
-      `the quantity ${lettersOf(i)}`,
-      (i % 90) + 5,
-      'gt',
-    );
+    const span = blindSpan(index);
+    const text = numeric(span.text, span.subject, span.limit, span.cmp);
     const lines = files[path] ?? [];
     files[path] = lines;
     lines.push(`Escalate when ${text}.`);
     rules.push({ id: `rule.${i}`, source: path, conditions: [{ text }], tools: [] });
-  }
+  });
   const estate = {
     files: Object.fromEntries(Object.entries(files).map(([p, lines]) => [p, lines.join('\n')])),
     rules,

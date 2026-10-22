@@ -161,6 +161,26 @@ export const WORDINGS: Record<Cmp, Record<string, Wording>> = {
   },
 };
 
+/**
+ * The span vocabulary of the scale items (docs/validators.md 12.9, "The span vocabulary"). The text of span number i is
+ * a function of i alone: its noun, the comparison class and wording (all the wordings of the four ordered classes, spread
+ * over the indices) and its limit. A seed picks which spans it reads, in what order, in which files and in which
+ * sentences, never the text of a span, so the labels of the 10,000 texts, recorded once, cover every seed, the hidden
+ * seed included.
+ */
+const ORDERED: ReadonlyArray<readonly [Cmp, string]> = (['gt', 'ge', 'lt', 'le'] as const).flatMap((cls) =>
+  Object.keys(WORDINGS[cls]).map((key) => [cls, key] as const),
+);
+
+/** The comparison class, the wording key and the limit of vocabulary span i. */
+export function vocabularyOf(i: number): { cls: Cmp; wording: string; limit: number } {
+  const [cls, wording] = ORDERED[(i * 7 + Math.floor(i / ORDERED.length)) % ORDERED.length] as readonly [Cmp, string];
+  return { cls, wording, limit: 5 + ((i * 37) % 896) };
+}
+
+/** The number of spans of the vocabulary: the largest scale item reads all of them. */
+export const VOCABULARY_SIZE = 10_000;
+
 /** The comparator class of each boundaries stem. */
 export const CLASS_OF_STEM: Record<string, Cmp> = {
   'boundaries.greater-than': 'gt',
