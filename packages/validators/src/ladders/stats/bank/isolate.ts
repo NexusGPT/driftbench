@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { traceLine } from '../../../frame/trace';
 import type { BankItem, ItemOutcome } from './item';
 
 /**
@@ -113,6 +114,8 @@ function runFrom(
         stdio: ['pipe', 'pipe', 'pipe'],
       },
     );
+    const where = `bank-parent:${seed}:${start}`;
+    traceLine(where, `spawned child pid ${child.pid}`);
     child.stdin.end(JSON.stringify(items.map((item) => item.id)));
     let buffer = '';
     let errors = '';
@@ -132,6 +135,7 @@ function runFrom(
       if (!item) return;
       const limit = budget(item);
       timer = setTimeout(() => {
+        traceLine(where, `item ${index} ${item.id} timer fired after ${limit} ms`);
         // An item that already reported keeps its verdict: this timer only stops an item that is still running.
         if (results.has(item.id)) return;
         results.set(item.id, {
@@ -144,6 +148,7 @@ function runFrom(
     };
     // The item budget starts when the child says it starts the item; loading the bank has its own limit.
     timer = setTimeout(() => {
+      traceLine(where, `startup timer fired after ${STARTUP_MS} ms`);
       const item = items[start];
       if (item) {
         results.set(item.id, {
@@ -172,6 +177,7 @@ function runFrom(
         if (line.taint !== undefined) {
           taints.push(line.taint);
         } else if (line.start !== undefined) {
+          traceLine(where, `child says item ${line.start} starts`);
           arm(line.start);
         } else if (line.done !== undefined) {
           // The item is over: its budget is over with it. What the child does next (the frame closes and makes every
@@ -232,6 +238,7 @@ function runFrom(
     };
     // The outcome is read when the output streams have closed, so no line still on its way is lost.
     child.on('exit', (code) => {
+      traceLine(where, `child exited ${code}`);
       drain = setTimeout(() => conclude(code), DRAIN_MS);
     });
     child.on('close', (code) => conclude(code));

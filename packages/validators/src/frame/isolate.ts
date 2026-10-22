@@ -38,6 +38,7 @@ import {
   shortText,
   type Tape,
 } from './tape';
+import { TRACE, traceLine } from './trace';
 import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 /**
@@ -151,21 +152,6 @@ export type Frame<T> = {
 };
 
 type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
-
-/**
- * When DRIFTBENCH_FRAME_TRACE names a file, every frame appends a line for each stage of its start, each call that
- * takes over 10 s, and its close, with the time, so a stall of a framed run can be placed (PR 986: honest products
- * failed after about 120 s on shared CI runners). Off by default; it records no argument and no answer.
- */
-const TRACE = process.env.DRIFTBENCH_FRAME_TRACE;
-const traceLine = (tag: string, text: string): void => {
-  if (!TRACE) return;
-  try {
-    appendFileSync(TRACE, `${new Date().toISOString()} pid ${process.pid} ${tag} ${text}\n`);
-  } catch {
-    // a trace that cannot be written changes nothing
-  }
-};
 
 function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
   const waited = Atomics.wait(relay.flag, 0, 0, ms);
