@@ -1,0 +1,31 @@
+name: regen tmp
+# Temporary. Removed before merge.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/regen-tmp.yml
+permissions:
+  contents: read
+jobs:
+  regen:
+    name: regen tmp
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/validators/test/estate/zz-regen.test.ts --maxWorkers=1
+      - run: pnpm exec biome check --write packages/estate/src/scan/code.ts packages/estate/test/scan/declared-tool-pattern.test.ts || true
+      - run: |
+          git status --porcelain
+          git ls-files -m -o --exclude-standard | grep -v '^packages/validators/test/estate/zz-regen' | grep -v '^.github' | tar -czf regen.tgz -T -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regen
+          path: regen.tgz
