@@ -265,6 +265,8 @@ export type LinkAnswer = { kind: string; to: string };
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+  /** Lines a request adds after the window when it asks again for something an earlier answer left out. */
+  notes?: readonly string[];
 };
 
 /** `5` or `5-7` as the numbers it names. */

@@ -116,6 +116,16 @@ export type Unstable = {
   kinds: Record<string, number>;
 };
 
+/** A unit whose label's atom needs span kinds (`kinds`) no run located in the unit, and whether the ask filled them. */
+export type Spanless = {
+  unit: string;
+  path: string;
+  set: string;
+  label: string;
+  kinds: string[];
+  filled: boolean;
+};
+
 export type PointerResult = {
   ledger: Ledger;
   events: Record<Event, number>;
@@ -156,6 +166,12 @@ export type PointerResult = {
    * again (`SPLIT_REASK_MAX`). Such a unit is unlabeled and listed here with the count of each kind.
    */
   unstable: Unstable[];
+  /**
+   * Units whose decided label builds an atom that needs a span no run located in the unit (`span-missing`): asked
+   * again once; `filled` when that answer gave the span, located by offsets, and the unit kept its label; otherwise the
+   * unit is unlabeled.
+   */
+  spanless: Spanless[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -987,6 +1003,109 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
 
+  /** The decision of the labelers on one unit, and the kinds of each member whose runs stay one run apart. */
+  const decideUnit = (
+    path: string,
+    set: LabelSet,
+    byMember: ReadonlyArray<Array<Map<number, Opinion>>>,
+    index: number,
+  ) => {
+    const close = byMember.map((runs) => unstableKinds(runs, index, set));
+    // A unit whose runs stay one run from another outcome is unlabeled: no other labeler decides it alone.
+    const decision = close.some((kinds) => kinds)
+      ? undefined
+      : labelling.decide(
+          byMember.map((runs) =>
+            opinionOf(runs, index, set, namedPaths(cuts.get(path)?.units[index]?.text ?? '').length > 0),
+          ),
+          set,
+        );
+    return { close, decision };
+  };
+  /** The span kinds a decided label's atom needs that its spans do not give. */
+  const spansMissing = (
+    set: LabelSet,
+    decision: { label: string; spans?: SpanAnswer[]; links?: LinkAnswer[] },
+  ) =>
+    missingForAtom(set, {
+      label: decision.label,
+      ...(decision.spans ? { spans: decision.spans } : {}),
+      ...(decision.links ? { links: decision.links } : {}),
+    })
+      .filter((need) => need.startsWith('span:'))
+      .map((need) => need.slice('span:'.length));
+
+  // A unit whose decided label builds an atom that needs a span (the act of a gate) that no run located in the unit is
+  // asked again once, its window with a note naming the code span-missing, the unit and the span kind. The answer fills
+  // the span only when it gives the unit the same label with a span of that kind the check located in the unit by
+  // offsets: code never writes a span. The decision is taken here only to find those units; its counts are not kept.
+  const fills = new Map<string, SpanAnswer[]>();
+  const spanless: Spanless[] = [];
+  const asks = new Map<
+    string,
+    { task: Task; notes: Array<{ index: number; n: number; label: string; kinds: string[] }> }
+  >();
+  for (const file of files) {
+    for (const set of input.sets) {
+      const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
+      if (want.size === 0) continue;
+      const byMember = opinionsOf(file.path, set);
+      for (const index of [...want].sort((a, b) => a - b)) {
+        const counts = [split, spanSplit, voted] as const;
+        const { decision } = decideUnit(file.path, set, byMember, index);
+        [split, spanSplit, voted] = counts;
+        const needs = decision ? spansMissing(set, decision) : [];
+        if (!decision || needs.length === 0) continue;
+        const task = tasks.find(
+          (candidate) =>
+            candidate.file === file.path &&
+            candidate.set === set &&
+            (candidate.member.runs ?? 1) > 1 &&
+            candidate.window.units.some((unit) => unit.index === index),
+        );
+        const unit = task?.window.units.find((candidate) => candidate.index === index);
+        if (!task || !unit) continue;
+        const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${task.window.id}`;
+        const ask = asks.get(where) ?? { task, notes: [] };
+        ask.notes.push({ index, n: unit.n, label: decision.label, kinds: needs });
+        asks.set(where, ask);
+      }
+    }
+  }
+  for (const [where, { task, notes }] of asks) {
+    const extra = (spent.get(where) ?? 0) + 1;
+    spent.set(where, extra);
+    const context: LabelContext = {
+      ...task.context,
+      notes: notes.map(
+        (note) =>
+          `span-missing: unit ${note.n} has the label ${note.label}, and no answer gave its ${note.kinds.join(' and ')} span inside that unit. Label the window again, and give that span copied word for word from unit ${note.n}.`,
+      ),
+    };
+    const again: Task = { ...task, context, run: (task.member.runs ?? 1) + extra };
+    if (input.mode === 'replay') {
+      const wire = again.member.render(again.set, task.window, again.context);
+      if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) continue;
+    }
+    const answered = await resolve(again, task.window);
+    failed.push(...answered.failures);
+    const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
+    if (!leaf) continue;
+    windows++;
+    const read = task.member.opinions(leaf.answer, task.set, leaf.window, context);
+    dropped.push(...(read.dropped ?? []));
+    reasked.push(
+      `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${notes.length} units with span-missing`,
+    );
+    for (const note of notes) {
+      const opinion = read.byUnit.get(note.index);
+      if (opinion?.label !== note.label) continue;
+      const located = (opinion.spans ?? []).filter((span) => note.kinds.includes(span.kind));
+      if (note.kinds.every((kind) => located.some((span) => span.kind === kind)))
+        fills.set(`${unitId(task.file, note.index)}\0${task.set.set}`, located);
+    }
+  }
+
   let unlabeled = 0;
   const unstable: Unstable[] = [];
   let decided = 0;
@@ -1000,21 +1119,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const index of [...want].sort((a, b) => a - b)) {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
-        const close = byMember.map((runs) => unstableKinds(runs, index, set));
-        // A unit whose runs stay one run from another outcome is unlabeled: no other labeler decides it alone.
-        const decision = close.some((kinds) => kinds)
-          ? undefined
-          : labelling.decide(
-              byMember.map((runs) =>
-                opinionOf(
-                  runs,
-                  index,
-                  set,
-                  namedPaths(cuts.get(file.path)?.units[index]?.text ?? '').length > 0,
-                ),
-              ),
-              set,
-            );
+        const unitVote = decideUnit(file.path, set, byMember, index);
+        const close = unitVote.close;
+        let decision = unitVote.decision;
         for (const [at, kinds] of close.entries()) {
           if (!kinds) continue;
           unstable.push({
@@ -1024,6 +1131,26 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             labeler: labelling.members[at]?.id ?? '',
             kinds,
           });
+        }
+        // A label whose atom needs a span no run located in the unit keeps its unit only when the ask with the code
+        // span-missing gave that span; otherwise the unit is unlabeled, never another label.
+        const needs = decision ? spansMissing(set, decision) : [];
+        if (decision && needs.length > 0) {
+          const fill = fills.get(`${entry.id}\0${set.set}`);
+          spanless.push({
+            unit: entry.id,
+            path: file.path,
+            set: set.set,
+            label: decision.label,
+            kinds: needs,
+            filled: fill !== undefined,
+          });
+          decision = fill
+            ? {
+                ...decision,
+                spans: [...(decision.spans ?? []).filter((span) => !needs.includes(span.kind)), ...fill],
+              }
+            : undefined;
         }
         if (!decision) {
           unlabeled++;
@@ -1117,6 +1244,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     reasked,
     failed,
     unstable,
+    spanless,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };
