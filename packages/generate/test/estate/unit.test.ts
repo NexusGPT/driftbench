@@ -269,18 +269,18 @@ describe('a check from a catalogue', () => {
     });
   });
 
-  it('is a counted gap, not a test, without a trigger or a host hook; its other test types are its host hook tests', () => {
+  it('is a counted gap, not a test, without a trigger or a host guard; its other test types are its host guard tests', () => {
     expect(unitTestOf(row('guard_positive'), check({ host: '.claude/hooks/pre.py' }), atoms, 'h', 'x')).toBe(
       'guard.registry.k1 needs a trigger: the map holds no material that sets the check off',
     );
-    const noHost = 'guard.registry.k1 needs a host: no configured hook on its event names the check';
+    const noHost = 'guard.registry.k1 needs a host: no configured guard on its event names the check';
     expect(unitTestOf(row('guard_positive'), check({ trigger: ['x'] }), atoms, 'h', 'x')).toBe(noHost);
     const stop = check({ trigger: ['x'], host: '.claude/hooks/pre.py', event: 'Stop' });
     expect(unitTestOf(row('guard_positive'), stop, atoms, 'h', 'x')).toBe(noHost);
     for (const type of ['guard_negative', 'guard_hostile', 'guard_speed']) {
       const hosted = check({ trigger: ['x'], host: '.claude/hooks/pre.py' });
       expect(unitTestOf(row(type), hosted, atoms, 'h', 'x')).toBe(
-        'guard.registry.k1 is a check its host hook runs; the host hook tests cover this test type',
+        'guard.registry.k1 is a check its host guard runs; the host guard tests cover this test type',
       );
     }
   });
