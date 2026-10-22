@@ -7,6 +7,7 @@ import type {
   EditClass,
   LedgerEntry,
   LedgerView,
+  ListedCandidates,
   ManifestAtom,
   ManifestChange,
   PointerSut,
@@ -78,9 +79,13 @@ type RLabeler = {
   model: string;
   runs?: number;
   maxUnits(set: RSet, wanted: number): number;
-  render(set: RSet, window: RWindow): RWire;
+  render(set: RSet, window: RWindow, context?: RContext): RWire;
   opinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
   call?(wire: RWire, set: RSet, window: RWindow): Promise<RRecorded>;
+};
+/** What a request lists for a labeler to point at, as the reader hands it to `render`. */
+type RContext = {
+  candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string; shown?: string }>>>;
 };
 type RLabelling = { members: readonly RLabeler[]; describe: string };
 type RCassette = { render(): string };
@@ -523,6 +528,34 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   } else {
     labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
   }
+  const listed: ListedCandidates[] = [];
+  const seen = new Set<string>();
+  labelling = {
+    ...labelling,
+    members: labelling.members.map((member) =>
+      Object.create(member, {
+        render: {
+          value: (set: RSet, window: RWindow, context?: RContext) => {
+            // The candidates are read from the structure the reader hands to its renderer, never from the text.
+            for (const [link, list] of Object.entries(context?.candidates ?? {})) {
+              const row: ListedCandidates = {
+                file: window.path,
+                window: window.id,
+                set: set.set,
+                link,
+                candidates: list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+              };
+              const key = JSON.stringify(row);
+              if (seen.has(key)) continue;
+              seen.add(key);
+              listed.push(row);
+            }
+            return member.render(set, window, context);
+          },
+        },
+      }),
+    ),
+  };
   let result: RResult;
   try {
     result = await reader.pointerScan({
@@ -580,6 +613,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     eventCounts: result.events,
     windows: result.windows,
     calls: result.calls,
+    listed,
     ...(result.fellBack !== undefined ? { fellBack: result.fellBack } : {}),
   };
 }

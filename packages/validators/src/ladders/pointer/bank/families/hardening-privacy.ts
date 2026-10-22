@@ -115,12 +115,26 @@ async function linkCandidate(ctx: ItemContext) {
   const bodies = bodiesOf(fake.calls);
   const asked = bodiesOf(fake.calls.filter((call) => call.body.includes(other)));
   if (asked.length === 0) return fail('no request left for the second file: it proves nothing');
-  if (!asked.some((body) => body.includes(head) || body.includes(tail) || /atom-[0-9a-f]{10}/.test(body)))
-    return fail(
-      'positive witness: the request for the second file lists no candidate: neither the words around the comment nor a hashed id',
-    );
-  if (leaksPrivateFragment(bodies, [marker]))
+  if (leaksPrivateFragment({ bodies, listed: res.listed, diagnostics: res.diagnostics }, [marker]))
     return fail(`the text of a comment reached a request as a link candidate (${fake.count} requests sent)`);
+  // The candidates the requests list, read as the structure the reader built them from (the port field
+  // `listed`), never as a pattern on the text of a body.
+  if (res.listed === undefined)
+    return fail('the reader does not expose the candidates its requests list (the port field `listed`)');
+  const candidates = res.listed
+    .filter((row) => row.file === 'harbour/second.md' && row.link === 'topic')
+    .flatMap((row) => row.candidates);
+  if (candidates.length === 0)
+    return fail('positive witness: the request for the second file lists no candidate');
+  // The candidate of THE planted atom: the one whose shown title holds the words around its comment. It must
+  // carry another id than the real one (a slug of the title, comment included) and no comment text.
+  const planted = candidates.find((c) => c.title.includes(head) && c.title.includes(tail));
+  if (!planted)
+    return fail(
+      'positive witness: no candidate of the request for the second file is the planted atom: none holds the words around the comment',
+    );
+  if (planted.id === '' || planted.id === atom.id || planted.title === title)
+    return fail('the planted atom is listed as it is given: its id and its title are not masked');
   return pass(`${fake.count} requests: the candidate is listed and none holds a character of the comment`);
 }
 

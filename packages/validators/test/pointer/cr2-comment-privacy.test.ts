@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { pointerBank } from '../../src/ladders/pointer/bank';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import { HARDENING_PRIVACY_SPECS } from '../../src/ladders/pointer/bank/specs/hardening-privacy';
+import type { PointerSut } from '../../src/ladders/pointer/sut/port';
 import { REFERENCE_MODULE } from './helpers';
 import { referenceSut } from './reference';
 import { type BugPrivacy, referenceBugsPrivacy } from './reference/bugs-privacy';
@@ -22,12 +23,12 @@ const item = (id: string) => {
   return found;
 };
 
-async function run(id: string, seed = 1) {
+async function run(id: string, seed = 1, sut: PointerSut = ref) {
   const before = process.env.DRIFTBENCH_POINTER_SUT;
   process.env.DRIFTBENCH_POINTER_SUT = REFERENCE_MODULE;
   clearSeedFreeCache();
   try {
-    return await runItem(item(id), seed, ref);
+    return await runItem(item(id), seed, sut);
   } finally {
     if (before === undefined) delete process.env.DRIFTBENCH_POINTER_SUT;
     else process.env.DRIFTBENCH_POINTER_SUT = before;
@@ -114,5 +115,62 @@ describe('the link candidate item (a comment in the unit of an atom the scan lis
     const planted = await run(CANDIDATE);
     expect(planted.pass).toBe(false);
     expect(planted.detail).toMatch(/reached a request/);
+  }, 120_000);
+
+  it('is red on a reader that withholds every candidate and plants an id-shaped text in a diagnostic', async () => {
+    // The wrapper found by the codex audit (run 39738771348): the item once matched a hashed id anywhere in the
+    // text of a request, so a `diagnostic` holding one passed it on three seeds out of three.
+    const cheat: PointerSut = {
+      ...ref,
+      scan: async (request) => {
+        const res = await ref.scan({ ...request, atoms: [] });
+        return {
+          ...res,
+          diagnostics: [...res.diagnostics, { code: 'note', detail: 'atom-0000000000' }],
+        };
+      },
+    };
+    for (const seed of [1, 2, 3]) {
+      const planted = await run(CANDIDATE, seed, cheat);
+      expect(planted.pass, `seed ${seed}`).toBe(false);
+      expect(planted.detail, `seed ${seed}`).toMatch(NO_CANDIDATE);
+    }
+  }, 120_000);
+
+  it('is red on a reader that lists the candidates in no structured field', async () => {
+    const mute: PointerSut = {
+      ...ref,
+      scan: async (request) => {
+        const { listed: _listed, ...rest } = await ref.scan(request);
+        return rest;
+      },
+    };
+    const planted = await run(CANDIDATE, 1, mute);
+    expect(planted.pass).toBe(false);
+    expect(planted.detail).toMatch(/does not expose the candidates its requests list/);
+  }, 120_000);
+
+  it('is red on a reader that lists a candidate with a made up title', async () => {
+    const forged: PointerSut = {
+      ...ref,
+      scan: async (request) => {
+        const res = await ref.scan({ ...request, atoms: [] });
+        return {
+          ...res,
+          listed: [
+            {
+              file: 'harbour/second.md',
+              window: 'w',
+              set: 'agent-rules',
+              link: 'topic',
+              candidates: [{ id: 'atom-0000000000', title: 'an unrelated title' }],
+            },
+          ],
+        };
+      },
+    };
+    const planted = await run(CANDIDATE, 1, forged);
+    expect(planted.pass).toBe(false);
+    expect(planted.detail).toMatch(/is the planted atom/);
   }, 120_000);
 });

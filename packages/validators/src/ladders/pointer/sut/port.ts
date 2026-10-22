@@ -217,6 +217,20 @@ export type ScanResult = {
   /** Windows sent to the labeller or the model port in this scan, and how many calls reached it. */
   windows?: number;
   calls?: number;
+  /**
+   * The link candidates each request listed, as the reader built them for the request (not parsed from its
+   * text): one row per window, set and link kind. `id` is the id the request carries and `title` the title it
+   * carries. Absent when the reader does not expose it.
+   */
+  listed?: ListedCandidates[];
+};
+
+export type ListedCandidates = {
+  file: string;
+  window: string;
+  set: string;
+  link: string;
+  candidates: Array<{ id: string; title: string }>;
 };
 
 /* ----- layer C ----- */
