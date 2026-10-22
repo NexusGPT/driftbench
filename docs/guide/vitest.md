@@ -116,13 +116,13 @@ describeSpec('specs/hello.yaml', functionAdapter({ respond, deterministic: true 
 
 **Relevant commands.**
 
-- `node_modules/.bin/vitest run agent.test.ts`: runs the tests of one file once and exits · `run` runs once and does not watch for changes. `agent.test.ts` keeps vitest to that file. In your own project, type `npx vitest run` · it prints one line per test file, a count, and exits 0 when every test passes.
+- `NO_COLOR=1 node_modules/.bin/vitest run agent.test.ts`: runs the tests of one file once and exits · `run` runs once and does not watch for changes. `agent.test.ts` keeps vitest to that file. `NO_COLOR=1` turns off colours, so the output copies cleanly. In your own project, type `npx vitest run` · it prints one line per test file, a count, and exits 0 when every test passes.
 - `--config vitest.config.mjs`: the config file of step 1, so that vitest reads the clone's packages · the value is the file · it changes only where packages come from.
 
 **You type.** The output is trimmed to its stable lines. Vitest also prints a version, timings and a clock:
 
 ```console
-$ node_modules/.bin/vitest run agent.test.ts --config vitest.config.mjs
+$ NO_COLOR=1 node_modules/.bin/vitest run agent.test.ts --config vitest.config.mjs
  Test Files  1 passed (1)
       Tests  1 passed (1)
 ```
@@ -164,7 +164,7 @@ describeSpec('specs/farewell.yaml', functionAdapter({ respond, deterministic: tr
 **You type.**
 
 ```console
-$ node_modules/.bin/vitest run farewell.test.ts --config vitest.config.mjs   # exit 1
+$ NO_COLOR=1 node_modules/.bin/vitest run farewell.test.ts --config vitest.config.mjs   # exit 1
    ❯ vt-farewell (1)
  FAIL  farewell.test.ts > vt-farewell > block 0: Thanks, that is all.
 Error: block 0 failed
