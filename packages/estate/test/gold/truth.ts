@@ -119,7 +119,9 @@ export async function loadTruth(
     }
   });
   truth.plan.same_row.forEach((group, at) => {
-    group.forEach((id, item) => unitOf(`plan.same_row.${at}.${item}`, id));
+    group.forEach((id, item) => {
+      unitOf(`plan.same_row.${at}.${item}`, id);
+    });
   });
   return { truth, problems };
 }

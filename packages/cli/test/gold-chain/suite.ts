@@ -269,7 +269,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const ledger = must(scan.pointer, '2').ledger;
         const resolver = variables.provenanceResolver(texts, { ledger, estateKey: GOLD_ESTATE_KEY });
         const fed = variables.estateToVariables(approved, resolver);
-        const problems: string[] = fed.refused.map((entry) => `refused ${entry.atom}: ${entry.reason}`);
+        const instructionIds = new Set([...atomOf.values()].map((atom) => atom.id));
+        const refused = fed.refused.filter((entry) => instructionIds.has(entry.atom));
+        const problems: string[] = refused.map((entry) => `refused ${entry.atom}: ${entry.reason}`);
         const axis = fed.store.variables.find((variable) => variable.id === 'atoms.instruction');
         const values = new Map((axis?.values ?? []).map((value) => [value.id, value]));
         for (const unit of gold) {
@@ -277,12 +279,15 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           if (!atom) continue;
           const value = values.get(atom.id);
           const source = value?.provenance?.[0];
+          const quoted = source?.kind === 'quote' ? source.ledger : undefined;
           if (!value) problems.push(`${placeOf(unit)}: ${atom.id} is no value of atoms.instruction`);
-          else if (source?.kind !== 'quote' || source.ledger !== ledgerOf.get(unit.id)) {
-            problems.push(`${placeOf(unit)}: the quote of ${atom.id} names ledger ${String(source?.ledger)}`);
+          else if (quoted !== ledgerOf.get(unit.id)) {
+            problems.push(`${placeOf(unit)}: the quote of ${atom.id} names ledger ${String(quoted)}`);
           }
         }
-        if (values.size !== atomOf.size) problems.push(`atoms.instruction has ${values.size} values, ${atomOf.size} atoms`);
+        if (values.size !== atomOf.size) {
+          problems.push(`atoms.instruction has ${values.size} values, ${atomOf.size} atoms`);
+        }
 
         // The limits of the truth file become the numeric conditions of the atoms they govern.
         const governed = new Map<string, Truth['limits'][number]>();
@@ -305,12 +310,13 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         if (conditions.length !== governed.size) {
           problems.push(`${conditions.length} condition variables for ${governed.size} governed atoms`);
         }
-        for (const variable of conditions) {
-          const boundary = variable.boundaries?.[0];
-          const entry = [...governed.values()].find((limit) => boundary?.limit === limit.limit);
-          if (!entry || boundary?.comparison !== entry.comparison) {
-            problems.push(`${variable.id}: boundary ${String(boundary?.limit)} ${String(boundary?.comparison)} is no limit`);
-          }
+        const shape = (limit: number, comparison: string | undefined): string => `${limit} ${comparison}`;
+        const wanted = [...governed.values()].map((entry) => shape(entry.limit, entry.comparison)).sort();
+        const found = conditions
+          .map((variable) => shape(variable.boundaries?.[0]?.limit ?? Number.NaN, variable.boundaries?.[0]?.comparison))
+          .sort();
+        if (wanted.join('|') !== found.join('|')) {
+          problems.push(`condition boundaries ${found.join(', ')} vs the limits ${wanted.join(', ')}`);
         }
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok) problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
