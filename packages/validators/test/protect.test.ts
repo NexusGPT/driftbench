@@ -790,7 +790,8 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'build',
     'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped,skipped,skipped',
     1,
-  ],  [
+  ],
+  [
     'workflow_dispatch',
     '',
     'train/9a',
