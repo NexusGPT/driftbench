@@ -875,7 +875,6 @@ describe('where the pointer reader looks for a file', () => {
     'CLAUDE.md': [
       { units: '2', label: 'reference' },
       { units: '3', label: 'reference' },
-      { units: '4', label: 'reference' },
     ] as pointer.Labelled[],
   };
   const referenceOf = async (text: string) => {
