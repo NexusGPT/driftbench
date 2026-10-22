@@ -235,6 +235,7 @@ describe('driftbench estate build', () => {
       /Labelers: 0 requests sent; \d+ answers replayed from the cassette \(\d+ in, \d+ out\)\./,
     );
     expect(built.out).toMatch(/Cost when recorded: \d+\.\d{4} USD, without jev-latest\./);
+    expect(built.out).toContain('Note: the price table gives cached_input for claude-haiku-5-5.');
   }, 240_000);
 
   it('stops with exit 2 when the scan cannot read its replay file', async () => {

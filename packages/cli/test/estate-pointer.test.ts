@@ -181,6 +181,22 @@ describe('driftbench estate scan --pointer', () => {
     expect(recorded.err).toBe('');
     expect(recorded.out).toContain('Cost, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
     expect(recorded.out).toContain('Cost in all: 0.0105 USD, without jev-latest.');
+    // A field of the table that the cost does not use is named, never accepted without a word.
+    expect(recorded.out).toContain(
+      'Note: the price table gives cached_input for claude-haiku-5-5. It is not used: the labelers report no cached tokens.',
+    );
+
+    // When the table prices none of the models, no cost is known: never 0.0000 USD.
+    const other = await estate();
+    await writeFile(
+      join(other, 'other.yaml'),
+      'as_of: 2026-01-01\nmodels:\n  other-1: { input: 1, output: 4, cached_input: 0 }\n',
+    );
+    const none = await record(other, [], { prices: 'other.yaml' });
+    expect(none.out).toContain(
+      'No cost is known: the price table has no price for claude-haiku-5-5, jev-latest.',
+    );
+    expect(none.out).not.toContain('0.0000 USD');
 
     const unpriced = await record(await estate());
     expect(unpriced.out).toContain('No prices given: pass --prices <file> to see the cost in USD.');
@@ -206,6 +222,7 @@ describe('driftbench estate scan --pointer', () => {
       'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests.',
     );
     expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
+    expect(replay.out).toContain('Cost when recorded in all: 0.0105 USD, without jev-latest.');
     expect(replay.out).not.toContain('requests sent.');
   });
 
