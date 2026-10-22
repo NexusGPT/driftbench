@@ -50,8 +50,9 @@ beforeAll(() => {
   mkdirSync(join(work, 'oracle'));
   oracle = join(work, 'oracle', 'expected.json');
   writeFileSync(oracle, '137');
-  // Inside the repository, as the review had it, so that the loader of run C (resolved from its working folder) is found.
-  outside = realpathSync(mkdtempSync(join(repo, 'packages', 'validators', 'test', 'frame', 'zz-rev5-')));
+  // Inside the repository's ignored cache folder: the loader of run C (resolved from its working folder) is found,
+  // and no folder appears in the tracked tree while the test runs.
+  outside = realpathSync(mkdtempSync(join(repo, 'node_modules', '.cache', 'zz-rev5-')));
   writeFileSync(join(outside, 'pnpm-workspace.yaml'), 'packages: []\n');
   tsconfig = join(outside, 'tsconfig.json');
   writeFileSync(tsconfig, tsconfigBefore);
