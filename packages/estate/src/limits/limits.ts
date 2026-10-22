@@ -119,8 +119,8 @@ export function limitPlace(text: string, line: number, endLine: number = line, s
  * referred text keeps the plain system text, so its request is the one it always was.
  */
 export const LIMIT_REFERRED_SYSTEM = [
-  'The labeller says this instruction points at the units under REFERRED for its number. The numbers of REFERRED are the numbers',
-  'of this instruction: answer for the instruction with the limit that REFERRED gives it, and take nothing else from REFERRED.',
+  'The labeller says this instruction points at the units under REFERRED for its numbers. Those numbers are the numbers of this instruction:',
+  'answer with one limit for each number that REFERRED gives it as a limit (a table may give several), and take nothing else from REFERRED.',
 ].join(' ');
 
 /** The answer cap of a referred request: the referred units may hold several numbers, one limit each. */
