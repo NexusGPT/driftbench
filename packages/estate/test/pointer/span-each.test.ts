@@ -202,6 +202,34 @@ describe('a mapping that builds one atom for each act span, with the file span l
     expect(atomRefusals.length).toBeGreaterThan(0);
   });
 
+  it('binds a backticked link title to nothing and the destination to the gate', async () => {
+    const line = 'Before editing a ledger: read [`archive/docs/ledger.md`](docs/ledger.md).';
+    const files = ['docs/ledger.md', 'archive/docs/ledger.md'];
+    const title = await gates(line, [{ act: 'editing a ledger', file: '`archive/docs/ledger.md`' }], files);
+    expect(title.found).toEqual([]);
+    expect(title.atomRefusals.length).toBeGreaterThan(0);
+    const destination = await gates(line, [{ act: 'editing a ledger', file: '(docs/ledger.md)' }], files);
+    expect(destination.atomRefusals).toEqual([]);
+    expect(destination.found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+  });
+
+  it.each(['note [`archive/docs/ledger.md`]', '`archive/docs/ledger.md` \\]'])(
+    'binds only the destination of a link whose title is %s',
+    async (title) => {
+      const line = `Before editing a ledger: read [${title}](docs/ledger.md).`;
+      const files = ['docs/ledger.md', 'archive/docs/ledger.md'];
+      const inTitle = await gates(
+        line,
+        [{ act: 'editing a ledger', file: '`archive/docs/ledger.md`' }],
+        files,
+      );
+      expect(inTitle.found).toEqual([]);
+      expect(inTitle.atomRefusals.length).toBeGreaterThan(0);
+      const destination = await gates(line, [{ act: 'editing a ledger', file: '(docs/ledger.md)' }], files);
+      expect(destination.found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+    },
+  );
+
   it('accepts a file span written without the marks around the path', async () => {
     const { found } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',

@@ -1,4 +1,6 @@
 import { basename, posix } from 'node:path';
+import remarkParse from 'remark-parse';
+import { unified } from 'unified';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import { isNormative, normativeEstate } from './document-roles';
 import { guardRuleSources } from './guard-rules';
@@ -524,6 +526,98 @@ export function namedPaths(line: string): string[] {
   return pathMentions(line).map(({ path }) => path);
 }
 
+const MARKDOWN = unified().use(remarkParse);
+
+/** The part of a Markdown syntax tree node that the token finder reads. */
+type MarkdownNode = {
+  type: string;
+  position?: { start: { offset?: number }; end: { offset?: number } };
+  children?: MarkdownNode[];
+};
+
+/** A match-like value for a token the parser located: the span it claims and the exact place of its token. */
+function synthetic(
+  line: string,
+  start: number,
+  end: number,
+  tokenStart: number,
+  tokenEnd: number,
+): RegExpMatchArray {
+  const match = [line.slice(start, end), line.slice(tokenStart, tokenEnd)] as RegExpMatchArray;
+  match.index = start;
+  (match as RegExpMatchArray & { indices: Array<[number, number]> }).indices = [
+    [start, end],
+    [tokenStart, tokenEnd],
+  ];
+  return match;
+}
+
+type MarkdownToken = { start: number; end: number; tokenStart: number; tokenEnd: number; text: string };
+
+/**
+ * The code spans outside links and the links of a line, with the offsets of their tokens, from a CommonMark parse.
+ * A link's token is its destination (a `<...>` form without the angle brackets); the text of the link is never a
+ * token, so a code span or a path inside it is not a mention.
+ */
+function markdownTokens(line: string): { codes: MarkdownToken[]; links: MarkdownToken[] } {
+  const codes: MarkdownToken[] = [];
+  const links: MarkdownToken[] = [];
+  const visit = (node: MarkdownNode, insideLink: boolean): void => {
+    const from = node.position?.start.offset;
+    const to = node.position?.end.offset;
+    if (from === undefined || to === undefined) {
+      for (const child of node.children ?? []) visit(child, insideLink);
+      return;
+    }
+    if (node.type === 'inlineCode' && !insideLink) {
+      let ticks = 0;
+      while (line[from + ticks] === '`') ticks++;
+      const inner = line.slice(from + ticks, to - ticks);
+      const lead = inner.length - inner.trimStart().length;
+      const text = inner.trim();
+      const tokenStart = from + ticks + lead;
+      codes.push({ start: from, end: to, tokenStart, tokenEnd: tokenStart + text.length, text });
+      return;
+    }
+    if (node.type === 'link' && line[from] === '[') {
+      const children = node.children ?? [];
+      let i = children[children.length - 1]?.position?.end.offset ?? from + 1;
+      while (i < to && line[i] !== '(') i++;
+      i++;
+      while (i < to && /\s/.test(line[i] ?? '')) i++;
+      let tokenStart = i;
+      let tokenEnd = i;
+      if (line[i] === '<') {
+        tokenStart = i + 1;
+        tokenEnd = tokenStart;
+        while (tokenEnd < to && line[tokenEnd] !== '>') tokenEnd += line[tokenEnd] === '\\' ? 2 : 1;
+      } else {
+        let depth = 0;
+        while (tokenEnd < to) {
+          const char = line[tokenEnd] ?? '';
+          if (/\s/.test(char)) break;
+          if (char === '\\') {
+            tokenEnd += 2;
+            continue;
+          }
+          if (char === '(') depth++;
+          if (char === ')') {
+            if (depth === 0) break;
+            depth--;
+          }
+          tokenEnd++;
+        }
+      }
+      links.push({ start: from, end: to, tokenStart, tokenEnd, text: line.slice(tokenStart, tokenEnd) });
+      for (const child of children) visit(child, true);
+      return;
+    }
+    for (const child of node.children ?? []) visit(child, insideLink);
+  };
+  visit(MARKDOWN.parse(line) as unknown as MarkdownNode, false);
+  return { codes, links };
+}
+
 export function pathMentions(line: string): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
@@ -573,10 +667,16 @@ export function pathMentions(line: string): NamedReference[] {
       bare: options.bare === true,
     });
   };
-  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/dg))
-    take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
-  // Code spans come after the links: a link is one token whose title, code span or plain text, is never a path.
-  for (const match of line.matchAll(/`([^`\n]+)`/dg)) take(match, match[1], { group: 1 });
+  // Links and code spans come from a CommonMark parse, each with its source offsets: a code span outside a link, and
+  // a link's destination (never its title, whatever the title holds: nested or escaped brackets, a code span).
+  const { codes, links } = markdownTokens(line);
+  for (const code of codes)
+    take(synthetic(line, code.start, code.end, code.tokenStart, code.tokenEnd), code.text, { group: 1 });
+  for (const link of links)
+    take(synthetic(line, link.start, link.end, link.tokenStart, link.tokenEnd), link.text, {
+      spaced: true,
+      group: 1,
+    });
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
     take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
   for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/dg))
