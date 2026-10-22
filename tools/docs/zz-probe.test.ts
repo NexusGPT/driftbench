@@ -15,7 +15,8 @@ it('probe: which spec names the sentence', async () => {
   console.log = log;
   log('PROBE problems', problems.length);
   const sh = (c: string) => execSync(c, { cwd: base, encoding: 'utf8', maxBuffer: 1 << 26 });
-  const f = sh('find . -name "estate.ordered_pair.gate.weekly-report.read-templates-report-md-before-writing.yaml"').trim();
-  log('PROBE SPEC17 ' + f + '\n' + sh(`cat ${f}`));
-  log('PROBE rowsline', sh('grep -n -B2 -A8 "count-only-what-the-ledger-and" walk/plan.yaml walk/northwind/plan.yaml build/plan.yaml 2>&1 | head -60'));
+  for (const [i, p] of problems.entries()) {
+    const lines = p.split('\n').filter((l) => !l.startsWith('note: ') && !/^[✗✓?] estate\.|^ {4}(failing|judged)/.test(l.trim()) && !/^\s+(failing|judged)/.test(l));
+    log('PROBLEM ' + i + '\n' + lines.join('\n').slice(0, 3500));
+  }
 }, 600_000);
