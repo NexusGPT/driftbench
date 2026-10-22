@@ -99,6 +99,12 @@ export type LabelerUsage = {
   recorded: number;
   input: number;
   output: number;
+  /** Answers taken from the cassette instead of the service. */
+  replayed: number;
+  /** The input tokens the replayed answers cost when they were recorded. */
+  replayedInput: number;
+  /** The output tokens the replayed answers cost when they were recorded. */
+  replayedOutput: number;
 };
 
 export type PointerResult = {
@@ -401,19 +407,30 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   // 3. The answers, `jobs` at a time. A window the service refuses as too large is halved.
-  const tally = labelling.members.map(() => ({ calls: 0, recorded: 0, input: 0, output: 0 }));
+  const tally = labelling.members.map(() => ({
+    calls: 0,
+    recorded: 0,
+    input: 0,
+    output: 0,
+    replayed: 0,
+    replayedInput: 0,
+    replayedOutput: 0,
+  }));
 
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
     const wire = member.render(task.set, window, task.context);
     const readable = readableFor(task, window);
+    const counts = tally[task.memberAt] as (typeof tally)[number];
     try {
       const hit = cassette.get(wire, readable);
+      counts.replayed++;
+      counts.replayedInput += hit.answer.usage.input;
+      counts.replayedOutput += hit.answer.usage.output;
       return { answer: hit.answer, key: hit.key };
     } catch (cause) {
       if (!(cause instanceof CassetteMiss) || input.mode === 'replay' || !member.call) throw cause;
     }
-    const counts = tally[task.memberAt] as (typeof tally)[number];
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
     let failure: unknown;
     for (let attempt = 1; attempt <= 2; attempt++) {

@@ -1,6 +1,7 @@
 import { appendFileSync } from 'node:fs';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import type { TokenPrices } from '@agent-nexus/driftbench-core';
 import { type PointerScanOptions, pointer, type ScanEstateResult } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { exists, reason, show, writeOut } from '../files';
@@ -23,6 +24,8 @@ export type EstatePointerOptions = {
   /** The name of the environment variable that holds the bearer token of an http labeler. */
   labelerKey?: string;
   jobs?: string;
+  /** A table of USD per million tokens (YAML), to price the tokens the labelers used. */
+  prices?: string;
   ledger?: string;
   ledgerCheck?: boolean;
   /** Write the ledger. Without it, the ledger is read and left as it is. */
@@ -257,8 +260,105 @@ export async function openPointer(
 
 const className = (cls: pointer.LabelerClass): string => (cls === 'system1' ? 'system 1' : 'system 2');
 
+/** What the requests of a run cost in USD, summed over the models that have a price. */
+type Spend = { usd: number; missing: Set<string>; sent: boolean };
+
+/** USD for tokens at a model's price, or undefined when the table has no price for the model. */
+function usdOf(prices: TokenPrices | undefined, model: string, input: number, output: number) {
+  const price = prices && Object.hasOwn(prices.models, model) ? prices.models[model] : undefined;
+  return price ? (input * price.input + output * price.output) / 1_000_000 : undefined;
+}
+
+const dollars = (usd: number): string => `${usd.toFixed(4)} USD`;
+
+/**
+ * The lines of the tokens each labeler used: the requests sent, the answers replayed from the cassette (their
+ * tokens come from the recording), and the cost of both when a price table is given.
+ */
+function tokenLines(
+  entries: readonly pointer.LabelerUsage[],
+  topic: string,
+  prices: TokenPrices | undefined,
+  spend: Spend,
+): string[] {
+  const lines: string[] = [];
+  for (const entry of entries) {
+    const who = `${topic}${className(entry.cls)} ${entry.id} ${entry.model}`;
+    if (entry.calls > 0 || entry.input + entry.output > 0) {
+      lines.push(`  Tokens, ${who}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`);
+      spend.sent = true;
+      const usd = usdOf(prices, entry.model, entry.input, entry.output);
+      if (usd === undefined) spend.missing.add(entry.model);
+      else {
+        spend.usd += usd;
+        lines.push(`  Cost, ${who}: ${dollars(usd)}.`);
+      }
+    }
+    if (entry.replayed > 0) {
+      lines.push(
+        `  Tokens replayed from the cassette, ${who}: ${entry.replayedInput} in, ${entry.replayedOutput} out, ${entry.replayed} requests.`,
+      );
+      const usd = usdOf(prices, entry.model, entry.replayedInput, entry.replayedOutput);
+      if (usd !== undefined) lines.push(`  Cost when recorded, ${who}: ${dollars(usd)}.`);
+    }
+  }
+  return lines;
+}
+
+/** The closing line of the cost: the total, the models it leaves out, or how to get a price. */
+function spendLine(spend: Spend, prices: TokenPrices | undefined, indent: string): string {
+  if (!prices) return `${indent}No prices given: pass --prices <file> to see the cost in USD.`;
+  const without = spend.missing.size > 0 ? `, without ${[...spend.missing].sort().join(', ')}` : '';
+  return `${indent}Cost in all: ${dollars(spend.usd)}${without}.`;
+}
+
+/**
+ * What the labelers used in one scan, in lines for `estate build`, which keeps the rest of the scan output
+ * to itself: the requests sent and the answers replayed with their tokens, then the cost when prices are given.
+ */
+export function usageSummary(result: ScanEstateResult, prices: TokenPrices | undefined): string[] {
+  const entries = [...(result.pointer?.usage ?? []), ...(result.documentRoles?.usage ?? [])];
+  if (entries.length === 0) return [];
+  const sum = (pick: (entry: pointer.LabelerUsage) => number) =>
+    entries.reduce((total, entry) => total + pick(entry), 0);
+  const sent = sum((entry) => entry.calls);
+  const replayed = sum((entry) => entry.replayed);
+  const parts = [
+    sent > 0
+      ? `${sent} requests sent (${sum((entry) => entry.input)} in, ${sum((entry) => entry.output)} out)`
+      : '0 requests sent',
+    ...(replayed > 0
+      ? [
+          `${replayed} answers replayed from the cassette (${sum((entry) => entry.replayedInput)} in, ${sum((entry) => entry.replayedOutput)} out)`,
+        ]
+      : []),
+  ];
+  const lines = [`   Labelers: ${parts.join('; ')}.`];
+  const missing = new Set<string>();
+  let spentUsd = 0;
+  let recordedUsd = 0;
+  for (const entry of entries) {
+    const spent = usdOf(prices, entry.model, entry.input, entry.output);
+    const recorded = usdOf(prices, entry.model, entry.replayedInput, entry.replayedOutput);
+    if (spent === undefined || recorded === undefined) {
+      if (entry.calls > 0 || entry.replayed > 0) missing.add(entry.model);
+      continue;
+    }
+    spentUsd += spent;
+    recordedUsd += recorded;
+  }
+  const without = missing.size > 0 ? `, without ${[...missing].sort().join(', ')}` : '';
+  if (!prices) {
+    if (sent > 0) lines.push('   No prices given: pass --prices <file> to see the cost in USD.');
+    return lines;
+  }
+  if (sent > 0) lines.push(`   Cost: ${dollars(spentUsd)}${without}.`);
+  if (replayed > 0) lines.push(`   Cost when recorded: ${dollars(recordedUsd)}${without}.`);
+  return lines;
+}
+
 /** The lines a scan prints about the pointer reader: counts and tokens, never a unit. */
-export function pointerLines(result: ScanEstateResult, describe: string): string[] {
+export function pointerLines(result: ScanEstateResult, describe: string, prices?: TokenPrices): string[] {
   const done = result.pointer;
   if (!done) return [];
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
@@ -267,12 +367,8 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
     `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
-  for (const entry of done.usage) {
-    if (entry.input + entry.output === 0 && entry.calls === 0) continue;
-    lines.push(
-      `  Tokens, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
-    );
-  }
+  const spend: Spend = { usd: 0, missing: new Set(), sent: false };
+  lines.push(...tokenLines(done.usage, '', prices, spend));
   const events = Object.entries(done.events).filter(([, count]) => count > 0);
   lines.push(
     `  Units since the last ledger: ${events.map(([event, count]) => `${event} ${count}`).join(', ')}.`,
@@ -282,14 +378,10 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
     lines.push(
       `  Document roles: ${Object.keys(roles.labelled).length} files labelled by the document-roles set; requests ${roles.windows} answered, ${roles.calls} sent, ${roles.recorded} recorded.`,
     );
-    for (const entry of roles.usage) {
-      if (entry.input + entry.output === 0 && entry.calls === 0) continue;
-      lines.push(
-        `  Tokens, document roles, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
-      );
-    }
+    lines.push(...tokenLines(roles.usage, 'document roles, ', prices, spend));
     for (const failure of roles.failed) lines.push(`    document-role window failed: ${failure}`);
   }
+  if (spend.sent) lines.push(spendLine(spend, prices, '  '));
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
