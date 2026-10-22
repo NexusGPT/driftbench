@@ -143,6 +143,26 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atom && variables.conditionsOf(atom).map((entry) => entry.limit)).toEqual([5]);
   });
 
+  it.each([
+    ['an unknown comparison', { kind: 'limit', to: 'more', value: 2 }],
+    ['an empty unit', { kind: 'limit', to: 'le', value: 2, unit: '  ' }],
+    ['to: none', { kind: 'limit', to: 'none', value: 2 }],
+  ])('drops a limit with %s, keeps the label and makes no condition', async (_name, link) => {
+    const result = await play([link]);
+    const atom = atomOf(result, 'Warn the skipper when a boat is overdue');
+    expect(atom).toBeDefined();
+    expect(atom?.fields).not.toHaveProperty('condition');
+  });
+
+  it('makes one condition of identical limits on one unit, and keeps different ones', async () => {
+    const same = { kind: 'limit', to: 'le', value: 2, unit: 'days' };
+    const result = await play([same, { ...same }, { kind: 'limit', to: 'le', value: 3, unit: 'days' }]);
+    expect(atomOf(result, 'Warn the skipper when a boat is overdue')?.fields?.condition).toEqual([
+      { limit: 2, comparison: 'le', unit: 'days' },
+      { limit: 3, comparison: 'le', unit: 'days' },
+    ]);
+  });
+
   it('puts no condition on a unit that gave no limit', async () => {
     const result = await play(undefined);
     expect(atomOf(result, 'Close the gate at dusk')?.fields).not.toHaveProperty('condition');
