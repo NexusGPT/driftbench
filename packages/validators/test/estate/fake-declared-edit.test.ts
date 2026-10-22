@@ -32,7 +32,11 @@ async function calls(options: { withoutGate?: boolean } = {}): Promise<{ calls: 
     ask: ASK,
     cwd,
     sessionId: 'test',
-    env: { ...process.env, FAKE_MAP: join(FIXTURE, 'approved.yaml'), FAKE_PHRASES: join(FIXTURE, 'phrases.yaml') },
+    env: {
+      ...process.env,
+      FAKE_MAP: join(FIXTURE, 'approved.yaml'),
+      FAKE_PHRASES: join(FIXTURE, 'phrases.yaml'),
+    },
   });
   const made: Call[] = [];
   for (const record of out.records as Array<{ message?: { content?: unknown } }>) {

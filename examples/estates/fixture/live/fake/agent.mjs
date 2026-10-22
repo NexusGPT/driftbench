@@ -277,7 +277,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       : { actions: [], gates: [], bans: [] };
   // The files the situation of the ask declares it changes: each is edited, after the reads its gates order.
   for (const path of setOffBy.edits ?? [])
-    if (unit?.kind === 'skill' && !plan.actions.some((other) => other.kind === 'Edit' && other.literal === path))
+    if (
+      unit?.kind === 'skill' &&
+      !plan.actions.some((other) => other.kind === 'Edit' && other.literal === path)
+    )
       plan.actions.push({ kind: 'Edit', literal: path, folder: '' });
   const prohibited = prohibitions(plan.bans, cwd);
   const out = [];
@@ -322,7 +325,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           hook_event: event,
         });
         // The runtime hands a hook the path of the session's transcript, which holds the calls made so far.
-        const transcript = join(tmpdir(), `fake-transcript-${cwd.replace(/[^A-Za-z0-9]/g, '-')}-${sessionId}.jsonl`);
+        const transcript = join(
+          tmpdir(),
+          `fake-transcript-${cwd.replace(/[^A-Za-z0-9]/g, '-')}-${sessionId}.jsonl`,
+        );
         writeFileSync(transcript, out.map((record) => JSON.stringify(record)).join('\n'));
         const ran = spawnSync('/bin/sh', ['-c', hook.command], {
           cwd,
