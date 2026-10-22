@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { ClaudeCodeReader, scanEstate } from '../../src/index';
+import { ClaudeCodeReader, mapHash, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
 
 // An invented harbour office: the skill declares tools with and without a pattern.
@@ -39,4 +39,10 @@ it('leaves the atoms, ids and map hash of the scan as they were', async () => {
     ['Declared Bash', 'Bash'],
     ['Declared Edit', 'Edit'],
   ]);
+  // The map hash covers the atom ids, their provenance hashes and the edges. A pattern kept in `rules` must not enter it.
+  const withoutRules = map.atoms.map((atom) => {
+    const { rules: _rules, ...fields } = atom.fields ?? {};
+    return { ...atom, fields };
+  });
+  expect(map.hash).toBe(mapHash(withoutRules, map.edges));
 });
