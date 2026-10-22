@@ -90,3 +90,30 @@ it('raw run of the failing spec', async () => {
   say(`RAW ${JSON.stringify(JSON.parse(r.out.slice(r.out.indexOf('{'))), (k, v) => (k === 'trace' || k === 'verdicts' ? v : v)).slice(0, 7000)}`);
   say(`CALLS2 ${existsSync('/tmp/probe-calls2.jsonl') ? read('/tmp/probe-calls2.jsonl', 'utf8').slice(0, 3000) : 'none'}`);
 });
+
+it('plan stream of the failing ask', async () => {
+  const { cpSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync: read } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { dirname } = await import('node:path');
+  const { parse } = await import('yaml');
+  const suite = await fixtureSuite();
+  const spec = suite.specs.find((x) => x.id === 'estate.ordered_pair.gate.standing.read-before-edit-it');
+  if (!spec) throw new Error('no spec');
+  const doc = parse(read(spec.path, 'utf8')) as { given: { world: { workspace: { files: Record<string, string> } } } };
+  const cwd = mkdtempSync(join(tmpdir(), 'probe-ws-'));
+  cpSync(FIXTURE, cwd, { recursive: true, filter: (src) => !src.includes('/generated') });
+  for (const [path, text] of Object.entries(doc.given.world.workspace.files)) {
+    mkdirSync(dirname(join(cwd, path)), { recursive: true });
+    writeFileSync(join(cwd, path), text);
+  }
+  const mod = await import(join(FIXTURE, 'live/fake/agent.mjs'));
+  const out = mod.planStream({
+    ask: "Add the late shipment count to this week's report, reports/2026-W41.md.",
+    cwd,
+    sessionId: 'probe',
+    env: { ...process.env, FAKE_MAP: join(FIXTURE, 'approved.yaml'), FAKE_PHRASES: join(FIXTURE, 'phrases.yaml') },
+  });
+  const brief = (out.records as Array<Record<string, unknown>>).map((r) => JSON.stringify(r).slice(0, 260));
+  say(`PLAN blocked=${out.blocked} error=${out.error} n=${brief.length}`);
+  for (const line of brief) say(`REC ${line}`);
+});
