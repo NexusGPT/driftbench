@@ -16,6 +16,7 @@ import type {
   VariablesImpl,
 } from '../interface';
 import { CAUSES } from './causes';
+import { beginLexicon } from './lexicon';
 
 /**
  * The tools of the blind variables bank. The bank was written from docs/variables.md ("Programmatic readers and
@@ -75,6 +76,7 @@ export function expand(stems: readonly Stem[]): BankItem[] {
         ...(stem.heavy ? { budgetMs: HEAVY_BUDGET_MS } : {}),
         check: (ctx) =>
           outcomeOf(async () => {
+            beginLexicon(ctx);
             const note = await run(ctx);
             return typeof note === 'string' ? note : undefined;
           }),

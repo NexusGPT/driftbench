@@ -1,6 +1,7 @@
 import type { ItemContext } from '../bank/item';
 import type { EstateInput, Row, Sources, StoreDoc, StoreVariable } from '../interface';
 import { callBuild, must, show } from './kit';
+import { frame, layout } from './lexicon';
 
 /**
  * Estate scenes: a fictional prompt file, tool evidence read from it, and the id of the variable the product
@@ -13,15 +14,25 @@ export type ToolSpec = { tool: string; field: string; values: string[] };
 export const OWNER_DATE = '2026-10-17';
 
 export function quoteFor(tool: ToolSpec, value: string): string {
-  return `When the ${tool.field} of ${tool.tool} is ${value}, the agent acts on it.`;
+  return frame()(tool.tool, tool.field, value);
 }
 
 export function estateFor(
   tools: readonly ToolSpec[],
   path = 'agent/prompt.md',
 ): { estate: EstateInput; text: string } {
+  const how = layout();
   const lines = ['# Operating notes', ''];
-  for (const t of tools) for (const v of t.values) lines.push(quoteFor(t, v));
+  let n = 0;
+  for (const t of tools) {
+    if (how === 3) lines.push(`## ${t.tool}`, '');
+    for (const v of t.values) {
+      n += 1;
+      const quote = quoteFor(t, v);
+      lines.push(how === 1 ? `- ${quote}` : how === 2 ? `${n}. ${quote}` : quote);
+    }
+    if (how === 3) lines.push('');
+  }
   lines.push('', 'This sentence names no tool and no value.');
   const text = lines.join('\n');
   return {

@@ -5,7 +5,17 @@ import { drawnCase, PATH, readSpans } from '../conditions';
 import { drawBoolean, drawCondition, drawEquality, drawMembership, drawRange, policyFile } from '../draws';
 import { baseFile, defect, errorsOf, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
 import { callBuild, callValidate, must, type Stem, show } from '../kit';
-import { conversationsOf, discover, estateFor, OWNER_DATE, pairOf, type ToolSpec, varOf } from '../scene';
+import { lex } from '../lexicon';
+import {
+  conversationsOf,
+  discover,
+  estateFor,
+  OWNER_DATE,
+  pairOf,
+  quoteFor,
+  type ToolSpec,
+  varOf,
+} from '../scene';
 import { type Cmp, declareSpan, numeric } from '../spans';
 
 /** Family sources: R1 (provenance of every value), R3 (conditions), R4 (identity and merging), R5 (conversations, owner). */
@@ -58,8 +68,8 @@ const structEntry = (extra: Record<string, unknown> = {}) => ({
 });
 
 const TOOLS = (): ToolSpec[] => [
-  { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta', 'gamma'] },
-  { tool: 'mailer_tool', field: 'tone', values: ['warm', 'brisk'] },
+  { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta'), lex('gamma')] },
+  { tool: lex('mailer_tool'), field: lex('tone'), values: [lex('warm'), lex('brisk')] },
 ];
 
 function sessions(variable: string, plan: Array<[string, number]>, extra = 0): Row[] {
@@ -480,13 +490,10 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'repeated-tool-field-merges-by-field',
         3,
         (ctx) => {
-          const t1: ToolSpec = { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta'] };
-          const t2: ToolSpec = { tool: 'router_tool', field: 'queue', values: ['beta', 'gamma'] };
-          const text = [
-            ...t1.values.map((v) => `When the queue of router_tool is ${v}, the agent acts on it.`),
-            ...t2.values.map((v) => `When the queue of router_tool is ${v}, the agent acts on it.`),
-          ].join('\n');
-          const q = (t: ToolSpec, v: string) => `When the queue of ${t.tool} is ${v}, the agent acts on it.`;
+          const t1: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
+          const t2: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('beta'), lex('gamma')] };
+          const q = (t: ToolSpec, v: string) => quoteFor(t, v);
+          const text = [...t1.values.map((v) => q(t1, v)), ...t2.values.map((v) => q(t2, v))].join('\n');
           const estate = {
             files: { [PATH]: text },
             rules: [t1, t2].map((t, i) => ({
@@ -510,7 +517,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           const ids = (store.variables[0]?.values ?? []).map((x) => x.id).sort();
           must(
-            JSON.stringify(ids) === JSON.stringify(['alpha', 'beta', 'gamma']),
+            JSON.stringify(ids) === JSON.stringify([lex('alpha'), lex('beta'), lex('gamma')]),
             () => `values ${show(ids)}; the union of both rules, each once`,
           );
         },
@@ -520,8 +527,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
         3,
         (ctx) => {
           const tools: ToolSpec[] = [
-            { tool: 'alpha_tool', field: 'mode', values: ['a1', 'a2'] },
-            { tool: 'beta_tool', field: 'mode', values: ['b1', 'b2'] },
+            { tool: lex('alpha_tool'), field: lex('mode'), values: [lex('a1'), lex('a2')] },
+            { tool: lex('beta_tool'), field: lex('mode'), values: [lex('b1'), lex('b2')] },
           ];
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
@@ -535,8 +542,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'a-rule-lists-every-variable-it-names',
         3,
         (ctx) => {
-          const tool: ToolSpec = { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta'] };
-          const q = (v: string) => `When the queue of router_tool is ${v}, the agent acts on it.`;
+          const tool: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
+          const q = (v: string) => quoteFor(tool, v);
           const spans = [
             numeric('the delay is more than 2 days', 'the delay', 2, 'gt'),
             numeric('the refund is under 30 euros', 'the refund', 30, 'lt'),
@@ -579,9 +586,9 @@ export const SOURCES_STEMS: readonly Stem[] = [
         2,
         (ctx) => {
           const tools: ToolSpec[] = [
-            { tool: 'a_tool', field: 'f1', values: ['x1', 'x2'] },
-            { tool: 'b_tool', field: 'f2', values: ['y1', 'y2'] },
-            { tool: 'c_tool', field: 'f3', values: ['z1', 'z2'] },
+            { tool: lex('a_tool'), field: lex('f1'), values: [lex('x1'), lex('x2')] },
+            { tool: lex('b_tool'), field: lex('f2'), values: [lex('y1'), lex('y2')] },
+            { tool: lex('c_tool'), field: lex('f3'), values: [lex('z1'), lex('z2')] },
           ];
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
@@ -597,8 +604,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
         'a-variable-shared-by-two-rules-is-in-both',
         4,
         (ctx) => {
-          const tool: ToolSpec = { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta'] };
-          const q = (v: string) => `When the queue of router_tool is ${v}, the agent acts on it.`;
+          const tool: ToolSpec = { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta')] };
+          const q = (v: string) => quoteFor(tool, v);
           const mk = (id: string) => ({
             id,
             source: PATH,
@@ -680,17 +687,17 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 3],
-                ['beta', 1],
+                [lex('alpha'), 3],
+                [lex('beta'), 1],
               ]),
             ),
             owner: {
               values: [
-                { variable: id, value: 'alpha', words: 'Alpha is our common queue.', date: OWNER_DATE },
+                { variable: id, value: lex('alpha'), words: 'Alpha is our common queue.', date: OWNER_DATE },
               ],
             },
           });
-          const alpha = store.variables.find((v) => v.id === id)?.values.find((x) => x.id === 'alpha');
+          const alpha = store.variables.find((v) => v.id === id)?.values.find((x) => x.id === lex('alpha'));
           const kinds = (alpha?.provenance ?? []).map((p) => p.kind).sort();
           must(
             JSON.stringify(kinds) === JSON.stringify(['conversations', 'owner', 'quote']),
@@ -706,12 +713,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const before = d.store.variables
             .find((v) => v.id === id)
-            ?.values.find((x) => x.id === 'beta')
+            ?.values.find((x) => x.id === lex('beta'))
             ?.provenance?.find((p) => p.kind === 'quote');
-          const store = d.build({ conversations: conversationsOf(sessions(id, [['beta', 2]])) });
+          const store = d.build({ conversations: conversationsOf(sessions(id, [[lex('beta'), 2]])) });
           const after = store.variables
             .find((v) => v.id === id)
-            ?.values.find((x) => x.id === 'beta')
+            ?.values.find((x) => x.id === lex('beta'))
             ?.provenance?.find((p) => p.kind === 'quote');
           must(
             JSON.stringify(before) === JSON.stringify(after) && !!after,
@@ -738,16 +745,16 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 5],
-                ['beta', 3],
-                ['gamma', 2],
+                [lex('alpha'), 5],
+                [lex('beta'), 3],
+                [lex('gamma'), 2],
               ]),
             ),
           });
           for (const [v, n] of [
-            ['alpha', 5],
-            ['beta', 3],
-            ['gamma', 2],
+            [lex('alpha'), 5],
+            [lex('beta'), 3],
+            [lex('gamma'), 2],
           ] as const) {
             const e = convOf(store, id, v);
             must(
@@ -766,7 +773,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 6],
+                [lex('alpha'), 6],
                 ['stranger', 4],
               ]),
             ),
@@ -812,8 +819,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 2],
-                ['beta', 2],
+                [lex('alpha'), 2],
+                [lex('beta'), 2],
               ]),
             ),
           });
@@ -836,9 +843,9 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const rows = conversationsOf(
             sessions(id, [
-              ['alpha', 3],
-              ['beta', 2],
-              ['gamma', 1],
+              [lex('alpha'), 3],
+              [lex('beta'), 2],
+              [lex('gamma'), 1],
             ]),
           );
           const a = d.build({ conversations: rows });
@@ -857,12 +864,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const rows = conversationsOf(
             sessions(id, [
-              ['alpha', 3],
-              ['beta', 2],
+              [lex('alpha'), 3],
+              [lex('beta'), 2],
             ]),
           );
           const changed = clone(rows);
-          (changed[0] as { values: Row }).values[id] = 'gamma';
+          (changed[0] as { values: Row }).values[id] = lex('gamma');
           const a = d.build({ conversations: rows });
           const b = d.build({ conversations: changed });
           must(
@@ -879,8 +886,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const rows = conversationsOf(
             sessions(id, [
-              ['alpha', 3],
-              ['beta', 2],
+              [lex('alpha'), 3],
+              [lex('beta'), 2],
             ]),
           ).map((r, i) => ({
             ...r,
@@ -916,8 +923,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 2],
-                ['beta', 2],
+                [lex('alpha'), 2],
+                [lex('beta'), 2],
               ]),
             ),
           });
@@ -936,14 +943,14 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const d = discover(ctx, TOOLS());
           const [a, b] = d.ids as [string, string];
           const rows: Row[] = [
-            { [a]: 'alpha', [b]: 'warm' },
-            { [a]: 'alpha', [b]: 'brisk' },
-            { [a]: 'beta' },
-            { [b]: 'warm' },
+            { [a]: lex('alpha'), [b]: lex('warm') },
+            { [a]: lex('alpha'), [b]: lex('brisk') },
+            { [a]: lex('beta') },
+            { [b]: lex('warm') },
           ];
           const store = d.build({ conversations: conversationsOf(rows) });
-          const ea = convOf(store, a, 'alpha');
-          const eb = convOf(store, b, 'warm');
+          const ea = convOf(store, a, lex('alpha'));
+          const eb = convOf(store, b, lex('warm'));
           must(
             ea?.kind === 'conversations' && ea.count === 2 && ea.total === 3,
             () => `alpha: ${show(ea)}; expected 2 of 3`,
@@ -972,31 +979,31 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(a, [
-                ['alpha', 4],
-                ['beta', 2],
+                [lex('alpha'), 4],
+                [lex('beta'), 2],
               ]),
             ),
             owner: {
               values: [
-                { variable: b, value: 'curt', words: 'We sometimes write curt mails.', date: OWNER_DATE },
+                { variable: b, value: lex('curt'), words: 'We sometimes write curt mails.', date: OWNER_DATE },
               ],
-              impossible: [pairOf([a, 'alpha'], [b, 'curt'])],
+              impossible: [pairOf([a, lex('alpha')], [b, lex('curt')])],
               weights: [
-                { variable: b, value: 'warm', weight: 3, words: 'Mostly warm.', date: OWNER_DATE },
-                { variable: b, value: 'brisk', weight: 1, words: 'Rarely brisk.', date: OWNER_DATE },
-                { variable: b, value: 'curt', weight: 1, words: 'Rarely curt.', date: OWNER_DATE },
+                { variable: b, value: lex('warm'), weight: 3, words: 'Mostly warm.', date: OWNER_DATE },
+                { variable: b, value: lex('brisk'), weight: 1, words: 'Rarely brisk.', date: OWNER_DATE },
+                { variable: b, value: lex('curt'), weight: 1, words: 'Rarely curt.', date: OWNER_DATE },
               ],
             },
           });
-          must(!!varOf(store, ['warm', 'brisk', 'curt']), () => 'the owner value is not in the variable');
+          must(!!varOf(store, [lex('warm'), lex('brisk'), lex('curt')]), () => 'the owner value is not in the variable');
           must(
             store.impossible.length === 1,
             () => `${store.impossible.length} impossible pairs; the owner gave one`,
           );
-          must(convOf(store, a, 'alpha')?.kind === 'conversations', () => 'the conversation counts are gone');
+          must(convOf(store, a, lex('alpha'))?.kind === 'conversations', () => 'the conversation counts are gone');
           const weightOf = (value: string): number | undefined =>
             store.variables.find((v) => v.id === b)?.values.find((x) => x.id === value)?.weight;
-          const w = ['warm', 'brisk', 'curt'].map(weightOf);
+          const w = [lex('warm'), lex('brisk'), lex('curt')].map(weightOf);
           must(JSON.stringify(w) === JSON.stringify([3, 1, 1]), () => `owner weights ${show(w)}`);
         },
       ],

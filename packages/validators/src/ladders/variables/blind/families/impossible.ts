@@ -17,6 +17,7 @@ import {
   spaceOf,
   valueIds,
 } from '../kit';
+import { lex } from '../lexicon';
 import { discover, OWNER_DATE, pairOf, samePair, type ToolSpec } from '../scene';
 
 /** Family impossible-pairs: R5 (owner pairs), R6 (extendability), R7, Impossible combinations, Approval. */
@@ -72,8 +73,8 @@ function warningCodes(plan: { warnings?: Array<{ code: string }> }): string[] {
 const ownerTools = (rng: Rng): ToolSpec[] => {
   const [t1, t2, f1, f2] = names(rng, 4);
   return [
-    { tool: `${t1}_tool`, field: `${f1}_kind`, values: ['alpha', 'beta', 'gamma'] },
-    { tool: `${t2}_tool`, field: `${f2}_mode`, values: ['north', 'south'] },
+    { tool: `${t1}_tool`, field: `${f1}_kind`, values: [lex('alpha'), lex('beta'), lex('gamma')] },
+    { tool: `${t2}_tool`, field: `${f2}_mode`, values: [lex('north'), lex('south')] },
   ];
 };
 
@@ -587,9 +588,9 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, 'alpha'], [v2, 'north'], 'Never together, says the owner.')] },
+            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'Never together, says the owner.')] },
           });
-          const hit = store.impossible.find((p) => samePair(p, [v1, 'alpha'], [v2, 'north']));
+          const hit = store.impossible.find((p) => samePair(p, [v1, lex('alpha')], [v2, lex('north')]));
           must(!!hit, () => `the owner pair is not in the store: ${show(store.impossible)}`);
           const own = hit?.provenance.find((p) => p.kind === 'owner');
           must(
@@ -609,12 +610,12 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const store = d.build({
             owner: {
               impossible: [
-                pairOf([v1, 'alpha'], [v2, 'north']),
-                pairOf([v2, 'north'], [v1, 'alpha'], 'Written the other way round.'),
+                pairOf([v1, lex('alpha')], [v2, lex('north')]),
+                pairOf([v2, lex('north')], [v1, lex('alpha')], 'Written the other way round.'),
               ],
             },
           });
-          const hits = store.impossible.filter((p) => samePair(p, [v1, 'alpha'], [v2, 'north']));
+          const hits = store.impossible.filter((p) => samePair(p, [v1, lex('alpha')], [v2, lex('north')]));
           must(hits.length === 1, () => `${hits.length} entries for one pair written in both orders`);
         },
       ],
@@ -624,9 +625,9 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
         (ctx) => {
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
-          const same = pairOf([v1, 'beta'], [v2, 'south']);
+          const same = pairOf([v1, lex('beta')], [v2, lex('south')]);
           const store = d.build({ owner: { impossible: [same, { ...same }, { ...same }] } });
-          const hits = store.impossible.filter((p) => samePair(p, [v1, 'beta'], [v2, 'south']));
+          const hits = store.impossible.filter((p) => samePair(p, [v1, lex('beta')], [v2, lex('south')]));
           must(hits.length === 1, () => `${hits.length} entries for one pair written three times`);
         },
       ],
@@ -637,7 +638,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, 'alpha'], ['no_such_variable_here', 'north'])] },
+            owner: { impossible: [pairOf([v1, lex('alpha')], ['no_such_variable_here', lex('north')])] },
           });
           must(
             store.impossible.length === 0,
@@ -658,7 +659,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, 'alpha'], [v2, 'no_such_value_here'])] },
+            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, 'no_such_value_here'])] },
           });
           must(
             store.impossible.length === 0,
@@ -675,11 +676,11 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
             owner: {
-              impossible: [pairOf([v1, 'gamma'], [v2, 'south']), pairOf([v1, 'alpha'], [v2, 'nowhere'])],
+              impossible: [pairOf([v1, lex('gamma')], [v2, lex('south')]), pairOf([v1, lex('alpha')], [v2, 'nowhere'])],
             },
           });
           must(
-            store.impossible.some((p) => samePair(p, [v1, 'gamma'], [v2, 'south'])),
+            store.impossible.some((p) => samePair(p, [v1, lex('gamma')], [v2, lex('south')])),
             () => 'the valid pair is gone',
           );
           must(
@@ -698,7 +699,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
         (ctx) => {
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
-          const store = d.build({ owner: { impossible: [pairOf([v1, 'alpha'], [v2, 'north'], '   ')] } });
+          const store = d.build({ owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], '   ')] } });
           must(store.impossible.length === 0, () => 'a pair with blank owner words entered the store');
           must(store.refused.length >= 1, () => 'a pair with blank owner words is not in refused');
         },
@@ -710,7 +711,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const d = discover(ctx, ownerTools(ctx.rng));
           const [v1, v2] = d.ids as [string, string];
           const store = d.build({
-            owner: { impossible: [pairOf([v1, 'alpha'], [v2, 'north'], 'We know it.', '2026-02-30')] },
+            owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'We know it.', '2026-02-30')] },
           });
           must(store.impossible.length === 0, () => 'a pair dated 2026-02-30 entered the store');
           must(store.refused.length >= 1, () => 'a pair with an unreal date is not in refused');

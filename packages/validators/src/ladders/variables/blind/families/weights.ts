@@ -2,6 +2,7 @@ import type { ItemContext } from '../../bank/item';
 import type { Row } from '../../interface';
 import { baseFile, defect, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
 import { callInterval, must, type Stem, show } from '../kit';
+import { lex } from '../lexicon';
 import { conversationsOf, discover, OWNER_DATE, type ToolSpec } from '../scene';
 
 /** Family weights: R5 (counts and owner weights), R9 (relative), R13 (Wilson interval), Values and Limits (the loader). */
@@ -28,8 +29,8 @@ const exact =
   };
 
 const TOOLS = (): ToolSpec[] => [
-  { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta', 'gamma'] },
-  { tool: 'mailer_tool', field: 'tone', values: ['warm', 'brisk'] },
+  { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta'), lex('gamma')] },
+  { tool: lex('mailer_tool'), field: lex('tone'), values: [lex('warm'), lex('brisk')] },
 ];
 
 function sessions(variable: string, plan: Array<[string, number]>, extra = 0): Row[] {
@@ -334,13 +335,13 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 6],
-                ['beta', 3],
-                ['gamma', 1],
+                [lex('alpha'), 6],
+                [lex('beta'), 3],
+                [lex('gamma'), 1],
               ]),
             ),
           });
-          const [a, b, c] = ['alpha', 'beta', 'gamma'].map((v) => weightOf(store, id, v)) as [
+          const [a, b, c] = [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) as [
             number,
             number,
             number,
@@ -364,8 +365,8 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 4],
-                ['beta', 4],
+                [lex('alpha'), 4],
+                [lex('beta'), 4],
               ]),
             ),
           });
@@ -403,8 +404,8 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
               sessions(
                 id,
                 [
-                  ['alpha', 3],
-                  ['beta', 1],
+                  [lex('alpha'), 3],
+                  [lex('beta'), 1],
                 ],
                 6,
               ),
@@ -412,7 +413,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           });
           const entry = store.variables
             .find((v) => v.id === id)
-            ?.values.find((x) => x.id === 'alpha')
+            ?.values.find((x) => x.id === lex('alpha'))
             ?.provenance?.find((p) => p.kind === 'conversations');
           must(
             entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4,
@@ -429,18 +430,18 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 5],
-                ['beta', 3],
-                ['newcomer', 2],
+                [lex('alpha'), 5],
+                [lex('beta'), 3],
+                [lex('newcomer'), 2],
               ]),
             ),
           });
-          const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === 'newcomer');
+          const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === lex('newcomer'));
           must(
             !!v && v.approved === false,
             () => `newcomer is ${show(v)}; a value seen but unknown is an unapproved proposal`,
           );
-          const [a, n] = [weightOf(store, id, 'alpha'), weightOf(store, id, 'newcomer')] as [number, number];
+          const [a, n] = [weightOf(store, id, lex('alpha')), weightOf(store, id, lex('newcomer'))] as [number, number];
           must(
             typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9,
             () => `weights ${a} and ${n} are not in the ratio of the counts 5 and 2`,
@@ -460,13 +461,13 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             words: `Traffic is mostly ${value}.`,
             date: OWNER_DATE,
           });
-          const store = d.build({ owner: { weights: [w('alpha', 60), w('beta', 30), w('gamma', 10)] } });
+          const store = d.build({ owner: { weights: [w(lex('alpha'), 60), w(lex('beta'), 30), w(lex('gamma'), 10)] } });
           must(
-            weightOf(store, id, 'alpha') === 60 &&
-              weightOf(store, id, 'beta') === 30 &&
-              weightOf(store, id, 'gamma') === 10,
+            weightOf(store, id, lex('alpha')) === 60 &&
+              weightOf(store, id, lex('beta')) === 30 &&
+              weightOf(store, id, lex('gamma')) === 10,
             () =>
-              `stored weights ${show(['alpha', 'beta', 'gamma'].map((v) => weightOf(store, id, v)))}; expected 60, 30, 10 as declared`,
+              `stored weights ${show([lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)))}; expected 60, 30, 10 as declared`,
           );
         },
       ],
@@ -478,10 +479,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const store = d.build({
             owner: {
-              weights: [{ variable: id, value: 'alpha', weight: -2, words: 'Minus two.', date: OWNER_DATE }],
+              weights: [{ variable: id, value: lex('alpha'), weight: -2, words: 'Minus two.', date: OWNER_DATE }],
             },
           });
-          must(weightOf(store, id, 'alpha') === undefined, () => 'a negative owner weight entered the store');
+          must(weightOf(store, id, lex('alpha')) === undefined, () => 'a negative owner weight entered the store');
           must(
             store.refused.length >= 1 &&
               store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
@@ -498,11 +499,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (const weight of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
             const store = d.build({
               owner: {
-                weights: [{ variable: id, value: 'beta', weight, words: 'Not a number.', date: OWNER_DATE }],
+                weights: [{ variable: id, value: lex('beta'), weight, words: 'Not a number.', date: OWNER_DATE }],
               },
             });
             must(
-              weightOf(store, id, 'beta') === undefined,
+              weightOf(store, id, lex('beta')) === undefined,
               () => `the owner weight ${weight} entered the store`,
             );
             must(store.refused.length >= 1, () => `no refusal for the owner weight ${weight}`);
