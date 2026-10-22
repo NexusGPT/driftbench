@@ -1,0 +1,21 @@
+name: lint probe
+on:
+  push:
+    branches: [probe/review-a-1166-merged]
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: lint errors
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: errors only
+        run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=50 2>&1 | tail -60
