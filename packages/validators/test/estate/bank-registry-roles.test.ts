@@ -29,4 +29,18 @@ describe('the bank plants registry tables with recorded roles', () => {
       .map(([id, result]) => `${id}: ${result.detail}`);
     expect(failed).toEqual([]);
   }, 120_000);
+
+  it('has an item for each role, and each holds', async () => {
+    const family = registryFamily();
+    const results = await family.evaluate(1);
+    expect([...results.keys()].filter((id) => id.includes('.role-')).sort()).toEqual(
+      ['description', 'enforces', 'event', 'guard', 'id', 'state', 'verdict', 'watches'].map(
+        (role) => `scan.registry.role-${role}`,
+      ),
+    );
+    const failed = [...results]
+      .filter(([, result]) => !result.pass)
+      .map(([id, result]) => `${id}: ${result.detail}`);
+    expect(failed).toEqual([]);
+  }, 120_000);
 });

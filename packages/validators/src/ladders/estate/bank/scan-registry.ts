@@ -3,6 +3,7 @@ import { type PlantedRole, plantedHeader } from '../registry-record';
 import { anchored, type GuardLine, namesFor, order, rule, writeSettings } from './common';
 import { type Family, itemsOf, type Tier } from './frame';
 import { fieldIs, PlantedEstate } from './planted';
+import { plantRolesTable, ROLE_ITEMS, roleCheck } from './scan-roles';
 
 /**
  * scan.registry: a check registry in one of the shapes estates write, each in its own file beside one guard
@@ -438,12 +439,14 @@ const SHAPES: Shape[] = [
 ];
 
 export function registryFamily(): Family {
-  const items = itemsOf(
-    FAMILY,
-    1,
-    COMPONENT,
-    SHAPES.map(({ key, tier, title }) => ({ key, tier, title: `the guard enforces the rules of ${title}` })),
-  );
+  const items = itemsOf(FAMILY, 1, COMPONENT, [
+    ...SHAPES.map(({ key, tier, title }) => ({
+      key,
+      tier,
+      title: `the guard enforces the rules of ${title}`,
+    })),
+    ...ROLE_ITEMS,
+  ]);
   return {
     id: FAMILY,
     level: 1,
@@ -496,6 +499,9 @@ export function registryFamily(): Family {
         for (const target of rules) estate.edge(owner, `${owner}:guard`, target, 'enforces');
         estate.check(owner, fieldIs(`${owner}:guard`, 'registry', shape.rowId ? shape.rowId(row) : row.id));
       });
+      plantRolesTable(estate, `${FAMILY}.role-id`);
+      for (const item of ROLE_ITEMS)
+        estate.check(`${FAMILY}.${item.key}`, roleCheck(item.key.slice(5) as PlantedRole));
       writeSettings(estate, order(seed, FAMILY, guards));
       const scan = await estate.scan();
       return estate.judge(
