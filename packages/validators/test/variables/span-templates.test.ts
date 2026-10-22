@@ -16,8 +16,9 @@ import type { Sources, VariablesImpl } from '../../src/ladders/variables/interfa
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const ID = 'sources.estate.numeric-condition.one-rule';
 const bank = variablesBank();
-const item = bank.find((entry) => entry.id === ID);
-if (!item) throw new Error(ID);
+const found = bank.find((entry) => entry.id === ID);
+if (!found) throw new Error(ID);
+const item = found;
 
 /** The number each span of an estate writes, in the order written. */
 const NUMBER = /-?\d+(?:\.\d+)?/;

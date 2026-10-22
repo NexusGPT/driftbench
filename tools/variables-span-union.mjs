@@ -7,17 +7,20 @@
 // the rule is fixed, never the order of file names:
 //   1. A vocabulary recording (`*-vocabulary.jsonl`) is the single source for the texts it covers: its label wins over every
 //      other recording (two vocabularies are ordered by name).
+//      A vocabulary row whose text holds `{n}` is a template (docs/validators.md 12.9): it covers every text that is the
+//      template with numbers in the slots, so the other recordings lose those texts too. The slot function is the adapter's.
 //   2. For any other text the newest recording wins, by the date of the last commit that touched its file (then by name).
 // The texts are keyed with each run of white space folded to one space, as the adapter looks them up. The tool exits 1
 // A recording that labels a text twice keeps its last line. The tool counts every text that got two labels.
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { foldSpan, templateOf } from '../packages/validators/src/ladders/variables/span-template.mjs';
 
 /** The vocabulary recordings (`scale-vocabulary.jsonl`, `hidden-vocabulary.jsonl`): the single source for the texts they cover. */
 export const VOCABULARY = 'scale-vocabulary.jsonl';
 export const isVocabulary = (name) => name.endsWith('-vocabulary.jsonl');
-const fold = (text) => text.replace(/\s+/g, ' ').trim();
+const fold = foldSpan;
 
 /** The files of the checkout in the order that makes the later one win: by date of last change, the vocabulary last. */
 export function orderedFiles(dir, dateOf) {
@@ -30,6 +33,7 @@ export function orderedFiles(dir, dateOf) {
 
 export function union(dir, dateOf) {
   const winner = new Map();
+  const templates = new Set();
   let conflicts = 0;
   for (const name of orderedFiles(dir, dateOf)) {
     const own = new Map();
@@ -41,14 +45,25 @@ export function union(dir, dateOf) {
       // A recording that labels a text twice keeps its last line, as the adapter's lookup always did.
       if (own.has(key) && own.get(key) !== label) conflicts += 1;
       own.set(key, label);
+      if (isVocabulary(name) && key.includes('{n}')) templates.add(key);
     }
     for (const [key, label] of own) {
       if (winner.has(key) && winner.get(key) !== label) conflicts += 1;
       winner.set(key, label);
     }
   }
+  // The vocabulary wins where it covers a text, templates included: a text that is a vocabulary template with numbers in
+  // the slots keeps no label of an older recording, whose subject may differ from the template's.
+  let covered = 0;
+  for (const key of [...winner.keys()]) {
+    if (key.includes('{n}')) continue;
+    if (templates.has(templateOf(key).template)) {
+      winner.delete(key);
+      covered += 1;
+    }
+  }
   const lines = [...winner].map(([key, label]) => `{"text":${JSON.stringify(key)},"label":${label}}\n`);
-  return { text: lines.join(''), texts: winner.size, conflicts };
+  return { text: lines.join(''), texts: winner.size, conflicts, covered };
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
@@ -64,6 +79,6 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
   const result = union(dir, dateOf);
   writeFileSync(out, result.text);
   console.log(
-    `${result.texts} span texts, one label each; ${result.conflicts} text(s) labelled differently in two recordings, resolved by the rule`,
+    `${result.texts} span texts, one label each; ${result.conflicts} text(s) labelled differently in two recordings, resolved by the rule; ${result.covered} text(s) dropped because a vocabulary template covers them`,
   );
 }

@@ -27,6 +27,7 @@ import type {
   ValidateResult,
   VariablesImpl,
 } from './interface';
+import { foldSpan, templateOf } from './span-template.mjs';
 
 /**
  * The variables implementation as the validator scores it: the one place that maps the real variable store and
@@ -270,28 +271,6 @@ function coverage(
 }
 
 let cassette: Map<string, SpanLabel> | undefined;
-
-/** A span with each run of white space folded to one space: the key of its label, so one clause has one label. */
-const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
-
-/**
- * A number as a span writes it: an optional `$` or `EUR ` prefix, a sign, digits grouped by commas or spaces (a narrow
- * no-break space folds to a space) or not, and a decimal part. A digit run inside a word (`24h`, `p95`) is part of the word. A template row of the recording writes `{n}` in its place.
- */
-const NUMBER_TOKEN = /(?<!\w)(?:\$|EUR )?-?(?:\d{1,3}(?:[, ]\d{3})+|\d+)(?:\.\d+)?(?!\w)/g;
-
-/** The value a number token writes. */
-const numberOf = (token: string): number => Number(token.replace(/^(?:\$|EUR )/, '').replace(/[, ]/g, ''));
-
-/** The template of a span: each number it writes replaced by `{n}`, and the numbers in the order written. */
-function templateOf(text: string): { template: string; numbers: number[] } {
-  const numbers: number[] = [];
-  const template = text.replace(NUMBER_TOKEN, (token) => {
-    numbers.push(numberOf(token));
-    return '{n}';
-  });
-  return { template, numbers };
-}
 
 /**
  * The label of a template row filled with the numbers a span writes: a numeric label takes the first as its limit, a range

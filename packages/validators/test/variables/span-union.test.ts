@@ -54,6 +54,43 @@ describe('the union of the span recordings', () => {
     expect(orderedFiles(dir, dateOf)).toEqual(['a-new.jsonl', 'hidden-vocabulary.jsonl', VOCABULARY]);
   });
 
+  it('drops an older row that a vocabulary template covers, and gives both texts the subject of the template', () => {
+    const row = (text: string, subject: string) =>
+      `${JSON.stringify({ text, label: { kind: 'numeric', subject, comparison: 'ge', unit: 'euros' } })}\n`;
+    const template = row('the order value is at least {n} euros', 'order value');
+    const dir = folder({
+      'a-new.jsonl':
+        row('the order value is at least 57 euros', 'order amount') +
+        row('the invoice total is over 9', 'invoice total'),
+      'hidden-vocabulary.jsonl': template,
+    });
+    const result = union(dir, dateOf);
+    const rows = texts(result.text) as unknown as Array<{ text: string; label: { subject: string } }>;
+    const byText = new Map(rows.map((entry) => [entry.text, entry.label.subject]));
+    // The older "order amount" row is dropped: the template is the only source for the texts it covers.
+    expect(byText.has('the order value is at least 57 euros')).toBe(false);
+    expect(byText.get('the order value is at least {n} euros')).toBe('order value');
+    expect(byText.get('the invoice total is over 9')).toBe('invoice total');
+    expect(result.covered).toBe(1);
+  });
+
+  it('resolves "the order value is at least 279 euros" and "...57 euros" to one subject through the adapter', async () => {
+    const row = (text: string, subject: string) =>
+      `${JSON.stringify({ text, label: { kind: 'numeric', subject, comparison: 'ge', unit: 'euros' } })}\n`;
+    const dir = folder({
+      'a-new.jsonl': row('the order value is at least 57 euros', 'order amount'),
+      'hidden-vocabulary.jsonl': row('the order value is at least {n} euros', 'order value'),
+    });
+    const file = join(dir, 'union.jsonl');
+    writeFileSync(file, union(dir, dateOf).text);
+    process.env.DRIFTBENCH_VARIABLES_CASSETTE = file;
+    const { spanLabel } = await import('../../src/ladders/variables/adapter');
+    const a = spanLabel('the order value is at least 279 euros') as { subject: string; limit: number };
+    const b = spanLabel('the order value is at least 57 euros') as { subject: string; limit: number };
+    expect([a.subject, a.limit]).toEqual(['order value', 279]);
+    expect([b.subject, b.limit]).toEqual(['order value', 57]);
+  });
+
   it('holds no text twice, with white space folded', () => {
     const dir = folder({
       'b-old.jsonl': line('x  is\nover 5', 1),
