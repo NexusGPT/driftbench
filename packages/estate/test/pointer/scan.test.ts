@@ -1150,12 +1150,41 @@ describe('a run out of step with the units of its window', () => {
   const every = (window: Window, label: string, spans: unknown[]): Labelled[] =>
     window.units.map((unit) => ({ units: String(unit.n), label, spans }) as Labelled);
 
+  it('names a run out of step when one entry is anchored on another line than the unit it numbers', () => {
+    const entries = (...anchored: Array<number | null>) => ({
+      labels: anchored.map((at, n) => ({ units: String(n + 1), label: 'order', anchored: at })),
+    });
+    expect(outOfStep(entries(0, -1, 0))).toEqual({ quoted: 0, unlocated: 0, slipped: 1, missing: 0 });
+    expect(outOfStep(entries(0, 0, null))).toBeUndefined();
+  });
+
+  it('names a run out of step when its answer leaves a unit of the window out, never reading it as none', () => {
+    const window = {
+      id: 'notes.md#1',
+      path: 'notes.md',
+      headingPath: [],
+      units: [1, 2, 3, 4].map((n) => ({ n, index: n - 1, text: `Line ${n}` })),
+      display: [{ n: 5, mode: 'read', text: 'Read already' }],
+    } as unknown as Window;
+    const answer = (...units: string[]) => ({ labels: units.map((u) => ({ units: u, label: 'none' })) });
+    expect(outOfStep(answer('1-2', '4'), window)).toEqual({
+      quoted: 0,
+      unlocated: 0,
+      slipped: 0,
+      missing: 1,
+    });
+    // A shown line is no unit: an answer that leaves it out covers the window.
+    expect(outOfStep(answer('1-4'), window)).toBeUndefined();
+  });
+
   it('counts the quoted clauses and those not in their unit, and names a run out of step only past both bounds', () => {
     const answer = (spans: unknown[]) => ({ labels: [{ units: '1', label: 'order', spans }] });
     // 7 of 22, as the slipped run of the Northwind fixture: out of step.
     expect(outOfStep(answer([...Array(7).fill(unlocated), ...Array(15).fill(located)]))).toEqual({
       quoted: 22,
       unlocated: 7,
+      slipped: 0,
+      missing: 0,
     });
     // 2 of 11 and 2 of 20, as the runs in step: in step.
     expect(outOfStep(answer([...Array(2).fill(unlocated), ...Array(9).fill(located)]))).toBeUndefined();
@@ -1163,7 +1192,12 @@ describe('a run out of step with the units of its window', () => {
     expect(outOfStep(answer([...Array(4).fill(unlocated), ...Array(12).fill(located)]))).toBeUndefined();
     // Under four clauses missed is never enough, whatever the share.
     expect(outOfStep(answer(Array(OUT_OF_STEP_MIN - 1).fill(unlocated)))).toBeUndefined();
-    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN).fill(unlocated)))).toEqual({ quoted: 4, unlocated: 4 });
+    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN).fill(unlocated)))).toEqual({
+      quoted: 4,
+      unlocated: 4,
+      slipped: 0,
+      missing: 0,
+    });
     expect(OUT_OF_STEP_SHARE).toBe(0.25);
     expect(outOfStep({ labels: [{ units: '1', label: 'remark' }] })).toBeUndefined();
   });

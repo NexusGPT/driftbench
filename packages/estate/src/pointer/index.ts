@@ -57,6 +57,7 @@ export {
   usageOf,
 } from './labeler';
 export {
+  anchorUnits,
   type Checked,
   canonical,
   checkAnswer,

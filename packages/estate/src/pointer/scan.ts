@@ -380,13 +380,28 @@ export const SPLIT_REASK_MAX = 4;
 /** The most asks a window gets for a split, those that slip included. */
 export const SPLIT_REASK_ATTEMPTS = 6;
 
-/** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
-export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
+/** The counts that put a run out of step: zero each for a run in step. */
+export type Slip = { quoted: number; unlocated: number; slipped: number; missing: number };
+
+/**
+ * The counts of an out-of-step answer, or undefined when the run is in step: the clauses it quotes and those not in
+ * their unit; the entries whose anchor is in another line than the unit they name (`slipped`); and, with the window,
+ * the units of the window the answer leaves out (`missing`; a line the window only shows is no unit). One slipped
+ * entry is enough, its anchor says which unit the labeler meant; and one unit left out is enough, since reading it as
+ * none would be a label no run gave.
+ */
+export function outOfStep(answer: unknown, window?: Window): Slip | undefined {
   const labels = (answer as { labels?: unknown })?.labels;
   if (!Array.isArray(labels)) return undefined;
   let quoted = 0;
   let unlocated = 0;
+  let slipped = 0;
+  const named = new Set<number>();
   for (const entry of labels) {
+    const anchored = (entry as { anchored?: unknown })?.anchored;
+    if (typeof anchored === 'number' && anchored !== 0) slipped++;
+    const units = (entry as { units?: unknown })?.units;
+    for (const n of typeof units === 'string' ? (expandUnits(units) ?? []) : []) named.add(n);
     const spans = (entry as { spans?: unknown })?.spans;
     if (!Array.isArray(spans)) continue;
     for (const span of spans) {
@@ -394,10 +409,37 @@ export function outOfStep(answer: unknown): { quoted: number; unlocated: number 
       if (typeof (span as { unlocated?: unknown })?.unlocated === 'string') unlocated++;
     }
   }
-  return unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE
-    ? { quoted, unlocated }
+  const missing = window ? window.units.filter((unit) => !named.has(unit.n)).length : 0;
+  return slipped > 0 ||
+    missing > 0 ||
+    (unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE)
+    ? { quoted, unlocated, slipped, missing }
     : undefined;
 }
+
+/** The units of the window an answer does not name. */
+function leftOut(answer: unknown, window: Window): Window['units'] {
+  const named = new Set<number>();
+  const labels = (answer as { labels?: unknown })?.labels;
+  for (const entry of Array.isArray(labels) ? labels : []) {
+    const units = (entry as { units?: unknown })?.units;
+    for (const n of typeof units === 'string' ? (expandUnits(units) ?? []) : []) named.add(n);
+  }
+  return window.units.filter((unit) => !named.has(unit.n));
+}
+
+/** Whether a run is out of step only for the units it left out: no anchor slipped and its clauses are in place. */
+const onlyLeftOut = (slip: Slip): boolean =>
+  slip.slipped === 0 &&
+  !(slip.unlocated >= OUT_OF_STEP_MIN && slip.unlocated > slip.quoted * OUT_OF_STEP_SHARE);
+
+/** Why a run is out of step, for the report: a code, then the counts. */
+const slipReason = (slip: Slip): string =>
+  slip.slipped > 0
+    ? `anchor-slipped: ${slip.slipped} entries are anchored on another line than the one they number`
+    : slip.missing > 0
+      ? `units-missing: ${slip.missing} units of the window are not in the answer`
+      : `${slip.unlocated} of ${slip.quoted} quoted clauses are not in their unit`;
 
 // A refused answer (a refusal, a stop at max_tokens) is retried once like an unreadable one, then fails.
 const RETRYABLE = (cause: unknown): boolean =>
@@ -892,17 +934,19 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
-      const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer) : undefined;
+      const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer, leaf.window) : undefined;
       if (slipped) {
         outOfStepRuns.push(
-          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; ${onlyLeftOut(slipped) ? 'the run is left out of the vote on those units' : 'the run is left out of the vote'}`,
         );
         const run = runOf(task, task.run);
         const off = unheard.get(run) ?? new Set<number>();
-        for (const unit of leaf.window.units) off.add(unit.index);
+        // A run that only left units out is still heard on the units it named; a slipped run is heard on none.
+        const left = onlyLeftOut(slipped) ? leftOut(leaf.answer, leaf.window) : leaf.window.units;
+        for (const unit of left) off.add(unit.index);
         unheard.set(run, off);
         slippedLeaves.push({ task, window: leaf.window });
-        continue;
+        if (!onlyLeftOut(slipped)) continue;
       }
       hear(task, task.run, leaf);
     }
@@ -929,10 +973,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
-      const slipped = outOfStep(leaf.answer);
+      const slipped = outOfStep(leaf.answer, leaf.window);
       if (slipped) {
         outOfStepRuns.push(
-          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipReason(slipped)}; the run is left out of the vote`,
         );
         continue;
       }
@@ -951,7 +995,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
    * the runs heard gave: three of five by default. A run out of step in the unit's window is not heard: it counts
    * neither for a label nor in the count, and with fewer than two runs heard the member has no opinion. A run that left
-   * the unit out counts for no label. Unanimity dropped units that a
+   * the unit out is not heard on it (`units-missing`), and its window is asked again. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
@@ -1200,10 +1244,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
-      const slipped = outOfStep(leaf.answer);
+      const slipped = outOfStep(leaf.answer, leaf.window);
       if (slipped) {
         outOfStepRuns.push(
-          `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+          `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipReason(slipped)}; the run is left out of the vote`,
         );
         continue;
       }
