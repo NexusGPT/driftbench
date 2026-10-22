@@ -738,15 +738,18 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The four
-    // runs asked for the split say order, voice, order, voice, so no label or kind holds five of nine: the unit stays
-    // unlabeled and counts as a split.
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The runs
+    // asked for the split say order, voice, order, voice and, as the two readings stay one run apart (a close unit
+    // gets six), order and voice again, so no label or kind holds six of eleven: the unit stays unlabeled and counts as
+    // a split.
     const result = await scan([
       'order',
       'voice',
       'order',
       'voice',
       'remark',
+      'order',
+      'voice',
       'order',
       'voice',
       'order',
