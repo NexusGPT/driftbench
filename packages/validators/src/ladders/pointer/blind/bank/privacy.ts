@@ -1,3 +1,4 @@
+import type { SampleEffect } from './io';
 import { type BankItem, type Json, type Probe, token } from './types';
 
 const placements = [
@@ -25,7 +26,7 @@ const wrap = (kind: string, text: string): string => {
     case 'fence':
       return `\`\`\`text\n${text}\n\`\`\``;
     case 'comment':
-      return `<!-- ${text} -->`;
+      return `<!--\n${text}\n-->`;
     case 'frontmatter':
       return `---\ndescription: "${text}"\n---`;
     case 'inline-code':
@@ -54,8 +55,161 @@ export function leaksPrivateFragment(value: unknown, markers: readonly string[])
   return markers.some((marker) => [...marker].some((character) => decoded.includes(character)));
 }
 
+/** A placement the reader treats as opaque: only its kind and its first line may reach a request. */
+const opaque = new Set<string>(['fence', 'comment']);
+const PADDING = 'Fictional public padding.';
+/** The accepted label: the one label of the set the scan is given. */
+const SET_LABEL = 'x';
+
 /** Public effects are measured by harness-owned sinks, never returned counters. */
 export function privacyItems(): BankItem[] {
+  return [...placementItems(), noRequestItem(), secondRequestItem()];
+}
+
+/** A file holding only an opaque block has nothing to label and sends no request; beside a labelable unit it sends one. */
+function noRequestItem(): BankItem {
+  return {
+    id: 'privacy.fence.no-request',
+    family: 'privacy',
+    tier: 3,
+    level: 4,
+    component: 'pointer.private-recording',
+    title:
+      'a file holding only a fence sends no request; a fence beside a unit sends only its kind and first line',
+    cause: 'privacy:no-window-no-request',
+    design: '5: windows; 8: opaque units show kind and first line',
+    generate(seed) {
+      const probes: Probe[] = [0, 1].map((arm) => {
+        const salt = 400 + arm;
+        const t = token(seed, salt);
+        const secret = privateMarker(seed, salt);
+        const key = privateMarker(seed, salt + 31);
+        const source = arm ? `${PADDING}\n\n${wrap('fence', secret)}` : wrap('fence', secret);
+        const answer = {
+          labels: [{ units: '1', label: SET_LABEL }],
+          model: `model-${t}`,
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 31, output_tokens: 6 },
+        };
+        const expected: Json = arm
+          ? { labels: answer.labels, leaked: false, networkCalls: 1, status: 'ok' }
+          : { labels: [], leaked: false, networkCalls: 0, status: 'no-request' };
+        return {
+          request: {
+            operation: 'privacy',
+            input: {
+              mode: 'record',
+              private: true,
+              file: `fictional-${t}.md`,
+              source,
+              request: { system: `Process ${secret}`, messages: [{ role: 'user', content: source }] },
+              cassettePresent: false,
+            },
+          },
+          setup: { key, answer, cached: null },
+          expected,
+          sample: arm ? { labels: answer.labels, status: 'ok' } : { labels: [], status: 'no-request' },
+          sampleEffects: arm
+            ? [
+                { kind: 'key' as const },
+                { kind: 'fetch' as const, value: { messages: [{ role: 'user', content: PADDING }] } },
+              ]
+            : [],
+          observe(actual, trace) {
+            if (!actual || typeof actual !== 'object') return null;
+            const r = actual as Record<string, Json>;
+            return {
+              labels: r.labels,
+              leaked: leaksPrivateFragment(
+                {
+                  actual,
+                  writes: trace.writes,
+                  logs: trace.logs,
+                  plans: trace.plans,
+                  requests: trace.requests,
+                },
+                [secret, key],
+              ),
+              networkCalls: trace.networkCalls,
+              status: r.status,
+            };
+          },
+        };
+      });
+      return { probes };
+    },
+  };
+}
+
+/** Two windows, two requests: the private text of an opaque block in the second window must not reach the second request. */
+function secondRequestItem(): BankItem {
+  return {
+    id: 'privacy.fence.second-request',
+    family: 'privacy',
+    tier: 4,
+    level: 4,
+    component: 'pointer.private-recording',
+    title: 'the second of two requests shows an opaque block as its kind and first line only',
+    cause: 'privacy:every-request-hides-opaque-text',
+    design: '5: windows; 8: opaque units show kind and first line',
+    generate(seed) {
+      const probes: Probe[] = [0, 1].map((arm) => {
+        const salt = 500 + arm;
+        const t = token(seed, salt);
+        const secret = privateMarker(seed, salt);
+        const key = privateMarker(seed, salt + 31);
+        // Arm 0: a hundred paragraphs fill several windows, the opaque block closes the last: several requests.
+        // Arm 1: three paragraphs and the block: one request.
+        const paragraphs = Array.from({ length: arm ? 3 : 100 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
+        const source = `${paragraphs.join('\n\n')}\n\n${wrap('fence', secret)}`;
+        const answer = {
+          labels: [],
+          model: `model-${t}`,
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 31, output_tokens: 6 },
+        };
+        const calls = arm ? 1 : 2;
+        const clean: Json = { messages: [{ role: 'user', content: PADDING }] };
+        return {
+          request: {
+            operation: 'privacy',
+            input: {
+              mode: 'record',
+              private: true,
+              file: `fictional-${t}.md`,
+              source,
+              request: { system: `Process ${secret}`, messages: [{ role: 'user', content: PADDING }] },
+              cassettePresent: false,
+            },
+          },
+          setup: { key, answer, cached: null, labelAll: SET_LABEL },
+          expected: { leaked: false, requests: arm ? 'one' : 'several', status: 'ok' },
+          sample: { status: 'ok' },
+          sampleEffects: [
+            { kind: 'key' as const },
+            ...Array.from({ length: calls }, () => ({ kind: 'fetch' as const, value: clean })),
+          ],
+          observe(actual, trace) {
+            if (!actual || typeof actual !== 'object') return null;
+            const r = actual as Record<string, Json>;
+            return {
+              leaked:
+                leaksPrivateFragment({ actual, writes: trace.writes, logs: trace.logs, plans: trace.plans }, [
+                  secret,
+                  key,
+                ]) || leaksPrivateFragment(trace.requests, [secret, key]),
+              requests: trace.networkCalls > 1 ? 'several' : 'one',
+              status: r.status,
+            };
+          },
+        };
+      });
+      return { probes };
+    },
+  };
+}
+
+function placementItems(): BankItem[] {
   return placements.flatMap((placement, p) =>
     ['record', 'ci-hit', 'ci-miss'].map(
       (mode, m): BankItem => ({
@@ -73,10 +227,15 @@ export function privacyItems(): BankItem[] {
             const t = token(seed, salt);
             const secret = privateMarker(seed, salt);
             const key = privateMarker(seed, salt + 31);
-            const label = `class-${t}`;
-            const source = wrap(placement, secret) + (arm ? '\n\nFictional public padding.' : '');
+            // An opaque block sits in a window beside labelable units; the answer names those and no other.
+            const beside = opaque.has(placement);
+            const label = mode === 'record' || beside ? SET_LABEL : `class-${t}`;
+            const source = beside
+              ? `${[PADDING, ...(arm ? [`${PADDING} Second.`] : [])].join('\n\n')}\n\n${wrap(placement, secret)}`
+              : wrap(placement, secret) + (arm ? `\n\n${PADDING}` : '');
+            const units = beside ? (arm ? '1-2' : '1') : mode === 'record' && arm ? '1-2' : '1';
             const answer = {
-              labels: [{ units: '1', label }],
+              labels: [{ units, label }],
               model: `model-${t}`,
               stop_reason: 'end_turn',
               usage: { input_tokens: 31 + arm, output_tokens: 6 },
@@ -92,6 +251,16 @@ export function privacyItems(): BankItem[] {
               status: mode === 'ci-miss' ? 'miss' : 'ok',
               plans: [{ characters: source.length }],
             };
+            const effects: SampleEffect[] = [
+              { kind: 'plan', value: { characters: source.length } },
+              ...(mode === 'record'
+                ? ([
+                    { kind: 'key' },
+                    { kind: 'fetch', value: { messages: [{ role: 'user', content: PADDING }] } },
+                    { kind: 'write', path: '.cache/cassette.jsonl', value: [answer], committed: false },
+                  ] satisfies SampleEffect[])
+                : ([{ kind: 'cache' }] satisfies SampleEffect[])),
+            ];
             return {
               request: {
                 operation: 'privacy',
@@ -110,31 +279,20 @@ export function privacyItems(): BankItem[] {
                 labels: mode === 'ci-miss' ? [] : answer.labels,
                 status: mode === 'ci-miss' ? 'miss' : 'ok',
               },
-              sampleEffects: [
-                { kind: 'plan', value: { characters: source.length } },
-                ...(mode === 'record'
-                  ? [
-                      { kind: 'key' as const },
-                      { kind: 'fetch' as const },
-                      {
-                        kind: 'write' as const,
-                        path: '.cache/cassette.jsonl',
-                        value: [answer],
-                        committed: false,
-                      },
-                    ]
-                  : [{ kind: 'cache' as const }]),
-              ],
+              sampleEffects: effects,
               observe(actual, trace) {
                 if (!actual || typeof actual !== 'object') return null;
                 const r = actual as Record<string, Json>;
                 return {
                   labels: r.labels,
-                  // Include the entire result, including unexpected fields and object keys.
-                  leaked: leaksPrivateFragment(
-                    { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
-                    [secret, key],
-                  ),
+                  // Include the entire result, including unexpected fields and object keys. A request may carry the
+                  // text of a labelable unit, so every request is searched for the key; an opaque block's text is
+                  // searched in them too.
+                  leaked:
+                    leaksPrivateFragment(
+                      { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
+                      [secret, key],
+                    ) || leaksPrivateFragment(trace.requests, beside ? [secret, key] : [key]),
                   networkCalls: trace.networkCalls,
                   keyReads: trace.keyReads,
                   cacheConsulted: mode === 'record' ? null : trace.cacheReads > 0,

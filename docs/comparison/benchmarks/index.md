@@ -1,6 +1,6 @@
 # Public judge benchmarks
 
-The README shows one chart per benchmark: driftbench beside every competitor on one model. This page holds the rest: one chart and one table per benchmark with every model that was run, and a "not run" where a contestant was not. Bars run from the highest score to the lowest, on one scale of 0 to 100. A refused item counts as wrong, and the table says how many. The sets, the rules and the limits of each result are in [how the README numbers were measured](../methods.md#public-benchmarks-against-promptfoo). A correction across the whole family of cells is pending, so no cell is called a win or a loss.
+The [benchmarks page](../../public-benchmarks.md) shows one chart per benchmark: driftbench beside every competitor on one model. This page holds the rest: one chart and one table per benchmark with every model that was run, and a "not run" where a contestant was not. Bars run from the highest score to the lowest, on one scale of 0 to 100. A refused item counts as wrong, and the table says how many. The sets, the rules and the limits of each result are in [how the README numbers were measured](../methods.md#public-benchmarks-against-promptfoo). A correction across the whole family of cells is pending, so no cell is called a win or a loss.
 
 DeepEval, Inspect, Langfuse and LangWatch were run on Claude Haiku 5.5 only. promptfoo and driftbench were also run on GPT-6 Luna and Gemini 3.5 Flash-Lite. Paired tests, wins, losses and spend per benchmark are in the [all-competitors tables](judgebench-all-peers.md).
 

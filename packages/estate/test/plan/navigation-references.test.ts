@@ -43,22 +43,27 @@ const roles = [
   { path: '.claude/skills/berths/references/tide-limits.md', role: 'normative' },
 ];
 
-it('gives no test to a reference whose target the map records as an example or a template', async () => {
+it('gives a read test to a reference whose target the map records as an example or a template, and no journey', async () => {
   const map = await scanned(roles);
   const references = map.atoms.filter((atom) => atom.kind === 'reference');
   expect(references).toHaveLength(3);
   const { plan, details } = buildPlan(map);
-  const tested = new Set(plan.rows.flatMap((row) => row.atomIds));
-  const live = references.filter((atom) => atom.fields?.path === roles[2]?.path);
-  const navigation = references.filter((atom) => atom.fields?.path !== roles[2]?.path);
-  expect(live).toHaveLength(1);
-  expect(navigation).toHaveLength(2);
-  for (const atom of live) {
-    expect(plan.rows.some((row) => row.testType === 'read_when' && row.atomIds[0] === atom.id)).toBe(true);
+  // An order to read a file is a duty of the agent, whatever role the file plays.
+  for (const atom of references) {
+    expect(
+      plan.rows.some((row) => row.testType === 'read_when' && row.atomIds[0] === atom.id),
+      atom.id,
+    ).toBe(true);
   }
-  for (const atom of navigation) expect(tested.has(atom.id)).toBe(false);
-  expect(plan.rows.filter((row) => row.testType === 'read_when')).toHaveLength(1);
-  expect(details.notes.some((note) => /2 references to documents.*navigation only/.test(note))).toBe(true);
+  expect(plan.rows.filter((row) => row.testType === 'read_when')).toHaveLength(3);
+  // The document is a place to look, not a step of a path: no journey leads to it.
+  const navigation = references.filter((atom) => atom.fields?.path !== roles[2]?.path);
+  expect(navigation).toHaveLength(2);
+  for (const atom of navigation)
+    expect(plan.rows.some((row) => row.testType === 'journey' && row.atomIds.includes(atom.id))).toBe(false);
+  expect(
+    details.notes.some((note) => /2 references to documents.*navigation only.*get a read test/.test(note)),
+  ).toBe(true);
 }, 30_000);
 
 it('keeps every reference test when the map records no document roles, guessing nothing from names', async () => {
