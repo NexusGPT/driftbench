@@ -354,7 +354,7 @@ scripts:
 
 For a helper, the runner compares the copy's files before and after the executor runs and supplies that `workspaceDiff` when the executor reports none, so `expect.workspace` is decided on what the run changed. The same holds for the files a declared script fixture writes in its case folder.
 
-A key with the wrong shape is reported as a note of the scan and left out, except a key of the pointer reader: it stops the scan, since it would change the labels. No key names a model; a model is set by environment variable: `ANTHROPIC_LABELER_MODEL`, `JEV_MODEL`, `OPENAI_DECISIONS_MODEL`. A change of a setting voids only the recordings it touches: a label set's description voids that set's answers, a model voids its labeler's answers, and a threshold, a labeler left out or a moved ledger void none. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
+A key with the wrong shape is left out of the scan without a note, except a key of the pointer reader: it stops the scan, since it would change the labels. No key names a model; a model is set by environment variable: `ANTHROPIC_LABELER_MODEL`, `JEV_MODEL`, `OPENAI_DECISIONS_MODEL`. A change of a setting voids only the recordings it touches: a label set's description voids that set's answers, a model voids its labeler's answers, and a threshold, a labeler left out or a moved ledger void none. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 
 ### Approving the prose atoms: `estate approve`
 

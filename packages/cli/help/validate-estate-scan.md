@@ -247,7 +247,7 @@ The configuration file `driftbench.estate.yaml` at the estate root, optional, ev
 | `ledger` | `scan --pointer`, `radius ledger` | the ledger of unit ids, relative to the root. `--ledger` wins; the scan still writes it only with `--update` |
 
 `examples/estates/reader-cases/driftbench.estate.yaml` is a complete example. A key of the scan or of the
-unit runner with the wrong shape is a note of the scan and is left out. A pointer key with the wrong shape
+unit runner with the wrong shape is left out of the scan without a note. A pointer key with the wrong shape
 stops the scan with exit 2, because it would change the labels, and so does a labeler that names a model.
 The scan with `--pointer` prints `Pointer settings from driftbench.estate.yaml: <keys>.` for the keys it read.
 
