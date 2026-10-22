@@ -135,6 +135,11 @@ function ambiguousCase(
           [{ text: 'Always name the record first.' }, { text: `When unsure, open \`${name}\`.` }],
           { id: o },
         );
+        // The naming line is a reference the planted-truth labeller must find: the scan resolves its candidates.
+        const skillPath = own('SKILL.md');
+        const naming = e.writers.get(skillPath)?.lines.findIndex((line) => line.includes(`open \`${name}\``));
+        if (naming !== undefined && naming >= 0)
+          e.hint({ kind: 'reference', file: skillPath, line: naming + 1 });
         e.check(o, (scan) => {
           const atom = scan.map.atoms.find(
             (candidate) => candidate.kind === 'reference' && candidate.provenance.file === own('SKILL.md'),
