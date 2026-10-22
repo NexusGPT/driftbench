@@ -36,6 +36,9 @@ describe('the dense request', () => {
     expect(DENSE_SYSTEM).toContain(
       'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
     );
+    expect(DENSE_SYSTEM).toContain(
+      'A target must be a unit that can be labelled, never a line marked not labelable.',
+    );
     const shown = {
       ...windowOf(1),
       display: [
