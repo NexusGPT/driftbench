@@ -238,9 +238,10 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
     out.calls.push(calls);
     out.units = live.length;
     out.live.push(live.length);
-    // The ledger must equal the planted one exactly. Every live entry's quote is the source slice at its own span,
-    // byte for byte, and that span lies inside one planted unit's region with the same content; each planted unit,
-    // headings included, is named by exactly one entry, with the planted label, and no other entry stands.
+    // The ledger must equal the planted one exactly, on every field the earlier forms of this item read: each live
+    // entry's container is its planted unit's, its quote is the source slice at its own span byte for byte, that
+    // span lies inside the unit's region with the same content, its label is the planted one; each planted unit,
+    // headings included, is named by exactly one entry, and no other entry stands.
     const named = new Array<number>(doc.units.length).fill(0);
     let mismatch: string | null = null;
     for (const entry of live) {
@@ -261,6 +262,7 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
       const unit = doc.units[low];
       const at =
         unit &&
+        entry.container === unit.container &&
         span.start >= unit.region[0] &&
         span.end <= unit.region[1] &&
         norm(entry.quote, unit.container) === norm(unit.text, unit.container)
