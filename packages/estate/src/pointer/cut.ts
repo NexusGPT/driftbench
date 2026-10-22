@@ -63,7 +63,7 @@ function mask(text: string): string {
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
-    .replace(/\n/g, ' ')
+    .replace(/[\r\n]/g, ' ')
     .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll})/gu, (match, stop: string, letter: string) => {
       // The segmenter never breaks before a lower-case letter. Raising the letter, when it keeps the length,
       // lets it report the boundary so that `shouldMerge` judges it by the text before the stop.
