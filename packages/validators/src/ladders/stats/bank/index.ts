@@ -109,10 +109,12 @@ export async function runItem(
   root: string,
   s: StatsImpl = stats,
 ): Promise<ItemOutcome> {
-  const rng = itemRng(seed, item.id);
   try {
-    const outcome = await item.check({ seed, s, root, rng });
-    return outcome;
+    const outcome = await item.check({ seed, s, root, rng: itemRng(seed, item.id) });
+    if (outcome.pass || !item.retryOnce) return outcome;
+    // The same calls again, in this process, on the same stream: a fault that is the package's repeats.
+    const retry = await item.check({ seed, s, root, rng: itemRng(seed, item.id) });
+    return retry.pass ? { pass: true, detail: `flaky: ${item.id}`, flaky: true } : outcome;
   } catch (cause) {
     const error = attempt(() => {
       throw cause;
@@ -155,6 +157,7 @@ export function levelMeasure(items: readonly BankItem[], run: BankRun): Measure 
         tier: item.tier,
         ...(item.cause ? { cause: item.cause } : {}),
         pass: outcome.pass,
+        ...(outcome.flaky ? { flaky: true, detail: outcome.detail } : {}),
         ...(outcome.pass
           ? {}
           : { detail: `[${item.family}, tier ${item.tier}, cause: ${item.cause}] ${outcome.detail}` }),

@@ -48,6 +48,8 @@ export type BankEntry = {
   contract?: string;
   pass: boolean;
   detail?: string;
+  /** The item failed its first attempt and passed its one retry; `detail` reads `flaky: <id>`. */
+  flaky?: boolean;
 };
 
 /**

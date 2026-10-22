@@ -32,7 +32,8 @@ export type ItemContext = {
   rng: () => number;
 };
 
-export type ItemOutcome = { pass: boolean; detail: string };
+/** `flaky`: the first attempt failed and the retry of a `retryOnce` item passed (the detail names the item). */
+export type ItemOutcome = { pass: boolean; detail: string; flaky?: boolean };
 
 export type BankItem = {
   id: string;
@@ -47,6 +48,11 @@ export type BankItem = {
   cause?: string;
   /** How long the item may run before the validator stops it; DEFAULT_ITEM_BUDGET_MS when absent. */
   budgetMs?: number;
+  /**
+   * When the check fails, run it once more at once in the same process; the item passes only if the retry passes
+   * and is then reported as flaky. For a check a correct package fails on some runs (validators/stats/GATE.md).
+   */
+  retryOnce?: boolean;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;
 };
 

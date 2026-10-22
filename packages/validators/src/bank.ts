@@ -24,6 +24,8 @@ export type BankRow = {
   provenance?: string;
   /** One verdict per seed, in the order of the report's seeds. */
   perSeed: BankVerdict[];
+  /** Seeds on which the item passed only on its retry. */
+  flakySeeds?: number;
   /** True when the item passed on every seed of the run. */
   passEverySeed: boolean;
   /** `catch`: the item counts for no hardness (docs/validators.md section 12.4); absent for a hardness item. */
@@ -65,6 +67,8 @@ export type BankSummary = {
   failingCausesByFamily: Record<string, number>;
   /** Hardness items and those passing on every seed per provenance label; present only when the bank names labels. */
   byProvenance?: Record<string, { size: number; passing: number }>;
+  /** Passes that needed the retry of a `retryOnce` item, counted over items and seeds, and the items. */
+  flaky: { count: number; items: string[] };
   /** The catch items, apart from the counts above. */
   catch: CatchSummary;
   /** Every item, catch items included. */
@@ -114,6 +118,7 @@ export function bankSummary(report: LadderReport, pinned?: CatchList): BankSumma
         causeKind?: CauseKind;
         provenance?: string;
         role?: 'catch';
+        flaky?: boolean;
         pass: boolean;
       }[] = row.bank ?? [
         { id: row.id, component: report.component, family: LEVEL_FAMILY, pass: row.pass === true },
@@ -132,6 +137,7 @@ export function bankSummary(report: LadderReport, pinned?: CatchList): BankSumma
         if (entry.provenance !== undefined) target.provenance = entry.provenance;
         if (entry.role === 'catch' && pinned?.has(entry.id)) target.role = 'catch';
         target.perSeed[seedIndex] = entry.pass ? 'pass' : 'fail';
+        if (entry.pass && entry.flaky) target.flakySeeds = (target.flakySeeds ?? 0) + 1;
       }
     });
   }
@@ -186,6 +192,10 @@ export function bankSummary(report: LadderReport, pinned?: CatchList): BankSumma
     failingWithoutCause: atomicFailures.filter((row) => causeKey(row).startsWith('item:')).length,
     failingCausesByFamily: sortKeys(causesByFamily),
     ...(Object.keys(byProvenance).length > 0 ? { byProvenance: sortKeys(byProvenance) } : {}),
+    flaky: {
+      count: list.reduce((sum, row) => sum + (row.flakySeeds ?? 0), 0),
+      items: list.filter((row) => (row.flakySeeds ?? 0) > 0).map((row) => row.id),
+    },
     catch: {
       size: caught.length,
       passing: caught.filter((row) => row.passEverySeed).length,
@@ -244,6 +254,10 @@ export function formatItems(
     )}).\n`;
   if (summary.catch.size > 0)
     text += `Catch items, counted apart and for no hardness: ${summary.catch.size}, ${summary.catch.passing} pass on every seed.\n`;
+  text += `Flaky passes (first attempt failed, retry passed): ${summary.flaky.count}.\n`;
+  for (const row of summary.rows)
+    if ((row.flakySeeds ?? 0) > 0)
+      text += `flaky: ${row.id} (${row.flakySeeds} of ${summary.seeds.length} seeds)\n`;
   const header = ['Item', 'Tier', 'Level', 'Component', ...summary.seeds.map((seed) => `seed ${seed}`)];
   for (const family of families) {
     const members = summary.rows

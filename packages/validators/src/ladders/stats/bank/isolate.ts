@@ -32,7 +32,15 @@ export function childCommand(moduleUrl: string, root: string, rest: readonly str
   return [...loader, entry, ...rest];
 }
 
-type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
+type Line = {
+  start?: number;
+  done?: number;
+  id: string;
+  pass?: boolean;
+  detail?: string;
+  flaky?: boolean;
+  ms?: number;
+};
 
 /**
  * Runs every item of the bank on one seed in a child process and returns each item's outcome by id. An item
@@ -147,7 +155,12 @@ function runFrom(
         if (line.start !== undefined) {
           arm(line.start);
         } else if (line.done !== undefined) {
-          results.set(line.id, { pass: line.pass === true, detail: line.detail ?? '', ms: line.ms });
+          results.set(line.id, {
+            pass: line.pass === true,
+            detail: line.detail ?? '',
+            ...(line.flaky ? { flaky: true } : {}),
+            ms: line.ms,
+          });
           reported += 1;
         }
       }

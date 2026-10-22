@@ -287,3 +287,38 @@ describe('catch items, composite causes and provenance together', () => {
     expect(text).toContain('Catch items, counted apart and for no hardness: 1, 0 pass on every seed.');
   });
 });
+
+describe('flaky passes', () => {
+  it('counts an entry that passed on its retry and names it in the listing', async () => {
+    const ladder = defineLadder({
+      component: 'flaky',
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'a / b',
+          threshold: 1,
+          compute: ({ seed }) =>
+            bankMeasure([
+              {
+                id: 'x',
+                component: 'c',
+                pass: true,
+                ...(seed === 1 ? { flaky: true, detail: 'flaky: x' } : {}),
+              },
+              { id: 'y', component: 'c', pass: true },
+            ]),
+        },
+      ],
+    });
+    const report = await runSeeds(ladder, seedSpecs([1, 2]), undefined, { full: true });
+    const summary = bankSummary(report);
+    expect(summary.flaky).toEqual({ count: 1, items: ['x'] });
+    const text = formatItems(summary, 'flaky');
+    expect(text).toContain('Flaky passes (first attempt failed, retry passed): 1.');
+    expect(text).toContain('flaky: x (1 of 2 seeds)');
+    expect(
+      formatItems(bankSummary(await runSeeds(ladder, seedSpecs([2]), undefined, { full: true })), 'flaky'),
+    ).toContain('Flaky passes (first attempt failed, retry passed): 0.');
+  });
+});

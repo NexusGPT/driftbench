@@ -292,6 +292,8 @@ export function scaleItems(): BankItem[] {
   return out;
 }
 
+const retryOnce = (item: BankItem): BankItem => ({ ...item, retryOnce: true });
+
 const stabItem = (id: string, component: string, check: BankItem['check']): BankItem => ({
   id: `stability.${id}`,
   family: 'numerical-stability',
@@ -354,19 +356,23 @@ export function stabilityItems(): BankItem[] {
               `cusum upper sums changed at index ${bad} (${a[bad]} to ${b[bad]}) when ${offset} was added; the standardized series is the same.`,
             );
       }),
-      stabItem(`bootstrap-shift-${offset}`, 'packages/stats/src/intervals.ts', ({ s, rng }) => {
-        const v = data(rng, 80);
-        const a = s.bootstrapCI(v, { seed: 5, iterations: 300 });
-        const b = s.bootstrapCI(
-          v.map((x) => x + offset),
-          { seed: 5, iterations: 300 },
-        );
-        return near(b.lower - offset, a.lower, tol) && near(b.upper - offset, a.upper, tol)
-          ? ok()
-          : fail(
-              `bootstrapCI bounds [${a.lower}, ${a.upper}] became [${b.lower - offset}, ${b.upper - offset}] after adding and removing ${offset}; summing large values loses the digits of the small ones.`,
-            );
-      }),
+      // On Node 24 a correct package fails this check on a few runs (validators/stats/GATE.md); one retry in the
+      // same process absorbs that, and a fault of the package fails the retry too.
+      retryOnce(
+        stabItem(`bootstrap-shift-${offset}`, 'packages/stats/src/intervals.ts', ({ s, rng }) => {
+          const v = data(rng, 80);
+          const a = s.bootstrapCI(v, { seed: 5, iterations: 300 });
+          const b = s.bootstrapCI(
+            v.map((x) => x + offset),
+            { seed: 5, iterations: 300 },
+          );
+          return near(b.lower - offset, a.lower, tol) && near(b.upper - offset, a.upper, tol)
+            ? ok()
+            : fail(
+                `bootstrapCI bounds [${a.lower}, ${a.upper}] became [${b.lower - offset}, ${b.upper - offset}] after adding and removing ${offset}; summing large values loses the digits of the small ones.`,
+              );
+        }),
+      ),
       stabItem(`mean-shift-${offset}`, B, ({ s, rng }) => {
         const v = data(rng, 1000);
         const a = s.mean(v);

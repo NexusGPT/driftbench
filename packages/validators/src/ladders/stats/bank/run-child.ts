@@ -36,7 +36,7 @@ async function main(args: readonly string[]): Promise<void> {
     const began = performance.now();
     const outcome = await runItem(item, seed, root as string, s);
     process.stdout.write(
-      `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ms: Math.round(performance.now() - began) })}\n`,
+      `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ...(outcome.flaky ? { flaky: true } : {}), ms: Math.round(performance.now() - began) })}\n`,
     );
   }
 }
