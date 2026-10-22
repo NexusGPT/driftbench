@@ -226,7 +226,7 @@ export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 1
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
 
-/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind and first line. */
+/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind, and a fence by its first line. */
 export type ShownLine = { after: number; text: string };
 
 /**
