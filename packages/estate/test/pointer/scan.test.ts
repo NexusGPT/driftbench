@@ -1004,6 +1004,58 @@ describe('a unit the runs read two ways near evenly is listed as unstable', () =
   });
 });
 
+describe('a rescan asks the whole row of a table cell it asks', () => {
+  const ROUTES = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: route
+        description: A cell that names an ask, pointing at the cell of the helper that takes it.
+        target: required
+      - name: helper
+        description: A cell that names a helper.
+      - name: remark
+        description: Any other unit.
+`;
+  const TABLE = [
+    '# Helpers',
+    '',
+    '| Ask | Helper |',
+    '|---|---|',
+    '| audit the ledger | the `ledger-auditor` agent |',
+    '| plan the routes for tomorrow | the `route-planner` agent |',
+    '',
+  ].join('\n');
+  /** Labels each cell by its words, and records the units each request asks about. */
+  const labeler = (asked: string[]) =>
+    plantedDense((window) => {
+      asked.push(...window.units.map((unit) => unit.text));
+      return window.units.map((unit) =>
+        unit.text.startsWith('audit') || unit.text.startsWith('plan')
+          ? ({ units: String(unit.n), label: 'route', target: unit.n + 1 } as Labelled)
+          : ({ units: String(unit.n), label: unit.text.includes('agent') ? 'helper' : 'remark' } as Labelled),
+      );
+    });
+
+  it('asks the ask cell of a row whose helper cell it asks, so a route keeps its target in the window', async () => {
+    // As the fixture-v2 routing table: the edit of the second row's ask re-asks the cells beside it, among them the
+    // first row's helper cell; the first row's ask cell, the other end of that row, is asked with it.
+    const sets = load(ROUTES);
+    const files = [{ path: 'CLAUDE.md', text: TABLE }];
+    const first = await pointerScan(input(labeler([]), new Cassette(), { files, sets }));
+    const asked: string[] = [];
+    await pointerScan(
+      input(labeler(asked), new Cassette(), {
+        files: [{ path: 'CLAUDE.md', text: TABLE.replace('for tomorrow', 'for the next two days') }],
+        sets,
+        previous: first.ledger,
+      }),
+    );
+    expect(asked).toContain('the `ledger-auditor` agent');
+    expect(asked).toContain('audit the ledger');
+  });
+});
+
 describe('what the cassette key holds', () => {
   it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
     const recorded = new Cassette();
