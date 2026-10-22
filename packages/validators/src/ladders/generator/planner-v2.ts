@@ -116,7 +116,16 @@ const SHAPES: Shape[] = [
     weighted: true,
     weightedSome: true,
   },
-  { name: 'zero-weight', tier: 4, axes: 4, detail: false, rules: [3], forbids: 0, weighted: true, zeroWeight: true },
+  {
+    name: 'zero-weight',
+    tier: 4,
+    axes: 4,
+    detail: false,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    zeroWeight: true,
+  },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -999,7 +1008,8 @@ const STEMS: {
       if (!got) throw new Error('the store of this shape has no constraint');
       const [seed] = got.seeds as [PlanSeedRow];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
       );
@@ -1070,8 +1080,11 @@ const STEMS: {
         scaled.rows.every((row, at) => {
           const other = a.full.rows[at];
           const close =
-            row.logWeight === other?.logWeight || Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
-          return row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close;
+            row.logWeight === other?.logWeight ||
+            Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
+          return (
+            row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close
+          );
         });
       return verdict(same, 'the plan changes when every weight is three times as large');
     },
@@ -1103,7 +1116,8 @@ const STEMS: {
       for (const row of planned) {
         const out = written.find((entry) => entry.id === row.id);
         const held = row.values[axis.id] === zero;
-        if (held && out?.logWeight !== null) wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
+        if (held && out?.logWeight !== null)
+          wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
         if (!held && typeof out?.logWeight !== 'number') wrong.push(`${row.id} is written without a number`);
       }
       return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
@@ -1123,7 +1137,10 @@ const STEMS: {
           .sort()
           .join('|');
       const same = rows && layers && rules(a.reordered) === rules(a.full);
-      return verdict(same, `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`);
+      return verdict(
+        same,
+        `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`,
+      );
     },
   },
 ];
