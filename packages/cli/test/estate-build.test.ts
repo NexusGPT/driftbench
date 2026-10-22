@@ -63,7 +63,12 @@ async function build(root: string, options: BuildOptions, answers?: boolean[]) {
   const questions: string[] = [];
   const code = await estateBuildCommand(
     'estate',
-    { out: 'b', ...(options.pointer ? {} : { replay: 'estate/answers.yaml' }), ...options },
+    {
+      out: 'b',
+      states: join(root, 'estate', 'live', 'states', 'library.json'),
+      ...(options.pointer ? {} : { replay: 'estate/answers.yaml' }),
+      ...options,
+    },
     seen.io,
     {
       now: NOW,
@@ -116,6 +121,7 @@ describe('driftbench estate build', () => {
           plan: join(root, 's', 'plan.yaml'),
           out: join(root, 's', 'generated'),
           force: true,
+          states: join(root, 'estate', 'live', 'states', 'library.json'),
         },
         by.io,
       ),

@@ -56,6 +56,7 @@ driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <nam
 | `--jobs <n>` | `4` | with `--pointer`: requests in flight at once |
 | `--phrases <file>` | none | the approved phrase bank for `estate generate` |
 | `--sessions <file>` | none | the index of recorded sessions for `estate generate` |
+| `--states <file>` | none | the state library of the runs, for `estate generate` |
 | `--t <n>` | `2` | the strength of the covering array of the plan |
 
 ## Inputs

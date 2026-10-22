@@ -19,6 +19,7 @@ export type EstateBuildOptions = estateCommands.EstateScanOptions & {
   verbose?: boolean;
   phrases?: string;
   sessions?: string;
+  states?: string;
   /** The strength of the covering array of the plan. */
   t?: string;
 };
@@ -135,6 +136,7 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--jobs <n>', 'with --pointer: requests in flight at once')
     .option('--phrases <file>', 'the approved phrase bank for estate generate')
     .option('--sessions <file>', 'the index of recorded sessions for estate generate')
+    .option('--states <file>', 'the state library of the runs, for estate generate')
     .option('--t <n>', 'the strength of the covering array of the plan', '2')
     .action(async (root: string, options: EstateBuildOptions) => {
       setExit(await estateBuildCommand(root, options, io));
@@ -341,12 +343,14 @@ export async function estateBuildCommand(
   // 5. Write the tests.
   const phrases = options.phrases ? resolve(io.cwd, options.phrases) : undefined;
   const sessions = options.sessions ? resolve(io.cwd, options.sessions) : undefined;
+  const states = options.states ? resolve(io.cwd, options.states) : undefined;
   const generateInput = sha(
     JSON.stringify([
       await fileHash(file('approved.yaml')),
       await fileHash(file('plan.yaml')),
       phrases ? await fileHash(phrases) : null,
       sessions ? await fileHash(sessions) : null,
+      states ? await fileHash(states) : null,
     ]),
   );
   const report = join(file('generated'), 'estate-generate-report.json');
@@ -365,6 +369,7 @@ export async function estateBuildCommand(
         force: true,
         ...(phrases ? { phrases } : {}),
         ...(sessions ? { sessions } : {}),
+        ...(states ? { states } : {}),
       },
       step.io,
     );
