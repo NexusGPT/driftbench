@@ -33,7 +33,7 @@ describe('the blind bank bound to the reader', () => {
         } else counts.differs += 1;
       }
     }
-    expect(counts).toEqual({ pass: 342, differs: 0, unsupported: 0, error: 0 });
+    expect(counts).toEqual({ pass: 343, differs: 0, unsupported: 0, error: 0 });
     expect([...reasons].sort()).toEqual([]);
   }, 300_000);
 
