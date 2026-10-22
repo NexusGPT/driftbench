@@ -401,6 +401,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
         (ctx) => {
           const ids = names(ctx.rng, 4);
           const store = weighted(ids, [...drawWeights(ctx, 3), undefined], {
+            rules: [{ id: 'rule.weighted', variables: ids }],
             forbids: [{ forbid: { [at(ids, 0)]: 'v0', [at(ids, 1)]: 'v1' } }],
           });
           const seeds: Row[] = [{ [at(ids, 0)]: 'v1' }, { [at(ids, 1)]: 'v0', [at(ids, 2)]: 'v2' }];
