@@ -185,7 +185,10 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
   // atoms were read from is not the estate: the map was copied away from it.
   let files: string[] | undefined;
   const root = resolve(dirname(mapPath), loaded.map.root);
-  const lister = readerFor(loaded.map.runtime, { ignore: loaded.map.ignore ?? [] });
+  const lister = readerFor(loaded.map.runtime, {
+    ignore: loaded.map.ignore ?? [],
+    ...(loaded.map.registryRoles ? { registryRoles: loaded.map.registryRoles } : {}),
+  });
   const listed =
     lister?.listFiles && (await stat(root).catch(() => undefined))?.isDirectory()
       ? await lister.listFiles(root)

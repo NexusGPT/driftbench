@@ -126,6 +126,18 @@ export {
   type UnitChange,
 } from './radius';
 export {
+  NO_REGISTRY_ROLES,
+  REGISTRY_ROLE_LABELS,
+  REGISTRY_ROLES,
+  REGISTRY_ROLES_SET,
+  REGISTRY_ROLES_SET_NAME,
+  type RegistryRole,
+  type RegistryRoles,
+  type RegistryRolesInput,
+  type RegistryTableRef,
+  STATE_OFF_LABEL,
+} from './registry-roles-set';
+export {
   atomNeeds,
   DEFAULT_WINDOW_UNITS,
   type FailedWindow,

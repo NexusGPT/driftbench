@@ -123,6 +123,17 @@ export type PermissionDecl = {
 /** A setting: its key and, when it is safe to keep, its value. Environment values are never kept. */
 export type SettingDecl = { key: string; value?: string; at: Located };
 
+/** A markdown table that may be a check registry, with the cells as written. */
+export type RegistryTable = {
+  file: string;
+  header: string[];
+  /** The line of the header row in the file. */
+  headerLine: number;
+  /** The place of the table among the tables of its file, from 0. */
+  index: number;
+  rows: Array<{ cells: string[]; line: number; text: string }>;
+};
+
 /** One row of a check registry: a guard and the rules it enforces, by id or by a quoted passage. */
 export type RegistryRow = {
   id: string;
@@ -135,8 +146,8 @@ export type RegistryRow = {
   /** What the registry says this check means, verbatim, independent of rule-label links. */
   description?: string;
   descriptionAt?: Located;
-  /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
-  origin?: 'catalogue';
+  /** `catalogue` for a row the reader made from a catalogue entry, `table` for a row of a markdown table the roles read; absent for a JSON or YAML registry row. */
+  origin?: 'catalogue' | 'table';
   at: Located;
 };
 
@@ -185,6 +196,11 @@ export type RawEstate = {
   permissions: PermissionDecl[];
   settings: SettingDecl[];
   registry: RegistryRow[];
+  /**
+   * The markdown tables that may be check registries: a first-column cell that is one token with a digit. Their
+   * rows become registry rows only when the recorded roles of their columns say so (`applyRegistryRoles`).
+   */
+  registryTables?: RegistryTable[];
   steps: StepDecl[];
   prose: ProseChunk[];
   notes: ReadNote[];

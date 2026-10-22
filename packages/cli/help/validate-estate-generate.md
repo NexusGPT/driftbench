@@ -54,6 +54,9 @@ the library: ...` on stderr.
 `estate static <tests...> --estate <root>` reads the estate files again, with no run of the agent: an
 invariant must still hold (the standing file under its ceiling, no orphan file, anchored guard paths, a
 complete check registry), and a setting must still be declared with its value.
+A markdown registry table is read by the column roles the scan recorded in the map, so give `--map <approved map>`
+when an invariant reads the registry (`registry_complete`); without the map no registry row is read and the
+invariant holds on an empty registry.
 
 ## When to use it
 

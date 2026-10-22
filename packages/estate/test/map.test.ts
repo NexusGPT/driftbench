@@ -12,7 +12,7 @@ import {
   scanEstate,
   toEstateSpaceMap,
 } from '../src/index';
-import { FIXTURE, NOW, scanFixture } from './support';
+import { FIXTURE, HAND_ROLES, NOW, scanFixture } from './support';
 
 describe('the estate map file', () => {
   it('renders the same text for the same estate, answers and clock, and parses back to the same map', async () => {
@@ -167,7 +167,12 @@ describe('the space map of an estate', () => {
   });
 
   it('keeps a code-only scan valid as a space map', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     expect(validateSpaceMap(toEstateSpaceMap(map)).ok).toBe(true);
   });
 });
