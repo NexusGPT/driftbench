@@ -47,6 +47,8 @@ export class TerminalSubsumption {
   private readonly ends = new Set<string>();
   /** The classes already probed on each path, by a written spec: `<path>|<class>`. */
   private readonly probed = new Set<string>();
+  /** The declared perturbations of the written specs, by path, class, arrival stage and recovery. */
+  private readonly perturbationsHeld = new Set<string>();
   /** The rows (cell and deviation class) of the written t-wise specs: the t-wise items read those specs alone. */
   private readonly twiseRows = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
@@ -105,7 +107,7 @@ export class TerminalSubsumption {
       const again = validateSpec(shorter.spec);
       if (again.ok) spec = again.spec;
     } else if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
-      const states = [{ blocks: draft.blocks, spec }];
+      const states = [{ blocks: draft.blocks, perturbations: draft.perturbations, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
       const twin = this.keepsPair(spec);
@@ -116,18 +118,26 @@ export class TerminalSubsumption {
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
         // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
-        // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
-        // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
-        if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
-        const reduced = validateSpec(this.cut(spec, last));
+        // it: the block a declaration names, and the ones before it, are part of that test. They stay unless a
+        // written spec holds an equal declaration (same path, class, arrival and recovery): the suite keeps the
+        // perturbed-mode kills, so the declaration goes with the block.
+        const reached = spec.perturbations?.filter((entry) => entry.inject_at >= last) ?? [];
+        if (reached.some((entry) => !this.perturbationsHeld.has(this.perturbationKey(spec, entry)))) break;
+        const rest = (spec.perturbations ?? []).filter((entry) => !reached.includes(entry));
+        const shorter = this.cut(spec, last);
+        const reduced = validateSpec({ ...shorter, perturbations: rest.length > 0 ? rest : undefined });
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.obligationsHold(draft.seeder, spec, reduced.spec)) break;
-        if (!this.allocationHolds(draft, last)) break;
+        const remaining = (draft.perturbations ?? []).filter(
+          (entry) => !reached.some((gone) => gone.id === entry.id),
+        );
+        if (!this.allocationHolds(draft, last, remaining)) break;
         draft.blocks = draft.blocks.slice(0, last);
+        if (reached.length > 0) draft.perturbations = remaining;
         spec = reduced.spec;
-        states.push({ blocks: draft.blocks, spec });
+        states.push({ blocks: draft.blocks, perturbations: draft.perturbations, spec });
       }
       // Exactly one walk ends on a given block: a cut that stops, with more than one block left, on the block
       // another written walk ends on is taken back to the deepest cut that ends elsewhere, or to the whole walk.
@@ -140,6 +150,7 @@ export class TerminalSubsumption {
         );
       const chosen = settled ?? (states[0] as (typeof states)[number]);
       draft.blocks = chosen.blocks;
+      draft.perturbations = chosen.perturbations;
       spec = chosen.spec;
     }
     if (spec.blocks.length < original.blocks.length) {
@@ -273,6 +284,8 @@ export class TerminalSubsumption {
         });
     });
     this.ends.add(this.key(spec, spec.blocks.length - 1));
+    for (const entry of spec.perturbations ?? [])
+      this.perturbationsHeld.add(this.perturbationKey(spec, entry));
     if ((spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'twise')
       this.twiseRows.add(this.twiseRow(spec));
     const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
@@ -415,6 +428,20 @@ export class TerminalSubsumption {
     return row(before) === row(after) || this.twiseRows.has(row(before));
   }
 
+  /** What a declaration does: said on this path, of this class, at this stage, recovering to that one. */
+  private perturbationKey(spec: Spec, entry: NonNullable<Spec['perturbations']>[number]): string {
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const at = Math.min(entry.inject_at, spec.blocks.length);
+    const arrival = at === 0 ? spec.stages?.[0] : spec.blocks[at - 1]?.expect?.stage;
+    return contentHash([
+      path,
+      entry.class,
+      arrival,
+      entry.recovery?.stage_after,
+      entry.recovery?.within_blocks ?? 0,
+    ]);
+  }
+
   private twiseRow(spec: Spec): string {
     const cell = (spec.metadata?.generated as { cell?: unknown } | undefined)?.cell ?? {};
     const injected = spec.blocks.find((block) => 'injection' in block.when)?.when;
@@ -427,11 +454,11 @@ export class TerminalSubsumption {
   }
 
   /** The reduced walk leaves stages and classes no further from balance than the whole one. */
-  private allocationHolds(draft: SpecDraft, last: number): boolean {
+  private allocationHolds(draft: SpecDraft, last: number, perturbations = draft.perturbations): boolean {
     if (!this.allocation) return true;
     const reduced = {
       blocks: draft.blocks.slice(0, last),
-      perturbations: draft.perturbations,
+      perturbations,
     };
     return this.allocation.imbalanceWith(reduced) <= this.allocation.imbalanceWith(draft);
   }
