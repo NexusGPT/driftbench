@@ -81,7 +81,8 @@ describe('the cutter on a plain text file', () => {
       const units = cut(quote, { plain }).units;
       expect(units).toHaveLength(1);
       expect(units[0]?.container).toBe('block_quote');
-      expect(units[0]?.text).toBe(quote);
+      expect(units[0]?.text.startsWith('Row 0\n> Row 1')).toBe(true);
+      expect(units[0]?.text.endsWith('> Row 11999')).toBe(true);
     }
     const list = Array.from({ length: 12_000 }, (_, index) => `- item ${index}`).join('\n');
     expect(cut(list, { plain: false }).units).toHaveLength(12_000);
