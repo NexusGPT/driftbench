@@ -162,33 +162,74 @@ $ driftbench campaign run specs --plugin ./plugin.mjs --json
 
 **Why you do this.** A check changes how a reply is judged. An adapter changes where the reply comes from. It lets a target such as `echo:demo` reach your own agent, with no wrapper process.
 
-**You need.** The plugin of the clone, `examples/plugins/plugin.mjs`. Your working folder sits inside the clone, so the commands reach it as `../examples/plugins`. It registers an adapter named `echo`, an agent that repeats the user, and the check `polite`. Its spec, `examples/plugins/specs/hello.yaml`, targets `echo:demo`.
+**You need.** A second plugin and a second spec. The adapter below is an agent that repeats the customer. It has no imports, so it runs anywhere. A real adapter calls your own agent where this one builds the text. The spec targets `echo:demo`, which means the adapter `echo` and the agent name `demo`.
+
+```js
+// file: echo.mjs
+export default function plugin(api) {
+  api.adapter('echo', () => ({
+    id: 'echo',
+    version: '1',
+    capabilities: () => ({
+      variants: false,
+      seedPrefix: true,
+      toolStubs: false,
+      trace: false,
+      sandbox: false,
+      endState: false,
+      deterministic: true,
+    }),
+    async open(given) {
+      return { id: 'echo-session', adapter: 'echo', target: given.target, given, history: [], state: {} };
+    },
+    async send(session) {
+      const text = `You said: ${session.history.at(-1)?.content ?? ''}`;
+      return { segments: [{ type: 'text', text }], text, toolCalls: [], cost: {}, latencyMs: 0 };
+    },
+    async close() {},
+  }));
+}
+```
+
+```yaml
+# file: echo-specs/echo.yaml
+id: echo-greeting
+title: An agent that repeats the customer
+target: { adapter: echo, agent: demo }
+blocks:
+  - user: Hello there
+    expect:
+      must: ['You said: Hello there']
+```
 
 **Relevant commands.**
 
-- `api.adapter(name, factory)`: registers an adapter inside a plugin · `name` is the first part of a target, so `echo` serves `echo:<agent>`; `factory` returns the adapter · every spec that targets `echo:<agent>` reaches it. The [adapter reference](../adapters/index.md) lists the built-in adapters a factory can return.
-- `driftbench campaign run ../examples/plugins/specs/hello.yaml`: runs the spec once · the path is the spec · it prints one line per spec.
+- `api.adapter(name, factory)`: registers an adapter inside a plugin · `name` is the first part of a target, so `echo` serves `echo:<agent>`; `factory` returns the adapter · every spec that targets `echo:<agent>` reaches it. The [adapter reference](../adapters/index.md) lists the built-in adapters that a factory can return in place of your own.
+- `driftbench campaign run echo-specs/echo.yaml`: runs the spec once · the path is the spec · it prints one line per spec.
+
+An adapter has four parts. `open` starts a conversation. `send` runs one block and returns what the agent did. `close` ends the conversation. `capabilities` tells the runner what the adapter supports. The runner adds the customer's message to `session.history` before it calls `send`.
 
 First without the plugin. The target `echo:demo` has no adapter, so the command stops with exit 2 and a message:
 
 ```console
-$ driftbench campaign run ../examples/plugins/specs/hello.yaml   # exit 2
-No adapter is set up for echo:demo, the target of plugins-hello. The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent. It also reaches http, litellm and nexus targets from the target.options of a spec.
+$ driftbench campaign run echo-specs/echo.yaml   # exit 2
+No adapter is set up for echo:demo, the target of echo-greeting. The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent. It also reaches http, litellm and nexus targets from the target.options of a spec.
 ```
 
 Then with the plugin:
 
 ```console
-$ driftbench campaign run ../examples/plugins/specs/hello.yaml --plugin ../examples/plugins/plugin.mjs
-✓ plugins-hello · echo:demo · F · repeat 0  pass  1 block
+$ driftbench campaign run echo-specs/echo.yaml --plugin ./echo.mjs
+✓ echo-greeting · echo:demo · F · repeat 0  pass  1 block
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
 
-**How to read it.** The same spec fails to start, then passes once the plugin registers the adapter. A real plugin calls your own agent where the example repeats the user.
+**How to read it.** The same spec fails to start, then passes once the plugin registers the adapter. The clone also ships a plugin with an adapter and a check, in `examples/plugins`. Its [README](../../examples/plugins/README.md) shows how to run it.
 
 **If it goes wrong.**
 
 - `No adapter is set up for` and a target: the plugin that registers that adapter is not loaded. Load it with `--plugin` or the config.
+- The run fails on the first block with a message from the agent: the message in `send` threw. Fix the code of the adapter and run again.
 
 ## 5. Load the plugin from the project config
 

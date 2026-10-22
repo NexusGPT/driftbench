@@ -35,12 +35,12 @@ The full description of the package is in the [vitest reference](../vitest.md).
 
 - `mkdir -p vitest-demo/specs`: makes the working folder and the folder for the spec · `-p` makes the folders only when they are missing · it produces `vitest-demo/specs`.
 - `cd vitest-demo`: goes into the working folder · no options · every later command runs from there.
-- `ln -s ../examples/../node_modules node_modules`: links the packages of the clone into the folder, so vitest finds itself · `-s` makes a symbolic link · it produces the link `node_modules`. In your own project, `npm install` makes this folder.
+- `ln -s "$(cd -P ../examples/.. && pwd -P)/node_modules" node_modules`: links the packages of the clone into the folder, so vitest finds itself · `-s` makes a symbolic link. The part in quotes is the full path of the clone's `node_modules` folder · it produces the link `node_modules`. In your own project, `npm install` makes this folder.
 
 ```console
 $ mkdir -p vitest-demo/specs
 $ cd vitest-demo
-$ ln -s ../examples/../node_modules node_modules
+$ ln -s "$(cd -P ../examples/.. && pwd -P)/node_modules" node_modules
 ```
 
 The second file tells vitest to read the driftbench packages from the sources in the clone. It finds the clone by following the link `examples` that the clone holds. In your own project, you need no such file:
@@ -67,7 +67,7 @@ export default { resolve: { alias }, test: { include: ['*.test.ts'] } };
 
 **Why you do this.** The spec says what the customer says and what the agent must answer. The agent is the function under test. The test file connects them.
 
-**You need.** Three files. The spec asks one question and expects two words in the answer:
+**You need.** Three files. The spec asks one question and expects the word `Acme` in the answer:
 
 ```yaml
 # file: specs/hello.yaml
@@ -77,7 +77,7 @@ target: { adapter: function, agent: acme-sales }
 blocks:
   - user: Hi, I would like to change my plan.
     expect:
-      must: ['Acme', 'change my plan']
+      must: ['Acme']
 ```
 
 The agent is a function. It receives the messages of the chat, and the last one is the customer's. It returns a reply with its text and the tool calls it made, here none:
