@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { CoverageResult, Group, Row } from '../../interface';
 import { callCoverage, callCoverageError, type ItemContext, type StemRun } from '../item';
 import {
@@ -15,7 +16,6 @@ import {
   tupleKey,
 } from '../oracle/space';
 import { randomSpace, randomValidRow } from '../oracle/spaces';
-import { check } from '../../../../failure';
 import { choose, cpuMs, must, type Rng, show } from '../util';
 
 /** The exact value of a count: a bigint, or a number that is a safe integer. */

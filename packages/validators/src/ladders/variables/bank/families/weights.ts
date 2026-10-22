@@ -215,7 +215,11 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           hi <= 1 &&
           lo <= p + 1e-12 &&
           p <= hi + 1e-12,
-        { rule: 'weightInterval is an interval inside 0 to 1 that holds its estimate', input: { count, total }, got: [lo, hi] },
+        {
+          rule: 'weightInterval is an interval inside 0 to 1 that holds its estimate',
+          input: { count, total },
+          got: [lo, hi],
+        },
       );
     }
   },

@@ -220,7 +220,10 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         });
         seenNull = true;
       } else {
-        check(!seenNull, { rule: 'every row of finite weight comes before every row of weight 0', input: { row: i } });
+        check(!seenNull, {
+          rule: 'every row of finite weight comes before every row of weight 0',
+          input: { row: i },
+        });
         check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE, {
           rule: 'logWeight is the sum of the logs of the shares of the values of the row',
           input: { row: i },

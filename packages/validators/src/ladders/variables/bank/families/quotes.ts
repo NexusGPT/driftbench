@@ -73,9 +73,17 @@ export function toolEstate(
 
 function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): void {
   const kept = valueByQuote(store, quote);
-  check(!kept, { rule: 'a value whose quote the file does not hold is refused', input: { label, id, quote }, got: { kept: true } });
+  check(!kept, {
+    rule: 'a value whose quote the file does not hold is refused',
+    input: { label, id, quote },
+    got: { kept: true },
+  });
   const named = refusalsMentioning(store, id);
-  check(named.length >= 1, { rule: 'a refused value is named in the refusal list', input: { label, id }, got: { refusals: store.refused } });
+  check(named.length >= 1, {
+    rule: 'a refused value is named in the refusal list',
+    input: { label, id },
+    got: { refusals: store.refused },
+  });
 }
 
 function mustKeep(store: StoreDoc, quote: string, id: string, label: string, source?: string): void {
