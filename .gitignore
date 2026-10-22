@@ -174,3 +174,6 @@ benchmarks/**/*.tmp
 examples/all-peers-public/data/*/items.json
 validators/estate/emission-mutation-parts/
 packages/estate/.mutants/
+
+# Python build output: pip install of python/driftbench writes it
+python/driftbench/build/
