@@ -51,9 +51,9 @@ export type Fixture = {
   wires: Wire[];
   documents: AuthoredFile[];
 };
-/** The runs a window is asked: a system 2 labeler is asked three times and must agree; a system 1 labeler once. */
+/** The runs a window is asked: the reader asks a system 2 labeler for five runs, a system 1 labeler for one. */
 export function runsOf(arm: ModelArm): string[] {
-  return arm === 'haiku' ? ['1', '2', '3'] : ['1'];
+  return arm === 'haiku' ? ['1', '2', '3', '4', '5'] : ['1'];
 }
 /** The most units one Jev window request carries; a unit-state request carries one. */
 export const JEV_WINDOW_UNITS = 30;
