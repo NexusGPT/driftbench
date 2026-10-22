@@ -9,9 +9,9 @@ import { referenceSut } from './reference/index';
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
 
 describe('the provenance of the first bank', () => {
-  it('labels every item, and the labels cover the 469 items', () => {
-    expect(pointerBank()).toHaveLength(469);
-    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(469);
+  it('labels every item, and the labels cover the 466 items', () => {
+    expect(pointerBank()).toHaveLength(466);
+    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(466);
   });
 
   it('labels the stack and label-set validation items and the golden family maintainer-added', () => {
@@ -26,9 +26,9 @@ describe('the first bank claims no blind item', () => {
     expect(pointerBank().filter((i) => i.provenance === 'blind')).toEqual([]);
   });
 
-  it('labels the 402 original items maintainer-repaired and the 67 later ones maintainer-added', () => {
+  it('labels the 402 original items maintainer-repaired and the 64 later ones maintainer-added', () => {
     expect(count('maintainer-repaired')).toBe(402);
-    expect(count('maintainer-added')).toBe(67);
+    expect(count('maintainer-added')).toBe(64);
   });
 });
 
