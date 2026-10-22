@@ -54,4 +54,12 @@ describe('the shifted bootstrap items under the frame', () => {
   it('fail a package that overwrites the earlier result on the next call', async () => {
     expect((await outcomes('overwrite')).filter((each) => each.pass)).toEqual([]);
   });
+
+  // A result padded with an unused large field must not switch the watch off (review of PR 986, probe 39702920607).
+  it.each(['shared-padded', 'overwrite-padded'] as const)(
+    'fail a package that pads its results with a field of 200,000 characters (%s)',
+    async (kind) => {
+      expect((await outcomes(kind)).filter((each) => each.pass)).toEqual([]);
+    },
+  );
 });

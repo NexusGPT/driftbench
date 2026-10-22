@@ -96,6 +96,7 @@ function «decode»(«x») {
 
 const TWIN = String.raw`
 import { pathToFileURL as «toUrl» } from 'node:url';
+import { createHash as «createHash» } from 'node:crypto';
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -149,7 +150,7 @@ if («setup».uptimeShift > 0) {
 const «recent» = [];
 const «print» = («value») => {
   «mute» = true;
-  try { return JSON.stringify(«encode»(«value»)); } finally { «mute» = false; }
+  try { return «createHash»('sha256').update(JSON.stringify(«encode»(«value»))).digest('hex'); } finally { «mute» = false; }
 };
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
 
@@ -190,11 +191,9 @@ if («setup».command) {
           if («now» !== «each».text) { «moved».push(«each».call); «each».text = «now»; }
         }
         if («result» !== null && typeof «result» === 'object') {
-          const «text» = «print»(«result»);
-          if («text».length <= 50000) {
-            «recent».push({ call: «request».call, live: «result», text: «text» });
-            if («recent».length > 16) «recent».shift();
-          }
+          // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
+          «recent».push({ call: «request».call, live: «result», text: «print»(«result») });
+          if («recent».length > 16) «recent».shift();
         }
       }
       «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«moved».length > 0 ? { moved: «moved» } : {}) });
