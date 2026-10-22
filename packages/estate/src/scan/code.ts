@@ -640,7 +640,8 @@ export function pathMentions(line: string): NamedReference[] {
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
     claimed.push([start, start + match[0].length]);
     if (!token) return;
-    const spelling = token.trim();
+    // A token the parser decoded is used exactly as it gave it, with no trimming or other edit.
+    const spelling = options.exact ? token : token.trim();
     let path = spelling
       .replace(/\\/g, '/')
       .replace(/^@/, '')
