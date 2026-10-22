@@ -326,7 +326,7 @@ export function plan(store: StoreDoc, options: PlanOptions): Plan {
     if (s.forbids.some(held))
       warn('seed_forbidden', `the seed ${i + 1} holds a combination the store forbids`);
     seedRows.push({
-      id: options.seedIds?.[i] ?? `seed.${i + 1}`,
+      id: `seed.${options.seedIds?.[i] ?? i + 1}`,
       kind: 'seed',
       values,
       logWeight: weightOf(s, cells),
