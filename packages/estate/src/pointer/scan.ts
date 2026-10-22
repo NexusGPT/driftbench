@@ -663,9 +663,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   /**
    * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
    * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
-   * group of its own. When a group holds more than half of the runs heard,
-   * its most given label wins, the earliest run's on a tie. A split between atom kinds (a reply rule against a rule)
-   * stays a split: no group holds the majority, and the unit stays unlabeled.
+   * group of its own. When a group holds more than half of the runs heard, the label most of its runs gave wins. A tie
+   * inside a group that builds an atom stays a split (an obligation against a prohibition builds two different
+   * atoms); inside the group that builds none, the earliest run's label stands. A split between atom kinds (a reply rule
+   * against a rule) stays a split: no group holds the majority, and the unit stays unlabeled.
    */
   const sameKind = (present: Opinion[], heard: number, set: LabelSet): Opinion[] | undefined => {
     // A label that points at another unit (a condition) acts through its target, so it is a group of its own.
@@ -685,6 +686,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const counts = new Map<string, number>();
     for (const opinion of group) counts.set(key(opinion), (counts.get(key(opinion)) ?? 0) + 1);
     const top = Math.max(...counts.values());
+    const leaders = [...counts.entries()].filter(([, count]) => count === top);
+    // Two labels that build the same atom kind can still build different atoms (an obligation or a prohibition): a
+    // tie between them stays a split. Labels that build no atom give nothing either way: the earliest run's stands.
+    if (leaders.length > 1 && kindOf(group[0]?.label ?? '') !== '(no atom)') return undefined;
     const pick = group.find((opinion) => counts.get(key(opinion)) === top) as Opinion;
     return group.filter((opinion) => key(opinion) === key(pick));
   };
