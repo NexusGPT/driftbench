@@ -87,10 +87,10 @@ The conversion is in `packages/estate/test/gold/normal-form.ts`, with tests that
 
 ## History of the limits in the truth files
 
-The truth files were first written from the prose alone by a lane that had not read the harness: 38 limits (A 16, B 8, C 14), without a `role`. They were extended afterwards, from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role`:
+Three states, in order. Counts are limits per estate (A, B, C), read from the files at each commit.
 
-* `d2e842d3c`: after the first per-atom recording, the units the producer had returned as extras were judged by the truth lane, which was sent the unit ids without the model's answers (per the lead's brief; the judge's own record is `TRUTH-NOTES.md`). 17 limits were added (A 9, B 3, C 5). All 17 were extras of that recording, so the judged list held only units the model had returned.
-* `4ef73174f`: `role: constraint | trigger` added to every limit, 45 constraints and 10 triggers.
-* `d6fca1583`: one more limit added after a further blind check (B `lwci7tropa`), which the producer had also returned as an extra.
+1. `a0be37546`: the first truth files, written from the prose by a lane that had not read the harness or run a producer. 55 limits (A 20, B 13, C 22), without a `role`.
+2. `c0359aee7`: before any recording of the producer, the entries whose governing unit carries no agreed rule, prohibition or gate were removed (the schema already required `governs` to name one), and two entries were pointed at their rule. 38 limits (A 16, B 8, C 14). The reason for each removed unit is in `TRUTH-NOTES.md`, section "Revision: limit entries with no governing rule"; most are decided by the label of the governing unit, a few by the lane's reading of the rule. This is the 38-limit truth, the one that was not built from the producer's output.
+3. `d2e842d3c`, `4ef73174f`, `d6fca1583`: extended from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role` (45 constraints, 10 triggers). 18 limits were added, all units the producer had returned as extras: 17 after the first per-atom recording (run 39744125508), and B `lwci7tropa` after a later one (run 39750113618). The truth lane judged them from a list of unit ids without the model's answers; the list held only units the model had returned.
 
-Because the added limits come from the model's extras, the answer key was enlarged with the model's own output. Figures against the 38-limit truth and the 56-limit truth must both be reported (see `docs/variables.md`). The judgements and the reason for each unit left out are in `TRUTH-NOTES.md`.
+An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 56-limit truth, the 38-limit figure first (see `docs/variables.md`). A blind re-check of the 18 added limits, with positive controls and decoys, decides whether they stay.
