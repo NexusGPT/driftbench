@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { Cassette, DEFAULT_LABEL_SETS, GATE_FORMS_SET_NAME, singleLabelling } from '../../src/pointer';
+import {
+  AGENT_RULES_SET,
+  Cassette,
+  GATE_FORMS_SET_NAME,
+  SHIPPED_LABEL_SETS,
+  singleLabelling,
+} from '../../src/pointer';
 import { estate, NOW } from '../support';
 import { load, plantedDense } from './support';
 
@@ -11,6 +17,8 @@ const FILES = {
     '- **R1.** Never discard a parcel.',
     '- **R2.** Keep the receipt as R1 asks.',
     '- **R3.** Keep tax form R1 in the archive for ten years.',
+    '- **R4.** File article R2 of the customs sheet with every export.',
+    '- **R5.** Print version R3 of the label on each crate.',
     '',
     'Editing a parcel? Read `docs/parcels.md` first.',
     '',
@@ -31,7 +39,7 @@ async function scan() {
     reader: new ClaudeCodeReader(),
     now: NOW,
     pointer: {
-      sets: load(DEFAULT_LABEL_SETS),
+      sets: load(SHIPPED_LABEL_SETS(AGENT_RULES_SET)),
       labelling: singleLabelling(
         plantedDense((window, set) =>
           window.units.map((unit) => {
@@ -85,7 +93,7 @@ async function scan() {
               }
               return none;
             }
-            return unit.text.includes('R1.') || unit.text.includes('R2.') || unit.text.includes('R3.')
+            return ['R1.', 'R2.', 'R3.', 'R4.', 'R5.'].some((mark) => unit.text.includes(mark))
               ? { units: String(unit.n), label: 'rule' }
               : none;
           }),
@@ -118,7 +126,14 @@ describe('the gate-forms set, shipped beside the main set', () => {
   it('makes a cites edge only from the label the annotation gave, and none for a form number', async () => {
     const { map } = await scan();
     const rules = map.atoms.filter((atom) => atom.kind === 'instruction');
-    expect(rules.map((atom) => atom.fields?.cites)).toEqual([undefined, ['R1'], undefined]);
+    // The form (R3), the article (R4) and the version (R5) decoys carry a rule label and are no citation.
+    expect(rules.map((atom) => atom.fields?.cites)).toEqual([
+      undefined,
+      ['R1'],
+      undefined,
+      undefined,
+      undefined,
+    ]);
     const cites = map.edges.filter((edge) => edge.kind === 'cites');
     expect(cites).toHaveLength(1);
     expect(cites[0]?.from).toBe(rules[1]?.id);
