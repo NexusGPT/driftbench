@@ -1,14 +1,14 @@
 {
   "mapHash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
   "spaceHash": "6725368cef67",
-  "cells": 1309,
+  "cells": 1312,
   "coveringArraySize": 1067,
   "perKind": {
     "instruction": 93,
     "gate": 12,
     "route": 65,
-    "skill": 114,
-    "reference": 8,
+    "skill": 117,
+    "reference": 11,
     "script": 2,
     "subagent": 72,
     "guard": 30,
@@ -28,7 +28,7 @@
     "route_positive": 260,
     "route_near_miss": 13,
     "misroute": 13,
-    "read_when": 8,
+    "read_when": 11,
     "script_fixture": 2,
     "dispatch": 42,
     "contract_alone": 3,
@@ -95,14 +95,14 @@
     "register.standing.write-amounts-with-the-currency-code",
     "gate.standing.read-claude-memory-memory-md-before"
   ],
-  "cellsWithoutPhrase": 1309,
+  "cellsWithoutPhrase": 1312,
   "edgesWithoutJourney": 7,
   "t": 2,
   "k": 3,
   "seed": 1,
   "rows": {
-    "total": 1424,
-    "contract": 347,
+    "total": 1427,
+    "contract": 350,
     "journey": 10,
     "pairwise": 1067
   },
@@ -161,6 +161,6 @@
   "adjusted": [],
   "notes": [
     "The map has no phrase bank yet: every cell counts as a cell with no approved phrase.",
-    "3 references to documents the map records as navigation only (examples, templates, histories) give no test."
+    "3 references to documents the map records as navigation only (examples, templates, histories) get a read test, no journey and no covering-array target."
   ]
 }
