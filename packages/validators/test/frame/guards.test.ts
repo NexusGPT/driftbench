@@ -58,7 +58,7 @@ describe('identity of the objects passed twice', () => {
 describe('frozen arguments', () => {
   it('a product that writes to a frozen argument is refused by the runtime, as in the validator process', () => {
     const frame = frameOf({ identity: true });
-    expect(frame.product.writesWhenItCan(Object.freeze([1, 2])).wrote).toBe(false);
+    expect(frame.product.writesWhenItCan(Object.freeze([1, 2]) as number[]).wrote).toBe(false);
     expect(frame.product.writesWhenItCan([1, 2]).wrote).toBe(true);
   });
 });
