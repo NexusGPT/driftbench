@@ -152,6 +152,8 @@ export type Truth = {
     whole?: boolean;
     /** The gate orders a command, not a file: the shipped `gate-command` label answers it. */
     command?: boolean;
+    /** The file the gate reads first, as the line writes it: a line of several gates names one for each. */
+    reads?: string;
   }>;
 };
 
@@ -397,10 +399,24 @@ export function truthPointer(truth: Truth): TruthPointer {
             const planted = gatesOn.get(key) ?? [];
             if (form === 'gate-each') {
               taken.add(key);
+              // The shipped label lists the act span and, right after it, the file span of each gate.
+              const usedFiles = new Set<number>();
               const spans = planted
-                .map((each) => ({ from: unit.text.indexOf(each.act), length: each.act.length }))
+                .map((each) => ({ each, from: unit.text.indexOf(each.act) }))
                 .sort((a, b) => a.from - b.from)
-                .map((span) => ({ kind: 'governed-action', from: span.from, to: span.from + span.length }));
+                .flatMap(({ each, from }) => {
+                  const reads = each.reads;
+                  let at = reads === undefined ? -1 : unit.text.indexOf(reads);
+                  while (reads !== undefined && at >= 0 && usedFiles.has(at))
+                    at = unit.text.indexOf(reads, at + 1);
+                  if (reads === undefined || at < 0)
+                    throw new Error(`the planted gate "${each.act}" of ${key} names no file the line holds`);
+                  usedFiles.add(at);
+                  return [
+                    { kind: 'governed-action', from, to: from + each.act.length },
+                    { kind: 'gate-file', from: at, to: at + reads.length },
+                  ];
+                });
               return {
                 units: String(unit.n),
                 label: form,
