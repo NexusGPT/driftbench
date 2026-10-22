@@ -151,8 +151,8 @@ const FENCE_FIRST_LINE = '```text';
 
 /**
  * Public paragraphs of at least `characters` characters in all, numbered from `from`. Each holds one long
- * sentence, so the file passes the window budget in a few hundred units and the scan stays inside the item's
- * time budget.
+ * sentence, so the file passes the window budget in a few hundred units: the item tests the hidden fence of the
+ * second request, not how a reader reads a range over many thousand units of one window.
  */
 function filler(from: number, characters: number, t: string): string[] {
   const out: string[] = [];
