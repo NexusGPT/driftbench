@@ -608,6 +608,34 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   };
   /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
   const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  /**
+   * With no label in the majority, the labels that build the same atom kind vote together, and the labels that build
+   * no atom (none, a description, an example) are one group; a label that points at another unit (a condition) is a
+   * group of its own. When a group holds more than half of the runs heard,
+   * its most given label wins, the earliest run's on a tie. A split between atom kinds (a reply rule against a rule)
+   * stays a split: no group holds the majority, and the unit stays unlabeled.
+   */
+  const sameKind = (present: Opinion[], heard: number, set: LabelSet): Opinion[] | undefined => {
+    // A label that points at another unit (a condition) acts through its target, so it is a group of its own.
+    const kindOf = (label: string) => {
+      const declared = set.labels.find((candidate) => candidate.name === label);
+      if (declared?.target) return `(label ${label})`;
+      return declared?.atom?.kind ?? '(no atom)';
+    };
+    const byKind = new Map<string, Opinion[]>();
+    for (const opinion of present) {
+      const kind = kindOf(opinion.label);
+      byKind.set(kind, [...(byKind.get(kind) ?? []), opinion]);
+    }
+    const group = [...byKind.values()].find((members) => members.length * 2 > heard);
+    if (!group) return undefined;
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const counts = new Map<string, number>();
+    for (const opinion of group) counts.set(key(opinion), (counts.get(key(opinion)) ?? 0) + 1);
+    const top = Math.max(...counts.values());
+    const pick = group.find((opinion) => counts.get(key(opinion)) === top) as Opinion;
+    return group.filter((opinion) => key(opinion) === key(pick));
+  };
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
@@ -625,7 +653,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
     const majority =
-      [...tally.values()].find((group) => group.length * 2 > given.length) ?? tieBroken(tally, set);
+      [...tally.values()].find((group) => group.length * 2 > given.length) ??
+      tieBroken(tally, set) ??
+      sameKind(present, given.length, set);
     const winners = unanimous ? present : majority;
     if (!winners?.[0]) {
       if (present.length === given.length) split++;
