@@ -207,31 +207,31 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
   if (c.op === 'validate') {
     const result = callValidate(ctx, structuredClone(c.store));
     if (c.want.kind === 'accept') {
-      check(result.ok, {
+      check(result.ok, () => ({
         rule: 'validate accepts a store the page accepts',
         input: at,
         got: { refusedWith: issueText('errors' in result ? result.errors : []) },
-      });
+      }),);
       return;
     }
     const want = c.want as Extract<Want, { kind: 'reject' }>;
-    check(!result.ok, {
+    check(!result.ok, () => ({
       rule: 'validate refuses a store the page refuses',
       input: at,
       got: 'the store was accepted',
       expected: { code: want.code, paths: want.paths },
-    });
+    }),);
     const errors = result.ok ? [] : result.errors;
     const hit = errors.some(
       (e) =>
         (want.codeFamily ? e.code.startsWith(want.code) : e.code === want.code) && pathOk(e.path, want.paths),
     );
-    check(hit, {
+    check(hit, () => ({
       rule: 'the refusal names the code of the defect, at the place of the defect',
       input: at,
       got: { refusedWith: issueText(errors) },
       expected: { code: want.code, paths: want.paths },
-    });
+    }),);
     return;
   }
   const result = callQuotes(ctx, clone(c.store), { ...c.files });
@@ -239,12 +239,12 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
   const key = (i: FileIssue) => `${i.code} at ${i.path}`;
   const got = result.errors.map(key).sort();
   const need = want.issues.map(key).sort();
-  check(got.length === need.length && got.every((g, i) => g === need[i]), {
+  check(got.length === need.length && got.every((g, i) => g === need[i]), () => ({
     rule: 'the quote check reports the issues of the page, each once, at its place',
     input: at,
     got: { reported: got },
     expected: { issues: need },
-  });
+  }),);
 }
 
 /** Runs the calls of an item in their certified order; the first wrong answer fails the item. */

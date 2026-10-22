@@ -333,12 +333,12 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       planOf(ctx, store, { seed: ctx.seed, seeds: seeds.map((s) => ({ ...s })) }),
     );
     const facts = checkPlan(space, oracle, plan, { seeds, boundFactor: BOUND });
-    check(facts.problems.length === 0, {
+    check(facts.problems.length === 0, () => ({
       rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
       input: { space: describeSpace(space), seeds: count },
       got: { problems: facts.problems },
       expected: facts.hidden,
-    });
+    }),);
     must(
       ms <= 8000,
       () => `planning with ${count} seeds took ${Math.round(ms)} ms of processor time, over 8000 ms`,

@@ -73,17 +73,17 @@ export function toolEstate(
 
 function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): void {
   const kept = valueByQuote(store, quote);
-  check(!kept, {
+  check(!kept, () => ({
     rule: 'a value whose quote the file does not hold is refused',
     input: { label, id, quote },
     got: { kept: true },
-  });
+  }),);
   const named = refusalsMentioning(store, id);
-  check(named.length >= 1, {
+  check(named.length >= 1, () => ({
     rule: 'a refused value is named in the refusal list',
     input: { label, id },
     got: { refusals: store.refused },
-  });
+  }),);
 }
 
 function mustKeep(store: StoreDoc, quote: string, id: string, label: string, source?: string): void {
@@ -276,11 +276,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       !!var0 && var0.values.length === 1,
       () => `the variable should hold only the good value; it holds ${show(var0?.values.map((v) => v.id))}`,
     );
-    check(refusalsMentioning(store, bad.id).length >= 1, {
+    check(refusalsMentioning(store, bad.id).length >= 1, () => ({
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
       got: { refusals: store.refused },
-    });
+    }),);
   },
 
   'quotes.refuse.inexact': (variant, ctx) => {
@@ -553,18 +553,18 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       hit.length === 0,
       () => `the span ${show(span, 80)} is not in ${source} but variable ${hit[0]?.id} cites it`,
     );
-    check(refusalsMentioning(store, span, 'R1').length >= 1, {
+    check(refusalsMentioning(store, span, 'R1').length >= 1, () => ({
       rule: 'a refused clause is named in the refusal list',
       input: { span },
       got: { refusals: store.refused },
-    });
+    }),);
     const good = variablesCiting(store, other.text);
-    check(good.length === 1, {
+    check(good.length === 1, () => ({
       rule: 'a clause the file holds still gives one variable beside a clause it does not hold',
       input: other.text,
       got: { variables: good.length },
       expected: { variables: 1 },
-    });
+    }),);
   },
 
   'quotes.stored-verbatim': (variant, ctx) => {

@@ -166,12 +166,12 @@ export function planAndCheck(
   };
   const plan = planOf(ctx, store, planOptions);
   const facts = checkPlan(space, oracle, plan, options);
-  check(facts.problems.length === 0, {
+  check(facts.problems.length === 0, () => ({
     rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
     input: describeSpace(space),
     got: { problems: facts.problems },
     expected: facts.hidden,
-  });
+  }),);
   return facts;
 }
 

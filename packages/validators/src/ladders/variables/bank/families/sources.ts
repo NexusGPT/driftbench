@@ -70,12 +70,12 @@ export function farThresholds(rng: Rng, count: number): number[] {
 }
 
 export function exactlyOne<T>(list: readonly T[], what: string): T {
-  check(list.length === 1, {
+  check(list.length === 1, () => ({
     rule: 'the store holds one result for this question',
     input: what,
     got: { results: list.length },
     expected: { results: 1 },
-  });
+  }),);
   return list[0] as T;
 }
 
@@ -645,10 +645,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const store = build(ctx, { estate: base.estate, conversations: sessions });
     const dump = JSON.stringify(store);
     const leak = canaries.find((c) => dump.includes(c));
-    check(leak === undefined, {
+    check(leak === undefined, () => ({
       rule: 'nothing of a conversation but counts reaches the store',
       got: { leak },
-    });
+    }),);
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     must(!hasPrefix, 'the store holds a fragment of a conversation text or id');
   },
