@@ -422,7 +422,7 @@ function sequenceItems(): BankItem[] {
 
 // allocation ----------------------------------------------------------------------------------------------
 
-function counts(generated: Generation, dimension: string): Map<string, number> {
+export function counts(generated: Generation, dimension: string): Map<string, number> {
   const hidden = generated.hidden;
   const values =
     dimension === 'behaviour'
@@ -459,9 +459,61 @@ function counts(generated: Generation, dimension: string): Map<string, number> {
   return out;
 }
 
+/** The dimensions whose placement balance the allocation items judge. */
+export const ALLOCATION_DIMENSIONS = ['behaviour', 'deviation', 'channel', 'stage', 'user_type'] as const;
+
+function entropy(values: number[]): number {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return total === 0
+    ? 0
+    : -values
+        .filter((value) => value > 0)
+        .reduce((sum, value) => sum + (value / total) * Math.log(value / total), 0);
+}
+
+/** The three balance measures of the allocation items, from one list of counts. */
+export function balanceOf(values: number[]): { pielou: number; hill1: number; ratio: number } {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  return {
+    pielou: values.length > 1 ? entropy(values) / Math.log(values.length) : 1,
+    hill1: Math.exp(entropy(values)),
+    ratio: min > 0 ? max / min : Number.POSITIVE_INFINITY,
+  };
+}
+
+/** The thresholds the allocation items judge: evenness, Hill order 1 (as a share of the values) and the ratio. */
+export const ALLOCATION_BOUNDS = { pielou: 0.9, hill1: 0.8, ratio: 3 } as const;
+
+/** Which of the three allocation items a list of counts passes (the present item is a map obligation, not read here). */
+export function balancePasses(values: number[]): { pielou: boolean; hill1: boolean; ratio: boolean } {
+  const { pielou, hill1, ratio } = balanceOf(values);
+  return {
+    pielou: pielou >= ALLOCATION_BOUNDS.pielou,
+    hill1: hill1 >= ALLOCATION_BOUNDS.hill1 * values.length,
+    ratio: ratio <= ALLOCATION_BOUNDS.ratio,
+  };
+}
+
+/**
+ * The allocation items the suite `before` passes and the suite `after` fails, as `dimension.measure`. A duplicate
+ * whose removal makes the suite fail an allocation item it passes is doing allocation work (it sits on a value the
+ * suite places least) and is not a repeat. A suite that already fails an item has no balance to protect.
+ */
+export function allocationLost(before: Generation, after: Generation): string[] {
+  const lost: string[] = [];
+  for (const dimension of ALLOCATION_DIMENSIONS) {
+    const was = balancePasses([...counts(before, dimension).values()]);
+    const now = balancePasses([...counts(after, dimension).values()]);
+    for (const measure of ['pielou', 'hill1', 'ratio'] as const)
+      if (was[measure] && !now[measure]) lost.push(`${dimension}.${measure}`);
+  }
+  return lost;
+}
+
 function allocationItems(): BankItem[] {
   const items: BankItem[] = [];
-  for (const dimension of ['behaviour', 'deviation', 'channel', 'stage', 'user_type']) {
+  for (const dimension of ALLOCATION_DIMENSIONS) {
     const stat = (
       name: string,
       tier: Tier,
@@ -482,14 +534,6 @@ function allocationItems(): BankItem[] {
         );
       },
     });
-    const entropy = (values: number[]) => {
-      const total = values.reduce((sum, value) => sum + value, 0);
-      return total === 0
-        ? 0
-        : -values
-            .filter((value) => value > 0)
-            .reduce((sum, value) => sum + (value / total) * Math.log(value / total), 0);
-    };
     items.push(
       stat('present', 2, (values, keys, data) => {
         const missing = keys.filter(
@@ -501,18 +545,18 @@ function allocationItems(): BankItem[] {
         const max = Math.max(...values);
         const min = Math.min(...values);
         return [
-          min > 0 && max / min <= 3,
+          min > 0 && max / min <= ALLOCATION_BOUNDS.ratio,
           `the most placed value has ${max}, the least ${min} (ratio at most 3)`,
         ];
       }),
       stat('evenness', 4, (values) => {
         const j = values.length > 1 ? entropy(values) / Math.log(values.length) : 1;
-        return [j >= 0.9, `Pielou evenness ${j.toFixed(3)} (at least 0.9)`];
+        return [j >= ALLOCATION_BOUNDS.pielou, `Pielou evenness ${j.toFixed(3)} (at least 0.9)`];
       }),
       stat('hill1', 3, (values) => {
         const d1 = Math.exp(entropy(values));
         return [
-          d1 >= 0.8 * values.length,
+          d1 >= ALLOCATION_BOUNDS.hill1 * values.length,
           `Hill number of order 1 is ${d1.toFixed(2)} for ${values.length} values (at least 0.8 of them)`,
         ];
       }),

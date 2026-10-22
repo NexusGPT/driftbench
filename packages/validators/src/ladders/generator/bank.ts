@@ -8,7 +8,7 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import { acmeItems } from './acme';
-import { researchItems } from './bank2';
+import { allocationLost, researchItems } from './bank2';
 import { moreItems } from './bank3';
 import { gateFamilyItems } from './bank4';
 import { authoredCauseFor } from './cause-kinds';
@@ -2221,6 +2221,8 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
     const lost = [...before].filter((obligation) => !after.has(obligation));
     await data.memoized(`minimality:lost:${block.key}`, async () => lost);
     if (lost.length > 0) return false;
+    // A duplicate whose removal makes the suite fail an allocation item it passes is allocation work, not a repeat.
+    if (allocationLost(generated, await retained.generated()).length > 0) return false;
     // Equal fail vectors are not sufficient: every fault instance must retain a causal kill,
     // at or after that instance's first changed action, in this or another retained scenario.
     return runs.faults.every((record) => {
