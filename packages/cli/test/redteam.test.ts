@@ -426,6 +426,97 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
       );
     });
 
+    describe('what the judge used', () => {
+      const prices = 'as_of: 2026-01-01\nmodels:\n  judge-model-1: { input: 1, output: 4, cached_input: 0 }\n';
+      const metered: JudgeFactory = () => ({
+        id: 'metered',
+        family: 'openai',
+        cls: 'system2',
+        model: 'judge-model-1',
+        cost: 10,
+        async judge() {
+          return {
+            answer: { outcome: 'pass', reasoning: 'Refused to reveal instructions.' },
+            raw: '{}',
+            usage: { input: 2000, output: 500 },
+          };
+        },
+      });
+
+      it('prints the tokens and the cost of a live judge, then of its replay', async () => {
+        const spec = await pluginSpec('grade-usage.spec.json');
+        const saved = join(dir, 'grade-usage.cassette.json');
+        const table = join(dir, 'grade-usage.prices.yaml');
+        await writeFile(table, prices);
+        const live = await redteam(
+          ['grade', spec, '--target', 'function:acme-sales', '--judge', 'openai', '--record', saved, '--prices', table],
+          defaultDeps,
+          metered,
+        );
+        expect(live.err).toBe('');
+        expect(live.out).toContain('Tokens, judge metered judge-model-1: 2000 in, 500 out, 1 calls.');
+        expect(live.out).toContain('Cost: 0.0040 USD.');
+
+        const replay = await redteam(
+          ['grade', spec, '--target', 'function:acme-sales', '--cassette', saved, '--prices', table],
+          defaultDeps,
+          noLiveJudge,
+        );
+        expect(replay.out).toContain(
+          'Tokens replayed from the cassette, judge metered judge-model-1: 2000 in, 500 out, 1 calls.',
+        );
+        expect(replay.out).toContain('Cost when recorded: 0.0040 USD.');
+      });
+
+      it('says how to get a cost without a price table, and that none is known when the model has no price', async () => {
+        const spec = await pluginSpec('grade-usage-2.spec.json');
+        const saved = join(dir, 'grade-usage-2.cassette.json');
+        const live = await redteam(
+          ['grade', spec, '--target', 'function:acme-sales', '--judge', 'openai', '--record', saved],
+          defaultDeps,
+          metered,
+        );
+        expect(live.out).toContain('No prices given: pass --prices <file> to see the cost in USD.');
+        const other = join(dir, 'grade-usage.other.yaml');
+        await writeFile(other, 'as_of: 2026-01-01\nmodels:\n  other-1: { input: 1, output: 4, cached_input: 0 }\n');
+        const replay = await redteam(
+          ['grade', spec, '--target', 'function:acme-sales', '--cassette', saved, '--prices', other],
+          defaultDeps,
+          noLiveJudge,
+        );
+        expect(replay.out).toContain('No cost is known: the price table has no price for judge-model-1.');
+        expect(replay.out).not.toContain('0.0000 USD');
+      });
+
+      it('replays the committed cassette of the guide with a price table', async () => {
+        const table = join(dir, 'grade-guide.prices.yaml');
+        await writeFile(table, 'as_of: 2026-10-22\nmodels:\n  claude-haiku-5-5: { input: 0.1, output: 0.5, cached_input: 0 }\n');
+        const spec = join(dir, 'guide-sql.json');
+        await writeFile(spec, await readFile(join(ROOT, 'examples/acme/recordings/redteam-sql-injection.spec.json'), 'utf8'));
+        const replay = await redteam(
+          [
+            'grade',
+            spec,
+            '--target',
+            'function:acme-sales',
+            '--cassette',
+            'examples/acme/recordings/redteam-sql-injection.judge.cassette.json',
+            '--judge-id',
+            'anthropic',
+            '--agent-family',
+            'none',
+            '--prices',
+            table,
+          ],
+          defaultDeps,
+          noLiveJudge,
+        );
+        expect(replay.err).toBe('');
+        expect(replay.out).toMatch(/Tokens replayed from the cassette, judge anthropic claude-haiku-5-5: \d+ in, \d+ out, 1 calls\./);
+        expect(replay.out).toMatch(/Cost when recorded: 0\.\d{4} USD\./);
+      });
+    });
+
     it('a live judge records a cassette, a replay of it gives the same verdict, and only a judged pass passes', async () => {
       const spec = await pluginSpec('grade-live.spec.json');
       const saved = join(dir, 'grade-live.cassette.json');
