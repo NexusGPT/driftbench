@@ -68,13 +68,17 @@ Re-derived, unchanged: A byu5upblrc ge 10 trigger; A geryhklclh ge 5 constraint 
 B cdm2x22n6i: NOTES earlier said lt 4; both NOTES lines now say ge 4 constraint, as the file does.
 
 # Revision: blind re-check of the added limits
-Sample: 36 units (18 added limits, 9 positive controls from the original truth, 9 decoys), judged without the model's answers or the truth values. Result: controls 9/9, decoys 0/7 judged (2 decoys were missing from the dumps the judge read), added 16/18. Truth goes from 56 to 54 limits (A 24, B 11, C 19).
-- A 5fnrtqa4dt: removed. The blind judge rejected the entry. Limit entry `le 1 sentences` deleted.
-- B lwci7tropa: limit entry removed. The blind judge rejected the entry. The planted rule on this unit stays.
+Sample: 36 units (18 added limits, 9 positive controls from the original truth, 9 decoys). Two blind judges read it without the model's answers or the truth values.
+- First judge, on partial dumps (A 376 of 555 units, B 320 of 486, C 259 of 410): controls 9/9, decoys 0/7 judged (2 decoys were missing from the dumps), added 16/18. It rejected A 5fnrtqa4dt and B lwci7tropa.
+- Second judge, on complete dumps built from gold5.json: controls 9/9, decoys 0/9, added 17/18. It rejected A 5fnrtqa4dt and accepted B lwci7tropa ("Start bar charts at zero": eq 0, constraint).
+- A 5fnrtqa4dt: removed. Both judges rejected it. Limit entry `le 1 sentences` deleted.
+- B lwci7tropa: kept. The first judge saw incomplete context; the judge with complete context accepted it. The truth keeps `le 0 constraint`; the judge wrote `eq 0` (see below).
+Truth: 55 limits (A 24, B 12, C 19). History 55, 38, 56, 55.
 
 # Disagreements between the blind judge and the truth on the 16 kept limits
 No value, comparison or role is changed here. Both sides agree on value, role and comparison for 14 of 16.
 - C bidpovjlre: judge `eq 2` (quote "Offer two rooms"), truth `le 2`. No ordering comparison fits "exactly two" in the judge's reading; the truth reads it as a ceiling of two rooms.
 - C 7xzbzyq5no: judge `lt 2`, truth `le 1`. Same range over whole numbers (one message or fewer). The two sides write the bound differently.
 - Role: no disagreement on any of the 16 (all constraint).
+- B lwci7tropa (second judge, complete context): judge `eq 0`, truth `le 0`. A start value cannot go below zero in practice, so the two readings give the same compliant range here.
 - Governs, listed because the judge named another unit in 5 cases: A 2ihgfbfpwv (judge 2wovzmm6tr, the "Leave out the following in every message" prohibition), A ozfstdpufc, A nmk2xrp2r3 and A dptij3uzkt (judge kj526oai4b, the "A reply has three parts" rule), C txtsbyxu6a (judge bmyog2vp7t, the "Follow the steps in this order" gate). The truth names the unit that holds the number.
