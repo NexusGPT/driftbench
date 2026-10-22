@@ -107,9 +107,10 @@ describe('when.simulated_user is invisible to specs that do not use it', () => {
     const comparable = Object.entries(fixture.files).filter(([file]) => !file.startsWith(REGENERATED));
     const moved = comparable.filter(([file, value]) => current[file] !== value).map(([file]) => file);
     // The set shrank from 2085 to 733 when #877 regenerated 1352 specs of the estate generator's output, and to
-    // 732 when #1062 regenerated the acme specs (18 files left, 17 arrived); every file of the comparable set must
-    // still load with the same hash and keys.
-    expect(comparable.length).toBe(732);
+    // 732 when #1062 regenerated the acme specs (18 files left, 17 arrived), and to 728 when #1104 regenerated 167
+    // example specs (20 files left, 16 arrived); every file of the comparable set must still load with the same hash
+    // and keys.
+    expect(comparable.length).toBe(728);
     expect(moved).toEqual([]);
   });
 });

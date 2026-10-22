@@ -5,7 +5,7 @@ id: gen-behaviour-balance-029
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-010: Path home-address-not-found of new-home: needs > address > address"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -75,7 +75,7 @@ metadata:
       flow: new-home
       user_type: new-customer
       coverage_result: not-in-map
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -113,7 +113,7 @@ metadata:
           flow: new-home
           user_type: new-customer
           coverage_result: not-in-map
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
       relation: derived_from

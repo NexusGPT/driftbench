@@ -5,7 +5,7 @@ id: gen-behaviour-balance-076
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-009: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -145,6 +145,27 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -163,7 +184,7 @@ metadata:
       coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address
@@ -233,7 +254,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           user_type: existing-customer
           stage_transition: needs-to-address
           stage: address
@@ -267,7 +288,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           user_type: existing-customer
           stage_transition: address-to-offer
           stage: offer
@@ -293,7 +314,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           user_type: existing-customer
           stage_transition: offer-to-details
           stage: details
@@ -319,7 +340,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           user_type: existing-customer
           stage_transition: details-to-recap
           stage: recap
@@ -361,7 +382,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           user_type: existing-customer
           stage_transition: recap-to-order_placed
           stage: order_placed
