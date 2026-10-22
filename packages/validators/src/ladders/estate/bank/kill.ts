@@ -191,7 +191,41 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
       ? `the name line of ${atom.provenance.file} repeats its folder, ${folder}, and the runtime names a skill by its folder`
       : undefined;
   }
+  if (atom.kind === 'tool' && atom.fields?.effect === 'declared') {
+    const rule = typeof atom.fields.rule === 'string' ? atom.fields.rule : undefined;
+    const granted = rule
+      ? estate.atoms.find(
+          (other) =>
+            other.kind === 'tool' &&
+            other.fields?.effect === 'allow' &&
+            typeof other.fields.rule === 'string' &&
+            ruleCovers(other.fields.rule, rule),
+        )
+      : undefined;
+    return granted
+      ? `${rule} is declared by the skill and the settings allow ${String(granted.fields?.rule)} (${granted.id}): the runtime grants the call with or without the declaration`
+      : undefined;
+  }
   return undefined;
+}
+
+/** `Tool` or `Tool(pattern)`: the tool and the prefix of a pattern, a trailing `:*` or `*` dropped. */
+function parseRule(rule: string): { tool: string; prefix: string | undefined } | undefined {
+  const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule.trim());
+  if (!match) return undefined;
+  return { tool: match[1] as string, prefix: match[2]?.replace(/:\*$/, '').replace(/\*$/, '') };
+}
+
+/**
+ * Whether the permission rule `allow` covers every call the rule `declared` covers: the same tool, and either no
+ * pattern on `allow` (the whole tool) or a pattern on both where the declared prefix starts with the allowed one.
+ */
+function ruleCovers(allow: string, declared: string): boolean {
+  const a = parseRule(allow);
+  const d = parseRule(declared);
+  if (!a || !d || a.tool !== d.tool) return false;
+  if (a.prefix === undefined) return true;
+  return d.prefix !== undefined && d.prefix.startsWith(a.prefix);
 }
 
 /**
