@@ -75,6 +75,15 @@ describe("a script's name in passing", () => {
     );
   };
 
+  it('anchors the script on the line that runs it, not on a sentence that only mentions it', async () => {
+    const lines = await scripts([
+      'The old report.py was slow; never mind it.',
+      'Run `python3 scripts/report.py ID` to count.',
+      'Call export.sh for a CSV.',
+    ]);
+    expect(lines).toEqual({ 'report.py': 7, 'export.sh': 8 });
+  });
+
   it('keeps a bare mention as the anchor when no line names the script to run', async () => {
     const lines = await scripts(['Use report.py for the weekly numbers.', 'Call export.sh for a CSV.']);
     expect(lines).toEqual({ 'report.py': 6, 'export.sh': 7 });
