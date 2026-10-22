@@ -1,5 +1,5 @@
 import { foldQuote } from '@agent-nexus/driftbench-generate';
-import { type Cut, cut, type Ledger, type LedgerEntry, nextLedger } from '../pointer';
+import { type Cut, CutError, cut, type Ledger, type LedgerEntry, nextLedger } from '../pointer';
 import { quoteAtSpan } from '../scan/text';
 
 /**
@@ -42,7 +42,16 @@ export function ledgerResolver(
   options: LedgerResolverOptions = {},
 ): LedgerResolver {
   const prose = [...texts].filter(([path]) => PROSE.test(path));
-  const cuts = new Map<string, Cut>(prose.map(([path, text]) => [path, cut(text)]));
+  const cuts = new Map<string, Cut>(
+    prose.map(([path, text]) => {
+      try {
+        return [path, cut(text)];
+      } catch (cause) {
+        // A file too deep to cut is refused with its name and code, like the prose ledger of the radius does.
+        throw cause instanceof CutError ? cause.at(path) : cause;
+      }
+    }),
+  );
   const ledger =
     options.ledger ??
     nextLedger(
