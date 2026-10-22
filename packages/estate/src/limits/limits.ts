@@ -112,6 +112,22 @@ export function limitPlace(text: string, line: number, endLine: number = line, s
   return `HEADINGS: ${path === '' ? '(none)' : path}\nTABLES OF THE SECTION:\n${tables.length === 0 ? '(none)' : tables.join('\n\n')}${scoped}${neighbours}`;
 }
 
+/**
+ * Added to the system text only for an instruction whose number the labeller says is written in other units (a planted
+ * or labelled `refersTo`). The units are given by code, copied from the file, under REFERRED. The instruction without a
+ * referred text keeps the plain system text, so its request is the one it always was.
+ */
+export const LIMIT_REFERRED_SYSTEM = [
+  'The labeller says this instruction points at the units under REFERRED for its number. The numbers of REFERRED are the numbers',
+  'of this instruction: answer for the instruction with the limit that REFERRED gives it, and take nothing else from REFERRED.',
+].join(' ');
+
+/** The request for an instruction that points at other units for its number. */
+export const limitRequestReferred = (quote: string, place: string, referred: string): LimitRequest => ({
+  system: `${LIMIT_SYSTEM} ${LIMIT_REFERRED_SYSTEM}`,
+  user: `PLACE:\n${place}\n\nREFERRED:\n${referred}\n\nINSTRUCTION:\n${quote}`,
+});
+
 /** The request for one instruction: its quote and its place. */
 export const limitRequest = (quote: string, place: string): LimitRequest => ({
   system: LIMIT_SYSTEM,
@@ -176,6 +192,11 @@ export type ProduceOptions = {
   include?: (atom: Atom) => boolean;
   /** Requests in flight at once. Default 4. */
   concurrency?: number;
+  /**
+   * The text of the units an atom points at for its number, when the labeller names them (`refersTo`). Only an atom
+   * that gets a text is asked with a REFERRED block; every other atom is asked as before.
+   */
+  referred?: (atom: Atom) => string | undefined;
 };
 
 const ASKED_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate']);
@@ -196,7 +217,12 @@ export async function produceLimits(map: EstateMap, options: ProduceOptions): Pr
         atom.provenance.endLine,
         atom.situation,
       );
-      const answer = await options.ask(limitRequest(atom.provenance.quote, place));
+      const given = options.referred?.(atom);
+      const answer = await options.ask(
+        given === undefined
+          ? limitRequest(atom.provenance.quote, place)
+          : limitRequestReferred(atom.provenance.quote, place, given),
+      );
       out.requests++;
       const read = limitsOfAnswer(answer);
       if (read.problem !== undefined) out.unreadable.push({ atom: atom.id, reason: read.problem });
@@ -225,4 +251,89 @@ export function withLimits(map: EstateMap, produced: ReadonlyMap<string, readonl
       return { ...atom, fields: { ...atom.fields, condition: [...kept, ...found.map(limitCondition)] } };
     }),
   };
+}
+
+/** A standalone table whose rows state limits (a planted or labelled `limits-table`): its header and its data rows, by unit id. */
+export type LimitTable = { id: string; header: string; rows: ReadonlyArray<{ id: string; text: string }> };
+
+export const LIMIT_TABLE_SYSTEM = [
+  'You read one table from the prompt of an AI agent. The header row says what the numbers of the table count. A limit is a number that a rule',
+  'constrains: a maximum, a minimum, a deadline or a count of an act. A number that only names something is not a limit.',
+  'For each row that states a limit, say which row it is. Answer with one JSON object and nothing else:',
+  '{"limits": [{"row": <the number of the row, from 1>, "limit": <the number as a JSON number>, "comparison": "lt" | "le" | "gt" | "ge",',
+  '"role": "constraint" | "trigger", "unit": <what the number counts, a short text, or leave it out>}]}. An empty list when no row states one.',
+  'comparison is how the quantity compares with the limit for the condition to hold: lt less than, le at most, gt more than, ge at least.',
+  'role is constraint when the comparison is the compliant range of the act (what the rule allows), and trigger when the comparison is the',
+  'range where the rule applies (when it starts to act).',
+].join(' ');
+
+/** The request for one table: the header, then the data rows numbered from 1. */
+export const tableRequest = (table: LimitTable): LimitRequest => ({
+  system: LIMIT_TABLE_SYSTEM,
+  user: `TABLE HEADER:\n${table.header}\n\nROWS:\n${table.rows.map((row, at) => `${at + 1}. ${row.text}`).join('\n')}`,
+});
+
+export type ProducedTableLimits = {
+  /** The limits found, by the id of the row unit that states them. */
+  limits: Map<string, AskedLimit[]>;
+  /** The tables whose answer could not be read, with the reason. They get no limit. */
+  unreadable: Array<{ table: string; reason: string }>;
+  /** How many requests were made. */
+  requests: number;
+};
+
+/** Asks once for each table and lands each limit on the row unit it names. */
+export async function produceTableLimits(
+  tables: readonly LimitTable[],
+  options: { ask: LimitAsk; concurrency?: number },
+): Promise<ProducedTableLimits> {
+  const out: ProducedTableLimits = { limits: new Map(), unreadable: [], requests: 0 };
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    for (;;) {
+      const table = tables[next++];
+      if (table === undefined) return;
+      const answer = await options.ask(tableRequest(table));
+      out.requests++;
+      const start = answer.indexOf('{');
+      const end = answer.lastIndexOf('}');
+      let list: unknown;
+      try {
+        list = start < 0 || end < start ? undefined : (JSON.parse(answer.slice(start, end + 1)) as { limits?: unknown }).limits;
+      } catch {
+        out.unreadable.push({ table: table.id, reason: 'the JSON does not parse' });
+        continue;
+      }
+      if (start < 0 || end < start) {
+        out.unreadable.push({ table: table.id, reason: 'no JSON object' });
+        continue;
+      }
+      if (!Array.isArray(list)) {
+        out.unreadable.push({ table: table.id, reason: 'no limits list' });
+        continue;
+      }
+      const found = new Map<string, AskedLimit[]>();
+      let problem: string | undefined;
+      for (const item of list) {
+        const { row } = (item ?? {}) as { row?: unknown };
+        const target = typeof row === 'number' && Number.isInteger(row) ? table.rows[row - 1] : undefined;
+        if (target === undefined) {
+          problem = 'a row is out of the table';
+          break;
+        }
+        const read = limitsOfAnswer(JSON.stringify({ limits: [item] }));
+        if (read.problem !== undefined) {
+          problem = read.problem;
+          break;
+        }
+        const here = found.get(target.id) ?? [];
+        for (const limit of read.limits) if (!here.some((other) => JSON.stringify(other) === JSON.stringify(limit))) here.push(limit);
+        found.set(target.id, here);
+      }
+      if (problem !== undefined) out.unreadable.push({ table: table.id, reason: problem });
+      else for (const [id, limits] of found) out.limits.set(id, limits);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, options.concurrency ?? 4) }, worker));
+  return out;
 }
