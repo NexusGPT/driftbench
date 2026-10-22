@@ -77,6 +77,37 @@ describe('the haiku request of the fixtures', () => {
   });
 });
 
+describe('the windows of the fixtures', () => {
+  // docs/estate-pointer-reader.md, section Window: a file is one window while its unit text stays under 400,000
+  // characters, and a window that starts at a heading has a path that ends with that heading.
+  const document = {
+    path: 'notes/long.md',
+    units: [
+      { text: '# Long notes', container: 'heading', path: [], label: 'none' },
+      ...Array.from({ length: 70 }, (_, at) => ({
+        text: `Keep shelf ${at} dry.`,
+        path: ['Long notes'],
+        label: 'rule',
+      })),
+    ],
+  };
+
+  it('a Haiku file under the budget is one window, its path ending with the heading it starts at', () => {
+    const fixture = makeFixture('haiku', [document], PROBE_YAML);
+    expect(new Set(fixture.rows.map((row) => row.readable.window))).toEqual(new Set(['notes/long.md#1']));
+    const wire = fixture.wires[0] as { body: Record<string, unknown> };
+    const content = (wire.body.messages as Array<{ content: string }>)[0]?.content ?? '';
+    expect(content.split('\n').find((line) => line.startsWith('WINDOW '))).toBe(
+      'WINDOW notes/long.md#1  path: Long notes',
+    );
+  });
+
+  it('a Jev window still closes at its unit count', () => {
+    const fixture = makeFixture('jev', [document], PROBE_YAML);
+    expect(new Set(fixture.rows.map((row) => row.readable.window)).size).toBe(3);
+  });
+});
+
 describe('the fixture kit writes the request the reader sends', () => {
   // The kit is written independently of the reader, so a change of the reader's request text (its system text, a
   // label line, the layout) would make every Haiku replay miss in silence. This compares the two for the same window.
@@ -288,7 +319,7 @@ describe('other families use independent replay inputs', () => {
       }
     }, 60_000);
   }
-  it('scale crosses a cassette window boundary with authored headings and all labels', async () => {
+  it('scale replays files that open with an authored heading, one window each, with all labels', async () => {
     const { runScaleOp } = await import('../../src/ladders/pointer/kit/scale');
     const result = await runScaleOp({ op: 'replay', spec: { seed: 1, files: 2, perFile: 70 } }, base);
     expect(result.problems).toEqual([]);

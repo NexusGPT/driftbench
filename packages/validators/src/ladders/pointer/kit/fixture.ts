@@ -57,10 +57,27 @@ export function runsOf(arm: ModelArm): string[] {
 }
 /** The most units one Jev window request carries; a unit-state request carries one. */
 export const JEV_WINDOW_UNITS = 30;
-/** The units one request carries: a Jev unit-state request one, a Jev window request 30, a Haiku request 60. */
+/** The characters of unit text a file holds and stays one window (docs/estate-pointer-reader.md, section Window). */
+export const WINDOW_CHARS = 400_000;
+/**
+ * The units one request carries: a Jev unit-state request one, a Jev window request 30. A Haiku request takes no cap
+ * of its own: its file is one window while the file stays under `WINDOW_CHARS`.
+ */
 export function windowCap(arm: ModelArm): number {
   if (arm === 'jev-unit') return 1;
-  return arm === 'jev' ? JEV_WINDOW_UNITS : 60;
+  return arm === 'jev' ? JEV_WINDOW_UNITS : Number.POSITIVE_INFINITY;
+}
+/** The path a window prints: the headings above its first unit and, when it starts at a heading, that heading. */
+export function windowPath(
+  first: { text: string; container?: string; path?: string[] } | undefined,
+): string[] {
+  const above = first?.path ?? [];
+  if (first?.container !== 'heading') return above;
+  const title = (first.text.split(/\r\n|\r|\n/, 1)[0] ?? '')
+    .replace(/^\s*#{1,6}\s*/, '')
+    .replace(/\s+#+\s*$/, '')
+    .trim();
+  return title === '' ? above : [...above, title];
 }
 /** The definition of the option every choice question offers last. */
 export const NONE_DEFINITION = 'None of the other labels applies to this unit.';
@@ -182,6 +199,11 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           .join('\n'),
       );
       const cap = windowCap(arm);
+      // A fixture file over the budget would be cut at a heading; no fixture is authored that long.
+      if (doc.units.reduce((sum, u) => sum + u.text.length, 0) > WINDOW_CHARS)
+        throw new Error(
+          `${doc.path}: a fixture file over ${WINDOW_CHARS} characters of units is not authored`,
+        );
       for (let offset = 0; offset < doc.units.length; offset += cap) {
         const selected = doc.units.slice(offset, offset + cap),
           window = `${doc.path}#${Math.floor(offset / cap) + 1}`;
@@ -190,7 +212,7 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
           set,
           window,
           selected.map((u, i) => ({ n: i + 1, text: u.text })),
-          selected[0]?.path ?? [],
+          windowPath(selected[0]),
         );
         const options = [...set.labels.filter((l) => l.target !== 'required').map((l) => l.name), 'none'];
         const probabilities = Object.fromEntries(
