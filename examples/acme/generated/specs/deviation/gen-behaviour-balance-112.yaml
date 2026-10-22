@@ -5,7 +5,7 @@ id: gen-behaviour-balance-112
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-009: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -163,7 +163,7 @@ metadata:
       coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
+      channel: chat
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address
@@ -233,7 +233,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           user_type: existing-customer
           stage_transition: needs-to-address
           stage: address
@@ -267,7 +267,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           user_type: existing-customer
           stage_transition: address-to-offer
           stage: offer
@@ -293,7 +293,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           user_type: existing-customer
           stage_transition: offer-to-details
           stage: details
@@ -319,7 +319,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           user_type: existing-customer
           stage_transition: details-to-recap
           stage: recap
@@ -361,7 +361,7 @@ metadata:
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           user_type: existing-customer
           stage_transition: recap-to-order_placed
           stage: order_placed

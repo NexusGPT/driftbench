@@ -479,8 +479,10 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    // A script is named by its file name: the first line of the body that holds it.
-    const mention = body.find((line) => line.text.includes(name));
+    // A script is named by its file name where the body writes it as a path or as a word of a code span (a
+    // command that runs it): the first such line. A bare mention in a sentence anchors it only when no line does.
+    const mention =
+      body.find((line) => namesScript(line.text, name)) ?? body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -492,6 +494,16 @@ function scriptAtoms(
       fields: { path: file.path, skill, named: mention !== undefined },
     });
   }
+}
+
+/** True when a line writes the script's file name as a path, or as a word of a code span such as a command. */
+function namesScript(line: string, name: string): boolean {
+  if (pathMentions(line).some(({ path, bare }) => !bare && basename(path) === name)) return true;
+  for (const span of line.matchAll(/`([^`\n]+)`/g)) {
+    const words = (span[1] ?? '').split(/\s+/);
+    if (words.some((word) => basename(word.replace(/^["']|["']$/g, '')) === name)) return true;
+  }
+  return false;
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
