@@ -708,11 +708,14 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
     let hit = rows.find((row) => row.key === key);
     // Every run the arm is asked must be in the cassette, or the replay misses.
-    const missingRun = runsOf(ctx.arm).find(
+    const missingRuns = runsOf(ctx.arm).filter(
       (run) => !rows.some((row) => row.key === keyOf(wire, { ...want, run })),
     );
-    if (hit && missingRun !== undefined && ctx.cassette.mode === 'replay') hit = undefined;
-    if (!hit && ctx.cassette.mode === 'record') {
+    if (hit && missingRuns.length > 0 && ctx.cassette.mode === 'replay') hit = undefined;
+    // Recording asks every run the cassette lacks, one call each.
+    for (const run of ctx.cassette.mode === 'record' ? missingRuns : []) {
+      const runWant = { ...want, run };
+      const runKey = keyOf(wire, runWant);
       const response = await ctx.transport({
         url: 'https://fixture.invalid',
         headers: {},
@@ -730,9 +733,9 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           : undefined;
       const prior = rows.find((row) => row.answer.returnedModel !== body.model);
       if (prior) ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
-      hit = {
-        key,
-        readable: want,
+      const entry = {
+        key: runKey,
+        readable: runWant,
         answer: {
           ...(recordedLabels
             ? { labels: recordedLabels }
@@ -751,7 +754,8 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           usage: { input: 10, output: 10 },
         },
       };
-      ctx.cassette.entries.set(key, hit as unknown as CassetteEntry);
+      ctx.cassette.entries.set(runKey, entry as unknown as CassetteEntry);
+      if (run === '1') hit = entry as unknown as CassetteRow;
     }
     const near =
       hit ??
@@ -764,7 +768,9 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     const pairs: Array<[Record<string, string>, Record<string, string>]> = [];
     if (hit)
       for (const run of runsOf(ctx.arm)) {
-        const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
+        const found = (
+          [...ctx.cassette.entries.values()] as unknown as CassetteRow[]
+        ).find((row) => row.key === keyOf(wire, { ...want, run }));
         if (found) pairs.push([found.readable, { ...want, run }]);
       }
     if (pairs.length === 0 && near) pairs.push([near.readable, want]);
