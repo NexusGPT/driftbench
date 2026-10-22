@@ -573,9 +573,10 @@ export function pathMentions(line: string): NamedReference[] {
       bare: options.bare === true,
     });
   };
-  for (const match of line.matchAll(/`([^`\n]+)`/dg)) take(match, match[1], { group: 1 });
   for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/dg))
     take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
+  // Code spans come after the links: a link is one token whose title, code span or plain text, is never a path.
+  for (const match of line.matchAll(/`([^`\n]+)`/dg)) take(match, match[1], { group: 1 });
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
     take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
   for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/dg))
