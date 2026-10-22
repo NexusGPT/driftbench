@@ -193,7 +193,7 @@ id: northwind-weekly-report
 target: { adapter: function, agent: acme-sales } # The demo agent
 blocks:
   - id: ask
-    when: { user: Please help me with the weekly report. }
+    when: { user: Please prepare the weekly report. }
     expect:
       must: [report]
 metadata:

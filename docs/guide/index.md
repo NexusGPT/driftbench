@@ -16,13 +16,28 @@ Every command in the guide is run by a test on GitHub, and every output shown is
 
 ## Install
 
-You need Node 22 or newer.
+You need Node 22 or newer, git and pnpm 10 (`corepack enable` turns pnpm on).
 
 ```bash
-npm install --global @agent-nexus/driftbench
+git clone https://github.com/NexusGPT/driftbench.git
+cd driftbench
+pnpm install
+pnpm build
+cd packages/cli && npm link && cd ../..
+driftbench --version
 ```
 
-This gives you the command `driftbench`. Every command in the guide starts with `driftbench`, and you type it exactly so. In a clone of the repository, run `pnpm install` instead, and write `pnpm driftbench` where the guide says `driftbench`.
+- `pnpm install` fetches the code the tool needs.
+- `pnpm build` compiles it. It takes a few minutes the first time.
+- `npm link` makes the command `driftbench` available in every folder. The last line prints its version.
+
+Every command in the guide starts with `driftbench`, and you type it exactly so. Run the commands that read `examples/` from the root of the clone. The npm package `@agent-nexus/driftbench` catches up at the next release. Until then, use the clone.
+
+**If it goes wrong.**
+
+- `pnpm: command not found`: run `corepack enable`, then open a new terminal.
+- `driftbench: command not found` after `npm link`: the folder of global npm commands is not on your path. Run `npm prefix --global`. Add its `bin` folder to your `PATH`.
+- `Cannot find module` when you run `driftbench`: the build did not finish. Run `pnpm build` again in the root of the clone.
 
 ## Where to start
 
@@ -74,11 +89,11 @@ Each word is explained again where it first appears. This list is for looking on
 | Map | The list of all atoms of an estate. | `build/map.yaml`. |
 | Plan | The list of situations to test, chosen so that every pair of situations meets once. | `build/plan.yaml`. |
 | Ledger id | An id of a sentence of your prompt that stays the same when you edit the sentence. | `wrl4c7wlvb`. |
-| Blast radius | The tests that an edit can change. | 17 of 921 blocks. |
+| Blast radius | The tests that an edit can change. | 16 of 1251 blocks. |
 | Interval | The range a rate could really lie in, given how many tests you ran. | 50% with an interval of 23% to 77%. |
 | Adapter | The piece that connects driftbench to your agent. | A function, a web address, a command. |
 | Stand-in | A script that plays recorded answers in place of the agent. It costs nothing. | `northwind/live/fake/claude.mjs`. |
 | Labeler | A model that reads your prose and says which sentences are rules. | `system2:anthropic`. |
 | Seeder | A method that writes one family of tests from a map. | `twise`, which covers every pair of values. |
-| Cell | One test file run once. | 17 of 918 cells. |
+| Cell | One test file run once. | 16 of 1248 cells. |
 | Mode F | The agent runs the whole conversation on its own replies. | `Mode F, free-running`. |

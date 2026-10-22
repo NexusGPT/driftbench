@@ -319,7 +319,7 @@ uses: { diagnostics: [code-agent-liability] }
 metadata:
   estate:
     map: ../examples/estates/fixture/approved.yaml
-    atoms: [instruction.standing.tell-the-user-about-a-late]
+    atoms: [instruction.standing.r7-when-a-shipment-is-late]
 blocks:
   - id: late
     user: My shipment NW-55020 is three days late. What do I do?

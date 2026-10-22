@@ -128,7 +128,7 @@ id: northwind-weekly-report
 target: { adapter: function, agent: acme-sales } # The demo agent
 blocks:
   - id: ask
-    when: { user: Please help me with the weekly report. }
+    when: { user: Please prepare the weekly report. }
     expect:
       must: [report]
 metadata:
@@ -137,7 +137,7 @@ metadata:
       to:
         kind: rule # The rule this block tests
         rule: instruction.weekly-report.count-only-what-the-ledger-and # The atom id
-        ledger: wrl4c7wlvb # The stable id of its unit
+        ledger: wrl4c7wlvb # The stable id of its sentence
       relation: verifies # This block tests that rule
       status: declared # Written by a generator, not yet proved by a deletion
       created_by: generator
@@ -149,7 +149,7 @@ metadata:
 from: 13b111c35670
 to: working
 changes:
-  - kind: prompt # The edited unit holds one atom
+  - kind: prompt # The edited sentence holds one atom
     id: instruction.weekly-report.count-only-what-the-ledger-and
     note: 'unit wrl4c7wlvb: changed'
 ```
@@ -630,7 +630,7 @@ A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the f
 
 ### 6. Pick which tests to rerun
 
-After a fix, driftbench does not rerun everything. Every block declares what it uses in its `metadata.links`, as the example in step 1 shows. An edit selects the blocks that use it, and the blocks that inherit their state. The rest keep their last result. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
+After a fix, driftbench does not rerun everything. Every block declares what it uses in its `metadata.links`, as the example in step 1 shows. An edit selects the blocks that use it, and the blocks that inherit their state. The rest keep their last result when you run through `campaign run --change --from`. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
 
 <a href=".github/readme/blast-light.png">
   <picture>
@@ -680,11 +680,17 @@ The command lists the blocks to rerun and runs nothing. [Full description](docs/
 
 The full guide teaches driftbench by doing. Each part says why you do a step, shows the exact command with every option explained, prints real output, says how to read it, and says what to do when it goes wrong.
 
-Install it with one line:
+Install it from a clone:
 
 ```bash
-npm install --global @agent-nexus/driftbench
+git clone https://github.com/NexusGPT/driftbench.git
+cd driftbench
+pnpm install
+pnpm build
+cd packages/cli && npm link && cd ../..
 ```
+
+The npm package catches up at the next release.
 
 - [**The guide, in reading order**](docs/guide/index.md): what to read first, and every term explained with an example.
 - [**Quickstart**](docs/guide/quickstart.md): test a small agent in about two minutes. No API key, no model call.

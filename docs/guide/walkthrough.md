@@ -5,7 +5,7 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 <a href="../../.github/readme/walkthrough-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../../.github/readme/walkthrough-dark.png">
-    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,439 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 17 of 921." src="../../.github/readme/walkthrough-light.png" width="100%">
+    <img alt="The four steps of the walkthrough as four boxes joined by arrows. Step 1, turn the agent's files into tests: 116 atoms found, 1,424 tests written. Step 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. Step 3, run a test: the agent answers. Each check says pass or fail. Step 4, after an edit, list the tests to rerun: 16 of 1251." src="../../.github/readme/walkthrough-light.png" width="100%">
   </picture>
 </a>
 
@@ -16,7 +16,8 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 
 **What you need.**
 
-- Node 22 or newer, and driftbench: `npm install --global @agent-nexus/driftbench`, which gives you the command `driftbench`. In a clone of this repository, run `pnpm install` and put `pnpm` in front of every `driftbench` below.
+- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone, because it reads `examples/estates/fixture`.
+- A terminal open in the folder that holds your agent folder. Run every command of this page from there. In the example that folder is `walk`. For your own agent it is the folder that holds `my-agent`.
 - Your agent as one folder that holds every file defining it. driftbench calls that folder the **estate**. It must follow the layout of Claude Code, Anthropic's coding agent, which is the only layout the `estate` commands read today. Anything else (a function, an HTTP endpoint, a script) uses the [quickstart](quickstart.md) instead.
 
 | File | What goes in it |
@@ -25,6 +26,8 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 | `.claude/skills/<name>/SKILL.md` | One folder per skill. A short header, then the instructions of the skill. |
 | `.claude/agents/<name>.md` | One file per helper agent. |
 | `.claude/settings.json` | The model, the permissions and the guards. |
+
+**Two ways to run tests, and which to use.** `campaign run` runs test files you wrote. Its target can be a function, an HTTP endpoint or a command. The [quickstart](quickstart.md) uses it. `estate run` runs tests that driftbench generated from an agent folder, against Claude Code in a copy of that folder. This walkthrough uses it.
 
 Your files can be small. This is the start of the example agent's `CLAUDE.md`:
 
@@ -59,6 +62,13 @@ $ rm -rf walk/northwind/generated
 $ cd walk
 ```
 
+**If it goes wrong.**
+
+- `driftbench: command not found`: the install did not finish, or this terminal predates it. Run the install line again and open a new terminal.
+- `cp: examples/estates/fixture: No such file or directory`: you are not at the root of the clone. Run `cd` to the clone first, then the commands again.
+- Later commands say `Cannot find northwind`: you are in the wrong folder. Run `pwd`. It must print the path of `walk`.
+- `rm` removed more than you meant: you ran it outside `walk`. The command names `walk/northwind/generated` only, so check your folder before you run it.
+
 ## 1. Turn the agent's files into tests
 
 **Why you do this.** Writing hundreds of tests by hand is slow, and you would not know what you missed. This step lets code write them from your own files, and tells you what they cover.
@@ -67,6 +77,8 @@ $ cd walk
 **What you have.** The folder `northwind` with the files above.
 
 **Two words first.** A rule is called an **atom**. An atom is one thing your files tell the agent to do or to use. It is kept with a quote of the line it came from. driftbench finds atoms in two ways. Code reads the structured parts itself: headings, lists, tables, links, the skill folders and the settings file. A model reads the prose, such as the sentences of your prompt, and says which ones are rules. A person, you, approves what the model found. The list of all atoms is the **map**.
+
+**Three more words for the next command.** The **pointer reader** is the way driftbench reads prose. It cuts the prose into sentences and asks a labeler about each one. The **ledger** is the file `build/ledger.json`. It gives every sentence an id that stays the same when you edit the sentence. A **cassette** is a file of recorded answers from the labeler. Replaying a cassette costs nothing.
 
 **Relevant commands.**
 
@@ -100,9 +112,9 @@ driftbench estate build my-agent --out build --pointer --labeler system2:anthrop
 ```console
 $ driftbench estate build northwind --out build --pointer --cassette northwind/cassette.jsonl   # exit 1
 driftbench estate build northwind, into build
-1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+1. Read the estate: 116 atoms, 69 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
    The scan reported some refused labels or failed chunks; run with --verbose to read them.
-Stopped before the first approval: 49 atoms were split from prose by a model and wait for your approval. Approve all 49?
+Stopped before the first approval: 69 atoms were split from prose by a model and wait for your approval. Approve all 69?
 Run again with --yes to approve them all, or approve some first with driftbench estate approve build/map.yaml --kind <kind> and run estate build again.
 ```
 
@@ -110,8 +122,8 @@ The question counts the atoms that wait. To read them before you answer, list th
 
 ```console
 $ driftbench estate approve build/map.yaml
-build/map.yaml: 49 of 116 atoms wait for approval.
-  instruction: 34
+build/map.yaml: 69 of 116 atoms wait for approval.
+  instruction: 31
     instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
     instruction.inbox-triager.a-message-that-fits-none-goes  .claude/agents/inbox-triager.md:8  "A message that fits none goes to "other"."
 Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
@@ -124,20 +136,20 @@ $ driftbench estate build northwind --out build --pointer --cassette northwind/c
 driftbench estate build northwind, into build
 1. Read the estate: unchanged since the last run, map.yaml kept.
 2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
-3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-4. Approve the plan: approved all 1439 tests, as --yes says.
-5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
+3. Map and plan: the plan holds 1424 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+4. Approve the plan: approved all 1424 tests, as --yes says.
+5. Write the tests: 1424 tests written. 1283 are complete and 141 still wait for something (the report lists what).
 ```
 
 **What you get.** The folder `build`, and a count of tests:
 
 ```text
-1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
-3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
+1. Read the estate: 116 atoms, 69 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+3. Map and plan: the plan holds 1424 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+5. Write the tests: 1424 tests written. 1283 are complete and 141 still wait for something (the report lists what).
 ```
 
-Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1439 tests. 952 are complete. The other 487 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
+Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1424 tests. 1283 are complete. The other 141 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
 
 **If it goes wrong.**
 
@@ -177,7 +189,7 @@ $ grep -A8 "^  links:" build/generated/specs/live/obligation/estate.obligation.i
       status: declared
 ```
 
-Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 17 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
+Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 16 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
 
 <details><summary>Look at the id, the atom and the test itself</summary>
 
@@ -217,8 +229,8 @@ The first three of the tests that name it:
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | sort | head -3
 build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-build/generated/specs/live/obligation/estate.pairwise.0020.yaml
-build/generated/specs/live/obligation/estate.pairwise.0064.yaml
+build/generated/specs/live/obligation/estate.pairwise.0107.yaml
+build/generated/specs/live/obligation/estate.pairwise.0177.yaml
 ```
 
 The part of the first test that says what to do and what to expect. A **block** is one message from the user and what must be true after it:
@@ -228,7 +240,7 @@ $ sed -n '/^blocks:/,/^metadata:/p' build/generated/specs/live/obligation/estate
 blocks:
   - id: ask
     when:
-      user: Please help me with the weekly report or a summary of last week.
+      user: Please prepare the weekly report.
     expect:
       skills:
         - name: weekly-report
@@ -253,37 +265,48 @@ metadata:
 **Why you do this.** A test only means something when it runs against an agent. This step shows what you must give driftbench to run your agent, and what a verdict looks like.
 
 
-**What you have.** The test file from step 2. It starts a fresh session and says: "Please help me with the weekly report or a summary of last week."
+**What you have.** The test file from step 2. It starts a fresh session and says: "Please prepare the weekly report."
 The agent must load the `weekly-report` skill, delete no file, and obey the rule.
 
 **What you must provide.** A command that runs your agent **headless**, which means once, from the command line, with no window. It takes the question as input, does its work, and exits. You have three choices:
 
 - A **stand-in**: a script that plays recorded answers in place of the agent. It calls no model and costs nothing. The example folder has one, and this walkthrough uses it.
-- Your real agent: the command `claude`, which is Claude Code. Install it with `npm install --global @anthropic-ai/claude-code`, run `claude` once in your terminal and log in as it asks ([Claude Code setup](https://docs.claude.com/en/docs/claude-code/overview)). If `claude --version` prints a version, it works. It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
+- Your real agent: the command `claude`, which is Claude Code. Install it with `npm install --global @anthropic-ai/claude-code`, run `claude` once in your terminal and log in as it asks ([Claude Code setup](https://docs.claude.com/en/docs/claude-code/overview)). These install lines are not run by our tests, because they install third-party software. To check the install, run `claude --version`. It prints a line such as `2.1.306 (Claude Code)`. We ran that line by hand. It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
 
   ```bash
-  driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --judge-budget 1 --max-budget-usd 1 --store runs.db
+  driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:claude-haiku-5-5 --judge-budget 1 --max-budget-usd 1 --store runs.db
   ```
 
-  `--model claude-haiku-5-5` is the model your agent runs on. `--judge claude:haiku` is the model that reads the answers that code cannot check. `--judge-budget 1` caps what the judge may spend in dollars. The command refuses to start without it. `--store runs.db` is the file where the run is kept. This is the real output of that command, run once on the example agent (the folder `northwind` in place of `my-agent`). It is not run by the tests, because it is billed:
+  `--model claude-haiku-5-5` is the model your agent runs on. `--judge claude:claude-haiku-5-5` is the model that reads the answers that code cannot check. It runs through the same `claude` command, so it uses the same login as the agent. `claude-haiku-5-5` is the full name of a model. `claude:haiku` is a short alias that your `claude` command resolves to its current Haiku model. This page uses the full name everywhere. `--judge-budget 1` caps what all judge calls of this command may spend together, in dollars. The command refuses to start without it. `--max-budget-usd 1` caps what each test may spend. To use an API key in place of the login, run `export ANTHROPIC_API_KEY=<your key>` and add `--pass-env ANTHROPIC_API_KEY`. `--store runs.db` is the file where the run is kept. This is the real output of that command. We ran it once by hand on 2026-10-22, with an API key. It ran on the example agent: the folder `northwind` replaces `my-agent`. It is not run by the tests, because it is billed:
 
   ```txt
   note: the estate copy is not pinned to a map hash; pass --map to pin it
-  ✓ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0048 USD)
+  ✓ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0085 USD)
       judged instruction.weekly-report.count-only-what-the-ledger-and: pass
-  1 spec run live: 1 pass, 0 fail. Cost 0.0048 USD over 1 run that report one, judge claude:haiku 0.0007 USD of it. Campaign estate-run-28387ff5fd82.
+  1 spec run live: 1 pass, 0 fail. Cost 0.0085 USD over 1 run that report one, judge claude:claude-haiku-5-5 0.0017 USD of it. Campaign estate-run-d0c1fe2d38a8.
   ```
 
-  The real agent passes where the stand-in failed. The run cost 0.0048 US dollars, of which 0.0007 was the judge. The `note` line is only a reminder that `--map` was left out. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state. The example needs it only because its stand-in plays those.
+  The real agent passes where the stand-in failed. The run cost 0.0085 US dollars, of which 0.0017 was the judge. A live model answers differently each time, so your numbers and verdicts will differ. The `note` line is only a reminder that `--map` was left out. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state. The example needs it only because its stand-in plays those.
 - Not a Claude Code agent: use the [quickstart](quickstart.md), which connects a command, a function or an HTTP endpoint.
 
-**Find a test file for your agent.** `estate run` takes the path of one test file. To list some from your own build, type this; it prints one path per line:
+**Find a test file for your agent.** `estate run` takes the path of one test file. **Why you do this.** `estate run` needs the path of one file. The build wrote more than a thousand. This command lists a few, so you can pick one.
 
-```bash
-find build/generated/specs/live -name '*.yaml' | sort | head -5
+**Relevant commands.**
+
+- `find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort | head -5`: lists test files · `-name '*.yaml'` keeps only test files. `sort` puts them in a fixed order. `head -5` keeps the first five · it prints one path per line.
+
+```console
+$ find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort | head -5
+build/generated/specs/live/dispatch/estate.dispatch.subagent.inbox-triager.helper-inbox-triager.yaml
+build/generated/specs/live/dispatch/estate.dispatch.subagent.ledger-auditor.helper-ledger-auditor.yaml
+build/generated/specs/live/dispatch/estate.dispatch.subagent.route-planner.helper-route-planner.yaml
+build/generated/specs/live/dispatch/estate.pairwise.0019.yaml
+build/generated/specs/live/dispatch/estate.pairwise.0083.yaml
 ```
 
-The folder `obligation` holds one test per rule of your files, named after the rule. Pick one and give its path to `estate run`.
+The folders under `live` group the tests by kind. The folder `obligation` holds the tests of one rule each, named after the rule. Pick one and give its path to `estate run`.
+
+**If it goes wrong.** The command prints nothing: the build did not write tests. Check that `build/generated/specs/live` exists, then run step 1 again.
 
 **Relevant commands.**
 
@@ -308,7 +331,7 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 - `claude` asks you to log in, or answers with an authentication error. Run `claude` by hand once and finish the login, then run the test again.
 - `claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.` (exit 2): you asked for a real agent. Add `--allow-billed` once you accept the cost, or use a stand-in.
 - `a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>` (exit 2): add `--judge-budget` with a number of dollars, such as `--judge-budget 1`.
-- Every test says `?` or `inconclusive`: no judge was set, so the checks that need one have no verdict. Add `--judge claude:haiku` and `--judge-budget 1`.
+- Every test says `?` or `inconclusive`: no judge was set, so the checks that need one have no verdict. Add `--judge claude:claude-haiku-5-5` and `--judge-budget 1`.
 - A `✗` with `skills.weekly-report` in the `failing:` line: the agent did not load that skill. Read the skill's `description` in its `SKILL.md`: it must say when the skill applies.
 - The run is slow or expensive: add `--max-budget-usd` to cap each test, and run one test first, as here.
 
@@ -317,7 +340,9 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 **Why you do this.** After an edit you want to know whether you broke something. Rerunning every test is slow and costs money. Rerunning only the tests the edit can reach is fast, and the saving is measured.
 
 
-**What you have.** You edit one sentence of your prompt, from seven days to fourteen days:
+**What you have.** You edit one sentence of your prompt, from seven days to fourteen days. You do not run `estate build` again for this. `radius ledger` reads your edited files and compares them with the ledger of step 1. Run `estate build` again only when you want new tests.
+
+**Why you edit by hand here.** The edit is the change you want to test. Use `sed` as shown, or open the file in your editor and change the sentence.
 
 ```console
 $ sed -i.bak 's/for the last seven days/for the last fourteen days/' northwind/.claude/skills/weekly-report/SKILL.md
@@ -338,51 +363,69 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 **You get and how to read it.** The output uses four words. A **block** is one test message with its checks. A **cell** is one test file run once. **Mode F** means the agent runs the whole conversation on its own replies. The **manifest** is a short id of the change file. First the count, then the list:
 
 ```text
-Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-918 specs, 921 blocks.
-Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904 out. 17 of 918 cells.
-  A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
+Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+1248 specs, 1251 blocks.
+Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
+  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
 ```
 
-Of 921 blocks, 17 can be reached by that sentence. The other 904 keep their last result, which saves 98.2%. Each test file here holds one block, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, which saves 98.7%. Each test file here holds one block, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
   spec                                                                             blocks in  from  why
   estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and       1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
-  estate.pairwise.0020                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
-  estate.pairwise.0064                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.pairwise.0107                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.pairwise.0177                                                             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
-Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 14 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. So the 17 blocks are 17 files, 3 named for the rule and 14 from the plan.
+Read each row as one test file: its name, how many of its blocks are in the radius, and why. The `why` is the same for all of them: they name the sentence you changed. Three are named after the rule, the obligation, outside_trigger and twin tests of step 2. The other 13 are called `pairwise`: they are tests of the plan that cross this sentence with other situations. So the 16 blocks are 16 files, 3 named for the rule and 13 from the plan.
 
-**Rerun them.** Write the 17 names into a file, count them, and run exactly those with the same `estate run` as in step 3. `--order` takes the file of names. `--map` is left out because the files changed since the map was written:
+**Rerun them.** Write the 16 names into a file, count them, and run exactly those with the same `estate run` as in step 3. `--order` takes the file of names. `--map` is left out because the files changed since the map was written:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | sort > rerun.txt
 $ wc -l rerun.txt
-17 rerun.txt
+16 rerun.txt
 $ driftbench estate run --order rerun.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --states northwind/live/states/library.json   # exit 1
 note: the estate copy is not pinned to a map hash; pass --map to pin it
 ✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
-? estate.pairwise.0020  (0.0000 USD)
-    failing: block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+✗ estate.pairwise.0107  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 ```
 
-The summary says 17 ran, none passed, and 15 are undecided. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 904 blocks keep their last result. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
+The last line of the output reads `16 specs run live on a stand-in: 0 pass, 16 fail (1 undecided: only inconclusive checks).` It then gives the cost and a campaign id that changes at every run. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 1235 blocks are not run. This walkthrough ran only one test, so it has no earlier results for them. In a real project you run the whole suite once with `estate run`, and the results of the untouched tests stay in that first store. `edited.db` holds only the 16 you reran, because `estate run` has no option that copies old results into a new store. Read the two stores side by side. The [rerun less](rerun-less.md) part shows `campaign run --change --from`, which does carry old results for suites run with `campaign run`. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
 
-**Rerun them on your own agent.** The same list, with the real agent and a judge, as in step 3. It is billed, so the judge cap and the test cap stay:
+**Rerun them on your own agent.** Use the real agent and a judge, as in step 3. It is billed, so the judge cap and the test cap stay. Not every test of the list can run on a real agent. The 13 `pairwise` tests start the agent in a session state such as `resumed` or `after_compaction`. A real agent needs a state library that says how to reach each state. Without one, those tests stop with an error. The 3 tests named for the rule need no state. Run these 3 first. The `rerun-rule.txt` file holds them:
 
 ```bash
-driftbench estate run --order rerun.txt --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --judge-budget 1 --max-budget-usd 1 --store edited.db
+grep -v pairwise rerun.txt > rerun-rule.txt
+driftbench estate run --order rerun-rule.txt --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:claude-haiku-5-5 --judge-budget 1 --max-budget-usd 1 --store edited.db
 ```
+
+This is the real output of that command, run once by hand on 2026-10-22 on the example agent, with an API key. It is not run by the tests, because it is billed. The campaign id changes at every run:
+
+```txt
+note: the estate copy is not pinned to a map hash; pass --map to pin it
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0067 USD)
+    failing: block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and
+    judged instruction.weekly-report.count-only-what-the-ledger-and: fail
+✓ estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and  (0.0022 USD)
+    judged instruction.weekly-report.count-only-what-the-ledger-and.control: pass
+✓ estate.twin.instruction.weekly-report.count-only-what-the-ledger-and  (0.0030 USD)
+    judged instruction.weekly-report.count-only-what-the-ledger-and: pass
+3 specs run live: 2 pass, 1 fail. Cost 0.0120 USD over 3 runs that report one, judge claude:claude-haiku-5-5 0.0034 USD of it. Campaign estate-run-602b77601a94.
+```
+
+The run cost 0.0120 US dollars, of which 0.0034 was the judge. The obligation test failed on the judge here, and it passed in an earlier run of the same test. A live model answers differently each time, so run a test more than once before you trust one verdict. The [read the numbers](read-the-numbers.md) part shows how to repeat runs and read the spread. To run the 13 `pairwise` tests as well, add `--states <your state library>`. The example library is `northwind/live/states/library.json`. It maps each state name to the operations that put the agent in that state.
 
 **Why you do this.** A rerun without `--judge` leaves every judged check undecided (`?`), so the edit would look unproven. `--allow-billed` and `--judge-budget` are required for a real agent, as in step 3.
 
 **If it goes wrong.**
 
-- Every line of the rerun shows `?` or `inconclusive`: you left `--judge claude:haiku --judge-budget 1` out. Add both and run again.
+- Every line of the rerun shows `?` or `inconclusive`: you left `--judge claude:claude-haiku-5-5 --judge-budget 1` out. Add both and run again.
+- A line starts with `!` and says `the session state resumed has no operation in the state library`: the test needs a session state your agent has no operation for. Run the 3 rule tests as above, or add the state library.
 - A refusal that names `--allow-billed` or `--judge-budget` (exit 2): add the one it names.
 - `Units: ... 0 changed`: the edit did not change any sentence that the ledger knows. Check that you edited a file under the estate folder and saved it.
 - `The radius is the whole suite` and `unit selection is advisory`: your edit hit a sentence that holds no atom, so driftbench cannot tell which tests it affects and keeps the whole suite. Nothing is skipped. Reword the sentence as an instruction so that it becomes an atom, then run `estate build` and `radius` again.

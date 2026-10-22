@@ -2,19 +2,21 @@
 
 About two minutes, most of it the install. You need Node 22 or newer and npm. No API key: the agent below is a short script that stands in for yours.
 
+This page uses `campaign run`, which runs test files you wrote against any target. If your agent is a Claude Code folder and you want driftbench to write the tests, use `estate run` in the [walkthrough](walkthrough.md) instead.
+
 **1. Make a folder and install.**
 
-**Why.** You need a folder for your tests and the driftbench package to run them.
+**Why.** You need a folder for your tests and the driftbench command to run them. Install driftbench first, as the [guide index](index.md#install) shows.
 
 **Relevant commands.**
 
 - `mkdir my-evals && cd my-evals`: makes a folder for your tests and goes into it · no options · it produces the folder.
-- `npm install --global @agent-nexus/driftbench`: installs driftbench for your whole machine · `--global` makes the `driftbench` command available in every folder · `@agent-nexus/driftbench` is the package · it produces the `driftbench` command.
+- `driftbench --version`: checks that driftbench is installed, as the [guide index](index.md#install) shows · no options · it prints the version number. The npm package catches up at the next release, so install from a clone until then.
 - `mkdir specs`: makes the folder that will hold your tests · no options · it produces the folder.
 
 ```bash
 mkdir my-evals && cd my-evals
-npm install --global @agent-nexus/driftbench
+driftbench --version
 mkdir specs
 ```
 
