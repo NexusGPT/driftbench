@@ -1,11 +1,12 @@
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { pointer } from '@agent-nexus/driftbench-estate';
+import { pointer, type ScanEstateResult } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
+import { pointerLines } from '../src/commands/estate-pointer';
 import { type Io, main } from '../src/index';
 
 // An invented harbour office. No line below comes from a real estate.
@@ -219,6 +220,48 @@ describe('driftbench estate scan --pointer', () => {
     expect(code).toBe(0);
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
     expect(output.out).toMatch(/asked again: .* asked again as run 9 for \d+ split units/);
+  });
+
+  it('prints each unstable unit with the count of each kind and the label the vote gave', () => {
+    const result = {
+      pointer: {
+        ledger: { entries: [] },
+        cuts: new Map(),
+        decidedBy: { system1: 0, system2: 0 },
+        usage: [],
+        events: {},
+        failed: [],
+        refusals: [],
+        atomRefusals: [],
+        dropped: [],
+        outOfStep: [],
+        reasked: [],
+        unstable: [
+          {
+            unit: 'u1',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { instruction: 5, gate: 4 },
+            label: 'rule',
+          },
+          {
+            unit: 'u2',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { gate: 2, reference: 2 },
+          },
+        ],
+      },
+    } as unknown as ScanEstateResult;
+    const lines = pointerLines(result, 'system 2');
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u1 (agent-rules, anthropic): instruction 5, gate 4; labelled rule',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u2 (agent-rules, anthropic): gate 2, reference 2; left unlabeled',
+    );
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {
