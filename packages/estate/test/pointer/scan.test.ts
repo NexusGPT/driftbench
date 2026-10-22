@@ -587,6 +587,36 @@ describe('runs that split between labels of one atom kind', () => {
     expect(labelsOf(result)).toEqual(new Set(['aside']));
   });
 
+  it('never lets runs that point a condition at different units vote together', async () => {
+    // when 2 at unit 2, when 1 at unit 3, ban 2: three runs say the first unit is a condition, but they split on
+    // which unit it scopes, so no group holds three of five and the unit stays unlabeled.
+    const SCOPED = `${KINDS}      - name: when
+        description: A unit that only says when another unit applies.
+        target: required
+        condition: true
+`;
+    const calls = new Map<string, number>();
+    const plan: Array<[string, number?]> = [['when', 2], ['ban'], ['when', 2], ['ban'], ['when', 3]];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (window.units.length < 3) return [{ units: `1-${window.units.length}`, label: 'remark' }];
+        const [label, target] = plan[call - 1] ?? ['remark'];
+        return [
+          { units: '1', label, ...(target ? { target } : {}) } as Labelled,
+          { units: `2-${window.units.length}`, label: 'remark' },
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SCOPED) }));
+    const firsts = result.ledger.entries.filter((entry) => entry.index === 0 && entry.path === 'office.md');
+    expect(firsts.length).toBeGreaterThan(0);
+    expect(firsts.map((entry) => entry.labels.duty?.label)).toEqual(firsts.map(() => undefined));
+  });
+
   it('leaves the splits of a set whose labels build no atom as they are', async () => {
     // The same labels with no atom, as the document roles: remark 1, aside 2, order 1, ban 1. No label has three of
     // five and the labels do not group, so every unit stays unlabeled.
