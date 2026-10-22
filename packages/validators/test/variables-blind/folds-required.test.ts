@@ -17,11 +17,12 @@ const each = (
 };
 
 describe('every folding draw holds all the characters its fold handles', () => {
-  it('white space: a run of spaces, a tab and a newline in the longer text', () => {
+  it('white space: an exact double and an exact triple run of spaces, a tab and a newline in the longer text', () => {
     for (const make of [f.whiteSpaceInTheQuote, f.whiteSpaceInTheFile])
       each(make, ({ inFile, inQuote }, seed) => {
         const long = inFile.length > inQuote.length ? inFile : inQuote;
-        expect(/ {2,}/.test(long), `seed ${seed} spaces`).toBe(true);
+        expect(/(?<! ) {2}(?! )/.test(long), `seed ${seed} exactly two spaces`).toBe(true);
+        expect(/(?<! ) {3}(?! )/.test(long), `seed ${seed} exactly three spaces`).toBe(true);
         expect(long.includes('\t'), `seed ${seed} tab`).toBe(true);
         expect(long.includes('\n'), `seed ${seed} newline`).toBe(true);
       });
