@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { chmod, copyFile, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -55,13 +55,16 @@ async function runFixture(interpreter: string[], script: string, fixture: Fixtur
   const cwd = await scratch();
   for (const [name, text] of Object.entries(fixture.files ?? {})) await writeFile(join(cwd, name), text);
   const [command, ...rest] = interpreter;
-  // A script of the fixture estate logs under the estate root its own path defines. Run in place, it would write
-  // into the committed tree; a copy at the same relative path inside a temporary estate keeps the log there.
+  // A script of the fixture estate logs under the estate root its own path defines, and may read files beside it.
+  // Run in place, it would write into the committed tree; the copy of its skill folder inside a temporary estate
+  // keeps the log there.
   let runnable = script;
   if (script.startsWith(FIXTURE)) {
-    runnable = join(await scratch(), relative(FIXTURE, script));
-    await mkdir(dirname(runnable), { recursive: true });
-    await copyFile(script, runnable);
+    const root = await scratch();
+    const skill = relative(FIXTURE, script).split('/').slice(0, 3).join('/');
+    await mkdir(join(root, skill), { recursive: true });
+    await cp(join(FIXTURE, skill), join(root, skill), { recursive: true });
+    runnable = join(root, relative(FIXTURE, script));
   }
   return spawnSync(command as string, [...rest, runnable, ...(fixture.args ?? [])], {
     cwd,
