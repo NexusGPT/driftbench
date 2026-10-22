@@ -1,16 +1,18 @@
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { leakReport } from '../../src/failure';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
+import { ceilingVerdict, readCeilings } from '../ceiling';
 import { MUTANTS } from '../variables-blind/mutants';
 
 /**
  * The failure messages of the first bank repeat no expected value (docs/validators.md 12.11). The wrong products are
  * the planted mutants, applied to the real adapter; the failures they provoke on seeds 1 to 3 go through `leakReport`.
- * UNSTRUCTURED_MAX is the number of failures that are not `ItemFailure`; it may only go down.
+ * The ceiling of failures that are not `ItemFailure` is committed in validators/variables/leak-ceilings.json and read
+ * against the base branch; it may only go down.
  */
-const UNSTRUCTURED_MAX = 861;
 
 const items = variablesBank().filter((i) => !i.id.startsWith('blind.') && i.family !== 'scale');
 
@@ -61,6 +63,11 @@ describe('the failure messages of the first bank', () => {
     for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]).slice(0, 25))
       console.log(`site ${n} x ${k}`);
     expect(report.leaking).toEqual([]);
-    expect(report.unstructured).toBeLessThanOrEqual(UNSTRUCTURED_MAX);
+    const { head, base } = readCeilings(
+      fileURLToPath(new URL('../../../../', import.meta.url)),
+      'validators/variables/leak-ceilings.json',
+      'first',
+    );
+    expect(ceilingVerdict(report.unstructured, head, base)).toBeUndefined();
   }, 1_800_000);
 });
