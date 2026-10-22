@@ -1,6 +1,13 @@
 import type { ConversationInput, Plan } from '../../interface';
 import { build, callCoverage, type ItemContext, planOf, type StemRun } from '../item';
-import { nounNumber, numericSpan, type Quantity, ruleSentence } from '../oracle/conditions';
+import {
+  nounNumber,
+  numericSpan,
+  type Quantity,
+  ruleSentence,
+  VOCABULARY_SIZE,
+  vocabularyOf,
+} from '../oracle/conditions';
 import { estateOf, type RuleSpec, variablesCiting } from '../oracle/estate';
 import { greedyBound, shapeProblems } from '../oracle/planCheck';
 import { rowsWithForbidden, scanCoverage } from '../oracle/scan';
@@ -205,14 +212,20 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const byFile: string[][] = Array.from({ length: filesCount }, () => []);
     const rules: RuleSpec[] = [];
     const texts: string[] = [];
-    for (let i = 0; i < spans; i += 1) {
-      const q: Quantity = { noun: nounNumber(i), unit: ' euros', kind: 'money' };
-      const span = numericSpan(rng.pick(['gt', 'ge', 'lt', 'le'] as const), 'symbol', q, rng.int(5, 900));
+    // The spans come from the fixed vocabulary (oracle/conditions.ts): the seed picks which ones, their order and their files.
+    const picked = rng.sample(
+      Array.from({ length: VOCABULARY_SIZE }, (_, i) => i),
+      spans,
+    );
+    picked.forEach((index, i) => {
+      const v = vocabularyOf(index);
+      const q: Quantity = { noun: nounNumber(index), unit: ' euros', kind: 'money' };
+      const span = numericSpan(v.cls, v.wording, q, v.limit);
       const f = i % filesCount;
       (byFile[f] as string[]).push(ruleSentence(span.text, rng));
       rules.push({ id: `R${i + 1}`, source: `docs/part-${f}.md`, conditions: [span.text], tools: [] });
       texts.push(span.text);
-    }
+    });
     const files: Record<string, string> = {};
     byFile.forEach((sentences, f) => {
       let text = `# Part ${f}\n\n${sentences.join('\n')}\n`;
