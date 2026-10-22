@@ -93,8 +93,13 @@ export function wireFor(
           {
             role: 'user',
             content: [
-              `SET ${set.set}`,
-              `LABELS ${[...set.labels.map((l) => l.name), 'none'].join(' | ')}`,
+              `SET ${set.set}: ${set.description}`,
+              'LABELS:',
+              ...set.labels.map(
+                (l) =>
+                  `- ${l.name}: ${l.description}${examples(l)}${l.target ? ' (also give "target": the number of the unit that holds the other end)' : ''}`,
+              ),
+              '- none: no label of this set applies.',
               `WINDOW ${window}  path: ${path.join(' > ') || '(top)'}`,
               ...shown,
             ].join('\n'),
@@ -125,9 +130,14 @@ export function wireFor(
     },
   };
 }
+/** The key of a request: the hash of the canonical wire and its readable record, `cls` and `run` included. */
+export const keyOf = (wire: Wire, readable: Record<string, string>): string =>
+  hash(canonical({ wire, readable }));
 export function readableFor(wire: Wire, meta: Record<string, string>): Record<string, string> {
   return {
     ...meta,
+    cls: wire.labeler === 'anthropic' ? 'system2' : 'system1',
+    run: '1',
     labeler: wire.labeler,
     ...Object.fromEntries(
       Object.entries(wire.body).map(([k, v]) => [`part.${k}`, hash(canonical(v)).slice(0, 12)]),
@@ -185,18 +195,19 @@ export function makeFixture(arm: ModelArm, documents: AuthoredFile[], labelsYaml
             ]),
           ),
         );
+        const readable = readableFor(wire, {
+          path: doc.path,
+          window,
+          promptVersion: 'p1',
+          schemaVersion: 's1',
+          set: set.set,
+          setHash: hash(canonical(set)).slice(0, 16),
+          model: String(wire.body.model),
+          cutDigest: digest,
+        });
         rows.push({
-          key: hash(canonical(wire)),
-          readable: readableFor(wire, {
-            path: doc.path,
-            window,
-            promptVersion: 'p1',
-            schemaVersion: 's1',
-            set: set.set,
-            setHash: hash(canonical(set)).slice(0, 16),
-            model: String(wire.body.model),
-            cutDigest: digest,
-          }),
+          key: keyOf(wire, readable),
+          readable,
           answer: {
             ...(arm === 'haiku'
               ? { labels: selected.map((u, i) => ({ units: String(i + 1), label: u.label })) }

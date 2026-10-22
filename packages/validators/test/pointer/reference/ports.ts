@@ -5,6 +5,7 @@ import {
   canonical,
   hash,
   JEV_WINDOW_UNITS,
+  keyOf,
   NONE_DEFINITION,
   readableFor,
   windowCap,
@@ -665,11 +666,6 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       selected.map((u, i) => ({ n: i + 1, text: u.text })),
       selected[0]?.path ?? [],
     );
-    const key =
-      ctx.fault === 'settings-in-key' && ctx.marginCut !== undefined
-        ? hash(canonical({ wire, marginCut: ctx.marginCut }))
-        : hash(canonical(wire));
-    lastKey = key;
     const want = readableFor(wire, {
       path: plan.file,
       window,
@@ -680,6 +676,11 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       model: String(wire.body.model),
       cutDigest: ctx.cutDigestOf(plan.file),
     });
+    const key =
+      ctx.fault === 'settings-in-key' && ctx.marginCut !== undefined
+        ? hash(canonical({ wire, readable: want, marginCut: ctx.marginCut }))
+        : keyOf(wire, want);
+    lastKey = key;
     const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
     let hit = rows.find((row) => row.key === key);
     if (!hit && ctx.cassette.mode === 'record') {

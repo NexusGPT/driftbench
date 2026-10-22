@@ -374,6 +374,7 @@ const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_URL: 'https://jev.invalid/v1/systemone',
 };
 
 function fetchOf(
