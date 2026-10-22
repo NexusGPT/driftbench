@@ -788,11 +788,15 @@ export function stageBookOf(specs: readonly Spec[]): StageBook {
   return book;
 }
 
+/** The stage is confirmed when every written walk that says this history leaves the agent at it. */
+function isSoleStage(stages: Set<string> | undefined, declared: string): boolean {
+  return stages !== undefined && stages.size === 1 && stages.has(declared);
+}
+
 /**
  * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
- * block that starts from a prefix declares. A declared stage counts only when a written spec of the suite leaves
- * the agent at that stage after the same history: an unconfirmed one is not read, so declaring a stage cannot
- * dodge a check. Undefined when nothing is said, so a spec without one reads as before.
+ * block that starts from a prefix declares. A declared stage counts only when the written specs of the suite that say
+ * the same history all leave the agent at that stage (walks that disagree make it ambiguous, so it is not read), so declaring a stage cannot dodge a check. Undefined when nothing is said, so a spec without one reads as before.
  */
 export function declaredStageBefore(spec: Spec, index: number, book: StageBook): string | undefined {
   for (let at = index; at >= 0; at -= 1) {
@@ -800,7 +804,7 @@ export function declaredStageBefore(spec: Spec, index: number, book: StageBook):
     if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
     const declared = block?.given?.stage;
     if (declared !== undefined && block?.given?.prefix !== undefined)
-      if (book.get(historyKey(block.given.prefix))?.has(declared)) return declared;
+      if (isSoleStage(book.get(historyKey(block.given.prefix)), declared)) return declared;
   }
   return undefined;
 }

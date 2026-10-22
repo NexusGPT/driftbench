@@ -94,6 +94,17 @@ describe('a prefix-started walk says where it starts', async () => {
     expect(startStageOf(started(real).spec, 0, stageBookOf([]))).toBe(source.spec.stages?.[0] ?? '');
   }, 600_000);
 
+  it('does not read a declared stage when written walks leave the same history at different stages', () => {
+    const other = required(source.spec.stages?.find((stage) => stage !== real));
+    const twin = structuredClone(source.spec);
+    twin.id = 'leaves-elsewhere';
+    required(twin.blocks[at - 1]).expect = { ...required(twin.blocks[at - 1]).expect, stage: other };
+    const entry = started(real).spec;
+    // The twin says the same history (stages are not messages) and leaves the agent at another stage.
+    expect(startStageOf(entry, 0, stageBookOf([source.spec]))).toBe(real);
+    expect(startStageOf(entry, 0, stageBookOf([source.spec, twin]))).toBe(source.spec.stages?.[0] ?? '');
+  });
+
   it('reads a walk with no declared stage as before', async () => {
     const verdict = await recovery(started(undefined));
     const before = (await recovery(source)).pass;
