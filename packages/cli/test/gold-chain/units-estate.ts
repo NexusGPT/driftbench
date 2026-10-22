@@ -120,7 +120,8 @@ export function parseUnitsTruth(text: string): UnitsTruth {
   }
   for (const range of tables) {
     for (const id of [range.from, range.to]) if (!ids.has(id)) problems.push(`tables: ${id} is not a unit`);
-    if ((order.get(range.from) ?? 0) > (order.get(range.to) ?? 0)) problems.push(`tables: ${range.from} comes after ${range.to}`);
+    if ((order.get(range.from) ?? 0) > (order.get(range.to) ?? 0))
+      problems.push(`tables: ${range.from} comes after ${range.to}`);
   }
   if (problems.length > 0) throw new Error(`the truth file has problems:\n${problems.join('\n')}`);
   return {

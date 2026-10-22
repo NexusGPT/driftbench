@@ -6,10 +6,9 @@ import { ESTATES_DIR } from '../../../estate/test/gold/gold';
 import { readRefersEntries, readTableRanges, unitsInRange } from './fields';
 
 const truthOf = (estate: 'a' | 'b' | 'c'): Record<string, unknown> =>
-  parseYaml(readFileSync(join(ESTATES_DIR, `gold-${estate}`, 'truth.yaml'), 'utf8'), { schema: 'failsafe' }) as Record<
-    string,
-    unknown
-  >;
+  parseYaml(readFileSync(join(ESTATES_DIR, `gold-${estate}`, 'truth.yaml'), 'utf8'), {
+    schema: 'failsafe',
+  }) as Record<string, unknown>;
 
 describe('the readers of the two field formats', () => {
   it('read the gold5 files of A, B and C as they are: `to: id`, `to: {from, to}` and number_table ranges', () => {
@@ -18,7 +17,12 @@ describe('the readers of the two field formats', () => {
       const raw = truthOf(estate);
       const refers = readRefersEntries(raw.refers_to, problems);
       const tables = readTableRanges(raw.number_table, problems, 'number_table');
-      return { estate, refers: refers.length, ranges: refers.filter((entry) => entry.to.some((ref) => 'from' in ref)).length, tables: tables.length };
+      return {
+        estate,
+        refers: refers.length,
+        ranges: refers.filter((entry) => entry.to.some((ref) => 'from' in ref)).length,
+        tables: tables.length,
+      };
     });
     expect(problems).toEqual([]);
     expect(counts).toEqual([
@@ -33,11 +37,28 @@ describe('the readers of the two field formats', () => {
 
   it('read the units-table format: `target`, `targets` and a {header, rows} table as one range', () => {
     const problems: string[] = [];
-    expect(readRefersEntries([{ unit: 'u1', target: 'u2' }, { unit: 'u3', targets: ['u4', { from: 'u5', to: 'u6' }] }], problems)).toEqual([
+    expect(
+      readRefersEntries(
+        [
+          { unit: 'u1', target: 'u2' },
+          { unit: 'u3', targets: ['u4', { from: 'u5', to: 'u6' }] },
+        ],
+        problems,
+      ),
+    ).toEqual([
       { unit: 'u1', to: [{ id: 'u2' }] },
       { unit: 'u3', to: [{ id: 'u4' }, { from: 'u5', to: 'u6' }] },
     ]);
-    expect(readTableRanges([{ header: 'h', rows: ['r1', 'r2'] }, { from: 'a', to: 'b' }], problems, 'limits_table')).toEqual([
+    expect(
+      readTableRanges(
+        [
+          { header: 'h', rows: ['r1', 'r2'] },
+          { from: 'a', to: 'b' },
+        ],
+        problems,
+        'limits_table',
+      ),
+    ).toEqual([
       { from: 'h', to: 'r2' },
       { from: 'a', to: 'b' },
     ]);
@@ -46,7 +67,17 @@ describe('the readers of the two field formats', () => {
 
   it('name every bad entry by list and position, and drop none silently', () => {
     const problems: string[] = [];
-    readRefersEntries(['x', { unit: 'u1' }, { unit: 'u2', to: 'a', target: 'b' }, { unit: 'u3', targets: [] }, { to: 'a' }, { unit: 'u4', to: { from: 'a' } }], problems);
+    readRefersEntries(
+      [
+        'x',
+        { unit: 'u1' },
+        { unit: 'u2', to: 'a', target: 'b' },
+        { unit: 'u3', targets: [] },
+        { to: 'a' },
+        { unit: 'u4', to: { from: 'a' } },
+      ],
+      problems,
+    );
     readTableRanges([{ header: 'h' }, 7], problems, 'number_table');
     expect(problems).toEqual([
       'refers_to[0]: not a mapping',

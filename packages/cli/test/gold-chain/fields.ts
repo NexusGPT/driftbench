@@ -38,8 +38,13 @@ export function readRefersEntries(raw: unknown, problems: string[], key = 'refer
     const named = ['to', 'target', 'targets'].filter((name) => entry[name] !== undefined);
     if (named.length !== 1) problems.push(`${where}: name the place with exactly one of to, target, targets`);
     else if (named[0] === 'targets') {
-      if (!Array.isArray(entry.targets) || entry.targets.length === 0) problems.push(`${where}: targets is empty`);
-      else entry.targets.forEach((value: unknown, index: number) => add(value, `targets[${index}]`));
+      if (!Array.isArray(entry.targets) || entry.targets.length === 0)
+        problems.push(`${where}: targets is empty`);
+      else {
+        entry.targets.forEach((value: unknown, index: number) => {
+          add(value, `targets[${index}]`);
+        });
+      }
     } else add(entry[named[0] as string], named[0] as string);
     if (unit !== '' && to.length > 0) out.push({ unit, to });
   });
