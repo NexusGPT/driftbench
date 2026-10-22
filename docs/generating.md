@@ -486,20 +486,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3105 of 4064 (76.4%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3118 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 959 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 946 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     792       153           3
+twise           156     791       153           3
 boundary         85     180        13          72
-deviation       137     527       137           0
+deviation       137     526       137           0
 metamorphic      42     188        42           0
 task             67      71        67           0
-cover            12      53        12           0
+cover            11      48        11           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
