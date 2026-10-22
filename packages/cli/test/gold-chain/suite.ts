@@ -181,9 +181,13 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         for (const scope of truth.scopes) {
           const label = byId.get(scope.unit)?.label ?? '';
           if (INSTRUCTION.has(label)) {
-            dropped.push(`scope dropped: ${scope.unit} is an instruction (${label}) and cannot also be a condition; target ${scope.target}`);
+            dropped.push(
+              `scope dropped: ${scope.unit} is an instruction (${label}) and cannot also be a condition; target ${scope.target}`,
+            );
           } else if (applied.has(scope.unit)) {
-            dropped.push(`scope dropped: ${scope.unit} has a second target ${scope.target} (first ${applied.get(scope.unit)?.target}); a unit takes one target`);
+            dropped.push(
+              `scope dropped: ${scope.unit} has a second target ${scope.target} (first ${applied.get(scope.unit)?.target}); a unit takes one target`,
+            );
           } else applied.set(scope.unit, scope);
         }
         const scopes = [...applied.values()].map((scope) => ({
@@ -411,8 +415,15 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             atoms.every((id) => id !== undefined && row.atomIds.includes(id)),
           );
           if (!together) {
-            const widest = Math.max(0, ...plan.rows.map((row) => atoms.filter((id) => id !== undefined && row.atomIds.includes(id)).length));
-            problems.push(`same_row ${at}: no plan row names ${group.join(', ')} together (widest row holds ${widest} of ${group.length})`);
+            const widest = Math.max(
+              0,
+              ...plan.rows.map(
+                (row) => atoms.filter((id) => id !== undefined && row.atomIds.includes(id)).length,
+              ),
+            );
+            problems.push(
+              `same_row ${at}: no plan row names ${group.join(', ')} together (widest row holds ${widest} of ${group.length})`,
+            );
           }
         });
         for (const planted of truth.planted_rules) {
