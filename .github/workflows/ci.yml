@@ -62,7 +62,13 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - run: pnpm lint
+      - id: lint
+        run: pnpm lint
+      # `pnpm lint` prints the first 20 diagnostics, and the warnings fill them: the error that failed the step can
+      # be past them. This step runs only when lint failed, prints every error and changes no exit status.
+      - name: Every lint error
+        if: steps.lint.outcome == 'failure'
+        run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000 || true
       - run: pnpm typecheck
       - name: Cache package builds
         uses: actions/cache@v4
@@ -362,7 +368,13 @@ jobs:
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       # Lint reads the whole tree, so it runs before the build and the plan are downloaded into it.
-      - run: pnpm lint
+      - id: lint
+        run: pnpm lint
+      # `pnpm lint` prints the first 20 diagnostics, and the warnings fill them: the error that failed the step can
+      # be past them. This step runs only when lint failed, prints every error and changes no exit status.
+      - name: Every lint error
+        if: steps.lint.outcome == 'failure'
+        run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000 || true
       - run: pnpm typecheck
       - uses: actions/download-artifact@v4
         with:
