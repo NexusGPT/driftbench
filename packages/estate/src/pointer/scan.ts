@@ -427,10 +427,23 @@ function leftOut(answer: unknown, window: Window): Window['units'] {
   return window.units.filter((unit) => !named.has(unit.n));
 }
 
-/** Whether a run is out of step only for the units it left out: no anchor slipped and its clauses are in place. */
-const onlyLeftOut = (slip: Slip): boolean =>
-  slip.slipped === 0 &&
-  !(slip.unlocated >= OUT_OF_STEP_MIN && slip.unlocated > slip.quoted * OUT_OF_STEP_SHARE);
+/**
+ * Whether a run is out of step only for the units it left out: no anchor slipped, no labelled entry has an anchor
+ * that starts no line (`anchored` null: the units it names may be shifted as well), and its clauses are in place.
+ */
+const onlyLeftOut = (slip: Slip, answer: unknown): boolean => {
+  const labels = (answer as { labels?: unknown })?.labels;
+  const unanchored = (Array.isArray(labels) ? labels : []).some(
+    (entry) =>
+      (entry as { label?: unknown })?.label !== 'none' &&
+      (entry as { anchored?: unknown })?.anchored === null,
+  );
+  return (
+    slip.slipped === 0 &&
+    !unanchored &&
+    !(slip.unlocated >= OUT_OF_STEP_MIN && slip.unlocated > slip.quoted * OUT_OF_STEP_SHARE)
+  );
+};
 
 /** Why a run is out of step, for the report: a code, then the counts. */
 const slipReason = (slip: Slip): string =>
@@ -870,16 +883,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer, leaf.window) : undefined;
       if (slipped) {
         outOfStepRuns.push(
-          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; ${onlyLeftOut(slipped) ? 'the run is left out of the vote on those units' : 'the run is left out of the vote'}`,
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipReason(slipped)}; ${onlyLeftOut(slipped, leaf.answer) ? 'the run is left out of the vote on those units' : 'the run is left out of the vote'}`,
         );
         const run = runOf(task, task.run);
         const off = unheard.get(run) ?? new Set<number>();
         // A run that only left units out is still heard on the units it named; a slipped run is heard on none.
-        const left = onlyLeftOut(slipped) ? leftOut(leaf.answer, leaf.window) : leaf.window.units;
+        const left = onlyLeftOut(slipped, leaf.answer)
+          ? leftOut(leaf.answer, leaf.window)
+          : leaf.window.units;
         for (const unit of left) off.add(unit.index);
         unheard.set(run, off);
         slippedLeaves.push({ task, window: leaf.window });
-        if (!onlyLeftOut(slipped)) continue;
+        if (!onlyLeftOut(slipped, leaf.answer)) continue;
       }
       hear(task, task.run, leaf);
     }
