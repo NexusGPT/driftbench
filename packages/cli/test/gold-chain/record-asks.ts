@@ -57,7 +57,8 @@ async function record(estate: EstateName, key: string) {
       },
     });
     const texts = new Map<string, string>();
-    for (const path of Object.values(LAYOUT[estate])) texts.set(path, await readFile(join(dir, path), 'utf8'));
+    for (const path of Object.values(LAYOUT[estate]))
+      texts.set(path, await readFile(join(dir, path), 'utf8'));
     const asks = new Map<string, { quote: string; context: string }>();
     for (const atom of scan.map.atoms) {
       if (atom.kind !== 'instruction' || atom.fields?.extraction !== 'pointer') continue;

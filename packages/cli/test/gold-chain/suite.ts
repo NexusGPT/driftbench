@@ -382,8 +382,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             );
           }
         }
+        const refusedAtoms = new Set(withLimits.refused.map((entry) => entry.atom));
         const others = approved.atoms
-          .filter((atom) => !atomUnits.has(atom.id))
+          .filter((atom) => !atomUnits.has(atom.id) && !refusedAtoms.has(atom.id))
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
         const producedCount = [...byAtom.values()].reduce((sum, list) => sum + list.length, 0);
         if (conditions.length !== producedCount + others) {
