@@ -54,3 +54,14 @@ export const sharedTyped = () => {
 /** A result with an array whose element 1 is a getter, and one whose element 1 is a setter alone. */
 export const withArrayGetter = () => Object.defineProperty([1, 2, 3], 1, { enumerable: true, get: () => 2 });
 export const withArraySetter = () => Object.defineProperty([1, 2, 3], 1, { enumerable: true, set() {} });
+
+/** Writes to a nested array of its argument and puts the value back before it returns. */
+export const touchesAndRestores = (input: { deep: { list: number[] } }) => {
+  const kept = input.deep.list[0] as number;
+  input.deep.list[0] = kept + 1;
+  input.deep.list[0] = kept;
+  return input.deep.list.length;
+};
+
+/** Reads its argument only. */
+export const readsOnly = (input: { deep: { list: number[] } }) => input.deep.list.length;

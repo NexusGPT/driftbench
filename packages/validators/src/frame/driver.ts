@@ -46,6 +46,25 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
+// Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
+// inputs"): a write to an argument, a permanent one or one put back before the call returns, throws in the product.
+// The functions are taken before the product loads.
+const «freezeIt» = Object.freeze;
+const «keysOf» = Reflect.ownKeys;
+const «descOf» = Reflect.getOwnPropertyDescriptor;
+const «isFrozenIt» = Object.isFrozen;
+const «isViewIt» = ArrayBuffer.isView;
+function «deepFreeze»(«x») {
+  if («x» === null || typeof «x» !== 'object' || «isFrozenIt»(«x»)) return «x»;
+  if («isViewIt»(«x»)) return «x»;
+  «freezeIt»(«x»);
+  const «ks» = «keysOf»(«x»);
+  for (let «i» = 0; «i» < «ks».length; «i» += 1) {
+    const «d» = «descOf»(«x», «ks»[«i»]);
+    if («d» && 'value' in «d») «deepFreeze»(«d».value);
+  }
+  return «x»;
+}
 let «counter» = 0;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
@@ -344,7 +363,7 @@ if («setup».command) {
         : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
-      const «args» = «decode»(«request».args);
+      const «args» = «deepFreeze»(«decode»(«request».args));
       const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
       const «used» = «cpuNow»(«before»);
@@ -418,10 +437,16 @@ export function wrapperModule(
 export function plainCodec(
   seed: number,
   tag: string,
-): { source: string; encode: string; decode: string; handles: string } {
+): { source: string; encode: string; decode: string; handles: string; deepFreeze: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')} };\n`;
-  return { source, encode: name('encode'), decode: name('decode'), handles: name('handles') };
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')} };\n`;
+  return {
+    source,
+    encode: name('encode'),
+    decode: name('decode'),
+    handles: name('handles'),
+    deepFreeze: name('deepFreeze'),
+  };
 }
 
 /**
@@ -433,7 +458,7 @@ export function plainBatchEntry(
   seed: number,
   tag: string,
   paths: { module: string; codec: string; calls: string; out: string },
-  codec: { encode: string; decode: string; handles: string },
+  codec: { encode: string; decode: string; handles: string; deepFreeze: string },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
@@ -442,17 +467,18 @@ export function plainBatchEntry(
   const answer = name('answer');
   const error = name('error');
   return [
+    // The codec first: it takes the functions it freezes with before the product module runs.
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')} } from ${JSON.stringify(paths.codec)};`,
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
     `  const ${each} = JSON.parse(${name('line')});`,
     `  let ${answer};`,
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('decode')}(${each}.args))) };`,
+    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('deepFreeze')}(${name('decode')}(${each}.args)))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,

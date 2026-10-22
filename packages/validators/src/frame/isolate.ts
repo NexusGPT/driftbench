@@ -182,7 +182,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string };
+  codecNames: { encode: string; decode: string; handles: string; deepFreeze: string };
   count: number;
   /** The file of the calls run C makes, one JSON line each, in the order they were made. */
   calls: string;
