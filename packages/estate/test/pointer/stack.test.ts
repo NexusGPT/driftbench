@@ -15,6 +15,7 @@ import {
   singleLabelling,
   stackDecision,
   stackedLabelling,
+  stackMargin,
 } from '../../src/pointer';
 import { load, plantedDense, plantedYesNo } from './support';
 
@@ -606,12 +607,24 @@ describe('a stack that decides by margin', () => {
       margin: expect.closeTo(0.94, 5),
     });
     expect(margin({ order: 0.5, remark: 0.45, none: 0.05 })?.margin).toBeCloseTo(0.05, 5);
-    expect(margin({ order: 0.9, remark: 0.1 }).label).toBe('order');
-    // Not a vector: refused, and no repair.
-    expect(() => margin({ order: 1, remark: 1, none: 0 })).toThrow(RangeError);
-    expect(() => margin({ order: 0.9, remark: 0.05 })).toThrow(RangeError);
-    expect(() => margin({ order: -0.1, remark: 1.1 })).toThrow(RangeError);
-    expect(() => margin({ order: Number.NaN, remark: 1 })).toThrow(RangeError);
+    // Not a vector, or no none option: no margin from the measure, and no repair.
+    expect(margin({ order: 1, remark: 1, none: 0 })).toBeUndefined();
+    expect(margin({ order: 0.9, remark: 0.05 })).toBeUndefined();
+    expect(margin({ order: -0.1, remark: 0.6, none: 0.5 })).toBeUndefined();
+    expect(margin({ order: Number.NaN, remark: 0, none: 1 })).toBeUndefined();
+  });
+
+  it('refuses in the stack where the measure gives none', () => {
+    expect(stackMargin({ order: 0.75, remark: 0.125, none: 0.125 })).toMatchObject({ label: 'order' });
+    for (const bad of [
+      { order: 0.4, remark: 0.3, none: 0.2 },
+      { order: 0.6, remark: 0.3, none: 0.2 },
+      { order: -0.1, remark: 0.6, none: 0.5 },
+      { order: Number.POSITIVE_INFINITY, remark: 0, none: 0 },
+      { order: 0.9, remark: 0.1 },
+    ] as Array<Record<string, number>>) {
+      expect(() => stackMargin(bad)).toThrow(RangeError);
+    }
   });
 
   it('lets system 1 decide a clear unit, and system 2 every unit below the cut', () => {
