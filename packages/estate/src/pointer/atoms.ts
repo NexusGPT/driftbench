@@ -182,12 +182,16 @@ export function pointerAtoms(
     conditions.set(key, [...(conditions.get(key) ?? []), item]);
   }
   // A bound unit (a condition label with numeric links) gives its limits to the atoms of the unit it points at, in
-  // whichever set that unit is labelled: a set of limits can sit beside the set of rules.
+  // whichever set that unit is labelled: a set of limits can sit beside the set of rules. So does a unit that carries
+  // numeric links and builds no atom: its limits go to the atoms of that same unit.
   const boundFor = new Map<string, LabelledUnit[]>();
   for (const item of labelled) {
-    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
     if (limitsOf(item).length === 0) continue;
-    boundFor.set(item.target.id, [...(boundFor.get(item.target.id) ?? []), item]);
+    const label = item.set.labels.find((candidate) => candidate.name === item.label);
+    // A bound unit points at the unit it limits; a unit with no target and no atom of its own states its own limit.
+    const holder = label?.condition ? item.target?.id : label?.atom ? undefined : item.id;
+    if (holder === undefined) continue;
+    boundFor.set(holder, [...(boundFor.get(holder) ?? []), item]);
   }
   const attached = new Set<string>();
   for (const item of labelled) {
