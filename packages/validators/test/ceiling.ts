@@ -7,13 +7,18 @@ import { readFileSync } from 'node:fs';
  * ceiling in the same diff that raises the count (review of #1385).
  */
 export function ceilingVerdict(count: number, head: number, base: number | undefined): string | undefined {
-  if (base !== undefined && head > base) return `the committed ceiling ${head} is above the base's ${base}; a ceiling only goes down`;
+  if (base !== undefined && head > base)
+    return `the committed ceiling ${head} is above the base's ${base}; a ceiling only goes down`;
   if (count > head) return `${count} unstructured failures, above the committed ceiling ${head}`;
   return undefined;
 }
 
 function git(args: string[], cwd?: string): string {
-  return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...(cwd ? { cwd } : {}) });
+  return execFileSync('git', args, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    ...(cwd ? { cwd } : {}),
+  });
 }
 
 /**

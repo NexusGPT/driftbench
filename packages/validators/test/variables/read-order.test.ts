@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
-import { referenceImpl } from '../variables-blind/reference/index';
 import { type Reads, readsHash, recorded } from '../read-order';
+import { referenceImpl } from '../variables-blind/reference/index';
 
 /**
  * The generic guard against eager diagnostics (docs/validators.md 12.11, review of #1385 and #1387). Every item of
