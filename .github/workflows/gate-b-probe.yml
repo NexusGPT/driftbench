@@ -23,5 +23,10 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Format the three files and print the diff
+        continue-on-error: true
+        run: |
+          pnpm exec biome check --write packages/estate/src/limits packages/estate/src/variables packages/estate/test/variables packages/cli/test/gold-chain packages/estate/test/gold || true
+          git diff
       - name: Lint errors only
         run: pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000
