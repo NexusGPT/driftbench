@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { parse, preprocess } from 'micromark';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
@@ -256,39 +257,57 @@ export function nestingOf(source: string): number {
   return deepest;
 }
 
-/** The most lines of one run of lines (no blank line between them) the markdown parser reads in one call. */
+/** The most lines of one paragraph the markdown parser reads in one call. */
 export const SLAB_LINES = 5_000;
 
+const linesIn = (text: string): number => {
+  let count = 1;
+  for (let at = text.indexOf('\n'); at !== -1; at = text.indexOf('\n', at + 1)) count++;
+  return count;
+};
+
+/** Whether a line, read as the start of a file, is a paragraph on its own: the parser decides, not a rule here. */
+const startsParagraph = (line: string): boolean => {
+  const children = (PROCESSOR.parse(line) as unknown as Node).children ?? [];
+  return children.length === 1 && children[0]?.type === 'paragraph';
+};
+
 /**
- * The parts of a text the markdown parser reads one by one: the text itself when no run of lines is longer than
- * `SLAB_LINES`, else the text cut after every `SLAB_LINES` lines of a run, never inside a fence.
+ * The offsets at which a text is read in parts. The markdown parser's cost grows much faster than the lines of one
+ * paragraph (150,000 lines take a minute, in parts of 5,000 about a second), so a paragraph over `SLAB_LINES` lines
+ * is read in parts. The block structure comes from the parser's own block pass, which does not read the text of
+ * a paragraph and is linear: only a paragraph it finds is cut, at the start of a line that the parser also reads as
+ * a paragraph alone, so no fence, heading, table or front matter is cut. A sentence over a cut is two units.
  */
-function slabsOf(text: string): Array<[number, number]> {
+function cutsOf(text: string): number[] {
+  if (linesIn(text) <= SLAB_LINES) return [];
+  PROCESSOR.freeze();
+  const extensions = (PROCESSOR.data('micromarkExtensions') as never[] | undefined) ?? [];
+  const events = parse({ extensions })
+    .flow()
+    .write(preprocess()(text, undefined, true));
   const cuts: number[] = [];
-  let fence: string | undefined;
-  let run = 0;
-  let at = 0;
-  while (at < text.length) {
-    const end = text.indexOf('\n', at);
-    const next = end === -1 ? text.length : end + 1;
-    const line = text.slice(at, end === -1 ? text.length : end);
-    const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
-    if (mark !== undefined) {
-      if (fence === undefined) fence = mark.charAt(0);
-      else if (mark.charAt(0) === fence) fence = undefined;
-    }
-    if (line.trim() === '') run = 0;
-    else {
-      run++;
-      if (run >= SLAB_LINES && fence === undefined && mark === undefined && next < text.length) {
-        cuts.push(next);
-        run = 0;
+  for (const [kind, token] of events) {
+    if (kind !== 'enter' || token.type !== 'paragraph') continue;
+    if (token.end.line - token.start.line + 1 <= SLAB_LINES) continue;
+    let lines = 0;
+    let at = text.lastIndexOf('\n', token.start.offset) + 1;
+    while (at < token.end.offset) {
+      const end = text.indexOf('\n', at);
+      const next = end === -1 ? text.length : end + 1;
+      if (
+        lines >= SLAB_LINES &&
+        next <= token.end.offset &&
+        startsParagraph(text.slice(at, end === -1 ? undefined : end))
+      ) {
+        cuts.push(at);
+        lines = 0;
       }
+      lines++;
+      at = next;
     }
-    at = next;
   }
-  if (cuts.length === 0) return [[0, text.length]];
-  return [0, ...cuts].map((from, index): [number, number] => [from, cuts[index] ?? text.length]);
+  return cuts;
 }
 
 export type CutOptions = {
@@ -356,17 +375,29 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     }
   };
 
-  const markdown = (text: string, offset: number, inherited: string[], depth: number) => {
-    // The markdown parser's cost grows much faster than the number of lines of one run of lines (a hundred and fifty
-    // thousand lines of one paragraph take a minute, in slabs of five thousand a second). A run over `SLAB_LINES`
-    // is read in slabs cut at line breaks, outside fences; a sentence that runs over a slab edge is two units.
-    const slabs = slabsOf(text);
-    if (slabs.length > 1) {
-      for (const [from, to] of slabs) markdown(text.slice(from, to), offset + from, inherited, depth);
+  const markdown = (
+    text: string,
+    offset: number,
+    inherited: string[],
+    depth: number,
+    trail: Array<{ depth: number; title: string }> = [],
+    sliced = false,
+  ) => {
+    const cuts = sliced ? [] : cutsOf(text);
+    if (cuts.length > 0) {
+      const edges = [0, ...cuts, text.length];
+      for (let part = 0; part + 1 < edges.length; part++)
+        markdown(
+          text.slice(edges[part], edges[part + 1]),
+          offset + (edges[part] as number),
+          inherited,
+          depth,
+          trail,
+          true,
+        );
       return;
     }
     const tree = PROCESSOR.parse(text) as unknown as Node;
-    const trail: Array<{ depth: number; title: string }> = [];
     const here = () => [...inherited, ...trail.map((entry) => entry.title)];
     const at = (n: number | undefined) => (n ?? 0) + offset;
 
