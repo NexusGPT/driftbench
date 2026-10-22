@@ -1,12 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pointer } from '@agent-nexus/driftbench-estate';
-import {
-  type EstateName,
-  estateFolder,
-  GOLD_SET_NAME,
-  GOLD_SET_YAML,
-} from '../../../estate/test/gold/gold';
+import { type EstateName, estateFolder, GOLD_SET_NAME, GOLD_SET_YAML } from '../../../estate/test/gold/gold';
 
 /**
  * The numbers of a gold estate come from a recorded labeller. A second label set, `limits`, sits beside the set of
@@ -43,7 +38,8 @@ export function chainSets() {
   return parsed.sets;
 }
 
-export const cassettePath = (estate: EstateName): string => join(estateFolder(estate), 'limits.cassette.jsonl');
+export const cassettePath = (estate: EstateName): string =>
+  join(estateFolder(estate), 'limits.cassette.jsonl');
 
 /** The recorded limits of an estate: the cassette entries of the limits set, and nothing else. */
 export async function loadLimitsCassette(estate: EstateName): Promise<pointer.Cassette> {

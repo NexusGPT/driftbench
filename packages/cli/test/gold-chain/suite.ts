@@ -328,7 +328,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         for (const limit of truth.limits) {
           const atom = atomOf.get(limit.governs);
           if (!atom) {
-            problems.push(`limit not placeable: ${limit.unit} (${limit.limit} ${limit.comparison}) governs ${limit.governs}, a unit with no instruction atom`);
+            problems.push(
+              `limit not placeable: ${limit.unit} (${limit.limit} ${limit.comparison}) governs ${limit.governs}, a unit with no instruction atom`,
+            );
             continue;
           }
           wanted.set(key(atom.id, limit.limit, limit.comparison, limit.unit_of), limit);
@@ -354,11 +356,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         ).length;
         for (const [k, limit] of wanted) {
           if (!produced.has(k)) {
-            problems.push(`limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`);
+            problems.push(
+              `limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`,
+            );
           }
         }
         for (const [k, atomId] of produced) {
-          if (!wanted.has(k)) problems.push(`limit not in the truth: ${k.replace(`${atomId} | `, '')} produced on ${atomId}`);
+          if (!wanted.has(k))
+            problems.push(`limit not in the truth: ${k.replace(`${atomId} | `, '')} produced on ${atomId}`);
         }
         const withLimits = variables.estateToVariables(approved, resolver);
         const conditions = withLimits.store.variables.filter((variable) =>
@@ -369,7 +374,9 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           .filter((atom) => !instructionAtoms.has(atom.id) && !refusedAtoms.has(atom.id))
           .reduce((sum, atom) => sum + variables.conditionsOf(atom).length, 0);
         if (conditions.length !== producedCount + others) {
-          problems.push(`${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`);
+          problems.push(
+            `${conditions.length} condition variables for ${producedCount} produced limits and ${others} of code`,
+          );
         }
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok)
