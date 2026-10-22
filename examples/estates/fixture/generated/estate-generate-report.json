@@ -208,8 +208,8 @@
   "quality": {
     "completeShare": 0.9957657021877205,
     "askedTests": 1403,
-    "distinctAsks": 112,
-    "distinctAsksPer100": 7.982893799002138
+    "distinctAsks": 110,
+    "distinctAsksPer100": 7.840342124019958
   },
   "unit": {
     "tests": 29,

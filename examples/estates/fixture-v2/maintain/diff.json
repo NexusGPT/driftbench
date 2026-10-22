@@ -3,7 +3,7 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-22T01:58:27.043Z",
+    "readAt": "2026-10-21T11:48:48.568Z",
     "hash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
     "atoms": 116,
     "edges": 55
@@ -11,7 +11,7 @@
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-22T01:58:41.523Z",
+    "readAt": "2026-10-21T11:48:59.364Z",
     "hash": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260",
     "atoms": 118,
     "edges": 55
@@ -68,7 +68,7 @@
           "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first\n  and getting an explicit yes.",
           "hash": "658e9a6d13b491f3ec47b46acd3edfcfa0a6631dbc3eac1f92ef83d6eb922bfe"
         },
-        "fields": ["situation", "evidence", "fields"]
+        "fields": []
       },
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
@@ -723,7 +723,7 @@
       {
         "unit": "mx7vrgfrjv",
         "why": ["new unit bluhvywt5m beside it", "changed"],
-        "atoms": ["instruction.standing.r2-never-send-an-email-to"]
+        "atoms": []
       },
       {
         "unit": "ndszu34jlz",
@@ -803,7 +803,52 @@
         "atoms": ["instruction.standing.r11-never-paste-the-contents-of"]
       }
     ],
-    "whole": "a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold"
+    "whole": "a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold",
+    "unlabeled": [
+      {
+        "unit": "mx7vrgfrjv",
+        "path": "CLAUDE.md",
+        "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+        "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
+        "fileAtoms": [
+          "gate.standing.read-before-edit-it",
+          "gate.standing.read-claude-memory-memory-md-before",
+          "gate.standing.read-claude-skills-invoice-reconcile-references",
+          "gate.standing.read-git-status-before-commit-to",
+          "hazard.standing.r15-after-a-compaction-re-read",
+          "instruction.standing.a-tracker-note-may-be-written",
+          "instruction.standing.every-task-follows-the-step-list",
+          "instruction.standing.never-report-a-task-as-done",
+          "instruction.standing.r10-when-the-user-says-stop",
+          "instruction.standing.r11-never-paste-the-contents-of",
+          "instruction.standing.r16-if-a-tool-fails-twice",
+          "instruction.standing.r17-report-a-number-only-when",
+          "instruction.standing.r2-never-send-an-email-to",
+          "instruction.standing.r4-never-delete-a-file-under",
+          "instruction.standing.r6-never-run-git-push-force",
+          "instruction.standing.r7-when-a-shipment-is-late",
+          "instruction.standing.r8-do-not-invent-order-numbers",
+          "invariant.standing.no-file-of-the-estate-is",
+          "invariant.standing.the-standing-instructions-stay-under-40000",
+          "reference.standing.read-claude-memory-memory-md",
+          "reference.standing.read-claude-skills-invoice-reconcile-references",
+          "reference.standing.read-claude-steps-json",
+          "register.standing.keep-every-reply-under-1-200",
+          "register.standing.lead-with-the-result-in-the",
+          "register.standing.never-use-the-words-obviously-or",
+          "register.standing.r1-always-answer-in-the-language",
+          "register.standing.r9-ask-at-most-one-question",
+          "register.standing.use-a-bullet-list-for-three",
+          "register.standing.write-amounts-with-the-currency-code",
+          "route.standing.an-ask-to-audit-the-ledger",
+          "route.standing.an-ask-to-know-where-a",
+          "route.standing.an-ask-to-plan-the-delivery",
+          "route.standing.an-ask-to-prepare-the-weekly",
+          "route.standing.an-ask-to-reconcile-an-invoice",
+          "route.standing.an-ask-to-write-to-or"
+        ]
+      }
+    ]
   },
   "oldAtoms": [
     "gate.invoice-reconcile.read-references-matching-rules-md-before",
