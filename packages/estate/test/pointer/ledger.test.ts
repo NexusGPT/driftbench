@@ -14,7 +14,7 @@ const HALL = [
 ].join('\n');
 
 const filesOf = (texts: Record<string, string>) =>
-  Object.entries(texts).map(([path, text]) => ({ path, cut: cut(text) }));
+  Object.entries(texts).map(([path, text]) => ({ path, cut: cut(text), text }));
 const scan = (texts: Record<string, string>, previous?: Ledger) =>
   nextLedger(filesOf(texts), previous, 'hall');
 const idOf = (result: ReturnType<typeof scan>, path: string, text: string) =>

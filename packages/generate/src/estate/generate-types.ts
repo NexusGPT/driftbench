@@ -192,7 +192,7 @@ export type EstateReport = {
     scripts: number;
     helpers: number;
     cases: number;
-    /** Catalogue checks: tested through their host hook, or a gap for want of a trigger or a host. */
+    /** Catalogue checks: tested through their host guard, or a gap for want of a trigger or a host. */
     checks: { tested: number; needsTrigger: number; needsHost: number };
     skipped: string[];
   };
@@ -253,8 +253,6 @@ export type Context = ThenContext & {
   owners: ReadonlyMap<string, string>;
   /** The route atoms that name each unit, for a unit whose description gives no task. */
   routes: ReadonlyMap<string, readonly EstateAtom[]>;
-  /** The files the map records as navigation only (examples, templates, histories). */
-  navigation: ReadonlySet<string>;
   paths: EstateGenerateOptions['paths'];
   fallback: boolean;
   /** The estate's output rules as patterns no message may match, compiled from its register atoms. */

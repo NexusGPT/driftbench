@@ -101,7 +101,17 @@ export type ScanRequest = {
   /** A planted labeller called in process. */
   labeler?: Labeler;
   /** Or a model port over a fake transport; with a cassette. */
-  model?: { arm: ModelArm; transport: Transport; threshold?: number };
+  model?: {
+    arm: ModelArm;
+    transport: Transport;
+    /** A system 2 labeler behind the system 1 arm: a stack. Its decisions come from the stack settings below. */
+    second?: 'haiku';
+    /** The cut on the margin between the two likeliest options of a choice (a stack only). */
+    marginCut?: number;
+    /** Probability bounds of the cascade, read instead of the margin cut when either is set (a stack only). */
+    passAt?: number;
+    failAt?: number;
+  };
   cassette?: CassetteIo;
   /** Check mode: fail when the ledger is stale instead of writing a new one. */
   check?: boolean;
