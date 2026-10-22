@@ -257,3 +257,28 @@ plan:
     - [qj4ww7uhpo, iwmdgvmcph, tr4tjylixq, ls3egqcgwr]
     - [hjplp76mno, 7yiqnf7tt2, 7ibzeqookm]
     - [ahkc4uxxcc, aow32cbgod, vx3kl22k3o]
+
+# 5. Units that take their number from another unit or a range, by gold id.
+refers_to:
+  - unit: ntrs7cssmu             # the email length limit before it
+    to: akbvkiod36
+  - unit: 2tol7ropur             # the phone list limit before it
+    to: ppy3jjyvlc
+  - unit: q4nz5hws7s             # the inactivity prompt of the sentence before
+    to: lewolyumgj
+  - unit: 5swlxrtj45             # the minimum stay of the sentence before
+    to: gvzbjuydpj
+  - unit: uehscl2a2r             # the cancellation table
+    to: { from: nybgf6kfin, to: gueog6lykm }
+  - unit: n5imuntsdk             # the cancellation table
+    to: { from: nybgf6kfin, to: gueog6lykm }
+  - unit: 652yfeeguc             # the cancellation table
+    to: { from: nybgf6kfin, to: gueog6lykm }
+  - unit: a3dchta7kr             # the urgency table
+    to: { from: p77uihinyk, to: 27jkqliewi }
+  - unit: k6g63ac7qe             # the urgency table
+    to: { from: p77uihinyk, to: 27jkqliewi }
+
+# 6. Number tables: standalone tables whose cells state numbers, that no instruction points at and that hold no truth limit, as a range of their cells.
+number_table:
+  - { from: gzkv46cdyp, to: 5ign5ie4be }   # rooms, sleeps and price per night

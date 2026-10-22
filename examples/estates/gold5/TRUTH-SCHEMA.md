@@ -49,6 +49,19 @@ plan:
     - 12ab34cd56
   same_row:                      # groups of units that apply in the same situation: one plan row
     - [ef56ab78cd, 78cd90ef12]   # must name all of them (use this for 2 to 4 units; 0 to 6 groups) (use this for 2 to 4 units; 0 to 6 groups)
+
+# 5. Referred numbers. A unit whose number stands in another unit or a range of units it points at
+#    (a table above, the sentence before).
+refers_to:
+  - unit: 90ef12ab34             # the unit that points
+    to: 78cd90ef12               # the unit it takes its number from, or a range:
+  - unit: 34cd56ef78
+    to: { from: ab12cd34ef, to: cd34ef56ab }   # a run of one file, in file order, both ends included
+
+# 6. Number tables. Each table whose cells state numbers, that no instruction points at and that holds no
+#    truth limit, as the range of its cells, header cells included.
+number_table:
+  - { from: 12ab34cd56, to: 56ef78ab90 }
 ```
 
 ## Rules for the author
@@ -70,4 +83,31 @@ plan:
 * `scopes`: the harness labels the condition unit `condition` for the chain, whatever its gold label, and
   points it at the target. Choose pairs where the condition unit and the target are in one section.
 * Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
-* An empty list is allowed only for `scopes`, `plan.same_row` and `limits` when the estate has none.
+* `refers_to`: only a unit that points at the place its number stands, not a unit that states its own number.
+  A range runs over units of one file in file order. A unit never refers to itself, and an entry is given
+  once.
+* `number_table`: a table whose cells state numbers, that no instruction points at and that holds no truth
+  limit. Every unit of the range is a table cell, and two number tables share no cell. A table that an
+  instruction points at, or whose cells are instructions, is not listed.
+* Two table fields, two meanings. `number_table` (this file) is a table of numbers with no truth limit.
+  `limits_table` (the heldout truth files) is a table whose rows carry truth limits. A table is never both.
+* An empty list is allowed only for `scopes`, `plan.same_row`, `limits`, `refers_to` and `number_table` when
+  the estate has none. `refers_to` and `number_table` may be left out; they read as empty.
+
+## Known candidate gaps, not in the published truths
+
+Six `refers_to` entries point at a place that holds a number, but the published truths (the 38 truth of
+c0359aee7 and the 55 truth of 4ef73174f) carry no limit there. They stay out of those truths. A truth version
+that adds them comes only from a separate blind truth PR with its own review.
+
+| Estate | Referring unit | Place referred to |
+|---|---|---|
+| A | fko2ua5tpt | hykpyrtlha |
+| C | uehscl2a2r | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | n5imuntsdk | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | 652yfeeguc | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | a3dchta7kr | the urgency table, p77uihinyk to 27jkqliewi |
+| C | k6g63ac7qe | the urgency table, p77uihinyk to 27jkqliewi |
+
+A scorer that reads these places finds numbers that the published truths do not count: a producer that returns
+them there is scored as returning extras.
