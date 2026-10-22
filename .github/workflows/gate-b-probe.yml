@@ -1,0 +1,33 @@
+name: gate-b probe
+
+# Temporary: formats the gold-chain tests, prints the diff and runs them.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Format and print the diff
+        run: |
+          pnpm exec biome check --write packages/cli/test/gold-chain || true
+          git diff
+      - name: Lint errors only
+        run: pnpm exec biome check packages/cli/test/gold-chain --diagnostic-level=error --max-diagnostics=1000
+      - name: Gold chain tests
+        run: pnpm exec vitest run packages/cli/test/gold-chain packages/estate/test/gold --maxWorkers=2

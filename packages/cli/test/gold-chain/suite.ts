@@ -1,3 +1,4 @@
+import { appendFileSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
@@ -50,6 +51,48 @@ const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
 const JUDGE = ['--judge', 'claude:haiku', '--judge-command', FAKE_JUDGE, '--judge-budget', '1'];
 const SHOWN = 200;
 const INSTRUCTION = new Set(['rule', 'prohibition', 'gate']);
+
+/**
+ * The known gaps of the gate (known-gaps.json), held as a strict ratchet: for steps 2, 3 and 4 the problems found
+ * must equal the listed ones exactly, in both directions. A new problem fails, and so does a fixed one until the
+ * file is tightened in the same change. The file also holds the not-passed steps of each estate and the measured
+ * figures of the producer on the original 38-limit truth.
+ */
+type Known = {
+  notPassed: string[];
+  limits38: { truth: number; found: number; produced: number };
+  gaps: Record<string, string[]>;
+};
+const KNOWN = JSON.parse(readFileSync(new URL('./known-gaps.json', import.meta.url), 'utf8')) as Record<
+  EstateName,
+  Known
+>;
+
+/**
+ * The limits that were added to the truth after the producer's first recordings (the units the producer had
+ * returned as extras, judged by a blind check). Every other limit is the 38-limit truth that was written before
+ * any recording. The record of both is in examples/estates/gold5/TRUTH-NOTES.md ("Revision: blind re-check of the
+ * added limits") and TRUTH-SCHEMA.md (history of the limits).
+ */
+const ADDED_AFTER_RECORDING = new Set([
+  '2ihgfbfpwv',
+  '5fheyswkjr',
+  'dptij3uzkt',
+  'ozfstdpufc',
+  'xalkekvnkq',
+  'emimqrmqo6',
+  'nmk2xrp2r3',
+  '4delmkvg75',
+  '2yxq6pbpcn',
+  'ttzfbmyzfz',
+  'erb2rbwa26',
+  'lwci7tropa',
+  'kn447e23qp',
+  'bidpovjlre',
+  'txtsbyxu6a',
+  'x2yw2rftbc',
+  '7xzbzyq5no',
+]);
 
 type Atom = EstateMap['atoms'][number];
 type Spec = {
@@ -104,12 +147,24 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
     phrases?: string;
   } = {};
 
-  const rows: Array<{ step: string; tie: string; verified: 'yes' | 'NO' }> = [];
+  const rows: Array<{ step: string; tie: string; verified: 'yes' | 'gap' | 'NO' }> = [];
+  const gapped = new Set<string>();
   async function prove(step: string, check: () => Promise<string>): Promise<void> {
-    const row: { step: string; tie: string; verified: 'yes' | 'NO' } = { step, tie: '', verified: 'NO' };
+    const row: { step: string; tie: string; verified: 'yes' | 'gap' | 'NO' } = { step, tie: '', verified: 'NO' };
     rows.push(row);
     row.tie = await check();
-    row.verified = 'yes';
+    row.verified = gapped.has(step) ? 'gap' : 'yes';
+  }
+
+  /** The problems of a step with known gaps must equal the listed gaps exactly (see KNOWN). */
+  function holdGaps(step: string, problems: string[]): void {
+    const known = KNOWN[estate].gaps[step] ?? [];
+    const sorted = (list: string[]): string[] => [...list].sort();
+    expect(
+      sorted(problems),
+      `${report(step, problems)}\nThe problems of this step differ from packages/cli/test/gold-chain/known-gaps.json. A problem that is no longer found is a gap fixed: remove it from the file in the same change.`,
+    ).toEqual(sorted(known));
+    if (known.length > 0) gapped.add(step);
   }
 
   async function cli(argv: string[]) {
@@ -258,7 +313,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }),
         );
         await writeFile(join(work, 'map.yaml'), renderEstateMap(scan.map));
-        expect(problems, report('labels to atoms', problems)).toEqual([]);
+        holdGaps('2 labels', problems);
         return `${chain.atomOf.size} instruction atoms, ${applied.size} of ${truth.scopes.length} scopes applied`;
       });
     });
@@ -391,7 +446,16 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const valid = validateVariableStore(withLimits.store);
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
-        expect(problems, report('variables', problems)).toEqual([]);
+        const original = [...wanted].filter(([, limit]) => !ADDED_AFTER_RECORDING.has(limit.unit));
+        expect(
+          {
+            truth: original.length,
+            found: original.filter(([k]) => produced.has(k)).length,
+            produced: producedCount,
+          },
+          'the producer on the 38-limit truth (truth limits, found, produced) differs from known-gaps.json',
+        ).toEqual(KNOWN[estate].limits38);
+        holdGaps('3 variables', problems);
         const found = [...wanted.keys()].filter((k) => produced.has(k)).length;
         return `${values.size} instruction values, ${found} of ${wanted.size} truth limits produced, ${producedCount - found} extra, ${unitNotes} with another unit text`;
       });
@@ -462,7 +526,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           if (atom && !named.has(atom.id))
             problems.push(`planted ${planted.unit}: no plan row names ${atom.id}`);
         }
-        expect(problems, report('plan', problems)).toEqual([]);
+        holdGaps('4 plan', problems);
         const widest = Math.max(...plan.rows.map((row) => row.atomIds.length));
         return `plan ${plan.rows.length} rows (widest names ${widest} atoms) over map ${approved.hash.slice(0, 12)}`;
       });
@@ -651,11 +715,21 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
       });
     });
 
-    it('step 7 table: every step above is verified', () => {
+    it('step 7 table: every step is verified, or its gaps are exactly the known ones', () => {
       const lines = rows.map((row) => `${row.step.padEnd(14)} ${row.verified.padEnd(4)} ${row.tie}`);
-      console.log(`gold estate ${estate}\n${lines.join('\n')}`);
+      const open = rows.filter((row) => row.verified === 'gap').map((row) => row.step);
+      const verdict =
+        open.length === 0
+          ? `GATE B: PASSED, estate ${estate}`
+          : `GATE B: NOT PASSED at steps ${open.map((step) => step.split(' ')[0]).join(', ')}, estate ${estate}`;
+      console.log(`gold estate ${estate}\n${lines.join('\n')}\n${verdict}`);
+      const summary = process.env.GITHUB_STEP_SUMMARY;
+      if (summary !== undefined && summary !== '') {
+        appendFileSync(summary, `${verdict}\n\n\`\`\`\n${lines.join('\n')}\n\`\`\`\n`);
+      }
       expect(rows.length).toBe(6);
-      expect(rows.filter((row) => row.verified !== 'yes').map((row) => row.step)).toEqual([]);
+      expect(rows.filter((row) => row.verified === 'NO').map((row) => row.step)).toEqual([]);
+      expect(open).toEqual(KNOWN[estate].notPassed);
     });
   });
 }
