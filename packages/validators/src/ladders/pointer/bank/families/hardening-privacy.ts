@@ -70,6 +70,9 @@ async function judge(ctx: ItemContext, build: (p: Prose, marker: string) => Plac
   return pass(`${fake.count} requests held none of the comment and all of the text around it`);
 }
 
+/** A string as it appears inside serialised JSON (quotes, backslashes and control characters escaped). */
+const inJson = (text: string): string => JSON.stringify(text).slice(1, -1);
+
 /** A label set with a link kind that names the atoms of the kind `instruction`. */
 const LINK_YAML = `labels:
   - set: agent-rules
@@ -121,20 +124,28 @@ async function linkCandidate(ctx: ItemContext) {
   // `listed`), never as a pattern on the text of a body.
   if (res.listed === undefined)
     return fail('the reader does not expose the candidates its requests list (the port field `listed`)');
-  const candidates = res.listed
-    .filter((row) => row.file === 'harbour/second.md' && row.link === 'topic')
-    .flatMap((row) => row.candidates);
-  if (candidates.length === 0)
-    return fail('positive witness: the request for the second file lists no candidate');
-  // The candidate of THE planted atom: the one whose shown title holds the words around its comment. It must
-  // carry another id than the real one (a slug of the title, comment included) and no comment text.
-  const planted = candidates.find((c) => c.title.includes(head) && c.title.includes(tail));
-  if (!planted)
-    return fail(
-      'positive witness: no candidate of the request for the second file is the planted atom: none holds the words around the comment',
-    );
-  if (planted.id === '' || planted.id === atom.id || planted.title === title)
-    return fail('the planted atom is listed as it is given: its id and its title are not masked');
+  // A request for the second file is a body the transport received that holds the unit text the item planted
+  // in that file (a body without it is not a request for that file, whatever else it holds). A witness row
+  // counts only when its body is byte-equal to such a body: a body posted from inside a rendered call that is
+  // not the request for the file (a side body, with or without the text of the file) is never a witness.
+  const requests = [...new Set(fake.calls.filter((call) => call.body.includes(other)).map((c) => c.body))];
+  const rows = res.listed.filter((row) => row.file === 'harbour/second.md' && row.link === 'topic');
+  for (const request of requests) {
+    const witnesses = rows.filter((row) => row.body === request);
+    // The candidate of THE planted atom: the one whose shown title holds the words around its comment. It must
+    // carry another id than the real one (a slug of the title, comment included) and no comment text.
+    const planted = witnesses
+      .flatMap((row) => row.candidates)
+      .find((c) => c.title.includes(head) && c.title.includes(tail));
+    if (!planted)
+      return fail(
+        'positive witness: a request for the second file lists no candidate that is the planted atom: none holds the words around the comment, in a row whose body is that request',
+      );
+    if (planted.id === '' || planted.id === atom.id || planted.title === title)
+      return fail('the planted atom is listed as it is given: its id and its title are not masked');
+    if (!request.includes(inJson(planted.id)) || !request.includes(inJson(planted.title)))
+      return fail('the planted candidate is not in the exact body of the request for the second file');
+  }
   return pass(`${fake.count} requests: the candidate is listed and none holds a character of the comment`);
 }
 
