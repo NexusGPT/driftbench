@@ -98,7 +98,7 @@ describe('who owns a reference', () => {
   });
 });
 
-describe('a reference to a navigation document is no test', () => {
+describe('a reference to a navigation document is a read test like any other', () => {
   const owner = unit('stock', 'Counts stock in the aisles.');
   const sample = atom('reference.stock.sample', {
     fields: {
@@ -134,13 +134,13 @@ describe('a reference to a navigation document is no test', () => {
     );
   };
 
-  it('stays incomplete, and says so, when an older plan still holds the row', () => {
+  it('is complete whatever role the map records for the document: an order to read a file is a duty', () => {
     const suite = run([{ path: '.claude/skills/stock/references/examples/count-014.md', role: 'example' }]);
-    expect(suite.report.summary.complete).toBe(0);
-    expect(suite.report.incomplete[0]?.reasons[0]?.detail).toMatch(/navigation-only document/);
+    expect(suite.report.summary.complete).toBe(1);
+    expect(suite.report.incomplete).toEqual([]);
   });
 
-  it('is a normal test when the map records the document as normative or records no roles', () => {
+  it('is written the same when the map records the document as normative or records no roles', () => {
     for (const documents of [
       [{ path: '.claude/skills/stock/references/examples/count-014.md', role: 'normative' }],
       undefined,
