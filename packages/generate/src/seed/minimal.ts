@@ -49,7 +49,7 @@ export class TerminalSubsumption {
   /** The user messages the written specs say: a cut never removes the only place an approved phrase is said. */
   private readonly said = new Set<string>();
   /** The openings of the written walks: the hash of the first j block keys, by the spec that wrote them. */
-  private readonly openings = new Map<string, string>();
+  private readonly openings = new Map<string, { spec: string; block: string | undefined }>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
@@ -240,8 +240,9 @@ export class TerminalSubsumption {
   }
 
   private registerOpenings(spec: Spec): void {
-    for (const hash of this.openingHashes(spec))
-      if (!this.openings.has(hash)) this.openings.set(hash, spec.id);
+    this.openingHashes(spec).forEach((hash, index) => {
+      if (!this.openings.has(hash)) this.openings.set(hash, { spec: spec.id, block: spec.blocks[index]?.id });
+    });
   }
 
   /**
@@ -261,12 +262,16 @@ export class TerminalSubsumption {
     // The walk says where it starts: a Given carries the stage, and a cut before a block that names none is not made.
     const stage = spec.blocks[length - 1]?.expect?.stage;
     if (stage === undefined) return spec;
+    // It also names the block of the written spec that leaves the agent there, so a validator can confirm it.
+    const owner = this.openings.get(hashes[length - 1] as string);
+    if (owner?.block === undefined) return spec;
     const start = canonicalGiven(spec, length);
     const state = start.state;
     const given = {
       prefix: start.prefix,
       origin: 'canonical' as const,
       stage,
+      after: `${owner.spec}#${owner.block}`,
       ...(Object.keys(state.ledger ?? {}).length > 0 ? { ledger: state.ledger } : {}),
       ...(Object.keys(state.world ?? {}).length > 0 ? { world: state.world } : {}),
       ...(Object.keys(state.vars ?? {}).length > 0 ? { vars: state.vars } : {}),
@@ -292,7 +297,7 @@ export class TerminalSubsumption {
     draft.perturbations = candidate.perturbations;
     draft.reducedOpening = {
       blocks: length,
-      of: this.openings.get(hashes[length - 1] as string) as string,
+      of: owner.spec,
     };
     return parsed.spec;
   }

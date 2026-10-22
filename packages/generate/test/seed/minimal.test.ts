@@ -852,6 +852,9 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     expect(first.given?.stage).toBe(required(written.blocks[(opening?.blocks ?? 0) - 1]).stage);
     expect(first.given?.prefix?.length).toBeGreaterThan(0);
     expect(first.given?.origin).toBe('canonical');
+    // It names the block of the earlier walk that leaves the agent at that stage.
+    const named = written.blocks[(opening?.blocks ?? 0) - 1];
+    expect(first.given?.after).toBe(`${opening?.of}#${named?.id}`);
   });
 
   it('keeps the opening of a walk that declares a perturbation', () => {

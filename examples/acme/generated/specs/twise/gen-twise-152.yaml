@@ -54,6 +54,7 @@ blocks:
           content: ""
       origin: canonical
       stage: identify
+      after: gen-twise-144#b1-needs-to-identify
     expect:
       stage: identify
       stage_reported: true
