@@ -214,37 +214,16 @@ describe('the mean-shift items with a product that writes to its input afterward
     expect(got.framed.map((v) => v.pass)).toEqual([false, false, false, false]);
   });
 
-  // Generated: the kinds of write below, one program each on seed 1, plus two pairs drawn from every kind by a seed that
-  // changes with the run (GITHUB_RUN_ID, else the day) and is printed on a failure: the coverage of all kinds and pairs
-  // comes from the runs together. Alone, every kind and a random one-hundred-and-fifty programs run in the fast frame
-  // test (frame/aliasing.test.ts). A product that fails directly never passes through the frame; a write the frame can
-  // copy back gives the same verdict as directly.
-  const ALWAYS = ['fill', 'sort', 'temporary', 'ownMap', 'protoNull', 'extra', 'push'];
+  // Every kind of write, alone, on seed 1 in every run (all of MEAN_WRITES, no rotation, no draw): a product that
+  // fails directly never passes through the frame, and a write the frame can copy back gives the same verdict as
+  // directly. Pairs and 150 random programs run in the fast frame test (frame/aliasing.test.ts).
   it('never passes a product that fails directly, and agrees on every write the frame can copy back', async () => {
-    const rotation = Number(process.env.GITHUB_RUN_ID ?? Math.floor(Date.now() / 86_400_000));
-    let state = rotation >>> 0;
-    const next = () => {
-      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-      return state / 4294967296;
-    };
-    const pick = () => MEAN_WRITES[Math.floor(next() * MEAN_WRITES.length)] as (typeof MEAN_WRITES)[number];
-    const programs: Array<typeof MEAN_WRITES> = [
-      ...MEAN_WRITES.filter((write) => ALWAYS.includes(write.name)).map((write) => [write]),
-      [pick(), pick()],
-      [pick(), pick()],
-    ];
-    for (const program of programs) {
-      const name = program.map((write) => write.name).join('+');
-      const got = await verdicts2(
-        name.replace(/\W/g, '_'),
-        program.map((write) => write.code).join(' '),
-        [1],
-      );
-      const copy = program.every((write) => write.copy);
+    for (const write of MEAN_WRITES) {
+      const got = await verdicts2(write.name, write.code, [1]);
       got.direct.forEach((verdict, index) => {
-        const note = `rotation ${rotation}; ${shown(name, got, index)}`;
+        const note = shown(write.name, got, index);
         if (!verdict.pass) expect(got.framed[index]?.pass, note).toBe(false);
-        else if (copy) expect(got.framed[index]?.pass, note).toBe(true);
+        else if (write.copy) expect(got.framed[index]?.pass, note).toBe(true);
       });
     }
   });

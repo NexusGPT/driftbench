@@ -342,6 +342,37 @@ function merged(old: unknown, now: unknown): unknown {
   return now;
 }
 
+/** The text of a value that is an object, or undefined: how a key of a Map or a member of a Set is matched. */
+function textOf(value: unknown): string | undefined {
+  if (value === null || typeof value !== 'object') return undefined;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The old key or member that an object of the state after the call stands for: the first unused one that reads the
+ * same, so the caller's object keeps its identity and is changed in place. A primitive stands for itself.
+ */
+function keptKey(old: unknown[], used: Set<number>, key: unknown, position?: number): unknown {
+  const text = textOf(key);
+  if (text === undefined) return key;
+  for (let at = 0; at < old.length; at += 1) {
+    if (used.has(at) || textOf(old[at]) !== text) continue;
+    used.add(at);
+    return old[at];
+  }
+  // The product changed the content of the key itself: when nothing was added or removed, the key at the same place
+  // in the order stands for it.
+  if (position !== undefined && !used.has(position) && textOf(old[position]) !== undefined) {
+    used.add(position);
+    return old[position];
+  }
+  return key;
+}
+
 /** Makes `target` read like `source`, keeping `target` the same object (arrays, typed arrays, Maps, Sets, Dates, plain objects). */
 function changeInPlace(target: object, source: object, kind: string): void {
   if (kind === 'array') {
@@ -355,23 +386,50 @@ function changeInPlace(target: object, source: object, kind: string): void {
     if (to.length === from.length) for (let at = 0; at < to.length; at += 1) to[at] = from[at];
   } else if (kind === 'map') {
     const to = target as Map<unknown, unknown>;
-    const entries = [...(source as Map<unknown, unknown>).entries()].map(
-      ([key, value]) => [key, to.has(key) ? merged(to.get(key), value) : value] as const,
-    );
+    const oldKeys = [...to.keys()];
+    const used = new Set<number>();
+    const sameSize = oldKeys.length === (source as Map<unknown, unknown>).size;
+    let at = 0;
+    const position = (index: number) => (sameSize ? index : undefined);
+    const entries = [...(source as Map<unknown, unknown>).entries()].map(([key, value]) => {
+      const kept = keptKey(oldKeys, used, key, position(at++));
+      // A key that stands for an old object keeps that object (changed in place); the old value follows the old key.
+      const stays = kept !== key;
+      const slot = stays ? kept : key;
+      const before = to.has(slot) ? to.get(slot) : undefined;
+      return [stays ? merged(kept, key) : key, before === undefined ? value : merged(before, value)] as const;
+    });
     to.clear();
     for (const [key, value] of entries) to.set(key, value);
   } else if (kind === 'set') {
     const to = target as Set<unknown>;
-    const values = [...(source as Set<unknown>).values()];
+    const oldKeys = [...to.values()];
+    const used = new Set<number>();
+    const sameSize = oldKeys.length === (source as Set<unknown>).size;
+    let at = 0;
+    const values = [...(source as Set<unknown>).values()].map((value) => {
+      const kept = keptKey(oldKeys, used, value, sameSize ? at++ : undefined);
+      return kept === value ? value : merged(kept, value);
+    });
     to.clear();
     for (const value of values) to.add(value);
   } else if (kind === 'date') {
     (target as Date).setTime((source as Date).getTime());
   } else {
+    // Own keys only, whatever their names (toString, constructor, __proto__ are keys like any other), in the order of
+    // the state after the call; a value that is an object keeps the identity of the old one when it can.
     const to = target as Record<string, unknown>;
     const from = source as Record<string, unknown>;
-    for (const key of Object.keys(to)) if (!(key in from)) delete to[key];
-    for (const key of Object.keys(from)) to[key] = merged(to[key], from[key]);
+    const old = new Map(Object.keys(to).map((key) => [key, to[key]] as const));
+    for (const key of Object.keys(to)) Reflect.deleteProperty(to, key);
+    for (const key of Object.keys(from)) {
+      Object.defineProperty(to, key, {
+        value: merged(old.get(key), from[key]),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   }
 }
 

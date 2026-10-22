@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
-import { applyWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
+import { applyWrites, plainWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
@@ -291,14 +291,20 @@ describe('random writes to the arguments, at every depth', () => {
     });
   };
 
-  it('copies back what it can and reports the rest, over 150 random programs', () => {
+  it('copies back what it can and reports the rest, over every kind alone and 150 random programs', () => {
     const random = rng(986);
     const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
     open.push(frame as Frame<unknown>);
     let copied = 0;
     let reported = 0;
-    for (let trial = 0; trial < 150; trial += 1) {
-      const drawn = draw(random);
+    // Every kind of write on every kind of target once, then the random programs.
+    const single = Object.keys(TARGETS).flatMap((target) =>
+      (WRITES[TARGETS[target]?.kind as string] as { name: string; copy: boolean }[]).map((kind) => [
+        { write: { target, kind: kind.name }, copy: kind.copy },
+      ]),
+    );
+    for (let trial = 0; trial < single.length + 150; trial += 1) {
+      const drawn = trial < single.length ? (single[trial] as ReturnType<typeof draw>) : draw(random);
       const program = drawn.map((each) => each.write);
       const canCopy = drawn.every((each) => each.copy);
       const direct = writeTarget();
@@ -347,5 +353,74 @@ describe('results that differ only by function identity', () => {
     frame.product.keepsFunction();
     frame.product.keepsFunction();
     expect(frame.aliasSince(0)).toBeUndefined();
+  });
+});
+
+// Codex, run 39780074824: keys that shadow the names of Object.prototype are keys like any other, and the identity of
+// the children of an argument (reached twice, or replaced by an equal copy) is part of the record.
+describe('plain objects with shadowing keys and children', () => {
+  const base = () =>
+    Object.fromEntries([
+      ['toString', 1],
+      ['constructor', 2],
+      ['hasOwnProperty', 3],
+      ['a', 4],
+      ['x', { v: 1 }],
+      ['y', { v: 1 }],
+    ]) as Record<string, any>;
+  const run = (which: string) => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    const input = base();
+    (frame.product.plainWrites as (a: unknown, b: string) => unknown)(input, which);
+    return { input, found: frame.aliasSince(0) };
+  };
+  const direct = (which: string) => {
+    const input = base();
+    plainWrites(input, which);
+    return input;
+  };
+
+  it.each(['deleteToString', 'deleteConstructor', 'deleteHasOwnProperty', 'addConstructor', 'reorderKeys'])(
+    '%s: the caller gets what the same write gives in its own process, keys in the same order',
+    (which) => {
+      const got = run(which);
+      const want = direct(which);
+      expect(got.found).toBeUndefined();
+      expect(Object.keys(got.input)).toEqual(Object.keys(want));
+      expect(isDeepStrictEqual(got.input, want)).toBe(true);
+    },
+  );
+
+  it('addConstructor on an object that has no own key of that name gives the caller constructor = 7', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    const input: Record<string, unknown> = { a: 4 };
+    (frame.product.plainWrites as (a: unknown, b: string) => unknown)(input, 'addConstructor');
+    expect(Object.hasOwn(input, 'constructor')).toBe(true);
+    expect(input.constructor).toBe(7);
+  });
+
+  it.each(['aliasChildren', 'replaceByCopy'])(
+    '%s: a change of identity is reported, never passed',
+    (which) => {
+      expect(run(which).found).toContain('cannot reproduce');
+    },
+  );
+});
+
+describe('write-back keeps the identity of Map keys and Set members', () => {
+  it('changes the key objects of the caller in place', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    open.push(frame as Frame<unknown>);
+    const key = { n: 1 };
+    const member = { n: 100 };
+    const table = new Map([[key, 'v']]);
+    const bag = new Set([member]);
+    (frame.product.changesKeys as (a: unknown) => unknown)({ table, bag });
+    expect([...table.keys()][0]).toBe(key);
+    expect(key.n).toBe(2);
+    expect([...bag][0]).toBe(member);
+    expect(member.n).toBe(110);
   });
 });

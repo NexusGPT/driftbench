@@ -132,6 +132,8 @@ const «hashProto» = «protoOf»(«hashStart»('sha256'));
 const «hashUpdate» = «hashProto».update;
 const «hashDigest» = «hashProto».digest;
 const «mapEntries» = Map.prototype.entries;
+const «mapGet» = Map.prototype.get;
+const «mapSet» = Map.prototype.set;
 const «setValues» = Set.prototype.values;
 const «mapNext» = «protoOf»(new Map().entries()).next;
 const «setNext» = «protoOf»(new Set().values()).next;
@@ -213,7 +215,10 @@ if («setup».uptimeShift > 0) {
 // property of a container, a descriptor flag, the prototype, extensibility). A change in the OTHER digest is a change
 // the frame cannot reproduce.
 let «sawInvalid» = false;
-const «scan» = («root») => {
+const «scan» = («root», «prior») => {
+  // The objects met in this scan, by the order they were first met, up to a cap (the arguments of the scale items hold
+  // millions of rows, and a map of them costs more than the scan).
+  const «known» = new Map();
   const «dataHash» = «call»(«hashStart», undefined, ['sha256']);
   const «otherHash» = «call»(«hashStart», undefined, ['sha256']);
   let «dataText» = '';
@@ -240,13 +245,13 @@ const «scan» = («root») => {
   // A stable number for a function, a prototype or an object: the same one the next time it is met.
   const «idOf» = («thing») => {
     try {
-      let «known» = «call»(«idGet», «ids», [«thing»]);
-      if («known» === undefined) {
+      let «have» = «call»(«idGet», «ids», [«thing»]);
+      if («have» === undefined) {
         «idNext» += 1;
-        «known» = «idNext»;
-        «call»(«idSet», «ids», [«thing», «known»]);
+        «have» = «idNext»;
+        «call»(«idSet», «ids», [«thing», «have»]);
       }
-      return «known»;
+      return «have»;
     } catch {
       return -1;
     }
@@ -280,6 +285,21 @@ const «scan» = («root») => {
       if («ancestors»[«up»] === «value») { «put»('C;'); return; }
     }
     «ancestors»[«level»] = «value»;
+    // The identity of the object: the number of its first visit in the scan before the call, written each time it is
+    // met. An object the product made after the call has no such number and writes nothing, so adding an object
+    // changes nothing, while replacing an object by an equal copy, reaching one object by two keys, or moving
+    // objects between slots does (review of PR 986, codex run 39780074824).
+    if («prior» === undefined) {
+      let «index» = «call»(«mapGet», «known», [«value»]);
+      if («index» === undefined && «known».size < 100000) {
+        «index» = «known».size;
+        «call»(«mapSet», «known», [«value», «index»]);
+      }
+      if («index» !== undefined) «putOther»('I' + «index» + ';');
+    } else {
+      const «before» = «call»(«mapGet», «prior», [«value»]);
+      if («before» !== undefined) «putOther»('I' + «before» + ';');
+    }
     const «proto» = «protoOf»(«value»);
 
     // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
@@ -324,7 +344,7 @@ const «scan» = («root») => {
           «kind» = 2;
           if («size» !== undefined) {
             «put»('V' + «size» + ':');
-            for (let «i» = 0; «i» < «size»; «i» += 1) «put»('' + «value»[«i»] + ',');
+            for (let «i» = 0; «i» < «size»; «i» += 1) «put»(«same»(«value»[«i»], -0) ? '-0,' : '' + «value»[«i»] + ',');
           } else {
             const «bytes» = «call»(«viewByteLength», «value», []);
             «put»('W' + «bytes» + ':');
@@ -419,7 +439,7 @@ const «scan» = («root») => {
   «walk»(«root», 0, false);
   «dataFlush»();
   «otherFlush»();
-  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']) };
+  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']), known: «known» };
 };
 const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
@@ -459,7 +479,7 @@ if («setup».command) {
     let «argsBefore»;
     const «afterState» = () => {
       if («argsBefore» === undefined) return {};
-      const «now» = «scan»(«argsRef»);
+      const «now» = «scan»(«argsRef», «argsBefore».known);
       // A change the frame cannot copy back (a function, an accessor, a symbol or hidden key, an extra property of a
       // container, a descriptor, the prototype, extensibility) is reported as such, never copied.
       if («now».other !== «argsBefore».other) return { cannot: true };
