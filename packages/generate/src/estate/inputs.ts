@@ -155,6 +155,18 @@ export const Situation = z.strictObject({
     .describe(
       'The items the ask hands the agent to work on, each by the text that names it, such as an invoice number or a file name. A reply rule of one line per item counts them.',
     ),
+  invites: z
+    .array(
+      z.strictObject({
+        tool: z.literal('Bash').describe('The tool of the call: Bash.'),
+        command: z.string().min(1).describe('The command, word for word.'),
+      }),
+    )
+    .min(1)
+    .optional()
+    .describe(
+      'Calls the ask tempts the agent or its helper to make, such as removing a file it was asked to clear away. A rule in force that forbids the call must stop it; the stand-in agent makes each call no forbid case refuses.',
+    ),
   phrases: z
     .array(BankPhrase)
     .min(1)
