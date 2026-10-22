@@ -16,10 +16,19 @@ const harbour = () =>
         { id: 'fog', weight: 3, required: true },
       ],
     },
-    { id: 'vessel', values: [{ id: 'ferry', weight: 70 }, { id: 'trawler', weight: 30 }] },
+    {
+      id: 'vessel',
+      values: [
+        { id: 'ferry', weight: 70 },
+        { id: 'trawler', weight: 30 },
+      ],
+    },
     {
       id: 'lamp',
-      values: [{ id: 'steady', weight: 99 }, { id: 'ice', weight: 1, required: true }],
+      values: [
+        { id: 'steady', weight: 99 },
+        { id: 'ice', weight: 1, required: true },
+      ],
     },
   ]);
 
@@ -27,7 +36,8 @@ const REQUIRED = [
   ['tide', 'fog'],
   ['lamp', 'ice'],
 ] as const;
-const holdsRequired = (row: PlanV2Row) => REQUIRED.some(([variable, value]) => row.values[variable] === value);
+const holdsRequired = (row: PlanV2Row) =>
+  REQUIRED.some(([variable, value]) => row.values[variable] === value);
 const planned = (rows: readonly PlanV2Row[]) => rows.filter((row) => row.source === 'planned');
 const warned = (plan: ReturnType<typeof planV2>) =>
   plan.warnings.filter((entry) => (entry.code as string) === 'budget_drops_required');
@@ -45,7 +55,8 @@ describe('rows that hold a required value come first', () => {
   it('keeps each group from the most common row to the rarest', () => {
     for (const group of [rows.filter(holdsRequired), rows.filter((row) => !holdsRequired(row))])
       group.forEach((row, at) => {
-        if (at > 0) expect((group[at - 1] as PlanV2Row).logWeight).toBeGreaterThanOrEqual(row.logWeight - 1e-9);
+        if (at > 0)
+          expect((group[at - 1] as PlanV2Row).logWeight).toBeGreaterThanOrEqual(row.logWeight - 1e-9);
       });
   });
 
@@ -75,13 +86,19 @@ describe('a budget that cuts a required row says so', () => {
 
   it('warns budget_drops_required for each required value left in no row', () => {
     let budget = 0;
-    while (budget < whole.rows.length && new Set(inFirst(budget).map(([, value]) => value)).size < 2) budget += 1;
+    while (budget < whole.rows.length && new Set(inFirst(budget).map(([, value]) => value)).size < 2)
+      budget += 1;
     expect(budget).toBeGreaterThan(1);
     const short = planV2(harbour(), { budget: budget - 1 });
-    const [warning] = warned(short) as unknown as Array<{ values: Array<{ variable: string; value: string }> }>;
+    const [warning] = warned(short) as unknown as Array<{
+      values: Array<{ variable: string; value: string }>;
+    }>;
     expect(warning?.values.length).toBeGreaterThan(0);
-    const kept = new Set(short.rows.flatMap((row) => Object.entries(row.values).map(([k, v]) => `${k}=${v}`)));
-    for (const { variable, value } of warning?.values ?? []) expect(kept.has(`${variable}=${value}`)).toBe(false);
+    const kept = new Set(
+      short.rows.flatMap((row) => Object.entries(row.values).map(([k, v]) => `${k}=${v}`)),
+    );
+    for (const { variable, value } of warning?.values ?? [])
+      expect(kept.has(`${variable}=${value}`)).toBe(false);
   });
 
   it('does not warn when the budget keeps every required value', () => {
@@ -100,7 +117,13 @@ describe('a budget that cuts a required row says so', () => {
 describe('a store with no required value', () => {
   it('keeps the order of traffic and warns of nothing', () => {
     const store = makeStore([
-      { id: 'tide', values: [{ id: 'ebb', weight: 3 }, { id: 'flood', weight: 1 }] },
+      {
+        id: 'tide',
+        values: [
+          { id: 'ebb', weight: 3 },
+          { id: 'flood', weight: 1 },
+        ],
+      },
       { id: 'lamp', values: ['steady', 'flashing'] },
     ]);
     const plan = planV2(store, { budget: 2 });
@@ -115,13 +138,21 @@ describe('a store with no required value', () => {
 describe('the log weight of a row', () => {
   it('stays minus infinity in memory and null in the JSON text for a value of weight 0', () => {
     const store = makeStore([
-      { id: 'tide', values: [{ id: 'ebb', weight: 1 }, { id: 'dead', weight: 0, required: true }] },
+      {
+        id: 'tide',
+        values: [
+          { id: 'ebb', weight: 1 },
+          { id: 'dead', weight: 0, required: true },
+        ],
+      },
       { id: 'lamp', values: ['steady', 'flashing'] },
     ]);
     const plan = planV2(store);
     const zero = plan.rows.find((row) => row.values.tide === 'dead');
     expect(zero?.logWeight).toBe(Number.NEGATIVE_INFINITY);
-    const text = JSON.parse(renderPlanV2(plan)) as { rows: Array<{ values: Record<string, string>; logWeight: number | null }> };
+    const text = JSON.parse(renderPlanV2(plan)) as {
+      rows: Array<{ values: Record<string, string>; logWeight: number | null }>;
+    };
     expect(text.rows.find((row) => row.values.tide === 'dead')?.logWeight).toBeNull();
   });
 });
