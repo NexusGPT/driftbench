@@ -246,7 +246,7 @@ $ driftbench campaign resume halted --store halted.db
 
 ## 7. Retries: when a call to the agent fails
 
-**Why you do this.** A web agent can fail for a moment, on a rate limit or a dropped connection. driftbench retries such failures a few times before it gives up. The retry rules are on the [retries page](../retries.md).
+**Why you do this.** A web agent can fail for a moment, on a rate limit or a dropped connection. The tool retries such failures a few times before it gives up. The retry rules are on the [retries page](../retries.md).
 
 **You need.** A target that fails. This spec points at an address where nothing listens, so every call fails:
 
