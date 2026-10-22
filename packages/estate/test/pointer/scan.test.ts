@@ -870,26 +870,43 @@ describe('a unit the runs read two ways near evenly is listed as unstable', () =
   const unitOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
     result.ledger.entries.find((entry) => entry.index === 0)?.id;
 
-  it('lists a read before an edit that three runs call a rule and two a gate-same, with the label the vote gave', async () => {
-    // As R3 of the Northwind fixture: the gate and the instruction are one run apart, so the rule the vote gives is
-    // not silent.
-    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule]);
+  const labelOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.labelled.find((item) => item.index === 0)?.label;
+
+  it('asks a unit one run from another outcome again, and takes the label once two runs separate the kinds', async () => {
+    // As R3 of the Northwind fixture: rule 3, gate-same 2. Two more runs both say rule: rule 5, gate-same 2.
+    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule, rule, rule]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('rule');
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('leaves a unit unlabeled and lists it as unstable when six more runs still leave its kinds one run apart', async () => {
+    // Every pair of new runs splits one and one: rule 6 against gate-same 5 after the sixth. The vote never picks the
+    // label whose atom can be built.
+    const result = await scanPlan(text, [
+      gateSame,
+      rule,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+    ]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_MAX);
+    expect(labelOf(result)).toBeUndefined();
     expect(result.unstable).toEqual([
       {
         unit: unitOf(result),
         path: 'CLAUDE.md',
         set: 'agent-rules',
         labeler: 'planted',
-        kinds: { instruction: 3, gate: 2 },
-        label: 'rule',
+        kinds: { instruction: 6, gate: 5 },
       },
-    ]);
-  });
-
-  it('lists it the other way round too, a gate by three runs of five', async () => {
-    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame]);
-    expect(result.unstable.map((entry) => [entry.kinds, entry.label])).toEqual([
-      [{ gate: 3, instruction: 2 }, 'gate-same'],
     ]);
   });
 
