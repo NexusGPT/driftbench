@@ -71,3 +71,16 @@ plan:
   points it at the target. Choose pairs where the condition unit and the target are in one section.
 * Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
 * An empty list is allowed only for `scopes`, `plan.same_row` and `limits` when the estate has none.
+
+## Normal form of a limit
+
+Two readings can state one fact. A prohibition forbids an act in a range: "Do not draw a chart for fewer than four
+numbers" is the trigger `lt 4` (the rule applies when the quantity is less than four) and also the constraint `ge 4`
+(the act is compliant when the quantity is at least four). The compliant range of the act is the complement of the range
+where the prohibition applies.
+
+The scorer compares limits in this normal form: when the governing unit is a prohibition (its gold label), a
+`trigger` is converted into the `constraint` with the negated comparison (`lt` and `ge`, `le` and `gt`). Nothing else is
+converted. For a rule that is not a prohibition, a trigger and a constraint state different facts and stay apart, and so do
+readings with another number or another comparison. The truth files may therefore write either form on a prohibition.
+The conversion is in `packages/estate/test/gold/normal-form.ts`, with tests that non-equivalent readings still differ.

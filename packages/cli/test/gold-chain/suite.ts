@@ -26,6 +26,7 @@ import {
   loadGold,
 } from '../../../estate/test/gold/gold';
 import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
+import { type Comparison, normalForm, type Role } from '../../../estate/test/gold/normal-form';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
@@ -312,8 +313,19 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         // The limits come from one structured request for each instruction or gate atom, replayed from the cassette of the
         // estate. They are compared with the limits of the truth file: each truth limit must be produced on the atom it
         // governs, and no other limit may be produced. A unit that differs only in the words of the unit is noted.
-        const key = (atomId: string, limit: number, comparison: string, role: string): string =>
-          `${atomId} | ${limit} ${comparison} ${role}`;
+        // The key is the normal form of the limit (estate/test/gold/normal-form.ts): on a prohibition a trigger is
+        // read as the compliant range of the act, so both readings of one fact give one key.
+        const labelOfAtom = (atomId: string): string => {
+          const goldId = [...atomOf].find(([, atom]) => atom.id === atomId)?.[0];
+          return gold.find((unit) => unit.id === goldId)?.label ?? '';
+        };
+        const key = (atomId: string, limit: number, comparison: string, role: string): string => {
+          const read = normalForm(
+            { limit, comparison: comparison as Comparison, role: role as Role },
+            labelOfAtom(atomId) === 'prohibition',
+          );
+          return `${atomId} | ${read.limit} ${read.comparison} ${read.role}`;
+        };
         const wanted = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
           const atom = atomOf.get(limit.governs);
