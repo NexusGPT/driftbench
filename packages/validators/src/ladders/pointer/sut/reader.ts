@@ -115,6 +115,8 @@ type RAtom = {
 export type ReaderExports = {
   /** Optional stack observables. Unsupported rules fail explicitly. */
   margin?: StackApi['margin'];
+  /** The margin the stack reads: the measure, and a refusal where the measure gives none. */
+  stackMargin?: StackApi['margin'];
   stackDecision?: StackApi['decide'];
   AGENT_RULES_SET: string;
   AtomBuilder: new (files: ReadonlyMap<string, unknown>) => { atoms: RAtom[] };
@@ -663,8 +665,9 @@ function linksOf(reader: ReaderExports): LinksApi | undefined {
 function stackOf(reader: ReaderExports): StackApi {
   return {
     margin(probabilities) {
-      if (!reader.margin) throw new ReaderNotReachable('the reader does not expose margin');
-      return reader.margin(probabilities);
+      // The stack's reading of a margin refuses a vector that gives none; the pure measure returns nothing.
+      if (!reader.stackMargin) throw new ReaderNotReachable('the reader does not expose stackMargin');
+      return reader.stackMargin(probabilities);
     },
     decide(request) {
       if (!reader.stackDecision)
