@@ -1028,4 +1028,17 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['absent-list-and-empty-list-agree'],
     ],
   ]),
+  'hardening.interval': table([
+    ['weightInterval refuses a count above its total with a RangeError', ['count-above-total-is-refused']],
+    [
+      'weightInterval refuses a negative count and a total below 1 with a RangeError',
+      ['negative-count-and-empty-total-are-refused'],
+    ],
+  ]),
+  'hardening.coverage': table([
+    [
+      'coverage counts every tuple a constraint nobody approved would exclude as allowed',
+      ['unapproved-forbid-excludes-nothing'],
+    ],
+  ]),
 };

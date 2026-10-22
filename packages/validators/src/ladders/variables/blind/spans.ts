@@ -15,20 +15,26 @@ export type SpanMeaning =
   | { kind: 'member'; subject: string; list: string[] }
   | { kind: 'boolean'; subject: string; word: string };
 
-const declared = new Map<string, SpanMeaning>();
+/**
+ * Where a declaration goes. The bank keeps no table of what a span means that code of the validator could read: the
+ * implementation under test runs in the bank's process, so a readable table would let it label spans from the oracle
+ * (round 2, cheat A). The test side installs a sink that collects the declarations for its reference reader; a run of
+ * the validator installs none, so a declaration is only the text it returns.
+ */
+let sink: ((text: string, meaning: SpanMeaning) => void) | undefined;
+
+/** Installs the sink that receives each declaration. Only the tests call it. */
+export function setSpanSink(next: ((text: string, meaning: SpanMeaning) => void) | undefined): void {
+  sink = next;
+}
 
 /** Declares what a span says and returns the span. */
 export function declareSpan(text: string, meaning: SpanMeaning): string {
-  declared.set(text, meaning);
+  sink?.(text, meaning);
   return text;
 }
 
 /** A numeric span: a quantity compared with a limit. */
 export function numeric(text: string, subject: string, limit: number, cmp: Cmp): string {
   return declareSpan(text, { kind: 'numeric', subject, limit, cmp, flavour: 'cmp' });
-}
-
-/** The meaning declared for a span, by its exact text. */
-export function meaningOf(text: string): SpanMeaning | undefined {
-  return declared.get(text);
 }

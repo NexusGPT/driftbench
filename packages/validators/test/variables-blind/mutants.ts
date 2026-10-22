@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { meaningOf } from '../../src/ladders/variables/blind/spans';
+import { meaningOf } from './span-table';
 import type {
   Plan,
   PlanOptions,
@@ -69,6 +69,7 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    noCountGuard: false,
   });
 };
 const resetQuotes = (): void => {
@@ -138,6 +139,30 @@ const GATE_FUNCTIONS = [
 ] as const;
 
 export const MUTANTS: readonly Mutant[] = [
+  // ---- the audit of round 2: bugs 17 and 20 ---------------------------------------------------------------
+  {
+    name: 'weightInterval no longer refuses a count above its total',
+    families: ['weights'],
+    only: ['count-above-total-is-refused'],
+    make: flag(() => {
+      plannerMutation.noCountGuard = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'coverage counts a constraint nobody approved',
+    families: ['counter'],
+    only: ['unapproved-forbid-excludes-nothing'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        coverage: (store, rows, groups, options) => {
+          const changed = copy(store);
+          for (const f of changed.forbids ?? []) f.approved = true;
+          return base.coverage(changed, rows, groups, options);
+        },
+      },
+    }),
+  },
   // ---- the plan --------------------------------------------------------------------------------------------
   {
     name: 'plan drops its last new row',
