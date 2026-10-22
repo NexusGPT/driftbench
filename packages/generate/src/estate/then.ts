@@ -356,8 +356,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
         if (reread.length === 0 && calls.length === 0 && !retry) {
           // Nobody declared what the recovery is, and code does not read it from the words of the rule. With a judge
-          // the rule's own words become a criterion, and the check keeps only what every recovery shares: the agent
-          // goes on after the event and does nothing destructive. Without a judge the row waits.
+          // the rule's own words become the only check of the row, a criterion: no hazard_recovery check is written,
+          // because a check with no action to look for would pass on any continuation. Without a judge the row waits.
           if (!ctx.judge) {
             gap(
               then,
