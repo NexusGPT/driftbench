@@ -69,6 +69,8 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    noBoundaryRules: false,
+    noWhenRules: false,
   });
 };
 const resetQuotes = (): void => {
@@ -138,6 +140,22 @@ const GATE_FUNCTIONS = [
 ] as const;
 
 export const MUTANTS: readonly Mutant[] = [
+  {
+    name: 'plan leaves the boundary of a variable out of the rule that states it',
+    families: ['strength'],
+    only: ['boundary-names-a-rule-and-joins-it'],
+    make: flag(() => {
+      plannerMutation.noBoundaryRules = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'plan ignores the variables a when or unless names',
+    families: ['strength'],
+    only: ['a-value-with-when-is-a-rule', 'a-value-with-unless-is-a-rule'],
+    make: flag(() => {
+      plannerMutation.noWhenRules = true;
+    }, resetPlanner),
+  },
   // ---- the plan --------------------------------------------------------------------------------------------
   {
     name: 'plan drops its last new row',

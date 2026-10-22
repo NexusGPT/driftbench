@@ -25,6 +25,8 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  noBoundaryRules: false,
+  noWhenRules: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
@@ -103,12 +105,32 @@ function spaceOf(store: StoreDoc): Space {
     if (a && b) addForbid([a, b]);
   }
   const rules: number[][] = [];
+  const named = new Map<string, Set<string>>(store.rules.map((r) => [r.id, new Set(r.variables)]));
+  if (!mutation.noBoundaryRules)
+    for (const v of store.variables)
+      for (const b of v.boundaries ?? []) if (b.rule !== undefined) named.get(b.rule)?.add(v.id);
   for (const r of store.rules) {
     const own = [
-      ...new Set(r.variables.map((id) => index.get(id)).filter((i): i is number => i !== undefined)),
+      ...new Set(
+        [...(named.get(r.id) ?? [])].map((id) => index.get(id)).filter((i): i is number => i !== undefined),
+      ),
     ];
     if (own.length > 0) rules.push(own);
   }
+  if (!mutation.noWhenRules)
+    for (const v of store.variables) {
+      for (const x of v.values) {
+        if (x.approved === false || (x.when === undefined && x.unless === undefined)) continue;
+        const own = [
+          ...new Set(
+            [v.id, ...Object.keys(x.when ?? {}), ...Object.keys(x.unless ?? {})]
+              .map((id) => index.get(id))
+              .filter((i): i is number => i !== undefined),
+          ),
+        ];
+        if (own.length > 0 && index.has(v.id)) rules.push(own);
+      }
+    }
   return {
     ids,
     doms,

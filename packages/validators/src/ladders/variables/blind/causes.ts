@@ -1028,4 +1028,18 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['absent-list-and-empty-list-agree'],
     ],
   ]),
+  'portrules.rules': table([
+    [
+      'a boundary that names a rule joins its variable to that rule, so the rule is crossed at strength 3 with it',
+      ['boundary-names-a-rule-and-joins-it'],
+    ],
+    [
+      'a value with when is a rule of its variable and the variables it names, crossed at strength 3',
+      ['a-value-with-when-is-a-rule'],
+    ],
+    [
+      'a value with unless is a rule of its variable and the variables it names, crossed at strength 3',
+      ['a-value-with-unless-is-a-rule'],
+    ],
+  ]),
 };

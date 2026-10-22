@@ -323,9 +323,24 @@ export function spaceOf(store: StoreDoc): Space {
     }
   }
   const rules: string[][] = [];
+  const members = new Map<string, Set<string>>(store.rules.map((r) => [r.id, new Set(r.variables)]));
+  // A boundary that names a rule joins its variable to that rule (docs/variables.md R6).
+  for (const v of store.variables)
+    for (const b of v.boundaries ?? []) if (b.rule !== undefined) members.get(b.rule)?.add(v.id);
   for (const r of store.rules) {
-    const own = [...new Set(r.variables)].filter((id) => dom[id]);
+    const own = [...(members.get(r.id) ?? [])].filter((id) => dom[id]);
     if (own.length > 0) rules.push(own);
+  }
+  // A value with `when` or `unless` is a rule by itself: its variable and the variables it names.
+  for (const v of store.variables) {
+    if (!dom[v.id]) continue;
+    for (const x of v.values) {
+      if (x.approved === false || (x.when === undefined && x.unless === undefined)) continue;
+      const own = [...new Set([v.id, ...Object.keys(x.when ?? {}), ...Object.keys(x.unless ?? {})])].filter(
+        (id) => dom[id],
+      );
+      if (own.length > 0) rules.push(own);
+    }
   }
   return { vars, dom, shared, rules, forbids, weight };
 }
