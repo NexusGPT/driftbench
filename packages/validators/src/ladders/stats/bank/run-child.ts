@@ -4,24 +4,44 @@
  * it through the separately built child entry (see isolate.ts). `args` is <seed> <root> <start>, and the item ids to run come
  * as a JSON array on stdin.
  */
+import { appendFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { type Frame, isolate } from '../../../frame';
+import { traceLine } from '../../../frame/trace';
 import type { StatsImpl } from '../reference';
 import { installTrap } from './trap';
 
 async function main(args: readonly string[]): Promise<void> {
   const [seedText, root, startText] = args;
+  traceLine(`bank-child:${seedText}:${startText}`, 'main begin');
   const seed = Number(seedText);
   const start = Number(startText ?? 0);
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
   const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
+  traceLine(`bank-child:${seedText}:${startText}`, `ids read: ${ids.length}`);
   const implPath = process.env.DRIFTBENCH_STATS_IMPL;
   // The package under test runs with no file or process access; the validator's own reads are not affected.
   installTrap([
     ...(implPath ? [dirname(implPath.startsWith('file://') ? new URL(implPath).pathname : implPath)] : []),
     join(root as string, 'packages', 'stats', 'src'),
   ]);
-  const s = (await import(implPath ?? '@agent-nexus/driftbench-stats')) as StatsImpl;
+  traceLine(`bank-child:${seedText}:${startText}`, 'trap installed');
+  // The package under test runs in confined processes of the frame (docs/validators.md section 12.9): the bank
+  // calls it through a proxy and cannot be seen by it, and the expected values stay in this process.
+  const frame = isolate<StatsImpl>({
+    module: productModule(root as string, implPath),
+    seed,
+    tag: `stats:${seed}:${start}:${process.pid}`,
+    functions: 'source',
+    aliasing: true,
+  });
+  traceLine(`bank-child:${seedText}:${startText}`, 'frame ready');
+  // The bank also imports the target transitively: load it only after the trap is active.
+  const { useProductClock } = await import('./scale');
+  useProductClock({ mark: () => frame.position(), since: (mark) => frame.cpuSince(mark) });
+  const s = frame.product;
   // The bank also imports the target transitively: load it only after the trap is active.
   const { runItem, statsBank } = await import('./index');
   const byId = new Map(statsBank(root as string).map((item) => [item.id, item]));
@@ -32,13 +52,56 @@ async function main(args: readonly string[]): Promise<void> {
   });
   for (let index = start; index < items.length; index += 1) {
     const item = items[index] as (typeof items)[number];
+    traceLine(`bank-child:${seedText}:${startText}`, `item ${index} ${item.id} begins`);
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
     const began = performance.now();
-    const outcome = await runItem(item, seed, root as string, s);
+    const mark = frame.position();
+    const ran = await runItem(item, seed, root as string, s, {
+      mark: () => frame.position(),
+      aliased: (since) => frame.aliasSince(since),
+      altered: (since) => frame.alteredSince(since),
+      strict: (on) => frame.strictArguments(on),
+    });
+    // A call whose runs answered differently makes the item fail whatever the item concluded.
+    const split = frame.divergenceSince(mark);
+    const outcome = split
+      ? { pass: false, detail: `the product's answer depends on how it is run: ${split}` }
+      : ran;
     process.stdout.write(
       `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ms: Math.round(performance.now() - began) })}\n`,
     );
   }
+  traceLine(`bank-child:${seedText}:${startText}`, 'items done, closing the frame');
+  closeFrame(frame);
+  await frame.ended();
+  traceLine(`bank-child:${seedText}:${startText}`, 'frame closed');
+}
+
+/**
+ * The last line of the child: every outcome and the frame's taint are written before it, so the parent has all it
+ * needs. `selfEnd` announces that the child ends itself by SIGKILL once this line is written.
+ */
+const LAST_LINE = `${JSON.stringify({ closed: true, selfEnd: true })}\n`;
+
+/** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
+function productModule(root: string, implPath: string | undefined): string {
+  if (implPath) return implPath.startsWith('file://') ? fileURLToPath(implPath) : implPath;
+  const source = join(root, 'packages', 'stats', 'src', 'index.ts');
+  if (existsSync(source)) return source;
+  return fileURLToPath(import.meta.resolve('@agent-nexus/driftbench-stats'));
+}
+
+/** Ends the frame; a sampled run C call that differed is told to the parent, which fails every item of the seed. */
+function closeFrame(frame: Frame<StatsImpl>): void {
+  const taint = frame.tainted();
+  if (taint) process.stdout.write(`${JSON.stringify({ taint })}\n`);
+  const timing = process.env.DRIFTBENCH_FRAME_TIMING_FILE;
+  if (timing)
+    appendFileSync(
+      timing,
+      `${JSON.stringify({ pid: process.pid, ...frame.spent(), productMs: frame.cpuSince(0) })}\n`,
+    );
+  frame.close();
 }
 
 /** Runs the child and ends the process: exit 0 when every item ran, exit 1 with the cause on stderr otherwise. */
@@ -47,7 +110,22 @@ export function statsBankChild(args: readonly string[]): Promise<never> {
     // Exit when every line has left the process: an exit with output still queued would drop it.
     () =>
       new Promise<never>(() => {
-        process.stdout.write('', () => process.exit(0));
+        traceLine('bank-child', 'writing the end of the output');
+        process.on('exit', () => traceLine('bank-child', 'exit event'));
+        process.stdout.write(LAST_LINE, () => {
+          traceLine('bank-child', 'last line written, ending');
+          // Every outcome, the taint and the last line are in the pipe, and the parent reads an end after it as the end.
+          // On Node.js 24 the native teardown of a process that ran a worker thread and child processes stays alive in
+          // about 1 child in 300 after its exit handlers ran (traced, PR 986), so a child that finished its work ends
+          // itself by SIGKILL, which no teardown can hold, in the callback of the write that announces it. A child that
+          // failed ends by process.exit(1) below.
+          try {
+            process.kill(process.pid, 'SIGKILL');
+          } catch {
+            // no signal to ourselves: the ordinary exit
+          }
+          process.exit(0);
+        });
       }),
     (cause) => {
       process.stderr.write(`bank child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);

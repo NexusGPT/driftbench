@@ -46,6 +46,27 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
+// Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
+// inputs"): a write to an argument, a permanent one or one put back before the call returns, throws in the product.
+// The functions are taken before the product loads.
+const «freezeIt» = Object.freeze;
+const «keysOf» = Reflect.ownKeys;
+const «descOf» = Reflect.getOwnPropertyDescriptor;
+const «isFrozenIt» = Object.isFrozen;
+const «isViewIt» = ArrayBuffer.isView;
+function «deepFreeze»(«x») {
+  if («x» === null || typeof «x» !== 'object' || «isFrozenIt»(«x»)) return «x»;
+  if («isViewIt»(«x»)) return «x»;
+  «freezeIt»(«x»);
+  const «ks» = «keysOf»(«x»);
+  for (let «i» = 0; «i» < «ks».length; «i» += 1) {
+    const «d» = «descOf»(«x», «ks»[«i»]);
+    if («d» && 'value' in «d») «deepFreeze»(«d».value);
+  }
+  return «x»;
+}
+let «counter» = 0;
+const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
 function «encode»(«value», «seen» = new WeakSet()) {
@@ -55,7 +76,8 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'number': return Number.isFinite(«value») ? (Object.is(«value», -0) ? { $n: '-0' } : «value») : { $n: String(«value») };
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
-    case 'symbol': case 'function': return { $opaque: typeof «value» };
+    case 'symbol': return { $opaque: typeof «value» };
+    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -89,6 +111,8 @@ function «decode»(«x») {
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
+  if ('$handle' in «x») return «handles».get(«x».$handle);
+  if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
   if ('$err' in «x») {
     const «make» = { RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.class] ?? Error;
     const «e» = new «make»(«x».$err.message);
@@ -102,6 +126,51 @@ function «decode»(«x») {
 
 const TWIN = String.raw`
 import { pathToFileURL as «toUrl» } from 'node:url';
+import { createHash as «createHash» } from 'node:crypto';
+import { types as «utilTypes» } from 'node:util';
+// What the aliasing watch uses, taken before the product loads and called only through these references, never
+// through a property the product can reach: a product that patches the hash, the serialiser, Reflect or the
+// iteration methods cannot blind the watch (review of PR 986, codex run 39709007729).
+const «call» = Reflect.apply;
+const «ownKeys» = Reflect.ownKeys;
+const «describe» = Reflect.getOwnPropertyDescriptor;
+const «protoOf» = Reflect.getPrototypeOf;
+const «isArray» = Array.isArray;
+const «isView» = ArrayBuffer.isView;
+const «stringify» = JSON.stringify;
+const «same» = Object.is;
+const «hashStart» = «createHash»;
+const «hashProto» = «protoOf»(«hashStart»('sha256'));
+const «hashUpdate» = «hashProto».update;
+const «hashDigest» = «hashProto».digest;
+const «mapEntries» = Map.prototype.entries;
+const «mapGet» = Map.prototype.get;
+const «mapSet» = Map.prototype.set;
+const «setValues» = Set.prototype.values;
+const «mapNext» = «protoOf»(new Map().entries()).next;
+const «setNext» = «protoOf»(new Set().values()).next;
+const «dateTime» = Date.prototype.getTime;
+const «seenHas» = WeakSet.prototype.has;
+const «seenAdd» = WeakSet.prototype.add;
+const «SeenSet» = WeakSet;
+const «isProxy» = «utilTypes».isProxy;
+const «hasOwn» = Object.hasOwn;
+const «floatArray» = Float64Array;
+const «isExt» = Object.isExtensible;
+const «isMapKind» = «utilTypes».isMap;
+const «isSetKind» = «utilTypes».isSet;
+const «isDateKind» = «utilTypes».isDate;
+const «isSealedIt» = Object.isSealed;
+const «ids» = new WeakMap();
+// The prototype of each kind of argument as the validator decodes it, by kind: plain, array, typed, Map, Set, Date.
+const «canonical» = [Object.prototype, Array.prototype, null, Map.prototype, Set.prototype, Date.prototype];
+const «idGet» = WeakMap.prototype.get;
+const «idSet» = WeakMap.prototype.set;
+let «idNext» = 0;
+const «byteArray» = Uint8Array;
+const «typedLength» = «describe»(«protoOf»(Uint8Array.prototype), 'length').get;
+const «viewByteLength» = «describe»(DataView.prototype, 'byteLength').get;
+const «viewByte» = DataView.prototype.getUint8;
 const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
@@ -129,7 +198,8 @@ const «next» = () =>
       : new Promise((«resolveIt») => «waiters».push(«resolveIt»));
 const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
-const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
+const «cpuNow» = process.cpuUsage.bind(process);
+const «answer» = («message») => «write»(«setup».token + ' ' + «stringify»(«message») + '\n');
 
 if ('nodeOptions' in «setup») {
   if («setup».nodeOptions === null) delete process.env.NODE_OPTIONS;
@@ -148,6 +218,247 @@ if («setup».uptimeShift > 0) {
   Object.defineProperty(performance, 'now', { value: { now() { return «realNow»() + «shift» * 1000; } }.now, writable: true, configurable: true });
 }
 «codec»
+// Aliased results and written arguments (docs/validators.md section 12.9): the live results of the last calls, each
+// with a digest of what it held when it was returned, and the arguments of a call before and after it. The scan walks
+// a value with the captured references above and builds its text with string concatenation only. It writes two
+// digests: the DATA one holds what the frame can copy back to the caller (the values of array slots and their length,
+// the enumerable string keys of a plain object, the content of a Map, a Set, a Date and a typed array), and the OTHER
+// one holds everything it cannot copy back (a function value, an accessor, a symbol or non-enumerable key, an extra
+// property of a container, a descriptor flag, the prototype, extensibility). A change in the OTHER digest is a change
+// the frame cannot reproduce.
+let «sawInvalid» = false;
+const «scan» = («root», «prior») => {
+  // The objects met in this scan, by the order they were first met, up to a cap (the arguments of the scale items hold
+  // millions of rows, and a map of them costs more than the scan).
+  const «known» = new Map();
+  const «dataHash» = «call»(«hashStart», undefined, ['sha256']);
+  const «otherHash» = «call»(«hashStart», undefined, ['sha256']);
+  let «dataText» = '';
+  let «otherText» = '';
+  const «dataFlush» = () => {
+    if («dataText».length > 0) «call»(«hashUpdate», «dataHash», [«dataText»]);
+    «dataText» = '';
+  };
+  const «otherFlush» = () => {
+    if («otherText».length > 0) «call»(«hashUpdate», «otherHash», [«otherText»]);
+    «otherText» = '';
+  };
+  const «putData» = («piece») => {
+    «dataText» += «piece»;
+    if («dataText».length > 65536) «dataFlush»();
+  };
+  const «putOther» = («piece») => {
+    «otherText» += «piece»;
+    if («otherText».length > 65536) «otherFlush»();
+  };
+  // The objects on the way down to the value being walked, by depth: a value met again below itself is a cycle. No
+  // set of every object met: the arguments of the scale items hold millions.
+  const «ancestors» = new Array(1002);
+  // A stable number for a function, a prototype or an object: the same one the next time it is met.
+  const «idOf» = («thing») => {
+    try {
+      let «have» = «call»(«idGet», «ids», [«thing»]);
+      if («have» === undefined) {
+        «idNext» += 1;
+        «have» = «idNext»;
+        «call»(«idSet», «ids», [«thing», «have»]);
+      }
+      return «have»;
+    } catch {
+      return -1;
+    }
+  };
+  const «isIndex» = («key») => {
+    if (typeof «key» !== 'string') return false;
+    const «n» = +«key»;
+    return '' + «n» === «key» && «n» >= 0 && «n» % 1 === 0 && «n» < 4294967295;
+  };
+  // The flag inOther: everything below goes to the OTHER digest (a value under a key the frame cannot copy back).
+  const «walk» = («value», «level», «inOther») => {
+    const «put» = «inOther» ? «putOther» : «putData»;
+    // A Proxy runs the product's own code on every read: it is not read, it is reported (an invalid result).
+    if ((typeof «value» === 'object' || typeof «value» === 'function') && «value» !== null && «isProxy»(«value»)) {
+      «sawInvalid» = true;
+      «putOther»('P;');
+      return;
+    }
+    switch (typeof «value») {
+      case 'undefined': «put»('u;'); return;
+      case 'boolean': «put»(«value» ? 't;' : 'f;'); return;
+      case 'number': «put»('n' + («same»(«value», -0) ? '-0' : '' + «value») + ';'); return;
+      case 'bigint': «put»('b' + «value» + ';'); return;
+      case 'string': «put»('s' + «value».length + ':' + «value» + ';'); return;
+      case 'symbol': «put»('y;'); «putOther»('Y' + «idOf»(«value») + ';'); return;
+      case 'function': «put»('F;'); «putOther»('F' + «idOf»(«value») + ';'); return;
+    }
+    if («value» === null) { «put»('N;'); return; }
+    if («level» > 1000) { «put»('D;'); return; }
+    for (let «up» = 0; «up» < «level»; «up» += 1) {
+      if («ancestors»[«up»] === «value») { «put»('C;'); return; }
+    }
+    «ancestors»[«level»] = «value»;
+    // The identity of the object: the number of its first visit in the scan before the call, written each time it is
+    // met. An object the product made after the call has no such number and writes nothing, so adding an object
+    // changes nothing, while replacing an object by an equal copy, reaching one object by two keys, or moving
+    // objects between slots does (review of PR 986, codex run 39780074824).
+    if («prior» === undefined) {
+      let «index» = «call»(«mapGet», «known», [«value»]);
+      if («index» === undefined && «known».size < 100000) {
+        «index» = «known».size;
+        «call»(«mapSet», «known», [«value», «index»]);
+      }
+      if («index» !== undefined) «putOther»('I' + «index» + ';');
+    } else {
+      const «before» = «call»(«mapGet», «prior», [«value»]);
+      if («before» !== undefined) «putOther»('I' + «before» + ';');
+    }
+    const «proto» = «protoOf»(«value»);
+
+    // A frozen or sealed object is not extensible: the two flags are read only for a non-extensible object.
+    if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
+    // The kind of the object, and its content.
+    let «kind» = 0;
+    let «entries»;
+    if («isMapKind»(«value»)) «entries» = «call»(«mapEntries», «value», []);
+    let «values»;
+    let «time»;
+    if («entries» !== undefined) {
+      «kind» = 3;
+      «put»('M{');
+      for (;;) {
+        const «step» = «call»(«mapNext», «entries», []);
+        if («step».done) break;
+        «walk»(«step».value[0], «level» + 1, «inOther»);
+        «walk»(«step».value[1], «level» + 1, «inOther»);
+      }
+      «put»('}');
+    } else {
+      if («isSetKind»(«value»)) «values» = «call»(«setValues», «value», []);
+      if («values» !== undefined) {
+        «kind» = 4;
+        «put»('S{');
+        for (;;) {
+          const «step» = «call»(«setNext», «values», []);
+          if («step».done) break;
+          «walk»(«step».value, «level» + 1, «inOther»);
+        }
+        «put»('}');
+      } else {
+        if («isDateKind»(«value»)) «time» = «call»(«dateTime», «value», []);
+        if («time» !== undefined) {
+          «kind» = 5;
+          «put»('T' + «time» + ';');
+        } else if («isView»(«value»)) {
+          // The length of a typed array comes from the getter of %TypedArray%.prototype, never from the length
+          // property, which an instance can define as its own; a DataView has no such length and is read byte by byte.
+          let «size»;
+          try { «size» = «call»(«typedLength», «value», []); } catch { «size» = undefined; }
+          «kind» = 2;
+          if («size» !== undefined) {
+            «put»('V' + «size» + ':');
+            for (let «i» = 0; «i» < «size»; «i» += 1) «put»(«same»(«value»[«i»], -0) ? '-0,' : '' + «value»[«i»] + ',');
+          } else {
+            const «bytes» = «call»(«viewByteLength», «value», []);
+            «put»('W' + «bytes» + ':');
+            for (let «i» = 0; «i» < «bytes»; «i» += 1) «put»('' + «call»(«viewByte», «value», [«i»]) + ',');
+          }
+          «put»(';');
+        } else if («isArray»(«value»)) {
+          «kind» = 1;
+          // Each index is read through its descriptor: an accessor element is not called and a hole is not read. A run
+          // of numbers goes into the digest as the bytes of a Float64Array, not as text: the arguments of the scale
+          // items are millions of numbers, and a scan of them runs before and after every call.
+          const «length» = «value».length;
+          «put»('A' + «length» + '[');
+          const «run» = new «floatArray»(4096);
+          let «runLength» = 0;
+          const «flushRun» = () => {
+            if («runLength» === 0) return;
+            «put»('N' + «runLength» + ':');
+            if («inOther») «otherFlush»(); else «dataFlush»();
+            «call»(«hashUpdate», «inOther» ? «otherHash» : «dataHash», [new «byteArray»(«run».buffer, 0, «runLength» * 8)]);
+            «runLength» = 0;
+          };
+          for (let «i» = 0; «i» < «length»; «i» += 1) {
+            const «cell» = «describe»(«value», «i»);
+            if («cell» === undefined) {
+              «flushRun»();
+              «put»('h;');
+              // A hole cannot cross as data (JSON has none): its place is a change the frame cannot copy back.
+              «putOther»('h' + «i» + ';');
+            } else if («cell».get !== undefined || «cell».set !== undefined) {
+              «flushRun»();
+              «sawInvalid» = true;
+              «putOther»('G' + «i» + ':' + («cell».get === undefined ? 0 : «idOf»(«cell».get)) + ',' + («cell».set === undefined ? 0 : «idOf»(«cell».set)) + ';');
+              «put»('G;');
+            } else {
+              if (!«cell».writable || !«cell».enumerable || !«cell».configurable) «putOther»('f' + «i» + ':' + («cell».writable ? 1 : 0) + («cell».enumerable ? 1 : 0) + («cell».configurable ? 1 : 0) + ';');
+              if (typeof «cell».value === 'number') {
+                «run»[«runLength»] = «cell».value;
+                «runLength» += 1;
+                if («runLength» === 4096) «flushRun»();
+              } else {
+                «flushRun»();
+                «walk»(«cell».value, «level» + 1, «inOther»);
+              }
+            }
+          }
+          «flushRun»();
+          «put»(']');
+        }
+      }
+    }
+    // The prototype, by identity, for every object whose prototype is not the one the validator's own decoding gives
+    // its kind (the base object prototype for a plain object, the array prototype for an array, the Map, Set and Date ones). A
+    // swap to null, to a built-in one or to a custom one always changes the digest (review of PR 986, codex run
+    // 39756451516). The canonical prototype is left out only so that an object a product adds or removes, which the
+    // frame copies back and decodes with exactly that prototype, does not count as a change; a typed array and a
+    // DataView are always recorded.
+    if («kind» === 2 || «proto» !== «canonical»[«kind»]) «putOther»('P' + («proto» === null ? 0 : «idOf»(«proto»)) + ';');
+    // Own properties. The ones the frame can copy back (the enumerable string keys of a plain object) go to the data
+    // digest; every other one goes to the other digest with its descriptor, and what it holds.
+    const «keys» = «ownKeys»(«value»);
+    const «plain» = «kind» === 0;
+    if («plain») «put»('O{');
+    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+      const «key» = «keys»[«i»];
+      if («kind» === 1 && «key» === 'length') continue;
+      if ((«kind» === 1 || «kind» === 2) && «isIndex»(«key»)) continue;
+      const «desc» = «describe»(«value», «key»);
+      // A descriptor with a getter or a setter is an accessor; a descriptor read through a polluted base prototype can only
+      // look like an accessor, which fails the item.
+      const «isData» = «desc».get === undefined && «desc».set === undefined;
+      const «copyable» = «plain» && typeof «key» === 'string' && «isData» && «desc».writable && «desc».enumerable && «desc».configurable && !«inOther»;
+      if («copyable») {
+        «putData»('k' + «key».length + ':' + «key»);
+        «walk»(«desc».value, «level» + 1, false);
+        continue;
+      }
+      «putOther»('x' + (typeof «key» === 'symbol' ? 'Y' + «idOf»(«key») : «key».length + ':' + «key») + ':' + («desc».writable ? 1 : 0) + («desc».enumerable ? 1 : 0) + («desc».configurable ? 1 : 0) + ';');
+      if («isData») «walk»(«desc».value, «level» + 1, true);
+      else {
+        // An accessor runs the product's own code on every read: it is not called, it is reported.
+        «sawInvalid» = true;
+        «putOther»('G' + («desc».get === undefined ? 0 : «idOf»(«desc».get)) + ',' + («desc».set === undefined ? 0 : «idOf»(«desc».set)) + ';');
+      }
+    }
+    if («plain») «put»('}');
+    if («kind» === 1) {
+      const «lengthDesc» = «describe»(«value», 'length');
+      if (!«lengthDesc».writable) «putOther»('L0;');
+    }
+  };
+  «walk»(«root», 0, false);
+  «dataFlush»();
+  «otherFlush»();
+  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']), known: «known» };
+};
+const «fingerprint» = («root») => {
+  const «parts» = «scan»(«root»);
+  return «parts».data + «parts».other;
+};
+const «recent» = new Array(16);
+let «stored» = 0;
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
 
 if («setup».command) {
@@ -157,23 +468,200 @@ if («setup».command) {
   process.argv = [process.argv[0], «setup».script || «setup».command, ...«setup».args];
   await import(«toUrl»(«setup».command).href);
 } else {
+  // Built-in objects (docs/validators.md section 12.9, "Built-in objects"). A product that replaces a method of a
+  // built-in object (Array.prototype.map, Math.sqrt, eval), adds or removes a property of one, changes a descriptor, a
+  // prototype or the extensibility of one, or rebinds or adds a global name, changes how its caller's own code runs
+  // after the call. A call in the caller's process shows it; a confined run keeps it in its own process (review of
+  // PR 986, codex run 39782335737: a mean that replaced the array prototype's map after it computed the right answer
+  // failed the mean-shift items directly and passed them through the frame). Before the product loads, the driver
+  // records what the realm itself lists, never a hand list of names (review of PR 986, codex runs 39821091340 and
+  // 39821718881: eval and Intl were missing from such a list): every own property of the global object, and from
+  // there, to a depth of 8, every function, every object a function holds as its prototype, every prototype of a
+  // recorded object and every object whose prototype is the base object prototype or null (a namespace such as
+  // Math, Intl or Reflect), with the descriptor of each own property. Objects of any other kind (process, console,
+  // a stream) hold the state of the process and are recorded only as the value of the property that holds them.
+  // The global object's lazy properties (a getter that defines the value on first read) are read first, so their
+  // first use by the product is not a change. After every call the driver compares the record through the
+  // references captured above and names the first change.
+  const «globalObject» = globalThis;
+  const «baseProto» = Object.prototype;
+  const «builtinDepth» = 8;
+  for (const «lazyKey» of «ownKeys»(«globalObject»)) {
+    const «lazy» = «describe»(«globalObject», «lazyKey»);
+    if («lazy» && «lazy».get !== undefined) {
+      try {
+        void «globalObject»[«lazyKey»];
+      } catch {
+        // a getter that throws keeps throwing for the product too
+      }
+    }
+  }
+  // The objects, each with its place (the record that holds it and the label of the property or prototype step), its
+  // prototype, extensibility, own keys in order with their labels, and their descriptors. The global object is the
+  // first; its changes are named after those of the objects it holds. Every label is made before the product loads.
+  const «builtins» = [];
+  // The path of a record: its labels from the root, by concatenation only.
+  const «pathOf» = («record») =>
+    «record».parent === null || «record».parent.thing === «globalObject» ? «record».label : «pathOf»(«record».parent) + «record».label;
+  {
+    const «queue» = [[null, 'globalThis', «globalObject», 0]];
+    // The intrinsics no property holds.
+    for (const [«label», «thing»] of [
+      ['%ArrayIteratorPrototype%', «protoOf»([][Symbol.iterator]())],
+      ['%MapIteratorPrototype%', «protoOf»(new Map().entries())],
+      ['%SetIteratorPrototype%', «protoOf»(new Set().values())],
+      ['%StringIteratorPrototype%', «protoOf»(''[Symbol.iterator]())],
+      ['%RegExpStringIteratorPrototype%', «protoOf»('a'.matchAll(/a/g))],
+      ['%TypedArray%', «protoOf»(Int8Array)],
+      ['%GeneratorFunction.prototype%', «protoOf»(function* () {})],
+      ['%AsyncFunction.prototype%', «protoOf»(async function () {})],
+      ['%AsyncGeneratorFunction.prototype%', «protoOf»(async function* () {})],
+    ])
+      «queue».push([null, «label», «thing», 1]);
+    // An object met again keeps its record; a place through properties names it better than one through prototypes.
+    const «met» = new Map();
+    for (let «head» = 0; «head» < «queue».length; «head» += 1) {
+      const [«parent», «label», «thing», «depth»] = «queue»[«head»];
+      if («thing» === null || (typeof «thing» !== 'object' && typeof «thing» !== 'function')) continue;
+      const «seenRecord» = «met».get(«thing»);
+      if («seenRecord» !== undefined) {
+        const «candidate» = { parent: «parent», label: «label», thing: «thing» };
+        if («pathOf»(«seenRecord»).includes('[[Prototype]]') && !«pathOf»(«candidate»).includes('[[Prototype]]')) {
+          «seenRecord».parent = «parent»;
+          «seenRecord».label = «label»;
+        }
+        continue;
+      }
+      const «keys» = «ownKeys»(«thing»);
+      const «descs» = «keys».map((«key») => «describe»(«thing», «key»));
+      const «labels» = «keys».map((«key») => («thing» === «globalObject» ? String(«key») : '.' + String(«key»)));
+      const «protoNow» = «protoOf»(«thing»);
+      const «record» = { parent: «parent», label: «label», thing: «thing», proto: «protoNow», ext: «isExt»(«thing»), keys: «keys», labels: «labels», descs: «descs» };
+      «met».set(«thing», «record»);
+      «builtins».push(«record»);
+      if («depth» >= «builtinDepth») continue;
+      «queue».push([«record», «thing» === «globalObject» ? 'globalThis.[[Prototype]]' : '.[[Prototype]]', «protoNow», «depth» + 1]);
+      for (let «k» = 0; «k» < «keys».length; «k» += 1) {
+        const «desc» = «descs»[«k»];
+        if (!«hasOwn»(«desc», 'value')) {
+          «queue».push([«record», «labels»[«k»] + ' (getter)', «desc».get, «depth» + 1], [«record», «labels»[«k»] + ' (setter)', «desc».set, «depth» + 1]);
+          continue;
+        }
+        const «held» = «desc».value;
+        if (typeof «held» === 'function') «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        else if («held» !== null && typeof «held» === 'object') {
+          const «heldProto» = «protoOf»(«held»);
+          if («keys»[«k»] === 'prototype' || «heldProto» === «baseProto» || «heldProto» === null) «queue».push([«record», «labels»[«k»], «held», «depth» + 1]);
+        }
+      }
+    }
+  }
+  // Two descriptors are the same: the same kind, flags, and value or accessor functions. Only own fields are read.
+  const «sameDescriptor» = («x», «y») => {
+    const «xData» = «hasOwn»(«x», 'value');
+    if («xData» !== «hasOwn»(«y», 'value')) return false;
+    if («x».enumerable !== «y».enumerable || «x».configurable !== «y».configurable) return false;
+    return «xData» ? «same»(«x».value, «y».value) && «x».writable === «y».writable : «x».get === «y».get && «x».set === «y».set;
+  };
+  // The first change in one recorded object, by its path, or undefined.
+  const «changeOf» = («was») => {
+    const «global» = «was».thing === «globalObject»;
+    const «named» = «global» ? 'the global object' : «pathOf»(«was»);
+    if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «named»;
+    if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «named»;
+    const «keysNow» = «ownKeys»(«was».thing);
+    if («keysNow».length !== «was».keys.length) return 'a property added to or removed from ' + «named»;
+    for (let «k» = 0; «k» < «keysNow».length; «k» += 1) {
+      if («keysNow»[«k»] !== «was».keys[«k»]) return 'the properties of ' + «named»;
+      if (!«sameDescriptor»(«describe»(«was».thing, «keysNow»[«k»]), «was».descs[«k»]))
+        return «global» ? 'the global name ' + «was».labels[«k»] : «named» + «was».labels[«k»];
+    }
+    return undefined;
+  };
+  // The first built-in object the product changed since it was recorded, by its path, or undefined.
+  const «builtinChange» = () => {
+    for (let «r» = 1; «r» < «builtins».length; «r» += 1) {
+      const «change» = «changeOf»(«builtins»[«r»]);
+      if («change» !== undefined) return «change»;
+    }
+    return «changeOf»(«builtins»[0]);
+  };
+  // The change reported with each answer: every call after the change reports it, as every later call in the
+  // caller's process would run with it.
+  const «altered» = () => {
+    const «change» = «builtinChange»();
+    return «change» === undefined ? {} : { altered: «change» };
+  };
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    «answer»({ ready: true });
+    «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
-    const «fn» = «setup».invoke ? (...«rest») => «product»[«setup».invoke](«request».call, «rest») : «product»[«request».call];
+    const «handle» = «request».call.startsWith('#');
+    const «fn» = «handle»
+      ? «handles».get(Number(«request».call.slice(1)))
+      : «setup».invoke
+        ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
+        : «product»[«request».call];
+    // Write back (docs/validators.md section 12.9, "Written inputs"): run A takes a digest of the arguments before the
+    // call and, when the call changed them, answers with their state after it, so the validator can apply the change to
+    // the caller's own arguments exactly as a call in its own process would have changed them. A write that threw is
+    // reported the same way.
+    let «argsRef»;
+    let «argsBefore»;
+    const «afterState» = () => {
+      if («argsBefore» === undefined) return {};
+      const «now» = «scan»(«argsRef», «argsBefore».known);
+      // A change the frame cannot copy back (a function, an accessor, a symbol or hidden key, an extra property of a
+      // container, a descriptor, the prototype, extensibility) is reported as such, never copied.
+      if («now».other !== «argsBefore».other) return { cannot: true };
+      if («now».data === «argsBefore».data) return {};
+      return { argsAfter: «encode»(«argsRef») };
+    };
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
-      const «args» = «decode»(«request».args);
+      // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
+      // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set).
+      const «strict» = «request».freeze === true;
+      const «decoded» = «decode»(«request».args);
+      const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
+      «argsRef» = «args»;
+      if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
+      const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
-      «answer»({ id: «request».id, ret: «encode»(«result») });
+      const «used» = «cpuNow»(«before»);
+      const «ret» = «encode»(«result»);
+      const «after» = «afterState»();
+      const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
+      const «moved» = [];
+      let «movedCount» = 0;
+      let «invalid» = false;
+      if («setup».aliasing) {
+        const «kept» = «stored» < 16 ? «stored» : 16;
+        for (let «i» = 0; «i» < «kept»; «i» += 1) {
+          const «each» = «recent»[«i»];
+          const «now» = «fingerprint»(«each».live);
+          // A change is reported by the one call after which it is seen, not again by the calls that follow.
+          if («now» !== «each».digest) { «moved»[«movedCount»] = «each».call; «movedCount» += 1; «each».digest = «now»; }
+        }
+        if («result» !== null && (typeof «result» === 'object' || typeof «result» === 'function')) {
+          // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
+          «sawInvalid» = false;
+          const «digest» = «fingerprint»(«result»);
+          if («sawInvalid») «invalid» = true;
+          else if (typeof «result» === 'object') {
+            «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «digest» };
+            «stored» += 1;
+          }
+        }
+      }
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
   }
 }
@@ -214,36 +702,55 @@ export function wrapperModule(
   return { source, invoke: name('invoke') };
 }
 
-/** The codec module of run C: the value codec, exported under drawn names. */
-export function plainCodec(seed: number, tag: string): { source: string; encode: string; decode: string } {
+/** The codec module of run C: the value codec and the table of handles, exported under drawn names. */
+export function plainCodec(
+  seed: number,
+  tag: string,
+): { source: string; encode: string; decode: string; handles: string; deepFreeze: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')} };\n`;
-  return { source, encode: name('encode'), decode: name('decode') };
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')} };\n`;
+  return {
+    source,
+    encode: name('encode'),
+    decode: name('decode'),
+    handles: name('handles'),
+    deepFreeze: name('deepFreeze'),
+  };
 }
 
 /**
- * The entry of run C for one call: it imports the product and the codec, reads the arguments from a file, makes the
- * call and writes the answer to a file. Paths are file URLs and the call's name is a string literal.
+ * The entry of run C: one fresh process that imports the product and the codec, reads the recorded calls from a file
+ * line by line, makes them in order and appends every answer to a file as one line. The state a call leaves (a
+ * counter, a handle, a cache) is kept from one call to the next, as in the confined runs. Paths are file URLs.
  */
-export function plainEntry(
+export function plainBatchEntry(
   seed: number,
   tag: string,
-  paths: { module: string; codec: string; args: string; out: string },
-  call: string,
-  codec: { encode: string; decode: string },
+  paths: { module: string; codec: string; calls: string; out: string },
+  codec: { encode: string; decode: string; handles: string; deepFreeze: string },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
-  const out = name('out');
+  const each = name('each');
+  const fn = name('fn');
+  const answer = name('answer');
   const error = name('error');
   return [
+    // The codec first: it takes the functions it freezes with before the product module runs.
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
-    `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')} } from ${JSON.stringify(paths.codec)};`,
-    `let ${out};`,
-    `try { ${out} = { ret: ${name('encode')}(await ${product}[${JSON.stringify(call)}](...${name('decode')}(JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.args)}), 'utf8'))))) }; }`,
-    `catch (${error}) { ${out} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
-    `${name('write')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${out}));`,
+    `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
+    `import { createInterface as ${name('lines')} } from 'node:readline';`,
+    `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
+    `  const ${each} = JSON.parse(${name('line')});`,
+    `  let ${answer};`,
+    `  try {`,
+    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
+    `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
+    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('decode')}(${each}.args)) : ${name('decode')}(${each}.args)))) };`,
+    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
+    `}`,
     '',
   ].join('\n');
 }
@@ -255,11 +762,16 @@ export function plainEntry(
  */
 export const RELAY = String.raw`
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { workerData } from 'node:worker_threads';
 const { port, signal, plans, setup, reapMs } = workerData;
+const began = Date.now();
+const trace = (text) => {
+  if (!setup.trace) return;
+  try { appendFileSync(setup.trace, new Date().toISOString() + ' relay ' + setup.tag + ' +' + (Date.now() - began) + ' ms ' + text + '\n'); } catch {}
+};
 const flag = new Int32Array(signal);
 const reply = (message) => { port.postMessage(message); Atomics.store(flag, 0, 1); Atomics.notify(flag, 0); };
 const runs = plans.map((plan) => {
@@ -275,27 +787,43 @@ const runs = plans.map((plan) => {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   const run = { plan, child, waiting: [], stderr: '', exited: undefined };
+  trace('spawned run ' + plan.run);
   child.stderr.on('data', (chunk) => { run.stderr = (run.stderr + chunk).slice(-4000); });
   child.on('exit', (code, sig) => {
+    trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
-    for (const waiter of run.waiting.splice(0)) waiter({ dead: run.exited });
+    for (const waiter of run.waiting.splice(0)) waiter.resolve({ dead: run.exited });
   });
   createInterface({ input: child.stdout }).on('line', (line) => {
-    if (!line.startsWith(setup.token + ' ')) return;
-    const message = JSON.parse(line.slice(setup.token.length + 1));
+    // The answer starts the line, unless the product printed text without a newline just before it: then the answer
+    // follows that text, and is still the answer.
+    const at = line.indexOf(setup.token + ' ');
+    if (at < 0) return;
+    const message = JSON.parse(line.slice(at + setup.token.length + 1));
+    trace('run ' + plan.run + ' answer id ' + message.id + ': ' + line.slice(at + setup.token.length + 1, at + setup.token.length + 121));
     const waiter = run.waiting.shift();
-    if (waiter) waiter(message);
+    if (!waiter) {
+      trace('run ' + plan.run + ' sent an answer nobody waits for (id ' + message.id + ')');
+      return;
+    }
+    // An answer belongs to the request it was asked for: the twin writes the id of the request in every answer. An
+    // answer for another request is a desync of that run, named with both ids, never taken for the answer.
+    if (waiter.id !== undefined && message.id !== waiter.id) {
+      waiter.resolve({ desync: 'the run ' + plan.run + ' answered request ' + message.id + ' while request ' + waiter.id + ' was waiting' });
+      return;
+    }
+    waiter.resolve(message);
   });
   child.stdin.write(JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }) + '\n');
   return run;
 });
-const ask = (run, line) =>
+const ask = (run, line, id) =>
   new Promise((resolve) => {
     if (run.exited) return resolve({ dead: run.exited });
-    run.waiting.push(resolve);
+    run.waiting.push({ resolve, id });
     if (line !== undefined) run.child.stdin.write(line + '\n');
   });
-const ready = await Promise.all(runs.map((run) => ask(run)));
+const ready = await Promise.all(runs.map((run) => ask(run).then((message) => { trace('run ' + run.plan.run + ' answered its start: ' + (message.ready === true ? 'ready' : 'not ready')); return message; })));
 reply({ ready });
 let id = 0;
 port.on('message', async (message) => {
@@ -313,8 +841,9 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args });
-  const answers = await Promise.all(runs.map((run) => ask(run, line)));
-  reply({ answers });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
+  const sentAt = Date.now();
+  const answers = await Promise.all(runs.map((run) => ask(run, line, id).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
+  reply({ id, call: message.call, answers });
 });
 `;

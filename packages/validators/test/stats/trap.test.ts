@@ -114,41 +114,23 @@ describe('the bank child trap', { timeout: 60_000 }, () => {
   });
 });
 
-// The actual default-target bootstrap, with a bank import that also reaches the target transitively.
-describe('default-target initialization', { timeout: 60_000 }, () => {
-  it.each([false, true])('guards initialization before the bank loads (oracle read: %s)', (reads) => {
-    const dir = mkdtempSync(join(tmpdir(), 'astra-stats-bootstrap-'));
+// The bank child starts the package under test in the frame's confined processes (docs/validators.md section 12.9):
+// a package that reads a file while it initialises is denied by the runtime, and the child ends with that reason.
+describe('initialization of the package under test', { timeout: 60_000 }, () => {
+  it.each([false, true])('is confined before the bank loads (oracle read: %s)', (reads) => {
+    const root = fileURLToPath(new URL('../../../../', import.meta.url));
+    mkdirSync(join(root, 'node_modules', '.cache'), { recursive: true });
+    const dir = mkdtempSync(join(root, 'node_modules', '.cache', 'astra-stats-bootstrap-'));
     try {
-      const src = join(dir, 'packages/stats/src');
-      mkdirSync(src, { recursive: true });
-      cpSync(RUN_CHILD, join(dir, 'run-child.ts'));
-      cpSync(TRAP, join(dir, 'trap.ts'));
-      writeFileSync(join(dir, 'package.json'), '{"type":"module"}');
       writeFileSync(join(dir, 'oracle.txt'), 'oracle');
+      const impl = join(dir, 'index.ts');
       writeFileSync(
-        join(src, 'index.ts'),
+        impl,
         reads
-          ? `import { readFileSync } from 'node:fs'; readFileSync(${JSON.stringify(join(dir, 'oracle.txt'))}, 'utf8');`
+          ? `import { readFileSync } from 'node:fs'; readFileSync(${JSON.stringify(join(dir, 'oracle.txt'))}, 'utf8'); export const normalCdf = () => 0.5;`
           : 'export const normalCdf = () => 0.5;',
       );
-      writeFileSync(
-        join(dir, 'index.ts'),
-        `
-        import '@agent-nexus/driftbench-stats';
-        export const statsBank = () => [];
-        export const runItem = () => { throw new Error('no items requested'); };
-      `,
-      );
-      writeFileSync(
-        join(dir, 'tsconfig.json'),
-        JSON.stringify({
-          compilerOptions: {
-            paths: { '@agent-nexus/driftbench-stats': [join(src, 'index.ts')] },
-          },
-        }),
-      );
-      const env: NodeJS.ProcessEnv = { ...process.env, TSX_TSCONFIG_PATH: join(dir, 'tsconfig.json') };
-      delete env.DRIFTBENCH_STATS_IMPL;
+      const env: NodeJS.ProcessEnv = { ...process.env, DRIFTBENCH_STATS_IMPL: impl };
       const result = spawnSync(
         process.execPath,
         [
@@ -156,13 +138,25 @@ describe('default-target initialization', { timeout: 60_000 }, () => {
           'tsx',
           '--input-type=module',
           '-e',
-          `import { statsBankChild } from ${JSON.stringify(join(dir, 'run-child.ts'))};
-         await statsBankChild(['1', ${JSON.stringify(dir)}, '0']);`,
+          `import { statsBankChild } from ${JSON.stringify(RUN_CHILD)};
+         await statsBankChild(['1', ${JSON.stringify(root)}, '0']);`,
         ],
-        { cwd: fileURLToPath(new URL('../../', import.meta.url)), env, input: '[]', encoding: 'utf8' },
+        { cwd: root, env, input: '[]', encoding: 'utf8', timeout: 10_000, killSignal: 'SIGKILL' },
       );
-      expect(result.status, result.stderr).toBe(reads ? 1 : 0);
-      if (reads) expect(result.stderr).toContain('may not read files');
+      expect(result.error, result.stderr).toBeUndefined();
+      if (reads) {
+        expect(result.status, result.stderr).toBe(1);
+        expect(result.signal).toBeNull();
+        expect(result.stderr).toContain('Access to this API has been restricted');
+        expect(result.stdout).not.toContain('selfEnd');
+      } else {
+        // The clean end of a bank child is its announced self-end (run-child.ts): its last line announces it, then the
+        // child ends itself by SIGKILL. Both are checked: an unannounced kill, or an announcement and an exit code, is
+        // not this end.
+        expect(result.status, result.stderr).toBeNull();
+        expect(result.signal).toBe('SIGKILL');
+        expect(result.stdout).toBe('{"closed":true,"selfEnd":true}\n');
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
