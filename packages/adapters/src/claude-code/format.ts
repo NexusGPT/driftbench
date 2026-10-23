@@ -21,7 +21,8 @@
  * - anything else (file history snapshots, queue operations, attachments): kept in `raw`.
  * Common fields: `uuid`, `parentUuid`, `sessionId`, `cwd`, `version`, `timestamp` (ISO 8601) and
  * `isSidechain` (true for the records of a helper's own conversation when the runtime writes them into the
- * same file; they are the helper's acts, not the agent's, and are kept in `raw`).
+ * same file; they are the helper's acts, not the agent's: kept in `raw`, and their tool calls are mapped to the
+ * block's `helperCalls`, tied to the Agent call that began the helper by `parent_tool_use_id` or the `parentUuid` chain).
  *
  * Guard decision log (optional). A JSONL file, one row per guard verdict: `{ at, event, check, verdict }`,
  * with `at` in ISO 8601, `event` the runtime event that fired it (PreToolUse, Stop, ...), `check` the name
