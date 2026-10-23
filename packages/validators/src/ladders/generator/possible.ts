@@ -241,6 +241,19 @@ export function jointWitness(spec: HiddenSpec, cell: Cell): JointWitness | undef
   return found;
 }
 
+/**
+ * The channels a path can run on: a channel where, at every stage of the path, an allowed full cell holds the flow,
+ * the stage and the channel (the same rule as `jointlyPossible`, behaviour axis included). A path whose flow lists only
+ * behaviours that one channel allows has no copy on another channel.
+ */
+export function pathChannels(spec: HiddenSpec, pathId: string): string[] {
+  const path = spec.paths.find((entry) => entry.id === pathId);
+  if (!path) return [];
+  return spec.channels.filter((channel) =>
+    path.stages.every((stage) => jointlyPossible(spec, { flow: path.flow, channel, stage })),
+  );
+}
+
 /** True when some event of the hidden map carries every value of the cell at once. */
 export function jointlyPossible(spec: HiddenSpec, cell: Cell): boolean {
   return jointWitness(spec, cell) !== undefined;
