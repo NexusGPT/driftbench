@@ -2,9 +2,9 @@ import { row, type Spec } from './types';
 
 /**
  * Re-anchoring items for the capabilities written into docs/estate-pointer-reader.md section 4 on 2026-10-23:
- * steps 3 and 4 read the whole estate (a unit moved to another file and edited keeps its id), and a table edit keeps
- * the id of every cell it carries. Each fails on the shared `ItemFailure`: a message prints the edit and the fates the
- * reader gave, never the planted ones.
+ * steps 3 and 4 read the whole estate (a unit moved to another file and edited keeps its id), and a table cell keeps
+ * its id by its text when unique and long, else by its row key and column header, else gets a new id. Each fails
+ * on the shared `ItemFailure`: a message prints the edit and the fates the reader gave, never the planted ones.
  */
 export const reanchoringCapabilitySpecs: Spec[] = [
   row(
@@ -54,5 +54,29 @@ export const reanchoringCapabilitySpecs: Spec[] = [
     'A table of 3 rows by 2 columns of long cells; a new column is inserted between them.',
     'Every old cell keeps its id on its own text.',
     'anchor:table-cell-follows-edit',
+  ),
+  row(
+    'table-cell-text-follows',
+    3,
+    'A long unique cell keeps its id by its text when its column header changes',
+    'A table of 4 rows, short row keys and long cells; the rows move and the long column is renamed.',
+    'Every long cell keeps its id on its own text, though its row key and column header no longer match.',
+    'anchor:table-cell-follows-edit',
+  ),
+  row(
+    'table-cell-key-follows',
+    3,
+    'A short repeated cell keeps its id by its row key and column header',
+    '4 rows, long row keys, a `Done` column of `Yes` and `No`; the rows reverse and a column is inserted.',
+    'Each `Done` cell keeps its id in the row of its row key, under `Done`.',
+    'anchor:table-cell-by-key',
+  ),
+  row(
+    'table-cell-new-id',
+    3,
+    'A short repeated cell gets a new id when its row key does not survive',
+    'The same table; every row key is rewritten, the `Done` column is unchanged.',
+    'No old `Done` id is live: each `Done` cell has a new id.',
+    'anchor:table-cell-new-id',
   ),
 ];
