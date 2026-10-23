@@ -60,7 +60,14 @@ describe('the audit of every check site', () => {
 
   it('finds a number written into a rule that declares nothing wanted', async () => {
     const audit = await auditEveryCheckSite(
-      [item('bad', () => check(true, () => ({ rule: 'the interval has an upper bound of 1', expected: none('observation') })))],
+      [
+        item('bad', () =>
+          check(true, () => ({
+            rule: 'the interval has an upper bound of 1',
+            expected: none('observation'),
+          })),
+        ),
+      ],
       {},
       1,
     );
