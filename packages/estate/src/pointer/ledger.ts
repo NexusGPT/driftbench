@@ -59,6 +59,53 @@ export type Event = 'new' | 'unchanged' | 'moved' | 'ambiguous' | 'changed' | 's
 /** `text` is the file as read. Without it the entries keep the squashed text of the unit and of its neighbours. */
 export type FileCut = { path: string; cut: Cut; text?: string };
 
+/** A unit whose label of a set was a label other than `none` and is now another label, `none`, or none. */
+export type LabelFlip = { unit: string; set: string; from: string; to?: string };
+
+/**
+ * Records the label a set now gives a unit, or removes it (`undefined`: no accepted answer named the unit). The unit
+ * keeps its id and its place, whatever the label; the other sets keep theirs. A label that was selected (not
+ * `none`) and is now another label, `none` or none is a flip, returned so the scan can report it.
+ */
+export function recordLabel(
+  entry: { id: string; labels: Record<string, LedgerLabel> },
+  set: string,
+  next: LedgerLabel | undefined,
+): LabelFlip | undefined {
+  const before = Object.hasOwn(entry.labels, set) ? entry.labels[set]?.label : undefined;
+  if (next === undefined) delete entry.labels[set];
+  else entry.labels[set] = next;
+  if (before === undefined || before === 'none' || before === next?.label) return undefined;
+  return { unit: entry.id, set, from: before, ...(next === undefined ? {} : { to: next.label }) };
+}
+
+/** Whether a unit keeps the labels it had: its text and its neighbours (the context) are unchanged. */
+export const keepsLabels = (
+  before: { fp: string; ctxFp: string },
+  after: { fp: string; ctxFp: string },
+): boolean => before.fp === after.fp && before.ctxFp === after.ctxFp;
+
+/**
+ * What a scan does with the labels of one unit that was labelled before: for each set it names, the label carries
+ * when the unit's fingerprint and its context fingerprint are both unchanged, and the unit is dirty (asked again)
+ * for that set otherwise. A set the unit had no label for is dirty.
+ */
+export function carryOf(
+  before: { fp: string; ctxFp: string; labels: Readonly<Record<string, string>> },
+  after: { fp: string; ctxFp: string },
+  sets: readonly string[],
+): { carried: Array<{ set: string; label: string }>; dirty: string[] } {
+  const same = keepsLabels(before, after);
+  const carried: Array<{ set: string; label: string }> = [];
+  const dirty: string[] = [];
+  for (const set of sets) {
+    const label = Object.hasOwn(before.labels, set) ? before.labels[set] : undefined;
+    if (same && label !== undefined) carried.push({ set, label });
+    else dirty.push(set);
+  }
+  return { carried, dirty };
+}
+
 /** The scans a unit's lineage remembers. */
 export const LINEAGE_KEEP = 8;
 
@@ -332,6 +379,8 @@ export type NextLedger = {
   events: Record<Event, number>;
   /** What the ladder decided for each id of this scan: the live ids, and the ids that are deleted now. */
   eventsById: Record<string, Event>;
+  /** For each id whose text matched in several places, every place it matched: the id sits on the first. */
+  candidates: Record<string, Array<{ path: string; quote: string }>>;
 };
 
 /** A map of labels by set name that has no prototype: `__proto__` and `constructor` are names like any other. */
@@ -399,6 +448,12 @@ export function nextLedger(
   }
   const scan = scanAfter(previous);
   const eventsById: Record<string, Event> = Object.create(null);
+  const candidates: NextLedger['candidates'] = Object.create(null);
+  for (const entry of live) {
+    const found = mapping.get(entry.id);
+    if (found?.event === 'ambiguous')
+      candidates[entry.id] = found.to.map((item) => ({ path: item.path, quote: item.unit.text }));
+  }
   const occurrences = new Map<string, number>();
   const ids = new Map<string, string>();
   const entries: LedgerEntry[] = [];
@@ -414,7 +469,7 @@ export function nextLedger(
       taken.add(id);
       carried = { id, event: 'new' };
     }
-    const keepLabels = carried.from && carried.from.fp === item.unit.fp && carried.from.ctxFp === item.ctxFp;
+    const keepLabels = carried.from && keepsLabels(carried.from, { fp: item.unit.fp, ctxFp: item.ctxFp });
     events[carried.event]++;
     ids.set(unitKey(item.path, item.index), carried.id);
     entries.push({
@@ -459,7 +514,7 @@ export function nextLedger(
       (a.status === 'live' ? a.index - b.index : a.id.localeCompare(b.id)),
   );
   const cutDigests = Object.fromEntries(files.map(({ path, cut }) => [path, cut.digest.slice(0, 16)]));
-  return { ledger: { version: 1, cutDigests, entries }, ids, events, eventsById };
+  return { ledger: { version: 1, cutDigests, entries }, ids, events, eventsById, candidates };
 }
 
 /**

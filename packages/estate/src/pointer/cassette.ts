@@ -72,15 +72,20 @@ export class CassetteMiss extends Error {
     readonly nearest: string | undefined,
     /** The labeler id of the request that missed, as its label set or settings name it. */
     readonly labeler?: string,
+    /** With no entry of the same set and labeler, the closest entry of the same file and window, and what differs. */
+    readonly closest?: { key: string; differs: string[] },
+    /** The window of the request that missed, as path and number: the window to record again. */
+    readonly window?: string,
   ) {
+    const of = window === undefined ? '' : ` of window ${window}`;
     super(
       nearest
-        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
+        ? `the cassette has no answer for request ${key.slice(0, 12)}${of}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
             differs.includes('cutDigest')
               ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
               : ''
           }`
-        : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
+        : `the cassette has no answer for request ${key.slice(0, 12)}${of}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
     );
     this.name = 'CassetteMiss';
   }
@@ -121,20 +126,37 @@ export class Cassette {
   get(wire: Wire, readable: Readable): CassetteEntry {
     const key = requestKey(wire, readable);
     const hit = this.entries.get(key);
-    if (hit) return hit;
-    const same = [...this.entries.values()].filter(
-      (entry) =>
-        entry.readable.path === readable.path &&
-        entry.readable.window === readable.window &&
-        entry.readable.set === readable.set &&
-        entry.readable.labeler === readable.labeler,
-    );
     const differs = (entry: CassetteEntry): string[] =>
       [...new Set([...Object.keys(readable), ...Object.keys(entry.readable)])]
         .filter((field) => readable[field] !== entry.readable[field])
         .sort();
-    const nearest = same.sort((a, b) => differs(a).length - differs(b).length)[0];
-    throw new CassetteMiss(key, nearest ? differs(nearest) : [], nearest?.key, readable.labeler);
+    // The readable fields beside a key must agree with the request even when the key matches: an entry whose
+    // fields were edited, or written for another request, is refused and the fields are named.
+    if (hit) {
+      const stale = differs(hit);
+      if (stale.length === 0) return hit;
+      throw new CassetteMiss(key, stale, hit.key, readable.labeler, undefined, readable.window);
+    }
+    // The nearest entry is one of the same file, window, set and labeler. With none, the closest entry of the same
+    // file and window is kept apart: it names the other set or the other labeler, and `nearest` stays empty.
+    const sameWindow = [...this.entries.values()].filter(
+      (entry) => entry.readable.path === readable.path && entry.readable.window === readable.window,
+    );
+    const rank = (list: CassetteEntry[]) => list.sort((a, b) => differs(a).length - differs(b).length)[0];
+    const nearest = rank(
+      sameWindow.filter(
+        (entry) => entry.readable.set === readable.set && entry.readable.labeler === readable.labeler,
+      ),
+    );
+    const closest = nearest === undefined ? rank(sameWindow) : undefined;
+    throw new CassetteMiss(
+      key,
+      nearest ? differs(nearest) : [],
+      nearest?.key,
+      readable.labeler,
+      closest ? { key: closest.key, differs: differs(closest) } : undefined,
+      readable.window,
+    );
   }
 
   put(wire: Wire, readable: Readable, answer: Recorded): CassetteEntry {
