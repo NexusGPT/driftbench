@@ -504,6 +504,22 @@ const COMMANDS: Command[] = [
     target: (s) => `~/${s}`,
     anchored: true,
   },
+  {
+    key: 'home-variable',
+    tier: 2,
+    title: 'a path from $HOME',
+    command: (s) => `python3 $HOME/${s}`,
+    target: (s) => `~/${s}`,
+    anchored: true,
+  },
+  {
+    key: 'home-braced-quoted',
+    tier: 2,
+    title: 'a quoted path from ${HOME}',
+    command: (s) => `python3 "\${HOME}/${s}"`,
+    target: (s) => `~/${s}`,
+    anchored: true,
+  },
 ];
 
 export function dispatcherFamily(): Family {
