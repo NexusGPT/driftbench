@@ -369,7 +369,8 @@ function driftOf(
   before: SetupDocument['drift'],
   files: NonNullable<SetupDocument['drift']>['files'],
 ): DoctorResult['drift'] {
-  if (!before) return { status: 'not-run', changes: [] };
+  if (!before || (before.files.length === 0 && files.length === 0))
+    return { status: 'not-run', changes: [] };
   const old = new Map(before.files.map((file) => [`${file.source}:${file.path}`, file]));
   const now = new Map(files.map((file) => [`${file.source}:${file.path}`, file]));
   const changes: DoctorResult['drift']['changes'] = [];
