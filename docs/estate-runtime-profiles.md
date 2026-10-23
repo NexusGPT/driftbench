@@ -12,17 +12,18 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | Field | What it holds | claude-code |
 |---|---|---|
 | `name` | The name an estate map and the CLI give the runtime | `claude-code` |
+| `roots` | The roots its part types are relative to, by name | `project` is `.`, `layout` is `.claude` |
+| `types` | Its built-in part types, in the order a file is classified in ([the estate model](estate-model.md)) | `CLAUDE_CODE_TYPES`, listed on the [Claude Code page](adapters/claude-code.md#part-types) |
+| `mapKinds` | The kind the estate map gives a file of each type; a file no mapped type locates is `other` | `CLAUDE_CODE_MAP_KINDS` |
+| `shapes` | The structures its reader can test a file for, which a type's `shape` names | `step-list`, `catalogue`, `check-table` |
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
-| `layout.memory`, `skills`, `helpers`, `skillEntry` | Where each kind of unit lives inside it | `memory`, `skills`, `agents`, `SKILL.md` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
-| `standing.files`, `rootFiles`, `primary` | The standing instruction files | `CLAUDE.md`, `.claude/CLAUDE.md`, `CLAUDE.local.md` |
-| `standing.nestedName` | A file name loaded as standing wherever it lies | `CLAUDE.md`, `CLAUDE.local.md` |
-| `standing.importPrefix` | The prefix of a standing line that imports a file | `@` |
+| `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
 | `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
 | `routing` | How a skill is reached: `route-table`, `description`, `name`. The graph reads `description`: with it, a skill or helper that has a description is reachable, and the lint reports one the standing instructions do not name as `REACHED_BY_DESCRIPTION` (information). The other two rules do not change what is reachable yet | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
-| `loadsItself(path)` | True for a file the runtime loads with no visible read | every `CLAUDE.md` and `CLAUDE.local.md` |
+| `loadsItself(path)` | True for a file the runtime loads with no visible read: one a type of the runtime locates whose parts load `always` and `instructs` (`loadsByItself`) | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |
 | `configFiles` | Where `driftbench.estate.yaml` may live | the root, then `.claude/` |
 | `ignore` | Globs skipped by default | the former `DEFAULT_IGNORE` |
@@ -31,7 +32,9 @@ what a runtime loads and how. All paths are relative to the estate root, written
 `registerRuntimeProfile(profile)` adds a runtime; `runtimeProfile(name)` returns it. A runtime's reader
 registers beside it with `registerEstateReader(name, factory)` (package `@agent-nexus/driftbench-estate`).
 Adding a runtime is a profile (data) plus, when its layout differs in shape, a reader: no reader or copier
-changes.
+changes. Where a standing file, a skill, a helper or a setting lies is its part type's, not a field of the
+profile: the reader classifies every file it reads by `types` and `mapKinds`, and finds the standing files
+beside the layout folder by the types located from the root.
 
 Readers of the profile today: the Claude Code reader (`packages/estate/src/scan/claude-code.ts`), the mutant
 copier (`packages/estate/src/mutants/mutate.ts`), named-path resolution (`packages/estate/src/scan/code.ts`),

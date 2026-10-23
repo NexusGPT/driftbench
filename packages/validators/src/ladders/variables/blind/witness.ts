@@ -1,3 +1,4 @@
+import { check, ItemFailure, none } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import type { Row, VariablesImpl } from '../interface';
@@ -10,7 +11,6 @@ import {
   callPlan,
   callQuotes,
   makeStore,
-  must,
   names,
   spaceOf,
   valueIds,
@@ -47,20 +47,20 @@ const witnesses: Record<Name, (ctx: ItemContext) => void> = {
       return store;
     };
     const files = { 'w/file.md': `Intro.\n${sentence}\nOutro.` };
-    must(
-      callQuotes(ctx, withQuote(sentence), files).errors.length === 0,
-      () => 'the witness quote in its file was reported',
-    );
+    check(callQuotes(ctx, withQuote(sentence), files).errors.length === 0, () => ({
+      rule: 'the witness quote in its file was reported',
+      expected: none('observation'),
+    }));
     const missing = callQuotes(ctx, withQuote('A sentence the file does not hold.'), files).errors;
-    must(
-      missing.length === 1 && missing[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND',
-      () => 'the witness quote missing from its file was not reported',
-    );
+    check(missing.length === 1 && missing[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND', () => ({
+      rule: 'the witness quote missing from its file was not reported',
+      expected: none('observation'),
+    }));
     const gone = callQuotes(ctx, withQuote(sentence), {}).errors;
-    must(
-      gone.length === 1 && gone[0]?.code === 'VARIABLES_SOURCE_UNREADABLE',
-      () => 'the witness quote with no file was not reported',
-    );
+    check(gone.length === 1 && gone[0]?.code === 'VARIABLES_SOURCE_UNREADABLE', () => ({
+      rule: 'the witness quote with no file was not reported',
+      expected: none('observation'),
+    }));
   },
   plan(ctx) {
     const ids = names(ctx.rng, 3);
@@ -72,41 +72,51 @@ const witnesses: Record<Name, (ctx: ItemContext) => void> = {
     const space = spaceOf(store);
     assertRowsSound(space, plan, []);
     assertCovered(space, plan);
-    must(plan.rows.length >= 3, () => 'the witness plan has fewer than three rows for three binary axes');
+    check(plan.rows.length >= 3, () => ({
+      rule: 'the witness plan has fewer than three rows for three binary axes',
+      expected: none('observation'),
+    }));
   },
   coverage(ctx) {
     const ids = names(ctx.rng, 3);
     const store = makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })) });
     const group = [{ variables: ids, strength: 2 }];
     const none = callCoverage(ctx, store, [], group);
-    must(
-      BigInt(none.allowed) === 12n && BigInt(none.covered) === 0n,
-      () => `the witness count is ${String(none.allowed)} and ${String(none.covered)}; expected 12 and 0`,
-    );
+    check(BigInt(none.allowed) === 12n && BigInt(none.covered) === 0n, () => ({
+      rule: 'the witness counts are exact',
+      got: { allowed: String(none.allowed), covered: String(none.covered) },
+      expected: { allowed: 12, covered: 0 },
+    }));
     const row: Row = Object.fromEntries(ids.map((id) => [id, 'v0']));
     const one = callCoverage(ctx, store, [row], group);
-    must(BigInt(one.covered) === 3n, () => `one row holds ${String(one.covered)} pairs; expected 3`);
+    check(BigInt(one.covered) === 3n, () => ({
+      rule: 'the witness row holds the pairs it should',
+      got: { covered: String(one.covered) },
+      expected: { covered: 3 },
+    }));
   },
   weightInterval(ctx) {
     const [lo, hi] = callInterval(ctx, 0, 10);
-    must(
-      Math.abs(lo) < 1e-9 && Math.abs(hi - 0.2775) < 1e-3,
-      () => `the witness interval of 0 of 10 is [${lo}, ${hi}]`,
-    );
+    check(Math.abs(lo) < 1e-9 && Math.abs(hi - 0.2775) < 1e-3, () => ({
+      rule: 'the witness interval of N of N is [{}, {}]',
+      got: { details: [lo, hi] },
+      expected: none('observation'),
+    }));
     const [a, b] = callInterval(ctx, 50, 100);
-    must(
-      a > 0.39 && a < 0.41 && b > 0.59 && b < 0.61,
-      () => `the witness interval of 50 of 100 is [${a}, ${b}]`,
-    );
+    check(a > 0.39 && a < 0.41 && b > 0.59 && b < 0.61, () => ({
+      rule: 'the witness interval of N of N is [{}, {}]',
+      got: { details: [a, b] },
+      expected: none('observation'),
+    }));
   },
   buildStore(ctx) {
     const tool: ToolSpec = { tool: 'witness_tool', field: 'queue', values: ['alpha', 'beta'] };
     const d = discover(ctx, [tool]);
     const variable = d.store.variables.find((v) => v.id === d.ids[0]);
-    must(
-      variable?.values.length === 2,
-      () => 'the witness store does not hold the two values of the tool field',
-    );
+    check(variable?.values.length === 2, () => ({
+      rule: 'the witness store does not hold the two values of the tool field',
+      expected: none('observation'),
+    }));
   },
 };
 
@@ -132,11 +142,21 @@ export function withWitness(item: BankItem): BankItem {
           witnesses[key]({ ...ctx, id: `${ctx.id}.witness.${key}` });
           return undefined;
         });
-        if (!witnessed.pass)
-          return {
-            pass: false,
-            detail: `${key} passed the item and then failed its witness: ${witnessed.detail}`,
-          };
+        if (!witnessed.pass) {
+          const detail = `${key} passed the item and then failed its witness: ${witnessed.detail}`;
+          const inner = witnessed.failure;
+          // A structured failure stays structured: the rule says whose witness failed, the fields stay the witness's.
+          return inner instanceof ItemFailure
+            ? {
+                pass: false,
+                detail,
+                failure: new ItemFailure({
+                  ...inner.fields,
+                  rule: `${key} passed the item and then failed its witness: ${inner.fields.rule}`,
+                }),
+              }
+            : { pass: false, detail };
+        }
       }
       return outcome;
     },
