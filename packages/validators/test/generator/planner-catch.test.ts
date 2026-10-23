@@ -25,7 +25,30 @@ const data = (seed: number) =>
 
 const catchItems = (module?: string) => plannerItems(module).filter((item) => item.role === 'catch');
 
+/** The review of b6b003170: three wrong refusals of an all-zero variable, and a correct one in other words. */
+const ZERO_WRONG = ['zero-weights-no-code', 'zero-weights-wrong-code', 'zero-weights-plain-error'] as const;
+
 describe('the catch items of the planner family', () => {
+  it.each(ZERO_WRONG)('loses zero-total-weights-refused to %s on seeds 1 to 3', async (bug) => {
+    const module = fileURLToPath(new URL(`./fixtures/planner-mutants/${bug}.ts`, import.meta.url));
+    const items = catchItems(module).filter((item) => item.id === 'planner.catch.zero-total-weights-refused');
+    expect(items).toHaveLength(1);
+    for (const seed of [1, 2, 3]) {
+      const [result] = await evaluate(items, data(seed));
+      expect(result?.verdict.pass, `seed ${seed}`).toBe(false);
+      expect(result?.verdict.detail ?? '').not.toMatch(/the item threw|did not load/);
+    }
+  });
+
+  it('passes zero-total-weights-refused on a correct refusal in other words, seeds 1 to 3', async () => {
+    const module = fileURLToPath(new URL('./fixtures/planner-mutants/zero-weights-reworded.ts', import.meta.url));
+    const items = catchItems(module).filter((item) => item.id === 'planner.catch.zero-total-weights-refused');
+    for (const seed of [1, 2, 3]) {
+      const [result] = await evaluate(items, data(seed));
+      expect(result?.verdict.pass, `seed ${seed}: ${result?.verdict.detail}`).toBe(true);
+    }
+  });
+
   it('pins exactly the catch items in validators/generator/catch.json, each with what it guards', () => {
     const file = JSON.parse(
       readFileSync(
