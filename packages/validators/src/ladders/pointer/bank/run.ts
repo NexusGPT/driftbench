@@ -1,4 +1,5 @@
 import { rngFor } from '@agent-nexus/driftbench-generate';
+import { ItemFailure } from '../../../failure';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
 import { fail, type Outcome, type PointerItem, Problem } from './types';
 
@@ -29,6 +30,8 @@ async function execute(item: PointerItem, seed: number, sut: PointerSut): Promis
   } catch (cause) {
     if (cause instanceof ReaderNotReachable) return fail(cause.message);
     if (cause instanceof Problem) return fail(cause.message);
+    // A structured failure renders from its fields only (docs/validators.md section 12): its message is the detail.
+    if (cause instanceof ItemFailure) return fail(cause.message);
     return fail(`the item threw: ${cause instanceof Error ? cause.message : String(cause)}`);
   } finally {
     if (timer) clearTimeout(timer);

@@ -40,6 +40,13 @@ export function viewOf(store: VariableStore, options: ViewOptions = {}): View {
   const approvedOnly = options.approvedOnly ?? true;
   const variables: ViewVariable[] = [];
   for (const variable of store.variables) {
+    // The loader refuses a variable whose values all weigh 0 (VARIABLES_WEIGHT_ZERO), approved or not; so does the
+    // planner, over the same set of values, before it sets aside the values no one approved. A variable with no
+    // values is not refused.
+    if (variable.values.length > 0 && variable.values.every((value) => value.weight === 0))
+      throw Object.assign(new RangeError(`VARIABLES_WEIGHT_ZERO: every value of "${variable.id}" weighs 0`), {
+        code: 'VARIABLES_WEIGHT_ZERO',
+      });
     const kept = variable.values.filter((value) => !approvedOnly || (value.approved ?? variable.approved));
     if (kept.length === 0) continue;
     const weighed = kept.every((value) => value.weight !== undefined);

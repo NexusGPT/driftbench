@@ -2,7 +2,7 @@
 
 Status: revision 5. The normative review corrections below supersede the corresponding revision-4 rules and prototype observations. The implementation and historical measurements described below are not a claim that the corrections are implemented.
 
-Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); links (layer C), the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
+Revision-4 status: Layers A and B are built behind `driftbench estate scan --pointer` (section 14, pull request 692); the link functions of layer C (section 7) are built as library functions and have no command; the gold-set study and the removal of the word-list finder are not. The owner ruling of 17 October is in: the labelers are named by the class the judges use, the default is a stack of a system 1 and a system 2 labeler, and a user labeler goes through the same port. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
 
 ## The shape: three layers with three owners
 
@@ -99,7 +99,7 @@ Code reads each prose file (standing instructions, memory, skill bodies and file
 
 Parser and offsets:
 
-- Parse with `unified`, `remark-parse`, `remark-gfm` and `remark-frontmatter`. Every node carries UTF-16 start and end offsets; a unit's text is always `source.slice(start, end)`, never a node's `value` (a blockquote's value drops the `> ` markers).
+- Parse with `unified`, `remark-parse`, `remark-gfm` and `remark-frontmatter`. The directives and display math blocks of section 2 are read by `micromark-extension-directive` and `micromark-extension-math` (single-dollar text math off), TOML front matter by the `toml` option of `remark-frontmatter` and `toml-eslint-parser`, and JSON front matter by a JSON parser at the start of the file. Every node carries UTF-16 start and end offsets; a unit's text is always `source.slice(start, end)`, never a node's `value` (a blockquote's value drops the `> ` markers).
 - A leading byte-order mark is stripped and its length recorded as a base offset, so every offset still points into the original file.
 - Lists and block quotes may nest 100 levels deep. A file that nests deeper is refused by the cutter with a message that names the depth and the limit, and the scan names the file, because the parser takes more than linear time on deep nesting. Fenced code does not count.
 - A paragraph or a block quote of more than 5,000 lines is read in parts, because the parser takes much more than linear time on the text of one paragraph (150,000 lines take about 2 seconds in parts and a minute in one). The block structure comes from the parser's own block passes, which do not read paragraph text and are linear. A cut falls only between two lines that the parser reads as one paragraph (for a quote, one paragraph of the quote), outside any list. A fence, a heading, a table, a front matter, a blank quote line, a nested quote and a lazy continuation line of a quote are never cut, and the heading path carries over. The parts of a quote are joined back into the one unit it is. A sentence that runs over a cut is two units. A file of 5,000 lines or fewer is read whole.
@@ -108,16 +108,20 @@ Units:
 
 | Container | Rule |
 |---|---|
-| Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. |
+| Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. Sentence ends follow the sentence rules of Unicode UAX #29, with no dictionary. The characters with the property `Sentence_Terminal` are of two kinds there. STerm characters end a sentence in any script, unless a comma, a hyphen, a colon, a semicolon or another terminator follows (SB8a): `?`, `!`, Mongolian `᠃`, Syriac `܀`, N'Ko `߹`, Balinese `᭟`. ATerm characters, the full stop `.` and its variants U+2024, U+FE52 and U+FF0E, follow rules SB6 to SB8: no end before a digit with no space (SB6, `3.14`), between a letter and a capital with no space (SB7, `U.S.`, `world.Today`), or when the next letter after it is lower case, with only spaces, digits or punctuation between (SB8, `etc. and`). SB8a holds for them too. The cutter's shape merges then apply to the ends the segmenter returns, and merge when unsure is the tie rule. A character without the property is no sentence end, such as the Tibetan shad `།`. A script that marks a sentence end with a space only, such as Thai, is therefore not cut at the space. |
 | List item | One unit per item and per nested item, for the item's prose. A wrapped item is one unit. A task-list checkbox (`[ ]`, `[x]`) is a mark, not prose: it is not in the unit's quote, and its state is no pointer fact. A heading inside an item (a setext heading, for example) is a heading unit, and the item has a unit only for its prose beyond the heading. |
 | Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. |
-| Block quote | One unit per paragraph, offsets covering the text after the `>`. |
+| Block quote | One unit per paragraph, offsets covering the text after the `>`. A GitHub alert (a quote whose first line is one of GitHub's five markers alone, in upper case as GitHub writes them: `[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]`) keeps that marker out of every unit: the marker is a mark, like a checkbox. Its type is shown with each unit of the alert as context: it ends the unit's heading path (`[!WARNING]`). Any other `[!X]` line (`> [!FOO]`, or `> [!note]` in lower case) makes an ordinary quote, and the line is prose of its paragraph. |
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
-| Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
+| Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. The same holds for TOML front matter (between `+++` lines at the start of the file) and JSON front matter (the file opens with `{`, and the front matter ends where the JSON value that starts at that `{` completes, as a JSON parser reads it, never by the shape of a line): every string value, in a table, an array or an object, is a unit keyed by its path (`$.title`, `$.tags[1]`). |
 | Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
+| Directive | Container directives follow the generic directive syntax (`micromark-extension-directive`). The opening line is a fence of three or more colons, a name, then an optional label in `[…]` and optional attributes in `{…}`: `:::warning`, `:::note[Check first]`, `:::tip{#id .wide}`. The closing line is a fence of colons alone, at least as long as the opening fence. A container nests inside another whose fence is longer (`::::outer`, `:::inner`, `:::`, `::::`). Both fence lines are kept out of every unit, the attributes included. The label is prose: one unit, like a heading's text. The content is cut like any other markdown, and `name` ends the heading path of the label's and the content's units (`outer`, then `inner` when nested). Leaf (`::name`) and text (`:name`) directives are not covered: they read as prose. |
+| Math block | A display math block (`$$` lines) is opaque, like a fence. Only `$$` display math is math. A single dollar is ordinary text, not inline math: `It costs $5. Then it costs $6.` is two sentences. |
 
 Every prose character belongs to exactly one unit. Spans never overlap. A link reference definition (`[id]: url "title"`) is not rendered text and gives no unit, its title included. These three rules follow CommonMark and GFM.
+
+**Footnotes (GFM).** A footnote reference (`[^label]`) belongs to the sentence it is attached to, also when it follows that sentence's full stop (`Keep it dry.[^1] Then lock up.` is two units, the first ending `[^1]`). A footnote definition (`[^label]: text`) is cut like prose: one sentence unit per sentence of each of its paragraphs, the `[^label]:` marker in no unit, and `[^label]` ends the heading path of each of its units, so a labeler reads which reference it explains. A list or a fence inside a definition is cut as anywhere else (list item units, an opaque fence), under the same path. A reference with no definition is no footnote (GFM reads it as text): it is prose of its sentence, like any bracketed text.
 
 **Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
 
@@ -163,11 +167,12 @@ The number `n` is a display handle inside one request. It is not an identity (se
 A labeler is a port with one input and one output, the same for every implementation:
 
 ```
-label(window, labelSet) -> { labels: [{ units, label, target? }], meta }
+label(window, labelSet) -> { labels: [{ units, label, target?, scopes? }], meta }
 ```
 
 - Input: a window of numbered units (below) and a label set.
 - Output: for every unit of the window, one label name from the set or `none`. Ranges (`5-6`) are allowed. Nothing else: no text, no ids that are not in the window.
+- `scopes` is an optional list of other units of the window that the unit applies to, besides its `target`. Any label may carry it except `none`: a condition lists every unit it scopes (the first as `target`, the rest in `scopes`), and a rule keeps its own instruction while its text becomes the situation of the units it scopes. A scope names a unit of the window other than the unit itself, once. An answer without `scopes` reads as before.
 
 ### Window
 
@@ -203,12 +208,12 @@ Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`),
 
 ### Implementations
 
-The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one yes or no question per unit and label and reads a probability of yes; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
+The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one choice question per unit, with the labels of the set and `none` as options, and reads a probability for each option; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
 
 | Class | Client | How it answers | Notes |
 |---|---|---|---|
 | system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set; JSON with the labels of the set; response blocks read by type (thinking blocks may precede the text); hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. |
-| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; the unit state is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
+| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One choice question per unit, keyed `u<n>`: which label does unit `[n]` of the numbered text have, with each label and `none` as an option and its definition. The answer is a probability vector over the options (each from 0 to 1, summing to 1 within 0.01; never normalised). A request carries a window of up to 30 units. The stack reads the margin between the two likeliest options (section 3, the default stack). State is the numbered window with its heading path; the unit state is the other state (one unit, one request per unit). | The probabilities are kept in the cassette so the margin cut can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
 | system 1 | `openai-decisions` | The public example of the class: the same questions as predicates to `POST /v1/decisions`. | The shapes follow the provider's public description; no live call has confirmed them here. |
 | either | `http:<url>`, `module:<path>` | A user labeler: the request is `{ set, window, prompt }` (system 2) or `{ set, window, state, questions }` (system 1), the answer is `{ labels }` or `{ probabilities }`. | Recorded and replayed through the cassette like the others, with the id in every key: a hash of the address, or `module:<id>`. |
 | any | replay | Reads a cassette; no network. | Used by CI and validators. |
@@ -225,6 +230,8 @@ This section states the product contract formerly described by the research `STA
 - System 2 supplies three independent runs on the same window. Below the cut, all three votes must be present, valid members of the label set, and equal. Their unanimous label is accepted even when it differs from system 1. Otherwise the unit is unsure and goes to a person. An empty or undeclared label is never accepted.
 - `requireAgreement` defaults to false. When true, every accepted unit, including an above-cut unit, must also have three valid equal system-2 votes matching its system-1 label. Accepted units are therefore a subset of the ordinary accepted set.
 - A missing or malformed system-2 run counts against unanimity. A system-1 call retries once; a second failure routes its units below the cut. Changing one unit's opinions changes only that unit's route or decision.
+- A stack asks system 1 first. In a set with no label only system 2 can give, a unit that system 1 decides alone (a sure label, or a sure `none`) is not asked of system 2, since system 2 could not change the decision; a window whose needed units are all such units is not sent to system 2. In any other set every window goes to both, as before.
+- `margin(probabilities)` is the pure measure: the likeliest option minus the second, or undefined when the probabilities are no vector (a probability outside 0 to 1, not a number, a total off by more than 0.01) or hold no `none` option. `stackMargin(probabilities)` is the margin the stack reads: the same measure, and a RangeError where the measure gives none. `stackDecision` leaves a unit with no margin to system 2. `stackDecision({probabilities, system1Label?, system2Votes, marginCut, requireAgreement?})` applies the rules above to one unit and returns `{label, by}` or nothing, from that unit's opinions only. A system 2 labeler used alone is asked `runs` times when the caller sets it (the validator arms set one).
 - Both classes can be replaced by user labelers. A system-1 replacement supplies probabilities; a system-2 replacement supplies three independent votes. These are product requirements, not behavior the validator adapter implements.
 
 ### System 1 settings (measured, section 10a)
@@ -249,7 +256,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 
@@ -257,7 +264,7 @@ Unit numbers change with every edit. The ledger gives each unit a stable identit
 
 - **Id.** One id per unit that is labelled or linked: the first ten base32 characters of the hash of (estate key, path, fingerprint, occurrence index), minted once and then persisted and never recomputed. Derivation keeps independent clones consistent; persistence keeps the id after edits.
 - **Fingerprint.** NFC-normalised text, white space collapsed, container markers (bullets, `>`, pipes) stripped. Case and emphasis are kept, because prompts use capitals and bold for force. No NFKC.
-- **Sidecar.** The ledger is a committed file beside the estate (for example `driftbench.ledger.json`), canonical sorted JSON with no timestamps. The estate's own files are never changed by the scan. `scan --update` writes it; `scan --check` fails in CI when files changed but the committed ledger did not, like a lockfile check.
+- **Sidecar.** The ledger is a committed file beside the estate (for example `driftbench.ledger.json`), canonical sorted JSON with no timestamps. The estate's own files are never changed by the scan. `scan --update` writes it; `scan --ledger-check` fails in CI when files changed but the committed ledger did not, like a lockfile check.
 
 Entry:
 
@@ -290,7 +297,7 @@ Entry:
 
 A label is stored under its set name in a map without a prototype, so a set may be named `constructor` or `__proto__`. A set name holds letters, digits, underscores and hyphens.
 
-`checkLedger(previousRaw, current)` is what `scan --check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
+`checkLedger(previousRaw, current)` is what `scan --ledger-check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
 
 ### Re-anchoring on a changed file
 
@@ -301,6 +308,10 @@ Cheapest first, on units:
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
+
+Steps 3 and 4 run in two rounds. The first scores inside the unit's own file. What it leaves open is scored against the new units of every other file, with the same weights, threshold and floor, so a unit that leaves one file and comes back reworded, split or merged in another (a renamed file included) keeps its id when it clears them. An identical text in another file is step 2's: its length floor holds. **Limit of the second round:** its candidates are found by the rare character trigrams they share with the unit. A trigram held by more than 48 units of the estate does not count, and a candidate must hold at least 30 percent of the unit's informative trigrams (and at least two). A pair that would clear the threshold and the floor but shares almost no rare trigram is not followed across files, and the unit is `deleted` there; it is still followed inside its own file. The limit keeps the round linear in the open units of a large estate.
+
+`carryOf(before, after, sets)` says, for one unit that was labelled before, which labels carry to the next scan and which sets are asked again: a label carries when the unit's fingerprint and its context fingerprint are both unchanged, and a set the unit had no label for is asked again. `recordLabel(entry, set, next)` replaces the label of one set of an entry, leaves the other sets, the id and the status alone, and returns a flip when a label other than `none` was replaced by another label, by `none` or by none. When a text matches in several places the old id stays on the first match, and `nextLedger` lists every place in `candidates`.
 
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
 
@@ -342,6 +353,8 @@ A test or block links to a span with `{ span: <ledger id>, fp, relation, created
 | `ambiguous` | The span matches in several places. |
 
 The **blast radius** of an edit is the set of tests with `suspect` links, plus a separately reported advisory set (tests linked to the same section) for references a precise link may hide ("except as described above"). Only links with `createdBy: verified` count towards a claim; a link becomes verified by mutation (deleting or negating the span flips the test). Clearing a suspect link records a reason (`cosmetic`, `semantic-still-covered`, `test-updated`). Coverage reports the inverse: spans labelled with an `atom` mapping and no verified link.
+
+The functions are `createLink(ledger, owner, span, relation, createdBy?)`, `classifyLinks(previous, current, links)`, `clearLink(link, reason, current)`, `verifyLink(link, {mutation, flipped})`, `linkCoverage(current, mappedLabels, links)` and `blastRadius(previous, current, links)`. A link holds `owner`, `span`, `fp`, `relation`, `createdBy`, `accepted` (a boolean, or the clearing reason) and, once cleared, `reason`; it holds no offset. A link also holds the context fingerprint and the heading path the span had when it was accepted. A state depends on the link and the ledger after the edit: `suspect` when the span is gone, deleted, or its fingerprint differs from the link's; `ambiguous` when the last event of the span's lineage is `ambiguous` (its text matched in several places); `advisory` when the span's context fingerprint or heading path differs from the link's, and it stays advisory until the link is accepted again; else `ok`. A link with no context of its own takes the context of the ledger before the edit. A clearing takes a ledger or a review (`fp`, `ctxFp`, `sectionPath`) and refuses any reason but the three; it keeps the link as it was when it refuses. `verifiedSpans(links)` is the spans a claim may name: those of verified links, each once. `impactOf(precise, sectionLinks, editedSections)` is the radius from links already classified: the owners of suspect links whoever made them, and the owners of section-level references to an edited section. The coverage counts a span as covered when a verified link names it at its current fingerprint. The blast radius is the sorted, unique owners of suspect links, with the advisory owners (links left advisory or ambiguous, and links to other spans of the sections where a span went suspect) listed apart.
 
 ## 8. How the validators replay it
 
@@ -481,7 +494,7 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 ## 13. Build order
 
 1. Unit cutter, fingerprints, cut digest; experiments 3 to 6.
-2. Ledger with the ladder and `scan --check`/`--update`; experiments 9, 10.
+2. Ledger with the ladder and `scan --ledger-check`/`--update`; experiments 9, 10.
 3. Cassette, replay seam, planted labeler; experiments 12, 14, 15.
 4. Label sets, prompt builder, Haiku port, window carry-forward.
 5. Links and blast radius.
@@ -506,6 +519,8 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 | Atoms from labels (quote and lines are `source.slice` of the file, one reviewed `prose_pointer` check) | Built. A gate takes the quote from its first to its second unit. |
 | Window halving on a refused request | Built. The refusal is recorded, so a replay halves the same way. |
 | Links and blast radius (layer C), `scan --update` | Not built. |
+| Footnotes, GitHub alerts, TOML and JSON front matter, directives and display math blocks (section 2), and re-anchoring across files with edits in two rounds (section 4) | Built. |
+| MDX components (markdown inside a component, prose props), lists and quotes in plain-text files | Known gaps, not designed yet: MDX is not parsed, and a `.txt` file reads title lines only. |
 | Removal of `candidates.ts`, `clause-rule.ts`, `prose.ts` | Not done: the flag is opt-in, and flipping the default is the first work package after the fair test. |
 
 ### Fixture recording (fictional Northwind estate, one run per arm)
@@ -565,6 +580,8 @@ Every readable field stored beside a cassette key must equal the corresponding m
 
 Replay expectations come from committed fixtures or independently authored source boundaries and labels. Recording behavior can be tested, but a recording produced during an item never becomes that item's replay input or expected answer.
 
+`pointerScan` also lists `warnings`: when a recording run gets a returned model that differs from the one the cassette holds for the same labeler and request model, the warning names both model ids. A run with none has an empty list.
+
 ### Validator adapter observability contract
 
 The validator adapter maps product exports. It does not infer per-id events from changed quotes, compare ledger bytes to implement check mode, reconstruct lineage or twin relationships, decide labels, or generate warnings. Product results pass through unchanged, including wrong results that the bank must reject.
@@ -574,6 +591,7 @@ The current API uses `buildLabelling` for configured model clients, `singleLabel
 Optional observation extensions have these shapes:
 
 - `pointerScan` may expose `eventsById: Record<string, string>` and `warnings: string[]`. Its existing `events` remains the aggregate event-count map.
+- `pointerScan` also lists `failedWindows` (window, set, labeler, reason), `unlabeledUnits` (unit id, set) and `flips` (unit id, set, from, to), and the adapter turns them into diagnostics `failed-window`, `unlabeled` and `label_flip`.
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.

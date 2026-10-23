@@ -9,14 +9,15 @@ import { referenceSut } from './reference/index';
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
 
 describe('the provenance of the first bank', () => {
-  it('labels every item, and the labels cover the 419 items', () => {
-    expect(pointerBank()).toHaveLength(419);
-    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(419);
+  it('labels every item, and the labels cover the 440 items', () => {
+    expect(pointerBank()).toHaveLength(440);
+    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(440);
   });
 
   it('labels the stack and label-set validation items as maintainer-added', () => {
     const added = pointerBank().filter((i) => i.provenance === 'maintainer-added');
-    expect(added.every((i) => /^labels\.(stack-|set-validation-)/.test(i.id))).toBe(true);
+    const later = /^labels\.(stack-|set-validation-)|^cutting\.|^re-anchoring\./;
+    expect(added.every((i) => later.test(i.id))).toBe(true);
   });
 });
 
@@ -25,9 +26,9 @@ describe('the first bank claims no blind item', () => {
     expect(pointerBank().filter((i) => i.provenance === 'blind')).toEqual([]);
   });
 
-  it('labels the 402 original items maintainer-repaired and the 17 later ones maintainer-added', () => {
+  it('labels the 402 original items maintainer-repaired and the 38 later ones maintainer-added', () => {
     expect(count('maintainer-repaired')).toBe(402);
-    expect(count('maintainer-added')).toBe(17);
+    expect(count('maintainer-added')).toBe(38);
   });
 });
 
@@ -52,7 +53,7 @@ describe('the second bank beside the first', () => {
     expect(bank.every((e) => e.family?.startsWith('blind-') && e.id.startsWith('blind/'))).toBe(true);
   });
 
-  it('binds the operations the reader serves and fails the others with the reason', async () => {
+  it('binds the operations the reader serves and fails a missing call with the reason', async () => {
     const level = blindLevels(async () => referenceSut())[2];
     const measure = await level?.compute({ seed: 1, hidden: false, root: '.' });
     const bank = measure?.bank ?? [];
@@ -62,7 +63,8 @@ describe('the second bank beside the first', () => {
     expect(of('blind-scale').length).toBeGreaterThan(0);
     expect(of('blind-scale').every((e) => e.pass)).toBe(true);
     expect(of('blind-links').length).toBeGreaterThan(0);
-    expect(of('blind-links').every((e) => !e.pass && /adapter gap/.test(e.detail ?? ''))).toBe(true);
+    // Layer C is built: the reader's link functions answer, so no link item fails for a missing call.
+    expect(of('blind-links').every((e) => e.pass || !/adapter gap/.test(e.detail ?? ''))).toBe(true);
   }, 120_000);
 
   it('reports the score of each label apart in the item listing', async () => {
