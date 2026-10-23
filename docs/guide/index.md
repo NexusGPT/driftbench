@@ -92,7 +92,7 @@ Each word is explained again where it first appears. This list is for looking on
 | Given, When, Then | Where a block starts, what the user says, and what must be true after. | Given a fresh session, when the user asks for a refund, then the reply asks for an order number. |
 | Check | A rule that code can test on a reply. | The reply must contain "order number". |
 | Expect | What must be true after the agent replies to a block. | `must: ['order number']`. |
-| Skill | A folder of instructions that an agent loads when a task needs it. | `.claude/agents/inbox-triager.md`. |
+| Skill | A folder of instructions that an agent loads when a task needs it. | `.claude/skills/weekly-report/SKILL.md`. |
 | Criterion | A question in plain words that a judge answers with pass or fail. | "The reply asks at most one question." |
 | Judge | A model that reads an answer when code cannot check it. | "Does the reply ask before it acts?" |
 | Estate | The folder of files that define an agent: prompt, skills, helper agents, settings. | The Northwind folder. |
