@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { FileIssue, FileStore, FileVariable } from '../interface';
 import { OWNER_DATE } from './constants';
 import { callQuotes, callValidate, type ItemContext } from './item';
@@ -217,6 +217,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
         rule: 'validate accepts a store the page accepts',
         input: at,
         got: { refusedWith: issueText('errors' in result ? result.errors : []) },
+        expected: none('observation'),
       }));
       return;
     }

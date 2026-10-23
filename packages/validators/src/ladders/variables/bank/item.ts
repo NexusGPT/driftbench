@@ -1,4 +1,4 @@
-import { check, ItemFailure } from '../../../failure';
+import { check, ItemFailure, none } from '../../../failure';
 import type {
   CoverageResult,
   FileStore,
@@ -107,12 +107,14 @@ export function build(ctx: ItemContext, sources: Sources): StoreDoc {
   check(problems.length === 0, () => ({
     rule: 'buildStore returns a store whose fields follow the shared format (docs/variables.md)',
     got: { problems },
+    expected: none('observation'),
   }));
   for (const variable of store.variables) {
     for (const value of variable.values) {
       check(Array.isArray(value.provenance) && value.provenance.length > 0, () => ({
         rule: 'every value a source reader produces names its provenance (docs/variables.md R1)',
         got: { variable: variable.id, value: value.id, provenance: value.provenance },
+        expected: none('observation'),
       }));
     }
   }
@@ -218,6 +220,7 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
   check(!got.error, () => ({
     rule: 'validate returns its errors and does not throw',
     got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
   }));
   const result = got.value as ValidateResult | undefined;
   check(
@@ -240,6 +243,7 @@ export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<str
   check(!got.error, () => ({
     rule: 'quotes returns its issues and does not throw',
     got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
   }));
   const result = got.value as QuotesResult | undefined;
   check(!!result && typeof result === 'object' && Array.isArray(result.errors), () => ({

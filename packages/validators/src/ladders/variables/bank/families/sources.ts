@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type {
   ConversationInput,
   OwnerInput,
@@ -702,6 +702,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     check(leak === undefined, () => ({
       rule: 'nothing of a conversation but counts reaches the store',
       got: { leak },
+      expected: none('observation'),
     }));
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     check(!hasPrefix, () => ({ rule: 'the store holds a fragment of a conversation text or id' }));

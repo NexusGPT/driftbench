@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { EstateInput, Refusal, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, type StemRun } from '../item';
@@ -77,12 +77,14 @@ function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): 
     rule: 'a value whose quote the file does not hold is refused',
     input: { label, id, quote },
     got: { kept: true },
+    expected: none('observation'),
   }));
   const named = refusalsMentioning(store, id);
   check(named.length >= 1, () => ({
     rule: 'a refused value is named in the refusal list',
     input: { label, id },
     got: { refusals: store.refused },
+    expected: none('observation'),
   }));
 }
 
@@ -286,6 +288,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
       got: { refusals: store.refused },
+      expected: none('observation'),
     }));
   },
 
@@ -576,6 +579,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       rule: 'a refused clause is named in the refusal list',
       input: { span },
       got: { refusals: store.refused },
+      expected: none('observation'),
     }));
     const good = variablesCiting(store, other.text);
     check(good.length === 1, () => ({

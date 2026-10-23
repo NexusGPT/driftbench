@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { CoverageResult, Group, Row } from '../../interface';
 import { callCoverage, callCoverageError, type ItemContext, type StemRun } from '../item';
 import {
@@ -472,6 +472,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         rule: 'coverage returns the list of uncovered tuples it was asked for',
         input: { uncoveredLimit: limit },
         got: { returned: list },
+        expected: none('observation'),
       }));
       const keys = (list as Row[]).map((tuple) => {
         const entries = Object.entries(tuple).map(([variable, value]) => {

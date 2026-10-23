@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ConversationInput, Plan } from '../../interface';
 import { build, callCoverage, type ItemContext, planOf, type StemRun } from '../item';
 import {
@@ -50,6 +50,7 @@ function verify(
     rule: 'the plan has a sound shape',
     input: label,
     got: { problems },
+    expected: none('observation'),
   }));
   const rows = run.plan.rows.map((r) => indexRow(space, r.values) as number[]);
   const bad = rowsWithForbidden(space, rows);
@@ -57,6 +58,7 @@ function verify(
     rule: 'no row of the plan holds an impossible pair',
     input: label,
     got: { rowsWithAnImpossiblePair: bad.count, first: bad.first },
+    expected: none('observation'),
   }));
   const scan = scanCoverage(space, groups, rows);
   check(scan.missing === 0, () => ({

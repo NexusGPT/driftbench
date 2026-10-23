@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
@@ -316,6 +316,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         rule: 'the reported weights do not rise along the plan',
         input: { row: i },
         got: { logWeight: r.logWeight, previous },
+        expected: none('observation'),
       }));
       previous = r.logWeight as number;
     }
