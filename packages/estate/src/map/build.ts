@@ -125,7 +125,10 @@ async function documentRolePass(read: RawEstate, pointer: PointerScanOptions): P
       atoms: [],
       files,
       // The plan of this pass is shown only to a caller that asked for the plan alone.
-      ...(pointer.planOnly ? { label: 'document roles', ...(onPlan ? { onPlan } : {}) } : {}),
+      // A plan alone goes on from the cassette when it answers every request, so the roles it holds shape the prose pass.
+      ...(pointer.planOnly
+        ? { label: 'document roles', planUnlessCached: true, ...(onPlan ? { onPlan } : {}) }
+        : {}),
     });
   } catch (cause) {
     // Sizing the run: the roles are not asked, so no file gets a recorded role, and the next pass is sized without them.

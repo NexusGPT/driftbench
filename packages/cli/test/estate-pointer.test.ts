@@ -1,12 +1,15 @@
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pointer } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
 import { type Io, main } from '../src/index';
+
+const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
 
 // An invented harbour office. No line below comes from a real estate.
 const FILES: Record<string, string> = {
@@ -504,6 +507,30 @@ describe('driftbench estate scan --pointer', () => {
     );
     await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
     await expect(readFile(join(root, 'none.jsonl'), 'utf8')).rejects.toThrow();
+  });
+
+  it('--plan-only counts the document-roles pass from the cassette that answers it, and sizes the pass apart when it does not', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-pointer-fixture-'));
+    await cp(FIXTURE, root, { recursive: true });
+    const planned = (cassette: string) =>
+      run(['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', cassette], root, {
+        JEV_API_KEY: undefined,
+        ANTHROPIC_API_KEY: undefined,
+      });
+    // The recorded cassette answers every request, the document roles included: nothing is left to send.
+    const answered = await planned('cassette.jsonl');
+    expect(answered.err).toBe('');
+    expect(answered.code).toBe(0);
+    expect(answered.out).toMatch(/document roles: \d+ units in \d+ files/);
+    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).not.toContain('The prose pass is sized before the document roles are recorded');
+    // An empty cassette answers nothing: the roles pass has requests to record, and the prose pass is sized without its roles.
+    await writeFile(join(root, 'empty.jsonl'), '');
+    const empty = await planned('empty.jsonl');
+    expect(empty.err).toBe('');
+    expect(empty.out).toMatch(/document roles: \d+ units in \d+ files/);
+    expect(empty.out).toContain('The prose pass is sized before the document roles are recorded');
+    expect(empty.out).not.toContain('To send: 0 requests');
   });
 
   it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {

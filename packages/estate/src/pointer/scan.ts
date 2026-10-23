@@ -61,6 +61,8 @@ export type PointerInput = {
   onPlan?: (plan: PointerPlan) => void;
   /** Stop after the plan: nothing is replayed or sent, and `PointerPlanOnly` is thrown with the plan. */
   planOnly?: boolean;
+  /** With `planOnly`: go on, from the cassette alone, when it answers every request, so its labels count in the plan. */
+  planUnlessCached?: boolean;
   /** Names the pass in its plan, when a scan makes more than one. */
   label?: string;
 };
@@ -508,11 +510,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
   input.onPlan?.(plan);
-  if (input.planOnly) throw new PointerPlanOnly(plan);
+  const missing = plan.members.reduce((sum, member) => sum + member.windows - member.cached, 0);
+  if (input.planOnly && !(input.planUnlessCached && missing === 0)) throw new PointerPlanOnly(plan);
   // A replay that lacks answers stops before the first request and says how many are lacking, not only the first.
   if (input.mode === 'replay' && firstMiss) {
     const totals = {
-      missing: plan.members.reduce((sum, member) => sum + member.windows - member.cached, 0),
+      missing,
       requests: plan.members.reduce((sum, member) => sum + member.windows, 0),
       characters: plan.members.reduce((sum, member) => sum + member.characters, 0),
     };
