@@ -100,8 +100,10 @@ export async function auditEveryCheckSite(
         if (/(?<![A-Za-z0-9_.{}\-/^])-?\d+(?:\.\d+)?(?![A-Za-z0-9_}])/.test(failure.fields.rule))
           audit.leaking.push(`${where}: a number in the rule`);
         const declared = failure.fields.echoes ?? [];
+        // A site that has an `echoes` field at all (an empty list included) decides it per item, so it is forced again for
+        // every item that reaches it.
+        if (failure.fields.echoes !== undefined) echoSites.add(site);
         if (declared.length > 0) {
-          echoSites.add(site);
           // An echo is allowed only where it excuses a number: dropping it must change what the audit reports.
           const withAll = leaksOutsideGot(failure).join('|');
           for (const key of declared) {
