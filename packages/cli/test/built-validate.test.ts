@@ -26,6 +26,7 @@ describe('the built CLI', () => {
     // Level 1 alone: a slice runs the bank items of its levels only. The whole ladder runs per seed in the
     // validators workflow, so this test does not run the whole bank under the frame (about 600 s).
     const run = driftbench(['validate', 'stats', '--seed', '1', '--levels', '1..1', '--json']);
+    expect(run.status, run.stderr).toBe(0);
     expect(run.stdout).not.toMatch(/child process (died|did not start)/);
     const report = JSON.parse(run.stdout) as Report;
     expect(report.component).toBe('stats');
