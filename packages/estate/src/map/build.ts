@@ -7,7 +7,7 @@ import {
   DOCUMENT_ROLES_SET_NAME,
 } from '../pointer/document-roles-set';
 import { parseLabelSets } from '../pointer/labels';
-import { type LabelerUsage, pointerScan } from '../pointer/scan';
+import { type LabelerUsage, PointerPlanOnly, pointerScan } from '../pointer/scan';
 import { navigationNames } from '../scan/code';
 import { codeNames } from '../scan/code-names';
 import {
@@ -116,8 +116,23 @@ async function documentRolePass(read: RawEstate, pointer: PointerScanOptions): P
       .slice(0, ROLE_LINES)
       .join('\n'),
   }));
-  const { onPlan: _onPlan, previous: _previous, ...rest } = pointer;
-  const done = await pointerScan({ ...rest, sets: parsed.sets, atoms: [], files });
+  const { onPlan, previous: _previous, ...rest } = pointer;
+  let done: Awaited<ReturnType<typeof pointerScan>>;
+  try {
+    done = await pointerScan({
+      ...rest,
+      sets: parsed.sets,
+      atoms: [],
+      files,
+      // The plan of this pass is shown only to a caller that asked for the plan alone.
+      ...(pointer.planOnly ? { label: 'document roles', ...(onPlan ? { onPlan } : {}) } : {}),
+    });
+  } catch (cause) {
+    // Sizing the run: the roles are not asked, so no file gets a recorded role, and the next pass is sized without them.
+    if (cause instanceof PointerPlanOnly && pointer.planOnly)
+      return { labelled: {}, windows: 0, calls: 0, recorded: 0, usage: [], failed: [] };
+    throw cause;
+  }
   const labelled: Record<string, string> = {};
   for (const unit of [...done.labelled].sort((a, b) => a.path.localeCompare(b.path) || a.index - b.index)) {
     if (unit.set.set !== DOCUMENT_ROLES_SET_NAME || labelled[unit.path] !== undefined) continue;

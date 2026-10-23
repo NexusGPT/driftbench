@@ -452,6 +452,84 @@ describe('driftbench estate scan --pointer', () => {
     await expect(readFile(join(root, 'missed.yaml'), 'utf8')).rejects.toThrow();
   });
 
+  it('says how many requests a replay lacks, not only the first', async () => {
+    const root = await estate();
+    await record(root);
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md']}\n- Close the harbour office at six\n`);
+    const result = await run(
+      ['estate', 'scan', '.', '--pointer', '--cassette', 'cassette.jsonl', '--out', 'missed.yaml'],
+      root,
+    );
+    expect(result.code).toBe(2);
+    // The edited file is asked of both labelers: one window of system 1 and five runs of system 2.
+    expect(result.err).toMatch(
+      /; 6 of 18 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
+    );
+  });
+
+  it('--plan-only prints the requests, characters and priced cost with no key, no call and no file', async () => {
+    const root = await estate();
+    await writeFile(
+      join(root, 'prices.yaml'),
+      'as_of: 2026-01-01\nmodels:\n  claude-haiku-5-5: { input: 1, output: 4, cached_input: 0 }\n',
+    );
+    const calls: string[] = [];
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      { pointer: true, planOnly: true, prices: 'prices.yaml', cassette: 'none.jsonl' },
+      io,
+      {
+        env: {},
+        fetch: async (url) => {
+          calls.push(url);
+          throw new Error('a plan sends nothing');
+        },
+      },
+    );
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    expect(calls).toEqual([]);
+    expect(output.out).toContain('Pointer plan (no key read, no request sent):');
+    expect(output.out).toContain('prose: 9 units in 2 files, 0 already labelled by the ledger.');
+    expect(output.out).toMatch(
+      /system 1 jev jev-latest: 3 requests, 0 in the cassette, 3 to send, \d+ characters\./,
+    );
+    expect(output.out).toMatch(
+      /system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette, 15 to send, \d+ characters\./,
+    );
+    expect(output.out).toMatch(/To send: 18 requests, about \d+ input tokens\./);
+    expect(output.out).toMatch(
+      /Input cost: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
+    );
+    await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(root, 'none.jsonl'), 'utf8')).rejects.toThrow();
+  });
+
+  it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {
+    const root = await estate();
+    await record(root);
+    const answered = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'cassette.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(answered.err).toBe('');
+    expect(answered.code).toBe(0);
+    expect(answered.out).toContain('15 requests, 15 in the cassette, 0 to send, 0 characters.');
+    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).toContain('No prices given: pass --prices <file> to see the input cost in USD.');
+    const both = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--record', '--cassette', 'cassette.jsonl'],
+      root,
+    );
+    expect(both.code).toBe(2);
+    expect(both.err).toContain('--plan-only sends nothing and --record sends requests');
+    const alone = await run(['estate', 'scan', '.', '--plan-only', '--out', 'x.yaml'], root);
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--plan-only');
+  });
+
   it('refuses a missing cassette in replay and tells how to record it', async () => {
     const root = await estate();
     const result = await run(
