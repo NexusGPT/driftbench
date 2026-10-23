@@ -35,7 +35,16 @@ const MODES: Record<string, string[]> = {
   ],
   'frozen-build': ofStem('values.input-not-mutated'),
   'aliased-build': ofStem('values.fresh-objects'),
+  // Codex, run 39875360028: the cache only where no permission model runs (run C), and a cached array behind a getter.
+  'aliased-unconfined': ofStem('values.fresh-objects'),
+  'aliased-getter': ofStem('values.fresh-objects'),
   'framed-env': ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'],
+  // sonnet-review-c-2: a global name added during a call; the same name added at load is the product's own setting.
+  'call-global': ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'],
+};
+// Products that must pass every item of the list, as the honest adapter does.
+const PASSING: Record<string, string[]> = {
+  'load-global': ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'],
 };
 
 mkdirSync(join(ROOT, 'node_modules', '.cache'), { recursive: true });
@@ -50,6 +59,7 @@ function product(mode: string): string {
     `import { variablesImpl as base } from ${JSON.stringify(ADAPTER)};
 const mode = ${JSON.stringify(mode)};
 const cache = new Map();
+if (mode === 'load-global') globalThis.zzLoadName = 1;
 export const variablesImpl = {
   ...base,
   plan(store, options) {
@@ -65,13 +75,21 @@ export const variablesImpl = {
   },
   buildStore(sources) {
     if (mode === 'frozen-build') sources.estate = sources.estate;
-    if (mode !== 'aliased-build') return base.buildStore(sources);
     const key = JSON.stringify(sources);
+    if (mode === 'aliased-getter') {
+      const store = base.buildStore(sources);
+      if (!cache.has(key)) cache.set(key, store.variables);
+      const variables = cache.get(key);
+      return Object.defineProperty({ ...store }, 'variables', { get: () => variables, enumerable: true });
+    }
+    const memo = mode === 'aliased-build' || (mode === 'aliased-unconfined' && !process.permission);
+    if (!memo) return base.buildStore(sources);
     if (!cache.has(key)) cache.set(key, base.buildStore(sources));
     return cache.get(key);
   },
   weightInterval(count, total) {
     if (mode === 'framed-env' && process.env.DRIFTBENCH_VARIABLES_FRAMED !== '1') return [0, 1];
+    if (mode === 'call-global') globalThis.zzCallName = 1;
     return base.weightInterval(count, total);
   },
 };
@@ -100,6 +118,11 @@ describe('the contracts of the items, with the implementation under the frame', 
   it('the honest adapter passes every item below', async () => {
     const all = [...new Set(Object.values(MODES).flat())];
     const got = await outcomes('control', all);
+    expect(got.filter((each) => !each.pass)).toEqual([]);
+  });
+
+  it.each(Object.keys(PASSING))('the %s product passes every item, as the honest adapter does', async (mode) => {
+    const got = await outcomes(mode, PASSING[mode] as string[]);
     expect(got.filter((each) => !each.pass)).toEqual([]);
   });
 
