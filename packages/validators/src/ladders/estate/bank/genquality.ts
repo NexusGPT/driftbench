@@ -378,7 +378,7 @@ export async function unsetAsks(
  * Whether the atom a span of a construction record is cut from is the unit's own description: a route read from a
  * description (`fields.via`), or a skill or helper whose passage is its description. Read from the map's structure.
  */
-function isDescriptionVoice(atom: MapAtom | undefined): boolean {
+export function isDescriptionVoice(atom: MapAtom | undefined): boolean {
   if (!atom) return false;
   const fields = (atom.fields ?? {}) as { via?: unknown; description?: unknown };
   if (atom.kind === 'route') return fields.via === 'description';
