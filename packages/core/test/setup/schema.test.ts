@@ -4,7 +4,7 @@ import { parseSetupText } from '../../src/setup/schema';
 
 const document = {
   version: 1,
-  sources: [{ id: 'project', path: '.', kind: 'project' }],
+  sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code' }],
   runtime: 'claude-code',
   roles: { reviewer: { aspects: ['guards'] } },
   scope: { include: ['**'], exclude: [] },
@@ -30,8 +30,8 @@ describe('declared setup schema', () => {
     { execute: { policy: 'never', commands: ['anything'] } },
     { roles: { reviewer: { aspects: ['magic'] } } },
     { scope: { include: ['../*'], exclude: [] } },
-    { sources: [{ id: 'same', path: '.', kind: 'project' }, { id: 'same', path: '.', kind: 'home' }] },
-    { sources: [{ id: 'home', path: '~', kind: 'home' }] },
+    { sources: [{ id: 'same', path: '.', kind: 'project', reader: 'claude-code' }, { id: 'same', path: '.', kind: 'home', reader: 'claude-code' }] },
+    { sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code', bindings: [{ runtime: 'codex', deployedRoot: 'home', deployedPath: '.codex', method: 'link' }] }] },
     { runtime: 'different-runtime' },
     { types: { audit: { extends: 'missing' } } },
   ])('refuses malformed or contradictory declared data: %j', (change) => {
@@ -39,7 +39,7 @@ describe('declared setup schema', () => {
   });
 
   it('keeps quoted tilde paths literal, and refuses duplicate YAML keys', () => {
-    const result = parse({ ...document, sources: [{ id: 'project', path: '~/literal', kind: 'project' }] });
+    const result = parse({ ...document, sources: [{ id: 'project', path: '~/literal', kind: 'project', reader: 'claude-code' }] });
     expect(result.ok && result.setup.sources[0]?.path).toBe('~/literal');
     expect(parseSetupText('version: 1\nversion: 1', CLAUDE_CODE_PROFILE).ok).toBe(false);
   });
