@@ -19,7 +19,7 @@ describe('declared setup schema', () => {
     const result = parse({ ...document, types: { audit: { extends: 'script', locate: 'checks/*.py' } } });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.types.types.find((type) => type.name === 'audit')).toMatchObject({
+    expect(result.types.project?.types.find((type) => type.name === 'audit')).toMatchObject({
       aspects: ['executes'],
       runtime: 'claude-code',
     });
@@ -64,4 +64,24 @@ describe('declared setup schema', () => {
     expect(result.ok && result.setup.sources[0]?.path).toBe('~/literal');
     expect(parseSetupText('version: 1\nversion: 1', CLAUDE_CODE_PROFILE).ok).toBe(false);
   });
+});
+
+it('scopes same-named types by source and never gives .agents the host locator', () => {
+  const result = parse({
+    ...document,
+    sources: [
+      document.sources[0],
+      {
+        id: 'shared', path: '.agents', kind: 'directory', reader: 'agents-folder',
+        types: { skill: { locate: 'skills/*/', entry: 'SKILL.md', aspects: ['acts', 'instructs'], loaded: 'on-demand' } },
+      },
+    ],
+  });
+  expect(result.ok).toBe(true);
+  if (!result.ok) return;
+  const host = result.types.project?.types.find((type) => type.name === 'skill');
+  const shared = result.types.shared?.types.find((type) => type.name === 'skill');
+  expect(host?.folder).toBe('.claude');
+  expect(shared?.folder).toBe('.');
+  expect(shared?.locate.map((locator) => locator.written)).toEqual(['skills/*/']);
 });
