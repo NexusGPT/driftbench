@@ -5,6 +5,7 @@ import { itemRng } from '../../src/ladders/variables/bank/util';
 import { BLIND_STEMS, blindBank } from '../../src/ladders/variables/blind/index';
 import { expand } from '../../src/ladders/variables/blind/kit';
 import { runCounting, runWitness, WITNESSES } from '../../src/ladders/variables/blind/witness';
+import { WITNESS_CAUSE } from '../../src/ladders/variables/blind/witness-causes';
 import { variablesImpl as empty } from '../variables/constant-empty';
 
 /**
@@ -64,12 +65,43 @@ describe('the cause of a witness-only item is the cause of the witness check tha
     for (const cause of causes) expect(witnessCauses, cause).toContain(cause);
   }, 600_000);
 
-  it('gives the cause of a witness check to no item that fails on its own check', async () => {
+  /**
+   * Review of #1540 (codex-review-banks): two witness checks state a fix the bank already counts under another tag. The
+   * witness of validate refuses a repeated value id at the second place, which is the cause of
+   * `blind.values.file.references.duplicate-value-id`; the witness of weightInterval calls the (0, 10) and (50, 100) cases of
+   * `blind.weights.interval.zero-of-ten` and `fifty-of-a-hundred`, which carry the Wilson cause. One fix is one tag, so
+   * the witness reuses those two strings and the bank counts them once.
+   */
+  const CANONICAL: ReadonlyArray<{ witness: string; item: string }> = [
+    {
+      witness: WITNESS_CAUSE.validateDuplicateId,
+      item: 'blind.values.file.references.duplicate-value-id',
+    },
+    { witness: WITNESS_CAUSE.weightInterval, item: 'blind.weights.interval.zero-of-ten' },
+  ];
+
+  it('reuses the cause an item of the bank already states for the same fix', () => {
+    for (const { witness, item } of CANONICAL) {
+      expect(bank.get(item)?.cause, `the cause of ${item}`).toBeDefined();
+      expect(witness, `the witness cause for the fix ${item} states`).toBe(bank.get(item)?.cause);
+    }
+  });
+
+  it('gives a cause of a witness check of its own to no item that fails on its own check, and shares only the canonical ones', async () => {
     const only = await witnessOnly();
-    const wrong = [...bank.values()]
-      .filter((item) => witnessCauses.has(item.cause) && !only.has(item.id))
+    const canonical = new Set(CANONICAL.map((entry) => entry.witness));
+    const outside = [...bank.values()].filter((item) => !only.has(item.id));
+    // A fresh witness cause belongs to the class alone: an item outside it that carries the string is a different fix.
+    const wrong = outside
+      .filter((item) => witnessCauses.has(item.cause) && !canonical.has(item.cause))
       .map((item) => item.id);
     expect(wrong).toEqual([]);
+    // A canonical cause is carried by an item outside the class: the reuse is real, not a copy of a stale string.
+    for (const cause of canonical)
+      expect(
+        outside.some((item) => item.cause === cause),
+        cause,
+      ).toBe(true);
   }, 600_000);
 
   it('records each change in cause-changes.json by item id, with the old and the new cause', async () => {
