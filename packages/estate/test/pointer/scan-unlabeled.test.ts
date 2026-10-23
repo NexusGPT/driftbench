@@ -64,6 +64,23 @@ const SPANNED = `labels:
         description: A unit that only tells a story about the quay.
         atom: { kind: register }
 `;
+/** The same set, with an order whose atom needs its act span: an order with no act is asked again with span-missing. */
+const NEEDS = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation, situation: "\${span.act}" }
+      - name: remark
+        description: A unit that only says how the quay is.
+      - name: aside
+        description: A unit that only tells a story about the quay.
+        atom: { kind: register }
+`;
 const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
 
 /**
@@ -519,7 +536,9 @@ describe('a unit the ledger must not keep unlabeled', () => {
     expect(first.unlabeledUnits.every((unit) => unit.undecided === 'entry_refused')).toBe(true);
     for (const unit of first.unlabeledUnits)
       expect(
-        first.unstable.filter((row) => row.unit === unit.unit).every((row) => row.undecided === 'entry_refused'),
+        first.unstable
+          .filter((row) => row.unit === unit.unit)
+          .every((row) => row.undecided === 'entry_refused'),
       ).toBe(true);
 
     const second = await pointerScan(
@@ -531,16 +550,17 @@ describe('a unit the ledger must not keep unlabeled', () => {
   it('when its decided label needs a span and the cassette lacks the span-missing re-ask', async () => {
     // Five runs say order and give no span; the span-missing re-ask (run 6) gives it. A cassette without run 6
     // leaves the span missing for want of an answer: the unit is not decided, and a later cassette decides it.
+    const needing = { ...spanned, sets: load(NEEDS) };
     const labeler = scripted(['bare', 'bare', 'bare', 'bare', 'bare', 'order']);
     const full = new Cassette();
-    const recorded = await pointerScan(input({ ...spanned, cassette: full }, singleLabelling(labeler)));
+    const recorded = await pointerScan(input({ ...needing, cassette: full }, singleLabelling(labeler)));
     expect(recorded.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
 
     const cut = new Cassette();
     for (const entry of full.entries.values())
       if (Number(entry.readable.run) <= 5) cut.entries.set(entry.key, entry);
     const partial = await pointerScan(
-      input({ ...spanned, cassette: cut, mode: 'replay' }, singleLabelling(replayOf(labeler))),
+      input({ ...needing, cassette: cut, mode: 'replay' }, singleLabelling(replayOf(labeler))),
     );
     expect(partial.unlabeled).toBe(partial.ledger.entries.length);
     expect(partial.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
@@ -548,7 +568,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
 
     const later = await pointerScan(
       input(
-        { ...spanned, cassette: full, mode: 'replay', previous: partial.ledger },
+        { ...needing, cassette: full, mode: 'replay', previous: partial.ledger },
         singleLabelling(replayOf(labeler)),
       ),
     );
@@ -556,16 +576,18 @@ describe('a unit the ledger must not keep unlabeled', () => {
   });
 
   it('when its decided label needs a span and the span-missing re-ask gives none', async () => {
+    const needing = { ...spanned, sets: load(NEEDS) };
     const first = await pointerScan(
-      input(spanned, singleLabelling(scripted(['bare', 'bare', 'bare', 'bare', 'bare', 'bare']))),
+      input(needing, singleLabelling(scripted(['bare', 'bare', 'bare', 'bare', 'bare', 'bare']))),
     );
+    expect(first.spanless.length).toBeGreaterThan(0);
     expect(first.spanless.every((entry) => !entry.filled)).toBe(true);
     expect(first.unlabeled).toBe(first.ledger.entries.length);
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
     expect(first.unlabeledUnits.every((unit) => unit.undecided === 'span_missing')).toBe(true);
 
     const second = await pointerScan(
-      input({ ...spanned, previous: first.ledger }, singleLabelling(scripted([]))),
+      input({ ...needing, previous: first.ledger }, singleLabelling(scripted([]))),
     );
     expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
@@ -574,6 +596,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
 describe('an entry the check refuses inside an accepted answer', () => {
   const quay = [{ path: 'quay.md', text: '# Quay\n\n- Coil the ropes on the red post\n' }];
   const spanned = { files: quay, sets: load(SPANNED), windowUnits: 60 };
+  const needing = { ...spanned, sets: load(NEEDS) };
 
   it('is no vote: it does not count among the voices of its unit', async () => {
     // Four runs: order, order, remark, and an order whose spans are an empty list. Counted as a voice with no
@@ -593,8 +616,9 @@ describe('an entry the check refuses inside an accepted answer', () => {
     // takes the refused run's place, so four voices are heard. The span stays missing: the unit is not decided for
     // that reason, not for the refused entry.
     const first = await pointerScan(
-      input(spanned, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'bare'], { runs: 4 }))),
+      input(needing, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'bare'], { runs: 4 }))),
     );
+    expect(first.spanless.length).toBeGreaterThan(0);
     expect(first.spanless.every((entry) => !entry.filled)).toBe(true);
     expect(first.unlabeled).toBe(first.ledger.entries.length);
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
@@ -607,8 +631,9 @@ describe('an entry the check refuses inside an accepted answer', () => {
 
   it('is a voice still missing when the span-missing re-ask refuses it too', async () => {
     const first = await pointerScan(
-      input(spanned, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'refuse'], { runs: 4 }))),
+      input(needing, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'refuse'], { runs: 4 }))),
     );
+    expect(first.spanless.length).toBeGreaterThan(0);
     expect(first.unlabeled).toBe(first.ledger.entries.length);
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
     expect(first.unlabeledUnits.every((unit) => unit.undecided === 'entry_refused')).toBe(true);

@@ -1600,9 +1600,12 @@ describe('a run out of step with the units of its window', () => {
         calls.set(window.path, call);
         log.push(call);
         const said = plan[call - 1] ?? 'order';
+        // A label that carries no span is given none: an empty spans list is an entry the check refuses, no vote.
         return said === 'slip'
           ? every(window, 'remark', Array(4).fill(unlocated))
-          : every(window, said, said === 'order' ? [located] : []);
+          : said === 'order'
+            ? every(window, 'order', [located])
+            : window.units.map((unit) => ({ units: String(unit.n), label: said }));
       },
       [],
       { runs: 5 },
@@ -1635,7 +1638,7 @@ describe('a run out of step with the units of its window', () => {
       'slip',
       'order',
       'remark',
-      'remark',
+      'none',
       'slip',
       'slip',
       'slip',
@@ -1644,7 +1647,7 @@ describe('a run out of step with the units of its window', () => {
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
     expect(Math.max(...log)).toBe(5 + REASK_LIMIT);
     expect(result.reasked).toEqual([]);
-    // Four runs heard: order 2, remark 2, a split.
+    // Four runs heard: order 2, remark 1, none 1: no label holds more than half, and no two tie.
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
