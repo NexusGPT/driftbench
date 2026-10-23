@@ -76,7 +76,7 @@ export const cuttingCapabilitySpecs: Spec[] = [
     'thai-no-dictionary',
     2,
     'A space in Thai is no sentence end (UAX #29, no dictionary)',
-    'Two Thai clauses separated by a space.',
+    'Two Thai clauses separated by a space, then a third on the next line (a soft wrap).',
     'One unit.',
     'cutter:uax29-no-dictionary',
     { seedFree: true },

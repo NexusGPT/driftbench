@@ -104,7 +104,8 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
     ]);
   },
   'thai-no-dictionary': (ctx) => {
-    const text = 'ร้านเปิดตอนเช้า ร้านปิดตอนค่ำ';
+    // Wrapped over two lines, so a reader that makes a unit of each line, or of the file, fails it too.
+    const text = 'ร้านเปิดตอนเช้า ร้านปิดตอนค่ำ\nร้านขายขนมปังทุกวัน';
     return plantedCut(ctx, 'a space in Thai', `${text}\n`, [{ text, container: 'sentence' }]);
   },
   'directive-marker-not-prose': (ctx) => {
