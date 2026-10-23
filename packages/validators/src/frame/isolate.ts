@@ -170,6 +170,11 @@ export type IsolateOptions = {
    * new objects take that many numbers. A test sets a small number to take that path; the validator never sets it.
    */
   idSpan?: number;
+  /**
+   * How long the relay waits for each run it killed at close before it names the run in a `FrameError` (default
+   * 5000 ms). A test sets 0 to take that path; the validator never sets it.
+   */
+  reapMs?: number;
 };
 
 /** Ambient conditions of a call (`Frame.ambient`). */
@@ -857,6 +862,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         signal,
         plans,
         setup: { ...setup, trace: TRACE ? `${TRACE}` : undefined, tag },
+        reapMs: options.reapMs ?? 5000,
       },
       transferList: [port2],
       stderr: false,
@@ -902,7 +908,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // A run the relay killed and that did not end within 5 s may stay in the process table: never silent.
     if (unreaped)
       throw new FrameError(
-        `the frame closed, but run ${unreaped.join(', ')} did not end within 5 s of its kill: it may stay as a defunct process of this process`,
+        `the frame closed, but run ${unreaped.join(', ')} did not end within ${(options.reapMs ?? 5000) / 1000} s of its kill: it may stay as a defunct process of this process`,
       );
   };
   trace('waiting for the product to load in the three runs');

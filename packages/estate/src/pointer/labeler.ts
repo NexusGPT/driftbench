@@ -24,6 +24,8 @@ export type Opinion = {
   probabilities?: Record<string, number>;
   /** The unit, as its index in the file, at the other end of a label that asks for one. */
   target?: number;
+  /** Other units, as indexes in the file, that the unit applies to besides its target. */
+  scopes?: number[];
   /** Clauses of the unit, as offsets into its text. */
   spans?: SpanAnswer[];
   /** Atoms the unit points at. */

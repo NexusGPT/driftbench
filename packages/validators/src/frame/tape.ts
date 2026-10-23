@@ -31,20 +31,29 @@ export type Entry = {
 export type Tape = Entry[];
 
 /** An argument the frame cannot send to the product: a function, a symbol or a class instance. */
+/** The built-in error classes an answer keeps across the process boundary: a check reads the class, not the words. */
+const ERROR_CLASSES = { RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError } as const;
+
+/**
+ * An error as data: its name and message, the built-in class it is an instance of, and its `code` when the code is a
+ * string or a number. A product's error code crosses as a field, so an item never reads it out of the message.
+ */
+function errorFields(error: Error): Json {
+  const klass = (Object.keys(ERROR_CLASSES) as (keyof typeof ERROR_CLASSES)[]).find(
+    (name) => error instanceof ERROR_CLASSES[name],
+  );
+  const code = (error as { code?: unknown }).code;
+  return {
+    name: error.name,
+    message: error.message,
+    ...(klass ? { class: klass } : {}),
+    ...(typeof code === 'string' || typeof code === 'number' ? { code } : {}),
+  };
+}
+
 export class FrameError extends Error {
   override name = 'FrameError';
 }
-
-/** The error classes of the language: a thrown one comes back as its class, so `instanceof RangeError` holds. */
-const ERRORS: Record<string, ErrorConstructor> = {
-  Error,
-  RangeError,
-  TypeError,
-  SyntaxError,
-  ReferenceError,
-  EvalError,
-  URIError,
-};
 
 const OPEN = '$';
 const esc = (key: string): string => (key.startsWith(OPEN) ? `${OPEN}${key}` : key);
@@ -98,7 +107,7 @@ export function encode(
       };
     if (object instanceof Set)
       return { $set: [...object.values()].map((v, i) => encode(v, strict, `${path}[${i}]`, seen, ship)) };
-    if (object instanceof Error) return { $err: { name: object.name, message: object.message } };
+    if (object instanceof Error) return { $err: errorFields(object) };
     if (Array.isArray(object)) return object.map((v, i) => encode(v, strict, `${path}[${i}]`, seen, ship));
     if (object instanceof Date) return { $date: object.toISOString() };
     if (ArrayBuffer.isView(object))
@@ -143,10 +152,11 @@ export function decode(x: Json, revive?: Revive): unknown {
   if ('$opaque' in o) return { opaque: o.$opaque };
   if ('$handle' in o) return revive ? revive(o.$handle as number) : { opaque: 'function' };
   if ('$err' in o) {
-    const e = o.$err as { name: string; message: string };
-    const Class = ERRORS[e.name] ?? Error;
-    const error = new Class(e.message);
+    const e = o.$err as { name: string; message: string; class?: string; code?: string | number };
+    const make = (e.class && ERROR_CLASSES[e.class as keyof typeof ERROR_CLASSES]) || Error;
+    const error = new make(e.message) as Error & { code?: string | number };
     error.name = e.name;
+    if (e.code !== undefined) error.code = e.code;
     return error;
   }
   return Object.fromEntries(Object.entries(o).map(([k, v]) => [unesc(k), decode(v, revive)]));

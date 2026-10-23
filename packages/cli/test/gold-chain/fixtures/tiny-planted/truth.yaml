@@ -1,0 +1,54 @@
+version: 1
+estate: tiny-planted
+
+# A made-up estate to test the planted fields (a pointer, a standalone table). It is not a held-out estate.
+
+units:
+  - file: T-standing-instructions.md
+    id: p1
+    text: The longest rental is set in the next sentence.
+  - file: T-standing-instructions.md
+    id: p2
+    text: A stall may be rented for at most 14 nights.
+  - file: T-standing-instructions.md
+    id: p3
+    text: Greet the rider by name.
+  - file: T-standing-instructions.md
+    id: h1
+    text: "| Stall | Nights |"
+  - file: T-standing-instructions.md
+    id: r1
+    text: "| Box | 14 |"
+  - file: T-standing-instructions.md
+    id: r2
+    text: "| Paddock | 30 |"
+
+limits:
+  - unit: p2
+    limit: 14
+    comparison: le
+    role: constraint
+    unit_of: nights
+    governs: p1
+  - unit: r1
+    limit: 14
+    comparison: le
+    role: constraint
+    governs: r1
+  - unit: r2
+    limit: 30
+    comparison: le
+    role: constraint
+    governs: r2
+
+non_limits: []
+
+refers_to:
+  - unit: p1
+    target: p2
+
+limits_table:
+  - header: h1
+    rows:
+      - r1
+      - r2

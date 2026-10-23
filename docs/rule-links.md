@@ -155,18 +155,18 @@ driftbench radius generated/specs/live --change change.yaml
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 1251 specs, 1254 blocks.
-Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
-  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
+Mode F, free-running: 17 of 1254 blocks in the radius (17 direct, 0 forward), 1237 out. 17 of 1251 cells.
+  A cell reruns whole: 17 of 1254 blocks sent, 98.6% saved; 1234 of 1251 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1254 blocks, which rerun. The other 1238 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 12 more, 17 of 1254 blocks, which rerun. The other 1237 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,238 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Seventeen blocks rerun and 1,237 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 `estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
 
@@ -175,6 +175,8 @@ driftbench estate run generated/specs/live --estate northwind --runtime claude-c
 # edit the sentence of step 3 and write change.yaml, then:
 driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store after.db --agent-version working --from before.db --change change.yaml
 ```
+
+The output below is a recorded run of the full suite. It was made before the plan grouped the atoms of one section, so it shows 16 cells in the radius where the suite now gives 17.
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
