@@ -41,29 +41,35 @@ const CASES = {
     aspects: ['executes'],
   },
   tool: {
-    input: 'from langchain.tools import tool\n@tool\ndef lookup(key: str):\n    """Read a fictional row."""\n    return key\n',
+    input:
+      'from langchain.tools import tool\n@tool\ndef lookup(key: str):\n    """Read a fictional row."""\n    return key\n',
     negative: 'def tool(fn): return fn\n@tool\ndef lookup(key: str):\n    return key\n',
     collection: 'tools',
     name: 'lookup',
     aspects: ['acts', 'executes', 'instructs'],
   },
   prompt: {
-    input: 'from langchain_core.messages import SystemMessage\npolicy = SystemMessage(content="Preserve row identifiers.")\n',
+    input:
+      'from langchain_core.messages import SystemMessage\npolicy = SystemMessage(content="Preserve row identifiers.")\n',
     negative: 'policy = "Preserve row identifiers."\n',
     collection: 'prompts',
     name: 'policy',
     aspects: ['instructs'],
   },
   agent: {
-    input: 'from langchain.agents import create_agent\nreviewer = create_agent("fictional-model", tools=[], system_prompt="Review rows.")\n',
-    negative: 'def create_agent(*args, **kwargs): pass\nreviewer = create_agent("fictional-model", tools=[])\n',
+    input:
+      'from langchain.agents import create_agent\nreviewer = create_agent("fictional-model", tools=[], system_prompt="Review rows.")\n',
+    negative:
+      'def create_agent(*args, **kwargs): pass\nreviewer = create_agent("fictional-model", tools=[])\n',
     collection: 'agents',
     name: 'reviewer',
     aspects: ['delegates', 'executes'],
   },
   guard: {
-    input: 'from langgraph.types import interrupt\ndef collect(state):\n    approval = interrupt("Approve the fictional change?")\n    return state\n',
-    negative: 'def interrupt(value): return value\ndef collect(state):\n    approval = interrupt("Approve?")\n    return state\n',
+    input:
+      'from langgraph.types import interrupt\ndef collect(state):\n    approval = interrupt("Approve the fictional change?")\n    return state\n',
+    negative:
+      'def interrupt(value): return value\ndef collect(state):\n    approval = interrupt("Approve?")\n    return state\n',
     collection: 'guards',
     name: 'collect/approval',
     aspects: ['guards'],
