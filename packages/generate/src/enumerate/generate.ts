@@ -28,6 +28,7 @@ import {
   type Seeder,
   type SpecDraft,
 } from '../seed/assemble';
+import { ContinuedProbes } from '../seed/continued-probe';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
 import { TerminalSubsumption } from '../seed/minimal';
@@ -51,7 +52,6 @@ import {
   twiseSeeder,
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
-import { ContinuedProbes } from '../seed/continued-probe';
 import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import { stringifyGeneratedYaml } from '../seed/yaml';
 import { stemMapCsv, stemPass } from '../stems/post-pass';
