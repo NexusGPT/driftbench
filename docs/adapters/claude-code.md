@@ -67,7 +67,7 @@ types:
     loaded: always
 ```
 
-`observe-flag` links `.claude/hooks/.fs-guard-observe` to the hook script `.claude/hooks/fs-guard.py`: the last `*` of each glob captures `fs-guard`, and `scope` joins the two by that name.
+`observe-flag` covers `.claude/hooks/.fs-guard-observe`, and its `scope` names the hook script `.claude/hooks/fs-guard.py` it configures: the last `*` of each glob captures `fs-guard`, and `scope` joins the two by that name (a link the map will hold once links are read).
 
 ## A recorded session
 
