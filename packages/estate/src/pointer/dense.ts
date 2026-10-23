@@ -1,9 +1,13 @@
 import {
+  DENSE_SYSTEM,
+  denseSystemFor,
   dropCommentLines,
   dropTrailingComma,
   repairAnswerText,
+  SPAN_RULE,
   singleToDoubleQuotes,
   straightenCurlyQuotes,
+  TARGET_RULE,
 } from '@agent-nexus/driftbench-core';
 import {
   errorText,
@@ -39,15 +43,6 @@ import {
  */
 
 const squash = (text: string): string => flatten(text).text;
-
-/** Added to the system text only for a set that declares spans or links, so other sets keep their requests. */
-export const SPAN_RULE =
-  'A label that lists span kinds may carry "spans": [{"kind", "text", "polarity"?}] on an entry that names ONE unit: ' +
-  'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
-  'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
-
-/** Added to the system text only for a set with a label that asks for a target, so other sets keep their requests. */
-export const TARGET_RULE = 'A label that asks for a target always names one.';
 
 /** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
 function spanLines(set: LabelSet, context: LabelContext): string[] {
@@ -91,15 +86,7 @@ function labelLine(label: Label): string {
  */
 export const DEFAULT_RUNS = 5;
 
-export const DENSE_SYSTEM =
-  'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
-  'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
-  'Every entry, none included, also gives "anchor": the first three words of the first unit it names, copied from its start, and a range also gives "anchorEnd": the first three words of its last unit, so code can check the entry is on the units you mean. ' +
-  'Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
-  'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
-  'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
-  'A target must be a unit that can be labelled, never a line marked not labelable. ' +
-  'Never copy text from the units, except the anchors and the words of a span.';
+export { DENSE_SYSTEM, SPAN_RULE, TARGET_RULE };
 
 /** Added to the system text of a second request, after an answer that was no JSON. */
 export const RETRY_NOTE =
@@ -303,11 +290,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: [
-          DENSE_SYSTEM,
-          ...(set.spans || set.links ? [SPAN_RULE] : []),
-          ...(set.labels.some((label) => label.target === 'required') ? [TARGET_RULE] : []),
-        ].join(' '),
+        system: denseSystemFor(set),
         messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),

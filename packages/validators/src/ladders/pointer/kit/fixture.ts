@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { DENSE_SYSTEM, denseSystemFor, TARGET_RULE } from '@agent-nexus/driftbench-core';
 import { parse } from 'yaml';
 import type { LabelSetDef, ModelArm, ScanResult, SourceFile } from '../sut/port';
 import { PROBE_YAML } from './sets';
@@ -86,17 +87,8 @@ export function defaultVector(options: string[], label: string): Record<string, 
   const rest = Math.round((0.1 / Math.max(1, options.length - 1)) * 1e4) / 1e4;
   return Object.fromEntries(options.map((o) => [o, o === label ? 0.9 : rest]));
 }
-export const DENSE_SYSTEM =
-  'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
-  'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
-  'An entry with a label other than none also gives "anchor": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. ' +
-  'Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
-  'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
-  'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
-  'A target must be a unit that can be labelled, never a line marked not labelable. ' +
-  'Never copy text from the units, except an anchor and the words of a span.';
-/** Added to the system text only for a set with a label that asks for a target, as the reader's TARGET_RULE does. */
-export const TARGET_RULE = 'A label that asks for a target always names one.';
+export { DENSE_SYSTEM, TARGET_RULE };
+
 const examples = (label: LabelSetDef['labels'][number]) =>
   label.examples?.length ? ` Examples: ${label.examples.map((e) => JSON.stringify(e)).join('; ')}` : '';
 export function wireFor(
@@ -114,7 +106,7 @@ export function wireFor(
         model: 'claude-haiku-5-5',
         max_tokens: 4096,
         thinking: { type: 'disabled' },
-        system: set.labels.some((l) => l.target) ? `${DENSE_SYSTEM} ${TARGET_RULE}` : DENSE_SYSTEM,
+        system: denseSystemFor(set),
         messages: [
           {
             role: 'user',
