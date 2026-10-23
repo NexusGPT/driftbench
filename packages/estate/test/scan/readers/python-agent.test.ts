@@ -292,6 +292,9 @@ describe('static Python agent syntax contract', () => {
     'with context() as SystemMessage:\n    pass',
     'del SystemMessage',
     'from fictional_unknown import *',
+    'SystemMessage, other = factories()',
+    'first = SystemMessage = make_message',
+    '(SystemMessage := make_message)',
   ]) {
     it(`does not retain an imported prompt identity after ${binding.split('\n')[0]}`, async () => {
       const { pythonAgentFacts } = await reader();

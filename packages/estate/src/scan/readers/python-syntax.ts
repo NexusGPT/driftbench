@@ -492,6 +492,22 @@ export function pythonAgentFacts(text: string): PythonFacts {
       equal > 0 && /^[A-Za-z_]\w*$/.test(tokens[0]?.text ?? '') && (equal === 1 || tokens[1]?.text === ':')
         ? tokens[0]?.text
         : undefined;
+    const assignments = split(tokens, '=');
+    if (assignments.length > 1 && (assigned === undefined || assignments.length > 2)) {
+      for (const group of assignments.slice(0, -1)) {
+        for (const token of group) {
+          if (/^[A-Za-z_]\w*$/.test(token.text)) forget(scope, token.text);
+        }
+      }
+      facts.unresolved.push({ line: statement.line, reason: 'complex-assignment' });
+      continue;
+    }
+    const walrus = tokens.findIndex((token, index) => token.text === ':' && tokens[index + 1]?.text === '=');
+    if (walrus > 0) {
+      forget(scope, tokens[walrus - 1]?.text ?? '');
+      facts.unresolved.push({ line: statement.line, reason: 'named-expression' });
+      continue;
+    }
     const expression = assigned ? tokens.slice(equal + 1) : tokens;
     const foundCalls = calls(expression);
     const addPrompt = (name: string, input: readonly Token[] | undefined, line: number) => {
