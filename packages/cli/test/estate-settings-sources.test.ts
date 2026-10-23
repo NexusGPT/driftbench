@@ -135,6 +135,32 @@ describe('S1 to S3: the settings sources, whatever their place', () => {
   });
 });
 
+describe('S5: the closing verdict names what did not run', () => {
+  for (const source of SETTINGS_SOURCES) {
+    it(`${source}: with nothing wrong the verdict is clean, and the checks that lacked the settings are listed as not run`, async () => {
+      const run = await read(source, 2, 0);
+      expect(run.data.failed).toBe(false);
+      expect(run.data.summary).toBe('clean');
+      const lacking = run.data.checks
+        .filter((entry) => entry.missing.includes('settings'))
+        .map((entry) => entry.check);
+      // The wiring was read: nothing lacked it. It was not: exactly the registry checks lacked it.
+      expect(lacking.sort()).toEqual(source === 'absent' ? ['REGISTRY_GUARD', 'REGISTRY_ROW'] : []);
+      const text = await cli(
+        [
+          'estate',
+          'lint',
+          'map.yaml',
+          ...(run.rendered.settingsFile ? ['--settings', run.rendered.settingsFile] : []),
+        ],
+        run.rendered.top,
+      );
+      expect(text.code).toBe(0);
+      expect(/^ {2}not-run {5}.*REGISTRY_GUARD/m.test(text.out)).toBe(source === 'absent');
+    });
+  }
+});
+
 describe('S4: the same source again, and one source for one place', () => {
   it('lints a handed-over copy only when handed over again, and records it in the map', async () => {
     const run = await read('rendered', 2, 1);

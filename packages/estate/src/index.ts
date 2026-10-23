@@ -15,6 +15,7 @@ export {
   targetOf,
 } from './graph';
 export {
+  type FindingsCut,
   INFORMATION,
   LINT_CHECKS,
   LINT_CODES,

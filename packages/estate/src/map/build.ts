@@ -235,6 +235,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(raw.userLayer ? { userSkills: true as const } : {}),
     ...(raw.files.some((file) => file.rendered) ? { settings: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
+    ...(raw.coverage ? { coverage: raw.coverage } : {}),
     ...(input.pointer
       ? {
           producedBy: {

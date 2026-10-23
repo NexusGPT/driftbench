@@ -2,6 +2,7 @@ import {
   type CheckCapability,
   type CheckDeclaration,
   type CheckOutcome,
+  noneRan,
   runCheck,
   runtimeProfile,
   type SkippedInput,
@@ -70,6 +71,13 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
   requires: code === 'QUOTE_DRIFT' ? ['model-map'] : WIRING_CHECKS.has(code) ? ['settings'] : [],
 }));
 
+/**
+ * The verdict of a lint, as a code: a finding outside INFORMATION (`findings`); no check had an input
+ * (`none-ran`); no finding, but files under the root no part type covers, which no check read (`unknown-files`);
+ * else `clean`. A lint is clean only when every file is covered and some check ran.
+ */
+export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'clean';
+
 export type LintResult = {
   findings: LintFinding[];
   /** One outcome per code, in LINT_CODES order: a check that read no input is `not-run`, never a pass. */
@@ -77,12 +85,15 @@ export type LintResult = {
   /** True when a finding outside INFORMATION was found. */
   failed: boolean;
   counts: Record<LintCode, number>;
+  /** Files under the estate root no part type covers, from the read: no check looked at them. */
+  unknown: string[];
+  summary: LintSummary;
 };
 
 export type LintOptions = { ceiling?: number };
 
 /** The findings a report lists, and how many each code has in all. */
-export type LintSummary = {
+export type FindingsCut = {
   /** The findings to list, in their order: at most `limit` of each code. */
   shown: LintFinding[];
   /** Per code that has findings, in the order the codes first appear. */
@@ -96,7 +107,7 @@ export type LintSummary = {
 export function summariseLint(
   findings: readonly LintFinding[],
   options: { limit?: number } = {},
-): LintSummary {
+): FindingsCut {
   const byCode = new Map<LintCode, LintFinding[]>();
   for (const finding of findings) byCode.set(finding.code, [...(byCode.get(finding.code) ?? []), finding]);
   const cuts = new Map([...byCode].map(([code, list]) => [code, cutList(list, options.limit)] as const));
@@ -286,17 +297,22 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     REGISTRY_GUARD: raw.registry.length,
     QUOTE_DRIFT: atoms.length,
   };
+  const unknown = [...(raw.coverage?.unknown ?? [])];
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
+      unknown,
       ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? { skipped: wiringSkipped[check.id] } : {}),
       findings: kept.filter((finding) => finding.code === check.id),
     })),
   );
-  return {
-    findings: kept,
-    outcomes,
-    failed: kept.some((finding) => !INFORMATION.has(finding.code)),
-    counts,
-  };
+  const failed = kept.some((finding) => !INFORMATION.has(finding.code));
+  const summary: LintSummary = failed
+    ? 'findings'
+    : noneRan(outcomes)
+      ? 'none-ran'
+      : unknown.length > 0
+        ? 'unknown-files'
+        : 'clean';
+  return { findings: kept, outcomes, failed, counts, unknown, summary };
 }

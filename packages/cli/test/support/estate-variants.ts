@@ -229,6 +229,9 @@ export type LintData = {
     missing: string[];
   }>;
   notRun: boolean;
+  /** The closing verdict of the report. */
+  summary: 'findings' | 'none-ran' | 'unknown-files' | 'clean';
+  unknown: number;
 };
 
 export function lintData(out: string): LintData {

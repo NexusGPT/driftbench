@@ -216,7 +216,7 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
 | `--settings <file>` | none | read the rendered copy of the settings from this file, as the scan did; a map that records one needs it (exit 2 without) |
 | `--verbose` | off | list every finding; by default each code lists its first 10, then its total |
-| `--json` | off | print the findings and their totals as JSON: `findings` (the ones listed), `totals` (per code `total`, `shown`, `omitted`), `checks` (per check its `status`, why it did not run, the inputs it `read`, the ones it left out and what it lacked), `failed`, and the counts of the information codes |
+| `--json` | off | print the findings and their totals as JSON: `findings` (the ones listed), `totals` (per code `total`, `shown`, `omitted`), `checks` (per check its `status`, why it did not run, the inputs it `read`, the ones it left out and what it lacked), `failed`, `summary` (`findings`, `none-ran`, `unknown-files` or `clean`, the closing line of the report), `notRun`, `unknown` (the number of files no part type covers), and the counts of the information codes |
 
 `estate approve`:
 

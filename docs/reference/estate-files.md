@@ -20,6 +20,8 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [Atom replyAct](#atom-replyact)
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
+* [EstateMap coverage](#estatemap-coverage)
+* [EstateMap coverage skipped](#estatemap-coverage-skipped)
 * [EstateMap producedBy](#estatemap-producedby)
 * [Plan](#plan)
 * [PlanRow](#planrow)
@@ -53,6 +55,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `userSkills` | `true` | no |  | true when the scan read a user-level skill layer; lint then needs the folder to read it again |
 | `settings` | `true` | no |  | true when the scan read a rendered copy of the settings handed over beside the estate; lint then needs the file to read it again |
 | `followedLinks` | list of strings, each not empty | no |  | Links, relative to the estate root, that the scan read through to a real path outside the root |
+| `coverage` | [EstateMap coverage](#estatemap-coverage) | no |  | What the scan covered among the files under the root. Lint never calls an estate clean while a file is unknown. |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
 
@@ -326,6 +329,23 @@ The act of the agent reply that the atom governs, when it governs one.
 | `allows` | A skill or helper to a tool or skill it may use. |
 | `next` | A stage to the stage that follows it. |
 | `cites` | A rule to a rule its words name by label. |
+
+## EstateMap coverage
+
+What the scan covered among the files under the root. Lint never calls an estate clean while a file is unknown.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `covered` | integer, at least 0 | yes |  | Files under the estate root a part type covers or a reference of the estate reached. |
+| `unknown` | list of strings, each not empty | yes |  | Files under the estate root no part type covers, root-relative and sorted: no check read them. |
+| `skipped` | list of [EstateMap coverage skipped](#estatemap-coverage-skipped) | yes |  | What the scan left out on purpose. |
+
+## EstateMap coverage skipped
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `what` | string, not empty | yes |  | A path, or the ignore glob that skipped paths. |
+| `reason` | string, not empty | yes |  | Why: estate-config, too-large or ignored. |
 
 ## EstateMap producedBy
 
