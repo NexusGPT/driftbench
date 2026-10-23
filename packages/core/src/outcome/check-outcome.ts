@@ -1,6 +1,8 @@
 /**
  * The outcome of one static check (a lint rule, an invariant, a scan summary) with what it covered. A check over
- * zero inputs, or one whose requirement the run lacks, did not run: it is `not-run`, never a pass.
+ * zero inputs, or one whose requirement the run lacks, did not run: it is `not-run`, never a pass. Its coverage
+ * names what it read, what it left out and why, and the files under the estate root no part type covers: a check
+ * cannot have looked at those, so a run with any is never called clean.
  */
 
 /** What a check may need from the run before it can say anything. */
@@ -20,6 +22,8 @@ export type CheckCoverage = {
   /** How many inputs the check read. */
   read: number;
   skipped: SkippedInput[];
+  /** Files under the estate root no part type covers, root-relative: inputs the check could not see. */
+  unknown: string[];
   /** The requirements the run lacked. */
   missing: CheckCapability[];
 };
@@ -33,6 +37,8 @@ export type CheckOutcome<F = unknown> = {
   check: string;
   status: CheckStatus;
   coverage: CheckCoverage;
+  /** What the check declared it requires of the run. */
+  requires: CheckCapability[];
   findings: F[];
   /** Set exactly when the status is `not-run`. */
   notRun?: NotRunReason;
@@ -41,8 +47,13 @@ export type CheckOutcome<F = unknown> = {
 /** A check and the capabilities it requires. */
 export type CheckDeclaration = { id: string; requires: readonly CheckCapability[] };
 
-/** What a check body returns: the inputs it read, the ones it skipped, and its findings. */
-export type CheckRun<F> = { read: number; skipped?: SkippedInput[]; findings: F[] };
+/** What a check body returns: the inputs it read, the ones it skipped, the unknown files, and its findings. */
+export type CheckRun<F> = {
+  read: number;
+  skipped?: SkippedInput[];
+  unknown?: readonly string[];
+  findings: F[];
+};
 
 /**
  * Runs a check when the run has what it requires. A requirement absent gives `not-run` without calling the
@@ -53,24 +64,38 @@ export function runCheck<F>(
   available: ReadonlySet<CheckCapability>,
   body: () => CheckRun<F>,
 ): CheckOutcome<F> {
-  const missing = declaration.requires.filter((capability) => !available.has(capability));
+  const requires = [...declaration.requires];
+  const missing = requires.filter((capability) => !available.has(capability));
   if (missing.length > 0)
     return {
       check: declaration.id,
       status: 'not-run',
-      coverage: { read: 0, skipped: [], missing },
+      coverage: { read: 0, skipped: [], unknown: [], missing },
+      requires,
       findings: [],
       notRun: 'missing-capability',
     };
-  return checkOutcome(declaration.id, body());
+  return checkOutcome(declaration.id, body(), requires);
 }
 
-/** The outcome of a check that already ran, from what it read and found. */
-export function checkOutcome<F>(check: string, run: CheckRun<F>): CheckOutcome<F> {
-  const coverage: CheckCoverage = { read: run.read, skipped: run.skipped ?? [], missing: [] };
-  if (run.findings.length > 0) return { check, status: 'fail', coverage, findings: run.findings };
-  if (run.read === 0) return { check, status: 'not-run', coverage, findings: [], notRun: 'no-input' };
-  return { check, status: 'pass', coverage, findings: [] };
+/** The outcome of a check that already ran, from what it read and found, with what it declared it requires. */
+export function checkOutcome<F>(
+  check: string,
+  run: CheckRun<F>,
+  requires: readonly CheckCapability[] = [],
+): CheckOutcome<F> {
+  const coverage: CheckCoverage = {
+    read: run.read,
+    skipped: run.skipped ?? [],
+    unknown: [...(run.unknown ?? [])],
+    missing: [],
+  };
+  const declared = [...requires];
+  if (run.findings.length > 0)
+    return { check, status: 'fail', coverage, requires: declared, findings: run.findings };
+  if (run.read === 0)
+    return { check, status: 'not-run', coverage, requires: declared, findings: [], notRun: 'no-input' };
+  return { check, status: 'pass', coverage, requires: declared, findings: [] };
 }
 
 /** True when no check of the list ran: every one is `not-run`. An empty list ran nothing either. */

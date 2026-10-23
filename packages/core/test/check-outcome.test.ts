@@ -12,7 +12,8 @@ describe('check outcomes with coverage', () => {
     expect(outcome).toEqual({
       check: 'live',
       status: 'not-run',
-      coverage: { read: 0, skipped: [], missing: ['execution'] },
+      coverage: { read: 0, skipped: [], unknown: [], missing: ['execution'] },
+      requires: ['execution', 'guards'],
       findings: [],
       notRun: 'missing-capability',
     });
@@ -30,6 +31,24 @@ describe('check outcomes with coverage', () => {
     });
     const skipped = [{ what: 'big.md', reason: 'too-large' }];
     expect(checkOutcome('a', { read: 2, skipped, findings: [] }).coverage.skipped).toEqual(skipped);
+  });
+
+  it('carries the unknown files and the declared requirements, and a pass stays a pass beside unknown files', () => {
+    const outcome = checkOutcome('a', { read: 2, unknown: ['notes/x.txt'], findings: [] }, ['settings']);
+    expect(outcome).toMatchObject({
+      status: 'pass',
+      requires: ['settings'],
+      coverage: { read: 2, unknown: ['notes/x.txt'] },
+    });
+    const ran = runCheck({ id: 'b', requires: ['settings'] }, new Set(['settings']), () => ({
+      read: 1,
+      findings: [],
+    }));
+    expect(ran).toMatchObject({
+      status: 'pass',
+      requires: ['settings'],
+      coverage: { unknown: [], missing: [] },
+    });
   });
 
   it('says none ran only when every outcome is not-run', () => {
