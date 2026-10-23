@@ -25,11 +25,16 @@ export type Audit = {
 };
 
 export function leaksOutsideGot(failure: ItemFailure): string[] {
-  // The rule and the input are read as one text, with the product's own output and the input left out of the allowed
-  // tokens: a wanted value written into either is a leak, whatever the product returned.
+  // The rule and the input are read as one text, with the product's own output left out of the allowed tokens: a wanted
+  // value written into either is a leak, whatever the product returned. One exception, because it is not a leak: a
+  // number that the item itself gave as input (a budget of 5, a limit of 5) may be the wanted value too, when the answer
+  // is that very number (5 rows for a budget of 5); the builder passed it.
   const { rule, input, expected, item } = failure.fields;
+  const inputNumbers = new Set(JSON.stringify(input ?? null).match(/-?\d+(?:\.\d+)?/g) ?? []);
   const text = `${rule}${input === undefined ? '' : ` ${JSON.stringify(input)}`}`;
-  return leaksOf(new ItemFailure({ rule: text, expected, ...(item === undefined ? {} : { item }) }));
+  return leaksOf(new ItemFailure({ rule: text, expected, ...(item === undefined ? {} : { item }) })).filter(
+    (atom) => !(/^-?\d+(?:\.\d+)?$/.test(atom) && inputNumbers.has(atom)),
+  );
 }
 
 export async function auditEveryCheckSite(
