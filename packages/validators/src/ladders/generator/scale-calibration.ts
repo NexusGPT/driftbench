@@ -44,10 +44,10 @@ export const CALIBRATION_REFERENCE_MS = 250;
 export const CALIBRATION_MAX_CREDIT = 1.5;
 
 /**
- * Calibrations measured per scale run, each in a process of its own: half before the timed child, the rest after
- * it. The calibration of a run is their median. One measurement is the noisy part of a scale verdict (a standard
- * deviation of 3.6 percent inside one VM, against 0.9 percent for the raw CPU time of the product), and the median
- * of five has the same expected value as one, so the reference below stays as recorded.
+ * Calibrations measured per scale run, each in a process of its own, all of them before the timed child starts. One
+ * measurement is the noisy part of a scale verdict (a standard deviation of 3.6 percent inside one VM, against 0.9
+ * percent for the raw CPU time of the product). Never after the run: a ruler must not be moved by what it measures,
+ * and a product that leaves a busy process behind would slow the later samples and lower its own normalised time.
  */
 export const CALIBRATION_COUNT = 5;
 
@@ -59,6 +59,23 @@ export function medianOf(values: readonly number[]): number {
   return sorted.length % 2 === 1
     ? (sorted[middle] as number)
     : ((sorted[middle - 1] as number) + (sorted[middle] as number)) / 2;
+}
+
+const tenth = (value: number): number => Math.round(value * 10) / 10;
+
+/**
+ * The calibration of a run, from the samples taken before the product started, in the order taken: the lower of the
+ * first sample and the median of all of them, in tenths of a millisecond. It is never above the first sample, and
+ * the normalised time falls as the calibration rises, so on any sequence of samples the normalised time is at least
+ * what the first sample alone gives: a noise fix that lets a product pass what it failed is not one. The median
+ * pulls a first sample that ran on a busy moment down to the typical one, so the verdict follows the typical
+ * moment more often than the first sample does. With one sample it is that sample.
+ */
+export function calibrationOf(samples: readonly number[]): number {
+  const taken = samples.map(tenth);
+  const first = taken[0];
+  if (first === undefined) return Number.NaN;
+  return tenth(Math.min(first, medianOf(taken)));
 }
 
 /** The environment variable through which the parent hands the calibration to the timed child. */

@@ -2537,7 +2537,7 @@ function scaleItems(): BankItem[] {
       const runs = r.calibrationRunsMs ?? [];
       const spread =
         runs.length > 1
-          ? ` (median of ${runs.length}, from ${Math.min(...runs)} to ${Math.max(...runs)} ms)`
+          ? ` (the lower of the first and the median of ${runs.length} taken before the run, from ${Math.min(...runs)} to ${Math.max(...runs)} ms)`
           : '';
       return [
         r.normalisedMs <= r.budgetMs / 2,

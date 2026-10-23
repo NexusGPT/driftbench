@@ -3,7 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { hiddenSpec } from '../../src/ladders/generator/hidden';
 import { SCALE_BASE_BEHAVIOURS, scaledSpec, scaleReport } from '../../src/ladders/generator/scale';
-import { CALIBRATION_COUNT, medianOf, normalisedMs } from '../../src/ladders/generator/scale-calibration';
+import {
+  CALIBRATION_COUNT,
+  calibrationOf,
+  medianOf,
+  normalisedMs,
+} from '../../src/ladders/generator/scale-calibration';
 
 const SEEDS = Array.from({ length: 21 }, (_, index) => index + 1);
 
@@ -86,7 +91,7 @@ describe('medianOf', () => {
 });
 
 describe('a scale report carries the calibrations it was normalised with', () => {
-  it('normalises with the median of every calibration measured around the run', async () => {
+  it('normalises with the calibration of the samples measured before the run', async () => {
     const seed = SEEDS.find(
       (candidate) => hiddenSpec(candidate).behaviours.length < SCALE_BASE_BEHAVIOURS,
     ) as number;
@@ -94,7 +99,8 @@ describe('a scale report carries the calibrations it was normalised with', () =>
     expect(report.error).toBeUndefined();
     const runs = report.calibrationRunsMs ?? [];
     expect(runs).toHaveLength(3);
-    expect(report.calibrationMs).toBe(Math.round(medianOf(runs) * 10) / 10);
+    expect(report.calibrationMs).toBe(calibrationOf(runs));
+    expect(report.calibrationMs).toBeLessThanOrEqual(runs[0] as number);
     expect(report.normalisedMs).toBe(normalisedMs(report.ms, report.calibrationMs));
     // the workload is the pinned one, whatever the seed drew
     expect(report.behaviours).toBe(SCALE_BASE_BEHAVIOURS);
@@ -142,4 +148,67 @@ describe('the scale item of the ladder takes the default number of calibrations'
     expect(report.error).toBeUndefined();
     expect(report.calibrationRunsMs).toHaveLength(CALIBRATION_COUNT);
   }, 180_000);
+});
+
+/**
+ * The calibration of a run is the lower of the first sample and the median of the samples taken before the product
+ * started. The normalised time falls as the calibration rises, so on every sequence of samples it is at least what the
+ * first sample alone gives: the noise fix can make a product fail what it passed by a lucky first sample, never the
+ * reverse.
+ */
+describe('calibrationOf', () => {
+  it('is the lower of the first sample and the median', () => {
+    expect(calibrationOf([100, 200, 200, 200, 200])).toBe(100);
+    expect(calibrationOf([300, 200, 200, 250, 260])).toBe(250);
+    expect(calibrationOf([250])).toBe(250);
+    expect(calibrationOf([240, 250])).toBe(240);
+  });
+
+  it('works in tenths of a millisecond and is NaN for no sample', () => {
+    expect(calibrationOf([250.04, 250.06, 250.2])).toBe(250);
+    expect(calibrationOf([])).toBeNaN();
+  });
+
+  it('never exceeds the first sample, nor falls under the lowest one', () => {
+    let state = 12_345;
+    const next = () => {
+      state = (Math.imul(state, 1103515245) + 12345) >>> 0;
+      return state / 4294967296;
+    };
+    for (let trial = 0; trial < 2_000; trial += 1) {
+      const samples = Array.from({ length: 1 + Math.floor(next() * 7) }, () => 40 + next() * 700);
+      const ruler = calibrationOf(samples);
+      expect(ruler, `trial ${trial}`).toBeLessThanOrEqual(Math.round((samples[0] as number) * 10) / 10);
+      expect(ruler, `trial ${trial}`).toBeGreaterThanOrEqual(
+        Math.round(Math.min(...samples) * 10) / 10 - 0.1,
+      );
+    }
+  });
+
+  it('gives a normalised time at least that of the first sample alone, on any sequence and any raw time', () => {
+    let state = 987_654;
+    const next = () => {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+    for (let trial = 0; trial < 5_000; trial += 1) {
+      const samples = Array.from({ length: 5 }, () => 20 + next() * 1_000);
+      const raw = Math.round(10_000 + next() * 200_000);
+      const old = normalisedMs(raw, Math.round((samples[0] as number) * 10) / 10);
+      const now = normalisedMs(raw, calibrationOf(samples));
+      expect(
+        now,
+        `trial ${trial}: ${samples.map((value) => value.toFixed(1)).join(', ')}`,
+      ).toBeGreaterThanOrEqual(old);
+    }
+  });
+
+  it('fixes the sequences a median alone made easier', () => {
+    // 100 is the first sample: a raw 40,000 ms is 100,000 normalised, a failure; the median 200 would have made it 50,000.
+    const old = normalisedMs(40_000, 100);
+    expect(old).toBe(100_000);
+    expect(normalisedMs(40_000, calibrationOf([100, 200, 200, 200, 200]))).toBe(old);
+    expect(normalisedMs(40_000, medianOf([100, 200, 200, 200, 200]))).toBe(50_000);
+    expect(normalisedMs(70_000, calibrationOf([100, 100, 300, 300, 300]))).toBe(175_000);
+  });
 });

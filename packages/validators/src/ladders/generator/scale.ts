@@ -6,7 +6,7 @@ import {
   CALIBRATION_ENV,
   CALIBRATION_REFERENCE_MS,
   calibrationFactor,
-  medianOf,
+  calibrationOf,
   normalisedMs,
 } from './scale-calibration';
 
@@ -43,9 +43,9 @@ export type ScaleReport = {
   error?: string;
   /** The raw CPU time of the product's run, in milliseconds. */
   ms: number;
-  /** The calibration of this machine: the median of `calibrationRunsMs` (scale-calibration.ts). */
+  /** The calibration of this machine: `calibrationOf` its `calibrationRunsMs` (scale-calibration.ts). */
   calibrationMs: number;
-  /** Each calibration measured around the timed child, in the order measured. */
+  /** Each calibration measured before the timed child started, in the order measured. */
   calibrationRunsMs?: number[];
   /** The behaviours of the scaled hidden specification the run generated. */
   behaviours?: number;
@@ -233,11 +233,12 @@ function runChild(
 }
 
 /**
- * Runs one scale measurement: `calibrations` calibrations (default CALIBRATION_COUNT), the first half before the
- * timed child and the rest after it, each in a process of its own on this machine. The timed child gets the median
- * of the ones before it (so it measures with its whole heap and imports no product code before it has them); the
- * report carries the median of all of them, the raw CPU time, and the time normalised by that median. A test may
- * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
+ * Runs one scale measurement: `calibrations` calibrations (default CALIBRATION_COUNT), one after the other, each in a
+ * process of its own on this machine, and only then the timed child. The calibration of the run is `calibrationOf`
+ * the samples; the timed child gets it in its environment, so it measures with its whole heap and imports no
+ * product code before it has it. No sample is taken after the product has run: the ruler is not moved by what it
+ * measures. The report carries the samples, the calibration, the raw CPU time and the time normalised by it. A test
+ * may lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
  */
 export async function scaleReport(
   factor: number,
@@ -245,20 +246,16 @@ export async function scaleReport(
   budgetMs = SCALE_BUDGET_MS[factor] ?? 60_000,
   options: { heapMb?: number; generator?: string; calibrations?: number } = {},
 ): Promise<ScaleReport> {
-  const count = Math.max(1, options.calibrations ?? CALIBRATION_COUNT);
-  const beforeCount = Math.ceil(count / 2);
-  const before = await calibrations(beforeCount);
-  if (typeof before === 'string') return failed(factor, budgetMs, before);
-  const report = await runChild(factor, seed, budgetMs, medianOf(before), options);
+  const samples = await calibrations(Math.max(1, options.calibrations ?? CALIBRATION_COUNT));
+  if (typeof samples === 'string') return failed(factor, budgetMs, samples);
+  const taken = samples.map((value) => Math.round(value * 10) / 10);
+  const calibrationMs = calibrationOf(taken);
+  const report = await runChild(factor, seed, budgetMs, calibrationMs, options);
   if (report.error) return report;
-  const after = await calibrations(count - beforeCount);
-  if (typeof after === 'string') return failed(factor, budgetMs, after);
-  const all = [...before, ...after].map((value) => Math.round(value * 10) / 10);
-  const calibrationMs = Math.round(medianOf(all) * 10) / 10;
   return {
     ...report,
     calibrationMs,
-    calibrationRunsMs: all,
+    calibrationRunsMs: taken,
     normalisedMs: normalisedMs(report.ms, calibrationMs),
     creditCapped: calibrationFactor(calibrationMs).capped,
   };

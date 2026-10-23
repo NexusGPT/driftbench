@@ -1,8 +1,8 @@
 /**
  * The child process of one scale run: `node --import tsx scale-child.ts <factor> <seed> <budgetMs> [generator]`.
- * The calibrations of the machine (scale-calibration.ts) are measured by the parent in processes of their own: those
- * taken just before this one started arrive, as their median, in the environment, so this process's heap is what it
- * was before any calibration. The parent adds the ones taken after the run and normalises with the median of all.
+ * The calibration of the machine (scale-calibration.ts) is measured by the parent in processes of their own, all of
+ * them before this one starts, and arrives in the environment: this process's heap is what it was before any
+ * calibration, and nothing is measured after the run.
  * It generates the scaled hidden specification twice, measures the time, reads the report, runs the rule
  * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
  * time of rendering, setup, all map loads, both generations and writes, the byte comparison, reload and

@@ -128,7 +128,9 @@ describe('scale.100x.time on a runner of any speed', () => {
     });
     expect(verdict.pass, verdict.detail).toBe(true);
     expect(verdict.detail).toContain('on 600 behaviours, the same workload for every seed');
-    expect(verdict.detail).toContain('(median of 5, from 240 to 281 ms)');
+    expect(verdict.detail).toContain(
+      '(the lower of the first and the median of 5 taken before the run, from 240 to 281 ms)',
+    );
     expect(verdict.detail).toContain('by up to about 40 percent between seeds');
   });
 
@@ -149,10 +151,13 @@ describe('the calibration is measured in a process of its own, before the timed 
     expect(child).not.toMatch(/calibrate\(/);
     expect(child).toContain('CALIBRATION_ENV');
     const parent = readFileSync(SCALE, 'utf8');
-    // the calibrations before the timed child are awaited before the child is started, each one in a process of its own
-    const before = parent.indexOf('await calibrations(beforeCount)');
+    // every calibration is awaited before the child is started, each one in a process of its own, and none after it
+    const before = parent.indexOf('await calibrations(');
     expect(before).toBeGreaterThan(-1);
-    expect(before).toBeLessThan(parent.indexOf('await runChild(', before));
+    const child = parent.indexOf('await runChild(', before);
+    expect(child).toBeGreaterThan(before);
+    expect(parent.indexOf('await calibrations(', child)).toBe(-1);
+    expect(parent.indexOf('await measureCalibration()', child)).toBe(-1);
     expect(parent.indexOf('await measureCalibration()')).toBeGreaterThan(-1);
   });
 
