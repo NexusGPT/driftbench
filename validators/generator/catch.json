@@ -1,0 +1,9 @@
+{
+  "items": [
+    { "id": "planner.catch.search-valid-covering", "guards": "bug:planner-coverage-lost-in-row-choice" },
+    { "id": "planner.catch.zero-total-weights-refused", "guards": "bug:planner-zero-total-weights" },
+    { "id": "planner.catch.rendered-budget", "guards": "bug:planner-render-drops-budget" },
+    { "id": "planner.catch.unreachable-required-flag", "guards": "bug:planner-unreachable-required-flag" },
+    { "id": "planner.catch.rules-from-passages", "guards": "bug:planner-rule-reading" }
+  ]
+}
