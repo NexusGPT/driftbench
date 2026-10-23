@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { variablesFromSources } from '../../src';
-import { createSubjectReconciler, type SubjectChoiceReader } from '../../src/feed/subject-choices';
 import type { SpanLabel } from '../../src/feed/sources';
+import { createSubjectReconciler, type SubjectChoiceReader } from '../../src/feed/subject-choices';
 
 const known = {
   kind: 'numeric',

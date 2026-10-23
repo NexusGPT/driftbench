@@ -26,10 +26,10 @@ function candidateOf(label: SpanLabel | undefined): Omit<SubjectCandidate, 'id'>
  * Reconciles successive labelled batches with the reader's choice of an existing label id or `new`.
  * The catalogue deduplicates exact structured identities; only the reader can equate different identities.
  * Choices cannot change a clause's kind, unit, limits or comparator. No clause text is interpreted here.
+ * Every clause gets its own choice, even when another clause received the same initial label.
  */
 export function createSubjectReconciler(known: readonly SpanLabel[] = []) {
   const catalogue = new Map<string, SubjectCandidate>();
-  const decisions = new Map<string, SubjectCandidate>();
   const remember = (candidate: Omit<SubjectCandidate, 'id'>): SubjectCandidate => {
     const key = JSON.stringify(candidate);
     let entry = catalogue.get(key);
@@ -54,20 +54,15 @@ export function createSubjectReconciler(known: readonly SpanLabel[] = []) {
         out.push(clause);
         continue;
       }
-      const key = JSON.stringify(candidate);
-      let selected = decisions.get(key);
-      if (selected === undefined) {
-        const compatible = [...catalogue.values()].filter(
-          (entry) => entry.kind === candidate.kind && (entry.unit ?? '') === (candidate.unit ?? ''),
-        );
-        // Hand the reader copies: it cannot mutate the catalogue or the original label.
-        const choice = await choose(
-          structuredClone(clause),
-          compatible.map((entry) => ({ ...entry })),
-        );
-        selected = compatible.find((entry) => entry.id === choice) ?? remember(candidate);
-        decisions.set(key, selected);
-      }
+      const compatible = [...catalogue.values()].filter(
+        (entry) => entry.kind === candidate.kind && (entry.unit ?? '') === (candidate.unit ?? ''),
+      );
+      // Hand the reader copies: it cannot mutate the catalogue or the original label.
+      const choice = await choose(
+        structuredClone(clause),
+        compatible.map((entry) => ({ ...entry })),
+      );
+      const selected = compatible.find((entry) => entry.id === choice) ?? remember(candidate);
       out.push({ ...clause, label: { ...clause.label, subject: selected.subject } });
     }
     return out;
