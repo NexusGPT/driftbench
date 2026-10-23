@@ -25,14 +25,26 @@ export const PYTHON_AGENT_TYPES: TypesDocument = {
     node: {
       root: 'source',
       locate: '**/*.py#$.nodes[*]',
-      fields: { name: '$.name', graph: '$.graph', callable: '$.callable', body: '$.body', scope: '$.scope' },
+      fields: {
+        name: '$.name',
+        graph: '$.graph',
+        callable: '$.callable',
+        body: '$.body',
+        scope: '$.scope',
+      },
       aspects: ['executes'],
       loaded: 'by-reference',
     },
     tool: {
       root: 'source',
       locate: '**/*.py#$.tools[*]',
-      fields: { name: '$.name', symbol: '$.symbol', description: '$.description', body: '$.body', owner: '$.owner' },
+      fields: {
+        name: '$.name',
+        symbol: '$.symbol',
+        description: '$.description',
+        body: '$.body',
+        owner: '$.owner',
+      },
       aspects: ['acts', 'executes', 'instructs'],
       loaded: 'on-demand',
     },
@@ -73,10 +85,7 @@ export const PYTHON_AGENT_LINK_SELECTORS = [
   { kind: 'references', from: 'node', to: 'tool', records: 'toolBindings' },
 ] as const;
 
-export function readPythonAgentSource(
-  root: string,
-  options: SourceReaderOptions = {},
-): Promise<SourceFiles> {
+export function readPythonAgentSource(root: string, options: SourceReaderOptions = {}): Promise<SourceFiles> {
   return readSourceFiles(root, options);
 }
 
@@ -105,7 +114,10 @@ export class PythonAgentReader implements EstateReader {
       if (!file.path.endsWith('.py')) continue;
       const facts = pythonAgentFacts(file.text);
       for (const issue of facts.unresolved) {
-        raw.notes.push({ file: file.path, message: `skipped syntax at line ${issue.line}: ${issue.reason}` });
+        raw.notes.push({
+          file: file.path,
+          message: `skipped syntax at line ${issue.line}: ${issue.reason}`,
+        });
       }
       for (const type of types.types) {
         if (type.runtime !== this.runtime || type.folder === undefined) continue;

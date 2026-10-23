@@ -169,11 +169,10 @@ function split(tokens: readonly Token[], separator = ','): Token[][] {
 function dotted(tokens: readonly Token[]): string | undefined {
   if (tokens.length === 0 || tokens.length % 2 === 0) return undefined;
   if (
-    tokens.some((token, index) =>
-      index % 2 === 0
-        ? !/^[A-Za-z_]\w*$/.test(token.text) || token.string !== undefined
-        : token.text !== '.',
-    )
+    tokens.some((token, index) => {
+      if (index % 2 !== 0) return token.text !== '.';
+      return !/^[A-Za-z_]\w*$/.test(token.text) || token.string !== undefined;
+    })
   )
     return undefined;
   return tokens.map((token) => token.text).join('');
@@ -317,7 +316,9 @@ function localBindings(statements: readonly Statement[], position: number): Set<
     const keyword = tokens[0]?.text === 'async' ? 1 : 0;
     const first = tokens[keyword]?.text;
     if (first === 'global' || first === 'nonlocal') {
-      for (const token of tokens.slice(keyword + 1)) if (/^[A-Za-z_]\w*$/.test(token.text)) outer.add(token.text);
+      for (const token of tokens.slice(keyword + 1)) {
+        if (/^[A-Za-z_]\w*$/.test(token.text)) outer.add(token.text);
+      }
       continue;
     }
     if (first === 'def' || first === 'class') {
@@ -329,7 +330,9 @@ function localBindings(statements: readonly Statement[], position: number): Set<
     if ((tokens[1]?.text === '=' || tokens[1]?.text === ':') && tokens[0]) names.add(tokens[0].text);
     if (first === 'for') {
       const end = tokens.findIndex((token) => token.text === 'in');
-      for (const token of tokens.slice(keyword + 1, end)) if (/^[A-Za-z_]\w*$/.test(token.text)) names.add(token.text);
+      for (const token of tokens.slice(keyword + 1, end)) {
+        if (/^[A-Za-z_]\w*$/.test(token.text)) names.add(token.text);
+      }
     }
     for (const [index, token] of tokens.entries()) {
       if (token.text === 'as' && tokens[index + 1]) names.add((tokens[index + 1] as Token).text);
@@ -442,9 +445,9 @@ export function pythonAgentFacts(text: string): PythonFacts {
         const firstBody = parsed.statements[position + 1];
         const toolName = call?.args[0] ? literal(call.args[0], scope) : name;
         const described = call?.keywords.get('description');
-        const description = described
-          ? literal(described, scope)
-          : firstBody && firstBody.indent > statement.indent ? firstBody.tokens[0]?.string : undefined;
+        const docstring =
+          firstBody && firstBody.indent > statement.indent ? firstBody.tokens[0]?.string : undefined;
+        const description = described ? literal(described, scope) : docstring;
         if (described && description === undefined) {
           facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-description' });
         }
@@ -493,7 +496,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
     const foundCalls = calls(expression);
     const addPrompt = (name: string, input: readonly Token[] | undefined, line: number) => {
       const value = literal(input, scope);
-      const file = promptFile(input, scope) ??
+      const file =
+        promptFile(input, scope) ??
         (input?.length === 1 ? scope.promptFiles.get(input[0]?.text ?? '') : undefined);
       if (file !== undefined) facts.prompts.push({ name, file, relativeTo: 'module', owner: scope.name, line });
       else if (value === undefined) facts.unresolved.push({ line, reason: 'dynamic-prompt' });
@@ -557,7 +561,12 @@ export function pythonAgentFacts(text: string): PythonFacts {
                 for (const item of split(tools.slice(1, -1))) {
                   const tool = dotted(item);
                   if (tool) {
-                    facts.toolBindings.push({ node: name, graph, tool: resolveName(tool, scope), line: call.line });
+                    facts.toolBindings.push({
+                      node: name,
+                      graph,
+                      tool: resolveName(tool, scope),
+                      line: call.line,
+                    });
                   } else facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
                 }
               }
@@ -599,11 +608,10 @@ export function pythonAgentFacts(text: string): PythonFacts {
       if (file !== undefined) scope.promptFiles.set(assigned, file);
       if (alias && alias !== named) scope.imports.set(assigned, alias);
       if (graphAlias) scope.graphs.set(assigned, graphAlias);
-      if (
-        !graphAlias && !foundCalls.some((call) =>
-          (PYTHON_SYNTAX_SELECTORS.graph as readonly string[]).includes(resolveName(call.callee, scope)),
-        )
-      ) {
+      const createsGraph = foundCalls.some((call) =>
+        (PYTHON_SYNTAX_SELECTORS.graph as readonly string[]).includes(resolveName(call.callee, scope)),
+      );
+      if (!graphAlias && !createsGraph) {
         scope.graphs.delete(assigned);
       }
     }
