@@ -1,5 +1,5 @@
 import { ANCHOR, GUARDS_DIR, helperFile, ROOT, STANDING, skillFile } from '../layout';
-import { namesFor, plantSkill, writeSettings } from './common';
+import { namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { PlantedEstate, type ScanOutcome } from './planted';
 
@@ -13,7 +13,10 @@ import { PlantedEstate, type ScanOutcome } from './planted';
  * skipped, with the code of why.
  *
  * Not run: a lint check that had no input to read is `not-run` with the code `no-input`, never a pass, and a
- * check with an input ran. An estate with no file at all runs no check.
+ * check with an input ran (the reference checks read the prose parts). An estate with no file at all runs no
+ * check, and a lint is clean only when every check ran: a lint with a check that did not run is never clean.
+ *
+ * Kept out: a file an ignore glob keeps out is skipped by its path.
  *
  * The oracle reads the map's `coverage` and the lint's `outcomes` and `summary`, which are structured fields and
  * codes, never a printed line. A build without one of them fails the item with the field named.
@@ -25,7 +28,7 @@ const LINT = 'packages/estate/src/lint/lint.ts';
 const CAUSE = {
   unknown: 'list the files under the runtime folder no part type covers in the map coverage',
   covered: 'count a file a part type covers or a reference reaches as covered, never unknown',
-  summary: 'never summarise a lint as clean while a file under the runtime folder is unknown',
+  summary: 'never summarise a lint as clean while a file is unknown or a check did not run',
   notRun: 'give a lint check that read no input the outcome not-run, and run a check that has an input',
 } as const;
 
@@ -48,6 +51,8 @@ type Build = {
   owner: string;
   bare: boolean;
   guarded: string[];
+  /** A rule in the standing file, so the rule check has an input and runs. */
+  ruled: boolean;
   /** More lines of the standing file. */
   standing: string[];
 };
@@ -202,6 +207,28 @@ const CASES: Case[] = [
     },
   },
   {
+    key: 'skipped-ignored-file',
+    tier: 2,
+    title: 'a file an ignore glob keeps out is skipped by its path, never unknown, and reads nothing',
+    cause: 'unknown',
+    plant: (b) => {
+      const file = `${ROOT}/node_modules/${name(b, 'package')}/index.js`;
+      b.estate.raw(file, 'module.exports = 1;\n', b.owner);
+      return { unknown: [], skipped: [{ what: file, reason: 'ignored' }] };
+    },
+  },
+  {
+    key: 'not-clean-without-rule',
+    tier: 2,
+    title:
+      'a lint whose rule check had no input is not clean, though every file is covered and nothing was found',
+    cause: 'summary',
+    plant: (b) => {
+      guardNaming(b, []);
+      return { unknown: [], summary: 'checks-not-run', notRun: ['UNENFORCED'] };
+    },
+  },
+  {
     key: 'covered-memory',
     tier: 1,
     title: 'a memory file is covered by its built-in type',
@@ -335,6 +362,7 @@ const CASES: Case[] = [
         ].join('\n'),
         b.owner,
       );
+      b.ruled = true;
       return { unknown: [], summary: 'clean' };
     },
   },
@@ -361,6 +389,7 @@ const CASES: Case[] = [
         ].join('\n'),
         b.owner,
       );
+      b.ruled = true;
       return { unknown: [], summary: 'clean' };
     },
   },
@@ -395,6 +424,7 @@ const CASES: Case[] = [
     cause: 'summary',
     plant: (b) => {
       guardNaming(b, []);
+      b.ruled = true;
       return { unknown: [], summary: 'clean' };
     },
   },
@@ -433,18 +463,18 @@ const CASES: Case[] = [
     cause: 'notRun',
     plant: () => ({
       unknown: [],
-      ran: ['ORPHAN', 'UNREACHABLE', 'OVERSIZE'],
-      notRun: [
-        'UNENFORCED',
-        'UNANCHORED_GUARD',
+      // The reference checks read the prose parts: the standing file is one, so they ran.
+      ran: [
+        'ORPHAN',
+        'UNREACHABLE',
+        'OVERSIZE',
         'MISSING_REFERENCE',
         'UNRESOLVED_REFERENCE',
         'AMBIGUOUS_REFERENCE',
         'EXTERNAL',
-        'MISSING_SCRIPT',
-        'REGISTRY_ROW',
-        'REGISTRY_GUARD',
       ],
+      notRun: ['UNENFORCED', 'UNANCHORED_GUARD', 'MISSING_SCRIPT', 'REGISTRY_ROW', 'REGISTRY_GUARD'],
+      summary: 'checks-not-run',
     }),
   },
   {
@@ -479,13 +509,18 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
     owner: `${family}.${item.key}`,
     bare: false,
     guarded: [],
+    ruled: false,
     standing: [],
   };
   const expected = item.plant(build);
   if (!build.bare) {
-    estate
-      .file(STANDING, 'base')
-      .lines_(['# Planted estate', '', 'Everything here is invented for testing.', ...build.standing]);
+    const standing = estate.file(STANDING, 'base');
+    standing.lines_(['# Planted estate', '', 'Everything here is invented for testing.', ...build.standing]);
+    if (build.ruled) {
+      const line = rule(`${build.owner}:rule`, 'Never delete a record of the ledger.');
+      standing.line('');
+      standing.line(line.text, line.atoms ?? [], line.prose);
+    }
     // A guard named with `!` runs from the anchor with no registry row; the others get a row each.
     const guards = build.guarded.map((entry, index) => {
       const script = entry.replace(/^!/, '');
@@ -538,6 +573,12 @@ function compare(scan: ScanOutcome, expected: Expected): ItemResult {
   else {
     if ((unknown?.length ?? 0) > 0 && lint.summary === 'clean')
       problems.push('the lint is summarised clean while a file is unknown');
+    if (
+      lint.summary === 'clean' &&
+      Array.isArray(lint.outcomes) &&
+      lint.outcomes.some((outcome) => outcome.status === 'not-run')
+    )
+      problems.push('the lint is summarised clean while a check did not run');
     if (expected.summary !== undefined && lint.summary !== expected.summary)
       problems.push(`the lint summary is ${lint.summary}, not ${expected.summary}`);
   }
