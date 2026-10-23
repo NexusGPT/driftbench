@@ -478,7 +478,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   // then the run stops on the error.
   if (unit) load(unit);
   if (steps.error) {
-    text(steps.error);
+    text(failure(steps.error));
     hooks('Stop', undefined, { stop_hook_active: false });
     return { records: out, blocked: true, error: steps.error };
   }
