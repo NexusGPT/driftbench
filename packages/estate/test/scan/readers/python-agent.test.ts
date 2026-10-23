@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -158,6 +158,29 @@ describe('Python RawEstate projection', () => {
     const raw = await new pythonReader.PythonAgentReader().read(root);
     expect(raw.prose.map((chunk) => chunk.text)).toEqual(['Preserve fictional amounts.\n']);
     expect(raw.files.find((file) => file.path === 'unknown.xyz')?.kind).toBe('other');
+  });
+
+  it('skips a prompt link back into an original root even when setup metadata declares it', async () => {
+    const original = await fixture({ 'policy.md': 'Fictional excluded original.\n' });
+    const snapshot = await fixture({
+      'agent.py':
+        'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=Path(__file__).with_name("policy.md").read_text())\n',
+    });
+    await symlink(join(original, 'policy.md'), join(snapshot, 'policy.md'));
+    const runtime = new pythonReader.PythonAgentReader({
+      setupSource: {
+        id: 'python',
+        root: original,
+        reader: 'python-agent',
+        kind: 'directory',
+        provenance: { file: 'driftbench.setup.yaml', path: 'sources[0]' },
+      },
+      snapshotRoots: { python: snapshot },
+    });
+    const raw = await runtime.read(snapshot);
+    expect(raw.prose).toEqual([]);
+    expect(raw.files.map((file) => file.path)).toEqual(['agent.py']);
+    expect(raw.notes).toContainEqual({ file: 'policy.md', message: 'skipped: outside-mapped-roots' });
   });
 
   it('keeps findings after file moves and changes prose after a declared aspect mutation', async () => {
