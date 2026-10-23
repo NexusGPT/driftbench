@@ -13,3 +13,5 @@ A held-out estate for the numeric-limit producer: a fictional veterinary front d
 Fictional data only.
 
 Every unit id in `truth.yaml` is quoted. An unquoted id such as `13438124e4` is a number in the default YAML schema, so a loader would read the wrong value; a quoted id is a string in every schema.
+
+A table of numbers is a number table even when a pointer names one of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its own request. This estate was written before that convention: none of its units is affected. The truth file is not edited.
