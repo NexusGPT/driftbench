@@ -146,6 +146,7 @@ const «hashDigest» = «hashProto».digest;
 const «mapEntries» = Map.prototype.entries;
 const «mapGet» = Map.prototype.get;
 const «mapSet» = Map.prototype.set;
+const «mapDelete» = Map.prototype.delete;
 const «setValues» = Set.prototype.values;
 const «mapNext» = «protoOf»(new Map().entries()).next;
 const «setNext» = «protoOf»(new Set().values()).next;
@@ -595,7 +596,14 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
+    // The exported values are encoded for the caller, and the handles that gives their functions are taken back: run
+    // D's wrapper exports no value and run C encodes none, so a handle given here only would put the handle numbers
+    // of every later answer out of step between the runs (review of PR 986, sonnet-review-c-2). The caller decodes
+    // these values without calling a function in them.
+    const «loadCounter» = «counter»;
+    const «shape» = Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }]));
+    for (; «counter» > «loadCounter»; «counter» -= 1) «call»(«mapDelete», «handles», [«counter»]);
+    «answer»({ ready: true, shape: «shape» });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
   }
