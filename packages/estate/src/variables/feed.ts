@@ -2,7 +2,7 @@ import type { QuoteProvenance, StructureProvenance, VariableStore } from '@agent
 import { TARGET_KINDS } from '../map/space';
 import type { InvariantLimit } from '../scan/invariants';
 import type { Atom, EstateMap } from '../schema';
-import { type Condition, conditionOf } from './condition';
+import { type Condition, conditionsOf } from './condition';
 import type { ProvenanceResolver } from './provenance';
 
 /**
@@ -14,7 +14,7 @@ import type { ProvenanceResolver } from './provenance';
  *   role detail), as the estate map's own dimensions are laid out. Each atom is a value.
  * - One variable per numeric condition an atom carries as a structured field (`condition.<id>`, role detail):
  *   its three values (above the limit, at it, below it) and the boundary between them. A condition comes from
- *   a field and nowhere else (`conditionOf`): no word of a situation or a quote is matched.
+ *   a field and nowhere else (`conditionsOf`): no word of a situation or a quote is matched.
  *
  * Every value stands on where its atom is read from (`provenanceResolver`): the quote and the ledger id of the
  * pointer unit for prose, a JSON pointer and a hash for a JSON or YAML file, a line range and a hash for any
@@ -156,17 +156,17 @@ export function estateToVariables(
   const conditions: Variable[] = [];
   const taken = new Set<string>();
   for (const atom of atoms) {
-    const condition = conditionOf(atom, options.limits);
-    if (condition === undefined) continue;
-    let id = `condition.${slug(condition.base)}`;
-    for (let n = 2; taken.has(id); n++) id = `condition.${slug(condition.base)}_${n}`;
-    const given = sourceOf(atom, resolve);
-    if ('reason' in given) {
-      refused.push({ atom: atom.id, variable: id, reason: given.reason });
-      continue;
+    for (const condition of conditionsOf(atom, options.limits)) {
+      let id = `condition.${slug(condition.base)}`;
+      for (let n = 2; taken.has(id); n++) id = `condition.${slug(condition.base)}_${n}`;
+      const given = sourceOf(atom, resolve);
+      if ('reason' in given) {
+        refused.push({ atom: atom.id, variable: id, reason: given.reason });
+        continue;
+      }
+      taken.add(id);
+      conditions.push(conditionVariable(id, atom, condition, given.entry));
     }
-    taken.add(id);
-    conditions.push(conditionVariable(id, atom, condition, given.entry));
   }
 
   const variables = [

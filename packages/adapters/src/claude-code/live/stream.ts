@@ -236,7 +236,7 @@ export type HookRow = {
  * Guard rows from the stream itself, seen in the first real run with `--include-hook-events`:
  * - a `hook_response` system record (`hook_name` is `<event>:<matcher>` or `<event>`, `exit_code`, `stdout`)
  *   gives a row; the verdict is the `permissionDecision` or `decision` a JSON stdout names, else deny for
- *   exit code 2, allow for 0 and error otherwise;
+ *   exit code 2, allow for 0, warn for another code from 1 to 127 and error otherwise;
  * - a `permission_denied` system record gives `permission:<tool>` with verdict deny.
  * The record names no command, so the row is named by the script of the hook the estate's settings put under
  * that event and matcher (`block-force-push.sh`); several commands under one matcher name the responses in
@@ -332,6 +332,10 @@ function verdictOf(record: Record<string, unknown>): string {
   const code = record.exit_code;
   if (code === 2) return 'deny';
   if (code === 0) return 'allow';
+  // Only exit 2 blocks (the hook contract): a code a hook chose, 1 to 127 other than 2, is a warning, as the unit
+  // runner reads it (docs/estate.md, "another nonzero exit warns"). A hook that died of a signal reports a code past
+  // 127 or a negative one, and a response with no code did not say how it ended: those stay an error.
+  if (typeof code === 'number' && Number.isInteger(code) && code >= 1 && code <= 127) return 'warn';
   return 'error';
 }
 
