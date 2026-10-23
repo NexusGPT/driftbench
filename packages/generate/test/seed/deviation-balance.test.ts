@@ -9,7 +9,7 @@ import { generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
 
 describe('deviation allocation after coverage', () => {
-  it.each([5, 8, 20])(
+  it.each([5, 8, 9, 20])(
     'balances the placed classes on seed %s without dropping coverage',
     async (seed) => {
       const root = await mkdtemp(join(tmpdir(), 'generate-balance-'));
@@ -37,6 +37,21 @@ describe('deviation allocation after coverage', () => {
         expect(
           Math.max(...counts.values()) / Math.min(...counts.values()),
           JSON.stringify([...counts]),
+        ).toBeLessThanOrEqual(3);
+        const stages = new Map<string, number>();
+        const stageAt = loaded.prepared.stage;
+        if (stageAt === undefined) throw new Error('the map has no stage axis');
+        for (const value of space.dimensions[stageAt]?.values ?? [])
+          if (value.id !== 'none') stages.set(value.id, 0);
+        for (const spec of suite.complete)
+          for (const event of placeSpec(space, spec).events)
+            for (const value of event.values[stageAt] ?? []) {
+              const id = space.dimensions[stageAt]?.values[value]?.id ?? '';
+              if (stages.has(id)) stages.set(id, (stages.get(id) ?? 0) + 1);
+            }
+        expect(
+          Math.max(...stages.values()) / Math.min(...stages.values()),
+          JSON.stringify([...stages]),
         ).toBeLessThanOrEqual(3);
         expect(suite.report.coverage.actual.every((level) => level.covered === level.allowed)).toBe(true);
         expect(suite.report.invalid).toEqual([]);
