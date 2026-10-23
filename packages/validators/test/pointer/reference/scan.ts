@@ -9,7 +9,7 @@ import type {
   ScanResult,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
-import { cutText, fingerprintText, sha } from './cut';
+import { cutWithCells, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
 import {
@@ -81,7 +81,7 @@ export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {
   const digests = new Map<string, string>();
   const fileUnits = new Map<string, number[]>();
   for (const file of files) {
-    const cut = cutText(file.text);
+    const { cut, cells } = cutWithCells(file.text);
     digests.set(
       file.path,
       req.cassette?.text?.includes('"readable"')
@@ -104,6 +104,7 @@ export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {
         suffix: file.text.slice(unit.end, unit.end + 24),
         ctxFp: '',
         ...(unit.yamlPath ? { yamlPath: unit.yamlPath } : {}),
+        ...(cells.has(unit.start) ? { cell: cells.get(unit.start) } : {}),
       });
     });
     fileUnits.set(file.path, globals);
@@ -156,6 +157,8 @@ export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {
       labels: base ? JSON.parse(JSON.stringify(base.labels)) : {},
       lineage: base ? [...lineageOf(base)] : [],
       twinOf: null,
+      // the reference keeps a table cell's key in its ledger, to follow the cell through a table edit
+      ...(unit.cell ? { cell: unit.cell } : {}),
     };
     return { entry, base, event: hit ? hit.event : 'new', g };
   });

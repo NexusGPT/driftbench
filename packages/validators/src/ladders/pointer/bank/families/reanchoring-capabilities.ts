@@ -5,7 +5,7 @@ import { build, byId, type EstateFile, liveByText, scanOk } from '../../kit/esta
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { rewordSim, splitParts } from '../../kit/segments';
-import { Prose } from '../../kit/words';
+import { longMake, Prose } from '../../kit/words';
 import type { LedgerEntry, LedgerView } from '../../sut/port';
 import { type ItemContext, type Outcome, pass, type Run } from '../types';
 
@@ -69,6 +69,61 @@ const tableFile = (path: string, header: string[], rows: string[][]): EstateFile
   path,
   blocks: [{ kind: 'table', header, rows } as Block],
 });
+
+/** The live cell `column` places right of the row key `key` in the table of `path`, by offset. */
+function rowCell(ledger: LedgerView, path: string, key: string, column: number): LedgerEntry | undefined {
+  const cells = ledger.entries
+    .filter((e) => e.status === 'live' && e.path === path && e.container === 'table_cell')
+    .sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0));
+  const at = cells.findIndex((e) => norm(e.quote) === norm(key));
+  return at < 0 ? undefined : cells[at + column];
+}
+
+/** A long cell text: unique, and above any length floor. */
+const longCell = (p: Prose) => p.next(longMake).replace(/\.$/, '');
+
+/**
+ * A table of long row keys and a short, repeated `Done` column. Scans `before`, takes the id of each `Done` cell by
+ * its place in the first ledger, rescans `after`, and lets `want` judge the ids in the second ledger.
+ */
+async function rescanShortCells(
+  ctx: ItemContext,
+  rule: string,
+  before: EstateFile,
+  after: EstateFile,
+  keys: readonly string[],
+  want: (ids: string[], second: LedgerView) => boolean,
+  planted: unknown,
+): Promise<Outcome> {
+  const labeler = perfect();
+  const first = await scanOk(ctx.sut, { files: build([before]).files, labeler });
+  const ids = keys.map((key) => rowCell(first.ledger, before.path, key, 1)?.id);
+  const second = await scanOk(ctx.sut, {
+    files: build([after]).files,
+    previousLedger: first.ledger.raw,
+    labeler,
+  });
+  const known = ids.filter((id): id is string => id !== undefined);
+  if (known.length !== keys.length || !want(known, second.ledger))
+    throw new ItemFailure({
+      item: ctx.id,
+      rule,
+      input: { before: build([before]).files, after: build([after]).files },
+      got: ids.map((id) => {
+        const entry = id === undefined ? undefined : byId(second.ledger, id);
+        return {
+          id: id ?? '',
+          quote: entry?.quote ?? '',
+          status: entry?.status ?? 'missing',
+          hint: entry?.hint,
+        };
+      }),
+      expected: planted,
+    });
+  return pass(`${keys.length} short cells followed`);
+}
+
+const DONE = ['Yes', 'No', 'Yes', 'No'];
 
 export const reanchoringCapabilityRuns: Record<string, Run> = {
   'cross-file-move-reword': async (ctx) => {
@@ -184,6 +239,59 @@ export const reanchoringCapabilityRuns: Record<string, Run> = {
       cells,
       (fates) => fates.every((f, i) => f.status === 'live' && norm(f.quote) === norm(cells[i] as string)),
       cells,
+    );
+  },
+  'table-cell-text-follows': async (ctx) => {
+    const p = prose(ctx);
+    const rows = Array.from({ length: 4 }, (_, i) => [`S${i + 1}`, longCell(p)]);
+    const moved = [rows[2], rows[0], rows[3], rows[1]] as string[][];
+    const cells = rows.map((r) => r[1] as string);
+    return rescan(
+      ctx,
+      'table rows moved and a column header renamed',
+      [tableFile('notes/table.md', ['Step', 'Rule'], rows)],
+      [tableFile('notes/table.md', ['Step', 'Policy'], moved)],
+      cells,
+      (fates) => fates.every((f, i) => f.status === 'live' && norm(f.quote) === norm(cells[i] as string)),
+      cells,
+    );
+  },
+  'table-cell-key-follows': async (ctx) => {
+    const p = prose(ctx);
+    const keys = DONE.map(() => longCell(p));
+    const owners = ['Ana', 'Ben', 'Cy', 'Di'];
+    const rows = keys.map((key, i) => [key, DONE[i] as string]);
+    const after = [3, 2, 1, 0].map((i) => [keys[i] as string, owners[i] as string, DONE[i] as string]);
+    return rescanShortCells(
+      ctx,
+      'table rows moved and a column inserted, short cells repeated',
+      tableFile('notes/table.md', ['Step', 'Done'], rows),
+      tableFile('notes/table.md', ['Step', 'Owner', 'Done'], after),
+      keys,
+      (ids, second) => keys.every((key, i) => rowCell(second, 'notes/table.md', key, 2)?.id === ids[i]),
+      keys.map((key, i) => ({ row: key, column: 'Done', quote: DONE[i] })),
+    );
+  },
+  'table-cell-new-id': async (ctx) => {
+    const p = prose(ctx);
+    const keys = DONE.map(() => longCell(p));
+    const renamed = DONE.map(() => longCell(p));
+    return rescanShortCells(
+      ctx,
+      'every row key of a table rewritten, short cells repeated',
+      tableFile(
+        'notes/table.md',
+        ['Step', 'Done'],
+        keys.map((key, i) => [key, DONE[i] as string]),
+      ),
+      tableFile(
+        'notes/table.md',
+        ['Step', 'Done'],
+        renamed.map((key, i) => [key, DONE[i] as string]),
+      ),
+      keys,
+      (ids, second) => ids.every((id) => byId(second, id)?.status !== 'live'),
+      DONE.map(() => 'a new id'),
     );
   },
 };
