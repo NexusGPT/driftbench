@@ -212,8 +212,9 @@ describe('approved stage allocation', () => {
     let rounds = 0;
     const drafts: unknown[] = [];
     const classes = {
-      *topUps() {
+      topUps() {
         rounds += 1;
+        return [][Symbol.iterator]() as Generator<never>;
       },
     };
     for (const draft of balance.rounds(context, () => written, classes)) {
