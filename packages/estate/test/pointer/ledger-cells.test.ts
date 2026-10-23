@@ -114,4 +114,50 @@ describe('a table cell in the cutter and the ledger', () => {
       current.ledger.entries.map((entry) => entry.id).sort(),
     );
   });
+
+  it('keeps the id of a short cell whose text became a long unique one, at the same row key and column header', () => {
+    const before = scan(
+      `${table([
+        [LONG_A, 'Yes'],
+        [LONG_B, 'No'],
+      ])}\n`,
+    );
+    const id = idOf(before.ledger, 'Yes');
+    const longer = 'Calibration completed successfully and signed off by the harbour master';
+    const after = scan(
+      `${table([
+        [LONG_A, longer],
+        [LONG_B, 'No'],
+      ])}\n`,
+      before.ledger,
+    );
+    expect(after.ledger.entries.find((entry) => entry.id === id)).toMatchObject({
+      status: 'live',
+      quote: longer,
+      cell: { row: LONG_A, column: 'Done' },
+    });
+    expect(after.eventsById[id]).toBe('changed');
+  });
+
+  it('keeps the id of the surviving cell when two rows shared a long status and one row is removed', () => {
+    const status = 'Calibration completed successfully and signed off by the harbour master';
+    const before = scan(
+      `${table([
+        [LONG_A, status],
+        [LONG_B, status],
+      ])}\n`,
+    );
+    const survivor = before.ledger.entries.find(
+      (entry) => entry.status === 'live' && entry.quote === status && entry.cell?.row === LONG_B,
+    )?.id as string;
+    const gone = before.ledger.entries.find(
+      (entry) => entry.status === 'live' && entry.quote === status && entry.cell?.row === LONG_A,
+    )?.id as string;
+    const after = scan(`${table([[LONG_B, status]])}\n`, before.ledger);
+    expect(after.ledger.entries.find((entry) => entry.id === survivor)).toMatchObject({
+      status: 'live',
+      cell: { row: LONG_B, column: 'Done' },
+    });
+    expect(after.eventsById[gone]).toBe('deleted');
+  });
 });

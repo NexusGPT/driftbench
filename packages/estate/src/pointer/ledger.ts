@@ -291,34 +291,36 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
     (item) => flat(item).quote.length,
   );
   const barred = new Set<LedgerEntry>(oldKeyed);
-  // Step 0: a keyed cell keeps its id when exactly one keyed new cell of its file has its row key and column header.
+  // Step 0: a keyed cell keeps its id when exactly one new cell of its file has its row key and column header, and no
+  // other old keyed cell has them: whatever the new cell's text, long or short, unique or repeated. A new cell whose
+  // text is the text of an old long unique cell is that cell's by text and is left to it.
   {
     const place = (row: string, column: string, path: string) => `${path}\0${row}\0${column}`;
+    const byText = new Set(
+      old.filter((entry) => entry.cell && !oldKeyed.has(entry)).map((entry) => `${entry.path}\0${entry.fp}`),
+    );
     const holders = new Map<string, Fresh[]>();
-    for (const item of freshKeyed) {
+    for (const item of fresh) {
       const cell = item.unit.cell;
-      if (cell?.column)
-        holders.set(place(cell.row, cell.column, item.path), [
-          ...(holders.get(place(cell.row, cell.column, item.path)) ?? []),
-          item,
-        ]);
+      if (!cell?.column || byText.has(`${item.path}\0${item.unit.fp}`)) continue;
+      const key = place(cell.row, cell.column, item.path);
+      holders.set(key, [...(holders.get(key) ?? []), item]);
     }
     const claimed = new Map<string, number>();
     for (const entry of oldKeyed) {
       const cell = entry.cell;
-      if (cell?.column)
-        claimed.set(
-          place(cell.row, cell.column, entry.path),
-          (claimed.get(place(cell.row, cell.column, entry.path)) ?? 0) + 1,
-        );
+      if (cell?.column) {
+        const key = place(cell.row, cell.column, entry.path);
+        claimed.set(key, (claimed.get(key) ?? 0) + 1);
+      }
     }
     for (const entry of oldKeyed) {
       const cell = entry.cell;
       if (!cell?.column) continue;
-      const found = holders.get(place(cell.row, cell.column, entry.path)) ?? [];
+      const key = place(cell.row, cell.column, entry.path);
+      const found = holders.get(key) ?? [];
       const only = found[0];
-      if (found.length !== 1 || !only || claimed.get(place(cell.row, cell.column, entry.path)) !== 1)
-        continue;
+      if (found.length !== 1 || !only || claimed.get(key) !== 1) continue;
       const same = only.unit.fp === entry.fp;
       result.set(entry.id, {
         event: same ? (only.index === entry.index ? 'unchanged' : 'moved') : 'changed',
