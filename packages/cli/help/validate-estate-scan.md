@@ -136,11 +136,20 @@ No word list and no grammar rule decides what is a rule.
   how many the cassette already answers, and the characters left to send. The report ends with the tokens
   each service reported.
 * `--plan-only` prints that plan for every pass and stops, so a newcomer sizes the bill before paying it: per
-  labeler the requests, those the cassette answers, those left to send and their characters, then the total
-  of requests and about how many input tokens they hold (3.1 characters per token for a system 2 labeler, 3.85
-  for a system 1 labeler, measured on the fixture). With `--prices` it prints the input cost in USD; output
-  tokens are not estimated. When the document-roles pass has requests to record, the prose pass is sized
-  without the roles it would record, so the plan is an upper bound.
+  labeler the requests, those the cassette answers, those left to send and their characters. The total reads
+  `between LOW and HIGH requests; the plan expects N`, with about how many input tokens the N hold (3.1 characters
+  per token for a system 2 labeler, 3.85 for a system 1 labeler, measured on the fixture). With `--prices` it
+  prints the input cost of the N in USD; output tokens are not estimated. N is exact when nothing fails. For a scan
+  that runs to its end, the calls it makes never fall under LOW and never rise over HIGH:
+  * LOW leaves out the requests of a stack's second labeler for a window the first labeler decides alone, which
+    happens only for a set whose labels carry no target, span or link.
+  * HIGH counts every way a call adds calls: an answer that cannot be read is sent a second time; a window the
+    endpoint refuses as too large is halved, each half asked and halved in turn, down to one unit; a run that
+    drifts from its units is asked again, up to 3 times for each window the halving can leave, and a re-ask is
+    resolved the same way; from four runs, runs that tie two and two are asked again, up to 2 times for the window.
+    Re-asks of a window the cassette already answers count too, since a cached answer can drift or tie.
+  When the document-roles pass has requests to record, the prose pass is sized without the roles it would record,
+  so the plan is an upper bound.
 * A replay that lacks answers stops before the first request with exit 2, and the message gives the total:
   how many of the requests of the pass have no answer, and the characters to record.
 

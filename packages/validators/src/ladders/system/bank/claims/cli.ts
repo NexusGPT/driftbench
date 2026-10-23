@@ -2588,12 +2588,72 @@ async function withoutModels<T>(body: () => Promise<T>): Promise<{ value: T; cal
   }
 }
 
+type PlanShape = {
+  label?: string;
+  files: number;
+  members: Array<{ windows: number; cached: number; missing: number }>;
+};
+type PlanRange = { low: number; expected: number; high: number };
+
+/**
+ * The structured plans of a plan-only scan of the fixture with an empty cassette, with every model key unset and the
+ * network blocked: the scan is driven through the library, so a claim reads the plans and not the text the command
+ * prints. `message` is empty when the scan stopped at the plan, as a plan alone must.
+ */
+async function fixturePlans(ctx: { root: string; dir: string }) {
+  const { openPointer } = (await import('../../../../../../cli/src/commands/estate-pointer')) as unknown as {
+    openPointer: (
+      options: Record<string, unknown>,
+      io: unknown,
+      env: Record<string, string | undefined>,
+      fetch: unknown,
+      root: string,
+    ) => Promise<{ scan: unknown; plans: PlanShape[] } | undefined>;
+  };
+  const estate = (await import('../../../../../../estate/src/index')) as unknown as {
+    scanEstate: (input: Record<string, unknown>) => Promise<unknown>;
+    readerFor: (runtime: string, options: Record<string, unknown>) => unknown;
+    pointer: {
+      PointerPlanOnly: new (...args: never[]) => Error;
+      requestRange: (plan: PlanShape) => PlanRange;
+    };
+  };
+  const root = join(ctx.root, 'examples/estates/fixture');
+  const io = { cwd: ctx.dir, out: () => undefined, err: () => undefined };
+  let message = '';
+  const { value: plans, calls } = await withoutModels(async () => {
+    // An empty cassette answers nothing, so every request of every pass is one to send.
+    const handle = await openPointer(
+      { pointer: true, planOnly: true, cassette: join(ctx.dir, 'none.jsonl') },
+      io,
+      {},
+      async () => {
+        throw new Error('the network is blocked in this claim');
+      },
+      root,
+    );
+    if (!handle) return [] as PlanShape[];
+    try {
+      await estate.scanEstate({
+        root,
+        reader: estate.readerFor('claude-code', { ignore: [] }),
+        pointer: handle.scan,
+      });
+      message = 'the scan went on past the plan';
+    } catch (cause) {
+      if (!(cause instanceof estate.pointer.PointerPlanOnly)) message = String(cause);
+    }
+    return handle.plans;
+  });
+  return { plans, calls, message, range: estate.pointer.requestRange };
+}
+
 add({
   slug: 'estate/scan-plan-only',
   tier: 2,
   component: ESTATE_CMD,
   title:
-    'estate scan --pointer --plan-only prints the requests, characters and cost plan and exits 0 and writes no map, with every model key unset and the network blocked (cli.md estate scan)',
+    'estate scan --pointer --plan-only exits 0 and writes no map, and its plan holds a range of requests to send, with every model key unset and the network blocked (cli.md estate scan)',
   cause: 'estate scan --plan-only sizes the pointer run without a key, a request or a file.',
   async run(ctx) {
     const { value: result, calls } = await withoutModels(() =>
@@ -2602,12 +2662,19 @@ add({
         ctx.dir,
       ),
     );
+    const planned = await fixturePlans(ctx);
+    const ranges = planned.plans.map((plan) => planned.range(plan));
     return expectAll([
       [result.code === 0, `expected exit 0 with no key and no network; ${shown(result)}`],
       [calls === 0, `expected no request to leave, ${calls} did`],
-      [result.out.includes('Pointer plan'), `expected a plan; ${shown(result)}`],
-      [result.out.includes('To send: between'), `expected a range of requests to send; ${shown(result)}`],
       [!existsSync(join(ctx.dir, 'map.yaml')), 'expected no map file'],
+      [planned.message === '', `the scan did not stop at the plan: ${planned.message}`],
+      [planned.calls === 0, `expected the library scan to send no request, ${planned.calls} left`],
+      [
+        planned.plans.length > 0 && ranges.every((r) => r.low <= r.expected && r.expected <= r.high),
+        `expected every plan to hold low <= expected <= high; ${JSON.stringify(ranges)}`,
+      ],
+      [ranges.some((r) => r.expected > 0), 'expected requests to send on an empty cassette'],
     ]);
   },
 });
@@ -2620,60 +2687,12 @@ add({
     'estate scan --pointer --plan-only counts the document-roles pass and the prose pass, and its range holds the requests of both (cli.md estate scan)',
   cause: 'the priced plan counts every pass the scan would send, the document-roles pass included.',
   async run(ctx) {
-    const { openPointer } = (await import(
-      '../../../../../../cli/src/commands/estate-pointer'
-    )) as unknown as {
-      openPointer: (
-        options: Record<string, unknown>,
-        io: unknown,
-        env: Record<string, string | undefined>,
-        fetch: unknown,
-        root: string,
-      ) => Promise<{ scan: unknown; plans: PlanShape[] } | undefined>;
-    };
-    const estate = (await import('../../../../../../estate/src/index')) as unknown as {
-      scanEstate: (input: Record<string, unknown>) => Promise<unknown>;
-      readerFor: (runtime: string, options: Record<string, unknown>) => unknown;
-      pointer: { PointerPlanOnly: new (...args: never[]) => Error; requestRange: (plan: PlanShape) => Range };
-    };
-    type Range = { low: number; expected: number; high: number };
-    type PlanShape = {
-      label?: string;
-      files: number;
-      members: Array<{ windows: number; cached: number; missing: number }>;
-    };
-    const root = join(ctx.root, 'examples/estates/fixture');
-    const io = { cwd: ctx.dir, out: () => undefined, err: () => undefined };
-    let message = '';
-    const { value: plans, calls } = await withoutModels(async () => {
-      // An empty cassette answers nothing, so every request of every pass is one to send.
-      const handle = await openPointer(
-        { pointer: true, planOnly: true, cassette: join(ctx.dir, 'none.jsonl') },
-        io,
-        {},
-        async () => {
-          throw new Error('the network is blocked in this claim');
-        },
-        root,
-      );
-      if (!handle) return [] as PlanShape[];
-      try {
-        await estate.scanEstate({
-          root,
-          reader: estate.readerFor('claude-code', { ignore: [] }),
-          pointer: handle.scan,
-        });
-        message = 'the scan went on past the plan';
-      } catch (cause) {
-        if (!(cause instanceof estate.pointer.PointerPlanOnly)) message = String(cause);
-      }
-      return handle.plans;
-    });
+    const { plans, calls, message, range } = await fixturePlans(ctx);
     const roles = plans.find((plan) => plan.label === 'document roles');
     const prose = plans.find((plan) => plan.label === undefined || plan.label === 'prose');
     const lacking = (plan?: PlanShape) =>
       (plan?.members ?? []).reduce((total, member) => total + member.windows - member.cached, 0);
-    const total = plans.reduce((sum, plan) => sum + estate.pointer.requestRange(plan).expected, 0);
+    const total = plans.reduce((sum, plan) => sum + range(plan).expected, 0);
     return expectAll([
       [message === '', `the scan did not stop at the plan: ${message}`],
       [calls === 0, `expected no request to leave, ${calls} did`],

@@ -556,30 +556,30 @@ describe('the range of requests a plan can send', () => {
     }
   });
 
-  it('adds splits for the units of each window beyond the first, and re-asks only for a labeler with several runs', async () => {
-    for (const shape of shapes) {
+  it('is, for a single run, what resolving each window whole takes: a tree of halvings, two calls a node', async () => {
+    // Written from the rule, not from the plan: a window of n units that is refused as too large splits in halves down
+    // to one unit, 2n - 1 windows in all, and each is asked at most twice.
+    for (const shape of shapes.filter((each) => each.runs === 1 && !each.stack)) {
       const plan = await planned(shape, new Cassette());
-      for (const member of plan.members) {
-        // From the cut alone: a chat labeler's window may run on to the end of its section, a yes or no one's may not.
-        const keepSection = member.cls === 'system2';
-        const runs = member.cls === 'system2' ? shape.runs : 1;
-        let beyondFirst = 0;
-        for (const file of FILES)
-          for (const _set of load(SETS))
-            for (const window of windowsOf(
-              file.path,
-              cut(file.text).units,
-              shape.windowUnits,
-              file.text,
-              keepSection,
-            ))
-              beyondFirst += (window.units.length - 1) * runs;
-        expect(member.splitMax, JSON.stringify(shape)).toBe(beyondFirst);
-        expect(member.rerunWindows > 0, JSON.stringify(shape)).toBe(
-          member.cls === 'system2' && shape.runs > 1,
-        );
-      }
+      let wanted = 0;
+      for (const file of FILES)
+        for (const _set of load(SETS))
+          for (const window of windowsOf(file.path, cut(file.text).units, shape.windowUnits, file.text, true))
+            wanted += 2 * (2 * window.units.length - 1);
+      expect(requestRange(plan).high, JSON.stringify(shape)).toBe(wanted);
     }
+  });
+
+  it('adds the re-asks of a window only for a labeler with several runs, and the tie re-asks from four runs', async () => {
+    const at = (runs: number) => planned({ windowUnits: 3, runs, stack: false }, new Cassette());
+    const single = requestRange(await at(1)).high;
+    const three = requestRange(await at(3)).high;
+    const four = requestRange(await at(4)).high;
+    // Each run asks the window whole: three runs and four runs add their own copies, and the re-asks come on top.
+    expect(three).toBeGreaterThan(3 * single);
+    expect(four).toBeGreaterThan(4 * single);
+    // From four runs two labels can tie two and two, so a window can be asked again for the tie as well.
+    expect(four - 4 * single).toBeGreaterThan(three - 3 * single);
   });
 
   it('is the same whatever the order of the files, and falls to zero once the cassette answers everything', async () => {

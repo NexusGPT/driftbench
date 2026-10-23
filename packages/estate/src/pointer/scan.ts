@@ -92,22 +92,35 @@ export type MemberPlan = {
   missing: number;
   /** Of those, the requests a stack's first labeler could make unnecessary by deciding every unit of the window alone. */
   skippable: number;
-  /** The most requests the refusals of too-large windows can add: each missing window halved down to one unit. */
-  splitMax: number;
-  /** Distinct missing windows of a labeler with several runs: each can be asked again when a run slips or ties. */
-  rerunWindows: number;
+  /**
+   * The most calls this labeler can make in a run that ends, over the failures it can meet: the requests above that
+   * the cassette lacks, a cached refusal as too large (its halves), and the re-asks of a window whose runs slip or tie.
+   */
+  high: number;
 };
 
-/** The most re-asks of one window: runs that slip (REASK_LIMIT) and ties between labels (SPLIT_REASK_RUNS). */
-const MAX_REASKS = 5;
-/** The most sends of one request: the first, and one more after an answer that cannot be read. */
+/** The most calls one request takes: the first, and one more after an answer that cannot be read or is refused. */
 const MAX_SENDS = 2;
+/** The runs a labeler needs for two labels to tie two and two. */
+const TIE_RUNS = 4;
+
+/** The sizes of the nodes of the tree a window of `units` units can split into when it is refused as too large, halved down to one unit. */
+function nodeSizes(units: number): number[] {
+  if (units <= 1) return [units];
+  const first = Math.ceil(units / 2);
+  return [units, ...nodeSizes(first), ...nodeSizes(units - first)];
+}
+
+/** The most calls that resolving a window takes: each node of its tree asked, and each asked twice. */
+const resolveCalls = (units: number): number => MAX_SENDS * nodeSizes(units).length;
 
 /**
- * How many requests a run can send, from the structure of the plan alone. `expected` is the requests the cassette
- * does not answer. `low` leaves out those a stack's first labeler can make unnecessary. `high` adds the requests a
- * refusal of a too-large window adds, the re-asks of a window whose runs slip or tie, and one more send of a request
- * whose answer cannot be read.
+ * How many calls a run can make, from the structure of the plan alone, for a run that ends. `expected` is the
+ * requests the cassette does not answer: exact when nothing fails. `low` leaves out those a stack's first labeler can
+ * make unnecessary. `high` adds every way a call can add calls: an answer that cannot be read is sent a second time,
+ * a window refused as too large is halved, each half asked and halved in turn, a run that drifts from its units is
+ * asked again (REASK_LIMIT times for each window the halving can leave), and runs that tie are asked again
+ * (SPLIT_REASK_RUNS times for the window). A re-ask is itself resolved, so it can be halved too.
  */
 export function requestRange(plan: PointerPlan): { low: number; expected: number; high: number } {
   const sum = (pick: (member: MemberPlan) => number) =>
@@ -116,7 +129,7 @@ export function requestRange(plan: PointerPlan): { low: number; expected: number
   return {
     low: expected - sum((member) => member.skippable),
     expected,
-    high: MAX_SENDS * sum((member) => member.missing + member.splitMax + MAX_REASKS * member.rerunWindows),
+    high: sum((member) => member.high),
   };
 }
 
@@ -528,29 +541,55 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       characters: 0,
       missing: 0,
       skippable: 0,
-      splitMax: 0,
-      rerunWindows: 0,
+      high: 0,
     })),
   };
   let firstMiss: Task | undefined;
   const cascaded = labelling.members.length === 2 && labelling.members[0]?.cls === 'system1';
-  const rerunSeen = new Set<string>();
+  /** The runs of one window of one labeler on one file and set, which the re-asks of a window share. */
+  const groups = new Map<
+    string,
+    { memberAt: number; units: number; runs: number; missing: number; refused: number; drifted: boolean }
+  >();
   for (const task of tasks) {
     const wire = task.member.render(task.set, task.window, task.context);
     const entry = plan.members[task.memberAt] as MemberPlan;
     entry.windows++;
-    if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
-    else {
+    const key = requestKey(wire, readableFor(task, task.window));
+    const where = `${task.memberAt}\0${task.file}\0${task.set.set}\0${task.window.id}`;
+    const group = groups.get(where) ?? {
+      memberAt: task.memberAt,
+      units: task.window.units.length,
+      runs: task.member.runs ?? 1,
+      missing: 0,
+      refused: 0,
+      drifted: false,
+    };
+    groups.set(where, group);
+    const cached = cassette.entries.get(key);
+    if (cached) {
+      entry.cached++;
+      if (cached.answer.refused === 'too_large') group.refused++;
+      if (group.runs > 1 && outOfStep(cached.answer)) group.drifted = true;
+    } else {
       entry.characters += JSON.stringify(wire.body).length;
       entry.missing++;
-      entry.splitMax += Math.max(0, task.window.units.length - 1);
+      group.missing++;
       if (cascaded && task.memberAt === 1 && askableWhole(task.set)) entry.skippable++;
-      const where = `${task.memberAt}\0${task.file}\0${task.set.set}\0${task.window.id}`;
-      if ((task.member.runs ?? 1) > 1 && !rerunSeen.has(where)) {
-        rerunSeen.add(where);
-        entry.rerunWindows++;
-      }
       firstMiss ??= task;
+    }
+  }
+  for (const group of groups.values()) {
+    const entry = plan.members[group.memberAt] as MemberPlan;
+    // Each missing run is resolved whole; a cached refusal as too large leaves its halves to ask.
+    entry.high += group.missing * resolveCalls(group.units);
+    entry.high += group.refused * (resolveCalls(group.units) - MAX_SENDS);
+    if (group.runs > 1) {
+      // A run that drifts is asked again for each window the halving can leave, and the re-ask is resolved in turn.
+      if (group.missing > 0 || group.refused > 0 || group.drifted)
+        entry.high +=
+          REASK_LIMIT * nodeSizes(group.units).reduce((total, size) => total + resolveCalls(size), 0);
+      if (group.runs >= TIE_RUNS) entry.high += SPLIT_REASK_RUNS * resolveCalls(group.units);
     }
   }
   input.onPlan?.(plan);
