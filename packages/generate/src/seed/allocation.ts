@@ -28,9 +28,15 @@ function deficit(counts: Iterable<number>): number {
  * No stage, deviation class or behaviour is placed fewer than a third as often as the most placed value of
  * its stratum. The allocation is generation-local: it reads only the suite written so far.
  */
-/** The most rounds of allocation top-ups, and the most rounds in a row that may reach no new low of the imbalance. */
+/**
+ * The most rounds of allocation top-ups, and how far the rounds may grow the suite without reaching a new low of the
+ * imbalance: the specs they add since the lowest imbalance may not exceed `MAX_GROWTH` times the specs the suite
+ * held when it was there. A map whose strata cannot be balanced (a class that every added walk probes more often than
+ * the class that falls behind) only rises, and each round is hundreds of specs for nothing; a map that does balance
+ * reaches a new low within a few rounds, or loses a few specs a round while it plateaus.
+ */
 export const MAX_ROUNDS = 40;
-export const MAX_STALLED = 8;
+export const MAX_GROWTH = 1;
 
 export class Allocation {
   private stageSerial = 0;
@@ -354,10 +360,11 @@ export class Allocation {
     classes: Pick<DeviationBalance, 'topUps'>,
   ): Generator<SpecDraft> {
     // A fill can undo another (a probe for a class crosses stages), so the rounds go on until nothing is left to
-    // balance. They stop when a round writes nothing, or when MAX_STALLED rounds in a row reach no new low of the
-    // imbalance, or after MAX_ROUNDS rounds: a map whose strata cannot be balanced is cut, not grown without end.
+    // balance. They stop when a round writes nothing, after MAX_ROUNDS rounds, or when the rounds since the lowest
+    // imbalance have added more specs than the suite held there (MAX_GROWTH): a map whose strata cannot be balanced is
+    // cut, not grown without end.
     let best = this.imbalance();
-    let stalled = 0;
+    let heldAtBest = written();
     for (let round = 0; round < MAX_ROUNDS && this.imbalance() > 0; round += 1) {
       const before = written();
       yield* this.stageTopUps(context, before);
@@ -367,11 +374,8 @@ export class Allocation {
       const now = this.imbalance();
       if (now < best) {
         best = now;
-        stalled = 0;
-      } else {
-        stalled += 1;
-        if (stalled >= MAX_STALLED) break;
-      }
+        heldAtBest = written();
+      } else if (written() - heldAtBest > MAX_GROWTH * heldAtBest) break;
     }
   }
 }
