@@ -64,5 +64,6 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
     '*~',
     '.idea',
   ],
-  ignoreFiles: [],
+  // Files a person keeps out of version control are kept out of the estate too.
+  ignoreFiles: ['.gitignore'],
 };
