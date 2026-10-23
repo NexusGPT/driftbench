@@ -86,7 +86,7 @@ async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setu
   for (const path of profile?.configFiles ?? []) {
     const absolute = join(source.root, path);
     const real = await realpath(absolute).catch(() => undefined);
-    if (!real || !inside(canonical, real) || setup.privacy.exclude.some((pattern) => matches(pattern, path))) continue;
+    if (!real || !inside(canonical, real) || setup.privacy.exclude.some((pattern) => matches(pattern, path)) || setup.scope.exclude.some((pattern) => matches(pattern, path)) || !setup.scope.include.some((pattern) => matches(pattern, path)) || (await stat(absolute)).size > 1024 * 1024) continue;
     try {
       const value: unknown = parseYaml(await readFile(absolute, 'utf8'), { uniqueKeys: true });
       if (value && typeof value === 'object' && 'ignore' in value && Array.isArray(value.ignore) && value.ignore.every((entry) => typeof entry === 'string')) ignorePatterns.push(...value.ignore);
@@ -165,7 +165,29 @@ async function snapshotReads(sources: ResolvedSetupSource[], disks: Disk[], setu
         if (!targetRoot) continue;
         const destination = join(snapshotRoots[source.id] as string, link.path);
         await mkdir(dirname(destination), { recursive: true });
-        await symlink(join(targetRoot, link.target), destination);
+        const targetIndex = sources.findIndex((entry) => entry.id === link.source);
+        const targetDisk = disks[targetIndex];
+        const candidates = (targetDisk?.files ?? []).flatMap((file) => {
+          const inner = file.path === link.target ? '' : pathWithin(link.target || '.', file.path);
+          return inner === undefined ? [] : [{ file, inner, alias: inner ? `${link.path}/${inner}` : link.path }];
+        });
+        const reasonFor = (path: string) => setup.privacy.exclude.some((pattern) => matches(pattern, path)) ? 'privacy' : setup.scope.exclude.some((pattern) => matches(pattern, path)) || !setup.scope.include.some((pattern) => matches(pattern, path)) ? 'scope' : undefined;
+        const nested = (targetDisk?.links ?? []).filter((entry) => pathWithin(link.target || '.', entry.path) !== undefined);
+        const needsProjection = candidates.some((entry) => reasonFor(entry.alias)) || (nested.length > 0 && (setup.privacy.exclude.length > 0 || setup.scope.exclude.length > 0 || !setup.scope.include.includes('**')));
+        if (needsProjection) {
+          const view = join(temporary, 'views', source.id, String(index), String((disks[index]?.links ?? []).indexOf(link)));
+          await mkdir(view, { recursive: true });
+          for (const entry of candidates) {
+            const reason = reasonFor(entry.alias);
+            if (reason) { skipped.push({ what: `${source.id}:${entry.alias}`, reason }); continue; }
+            const copy = join(view, entry.inner);
+            if (!entry.inner) { skipped.push({ what: `${source.id}:${entry.alias}`, reason: 'filtered file link' }); continue; }
+            await mkdir(dirname(copy), { recursive: true });
+            await writeFile(copy, await readFile(join(targetRoot, entry.file.path)));
+          }
+          for (const entry of nested) skipped.push({ what: `${source.id}:${link.path}/${entry.path}`, reason: 'nested link in filtered deployment' });
+          await symlink(view, destination);
+        } else await symlink(join(targetRoot, link.target), destination);
       }
     }
     const results: Array<SetupRead | undefined> = [];
