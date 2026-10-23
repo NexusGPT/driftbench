@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { hiddenSpec } from '../../src/ladders/generator/hidden';
-import { impossiblePairs, jointlyPossible } from '../../src/ladders/generator/possible';
+import { cellText, impossiblePairs, jointlyPossible } from '../../src/ladders/generator/possible';
 
 /**
  * A partial cell is allowed only when an allowed full cell holds it (the definition of an allowed t-tuple in
@@ -42,16 +42,14 @@ describe('the joint witness completes the behaviour axis', () => {
   });
 
   it('lists the refused pairs among the impossible pairs of the map', () => {
-    const texts = impossiblePairs(hidden).map(({ forbid }) => JSON.stringify(Object.entries(forbid).sort()));
-    expect(texts).toContain(JSON.stringify([['channel', 'messaging'], ['stage', 'done']]));
+    const texts = impossiblePairs(hidden).map(({ forbid }) => cellText(forbid));
+    expect(texts).toContain('channel=messaging stage=done');
   });
 
   it('refuses the same shape on other hidden maps (seeds 5 and 8)', () => {
-    const five = hiddenSpec(5);
-    expect(jointlyPossible(five, { deviation: 'D10_return', channel: 'messaging', stage: 'intake' })).toBe(false);
-    const eight = hiddenSpec(8);
-    expect(jointlyPossible(eight, { deviation: 'D9_out_of_scope', channel: 'messaging', stage: 'opening' })).toBe(
-      false,
-    );
+    const intake = { deviation: 'D10_return', channel: 'messaging', stage: 'intake' };
+    expect(jointlyPossible(hiddenSpec(5), intake)).toBe(false);
+    const opening = { deviation: 'D9_out_of_scope', channel: 'messaging', stage: 'opening' };
+    expect(jointlyPossible(hiddenSpec(8), opening)).toBe(false);
   });
 });
