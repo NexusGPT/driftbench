@@ -47,8 +47,8 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--settings <file>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--settings <file>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 ```
@@ -66,6 +66,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
 | `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; no home folder is read without it; a project skill wins a name clash |
+| `--settings <file>` | none | read this rendered copy of `.claude/settings.json` for an estate whose settings are generated at install time and so are not stored; refused (exit 2) when the estate holds its own |
 | `--force` | off | replace an existing map; the approvals in it are lost |
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
@@ -203,6 +204,7 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, as the scan did; repeat it |
 | `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
+| `--settings <file>` | none | read the rendered copy of the settings from this file, as the scan did; a map that records one needs it (exit 2 without) |
 
 `estate approve`:
 
@@ -272,6 +274,12 @@ had already read, the ignored files, the orphans, the files unreachable from the
 rules no guard enforces, and a `Next:` line. Exit 0 written; 1 written, but a prose chunk failed or an atom
 was refused; 2 nothing written.
 
+Before it reads, `estate scan` looks at the root. A root with no `CLAUDE.md`, no `.claude/` folder and no
+settings file prints a warning, still writes the map, and exits 1: the scan read nothing. A root with a layout
+but no `.claude/settings.json` prints a note that no guard wiring is read. Pass `--settings <file>` when the
+settings are generated at install time: the scan reads that rendered copy as the estate's settings file. The
+registry check never holds over zero guards. Its invariant atom then records `guardsRead: 0`.
+
 `estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
 2 the map or the estate cannot be read. The codes:
 
@@ -287,6 +295,7 @@ was refused; 2 nothing written.
 | `REGISTRY_GUARD` | a registry row names a guard the estate does not run |
 | `QUOTE_DRIFT` | an atom's quote is no longer at its span: scan again |
 | `AMBIGUOUS_REFERENCE` | a bare file name fits several files, none in the naming file's own folder |
+| `EMPTY_MAP` | the map holds no atom: the scan read nothing, so no check ran |
 | `UNENFORCED` | rules no guard enforces: reported as a count, never failing alone |
 | `EXTERNAL` | paths named outside the estate: information only |
 

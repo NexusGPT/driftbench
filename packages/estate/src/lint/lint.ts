@@ -24,6 +24,7 @@ import type { Atom, EstateMap } from '../schema';
  *   REGISTRY_ROW        a guard has no row in the check registry
  *   REGISTRY_GUARD      a registry row names a guard the estate does not run
  *   QUOTE_DRIFT         an atom's quote is no longer at its span: scan again
+ *   EMPTY_MAP           the map holds no atom: the scan read nothing, so no check ran
  *
  * UNENFORCED is reported as a count with the atom ids; it is a fact about trust, not an error, so it alone
  * does not fail the lint.
@@ -43,6 +44,7 @@ export const LINT_CODES = [
   'REGISTRY_ROW',
   'REGISTRY_GUARD',
   'QUOTE_DRIFT',
+  'EMPTY_MAP',
 ] as const;
 export type LintCode = (typeof LINT_CODES)[number];
 
@@ -72,6 +74,15 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     return normativeRanges(file, atom.provenance.startLine, atom.provenance.endLine).length > 0;
   });
   const findings: LintFinding[] = [];
+  // A map with no atom was scanned from a folder the reader found nothing in: every check below passes over nothing.
+  if (map.atoms.length === 0) {
+    findings.push({
+      code: 'EMPTY_MAP',
+      subject: map.root,
+      message:
+        'the map holds 0 atoms: the scan read nothing, so no check ran; scan the project folder that holds the standing file and the layout folder',
+    });
+  }
   const texts = new Map(raw.files.map((file) => [file.path, file.text]));
   for (const drift of quoteDrift(atoms, texts)) {
     findings.push({ code: 'QUOTE_DRIFT', subject: drift.path, message: drift.message });

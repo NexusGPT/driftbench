@@ -124,6 +124,43 @@ export const DEFAULT_IGNORE = [
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
 export const ESTATE_CONFIG = 'driftbench.estate.yaml';
 
+/** Where the settings of the estate live, and the path a rendered copy of them is read under. */
+export const RENDERED_SETTINGS = '.claude/settings.json';
+
+/** What a runtime root holds, as the owner would name it: the standing files, the layout folder, the settings. */
+export type RootLayout = {
+  runtime: string;
+  /** The standing instruction files found at the root. */
+  standing: string[];
+  /** The layout folders found at the root. */
+  folders: string[];
+  /** The settings files found. */
+  settings: string[];
+};
+
+/** True when the root holds no standing file, no layout folder and no settings: a scan of it reads nothing. */
+export function layoutIsEmpty(layout: RootLayout): boolean {
+  return layout.standing.length === 0 && layout.folders.length === 0 && layout.settings.length === 0;
+}
+
+/** Looks at the root without reading the estate: which of the files the claude-code reader starts from exist. */
+export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
+  const found = async (paths: readonly string[], folder: boolean): Promise<string[]> => {
+    const out: string[] = [];
+    for (const path of paths) {
+      const info = await stat(join(root, path)).catch(() => undefined);
+      if (info && (folder ? info.isDirectory() : info.isFile())) out.push(path);
+    }
+    return out;
+  };
+  return {
+    runtime: 'claude-code',
+    standing: await found(['CLAUDE.md', 'CLAUDE.local.md'], false),
+    folders: await found(['.claude'], true),
+    settings: await found([...SETTINGS], false),
+  };
+}
+
 export type ClaudeCodeReaderOptions = {
   /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
   chunkCharacters?: number;
@@ -134,6 +171,11 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /**
+   * A rendered copy of `.claude/settings.json`, for an estate whose settings are generated at install time and
+   * so are not stored with it. It is read as the estate's own settings file, and only when the estate holds none.
+   */
+  settings?: string;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -159,6 +201,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly settings: string | undefined;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -168,6 +211,9 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    if (options.settings !== undefined && options.settings.trim() === '')
+      throw new RangeError('settings must name a file: an empty value names no rendered settings');
+    this.settings = options.settings;
   }
 
   /**
@@ -184,7 +230,7 @@ export class ClaudeCodeReader implements EstateReader {
     const raw = await this.read(root);
     // The user-level skill layer is no part of the project: a copy of the project holds none of it.
     const rootReferences = [
-      ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
+      ...raw.files.filter((file) => file.layer !== 'user' && !file.rendered).map((file) => file.path),
       ...raw.notes
         .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
         .map((note) => note.file),
@@ -239,6 +285,13 @@ export class ClaudeCodeReader implements EstateReader {
         notes.push({ file: path, message: 'empty file: nothing to read' });
         files.push({ path, text, kind: 'other' });
       } else files.push({ path, text, ...classify(path, text) });
+    }
+    if (this.settings !== undefined && !files.some((file) => file.path === RENDERED_SETTINGS)) {
+      const text = (await readFile(this.settings, 'utf8')).replace(/^\uFEFF/, '');
+      if (text.trim() === '') {
+        notes.push({ file: RENDERED_SETTINGS, message: 'empty file: nothing to read' });
+        files.push({ path: RENDERED_SETTINGS, text, kind: 'other', rendered: true });
+      } else files.push({ path: RENDERED_SETTINGS, text, kind: 'settings', rendered: true });
     }
 
     for (const file of files)
