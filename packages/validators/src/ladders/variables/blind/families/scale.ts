@@ -357,7 +357,7 @@ function quotesWorkload(
     size += fill[i]?.length ?? 0;
   }
   check(size > 900_000, () => ({
-    rule: 'the bank built a file under 900 kB',
+    rule: 'the bank built a file under N kB',
     expected: none('observation'),
   }));
   const wrong = new Set(
@@ -596,7 +596,7 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
       check(
         rows.some((r) => r[id] === `v${x}`),
         () => ({
-          rule: 'no row holds {}=v{}, a value that a row with every other variable at 0 or 1 can hold',
+          rule: 'no row holds {}=v{}, a value that a row with every other variable at N or N can hold',
           got: { details: [id, x] },
           expected: none('observation'),
         }),

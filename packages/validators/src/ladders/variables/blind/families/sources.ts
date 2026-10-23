@@ -1120,7 +1120,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           });
           for (const h of hashes(store, id))
             check(/^[0-9a-f]{64}$/.test(h), () => ({
-              rule: 'set_hash {} is not 64 lowercase hexadecimal characters',
+              rule: 'set_hash {} is not N lowercase hexadecimal characters',
               got: { details: [show(h)] },
               expected: none('observation'),
             }));

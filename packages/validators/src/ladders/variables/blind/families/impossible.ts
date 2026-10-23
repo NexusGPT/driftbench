@@ -791,7 +791,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             },
           });
           check(store.impossible.length === 0, () => ({
-            rule: 'a pair dated 2026-02-30 entered the store',
+            rule: 'a pair dated a calendar date entered the store',
             expected: none('observation'),
           }));
           check(store.refused.length >= 1, () => ({

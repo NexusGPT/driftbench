@@ -118,12 +118,12 @@ export const SEEDS_STEMS: readonly Stem[] = [
           ];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(sameRow(plan.rows[0]?.values ?? {}, seeds[0] as Row), () => ({
-            rule: 'seed 0 became {}; its assignments stay as given',
+            rule: 'seed N became {}; its assignments stay as given',
             got: { details: [show(plan.rows[0]?.values)] },
             expected: none('observation'),
           }));
           check(sameRow(plan.rows[1]?.values ?? {}, seeds[1] as Row), () => ({
-            rule: 'seed 1 became {}',
+            rule: 'seed N became {}',
             got: { details: [show(plan.rows[1]?.values)] },
             expected: none('observation'),
           }));
@@ -587,7 +587,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, store, { seed: 0 });
           const b = callPlan(ctx, store, { seed: 0 });
           check(JSON.stringify(a) === JSON.stringify(b) && a.rows.length > 0, () => ({
-            rule: 'seed 0 gave an empty or unstable plan',
+            rule: 'seed N gave an empty or unstable plan',
             expected: none('observation'),
           }));
         },

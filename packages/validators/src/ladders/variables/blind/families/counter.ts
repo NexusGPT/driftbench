@@ -427,7 +427,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const s = small(ctx, [2, 3]);
           const got = callCoverage(ctx, s, [], [{ variables: allIds(s), strength: 2 }], { uncovered: 0 });
           check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({
-            rule: 'uncovered is {} for limit 0',
+            rule: 'uncovered is {} for limit N',
             got: { details: [show(got.uncovered)] },
             expected: none('observation'),
           }));

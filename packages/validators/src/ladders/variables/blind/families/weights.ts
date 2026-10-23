@@ -24,7 +24,7 @@ const exact =
     const [lo, hi] = callInterval(ctx, count, total);
     const [wl, wh] = wilson(count, total);
     check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, () => ({
-      rule: 'weightInterval returns the two-sided 95 percent Wilson interval of the count over the total',
+      rule: 'weightInterval returns the two-sided N percent Wilson interval of the count over the total',
       input: { count, total },
       got: [lo, hi],
       expected: [wl, wh],
@@ -90,7 +90,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         (ctx) => {
           const [lo, hi] = callInterval(ctx, 50, 100);
           check(lo > 0.3 && hi < 0.7, () => ({
-            rule: '[{}, {}] for 50 of 100; a constant [0, 1] is not this interval',
+            rule: '[{}, {}] for N of N; a constant [N, N] is not this interval',
             got: { details: [lo, hi] },
             expected: none('observation'),
           }));
@@ -109,7 +109,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
             check(lo >= 0 && hi <= 1 && lo <= hi, () => ({
-              rule: '[{}, {}] for {} of {} is not an ordered interval inside [0, 1]',
+              rule: '[{}, {}] for {} of {} is not an ordered interval inside [N, N]',
               got: { details: [lo, hi, c, n] },
               expected: none('observation'),
             }));
@@ -175,7 +175,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const [lo] = callInterval(ctx, 0, 25);
           const [, hi] = callInterval(ctx, 25, 25);
           check(Math.abs(lo) <= 1e-12 && Math.abs(hi - 1) <= 1e-12, () => ({
-            rule: 'lower of 0 of 25 is {}, upper of 25 of 25 is {}',
+            rule: 'lower of N of N is {}, upper of N of N is {}',
             got: { details: [lo, hi] },
             expected: none('observation'),
           }));
@@ -191,7 +191,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             for (const c of [0, n]) {
               const [lo, hi] = callInterval(ctx, c, n);
               check(lo >= 0 && hi <= 1, () => ({
-                rule: '[{}, {}] for {} of {} leaves [0, 1]',
+                rule: '[{}, {}] for {} of {} leaves [N, N]',
                 got: { details: [lo, hi, c, n] },
                 expected: none('observation'),
               }));
@@ -215,7 +215,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           }
           const cover = hit / trials;
           check(cover >= 0.92 && cover <= 0.985, () => ({
-            rule: 'the interval holds the true share in {} of {} draws; a 95 percent interval does so about 95 percent of the time',
+            rule: 'the interval holds the true share in {} of {} draws; a N percent interval does so about N percent of the time',
             got: { details: [cover, trials] },
             expected: none('observation'),
           }));
@@ -367,7 +367,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             expected: none('observation'),
           }));
           check(Math.abs(a / b - 2) < 1e-9 && Math.abs(b / c - 3) < 1e-9, () => ({
-            rule: 'weights {}, {}, {} are not in the ratio of the counts 6, 3, 1',
+            rule: 'weights {}, {}, {} are not in the ratio of the counts N, N, N',
             got: { details: [a, b, c] },
             expected: none('observation'),
           }));
@@ -469,7 +469,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             number,
           ];
           check(typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9, () => ({
-            rule: 'weights {} and {} are not in the ratio of the counts 5 and 2',
+            rule: 'weights {} and {} are not in the ratio of the counts N and N',
             got: { details: [a, n] },
             expected: none('observation'),
           }));

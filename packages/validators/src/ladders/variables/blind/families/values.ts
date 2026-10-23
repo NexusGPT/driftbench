@@ -768,7 +768,7 @@ export const VALUES_STEMS: readonly Stem[] = [
             },
           });
           check(!other.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({
-            rule: 'a value dated 2027-02-29, not a day, entered the store',
+            rule: 'a value dated a calendar date, not a day, entered the store',
             expected: none('observation'),
           }));
         },

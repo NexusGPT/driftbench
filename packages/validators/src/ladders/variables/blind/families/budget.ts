@@ -164,7 +164,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, small.store, { seed: ctx.seed });
           const b = callPlan(ctx, big, { seed: ctx.seed });
           check(jsonEqual(a.rows, b.rows), () => ({
-            rule: 'weights 0.6, 0.15, 0.25 and 60, 15, 25 gave different plans',
+            rule: 'weights N, N, N and N, N, N gave different plans',
             expected: none('observation'),
           }));
         },
@@ -180,12 +180,12 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           const zero = newRows(plan).filter((r) => r.values[ids[0] as string] === 'v2');
           check(zero.length >= 1, () => ({
-            rule: 'no row holds the value of weight 0, but it is still a value of the store',
+            rule: 'no row holds the value of weight N, but it is still a value of the store',
             expected: none('observation'),
           }));
           for (const r of zero)
             check(r.logWeight === null, () => ({
-              rule: 'row {} holds a weight 0 value and has logWeight {}; expected null',
+              rule: 'row {} holds a weight N value and has logWeight {}; expected null',
               got: { details: [r.id, String(r.logWeight)] },
               expected: none('observation'),
             }));
@@ -198,7 +198,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
               .slice(lastZero + 1)
               .every((r) => r.logWeight === null),
             () => ({
-              rule: 'a row of weight 0 comes before a row of positive weight',
+              rule: 'a row of weight N comes before a row of positive weight',
               expected: none('observation'),
             }),
           );
@@ -393,7 +393,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           prefixHolds(ctx, store, 5, seeds);
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 5 });
           check(plan.rows.length === 5 && plan.rows.slice(0, 2).every((r) => r.kind === 'seed'), () => ({
-            rule: '{} rows with 2 seeds and budget 5',
+            rule: '{} rows with N seeds and budget N',
             got: { details: [plan.rows.length] },
             expected: none('observation'),
           }));
@@ -413,7 +413,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           }));
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 2 });
           check(plan.rows.length === 4 && plan.rows.every((r) => r.kind === 'seed'), () => ({
-            rule: '{} rows with 4 seeds and budget 2; the seeds stay and no new row joins them',
+            rule: '{} rows with N seeds and budget N; the seeds stay and no new row joins them',
             got: { details: [plan.rows.length] },
             expected: none('observation'),
           }));
@@ -433,7 +433,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 2 });
           check(plan.rows.length === 2, () => ({
-            rule: '{} rows with 2 seeds and budget 2',
+            rule: '{} rows with N seeds and budget N',
             got: { details: [plan.rows.length] },
             expected: none('observation'),
           }));
@@ -449,7 +449,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ]);
           const plan = callPlan(ctx, store, { seed: ctx.seed, budget: 0 });
           check(plan.rows.length === 0, () => ({
-            rule: '{} rows with budget 0 and no seeds',
+            rule: '{} rows with budget N and no seeds',
             got: { details: [plan.rows.length] },
             expected: none('observation'),
           }));
@@ -466,7 +466,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const seeds: Row[] = [{ [ids[0] as string]: 'v2', [ids[1] as string]: 'v1' }];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 0 });
           check(plan.rows.length === 1 && plan.rows[0]?.kind === 'seed', () => ({
-            rule: '{} rows with one seed and budget 0',
+            rule: '{} rows with one seed and budget N',
             got: { details: [plan.rows.length] },
             expected: none('observation'),
           }));

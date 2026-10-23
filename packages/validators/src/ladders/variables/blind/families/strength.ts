@@ -137,7 +137,7 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
           check(fresh < 32, () => ({
-            rule: '{} new rows: the whole product of 5 binary variables (32) is not required',
+            rule: '{} new rows: the whole product of N binary variables (N) is not required',
             got: { details: [fresh] },
             expected: none('observation'),
           }));
@@ -304,7 +304,7 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
           check(fresh <= 8, () => ({
-            rule: '{} new rows for seven independent details of arity 4; twice the arity bounds it',
+            rule: '{} new rows for seven independent details of arity N; twice the arity bounds it',
             got: { details: [fresh] },
             expected: none('observation'),
           }));
@@ -408,7 +408,7 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
           check(fresh < 128 * 0.6, () => ({
-            rule: '{} new rows for a rule of seven binary variables; strength 3 needs far fewer than the 128 of the whole product',
+            rule: '{} new rows for a rule of seven binary variables; strength N needs far fewer than the N of the whole product',
             got: { details: [fresh] },
             expected: none('observation'),
           }));

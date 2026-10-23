@@ -98,13 +98,13 @@ const witnesses: Record<Name, (ctx: ItemContext) => void> = {
   weightInterval(ctx) {
     const [lo, hi] = callInterval(ctx, 0, 10);
     check(Math.abs(lo) < 1e-9 && Math.abs(hi - 0.2775) < 1e-3, () => ({
-      rule: 'the witness interval of 0 of 10 is [{}, {}]',
+      rule: 'the witness interval of N of N is [{}, {}]',
       got: { details: [lo, hi] },
       expected: none('observation'),
     }));
     const [a, b] = callInterval(ctx, 50, 100);
     check(a > 0.39 && a < 0.41 && b > 0.59 && b < 0.61, () => ({
-      rule: 'the witness interval of 50 of 100 is [{}, {}]',
+      rule: 'the witness interval of N of N is [{}, {}]',
       got: { details: [a, b] },
       expected: none('observation'),
     }));
