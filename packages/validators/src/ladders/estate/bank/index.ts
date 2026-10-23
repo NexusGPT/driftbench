@@ -1,6 +1,7 @@
 import { benchFamily } from './bench';
 import { blindFamilies } from './blind/index';
 import { comboFamily, generatedFamily } from './combo';
+import { lintCoverageFamily } from './coverage';
 import { determinismFamily } from './determinism';
 import type { Family } from './frame';
 import { coverageFamily, readsFamily, taskFamily } from './genquality';
@@ -58,7 +59,11 @@ export const BANK_LEVELS = [
       ...blindFamilies(),
     ],
   },
-  { id: 'lint', name: 'lint', families: () => [lintDefectFamily(), lintCleanFamily()] },
+  {
+    id: 'lint',
+    name: 'lint',
+    families: () => [lintDefectFamily(), lintCleanFamily(), lintCoverageFamily()],
+  },
   {
     id: 'plan',
     name: 'plan',
