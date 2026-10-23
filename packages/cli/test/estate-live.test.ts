@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { cp, link, mkdtemp, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, sep } from 'node:path';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -1201,9 +1201,14 @@ describe('driftbench estate run --from', () => {
       await store.close();
       const second = openStore(textStore);
       const textSalt = await second.metaGet('estate.salt');
+      const textRuns = await second.listRuns();
+      const textCampaigns = await second.listCampaigns();
       await second.close();
       expect(salt).toMatch(/^[0-9a-f]{32}$/);
       expect(textSalt).toMatch(/^[0-9a-f]{32}$/);
+      // An empty list would pass the scan with nothing checked: both text-run lists must hold records.
+      expect(textRuns.length).toBeGreaterThan(0);
+      expect(textCampaigns.length).toBeGreaterThan(0);
       expect(text.out).toContain('estate.journey.03');
       const seen = [
         ['stdout', JSON.stringify(json.json)],
@@ -1213,18 +1218,25 @@ describe('driftbench estate run --from', () => {
         ['progress file', await readFile(progress, 'utf8')],
         ['run records', JSON.stringify(runs)],
         ['campaign records', JSON.stringify(campaigns)],
+        ['text run records', JSON.stringify(textRuns)],
+        ['text campaign records', JSON.stringify(textCampaigns)],
       ] as const;
       for (const [where, content] of seen) {
         expect(content, where).not.toContain(salt as string);
         expect(content, where).not.toContain(textSalt as string);
       }
-      // Every other file the run left next to the store (the store itself holds the salt by design).
-      const dir = dirname(json.store);
-      for (const name of await readdir(dir)) {
-        if (name.startsWith('runs.db')) continue;
-        const path = join(dir, name);
-        if ((await stat(path)).isFile())
-          expect(await readFile(path, 'latin1'), name).not.toContain(salt as string);
+      // Every other file each run left next to its store (a store itself holds its salt by design).
+      for (const store of [json.store, textStore]) {
+        const dir = dirname(store);
+        const own = basename(store);
+        for (const name of await readdir(dir)) {
+          if ([own, `${own}-wal`, `${own}-shm`, `${own}-journal`].includes(name)) continue;
+          const path = join(dir, name);
+          if (!(await stat(path)).isFile()) continue;
+          const content = await readFile(path, 'latin1');
+          expect(content, name).not.toContain(salt as string);
+          expect(content, name).not.toContain(textSalt as string);
+        }
       }
     }, 120_000);
 
