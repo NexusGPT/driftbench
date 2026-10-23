@@ -31,8 +31,10 @@ export {
 } from './code';
 export {
   DEFAULT_STANDING_CEILING,
+  INVARIANT_CHECKS,
   type InvariantState,
   invariantAtoms,
+  invariantOutcomes,
   measureInvariants,
   type PointerScanOptions,
   type ScanAtoms,
@@ -101,12 +103,28 @@ export {
 /** The runtimes the scanner can read, by the name the CLI takes. */
 export const RUNTIMES = ['claude-code'] as const;
 
-/** A reader for a runtime, or undefined for a runtime the scanner does not know. */
-export function readerFor(
+/** The options every estate reader takes. */
+export type EstateReaderOptions = { ignore?: readonly string[]; userSkills?: string };
+
+const READERS = new Map<string, (options: EstateReaderOptions) => EstateReader>([
+  ['claude-code', (options) => new ClaudeCodeReader(options)],
+]);
+
+/**
+ * Registers the reader of a runtime: the plugin seam beside its runtime profile. A second reader for the same
+ * runtime is refused.
+ */
+export function registerEstateReader(
   runtime: string,
-  options: { ignore?: readonly string[]; userSkills?: string } = {},
-): EstateReader | undefined {
-  return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
+  reader: (options: EstateReaderOptions) => EstateReader,
+): void {
+  if (READERS.has(runtime)) throw new Error(`an estate reader for ${runtime} is already registered`);
+  READERS.set(runtime, reader);
+}
+
+/** A reader for a runtime, or undefined for a runtime the scanner does not know. */
+export function readerFor(runtime: string, options: EstateReaderOptions = {}): EstateReader | undefined {
+  return READERS.get(runtime)?.(options);
 }
 
 export {

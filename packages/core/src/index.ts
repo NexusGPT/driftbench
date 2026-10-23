@@ -142,6 +142,20 @@ export {
 } from './objects';
 export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
+  CHECK_CAPABILITIES,
+  type CheckCapability,
+  type CheckCoverage,
+  type CheckDeclaration,
+  type CheckOutcome,
+  type CheckRun,
+  type CheckStatus,
+  checkOutcome,
+  type NotRunReason,
+  noneRan,
+  runCheck,
+  type SkippedInput,
+} from './outcome/check-outcome';
+export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
   agentVersionOf,
@@ -435,6 +449,20 @@ export {
 export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
+export {
+  CLAUDE_CODE_PROFILE,
+  type LayoutProfile,
+  type PathVariables,
+  type RoutingRule,
+  type RuntimeProfile,
+  registerRuntimeProfile,
+  runtimeProfile,
+  runtimeProfileNames,
+  type SettingsSource,
+  type StandingProfile,
+  staticSettingsFiles,
+  variablePrefix,
+} from './runtime-profile/index';
 export {
   Actor,
   Assertion,

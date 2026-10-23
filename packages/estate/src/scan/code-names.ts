@@ -1,5 +1,13 @@
 import { posix } from 'node:path';
+import { CLAUDE_CODE_PROFILE, variablePrefix } from '@agent-nexus/driftbench-core';
 import type { RawEstate } from './reader';
+
+/** A code literal behind the project, working or home variable is read relative to the root. */
+const LITERAL_ANCHOR = variablePrefix([
+  ...CLAUDE_CODE_PROFILE.pathVariables.project,
+  ...CLAUDE_CODE_PROFILE.pathVariables.working,
+  ...CLAUDE_CODE_PROFILE.pathVariables.home,
+]);
 
 /**
  * Files that code names. A file that is not prose and holds a quoted file name names that file: a script that
@@ -38,10 +46,7 @@ const BUILT = new WeakMap<RawEstate, CodeNames>();
 
 /** A string as a file-like literal: no spaces, a separator or an extension, not a URL or an option. */
 function asLiteral(raw: string): string | undefined {
-  const value = raw
-    .replace(/\\\//g, '/')
-    .replace(/^\$\{?(?:CLAUDE_PROJECT_DIR|PWD|HOME)\}?\//, '')
-    .replace(/^\.\//, '');
+  const value = raw.replace(/\\\//g, '/').replace(LITERAL_ANCHOR, '').replace(/^\.\//, '');
   if (value.length < 3 || /[\s<>*?{}$|;&=,()[\]]/.test(value) || /^[a-z][a-z0-9+.-]*:/i.test(value))
     return undefined;
   if (value.startsWith('-') || value.endsWith('/')) return undefined;
