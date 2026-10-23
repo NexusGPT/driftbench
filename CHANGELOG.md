@@ -6,6 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The obligations of a generated suite are data. `RULINGS` in `@agent-nexus/driftbench-space` says which blocks and specs hold an obligation (a class a block injects, a class a declared perturbation reaches, a twin pair on a declared channel or persona, a metamorphic variant) and when a holder is kept; `soleHolders` applies it to a suite. The generator validator reads its minimality obligations from it, with the answer it gave before. New exports, frozen in `tools/structure/api-surface.json`: `RULINGS`, `Rulings`, `ObligationKind`, `rulingsHash`, `soleHolders`, `isDeclared`, `ObligationBlock`, `ObligationSpec`, `DeclaredAxes` and `SoleHolders`. The generator does not read them yet.
 * Planner v2 puts the new rows that hold a required value first, then the others, each group most common first, so a budget cuts the rows without a required value before any with one. When a budget still leaves a required value in no row, the plan carries the warning `budget_drops_required` with the values. The row log weight keeps minus infinity in memory and null in the JSON text, and the rows are numbered in the order returned.
 
 * Helper tokens are priced. `cost.helperModel` is the model the helper messages of a Claude Code session name, `cost.helperUsd` the dollars for the helper tokens at that model's price (the agent's model when none is named), and `cost.usd` the total with the agent's own dollars. A budgeted run refuses a helper model that has no price.
