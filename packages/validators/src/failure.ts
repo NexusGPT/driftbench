@@ -28,13 +28,23 @@ export type FailureFields = {
 };
 
 /** The marker of a failure that has no wanted value to hide: it observes what the product did. */
-export type NoExpected = { readonly none: string };
+export type NoneCode = 'observation' | 'generator';
+export type NoExpected = { readonly none: NoneCode };
 
-export function none(reason: string): NoExpected {
-  return { none: reason };
+/**
+ * A closed set of reasons. 'observation': the failure describes what the product did and the item wants no value from
+ * it. 'generator': the bank's own generator built something it should not have, which is a bug of the bank. A site
+ * that wants a value names it in `expected`; a new `none` site is listed on purpose in
+ * `validators/variables/none-sites.json` (the test `none-sites.test.ts` fails on an unlisted one).
+ */
+export function none(code: NoneCode): NoExpected {
+  return { none: code };
 }
 
-const isNone = (value: unknown): value is NoExpected =>
+/** Every `check` is counted, so a test can force the k-th one to fail and render its diagnostic. */
+export const forced = { at: -1, count: 0 };
+
+export const isNoExpected = (value: unknown): value is NoExpected =>
   typeof value === 'object' && value !== null && 'none' in value && Object.keys(value).length === 1;
 
 /** A value as a message prints it: short, with non-finite numbers and bigint named. */
@@ -81,10 +91,11 @@ export const diagnostics = { build: true };
 
 /** Fails the item with these fields unless the condition holds. */
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
-  if (condition) return;
+  forced.count += 1;
+  if (condition && forced.at !== forced.count) return;
   if (typeof fields !== 'function') throw new ItemFailure(fields);
   throw new ItemFailure(
-    diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('diagnostics are off') },
+    diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('observation') },
   );
 }
 
@@ -136,7 +147,7 @@ export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
   const out: string[] = [];
   if (failure.message !== renderFailure(fields)) out.push('(the message is not the rendering of its fields)');
-  if (fields.expected === undefined || isNone(fields.expected)) return out;
+  if (fields.expected === undefined || isNoExpected(fields.expected)) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.
   const own = [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''].map(normal);
