@@ -688,7 +688,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     check(
       first.every((h) => /^[0-9a-f]{64}$/.test(h)),
       () => ({
-        rule: 'a set_hash is not 64 lowercase hexadecimal characters: {}',
+        rule: 'a set_hash is not N lowercase hexadecimal characters: {}',
         got: { details: [show(first[0])] },
         expected: none('observation'),
       }),

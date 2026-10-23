@@ -175,7 +175,7 @@ export function schedule(cases: readonly FileCase[], seed: number, key: string):
     expected: none('observation'),
   }));
   check(cases.length >= 18, () => ({
-    rule: 'the item {} makes {} calls; at least 18 are needed',
+    rule: 'the item {} makes {} calls; at least N are needed',
     got: { details: [key, cases.length] },
     expected: none('observation'),
   }));

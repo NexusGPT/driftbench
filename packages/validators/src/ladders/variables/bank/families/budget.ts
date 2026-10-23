@@ -145,7 +145,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       default: {
         const empty = planOf(ctx, st, { seed: ctx.seed, budget: 0 });
         check(empty.rows.length === 0, () => ({
-          rule: 'a budget of 0 with no seeds gives an empty plan',
+          rule: 'a budget of N with no seeds gives an empty plan',
           got: { rows: empty.rows.length },
           expected: none('observation'),
         }));

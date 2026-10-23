@@ -22,7 +22,7 @@ import { choose, cpuMs, must, type Rng, show } from '../util';
 export function toBig(v: number | bigint, label: string): bigint {
   if (typeof v === 'bigint') return v;
   check(Number.isInteger(v) && Number.isSafeInteger(v), () => ({
-    rule: 'a count is an exact integer; a count beyond 2^53 is a bigint',
+    rule: 'a count is an exact integer; a count beyond the safe integer range is a bigint',
     input: { label },
     got: { value: show(v) },
     expected: none('observation'),
@@ -421,16 +421,16 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const result = callCoverage(ctx, toStore(space), [], [wholeGroup(space, t)]);
     const want = elementary(arities, t);
     check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
-      rule: 'the generator must build a count beyond 2^53',
+      rule: 'the generator must build a count beyond the safe integer range',
       expected: none('observation'),
     }));
     check(typeof result.allowed === 'bigint', () => ({
-      rule: 'a count beyond 2^53 is returned as a bigint',
+      rule: 'a count beyond the safe integer range is returned as a bigint',
       got: { type: typeof result.allowed, value: show(result.allowed) },
       expected: { value: String(want) },
     }));
     check(result.allowed === want, () => ({
-      rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
+      rule: 'coverage counts the allowed tuples exactly, beyond the safe integer range too',
       got: { allowed: String(result.allowed) },
       expected: { allowed: String(want) },
     }));
@@ -562,7 +562,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       expected: { allowed: String(want) },
     }));
     check(ms <= 50, () => ({
-      rule: 'counting the tuples of binary variables at strength 3 stays fast, which an enumeration does not',
+      rule: 'counting the tuples of binary variables at strength N stays fast, which an enumeration does not',
       input: { variables: n },
       got: { ms: Math.round(ms) },
       expected: { atMost: 50 },
