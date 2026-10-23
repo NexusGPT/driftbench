@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { variablesFromSources } from '../../src';
+import type { SpanLabel } from '../../src/feed/sources';
 import {
   createSubjectReconciler,
   type SubjectCandidate,
   type SubjectChoiceReader,
 } from '../../src/feed/subject-choices';
-import type { SpanLabel } from '../../src/feed/sources';
 
 const first = {
   text: 'the refund amount is at most 252 euros',
@@ -61,8 +61,9 @@ describe('subject choices across recording batches', () => {
     expect(second.label.subject).toBe('refund amount');
     const built = build([...a, ...b]);
     expect(built.store.variables).toHaveLength(1);
-    const variable = built.store.variables[0]!;
-    expect(Object.values(built.samples[variable.id]!)).toEqual([251, 252, 253]);
+    const variable = built.store.variables[0];
+    if (variable === undefined) throw new Error('the merged variable is missing');
+    expect(Object.values(built.samples[variable.id] ?? {})).toEqual([251, 252, 253]);
     expect(variable.boundaries?.map((boundary) => boundary.comparison).sort()).toEqual(['gt', 'le']);
     for (const value of variable.values) {
       expect(value.provenance).toHaveLength(2);

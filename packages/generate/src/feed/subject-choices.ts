@@ -13,10 +13,63 @@ export type SubjectChoiceReader = (
   candidates: readonly SubjectCandidate[],
 ) => Promise<unknown>;
 
-/** Reconciles successive labelled batches with the reader's choice of an existing label id or `new`. */
-export function createSubjectReconciler(_known: readonly SpanLabel[] = []) {
+function candidateOf(label: SpanLabel | undefined): Omit<SubjectCandidate, 'id'> | undefined {
+  if (label === undefined || label.kind === 'none' || typeof label.subject !== 'string') return undefined;
+  return {
+    subject: label.subject,
+    kind: label.kind === 'range' ? 'numeric' : label.kind,
+    ...('unit' in label && typeof label.unit === 'string' ? { unit: label.unit.trim().toLowerCase() } : {}),
+  };
+}
+
+/**
+ * Reconciles successive labelled batches with the reader's choice of an existing label id or `new`.
+ * The catalogue deduplicates exact structured identities; only the reader can equate different identities.
+ * Choices cannot change a clause's kind, unit, limits or comparator. No clause text is interpreted here.
+ */
+export function createSubjectReconciler(known: readonly SpanLabel[] = []) {
+  const catalogue = new Map<string, SubjectCandidate>();
+  const decisions = new Map<string, SubjectCandidate>();
+  const remember = (candidate: Omit<SubjectCandidate, 'id'>): SubjectCandidate => {
+    const key = JSON.stringify(candidate);
+    let entry = catalogue.get(key);
+    if (entry === undefined) {
+      entry = { id: `label-${catalogue.size + 1}`, ...candidate };
+      catalogue.set(key, entry);
+    }
+    return entry;
+  };
+  for (const label of known) {
+    const candidate = candidateOf(label);
+    if (candidate !== undefined) remember(candidate);
+  }
   return async <T extends LabelledClause>(
     clauses: readonly T[],
-    _choose: SubjectChoiceReader,
-  ): Promise<T[]> => [...clauses];
+    choose: SubjectChoiceReader,
+  ): Promise<T[]> => {
+    const out: T[] = [];
+    for (const clause of clauses) {
+      const candidate = candidateOf(clause.label);
+      if (candidate === undefined) {
+        out.push(clause);
+        continue;
+      }
+      const key = JSON.stringify(candidate);
+      let selected = decisions.get(key);
+      if (selected === undefined) {
+        const compatible = [...catalogue.values()].filter(
+          (entry) => entry.kind === candidate.kind && (entry.unit ?? '') === (candidate.unit ?? ''),
+        );
+        // Hand the reader copies: it cannot mutate the catalogue or the original label.
+        const choice = await choose(
+          structuredClone(clause),
+          compatible.map((entry) => ({ ...entry })),
+        );
+        selected = compatible.find((entry) => entry.id === choice) ?? remember(candidate);
+        decisions.set(key, selected);
+      }
+      out.push({ ...clause, label: { ...clause.label, subject: selected.subject } });
+    }
+    return out;
+  };
 }

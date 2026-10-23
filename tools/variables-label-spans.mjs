@@ -13,7 +13,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applySubjects, canonicalSubjects, shareSubjects } from '../packages/generate/src/feed/subjects.ts';
+import { createSubjectReconciler } from '../packages/generate/src/feed/subject-choices.ts';
 
 const MODEL = 'claude-haiku-5-5';
 const BATCH = 12;
@@ -62,12 +62,17 @@ console.log(`commit ${sha}: ${texts.length} distinct spans`);
 // The subjects already used in this estate: those of the cassette `--known` names, then those of the labels written so
 // far. A batch is shown them, so two clauses that name one quantity in different words get one subject.
 const subjects = new Set();
+const knownLabels = [];
 const noteSubjects = (label) => {
   if (label && typeof label.subject === 'string' && label.subject.trim() !== '') subjects.add(label.subject);
 };
 if (knownFile && existsSync(knownFile)) {
   for (const line of readFileSync(knownFile, 'utf8').split('\n')) {
-    if (line.trim() !== '') noteSubjects(JSON.parse(line).label);
+    if (line.trim() !== '') {
+      const label = JSON.parse(line).label;
+      knownLabels.push(label);
+      noteSubjects(label);
+    }
   }
 }
 const MAX_SUBJECTS = 300;
@@ -154,6 +159,42 @@ async function ask(batch) {
   }
 }
 
+const reconcileSubjects = createSubjectReconciler(knownLabels);
+const SUBJECT_CHOICE = [
+  'A clause has just been labelled. Choose the existing label that names the same quantity, set or fact.',
+  'The candidates have opaque ids. Answer with one JSON string: an existing candidate id, or "new".',
+  'Use an id only if the clause names the same thing, including its kind, owner and unit.',
+  'Different words can name the same thing; similar words can name different things.',
+  'Do not rewrite the subject or return a subject string. If no candidate is equivalent, answer "new".',
+].join(' ');
+async function chooseSubject(clause, candidates) {
+  if (candidates.length === 0) return 'new';
+  if (spentBefore + spent() > totalCap || spent() > cap) {
+    console.error('stopped before a cap, before a subject choice');
+    process.exit(3);
+  }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 64,
+      system: SUBJECT_CHOICE,
+      messages: [{ role: 'user', content: JSON.stringify({ clause, candidates }) }],
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(`subject choice request failed: ${res.status}`);
+  tokensIn += json.usage?.input_tokens ?? 0;
+  tokensOut += json.usage?.output_tokens ?? 0;
+  const text = (json.content ?? []).map((part) => part.text ?? '').join('');
+  try {
+    return JSON.parse(text);
+  } catch {
+    return 'new';
+  }
+}
+
 const rows = new Map();
 let bad = 0;
 for (let i = 0; i < texts.length; i += BATCH) {
@@ -174,65 +215,20 @@ for (let i = 0; i < texts.length; i += BATCH) {
       answers[at] = second[k];
     });
   }
-  batch.forEach((text, j) => {
+  const labelled = batch.map((text, j) => {
     if (valid(answers[j])) {
-      rows.set(text, answers[j]);
-      noteSubjects(answers[j]);
-    } else {
-      bad += 1;
-      rows.set(text, { kind: 'none' });
+      return { text, label: answers[j] };
     }
+    bad += 1;
+    return { text, label: { kind: 'none' } };
   });
-}
-
-// One quantity, one subject (packages/generate/src/feed/subjects.ts): spans with the same text before their first digit or
-// symbol share a subject, then the model says which of the remaining subjects name one quantity.
-const SAME = [
-  'You are given subjects: short noun phrases, each naming what a rule measures.',
-  'Some of them name the same quantity in different words (for example "order value" and "order amount").',
-  'Answer with one JSON object from a subject to the subject that names the same quantity, for every subject that',
-  'should be replaced, and nothing else. The value must be one of the given subjects, written exactly. Leave out a',
-  'subject that names a quantity of its own. Two quantities that differ in kind, owner or unit are different.',
-].join(' ');
-async function askSame(chunk) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      system: SAME,
-      messages: [{ role: 'user', content: chunk.map((s) => `- ${s}`).join('\n') }],
-    }),
-  });
-  const json = await res.json();
-  if (!res.ok)
-    throw new Error(
-      `labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`,
-    );
-  tokensIn += json.usage?.input_tokens ?? 0;
-  tokensOut += json.usage?.output_tokens ?? 0;
-  const text = (json.content ?? []).map((c) => c.text ?? '').join('');
-  try {
-    return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
-  } catch {
-    return {};
+  for (const { text, label } of await reconcileSubjects(labelled, chooseSubject)) {
+    rows.set(text, label);
+    noteSubjects(label);
   }
 }
-let finished = shareSubjects([...rows].map(([text, label]) => ({ text, label })));
-if (spentBefore + spent() > totalCap || spent() > cap) {
-  console.error('stopped before a cap, before the sibling pass');
-  process.exit(3);
-}
-const sameMap = await canonicalSubjects(finished, askSame);
-finished = applySubjects(finished, sameMap);
-console.log(`subjects merged by the sibling pass: ${Object.keys(sameMap).length}`);
-for (const [from, to] of Object.entries(sameMap)) {
-  const texts = finished.filter((row) => row.label?.subject === to).map((row) => row.text);
-  console.log(`merge: "${from}" -> "${to}" (e.g. ${JSON.stringify(texts.slice(0, 2))})`);
-}
 
-writeFileSync(outFile, `${finished.map((row) => JSON.stringify(row)).join('\n')}\n`);
+writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
 const total = spentBefore + spent();
 if (totalFile) writeFileSync(totalFile, `${total}\n`);
 console.log(`labelled ${rows.size} spans (${bad} unusable answers recorded as none)`);
