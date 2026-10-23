@@ -35,7 +35,7 @@ The bank and the ladder as they stand, with floor 1 on ladder version 2. An exec
 
 The floor of the generator on ladder version 3 is 8 of 23, the level the product reaches on the gate seeds 1, 2, 3 and the recorded hidden seed 727268607 (derived from commit `2b49fabf9`). It is a guard against regression, not the top. The owner's rule "If you cannot do it, lower the bar per validator" applies; no item is weakened.
 
-Measured on GitHub, run 39898383741 (branch `train/gen-bar-measure`, head `2b49fabf9`: `train/cluster-37` with #1446, #1334 and #1342): level reached per seed is 8 on seed 1, 17 on seeds 2 and 3, 17 on the hidden seed. The evidence block of `validators/floors.json` is that result; the legs ran the levels in three slices, so the level of a seed is the level below its first failing item. The run did not finish seed 9, levels 20 to 23.
+Measured on GitHub, run 39898383741 (branch `train/gen-bar-measure`, head `2b49fabf9`: `train/cluster-37` with #1446, #1334 and #1342): level reached per seed is 8 on seed 1, 17 on seeds 2 and 3, 17 on the hidden seed. The evidence block of `validators/floors.json` is that result; the legs ran the levels in three slices, so the level of a seed is the level below its first failing item. Seed 9, levels 20 to 23: unmeasured (the job hung, run 39898383741 cancelled).
 
 The named causes, by the first failing level, over seeds 1 to 20 and hidden (the failing items are in the run's artifacts):
 
