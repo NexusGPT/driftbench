@@ -128,6 +128,9 @@ const valid = (l) => {
 const report = {
   requests: 0,
   countRequests: 0,
+  // A request that was not sent, with the code that says why: `count-unavailable` (the provider gave no input token count)
+  // or `worst-case-reaches-a-cap`. The summary counts them in `refusedRequests`, so a refusal is never a silent zero.
+  refused: [],
   overBilled: [],
   subjectRequests: 0,
   truncations: 0,
@@ -178,6 +181,7 @@ async function refuseIfItCouldCross(body, what) {
     console.error(
       `stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`,
     );
+    report.refused.push({ code: 'count-unavailable', what, reason: why.slice(0, 200) });
     throw new Error(`stopped before sending ${what}: its input tokens could not be counted`);
   }
   const reservedInput = counted + reserveOf(counted);
@@ -186,6 +190,13 @@ async function refuseIfItCouldCross(body, what) {
     console.error(
       `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)} (${counted} input tokens counted, ${reservedInput} reserved); this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
     );
+    report.refused.push({
+      code: 'worst-case-reaches-a-cap',
+      what,
+      countedInputTokens: counted,
+      reservedInputTokens: reservedInput,
+      maxOutputTokens: body.max_tokens,
+    });
     throw new Error(`stopped before sending ${what}: its worst case would reach or cross a cap`);
   }
   return { reservedInput, reservedOutput: body.max_tokens };
@@ -357,6 +368,7 @@ try {
     status: process.exitCode ? 'failed' : 'complete',
     labelled: process.exitCode ? 0 : rows.size,
     subjectFailureCount: report.subjectFailures.length,
+    refusedRequests: report.refused.length,
     unusableAnswers: bad,
     tokensIn,
     tokensOut,

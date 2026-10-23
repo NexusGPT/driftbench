@@ -102,6 +102,9 @@ globalThis.fetch = async (url, options) => {
   if (String(url).endsWith('/count_tokens')) {
     log('count ' + counted);
     if (config.countFails) return { ok: false, status: 500, json: async () => ({ error: { message: 'down' } }) };
+    if (config.countMissing) return { ok: false, status: 404, json: async () => ({ error: { type: 'not_found_error' } }) };
+    // A provider with no counting endpoint answers every URL like a messages call: a reply with a usage and no input_tokens.
+    if (config.countNoNumber) return { ok: true, json: async () => ({ content: [{ text: '[]' }], usage: { input_tokens: 3, output_tokens: 3 } }) };
     return { ok: true, json: async () => ({ input_tokens: counted }) };
   }
   const isChoice = body.messages[0].content.startsWith('{');
@@ -212,9 +215,18 @@ it('a body that counts above one token per byte (combining marks) cannot cross t
     expect(sent(c, 'choice')).toEqual([]);
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
-    expect(JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')).usd).toBeLessThanOrEqual(
-      cap,
-    );
+    const report = JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8'));
+    expect(report.usd).toBeLessThanOrEqual(cap);
+    expect(report.refusedRequests).toBe(1);
+    expect(report.refused).toEqual([
+      {
+        code: 'worst-case-reaches-a-cap',
+        what: 'a subject choice',
+        countedInputTokens: expect.any(Number),
+        reservedInputTokens: expect.any(Number),
+        maxOutputTokens: maxTokens,
+      },
+    ]);
   } finally {
     c.cleanup();
   }
@@ -241,17 +253,32 @@ it('a JSON body is priced by its count: refused just under its cost, sent just o
   }
 }, 60_000);
 
-it('a request whose tokens cannot be counted is not sent', () => {
-  const c = capCase('', { countFails: true, perByte: 1 });
-  try {
-    const result = c.run(100);
-    expect(result.status).not.toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toMatch(/could not be counted/);
-    expect(c.log().filter((l) => !l.startsWith('count'))).toEqual([]);
-  } finally {
-    c.cleanup();
-  }
-}, 60_000);
+it.each([
+  ['answers with an error status', { countFails: true }, /500/],
+  ['has no counting endpoint', { countMissing: true }, /404/],
+  ['answers without an input token count', { countNoNumber: true }, /no input token count/],
+])(
+  'a provider that %s: the request is not sent, and the refusal is reported with a code and a count',
+  (_name, config, reason) => {
+    const c = capCase('', { ...config, perByte: 1 });
+    try {
+      const result = c.run(100);
+      expect(result.status).not.toBe(0);
+      expect(`${result.stdout}${result.stderr}`).toMatch(/could not be counted/);
+      expect(c.log().filter((l) => !l.startsWith('count'))).toEqual([]);
+      const report = JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8'));
+      expect(report.status).toBe('failed');
+      expect(report.requests).toBe(0);
+      expect(report.refusedRequests).toBe(1);
+      expect(report.refused).toEqual([
+        { code: 'count-unavailable', what: 'a batch of spans', reason: expect.stringMatching(reason) },
+      ]);
+    } finally {
+      c.cleanup();
+    }
+  },
+  60_000,
+);
 
 it('a request whose worst case lands exactly on the cap is refused', () => {
   // One token per byte makes the arithmetic exact: the cap is the spend after the batch request plus the worst case of
