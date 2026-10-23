@@ -17,14 +17,24 @@
   "evidence": {
     "generator": {
       "level": 8,
-      "seeds": ["1", "2", "3", "hidden"],
+      "seeds": [
+        "1",
+        "2",
+        "3",
+        "hidden"
+      ],
       "hiddenSeed": 727268607,
       "head": "2b49fabf9dc746775957d201582d57f86f6b7b1a",
       "ladderVersion": 3
     },
     "judges": {
       "level": 20,
-      "seeds": ["1", "2", "3", "hidden"],
+      "seeds": [
+        "1",
+        "2",
+        "3",
+        "hidden"
+      ],
       "hiddenSeed": 336760492,
       "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
       "ladderVersion": 2
