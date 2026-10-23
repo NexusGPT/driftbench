@@ -14,9 +14,11 @@ import {
   outOfStep,
   type PointerInput,
   type PointerPlan,
+  PointerPlanOnly,
   pointerScan,
   REASK_LIMIT,
   renderLedger,
+  requestRange,
   SPLIT_REASK_RUNS,
   singleLabelling,
   stackedLabelling,
@@ -502,6 +504,117 @@ describe('the plan and the cassette file', () => {
     cassette.onPut = (entry) => seen.push(entry.readable.window ?? '');
     await pointerScan(input(plantedDense(byLength), cassette));
     expect(seen.sort()).toEqual(['office.md#1', 'office.md#1', 'quay.md#1', 'quay.md#1']);
+  });
+});
+
+describe('the range of requests a plan can send', () => {
+  type Shape = { windowUnits: number; runs: number; stack: boolean };
+  const shapes: Shape[] = [];
+  for (const windowUnits of [1, 2, 3, 60])
+    for (const runs of [1, 3]) for (const stack of [false, true]) shapes.push({ windowUnits, runs, stack });
+
+  /** The plan of a scan that sends nothing, for a shape, a cassette and a list of files. */
+  const planned = async (shape: Shape, cassette: Cassette, files = FILES): Promise<PointerPlan> => {
+    const second = plantedDense(byLength, [], { runs: shape.runs });
+    const labelling = shape.stack
+      ? stackedLabelling(
+          plantedYesNo(() => ({ order: 0.5, remark: 0.5, curt: 0.5, long: 0.5 })),
+          second,
+          { passAt: 0.9, failAt: 0.1 },
+        )
+      : singleLabelling(second);
+    try {
+      await pointerScan(
+        input(second, cassette, { files, labelling, windowUnits: shape.windowUnits, planOnly: true }),
+      );
+    } catch (cause) {
+      if (cause instanceof PointerPlanOnly) return cause.plan;
+      throw cause;
+    }
+    throw new Error('a plan alone must stop at the plan');
+  };
+
+  it('holds low, expected and high in order for every shape, and expected is the requests the cassette lacks', async () => {
+    for (const shape of shapes) {
+      const plan = await planned(shape, new Cassette());
+      const range = requestRange(plan);
+      const lacking = plan.members.reduce((total, member) => total + member.windows - member.cached, 0);
+      expect(range.expected, JSON.stringify(shape)).toBe(lacking);
+      expect(range.low, JSON.stringify(shape)).toBeLessThanOrEqual(range.expected);
+      expect(range.expected, JSON.stringify(shape)).toBeLessThanOrEqual(range.high);
+      expect(range.expected, JSON.stringify(shape)).toBeGreaterThan(0);
+    }
+  });
+
+  it('lets a stack skip the second labeler only when the first can decide every label alone', async () => {
+    for (const shape of shapes) {
+      const range = requestRange(await planned(shape, new Cassette()));
+      const plan = await planned(shape, new Cassette());
+      const second = plan.members.at(-1)?.missing ?? 0;
+      // The set has no label that needs a target, a clause or a link, so system 1 can decide a unit alone.
+      expect(range.low, JSON.stringify(shape)).toBe(shape.stack ? range.expected - second : range.expected);
+    }
+  });
+
+  it('is, for a single run, what resolving each window whole takes: a tree of halvings, two calls a node', async () => {
+    // Written from the rule, not from the plan: a window of n units that is refused as too large splits in halves down
+    // to one unit, 2n - 1 windows in all, and each is asked at most twice.
+    for (const shape of shapes.filter((each) => each.runs === 1 && !each.stack)) {
+      const plan = await planned(shape, new Cassette());
+      let wanted = 0;
+      for (const file of FILES)
+        for (const _set of load(SETS))
+          for (const window of windowsOf(file.path, cut(file.text).units, shape.windowUnits, file.text, true))
+            wanted += 2 * (2 * window.units.length - 1);
+      expect(requestRange(plan).high, JSON.stringify(shape)).toBe(wanted);
+    }
+  });
+
+  it('adds the re-asks of a window only for a labeler with several runs, and the tie re-asks from four runs', async () => {
+    const at = (runs: number) => planned({ windowUnits: 3, runs, stack: false }, new Cassette());
+    const single = requestRange(await at(1)).high;
+    const three = requestRange(await at(3)).high;
+    const four = requestRange(await at(4)).high;
+    // Each run asks the window whole: three runs and four runs add their own copies, and the re-asks come on top.
+    expect(three).toBeGreaterThan(3 * single);
+    expect(four).toBeGreaterThan(4 * single);
+    // From four runs two labels can tie two and two, so a window can be asked again for the tie as well.
+    expect(four - 4 * single).toBeGreaterThan(three - 3 * single);
+  });
+
+  it('is the same whatever the order of the files, and falls to zero once the cassette answers everything', async () => {
+    for (const shape of shapes) {
+      const forward = await planned(shape, new Cassette());
+      const reversed = await planned(shape, new Cassette(), [...FILES].reverse());
+      expect(requestRange(reversed), JSON.stringify(shape)).toEqual(requestRange(forward));
+    }
+    const shape: Shape = { windowUnits: 2, runs: 3, stack: false };
+    const cassette = new Cassette();
+    await pointerScan(
+      input(plantedDense(byLength, [], { runs: 3 }), cassette, {
+        windowUnits: 2,
+        labelling: singleLabelling(plantedDense(byLength, [], { runs: 3 })),
+      }),
+    );
+    expect(requestRange(await planned(shape, cassette))).toEqual({ low: 0, expected: 0, high: 0 });
+  });
+
+  it('grows by one expected request for each cassette entry removed', async () => {
+    const shape: Shape = { windowUnits: 2, runs: 1, stack: false };
+    const cassette = new Cassette();
+    await pointerScan(
+      input(plantedDense(byLength), cassette, {
+        windowUnits: 2,
+        labelling: singleLabelling(plantedDense(byLength)),
+      }),
+    );
+    const keys = [...cassette.entries.keys()];
+    expect(keys.length).toBeGreaterThan(2);
+    for (const removed of [1, 2]) {
+      const kept = Cassette.parse(cassette.render());
+      for (const key of keys.slice(0, removed)) kept.entries.delete(key);
+      expect(requestRange(await planned(shape, kept)).expected).toBe(removed);
+    }
   });
 });
 

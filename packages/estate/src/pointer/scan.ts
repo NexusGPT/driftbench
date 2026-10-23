@@ -31,7 +31,7 @@ import {
   unitKey,
 } from './ledger';
 import type { Labelling } from './stack';
-import { askedLabels } from './yesno';
+import { askableWhole, askedLabels } from './yesno';
 
 /**
  * The pointer scan: cut each prose file into units, follow the units through the ledger, send the windows
@@ -88,7 +88,50 @@ export type MemberPlan = {
   cached: number;
   /** Characters of the request bodies still to send. */
   characters: number;
+  /** Requests the run still has to send: those the cassette does not answer. */
+  missing: number;
+  /** Of those, the requests a stack's first labeler could make unnecessary by deciding every unit of the window alone. */
+  skippable: number;
+  /**
+   * The most calls this labeler can make in a run that ends, over the failures it can meet: the requests above that
+   * the cassette lacks, a cached refusal as too large (its halves), and the re-asks of a window whose runs slip or tie.
+   */
+  high: number;
 };
+
+/** The most calls one request takes: the first, and one more after an answer that cannot be read or is refused. */
+const MAX_SENDS = 2;
+/** The runs a labeler needs for two labels to tie two and two. */
+const TIE_RUNS = 4;
+
+/** The sizes of the nodes of the tree a window of `units` units can split into when it is refused as too large, halved down to one unit. */
+function nodeSizes(units: number): number[] {
+  if (units <= 1) return [units];
+  const first = Math.ceil(units / 2);
+  return [units, ...nodeSizes(first), ...nodeSizes(units - first)];
+}
+
+/** The most calls that resolving a window takes: each node of its tree asked, and each asked twice. */
+const resolveCalls = (units: number): number => MAX_SENDS * nodeSizes(units).length;
+
+/**
+ * How many calls a run can make, from the structure of the plan alone, for a run that ends. `expected` is the
+ * requests the cassette does not answer: exact when nothing fails. `low` leaves out those a stack's first labeler can
+ * make unnecessary. `high` adds every way a call can add calls: an answer that cannot be read is sent a second time,
+ * a window refused as too large is halved, each half asked and halved in turn, a run that drifts from its units is
+ * asked again (REASK_LIMIT times for each window the halving can leave), and runs that tie are asked again
+ * (SPLIT_REASK_RUNS times for the window). A re-ask is itself resolved, so it can be halved too.
+ */
+export function requestRange(plan: PointerPlan): { low: number; expected: number; high: number } {
+  const sum = (pick: (member: MemberPlan) => number) =>
+    plan.members.reduce((total, member) => total + pick(member), 0);
+  const expected = sum((member) => member.missing);
+  return {
+    low: expected - sum((member) => member.skippable),
+    expected,
+    high: sum((member) => member.high),
+  };
+}
 
 export type PointerPlan = {
   /** The pass the plan is for, when the scan was given a name for it. */
@@ -496,17 +539,57 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       windows: 0,
       cached: 0,
       characters: 0,
+      missing: 0,
+      skippable: 0,
+      high: 0,
     })),
   };
   let firstMiss: Task | undefined;
+  const cascaded = labelling.members.length === 2 && labelling.members[0]?.cls === 'system1';
+  /** The runs of one window of one labeler on one file and set, which the re-asks of a window share. */
+  const groups = new Map<
+    string,
+    { memberAt: number; units: number; runs: number; missing: number; refused: number; drifted: boolean }
+  >();
   for (const task of tasks) {
     const wire = task.member.render(task.set, task.window, task.context);
     const entry = plan.members[task.memberAt] as MemberPlan;
     entry.windows++;
-    if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
-    else {
+    const key = requestKey(wire, readableFor(task, task.window));
+    const where = `${task.memberAt}\0${task.file}\0${task.set.set}\0${task.window.id}`;
+    const group = groups.get(where) ?? {
+      memberAt: task.memberAt,
+      units: task.window.units.length,
+      runs: task.member.runs ?? 1,
+      missing: 0,
+      refused: 0,
+      drifted: false,
+    };
+    groups.set(where, group);
+    const cached = cassette.entries.get(key);
+    if (cached) {
+      entry.cached++;
+      if (cached.answer.refused === 'too_large') group.refused++;
+      if (group.runs > 1 && outOfStep(cached.answer)) group.drifted = true;
+    } else {
       entry.characters += JSON.stringify(wire.body).length;
+      entry.missing++;
+      group.missing++;
+      if (cascaded && task.memberAt === 1 && askableWhole(task.set)) entry.skippable++;
       firstMiss ??= task;
+    }
+  }
+  for (const group of groups.values()) {
+    const entry = plan.members[group.memberAt] as MemberPlan;
+    // Each missing run is resolved whole; a cached refusal as too large leaves its halves to ask.
+    entry.high += group.missing * resolveCalls(group.units);
+    entry.high += group.refused * (resolveCalls(group.units) - MAX_SENDS);
+    if (group.runs > 1) {
+      // A run that drifts is asked again for each window the halving can leave, and the re-ask is resolved in turn.
+      if (group.missing > 0 || group.refused > 0 || group.drifted)
+        entry.high +=
+          REASK_LIMIT * nodeSizes(group.units).reduce((total, size) => total + resolveCalls(size), 0);
+      if (group.runs >= TIE_RUNS) entry.high += SPLIT_REASK_RUNS * resolveCalls(group.units);
     }
   }
   input.onPlan?.(plan);

@@ -501,9 +501,16 @@ describe('driftbench estate scan --pointer', () => {
     expect(output.out).toMatch(
       /system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette, 15 to send, \d+ characters\./,
     );
-    expect(output.out).toMatch(/To send: 18 requests, about \d+ input tokens\./);
     expect(output.out).toMatch(
-      /Input cost: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
+      /To send: between (\d+) and (\d+) requests; the plan expects 18, about \d+ input tokens\./,
+    );
+    const [, low, high] = /between (\d+) and (\d+) requests/.exec(output.out) ?? [];
+    expect(Number(low)).toBeLessThanOrEqual(18);
+    expect(Number(high)).toBeGreaterThan(18);
+    expect(output.out).toContain('It can send fewer:');
+    expect(output.out).toContain('It can send more:');
+    expect(output.out).toMatch(
+      /Input cost of the expected requests: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
     );
     await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
     await expect(readFile(join(root, 'none.jsonl'), 'utf8')).rejects.toThrow();
@@ -522,7 +529,9 @@ describe('driftbench estate scan --pointer', () => {
     expect(answered.err).toBe('');
     expect(answered.code).toBe(0);
     expect(answered.out).toMatch(/document roles: \d+ units in \d+ files/);
-    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).toMatch(
+      /To send: between 0 and \d+ requests; the plan expects 0, about 0 input tokens\./,
+    );
     expect(answered.out).not.toContain('The prose pass is sized before the document roles are recorded');
     // An empty cassette answers nothing: the roles pass has requests to record, and the prose pass is sized without its roles.
     await writeFile(join(root, 'empty.jsonl'), '');
@@ -530,7 +539,7 @@ describe('driftbench estate scan --pointer', () => {
     expect(empty.err).toBe('');
     expect(empty.out).toMatch(/document roles: \d+ units in \d+ files/);
     expect(empty.out).toContain('The prose pass is sized before the document roles are recorded');
-    expect(empty.out).not.toContain('To send: 0 requests');
+    expect(empty.out).not.toContain('the plan expects 0,');
   });
 
   it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {
@@ -544,7 +553,9 @@ describe('driftbench estate scan --pointer', () => {
     expect(answered.err).toBe('');
     expect(answered.code).toBe(0);
     expect(answered.out).toContain('15 requests, 15 in the cassette, 0 to send, 0 characters.');
-    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).toMatch(
+      /To send: between 0 and \d+ requests; the plan expects 0, about 0 input tokens\./,
+    );
     expect(answered.out).toContain('No prices given: pass --prices <file> to see the input cost in USD.');
     const both = await run(
       ['estate', 'scan', '.', '--pointer', '--plan-only', '--record', '--cassette', 'cassette.jsonl'],
