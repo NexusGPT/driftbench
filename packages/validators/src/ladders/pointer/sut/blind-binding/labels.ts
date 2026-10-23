@@ -261,6 +261,33 @@ export async function validateAnswerOp(input: Obj): Promise<unknown> {
   };
 }
 
+/**
+ * `rerecord`: one set of one existing entry gets the label a new recording gave. The reader's `recordLabel` replaces
+ * that set's label and leaves the other sets, the id and the status alone, and reports a flip when a selected label
+ * was replaced. The bank calls the hash of the labellers `labelerHash`; the ledger calls it `labeler`.
+ */
+export async function rerecordOp(input: Obj): Promise<unknown> {
+  const pointer = await pointerExports();
+  const previous = input.previous as Obj;
+  const labels: Obj = Object.create(null);
+  for (const [set, label] of Object.entries(previous.labels as Obj))
+    labels[set] = { label: label.label, setHash: label.setHash, labeler: label.labelerHash, source: 'none' };
+  const entry = { id: previous.id, labels };
+  const flip = pointer.recordLabel(entry, String(input.set), {
+    label: String(input.recordedLabel),
+    setHash: String(input.setHash),
+    labeler: String(input.labelerHash),
+    source: 'none',
+  });
+  const out: Obj = {};
+  for (const [set, label] of Object.entries(entry.labels as Obj))
+    out[set] = { label: label.label, setHash: label.setHash, labelerHash: label.labeler };
+  return {
+    entries: [{ ...previous, labels: out }],
+    diagnostics: flip ? [{ kind: 'label_flip', id: flip.unit, set: flip.set }] : [],
+  };
+}
+
 export async function labelsOp(input: Obj): Promise<unknown> {
   switch (input.action) {
     case 'decide':
@@ -270,10 +297,7 @@ export async function labelsOp(input: Obj): Promise<unknown> {
     case 'validate-answer':
       return validateAnswerOp(input);
     case 'rerecord':
-      throw new Unsupported(
-        'labels:rerecord',
-        'the reader emits no label_flip diagnostic: a unit a re-record stops selecting is only counted as unlabeled',
-      );
+      return rerecordOp(input);
     default:
       throw new Unsupported('labels', `no call for the action ${String(input.action)}`);
   }

@@ -618,3 +618,68 @@ describe('spans and links in a label set', () => {
     expect(none.dropped[0]).toMatch(/carries no links/);
   });
 });
+
+describe('scopes: the other units a unit applies to', () => {
+  const counter = load(TWO_SETS)[1] as LabelSet;
+  const window = {
+    id: 'w',
+    path: 'notes.md',
+    headingPath: [],
+    units: [1, 2, 3].map((n) => ({ n, text: `unit ${n}`, index: n - 1 })),
+  };
+
+  it('keeps the scopes of a label, whatever the label', () => {
+    const checked = checkAnswer(counter, window, [
+      { units: '1', label: 'remark', scopes: [2, 3] },
+      { units: '2', label: 'order', target: 3, scopes: [1] },
+    ]);
+    expect(checked.refusals).toEqual([]);
+    expect(checked.accepted.get(1)?.scopes).toEqual([2, 3]);
+    expect(checked.accepted.get(2)?.scopes).toEqual([1]);
+  });
+
+  it('refuses a scope that is no unit of the window, the unit itself, a repeat, or sits on none', () => {
+    for (const entry of [
+      { units: '1', label: 'remark', scopes: [9] },
+      { units: '1', label: 'remark', scopes: [1] },
+      { units: '1', label: 'remark', scopes: [2, 2] },
+      { units: '1', label: 'remark', scopes: ['2' as unknown as number] },
+      { units: '1', label: 'none', scopes: [2] },
+    ] satisfies Labelled[]) {
+      const checked = checkAnswer(counter, window, [entry]);
+      expect(checked.refusals, JSON.stringify(entry)).toHaveLength(1);
+      expect(checked.accepted.size, JSON.stringify(entry)).toBe(0);
+    }
+  });
+});
+
+describe('a refused label set names what is wrong with it', () => {
+  const set = (name: string, label: string, extra = '') =>
+    `labels:\n  - set: ${name}\n    description: A set.\n    labels:\n      - name: ${label}\n        description: A label.\n${extra}`;
+  const message = (text: string): string => {
+    const parsed = parseLabelSets(text);
+    if (parsed.ok) throw new Error('the set was accepted');
+    return parsed.message;
+  };
+
+  it('names the label and the set of a bad identifier', () => {
+    expect(message(set('s3', 'bad name'))).toContain('"bad name"');
+    expect(message(set('s3', 'bad name'))).toContain('"s3"');
+  });
+
+  it('names the label of a target that is not required', () => {
+    expect(message(set('s4', 'odd', '        target: optional\n'))).toContain('"odd"');
+  });
+
+  it('names the label that holds more than three examples', () => {
+    const examples = ['a', 'b', 'c', 'd'].map((e) => `          - ${e}\n`).join('');
+    expect(message(set('many', 'voice', `        examples:\n${examples}`))).toContain('"voice"');
+  });
+
+  it('accepts a set named like an object property', () => {
+    for (const name of ['__proto__', 'constructor', 'hasOwnProperty']) {
+      expect(parseLabelSets(set(name, 'rule')).ok).toBe(true);
+    }
+    expect(message(set('has space', 'rule'))).toContain('"has space"');
+  });
+});
