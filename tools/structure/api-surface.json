@@ -643,6 +643,8 @@
       "PlanOptions": "type",
       "PlanRowTarget": "value",
       "PlannedCell": "type",
+      "PolicyModel": "type",
+      "PolicyTool": "type",
       "PrefixToolCall": "value",
       "PreparedRejudge": "type",
       "PromptAnchor": "type",
