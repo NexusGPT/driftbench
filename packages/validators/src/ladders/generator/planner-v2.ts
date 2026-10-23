@@ -19,6 +19,7 @@ import type { BankItem, SeedData, Tier, Verdict } from './bank';
 const PLANNER_MODULE = fileURLToPath(new URL('../../../../generate/src/plan-v2/index.ts', import.meta.url));
 const FILES = {
   plan: 'packages/generate/src/plan-v2/plan.ts',
+  render: 'packages/generate/src/plan-v2/render.ts',
   groups: 'packages/generate/src/plan-v2/groups.ts',
   rules: 'packages/generate/src/plan-v2/rules.ts',
   solver: 'packages/generate/src/plan-v2/solver.ts',
@@ -1547,5 +1548,202 @@ export function plannerItems(module: string = PLANNER_MODULE, only?: readonly st
       });
     }
   }
-  return [...items, ...hostileItems(module), ...benchmarkItems(module)];
+  return [...items, ...hostileItems(module), ...benchmarkItems(module), ...catchItems(module, only)];
+}
+
+/**
+ * Guards of the planner (docs/validators.md section 12.4, `role: catch`): each passes on the planner and is pinned in
+ * validators/generator/catch.json with the planted bug it guards. They come from the mutants of the planner that the
+ * family above let through (the mutant probe of ladder version 3); each oracle is written from docs/variables.md.
+ */
+function catchItems(module: string, only?: readonly string[]): BankItem[] {
+  if (only) return [];
+  const item = (
+    id: string,
+    tier: Tier,
+    cause: string,
+    check: (data: SeedData) => Promise<Verdict>,
+  ): BankItem => ({
+    id: `planner.catch.${id}`,
+    family: FAMILY,
+    tier,
+    level: LEVEL,
+    component: FILES.plan,
+    cause,
+    role: 'catch',
+    check,
+  });
+  const framed = async <T>(data: SeedData, tag: string, run: (product: PlannerModule) => T) => {
+    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:catch:${tag}` });
+    try {
+      const out = run(frame.product);
+      return { out, divergence: frame.divergence() };
+    } finally {
+      frame.close();
+    }
+  };
+  return [
+    // The row choice is free under the contract ("The array is not minimal"); whatever rows the planner picks, every
+    // plan it gives on every drawn store must still be valid and covering.
+    item('search-valid-covering', 3, `${FILES.solver}: every plan is valid and covers every target`, async (data) => {
+      const { out, divergence } = await framed(data, 'search', (product) =>
+        SHAPES.flatMap((shape) => {
+          const scenario = draw(data.seed, shape);
+          return [1, 2].map((seed) => ({ scenario, plan: product.planV2(scenario.store, { seed }) }));
+        }),
+      );
+      if (divergence !== undefined) return verdict(false, divergence);
+      const wrong: string[] = [];
+      for (const { scenario, plan } of out) {
+        const oracle = new Oracle(scenario);
+        const rows = rowsOf(plan);
+        const incomplete = logOf(plan).filter((row) =>
+          scenario.variables.some((variable) => !variable.values.includes(row.values[variable.id] as string)),
+        ).length;
+        const forbidden = rows.filter((row) => scenario.forbids.some((forbid) => holds(row, forbid))).length;
+        const missing =
+          oracle.uncovered('own', rows).length +
+          oracle.uncovered('axes', rows).length +
+          oracle.uncovered('values', rows).length;
+        if (incomplete + forbidden + missing > 0)
+          wrong.push(`${scenario.name} seed ${plan.seed}: ${incomplete} incomplete, ${forbidden} forbidden, ${missing} uncovered`);
+      }
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    }),
+    // docs/variables.md, Values: "not all zero (VARIABLES_WEIGHT_ZERO)". The planner refuses such a store with the
+    // loader's code, so one rule holds through both doors.
+    item('zero-total-weights-refused', 3, `${FILES.view}: refuse a variable whose weights are all 0 with VARIABLES_WEIGHT_ZERO`, async (data) => {
+      const scenario = draw(data.seed, SHAPES[0] as Shape);
+      const [first] = scenario.store.variables;
+      const store = {
+        ...scenario.store,
+        variables: scenario.store.variables.map((variable) =>
+          variable === first ? { ...variable, values: variable.values.map((value) => ({ ...value, weight: 0 })) } : variable,
+        ),
+      };
+      const { out, divergence } = await framed(data, 'zero', (product) => {
+        try {
+          product.planV2(store as VariableStore, { seed: 1 });
+          return 'planned';
+        } catch (error) {
+          return error instanceof Error ? error.message : String(error);
+        }
+      });
+      if (divergence !== undefined) return verdict(false, divergence);
+      return verdict(out.includes('VARIABLES_WEIGHT_ZERO'), `the store with every weight of one variable at 0: ${out.slice(0, 120)}`);
+    }),
+    // docs/variables.md, The plan: `budget` echoes the option; renderPlanV2 writes it.
+    item('rendered-budget', 2, `${FILES.render}: write the budget of a budgeted plan`, async (data) => {
+      const scenario = draw(data.seed, SHAPES[2] as Shape);
+      const { out, divergence } = await framed(data, 'render', (product) => {
+        const plan = product.planV2(scenario.store, { seed: 1, budget: 2 });
+        return { plan, text: product.renderPlanV2(plan) };
+      });
+      if (divergence !== undefined) return verdict(false, divergence);
+      let written: { budget?: unknown; rows?: unknown[] } = {};
+      try {
+        written = JSON.parse(out.text);
+      } catch {
+        return verdict(false, 'the plan is not written as JSON');
+      }
+      return verdict(
+        written.budget === 2 && written.rows?.length === out.plan.rows.length,
+        `the JSON of a plan at a budget of 2 writes budget ${String(written.budget)} and ${written.rows?.length} rows`,
+      );
+    }),
+    // docs/variables.md R7 and the plan's warnings: value_unreachable says whether the store requires the value.
+    item('unreachable-required-flag', 3, `${FILES.plan}: mark value_unreachable required when the store requires the value`, async (data) => {
+      const scenario = draw(data.seed, SHAPES[0] as Shape);
+      const [a, b] = scenario.variables as [Variable, Variable];
+      const forbids = b.values.map((value) => ({
+        forbid: { [a.id]: a.values[0] as string, [b.id]: value },
+        reason: 'drawn for the item',
+        approved: true,
+      }));
+      const storeWith = (required: boolean) => ({
+        ...scenario.store,
+        variables: scenario.store.variables.map((variable) =>
+          variable.id === a.id
+            ? {
+                ...variable,
+                values: variable.values.map((value) => (value.id === a.values[0] && required ? { ...value, required: true } : value)),
+              }
+            : variable,
+        ),
+        constraints: [...scenario.store.constraints, ...forbids],
+      });
+      const { out, divergence } = await framed(data, 'required', (product) =>
+        [true, false].map((required) => product.planV2(storeWith(required) as VariableStore, { seed: 1 })),
+      );
+      if (divergence !== undefined) return verdict(false, divergence);
+      const flag = (plan: PlanV2) =>
+        (plan.warnings.find((w) => w.code === 'value_unreachable') as { required?: unknown } | undefined)?.required;
+      const [withRequired, without] = out as [PlanV2, PlanV2];
+      return verdict(
+        flag(withRequired) === true && flag(without) === false,
+        `required flag ${String(flag(withRequired))} for a required value, ${String(flag(without))} for one that is not`,
+      );
+    }),
+    // docs/variables.md, What the rows cover: a passage is a rule, named by its ledger id else by its file and words;
+    // the values and constraints that quote it join it; a value with `when` and no quote is a rule of its own.
+    item('rules-from-passages', 4, `${FILES.rules}: read the rules from the passages the store quotes`, async (data) => {
+      const name = (tag: string) => neutralName(data.seed, `planner:catch:rules:${tag}`);
+      const ids = ['a', 'b', 'c', 'd', 'e'].map(name) as [string, string, string, string, string];
+      const [a, b, c, d, e] = ids;
+      const quote = (path: string, text: string, ledger?: string) => ({
+        kind: 'quote',
+        path,
+        quote: text,
+        ...(ledger ? { ledger } : {}),
+      });
+      const value = (variable: string, at: number, extra: Record<string, unknown> = {}) => ({
+        id: `${variable}${at}`,
+        title: `${variable}${at}`,
+        ...extra,
+      });
+      const raw = {
+        format: 1,
+        agent: name('agent'),
+        version: '1',
+        prior: { kind: 'declared' },
+        variables: ids.map((variable) => ({
+          id: variable,
+          title: variable,
+          kind: 'data',
+          role: 'axis',
+          approved: true,
+          values: [0, 1].map((at) => {
+            if (variable === a && at === 0)
+              return value(variable, at, { polarity: 'must', provenance: [quote('agent.md', 'Rule one says this.')] });
+            if (variable === b && at === 0)
+              return value(variable, at, { provenance: [quote('agent.md', 'Rule one  says\nthis.')] });
+            if (variable === c && at === 0)
+              return value(variable, at, { polarity: 'must', provenance: [quote('notes.md', 'First words.', 'L-1')] });
+            if (variable === e && at === 1) return value(variable, at, { polarity: 'must', when: { [b]: [`${b}1`] } });
+            return value(variable, at);
+          }),
+        })),
+        constraints: [
+          {
+            forbid: { [d]: `${d}0`, [e]: `${e}0` },
+            reason: 'drawn for the item',
+            approved: true,
+            provenance: [quote('notes.md', 'Other words.', 'L-1')],
+          },
+        ],
+      };
+      const checked = validateVariableStore(raw);
+      if (!checked.ok)
+        throw new Error(`the drawn store is invalid: ${checked.errors.map((issue) => issue.message).join('; ')}`);
+      const { out, divergence } = await framed(data, 'rules', (product) => product.planV2(checked.store, { seed: 1 }));
+      if (divergence !== undefined) return verdict(false, divergence);
+      const key = (variables: readonly string[]) => [...variables].sort().join(',');
+      const wanted = [key([a, b]), key([c, d, e]), key([e, b])].sort();
+      const got = (out.rules ?? []).map((rule) => key(rule.variables ?? [])).sort();
+      return verdict(
+        JSON.stringify(got) === JSON.stringify(wanted) && out.rules.every((rule) => typeof rule.label === 'string' && rule.label !== ''),
+        `${got.length} rules read from the passages of the store`,
+      );
+    }),
+  ];
 }
