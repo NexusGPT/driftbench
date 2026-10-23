@@ -67,3 +67,137 @@ export function place(spec: Spec, base = SKILLS): Placed {
   }
   return { files, paths };
 }
+
+// A part kept out of the setup ---------------------------------------------------------------------------------
+
+/** A draft nobody links, that points at a part that does not exist: read, it would be an unresolved link. */
+export const DRAFT =
+  '# Draft\n\nAlways keep the totals in whole cents.\nSee `references/vanished-notes.md`.\n';
+
+export type Junk = { key: UnitKey; path: string; folder: string; files: Files };
+
+/** The draft of a capability, in its `scratch` folder. */
+export function junkOf(cap: CapUnit): Junk {
+  const folder = capFolder(cap);
+  const path = `${folder}/scratch/wip-draft.md`;
+  return { key: junkKey(cap), path, folder, files: { [path]: DRAFT } };
+}
+
+/**
+ * One way a part stays out of the setup, or in it: the files that do it, the path of the part it is about, and
+ * whether the part stays out. A form is a rule an owner writes (an ignore file, the setup file), a place the
+ * runtime does not read from (a copy of its own layout folder), or a tool's mark (a cache tag). The controls
+ * are forms that look like these and are not, so the part stays in.
+ */
+export type Hiding = {
+  name: string;
+  hides: boolean;
+  build(cap: CapUnit): { path: string; folder: string; files: Files };
+};
+
+function byRule(name: string, hides: boolean, files: (junk: Junk) => Files): Hiding {
+  return {
+    name,
+    hides,
+    build: (cap) => {
+      const junk = junkOf(cap);
+      return { path: junk.path, folder: junk.folder, files: { ...junk.files, ...files(junk) } };
+    },
+  };
+}
+
+const RULES: Hiding[] = [
+  byRule('a name in the root ignore file', true, (j) => ({ '.gitignore': `${j.path}\n` })),
+  byRule('a glob on the file name', true, () => ({ '.gitignore': '*-draft.md\n' })),
+  byRule('a folder with a trailing slash', true, () => ({ '.gitignore': 'scratch/\n' })),
+  byRule('an anchored glob over folders', true, () => ({ '.gitignore': '/.claude/skills/*/scratch/\n' })),
+  byRule('a glob across folders', true, () => ({ '.gitignore': '**/scratch\n' })),
+  byRule('a comment, a blank line and a name', true, (j) => ({
+    '.gitignore': `# local notes\n\n${j.path}\n`,
+  })),
+  byRule('an ignore file inside the unit folder', true, (j) => ({
+    [`${j.folder}/.gitignore`]: 'scratch/\n',
+  })),
+  byRule('a later line that brings the part back', false, (j) => ({
+    '.gitignore': `*-draft.md\n!${j.path.split('/').pop()}\n`,
+  })),
+  byRule('the setup file (the control that holds today)', true, () => ({
+    'driftbench.estate.yaml': 'ignore:\n  - scratch\n',
+  })),
+];
+
+/** Places inside the layout folder where a copy of the layout folder may lie. */
+const NESTED_AT = (cap: CapUnit) => ['skills', `skills/${cap.name}`, 'agents', 'hooks/lib', 'memory/topics'];
+
+const NESTED: Hiding[] = [0, 1, 2, 3, 4].flatMap((index): Hiding[] => {
+  const where = (cap: CapUnit) => NESTED_AT(cap)[index] as string;
+  const at = (cap: CapUnit, folder: string) => {
+    const path = `.claude/${where(cap)}/${folder}/ledger-notes/draft.md`;
+    return { path, folder: `.claude/${where(cap)}`, files: { [path]: DRAFT } };
+  };
+  const label = [
+    'inside the skills folder',
+    'inside a skill folder',
+    'inside the agents folder',
+    'deep in the hooks folder',
+    'inside the memory folder',
+  ][index];
+  return [
+    {
+      name: `a copy of the layout folder ${label}`,
+      hides: true,
+      build: (cap) => at(cap, '.claude'),
+    },
+    {
+      name: `a folder named like the layout folder but not equal to it ${label} (control)`,
+      hides: false,
+      build: (cap) => at(cap, '.claude-notes'),
+    },
+  ];
+});
+
+/** The tag a tool writes in a folder it fills with a cache (the Cache Directory Tagging Specification). */
+export const CACHE_TAG =
+  'Signature: 8a477f597d28d172789f06886806bc55\n# This file is a cache directory tag.\n';
+
+const CACHE_FOLDERS = [
+  '.claude/hooks/quarrycache',
+  '.claude/skills/.windlass-cache',
+  '.claude/hooks/lib/out/ferrulecache',
+];
+
+const CACHES: Hiding[] = CACHE_FOLDERS.flatMap((folder, index): Hiding[] => {
+  const build = (tag: string | undefined) => (_cap: CapUnit) => {
+    const path = `${folder}/notes.md`;
+    return {
+      path,
+      folder,
+      files: { [path]: DRAFT, ...(tag === undefined ? {} : { [`${folder}/CACHEDIR.TAG`]: tag }) },
+    };
+  };
+  return [
+    { name: `a folder tagged as a cache, form ${index + 1}`, hides: true, build: build(CACHE_TAG) },
+    {
+      name: `the same folder with no tag (control), form ${index + 1}`,
+      hides: false,
+      build: build(undefined),
+    },
+    {
+      name: `the same folder with a tag of another signature (control), form ${index + 1}`,
+      hides: false,
+      build: build('Signature: 0000\n'),
+    },
+  ];
+});
+
+export const HIDINGS: Hiding[] = [...RULES, ...NESTED, ...CACHES];
+
+/** Parts the runtime always loads: a local instruction and a local setting. They stay read whatever is kept out. */
+export const ALWAYS_LOADED: Array<{ key: UnitKey; path: string; text: string }> = [
+  { key: 'instruction:local', path: 'CLAUDE.local.md', text: '# Local\n\nKeep every answer short.\n' },
+  {
+    key: 'setting:local',
+    path: '.claude/settings.local.json',
+    text: '{ "permissions": { "allow": ["Read"] } }\n',
+  },
+];

@@ -2,8 +2,9 @@ import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
-import { type RuntimeProfile, variablePrefix } from '@agent-nexus/driftbench-core';
+import { locateFile, type RuntimeProfile, variablePrefix } from '@agent-nexus/driftbench-core';
 import { type IgnoreRule, ignoreRule } from '../scan/ignore';
+import { IgnoreFiles } from './ignore-files';
 
 /**
  * The one module every estate reader, scanner and mutant copier reads the disk through. It lists a folder in
@@ -126,33 +127,106 @@ export async function dedupeByRealPath(root: string, paths: readonly string[]): 
   return kept;
 }
 
-/** The ignore stack: the ignore files present, then the profile's globs, then the configuration's. */
-export type IgnoreStack = {
-  rules: IgnoreRule[];
-  /** The first rule that matches a root-relative path, or undefined. */
-  match(path: string): IgnoreRule | undefined;
-};
+/** What hid a file: the glob, the ignore-file line, or the cache tag that kept it out of the estate. */
+export type IgnoreHit = { label: string };
 
 /**
- * The ignore stack of an estate, in order: the lines of each ignore file the profile honours that the estate
- * holds, the profile's own globs, and the configured globs. A glob given twice is one rule, at its first place.
+ * The signature a folder's `CACHEDIR.TAG` starts with to say "this folder is a cache" (the Cache Directory
+ * Tagging Specification). Tools that write caches (test runners, type checkers, linters, build tools) write the
+ * tag; a folder that holds one is no part of any setup.
  */
+export const CACHE_TAG_NAME = 'CACHEDIR.TAG';
+const CACHE_TAG_SIGNATURE = 'Signature: 8a477f597d28d172789f06886806bc55';
+
+/** True when a folder holds a valid cache tag. */
+export async function isCacheFolder(folder: string): Promise<boolean> {
+  const text = await readFile(join(folder, CACHE_TAG_NAME), 'utf8').catch(() => undefined);
+  return text !== undefined && text.startsWith(CACHE_TAG_SIGNATURE);
+}
+
+/**
+ * The files the runtime loads before every turn, by the part types of its profile: a person keeps them out of
+ * version control (a local instruction, a local setting) and the runtime reads them all the same, so no ignore
+ * file hides one.
+ */
+export function loadedAlways(profile: RuntimeProfile): (path: string) => boolean {
+  const own = profile.types.types.filter(
+    (type) => type.runtime === profile.name && type.loaded.when === 'always',
+  );
+  return (path) => {
+    const clean = path.replace(/^\.?\/+/, '').replace(/\/+/g, '/');
+    return own.some((type) => locateFile(type, clean) !== undefined);
+  };
+}
+
+/**
+ * The glob that keeps out a copy of the runtime's own layout folder found inside it. A folder named like the
+ * layout folder, inside the layout folder, is another setup's (an agent's local memory, a template a skill
+ * ships): its files are not this setup's parts.
+ */
+export function nestedLayoutGlob(profile: RuntimeProfile): string {
+  return `/${profile.layout.root}/**/${posix.basename(profile.layout.root)}`;
+}
+
+/**
+ * The ignore stack of an estate. It keeps a file out of the estate by, in order: the profile's globs, the layout's
+ * own nested copy, the configured globs, the lines of the ignore files the profile honours (read in each folder
+ * the reader enters), and a cache tag. A glob given twice is one rule at its first place. Every hit says what
+ * hid the file, so the scan can count it and the lint can list it as skipped.
+ */
+export type IgnoreStack = {
+  /** The globs, in order: the profile's, the layout's, the configured ones. */
+  rules: IgnoreRule[];
+  /** Reads the ignore files of a folder (root-relative; '' is the root). Call it before matching inside it. */
+  enter(folder: string): Promise<void>;
+  /** What hides a root-relative entry, from its folder's ignore files and the globs; the folder must have been entered. */
+  match(path: string, folder?: boolean): IgnoreHit | undefined;
+  /** As `match`, for a path whose folders were not walked: every folder above it counts and is entered. */
+  matchPath(path: string): Promise<IgnoreHit | undefined>;
+  /** The cache tag of a root-relative folder, when it holds a valid one. */
+  cache(folder: string): Promise<IgnoreHit | undefined>;
+  /** The same globs over another tree (a folder that is not the estate's): no ignore file is read there. */
+  rebased(folder: string): Promise<IgnoreStack>;
+};
+
 export async function ignoreStack(
   root: string,
   profile: RuntimeProfile,
   configured: readonly string[],
+  options: { ignoreFiles?: boolean } = {},
 ): Promise<IgnoreStack> {
-  const fromFiles: string[] = [];
-  for (const name of profile.ignoreFiles) {
-    const text = await readFile(join(root, name), 'utf8').catch(() => undefined);
-    if (text === undefined) continue;
-    for (const line of text.split(/\r?\n/)) {
-      const glob = line.trim();
-      if (glob !== '' && !glob.startsWith('#') && !glob.startsWith('!')) fromFiles.push(glob);
-    }
-  }
-  const rules = [...new Set([...fromFiles, ...profile.ignore, ...configured])].map(ignoreRule);
-  return { rules, match: (path) => rules.find((rule) => rule.test(path)) };
+  // An ignore file is a rule for the reader, not a part of the estate: it is never read as content.
+  const rules = [
+    ...new Set([...profile.ignore, ...profile.ignoreFiles, nestedLayoutGlob(profile), ...configured]),
+  ].map(ignoreRule);
+  const files = new IgnoreFiles(
+    root,
+    options.ignoreFiles === false ? [] : profile.ignoreFiles,
+    loadedAlways(profile),
+  );
+  const globHit = (path: string): IgnoreHit | undefined => {
+    const rule = rules.find((candidate) => candidate.test(path));
+    return rule ? { label: rule.pattern } : undefined;
+  };
+  const fileHit = (hit: { file: string; line: string } | undefined): IgnoreHit | undefined =>
+    hit ? { label: `${hit.file}: ${hit.line}` } : undefined;
+  return {
+    rules,
+    enter: (folder) => files.enter(folder),
+    match: (path, folder = false) => globHit(path) ?? fileHit(files.match(path, folder)),
+    matchPath: async (path) => {
+      const hit = globHit(path) ?? fileHit(await files.matchPath(path));
+      if (hit !== undefined) return hit;
+      // A file inside a folder that tags itself as a cache is no part of the estate either.
+      const parts = path.split('/');
+      for (let depth = 1; depth < parts.length; depth++)
+        if (await isCacheFolder(join(root, ...parts.slice(0, depth)))) return { label: CACHE_TAG_NAME };
+      return undefined;
+    },
+    cache: async (folder) =>
+      (await isCacheFolder(join(root, folder))) ? { label: CACHE_TAG_NAME } : undefined,
+    rebased: (folder) => ignoreStack(folder, profile, configured, { ignoreFiles: false }),
+  };
 }
 
 /** The folders a path variable stands for, when a scan maps them: `--home` and the estate root. */
