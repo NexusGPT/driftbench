@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,14 @@ const MANIFEST = 'examples/acme/radius/stage-recap.yaml';
 const SPEC =
   'examples/estates/fixture/generated/specs/live/route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml';
 /** Where a change manifest comes from, by the commands that write one: every one of them is named. */
-const SOURCES_OF_MANIFESTS = ['estate diff --change-out', '--old-ledger', 'radius ledger', 'radius auto'];
+const SOURCES_OF_MANIFESTS = [
+  'estate diff --change-out',
+  '--old-ledger',
+  '--new-ledger',
+  'radius ledger',
+  'radius auto',
+  'radius sections reanchor --change-out',
+];
 
 let dir = '';
 const folders: string[] = [];
@@ -53,9 +60,10 @@ async function scratch(): Promise<string> {
 }
 
 /** Each artifact a user can pass by mistake, written by the command that makes it. */
-const ARTIFACTS: Array<{ id: string; make: (folder: string) => Promise<string> }> = [
+const ARTIFACTS: Array<{ id: string; article: 'a' | 'an'; make: (folder: string) => Promise<string> }> = [
   {
     id: 'estate diff',
+    article: 'an',
     make: async (folder) => {
       const path = join(folder, 'diff.json');
       expect((await cli(['estate', 'diff', MAP, MAP, '--out', path])).code).toBe(0);
@@ -64,6 +72,7 @@ const ARTIFACTS: Array<{ id: string; make: (folder: string) => Promise<string> }
   },
   {
     id: 'estate impact',
+    article: 'an',
     make: async (folder) => {
       const diff = join(folder, 'diff.json');
       const path = join(folder, 'impact.json');
@@ -84,10 +93,11 @@ const ARTIFACTS: Array<{ id: string; make: (folder: string) => Promise<string> }
       return path;
     },
   },
-  { id: 'estate map', make: async () => join(ROOT, MAP) },
-  { id: 'spec', make: async () => join(ROOT, SPEC) },
+  { id: 'estate map', article: 'an', make: async () => join(ROOT, MAP) },
+  { id: 'spec', article: 'a', make: async () => join(ROOT, SPEC) },
   {
     id: 'radius report',
+    article: 'a',
     make: async (folder) => {
       const path = join(folder, 'report.json');
       const report = await cli(['radius', GATED, '--change', MANIFEST, '--json']);
@@ -99,12 +109,19 @@ const ARTIFACTS: Array<{ id: string; make: (folder: string) => Promise<string> }
 ];
 
 describe('radius --change given another driftbench artifact (matrix)', () => {
-  it.each(ARTIFACTS.map((artifact) => ({ ...artifact, label: artifact.id })))('$label', async ({ make }) => {
-    const path = await make(await scratch());
-    const run = await cli(['radius', GATED, '--change', path]);
-    expect(run.code).toBe(2);
-    for (const source of SOURCES_OF_MANIFESTS) expect(run.err).toContain(source);
-  });
+  it.each(ARTIFACTS.map((artifact) => ({ ...artifact, label: artifact.id })))(
+    '$label',
+    async ({ id, article, make }) => {
+      const path = await make(await scratch());
+      const run = await cli(['radius', GATED, '--change', path]);
+      expect(run.code).toBe(2);
+      // It says what the file is, with the right article, and no other kind.
+      expect(run.err).toContain(`This file is ${article} ${id}, not a change manifest.`);
+      for (const other of ARTIFACTS.filter((artifact) => artifact.id !== id))
+        expect(run.err).not.toContain(`This file is ${other.article} ${other.id},`);
+      for (const source of SOURCES_OF_MANIFESTS) expect(run.err).toContain(source);
+    },
+  );
 });
 
 describe('the registry of artifact kinds', () => {
@@ -116,13 +133,26 @@ describe('the registry of artifact kinds', () => {
 });
 
 describe('a file that is no artifact of driftbench gets no pointer (matrix)', () => {
-  const CASES: Array<{ id: string; text: string }> = [
+  const CASES: Array<{ id: string; text: string | Buffer }> = [
     { id: 'an empty file', text: '' },
     { id: 'plain text', text: 'a few words that are no document\n' },
     { id: 'a list', text: '- one\n- two\n' },
     { id: 'a number', text: '42\n' },
     { id: 'a manifest with a field it does not know', text: 'from: a\nto: b\nchanges: []\nsurprise: true\n' },
     { id: 'an object that shares one key with a diff', text: 'version: 1\nthings: []\n' },
+    // Each kind with one of its structure missing: near misses, none of them the artifact.
+    { id: 'a radius report without totals', text: JSON.stringify({ manifest: {}, modes: [], specs: [] }) },
+    { id: 'a radius report without modes', text: JSON.stringify({ manifest: {}, specs: [], totals: {} }) },
+    { id: 'a radius report without specs', text: JSON.stringify({ manifest: {}, modes: [], totals: {} }) },
+    { id: 'a radius report without manifest', text: JSON.stringify({ modes: [], specs: [], totals: {} }) },
+    { id: 'an object with only blocks', text: 'blocks:\n  - user: hi\n' },
+    { id: 'an object with only an id', text: 'id: example\n' },
+    { id: 'an object with only atoms', text: 'atoms: []\nedges: []\n' },
+    { id: 'malformed YAML', text: 'from: [unclosed\nchanges: {a: \n' },
+    {
+      id: 'binary bytes',
+      text: Buffer.from(Array.from({ length: 4096 }, (_, index) => (index * 37 + 11) % 256)),
+    },
   ];
   it.each(CASES)('$id', async ({ text }) => {
     const folder = await scratch();
@@ -131,6 +161,79 @@ describe('a file that is no artifact of driftbench gets no pointer (matrix)', ()
     const run = await cli(['radius', GATED, '--change', path]);
     expect(run.code).toBe(2);
     for (const source of SOURCES_OF_MANIFESTS) expect(run.err).not.toContain(source);
+  });
+});
+
+describe('every reader of a change manifest names the artifact', () => {
+  const mapPath = join(ROOT, MAP);
+
+  it('radius', async () => {
+    const run = await cli(['radius', GATED, '--change', mapPath]);
+    expect(run.err).toContain('This file is an estate map, not a change manifest.');
+  });
+
+  it('campaign run --from --change', async () => {
+    const folder = await scratch();
+    const run = await cli([
+      'campaign',
+      'run',
+      GATED,
+      '--target',
+      'function:acme-sales',
+      '--store',
+      join(folder, 's.db'),
+      '--from',
+      'no-such-campaign',
+      '--change',
+      mapPath,
+    ]);
+    expect(run.err).toContain('This file is an estate map, not a change manifest.');
+  });
+
+  it('campaign rejudge --from --change', async () => {
+    const folder = await scratch();
+    const run = await cli([
+      'campaign',
+      'rejudge',
+      GATED,
+      '--store',
+      join(folder, 's.db'),
+      '--from',
+      'no-such-campaign',
+      '--campaign',
+      'new-campaign',
+      '--change',
+      mapPath,
+    ]);
+    expect(run.err).toContain('This file is an estate map, not a change manifest.');
+  });
+
+  it('estate run --from --change', async () => {
+    const folder = await scratch();
+    const copy = join(folder, 'estate');
+    await cp(join(ROOT, 'examples/estates/fixture/CLAUDE.md'), join(copy, 'CLAUDE.md'));
+    await cp(join(ROOT, 'examples/estates/fixture/.claude'), join(copy, '.claude'), { recursive: true });
+    await writeFile(join(folder, 'old.db'), '');
+    const run = await cli([
+      'estate',
+      'run',
+      join(ROOT, SPEC),
+      '--estate',
+      copy,
+      '--runtime',
+      'claude-code',
+      '--command',
+      join(ROOT, 'examples/estates/fixture/live/fake/claude.mjs'),
+      '--store',
+      join(folder, 'new.db'),
+      '--from',
+      join(folder, 'old.db'),
+      '--change',
+      mapPath,
+      '--agent-version',
+      'v2',
+    ]);
+    expect(run.err).toContain('This file is an estate map, not a change manifest.');
   });
 });
 
