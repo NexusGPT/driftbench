@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: by hand and with a framework</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 350px; }
+  .head-k { left: 16px; top: 16px; }
+  .col { position: absolute; top: 42px; width: 282px; height: 270px; padding: 12px 0 0; }
+  .col .h { padding: 0 14px 8px; font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: var(--kind-strong); }
+  .col .t { padding: 0 14px 10px; font: 400 15px/1.1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
+  .nx-irow { min-height: 44px; font-size: 12.5px; }
+  .nx-irow .k { width: 22px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 330"></svg>
+    <span class="nx-kind head-k">By hand, and with a framework</span>
+    <div class="nx-ill-panel col" style="left:16px;"><div class="h">By hand</div><div class="t">Slow, and hard to repeat.</div><div class="nx-irow"><span class="k">01</span><span class="v">Write a few chats in a document</span></div><div class="nx-irow"><span class="k">02</span><span class="v">Read every reply yourself</span></div><div class="nx-irow"><span class="k">03</span><span class="v">Judge each one by feel</span></div><div class="nx-irow"><span class="k">04</span><span class="v">Do it all again at each release</span></div></div>
+    <div class="nx-ill-panel col" style="left:318px;box-shadow:var(--nx-ill-panel-shadow),0 0 0 2px var(--nx-blue);"><div class="h">With a framework</div><div class="t">Fast, and the same every time.</div><div class="nx-irow"><span class="k">01</span><span class="v">Tests are written from a list</span></div><div class="nx-irow"><span class="k">02</span><span class="v">Code checks what code can check</span></div><div class="nx-irow"><span class="k">03</span><span class="v">Judges are tested before they score</span></div><div class="nx-irow"><span class="k">04</span><span class="v">Every score comes with a range</span></div></div>
+
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 17px "Libre Caslon Display"', '400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

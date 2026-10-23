@@ -73,8 +73,59 @@ function dollars(
   return usd;
 }
 
-/** Prefer the adapter's dollars. Price totals once, or each segment when dollars/models are segment-specific. */
+/** The model that prices the agent's own tokens: the block's, else the one model its segments name, else the target's. */
+function agentModelOf(observed: Observed, target: TargetRef): string | undefined {
+  const named = [
+    ...new Set(observed.segments.flatMap((segment) => (segment.cost?.model ? [segment.cost.model] : []))),
+  ];
+  return (
+    observed.cost.model ??
+    (named.length === 1 ? named[0] : undefined) ??
+    (typeof target.options?.model === 'string' ? target.options.model : undefined)
+  );
+}
+
+/** The dollars for the helper tokens, with the helper model's price (the agent's model when the records name none). */
+function helperDollars(
+  cost: Cost,
+  agentModel: string | undefined,
+  target: TargetRef,
+  prices: TokenPrices | undefined,
+  required: boolean,
+): number | undefined {
+  if (cost.helperInputTokens === undefined && cost.helperOutputTokens === undefined) return undefined;
+  const model = cost.helperModel ?? agentModel;
+  return dollars(
+    {
+      ...(model === undefined ? {} : { model }),
+      ...(cost.helperInputTokens === undefined ? {} : { inputTokens: cost.helperInputTokens }),
+      ...(cost.helperOutputTokens === undefined ? {} : { outputTokens: cost.helperOutputTokens }),
+    },
+    { ...target, options: { ...target.options, ...(model === undefined ? {} : { model }) } },
+    prices,
+    required,
+  );
+}
+
+/**
+ * The priced block, with the helper dollars added: `cost.helperUsd` is the helpers' share and `cost.usd` the total.
+ * A block with no helper tokens is returned as `priceAgent` made it.
+ */
 export function priceObserved(
+  observed: Observed,
+  target: TargetRef,
+  prices: TokenPrices | undefined,
+  required: boolean,
+): Observed {
+  if (observed.cost.usd !== undefined || (!prices && !required)) return observed;
+  const agent = priceAgent(observed, target, prices, required);
+  const helper = helperDollars(observed.cost, agentModelOf(observed, target), target, prices, required);
+  if (helper === undefined) return agent;
+  return { ...agent, cost: { ...agent.cost, helperUsd: helper, usd: (agent.cost.usd ?? 0) + helper } };
+}
+
+/** Prefer the adapter's dollars. Price totals once, or each segment when dollars/models are segment-specific. */
+function priceAgent(
   observed: Observed,
   target: TargetRef,
   prices: TokenPrices | undefined,
