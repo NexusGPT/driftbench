@@ -13790,6 +13790,15 @@
       "cause": "estate lint reports the orphan and missing-reference findings, lists the skills and helpers reached only by their description as information, and exits 1."
     },
     {
+      "id": "claim/cli/estate/lint-unreachable-without-description",
+      "family": "claim-cli",
+      "tier": 2,
+      "level": 10,
+      "source": "contract",
+      "component": "packages/cli/src/commands/estate.ts",
+      "cause": "estate lint still reports a file that no route and no description reaches as unreachable."
+    },
+    {
       "id": "claim/cli/replay/documented",
       "family": "claim-cli",
       "tier": 2,

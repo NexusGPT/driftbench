@@ -2565,6 +2565,38 @@ add({
   },
 });
 
+add({
+  slug: 'estate/lint-unreachable-without-description',
+  tier: 2,
+  component: ESTATE_CMD,
+  title:
+    'estate lint reports UNREACHABLE for a skill with no description and no route, and exits 1 (cli.md estate lint)',
+  cause: 'estate lint still reports a file that no route and no description reaches as unreachable.',
+  async run(ctx) {
+    const root = join(ctx.dir, 'lone-estate');
+    put(root, 'CLAUDE.md', '# Rules\n\nEverything here is invented for testing.\n');
+    put(
+      root,
+      '.claude/skills/lone-desk/SKILL.md',
+      '---\nname: lone-desk\nallowed-tools: Read\n---\n\n# Lone desk\n',
+    );
+    const map = join(ctx.dir, 'lone-map.yaml');
+    const scanned = await cli(['estate', 'scan', root, '--no-model', '--out', map], ctx.dir);
+    const linted = await cli(['estate', 'lint', map], ctx.dir);
+    return expectAll([
+      [scanned.code === 0, `the scan failed; ${shown(scanned)}`],
+      [
+        linted.code === 1 && /^ {2}UNREACHABLE /m.test(linted.out),
+        `expected exit 1 and an UNREACHABLE finding; ${shown(linted)}`,
+      ],
+      [
+        !linted.out.includes('REACHED_BY_DESCRIPTION  1'),
+        `expected no file reached by description; ${shown(linted)}`,
+      ],
+    ]);
+  },
+});
+
 const SESSIONS = 'examples/estates/sessions';
 
 add({
