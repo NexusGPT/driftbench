@@ -92,9 +92,16 @@ export class PointerPlanOnly extends Error {
  * Why a unit that ended unlabeled is not decided, so the ledger keeps no record of it and the next scan asks it again:
  * a window failed in its file and set; answers asked for to settle the vote are missing (a replayed cassette holds
  * none, or the window was halved); a run, or a re-ask, came back out of step and was left out of the vote, so a
- * planned voice is missing; no run named the unit. Only a complete vote is a decision.
+ * planned voice is missing; a run's entry for the unit was refused by the check inside an answer it accepted, so that
+ * run is no vote and no span-missing re-ask filled its place; no run named the unit. Only a complete vote is a
+ * decision.
  */
-export type UndecidedReason = 'window_failed' | 'answers_missing' | 'out_of_step' | 'no_run_named';
+export type UndecidedReason =
+  | 'window_failed'
+  | 'answers_missing'
+  | 'out_of_step'
+  | 'entry_refused'
+  | 'no_run_named';
 
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
 export type MemberPlan = {
@@ -618,6 +625,16 @@ export function outOfStep(answer: unknown, window?: Window): Slip | undefined {
     (unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE)
     ? { quoted, unlocated, slipped, missing }
     : undefined;
+}
+
+/** The units of the window an answer names only in entries the check refused: units it names that hold no opinion. */
+function refusedUnits(
+  answer: unknown,
+  window: Window,
+  byUnit: ReadonlyMap<number, unknown>,
+): Window['units'] {
+  const left = new Set(leftOut(answer, window).map((unit) => unit.index));
+  return window.units.filter((unit) => !left.has(unit.index) && !byUnit.has(unit.index));
 }
 
 /** The units of the window an answer does not name. */
@@ -1244,6 +1261,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const unheard = new WeakMap<Map<number, Opinion>, Set<number>>();
   // A run asked for one window only (a re-ask on a split) is heard on that window's units alone.
   const heardOnly = new WeakMap<Map<number, Opinion>, Set<number>>();
+  // The units of each run whose entry the check refused inside an answer it accepted: no vote, so the run is not heard
+  // on them (a voice missing), unless a later answer of the same window takes the run's place there.
+  const refusedIn = new WeakMap<Map<number, Opinion>, Set<number>>();
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
   const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
@@ -1264,7 +1284,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       number,
       Opinion
     >;
-  /** Reads an answer in step and puts its opinions in the place of run `run`. */
+  /**
+   * Reads an answer in step and puts its opinions in the place of run `run`. A unit the answer names only in
+   * entries the check refused is no vote of that run: the run is not heard on it.
+   */
   const hear = (task: Task, run: number, leaf: Leaf) => {
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
     appendAll(refusals, read.refusals);
@@ -1272,6 +1295,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const target = runOf(task, run);
     for (const [index, opinion] of read.byUnit)
       target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
+    const refused = refusedUnits(leaf.answer, leaf.window, read.byUnit);
+    const off = unheard.get(target) ?? new Set<number>();
+    const marked = refusedIn.get(target) ?? new Set<number>();
+    for (const unit of leaf.window.units) marked.delete(unit.index);
+    for (const unit of refused) {
+      off.add(unit.index);
+      marked.add(unit.index);
+    }
+    if (off.size > 0) unheard.set(target, off);
+    if (marked.size > 0) refusedIn.set(target, marked);
   };
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
@@ -1782,6 +1815,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (note.kinds.every((kind) => located.some((span) => span.kind === kind)))
         fills.set(`${unitId(task.file, note.index)}\0${task.set.set}`, located);
     }
+    // The answer, in step, takes the place of a run whose entry for a unit of the window was refused: that voice is
+    // no longer missing.
+    if (outOfStep(leaf.answer, leaf.window)) continue;
+    const runs = opinionsOf(task.file, task.set)[task.memberAt] ?? [];
+    for (const unit of task.window.units) {
+      const opinion = read.byUnit.get(unit.index);
+      const run = runs.find((each) => refusedIn.get(each)?.has(unit.index));
+      if (!opinion || !run) continue;
+      run.set(unit.index, { ...opinion, source: leaf.key.slice(0, 12) });
+      refusedIn.get(run)?.delete(unit.index);
+      unheard.get(run)?.delete(unit.index);
+    }
   }
 
   let unlabeled = 0;
@@ -1820,6 +1865,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const waited = provisional.get(`${file}\0${set.set}\0${index}`);
     if (waited !== undefined) return { undecided: waited };
     const byMember = opinionsOf(file, set);
+    if (byMember.some((runs) => runs.some((run) => refusedIn.get(run)?.has(index))))
+      return { undecided: 'entry_refused' };
     const votes: LedgerUnlabeled['votes'] = [];
     let named = false;
     for (const [at, member] of labelling.members.entries()) {
