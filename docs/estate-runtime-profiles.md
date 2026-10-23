@@ -19,7 +19,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
-| `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
+| `settings` | `static` files, or one `rendered` file the user names with `--settings`; a rendered copy is read as the settings file of the place `file` gives, and is refused when the estate stores a file of that place | static `.claude/settings.json`, `.claude/settings.local.json`; rendered, in the place of `.claude/settings.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
 | `routing` | How a skill is reached: `route-table`, `description`, `name` | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |

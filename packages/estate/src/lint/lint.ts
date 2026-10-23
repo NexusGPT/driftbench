@@ -3,6 +3,8 @@ import {
   type CheckDeclaration,
   type CheckOutcome,
   runCheck,
+  runtimeProfile,
+  type SkippedInput,
 } from '@agent-nexus/driftbench-core';
 import { cutList } from '../cut';
 import { analyzeGraph } from '../graph/analyze';
@@ -13,6 +15,7 @@ import { normativeEstate, normativeRanges, unloadedByDesign } from '../scan/docu
 import { DEFAULT_STANDING_CEILING, measureInvariants, standingFiles } from '../scan/invariants';
 import type { RawEstate, RegistryRow } from '../scan/reader';
 import { ignoredReference, placeholderPath, unresolvedReference } from '../scan/reference-role';
+import { namedOnlyByWiring } from '../scan/wiring';
 import type { Atom, EstateMap } from '../schema';
 
 /**
@@ -59,9 +62,12 @@ export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERN
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
 /** What each lint check requires of the run: only the drift check needs the map's atoms. */
+/** The checks that compare the estate with what its settings declare: without the settings they cannot run. */
+const WIRING_CHECKS: ReadonlySet<LintCode> = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
+
 export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) => ({
   id: code,
-  requires: code === 'QUOTE_DRIFT' ? ['model-map'] : [],
+  requires: code === 'QUOTE_DRIFT' ? ['model-map'] : WIRING_CHECKS.has(code) ? ['settings'] : [],
 }));
 
 export type LintResult = {
@@ -115,6 +121,13 @@ export function summariseLint(
 export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions = {}): LintResult {
   raw = normativeEstate(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
+  // What this run has: the map always; settings and guards when the estate declares them.
+  const available = new Set<CheckCapability>(['model-map']);
+  if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
+  if (raw.guards.length > 0) available.add('guards');
+  const profile = runtimeProfile(map.runtime);
+  // Without the settings nothing can name the parts only the wiring names: they are left out, not orphans.
+  const wiringSkipped: Record<'ORPHAN' | 'UNREACHABLE', SkippedInput[]> = { ORPHAN: [], UNREACHABLE: [] };
   const atoms = map.atoms.filter((atom) => {
     if (ignoredReference(raw, atom.provenance.file)) return false;
     // A skill's script is owned by the skill's folder, whatever role its own text has: it states no rule.
@@ -136,6 +149,10 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   for (const path of analysis.orphans) {
     const file = files.get(path);
     if (file && unloadedByDesign(raw, file)) continue;
+    if (!available.has('settings') && profile && namedOnlyByWiring(profile, path)) {
+      wiringSkipped.ORPHAN.push({ what: path, reason: 'wiring-not-read' });
+      continue;
+    }
     findings.push({
       code: 'ORPHAN',
       subject: path,
@@ -145,6 +162,10 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   for (const path of analysis.unreachableFiles) {
     const file = files.get(path);
     if (file && unloadedByDesign(raw, file)) continue;
+    if (!available.has('settings') && profile && namedOnlyByWiring(profile, path)) {
+      wiringSkipped.UNREACHABLE.push({ what: path, reason: 'wiring-not-read' });
+      continue;
+    }
     findings.push({
       code: 'UNREACHABLE',
       subject: path,
@@ -240,8 +261,15 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({ code: 'UNENFORCED', subject: id, message: `${id}: no guard enforces it` });
   }
 
+  // A check whose requirement the run lacks does not run: it reports nothing, and it does not fail the lint.
+  const unable = new Set(
+    LINT_CHECKS.filter((check) => check.requires.some((need) => !available.has(need))).map(
+      (check) => check.id,
+    ),
+  );
+  const kept = findings.filter((finding) => !unable.has(finding.code));
   const counts = Object.fromEntries(LINT_CODES.map((code) => [code, 0])) as Record<LintCode, number>;
-  for (const finding of findings) counts[finding.code]++;
+  for (const finding of kept) counts[finding.code]++;
   const references = atoms.filter((atom) => atom.kind === 'reference').length;
   const read: Record<LintCode, number> = {
     ORPHAN: raw.files.length,
@@ -258,15 +286,17 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     REGISTRY_GUARD: raw.registry.length,
     QUOTE_DRIFT: atoms.length,
   };
-  // What this run has: the map always; settings and guards when the estate declares them.
-  const available = new Set<CheckCapability>(['model-map']);
-  if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
-  if (raw.guards.length > 0) available.add('guards');
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
-      findings: findings.filter((finding) => finding.code === check.id),
+      ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? { skipped: wiringSkipped[check.id] } : {}),
+      findings: kept.filter((finding) => finding.code === check.id),
     })),
   );
-  return { findings, outcomes, failed: findings.some((finding) => !INFORMATION.has(finding.code)), counts };
+  return {
+    findings: kept,
+    outcomes,
+    failed: kept.some((finding) => !INFORMATION.has(finding.code)),
+    counts,
+  };
 }

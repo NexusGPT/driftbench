@@ -35,7 +35,11 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
   shapes: SHAPES,
   layout: { root: '.claude', extraFiles: ['.mcp.json'] },
   standing: { rootFiles: ['CLAUDE.md', 'CLAUDE.local.md'], primary: 'CLAUDE.md' },
-  settings: [{ kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] }],
+  settings: [
+    { kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] },
+    // An install step may write the settings file: a rendered copy stands in the place of the stored one.
+    { kind: 'rendered', file: '.claude/settings.json' },
+  ],
   bases: ['.claude', '.claude/skills'],
   routing: ['route-table', 'description', 'name'],
   pathVariables: {

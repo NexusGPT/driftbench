@@ -19,6 +19,8 @@ import {
   proseEstimateLine,
   proseInventory,
   proseInventoryLines,
+  type RawEstate,
+  RenderedSettingsConflict,
   RUNTIMES,
   readerFor,
   renderEstateMap,
@@ -59,6 +61,8 @@ export type EstateScanOptions = EstatePointerOptions & {
   ignore?: string[];
   /** The folder of the user-level skill layer. Without it (or the configuration's `userSkills:`) none is read. */
   userSkills?: string;
+  /** A rendered copy of the settings, for an estate whose install step writes them. */
+  settings?: string;
   runtime?: string;
   out?: string;
   replay?: string;
@@ -82,6 +86,25 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   io.err('error: --user-skills needs a folder, not an empty value\n');
   return false;
 }
+
+/** The path a `--settings` value names, or false with the error written when it is empty or not a file. */
+async function settingsGiven(value: string | undefined, io: Io): Promise<string | undefined | false> {
+  if (value === undefined) return undefined;
+  if (value.trim() === '') {
+    io.err('error: --settings needs a file, not an empty value\n');
+    return false;
+  }
+  const file = resolve(io.cwd, value);
+  if (!(await exists(file))) {
+    io.err(`Cannot find the settings file ${show(file, io)}.\n`);
+    return false;
+  }
+  return file;
+}
+
+const SETTINGS_FLAG = '--settings <file>';
+const SETTINGS_HELP =
+  'read this rendered copy of the settings, for an estate whose install step writes them and so does not store them; refused when the estate stores a file of that place';
 
 const VERBOSE_FLAG = '--verbose';
 const VERBOSE_HELP = `list every item; by default a long list stops after the first ${LIST_LIMIT} and says how many are left`;
@@ -122,6 +145,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
     .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .option(
@@ -187,6 +211,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
     .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option(
       '--json',
@@ -199,6 +224,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
           ceiling?: string;
           ignore?: string[];
           userSkills?: string;
+          settings?: string;
           verbose?: boolean;
           json?: boolean;
         },
@@ -259,9 +285,12 @@ export async function estateScanCommand(
   }
   const runtime = options.runtime ?? 'claude-code';
   if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return 2;
   const reader = readerFor(runtime, {
     ignore: options.ignore ?? [],
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
@@ -370,6 +399,10 @@ export async function estateScanCommand(
       io.err(`${cause.message}\n`);
       return 2;
     }
+    if (cause instanceof RenderedSettingsConflict) {
+      io.err(`error: --settings: ${cause.message}\n`);
+      return 2;
+    }
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
@@ -456,6 +489,12 @@ function scanReport(
   for (const note of result.raw.notes.filter((note) => note.message.startsWith('Ambiguous routing table')))
     lines.push(`  ${note.file}: ${note.message}`);
   lines.push(...ignoredLines(result));
+  if (!result.raw.files.some((file) => file.kind === 'settings')) {
+    lines.push(
+      '  Settings: none read, so 0 guards were read and the checks that compare the registry with the guards do not run.',
+      '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
+    );
+  }
   const layer = result.raw.userLayer;
   if (layer && layer.read.length + layer.shadowed.length > 0) {
     lines.push(
@@ -499,7 +538,14 @@ export type LintRun =
 /** Reads a map and the estate it names, and lints them. The command prints it; `estate build` reads its counts. */
 export async function lintMap(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
+  options: {
+    ceiling?: string;
+    ignore?: string[];
+    userSkills?: string;
+    settings?: string;
+    verbose?: boolean;
+    json?: boolean;
+  },
   io: Io,
 ): Promise<LintRun> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -517,10 +563,19 @@ export async function lintMap(
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
   if (!(await userSkillsGiven(options.userSkills, io))) return { ok: false, code: 2 };
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return { ok: false, code: 2 };
+  if (loaded.map.settings === true && settings === undefined) {
+    io.err(
+      'The map was scanned with a rendered copy of the settings: pass --settings <file> so lint reads it again.\n',
+    );
+    return { ok: false, code: 2 };
+  }
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
@@ -532,7 +587,14 @@ export async function lintMap(
     return { ok: false, code: 2 };
   }
   const root = located.root;
-  const raw = await reader.read(root);
+  let raw: RawEstate;
+  try {
+    raw = await reader.read(root);
+  } catch (cause) {
+    if (!(cause instanceof RenderedSettingsConflict)) throw cause;
+    io.err(`error: --settings: ${cause.message}\n`);
+    return { ok: false, code: 2 };
+  }
   if (loaded.map.userSkills === true && raw.userLayer === undefined) {
     io.err(
       'The map was scanned with a user-level skill layer: pass --user-skills <folder> (or set userSkills in the estate configuration) so lint reads it again.\n',
@@ -572,6 +634,15 @@ export async function estateLintCommand(
           notRun: !result.failed && noneRan(result.outcomes),
           findings: summary.shown,
           totals: summary.totals,
+          // What each check covered: it ran or did not, how many inputs it read, how many it left out, what it lacked.
+          checks: result.outcomes.map((outcome) => ({
+            check: outcome.check,
+            status: outcome.status,
+            ...(outcome.notRun ? { notRun: outcome.notRun } : {}),
+            read: outcome.coverage.read,
+            skipped: outcome.coverage.skipped.length,
+            missing: outcome.coverage.missing,
+          })),
           information: { UNENFORCED: result.counts.UNENFORCED, EXTERNAL: result.counts.EXTERNAL },
         },
         null,

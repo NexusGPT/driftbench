@@ -220,6 +220,15 @@ export type LintData = {
   failed: boolean;
   findings: Array<{ code: string; subject: string; message: string }>;
   totals: Array<{ code: string; total: number; shown: number; omitted: number }>;
+  checks: Array<{
+    check: string;
+    status: 'pass' | 'fail' | 'not-run';
+    notRun?: string;
+    read: number;
+    skipped: number;
+    missing: string[];
+  }>;
+  notRun: boolean;
 };
 
 export function lintData(out: string): LintData {

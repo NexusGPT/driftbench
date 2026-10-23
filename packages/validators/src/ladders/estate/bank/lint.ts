@@ -3,6 +3,7 @@ import { anchored, type BodyLine, type GuardLine, namesFor, plantSkill, writeSet
 import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { REPORT_CASES } from './lint-report';
+import { SETTINGS_CASES } from './lint-settings';
 import { type Planted, PlantedEstate, type ScanOutcome } from './planted';
 
 /**
@@ -442,6 +443,7 @@ const DEFECTS: Case[] = [
     },
   },
   ...REPORT_CASES.map((item): Case => ({ ...item, plant: () => [] })),
+  ...SETTINGS_CASES.map((item): Case => ({ ...item, plant: () => [] })),
 ];
 
 const CLEAN: Case[] = [
