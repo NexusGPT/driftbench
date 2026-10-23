@@ -316,6 +316,39 @@ describe('driftbench estate scan --pointer', () => {
     expect(rescan.code).toBe(0);
     expect(rescan.out).toMatch(/1 unlabeled \(1 of them kept from the ledger, not asked again\)/);
     expect(rescan.out).toContain('Requests: 0 answered, 0 sent, 0 recorded.');
+
+    // A cassette that holds the five runs and none of the two asked for the tie leaves the vote incomplete: the unit
+    // is not decided, the ledger keeps no record of it, and the report says that the next scan asks again.
+    const whole = pointer.Cassette.parse(await readFile(join(root, 'split.jsonl'), 'utf8'));
+    const five = new pointer.Cassette();
+    for (const entry of whole.entries.values())
+      if (Number(entry.readable.run) <= 5) five.entries.set(entry.key, entry);
+    expect(five.entries.size).toBeLessThan(whole.entries.size);
+    await writeFile(join(root, 'five.jsonl'), five.render());
+    const incomplete = await run(
+      [
+        'estate',
+        'scan',
+        '.',
+        '--pointer',
+        '--cassette',
+        'five.jsonl',
+        '--ledger',
+        'fresh.json',
+        '--update',
+        '--out',
+        'five.yaml',
+      ],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(incomplete.err).toBe('');
+    expect(incomplete.code).toBe(0);
+    expect(incomplete.out).toMatch(/1 unlabeled \(1 of them not decided: a vote lacked answers/);
+    const fresh = JSON.parse(await readFile(join(root, 'fresh.json'), 'utf8'));
+    const open = fresh.entries.find((entry: { quote: string }) => entry.quote.startsWith('Close'));
+    expect(open.labels['agent-rules']).toBeUndefined();
+    expect(open.unlabeled).toBeUndefined();
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {

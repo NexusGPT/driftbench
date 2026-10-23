@@ -150,6 +150,7 @@ export {
   pointerScan,
   REASK_LIMIT,
   SPLIT_REASK_RUNS,
+  type UndecidedReason,
   windowsOf,
 } from './scan';
 export {

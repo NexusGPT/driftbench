@@ -45,6 +45,50 @@ const NOISY = 'Count the boats twice';
  */
 const DRAWS = ['order', 'remark', 'aside', 'order', 'remark'];
 
+/** A set whose order carries a span, so a run can quote clauses that are in no unit and slip out of step. */
+const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+      - name: aside
+        description: A unit that only tells a story about the quay.
+        atom: { kind: register }
+`;
+const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
+
+/** Call n of the labeler answers `plan[n - 1]` on every unit (`slip` quotes four clauses that are in no unit). */
+const scripted = (plan: string[], options: Parameters<typeof plantedDense>[2] = {}) => {
+  let call = 0;
+  return plantedDense(
+    (window) => {
+      const said = plan[call++] ?? 'order';
+      return window.units.map(
+        (unit) =>
+          ({
+            units: String(unit.n),
+            label: said === 'slip' ? 'remark' : said,
+            // A label that lists no span kind carries no spans: an empty list is refused as an entry.
+            ...(said === 'slip'
+              ? { spans: Array(4).fill(unlocated) }
+              : said === 'order'
+                ? { spans: [{ kind: 'act', from: 0, to: 3 }] }
+                : {}),
+          }) as Labelled,
+      );
+    },
+    [],
+    { runs: 5, ...options },
+  );
+};
+
 function harbour() {
   const windows: string[][] = [];
   let asked = 0;
@@ -177,6 +221,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const tied = noisyOf(partial.ledger.entries);
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
+    expect(reasonOf(partial, tied)).toBe('answers_missing');
 
     // The whole cassette, read against that ledger, decides the unit.
     const later = await pointerScan(
@@ -206,6 +251,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const tied = noisyOf(first.ledger.entries);
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
+    expect(reasonOf(first, tied)).toBe('window_failed');
 
     // The service is back: the unit is asked again, and the four recorded runs and the new one decide it.
     const second = await pointerScan(
@@ -231,6 +277,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const first = await pointerScan(input({ files, cassette }, singleLabelling(flaky)));
     expect(first.failed.length).toBeGreaterThan(0);
     expect(noisyOf(first.ledger.entries).unlabeled).toBeUndefined();
+    expect(reasonOf(first, noisyOf(first.ledger.entries))).toBe('window_failed');
     const second = await pointerScan(
       input({ files, cassette, previous: first.ledger }, singleLabelling(drawing(() => 'order'))),
     );
@@ -253,80 +300,100 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const tied = noisyOf(first.ledger.entries);
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
+    expect(reasonOf(first, tied)).toBe('answers_missing');
   });
 
+  const quay = [{ path: 'quay.md', text: '# Quay\n\n- Coil the ropes on the red post\n' }];
+  const spanned = { files: quay, sets: load(SPANNED), windowUnits: 60 };
+  const reasonOf = (
+    result: { unlabeledUnits: Array<{ unit: string; undecided?: string }> },
+    entry: LedgerEntry,
+  ) => result.unlabeledUnits.find((unit) => unit.unit === entry.id)?.undecided;
+
   it('when the cassette lacks the re-ask of a run that slipped out of step', async () => {
-    const SPANNED = `labels:
-  - set: duty
-    description: What the harbour notes ask of a skipper.
-    spans:
-      - { name: act, description: the clause that says what the skipper does }
-    labels:
-      - name: order
-        description: A unit that tells the skipper what to do.
-        spans: [act]
-        atom: { kind: instruction, polarity: obligation }
-      - name: remark
-        description: A unit that only says how the quay is.
-`;
-    const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
     // Five runs: the second slips, the third and fourth say remark. Without its re-ask, order 2 and remark 2 tie.
     // The re-ask (run 6) says order in step: three of five.
-    const plan = ['order', 'slip', 'remark', 'remark', 'order', 'order'];
-    let call = 0;
-    const labeler = plantedDense(
-      (window) => {
-        const said = plan[call++] ?? 'order';
-        return window.units.map(
-          (unit) =>
-            ({
-              units: String(unit.n),
-              label: said === 'slip' ? 'remark' : said,
-              spans:
-                said === 'slip'
-                  ? Array(4).fill(unlocated)
-                  : said === 'order'
-                    ? [{ kind: 'act', from: 0, to: 3 }]
-                    : [],
-            }) as Labelled,
-        );
-      },
-      [],
-      { runs: 5 },
-    );
-    const quay = [{ path: 'quay.md', text: '# Quay\n\n- Coil the ropes on the red post\n' }];
+    const labeler = scripted(['order', 'slip', 'remark', 'remark', 'order', 'order']);
     const full = new Cassette();
-    const recorded = await pointerScan(
-      input({ files: quay, sets: load(SPANNED), windowUnits: 60, cassette: full }, singleLabelling(labeler)),
-    );
+    const recorded = await pointerScan(input({ ...spanned, cassette: full }, singleLabelling(labeler)));
     expect(recorded.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
 
     const cut = new Cassette();
     for (const entry of full.entries.values())
       if (Number(entry.readable.run) <= 5) cut.entries.set(entry.key, entry);
     const partial = await pointerScan(
-      input(
-        { files: quay, sets: load(SPANNED), windowUnits: 60, cassette: cut, mode: 'replay' },
-        singleLabelling(replayOf(labeler)),
-      ),
+      input({ ...spanned, cassette: cut, mode: 'replay' }, singleLabelling(replayOf(labeler))),
     );
     expect(partial.unlabeled).toBe(partial.ledger.entries.length);
     expect(partial.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(partial.unlabeledUnits.every((unit) => unit.undecided === 'answers_missing')).toBe(true);
 
     const later = await pointerScan(
       input(
-        {
-          files: quay,
-          sets: load(SPANNED),
-          windowUnits: 60,
-          cassette: full,
-          mode: 'replay',
-          previous: partial.ledger,
-        },
+        { ...spanned, cassette: full, mode: 'replay', previous: partial.ledger },
         singleLabelling(replayOf(labeler)),
       ),
     );
     expect(later.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('when the re-ask of a slipped run was too large and its window was halved', async () => {
+    // Run 2 slips; the four others split two, one and one: no label holds three of five, and no tie asks for more.
+    // The re-ask of run 2 is refused as too large for the window of two units; its halves answer, but their
+    // voices do not reach the vote, so the slipped run stays unheard.
+    let big = 0;
+    const labeler = scripted(['order', 'slip', 'order', 'remark', 'aside'], {
+      fail: (window) =>
+        window.units.length === 2 && ++big > 5
+          ? new ModelError('http', '400 max_tokens_exceeded', { status: 400 })
+          : undefined,
+    });
+    const first = await pointerScan(input(spanned, singleLabelling(labeler)));
+    expect(first.failed).toEqual([]);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'answers_missing')).toBe(true);
+  });
+
+  it('when the re-asks of a slipped run came back out of step too', async () => {
+    // Run 2 slips and so do its three re-asks (REASK_LIMIT): it stays unheard, four runs are heard and split two,
+    // one and one. A vote that lacks a planned voice is no decision.
+    const first = await pointerScan(
+      input(
+        spanned,
+        singleLabelling(scripted(['order', 'slip', 'order', 'remark', 'aside', 'slip', 'slip', 'slip'])),
+      ),
+    );
+    expect(first.outOfStep).toHaveLength(1 + 3);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'out_of_step')).toBe(true);
+
+    // Asked again by runs in step, with a fresh cassette, the units are decided.
+    const second = await pointerScan(
+      input({ ...spanned, previous: first.ledger }, singleLabelling(scripted([]))),
+    );
+    expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('when the extra runs asked for its tie came back out of step', async () => {
+    // Five runs split two, two and one. The two extra runs asked for the tie both slip and are left out of the vote:
+    // the tie stands on fewer voices than it was promised.
+    const first = await pointerScan(
+      input(
+        spanned,
+        singleLabelling(scripted(['order', 'remark', 'order', 'remark', 'aside', 'slip', 'slip'])),
+      ),
+    );
+    expect(first.outOfStep).toHaveLength(2);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'out_of_step')).toBe(true);
+
+    const second = await pointerScan(
+      input({ ...spanned, previous: first.ledger }, singleLabelling(scripted([]))),
+    );
+    expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
 
   it('when two of its three runs were refused as a whole', async () => {
@@ -337,24 +404,11 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const tied = noisyOf(first.ledger.entries);
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
+    expect(reasonOf(first, tied)).toBe('window_failed');
     expect(first.failedWindows.every((failure) => failure.reason.includes('bogus'))).toBe(true);
   });
 
-  it('when a labeler that was asked was not heard on it, so the next scan asks again', async () => {
-    const SPANNED = `labels:
-  - set: duty
-    description: What the harbour notes ask of a skipper.
-    spans:
-      - { name: act, description: the clause that says what the skipper does }
-    labels:
-      - name: order
-        description: A unit that tells the skipper what to do.
-        spans: [act]
-        atom: { kind: instruction, polarity: obligation }
-      - name: remark
-        description: A unit that only says how the quay is.
-`;
-    const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
+  it('when a labeler that was asked has too few runs in step on it, so the next scan asks again', async () => {
     const located = { kind: 'act', from: 0, to: 3 };
     // System 1 is unsure of every unit. System 2 answers in step once; its other two runs, and every re-ask, quote
     // clauses that are in no unit: one run heard is no vote, so system 2 has no opinion.
@@ -387,6 +441,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const first = await pointerScan(input({ files, sets: load(SPANNED), windowUnits: 60 }, stack(true)));
     expect(first.unlabeled).toBe(first.ledger.entries.length);
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'out_of_step')).toBe(true);
 
     const second = await pointerScan(
       input({ files, sets: load(SPANNED), windowUnits: 60, previous: first.ledger }, stack(false)),
@@ -402,6 +457,7 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const tied = noisyOf(first.ledger.entries);
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
+    expect(reasonOf(first, tied)).toBe('no_run_named');
 
     const naming = drawing(() => 'order');
     const second = await pointerScan(input({ files, previous: first.ledger }, singleLabelling(naming)));

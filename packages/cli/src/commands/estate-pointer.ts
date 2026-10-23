@@ -407,9 +407,10 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   const done = result.pointer;
   if (!done) return [];
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
+  const undecided = done.unlabeledUnits.filter((unit) => unit.undecided !== undefined).length;
   const lines = [
     `  Pointer reader: ${describe}.`,
-    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.keptUnlabeled > 0 ? ` (${done.keptUnlabeled} of them kept from the ledger, not asked again)` : ''}${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
+    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.keptUnlabeled > 0 ? ` (${done.keptUnlabeled} of them kept from the ledger, not asked again)` : ''}${undecided > 0 ? ` (${undecided} of them not decided: a vote lacked answers, and the next scan asks again)` : ''}${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
   const spend = newSpend();

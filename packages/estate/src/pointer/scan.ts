@@ -66,6 +66,14 @@ export type PointerInput = {
 
 export const DEFAULT_WINDOW_UNITS = 60;
 
+/**
+ * Why a unit that ended unlabeled is not decided, so the ledger keeps no record of it and the next scan asks it again:
+ * a window failed in its file and set; answers asked for to settle the vote are missing (a replayed cassette holds
+ * none, or the window was halved); a run, or a re-ask, came back out of step and was left out of the vote, so a
+ * planned voice is missing; no run named the unit. Only a complete vote is a decision.
+ */
+export type UndecidedReason = 'window_failed' | 'answers_missing' | 'out_of_step' | 'no_run_named';
+
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
 export type MemberPlan = {
   id: string;
@@ -144,8 +152,11 @@ export type PointerResult = {
   calls: number;
   /** Units that hold no label after the run: those no accepted answer named, and those the ledger keeps unlabeled. */
   unlabeled: number;
-  /** The same units, by ledger id and set. */
-  unlabeledUnits: Array<{ unit: string; set: string }>;
+  /**
+   * The same units, by ledger id and set. A unit the ledger does not keep unlabeled carries why: it is not decided,
+   * and the next scan asks it again.
+   */
+  unlabeledUnits: Array<{ unit: string; set: string; undecided?: UndecidedReason }>;
   /** Of the unlabeled units, those whose decision the ledger kept: the unit is unchanged, so it was not asked again. */
   keptUnlabeled: number;
   /** Units that had a label other than none and no longer have one. */
@@ -394,7 +405,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   let units = 0;
   let carried = 0;
   // The units the ledger keeps unlabeled for the current set and labelers: decided once, never asked again.
-  const keptUnlabeled: Array<{ unit: string; set: string }> = [];
+  const keptUnlabeled: Array<{ unit: string; set: string; undecided?: UndecidedReason }> = [];
   for (const file of files) {
     const fileCut = cuts.get(file.path) as Cut;
     for (const set of input.sets) {
@@ -722,12 +733,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failedWindows.push(...failures);
     if (failures.length > 0) unsettled.add(`${task.file}\0${task.set.set}`);
   };
-  // The units whose vote waits for answers that were asked for and did not come: a replay whose cassette holds no
-  // re-ask leaves the tie as it is (below), and a later cassette may decide it. The ledger does not keep such a unit
-  // unlabeled.
-  const provisional = new Set<string>();
-  const waiting = (task: Task, units: ReadonlyArray<{ index: number }>) => {
-    for (const unit of units) provisional.add(`${task.file}\0${task.set.set}\0${unit.index}`);
+  // The units whose vote is not complete: an answer asked for did not come (a replay whose cassette holds no re-ask
+  // leaves the tie as it is, below, and a later cassette may decide it), or it came out of step and was left out of the
+  // vote. The ledger does not keep such a unit unlabeled.
+  const provisional = new Map<string, UndecidedReason>();
+  const waiting = (task: Task, units: ReadonlyArray<{ index: number }>, why: UndecidedReason) => {
+    for (const unit of units) provisional.set(`${task.file}\0${task.set.set}\0${unit.index}`, why);
   };
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
@@ -793,6 +804,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   // re-ask leaves the slipped run unheard.
   const reasked: string[] = [];
   const spent = new Map<string, number>();
+  // Why the last re-ask of a window did not give the slipped run its place back.
+  const lastWhy = new Map<string, UndecidedReason>();
   for (const { task, window } of slippedLeaves) {
     const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${window.id}`;
     while ((spent.get(where) ?? 0) < REASK_LIMIT) {
@@ -802,7 +815,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (input.mode === 'replay') {
         const wire = again.member.render(again.set, window, again.context);
         if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) {
-          waiting(task, window.units);
+          lastWhy.set(where, 'answers_missing');
           break;
         }
       }
@@ -810,7 +823,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) {
-        waiting(task, window.units);
+        lastWhy.set(where, 'answers_missing');
         break;
       }
       windows++;
@@ -819,6 +832,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         outOfStepRuns.push(
           `${window.id} run ${again.run} of ${task.member.id} (asked again for run ${task.run}): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
         );
+        lastWhy.set(where, 'out_of_step');
         continue;
       }
       // The re-ask takes the slipped run's place on the units of this window.
@@ -830,6 +844,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       );
       break;
     }
+  }
+  // A slipped run that no re-ask replaced stays unheard on the units of its window: their vote lacks a planned voice.
+  for (const { task, window } of slippedLeaves) {
+    const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${window.id}`;
+    const run = runOf(task, task.run);
+    waiting(
+      task,
+      window.units.filter((unit) => unheard.get(run)?.has(unit.index)),
+      lastWhy.get(where) ?? 'out_of_step',
+    );
   }
 
   /**
@@ -988,6 +1012,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
     const tied = task.window.units.filter((unit) => tiedSplit(runs, unit.index, task.set));
     if (tied.length === 0) continue;
+    // The voices the tie was promised: fewer than SPLIT_REASK_RUNS in step leave the vote incomplete.
+    let voices = 0;
+    let why: UndecidedReason = 'answers_missing';
     for (let more = 1; more <= SPLIT_REASK_RUNS; more++) {
       const extra = (spent.get(where) ?? 0) + 1;
       spent.set(where, extra);
@@ -995,7 +1022,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (input.mode === 'replay') {
         const wire = again.member.render(again.set, task.window, again.context);
         if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) {
-          waiting(task, tied);
+          why = 'answers_missing';
           break;
         }
       }
@@ -1003,7 +1030,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) {
-        waiting(task, tied);
+        why = 'answers_missing';
         break;
       }
       windows++;
@@ -1012,20 +1039,23 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         outOfStepRuns.push(
           `${task.window.id} run ${again.run} of ${task.member.id} (asked again for a split): ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
         );
+        why = 'out_of_step';
         continue;
       }
       const voice = new Map<number, Opinion>();
       runs.push(voice);
       heardOnly.set(voice, new Set(task.window.units.map((unit) => unit.index)));
       hear(again, runs.length, leaf);
+      voices++;
       reasked.push(
         `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${tied.length} split units`,
       );
     }
+    if (voices < SPLIT_REASK_RUNS) waiting(task, tied, why);
   }
 
   let unlabeled = 0;
-  const unlabeledUnits: Array<{ unit: string; set: string }> = [];
+  const unlabeledUnits: Array<{ unit: string; set: string; undecided?: UndecidedReason }> = [];
   // The members that were asked about a file and set: a member that was not asked has nothing to hear.
   const askedOf = new Set(tasks.map((task) => `${task.file}\0${task.set.set}\0${task.memberAt}`));
   /** What one run said about a unit, with the units it points at named by id. */
@@ -1045,14 +1075,20 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     };
   };
   /**
-   * What each labeler heard on a unit no label won, or undefined when the ledger must not keep the unit unlabeled: a
-   * window failed in its file and set, the answers asked for to settle its vote are missing from a replayed cassette,
-   * a labeler that was asked was not heard on it (its runs slipped), or nobody named it. The unit is then asked again,
-   * as a unit that was never decided.
+   * What each labeler heard on a unit no label won, or why the ledger must not keep the unit unlabeled: only a complete
+   * vote is a decision. A window failed in its file and set; answers asked for to settle the vote are missing from a
+   * replayed cassette or came back out of step, so a planned voice is missing (`provisional`, which also holds every
+   * unit whose labeler has too few runs in step to give an opinion); or nobody named it. The unit is then not decided,
+   * and the next scan asks it again.
    */
-  const votesOf = (file: string, set: LabelSet, index: number): LedgerUnlabeled['votes'] | undefined => {
-    if (unsettled.has(`${file}\0${set.set}`) || provisional.has(`${file}\0${set.set}\0${index}`))
-      return undefined;
+  const votesOf = (
+    file: string,
+    set: LabelSet,
+    index: number,
+  ): { votes: LedgerUnlabeled['votes'] } | { undecided: UndecidedReason } => {
+    if (unsettled.has(`${file}\0${set.set}`)) return { undecided: 'window_failed' };
+    const waited = provisional.get(`${file}\0${set.set}\0${index}`);
+    if (waited !== undefined) return { undecided: waited };
     const byMember = opinionsOf(file, set);
     const votes: LedgerUnlabeled['votes'] = [];
     let named = false;
@@ -1061,15 +1097,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         votes.push({ labeler: member.id, runs: [] });
         continue;
       }
-      const heard = heardOn(byMember[at] ?? [], index);
-      if (heard === undefined) return undefined;
+      // A labeler with too few runs in step has an unreplaced slipped run: the unit is provisional, and returned above.
+      const heard = heardOn(byMember[at] ?? [], index) ?? [];
       if (heard.some((opinion) => opinion !== undefined)) named = true;
       votes.push({
         labeler: member.id,
         runs: heard.map((opinion) => (opinion === undefined ? null : voteOf(file, opinion))),
       });
     }
-    return named ? votes : undefined;
+    return named ? { votes } : { undecided: 'no_run_named' };
   };
   const flips: LabelFlip[] = [];
   let decided = 0;
@@ -1090,15 +1126,20 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // A unit the labelling stops selecting keeps its place; the change of its label is reported.
         if (!decision) {
           unlabeled++;
-          unlabeledUnits.push({ unit: entry.id, set: set.set });
-          const votes = votesOf(file.path, set, index);
-          const flip = votes
-            ? recordUnlabeled(entry, set.set, {
-                setHash: hashes.get(set.set) as string,
-                labeler: labelling.hash,
-                votes,
-              })
-            : recordLabel(entry, set.set, undefined);
+          const heard = votesOf(file.path, set, index);
+          unlabeledUnits.push({
+            unit: entry.id,
+            set: set.set,
+            ...('undecided' in heard ? { undecided: heard.undecided } : {}),
+          });
+          const flip =
+            'votes' in heard
+              ? recordUnlabeled(entry, set.set, {
+                  setHash: hashes.get(set.set) as string,
+                  labeler: labelling.hash,
+                  votes: heard.votes,
+                })
+              : recordLabel(entry, set.set, undefined);
           if (flip) flips.push(flip);
           continue;
         }
