@@ -141,18 +141,21 @@ describe('initialization of the package under test', { timeout: 60_000 }, () => 
           `import { statsBankChild } from ${JSON.stringify(RUN_CHILD)};
          await statsBankChild(['1', ${JSON.stringify(root)}, '0']);`,
         ],
-        { cwd: root, env, input: '[]', encoding: 'utf8' },
+        { cwd: root, env, input: '[]', encoding: 'utf8', timeout: 10_000, killSignal: 'SIGKILL' },
       );
+      expect(result.error, result.stderr).toBeUndefined();
       if (reads) {
         expect(result.status, result.stderr).toBe(1);
+        expect(result.signal).toBeNull();
         expect(result.stderr).toContain('Access to this API has been restricted');
+        expect(result.stdout).not.toContain('selfEnd');
       } else {
         // The clean end of a bank child is its announced self-end (run-child.ts): its last line announces it, then the
         // child ends itself by SIGKILL. Both are checked: an unannounced kill, or an announcement and an exit code, is
         // not this end.
-        expect(result.signal, result.stderr).toBe('SIGKILL');
-        expect(result.status).toBeNull();
-        expect(result.stdout.trim().split('\n').at(-1)).toBe('{"closed":true,"selfEnd":true}');
+        expect(result.status, result.stderr).toBeNull();
+        expect(result.signal).toBe('SIGKILL');
+        expect(result.stdout).toBe('{"closed":true,"selfEnd":true}\n');
       }
     } finally {
       rmSync(dir, { recursive: true, force: true });
