@@ -91,3 +91,24 @@ it('reports an empty drift baseline against an empty source as not-run', async (
   expect(result.drift.status).toBe('not-run');
   expect(result.coverage.status).toBe('not-run');
 });
+
+it('cannot bypass project privacy by inferring a nested source root', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-inferred-privacy-'));
+  await mkdir(join(root, 'shared'));
+  await mkdir(join(root, '.claude'));
+  await writeFile(join(root, 'CLAUDE.md'), '# Fictional\n');
+  await writeFile(join(root, 'shared/secret.txt'), 'fictional private text');
+  await symlink('../shared', join(root, '.claude/shared'));
+  const setup: SetupDocument = {
+    version: 1, runtime: 'claude-code',
+    sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code' }],
+    roles: {}, scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    privacy: { model: 'deny', exports: 'metadata', exclude: ['shared/secret.txt'] },
+  };
+  const result = await diagnoseSetup(root, async (_id, _snapshot, source, roots) => {
+    await expect(readFile(join(roots['linked-1']!, 'secret.txt'))).rejects.toMatchObject({ code: 'ENOENT' });
+    return { runtime: 'claude-code', files: source.id === 'project' ? [{ path: 'CLAUDE.md', kind: 'standing', text: '# Fictional\n' }] : [] };
+  }, setup);
+  expect(result.draft.drift?.files.some((file) => file.path.endsWith('secret.txt'))).toBe(false);
+});
