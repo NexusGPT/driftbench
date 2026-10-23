@@ -8,8 +8,6 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Check,
-  canonicalGiven,
-  contentHash,
   enterBlock,
   initialGiven,
   type LoadedSpec,
@@ -28,14 +26,12 @@ import {
   blockOutcome,
   buildTaskInputs,
   COMPLETE_DIR,
-  deviationOf,
   type FaultSession,
   failingIds,
   type GenerateResult,
   generateSuite,
   loadApprovedMap,
   loadFamily,
-  machineSignature,
   type PreparedMap,
   projectObserved,
   projectRun,
@@ -46,6 +42,13 @@ import {
   thenFields,
   writePendingReview,
 } from '@agent-nexus/driftbench-generate';
+import {
+  answersOf,
+  machineSignature,
+  obligationSpecOf,
+  stageBookOf,
+  startStageOf,
+} from '@agent-nexus/driftbench-space';
 import { createPerturbingDriver, createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
@@ -659,42 +662,31 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         : spec.blocks.map((_, index) => blockOutcome(first, index));
       contextOutcomes.set(fault.id, outcomes);
     }
+    // The facts of the spec that the obligations and the same-test ruling read come from the one builder the
+    // generator calls too (`packages/space/src/obligations/keys.ts`).
+    const facts = obligationSpecOf(spec, book);
     spec.blocks.forEach((block, index) => {
-      const deviation = deviationOf(spec, index);
+      const marks = facts.blocks[index];
       const run: BlockRun = {
         ...blockPlacement(spec, index),
         spec: spec.id,
         index,
         fields: thenFields(spec, index),
-        ...(deviation === undefined ? {} : { deviation }),
-        injected: 'injection' in (block.when ?? {}),
+        ...(marks?.deviation === undefined ? {} : { deviation: marks.deviation }),
+        injected: marks?.injected ?? false,
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
         from: startStageOf(spec, index, book),
-        path: (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '',
-        walk: contentHash(
-          spec.blocks.map((_, at) => [
-            answersOf(spec, at),
-            startStageOf(spec, at, book),
-            machineSignature(spec, at),
-          ]),
-        ),
-        channel: spec.channel ?? '',
-        persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
-        of: (spec.metadata?.generated as { metamorphic?: { of?: number } } | undefined)?.metamorphic?.of ?? 0,
-        words: wordsOf(spec),
-        variant:
-          (spec.metadata?.generated as { metamorphic?: { variant?: number } } | undefined)?.metamorphic
-            ?.variant ?? 0,
-        family:
-          (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic
-            ?.family ?? '',
-        perturbed: (spec.perturbations ?? [])
-          .filter((entry) => entry.inject_at >= index)
-          .map((entry) => entry.class)
-          .sort()
-          .join(','),
+        path: facts.path,
+        walk: facts.walk,
+        channel: facts.channel,
+        persona: facts.persona,
+        of: facts.of,
+        words: facts.words,
+        variant: facts.variant,
+        family: facts.family,
+        perturbed: (marks?.perturbed ?? []).join(','),
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
@@ -714,100 +706,17 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
   return { blocks, faults: [...records.values()], errors };
 }
 
-/** A user turn as the oracle reads it: trimmed and with runs of whitespace squeezed. */
-function squeeze(text: string): string {
-  return text.trim().replace(/\s+/g, ' ');
-}
-
-/**
- * What a spec says apart from its labels, in the forms the rest of the oracle compares: the normalised turns and the
- * canonical Given of every block. An empty Given, another key order or padding whitespace does not make it other words.
- */
-export function wordsOf(spec: Spec): string {
-  return contentHash(
-    spec.blocks.map((block, index) => {
-      const when = block.when;
-      const turn =
-        when === undefined
-          ? null
-          : 'user' in when
-            ? { user: squeeze(when.user) }
-            : 'burst' in when
-              ? { burst: when.burst.map(squeeze) }
-              : { injection: { class: when.injection.class, user: squeeze(when.injection.user ?? '') } };
-      // Only the canonical Given: what the block starts from, never how the spec wrote it down.
-      const given = canonicalGiven(spec, index);
-      return [
-        turn,
-        given.state,
-        given.prefix.map((message) => ({ ...message, content: squeeze(message.content) })),
-      ];
-    }),
-  );
-}
-
-/** The tool answers a block runs against: part of its Given, so two blocks with other answers are other tests. */
-export function answersOf(spec: Spec, index: number): string {
-  const world = canonicalGiven(spec, index).state.world as { tools?: unknown } | undefined;
-  return contentHash(world?.tools ?? null);
-}
-
-/** The stage a block starts from: part of its Given, so a copy said from another stage is another test. */
-export function startStageOf(spec: Spec, index: number, book: StageBook): string {
-  return (
-    declaredStageBefore(spec, index, book) ??
-    (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ??
-    ''
-  );
-}
-
-/** Per block of the written specs (`<spec id>#<block id>`), the stage it leaves and the history said by then. */
-export type StageBook = Map<string, { stage: string; history: string }>;
-
-/**
- * A history as a stage book reads it: what the user says is not part of the test (docs/validators.md, section 3),
- * so a user message counts as a turn; the replies and the tool calls with their results count in full.
- */
-function historyKey(history: readonly Message[]): string {
-  return contentHash(history.map((message) => (message.role === 'user' ? { role: 'user' } : message)));
-}
-
-/**
- * What each written spec says about where it leaves the agent: per block, `<spec id>#<block id>`, the stage the
- * block expects and the history the walk has said by then. A declared start stage is checked against the block it
- * names (`given.after`).
- */
-export function stageBookOf(specs: readonly Spec[]): StageBook {
-  const book: StageBook = new Map();
-  for (const spec of specs)
-    spec.blocks.forEach((block, index) => {
-      const stage = block.expect?.stage;
-      if (stage === undefined || block.id === undefined) return;
-      book.set(`${spec.id}#${block.id}`, {
-        stage,
-        history: historyKey(canonicalGiven(spec, index + 1).prefix),
-      });
-    });
-  return book;
-}
-
-/**
- * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
- * block that starts from a prefix declares. A declared stage counts only when the block it names (`given.after`)
- * is in the suite, leaves the agent at that stage and has said the same history as the prefix, so declaring a
- * stage cannot dodge a check. Undefined when nothing is said, so a spec without one reads as before.
- */
-export function declaredStageBefore(spec: Spec, index: number, book: StageBook): string | undefined {
-  for (let at = index; at >= 0; at -= 1) {
-    const block = spec.blocks[at];
-    if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
-    const given = block?.given;
-    if (given?.stage === undefined || given.prefix === undefined || given.after === undefined) continue;
-    const named = book.get(given.after);
-    if (named?.stage === given.stage && named.history === historyKey(given.prefix)) return given.stage;
-  }
-  return undefined;
-}
+// The same-test key, the walk and the words of a spec are defined once, in `packages/space/src/obligations/keys.ts`:
+// the generator that cuts a suite and this oracle both call them. `wordsOf` is the old name of `specWords`.
+export {
+  addToStageBook,
+  answersOf,
+  declaredStageBefore,
+  type StageBook,
+  specWords as wordsOf,
+  stageBookOf,
+  startStageOf,
+} from '@agent-nexus/driftbench-space';
 
 /** The follower's run and plan of every complete spec, once per generation. */
 const plans = new WeakMap<Generation, Promise<SpecPlan[]>>();
