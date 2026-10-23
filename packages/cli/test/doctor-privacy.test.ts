@@ -51,3 +51,28 @@ it('never inventories a copy destination that escapes its declared root through 
   expect(vi.mocked(readFile).mock.calls.some(([path]) => String(path).startsWith(outside) || String(path).startsWith(join(root, 'escape')))).toBe(false);
   expect(result.coverage.skipped).toContainEqual({ what: 'shared:escape/copy', reason: 'unmapped deployment' });
 });
+
+it('compares an explicitly mapped copy and detects changed copied content', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-mapped-copy-'));
+  await mkdir(join(root, 'shared'));
+  await mkdir(join(root, 'copied'));
+  await writeFile(join(root, 'shared/public.data'), 'fictional public content');
+  await writeFile(join(root, 'copied/public.data'), 'fictional public content');
+  const setup: SetupDocument = {
+    version: 1, runtime: 'claude-code',
+    sources: [
+      { id: 'project', path: '.', kind: 'project', reader: 'claude-code' },
+      { id: 'shared', path: 'shared', kind: 'directory', reader: 'unknown', bindings: [
+        { runtime: 'claude-code', deployedRoot: 'project', deployedPath: 'copied', method: 'copy' },
+      ] },
+    ],
+    roles: {}, scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    privacy: { model: 'deny', exports: 'metadata', exclude: [] },
+  };
+  const read = async () => ({ runtime: 'claude-code', files: [] });
+  const first = await diagnoseSetup(root, read, setup);
+  expect((await diagnoseSetup(root, read, first.draft)).drift.status).toBe('pass');
+  await writeFile(join(root, 'copied/public.data'), 'changed fictional content');
+  expect((await diagnoseSetup(root, read, first.draft)).drift.status).toBe('fail');
+});

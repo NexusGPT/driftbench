@@ -110,7 +110,9 @@ inside the project, project-relative exclusions apply as well as source-relative
 a narrower source never bypasses project privacy. Runtime
 profile ignores still apply. Doctor reads a temporary filtered snapshot so runtime readers cannot load
 excluded files or follow a legacy home configuration. All declared sources have filtered snapshots before any reader starts. Readers receive `snapshotRoots`
-by source id; cross-source links resolve there. Original roots are provenance, never read authorization.
+by source id; cross-source links resolve there. Original roots are provenance, never read authorization. Config access paths are sanitized after links
+are built, including symlink aliases. Copy verification checks mapped destinations and compares only
+filtered snapshot content; an unmapped target is never read.
 Snapshots are removed after inspection.
 
 `execute.policy: never` requires an empty `commands` list. `allow` declares specific commands; doctor
