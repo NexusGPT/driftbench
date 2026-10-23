@@ -372,4 +372,45 @@ describe('one rule for the map, the target and the builder', () => {
       expect(rendered.spec.channel, `seed ${seed}`).not.toBe('email');
     }
   });
+
+  it('rules out a failure at a stage on a channel the asking behaviour is kept off, though each pair is possible', () => {
+    const prepared = map((proposal) => {
+      proposal.constraints = [
+        { forbid: { policy: 'CHECK-11', channel: 'email' }, reason: 'CHECK-11 applies on chat only', ...by },
+      ];
+    });
+    const stage = prepared.stage as number;
+    const deviation = prepared.deviation as number;
+    const channel = prepared.space.dimensions.findIndex((entry) => entry.kind === 'channel');
+    const value = (dimension: number, id: string) =>
+      prepared.space.dimensions[dimension]?.index.get(id) as number;
+    const failure = value(deviation, 'D8_tool_failure');
+    for (const name of ['verify', 'help']) {
+      const at = value(stage, name);
+      const email = value(channel, 'email');
+      const pairs = [
+        [
+          [stage, at],
+          [deviation, failure],
+        ],
+        [
+          [stage, at],
+          [channel, email],
+        ],
+        [
+          [deviation, failure],
+          [channel, email],
+        ],
+      ] as Array<Array<[number, number]>>;
+      for (const pair of pairs) expect(prepared.feasibility.allowed(pair), name).toBe(true);
+      expect(
+        prepared.feasibility.allowed([
+          [stage, at],
+          [deviation, failure],
+          [channel, email],
+        ]),
+        name,
+      ).toBe(false);
+    }
+  });
 });
