@@ -544,6 +544,57 @@ export type NamedReference = {
 /** The notations a path is written in. */
 export type MentionSyntax = 'code-span' | 'link' | 'quoted' | 'wiki' | 'angle' | 'bold' | 'loose';
 
+/**
+ * The character ranges of every code span of a line, from a CommonMark parse: text a document shows and does not
+ * use. A code span inside a link label is one too.
+ */
+export function codeSpanRanges(line: string): Array<[number, number]> {
+  return [...markdownTokens(line).spans, ...backtickRuns(line)];
+}
+
+/**
+ * The code spans of a line by CommonMark's own rule: a run of backticks opens a span that the next run of exactly as
+ * many backticks closes; a backslash before a backtick makes it text. The parse finds the spans that stand in the
+ * tree; this finds the ones the tree does not keep (the alt text of an image).
+ */
+function backtickRuns(line: string): Array<[number, number]> {
+  const found: Array<[number, number]> = [];
+  let at = 0;
+  while (at < line.length) {
+    if (line[at] === '\\') {
+      at += 2;
+      continue;
+    }
+    if (line[at] !== '`') {
+      at += 1;
+      continue;
+    }
+    let end = at;
+    while (line[end] === '`') end += 1;
+    const length = end - at;
+    let close = end;
+    let closed = -1;
+    while (close < line.length) {
+      const next = line.indexOf('`', close);
+      if (next < 0) break;
+      let run = next;
+      while (line[run] === '`') run += 1;
+      if (run - next === length) {
+        closed = run;
+        break;
+      }
+      close = run;
+    }
+    if (closed < 0) {
+      at = end;
+      continue;
+    }
+    found.push([at, closed]);
+    at = closed;
+  }
+  return found;
+}
+
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
   return pathMentions(line).map(({ path }) => path);
@@ -583,9 +634,15 @@ type MarkdownToken = { start: number; end: number; tokenStart: number; tokenEnd:
  * A link's token is its destination (a `<...>` form without the angle brackets); the text of the link is never a
  * token, so a code span or a path inside it is not a mention.
  */
-function markdownTokens(line: string): { codes: MarkdownToken[]; links: MarkdownToken[] } {
+function markdownTokens(line: string): {
+  codes: MarkdownToken[];
+  links: MarkdownToken[];
+  /** Every code span of the line, inside a link label too: text a document shows and does not use. */
+  spans: Array<[number, number]>;
+} {
   const codes: MarkdownToken[] = [];
   const links: MarkdownToken[] = [];
+  const spans: Array<[number, number]> = [];
   const visit = (node: MarkdownNode, insideLink: boolean): void => {
     const from = node.position?.start.offset;
     const to = node.position?.end.offset;
@@ -593,6 +650,7 @@ function markdownTokens(line: string): { codes: MarkdownToken[]; links: Markdown
       for (const child of node.children ?? []) visit(child, insideLink);
       return;
     }
+    if (node.type === 'inlineCode') spans.push([from, to]);
     if (node.type === 'inlineCode' && !insideLink) {
       let ticks = 0;
       while (line[from + ticks] === '`') ticks++;
@@ -645,7 +703,7 @@ function markdownTokens(line: string): { codes: MarkdownToken[]; links: Markdown
     for (const child of node.children ?? []) visit(child, insideLink);
   };
   visit(MARKDOWN.parse(line) as unknown as MarkdownNode, false);
-  return { codes, links };
+  return { codes, links, spans };
 }
 
 /** What `pathMentions` reads beyond a path that ends in a file extension. */
