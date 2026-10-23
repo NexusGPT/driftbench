@@ -248,14 +248,14 @@ export async function scaleReport(
 ): Promise<ScaleReport> {
   const samples = await calibrations(Math.max(1, options.calibrations ?? CALIBRATION_COUNT));
   if (typeof samples === 'string') return failed(factor, budgetMs, samples);
-  const taken = samples.map((value) => Math.round(value * 10) / 10);
-  const calibrationMs = calibrationOf(taken);
+  // the exact values decide: they go to the child, to the normalised time and to the report; only the text of the item rounds
+  const calibrationMs = calibrationOf(samples);
   const report = await runChild(factor, seed, budgetMs, calibrationMs, options);
   if (report.error) return report;
   return {
     ...report,
     calibrationMs,
-    calibrationRunsMs: taken,
+    calibrationRunsMs: samples,
     normalisedMs: normalisedMs(report.ms, calibrationMs),
     creditCapped: calibrationFactor(calibrationMs).capped,
   };

@@ -61,21 +61,20 @@ export function medianOf(values: readonly number[]): number {
     : ((sorted[middle - 1] as number) + (sorted[middle] as number)) / 2;
 }
 
-const tenth = (value: number): number => Math.round(value * 10) / 10;
-
 /**
  * The calibration of a run, from the samples taken before the product started, in the order taken: the lower of the
- * first sample and the median of all of them, in tenths of a millisecond. It is never above the first sample, and
+ * first sample and the median of all of them, on the exact values the calibration process printed: nothing is rounded
+ * here, because a sample rounded to a tenth can sit above the first sample (249.96 becomes 250.0, 100.06 becomes 100.1)
+ * and turn a failure into a pass. Only a text that shows a value rounds it. It is never above the first sample, and
  * the normalised time falls as the calibration rises, so on any sequence of samples the normalised time is at least
  * what the first sample alone gives: a noise fix that lets a product pass what it failed is not one. The median
  * pulls a first sample that ran on a busy moment down to the typical one, so the verdict follows the typical
  * moment more often than the first sample does. With one sample it is that sample.
  */
 export function calibrationOf(samples: readonly number[]): number {
-  const taken = samples.map(tenth);
-  const first = taken[0];
+  const first = samples[0];
   if (first === undefined) return Number.NaN;
-  return tenth(Math.min(first, medianOf(taken)));
+  return Math.min(first, medianOf(samples));
 }
 
 /** The environment variable through which the parent hands the calibration to the timed child. */
