@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ConversationInput, StoreDoc, StoreValue, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, callInterval, type StemRun } from '../item';
@@ -183,7 +183,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       check(lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100), () => ({
         rule: 'weightInterval contains its estimate with a useful width',
         input: { count, total: 100 },
-        got: [lo, hi],
+        got: [lo, hi], expected: none('observation')
       }));
     }
     const cases: Array<[number, number]> =
@@ -218,7 +218,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         () => ({
           rule: 'weightInterval is an interval inside 0 to 1 that holds its estimate',
           input: { count, total },
-          got: [lo, hi],
+          got: [lo, hi], expected: none('observation')
         }),
       );
     }
@@ -245,7 +245,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         () => ({
           rule: 'weightInterval contains its estimate with a useful width',
           input: { count, total: n },
-          got: [lo, hi],
+          got: [lo, hi], expected: none('observation')
         }),
       );
       if (lo <= p && p <= hi) inside += 1;

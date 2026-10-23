@@ -1,10 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { leakReport } from '../../src/failure';
+import { ItemFailure, leakReport } from '../../src/failure';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
 import { ceilingVerdict, readCeilings } from '../ceiling';
+import { tapped, wantedInMessage } from '../leak-scan';
 import { MUTANTS } from '../variables-blind/mutants';
 
 /**
@@ -19,6 +20,8 @@ const items = variablesBank().filter((i) => !i.id.startsWith('blind.') && i.fami
 describe('the failure messages of the first bank', () => {
   it('repeat no expected value, and are structured', async () => {
     const failures: Array<{ item: string; error: unknown; detail: string }> = [];
+    const crossLeaks: string[] = [];
+    const referenceTokens = new Map<string, Set<string>>();
     for (const mutant of MUTANTS) {
       const { impl, reset } = mutant.make(variablesImpl as never);
       try {
@@ -27,16 +30,41 @@ describe('the failure messages of the first bank', () => {
           : items.filter((i) => mutant.families.includes(i.family));
         for (const seed of [1, 2, 3]) {
           for (const item of list) {
+            const wrongTokens = new Set<string>();
             try {
               const r = await item.check({
                 seed,
-                impl,
+                impl: tapped(impl as never, wrongTokens) as never,
                 root: '/nonexistent',
                 id: item.id,
                 rng: itemRng(seed, item.id),
               });
-              if (!r.pass)
-                failures.push({ item: item.id, error: r.failure ?? new Error(r.detail), detail: r.detail });
+              if (!r.pass) {
+                const error = r.failure ?? new Error(r.detail);
+                failures.push({ item: item.id, error, detail: r.detail });
+                if (error instanceof ItemFailure) {
+                  const key = `${seed}|${item.id}`;
+                  let ref = referenceTokens.get(key);
+                  if (!ref) {
+                    ref = new Set<string>();
+                    try {
+                      await item.check({
+                        seed,
+                        impl: tapped(variablesImpl as never, ref) as never,
+                        root: '/nonexistent',
+                        id: item.id,
+                        rng: itemRng(seed, item.id),
+                      });
+                    } catch {
+                      // the correct product passes; a throw leaves what it returned so far
+                    }
+                    referenceTokens.set(key, ref);
+                  }
+                  const wanted = wantedInMessage(error, ref, wrongTokens, item.id);
+                  if (wanted.length > 0)
+                    crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
+                }
+              }
             } catch (error) {
               failures.push({ item: item.id, error, detail: String(error) });
             }
@@ -63,6 +91,7 @@ describe('the failure messages of the first bank', () => {
     for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]).slice(0, 25))
       console.log(`site ${n} x ${k}`);
     expect(report.leaking).toEqual([]);
+    expect(crossLeaks).toEqual([]);
     const { head, base } = readCeilings(
       fileURLToPath(new URL('../../../../', import.meta.url)),
       'validators/variables/leak-ceilings.json',
