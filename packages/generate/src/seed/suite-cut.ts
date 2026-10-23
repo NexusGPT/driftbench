@@ -383,47 +383,36 @@ export class SuiteCut {
   private dropUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
     const lead = unit[0] as SpecDraft;
     const family = lead.metamorphic !== undefined;
-    // The variants of a family that say different things are the contrast; a family that does not vary is a set of
-    // context twins (the same words in another channel or persona), dropped whole or not at all.
+    // The variants of a family that say different things are the contrast. A family that does not vary is a set of
+    // context twins (the same words in another channel or persona): its last variants go while another variant of
+    // the family stays and holds what they said, as the second pair of a path and axis is a repeat of the first.
     if (family && (lead.variesAt !== undefined || unit.length !== lead.metamorphic?.of)) return false;
-    if (
-      unit.some(
-        (draft) => this.pins.has(draft.id) || draft.dropped !== undefined || !this.current.has(draft.id),
-      )
-    )
-      return false;
-    const taken: Array<{ draft: SpecDraft; spec: Spec; held: Holdings }> = [];
-    const restore = () => {
-      for (const { draft, spec, held } of taken.reverse()) {
-        this.apply(spec, held, 1);
-        this.allocation.countDraft(draft, 1);
-      }
-    };
+    let did = false;
+    let left = unit.filter((draft) => draft.dropped === undefined && this.current.has(draft.id)).length;
     for (const draft of [...unit].reverse()) {
+      if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) continue;
+      if (family && left <= 1) break;
       const shape = this.shapeOf(draft);
-      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) {
-        restore();
-        return false;
-      }
+      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) continue;
       const held = this.holdings.get(draft.id) as Holdings;
       this.apply(shape.spec, held, -1);
       this.allocation.countDraft(draft, -1);
-      taken.push({ draft, spec: shape.spec, held });
-      if (!(held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held))) {
-        restore();
-        return false;
+      if (held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held)) {
+        held.keys.forEach((key, at) => {
+          draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
+        });
+        draft.dropped = { duplicate_of: { spec: '', block: '' } };
+        this.current.delete(draft.id);
+        this.holdings.delete(draft.id);
+        changed.add(draft);
+        left -= 1;
+        did = true;
+      } else {
+        this.apply(shape.spec, held, 1);
+        this.allocation.countDraft(draft, 1);
       }
     }
-    for (const { draft, held } of taken) {
-      held.keys.forEach((key, at) => {
-        draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
-      });
-      draft.dropped = { duplicate_of: { spec: '', block: '' } };
-      this.current.delete(draft.id);
-      this.holdings.delete(draft.id);
-      changed.add(draft);
-    }
-    return true;
+    return did;
   }
 
   /**
@@ -496,8 +485,9 @@ export class SuiteCut {
     if (!held.codes.every((codes, index) => [...codes].every((code) => (this.held[index]?.[code] ?? 0) > 0)))
       return false;
     return (
+      this.options.ignoreAllocation === true ||
       this.allocation.imbalanceWithAll([]) <=
-      this.allocation.imbalanceWithAll([{ blocks: shape.blocks, perturbations: shape.perturbations }])
+        this.allocation.imbalanceWithAll([{ blocks: shape.blocks, perturbations: shape.perturbations }])
     );
   }
 
