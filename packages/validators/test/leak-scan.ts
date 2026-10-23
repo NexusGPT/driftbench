@@ -30,9 +30,9 @@ export function tapped<I extends Record<string, unknown>>(impl: I, sink: Set<str
     out[name] =
       typeof fn === 'function'
         ? (...args: unknown[]) => {
-          // What the item handed to the product is the item's own input, and may be printed back.
-          for (const t of text(args).match(TOKEN) ?? []) sink.add(t);
-          lengthsIn(args, sink);
+            // What the item handed to the product is the item's own input, and may be printed back.
+            for (const t of text(args).match(TOKEN) ?? []) sink.add(t);
+            lengthsIn(args, sink);
             const result = (fn as (...a: unknown[]) => unknown)(...args);
             if (!(result instanceof Promise)) {
               for (const t of text(result).match(TOKEN) ?? []) sink.add(t);
