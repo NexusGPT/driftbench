@@ -107,10 +107,17 @@ export function parseUnitsTruth(text: string): UnitsTruth {
       problems.push(`${entry.where}: ${entry.unit} is not a unit`);
   // Optional sections: absent means none. A present section is checked like the others.
   const refersTo = readRefersEntries(raw.refers_to, problems);
+  // A table that sits in both lists is one table: asked once, by its first and last unit.
+  const seenRange = new Set<string>();
   const tables = [
     ...readTableRanges(raw.number_table, problems, 'number_table'),
     ...readTableRanges(raw.limits_table, problems, 'limits_table'),
-  ];
+  ].filter((range) => {
+    const key = `${range.from}>${range.to}`;
+    if (seenRange.has(key)) return false;
+    seenRange.add(key);
+    return true;
+  });
   const order = new Map(units.map((unit, at) => [unit.id, at]));
   for (const entry of refersTo) {
     if (!ids.has(entry.unit)) problems.push(`refers_to: ${entry.unit} is not a unit`);
