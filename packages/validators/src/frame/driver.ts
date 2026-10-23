@@ -84,7 +84,13 @@ function «encode»(«value», «seen» = new WeakSet()) {
   try {
     if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
     if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
-    if («value» instanceof Error) return { $err: { name: «value».name, message: «value».message } };
+    if («value» instanceof Error) {
+      const «err» = { name: «value».name, message: «value».message };
+      const «klass» = [RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError].find((«c») => «value» instanceof «c»);
+      if («klass») «err».class = «klass».name;
+      if (typeof «value».code === 'string' || typeof «value».code === 'number') «err».code = «value».code;
+      return { $err: «err» };
+    }
     if (Array.isArray(«value»)) return «value».map((«v») => «encode»(«v», «seen»));
     if («value» instanceof Date) return { $date: «value».toISOString() };
     if (ArrayBuffer.isView(«value»)) return { $bytes: [...new Uint8Array(«value».buffer, «value».byteOffset, «value».byteLength)] };
@@ -107,7 +113,13 @@ function «decode»(«x») {
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
   if ('$handle' in «x») return «handles».get(«x».$handle);
   if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
-  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
+  if ('$err' in «x») {
+    const «make» = { RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.class] ?? Error;
+    const «e» = new «make»(«x».$err.message);
+    «e».name = «x».$err.name;
+    if («x».$err.code !== undefined) «e».code = «x».$err.code;
+    return «e»;
+  }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
 `;
