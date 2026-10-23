@@ -493,57 +493,64 @@ function legsOf(workflow: ReturnType<typeof parse>, job: string): Leg[] {
   });
 }
 
-/**
- * The level the legs of a validator must reach. Every validator is computed to the top of its ladder, except the
- * generator, whose floor leg (`--check-floor`) computes only through its floor: a slice above the floor would be an
- * empty run, so its legs tile through the floor and the tail legs (levels 20 to 23) cover what lies above.
- */
-const FLOOR_ONLY = new Set(['generator']);
-function legsReach(component: string): number {
-  const ladder = registeredLadders()[component];
-  const top = ladder?.levels.length ?? 0;
-  if (!ladder || !FLOOR_ONLY.has(component)) return top;
-  const floors = readFloors(fileURLToPath(new URL('../../../', import.meta.url)));
-  const floor = floorOf(floors, component, ladderVersion(ladder));
-  return floor > 0 && floor <= top ? floor : top;
+/** The legs of one validator on one seed, in level order. */
+function legsFor(legs: Leg[], component: string, seed: string): Leg[] {
+  return legs.filter((leg) => leg.component === component && leg.seed === seed).sort((a, b) => a.from - b.from);
+}
+
+/** The legs tile level 1 up to a level of at least `through`, without a gap or an overlap, and not past `top`. */
+function expectTiles(mine: Leg[], label: string, through: number, top: number) {
+  let next = 1;
+  for (const leg of mine) {
+    expect(leg.from, `${label}: a gap or an overlap before level ${leg.from}`).toBe(next);
+    next = leg.to + 1;
+  }
+  expect(next - 1, `${label} stops short of level ${through}`).toBeGreaterThanOrEqual(through);
+  expect(next - 1, `${label} runs past level ${top}`).toBeLessThanOrEqual(top);
+}
+
+function topOf(component: string): number {
+  const top = registeredLadders()[component]?.levels.length ?? 0;
+  expect(top, component).toBeGreaterThan(0);
+  return top;
 }
 
 /**
- * Every registered validator on every seed is computed on every level up to where its legs must reach (`legsReach`),
- * once: the legs of a seed are one run of the whole ladder or slices that tile it from level 1 without a gap or an
- * overlap through that level. Above it (the generator's tail legs) a gap is allowed, an overlap is not.
+ * Guard 1, the floor legs. The generator's floor legs run with `--check-floor`, which computes only through the
+ * floor, so they tile level 1 through the floor of the registered ladder version (a slice above it would be an empty
+ * run). The levels above are the tail legs (guard 3).
  */
-function assertTiled(legs: Leg[], components: string[], seeds: string[]) {
-  const ladders = registeredLadders();
-  expect(new Set(legs.map((leg) => leg.id)).size, 'leg ids are unique').toBe(legs.length);
+function assertFloorLegs(legs: Leg[], seeds: string[]) {
+  const ladder = registeredLadders().generator;
+  const top = topOf('generator');
+  const floors = readFloors(fileURLToPath(new URL('../../../', import.meta.url)));
+  const floor = ladder ? floorOf(floors, 'generator', ladderVersion(ladder)) : 0;
+  expect(floor, 'the generator has a floor').toBeGreaterThan(0);
+  for (const seed of seeds)
+    expectTiles(legsFor(legs, 'generator', seed), `generator seed ${seed}`, Math.min(floor, top), top);
+}
+
+/**
+ * Guard 2, every full-ladder leg. A validator that runs its whole ladder in CI (the system legs, and every validator
+ * of the floor job but the generator) is computed on every level of its ladder, once, to its top.
+ */
+function assertFullLegs(legs: Leg[], components: string[], seeds: string[]) {
   for (const component of components) {
-    const top = ladders[component]?.levels.length ?? 0;
-    expect(top, component).toBeGreaterThan(0);
-    const reach = legsReach(component);
-    for (const seed of seeds) {
-      const mine = legs
-        .filter((leg) => leg.component === component && leg.seed === seed)
-        .sort((a, b) => a.from - b.from);
-      let next = 1;
-      for (const leg of mine) {
-        // through the floor the legs tile exactly; above it (the tail legs) a gap is allowed, an overlap is not
-        if (next <= reach)
-          expect(leg.from, `${component} seed ${seed}: a gap or an overlap before level ${leg.from}`).toBe(
-            next,
-          );
-        else
-          expect(leg.from, `${component} seed ${seed}: an overlap before level ${leg.from}`).toBeGreaterThanOrEqual(
-            next,
-          );
-        next = leg.to + 1;
-      }
-      expect(next, `${component} seed ${seed} stops short of level ${reach}`).toBeGreaterThan(reach);
-      expect(next - 1, `${component} seed ${seed} runs past level ${top}`).toBeLessThanOrEqual(top);
-    }
+    const top = topOf(component);
+    for (const seed of seeds) expectTiles(legsFor(legs, component, seed), `${component} seed ${seed}`, top, top);
   }
-  const known = new Set(components);
-  for (const leg of legs)
-    expect(known.has(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+}
+
+/** Guard 3, the tail legs: levels 20 to 23 of the generator, one leg per level and seed, each pinned by its name. */
+function assertTailLegs(legs: Leg[], seeds: string[]) {
+  const expected = seeds.flatMap((seed) =>
+    [20, 21, 22, 23].map((level) => ({ id: `generator-${seed}-level-${level}`, seed, from: level, to: level })),
+  );
+  expect(
+    legs.map(({ id, seed, from, to }) => ({ id, seed, from, to })).sort((a, b) => a.id.localeCompare(b.id)),
+    'the tail legs: levels 20 to 23 of the generator on every seed, one each',
+  ).toEqual(expected.sort((a, b) => a.id.localeCompare(b.id)));
+  for (const leg of legs) expect(leg.component, leg.id).toBe('generator');
 }
 
 /** The gate step of a job that joins legs: it fails unless every job it waits for succeeded. */
@@ -614,8 +621,15 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   // every validator, every seed (1 to 3 and the hidden one), every level: the legs tile each ladder
   const components = Object.keys(registeredLadders());
   const seeds = ['1', '2', '3', 'hidden'];
-  assertTiled([...legsOf(workflow, 'ladders-leg'), ...legsOf(workflow, 'ladders-tail')], components, seeds);
-  assertTiled(legsOf(workflow, 'system-leg'), ['system'], seeds);
+  const floorJob = legsOf(workflow, 'ladders-leg');
+  const everyLeg = [...floorJob, ...legsOf(workflow, 'ladders-tail'), ...legsOf(workflow, 'system-leg')];
+  expect(new Set(everyLeg.map((leg) => leg.id)).size, 'leg ids are unique').toBe(everyLeg.length);
+  for (const leg of floorJob)
+    expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+  assertFloorLegs(floorJob.filter((leg) => leg.component === 'generator'), seeds);
+  assertFullLegs(floorJob.filter((leg) => leg.component !== 'generator'), components.filter((c) => c !== 'generator'), seeds);
+  assertTailLegs(legsOf(workflow, 'ladders-tail'), seeds);
+  assertFullLegs(legsOf(workflow, 'system-leg'), ['system'], seeds);
   // the tail legs (one level of one generator seed each) start with the others: they wait for no leg, because the
   // join drops every level above the first failing one, as a single run that stopped there would
   expect(workflow.jobs['ladders-tail'].needs).toBeUndefined();
@@ -1139,25 +1153,51 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
     const stray = structuredClone(workflow);
     entries(stray, 'ladders-leg').push({ id: 'ghost-s1', flags: '--seed 1', component: 'ghost' });
     expect(() => assertTrainValidators(stray)).toThrow();
+    // guard 3, the tail legs, pinned by name: the last one gone (the hidden seed's level 23), any other one gone, or one
+    // of them aimed at another level
     const noTail = structuredClone(workflow);
     entries(noTail, 'ladders-tail').pop();
     expect(() => assertTrainValidators(noTail)).toThrow();
-    // a slice through the floor lost: the generator seed 1 leg of levels 7 to 11 holds the floor level (8)
+    const noHiddenTop = structuredClone(workflow);
+    const tail = entries(noHiddenTop, 'ladders-tail');
+    tail.splice(
+      tail.findIndex((entry) => entry.id === 'generator-hidden-level-23'),
+      1,
+    );
+    expect(() => assertTrainValidators(noHiddenTop), 'the tail leg of the hidden seed, level 23').toThrow();
+    const noTail21 = structuredClone(workflow);
+    const tail21 = entries(noTail21, 'ladders-tail');
+    tail21.splice(
+      tail21.findIndex((entry) => entry.id === 'generator-2-level-21'),
+      1,
+    );
+    expect(() => assertTrainValidators(noTail21), 'the tail leg of seed 2, level 21').toThrow();
+    const moved = structuredClone(workflow);
+    (entries(moved, 'ladders-tail')[0] as { flags: string }).flags = '--seed 1 --levels 19..19';
+    expect(() => assertTrainValidators(moved), 'a tail leg aimed at level 19').toThrow();
+    // guard 1, the floor legs: a slice through the floor lost (generator seed 1, levels 7 to 11, holds the floor level 8)
     const noSlice = structuredClone(workflow);
     const slices = entries(noSlice, 'ladders-leg');
     slices.splice(
       slices.findIndex((entry) => entry.id === 'generator-s1-7-11'),
       1,
     );
-    expect(() => assertTrainValidators(noSlice)).toThrow();
-    // a leg that leaves a gap (or runs past the top of the ladder) is refused
+    expect(() => assertTrainValidators(noSlice), 'a floor slice lost').toThrow();
     const pastTop = structuredClone(workflow);
     entries(pastTop, 'ladders-leg').push({
       id: 'generator-s1-30-40',
       component: 'generator',
       flags: '--seed 1 --levels 30..40',
     });
-    expect(() => assertTrainValidators(pastTop)).toThrow();
+    expect(() => assertTrainValidators(pastTop), 'a floor leg past the top').toThrow();
+    // guard 2, the full-ladder legs: system's seed 1 leg of its top level (11) is dropped
+    const noTop = structuredClone(workflow);
+    const systemLegs = entries(noTop, 'system-leg');
+    systemLegs.splice(
+      systemLegs.findIndex((entry) => entry.id === 'system-s1-11-11'),
+      1,
+    );
+    expect(() => assertTrainValidators(noTop), 'the system leg of level 11').toThrow();
   }, 120_000);
   it('rejects a job that joins the legs without waiting for all of them, or that lets a red leg through', () => {
     for (const [id, dropped] of [
