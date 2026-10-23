@@ -200,6 +200,11 @@ export type RawEstate = {
    * name. Absent when the reader was given no user skill folder.
    */
   userLayer?: { read: string[]; shadowed: string[] };
+  /**
+   * The folder that stands for the home folder (`~`, `$HOME`), as a path relative to the root ('' is the root
+   * itself). Absent when the reader was given none, or a folder outside the root: home paths then stay external.
+   */
+  home?: string;
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

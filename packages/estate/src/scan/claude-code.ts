@@ -95,6 +95,18 @@ const INTERPRETERS = new Set([
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
 const DISPATCH_EXTENSIONS = ['.py', '.sh', '.bash', '.js', '.mjs', '.cjs', '.ts', '.rb', '.pl'];
 const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\//];
+/** The three ways a path is written from the home folder. */
+const HOME_FORM = /^(?:~|\$HOME|\$\{HOME\})\//;
+
+/**
+ * A path written from the home folder (`~/x`, `$HOME/x`, `${HOME}/x`) as a path relative to the root, when the
+ * reader was given a home folder inside the estate. Undefined for any other token, and for a home folder that
+ * is not mapped.
+ */
+export function mapHome(token: string, home: string | undefined): string | undefined {
+  if (home === undefined || !HOME_FORM.test(token)) return undefined;
+  return posix.normalize(posix.join(home, token.replace(HOME_FORM, '')));
+}
 
 /** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
 export const DEFAULT_CHUNK_CHARACTERS = 20_000;
@@ -134,6 +146,11 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /**
+   * The folder that stands for the home folder. A guard path written from `~/`, `$HOME/` or `${HOME}/` is read
+   * as a path under it; inside the estate, the script is found there. Opt-in: no home folder is read without it.
+   */
+  home?: string;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -159,6 +176,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly home: string | undefined;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -168,6 +186,9 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    if (options.home !== undefined && options.home.trim() === '')
+      throw new RangeError('home must name a folder: an empty value would read the working folder as home');
+    this.home = options.home;
   }
 
   /**
@@ -281,6 +302,8 @@ export class ClaudeCodeReader implements EstateReader {
         ...notes.filter((note) => note.message === EXTERNAL_NOTE).map((note) => note.file),
       ],
     };
+    const home = homeFolderOf(this.home, root);
+    if (home !== undefined) estate.home = home;
     const where = userFolderOf(this.userSkills, config, root);
     if (where !== undefined) {
       const layer = await readUserLayer(where, files, root, ignored);
@@ -627,6 +650,18 @@ function userFolderOf(option: string | undefined, config: EstateConfig, root: st
   const home = chosen === '~' || chosen.startsWith('~/') ? join(homedir(), chosen.slice(1)) : chosen;
   // A folder the command line names is relative to where it was typed; one the configuration names, to the estate.
   return resolve(option !== undefined ? process.cwd() : root, home);
+}
+
+/**
+ * The home folder as a path relative to the root ('' is the root), or undefined when none was given or the
+ * folder lies outside the root: a home path is then outside the estate and stays external.
+ */
+function homeFolderOf(option: string | undefined, root: string): string | undefined {
+  if (option === undefined) return undefined;
+  const folder = option === '~' || option.startsWith('~/') ? join(homedir(), option.slice(1)) : option;
+  const inside = relative(resolve(root), resolve(process.cwd(), folder));
+  if (inside.startsWith('..') || isAbsolute(inside)) return undefined;
+  return inside.split(sep).join('/');
 }
 
 /** A name a folder listing skips: hidden (a repository, an archive) or a dependency folder. */
@@ -1221,6 +1256,7 @@ function readGuards(
                 command,
                 new Set(estate.files.map((entry) => entry.path)),
                 new Map(estate.files.map((entry) => [entry.path, entry.text])),
+                estate.home,
               )
             : { anchored: false }),
         };
@@ -1247,8 +1283,9 @@ export function scriptOf(
   command: string,
   paths?: ReadonlySet<string>,
   sources?: ReadonlyMap<string, string>,
+  home?: string,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
-  return scriptFrom(command, paths, '', false, sources);
+  return scriptFrom(command, paths, '', false, sources, home);
 }
 
 /** Carry a proven working directory into a command, including a shell's quoted command string. */
@@ -1258,13 +1295,14 @@ function scriptFrom(
   directory: string,
   anchoredDirectory: boolean,
   sources?: ReadonlyMap<string, string>,
+  home?: string,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
   for (const { words: segment, after } of segments(command)) {
     const words = segment.map((word) => word.replace(/["']/g, ''));
     if (words[0] === 'cd') {
       const target = words[1] === '--' ? words[2] : words[1];
       if (target !== undefined && after === '&&') {
-        const changed = anchorOf(`${target.replace(/\/$/, '')}/`);
+        const changed = anchorOf(`${target.replace(/\/$/, '')}/`, home);
         directory = changed.anchored ? changed.script : posix.join(directory, changed.script);
         anchoredDirectory = changed.anchored || anchoredDirectory;
       } else {
@@ -1285,7 +1323,7 @@ function scriptFrom(
         const quoted = segment[head + 2];
         if (quoted !== undefined) {
           const payload = /^(["']).*\1$/.test(quoted) ? quoted.slice(1, -1) : quoted;
-          const nested = scriptFrom(payload, paths, directory, anchoredDirectory, sources);
+          const nested = scriptFrom(payload, paths, directory, anchoredDirectory, sources, home);
           if (nested.script !== undefined) return nested;
           continue;
         }
@@ -1293,7 +1331,7 @@ function scriptFrom(
     }
     const runs = runPath(segment);
     if (runs === undefined) continue;
-    const relative = anchorOf(runs);
+    const relative = anchorOf(runs, home);
     const first = relative.anchored
       ? relative
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
@@ -1303,12 +1341,12 @@ function scriptFrom(
       : undefined;
     // With source available, an argument is a file only when its data flows to an execution path.
     if (target === undefined) return first;
-    const last = scriptIn(`${JSON.stringify(runs)} ${JSON.stringify(target)}`, directory, paths, true);
+    const last = scriptIn(`${JSON.stringify(runs)} ${JSON.stringify(target)}`, directory, paths, true, home);
     if (last === undefined || last === first.script) {
       // A dispatcher whose target name matches no file still names that target: the guard runs nothing.
       return target === undefined
         ? first
-        : { script: anchorOf(target).script, anchored: first.anchored, dispatcher: first.script };
+        : { script: anchorOf(target, home).script, anchored: first.anchored, dispatcher: first.script };
     }
     return {
       script: last,
@@ -1392,9 +1430,13 @@ function runPath(segment: readonly string[]): string | undefined {
 }
 
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
-function anchorOf(token: string): { script: string; anchored: boolean } {
+function anchorOf(token: string, home?: string): { script: string; anchored: boolean } {
   for (const anchor of ANCHORS) {
     if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
+  }
+  if (HOME_FORM.test(token)) {
+    // One spelling for the three forms; with a home folder inside the estate, the path under it.
+    return { script: mapHome(token, home) ?? `~/${token.replace(HOME_FORM, '')}`, anchored: true };
   }
   if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
   return { script: posix.normalize(token), anchored: false };
@@ -1781,6 +1823,7 @@ function scriptIn(
   from: string,
   paths: ReadonlySet<string>,
   workingDirectoryFirst = false,
+  home?: string,
 ): string | undefined {
   let found: string | undefined;
   const bases = [''];
@@ -1790,14 +1833,14 @@ function scriptIn(
   }
   for (const raw of tokens(command)) {
     const unquoted = raw.replace(/["']/g, '');
-    const token = stripAnchor(unquoted);
+    const token = stripAnchor(unquoted, home);
     if (token === '' || token.startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue;
     const named = token.includes('/') || SCRIPT_EXTENSION.test(token);
     // After a dispatcher, a bare word may name its target script without the extension.
     const bare = !named && found !== undefined && /^[\w.-]+$/.test(token);
     if (!named && !bare) continue;
     const names = bare ? [token, ...DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`)] : [token];
-    const searchBases = workingDirectoryFirst && anchorOf(unquoted).anchored ? [''] : bases;
+    const searchBases = workingDirectoryFirst && anchorOf(unquoted, home).anchored ? [''] : bases;
     const hit = searchBases
       .flatMap((base) => names.map((name) => posix.normalize(posix.join(base, name))))
       .find((candidate) => paths.has(candidate));
@@ -1816,9 +1859,9 @@ function tokens(command: string): string[] {
 }
 
 /** A path with its project anchor (`$CLAUDE_PROJECT_DIR/`) taken off, relative to the root. */
-function stripAnchor(token: string): string {
+function stripAnchor(token: string, home?: string): string {
   for (const anchor of ANCHORS) if (anchor.test(token)) return token.replace(anchor, '');
-  return token;
+  return mapHome(token, home) ?? token;
 }
 
 /** Entries in the known registry containers, an id map, or an event-grouped list. */
@@ -1925,7 +1968,7 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySe
         : field === 'command'
           ? guardName({
               command: named,
-              ...scriptOf(named, paths, sources),
+              ...scriptOf(named, paths, sources, estate.home),
             })
           : basename(named);
     const found = seekPattern(file, key !== undefined ? stepMapKey(key) : keyValue('id', id), cursor);

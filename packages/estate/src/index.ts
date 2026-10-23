@@ -237,6 +237,7 @@ export {
   type SkillDecl,
   type StepDecl,
   type SubagentDecl,
+  mapHome,
   scanAtoms,
   scriptOf,
   sha256,
