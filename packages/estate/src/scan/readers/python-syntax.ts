@@ -402,12 +402,19 @@ export function pythonAgentFacts(text: string): PythonFacts {
     if (readImport(tokens, scope)) continue;
     const loop = tokens[0]?.text === 'async' ? 1 : 0;
     const first = tokens[loop]?.text;
-    if (tokens.some((token) => token.text === 'lambda')) {
-      facts.unresolved.push({ line: statement.line, reason: 'lambda-scope' });
-      continue;
+    let unsupportedScope: string | undefined;
+    if (tokens.some((token) => token.text === 'lambda')) unsupportedScope = 'lambda-scope';
+    else if (first !== 'for' && tokens.some((token) => token.text === 'for')) {
+      unsupportedScope = 'comprehension-scope';
     }
-    if (first !== 'for' && tokens.some((token) => token.text === 'for')) {
-      facts.unresolved.push({ line: statement.line, reason: 'comprehension-scope' });
+    if (unsupportedScope) {
+      // Refusing the expression does not undo its assignment: the old imported identity is gone.
+      for (const group of split(tokens, '=').slice(0, -1)) {
+        for (const token of group) {
+          if (/^[A-Za-z_]\w*$/.test(token.text)) forget(scope, token.text);
+        }
+      }
+      facts.unresolved.push({ line: statement.line, reason: unsupportedScope });
       continue;
     }
     if (first === 'for') {

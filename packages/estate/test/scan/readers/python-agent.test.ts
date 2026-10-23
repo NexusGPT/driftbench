@@ -292,6 +292,7 @@ describe('static Python agent syntax contract', () => {
     'with context() as SystemMessage:\n    pass',
     'del SystemMessage',
     'from fictional_unknown import *',
+    'SystemMessage = lambda value: value',
     'SystemMessage, other = factories()',
     'first = SystemMessage = make_message',
     '(SystemMessage := make_message)',
