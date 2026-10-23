@@ -74,7 +74,8 @@ export function layoutPlan(ladders, floors, regression) {
   if (floor <= firstEnd) throw new Error('generator floor leaves the second slice empty');
   const tailStart = Math.max(position(generator, 'interactions'), floor + 1);
   const tail = range(tailStart, generator.levels.length);
-  if (tail.length < 2) throw new Error('tail guards require two levels; review scheduling before regenerating');
+  if (tail.length < 2)
+    throw new Error('tail guards require two levels; review scheduling before regenerating');
   const ordered = [
     ...ORDER.filter((name) => ladders[name]),
     ...names.filter((name) => name !== 'generator' && !ORDER.includes(name)).sort(),
@@ -106,9 +107,7 @@ export function layoutPlan(ladders, floors, regression) {
     if (from !== next || to < from) throw new Error('system scheduling anchors are out of order');
     next = to + 1;
   }
-  const systemSlices = slices.map(([from, to]) =>
-    from === to ? `level ${to}` : `levels ${from} to ${to}`,
-  );
+  const systemSlices = slices.map(([from, to]) => (from === to ? `level ${to}` : `levels ${from} to ${to}`));
   const rows = {
     FLOOR_LEGS: floorLegs,
     STATS_LEGS: SEEDS.map((seed) => ({
@@ -212,7 +211,9 @@ export async function main(args = process.argv.slice(2)) {
       `::error file=${path}::Generated CI layout differs; run node --import tsx tools/ci/layout.mjs --write`,
     );
   console.log(
-    drift.length ? `FAIL: ${drift.length} generated files differ` : 'PASS: generated CI layout equals committed bytes',
+    drift.length
+      ? `FAIL: ${drift.length} generated files differ`
+      : 'PASS: generated CI layout equals committed bytes',
   );
   return drift.length ? 1 : 0;
 }

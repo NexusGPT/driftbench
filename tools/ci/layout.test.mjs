@@ -1,11 +1,11 @@
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { readFloors } from '../../packages/validators/src/floors.ts';
 import { registeredLadders } from '../../packages/validators/src/ladders/index.ts';
 import { readRegressionSeeds } from '../../packages/validators/src/regression.ts';
-import { checkLayout, layoutPlan, OUTPUTS, renderLayout, ROOT } from './layout.mjs';
+import { checkLayout, layoutPlan, OUTPUTS, ROOT, renderLayout } from './layout.mjs';
 
 // Invented declarations have the scheduling anchors but no executable validator items.
 function fixture(generatorTop = 23, systemTop = 11, floor = 8) {
@@ -75,9 +75,7 @@ describe('generated CI layout', () => {
   });
 
   it('reports missing files and refuses checks with no inputs', () => {
-    expect(checkLayout(mkdtempSync(join(tmpdir(), 'ci-layout-empty-')), render(fixture()))).toEqual(
-      OUTPUTS,
-    );
+    expect(checkLayout(mkdtempSync(join(tmpdir(), 'ci-layout-empty-')), render(fixture()))).toEqual(OUTPUTS);
     expect(() => checkLayout(ROOT, {})).toThrow('not run');
     expect(() => layoutPlan({}, { floors: {}, ladderVersion: {} }, [])).toThrow('not run');
   });
@@ -90,8 +88,7 @@ describe('generated CI layout', () => {
           const after = fixture(generatorTop, systemTop, floor);
           const a = layoutPlan(before.ladders, before.floors, before.regression);
           const b = layoutPlan(after.ladders, after.floors, after.regression);
-          for (const kind of ['STATS_LEGS', 'REGRESSION_LEGS'])
-            expect(b.rows[kind]).toEqual(a.rows[kind]);
+          for (const kind of ['STATS_LEGS', 'REGRESSION_LEGS']) expect(b.rows[kind]).toEqual(a.rows[kind]);
           expect(b.rows.FLOOR_LEGS.filter((row) => row.component !== 'generator')).toEqual(
             a.rows.FLOOR_LEGS.filter((row) => row.component !== 'generator'),
           );
