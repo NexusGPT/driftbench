@@ -566,10 +566,11 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
             ]),
             dense,
           );
-          if (found)
-            throw new Error(
-              `the pair ${dense.ids[i]}=v${x}, ${dense.ids[j]}=v${y} is held by no row, yet a valid row holds it`,
-            );
+          check(!found, () => ({
+            rule: 'a pair that a valid row can hold is held by some row',
+            input: { first: `${dense.ids[i]}=v${x}`, second: `${dense.ids[j]}=v${y}` },
+            expected: none('observation'),
+          }));
         }
       }
     }
