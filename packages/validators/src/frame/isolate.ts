@@ -539,7 +539,10 @@ function marksOf(
  * one is remembered under its id. So the caller sees the sharing a call in its own process would show: a result that
  * holds an argument, two results that are one object, an argument a cache keyed by the object sees again.
  */
-function callerIdentity(): { idOf(value: object): number; adopt(value: unknown, refs?: Array<[Path, number]>): unknown } {
+function callerIdentity(): {
+  idOf(value: object): number;
+  adopt(value: unknown, refs?: Array<[Path, number]>): unknown;
+} {
   const ids = new WeakMap<object, number>();
   const byId = new Map<number, WeakRef<object>>();
   const registry = new FinalizationRegistry<number>((id) => byId.delete(id));
@@ -571,7 +574,10 @@ function callerIdentity(): { idOf(value: object): number; adopt(value: unknown, 
         let node: unknown = root;
         for (const key of path) {
           parent = node;
-          node = node !== null && typeof node === 'object' ? (node as Record<string | number, unknown>)[key] : undefined;
+          node =
+            node !== null && typeof node === 'object'
+              ? (node as Record<string | number, unknown>)[key]
+              : undefined;
         }
         if (node === null || typeof node !== 'object') continue;
         const known = byId.get(id)?.deref();
@@ -584,6 +590,15 @@ function callerIdentity(): { idOf(value: object): number; adopt(value: unknown, 
       return root;
     },
   };
+}
+
+/** An answer as the tape keeps it: without the ids of its objects and the codec's note, compared when it came. */
+function withoutIds(outcome: Outcome): Outcome {
+  const { rrefs: _ids, uncarried: _uncarried, ...rest } = outcome as Outcome & {
+    rrefs?: unknown;
+    uncarried?: unknown;
+  };
+  return rest as Outcome;
 }
 
 /** An environment without the named variables. */
@@ -812,7 +827,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     for (let index = compared; index < recorded.length; index += 1) {
       const held = recorded[index] as Recorded;
       const c = answers[index] as Outcome | { dead: string };
-      if (!('dead' in c)) held.entry.plain = c;
+      if (!('dead' in c)) held.entry.plain = withoutIds(c);
       if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
         found.push({ at: held.at, message });
@@ -823,7 +838,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         found.push({ at: held.at, message });
         first ??= message;
         taint ??= message;
-      } else if (!('dead' in c) && JSON.stringify((c as { shared?: [number, number] }).shared ?? null) !== held.shared) {
+      } else if (
+        !('dead' in c) &&
+        JSON.stringify((c as { shared?: [number, number] }).shared ?? null) !== held.shared
+      ) {
         // Run C counts shared objects as the confined runs do (review of PR 1403, codex run 39875360028: a product
         // that shared one cached result only where no permission model ran passed).
         const message = `${held.head}, shared objects ${held.shared}; ${describeRun('C')} returned shared objects ${JSON.stringify((c as { shared?: [number, number] }).shared ?? null)}`;
@@ -999,8 +1017,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
-    if (!('dead' in b)) entry.twin = b;
-    if (!('dead' in d)) entry.wrapped = d;
+    // The tape keeps what each run answered; the ids of the result's objects were compared above.
+    if (!('dead' in b)) entry.twin = withoutIds(b);
+    if (!('dead' in d)) entry.wrapped = withoutIds(d);
     tape.push(entry);
     const kept = (outcome: Outcome | { dead: string }): string => {
       if ('dead' in outcome) return `dead`;

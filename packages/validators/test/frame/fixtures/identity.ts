@@ -1,7 +1,9 @@
 // Fictional products for the identity test of the frame.
 
 /** Rows that hold the caller's own seed objects. */
-export const rowsOf = (seeds: Array<Record<string, string>>) => ({ rows: seeds.map((values) => ({ values })) });
+export const rowsOf = (seeds: Array<Record<string, string>>) => ({
+  rows: seeds.map((values) => ({ values })),
+});
 
 const cached = new Map<string, { total: number }>();
 /** One cached object for the same input. */

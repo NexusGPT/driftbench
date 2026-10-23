@@ -163,10 +163,13 @@ describe('the contracts of the items, with the implementation under the frame', 
     expect(got.filter((each) => !each.pass)).toEqual([]);
   });
 
-  it.each(Object.keys(PASSING))('the %s product passes every item, as the honest adapter does', async (mode) => {
-    const got = await outcomes(mode, PASSING[mode] as string[]);
-    expect(got.filter((each) => !each.pass)).toEqual([]);
-  });
+  it.each(Object.keys(PASSING))(
+    'the %s product passes every item, as the honest adapter does',
+    async (mode) => {
+      const got = await outcomes(mode, PASSING[mode] as string[]);
+      expect(got.filter((each) => !each.pass)).toEqual([]);
+    },
+  );
 
   it.each(Object.keys(MODES))('the %s product fails every item that rejects it', async (mode) => {
     const ids = MODES[mode] as string[];
