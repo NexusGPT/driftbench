@@ -147,6 +147,7 @@ const «hashDigest» = «hashProto».digest;
 const «mapEntries» = Map.prototype.entries;
 const «mapGet» = Map.prototype.get;
 const «mapSet» = Map.prototype.set;
+const «mapDelete» = Map.prototype.delete;
 const «setValues» = Set.prototype.values;
 const «mapNext» = «protoOf»(new Map().entries()).next;
 const «setNext» = «protoOf»(new Set().values()).next;
@@ -465,8 +466,22 @@ const «shortJson» = («value») => {
   const «text» = «stringify»(«value»);
   return «text» === undefined ? 'undefined' : «text».length > 80 ? «call»(«sliceText», «text», [0, 80]) + '...' : «text»;
 };
+// The encoded form of a kept result for the evidence, with the handle table left as it was: an answer's encoding
+// gives each function a handle, and a handle given here only (in the confined runs, which keep results; run C keeps
+// none) would put their handle numbers out of step with run C's (review of PR 986, sonnet-review-c-2).
+const «quietEncode» = («value») => {
+  const «before» = «counter»;
+  try {
+    return «encode»(«value»);
+  } finally {
+    for (; «counter» > «before»; «counter» -= 1) «call»(«mapDelete», «handles», [«counter»]);
+  }
+};
 const «firstDiff» = («was», «now», «path») => {
   if («was» === «now») return undefined;
+  // A function crosses as a handle, a new one on each encoding: two handles say nothing about the function itself.
+  if («was» !== null && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && «hasOwn»(«was», '$handle') && «hasOwn»(«now», '$handle'))
+    return undefined;
   if («was» !== null && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && «isArray»(«was») === «isArray»(«now»)) {
     if («isArray»(«was») && «was».length !== «now».length)
       return («path» || '(the result)') + '.length was ' + «was».length + ', now ' + «now».length;
@@ -487,7 +502,7 @@ const «firstDiff» = («was», «now», «path») => {
   return «shortJson»(«was») === «shortJson»(«now») ? undefined : («path» || '(the result)') + ' was ' + «shortJson»(«was») + ', now ' + «shortJson»(«now»);
 };
 const «whatChanged» = («each») => {
-  const «found» = «firstDiff»(«each».ret, «encode»(«each».live), '');
+  const «found» = «firstDiff»(«each».ret, «quietEncode»(«each».live), '');
   if («found» !== undefined) return «found»;
   const «live» = «each».live;
   if («protoOf»(«live») !== «each».proto) return 'its prototype';
@@ -692,7 +707,7 @@ if («setup».command) {
             «evidence»[«movedCount»] = «each».call + '() of call ' + «each».at + ', seen at call ' + «request».id + ': ' + «whatChanged»(«each»);
             «movedCount» += 1;
             «each».digest = «now»;
-            «each».ret = «encode»(«each».live);
+            «each».ret = «quietEncode»(«each».live);
             «each».proto = «protoOf»(«each».live);
             «each».ext = «isExt»(«each».live);
             «each».frozen = «isFrozenIt»(«each».live);
