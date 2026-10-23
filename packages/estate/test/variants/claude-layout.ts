@@ -124,6 +124,26 @@ const RULES: Hiding[] = [
   byRule('the setup file (the control that holds today)', true, () => ({
     'driftbench.estate.yaml': 'ignore:\n  - scratch\n',
   })),
+  // Lines git reads that the scan must read the same way, and lines git reads as matching nothing, which must
+  // neither stop the scan nor hide the lines after them.
+  byRule('a reversed range, an unclosed bracket and an unknown class before a name', true, (j) => ({
+    '.gitignore': `[z-a]\n[\n[[:foo:]]\n[]^*]\n${j.path}\n`,
+  })),
+  byRule('a class that starts with a closing bracket', true, () => ({ '.gitignore': 'wip-draft.m[]d]\n' })),
+  byRule('a negated class that starts with a closing bracket', true, () => ({
+    '.gitignore': 'wip-draft.m[!]x]\n',
+  })),
+  byRule('a named class', true, () => ({ '.gitignore': 'wip-draft.m[[:alpha:]]\n' })),
+  byRule('a range', true, () => ({ '.gitignore': 'wip-draft.m[a-f]\n' })),
+  byRule('a class that does not hold the letter (control)', false, () => ({
+    '.gitignore': 'wip-draft.m[!d]\n',
+  })),
+  byRule('a reversed range that ends at the letter (control)', false, () => ({
+    '.gitignore': 'wip-draft.m[z-d]\n',
+  })),
+  byRule('a double slash at the end, which names nothing (control)', false, () => ({
+    '.gitignore': 'scratch//\n',
+  })),
 ];
 
 /** Places inside the layout folder where a copy of the layout folder may lie. */

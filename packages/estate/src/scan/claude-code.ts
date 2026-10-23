@@ -550,7 +550,6 @@ async function nestedStanding(
       // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
       if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
-      if (linked?.isDirectory() && ignored.stack.match(path, true)) continue;
       if (entry.isDirectory() || linked?.isDirectory()) {
         await nestedStanding(
           root,
@@ -743,7 +742,9 @@ async function readUserLayer(
     const real = await realpath(join(root, posix.dirname(file.path))).catch(() => undefined);
     if (real !== undefined) taken.add(real);
   }
+  // A second source is a tree of its own: the globs of the profile and its own ignore files apply inside it.
   const own: Ignored = { stack: await ignored.stack.rebased(folder), counts: new Map(), paths: [] };
+  await own.stack.enter('');
   const walkNotes: ReadNote[] = [];
   for (const rel of skills) {
     const real = await realpath(join(folder, rel)).catch(() => undefined);
@@ -901,15 +902,12 @@ async function walk(
     // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
-      let by = hidden ?? ignored.stack.match(path, entry.isDirectory())?.label;
+      const by = hidden ?? ignored.stack.match(path, entry.isDirectory())?.label;
       const info = entry.isSymbolicLink()
         ? await stat(join(root, path)).catch(() => undefined)
         : entry.isFile() && by === undefined
           ? await stat(join(root, path))
           : undefined;
-      // A link to a folder is a folder for a line that names folders only.
-      if (by === undefined && entry.isSymbolicLink() && info?.isDirectory())
-        by = ignored.stack.match(path, true)?.label;
       return { entry, path, by, info };
     });
     for (const { entry, path, by, info } of inspected) {

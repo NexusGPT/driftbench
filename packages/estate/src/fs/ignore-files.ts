@@ -26,36 +26,134 @@ export type IgnoreLine = {
 
 const MAX_BYTES = 1024 * 1024;
 
-/** A glob as the source of a regular expression on one path from the folder of the file. */
-function globSource(glob: string): string {
+/** A code point as a regular expression escape, valid inside and outside a class with the `u` flag. */
+const point = (char: string): string => `\\u{${(char.codePointAt(0) ?? 0).toString(16)}}`;
+
+/** The members of the POSIX classes a bracket may name, as ranges of the ASCII table (git's own `ctype`). */
+const POSIX_CLASSES: Readonly<Record<string, string>> = {
+  alnum: '0-9A-Za-z',
+  alpha: 'A-Za-z',
+  blank: ' \\t',
+  cntrl: '\\u{0}-\\u{1f}\\u{7f}',
+  digit: '0-9',
+  graph: '!-~',
+  lower: 'a-z',
+  print: ' -~',
+  punct: '!-\\/:-@\\[-`{-~',
+  space: ' \\t\\n\\r',
+  upper: 'A-Z',
+  xdigit: '0-9A-Fa-f',
+};
+
+/** A bracket expression read from `chars[at]` (the `[`): its regular expression, and where it ends. */
+type Bracket = { source: string | undefined; end: number };
+
+/**
+ * A bracket expression as git's wildmatch reads it. `!` or `^` right after `[` negates; the first `]` after
+ * that (or after `[`) is a member, not the end; `a-z` is a range, and a range whose ends are reversed holds only its first
+ * character; `\x` is the member `x`; `[:alpha:]` is a named class; a `-` first or last is itself. A class never
+ * matches `/`. A bracket never closed, or a class name git does not know, makes the whole glob match nothing:
+ * `source` is then undefined.
+ */
+function bracket(chars: readonly string[], at: number): Bracket {
+  let index = at + 1;
+  let negated = false;
+  if (chars[index] === '!' || chars[index] === '^') {
+    negated = true;
+    index++;
+  }
+  const members: string[] = [];
+  let previous: string | undefined;
+  let first = true;
+  for (;;) {
+    let char = chars[index];
+    if (char === undefined) return { source: undefined, end: chars.length };
+    if (char === ']' && !first) break;
+    first = false;
+    if (char === '\\') {
+      char = chars[++index];
+      if (char === undefined) return { source: undefined, end: chars.length };
+      members.push(point(char));
+      previous = char;
+    } else if (
+      char === '-' &&
+      previous !== undefined &&
+      chars[index + 1] !== undefined &&
+      chars[index + 1] !== ']'
+    ) {
+      let high = chars[++index] as string;
+      if (high === '\\') {
+        high = chars[++index] as string;
+        if (high === undefined) return { source: undefined, end: chars.length };
+      }
+      // The start of the range is a member on its own (git compares it first); a reversed range adds nothing more.
+      if ((previous.codePointAt(0) ?? 0) <= (high.codePointAt(0) ?? 0))
+        members.push(`${point(previous)}-${point(high)}`);
+      previous = undefined;
+    } else if (char === '[' && chars[index + 1] === ':') {
+      const close = chars.indexOf(']', index + 2);
+      if (close < 0) return { source: undefined, end: chars.length };
+      if (chars[close - 1] === ':' && close - 1 >= index + 2) {
+        const name = chars.slice(index + 2, close - 1).join('');
+        const range = POSIX_CLASSES[name];
+        if (range === undefined) return { source: undefined, end: chars.length };
+        members.push(range);
+        previous = undefined;
+        index = close;
+      } else {
+        // No `:]` closes it: the `[` is a member like any other.
+        members.push(point('['));
+        previous = char;
+      }
+    } else {
+      members.push(point(char));
+      previous = char;
+    }
+    index++;
+  }
+  const set = members.length > 0 ? `[${members.join('')}]` : undefined;
+  const source = negated ? `(?!/)${set ? `(?!${set})` : ''}[\\s\\S]` : set ? `(?!/)${set}` : '(?!)';
+  return { source, end: index };
+}
+
+/**
+ * A glob as the source of a regular expression on one path from the folder of the file, or undefined when git
+ * reads the glob as one that matches nothing (a trailing backslash, a bracket never closed, an unknown class
+ * name). Written so that no glob makes an invalid expression: every character outside a class is escaped, every
+ * member of a class is a code point.
+ */
+export function globSource(glob: string): string | undefined {
+  const chars = Array.from(glob);
   let source = '';
-  for (let index = 0; index < glob.length; index++) {
-    const char = glob[index] ?? '';
-    if (glob.startsWith('**/', index) && (index === 0 || glob[index - 1] === '/')) {
-      source += '(?:[^/]+/)*';
-      index += 2;
-    } else if (glob.startsWith('/**', index) && index + 3 === glob.length) {
-      source += '/.+';
-      index += 2;
-    } else if (char === '*') {
-      while (glob[index + 1] === '*') index++;
-      source += '[^/]*';
+  for (let index = 0; index < chars.length; index++) {
+    const char = chars[index] as string;
+    if (char === '*') {
+      let run = 1;
+      while (chars[index + run] === '*') run++;
+      const after = chars[index + run];
+      // A run of stars that is a whole component (`**` between slashes, or at an end) crosses folders.
+      const component = (index === 0 || chars[index - 1] === '/') && (after === undefined || after === '/');
+      if (component && run >= 2 && after === '/') {
+        source += '(?:[^/]+/)*';
+        index += run;
+      } else if (component && run >= 2) {
+        source += '.+';
+        index += run - 1;
+      } else {
+        source += '[^/]*';
+        index += run - 1;
+      }
     } else if (char === '?') source += '[^/]';
     else if (char === '[') {
-      const close = glob.indexOf(']', index + 2);
-      if (close < 0) source += '\\[';
-      else {
-        const body = glob
-          .slice(index + 1, close)
-          .replace(/^[!^]/, '^')
-          .replace(/\\/g, '\\\\');
-        source += `[${body}]`;
-        index = close;
-      }
-    } else if (char === '\\' && index + 1 < glob.length) {
-      index++;
-      source += (glob[index] ?? '').replace(/[.+^${}()|[\]\\*?]/g, '\\$&');
-    } else source += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+      const read = bracket(chars, index);
+      if (read.source === undefined) return undefined;
+      source += read.source;
+      index = read.end;
+    } else if (char === '\\') {
+      const next = chars[++index];
+      if (next === undefined) return undefined;
+      source += point(next);
+    } else source += point(char);
   }
   return source;
 }
@@ -64,21 +162,24 @@ function globSource(glob: string): string {
 export function parseIgnoreFile(text: string): IgnoreLine[] {
   const lines: IgnoreLine[] = [];
   for (const raw of text.replace(/^﻿/, '').split(/\r?\n/)) {
-    let line = raw.replace(/(?<!\\)\s+$/, '');
+    let line = raw.replace(/(?<!\\) +$/, '');
     if (line === '' || line.startsWith('#')) continue;
     const negated = line.startsWith('!');
     if (negated) line = line.slice(1);
+    // One trailing slash says "folders only"; a second one stays in the glob, which then matches nothing.
     const foldersOnly = line.endsWith('/');
-    const glob = line.replace(/\/+$/, '');
+    const glob = foldersOnly ? line.slice(0, -1) : line;
     if (glob === '') continue;
     const anchored = glob.includes('/');
-    const regex = new RegExp(`^${globSource(glob.replace(/^\/+/, ''))}$`);
+    const source = globSource(glob.startsWith('/') ? glob.slice(1) : glob);
+    // A glob git reads as one that matches nothing is kept as a line that matches nothing.
+    const regex = source === undefined ? undefined : new RegExp(`^${source}$`, 'u');
     lines.push({
       text: raw.trim(),
       negated,
       foldersOnly,
       anchored,
-      test: (path) => regex.test(anchored ? path : posix.basename(path)),
+      test: (path) => regex?.test(anchored ? path : posix.basename(path)) ?? false,
     });
   }
   return lines;

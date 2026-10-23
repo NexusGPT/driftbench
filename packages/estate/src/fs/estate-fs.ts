@@ -185,7 +185,7 @@ export type IgnoreStack = {
   matchPath(path: string): Promise<IgnoreHit | undefined>;
   /** The cache tag of a root-relative folder, when it holds a valid one. */
   cache(folder: string): Promise<IgnoreHit | undefined>;
-  /** The same globs over another tree (a folder that is not the estate's): no ignore file is read there. */
+  /** The same rules over another tree (a second source of parts): its own ignore files apply inside it. */
   rebased(folder: string): Promise<IgnoreStack>;
 };
 
@@ -193,17 +193,12 @@ export async function ignoreStack(
   root: string,
   profile: RuntimeProfile,
   configured: readonly string[],
-  options: { ignoreFiles?: boolean } = {},
 ): Promise<IgnoreStack> {
   // An ignore file is a rule for the reader, not a part of the estate: it is never read as content.
   const rules = [
     ...new Set([...profile.ignore, ...profile.ignoreFiles, nestedLayoutGlob(profile), ...configured]),
   ].map(ignoreRule);
-  const files = new IgnoreFiles(
-    root,
-    options.ignoreFiles === false ? [] : profile.ignoreFiles,
-    loadedAlways(profile),
-  );
+  const files = new IgnoreFiles(root, profile.ignoreFiles, loadedAlways(profile));
   const globHit = (path: string): IgnoreHit | undefined => {
     const rule = rules.find((candidate) => candidate.test(path));
     return rule ? { label: rule.pattern } : undefined;
@@ -225,7 +220,7 @@ export async function ignoreStack(
     },
     cache: async (folder) =>
       (await isCacheFolder(join(root, folder))) ? { label: CACHE_TAG_NAME } : undefined,
-    rebased: (folder) => ignoreStack(folder, profile, configured, { ignoreFiles: false }),
+    rebased: (folder) => ignoreStack(folder, profile, configured),
   };
 }
 

@@ -93,6 +93,81 @@ const CASES: Case[] = [
       kept: [kept],
     };
   }),
+  ignoreCase(
+    'file-malformed-lines',
+    2,
+    'lines git reads as matching nothing (a reversed range, an unclosed bracket, an unknown class) neither stop the scan nor hide the lines after them',
+    (skill) => {
+      const kept = skillFile(skill, 'references/guide.md');
+      const left = skillFile(skill, 'references/quarry-notes.md');
+      return {
+        files: [
+          ['.gitignore', `[z-a]\n[\n[[:foo:]]\n[]^*]\n${left}\n`],
+          [kept, '# Guide\n\nThe guide is shared.\n'],
+          [left, PROSE],
+        ],
+        left: [left],
+        kept: [kept],
+      };
+    },
+  ),
+  ignoreCase(
+    'file-bracket-first',
+    3,
+    'a class that starts with a closing bracket names the characters after it',
+    (skill) => {
+      const kept = skillFile(skill, 'references/quarry-notes.mx');
+      const left = skillFile(skill, 'references/quarry-notes.md');
+      return {
+        files: [
+          ['.gitignore', 'quarry-notes.m[]d]\n'],
+          [kept, '# Other\n\nAnother file.\n'],
+          [left, PROSE],
+        ],
+        left: [left],
+        kept: [kept],
+      };
+    },
+  ),
+  ignoreCase(
+    'beside-layout-folder-rule',
+    3,
+    'an instruction file in a folder beside the layout, in a folder an ignore file names, is not read',
+    () => {
+      const left = 'app/scratch/CLAUDE.md';
+      return {
+        files: [
+          ['.gitignore', 'scratch/\n'],
+          [left, PROSE],
+        ],
+        left: [left],
+      };
+    },
+  ),
+  ignoreCase(
+    'beside-layout-cache-tag',
+    3,
+    'an instruction file in a folder beside the layout, in a folder tagged as a cache, is not read',
+    () => {
+      const left = 'app/windlass-cache/CLAUDE.md';
+      return {
+        files: [
+          [left, PROSE],
+          ['app/windlass-cache/CACHEDIR.TAG', TAG],
+        ],
+        left: [left],
+      };
+    },
+  ),
+  ignoreCase(
+    'beside-layout-control',
+    2,
+    'an instruction file in a folder beside the layout that nothing keeps out is read (control)',
+    () => {
+      const kept = 'app/ledger/CLAUDE.md';
+      return { files: [[kept, PROSE]], left: [], kept: [kept] };
+    },
+  ),
   ignoreCase('file-negation', 3, 'a part a later ignore line brings back is still read', (skill) => {
     const kept = skillFile(skill, 'references/keep-local.md');
     const left = skillFile(skill, 'references/drop-local.md');
