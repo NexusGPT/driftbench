@@ -3,7 +3,7 @@
  * --seeds 1..20 --hidden --items --json` runs, before and after an iteration, so nothing is copied by hand:
  *
  *   pnpm -s exec tsx validators/variables/measure-row.ts --before before.json --after after.json --iteration 0 \
- *     --model "<model>" --executor builder --commit <sha> --hypothesis "..." > row.json
+ *     --model "<model>" --executor builder [--round <id>] --commit <sha> --hypothesis "..." > row.json
  *   pnpm -s driftbench validate variables --journal row.json
  *
  * Iteration 0 takes the same file as before and after. This replaces baseline-journal.ts, which could only turn the
@@ -46,11 +46,13 @@ const levelBefore = Math.min(...before.seeds.map((run) => run.level));
 const levelAfter = Math.min(...after.seeds.map((run) => run.level));
 const first = (report: Report) => report.seeds[0]?.rows ?? [];
 const executor = option('--executor');
+const round = option('--round');
 const row = {
   iteration,
   at: new Date().toISOString(),
   model: option('--model') ?? 'unrecorded',
   ...(executor === 'builder' || executor === 'blind' ? { executor } : {}),
+  ...(round === undefined ? {} : { pilotRound: round }),
   seeds: after.seeds.map(label),
   command: 'pnpm driftbench validate variables --seeds 1..20 --hidden --items --json',
   level: { before: levelBefore, after: levelAfter },
