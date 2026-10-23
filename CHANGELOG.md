@@ -6,6 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `estate scan` and `estate lint` stop long lists after the first 10 items. Lint lists the first 10 findings of each code, then `... <n> more of <total>` and one `Totals:` line; scan does the same for unanswered prose chunks, orphans, unreachable files and unenforced rules. `--verbose` lists every item. A map whose estate folder is not there is refused with the folder looked at, the root as recorded and a fix, by `estate lint`, `estate generate`, `radius ledger` and the live estate commands. The estate package exports `summariseLint`, `LintSummary`, `resolveMapRoot` and `MapRoot`.
 * Planner v2 puts the new rows that hold a required value first, then the others, each group most common first, so a budget cuts the rows without a required value before any with one. When a budget still leaves a required value in no row, the plan carries the warning `budget_drops_required` with the values. The row log weight keeps minus infinity in memory and null in the JSON text, and the rows are numbered in the order returned.
 
 * Helper tokens are priced. `cost.helperModel` is the model the helper messages of a Claude Code session name, `cost.helperUsd` the dollars for the helper tokens at that model's price (the agent's model when none is named), and `cost.usd` the total with the agent's own dollars. A budgeted run refuses a helper model that has no price.

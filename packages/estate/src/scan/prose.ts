@@ -473,7 +473,11 @@ export function proseInventory(raw: RawEstate): ProseInventory {
  * The lines a scan prints about its prose: the count by source, and, when no model ran, every chunk left
  * unanswered with its size, so the owner sees what a model call would cost before funding it.
  */
-export function proseInventoryLines(inventory: ProseInventory, answered: boolean): string[] {
+export function proseInventoryLines(
+  inventory: ProseInventory,
+  answered: boolean,
+  options: { limit?: number } = {},
+): string[] {
   const { chunks, characters, bySource } = inventory;
   if (chunks.length === 0) return ['  Prose: none.'];
   const parts = PROSE_SOURCES.filter((source) => bySource[source].chunks > 0).map(
@@ -484,6 +488,8 @@ export function proseInventoryLines(inventory: ProseInventory, answered: boolean
   ];
   if (answered) return lines;
   lines.push(`  Unanswered prose chunks (no model call): ${chunks.length}, ${characters} characters.`);
-  for (const chunk of chunks) lines.push(`    ${chunk.id}  ${chunk.characters} characters`);
+  const listed = options.limit === undefined ? chunks : chunks.slice(0, options.limit);
+  for (const chunk of listed) lines.push(`    ${chunk.id}  ${chunk.characters} characters`);
+  if (listed.length < chunks.length) lines.push(`    ... ${chunks.length - listed.length} more`);
   return lines;
 }

@@ -60,6 +60,39 @@ export type LintResult = {
 
 export type LintOptions = { ceiling?: number };
 
+/** The findings a report lists, and how many each code has in all. */
+export type LintSummary = {
+  /** The findings to list, in their order: at most `limit` of each code. */
+  shown: LintFinding[];
+  /** Per code that has findings, in the order the codes first appear. */
+  totals: Array<{ code: LintCode; total: number; hidden: number }>;
+};
+
+/**
+ * Cuts a long list of findings for a report: the first `limit` of each code are shown and the rest are only
+ * counted, so one code with a thousand findings cannot bury the others. Without a limit every finding is shown.
+ */
+export function summariseLint(
+  findings: readonly LintFinding[],
+  options: { limit?: number } = {},
+): LintSummary {
+  const seen = new Map<LintCode, number>();
+  const shown: LintFinding[] = [];
+  for (const finding of findings) {
+    const count = (seen.get(finding.code) ?? 0) + 1;
+    seen.set(finding.code, count);
+    if (options.limit === undefined || count <= options.limit) shown.push(finding);
+  }
+  return {
+    shown,
+    totals: [...seen].map(([code, total]) => ({
+      code,
+      total,
+      hidden: options.limit === undefined ? 0 : Math.max(0, total - options.limit),
+    })),
+  };
+}
+
 export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions = {}): LintResult {
   raw = normativeEstate(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
