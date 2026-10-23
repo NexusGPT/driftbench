@@ -1,14 +1,16 @@
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { diagnoseSetup, type SetupDocument } from '@agent-nexus/driftbench-core';
-import { expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { inspectSetup } from '../src/commands/doctor';
 
 vi.mock('node:fs/promises', async (load) => {
   const actual = await load<typeof import('node:fs/promises')>();
   return { ...actual, readFile: vi.fn(actual.readFile) };
 });
+
+afterEach(() => vi.unstubAllEnvs());
 
 it('never reads an unmapped home declared through a config-file symlink alias', async () => {
   const root = await mkdtemp(join(tmpdir(), 'driftbench-config-alias-'));
@@ -78,7 +80,13 @@ it('never inventories a copy destination that escapes its declared root through 
   });
 });
 
-it('compares an explicitly mapped copy and detects changed copied content', async () => {
+it.each([false, true])('compares mapped copies and detects changes with symlinked TMPDIR=%s', async (aliasTemporary) => {
+  if (aliasTemporary) {
+    const temporary = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-copy-tmp-')));
+    const alias = `${temporary}-alias`;
+    await symlink(temporary, alias);
+    vi.stubEnv('TMPDIR', alias);
+  }
   const root = await mkdtemp(join(tmpdir(), 'driftbench-mapped-copy-'));
   await mkdir(join(root, 'shared'));
   await mkdir(join(root, 'copied'));
@@ -138,4 +146,36 @@ it('does not preview excluded configuration content through an allowed symlink a
           String(path).startsWith(join(root, 'private')),
       ),
   ).toBe(false);
+});
+
+
+it.each([1, 2])('never reads an unmapped home through a %i-link config chain with symlinked TMPDIR', async (depth) => {
+  const fixture = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-tmp-alias-')));
+  const root = join(fixture, 'project');
+  const home = join(fixture, 'unmapped-home');
+  const temporary = join(fixture, 'temporary');
+  const alias = join(fixture, 'temporary-alias');
+  await mkdir(root);
+  await mkdir(temporary);
+  await symlink(temporary, alias);
+  const skills = join(home, '.claude/skills');
+  await mkdir(join(skills, 'secret'), { recursive: true });
+  await writeFile(join(skills, 'secret/SKILL.md'), '---\nname: secret\ndescription: Fictional private skill.\n---\nFictional content.\n');
+  await writeFile(join(root, 'CLAUDE.md'), '# Fictional instructions\n');
+  await writeFile(join(root, 'config.data'), `userSkills: ${skills}\n`);
+  let target = 'config.data';
+  for (let index = 1; index < depth; index++) {
+    const next = `config-alias-${index}`;
+    await symlink(target, join(root, next));
+    target = next;
+  }
+  await symlink(target, join(root, 'driftbench.estate.yaml'));
+  vi.stubEnv('TMPDIR', alias);
+  vi.mocked(readFile).mockClear();
+  const result = await inspectSetup(root);
+  expect(vi.mocked(readFile).mock.calls.some(([path]) => String(path).startsWith(home))).toBe(false);
+  expect(result.coverage.skipped).toContainEqual({
+    what: 'project:driftbench.estate.yaml#userSkills',
+    reason: 'home not mapped',
+  });
 });
