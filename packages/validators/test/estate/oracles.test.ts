@@ -13,7 +13,7 @@ import * as pipeline from '../../src/ladders/estate/pipeline';
 
 const APPROVED_TASKS = [
   { type: 'route_positive', text: 'Fill in the shipments late section of the week 41 report.' },
-  { type: 'twin', text: 'Go through inbox/ and say which folder each message belongs in.' },
+  { type: 'twin', text: 'Put inbox/004-office-plants.txt where messages that fit no folder belong.' },
   { type: 'route_positive', text: 'Has NW-55031 arrived yet? The carrier is FRT.' },
 ];
 

@@ -16,7 +16,7 @@ const declaredText = (atom: MapAtom) => {
   const ask = (atom.fields as { ask?: unknown } | undefined)?.ask;
   return typeof ask === 'string' ? ask : (ask as { text?: string } | undefined)?.text;
 };
-const ACTED = map.atoms.find((atom) => declaredText(atom) === 'propose a supplier email') as MapAtom;
+const ACTED = map.atoms.find((atom) => declaredText(atom) === 'stop all work') as MapAtom;
 const OTHER = map.atoms.find((atom) => atom.id !== ACTED?.id && declaredActs(atom).length > 0) as MapAtom;
 // An atom whose act is its labelled governed-action span, and one that declares no act at all.
 const governed = (atom: MapAtom) =>
@@ -27,8 +27,8 @@ const GATED = map.atoms.find((atom) => governed(atom) && !(atom.fields as { ask?
 // An atom with no declared act text, no trigger and no quote (fictional): it has no act.
 const BARE: MapAtom = { id: 'instruction.bare', kind: 'instruction', title: 'Keep the desk tidy' };
 const QUOTED = map.atoms.find((atom) => typeof atom.provenance?.quote === 'string') as MapAtom;
-const ASK = 'Please propose a supplier email.';
-const NOT_SET_OFF = 'Please propose a supplier e-mail.';
+const ASK = 'Please stop all work.';
+const NOT_SET_OFF = 'Please stop all wok.';
 const MISS = 'the fake does not set off its act';
 const code = (askFrom?: string) => ({ ask: 'code', ...(askFrom === undefined ? {} : { askFrom }) });
 
@@ -91,11 +91,11 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect(ACTED).toBeDefined();
     const { setOff } = await fake();
     expect(setOff(ASK)).toEqual([ACTED.id]);
-    const late = 'Please propose a supplier email. When a shipment is late by more than two days.';
+    const late = 'Please stop all work. the user says "stop".';
     expect(setOff(late)).toEqual([ACTED.id]);
     expect(setOff(NOT_SET_OFF)).toEqual([]);
     // A situation slot takes a situation of the map, byte for byte, and nothing else.
-    expect(setOff('Please propose a supplier email. When a shipment is late.')).toEqual([]);
+    expect(setOff('Please stop all work. the user says stop.')).toEqual([]);
     const span = declaredActs(GATED)[0]?.text;
     expect(span).toBeDefined();
     expect(setOff(`Please handle this for me: ${span}.`)).toContain(GATED.id);
@@ -145,7 +145,7 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 
   // The reviewer's bypass (comment 6322228753): a real act, cited on a row it does not belong to.
   it('refuses an act that is no source of the row the plan names, and a spec that names no plan row', async () => {
-    const triager = 'instruction.inbox-triager.you-sort-messages-into-three-folders';
+    const triager = 'instruction.inbox-triager.a-message-that-fits-none-goes';
     const out = await verdict([spec(ASK, code(`${ACTED.id} (ask)`), [triager])]);
     expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('no source of its row') });
     const unplanned = spec(ASK, code(`${ACTED.id} (ask)`));
@@ -172,7 +172,7 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
   });
 
   const HYPOTHETICAL =
-    'No need to do anything: just tell me in one sentence what it would mean to propose a supplier email.';
+    'No need to do anything: just tell me in one sentence what it would mean to stop all work.';
 
   it('lists a hypothetical frame apart: the fake does not set off its atom, and it never counts as the act', async () => {
     const { setOff, match } = await fake();
