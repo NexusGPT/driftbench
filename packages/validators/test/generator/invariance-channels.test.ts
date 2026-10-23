@@ -52,4 +52,12 @@ describe('the channel invariance item requires a second channel only where one i
       expect(found.detail).toMatch(/no two complete specs walk the path/);
     }
   });
+
+  it('asks no walk on a channel the path cannot run on (paths.<id>.channels)', async () => {
+    const found = await verdictOf('paths.new-request-full.channels');
+    // No complete spec at all: the item fails on "no spec", but names no channel it cannot run on.
+    expect(found.detail).toBe('channels never walked on the path: web');
+    const other = await verdictOf('paths.status-check-lookup.channels');
+    expect(other.detail).toBe('channels never walked on the path: web, messaging');
+  });
 });
