@@ -199,6 +199,10 @@ export function currentOperationVocabulary(root: string) {
   return deriveOperationVocabulary(readFileSync(join(root, OPERATIONS_SOURCE), 'utf8'));
 }
 
+/**
+ * Writes the fixture as plain JSON. Run `biome format --write` on the fixture right after: the repository formats
+ * JSON with biome and `pnpm lint` fails on the expanded arrays. The parsed content is the same either way.
+ */
 export function writeOperationVocabulary(root: string): void {
   writeFileSync(
     join(root, OPERATIONS_FIXTURE),

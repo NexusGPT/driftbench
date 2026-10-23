@@ -1,11 +1,13 @@
 import { similarity } from '../../../src/ladders/pointer/kit/words';
 import type { LedgerEntry } from '../../../src/ladders/pointer/sut/port';
-import { fingerprintText } from './cut';
+import { type CellKey, fingerprintText } from './cut';
 
 /**
  * The re-anchoring ladder of docs/estate-pointer-reader.md section 4: order first (unchanged), then exact text
  * elsewhere (moved, or ambiguous when several), then pairwise scores with a text floor (changed, split, merged),
  * else deleted. Reference thresholds: score 0.45, text floor 0.4, length floor 40.
+ * A table cell that its text cannot follow (shorter than the length floor, or repeated in its table) is followed by
+ * its row key and column header instead, or gets a new id when they do not survive.
  */
 
 export type NewUnit = {
@@ -21,7 +23,16 @@ export type NewUnit = {
   suffix: string;
   ctxFp: string;
   yamlPath?: string[];
+  cell?: CellKey;
 };
+
+/** A ledger entry of the reference, which keeps a table cell's key. */
+type Entry = LedgerEntry & { cell?: CellKey };
+
+/** A cell its text cannot follow: it is identified by its row key and column header. */
+const keyed = (cell: CellKey | undefined, text: string): cell is CellKey =>
+  cell !== undefined && cell.row !== '' && (cell.repeated || text.length < FLOOR_LENGTH);
+const keyOf = (cell: CellKey) => `${cell.row}\u0000${cell.header}`;
 
 export type Verdict = {
   /** The old entry assigned to each new unit (by global index), with the event. */
@@ -201,13 +212,15 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
     newByPath.set(unit.path, list);
   });
 
-  // 1. order: unchanged
+  // 1. order: unchanged (a keyed cell only pairs with a cell of the same key)
+  const oldFp = (e: Entry) => (keyed(e.cell, e.quote) ? `${e.fp}|${keyOf(e.cell)}` : e.fp);
+  const newFp = (u: NewUnit) => (keyed(u.cell, u.text) ? `${u.fp}|${keyOf(u.cell)}` : u.fp);
   for (const [path, entries] of oldByPath) {
     const indices = newByPath.get(path);
     if (!indices) continue;
     const pairs = matchSequences(
-      entries.map((e) => e.fp),
-      indices.map((g) => (news[g] as NewUnit).fp),
+      entries.map(oldFp),
+      indices.map((g) => newFp(news[g] as NewUnit)),
     );
     for (const [i, j] of pairs) {
       const entry = entries[i] as LedgerEntry;
@@ -215,7 +228,22 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
       takenOld.add(entry.id);
     }
   }
-  const residueOld = old.filter((e) => !takenOld.has(e.id));
+
+  // 1b. a keyed cell follows its row key and column header, when one new cell of its file has them
+  for (const entry of old as readonly Entry[]) {
+    if (takenOld.has(entry.id) || !keyed(entry.cell, entry.quote)) continue;
+    const key = keyOf(entry.cell);
+    const hits = (newByPath.get(entry.path) ?? []).filter((g) => {
+      const cell = (news[g] as NewUnit).cell;
+      return cell !== undefined && cell.row !== '' && keyOf(cell) === key;
+    });
+    const [g] = hits;
+    if (hits.length !== 1 || g === undefined || assigned.has(g)) continue;
+    assigned.set(g, { entry, event: (news[g] as NewUnit).fp === entry.fp ? 'moved' : 'changed' });
+    takenOld.add(entry.id);
+  }
+  // a keyed cell its key did not find gets no other chance: it is deleted
+  const residueOld = old.filter((e) => !takenOld.has(e.id) && !keyed((e as Entry).cell, e.quote));
   const residueNew = news.map((_, g) => g).filter((g) => !assigned.has(g));
 
   // 2. exact text elsewhere: moved or ambiguous
