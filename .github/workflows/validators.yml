@@ -1,3 +1,4 @@
+# Planted drift for the required red-first CI equality proof.
 name: validators
 
 # Runs every registered validator on seeds 1 to 3 and the hidden seed, enforces validators/floors.json,
