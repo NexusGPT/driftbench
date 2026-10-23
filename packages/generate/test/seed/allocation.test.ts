@@ -6,7 +6,7 @@ import { placeSpec } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { generateSuite } from '../../src/enumerate/generate';
 import { generateSuiteToDisk } from '../../src/enumerate/stream';
-import { Allocation } from '../../src/seed/allocation';
+import { Allocation, MAX_ROUNDS } from '../../src/seed/allocation';
 import { DeviationBalance } from '../../src/seed/deviation-balance';
 import { rngFor } from '../../src/seed/random';
 import { buildScenario } from '../../src/seed/scenario';
@@ -203,20 +203,26 @@ describe('approved stage allocation', () => {
     expect(first.blocks.every((block) => block.stimulus.kind !== 'placeholder')).toBe(true);
   });
 
-  it('adds at most three times as many specs as the seeders wrote, and restores the cap', () => {
+  it('stops after at most MAX_ROUNDS rounds, and after MAX_STALLED rounds that reach no new low', () => {
     const prepared = fixture();
     const balance = new Allocation(prepared);
     balance.observe(Array.from({ length: 600 }, () => ({ stage: 'address' })));
     const context = { seed: 1031, t: 2, max: Number.POSITIVE_INFINITY, allocation: balance };
     let written = 10;
+    let rounds = 0;
     const drafts: unknown[] = [];
-    for (const draft of balance.rounds(context, () => written, { topUps: function* () {} })) {
+    const classes = {
+      *topUps() {
+        rounds += 1;
+      },
+    };
+    for (const draft of balance.rounds(context, () => written, classes)) {
       balance.observeDraft(draft);
       drafts.push(draft);
       written += 1;
     }
     expect(drafts.length).toBeGreaterThan(0);
-    expect(drafts.length).toBeLessThanOrEqual(30);
+    expect(rounds).toBeLessThanOrEqual(MAX_ROUNDS);
     expect(context.max).toBe(Number.POSITIVE_INFINITY);
   });
 
