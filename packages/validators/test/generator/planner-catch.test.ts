@@ -28,10 +28,21 @@ const catchItems = (module?: string) => plannerItems(module).filter((item) => it
 describe('the catch items of the planner family', () => {
   it('pins exactly the catch items in validators/generator/catch.json, each with what it guards', () => {
     const file = JSON.parse(
-      readFileSync(fileURLToPath(new URL('../../../../validators/generator/catch.json', import.meta.url)), 'utf8'),
+      readFileSync(
+        fileURLToPath(new URL('../../../../validators/generator/catch.json', import.meta.url)),
+        'utf8',
+      ),
     ) as { items: Array<{ id: string; guards: string }> };
-    expect(file.items.map((entry) => entry.id).sort()).toEqual(catchItems().map((item) => item.id).sort());
-    expect(catchItems().map((item) => item.id).sort()).toEqual(CATCH.map(([id]) => `planner.catch.${id}`).sort());
+    expect(file.items.map((entry) => entry.id).sort()).toEqual(
+      catchItems()
+        .map((item) => item.id)
+        .sort(),
+    );
+    expect(
+      catchItems()
+        .map((item) => item.id)
+        .sort(),
+    ).toEqual(CATCH.map(([id]) => `planner.catch.${id}`).sort());
   });
 
   it('passes every catch item on the planner, seeds 1 to 3', async () => {
