@@ -66,7 +66,11 @@ const SPANNED = `labels:
 `;
 const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
 
-/** Call n of the labeler answers `plan[n - 1]` on every unit (`slip` quotes four clauses that are in no unit). */
+/**
+ * Call n of the labeler answers `plan[n - 1]` on every unit: `slip` quotes four clauses that are in no unit; `bare`
+ * is an order that gives no span; `refuse` is an order whose spans are an empty list, an entry the check refuses
+ * inside an answer it accepts.
+ */
 const scripted = (plan: string[], options: Parameters<typeof plantedDense>[2] = {}) => {
   let call = 0;
   return plantedDense(
@@ -76,13 +80,15 @@ const scripted = (plan: string[], options: Parameters<typeof plantedDense>[2] = 
         (unit) =>
           ({
             units: String(unit.n),
-            label: said === 'slip' ? 'remark' : said,
+            label: said === 'slip' ? 'remark' : said === 'bare' || said === 'refuse' ? 'order' : said,
             // A label that lists no span kind carries no spans: an empty list is refused as an entry.
             ...(said === 'slip'
               ? { spans: Array(4).fill(unlocated) }
               : said === 'order'
                 ? { spans: [{ kind: 'act', from: 0, to: 3 }] }
-                : {}),
+                : said === 'refuse'
+                  ? { spans: [] }
+                  : {}),
           }) as Labelled,
       );
     },
@@ -498,5 +504,71 @@ describe('a unit the ledger must not keep unlabeled', () => {
     expect(first.unstable.filter((row) => row.unit === tied.id)).toEqual([
       expect.objectContaining({ labeler: 'planted', undecided: 'no_run_named' }),
     ]);
+  });
+
+  it('when an entry of a run was refused and the voices heard name no label, so the next scan asks it again', async () => {
+    // Runs 1 to 4 say order, order, remark and aside; run 5 gives order with an empty spans list, an entry the check
+    // refuses. That run is no vote: four voices are heard and no label holds more than half of them. A planned
+    // voice is missing, so the unit is not decided.
+    const first = await pointerScan(
+      input(spanned, singleLabelling(scripted(['order', 'order', 'remark', 'aside', 'refuse']))),
+    );
+    expect(first.refusals.length).toBeGreaterThan(0);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'entry_refused')).toBe(true);
+    for (const unit of first.unlabeledUnits)
+      expect(
+        first.unstable.filter((row) => row.unit === unit.unit).every((row) => row.undecided === 'entry_refused'),
+      ).toBe(true);
+
+    const second = await pointerScan(
+      input({ ...spanned, previous: first.ledger }, singleLabelling(scripted([]))),
+    );
+    expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+});
+
+describe('an entry the check refuses inside an accepted answer', () => {
+  const quay = [{ path: 'quay.md', text: '# Quay\n\n- Coil the ropes on the red post\n' }];
+  const spanned = { files: quay, sets: load(SPANNED), windowUnits: 60 };
+
+  it('is no vote: it does not count among the voices of its unit', async () => {
+    // Four runs: order, order, remark, and an order whose spans are an empty list. Counted as a voice with no
+    // opinion, the refused run would leave order at two of four, no majority; it is no vote, so order holds two of
+    // the three voices heard and labels the unit.
+    const first = await pointerScan(
+      input(spanned, singleLabelling(scripted(['order', 'order', 'remark', 'refuse'], { runs: 4 }))),
+    );
+    expect(first.refusals.length).toBeGreaterThan(0);
+    expect(first.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+  });
+
+  it('is a voice the span-missing re-ask fills, and the vote it completes is kept', async () => {
+    // Four runs: order with no span, twice, remark, and a refused entry. Order holds two of the three voices heard,
+    // but no run gave its span: the window is asked again with span-missing, and that answer (an order with no span)
+    // takes the refused run's place. The span stays missing, so the unit ends unlabeled on a complete vote of four.
+    const first = await pointerScan(
+      input(spanned, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'bare'], { runs: 4 }))),
+    );
+    expect(first.spanless.every((entry) => !entry.filled)).toBe(true);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    for (const entry of first.ledger.entries)
+      expect(entry.unlabeled?.duty?.votes[0]?.runs.map((run) => run?.label)).toEqual([
+        'order',
+        'order',
+        'remark',
+        'order',
+      ]);
+  });
+
+  it('is a voice still missing when the span-missing re-ask refuses it too', async () => {
+    const first = await pointerScan(
+      input(spanned, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'refuse'], { runs: 4 }))),
+    );
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'entry_refused')).toBe(true);
   });
 });
