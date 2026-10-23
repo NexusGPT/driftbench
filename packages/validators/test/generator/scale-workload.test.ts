@@ -1,7 +1,9 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { hiddenSpec } from '../../src/ladders/generator/hidden';
 import { SCALE_BASE_BEHAVIOURS, scaledSpec, scaleReport } from '../../src/ladders/generator/scale';
-import { medianOf, normalisedMs } from '../../src/ladders/generator/scale-calibration';
+import { CALIBRATION_COUNT, medianOf, normalisedMs } from '../../src/ladders/generator/scale-calibration';
 
 const SEEDS = Array.from({ length: 21 }, (_, index) => index + 1);
 
@@ -101,5 +103,43 @@ describe('a scale report carries the calibrations it was normalised with', () =>
   it('measures one calibration when asked for one', async () => {
     const report = await scaleReport(1, 1, 8_000, { calibrations: 1 });
     expect(report.calibrationRunsMs).toEqual([report.calibrationMs]);
+  }, 180_000);
+});
+
+/**
+ * The scale item of the ladder takes five calibrations, not one: a time verdict rests on the median of five, and a later
+ * `calibrations: 1` on the path CI takes would bring back the noise this removed. The tests may pass 1 for speed; the
+ * code of the ladder may not.
+ */
+describe('the scale item of the ladder takes the default number of calibrations', () => {
+  const folder = fileURLToPath(new URL('../../src/ladders/generator/', import.meta.url));
+  const sources = readdirSync(folder)
+    .filter((name) => name.endsWith('.ts'))
+    .map((name) => ({ name, text: readFileSync(`${folder}${name}`, 'utf8') }));
+
+  it('is five', () => {
+    expect(CALIBRATION_COUNT).toBe(5);
+  });
+
+  it('is the default of scaleReport, which asks for no other number', () => {
+    const scale = sources.find(({ name }) => name === 'scale.ts')?.text ?? '';
+    expect(scale).toContain('options.calibrations ?? CALIBRATION_COUNT');
+  });
+
+  it('is what every call of scaleReport in the ladder asks for: none names a number of calibrations', () => {
+    const calls = sources.flatMap(({ name, text }) =>
+      [...text.matchAll(/\bscaleReport\(([^)]*)\)/g)]
+        .filter(() => name !== 'scale.ts')
+        .map((match) => ({ name, call: match[0] })),
+    );
+    // the ladder calls it in index.ts (twice) and bank-run.ts: a call is found, and none sets the option
+    expect(calls.length).toBeGreaterThanOrEqual(3);
+    for (const { name, call } of calls) expect(call, name).not.toContain('calibrations');
+  });
+
+  it('takes five calibrations in a real run with no option', async () => {
+    const report = await scaleReport(1, 1, 8_000);
+    expect(report.error).toBeUndefined();
+    expect(report.calibrationRunsMs).toHaveLength(CALIBRATION_COUNT);
   }, 180_000);
 });
