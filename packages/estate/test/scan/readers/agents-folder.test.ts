@@ -81,6 +81,15 @@ describe('generated declared prose conformance', () => {
 });
 
 describe('agents-folder RawEstate', () => {
+  it('counts an untyped file under the declared source coverage root as unknown', async () => {
+    const root = await fixture({
+      'AGENTS.md': 'Preserve fictional identifiers.\n',
+      'unclassified/notes.xyz': 'Fictional untyped content.\n',
+    });
+    const raw = await new agentsReader.AgentsFolderReader().read(root);
+    expect(raw.coverage).toEqual({ covered: 1, unknown: ['unclassified/notes.xyz'], skipped: [] });
+  });
+
   const kinds: Record<string, string> = {
     instruction: 'standing',
     skill: 'skill',
