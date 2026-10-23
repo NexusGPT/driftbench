@@ -1,9 +1,14 @@
 import { createHash } from 'node:crypto';
+import { directiveFromMarkdown } from 'mdast-util-directive';
+import { mathFromMarkdown } from 'mdast-util-math';
 import { parse, preprocess } from 'micromark';
+import { directive } from 'micromark-extension-directive';
+import { math } from 'micromark-extension-math';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
-import { unified } from 'unified';
+import { parseTOML } from 'toml-eslint-parser';
+import { type Processor, unified } from 'unified';
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**
@@ -33,6 +38,12 @@ export type Unit = {
   path: string[];
   /** For a front matter value: its YAML path, such as `$.description`. */
   key?: string;
+  /**
+   * For a table cell: the text of the first cell of its row (its row key, empty in the header row), the text of the
+   * header cell above it (its column header), and the place of the table in the file. The ledger follows a short or
+   * repeated cell by its row key and column header.
+   */
+  cell?: { row: string; column: string; table: number; header?: true };
 };
 
 export type Cut = { units: Unit[]; digest: string };
@@ -55,13 +66,29 @@ export function fingerprint(text: string): string {
 const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 
 /** A same-length mask of the spans that must not be cut: inline code, URLs, link destinations, emphasis marks. */
-function mask(text: string): string {
+function mask(text: string, protect: ReadonlyArray<[number, number]> = []): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
-  return text
+  // An email address is one word: the dots inside it are no stops (tried only where a run of its characters starts,
+  // so a long run without an @ is read once). An ellipsis in square brackets marks an omission.
+  // An ellipsis that opens a sentence after a stop reads as the capital of that sentence. Any other three dots,
+  // spaced or not, or the ellipsis character, never end a sentence: a fourth dot after them is the full stop.
+  // A footnote reference is a closing mark of the sentence it follows: a full stop before it still ends the sentence
+  // after it, never inside it. The parser found the reference; here only its characters are hidden.
+  let hidden = text;
+  for (const [from, to] of protect)
+    hidden = hidden.slice(0, from) + ')'.repeat(Math.max(0, to - from)) + hidden.slice(to);
+  return hidden
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
+    .replace(/(?<![\p{L}\p{N}._%+-])[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
+    .replace(/\[(?:\.\.\.|…)\]/g, letters)
+    .replace(
+      /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
+      (_match, lead: string, dots: string) => lead + 'X'.repeat(dots.length),
+    )
+    .replace(/\.(?: ?\.){2}|…/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
@@ -78,7 +105,8 @@ function mask(text: string): string {
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
 function shouldMerge(before: string, after: string): boolean {
-  const head = before.trimEnd();
+  // Directional and other format marks (U+202A around a stop in right-to-left text) are not part of the shape.
+  const head = before.replace(/\p{Cf}/gu, '').trimEnd();
   // A short capitalised word or a single-letter abbreviation before the stop: "Dr.", "e.g.", "A."
   if (/(?:^|[\s(])(\p{Lu}\p{Ll}{0,2}|\p{L}|\p{L}\.\p{L})\.$/u.test(head)) return true;
   if (/\d\.$/.test(head) && /^\d/.test(after.trimStart())) return true;
@@ -149,6 +177,86 @@ function plainBlocks(source: string, from: number, to: number): Array<[number, n
   return blocks;
 }
 
+/** The offsets of the footnote references in a paragraph, by the parser's own nodes. */
+/**
+ * Where JSON front matter ends: a file that opens with `{` and whose first complete JSON object, read by a JSON
+ * parser, ends a line. A string with braces, an escaped quote or a nested object does not end it early. Undefined when
+ * the file does not open with such an object.
+ */
+export function jsonFrontMatterEnd(source: string): number | undefined {
+  if (!source.startsWith('{')) return undefined;
+  let depth = 0;
+  let inString = false;
+  for (let at = 0; at < source.length; at++) {
+    const char = source[at];
+    if (inString) {
+      if (char === '\\') at++;
+      else if (char === '"') inString = false;
+    } else if (char === '"') inString = true;
+    else if (char === '{' || char === '[') depth++;
+    else if (char === '}' || char === ']') {
+      depth--;
+      if (depth === 0) {
+        const lineEnd = source.indexOf('\n', at);
+        const rest = source.slice(at + 1, lineEnd === -1 ? source.length : lineEnd);
+        if (rest.trim() !== '') return undefined;
+        try {
+          const value: unknown = JSON.parse(source.slice(0, at + 1));
+          return value !== null && typeof value === 'object' && !Array.isArray(value) ? at + 1 : undefined;
+        } catch {
+          return undefined;
+        }
+      }
+      if (depth < 0) return undefined;
+    }
+  }
+  return undefined;
+}
+
+/** The offsets of the footnote references in a paragraph, by the parser's own nodes. */
+function footnoteReferences(paragraph: Node): Array<[number, number]> {
+  const found: Array<[number, number]> = [];
+  const walk = (node: Node) => {
+    if (node.type === 'footnoteReference' && node.position)
+      found.push([node.position.start.offset ?? 0, node.position.end.offset ?? 0]);
+    for (const child of node.children ?? []) walk(child);
+  };
+  walk(paragraph);
+  return found;
+}
+
+/** The five types of a GitHub alert, as the marker line writes them. Any other `[!X]` is an ordinary quote. */
+const ALERT_TYPES: ReadonlySet<string> = new Set(
+  ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'].map((type) => `[!${type}]`),
+);
+
+/**
+ * A GitHub alert is a block quote whose first line is one of the five markers alone (`> [!NOTE]`, `> [!WARNING]`): the
+ * marker syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
+ * the text after the marker line starts; the marker is a mark and is in no unit.
+ */
+function alertOf(quote: Node, text: string): { type: string; from: number; paragraph: Node } | undefined {
+  const paragraph = quote.children?.[0];
+  if (paragraph?.type !== 'paragraph') return undefined;
+  const start = paragraph.position?.start.offset ?? 0;
+  const end = paragraph.position?.end.offset ?? start;
+  // A marker later in the quote (even after an opening blank line) is ordinary quoted text.
+  if (text.lastIndexOf('\n', start) !== text.lastIndexOf('\n', quote.position?.start.offset ?? 0))
+    return undefined;
+  const lineEnd = text.indexOf('\n', start);
+  const type = text.slice(start, lineEnd === -1 ? end : Math.min(lineEnd, end)).trimEnd();
+  if (!ALERT_TYPES.has(type)) return undefined;
+  if (lineEnd === -1 || lineEnd >= end) return { type, from: end, paragraph };
+  // Parse the continuation line for its content offset. Its first inline node may be emphasis, code, a link, etc.;
+  // neither a text child's value nor a search for its prose can locate that content reliably.
+  const nextEnd = text.indexOf('\n', lineEnd + 1);
+  const line = text.slice(lineEnd + 1, nextEnd === -1 ? end : Math.min(nextEnd, end));
+  let content = PROCESSOR.parse(line) as unknown as Node;
+  while (content.children?.[0] && (content.type === 'root' || content.type === 'blockquote'))
+    content = content.children[0];
+  return { type, from: lineEnd + 1 + (content.position?.start.offset ?? 0), paragraph };
+}
+
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
 function withoutTagLines(source: string, from: number, to: number): [number, number] {
   let start = from;
@@ -175,8 +283,16 @@ function trimSpan(source: string, from: number, to: number): [number, number] {
 }
 
 /** The sentence spans of `source[from, to)`, merged when unsure: a wrong merge costs granularity, a wrong split a wrong quote. */
-export function sentenceSpans(source: string, from: number, to: number): Array<[number, number]> {
-  const masked = mask(source.slice(from, to));
+export function sentenceSpans(
+  source: string,
+  from: number,
+  to: number,
+  protect: ReadonlyArray<[number, number]> = [],
+): Array<[number, number]> {
+  const masked = mask(
+    source.slice(from, to),
+    protect.map(([start, end]) => [start - from, end - from] as [number, number]),
+  );
   const spans: Array<[number, number]> = [];
   let current: [number, number] | undefined;
   for (const segment of SEGMENTER.segment(masked)) {
@@ -199,11 +315,43 @@ type Node = {
   children?: Node[];
   position?: { start: { offset?: number }; end: { offset?: number } };
   depth?: number;
+  /** A footnote definition's label, as written; a directive's name; the value of a front matter or math node. */
+  label?: string;
+  name?: string;
+  value?: string;
 };
 
-const PROCESSOR = unified().use(remarkParse).use(remarkFrontmatter, ['yaml']).use(remarkGfm);
+/**
+ * The block syntaxes of the cutter beyond GFM, each from its maintained extension: container directives (`:::name`)
+ * and display math (`$$` lines). Only their block parts are used: the inline forms (a text directive, `$x$`) would
+ * read prose such as a price or a time as syntax.
+ */
+function remarkBlockSyntax(this: Processor) {
+  const data = this.data() as Record<string, unknown[] | undefined>;
+  const syntax = data.micromarkExtensions ?? [];
+  const fromMarkdown = data.fromMarkdownExtensions ?? [];
+  syntax.push({ flow: directive().flow }, { flow: math({ singleDollarTextMath: false }).flow });
+  fromMarkdown.push(directiveFromMarkdown(), mathFromMarkdown());
+  data.micromarkExtensions = syntax;
+  data.fromMarkdownExtensions = fromMarkdown;
+}
 
-type Context = { inList?: boolean; inQuote?: boolean };
+const PROCESSOR = unified()
+  .use(remarkParse)
+  .use(remarkFrontmatter, ['yaml', 'toml'])
+  .use(remarkGfm)
+  .use(remarkBlockSyntax);
+
+type Context = {
+  /** The nearest list item or quote owns prose, including prose reparsed from HTML. */
+  prose?: 'list_item' | 'block_quote';
+  /** Names that end the heading path of every unit below: a footnote label, a directive name, an alert type. */
+  extra?: string[];
+  /** Only this parser paragraph owns the alert marker line; all descendants inherit the type. */
+  alert?: { paragraph: Node; from: number };
+  /** The row key, column header and table of the cell being cut. */
+  cell?: Unit['cell'];
+};
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
@@ -236,6 +384,7 @@ export function nestingOf(source: string): number {
   let deepest = 0;
   let fence: string | undefined;
   const open: number[] = [];
+  let blank = true;
   for (const line of source.split(/\r\n|\r|\n/)) {
     const mark = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
     if (mark !== undefined) {
@@ -245,12 +394,23 @@ export function nestingOf(source: string): number {
     }
     if (fence !== undefined) continue;
     const quotes = /^(?:\s{0,3}>)+/.exec(line)?.[0].split('>').length ?? 1;
-    if (line.trim() === '') continue;
-    const indent = /^( *)(?:[-+*]|\d+[.)])\s/.exec(line)?.[1]?.length;
-    const own = /^ */.exec(line)?.[0].length ?? 0;
-    // A list is a stack of the indents of its open items: an item closes the items at its indent or deeper, and so
-    // does any other line that starts at or left of them. The depth is the stack, whatever the indent per level.
-    while (open.length > 0 && (open.at(-1) as number) >= (indent ?? own)) open.pop();
+    if (line.trim() === '') {
+      blank = true;
+      continue;
+    }
+    const lead = /^[ \t]*/.exec(line)?.[0] ?? '';
+    // A tab advances to the next multiple of four columns, as a list item reads it.
+    let own = 0;
+    for (const char of lead) own = char === '\t' ? own + 4 - (own % 4) : own + 1;
+    const item = /^[ \t]*(?:[-+*]|\d+[.)])[ \t]/.test(line);
+    const indent = item ? own : undefined;
+    // A list is a stack of the indents of its open items: an item closes the items at its indent or deeper. Any
+    // other line closes the items at or right of its own indent, except a paragraph line straight after a line of
+    // text (not a heading or a quote), which continues the paragraph of the last item whatever its indent (a lazy line).
+    if (indent !== undefined || blank || /^[ \t]{0,3}(?:#{1,6}(?:[ \t]|$)|>)/.test(line)) {
+      while (open.length > 0 && (open.at(-1) as number) >= (indent ?? own)) open.pop();
+    }
+    blank = false;
     if (indent !== undefined) open.push(indent);
     deepest = Math.max(deepest, quotes - 1, open.length);
   }
@@ -367,7 +527,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
   const source = rawSource.slice(base);
   const units: Unit[] = [];
 
-  const add = (container: Container, start: number, end: number, path: string[], key?: string) => {
+  const add = (
+    container: Container,
+    start: number,
+    end: number,
+    path: string[],
+    key?: string,
+    cell?: Unit['cell'],
+  ) => {
     const [from, to] = trimSpan(source, start, end);
     if (to <= from) return;
     const text = source.slice(from, to);
@@ -379,23 +546,31 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       fp: fingerprint(text),
       path: [...path],
       ...(key ? { key } : {}),
+      ...(cell ? { cell } : {}),
     });
   };
 
-  const frontMatter = (start: number, end: number) => {
+  /** A string value of front matter is a unit keyed by its path (`$.title`, `$.tags[1]`); `from`/`to` are in the file. */
+  const value = (from: number, to: number, key: string) => add('front_matter_value', from, to, [], key);
+
+  const frontMatter = (start: number, end: number, kind: 'yaml' | 'toml' | 'json') => {
     const block = source.slice(start, end);
-    const opening = /^---\r?\n/.exec(block)?.[0] ?? '';
-    const body = block.slice(opening.length).replace(/\r?\n---\s*$/, '');
     try {
+      if (kind === 'toml') return tomlFrontMatter(block, start);
+      // JSON is YAML's flow style: the same walk reads it. Its fences are part of the object, its strings are quoted.
+      const opening = kind === 'json' ? '' : (/^---\r?\n/.exec(block)?.[0] ?? '');
+      const body = kind === 'json' ? block : block.slice(opening.length).replace(/\r?\n---\s*$/, '');
       const document = parseDocument(body);
       const walk = (node: unknown, key: string) => {
         if (isScalar(node) && typeof node.value === 'string' && node.range) {
-          const [indicator, to] = node.range;
+          let [from, to] = node.range;
           // A block scalar's range opens at its `>` or `|` header; the value starts on the next line.
-          const block = node.type === 'BLOCK_FOLDED' || node.type === 'BLOCK_LITERAL';
-          const newline = block ? body.indexOf('\n', indicator) : -1;
-          const from = block && newline !== -1 && newline < to ? newline + 1 : indicator;
-          add('front_matter_value', start + opening.length + from, start + opening.length + to, [], key);
+          const folded = node.type === 'BLOCK_FOLDED' || node.type === 'BLOCK_LITERAL';
+          const newline = folded ? body.indexOf('\n', from) : -1;
+          if (folded && newline !== -1 && newline < to) from = newline + 1;
+          // The value of a JSON string is the text between its quotes.
+          if (kind === 'json' && node.type === 'QUOTE_DOUBLE') [from, to] = [from + 1, to - 1];
+          value(start + opening.length + from, start + opening.length + to, key);
         } else if (isMap(node)) {
           for (const pair of node.items) {
             walk(pair.value, `${key}.${String((pair.key as { value?: unknown } | null)?.value)}`);
@@ -412,26 +587,88 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     }
   };
 
+  /** TOML front matter between `+++` lines: a real TOML parser gives the tree and the range of each string. */
+  const tomlFrontMatter = (block: string, start: number) => {
+    const opening = /^\+\+\+\r?\n/.exec(block)?.[0] ?? '';
+    const body = block.slice(opening.length).replace(/\r?\n\+\+\+\s*$/, '');
+    type TomlNode = {
+      type: string;
+      kind?: string;
+      style?: string;
+      value?: unknown;
+      range: [number, number];
+      keys?: Array<{ name?: string; value?: string }>;
+      key?: { keys: Array<{ name?: string; value?: string }> };
+      resolvedKey?: Array<string | number>;
+      body?: TomlNode[];
+      elements?: TomlNode[];
+    };
+    const keyName = (part: { name?: string; value?: string }) => String(part.name ?? part.value ?? '');
+    const quotes: Record<string, number> = { basic: 1, literal: 1, 'multi-basic': 3, 'multi-literal': 3 };
+    const walk = (node: TomlNode, key: string) => {
+      if (node.type === 'TOMLValue' && node.kind === 'string') {
+        let [from, to] = node.range;
+        const fence = quotes[node.style ?? 'basic'] ?? 1;
+        [from, to] = [from + fence, to - fence];
+        // A multi-line string drops the line break that follows its opening fence.
+        if (fence === 3 && /^\r?\n/.test(body.slice(from)))
+          from += body.slice(from).startsWith('\r\n') ? 2 : 1;
+        value(start + opening.length + from, start + opening.length + to, key);
+      } else if (node.type === 'TOMLArray') {
+        (node.elements ?? []).forEach((element, index) => {
+          walk(element, `${key}[${index}]`);
+        });
+      } else if (
+        node.type === 'TOMLInlineTable' ||
+        node.type === 'TOMLTable' ||
+        node.type === 'TOMLTopLevelTable'
+      ) {
+        let base = key;
+        if (node.type === 'TOMLTable') {
+          // The parser resolves both this table's array index and every active array-table ancestor.
+          base = `$${(node.resolvedKey ?? [])
+            .map((part) => (typeof part === 'number' ? `[${part}]` : `.${part}`))
+            .join('')}`;
+        }
+        for (const child of node.body ?? []) walk(child, base);
+      } else if (node.type === 'TOMLKeyValue' && node.key) {
+        const inner = (node as unknown as { value: TomlNode }).value;
+        walk(inner, `${key}${node.key.keys.map((part) => `.${keyName(part)}`).join('')}`);
+      }
+    };
+    const program = parseTOML(body) as unknown as { body: TomlNode[] };
+    for (const top of program.body) walk(top, '$');
+  };
+
+  let tables = 0;
+
   const markdown = (
     text: string,
-    offset: number,
+    locate: (position: number) => number,
     inherited: string[],
     depth: number,
+    context: Context = {},
     trail: Array<{ depth: number; title: string }> = [],
     sliced = false,
-  ) => {
+    continuation?: Context,
+  ): Context | undefined => {
+    const at = (n: number | undefined) => locate(n ?? 0);
     const cuts = sliced ? [] : cutsOf(text, options.slabLines ?? SLAB_LINES);
     if (cuts.length > 0) {
       const edges = [0, ...cuts.map((cutAt) => cutAt.at), text.length];
+      let quoteContext: Context | undefined;
       for (let part = 0; part + 1 < edges.length; part++) {
         const before = units.length;
-        markdown(
-          text.slice(edges[part], edges[part + 1]),
-          offset + (edges[part] as number),
+        const edge = edges[part] as number;
+        quoteContext = markdown(
+          text.slice(edge, edges[part + 1]),
+          (position) => at(edge + position),
           inherited,
           depth,
+          context,
           trail,
           true,
+          part > 0 && cuts[part - 1]?.join ? quoteContext : undefined,
         );
         // The parts of one block quote are one unit: the first unit of this part joins the last of the one before.
         if (part > 0 && cuts[part - 1]?.join && units.length > before && before > 0) {
@@ -443,27 +680,71 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           }
         }
       }
-      return;
+      return quoteContext;
     }
     const tree = PROCESSOR.parse(text) as unknown as Node;
+    let quoteContext: Context | undefined;
     const here = () => [...inherited, ...trail.map((entry) => entry.title)];
-    const at = (n: number | undefined) => (n ?? 0) + offset;
+    // Every leaf, including the opaque/HTML branches, uses the same path construction.
+    const emit = (kind: Container, from: number, to: number, context: Context) =>
+      add(
+        kind,
+        at(from),
+        at(to),
+        [...here(), ...(context.extra ?? [])],
+        undefined,
+        kind === 'table_cell' ? context.cell : undefined,
+      );
 
-    const htmlBlock = (from: number, to: number) => {
-      const block = text.slice(from, to);
-      if (/^\s*<!--/.test(block)) {
-        add('opaque', at(from), at(to), here());
-        return;
-      }
-      // Lines that hold only a tag separate chunks; the markdown between them is cut like any prose.
-      let position = from;
+    const htmlBlock = (node: Node, context: Context) => {
+      const from = node.position?.start.offset ?? 0;
+      const to = node.position?.end.offset ?? from;
+      if (/^\s*<!--/.test(node.value ?? '')) return emit('opaque', from, to, context);
+
+      // The HTML node's value is container-relative: the parser has removed quote prefixes and footnote/list
+      // indentation. Reparse that view, mapping its positions back to the original source, never emitting its value.
+      const rawLines = text.slice(from, to).split(/(\r\n|\r|\n)/);
+      const lines = (node.value ?? text.slice(from, to)).split(/\r\n|\r|\n/);
+      let rawAt = from;
+      let viewAt = 0;
+      const positions = lines.map((line, index) => {
+        const raw = rawLines[index * 2] ?? '';
+        const position = { viewAt, rawAt: rawAt + raw.length - line.length };
+        rawAt += raw.length + (rawLines[index * 2 + 1]?.length ?? 0);
+        viewAt += line.length + 1;
+        return position;
+      });
+      const block = lines.join('\n');
+      // Container prefixes change only line starts. A line map avoids allocating one entry per character of HTML.
+      const original = (position: number) => {
+        let low = 0;
+        let high = positions.length - 1;
+        while (low < high) {
+          const middle = Math.ceil((low + high) / 2);
+          if ((positions[middle]?.viewAt ?? 0) <= position) low = middle;
+          else high = middle - 1;
+        }
+        const line = positions[low];
+        return line ? at(line.rawAt + position - line.viewAt) : at(to);
+      };
+      // Lines holding only a tag separate chunks; their contents retain the enclosing context and interpretation.
+      let position = 0;
       let chunkStart = -1;
       let chunkEnd = -1;
       const flush = () => {
-        if (chunkStart >= 0) markdown(text.slice(chunkStart, chunkEnd), at(chunkStart), here(), depth + 1);
+        if (chunkStart >= 0) {
+          const start = chunkStart;
+          markdown(
+            block.slice(start, chunkEnd),
+            (position) => original(start + position),
+            here(),
+            depth + 1,
+            context,
+          );
+        }
         chunkStart = -1;
       };
-      for (const line of block.split('\n')) {
+      for (const line of lines) {
         if (TAG_ONLY.test(line)) flush();
         else {
           if (chunkStart < 0) chunkStart = position;
@@ -474,69 +755,133 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       flush();
     };
 
+    // The sole context boundary. All parser nodes (containers and leaves alike) enter here; block handlers only
+    // consume the resulting context. Reparsed HTML enters through the same root descent with that context intact.
+    const descend = (node: Node, parent: Context) => {
+      if ((node as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) return;
+      let context = parent;
+      switch (node.type) {
+        case 'footnoteDefinition':
+          context = { ...parent, extra: [...(parent.extra ?? []), `[^${node.label ?? ''}]`] };
+          break;
+        case 'containerDirective':
+          context = { ...parent, extra: [...(parent.extra ?? []), node.name ?? ''] };
+          break;
+        case 'listItem':
+          context = { ...parent, prose: 'list_item' };
+          break;
+        case 'blockquote': {
+          // A parser slab can begin in the middle of the same quote. Reuse its frame; a marker on this later line
+          // cannot turn an ordinary quote into an alert, and an existing alert keeps its type on later paragraphs.
+          const alert = continuation && node === tree.children?.[0] ? undefined : alertOf(node, text);
+          context =
+            continuation && node === tree.children?.[0]
+              ? continuation
+              : {
+                  ...parent,
+                  prose: 'block_quote',
+                  extra: alert ? [...(parent.extra ?? []), alert.type] : parent.extra,
+                  alert: alert ?? parent.alert,
+                };
+          if (node === tree.children?.at(-1)) quoteContext = context;
+          break;
+        }
+      }
+      visit(node, context);
+    };
+
     const visit = (node: Node, context: Context) => {
       let start = node.position?.start.offset ?? 0;
       let end = node.position?.end.offset ?? 0;
       switch (node.type) {
         case 'yaml':
-          if (depth === 0 && offset === 0) frontMatter(start, end);
+        case 'toml':
+          if (depth === 0 && at(0) === 0) frontMatter(at(start), at(end), node.type);
           return;
+        case 'math':
+        case 'code':
+          // A display math block or fence is opaque: its contents are never read as prose.
+          return emit('opaque', start, end, context);
         case 'heading': {
           const kids = node.children ?? [];
           const first = kids[0]?.position?.start.offset ?? start;
           const last = kids.at(-1)?.position?.end.offset ?? end;
           const title = text.slice(first, last).trim();
           while (trail.length > 0 && (trail.at(-1)?.depth ?? 0) >= (node.depth ?? 1)) trail.pop();
-          add('heading', at(start), at(end), here());
+          emit('heading', start, end, context);
           trail.push({ depth: node.depth ?? 1, title });
           return;
         }
         case 'paragraph': {
           [start, end] = withoutTagLines(text, start, end);
-          if (context.inList) return add('list_item', at(start), at(end), here());
-          if (context.inQuote) return add('block_quote', at(start), at(end), here());
+          if (context.alert?.paragraph === node) start = Math.max(start, context.alert.from);
+          if (start >= end) return;
+          if (context.prose) return emit(context.prose, start, end, context);
+          const references = footnoteReferences(node);
           for (const [blockFrom, blockTo] of options.plain
             ? plainBlocks(text, start, end)
             : ([[start, end]] as Array<[number, number]>))
-            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo))
-              add('sentence', at(from), at(to), here());
+            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo, references))
+              emit('sentence', from, to, context);
           return;
         }
-        case 'code':
-          // A fence is one opaque unit over all its lines: never shown to a labeler, so no label points at it.
-          return add('opaque', at(start), at(end), here());
-        case 'html': {
-          // An html block that holds an html block of its own and does not shrink is cut as opaque, so the parse ends.
-          if (depth >= 2) return add('opaque', at(start), at(end), here());
-          return htmlBlock(start, end);
+        case 'html':
+          // A nested HTML block that does not shrink is opaque, so reparsing terminates.
+          if (depth >= 2) return emit('opaque', start, end, context);
+          return htmlBlock(node, context);
+        case 'table': {
+          // Each cell carries its row key (the first cell of its row; none in the header row) and its column header.
+          const cellText = (cell: Node): string => {
+            const kids = cell.children ?? [];
+            const from = kids[0]?.position?.start.offset;
+            const to = kids.at(-1)?.position?.end.offset;
+            return from === undefined || to === undefined
+              ? ''
+              : text.slice(from, to).replace(/\s+/g, ' ').trim();
+          };
+          const rows = node.children ?? [];
+          const header = (rows[0]?.children ?? []).map(cellText);
+          tables += 1;
+          rows.forEach((row, rowAt) => {
+            const cells = row.children ?? [];
+            const rowKey = rowAt === 0 ? '' : cellText(cells[0] as Node);
+            cells.forEach((cell, column) => {
+              descend(cell, {
+                ...context,
+                cell: {
+                  row: rowKey,
+                  column: header[column] ?? '',
+                  table: tables,
+                  ...(rowAt === 0 ? { header: true as const } : {}),
+                },
+              });
+            });
+          });
+          return;
         }
         case 'tableCell': {
           const kids = node.children ?? [];
           if (kids.length > 0) {
             const first = kids[0]?.position?.start.offset ?? start;
             const last = kids.at(-1)?.position?.end.offset ?? end;
-            add('table_cell', at(first), at(last), here());
+            emit('table_cell', first, last, context);
           }
-          return;
-        }
-        case 'listItem': {
-          for (const child of node.children ?? []) {
-            visit(child, { ...context, inList: child.type === 'paragraph' });
-          }
-          return;
-        }
-        case 'blockquote': {
-          for (const child of node.children ?? []) visit(child, { ...context, inQuote: true });
           return;
         }
         default:
-          for (const child of node.children ?? []) visit(child, context);
+          for (const child of node.children ?? []) descend(child, context);
       }
     };
 
-    for (const child of tree.children ?? []) visit(child, {});
+    descend(tree, context);
+    return quoteContext;
   };
 
-  markdown(source, 0, [], 0);
+  const jsonEnd = jsonFrontMatterEnd(source);
+  if (jsonEnd === undefined) markdown(source, (position) => position, [], 0);
+  else {
+    frontMatter(0, jsonEnd, 'json');
+    markdown(source.slice(jsonEnd), (position) => jsonEnd + position, [], 0);
+  }
   return { units, digest: sha(units.map((unit) => `${unit.container}:${unit.fp}`).join('\n')) };
 }

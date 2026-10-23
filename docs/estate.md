@@ -524,11 +524,11 @@ The plan of the approved Northwind map:
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
 Wrote _captures/docs3/estate/plan.yaml: 1427 rows (350 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1312 (a cell is the atoms of a row crossed with its situation values).
+  Cells: 1316 (a cell is the atoms of a row crossed with its situation values).
   Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction    93
-    gate           12
+    instruction    95
+    gate           13
     route          65
     skill         117
     reference      11
@@ -571,7 +571,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1427 rows (350 from the contract, 10 jou
     setting             4
     journey            10
   Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1312 of 1312.
+  Cells with no approved phrase: 1316 of 1316.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -633,7 +633,7 @@ How a row becomes a spec:
 |---|---|
 | `skill_loaded`, `skill_not_loaded` | `expect.skills` with a count |
 | `guard` | `expect.guards` (name, verdict, count) |
-| `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool) |
+| `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool, for the agent and its helpers; `actor: main` limits it to the agent) |
 | `tool_called` Read with one path (equal or contained) | `expect.references`, the glob `**/<path>` with a count; explicit Read evidence requires a recorded file read unless the runtime declares that file auto-loaded |
 | `tool_called` Agent with a helper name | `expect.subagents` with a count |
 | `ordered` | the ordered-pair check, `rules.custom.ordered` |

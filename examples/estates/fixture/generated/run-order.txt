@@ -104,6 +104,7 @@ specs/live/guard_positive/estate.pairwise.0999.yaml
 specs/live/guard_positive/estate.pairwise.1061.yaml
 specs/live/guard_positive/estate.pairwise.1062.yaml
 specs/live/guard_positive/estate.pairwise.1063.yaml
+specs/live/obligation/estate.obligation.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.weekly-report.read-templates-report-md-before-writing.yaml
@@ -250,7 +251,6 @@ specs/live/twin/estate.twin.instruction.weekly-report.count-only-what-the-ledger
 specs/live/obligation/estate.obligation.instruction.weekly-report.save-the-report-as-reports-year.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.weekly-report.save-the-report-as-reports-year.yaml
 specs/live/twin/estate.twin.instruction.weekly-report.save-the-report-as-reports-year.yaml
-specs/live/obligation/estate.obligation.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/twin/estate.twin.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/obligation/estate.obligation.instruction.standing.r4-never-delete-a-file-under.yaml
