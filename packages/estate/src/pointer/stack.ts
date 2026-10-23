@@ -137,7 +137,8 @@ function single(member: Labeler): Labelling {
 /**
  * The margin of a system 1 opinion: the probability of the most likely option minus that of the second. The
  * options include `none`, and the probabilities must form a vector; a vector that does not sum to 1 has no margin
- * (it is never normalised).
+ * (it is never normalised). This is the pure measure: it returns undefined when it cannot compute, and the stack
+ * decides what that means (`stackMargin` refuses, `stackDecision` leaves the unit to system 2).
  */
 export function margin(
   probabilities: Readonly<Record<string, number>>,
@@ -145,6 +146,75 @@ export function margin(
   if (!('none' in probabilities) || !isVector(probabilities)) return undefined;
   const sorted = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
   return { label: sorted[0]?.[0] ?? 'none', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
+}
+
+/**
+ * The margin the stack reads from a choice answer: the measure of `margin`, and a refusal (RangeError) when the
+ * answer gives none, because a stack that read a margin from no vector would route on a guess.
+ */
+export function stackMargin(probabilities: Readonly<Record<string, number>>): {
+  label: string;
+  margin: number;
+} {
+  const lead = margin(probabilities);
+  if (lead === undefined) {
+    throw new RangeError(
+      'the probabilities give no margin: they need a none option, each a number from 0 to 1, and a sum of 1',
+    );
+  }
+  return lead;
+}
+
+/** The margin of an opinion, or undefined when it gives none: the unit is left to system 2. */
+function leadOf(
+  probabilities: Readonly<Record<string, number>>,
+): { label: string; margin: number } | undefined {
+  return margin(probabilities);
+}
+
+/** The independent runs of system 2 on one window. */
+export const STACK_VOTES = 3;
+
+export type StackRequest = {
+  /** System 1: a probability per label the caller declared. */
+  probabilities: Record<string, number>;
+  /** The label system 1 takes when it decides, when the vector names a tie. Absent: the likeliest. */
+  system1Label?: string;
+  /** System 2: the label of each run, or null for a run that gave none. */
+  system2Votes: Array<string | null>;
+  marginCut: number;
+  /** Every accepted unit must also have unanimous system 2 votes that equal its system 1 label. */
+  requireAgreement?: boolean;
+};
+
+export type StackDecision = { label: string; by: LabelerClass } | undefined;
+
+/**
+ * One unit through the default stack. A unit whose margin is at or above the cut takes its system 1 label. Below
+ * the cut, all three votes of system 2 must be present, declared (a key of the vector) and equal, and their label
+ * is taken even when it differs from system 1; otherwise the unit is unsure and has no decision. With
+ * `requireAgreement`, an accepted unit must also have such votes, equal to its system 1 label. A vector that is no
+ * vector counts as below every cut. Each unit is decided from its own opinions only.
+ */
+export function stackDecision(request: StackRequest): StackDecision {
+  const declared = new Set(Object.keys(request.probabilities));
+  const lead = leadOf(request.probabilities);
+  const first = request.system1Label ?? lead?.label;
+  const votes = request.system2Votes;
+  const unanimous =
+    votes.length === STACK_VOTES &&
+    votes.every(
+      (vote) => typeof vote === 'string' && vote.trim() !== '' && declared.has(vote) && vote === votes[0],
+    )
+      ? (votes[0] as string)
+      : undefined;
+  if (lead && first !== undefined && lead.margin >= request.marginCut) {
+    if (request.requireAgreement === true && unanimous !== first) return undefined;
+    return { label: first, by: 'system1' };
+  }
+  if (unanimous === undefined) return undefined;
+  if (request.requireAgreement === true && unanimous !== first) return undefined;
+  return { label: unanimous, by: 'system2' };
 }
 
 function stacked(
@@ -156,7 +226,7 @@ function stacked(
   /** The label system 1 decides alone, or undefined when the unit is left to system 2. */
   const sureLabel = (opinion: Opinion): string | undefined => {
     if (marginCut !== undefined) {
-      const lead = margin(opinion.probabilities ?? {});
+      const lead = leadOf(opinion.probabilities ?? {});
       return lead && lead.margin >= marginCut ? lead.label : undefined;
     }
     let top: { label: string; p: number } | undefined;
@@ -249,6 +319,8 @@ export type LabellingOptions = {
   failAt?: number;
   /** A stack that decides by margin instead: system 1 decides a unit whose top label leads the second by this much. */
   marginCut?: number;
+  /** A system 2 labeler: how many times a window is asked; the votes of a stack. Absent: the labeler's own default. */
+  runs?: number;
   /** The name of the variable that holds the bearer token of an HTTP labeler. */
   keyVariable?: string;
   fetch?: HttpOptions['fetch'];
@@ -285,6 +357,7 @@ const missingKey = (client: string, cls: LabelerClass, id: string = client): str
 async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOptions): Promise<Labeler> {
   const http = options.fetch ? { fetch: options.fetch } : {};
   const threshold = options.threshold === undefined ? {} : { threshold: options.threshold };
+  const runs = options.runs === undefined ? {} : { runs: options.runs };
   switch (spec.client) {
     case 'jev':
     case 'jev-unit':
@@ -316,6 +389,7 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
       const model = spec.model ?? options.env.ANTHROPIC_LABELER_MODEL?.trim();
       return createAnthropicLabeler({
         ...http,
+        ...runs,
         ...(model ? { model } : {}),
         ...(key ? { key, missingKeyMessage: missingKey('anthropic', 'system2') } : {}),
         ...(options.env.ANTHROPIC_BASE_URL ? { baseUrl: options.env.ANTHROPIC_BASE_URL } : {}),
@@ -325,6 +399,7 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
       return createHttpLabeler({
         ...http,
         ...threshold,
+        ...runs,
         url: spec.target ?? '',
         cls: spec.cls,
         env: options.env,
@@ -335,6 +410,7 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
     case 'module':
       return loadModuleLabeler(spec.target ?? '', {
         ...threshold,
+        ...runs,
         cwd: options.cwd,
         skipTargetLabels: inStack,
         replayOnly: !options.record,

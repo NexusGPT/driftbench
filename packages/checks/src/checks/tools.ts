@@ -4,6 +4,7 @@ import {
   type Check,
   type CheckContext,
   type CompareMode,
+  callsIn,
   contentHash,
   isZero,
   machineVerdict,
@@ -182,7 +183,7 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
 
   for (const [index, tool] of expected.entries()) {
     const key = keys[index] ?? tool.label;
-    const own = calls.filter((call) => call.label === tool.label);
+    const own = callsIn(ctx.observed, tool.actor ?? 'main').filter((call) => call.label === tool.label);
     verdicts.push(countVerdict(key, tool, own, calls));
     if (tool.input_closed === true) verdicts.push(closedInputVerdict(key, tool, own));
     const fields = new Set([...Object.keys(tool.input ?? {}), ...Object.keys(tool.recompute ?? {})]);
@@ -240,7 +241,9 @@ export async function replayInputValues(
     services,
     sources: () => (collected ??= userTexts(ctx)),
   };
-  const own = ctx.observed.toolCalls.filter((call) => call.label === subject.tool.label);
+  const own = callsIn(ctx.observed, subject.tool.actor ?? 'main').filter(
+    (call) => call.label === subject.tool.label,
+  );
   const out: { call: number; leaves: LeafResult[] }[] = [];
   for (const [index, call] of own.entries()) {
     const value = isRecord(call.input) ? call.input[subject.field] : undefined;

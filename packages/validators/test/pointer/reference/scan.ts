@@ -12,7 +12,16 @@ import { anchorUnits, type NewUnit } from './anchor';
 import { cutWithCells, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, askStack, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
+import {
+  askModel,
+  askStack,
+  askSystem2,
+  Cassette,
+  CassetteError,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
 import { planWindows, type WindowPlan } from './window';
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
@@ -227,7 +236,7 @@ export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
           if (outcome.failed) {
             diagnostics.push({
-              code: 'window_failed',
+              code: 'failed-window',
               window: plan.id,
               detail: `the window ${plan.id} was refused twice: ${outcome.failed}`,
             });
@@ -428,9 +437,17 @@ async function labelWindow(
     if (model) {
       let result: Awaited<ReturnType<typeof askModel>>;
       try {
-        result = await (model.second ? askStack : askModel)(plan, set, model);
+        result = await (model.second ? askStack : model.arm === 'haiku' ? askSystem2 : askModel)(
+          plan,
+          set,
+          model,
+        );
       } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
+        // A failed transport is a failed window, like an answer that is refused: the window is asked once more, then
+        // listed as failed, and the other windows are still asked. The message of a thrown transport error may quote
+        // the request, which holds unit text: only its name is kept.
+        reason = `the model call failed (${cause instanceof Error ? cause.name : typeof cause})`;
+        continue;
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {
