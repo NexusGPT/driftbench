@@ -135,7 +135,7 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
     invariant      4
   Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).
   Pointer reader: system 1 <choice labeler> then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
+  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled (2 of them not decided: a vote lacked answers, and the next scan asks again); the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 136.
   Document roles: 5 files labelled by the document-roles set; requests 30 answered, 0 sent, 0 recorded.

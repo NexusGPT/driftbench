@@ -90,6 +90,8 @@ export {
   type Ledger,
   type LedgerEntry,
   type LedgerLabel,
+  type LedgerUnlabeled,
+  type LedgerVote,
   LINEAGE_KEEP,
   labelMap,
   mintId,
@@ -97,8 +99,10 @@ export {
   nextLedger,
   parseLedger,
   recordLabel,
+  recordUnlabeled,
   renderLedger,
   unitKey,
+  unlabeledMap,
 } from './ledger';
 export {
   blastRadius,
@@ -146,6 +150,7 @@ export {
   pointerScan,
   REASK_LIMIT,
   SPLIT_REASK_RUNS,
+  type UndecidedReason,
   windowsOf,
 } from './scan';
 export {

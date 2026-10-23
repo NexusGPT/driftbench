@@ -131,7 +131,7 @@ describe('the ledger', () => {
     const text = renderLedger(scan({ 'hall.md': HALL }).ledger);
     expect(text.endsWith('\n')).toBe(true);
     expect(text).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
-    expect(JSON.parse(text).version).toBe(1);
+    expect(JSON.parse(text).version).toBe(2);
   });
 
   it('gives identical twin lines in one file distinct ids by occurrence', () => {
