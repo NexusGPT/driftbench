@@ -1,4 +1,14 @@
-import { DENSE_SYSTEM, denseSystemFor, SPAN_RULE, TARGET_RULE } from '@agent-nexus/driftbench-core';
+import {
+  DENSE_SYSTEM,
+  denseSystemFor,
+  dropCommentLines,
+  dropTrailingComma,
+  repairAnswerText,
+  SPAN_RULE,
+  singleToDoubleQuotes,
+  straightenCurlyQuotes,
+  TARGET_RULE,
+} from '@agent-nexus/driftbench-core';
 import {
   errorText,
   type HttpOptions,
@@ -108,6 +118,7 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
     ...spanLines(set, context),
     `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
     ...windowLines(window),
+    ...(context.notes ?? []).map((note) => `NOTE ${note}`),
   ].join('\n');
 }
 
@@ -124,8 +135,14 @@ function jsonObjectOf(text: string): unknown {
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first >= 0 && last > first) candidates.push(trimmed.slice(first, last + 1));
-  for (const candidate of candidates) {
-    if (candidate === undefined || candidate === '') continue;
+  // Each candidate as written, then each with the near-JSON repairs the judges use: comment lines, a trailing comma,
+  // curly and single quotes, unescaped quotes in a string. A repair touches only its slip, never a key or a value.
+  const repair = (text: string) =>
+    repairAnswerText(singleToDoubleQuotes(straightenCurlyQuotes(dropTrailingComma(dropCommentLines(text)))));
+  const kept = candidates.filter(
+    (candidate): candidate is string => candidate !== undefined && candidate !== '',
+  );
+  for (const candidate of [...kept, ...kept.map(repair)]) {
     try {
       const value: unknown = JSON.parse(candidate);
       if (isRecord(value) && Array.isArray(value.labels)) return value;
@@ -178,6 +195,7 @@ export function denseLabels(value: unknown): Labelled[] {
       label: entry.label,
       // The anchor is read against the window by `anchorUnits` and never reaches a cassette as words.
       ...(typeof entry.anchor === 'string' ? { anchor: entry.anchor } : {}),
+      ...(typeof entry.anchorEnd === 'string' ? { anchorEnd: entry.anchorEnd } : {}),
       ...(target === undefined || target === null ? {} : { target: target as number }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
       ...(!Array.isArray(entry.spans) || entry.spans.length === 0

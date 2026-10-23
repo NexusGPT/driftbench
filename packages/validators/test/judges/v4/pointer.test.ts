@@ -60,7 +60,16 @@ describe('the pointer labeller items', () => {
 
 // Faults planted in a copy of the labellers' source, one rule each. Each must fail the items of that rule and
 // leave the items of a neighbouring rule passing.
-type Fault = { name: string; file: string; from: string; to: string; fails: string[]; passes?: string[] };
+type Fault = {
+  name: string;
+  file: string;
+  from: string;
+  to: string;
+  /** More edits of the same file for a fault that lives in two places (every one must be found). */
+  also?: Array<{ from: string; to: string }>;
+  fails: string[];
+  passes?: string[];
+};
 const LABELS = 'pointer/labels.ts';
 const YESNO = 'pointer/yesno.ts';
 const STACK = 'pointer/stack.ts';
@@ -161,8 +170,16 @@ const FAULTS: Fault[] = [
   {
     name: 'answer: window not checked',
     file: LABELS,
-    from: 'if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {',
-    to: 'if (false) {',
+    // The window is checked twice: a range past its last line is `leaves`, and a number that is neither a unit nor a
+    // shown line is refused. The fault removes both.
+    from: "if (range.to > lastLine(window)) return 'leaves';",
+    to: "if (false) return 'leaves';",
+    also: [
+      {
+        from: 'if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {',
+        to: 'if (false) {',
+      },
+    ],
     fails: ids('answer/refuses-outside-window'),
     passes: ids('answer/refuses-named-twice'),
   },
@@ -504,8 +521,19 @@ describe('planted faults in a copy of the labellers', () => {
       cpSync(join(ROOT, 'packages/estate/src'), join(dir, 'src'), { recursive: true });
       const path = join(dir, 'src', fault.file);
       const text = readFileSync(path, 'utf8');
-      expect(text.includes(fault.from), `the source no longer holds: ${fault.from}`).toBe(true);
-      writeFileSync(path, text.replace(fault.from, fault.to));
+      const edits = [{ from: fault.from, to: fault.to }, ...(fault.also ?? [])];
+      // Each edit is checked when it is applied, on the text the earlier edits left: its anchor must be there and the
+      // replacement must change the text, so no edit can be a no-op behind another one that works.
+      const mutated = edits.reduce((current, edit) => {
+        expect(current.includes(edit.from), `the source no longer holds: ${edit.from}`).toBe(true);
+        const next = current.replace(edit.from, edit.to);
+        expect(next, `the edit changes nothing: ${edit.from}`).not.toBe(current);
+        return next;
+      }, text);
+      // A fault that edits nothing, or that names no item it must break, would pass whatever the source does.
+      expect(mutated, `the fault changes nothing: ${fault.name}`).not.toBe(text);
+      expect(fault.fails.length, `the fault names no item it breaks: ${fault.name}`).toBeGreaterThan(0);
+      writeFileSync(path, mutated);
       const impl = (await import(
         /* @vite-ignore */ pathToFileURL(join(dir, 'src/pointer/index.ts')).href
       )) as PointerImpl;

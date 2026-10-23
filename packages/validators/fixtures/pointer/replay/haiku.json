@@ -72,7 +72,7 @@
   ],
   "rows": [
     {
-      "key": "33b3a28dafec784584333c32abee8a7338ffba1efaa8ca3915d7c5111698a15b",
+      "key": "548a08fad8d0783b9f51a49d58cec0110c9ca9c31d3890a3f1f9a06b9be3e0b0",
       "readable": {
         "path": "notes/a.md",
         "window": "notes/a.md#1",
@@ -88,7 +88,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e0cf3a0dcae1"
       },
       "answer": {
@@ -115,7 +115,7 @@
       }
     },
     {
-      "key": "ac3178df9257a604173af7046ffa59d1fcc47b9a0b088be0847b400ac156f7f4",
+      "key": "863459b92ca116a0cc580e034b2a0e253422d1d55dbeafc36e64a25c648db090",
       "readable": {
         "path": "notes/a.md",
         "window": "notes/a.md#1",
@@ -131,7 +131,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e0cf3a0dcae1"
       },
       "answer": {
@@ -158,7 +158,7 @@
       }
     },
     {
-      "key": "24b38d829d3fadc56871b76e95bea26370fdf5c2b840ca008ea91aab2f832971",
+      "key": "61f3a48989761f67136656068658f050a90408ad5aada91c938b164623f3f452",
       "readable": {
         "path": "notes/a.md",
         "window": "notes/a.md#1",
@@ -174,7 +174,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e0cf3a0dcae1"
       },
       "answer": {
@@ -201,7 +201,7 @@
       }
     },
     {
-      "key": "5ee24b4f4c9d1c87e544fd8d86242f44c1140c6fbf4ecdee1ebf2a19f7d0b88c",
+      "key": "aa7213d27912c88842053db99309c8c42c52bc92de308bdcce0da177cadb40c5",
       "readable": {
         "path": "notes/a.md",
         "window": "notes/a.md#1",
@@ -217,7 +217,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e0cf3a0dcae1"
       },
       "answer": {
@@ -244,7 +244,7 @@
       }
     },
     {
-      "key": "5950ac67923b7d66b1b48b258f6110b9c63a786bf32a93bb51d84ade22f137a9",
+      "key": "7c149e306892cf342e0dafd7640d5fa7164174afc36879df59f2b1f8d15af15f",
       "readable": {
         "path": "notes/a.md",
         "window": "notes/a.md#1",
@@ -260,7 +260,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e0cf3a0dcae1"
       },
       "answer": {
@@ -287,7 +287,7 @@
       }
     },
     {
-      "key": "ec89e93798c26a09a384cff48abead2c191fab5b67749807eb512fbab0fedcd8",
+      "key": "7e6a8baac1e6263b5105e58b68ef77ab30f1ae631bc721e44096f656545e3dd5",
       "readable": {
         "path": "notes/b.md",
         "window": "notes/b.md#1",
@@ -303,7 +303,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "4bbe687ba133"
       },
       "answer": {
@@ -330,7 +330,7 @@
       }
     },
     {
-      "key": "d6aad107cd86f858c65974d756976ca661d3a3b1a6d6881f57d15a2806f81d3c",
+      "key": "9499075c0de78447f7490521f27e9d03663a4f9a8d4929bd4968299b5bd2643e",
       "readable": {
         "path": "notes/b.md",
         "window": "notes/b.md#1",
@@ -346,7 +346,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "4bbe687ba133"
       },
       "answer": {
@@ -373,7 +373,7 @@
       }
     },
     {
-      "key": "972746666fc9e0e50012ea8d8bb6758fc9a0051c531d0328c0571da072e76f78",
+      "key": "94979d95996d9d93cce7b89606b8c44d78c82e5a6aa3c7925d581dae6f95bc8d",
       "readable": {
         "path": "notes/b.md",
         "window": "notes/b.md#1",
@@ -389,7 +389,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "4bbe687ba133"
       },
       "answer": {
@@ -416,7 +416,7 @@
       }
     },
     {
-      "key": "8701b4ed7a7f47f48fc0a04aa43dd890c3530e4995505480dabf7126f8609f4e",
+      "key": "d755f1716b3c7b8c1c0539335606fdc2308ffb3258e7ebefc6e2db3d2f85e074",
       "readable": {
         "path": "notes/b.md",
         "window": "notes/b.md#1",
@@ -432,7 +432,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "4bbe687ba133"
       },
       "answer": {
@@ -459,7 +459,7 @@
       }
     },
     {
-      "key": "0b8739946f3aaaec6c321853979b010d70dfa47f8cacb6ebae0ca9d49a8bd8ac",
+      "key": "33c9bb17bd509620bba00e47a187b532d47f43d0b84f6f71b8eb86872f3c6e37",
       "readable": {
         "path": "notes/b.md",
         "window": "notes/b.md#1",
@@ -475,7 +475,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "4bbe687ba133"
       },
       "answer": {
@@ -502,7 +502,7 @@
       }
     },
     {
-      "key": "c88557c83b48b9937d2b551ed82e4f7a7c32262de646cbb5220a5971c3ffafc6",
+      "key": "a7ad60b02efe75015182b9f8e8f0c7459e2546000993b7facbca1b43e6bc6011",
       "readable": {
         "path": "notes/c.md",
         "window": "notes/c.md#1",
@@ -518,7 +518,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e71c0bc7deb3"
       },
       "answer": {
@@ -545,7 +545,7 @@
       }
     },
     {
-      "key": "6f003056869128199bd1238cbe53767a271b27b06d25600c48e1bc68b624ed78",
+      "key": "c6dd5dbfc622df6137a3e6b5ebf60555c32583b72fbcede4cea63d995bcdc9e0",
       "readable": {
         "path": "notes/c.md",
         "window": "notes/c.md#1",
@@ -561,7 +561,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e71c0bc7deb3"
       },
       "answer": {
@@ -588,7 +588,7 @@
       }
     },
     {
-      "key": "026931c7345ec40469e2ec4ac0f4b4c4c4c372a294c9afdd79f98c50235e2d7f",
+      "key": "361e887e31938688f365270dc123bc6874e3ce643c68e64dbb506d62a4f3e90e",
       "readable": {
         "path": "notes/c.md",
         "window": "notes/c.md#1",
@@ -604,7 +604,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e71c0bc7deb3"
       },
       "answer": {
@@ -631,7 +631,7 @@
       }
     },
     {
-      "key": "670a57cd86dc951aadfaa412c4bde5b7924a541d37a1fc95f09d55b8f7da2479",
+      "key": "fc07e0dc922763495353b8944db9900b9c6149e27f138eb90d9ae8935638826b",
       "readable": {
         "path": "notes/c.md",
         "window": "notes/c.md#1",
@@ -647,7 +647,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e71c0bc7deb3"
       },
       "answer": {
@@ -674,7 +674,7 @@
       }
     },
     {
-      "key": "2429c6f7ce240fd99c25ceb91e4e270ab34373619a5b44df9286f7e3e5c35afb",
+      "key": "0f4c43e4236905b635e6b8cfc05d2bc88883c2e3a2a8284d5502374a2a7a6c9e",
       "readable": {
         "path": "notes/c.md",
         "window": "notes/c.md#1",
@@ -690,7 +690,7 @@
         "part.model": "4bfe472c97dd",
         "part.max_tokens": "8b926d75599a",
         "part.thinking": "d12700b52885",
-        "part.system": "8ace3f488622",
+        "part.system": "f3ea93072bec",
         "part.messages": "e71c0bc7deb3"
       },
       "answer": {
@@ -726,7 +726,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -743,7 +743,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -760,7 +760,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -777,7 +777,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -794,7 +794,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -811,7 +811,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -828,7 +828,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -845,7 +845,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -862,7 +862,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -879,7 +879,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -896,7 +896,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -913,7 +913,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -930,7 +930,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -947,7 +947,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -964,7 +964,7 @@
         "thinking": {
           "type": "disabled"
         },
-        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. An entry with a label other than none also gives \"anchor\": the first three words of the first unit it names, copied from its start, so code can check the entry is on the unit you mean. Every unit must appear once. Units labelled none still appear, joined in ranges, with no anchor. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except an anchor and the words of a span.",
+        "system": "You label numbered units of a document. For each unit give exactly one label from the list, or none. Answer with JSON only, no other text: {\"labels\": [{\"units\": \"<n> or <a>-<b>\", \"label\": \"<name>\"}]}. Every entry, none included, also gives \"anchor\": the first three words of the first unit it names, copied from its start, and a range also gives \"anchorEnd\": the first three words of its last unit, so code can check the entry is on the units you mean. Every unit must appear once. Units labelled none still appear, joined in ranges. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. A line marked not labelable takes no label, not even none: leave its number out of the answer. For a label that asks for a target, add \"target\": the number of the unit that holds the other end. A target must be a unit that can be labelled, never a line marked not labelable. Never copy text from the units, except the anchors and the words of a span.",
         "messages": [
           {
             "role": "user",
@@ -1027,5 +1027,5 @@
       ]
     }
   ],
-  "cassette": "{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"33b3a28dafec784584333c32abee8a7338ffba1efaa8ca3915d7c5111698a15b\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"ac3178df9257a604173af7046ffa59d1fcc47b9a0b088be0847b400ac156f7f4\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"24b38d829d3fadc56871b76e95bea26370fdf5c2b840ca008ea91aab2f832971\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"5ee24b4f4c9d1c87e544fd8d86242f44c1140c6fbf4ecdee1ebf2a19f7d0b88c\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"5950ac67923b7d66b1b48b258f6110b9c63a786bf32a93bb51d84ade22f137a9\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"ec89e93798c26a09a384cff48abead2c191fab5b67749807eb512fbab0fedcd8\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"d6aad107cd86f858c65974d756976ca661d3a3b1a6d6881f57d15a2806f81d3c\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"972746666fc9e0e50012ea8d8bb6758fc9a0051c531d0328c0571da072e76f78\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"8701b4ed7a7f47f48fc0a04aa43dd890c3530e4995505480dabf7126f8609f4e\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"0b8739946f3aaaec6c321853979b010d70dfa47f8cacb6ebae0ca9d49a8bd8ac\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"c88557c83b48b9937d2b551ed82e4f7a7c32262de646cbb5220a5971c3ffafc6\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"6f003056869128199bd1238cbe53767a271b27b06d25600c48e1bc68b624ed78\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"026931c7345ec40469e2ec4ac0f4b4c4c4c372a294c9afdd79f98c50235e2d7f\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"670a57cd86dc951aadfaa412c4bde5b7924a541d37a1fc95f09d55b8f7da2479\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"2429c6f7ce240fd99c25ceb91e4e270ab34373619a5b44df9286f7e3e5c35afb\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"8ace3f488622\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n"
+  "cassette": "{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"548a08fad8d0783b9f51a49d58cec0110c9ca9c31d3890a3f1f9a06b9be3e0b0\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"863459b92ca116a0cc580e034b2a0e253422d1d55dbeafc36e64a25c648db090\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"61f3a48989761f67136656068658f050a90408ad5aada91c938b164623f3f452\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"aa7213d27912c88842053db99309c8c42c52bc92de308bdcce0da177cadb40c5\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"7c149e306892cf342e0dafd7640d5fa7164174afc36879df59f2b1f8d15af15f\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"035d47e8faf6aba4b7b40f39b4762a11b5302834f68b88508669eb9634761681\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e0cf3a0dcae1\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/a.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/a.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"7e6a8baac1e6263b5105e58b68ef77ab30f1ae631bc721e44096f656545e3dd5\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"9499075c0de78447f7490521f27e9d03663a4f9a8d4929bd4968299b5bd2643e\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"94979d95996d9d93cce7b89606b8c44d78c82e5a6aa3c7925d581dae6f95bc8d\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"d755f1716b3c7b8c1c0539335606fdc2308ffb3258e7ebefc6e2db3d2f85e074\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"33c9bb17bd509620bba00e47a187b532d47f43d0b84f6f71b8eb86872f3c6e37\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"504884ba7b79508bf76669f6cf620bc45c186bc4ff0d301309d9f72a809c2188\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"4bbe687ba133\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/b.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/b.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"a7ad60b02efe75015182b9f8e8f0c7459e2546000993b7facbca1b43e6bc6011\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"1\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"c6dd5dbfc622df6137a3e6b5ebf60555c32583b72fbcede4cea63d995bcdc9e0\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"2\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"361e887e31938688f365270dc123bc6874e3ce643c68e64dbb506d62a4f3e90e\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"3\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"fc07e0dc922763495353b8944db9900b9c6149e27f138eb90d9ae8935638826b\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"4\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n{\"answer\":{\"labels\":[{\"label\":\"rule\",\"units\":\"1\"},{\"label\":\"prohibition\",\"units\":\"2\"},{\"label\":\"example\",\"units\":\"3\"}],\"returnedModel\":\"claude-haiku-5-5\",\"stopReason\":\"end_turn\",\"usage\":{\"input\":10,\"output\":10}},\"key\":\"0f4c43e4236905b635e6b8cfc05d2bc88883c2e3a2a8284d5502374a2a7a6c9e\",\"readable\":{\"cls\":\"system2\",\"cutDigest\":\"f0e31bbbb3d70cb7b25418b204976fcd098e9dcd966e561b07b203db6f88e0f7\",\"labeler\":\"anthropic\",\"model\":\"claude-haiku-5-5\",\"part.max_tokens\":\"8b926d75599a\",\"part.messages\":\"e71c0bc7deb3\",\"part.model\":\"4bfe472c97dd\",\"part.system\":\"f3ea93072bec\",\"part.thinking\":\"d12700b52885\",\"path\":\"notes/c.md\",\"promptVersion\":\"p1\",\"run\":\"5\",\"schemaVersion\":\"s1\",\"set\":\"probe\",\"setHash\":\"4d65231d9003c962\",\"window\":\"notes/c.md#1\"}}\n"
 }

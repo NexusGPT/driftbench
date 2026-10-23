@@ -609,4 +609,11 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export {
+  dropCommentLines,
+  dropTrailingComma,
+  repairAnswerText,
+  singleToDoubleQuotes,
+  straightenCurlyQuotes,
+} from './text/near-json';
 export { type OpenAiCompatibleOptions, openAiCompatibleEmbedder } from './text/openai-embedder';

@@ -643,8 +643,12 @@ describe('atoms from labels', () => {
         expect.stringContaining('needs a span, a link or a code span that the unit does not give'),
       ]);
       expect(noLink.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      // A missing span is caught before the atom builder (span-missing): the unit is asked again once and, with no
+      // span in that answer either, left unlabeled, so no atom is built and none is refused.
       const noSpan = await run(entry({ spans: undefined }));
-      expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
+      expect(noSpan.result.pointer?.atomRefusals).toEqual([]);
+      expect(noSpan.result.pointer?.spanless).toEqual([expect.objectContaining({ filled: false })]);
+      expect(noSpan.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
     });
 
     it('drops a link value the set did not declare, as the check of the answer does', async () => {

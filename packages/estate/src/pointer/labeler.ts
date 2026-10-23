@@ -105,9 +105,12 @@ export async function refusingKey<T>(where: string, request: () => Promise<T>): 
   }
 }
 
-/** Whether a failure says the request was too large for the endpoint: the scan halves the window and asks again. */
+/**
+ * Whether a failure says the request was too large for the endpoint, by the error type the provider's body named (never
+ * by the words of the message): the scan halves the window and asks again.
+ */
 export function isTooLarge(cause: unknown): boolean {
-  return cause instanceof ModelError && cause.status === 400 && /max_tokens_exceeded/.test(cause.message);
+  return cause instanceof ModelError && cause.status === 400 && cause.providerType === 'max_tokens_exceeded';
 }
 
 /** The usage an endpoint reports, as numbers. A missing figure is 0, never a guess. */

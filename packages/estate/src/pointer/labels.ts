@@ -309,6 +309,10 @@ export type Labelled = {
   anchor?: string;
   /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
   anchored?: number | null;
+  /** On a range, the first words of its last unit, as the labeler answered (`anchorUnits`). */
+  anchorEnd?: string;
+  /** Lines from the last unit of a range to the one its end anchor starts; null for none (`anchorUnits`). */
+  anchoredEnd?: number | null;
   target?: number;
   spans?: SpanInput[];
   links?: LinkAnswer[];
@@ -329,9 +333,11 @@ export type LinkAnswer = { kind: string; to: string };
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+  /** Lines a request adds after the window when it asks again for something an earlier answer left out. */
+  notes?: readonly string[];
 };
 
-/** `5` or `5-7` as the numbers it names. */
+/** `5` or `5-7` as the numbers it names, read with no window at hand: a range over 10,000 numbers is refused. */
 export function expandUnits(units: string): number[] | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
   if (!match) return undefined;
@@ -339,6 +345,37 @@ export function expandUnits(units: string): number[] | undefined {
   const to = Number(match[2] ?? match[1]);
   if (to < from || to - from > 10_000) return undefined;
   return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
+}
+
+/**
+ * `5` or `5-7` as its first and last number, without listing the numbers between: what `expandUnits` reads, with no
+ * cap, for a reader that holds the window the range must stay in.
+ */
+export function unitRange(units: string): { from: number; to: number } | undefined {
+  const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
+  if (!match) return undefined;
+  const from = Number(match[1]);
+  const to = Number(match[2] ?? match[1]);
+  return to < from ? undefined : { from, to };
+}
+
+/** The last number of a window: its units and its shown lines share one numbering. */
+function lastLine(window: Window): number {
+  let last = 0;
+  for (const unit of window.units) last = Math.max(last, unit.n);
+  for (const line of window.display ?? []) last = Math.max(last, line.n);
+  return last;
+}
+
+/**
+ * The numbers a unit reference names in a window. A range may be as wide as the window, never wider: one that runs
+ * past the window's last line is `leaves`, found without listing its numbers.
+ */
+function unitsIn(window: Window, units: string): number[] | 'leaves' | undefined {
+  const range = unitRange(units);
+  if (!range) return undefined;
+  if (range.to > lastLine(window)) return 'leaves';
+  return Array.from({ length: range.to - range.from + 1 }, (_, offset) => range.from + offset);
 }
 
 /**
@@ -355,11 +392,11 @@ export function shownLabelDrops(
   const labels: Labelled[] = [];
   const dropped: Array<{ line: number; label: string }> = [];
   for (const entry of answer) {
-    const named = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    const named = typeof entry.units === 'string' ? unitsIn(window, entry.units) : undefined;
     if (
       entry.label !== 'none' &&
       (known === undefined || known.has(entry.label)) &&
-      named &&
+      Array.isArray(named) &&
       named.length > 0 &&
       named.every((n) => shown.has(n))
     ) {
@@ -418,12 +455,16 @@ export function checkAnswer(
       );
       continue;
     }
-    const named = expandUnits(entry.units);
+    const named = unitsIn(window, entry.units);
     if (!named) {
       refuse(
         `${window.id}: "${entry.units}" is no unit number or range`,
         `${window.id}: units-not-a-number-or-range`,
       );
+      continue;
+    }
+    if (named === 'leaves') {
+      refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
     // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
@@ -517,47 +558,65 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/** Why words were not located in a text: in no place (`not-found`), or in several (`ambiguous`). */
+export type LocateMiss = 'not-found' | 'ambiguous';
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
- * kept is the unit's own text, never the copy. `reason` says why not.
+ * kept is the unit's own text, never the copy. A miss gives `code`, which checks read, and `reason`, its words for a
+ * report.
  */
 export function locateSpanText(
   unitText: string,
   words: string,
-): { from: number; to: number } | { reason: string } {
+): { from: number; to: number } | { code: LocateMiss; reason: string } {
   const lower = unitText.toLowerCase();
   const wanted = words.toLowerCase();
   const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: 'the text is not in the unit' };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  if (first < 0) return { code: 'not-found', reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0)
+    return { code: 'ambiguous', reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
 }
 
 /**
- * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
- * it points, so the words never reach a cassette. The anchor is located as a span is (`locateSpanText`, on the text
- * the labeler was shown, without regard to case), in every line of the window: `anchored` is 0 when it is in the
- * first unit the entry names, the count of lines from that unit to the one line that holds it when the number
- * slipped (-1 for the line before), or null when no line holds it, or several do and not the entry's own. An entry
- * with no anchor, or an empty one, keeps none.
+ * Reads each entry's anchors against the window, and keeps only where they point, so the words never reach a
+ * cassette. `anchor` is the first words of the first unit the entry names and `anchorEnd`, on a range, those of its
+ * last unit. Each is located as a span is (`locateSpanText`, on the text the labeler was shown, without regard to
+ * case), in every line of the window: `anchored` (`anchoredEnd` for the end) is 0 when it is in the unit it should
+ * start, the count of lines from that unit to the one line that holds it when the number slipped (-1 for the line
+ * before), or null when no line holds it, or several do and not the right one. An anchor missing or empty keeps none.
+ * A miss of the locator is read by its code, never by its message; `locate` stands in for it in a test.
  */
-export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
+export function anchorUnits(
+  entries: readonly Labelled[],
+  window: Window,
+  locate: typeof locateSpanText = locateSpanText,
+): Labelled[] {
   const lines = [
     ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
     ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
   ];
-  return entries.map((entry) => {
-    const { anchor, ...rest } = entry;
+  const offset = (anchor: unknown, at: number | undefined): number | null | undefined => {
     const words = typeof anchor === 'string' ? flatten(anchor).text : '';
-    const first = expandUnits(entry.units)?.[0];
-    if (words === '' || first === undefined) return rest;
+    if (words === '' || at === undefined) return undefined;
     const holds = (text: string) => {
-      const found = locateSpanText(text, words);
-      return !('reason' in found) || found.reason === 'the text is found twice in the unit';
+      const found = locate(text, words);
+      return !('reason' in found) || found.code === 'ambiguous';
     };
     const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
-    const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
-    return { ...rest, anchored };
+    return found.includes(at) ? 0 : found.length === 1 ? (found[0] as number) - at : null;
+  };
+  return entries.map((entry) => {
+    const { anchor, anchorEnd, ...rest } = entry;
+    const named = expandUnits(entry.units);
+    const anchored = offset(anchor, named?.[0]);
+    const anchoredEnd = named && named.length > 1 ? offset(anchorEnd, named.at(-1)) : undefined;
+    return {
+      ...rest,
+      ...(anchored === undefined ? {} : { anchored }),
+      ...(anchoredEnd === undefined ? {} : { anchoredEnd }),
+    };
   });
 }
 
