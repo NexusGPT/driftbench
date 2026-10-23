@@ -158,9 +158,9 @@ describe('the stem post-pass', () => {
     expect(acme.saved).toBeGreaterThan(0);
     expect({ specs: originals.length, stems: acme.stems.length, saved: acme.saved }).toMatchInlineSnapshot(`
       {
-        "saved": 299,
-        "specs": 410,
-        "stems": 102,
+        "saved": 296,
+        "specs": 408,
+        "stems": 103,
       }
     `);
   }, 120_000);

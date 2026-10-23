@@ -101,6 +101,8 @@ export type SessionMeta = {
     guards: Array<{ row: unknown; reason: string }>;
     stages: Array<{ row: unknown; reason: string }>;
   };
+  /** Helper records that named no parent and took the latest Agent call. */
+  ownerlessHelperRecords: number;
   /** What the reader noticed: rows of other sessions, calls with no result, lines that are not JSON. */
   issues: string[];
   /** The diff of the before and after trees, when both were given. */
@@ -189,6 +191,14 @@ export function diffTrees(before: Tree, after: Tree): WorkspaceDiff {
 
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
+
+/** A helper's record: `isSidechain` in a saved transcript, or `parent_tool_use_id` in a headless stream. */
+function isHelperRecord(record: Record<string, unknown>): boolean {
+  return (
+    record.isSidechain === true ||
+    (typeof record.parent_tool_use_id === 'string' && record.parent_tool_use_id !== '')
+  );
+}
 /** A file inside a skill folder: a `skills/<name>/` segment anywhere in its path. */
 const SKILL_FILE = /(^|\/)skills\/[^/]+\//;
 const OUTPUT_LIMIT = 4000;
@@ -203,6 +213,10 @@ class BlockBuilder {
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
+  /** The calls of the helpers' own conversations (sidechain records), each tied to the Agent call that began it. */
+  readonly helperCalls: ToolCall[] = [];
+  readonly helperUsage = new Map<string, { input: number; output: number }>();
+  readonly helperModels = new Set<string>();
   readonly executions: ExecutionRecord[] = [];
   readonly skills: NonNullable<RuntimeTrace['skills']> = [];
   readonly guards: NonNullable<RuntimeTrace['guards']> = [];
@@ -251,11 +265,21 @@ export function mapSession(input: SessionInput): ReplaySession {
     summaries: [],
     unplaced: { guards: [], stages: [] },
     issues: [],
+    ownerlessHelperRecords: 0,
     decisions: input.decisions !== undefined,
     steps: input.steps !== undefined,
   };
   const builders: BlockBuilder[] = [];
   const pending = new Map<string, PendingCall>();
+  /** Open calls of helpers, by call id; a helper call with no result is not an issue of the session. */
+  const helperPending = new Map<string, PendingCall>();
+  /** Record uuid to the id of the Agent call that record holds, and a helper record's uuid to the Agent call it belongs to. */
+  const agentAt = new Map<string, string>();
+  const helperOwner = new Map<string, string>();
+  /** The id of the latest Agent call the agent made: the owner of a helper record that names none. */
+  let lastAgentCall: string | undefined;
+  /** Call id of a helper's call to the Agent call it belongs to. */
+  const helperCallOwner = new Map<string, string>();
   /** Paths the session has seen exist: read, edited or written. */
   const known = new Set<string>();
   let anonymous = 0;
@@ -292,9 +316,10 @@ export function mapSession(input: SessionInput): ReplaySession {
     const type = stringField(record, 'type');
     const at = stringField(record, 'timestamp');
 
-    if (record.isSidechain === true) {
+    if (isHelperRecord(record)) {
       keep(line, 'a helper record (sidechain)', record);
       current()?.touch(line, undefined);
+      mapHelperRecord(record, type, line, at);
       continue;
     }
     if (type === 'summary') {
@@ -422,6 +447,11 @@ export function mapSession(input: SessionInput): ReplaySession {
           block.texts.push(part.text);
         } else if (isRecord(part) && part.type === 'tool_use' && typeof part.name === 'string' && part.name) {
           applyCall(block, part, line, at);
+          const recordUuid = stringField(record, 'uuid');
+          if (AGENT_TOOLS.has(part.name) && typeof part.id === 'string') {
+            lastAgentCall = part.id;
+            if (recordUuid !== undefined) agentAt.set(recordUuid, part.id);
+          }
         } else {
           block.kept.push({
             line,
@@ -434,6 +464,102 @@ export function mapSession(input: SessionInput): ReplaySession {
       continue;
     }
     keep(line, `a record of type ${type ?? '(none)'}`, record);
+  }
+
+  /**
+   * A helper's record. Its tool calls and results enter the block as the helper's calls, tied to the Agent call
+   * that began the helper: by `parent_tool_use_id` when the stream gives it, else by following `parentUuid` back
+   * to the record that holds the Agent call. Its words and its files are not the agent's, and stay in `raw.kept`.
+   */
+  function mapHelperRecord(
+    record: Record<string, unknown>,
+    type: string | undefined,
+    line: number,
+    at?: string,
+  ) {
+    const uuid = stringField(record, 'uuid');
+    const parent = stringField(record, 'parentUuid');
+    // The nearest enclosing Agent call. A stream names it (`parent_tool_use_id`). In a saved transcript a record that
+    // answers a call of a helper belongs to the helper that made the call; any other record belongs to the Agent call
+    // its parent record holds (a helper starting a helper), else to the helper its parent belongs to.
+    const answered = (
+      Array.isArray((record.message as { content?: unknown } | undefined)?.content)
+        ? ((record.message as { content: unknown[] }).content as unknown[])
+        : []
+    ).flatMap((part) =>
+      isRecord(part) && part.type === 'tool_result' && typeof part.tool_use_id === 'string'
+        ? [part.tool_use_id]
+        : [],
+    );
+    const named =
+      stringField(record, 'parent_tool_use_id') ??
+      answered.map((id) => helperCallOwner.get(id)).find((found) => found !== undefined) ??
+      (parent === undefined ? undefined : (agentAt.get(parent) ?? helperOwner.get(parent)));
+    // A record that names no parent takes the latest Agent call, and is counted so it stays visible.
+    const owner = named ?? lastAgentCall;
+    if (named === undefined && owner !== undefined) meta.ownerlessHelperRecords += 1;
+    if (uuid !== undefined && owner !== undefined) helperOwner.set(uuid, owner);
+    const block = current();
+    if (!block) return;
+    const message = isRecord(record.message) ? record.message : {};
+    if (type === 'assistant') {
+      const usage = isRecord(message.usage) ? message.usage : undefined;
+      // The model is read whether or not this record carries the usage: a message can come in several records.
+      if (typeof message.model === 'string' && message.model !== '') block.helperModels.add(message.model);
+      if (usage) {
+        const id = typeof message.id === 'string' ? message.id : `anonymous-helper-${anonymous++}`;
+        block.helperUsage.set(id, {
+          input:
+            num(usage.input_tokens) +
+            num(usage.cache_creation_input_tokens) +
+            num(usage.cache_read_input_tokens),
+          output: num(usage.output_tokens),
+        });
+      }
+      for (const part of Array.isArray(message.content) ? message.content : []) {
+        if (!isRecord(part) || part.type !== 'tool_use' || typeof part.name !== 'string' || !part.name)
+          continue;
+        const id = typeof part.id === 'string' ? part.id : undefined;
+        const call: ToolCall = {
+          ...(id === undefined ? {} : { id }),
+          label: part.name,
+          input: part.input,
+          actor: 'helper',
+          ...(owner === undefined ? {} : { parentCallId: owner }),
+          ...(at === undefined ? {} : { startedAt: at }),
+        };
+        block.helperCalls.push(call);
+        if (id !== undefined && owner !== undefined) helperCallOwner.set(id, owner);
+        if (AGENT_TOOLS.has(part.name) && id !== undefined && uuid !== undefined) agentAt.set(uuid, id);
+        if (id !== undefined) helperPending.set(id, { call, ...(at === undefined ? {} : { at }), line });
+      }
+      return;
+    }
+    if (type === 'user' && Array.isArray(message.content)) {
+      for (const part of message.content) {
+        if (!isRecord(part) || part.type !== 'tool_result' || typeof part.tool_use_id !== 'string') continue;
+        const open = helperPending.get(part.tool_use_id);
+        if (!open) continue;
+        helperPending.delete(part.tool_use_id);
+        const failed = part.is_error === true;
+        if (failed) open.call.error = resultText(part.content);
+        else open.call.output = part.content;
+        const latency = elapsed(open.at, at);
+        if (latency !== undefined) open.call.latencyMs = latency;
+        // A helper's file acts enter the workspace diff, beside the agent's.
+        const fields = isRecord(open.call.input) ? open.call.input : {};
+        const path = stringField(fields, 'file_path') ?? stringField(fields, 'notebook_path');
+        if (path === undefined || failed) continue;
+        if (open.call.label === 'Read') known.add(path);
+        else
+          noteWrite(
+            block,
+            open.call.label,
+            path,
+            isRecord(record.toolUseResult) ? record.toolUseResult : undefined,
+          );
+      }
+    }
   }
 
   function applyCall(block: BlockBuilder, part: Record<string, unknown>, line: number, at?: string): void {
@@ -531,11 +657,24 @@ export function mapSession(input: SessionInput): ReplaySession {
         block.references.push({ path: read, ...(open.at === undefined ? {} : { at: open.at }) });
       return;
     }
-    if (!WRITE_TOOLS.has(call.label)) return;
+    noteWrite(block, call.label, path, structured);
+  }
+
+  /**
+   * A successful write enters the block's workspace diff: created when the tool says so (or a Write of a path the
+   * session has not seen), else changed. The agent's writes and a helper's both come here, in transcript order, so
+   * the diff shows what the helper edited too.
+   */
+  function noteWrite(
+    block: BlockBuilder,
+    label: string,
+    path: string,
+    structured: Record<string, unknown> | undefined,
+  ): void {
+    if (!WRITE_TOOLS.has(label)) return;
     const relativePath = rel(path);
     const kind = structured?.type;
-    const createdNow =
-      call.label === 'Write' && (kind === 'create' || (kind !== 'update' && !known.has(path)));
+    const createdNow = label === 'Write' && (kind === 'create' || (kind !== 'update' && !known.has(path)));
     known.add(path);
     if (createdNow) {
       if (!block.created.includes(relativePath)) block.created.push(relativePath);
@@ -562,6 +701,12 @@ export function mapSession(input: SessionInput): ReplaySession {
     for (const usage of block.usage.values()) {
       inputTokens += usage.input;
       outputTokens += usage.output;
+    }
+    let helperInputTokens = 0;
+    let helperOutputTokens = 0;
+    for (const usage of block.helperUsage.values()) {
+      helperInputTokens += usage.input;
+      helperOutputTokens += usage.output;
     }
     const runtime: RuntimeTrace = {
       skills: block.skills,
@@ -596,11 +741,14 @@ export function mapSession(input: SessionInput): ReplaySession {
       segments: block.segments,
       text: block.texts.join('\n\n'),
       toolCalls: block.toolCalls,
+      ...(block.helperCalls.length > 0 ? { helperCalls: block.helperCalls } : {}),
       runtime,
       workspaceDiff: diff,
       executions: block.executions,
       cost: {
         ...(block.usage.size > 0 ? { inputTokens, outputTokens } : {}),
+        ...(block.helperUsage.size > 0 ? { helperInputTokens, helperOutputTokens } : {}),
+        ...(block.helperModels.size === 1 ? { helperModel: [...block.helperModels][0] as string } : {}),
       },
       latencyMs: elapsed(block.firstAt, block.lastAt) ?? 0,
       raw,

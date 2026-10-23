@@ -160,8 +160,8 @@ describe('driftbench generate', () => {
     const specFiles = Object.keys(before).filter(
       (path) => path.startsWith('specs/') && !path.includes('/.seed-'),
     );
-    expect(specFiles.filter((path) => !path.startsWith('specs/stems/'))).toHaveLength(410);
-    expect(specFiles.filter((path) => path.startsWith('specs/stems/'))).toHaveLength(102);
+    expect(specFiles.filter((path) => !path.startsWith('specs/stems/'))).toHaveLength(408);
+    expect(specFiles.filter((path) => path.startsWith('specs/stems/'))).toHaveLength(103);
     expect(Object.keys(before)).toContain('stems-map.csv');
 
     const refused = await run(

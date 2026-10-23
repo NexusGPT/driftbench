@@ -5,7 +5,7 @@ id: gen-deviation-balance-001
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced deviation probe D8_tool_failure: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of catalog.search at address"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -102,7 +102,7 @@ metadata:
       plan_choice: names-one
       customer_details: name-and-email
       failing_tool: catalog.search
-      channel: whatsapp
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -144,7 +144,7 @@ metadata:
           plan_choice: names-one
           customer_details: name-and-email
           failing_tool: catalog.search
-          channel: whatsapp
+          channel: chat
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -186,7 +186,7 @@ metadata:
           plan_choice: names-one
           customer_details: name-and-email
           failing_tool: catalog.search
-          channel: whatsapp
+          channel: chat
           deviation: D8_tool_failure
           stage_transition: address-to-offer
           stage: address
