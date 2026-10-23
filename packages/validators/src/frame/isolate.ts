@@ -209,7 +209,7 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
   const ran = spawnGrouped(
     process.execPath,
     [...loaderOption(), entry],
-    runTag(seed, `${tag}:${plain.count}`),
+    runTag(seed, `${tag}:${plain.count}`, plain.dir),
     {
       cwd: findRoot(dirname(module)),
       env: plain.env,
@@ -484,7 +484,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         ran = spawnGrouped(
           process.execPath,
           [...loaderOption(), resolve(script), ...args],
-          runTag(options.seed, `${tag}:command`),
+          runTag(options.seed, `${tag}:command`, plainDir),
           {
             cwd: work,
             env: plainRun.env,
