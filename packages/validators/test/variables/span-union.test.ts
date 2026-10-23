@@ -31,7 +31,7 @@ describe('the union of the span recordings', () => {
     expect(orderedFiles(dir, dateOf)).toEqual(['b-old.jsonl', 'a-new.jsonl', 'c-newest.jsonl', VOCABULARY]);
   });
 
-  it('gives a text of two recordings the label of the newer one, and a text of the vocabulary its label', () => {
+  it('keeps the first answer of a text, and gives a text of the vocabulary its label', () => {
     const dir = folder({
       'b-old.jsonl': line('x is over 5', 1) + line('y is over 6', 1) + line('z is over 7', 1),
       'a-new.jsonl': line('x is over 5', 2),
@@ -39,10 +39,34 @@ describe('the union of the span recordings', () => {
     });
     const result = union(dir, dateOf);
     const byText = new Map(texts(result.text).map((row) => [row.text, row.label.limit]));
-    expect(byText.get('x is over 5')).toBe(2);
+    expect(byText.get('x is over 5')).toBe(1);
     expect(byText.get('y is over 6')).toBe(9);
     expect(byText.get('z is over 7')).toBe(1);
     expect(result.conflicts).toBe(2);
+  });
+
+  it('lets a newer recording add the texts that have no answer, and never replace one', () => {
+    const dir = folder({
+      'b-old.jsonl': line('x is over 5', 1),
+      'a-new.jsonl': line('x is over 5', 2) + line('w is over 8', 3),
+      'c-newest.jsonl': line('x is over 5', 4) + line('w is over 8', 5) + line('v is over 9', 6),
+    });
+    const byText = new Map(texts(union(dir, dateOf).text).map((row) => [row.text, row.label.limit]));
+    expect(byText.get('x is over 5')).toBe(1);
+    expect(byText.get('w is over 8')).toBe(3);
+    expect(byText.get('v is over 9')).toBe(6);
+  });
+
+  it('reads no word: two clauses of one quantity keep the labels they were first recorded with', () => {
+    const named = (text: string, subject: string) =>
+      `${JSON.stringify({ text, label: { kind: 'numeric', subject, limit: 32, comparison: 'gt', unit: 'turns' } })}\n`;
+    const dir = folder({
+      'b-old.jsonl': named('the session exceeds 32 turns', 'session turns'),
+      'a-new.jsonl': named('the session exceeds 32 turns', 'history length'),
+    });
+    const rows = texts(union(dir, dateOf).text);
+    expect(rows).toHaveLength(1);
+    expect((rows[0]?.label as unknown as { subject: string } | undefined)?.subject).toBe('session turns');
   });
 
   it('holds no text twice, with white space folded', () => {
@@ -70,55 +94,5 @@ describe('the union of the span recordings', () => {
     };
     expect(union(folder(files), dateOf).text).toBe(union(folder(files), dateOf).text);
     expect(readFileSync(join(folder(files), 'a-new.jsonl'), 'utf8')).toBe(line('x is over 5', 2));
-  });
-
-  describe('a label whose subject shares no word with its clause', () => {
-    const named = (text: string, subject: string) =>
-      `${JSON.stringify({ text, label: { kind: 'numeric', subject, limit: 32, comparison: 'gt', unit: 'turns' } })}\n`;
-    const subjectOf = (out: string, text: string): string | undefined => {
-      const row = texts(out).find((r) => r.text === text);
-      return row === undefined ? undefined : (row.label as unknown as { subject: string }).subject;
-    };
-    const clause = 'the session exceeds 32 turns';
-
-    it('gives way to an older label that names a word of the clause', () => {
-      const dir = folder({
-        'b-old.jsonl': named(clause, 'session turns'),
-        'a-new.jsonl': named(clause, 'history length'),
-      });
-      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('session turns');
-    });
-
-    it('does not give way when the newest label names a word of the clause', () => {
-      const dir = folder({
-        'b-old.jsonl': named(clause, 'history length'),
-        'a-new.jsonl': named(clause, 'session length'),
-      });
-      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('session length');
-    });
-
-    it('keeps the newest label when no recording names a word of the clause', () => {
-      const dir = folder({
-        'b-old.jsonl': named(clause, 'history length'),
-        'a-new.jsonl': named(clause, 'conversation size'),
-      });
-      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('conversation size');
-    });
-
-    it('never overrules the vocabulary', () => {
-      const dir = folder({
-        'b-old.jsonl': named(clause, 'session turns'),
-        [VOCABULARY]: named(clause, 'history length'),
-      });
-      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('history length');
-    });
-
-    it('counts the texts it repaired', () => {
-      const dir = folder({
-        'b-old.jsonl': named(clause, 'session turns'),
-        'a-new.jsonl': named(clause, 'history length'),
-      });
-      expect(union(dir, dateOf).regrounded).toBe(1);
-    });
   });
 });
