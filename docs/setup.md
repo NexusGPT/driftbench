@@ -105,7 +105,9 @@ drift baseline, so an unchanged draft can agree with its folder while reader cov
 ## Scope, execution, money and privacy
 
 `scope.include`, `scope.exclude`, and `privacy.exclude` use the estate model's root-relative glob grammar.
-Directory matches include their descendants. Privacy exclusions take precedence over scope. Runtime
+Directory matches include their descendants. Privacy exclusions take precedence over scope. For sources
+inside the project, project-relative exclusions apply as well as source-relative ones; mapping or inferring
+a narrower source never bypasses project privacy. Runtime
 profile ignores still apply. Doctor reads a temporary filtered snapshot so runtime readers cannot load
 excluded files or follow a legacy home configuration. All declared sources have filtered snapshots before any reader starts. Readers receive `snapshotRoots`
 by source id; cross-source links resolve there. Original roots are provenance, never read authorization.
