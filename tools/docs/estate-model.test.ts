@@ -16,7 +16,7 @@ function typesFences(markdown: string): string[] {
 }
 
 describe('the estate model page', () => {
-  it('shows a types document the real loader reads, against a profile that ships a script type', async () => {
+  it('shows a types document the real loader reads, against a profile that ships a guard type', async () => {
     const text = await readFile(join(DOCS, 'estate-model.md'), 'utf8');
     const fences = typesFences(text);
     expect(fences).toHaveLength(1);
@@ -25,7 +25,7 @@ describe('the estate model page', () => {
       {
         version: 1,
         types: {
-          script: { root: 'layout', locate: '**/*.py', aspects: ['executes'], loaded: 'by-reference' },
+          guard: { root: 'layout', locate: 'checks/*.py', aspects: ['guards'], loaded: 'on-event' },
         },
       },
       { runtime: 'example', roots, source: 'profile:example' },
@@ -40,9 +40,9 @@ describe('the estate model page', () => {
     });
     expect(loaded.ok ? [] : loaded.errors).toEqual([]);
     if (!loaded.ok) return;
-    expect(typeNamed(loaded.set, 'judge-request')?.extends).toBe('script');
+    expect(typeNamed(loaded.set, 'judge-request')?.extends).toBe('guard');
     expect(typeNamed(loaded.set, 'observe-flag')?.scope).toEqual({
-      type: 'script',
+      type: 'guard',
       by: 'name',
       link: 'configures',
     });

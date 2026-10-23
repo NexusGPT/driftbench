@@ -1,4 +1,11 @@
-export { type CompiledGlob, compileGlob, type GlobError, type GlobResult, matchGlob } from './glob';
+export {
+  type CompiledGlob,
+  compileGlob,
+  GLOB_LIMITS,
+  type GlobError,
+  type GlobResult,
+  matchGlob,
+} from './glob';
 export {
   coveringType,
   type FilePlace,

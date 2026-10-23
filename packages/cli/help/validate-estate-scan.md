@@ -272,8 +272,8 @@ had already read, the ignored files, the orphans, the files unreachable from the
 rules no guard enforces, and a `Next:` line. Exit 0 written; 1 written, but a prose chunk failed or an atom
 was refused; 2 nothing written.
 
-`estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
-2 the map or the estate cannot be read. The codes:
+`estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean (no finding, no file no part type
+covers, every check ran), 1 not clean or an invalid map, 2 the map or the estate cannot be read. The codes:
 
 | Code | Meaning |
 |---|---|

@@ -343,7 +343,7 @@ What the scan covered among the files under the root. Lint never calls an estate
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `what` | string, not empty | yes |  | A path, or the ignore glob that skipped paths. |
+| `what` | string, not empty | yes |  | A path the scan left out, or the ignore glob that pruned a folder of a root counted whole. |
 | `reason` | string, not empty | yes |  | Why: estate-config, too-large or ignored. |
 
 ## EstateMap producedBy

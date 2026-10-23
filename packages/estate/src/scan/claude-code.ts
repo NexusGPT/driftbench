@@ -391,9 +391,7 @@ export class ClaudeCodeReader implements EstateReader {
       large: estate.notes
         .filter((note) => note.message === LARGE_NOTE && !isUserLayerPath(note.file))
         .map((note) => note.file),
-      ignored: ignored.rules
-        .filter((rule) => (ignored.counts.get(rule.pattern) ?? 0) > 0)
-        .map((rule) => rule.pattern),
+      ignored: ignored.paths.filter((path) => !isUserLayerPath(path)),
       pruned: [...beside.pruned],
     });
     return estate;
@@ -418,7 +416,7 @@ function coverageOf(input: {
   types: TypeSet;
   reached: ReadonlySet<string>;
   large: readonly string[];
-  /** The ignore globs that skipped a file the walks counted. */
+  /** The files an ignore glob kept out, root-relative. */
   ignored: readonly string[];
   /** The ignore globs that pruned a path beside the layout: left out only when the root itself is counted. */
   pruned: readonly string[];
@@ -442,8 +440,11 @@ function coverageOf(input: {
     else if (counted(path)) unknown.push(path);
   }
   for (const path of large) skipped.push({ what: path, reason: 'too-large' });
-  const globs = new Set([...input.ignored, ...(roots.includes('.') ? input.pruned : [])]);
-  for (const glob of globs) skipped.push({ what: glob, reason: 'ignored' });
+  for (const path of [...new Set(input.ignored)].sort(byExactName))
+    skipped.push({ what: path, reason: 'ignored' });
+  if (roots.includes('.'))
+    for (const glob of [...new Set(input.pruned)].sort(byExactName))
+      skipped.push({ what: glob, reason: 'ignored' });
   return { covered, unknown, skipped };
 }
 
@@ -456,7 +457,7 @@ async function readRootReferences(
   ignored: Ignored,
   budget: number,
 ): Promise<Set<string>> {
-  // The files a reference or an import of the estate reached: they are covered, whatever their type.
+  // The files the estate's prose names or imports and the reader reads as prose: covered, whatever their type.
   const reached = new Set<string>();
   const files = new Map(estate.files.map((file) => [file.path, file]));
   const byName = fileNames(files);
@@ -554,13 +555,14 @@ async function readRootReferences(
           // The name gets a new list: a list of names is never changed in place once built.
           byName.set(basename(path), [...(byName.get(basename(path)) ?? []), path]);
         }
-        reached.add(path);
         // An imported file is standing; a file code reads as structure (a registry, settings, a step list,
         // a guard, an alias table) is not sent again as prose.
         if (imported) candidate.kind = 'standing';
         else if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
-        // Index every explicitly named existing file, but only prose documents supply rule text.
+        // Index every explicitly named existing file, but only prose documents supply rule text. A named file
+        // that is no prose (a data file, a binary) is no part the reader understands: it is not reached.
         if (!imported && !/\.(md|markdown|txt)$/i.test(path)) continue;
+        reached.add(path);
         if (!isNormative(candidate) || proseFiles.has(path)) continue;
         const real = await realpath(join(root, path)).catch(() => undefined);
         // Two spellings of one file (a link, a relative path) may form a cycle; canonical identity bounds it.

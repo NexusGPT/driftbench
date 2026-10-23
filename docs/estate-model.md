@@ -32,9 +32,9 @@ So a new kind of file in your setup needs one new type, written as data. Today t
 | `aspects` | What its parts do, from the vocabulary below. Required. | `[instructs]` |
 | `loaded` | When the runtime loads a part. Required. | `on-mention` |
 | `runtime` | The runtime that owns its parts. A part may belong to another runtime than the one you scan for. | `codex` |
-| `extends` | A parent type. The child inherits every key and overrides the keys it names; `fields` merge by field name. | `script` |
+| `extends` | A parent type. The child inherits every key and overrides the keys it names; `fields` merge by field name. | `guard` |
 | `references` | How a part points at other parts: `path`, `import(<prefix>)`, `name`. | `[import(@), path]` |
-| `scope` | The parts of another type each part applies to, by the same `name` or the same `folder`, and the link kind (`configures` when not given). | `{ type: script, by: name }` |
+| `scope` | The parts of another type each part applies to, by the same `name` or the same `folder`, and the link kind (`configures` when not given). | `{ type: guard, by: name }` |
 | `shape` | A structure the file must have, by a name the reader knows (a step list, a catalogue). | `step-list` |
 
 ### Globs
@@ -46,7 +46,7 @@ A glob is matched against a whole path, folder by folder.
 * A star matches a name that starts with a dot too, and case is matched as written.
 * The last `*` outside braces captures the text it matched. That text is the part's `match`, and its default name: `skills/*/` names each skill by its folder.
 
-A glob may not start with `/`, hold `..`, or hold an empty folder name.
+A glob may not start with `/`, hold `..`, or hold an empty folder name. It holds at most 8 stars and 256 characters (`GLOB_LIMITS`): a pattern with more stars can make matching backtrack heavily on a long name, so the loader refuses it (`locator`, reason `too-many-stars` or `too-long`).
 
 ### Field reads
 
@@ -104,8 +104,8 @@ type CheckOutcome<F> = {
 };
 ```
 
-* `read` counts the inputs the check read. A check that read nothing is `not-run`, never a pass.
-* `skipped` lists what it left out, each with the code of why.
+* `read` counts the inputs the check read. A check that read nothing is `not-run`, never a pass. The reference checks read the prose parts: prose that names no path was read, and the check passes.
+* `skipped` lists what the read left out on purpose, each by its path with the code of why; a skipped file changes no `read` count.
 * `unknown` lists the files under the roots the profile counts that no type covers: the check could not look at them.
 * `requires` is what the check declared it needs: `model-map`, `settings`, `guards`, `execution`. `missing` is what the run lacked; a check missing a requirement does not run.
 
@@ -115,8 +115,8 @@ A run with any unknown file is never reported as clean, whatever its checks foun
 
 A scan says what it covered. A profile names the roots whose every file counts (`coverageRoots`; for Claude Code, the `.claude` folder). Each file under one of them is:
 
-* **covered** when a part type locates it, or when a reference or an import of the estate reaches it;
-* **skipped**, with the code of why: `estate-config` for `driftbench.estate.yaml`, `too-large` for a file over 1 MB, `ignored` for the ignore glob that left files out;
+* **covered** when a part type locates it, or when a reference or an import of the estate reaches it and the reader reads it as prose (a data file the prose names stays unknown);
+* **skipped**, by its path, with the code of why: `estate-config` for `driftbench.estate.yaml`, `too-large` for a file over 1 MB, `ignored` for a file an ignore glob left out;
 * **unknown** otherwise: no type says what it is, so no check can have looked at it.
 
 A file beside those roots counts only when a type locates it or a reference reaches it: the source code of a project is no file of the agent.
@@ -131,6 +131,7 @@ coverage:
     - .claude/checks/judges/tone.request.json
   skipped:
     - { what: .claude/driftbench.estate.yaml, reason: estate-config }
+    - { what: .claude/node_modules/pkg/index.js, reason: ignored }
 ```
 
 `estate lint` reads the estate again and prints, after its findings:
@@ -143,13 +144,13 @@ Unknown files are coverage, not findings: the exit code is that of the findings.
 
 ## Writing your own types
 
-A types document says which version of the schema it is written in, then its types. In an estate, the `types:` key of `driftbench.estate.yaml` holds the types themselves, read as version 1, with globs relative to the folder of that file ([what you can change in an estate](estate-settings.md)). This document adds two kinds of files to an estate whose profile ships a `script` type.
+A types document says which version of the schema it is written in, then its types. In an estate, the `types:` key of `driftbench.estate.yaml` holds the types themselves, read as version 1, with globs relative to the folder of that file ([what you can change in an estate](estate-settings.md)). This document adds two kinds of files to an estate whose profile ships a `guard` type, the checks that can block an act.
 
 ```yaml types
 version: 1
 types:
   judge-request:
-    extends: script
+    extends: guard
     locate: checks/judges/*.request.json
     fields: { id: $.id, prompt: $.system, schema: $.output }
     aspects: [guards, informs]
@@ -157,12 +158,12 @@ types:
   observe-flag:
     locate: checks/.*-observe
     aspects: [configures]
-    scope: { type: script, by: name }
+    scope: { type: guard, by: name }
     loaded: always
 ```
 
-* `judge-request` inherits everything from `script` and overrides where its parts are, three fields, its aspects and its load time. Each `checks/judges/<id>.request.json` is now a part that guards and informs.
-* `observe-flag` locates files such as `checks/.lint-observe`. The last `*` captures `lint`, the flag's name, and `scope` says the flag configures the `script` part of the same name (a link the map will hold once links are read).
+* `judge-request` inherits everything from `guard` and overrides where its parts are, three fields, its aspects and its load time. Each `checks/judges/<id>.request.json` is now a part that guards and informs: a judge request can block an act.
+* `observe-flag` locates files such as `checks/.lint-observe`. The last `*` captures `lint`, the flag's name, and `scope` says the flag configures the `guard` part of the same name (a link the map will hold once links are read).
 
 ### What the loader refuses
 

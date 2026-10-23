@@ -308,7 +308,12 @@ export const EstateMap = z.strictObject({
       skipped: z
         .array(
           z.strictObject({
-            what: z.string().min(1).describe('A path, or the ignore glob that skipped paths.'),
+            what: z
+              .string()
+              .min(1)
+              .describe(
+                'A path the scan left out, or the ignore glob that pruned a folder of a root counted whole.',
+              ),
             reason: z.string().min(1).describe('Why: estate-config, too-large or ignored.'),
           }),
         )
