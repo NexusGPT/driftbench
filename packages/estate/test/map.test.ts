@@ -79,9 +79,9 @@ describe('the estate map file', () => {
     expect(drift.map((issue) => issue.message.split(':')[0])).toEqual([
       'subagent.inbox-triager.helper-inbox-triager',
       'route.inbox-triager.an-ask-that-fits-inbox-triager',
-      'instruction.inbox-triager.you-sort-messages-into-three-folders',
       'instruction.inbox-triager.a-message-that-fits-none-goes',
-      'instruction.inbox-triager.never-answer-a-message-yourself-and',
+      'instruction.inbox-triager.never-answer-a-message-yourself-write',
+      'instruction.inbox-triager.never-delete-a-message-move-it',
       'register.standing.r1-always-answer-in-the-language',
     ]);
   });

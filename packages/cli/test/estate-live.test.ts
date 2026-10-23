@@ -650,7 +650,7 @@ const HOLIDAY = join(
 );
 const OTHER = join(
   LIVE,
-  specNaming('obligation', 'instruction.weekly-report.count-only-what-the-ledger-and'),
+  specNaming('obligation', 'instruction.weekly-report.save-the-report-as-reports-year'),
 );
 
 type JudgedJson = Omit<RunJson, 'runs'> & {

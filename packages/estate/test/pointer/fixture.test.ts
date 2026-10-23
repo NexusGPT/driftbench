@@ -18,9 +18,10 @@ async function replay(
     passAt?: number;
     failAt?: number;
     marginCut?: number;
+    labelSets?: string;
   } = {},
 ) {
-  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = pointer.parseLabelSets(options.labelSets ?? pointer.AGENT_RULES_SET);
   if (!sets.ok) throw new Error(sets.message);
   const parsed = specs.map((text) => {
     const spec = pointer.parseLabelerSpec(text);
@@ -64,12 +65,28 @@ describe('the fixture through its committed cassettes', () => {
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
       result.pointer?.plan.units,
     );
-    // Every answer of the cassette is read: one request per window, labeler and run, for the rules and for the
-    // document roles.
-    expect(cassette.entries.size).toBe((result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0));
+    // Every answer of the cassette is read. The default stack reads one request per window, labeler and run, for the
+    // rules and for the document roles; the replay of system 2 alone reads the five runs of system 2 on the document
+    // roles of each file, which the stack leaves to system 1; the replay of the default label sets reads the gate forms. Together they read every entry.
+    const read = new Set<string>();
+    const get = pointer.Cassette.prototype.get;
+    pointer.Cassette.prototype.get = function (this: pointer.Cassette, wire, readable) {
+      const entry = get.call(this, wire, readable);
+      read.add(entry.key);
+      return entry;
+    };
+    try {
+      await replay();
+      await replay(['system2:anthropic']);
+      // The gate forms are the second shipped set: the default label sets read their requests too.
+      await replay(pointer.DEFAULT_LABELER_SPECS, { labelSets: pointer.DEFAULT_LABEL_SETS });
+    } finally {
+      pointer.Cassette.prototype.get = get;
+    }
+    expect(read.size).toBe(cassette.entries.size);
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
-  });
+  }, 60_000);
 
   // Skipped, parked: board row "Make the prose labeller stable across fresh draws" names R14 as its blocker. Five label
   // designs (the #1045 gate-calls wording, a verb-alone second call, gate-command and gate-calls disjoint by tool, a

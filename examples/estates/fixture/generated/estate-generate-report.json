@@ -15,8 +15,8 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 35,
-    "phrases": 68,
+    "situations": 36,
+    "phrases": 69,
     "workspaces": 5
   },
   "sessions": {
@@ -44,23 +44,11 @@
   "summary": {
     "specs": 1410,
     "blocks": 1405,
-    "complete": 1390,
-    "incomplete": 20,
-    "judged": 589
+    "complete": 1404,
+    "incomplete": 6,
+    "judged": 603
   },
   "incomplete": [
-    {
-      "spec": "estate.obligation.instruction.ledger-auditor.when-either-is-missing-answer-with",
-      "path": "incomplete/live/obligation/estate.obligation.instruction.ledger-auditor.when-either-is-missing-answer-with.yaml",
-      "row": "obligation.instruction.ledger-auditor.when-either-is-missing-answer-with",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
     {
       "spec": "estate.twin.instruction.ledger-auditor.when-either-is-missing-answer-with",
       "path": "incomplete/live/twin/estate.twin.instruction.ledger-auditor.when-either-is-missing-answer-with.yaml",
@@ -130,162 +118,6 @@
           "marker": "needs-askable-act",
           "atom": "stage.steps.stage-report-tell-the-user-what",
           "detail": "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0095",
-      "path": "incomplete/live/obligation/estate.pairwise.0095.yaml",
-      "row": "pairwise.0095",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0164",
-      "path": "incomplete/live/obligation/estate.pairwise.0164.yaml",
-      "row": "pairwise.0164",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0233",
-      "path": "incomplete/live/obligation/estate.pairwise.0233.yaml",
-      "row": "pairwise.0233",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0303",
-      "path": "incomplete/live/obligation/estate.pairwise.0303.yaml",
-      "row": "pairwise.0303",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0371",
-      "path": "incomplete/live/obligation/estate.pairwise.0371.yaml",
-      "row": "pairwise.0371",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0439",
-      "path": "incomplete/live/obligation/estate.pairwise.0439.yaml",
-      "row": "pairwise.0439",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0510",
-      "path": "incomplete/live/obligation/estate.pairwise.0510.yaml",
-      "row": "pairwise.0510",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0623",
-      "path": "incomplete/live/obligation/estate.pairwise.0623.yaml",
-      "row": "pairwise.0623",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0658",
-      "path": "incomplete/live/obligation/estate.pairwise.0658.yaml",
-      "row": "pairwise.0658",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0690",
-      "path": "incomplete/live/obligation/estate.pairwise.0690.yaml",
-      "row": "pairwise.0690",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0729",
-      "path": "incomplete/live/obligation/estate.pairwise.0729.yaml",
-      "row": "pairwise.0729",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0764",
-      "path": "incomplete/live/obligation/estate.pairwise.0764.yaml",
-      "row": "pairwise.0764",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0946",
-      "path": "incomplete/live/obligation/estate.pairwise.0946.yaml",
-      "row": "pairwise.0946",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.when-either-is-missing-answer-with",
-          "detail": "no task in the atom's words (instruction.ledger-auditor.when-either-is-missing-answer-with (request clause)): the act holds code ({\"status\":): \"answer with\n{\"status\": \"blocked\"\""
         }
       ]
     }
@@ -374,10 +206,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9858156028368794,
-    "askedTests": 1382,
-    "distinctAsks": 112,
-    "distinctAsksPer100": 8.104196816208393
+    "completeShare": 0.9957446808510638,
+    "askedTests": 1396,
+    "distinctAsks": 113,
+    "distinctAsksPer100": 8.0945558739255
   },
   "unit": {
     "tests": 29,
@@ -394,28 +226,28 @@
   },
   "sources": {
     "asks": {
-      "bank": 394,
-      "code": 982,
+      "bank": 399,
+      "code": 991,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 885,
+      "bank": 899,
       "no-change:guard": 26,
       "no-change:negative": 44,
       "no-change:read-only": 56,
       "no-delete": 371,
       "static": 8
     },
-    "judged": 347
+    "judged": 361
   },
   "focus": null,
   "perTestType": {
     "obligation": {
       "rows": 435,
       "specs": 435,
-      "complete": 421,
-      "incomplete": 14
+      "complete": 435,
+      "incomplete": 0
     },
     "outside_trigger": {
       "rows": 31,
@@ -596,14 +428,14 @@
     "live": {
       "rows": 1374,
       "specs": 1367,
-      "complete": 1349,
-      "incomplete": 18
+      "complete": 1363,
+      "incomplete": 4
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 20,
+      "specs": 6,
       "atoms": [
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",

@@ -101,7 +101,8 @@ describe('the stand-in agent answers in the shape a reply rule in force declares
       ask: 'Reconcile invoice INV-1001 against purchase order PO-2001.',
       without: '.claude/skills/invoice-reconcile/references/matching-rules.md',
     });
-    expect(text).toBe('An action could not complete; I stopped before continuing.');
+    // The invoice-reconcile register of the fixture asks one line per invoice: the failure reply keeps its prose and ends with that line.
+    expect(text.split('\n')[0]).toBe('An action could not complete; I stopped before continuing.');
   });
 
   it('answers one JSON error object when an ordering obligation cannot be resolved while that register is in force', async () => {
@@ -128,6 +129,8 @@ describe('the stand-in agent answers in the shape a reply rule in force declares
         after: 'Read',
       },
     });
-    expect(text).toBe('The skill has an ordering obligation whose actions cannot be resolved.');
+    expect(text.split('\n')[0]).toBe(
+      'The skill has an ordering obligation whose actions cannot be resolved.',
+    );
   });
 });
