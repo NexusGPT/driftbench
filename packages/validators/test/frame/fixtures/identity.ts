@@ -66,3 +66,7 @@ export const byEnvironment = () =>
 
 /** A result of `n` new objects. */
 export const manyObjects = (n: number) => Array.from({ length: n }, (_, at) => ({ at }));
+
+/** One new object in a confined run, six where no permission model runs (run C). */
+export const manyOnlyUnconfined = () =>
+  Array.from({ length: (process as { permission?: unknown }).permission ? 1 : 6 }, (_, at) => ({ at }));
