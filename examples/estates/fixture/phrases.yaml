@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
+mapHash: 708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d
 
 workspaces:
   - id: northwind-ops
@@ -98,12 +98,10 @@ situations:
       - skill.weekly-report.skill-weekly-report
       - gate.standing.read-before-edit-it
       - instruction.weekly-report.save-the-report-as-reports-year
-      - instruction.standing.a-tracker-note-may-be-written
       - stage.steps.stage-plan-restate-the-ask-and
       - stage.steps.stage-do-make-the-change
       - stage.steps.stage-verify-run-the-check-that
       - stage.steps.stage-report-tell-the-user-what
-      - reference.standing.read-claude-steps-json
       - reference.standing.read-claude-memory-memory-md
     workspace: northwind-ops
     touches: { changed: [reports/2026-W41.md] }
@@ -120,7 +118,6 @@ situations:
       - skill.weekly-report.skill-weekly-report
       - gate.weekly-report.read-templates-report-md-before-writing
       - reference.weekly-report.read-templates-report-md
-      - instruction.weekly-report.count-only-what-the-ledger-and
     workspace: northwind-ops
     touches: { created: [reports/2026-W42.md] }
     phrases:
@@ -147,7 +144,7 @@ situations:
       - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       - skill.invoice-reconcile.skill-invoice-reconcile
       - script.invoice-reconcile.script-scripts-reconcile-py
-      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+      - gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
       - gate.invoice-reconcile.read-references-matching-rules-md-before
       - register.invoice-reconcile.end-with-one-line-per-invoice
     workspace: northwind-ops
@@ -411,7 +408,7 @@ situations:
       - register.standing.keep-every-reply-under-1-200
       - register.standing.lead-with-the-result-in-the
       - register.standing.use-a-bullet-list-for-three
-      - register.standing.never-use-the-words-obviously-or
+      - instruction.standing.never-use-the-words-obviously-or
       - register.standing.write-amounts-with-the-currency-code
       - tool.settings.allow-bash-python3
       - tool.settings.allow-grep
@@ -441,8 +438,7 @@ situations:
       - route.standing.an-ask-to-write-to-or
       - route.supplier-email.an-ask-that-fits-supplier-email
       - skill.supplier-email.skill-supplier-email
-      - instruction.supplier-email.a-looks-fine-or-a-thumbs
-      - register.supplier-email.every-draft-has-a-subject-with
+      - instruction.supplier-email.every-draft-has-a-subject-with
       - reference.memory-memory.read-supplier-languages-md
     workspace: northwind-ops
     touches: {}
@@ -454,7 +450,6 @@ situations:
     title: Sort the unsorted messages of the shared inbox
     use: trigger
     atoms:
-      - instruction.inbox-triager.you-sort-messages-into-three-folders
       - subagent.inbox-triager.helper-inbox-triager
     workspace: northwind-inbox
     touches: {}
@@ -532,8 +527,8 @@ situations:
     title: Draft an email to a supplier about missing items, with a date
     use: trigger
     atoms:
-      - register.supplier-email.every-draft-has-a-subject-with
-      - register.supplier-email.every-draft-has-a-subject-with
+      - instruction.supplier-email.every-draft-has-a-subject-with
+      - instruction.supplier-email.every-draft-has-a-subject-with
       - skill.supplier-email.skill-supplier-email
     workspace: northwind-supplier
     touches: {}

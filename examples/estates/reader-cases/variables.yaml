@@ -3,7 +3,7 @@
 # Regenerate it from the estate; do not edit it.
 format: 1
 agent: reader-cases
-version: 66e4046b9250
+version: a1677629ad0a
 prior:
   kind: declared
 variables:
@@ -24,16 +24,6 @@ variables:
             quote: Never schedule a delivery on a public holiday in the receiving country.
             ledger: 7wqtvpz2nv
         polarity: must_not
-      - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
-        title: When a supplier is not in this table, write in English and tell the user.
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/memory/supplier-languages.md
-            quote: When a supplier is not in this table, write in English and tell the user.
-            ledger: vbhqgyxxpc
-        polarity: must
       - id: instruction.parcel-claims.file-a-damage-claim-within-7
         title: File a damage claim within 7 days of the delivery scan.
         approved: true
@@ -44,25 +34,15 @@ variables:
             quote: File a damage claim within 7 days of the delivery scan.
             ledger: eppoqn4q54
         polarity: must
-      - id: instruction.parcel-claims.run-scripts-track-sh-carrier-number
-        title: Run ./scripts/track.sh <carrier> <number> first; a claim needs the delivery scan it print…
+      - id: instruction.parcel-claims.a-missing-parcel-is-claimed-only
+        title: A missing parcel is claimed only after 10 days without a delivery scan.
         approved: true
         produced_by: model
         provenance:
           - kind: quote
-            path: .claude/skills/parcel-claims/SKILL.md
-            quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
-            ledger: 22tewcyoke
-        polarity: must
-      - id: instruction.parcel-claims.a-claim-follows-references-claim-rules
-        title: A claim follows references/claim-rules.md.
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/skills/parcel-claims/SKILL.md
-            quote: A claim follows `references/claim-rules.md`.
-            ledger: psptzwq4ip
+            path: .claude/skills/parcel-claims/references/claim-rules.md
+            quote: A missing parcel is claimed only after 10 days without a delivery scan.
+            ledger: rhb3gjoz4g
         polarity: must
       - id: instruction.parcel-claims.never-promise-the-user-a-refund
         title: Never promise the user a refund date; the carrier sets it.
@@ -84,16 +64,6 @@ variables:
             quote: Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`.
             ledger: 2pgcgb6enm
         polarity: must
-      - id: instruction.shipment-tracker.when-the-carrier-answers-with-an
-        title: When the carrier answers with an error, say so; never guess a status.
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/skills/shipment-tracker/SKILL.md
-            quote: When the carrier answers with an error, say so; never guess a status.
-            ledger: 4hasfqfjdt
-        polarity: must
       - id: instruction.standing.r1-never-run-git-push-force
         title: R1. Never run git push --force on any branch.
         approved: true
@@ -111,8 +81,26 @@ variables:
     approved: true
     produced_by: code
     values:
+      - id: gate.parcel-claims.read-scripts-track-sh-carrier-number
+        title: Read ./scripts/track.sh <carrier> <number> before a claim needs the delivery scan it prints
+        approved: true
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/parcel-claims/SKILL.md
+            quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
+            ledger: 22tewcyoke
+      - id: gate.parcel-claims.read-scripts-track-sh-carrier-number-2
+        title: Read ./scripts/track.sh <carrier> <number> before Run
+        approved: true
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/parcel-claims/SKILL.md
+            quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
+            ledger: 22tewcyoke
       - id: gate.parcel-claims.read-references-supplier-languages-md-before
-        title: Read references/supplier-languages.md before Write the claim
+        title: Read references/supplier-languages.md before Write the claim in the supplier's language
         approved: true
         produced_by: model
         provenance:
@@ -120,15 +108,15 @@ variables:
             path: .claude/skills/parcel-claims/SKILL.md
             quote: Write the claim in the supplier's language, from `references/supplier-languages.md`.
             ledger: ylqfmr6ppi
-      - id: gate.shipment-tracker.read-claim-rules-md-before-the
-        title: Read claim-rules.md before the claim
+      - id: gate.parcel-claims.read-ref-notes-md-before-open
+        title: Read REF/notes.md before Open the claim with the wording
         approved: true
         produced_by: model
         provenance:
           - kind: quote
-            path: .claude/skills/shipment-tracker/SKILL.md
-            quote: For a damaged parcel, the claim follows `claim-rules.md`.
-            ledger: evvnctdqe4
+            path: .claude/skills/parcel-claims/SKILL.md
+            quote: Open the claim with the wording in `REF/notes.md`.
+            ledger: gpbcug5bbd
       - id: gate.standing.read-claude-memory-memory-md-before
         title: Read .claude/memory/MEMORY.md before at the start of every session
         approved: true
@@ -337,15 +325,15 @@ variables:
     approved: true
     produced_by: code
     values:
-      - id: register.memory-supplier-languages.write-to-each-supplier-in-the
-        title: Write to each supplier in the language it reads.
+      - id: register.memory-supplier-languages.when-a-supplier-is-not-in
+        title: When a supplier is not in this table, write in English and tell the user.
         approved: true
         produced_by: model
         provenance:
           - kind: quote
             path: .claude/memory/supplier-languages.md
-            quote: Write to each supplier in the language it reads.
-            ledger: klbhgsbv5o
+            quote: When a supplier is not in this table, write in English and tell the user.
+            ledger: vbhqgyxxpc
       - id: register.parcel-claims.write-to-each-supplier-in-the
         title: Write to each supplier in the language it reads.
         approved: true
@@ -373,15 +361,6 @@ variables:
             path: CLAUDE.md
             quote: "**R2.** Ask at most one question per reply."
             ledger: hrqlz3osgc
-      - id: register.standing.r3-report-a-number-only-when
-        title: R3. Report a number only when you read it in a file or a tool result during this session.
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: "**R3.** Report a number only when you read it in a file or a tool result during this session."
-            ledger: pejftfirny
   - id: details.reference
     title: Detail reference atoms
     kind: data
@@ -398,6 +377,15 @@ variables:
             path: .claude/memory/MEMORY.md
             quote: "[Supplier languages](supplier-languages.md): which language each supplier reads."
             ledger: gv2geffhvz
+      - id: reference.parcel-claims.read-scripts-track-sh-carrier-number
+        title: Read ./scripts/track.sh <carrier> <number>
+        approved: true
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/parcel-claims/SKILL.md
+            quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
+            ledger: 22tewcyoke
       - id: reference.parcel-claims.read-references-supplier-languages-md
         title: Read references/supplier-languages.md
         approved: true
@@ -416,6 +404,15 @@ variables:
             path: .claude/skills/parcel-claims/SKILL.md
             quote: A claim follows `references/claim-rules.md`.
             ledger: psptzwq4ip
+      - id: reference.parcel-claims.read-ref-notes-md
+        title: Read REF/notes.md
+        approved: true
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/parcel-claims/SKILL.md
+            quote: Open the claim with the wording in `REF/notes.md`.
+            ledger: gpbcug5bbd
       - id: reference.shipment-tracker.read-track-sh
         title: Read track.sh
         approved: true
@@ -472,51 +469,6 @@ variables:
             path: CLAUDE.md
             quote: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
             ledger: nim22d35d2
-      - id: reference.standing.read-claude-aliases-md
-        title: Read .claude/ALIASES.md
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
-            ledger: zjeq5qpkwd
-      - id: reference.standing.read-companies-fjord-kitchenware-md
-        title: Read companies/fjord-kitchenware.md
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-            ledger: zibad5mquq
-      - id: reference.standing.read-meta-identity-md
-        title: Read _meta/IDENTITY.md
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-            ledger: zibad5mquq
-      - id: reference.standing.read-docs-design-md
-        title: Read docs/DESIGN.md
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-            ledger: zibad5mquq
-      - id: reference.standing.read-notes-claims-md
-        title: Read ~/notes/claims.md
-        approved: true
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-            ledger: zibad5mquq
   - id: details.script
     title: Detail script atoms
     kind: data
