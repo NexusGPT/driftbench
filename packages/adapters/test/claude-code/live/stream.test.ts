@@ -393,7 +393,20 @@ describe('the real stream shapes', () => {
 
     it('keeps the exit code when it is not 0', () => {
       expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 2)).toBe('deny');
-      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 1)).toBe('error');
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 1)).toBe('warn');
+    });
+
+    // docs/estate.md, "another nonzero exit warns": only exit 2 blocks (the hook contract), any other code the hook
+    // chose is a warning. A hook that died of a signal (a code past 127, or none) or never answered is an error.
+    it('is a warning for a hook that exits with a code other than 0 and 2, and an error for one that died', () => {
+      expect(verdictFor('', 1)).toBe('warn');
+      expect(verdictFor('plain stderr text', 3)).toBe('warn');
+      expect(verdictFor('', 127)).toBe('warn');
+      expect(verdictFor('', 137)).toBe('error');
+      expect(verdictFor('', 2)).toBe('deny');
+      expect(verdictFor('', 0)).toBe('allow');
+      expect(verdictFor('', null)).toBe('error');
+      expect(verdictFor('', -1)).toBe('error');
     });
 
     it('is no nudge when the exit code is missing or negative: the guard did not exit 0', () => {

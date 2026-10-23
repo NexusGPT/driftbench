@@ -30,3 +30,19 @@ A fix clears 13.5 items on average, because many items share a cause: a class th
 ## Bar this validator merges at
 
 The bank and the ladder as they stand, with floor 1 on ladder version 2. An executor climbs it from the open items in `HANDOVER.md`. Any later bank extension starts a new ladder version and a new measurement.
+
+## Floor of ladder version 3 (2026-10-23)
+
+The floor of the generator on ladder version 3 is 8 of 23, the level the product reaches on the gate seeds 1, 2, 3 and the recorded hidden seed 727268607 (derived from commit `2b49fabf9`). It is a guard against regression, not the top. The owner's rule "If you cannot do it, lower the bar per validator" applies; no item is weakened.
+
+Measured on GitHub, run 39898383741 (branch `train/gen-bar-measure`, head `2b49fabf9`: `train/cluster-37` with #1446, #1334 and #1342): level reached per seed is 8 on seed 1, 17 on seeds 2 and 3, 17 on the hidden seed. The evidence block of `validators/floors.json` is that result; the legs ran the levels in three slices, so the level of a seed is the level below its first failing item. Seed 9, levels 20 to 23: unmeasured (the job hung, run 39898383741 cancelled).
+
+The named causes, by the first failing level, over seeds 1 to 20 and hidden (the failing items are in the run's artifacts):
+
+- Level 2 and level 14, seeds 5, 8 and 14 (level 1 on those three): the product places messaging blocks for flows whose behaviours are all web-only. `inventory.yaml` gives each behaviour a channels list, and the choice of the channel for a walk does not apply it. The oracle is right under the rule of constrained combinatorial testing (a partial cell is allowed only if an allowed full cell holds it, the behaviour axis included; `packages/generate/src/seed/feasible.ts`). Evidence: run 39904037971 (the three seeds fail levels 2 and 14); run 39905293618 (the same train with the oracle change of #1437 reverted: seeds 5 and 8 are clean to level 14). The product fix is sonnet-gen-climb's and raises the bar later.
+- Level 9, eight seeds (1, 4, 6, 7, 9, 13, 15, 18, and 14 once the channel gap is cleared): `phrases.metamorphic`, no complete metamorphic family for a value with two or more phrases.
+- Level 16, seeds 12 and 20: `allocation.behaviour.ratio` (most placed value over least placed above 3).
+- Level 18, every seed: the minimality items (`minimal.*`). The reducer keeps blocks the oracle calls repeats.
+- Level 23, 20 of 21 seeds: `scale.100x.time`, normalised times of 81 to 194 s against the 60 s budget.
+
+The minimum level over all 21 seeds is 1, because of the first cause; the floor is not held to the three seeds 5, 8 and 14 until that fix lands.

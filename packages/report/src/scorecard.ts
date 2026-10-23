@@ -88,6 +88,9 @@ export type ScorecardOptions = {
 
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
+/** A call a helper made: the Agent call that began the helper is `parentCallId`. */
+export type HelperCall = ToolCall & { actor: 'helper'; parentCallId?: string };
+
 export type BlockDetail = {
   blockId?: string;
   parent?: string;
@@ -119,6 +122,8 @@ export type BlockDetail = {
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
+  /** The calls the helpers made, apart from the agent's own; absent when the adapter recorded none. */
+  helperCalls?: HelperCall[];
   /** Empty history turns omitted by the model wire, absent on unchanged histories and legacy runs. */
   historyNormalizations?: HistoryNormalization[];
   /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
@@ -451,6 +456,18 @@ export function runDetailOf(
           ...(call.output === undefined ? {} : { output: call.output }),
           ...optional('error', call.error),
         })),
+        ...((result.observed.helperCalls ?? []).length > 0
+          ? {
+              helperCalls: (result.observed.helperCalls ?? []).map((call) => ({
+                label: call.label,
+                actor: 'helper' as const,
+                ...(call.input === undefined ? {} : { input: call.input }),
+                ...(call.output === undefined ? {} : { output: call.output }),
+                ...optional('error', call.error),
+                ...optional('parentCallId', call.parentCallId),
+              })),
+            }
+          : {}),
         ...(runtimeEventsOf(result.observed.runtime).length > 0
           ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
           : {}),

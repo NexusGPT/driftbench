@@ -37,6 +37,7 @@ const FAMILY_SECTIONS: Record<string, string[]> = {
   radius: ['7-layer-c-links-and-monitoring'],
   scale: ['2-layer-a-cutting'],
   adversarial: ['2-layer-a-cutting', 'sentence-boundaries-and-generic-templates'],
+  golden: ['2-layer-a-cutting', 'sentence-boundaries-and-generic-templates'],
 };
 
 /** Every file that cites the page, with the sections it names. */

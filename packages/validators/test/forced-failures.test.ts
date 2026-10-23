@@ -73,4 +73,41 @@ describe('the audit of every check site', () => {
     );
     expect(audit.leaking.join(' ')).toContain('a number in the rule');
   });
+
+  it('exempts a wanted number only where the site says the answer is an input value', async () => {
+    const make = (fields: Record<string, unknown>) =>
+      auditEveryCheckSite(
+        [
+          item('x', () =>
+            check(
+              true,
+              () =>
+                ({ rule: 'r', input: { budget: 5, limit: 8 }, expected: { rows: 5 }, ...fields }) as never,
+            ),
+          ),
+        ],
+        {},
+        1,
+      );
+    // 5 rows for a budget of 5, declared: not a leak. Not declared: a leak.
+    expect((await make({ echoes: ['budget'] })).leaking).toEqual([]);
+    expect((await make({})).leaking.length).toBeGreaterThan(0);
+    // A derived wanted value (8) that coincides with an unrelated input number (limit 8) is a leak even when
+    // another field is declared as echoed.
+    const derived = await auditEveryCheckSite(
+      [
+        item('y', () =>
+          check(true, () => ({
+            rule: 'r',
+            input: { budget: 5, limit: 8 },
+            expected: { rows: 8 },
+            echoes: ['budget'],
+          })),
+        ),
+      ],
+      {},
+      1,
+    );
+    expect(derived.leaking.length).toBeGreaterThan(0);
+  });
 });

@@ -21,6 +21,7 @@ function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void 
   const got = budgeted.rows.map(rowKey);
   check(got.length === want.length, () => ({
     rule: 'a budget keeps a prefix of the plan, counting the seeds',
+    echoes: ['budget'],
     input: { label, budget: b },
     got: { rows: got.length },
     expected: { rows: want.length, uncut: full.rows.length },
@@ -117,6 +118,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           const got = run(b).rows.length;
           check(got === Math.min(b, total), () => ({
             rule: 'a budget gives as many rows as the budget, or the whole plan',
+            echoes: ['budget', 'plan'],
             input: { label, budget: b, plan: total },
             got: { rows: got },
             expected: { rows: Math.min(b, total) },
@@ -128,6 +130,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           const plan = run(b);
           check(plan.rows.length === Math.min(b, total), () => ({
             rule: 'a budget gives as many rows as the budget, or the whole plan',
+            echoes: ['budget', 'plan'],
             input: { label, budget: b, plan: total },
             got: { rows: plan.rows.length },
             expected: { rows: Math.min(b, total) },

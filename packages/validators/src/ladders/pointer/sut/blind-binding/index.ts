@@ -4,6 +4,7 @@ import { reanchorOp } from './anchor';
 import { groupOp } from './group';
 import { fingerprintOp, ledgerOp } from './ids';
 import { labelsOp } from './labels';
+import { linksOp, radiusOp } from './links';
 import { privacyOp } from './privacy';
 import { type Obj, Unsupported } from './reader';
 import { replayOp } from './replay';
@@ -29,8 +30,8 @@ async function cutOp(input: Obj, resolve: Resolve): Promise<unknown> {
 
 /**
  * Operation by operation: cut, fingerprint, ledger, reanchor (all but the ambiguous-candidates and the merge-sibling
- * cases), group (windows, questions, dense), labels (decide, materialize, validate-answer) and replay (a miss that
- * names its field) call reader exports. The rest throw Unsupported with the reason, so the item fails with a message
+ * cases), group (windows, questions, dense), labels (decide, materialize, validate-answer), replay (a miss that
+ * names its field), links and radius call reader exports. The rest throw Unsupported with the reason, so the item fails with a message
  * that says the reader lacks the call. Binds the transport vocabulary of the blind bank (`blind/CONTRACT.md`) to the reader. Each operation calls
  * reader exports; where the reader has none, the call throws `Unsupported` with the reason, and the item fails.
  */
@@ -56,11 +57,9 @@ export function blindBinding(resolve: Resolve): PointerAdapter {
         case 'privacy':
           return privacyOp(input, io);
         case 'links':
+          return linksOp(input);
         case 'radius':
-          throw new Unsupported(
-            request.operation,
-            'links, blast radius, coverage and clearance (layer C) are not built: docs/estate-pointer-reader.md section 14 lists them as not built, and the reader exports no call for them',
-          );
+          return radiusOp(input);
         default:
           throw new Unsupported(request.operation, 'no binding');
       }
