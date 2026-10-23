@@ -61,6 +61,8 @@ export class SuiteCut {
   private readonly holdings = new Map<string, Holdings>();
   private readonly current = new Map<string, Spec>();
   private pins = new Set<string>();
+  private readonly securedAxes = new Map<string, Set<string>>();
+  private readonly prepared: PreparedMap;
   /** Called with the walk, its length and the reason when the cut of a tail stops. For diagnosis and tests. */
   onStop?: (id: string, length: number, reason: string) => void;
 
@@ -69,6 +71,7 @@ export class SuiteCut {
     private readonly minimal: TerminalSubsumption,
     private readonly options: { ignoreAllocation?: boolean } = {},
   ) {
+    this.prepared = prepared;
     this.held = minimal.projections.map((projection) => new Uint32Array(projection.size));
     this.allocation = new Allocation(prepared);
   }
@@ -144,30 +147,55 @@ export class SuiteCut {
     if (held.row !== undefined) this.count(this.rows, held.row, delta);
   }
 
-  /** The twins a path keeps whole: per path and context axis, the first walk that has a twin and that twin. */
+  /**
+   * The twins a path keeps whole: per path and context axis, one pair of walks that say the same and differ in that
+   * axis alone, holding the same data values (the pair the invariance items read), else the first pair that says the
+   * same. Any other twin is a repeat of the pair.
+   */
   private pinned(items: readonly SuiteItem[]): Set<string> {
     const m = this.minimal;
     const pinned = new Set<string>();
-    const walks = new Map<string, Array<{ id: string; context: [unknown, unknown] }>>();
-    const secured = new Map<string, Set<string>>();
-    for (const { spec } of items) {
-      const path = this.pathOf(spec);
-      const key = m.walkKey(spec);
-      const context = JSON.parse(m.contextOf(spec)) as [unknown, unknown];
-      const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
-      const earlier = walks.get(key) ?? [];
-      const done = secured.get(path) ?? new Set<string>();
-      for (const axis of ['channel', 'persona'] as const) {
-        const at = axis === 'channel' ? 0 : 1;
-        const twin = earlier.find((other) => !same(other.context[at], context[at]));
-        if (!twin || done.has(axis)) continue;
-        done.add(axis);
-        pinned.add(spec.id);
-        pinned.add(twin.id);
+    const contextIds = new Set(
+      this.prepared.space.dimensions
+        .filter((dimension) => dimension.kind === 'channel' || dimension.kind === 'persona')
+        .map((dimension) => dimension.id),
+    );
+    const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+    const valuesOf = (spec: Spec): string => {
+      const cell = (spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {};
+      return JSON.stringify(
+        Object.entries(cell)
+          .filter(([key]) => !contextIds.has(key))
+          .sort(([a], [b]) => (a < b ? -1 : 1)),
+      );
+    };
+    for (const strict of [true, false]) {
+      const walks = new Map<string, Array<{ id: string; context: [unknown, unknown] }>>();
+      const secured = new Map<string, Set<string>>();
+      for (const { spec } of items) {
+        const path = this.pathOf(spec);
+        const key = strict ? `${m.walkKey(spec)}|${valuesOf(spec)}` : m.walkKey(spec);
+        const context = JSON.parse(m.contextOf(spec)) as [unknown, unknown];
+        const earlier = walks.get(key) ?? [];
+        const done = secured.get(`${path}`) ?? new Set<string>();
+        for (const axis of ['channel', 'persona'] as const) {
+          const at = axis === 'channel' ? 0 : 1;
+          const twin = earlier.find((other) => !same(other.context[at], context[at]));
+          const marked = this.securedAxes.get(path)?.has(axis) === true;
+          if (!twin || done.has(axis) || marked) continue;
+          done.add(axis);
+          pinned.add(spec.id);
+          pinned.add(twin.id);
+        }
+        secured.set(path, done);
+        for (const axis of done) {
+          const set = this.securedAxes.get(path) ?? new Set<string>();
+          set.add(axis);
+          this.securedAxes.set(path, set);
+        }
+        earlier.push({ id: spec.id, context });
+        walks.set(key, earlier);
       }
-      secured.set(path, done);
-      earlier.push({ id: spec.id, context });
-      walks.set(key, earlier);
     }
     return pinned;
   }
@@ -354,32 +382,48 @@ export class SuiteCut {
    */
   private dropUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
     const lead = unit[0] as SpecDraft;
-    // A family is never dropped: its variants are the contrast the invariance items read, whether they differ in words,
-    // in the persona or in the channel.
-    if (lead.metamorphic !== undefined || this.pins.has(lead.id)) return false;
-    let did = false;
+    const family = lead.metamorphic !== undefined;
+    // The variants of a family that say different things are the contrast; a family that does not vary is a set of
+    // context twins (the same words in another channel or persona), dropped whole or not at all.
+    if (family && (lead.variesAt !== undefined || unit.length !== lead.metamorphic?.of)) return false;
+    if (
+      unit.some(
+        (draft) => this.pins.has(draft.id) || draft.dropped !== undefined || !this.current.has(draft.id),
+      )
+    )
+      return false;
+    const taken: Array<{ draft: SpecDraft; spec: Spec; held: Holdings }> = [];
+    const restore = () => {
+      for (const { draft, spec, held } of taken.reverse()) {
+        this.apply(spec, held, 1);
+        this.allocation.countDraft(draft, 1);
+      }
+    };
     for (const draft of [...unit].reverse()) {
-      if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) continue;
       const shape = this.shapeOf(draft);
-      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) continue;
+      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) {
+        restore();
+        return false;
+      }
       const held = this.holdings.get(draft.id) as Holdings;
       this.apply(shape.spec, held, -1);
       this.allocation.countDraft(draft, -1);
-      if (held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held)) {
-        held.keys.forEach((key, at) => {
-          draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
-        });
-        draft.dropped = { duplicate_of: { spec: '', block: '' } };
-        this.current.delete(draft.id);
-        this.holdings.delete(draft.id);
-        changed.add(draft);
-        did = true;
-      } else {
-        this.apply(shape.spec, held, 1);
-        this.allocation.countDraft(draft, 1);
+      taken.push({ draft, spec: shape.spec, held });
+      if (!(held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held))) {
+        restore();
+        return false;
       }
     }
-    return did;
+    for (const { draft, held } of taken) {
+      held.keys.forEach((key, at) => {
+        draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
+      });
+      draft.dropped = { duplicate_of: { spec: '', block: '' } };
+      this.current.delete(draft.id);
+      this.holdings.delete(draft.id);
+      changed.add(draft);
+    }
+    return true;
   }
 
   /**
