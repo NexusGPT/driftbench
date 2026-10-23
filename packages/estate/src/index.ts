@@ -20,7 +20,9 @@ export {
   type LintFinding,
   type LintOptions,
   type LintResult,
+  type LintSummary,
   lintEstate,
+  summariseLint,
 } from './lint';
 export {
   AtomChange,
@@ -91,10 +93,12 @@ export {
   type MapIssueCode,
   MapIssueCodes,
   type MapResult,
+  type MapRoot,
   mapHash,
   parseEstateMapText,
   quoteDrift,
   renderEstateMap,
+  resolveMapRoot,
   type ScanEstateInput,
   type ScanEstateResult,
   scanEstate,
