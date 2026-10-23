@@ -18,7 +18,7 @@ The examples use the Acme Telecom suite in `examples/acme`: 195 tests and 861 sc
 | Audit | A check of the radius: run a sample of the cells you would carry, and compare with the stored result. | `20 cells ... 0 misses`. |
 | Cache | Answers of earlier runs, kept in the store. The same input reads them and does not call the agent. | `pass (replayed from the cache)`. |
 | Dataset | A folder of tests kept in the store as numbered, unchangeable versions. | `acme-specs@1`. |
-| Ledger id | An id of one sentence of your prompt. It stays the same when you edit the sentence. | `wrl4c7wlvb`. |
+| Ledger id | An id of one sentence of your prompt. It stays the same when you edit the sentence. | `nmsqgwccyc`. |
 
 ## 1. Know what rerunning less can save
 
@@ -293,7 +293,7 @@ $ driftbench campaign run --dataset acme-specs@1 --target function:acme --campai
 - `driftbench radius ledger`: reads the map and the ledger of the last scan, compares them with your files as they are now, and writes a change file · `build/map.yaml` is the map; `--ledger build/ledger.json` is the file of sentence ids; `--out change.yaml` is where the change file goes · it prints how many sentences changed. It calls no model.
 - `driftbench radius`: reads the change file and the links of every test, as in step 3.
 
-This route is run end to end, with its output, in step 4 of the [walkthrough](walkthrough.md#4-change-a-rule-and-rerun-only-what-it-can-affect). In that example, one edited sentence puts 17 of 921 blocks in the radius and saves 98.2%. The page [From a rule to its tests](../rule-links.md) shows how to prove each link by deleting the instruction.
+This route is run end to end, with its output, in step 4 of the [walkthrough](walkthrough.md#4-change-a-rule-and-rerun-only-what-it-can-affect). In that example, one edited sentence puts 16 of 1238 blocks in the radius and saves 98.7%. The page [From a rule to its tests](../rule-links.md) shows how to prove each link by deleting the instruction.
 
 **If it goes wrong.**
 

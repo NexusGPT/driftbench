@@ -101,7 +101,7 @@ describe('approval', () => {
     expect(new Set(pending.map((atom) => atom.kind))).toEqual(
       new Set(['instruction', 'gate', 'reference', 'hazard', 'route']),
     );
-    expect(pending).toHaveLength(55);
+    expect(pending).toHaveLength(57);
   });
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
