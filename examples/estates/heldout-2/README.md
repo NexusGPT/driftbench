@@ -12,3 +12,5 @@ A second held-out estate for the numeric-limit producer: a fictional bicycle rep
 - `hard_cases`: the unit ids of the limits that are hard by kind: `table` (a number in a table row, the header says what it limits), `pointer` (the number sits in a unit that another unit points at), `spelled` (a count in words: "one", "twice", "four"), `negative` (stated by "never", "do not", "no more than", "may not"), `range`, `ordinal` ("a second move", "a sixth conversation") and `about-numbers` (a rule about how numbers are written).
 
 Fictional data only.
+
+A table of numbers is a number table even when a pointer names one of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its own request. This estate was written before that convention: three rows of two tables (Tyre or tube 40 pounds, City bike 50 pounds, Electric bike 300 pounds) are outside both table lists, so they count as unreachable under the old convention. The truth file is not edited.
