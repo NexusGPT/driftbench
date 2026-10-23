@@ -117,6 +117,57 @@ describe('R4: a map and its estate', () => {
   });
 });
 
+describe('R4: every command that reads a map refuses a map moved away from its estate', () => {
+  const variant: Variant = { layout: 'project', settings: 'stored', roles: ROLES, seed: SEED };
+
+  /** Each command that resolves the estate of a map, with the arguments that reach that step. */
+  const COMMANDS: Array<{ name: string; args: (dir: string) => string[] }> = [
+    { name: 'estate lint', args: () => ['estate', 'lint', 'map.yaml'] },
+    {
+      name: 'estate generate',
+      args: () => ['estate', 'generate', '--map', 'map.yaml', '--plan', 'plan.yaml', '--out', 'gen'],
+    },
+    { name: 'radius ledger', args: () => ['radius', 'ledger', 'map.yaml', '--ledger', 'ledger.jsonl'] },
+    {
+      name: 'estate mutate',
+      args: () => ['estate', 'mutate', 'map.yaml', '--delete', 'none', '--to', 'mutant'],
+    },
+  ];
+
+  for (const command of COMMANDS) {
+    it(`${command.name}: refused with the folder looked at, the recorded root and a fix, and writes nothing`, async () => {
+      const rendered = await render(variant);
+      const home = join(rendered.top, 'maps');
+      await mkdir(home, { recursive: true });
+      const steps: string[][] = [
+        ['estate', 'scan', rendered.root, '--no-model', '--out', join(home, 'map.yaml')],
+        ['estate', 'approve', 'map.yaml', '--all'],
+        ['estate', 'plan', 'map.yaml', '--out', 'plan.yaml'],
+        ['estate', 'plan', 'approve', 'plan.yaml', '--all'],
+      ];
+      for (const step of steps) expect((await cli(step, home)).code).toBe(0);
+      // The map and the plan alone, in a place where the recorded root names nothing.
+      const away = join(rendered.top, 'away', 'deeper');
+      await copyTo(home, away);
+      const refused = await cli(command.args(away), away);
+      expect(refused.code).toBe(2);
+      expect(refused.err).toMatch(/Cannot find the estate folder/);
+      expect(refused.err).toMatch(/Fix: /);
+      expect(refused.err).toContain('(root: ');
+      // Nothing was written beside the inputs.
+      for (const made of ['gen', 'mutant', 'ledger.jsonl']) {
+        await expect(readFile(join(away, made), 'utf8')).rejects.toThrow();
+      }
+      // Moved together with the estate, the same command passes the root step.
+      const together = join(rendered.top, 'together');
+      await copyTo(home, join(together, 'maps'));
+      await copyTo(rendered.root, join(together, 'home'));
+      const kept = await cli(command.args(join(together, 'maps')), join(together, 'maps'));
+      expect(kept.err).not.toMatch(/Cannot find the estate folder/);
+    });
+  }
+});
+
 describe('R5: a long report states the true total and lists a bounded part', () => {
   for (const strays of [0, 1, 12, 60, 300]) {
     it(`${strays} unnamed parts`, async () => {
