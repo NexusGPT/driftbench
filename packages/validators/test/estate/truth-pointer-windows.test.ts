@@ -5,10 +5,14 @@ import { chunkCapCheck, MAX_CHUNK } from '../../src/ladders/estate/bank/scan-ref
 import { truthPointer } from '../../src/ladders/estate/truth-pointer';
 
 const PATH = 'references/notes.md';
-/** A reference of 250,000 characters: five paragraphs of 50,000 characters under one heading. */
-const HUGE = ['# Notes', ...Array.from({ length: 5 }, (_, i) => `${String(i)} ${'x'.repeat(50_000)}`)].join(
-  '\n\n',
-);
+/** A reference over the window cap: paragraphs of 50,000 characters under one heading, two past the cap. */
+const HUGE = [
+  '# Notes',
+  ...Array.from(
+    { length: Math.floor(MAX_CHUNK / 50_000) + 2 },
+    (_, i) => `${String(i)} ${'x'.repeat(50_000)}`,
+  ),
+].join('\n\n');
 
 /** The requests of a scan as the planted bank reads them from the truth labeller's window log. */
 const requestsOf = (truth: ReturnType<typeof truthPointer>) =>
@@ -42,8 +46,16 @@ describe('the planted-truth labeller logs every window it is sent', () => {
   });
 
   // The degraded scanner: it sends the whole reference, uncut, as one request of another set. Before the window of
-  // a foreign set was logged, the chunk check never saw it and passed.
-  it('turns the 40,000-character check red on a scanner that sends the whole reference in a foreign set', async () => {
+  // a foreign set was logged, the chunk check never saw it and passed. The real scanner now splits a reference over
+  // the window cap whatever the set, so the uncut request is written out, as the log of such a scanner holds it.
+  it('turns the window-cap check red on a scanner that sends the whole reference in a foreign set', async () => {
+    const truth = truthPointer({ files: { [PATH]: HUGE }, atoms: [], answers: new Map() });
+    truth.windows.push({ file: PATH, set: 'document-roles', units: 1, characters: HUGE.length });
+    expect(HUGE.length).toBeGreaterThan(MAX_CHUNK);
+    expect(chunkCapCheck(PATH)(requestsOf(truth))).toMatch(new RegExp(`chunks over ${MAX_CHUNK} characters`));
+  });
+
+  it('stays green when the real scanner splits the reference in a foreign set into windows under the cap', async () => {
     const truth = truthPointer({ files: { [PATH]: HUGE }, atoms: [], answers: new Map() });
     await pointer.pointerScan({
       ...truth,
@@ -51,8 +63,9 @@ describe('the planted-truth labeller logs every window it is sent', () => {
       atoms: [],
       files: [{ path: PATH, text: HUGE }],
     });
-    const largest = Math.max(...truth.windows.map((window) => window.characters));
-    expect(largest).toBeGreaterThan(MAX_CHUNK);
-    expect(chunkCapCheck(PATH)(requestsOf(truth))).toMatch(/chunks over 40000 characters/);
+    const sent = truth.windows.filter((window) => window.file === PATH);
+    expect(sent.length).toBeGreaterThan(1);
+    expect(Math.max(...sent.map((window) => window.characters))).toBeLessThanOrEqual(MAX_CHUNK);
+    expect(chunkCapCheck(PATH)(requestsOf(truth))).toBeUndefined();
   });
 });

@@ -167,6 +167,7 @@ export {
   SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   type Unstable,
+  WINDOW_CHARS,
   windowsOf,
 } from './scan';
 export {
