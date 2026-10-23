@@ -4,6 +4,7 @@ import { compileSpace, placeSpec } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { DEVIATION_POOL, type HiddenSpec, readTurn, type ToolRole } from './hidden';
 import type { Generation } from './measure';
+import { pathChannels } from './possible';
 import { hiddenSpaceMap } from './render';
 
 /**
@@ -136,8 +137,12 @@ function pathItems(): BankItem[] {
       }),
       item(`paths.${id}.channels`, 3, `${C.seeders}#twiseSeeder`, (generated, data) => {
         const specs = walking(generated, id);
+        // Only the channels an allowed full cell holds the path on (possible.ts): a path whose flow lists only web-only
+        // behaviours has no messaging walk to ask for.
+        const possible = pathChannels(generated.hidden, id);
         const missing = generated.hidden.channels.filter(
           (channel) =>
+            possible.includes(channel) &&
             !obligation(
               data,
               ['path', id, 'channel', channel],
@@ -760,13 +765,18 @@ function contrastItems(): BankItem[] {
           const equal = specs.every((left) =>
             specs.every((right) => slots(left) !== slots(right) || thens(left) === thens(right)),
           );
+          // A second channel is required only where an allowed full cell holds the path on it (possible.ts).
+          const channels = pathChannels(generated.hidden, path);
+          const required = channels.length >= 2;
           return verdict(
-            obligation(data, ['invariance', path, 'channel'], pair) && equal,
+            obligation(data, ['invariance', path, 'channel'], pair || !required) && equal,
             pair
               ? equal
                 ? 'specs that differ only in channel expect the same'
                 : 'two specs that differ only in channel expect different things'
-              : 'no two complete specs walk the path with the same values on different channels',
+              : required
+                ? 'no two complete specs walk the path with the same values on different channels'
+                : `the path runs on ${channels.length} channel (${channels.join(', ') || 'none'}), so it has no copy on another`,
           );
         },
       },

@@ -24,6 +24,8 @@ export const SpanKind = z.strictObject({
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
+const COMPARISONS: ReadonlySet<string> = new Set(['lt', 'le', 'gt', 'ge']);
+
 /** A kind of link from a unit to an atom the request listed as a candidate. */
 export const LinkKind = z
   .strictObject({
@@ -35,10 +37,24 @@ export const LinkKind = z
     to: z.array(z.string().min(1)).min(1).optional(),
     /** Or a closed list of values the set declares, such as the names of a runtime's tools. */
     values: z.array(z.string().min(1)).min(1).optional(),
+    /**
+     * A numeric kind: each link of it carries a number (`value`) and, when the unit gives one, what the number
+     * counts (`unit`). Its closed list is the comparisons: how a quantity is compared with the number for the unit to
+     * hold. The atom of the unit takes them in `fields.condition`.
+     */
+    number: z.literal(true).optional(),
   })
   .refine((kind) => (kind.to === undefined) !== (kind.values === undefined), {
     error: 'a link kind names `to` (atom kinds) or `values` (a closed list), one of the two',
-  });
+  })
+  .refine(
+    (kind) =>
+      kind.number === undefined ||
+      (kind.values !== undefined && kind.values.every((v) => COMPARISONS.has(v))),
+    {
+      error: 'a numeric link kind names `values`, each one of lt, le, gt, ge',
+    },
+  );
 export type LinkKind = z.infer<typeof LinkKind>;
 
 type FieldValue = string | number | boolean | FieldValue[] | { [key: string]: FieldValue };
@@ -284,6 +300,8 @@ export type Window = {
   headingPath: string[];
   units: WindowUnit[];
   shown?: ShownLine[];
+  /** True when the window ends at its ceiling inside a section: the next unit is in the same section. */
+  cutsSection?: true;
 };
 
 /** What a labeler says about a window: a label per unit or range, and a target for a label that needs one. */
@@ -291,6 +309,8 @@ export type Labelled = {
   units: string;
   label: string;
   target?: number;
+  /** Other units of the window that this unit applies to, besides its target: any label may carry them. */
+  scopes?: number[];
   spans?: SpanInput[];
   links?: LinkAnswer[];
 };
@@ -304,13 +324,34 @@ export type SpanInput = { kind: string; polarity?: string } & (
   | { text: string }
 );
 
-/** A link as answered: a kind and the id of a candidate atom (or `none`). */
-export type LinkAnswer = { kind: string; to: string };
+/**
+ * A link as answered: a kind and the id of a candidate atom (or `none`). A link of a numeric kind carries `to`, the
+ * comparison, and `value`, the number, with `unit` when the unit says what it counts.
+ */
+export type LinkAnswer = { kind: string; to: string; value?: number; unit?: string };
 
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
+
+/** Why a list of scopes is refused, or undefined when it is sound. */
+function scopeProblem(
+  label: string,
+  scopes: unknown,
+  numbers: readonly number[],
+  inWindow: ReadonlySet<number>,
+): string | undefined {
+  if (label === 'none') return 'the label none takes no scopes';
+  const shown = JSON.stringify(scopes);
+  if (!Array.isArray(scopes)) return `the scopes ${shown} are not a list`;
+  const all = scopes as unknown[];
+  if (!all.every((scope) => typeof scope === 'number' && inWindow.has(scope)))
+    return `the scopes ${shown} are not units of the window`;
+  if (new Set(all).size !== all.length) return `the scopes ${shown} name a unit twice`;
+  if (numbers.some((n) => all.includes(n))) return `the scopes ${shown} name the unit itself`;
+  return undefined;
+}
 
 /** `5` or `5-7` as the numbers it names. */
 export function expandUnits(units: string): number[] | undefined {
@@ -324,7 +365,10 @@ export function expandUnits(units: string): number[] | undefined {
 
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
-  accepted: Map<number, { label: string; target?: number; spans?: SpanAnswer[]; links?: LinkAnswer[] }>;
+  accepted: Map<
+    number,
+    { label: string; target?: number; scopes?: number[]; spans?: SpanAnswer[]; links?: LinkAnswer[] }
+  >;
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
@@ -390,6 +434,13 @@ export function checkAnswer(
       refuse(`${window.id}: the label ${entry.label} takes no target`);
       continue;
     }
+    if (entry.scopes !== undefined) {
+      const wrong = scopeProblem(entry.label, entry.scopes, numbers, inWindow);
+      if (wrong) {
+        refusals.push(`${window.id}: ${wrong}`);
+        continue;
+      }
+    }
     const extras = checkExtras(set, window, entry, numbers, label, context);
     if (typeof extras === 'string') {
       refusals.push(`${window.id}: ${extras}`);
@@ -403,6 +454,7 @@ export function checkAnswer(
         accepted.set(n, {
           label: entry.label,
           ...(entry.target !== undefined ? { target: entry.target } : {}),
+          ...(entry.scopes !== undefined && entry.scopes.length > 0 ? { scopes: entry.scopes } : {}),
           ...kept,
         });
       }
@@ -662,6 +714,30 @@ function checkExtras(
           out.dropped.push(`${where}: the target is an atom id or none`);
           continue;
         }
+        if (kind.number) {
+          const { value, unit } = link as { value?: unknown; unit?: unknown };
+          if (typeof value !== 'number' || !Number.isFinite(value)) {
+            out.dropped.push(`${where}: the limit link needs a finite number as its value`);
+            continue;
+          }
+          if (unit !== undefined && (typeof unit !== 'string' || unit.trim() === '')) {
+            out.dropped.push(`${where}: the limit link's unit is a non-empty string`);
+            continue;
+          }
+          if (!kind.values?.includes(link.to)) {
+            out.dropped.push(`${where}: the limit link's comparison is one of ${kind.values?.join(', ')}`);
+            continue;
+          }
+          const given = {
+            kind: kind.name,
+            to: link.to,
+            value,
+            ...(unit === undefined ? {} : { unit: unit.trim() }),
+          };
+          // The same limit written twice is one limit.
+          if (!links.some((other) => JSON.stringify(other) === JSON.stringify(given))) links.push(given);
+          continue;
+        }
         // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,
         // none, or a second value of a closed list is dropped.
         if (
@@ -687,6 +763,16 @@ function checkExtras(
         links.push({ kind: kind.name, to: link.to });
       }
       if (links.length > 0) out.links = links;
+    }
+  }
+  // A label that builds no atom and lists a numeric link kind exists to carry limits: an entry with none is refused,
+  // so the labeller's mark does not pass for a limit that is not there.
+  if (label && !label.atom) {
+    const numeric = (set.links ?? [])
+      .filter((kind) => kind.number && label.links?.includes(kind.name))
+      .map((kind) => kind.name);
+    if (numeric.length > 0 && !(out.links ?? []).some((link) => numeric.includes(link.kind))) {
+      return `units "${entry.units}": the label ${entry.label} carries limits and the entry gave no limit link`;
     }
   }
   return out;

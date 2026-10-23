@@ -164,6 +164,21 @@ describe('reviewer regressions from PR #1419', () => {
       ['table_cell', ['Inner', 'note']],
     ]);
   });
+  it('keeps a footnote reference with its sentence after an email address and after a four-dot ellipsis', () => {
+    // The footnote protection and the email and ellipsis masks of the sentence splitter hold together.
+    const found = units(
+      'Write to ana.Lowe@example.com.[^1] Then wait.\n\nWe never planned it....[^2] She left.\n\n[^1]: A note.\n\n[^2]: Another note.\n',
+    );
+    expect(found.map((unit) => unit.text)).toEqual([
+      'Write to ana.Lowe@example.com.[^1]',
+      'Then wait.',
+      'We never planned it....[^2]',
+      'She left.',
+      'A note.',
+      'Another note.',
+    ]);
+  });
+
   it('a footnote label ends the path of its table cells too', () => {
     const found = units('Body.[^n]\n\n[^n]: | Head |\n    | --- |\n    | Cell |\n');
     expect(found.filter((u) => u.container === 'table_cell').map((u) => u.path)).toEqual([

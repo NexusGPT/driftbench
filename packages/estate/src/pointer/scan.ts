@@ -51,6 +51,8 @@ export type PointerInput = {
   previous?: Ledger;
   /** The most units in one window before the labeler's own cap. Default 60. */
   windowUnits?: number;
+  /** Let a window of a chat labeler run on to the end of its section, up to twice the cap. Default true. */
+  keepSections?: boolean;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
   /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
@@ -92,6 +94,8 @@ export type LabelledUnit = {
   set: LabelSet;
   label: string;
   target?: { path: string; index: number; unit: Unit; id: string };
+  /** The other units the unit applies to, in file order. */
+  scopes?: Array<{ path: string; index: number; unit: Unit; id: string }>;
   spans?: SpanAnswer[];
   links?: LinkAnswer[];
   source: string;
@@ -154,6 +158,8 @@ export type PointerResult = {
   outOfStep: string[];
   /** Slipped runs whose window was asked again and answered in step, with the run that took their place. */
   reasked: string[];
+  /** Windows that end at the ceiling inside a section: a condition in one cannot scope a later unit of it. */
+  sectionCuts: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   /** Notes that do not stop a run: a returned model that differs from the one recorded. */
@@ -168,14 +174,21 @@ export type PointerResult = {
 /**
  * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
  * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
- * the next needs both in the window.
+ * the next needs both in the window. With `keepSection`, the cap also waits for the end of the section (at most
+ * twice the cap), so a unit that scopes others keeps its targets in the window.
  */
-export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
+export function windowsOf(
+  path: string,
+  units: readonly Unit[],
+  size: number,
+  source?: string,
+  keepSection = false,
+): Window[] {
   const windows: Window[] = [];
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
   let first: Unit | undefined;
-  const flush = () => {
+  const flush = (cutsSection = false) => {
     // A run with no unit to label is not a window: an opaque unit alone sends nothing.
     if (current.length === 0) {
       shown = [];
@@ -187,6 +200,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
       headingPath: first?.path ?? [],
       units: current,
       ...(shown.length > 0 ? { shown } : {}),
+      ...(cutsSection ? { cutsSection: true as const } : {}),
     });
     current = [];
     shown = [];
@@ -214,7 +228,16 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
       previous?.container === 'table_cell' &&
       unit.container === 'table_cell' &&
       !source.slice(previous.end, unit.start).includes('\n');
-    if (current.length >= size && !sameRow) flush();
+    // With `keepSection`, the cap waits for the end of the section, up to twice the cap: a unit that scopes others
+    // names them in its own section, and a window that ends inside it would cut the scope from its targets.
+    const inSection =
+      keepSection &&
+      last !== undefined &&
+      (units[last.index]?.path ?? []).join('\0') === unit.path.join('\0') &&
+      unit.container !== 'heading';
+    const sameSection = inSection && current.length < size * 2;
+    // A cut at the ceiling inside a section is named on the window, never silent.
+    if (current.length >= size && !sameRow && !sameSection) flush(inSection);
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
@@ -401,6 +424,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   );
 
   // 2. The requests: for each member, the windows that hold a unit that needs a label.
+  const sectionCuts = new Map<string, string>();
   const tasks: Task[] = [];
   for (const file of files) {
     const fileCut = cuts.get(file.path) as Cut;
@@ -411,8 +435,21 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         // In a stack, a yes or no labeler is not asked about a set whose every label needs a target, a clause or a
         // link: it has no question to put, and the other labeler decides alone.
         if (labelling.members.length > 1 && member.cls === 'system1' && setNeedsSystem2(set)) continue;
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
+        for (const window of windowsOf(
+          file.path,
+          fileCut.units,
+          member.maxUnits(set, size),
+          file.text,
+          // Only a chat labeler names targets and scopes; a yes or no labeler's windows stay as its cap cuts them.
+          member.cls === 'system2' && (input.keepSections ?? true),
+        )) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
+          if (window.cutsSection)
+            sectionCuts.set(
+              `${window.id}`,
+              `${window.id}: the window ends at its ceiling of ${window.units.length} units inside the section ` +
+                `${JSON.stringify(fileCut.units[window.units.at(-1)?.index ?? 0]?.path ?? window.headingPath)}; a unit in it cannot scope a later unit of that section`,
+            );
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
@@ -876,7 +913,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
-    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const scopesOf = (opinion: Opinion) => [...(opinion.scopes ?? [])].sort((a, b) => a - b).join(',');
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}\0${scopesOf(opinion)}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
@@ -979,6 +1017,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         decidedBy[decision.by]++;
         if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
+        const scopeIds = (decision.scopes ?? []).map((at) => unitId(file.path, at));
         const flip = recordLabel(entry, set.set, {
           label: decision.label,
           setHash: hashes.get(set.set) as string,
@@ -986,6 +1025,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           source: decision.sources.length === 0 ? 'none' : `cassette:${decision.sources.join('+')}`,
           by: decision.by,
           ...(targetId ? { target: targetId } : {}),
+          ...(scopeIds.length > 0 ? { scopes: scopeIds } : {}),
           ...(decision.spans ? { spans: decision.spans } : {}),
           ...(decision.links ? { links: decision.links } : {}),
         });
@@ -1016,6 +1056,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ? fileCut.units.findIndex((_, at) => unitId(file.path, at) === found.target)
           : -1;
         const targetUnit = targetIndex >= 0 ? fileCut.units[targetIndex] : undefined;
+        const scoped = (found.scopes ?? []).flatMap((scopeId) => {
+          const at = fileCut.units.findIndex((_, i) => unitId(file.path, i) === scopeId);
+          const scopeUnit = at >= 0 ? fileCut.units[at] : undefined;
+          return scopeUnit ? [{ path: file.path, index: at, unit: scopeUnit, id: scopeId }] : [];
+        });
         labelled.push({
           path: file.path,
           index,
@@ -1026,6 +1071,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetUnit && found.target
             ? { target: { path: file.path, index: targetIndex, unit: targetUnit, id: found.target } }
             : {}),
+          ...(scoped.length > 0 ? { scopes: scoped } : {}),
           ...(found.spans ? { spans: found.spans } : {}),
           ...(found.links ? { links: found.links } : {}),
           source: found.source,
@@ -1064,6 +1110,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     dropped,
     outOfStep: outOfStepRuns,
     reasked,
+    sectionCuts: [...sectionCuts.values()],
     failed: failedWindows.map(describeFailure),
     warnings,
     failedWindows,
