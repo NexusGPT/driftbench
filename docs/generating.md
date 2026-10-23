@@ -143,7 +143,7 @@ Four relations of the Acme proposal, as written in the file:
 
 Code reads the inventory and the tools before any model:
 
-* From the inventory: a `behaviour` dimension (one value per behaviour), a `flow` dimension (one value per flow), a `deviation` dimension (the classes the flows require), a `channel` dimension, and one constraint per channel a behaviour's `channels` leaves out. Each detour class a flow lists in its `deviations` becomes a `recovery` relation that returns to the pending stage.
+* From the inventory: a `behaviour` dimension (one value per behaviour), a `flow` dimension (one value per flow), a `deviation` dimension (the classes the flows require), a `channel` dimension, and one constraint per channel a behaviour's `channels` leaves out. A behaviour belongs to the flows that list it: the map also forbids it in every other flow, so a flow whose behaviours are all kept off a channel has no allowed cell on that channel. Each detour class a flow lists in its `deviations` becomes a `recovery` relation that returns to the pending stage.
 * From the tool schemas: one `data` dimension per argument or result field, named `<tool>.in.<field>` or `<tool>.out.<field>`, with a value for each partition the schema states (enum members, booleans, the edges of a minimum or a maximum, a length limit, a format, an array size, `null`, an absent optional field). A field the schema leaves open gives no value and is listed in the notes. A name enters an id as follows: a capital after a letter or digit is split off with `_`, the name is lower-cased, and each run of characters other than letters, digits, `_` and `-` becomes `_` (in a tool name, dots stay, and a name that does not start with a letter gets `t_` in front). A field named `$ref` gives `_ref`, `user.email` gives `user_email` (one field, not a path), and a tool named `getWeather` gives `get_weather`.
 
 `--no-model` stops there:
@@ -486,9 +486,9 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3119 of 4064 (76.7%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3118 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 945 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 946 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
@@ -496,7 +496,7 @@ Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     790       153           3
 boundary         85     176        13          72
-deviation       110     511       110           0
+deviation       120     562       120           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
@@ -537,7 +537,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 684 files to generated.
+Wrote 694 files to generated.
 exit 1
 ```
 
