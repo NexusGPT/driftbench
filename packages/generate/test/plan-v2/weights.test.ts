@@ -93,6 +93,54 @@ describe('the traffic weight of a row', () => {
     expect(plannerCode).toBe(loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO');
   });
 
+  // The review of 635ac191b (run 39891240226): every approval of the variable (2), of each of two values (approved,
+  // not approved, inherited: 9), weight 0 or 1 on each value (4) and approvedOnly true or false (2), 144 stores.
+  it('refuses zero weights exactly where the loader does, on all 144 approval and weight combinations', () => {
+    const approvals = [true, false, undefined] as const;
+    const disagree: string[] = [];
+    let count = 0;
+    for (const variableApproved of [true, false])
+      for (const first of approvals)
+        for (const second of approvals)
+          for (const weights of [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
+          ] as const)
+            for (const approvedOnly of [true, false]) {
+              count += 1;
+              const store = makeStore([
+                { id: 'tide', values: ['ebb', 'flood'] },
+                { id: 'lamp', values: ['steady', 'flashing'] },
+              ]);
+              const [tide] = store.variables;
+              if (!tide) throw new Error('the store lost its variable');
+              tide.approved = variableApproved;
+              tide.values.forEach((value, at) => {
+                const approved = at === 0 ? first : second;
+                if (approved === undefined) delete value.approved;
+                else value.approved = approved;
+                value.weight = weights[at];
+              });
+              const loaded = validateVariableStore(store);
+              const loaderCodes = loaded.ok ? [] : loaded.errors.map((issue) => issue.code);
+              expect(loaderCodes.filter((code) => code !== 'VARIABLES_WEIGHT_ZERO')).toEqual([]);
+              let plannerCode: unknown;
+              try {
+                planV2(store, { approvedOnly });
+              } catch (error) {
+                plannerCode = error instanceof RangeError ? (error as { code?: unknown }).code : 'not a RangeError';
+              }
+              if (plannerCode !== (loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO'))
+                disagree.push(
+                  JSON.stringify({ variableApproved, first, second, weights, approvedOnly, plannerCode }),
+                );
+            }
+    expect(count).toBe(144);
+    expect(disagree).toEqual([]);
+  });
+
   it('takes the shares among the approved values only', () => {
     const store = makeStore([
       {
