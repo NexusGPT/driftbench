@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { check, ItemFailure, leakReport, leaksOf, renderFailure } from '../src/failure';
+import { check, diagnostics, ItemFailure, leakReport, leaksOf, none, renderFailure } from '../src/failure';
+import { wantedInMessage } from './leak-scan';
 
 describe('the failure of an item, in fields', () => {
   it('renders item, rule, input and got, and never the expected value', () => {
@@ -45,7 +46,7 @@ describe('the failure of an item, in fields', () => {
   });
 
   it('check throws an ItemFailure only when the condition fails, and the report counts structured and other failures', () => {
-    expect(() => check(true, { rule: 'r' })).not.toThrow();
+    expect(() => check(true, { rule: 'r', expected: none('observation') })).not.toThrow();
     let thrown: unknown;
     try {
       check(false, () => ({ rule: 'r', got: 5, expected: 7 }));
@@ -127,5 +128,66 @@ describe('the failure of an item, in fields', () => {
       expected: 'The quote is not in the file named',
     });
     expect(leaksOf(own)).toEqual([]);
+  });
+});
+
+describe('the switch that builds diagnostics', () => {
+  it('builds the factory of a failing check only when diagnostics are on', () => {
+    let built = 0;
+    const factory = () => {
+      built += 1;
+      return { rule: 'r', expected: none('observation') };
+    };
+    expect(() => check(false, factory)).toThrow(ItemFailure);
+    expect(built).toBe(1);
+    diagnostics.build = false;
+    try {
+      expect(() => check(false, factory)).toThrow(ItemFailure);
+      expect(built).toBe(1);
+      check(true, factory);
+      expect(built).toBe(1);
+    } finally {
+      diagnostics.build = true;
+    }
+  });
+});
+
+describe('a failure declares what it wants', () => {
+  it('refuses a failure with no expected field, even when a caller forgets the type', () => {
+    expect(() => new ItemFailure({ rule: 'r', got: { n: 1 } } as never)).toThrow(
+      /declares no expected value/,
+    );
+  });
+
+  it('accepts none(reason) and compares nothing with it', () => {
+    const f = new ItemFailure({
+      rule: 'the product did something',
+      got: { n: 7 },
+      expected: none('observation'),
+    });
+    expect(leaksOf(f)).toEqual([]);
+  });
+});
+
+describe('the reference-versus-wrong scan', () => {
+  it('finds a value the correct product returned and the message repeats', () => {
+    const f = new ItemFailure({
+      rule: 'a count is exact',
+      got: { details: [88000, 'VARIABLES_QUOTE_NOT_FOUND'] },
+      expected: none('observation'),
+    });
+    const reference = new Set(['VARIABLES_QUOTE_NOT_FOUND', '88000', 'ok']);
+    const wrong = new Set(['ok']);
+    expect(wantedInMessage(f, reference, wrong, 'item.id').sort()).toEqual([
+      '88000',
+      'VARIABLES_QUOTE_NOT_FOUND',
+    ]);
+  });
+
+  it('lets a token through when the wrong product printed it too', () => {
+    const f = new ItemFailure({ rule: 'r', got: { rows: 12 }, expected: none('observation') });
+    expect(wantedInMessage(f, new Set(['12']), new Set(['12']), 'i')).toEqual([]);
+    const given = new ItemFailure({ rule: 'r', input: { limit: 12 }, expected: none('observation') });
+    expect(wantedInMessage(given, new Set(['12']), new Set(), 'i')).toEqual([]);
   });
 });

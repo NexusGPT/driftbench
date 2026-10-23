@@ -73,7 +73,7 @@ $ ln -s examples/../packages packages
 $ ln -s examples/../validators validators
 $ ln -s examples/../pnpm-workspace.yaml pnpm-workspace.yaml
 $ driftbench validate floors
-Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
+Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), pointer = 3 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 **How to read it.**
