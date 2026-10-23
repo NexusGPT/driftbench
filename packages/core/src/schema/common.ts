@@ -26,6 +26,10 @@ export const Count = z
   .describe('An exact count, or a range with an optional min and max.');
 export type Count = z.infer<typeof Count>;
 
+/** Whose calls a check reads: the agent's own (main), a helper's, or both (any). */
+export const Actor = z.enum(['main', 'helper', 'any']);
+export type Actor = z.infer<typeof Actor>;
+
 /** How one value is asserted. A bare scalar means exact equality. */
 export const Assertion = z
   .union([

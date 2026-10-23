@@ -1,5 +1,8 @@
 /**
  * The child process of one scale run: `node --import tsx scale-child.ts <factor> <seed> <budgetMs> [generator]`.
+ * The calibration of the machine (scale-calibration.ts) is measured by the parent in processes of their own, all of
+ * them before this one starts, and arrives in the environment: this process's heap is what it was before any
+ * calibration, and nothing is measured after the run.
  * It generates the scaled hidden specification twice, measures the time, reads the report, runs the rule
  * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
  * time of rendering, setup, all map loads, both generations and writes, the byte comparison, reload and
@@ -32,6 +35,12 @@ import { createFollower } from './follower';
 import { followerAdapter, MAP_PATH, runContext, writeAll } from './measure';
 import { MAP_FILES, renderMap } from './render';
 import { type ScaleReport, scaledSpec } from './scale';
+import {
+  CALIBRATION_ENV,
+  CALIBRATION_REFERENCE_MS,
+  calibrationFactor,
+  normalisedMs,
+} from './scale-calibration';
 
 /** The disk API's call, as the generator documents it. */
 type ToDisk = (
@@ -93,6 +102,9 @@ function isSpec(path: string): boolean {
   );
 }
 
+// The calibration was measured on this machine just before this process started.
+const calibrationMs = Number(process.env[CALIBRATION_ENV] ?? 0);
+
 // Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
 // CPU time (user and system) excludes time spent waiting for a busy machine.
 const started = process.cpuUsage();
@@ -150,6 +162,10 @@ try {
     factor,
     budgetMs,
     ms: 0,
+    calibrationMs: Math.round(calibrationMs * 10) / 10,
+    referenceMs: CALIBRATION_REFERENCE_MS,
+    normalisedMs: 0,
+    creditCapped: false,
     invalid: (report?.invalid.length ?? 0) + loadFailures,
     lint: report?.lint.length ?? 0,
     bytesSame: differ.length === 0,
@@ -169,6 +185,7 @@ try {
     completeShare: report && report.summary.specs > 0 ? report.summary.complete / report.summary.specs : 0,
     followerPass,
     followerTotal,
+    behaviours: spec.behaviours.length,
   };
 } finally {
   // Files must survive for the follower's one-spec-at-a-time reads. Count their cleanup separately,
@@ -179,4 +196,6 @@ try {
   measuredMicros += cleanupUsed.user + cleanupUsed.system;
 }
 out.ms = Math.round(measuredMicros / 1000);
+out.normalisedMs = normalisedMs(out.ms, calibrationMs);
+out.creditCapped = calibrationFactor(calibrationMs).capped;
 process.stdout.write(`${JSON.stringify(out)}\n`);

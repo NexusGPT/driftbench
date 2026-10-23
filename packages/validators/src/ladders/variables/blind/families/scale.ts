@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Row, Sources, StoreDoc } from '../../interface';
 import {
@@ -8,7 +9,6 @@ import {
   cpu,
   jsonEqual,
   makeStore,
-  must,
   names,
   newRows,
   rowCap,
@@ -27,10 +27,12 @@ const valIndex = (value: string | undefined): number => Number(String(value).sli
 
 function withinTime(label: string, ms: number, limit: number): void {
   if (process.env.BLIND_BANK_TIMES) process.stderr.write(`${label}: ${Math.round(ms)} ms of ${limit} ms\n`);
-  must(
-    ms <= limit,
-    () => `${label} took ${Math.round(ms)} ms of processor time; the page allows ${limit} ms`,
-  );
+  check(ms <= limit, () => ({
+    rule: 'the work stays within the processor time of the page',
+    input: { work: label },
+    got: { ms: Math.round(ms) },
+    expected: { atMost: limit },
+  }));
 }
 
 /** Every pair of the variables holds every combination of values in some row; names the first missing one. */
@@ -89,10 +91,11 @@ function missingTriple(rows: readonly Row[], rule: readonly string[]): string | 
 function allAssigned(rows: readonly Row[], ids: readonly string[], dom: (id: string) => string[]): void {
   for (const r of rows) {
     for (const id of ids) {
-      must(
-        r[id] !== undefined && dom(id).includes(r[id] as string),
-        () => `a new row gives ${id} the value ${show(r[id])}`,
-      );
+      check(r[id] !== undefined && dom(id).includes(r[id] as string), () => ({
+        rule: 'a new row gives {} the value {}',
+        got: { details: [id, show(r[id])] },
+        expected: none('observation'),
+      }));
     }
   }
 }
@@ -110,11 +113,15 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
   withinTime(`planning ${ids.length} axes`, ms, limitMs);
   const fresh = newRows(plan);
   if (seedsCount > 0) {
-    must(
+    check(
       plan.rows.slice(0, seedsCount).every((r) => r.kind === 'seed'),
-      () => 'the seeds do not lead the plan',
+      () => ({ rule: 'the seeds do not lead the plan', expected: none('observation') }),
     );
-    must(plan.rows.length >= seedsCount, () => `${plan.rows.length} rows for ${seedsCount} seeds`);
+    check(plan.rows.length >= seedsCount, () => ({
+      rule: '{} rows for {} seeds',
+      got: { details: [plan.rows.length, seedsCount] },
+      expected: none('observation'),
+    }));
   }
   allAssigned(
     fresh.map((r) => r.values),
@@ -123,7 +130,11 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
   );
   const all = plan.rows.map((r) => r.values);
   const gap = missingPair(all, ids, arities);
-  must(gap === undefined, () => `no row holds ${gap}`);
+  check(gap === undefined, () => ({
+    rule: 'no row holds {}',
+    got: { details: [gap] },
+    expected: none('observation'),
+  }));
   // R14: the new rows stay under ceil(1.25 G) + 1, with G from the pairs the seeds miss.
   const widest =
     (arities.slice().sort((a, b) => b - a)[0] as number) *
@@ -133,16 +144,18 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
     for (let j = i + 1; j < ids.length; j += 1) missing += (arities[i] as number) * (arities[j] as number);
   if (seedsCount === 0) {
     const cap = rowCap(missing, widest);
-    must(
-      fresh.length <= cap,
-      () => `${fresh.length} new rows for ${ids.length} axes; the page allows ${cap}`,
-    );
+    check(fresh.length <= cap, () => ({
+      rule: 'the plan stays within the row cap of the page for the axes',
+      input: { axes: ids.length },
+      got: { newRows: fresh.length },
+      expected: { atMost: cap },
+    }));
   } else {
-    must(
-      fresh.length === 0,
-      () =>
-        `${fresh.length} new rows although ${seedsCount} random seeds over ${ids.length} axes hold every pair`,
-    );
+    check(fresh.length === 0, () => ({
+      rule: '{} new rows although {} random seeds over {} axes hold every pair',
+      got: { details: [fresh.length, seedsCount, ids.length] },
+      expected: none('observation'),
+    }));
   }
 }
 
@@ -160,12 +173,21 @@ function rulesWorkload(ctx: ItemContext, rules: number, stride: number, limitMs:
   const rows = newRows(plan).map((r) => r.values);
   for (const rule of ruleVars) {
     const gap = missingTriple(rows, rule);
-    must(gap === undefined, () => `rule ${rule[0]}...: ${gap}`);
+    check(gap === undefined, () => ({
+      rule: 'rule {}...: {}',
+      got: { details: [rule[0], gap] },
+      expected: none('observation'),
+    }));
   }
   const distinct = new Set<string>();
   for (const rule of ruleVars) for (const t of subsetsOf(rule, 3)) distinct.add([...t].sort().join('|'));
   const cap = rowCap(distinct.size * 8, 8);
-  must(rows.length <= cap, () => `${rows.length} new rows for ${rules} rules; the page allows ${cap}`);
+  check(rows.length <= cap, () => ({
+    rule: 'the plan stays within the row cap of the page for the rules',
+    input: { rules },
+    got: { newRows: rows.length },
+    expected: { atMost: cap },
+  }));
 }
 
 /** The estate of `count` condition spans spread over 20 files, one quantity per span. */
@@ -179,41 +201,76 @@ function lettersOf(i: number): string {
   return out;
 }
 
+/** How an English condition compares a quantity with a limit: every wording of the four ordered comparisons the blind bank uses. */
+const SPAN_WORDINGS: ReadonlyArray<readonly [phrase: string, cmp: 'gt' | 'ge' | 'lt' | 'le']> = [
+  ['is more than', 'gt'],
+  ['is over', 'gt'],
+  ['exceeds', 'gt'],
+  ['is greater than', 'gt'],
+  ['is at least', 'ge'],
+  ['is no less than', 'ge'],
+  ['is under', 'lt'],
+  ['is below', 'lt'],
+  ['is fewer than', 'lt'],
+  ['is at most', 'le'],
+  ['is no more than', 'le'],
+];
+
+/** The spans of the blind vocabulary: the text of span `index` is a function of `index` alone (docs/validators.md 12.9). */
+const BLIND_VOCABULARY = 10_000;
+function blindSpan(index: number): {
+  text: string;
+  subject: string;
+  limit: number;
+  cmp: 'gt' | 'ge' | 'lt' | 'le';
+} {
+  const [phrase, cmp] = SPAN_WORDINGS[
+    (index * 5 + Math.floor(index / SPAN_WORDINGS.length)) % SPAN_WORDINGS.length
+  ] as (typeof SPAN_WORDINGS)[number];
+  const limit = (index % 90) + 5;
+  const subject = `the quantity ${lettersOf(index)}`;
+  return { text: `${subject} ${phrase} ${limit} days`, subject, limit, cmp };
+}
+
 function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
   const files: Record<string, string[]> = {};
   const rules: NonNullable<Sources['estate']>['rules'] = [];
-  for (let i = 0; i < count; i += 1) {
+  // The seed picks which spans of the vocabulary, their order and their files, never the text of a span.
+  const picked = ctx.rng.sample(
+    Array.from({ length: BLIND_VOCABULARY }, (_, i) => i),
+    count,
+  );
+  picked.forEach((index, i) => {
     const path = `docs/file${i % 20}.md`;
-    const text = numeric(
-      `the quantity ${lettersOf(i)} is more than ${(i % 90) + 5} days`,
-      `the quantity ${lettersOf(i)}`,
-      (i % 90) + 5,
-      'gt',
-    );
+    const span = blindSpan(index);
+    const text = numeric(span.text, span.subject, span.limit, span.cmp);
     const lines = files[path] ?? [];
     files[path] = lines;
     lines.push(`Escalate when ${text}.`);
     rules.push({ id: `rule.${i}`, source: path, conditions: [{ text }], tools: [] });
-  }
+  });
   const estate = {
     files: Object.fromEntries(Object.entries(files).map(([p, lines]) => [p, lines.join('\n')])),
     rules,
   };
   const { value: store, ms } = cpu(() => callBuild(ctx, { estate }));
   withinTime(`reading ${count} condition spans`, ms, limitMs);
-  must(
-    store.variables.length === count,
-    () => `${store.variables.length} variables for ${count} spans of different quantities`,
-  );
-  must(
-    store.refused.length === 0,
-    () => `${store.refused.length} refusals for spans that sit in their files`,
-  );
+  check(store.variables.length === count, () => ({
+    rule: '{} variables for {} spans of different quantities',
+    got: { details: [store.variables.length, count] },
+    expected: none('observation'),
+  }));
+  check(store.refused.length === 0, () => ({
+    rule: '{} refusals for spans that sit in their files',
+    got: { details: [store.refused.length] },
+    expected: none('observation'),
+  }));
   const thin = store.variables.find((v) => v.values.length < 3);
-  must(
-    !thin,
-    () => `the variable ${thin?.id} has ${thin?.values.length} values; a condition has three samples`,
-  );
+  check(!thin, () => ({
+    rule: 'the variable {} has {} values; a condition has three samples',
+    got: { details: [thin?.id, thin?.values.length] },
+    expected: none('observation'),
+  }));
 }
 
 function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): void {
@@ -231,10 +288,11 @@ function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): 
   const { value: store, ms } = cpu(() => d.build({ owner }));
   withinTime(`adding ${count} owner values`, ms, limitMs);
   const variable = store.variables.find((v) => v.id === id);
-  must(
-    variable?.values.length === count + 2,
-    () => `${variable?.values.length} values in the variable; expected ${count + 2}`,
-  );
+  check(variable?.values.length === count + 2, () => ({
+    rule: 'a variable holds the values of its spans and the two sides',
+    got: { values: variable?.values.length },
+    expected: { values: count + 2 },
+  }));
 }
 
 function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: number): void {
@@ -268,10 +326,12 @@ function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: numb
     for (let k = 0; k < 5; k += 1) {
       const value = variable?.values.find((x) => x.id === labelsOf(v)[k]);
       const entry = value?.provenance?.find((p) => p.kind === 'conversations');
-      must(
-        entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen,
-        () => `${d.ids[v]}.${labelsOf(v)[k]}: provenance ${show(entry)}; expected ${c.by[k]} of ${c.seen}`,
-      );
+      check(entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen, () => ({
+        rule: 'a value carries how often the sessions showed it',
+        input: { variable: d.ids[v], value: labelsOf(v)[k] },
+        got: { entry: show(entry) },
+        expected: { count: c.by[k], total: c.seen },
+      }));
     }
   }
 }
@@ -296,7 +356,10 @@ function quotesWorkload(
     fill.push(`${filler}\n${quotes[i]}\n`);
     size += fill[i]?.length ?? 0;
   }
-  must(size > 900_000, () => 'the bank built a file under 900 kB');
+  check(size > 900_000, () => ({
+    rule: 'the bank built a file under N kB',
+    expected: none('observation'),
+  }));
   const wrong = new Set(
     ctx.rng.sample(
       Array.from({ length: count }, (_, i) => i),
@@ -330,20 +393,22 @@ function quotesWorkload(
   };
   const { value, ms } = cpu(() => callQuotes(ctx, store, { 'agent/prompt.md': fill.join('') }));
   withinTime(`checking ${count} quotes in a one-megabyte file`, ms, limitMs);
-  must(
-    value.errors.length === wrong.size,
-    () => `${value.errors.length} errors; ${wrong.size} quotes are wrong`,
-  );
+  check(value.errors.length === wrong.size, () => ({
+    rule: '{} errors; {} quotes are wrong',
+    got: { details: [value.errors.length, wrong.size] },
+    expected: none('observation'),
+  }));
   if (!exact) return;
   // Each wrong quote is named where it sits: its code and its path, not only a count of errors.
   const want = [...wrong].map(
     (i) => `VARIABLES_QUOTE_NOT_FOUND at variables.0.values.${i}.provenance.0.quote`,
   );
   const got = value.errors.map((e) => `${e.code} at ${e.path}`);
-  must(
-    jsonEqual([...got].sort(), [...want].sort()),
-    () => `quotes reported ${got.slice(0, 3).join('; ')}; the wrong ones are ${want.slice(0, 3).join('; ')}`,
-  );
+  check(jsonEqual([...got].sort(), [...want].sort()), () => ({
+    rule: 'quotes reported {}; the wrong ones are {}',
+    got: { details: [got.slice(0, 3).join('; '), want.slice(0, 3).join('; ')] },
+    expected: none('observation'),
+  }));
 }
 
 function closedForm(n: number, k: number): bigint {
@@ -357,10 +422,12 @@ function closedWorkload(ctx: ItemContext, n: number): void {
   const warm = makeStore({ vars: idsOf(12).map((id) => ({ id, values: valueIds(2), shared: true })) });
   callCoverage(ctx, warm, [], [{ variables: idsOf(12), strength: 3 }]);
   const { value, ms } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
-  must(
-    BigInt(value.allowed) === closedForm(n, 3),
-    () => `allowed is ${String(value.allowed)}; the closed form is ${closedForm(n, 3)}`,
-  );
+  check(BigInt(value.allowed) === closedForm(n, 3), () => ({
+    rule: 'coverage counts the allowed tuples exactly',
+    input: { variables: n, strength: 3 },
+    got: { allowed: String(value.allowed) },
+    expected: { allowed: String(closedForm(n, 3)) },
+  }));
   withinTime(`the closed-form count over ${n} binary variables`, ms, 50);
 }
 
@@ -396,15 +463,18 @@ function coverageWorkload(ctx: ItemContext, n: number, k: 2 | 3): void {
   );
   const { value, ms } = cpu(() => callCoverage(ctx, store, rows, [{ variables: ids, strength: k }]));
   withinTime(`the coverage of 30 rows over ${n} binary variables at strength ${k}`, ms, 20_000);
-  must(
-    BigInt(value.allowed) === closedForm(n, k),
-    () => `allowed is ${String(value.allowed)}; expected ${closedForm(n, k)}`,
-  );
+  check(BigInt(value.allowed) === closedForm(n, k), () => ({
+    rule: 'coverage counts the allowed tuples exactly',
+    input: { variables: n, strength: k },
+    got: { allowed: String(value.allowed) },
+    expected: { allowed: String(closedForm(n, k)) },
+  }));
   const want = coveredByRows(rows, ids, k);
-  must(
-    BigInt(value.covered) === BigInt(want),
-    () => `covered is ${String(value.covered)}; the rows hold ${want} distinct tuples`,
-  );
+  check(BigInt(value.covered) === BigInt(want), () => ({
+    rule: 'coverage counts the covered tuples exactly',
+    got: { covered: String(value.covered) },
+    expected: { covered: want },
+  }));
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -506,34 +576,40 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
   withinTime(`planning 200 variables with ${forbidCount} impossible pairs`, ms, 30_000);
   const rows = newRows(plan).map((r) => r.values);
   for (const r of rows) {
-    must(
-      Object.keys(r).length === dense.ids.length,
-      () => 'a new row does not give a value to every variable',
-    );
+    check(Object.keys(r).length === dense.ids.length, () => ({
+      rule: 'a new row does not give a value to every variable',
+      expected: none('observation'),
+    }));
   }
   for (const r of rows) {
     for (const [i, x, j, y] of dense.pairs) {
-      must(
-        !(r[dense.ids[i] as string] === `v${x}` && r[dense.ids[j] as string] === `v${y}`),
-        () => `a new row holds the forbidden pair ${dense.ids[i]}=v${x}, ${dense.ids[j]}=v${y}`,
-      );
+      check(!(r[dense.ids[i] as string] === `v${x}` && r[dense.ids[j] as string] === `v${y}`), () => ({
+        rule: 'a new row holds the forbidden pair {}=v{}, {}=v{}',
+        got: { details: [dense.ids[i], x, dense.ids[j], y] },
+        expected: none('observation'),
+      }));
     }
   }
   // Every value is held by some row (all the other variables can take the free values 0 and 1).
   for (const id of dense.ids) {
     for (let x = 0; x < 4; x += 1)
-      must(
+      check(
         rows.some((r) => r[id] === `v${x}`),
-        () => `no row holds ${id}=v${x}, a value that a row with every other variable at 0 or 1 can hold`,
+        () => ({
+          rule: 'no row holds {}=v{}, a value that a row with every other variable at N or N can hold',
+          got: { details: [id, x] },
+          expected: none('observation'),
+        }),
       );
   }
   // R14, factor four: M is at most every pair of the axes plus the values of the details.
   const m = ((30 * 29) / 2) * 16 + 170 * 4;
   const cap = rowCap(m, 16, 4);
-  must(
-    rows.length <= cap,
-    () => `${rows.length} new rows; the page allows ${cap} for dense impossible pairs`,
-  );
+  check(rows.length <= cap, () => ({
+    rule: 'the plan stays within the row cap of the page for dense impossible pairs',
+    got: { newRows: rows.length },
+    expected: { atMost: cap },
+  }));
   // Every pair of axes that no row holds and no constraint forbids must be impossible to extend.
   const held = new Set<string>();
   for (const r of rows) {
@@ -554,10 +630,11 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
             ]),
             dense,
           );
-          if (found)
-            throw new Error(
-              `the pair ${dense.ids[i]}=v${x}, ${dense.ids[j]}=v${y} is held by no row, yet a valid row holds it`,
-            );
+          check(!found, () => ({
+            rule: 'a pair that a valid row can hold is held by some row',
+            input: { first: `${dense.ids[i]}=v${x}`, second: `${dense.ids[j]}=v${y}` },
+            expected: none('observation'),
+          }));
         }
       }
     }
@@ -572,15 +649,16 @@ function independentWorkload(ctx: ItemContext, count: number): void {
   const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
   withinTime(`planning ${count} independent ternary variables`, ms, 10_000);
   const rows = newRows(plan);
-  must(
-    rows.length <= 6,
-    () => `${rows.length} new rows for ${count} independent ternary variables; six are enough`,
-  );
+  check(rows.length <= 6, () => ({
+    rule: '{} new rows for {} independent ternary variables; six are enough',
+    got: { details: [rows.length, count] },
+    expected: none('observation'),
+  }));
   for (const id of ids)
     for (const x of valueIds(3))
-      must(
+      check(
         rows.some((r) => r.values[id] === x),
-        () => `${id}=${x} is in no row`,
+        () => ({ rule: '{}={} is in no row', got: { details: [id, x] }, expected: none('observation') }),
       );
 }
 
@@ -598,13 +676,18 @@ function wideAxisWorkload(ctx: ItemContext): void {
     ids,
     arities,
   );
-  must(gap === undefined, () => `no row holds ${gap}`);
+  check(gap === undefined, () => ({
+    rule: 'no row holds {}',
+    got: { details: [gap] },
+    expected: none('observation'),
+  }));
   const missing = 200 * 2 * 3 + 3 * 4;
   const cap = rowCap(missing, 400);
-  must(
-    rows.length >= 400 && rows.length <= cap,
-    () => `${rows.length} new rows; at least 400 are needed and the page allows ${cap}`,
-  );
+  check(rows.length >= 400 && rows.length <= cap, () => ({
+    rule: 'the plan for many independent variables stays between the floor and the cap of the page',
+    got: { newRows: rows.length },
+    expected: { between: [400, cap] },
+  }));
 }
 
 export const SCALE_STEMS: readonly Stem[] = [

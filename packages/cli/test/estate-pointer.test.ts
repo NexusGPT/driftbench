@@ -1,12 +1,15 @@
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pointer } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
 import { type Io, main } from '../src/index';
+
+const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
 
 // An invented harbour office. No line below comes from a real estate.
 const FILES: Record<string, string> = {
@@ -447,9 +450,111 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(result.code).toBe(2);
     expect(result.err).toMatch(
-      /the cassette has no answer for request [0-9a-f]{12}; the nearest entry [0-9a-f]{12} differs in: .*part\./,
+      /the cassette has no answer for request [0-9a-f]{12} of window \S+#\d+; the nearest entry [0-9a-f]{12} differs in: .*part\./,
     );
     await expect(readFile(join(root, 'missed.yaml'), 'utf8')).rejects.toThrow();
+  });
+
+  it('says how many requests a replay lacks, not only the first', async () => {
+    const root = await estate();
+    await record(root);
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md']}\n- Close the harbour office at six\n`);
+    const result = await run(
+      ['estate', 'scan', '.', '--pointer', '--cassette', 'cassette.jsonl', '--out', 'missed.yaml'],
+      root,
+    );
+    expect(result.code).toBe(2);
+    // The edited file is asked of both labelers: one window of system 1 and five runs of system 2.
+    expect(result.err).toMatch(
+      /; 6 of 18 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
+    );
+  });
+
+  it('--plan-only prints the requests, characters and priced cost with no key, no call and no file', async () => {
+    const root = await estate();
+    await writeFile(
+      join(root, 'prices.yaml'),
+      'as_of: 2026-01-01\nmodels:\n  claude-haiku-5-5: { input: 1, output: 4, cached_input: 0 }\n',
+    );
+    const calls: string[] = [];
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      { pointer: true, planOnly: true, prices: 'prices.yaml', cassette: 'none.jsonl' },
+      io,
+      {
+        env: {},
+        fetch: async (url) => {
+          calls.push(url);
+          throw new Error('a plan sends nothing');
+        },
+      },
+    );
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    expect(calls).toEqual([]);
+    expect(output.out).toContain('Pointer plan (no key read, no request sent):');
+    expect(output.out).toContain('prose: 9 units in 2 files, 0 already labelled by the ledger.');
+    expect(output.out).toMatch(
+      /system 1 jev jev-latest: 3 requests, 0 in the cassette, 3 to send, \d+ characters\./,
+    );
+    expect(output.out).toMatch(
+      /system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette, 15 to send, \d+ characters\./,
+    );
+    expect(output.out).toMatch(/To send: 18 requests, about \d+ input tokens\./);
+    expect(output.out).toMatch(
+      /Input cost: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
+    );
+    await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
+    await expect(readFile(join(root, 'none.jsonl'), 'utf8')).rejects.toThrow();
+  });
+
+  it('--plan-only counts the document-roles pass from the cassette that answers it, and sizes the pass apart when it does not', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-pointer-fixture-'));
+    await cp(FIXTURE, root, { recursive: true });
+    const planned = (cassette: string) =>
+      run(['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', cassette], root, {
+        JEV_API_KEY: undefined,
+        ANTHROPIC_API_KEY: undefined,
+      });
+    // The recorded cassette answers every request, the document roles included: nothing is left to send.
+    const answered = await planned('cassette.jsonl');
+    expect(answered.err).toBe('');
+    expect(answered.code).toBe(0);
+    expect(answered.out).toMatch(/document roles: \d+ units in \d+ files/);
+    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).not.toContain('The prose pass is sized before the document roles are recorded');
+    // An empty cassette answers nothing: the roles pass has requests to record, and the prose pass is sized without its roles.
+    await writeFile(join(root, 'empty.jsonl'), '');
+    const empty = await planned('empty.jsonl');
+    expect(empty.err).toBe('');
+    expect(empty.out).toMatch(/document roles: \d+ units in \d+ files/);
+    expect(empty.out).toContain('The prose pass is sized before the document roles are recorded');
+    expect(empty.out).not.toContain('To send: 0 requests');
+  });
+
+  it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {
+    const root = await estate();
+    await record(root);
+    const answered = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'cassette.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(answered.err).toBe('');
+    expect(answered.code).toBe(0);
+    expect(answered.out).toContain('15 requests, 15 in the cassette, 0 to send, 0 characters.');
+    expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expect(answered.out).toContain('No prices given: pass --prices <file> to see the input cost in USD.');
+    const both = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--record', '--cassette', 'cassette.jsonl'],
+      root,
+    );
+    expect(both.code).toBe(2);
+    expect(both.err).toContain('--plan-only sends nothing and --record sends requests');
+    const alone = await run(['estate', 'scan', '.', '--plan-only', '--out', 'x.yaml'], root);
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--plan-only');
   });
 
   it('refuses a missing cassette in replay and tells how to record it', async () => {
@@ -836,12 +941,19 @@ describe('the settings file of the estate', () => {
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('[system1:jev, system2:anthropic]', '[system2:anthropic]'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    // With system 1 gone, system 2 is asked about the windows that system 1 had decided alone (the stack asks system 2
+    // only about the windows system 1 left open). Those are new recordings of system 2; no recording is voided.
+    const dropped = await voided(root, before);
+    // True of an empty list too: dropping system 1 must add recordings of system 2, so the list is not empty.
+    expect(dropped.added.length).toBeGreaterThan(0);
+    expect(dropped.added.every((entry) => entry.readable.cls === 'system2')).toBe(true);
+    const now = new Set((await entries(root)).map((entry) => entry.key));
+    expect(before.every((entry) => now.has(entry.key))).toBe(true);
     await writeFile(
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('ledger.json', 'moved/ledger.json'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    expect((await voided(root, [...before, ...dropped.added])).added).toEqual([]);
     expect(
       JSON.parse(await readFile(join(root, 'moved', 'ledger.json'), 'utf8')).entries.length,
     ).toBeGreaterThan(0);
@@ -863,6 +975,17 @@ describe('the settings file of the estate', () => {
     expect(missing.err).toContain(
       'name the ledger with --ledger <file>, or with ledger: in driftbench.estate.yaml',
     );
+  });
+
+  it('exits 2 with the file and the depth when radius ledger meets a file nested too deep', async () => {
+    const { root } = await base();
+    const deep = `${Array.from({ length: 150 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join('\n')}\n`;
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md'] ?? ''}\n${deep}`);
+    const result = await run(['radius', 'ledger', 'map.yaml', '--out', 'change.yaml'], root);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('CLAUDE.md');
+    expect(result.err).toContain('150 levels deep');
+    expect(result.out).toBe('');
   });
 
   it('loads a labeler module the file names from beside the estate, scanned from another folder', async () => {
@@ -930,9 +1053,11 @@ describe('the settings file of the estate', () => {
         cassette: 'cassette.jsonl',
         labeler: ['system2:anthropic'],
         force: true,
+        // System 2 alone is asked about windows the stack's cassette left to system 1: those are recorded.
+        record: true,
       },
       io,
-      { env: KEYS },
+      { env: KEYS, fetch: services },
     );
     expect(code).toBe(0);
     expect(output.out).toContain('Pointer reader: system 2 anthropic claude-haiku-5-5.');

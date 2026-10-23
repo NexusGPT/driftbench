@@ -7,7 +7,7 @@ const METERED_FIRST_LOAD = fileURLToPath(new URL('./fixtures/metered-first-load.
 
 describe('the scale CPU-time window', () => {
   it('counts the first product load inside the measured window', async () => {
-    const report = await scaleReport(1, 1, BUDGET_MS, { generator: METERED_FIRST_LOAD });
+    const report = await scaleReport(1, 1, BUDGET_MS, { generator: METERED_FIRST_LOAD, calibrations: 1 });
     expect(report.error).toBeUndefined();
     expect(report).toMatchObject({ invalid: 0, lint: 0, bytesSame: true, graphOk: true });
     expect(report.followerTotal).toBeGreaterThan(0);

@@ -89,6 +89,7 @@ describe('a store on disk', () => {
       'blocks',
       'cache',
       'campaigns',
+      'meta',
       'runs',
       'spec_objects',
       'specs',

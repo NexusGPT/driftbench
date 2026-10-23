@@ -1,6 +1,14 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { type HiddenSpec, hiddenSpec } from './hidden';
+import { HIDDEN_SHAPE, type HiddenSpec, hiddenSpec } from './hidden';
+import {
+  CALIBRATION_COUNT,
+  CALIBRATION_ENV,
+  CALIBRATION_REFERENCE_MS,
+  calibrationFactor,
+  calibrationOf,
+  normalisedMs,
+} from './scale-calibration';
 
 /**
  * The scale items (docs/validators.md section 12.2, item 4): the hidden specification of a seed with its
@@ -20,12 +28,33 @@ export const SCALE_WALL_CAP = 10;
 /** The heap the child may use, in megabytes. */
 export const SCALE_HEAP_MB = 2048;
 
+/**
+ * The behaviours a factor of 1 stands for: the most a seed draws (HIDDEN_SHAPE.behaviours). Every seed scales to
+ * `SCALE_BASE_BEHAVIOURS * factor` behaviours (600 at 100 times), so the workload of a scale run does not depend on
+ * how many behaviours the seed happened to draw (4 to 6): the cost grows about as the square of that number, and a
+ * seed with 4 passed a time budget that a seed with 6 failed with the same product.
+ */
+export const SCALE_BASE_BEHAVIOURS = HIDDEN_SHAPE.behaviours[1];
+
 export type ScaleReport = {
   factor: number;
   budgetMs: number;
   /** Set when the run did not finish: over budget, out of memory, or a throw. */
   error?: string;
+  /** The raw CPU time of the product's run, in milliseconds. */
   ms: number;
+  /** The calibration of this machine: `calibrationOf` its `calibrationRunsMs` (scale-calibration.ts). */
+  calibrationMs: number;
+  /** Each calibration measured before the timed child started, in the order measured. */
+  calibrationRunsMs?: number[];
+  /** The behaviours of the scaled hidden specification the run generated. */
+  behaviours?: number;
+  /** The calibration on the reference machine (scale-calibration.ts). */
+  referenceMs: number;
+  /** `ms` scaled to the reference machine: ms x referenceMs / calibrationMs. The item judges this. */
+  normalisedMs: number;
+  /** True when the credit a slow calibration earns was capped (scale-calibration.ts, CALIBRATION_MAX_CREDIT). */
+  creditCapped: boolean;
   invalid: number;
   lint: number;
   bytesSame: boolean;
@@ -42,10 +71,14 @@ export type ScaleReport = {
   followerTotal: number;
 };
 
-/** The hidden specification with `factor` times its behaviours, each with a phrase, spread over the flows. */
+/**
+ * The hidden specification grown to `SCALE_BASE_BEHAVIOURS * factor` behaviours, each with a phrase, spread over the
+ * flows. The seed still decides the rest of its structure (stages, paths, data, phrases), which moves the time of a
+ * run by up to about 60 percent between seeds (six seeds, ten runs each: means 79 to 127 s).
+ */
 export function scaledSpec(seed: number, factor: number): HiddenSpec {
   const spec = hiddenSpec(seed);
-  const extra = spec.behaviours.length * (factor - 1);
+  const extra = Math.max(0, SCALE_BASE_BEHAVIOURS * factor - spec.behaviours.length);
   for (let index = 0; index < extra; index += 1) {
     const id = `B-${String(1000 + index)}`;
     spec.behaviours.push({ id, title: `Keep generic rule number ${index + 1} of the scaled agent` });
@@ -67,6 +100,10 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
     budgetMs,
     error,
     ms: budgetMs,
+    calibrationMs: 0,
+    referenceMs: CALIBRATION_REFERENCE_MS,
+    normalisedMs: budgetMs,
+    creditCapped: false,
     invalid: -1,
     lint: -1,
     bytesSame: false,
@@ -84,15 +121,64 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
   };
 }
 
+/** The calibration takes about a second on a hosted runner; a run that takes this long is stuck. */
+export const CALIBRATION_TIMEOUT_MS = 120_000;
+
 /**
- * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
- * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
+ * Measures the calibration (scale-calibration.ts) in a short-lived process of its own on this machine. Its
+ * result goes to the timed child through the environment, so the timed child's heap is not touched by it.
  */
-export function scaleReport(
+export function measureCalibration(timeoutMs = CALIBRATION_TIMEOUT_MS): Promise<number | string> {
+  const child = fileURLToPath(new URL('./scale-calibrate.ts', import.meta.url));
+  return new Promise((resolve) => {
+    const proc = spawn(process.execPath, ['--import', 'tsx', child], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    let err = '';
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      proc.kill('SIGKILL');
+    }, timeoutMs);
+    proc.stdout.on('data', (chunk) => {
+      out += String(chunk);
+    });
+    proc.stderr.on('data', (chunk) => {
+      err += String(chunk);
+    });
+    proc.on('close', (code) => {
+      clearTimeout(timer);
+      if (timedOut) {
+        resolve(`the calibration did not finish in ${timeoutMs} ms and was stopped`);
+        return;
+      }
+      const value = Number(out.trim().split('\n').at(-1));
+      resolve(
+        Number.isFinite(value) && value > 0
+          ? value
+          : `the calibration exited ${code} without a value: ${err.trim().split('\n').slice(-3).join(' ')}`,
+      );
+    });
+  });
+}
+
+/** Measures `count` calibrations, one after the other, each in a process of its own; a message when one fails. */
+async function calibrations(count: number): Promise<number[] | string> {
+  const out: number[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const value = await measureCalibration();
+    if (typeof value === 'string') return value;
+    out.push(value);
+  }
+  return out;
+}
+
+/** Runs the timed child once with the calibration it is handed, kills it at the wall cap, and returns its report. */
+function runChild(
   factor: number,
   seed: number,
-  budgetMs = SCALE_BUDGET_MS[factor] ?? 60_000,
-  options: { heapMb?: number; generator?: string } = {},
+  budgetMs: number,
+  calibration: number,
+  options: { heapMb?: number; generator?: string },
 ): Promise<ScaleReport> {
   const child = fileURLToPath(new URL('./scale-child.ts', import.meta.url));
   return new Promise((resolve) => {
@@ -108,7 +194,7 @@ export function scaleReport(
         String(budgetMs),
         ...(options.generator ? [options.generator] : []),
       ],
-      { stdio: ['ignore', 'pipe', 'pipe'] },
+      { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, [CALIBRATION_ENV]: String(calibration) } },
     );
     let out = '';
     let err = '';
@@ -144,4 +230,33 @@ export function scaleReport(
       }
     });
   });
+}
+
+/**
+ * Runs one scale measurement: `calibrations` calibrations (default CALIBRATION_COUNT), one after the other, each in a
+ * process of its own on this machine, and only then the timed child. The calibration of the run is `calibrationOf`
+ * the samples; the timed child gets it in its environment, so it measures with its whole heap and imports no
+ * product code before it has it. No sample is taken after the product has run: the ruler is not moved by what it
+ * measures. The report carries the samples, the calibration, the raw CPU time and the time normalised by it. A test
+ * may lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
+ */
+export async function scaleReport(
+  factor: number,
+  seed: number,
+  budgetMs = SCALE_BUDGET_MS[factor] ?? 60_000,
+  options: { heapMb?: number; generator?: string; calibrations?: number } = {},
+): Promise<ScaleReport> {
+  const samples = await calibrations(Math.max(1, options.calibrations ?? CALIBRATION_COUNT));
+  if (typeof samples === 'string') return failed(factor, budgetMs, samples);
+  // the exact values decide: they go to the child, to the normalised time and to the report; only the text of the item rounds
+  const calibrationMs = calibrationOf(samples);
+  const report = await runChild(factor, seed, budgetMs, calibrationMs, options);
+  if (report.error) return report;
+  return {
+    ...report,
+    calibrationMs,
+    calibrationRunsMs: samples,
+    normalisedMs: normalisedMs(report.ms, calibrationMs),
+    creditCapped: calibrationFactor(calibrationMs).capped,
+  };
 }

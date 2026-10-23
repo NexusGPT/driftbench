@@ -21,6 +21,8 @@ import {
   type AgentAdapter,
   AgentFailure,
   type ArtifactRef,
+  CLAUDE_CODE_PROFILE,
+  callsIn,
   canonicalJson,
   copyHistory,
   type ExecutionRecord,
@@ -48,6 +50,7 @@ import {
   type SessionFile,
   type SessionRecord,
   type StateLibrary,
+  type StateLibraryDigest,
   sessionFileText,
 } from './states';
 import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
@@ -107,6 +110,8 @@ export type ClaudeCodeLiveOptions = {
   sessionState?: readonly LiveOp[];
   /** Operations by `vars.session_state` and `vars.event`. */
   library?: StateLibrary;
+  /** The library file: its path, digest and the digest of each prefix file, written into every block record. */
+  libraryFile?: { path: string } & StateLibraryDigest;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
   /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
@@ -174,14 +179,14 @@ export const RUNTIME_FLAGS = [
   '--strict-mcp-config',
 ] as const;
 
-export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
+export const DEFAULT_ESTATE_FILES: readonly string[] = CLAUDE_CODE_PROFILE.copyFiles;
 
 /**
  * True for a file the runtime loads into its context by itself: a CLAUDE.md or CLAUDE.local.md, at the root
  * or in a folder (loaded when the agent works there). No Read call ever shows it, so a test never expects one.
  */
 export function loadedByRuntime(path: string): boolean {
-  return /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, ''));
+  return CLAUDE_CODE_PROFILE.loadsItself(path);
 }
 
 type LiveState = {
@@ -523,7 +528,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       if (!block) throw new AgentFailure('the turn mapped to no block');
       const { diff: workspaceDiff, runtimeWrites } = agentDiff(
         fullDiff,
-        block.observed.toolCalls,
+        callsIn(block.observed, 'any'),
         cwd,
         options.estateFiles ?? DEFAULT_ESTATE_FILES,
       );
@@ -552,7 +557,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
               ...(op.op === 'compact' && op.preTokens !== undefined ? { preTokens: op.preTokens } : {}),
             }))
         : [];
-      const findings = outsideWrites(block.observed.toolCalls, cwd);
+      const findings = outsideWrites(callsIn(block.observed, 'any'), cwd);
       if (findings.length > 0) {
         const runtime = block.observed.runtime ?? {};
         block.observed.runtime = {
@@ -608,6 +613,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
+            ...(options.libraryFile === undefined ? {} : { stateLibrary: options.libraryFile }),
             attempts,
             ops: ops.map((op) => op.op),
             notes,

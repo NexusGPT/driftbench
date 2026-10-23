@@ -1,5 +1,6 @@
 import { adversarial } from './adversarial';
 import { cutting } from './cutting';
+import { golden } from './golden';
 import { grouping } from './grouping';
 import { ids } from './ids';
 import { labels } from './labels';
@@ -13,6 +14,7 @@ import type { FamilySpec } from './types';
 
 export const FAMILIES: FamilySpec[] = [
   cutting,
+  golden,
   ids,
   reanchoring,
   grouping,
