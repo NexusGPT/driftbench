@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { isPlainObject } from '../spec/normalize';
 import {
+  Actor,
   Assertion,
   Budget,
   Count,
@@ -247,6 +248,20 @@ export const GivenOverride = z
     origin: GivenOrigin.optional().describe(
       'Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash.',
     ),
+    stage: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written.',
+      ),
+    after: z
+      .string()
+      .regex(/^[^#\s]+#[^#\s]+$/)
+      .optional()
+      .describe(
+        'The block of a written spec this prefix is taken after, as <spec id>#<block id>. Only with a stage on the same block: a validator reads the stage only when that block leaves the agent at it after the same history.',
+      ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()
@@ -319,6 +334,9 @@ export const ToolExpect = z
   .strictObject({
     label: z.string().min(1).describe('The tool name.'),
     count: Count.optional().describe('How many calls are expected. 0 means the tool must not be called.'),
+    actor: Actor.optional().describe(
+      'Whose calls count: the agent (main), a helper it handed work to (helper), or both (any). Absent: both for a count of 0, the agent otherwise.',
+    ),
     input: z
       .record(z.string(), Assertion)
       .optional()

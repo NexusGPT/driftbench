@@ -27,7 +27,7 @@ it.each([undefined, []])(
     };
     expect(formatProblems(store)).toEqual([]);
     const ctx = contextFor(bank[0] as ReturnType<typeof item>, 1, ROOT, { buildStore: () => store });
-    expect(() => build(ctx, {})).toThrow(/source-reader output.*no provenance/);
+    expect(() => build(ctx, {})).toThrow(/every value a source reader produces names its provenance/);
   },
 );
 

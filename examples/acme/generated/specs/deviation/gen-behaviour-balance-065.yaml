@@ -4,7 +4,7 @@
 id: gen-behaviour-balance-065
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-010: Path home-callback of new-home: needs > address > offer > callback > handover"
+title: "Balanced behaviour B-003: Path home-callback of new-home: needs > address > offer > callback > handover"
 channel: chat
 lang: EN
 tier: generated
@@ -13,7 +13,7 @@ tags:
   - persona:new-customer
   - data:fiber
 covers:
-  - B-010
+  - B-003
 stages:
   - needs
   - identify
@@ -29,8 +29,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-010
-    rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
+  - name: behaviour.B-003
+    rubric: Check coverage at the street address before offering home internet
     gating: false
     scope: conversation
   - name: flow.new-home
@@ -53,7 +53,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-010
+        - behaviour.B-003
         - flow.new-home
   - id: b2-address-to-offer
     when:
@@ -138,7 +138,7 @@ metadata:
       hash: 7a022d4e1380
     path: home-callback
     cell:
-      behaviour: B-010
+      behaviour: B-003
       flow: new-home
       user_type: new-customer
       coverage_result: fiber
@@ -200,7 +200,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-065
         values:
-          behaviour: B-010
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
@@ -234,7 +234,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-065
         values:
-          behaviour: B-010
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
@@ -260,7 +260,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-065
         values:
-          behaviour: B-010
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
@@ -310,7 +310,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-065
         values:
-          behaviour: B-010
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: fiber

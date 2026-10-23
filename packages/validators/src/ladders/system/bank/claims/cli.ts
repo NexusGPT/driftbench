@@ -2562,6 +2562,101 @@ add({
   },
 });
 
+add({
+  slug: 'estate/scan-plan-only',
+  tier: 2,
+  component: ESTATE_CMD,
+  title:
+    'estate scan --pointer --plan-only prints the requests, characters and cost plan, exits 0 and writes no map, with no cassette and no key (cli.md estate scan)',
+  cause: 'estate scan --plan-only sizes the pointer run without a key, a request or a file.',
+  async run(ctx) {
+    const result = await cli(
+      ['estate', 'scan', join(ctx.root, 'examples/estates/fixture'), '--pointer', '--plan-only'],
+      ctx.dir,
+    );
+    return expectAll([
+      [result.code === 0, `expected exit 0; ${shown(result)}`],
+      [result.out.includes('Pointer plan'), `expected a plan; ${shown(result)}`],
+      [result.out.includes('To send:'), `expected the requests and tokens to send; ${shown(result)}`],
+      [!existsSync(join(ctx.dir, 'map.yaml')), 'expected no map file'],
+    ]);
+  },
+});
+
+add({
+  slug: 'estate/scan-replay-miss-total',
+  tier: 2,
+  component: ESTATE_CMD,
+  title:
+    'estate scan --pointer on a cassette that lacks answers exits 2 and names how many requests lack an answer, not only the first (cli.md estate scan)',
+  cause: 'a replay that misses reports the total of missing requests and the characters to record.',
+  async run(ctx) {
+    const cassette = put(ctx.dir, 'empty.jsonl', '');
+    const result = await cli(
+      [
+        'estate',
+        'scan',
+        join(ctx.root, 'examples/estates/fixture'),
+        '--pointer',
+        '--cassette',
+        cassette,
+        '--out',
+        join(ctx.dir, 'map.yaml'),
+      ],
+      ctx.dir,
+    );
+    const total = /(\d+) of (\d+) requests of this pass have no answer/.exec(result.err);
+    return expectAll([
+      [result.code === 2, `expected exit 2; ${shown(result)}`],
+      [
+        total !== null && Number(total[1]) > 1 && total[1] === total[2],
+        `expected every request of an empty cassette counted as missing, more than one; ${shown(result)}`,
+      ],
+      [!existsSync(join(ctx.dir, 'map.yaml')), 'expected no map file'],
+    ]);
+  },
+});
+
+add({
+  slug: 'estate/build-reports-lint',
+  tier: 3,
+  component: 'packages/cli/src/commands/estate-build.ts',
+  title:
+    'estate build runs the lint, prints the finding totals per code, prints a cost line before the billed run, and says Done only on exit 0 (cli.md estate build)',
+  cause: 'estate build reports the lint of the estate it built and never says Done on a non-zero exit.',
+  async run(ctx) {
+    const fixture = join(ctx.root, 'examples/estates/fixture');
+    const result = await cli(
+      [
+        'estate',
+        'build',
+        fixture,
+        '--out',
+        join(ctx.dir, 'build'),
+        '--replay',
+        join(fixture, 'answers.yaml'),
+        '--yes',
+      ],
+      ctx.dir,
+    );
+    const lint = await cli(['estate', 'lint', join(ctx.dir, 'build', 'approved.yaml')], ctx.dir);
+    const codes = ['ORPHAN', 'UNANCHORED_GUARD'].filter((code) => lint.out.includes(code));
+    return expectAll([
+      [
+        lint.code === 1 && codes.length === 2,
+        `the lint of the built map is not the fixture's; ${shown(lint)}`,
+      ],
+      [
+        codes.every((code) => result.out.includes(`${code} `)),
+        `expected the finding totals of ${codes.join(', ')} in the build output; ${shown(result)}`,
+      ],
+      [result.code !== 0, `expected exit 1 (findings, incomplete tests); ${shown(result)}`],
+      [!result.out.includes('Done.'), `expected no Done on exit ${result.code}; ${shown(result)}`],
+      [result.out.includes('cost of a run'), `expected a cost line before the run; ${shown(result)}`],
+    ]);
+  },
+});
+
 const SESSIONS = 'examples/estates/sessions';
 
 add({

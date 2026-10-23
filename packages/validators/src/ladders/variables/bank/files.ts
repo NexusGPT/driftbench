@@ -1,3 +1,4 @@
+import { check, none } from '../../../failure';
 import type { FileIssue, FileStore, FileVariable } from '../interface';
 import { OWNER_DATE } from './constants';
 import { callQuotes, callValidate, type ItemContext } from './item';
@@ -168,8 +169,16 @@ export function breaksEveryPeriod(classes: readonly string[]): boolean {
  */
 export function schedule(cases: readonly FileCase[], seed: number, key: string): FileCase[] {
   const classes = cases.map(classOf);
-  must(new Set(classes).size >= 2, () => `the item ${key} has one class of answer: nothing to schedule`);
-  must(cases.length >= 18, () => `the item ${key} makes ${cases.length} calls; at least 18 are needed`);
+  check(new Set(classes).size >= 2, () => ({
+    rule: 'the item {} has one class of answer: nothing to schedule',
+    got: { details: [key] },
+    expected: none('observation'),
+  }));
+  check(cases.length >= 18, () => ({
+    rule: 'the item {} makes {} calls; at least N are needed',
+    got: { details: [key, cases.length] },
+    expected: none('observation'),
+  }));
   for (let attempt = 0; attempt < 400; attempt += 1) {
     const rng = makeRng((Math.imul(seed >>> 0, 0x9e3779b1) ^ hashKey(`${key}:${attempt}`)) >>> 0);
     const order = rng.shuffle(cases.map((_, i) => i));
@@ -206,27 +215,32 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
   if (c.op === 'validate') {
     const result = callValidate(ctx, structuredClone(c.store));
     if (c.want.kind === 'accept') {
-      must(
-        result.ok,
-        () => `${at}: validate refused a valid store: ${issueText('errors' in result ? result.errors : [])}`,
-      );
+      check(result.ok, () => ({
+        rule: 'validate accepts a store the page accepts',
+        input: at,
+        got: { refusedWith: issueText('errors' in result ? result.errors : []) },
+        expected: none('observation'),
+      }));
       return;
     }
     const want = c.want as Extract<Want, { kind: 'reject' }>;
-    must(
-      !result.ok,
-      () => `${at}: validate accepted a store the page refuses (${want.code} at ${want.paths[0]})`,
-    );
+    check(!result.ok, () => ({
+      rule: 'validate refuses a store the page refuses',
+      input: at,
+      got: 'the store was accepted',
+      expected: { code: want.code, paths: want.paths },
+    }));
     const errors = result.ok ? [] : result.errors;
     const hit = errors.some(
       (e) =>
         (want.codeFamily ? e.code.startsWith(want.code) : e.code === want.code) && pathOk(e.path, want.paths),
     );
-    must(
-      hit,
-      () =>
-        `${at}: validate refused the store with ${issueText(errors)}; the page requires ${want.code} at ${want.paths.join(' or ')}`,
-    );
+    check(hit, () => ({
+      rule: 'the refusal names the code of the defect, at the place of the defect',
+      input: at,
+      got: { refusedWith: issueText(errors) },
+      expected: { code: want.code, paths: want.paths },
+    }));
     return;
   }
   const result = callQuotes(ctx, clone(c.store), { ...c.files });
@@ -234,10 +248,12 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
   const key = (i: FileIssue) => `${i.code} at ${i.path}`;
   const got = result.errors.map(key).sort();
   const need = want.issues.map(key).sort();
-  must(
-    got.length === need.length && got.every((g, i) => g === need[i]),
-    () => `${at}: quotes reported ${show(got, 240)}; the page requires ${show(need, 240)}`,
-  );
+  check(got.length === need.length && got.every((g, i) => g === need[i]), () => ({
+    rule: 'the quote check reports the issues of the page, each once, at its place',
+    input: at,
+    got: { reported: got },
+    expected: { issues: need },
+  }));
 }
 
 /** Runs the calls of an item in their certified order; the first wrong answer fails the item. */

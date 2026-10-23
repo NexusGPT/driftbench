@@ -90,6 +90,29 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['the reader reads a percent sign after a number', ['percent-sign']],
     ['the reader reads a decimal that starts with zero', ['leading-zero-decimal']],
     ['the reader reads a negative number followed by a unit', ['negative-limit-with-a-unit']],
+    ['the reader reads a space between groups of three digits', ['space-thousands']],
+    ['the reader reads a no-break or narrow space between groups of digits', ['narrow-no-break-thousands']],
+    ['the reader reads an apostrophe between groups of digits', ['apostrophe-thousands']],
+    ['the reader reads a decimal comma after groups marked with points', ['european-decimal-comma']],
+    ['the reader reads a currency code before a number', ['iso-code-before-the-number']],
+    ['the reader reads a currency code after a number', ['iso-code-after-the-number']],
+    ['the reader reads the minus sign of Unicode as a negative sign', ['unicode-minus-sign']],
+    ['the reader reads a plus sign before a number', ['plus-sign']],
+    ['the reader reads a unit written against its number', ['unit-attached-to-the-number']],
+    ['the reader reads hundreds written in English words', ['hundreds-in-words']],
+    ['the reader reads thousands written in English words', ['thousands-in-words']],
+    ['the reader reads an and inside a number written in English words', ['and-in-words']],
+    ['the reader reads the greater-than symbol as a comparison', ['symbol-greater-than']],
+    [
+      'the reader reads the two-character at-least symbol as a comparison',
+      ['symbol-at-least-two-characters'],
+    ],
+    ['the reader reads the one-character at-least symbol as a comparison', ['symbol-at-least-one-character']],
+    ['the reader reads the less-than symbol as a comparison', ['symbol-less-than']],
+    ['the reader reads the two-character at-most symbol as a comparison', ['symbol-at-most-two-characters']],
+    ['the reader reads the one-character at-most symbol as a comparison', ['symbol-at-most-one-character']],
+    ['the reader reads a thousand written as k after a number', ['thousands-written-with-k']],
+    ['the reader reads a million written as a word after a number word', ['millions-written-with-a-word']],
   ]),
   'sources.condition.kinds': table([
     ['an equality condition keeps a case below, at and above its limit', ['equality-keeps-all-three-cases']],
@@ -98,6 +121,31 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['inequality-keeps-all-three-cases'],
     ],
     ['a range condition keeps cases below, at each limit, inside and above', ['range-has-five-cases']],
+    ['a range written with the word to keeps its five cases', ['range-written-with-to']],
+    ['a range written with an en dash keeps its five cases', ['range-written-with-an-en-dash']],
+    ['a range written with a hyphen keeps its five cases', ['range-written-with-a-hyphen']],
+    [
+      'a range whose two ends are both open (more than A and fewer than B) keeps its five cases',
+      ['range-with-both-ends-open'],
+    ],
+    [
+      'a range closed at one end only (at least A but under B) keeps its five cases',
+      ['range-with-one-end-closed'],
+    ],
+    ['a range with a negative lower limit keeps its five cases', ['range-with-a-negative-lower-limit']],
+    ['a range with decimal limits keeps its five cases', ['range-with-decimal-limits']],
+    [
+      'an exclusion (neither A nor B) is a membership condition with an in-list and an out-of-list sample',
+      ['membership-written-as-neither-nor'],
+    ],
+    [
+      'a choice (either A or B) is a membership condition with an in-list and an out-of-list sample',
+      ['membership-written-as-either-or'],
+    ],
+    [
+      'a fact and its negation about one subject are one true-or-false variable',
+      ['a-fact-and-its-negation-are-one-variable'],
+    ],
     [
       'a boolean condition produces the values true and false and no boundary',
       ['boolean-has-true-and-false'],
@@ -1030,6 +1078,84 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     [
       'a store file with no constraints list gives the same issues as one with an empty list',
       ['absent-list-and-empty-list-agree'],
+    ],
+  ]),
+  'sources.labelled-condition': table([
+    [
+      'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
+      ['the-label-decides-not-the-text'],
+    ],
+  ]),
+  'diff.cover': table([
+    [
+      'a three-entry forbid inside a rule removes only the tuples it makes impossible',
+      ['three-entry-forbid-inside-a-rule'],
+    ],
+    [
+      'a value no valid row can hold is warned about and the other tuples are still covered',
+      ['unreachable-value-is-warned-and-the-rest-is-covered'],
+    ],
+    [
+      'a tuple that no valid row holds is not a target even when each pair in it is allowed',
+      ['pairwise-fine-tuple-that-no-row-holds'],
+    ],
+    ['a value nobody approved is neither planned nor required inside a rule', ['unapproved-value-in-a-rule']],
+    ['a variable nobody approved is no axis and gets no value in a row', ['unapproved-variable-is-no-axis']],
+    [
+      'a forbid nobody approved plans nothing, so its tuples stay required',
+      ['unapproved-forbid-plans-nothing'],
+    ],
+    [
+      'two rules that share a variable are both crossed when a pair is impossible',
+      ['two-rules-share-a-variable-beside-a-pair'],
+    ],
+    [
+      'a pair naming two values of one variable excludes nothing beside a real three-entry forbid',
+      ['a-pair-of-one-variable-beside-a-real-forbid'],
+    ],
+    [
+      'a rule smaller than the strength is crossed in full minus the forbidden cell',
+      ['rule-of-two-with-a-forbidden-cell'],
+    ],
+  ]),
+  'diff.report': table([
+    [
+      'the report counts a tuple as allowed only when some valid row holds it',
+      ['pairwise-fine-tuple-is-not-counted'],
+    ],
+    ['the report counts the tuples of two rules that share a variable once', ['two-rules-with-a-pair']],
+    [
+      'the report credits a partial seed only for the tuples it assigns and counts no unapproved value',
+      ['partial-seeds-and-an-unapproved-value'],
+    ],
+  ]),
+  'diff.seeds': table([
+    [
+      'a partial seed is kept as given and credits only the allowed tuples it assigns',
+      ['partial-seeds-beside-a-forbid'],
+    ],
+    [
+      'a seed with an unapproved value is kept whole, warned about, and credits nothing for that entry',
+      ['seed-with-an-unapproved-value-is-kept-warned-and-credits-nothing'],
+    ],
+    [
+      'seeds that hold every valid row of a constrained space leave no new row',
+      ['seeds-that-cover-everything-leave-no-new-rows'],
+    ],
+  ]),
+  'diff.order': table([
+    ['rows holding a zero weight come last with a null logWeight', ['zero-weight-rows-come-last']],
+    [
+      'a budget keeps a prefix of the uncut plan when weights, a forbid and seeds meet',
+      ['budget-keeps-a-prefix-beside-seeds-and-a-forbid'],
+    ],
+    [
+      'weights are relative, so scaling the weights of one variable changes no share',
+      ['scaling-the-weights-of-a-variable-changes-nothing'],
+    ],
+    [
+      'a variable with no weights shares uniformly beside a weighted one',
+      ['unweighted-variables-beside-a-weighted-one-share-uniformly'],
     ],
   ]),
 };
