@@ -78,7 +78,17 @@ type Build = {
   /** Counts the reference atoms an item plants, for their hidden ids. */
   counted: number;
 };
-type Case = { key: string; tier: Tier; title: string; plant(build: Build): Expected[] };
+type Case = {
+  key: string;
+  tier: Tier;
+  title: string;
+  /**
+   * Scan with no model: code alone reads the references of the prose. Such a scan has no route from the standing
+   * instructions to a skill, so the item judges the reference findings only.
+   */
+  noModel?: boolean;
+  plant(build: Build): Expected[];
+};
 
 function skill(
   build: Build,
@@ -433,6 +443,43 @@ const DEFECTS: Case[] = [
       ];
     },
   },
+  {
+    key: 'no-model-missing-reference',
+    tier: 2,
+    title: 'a file a skill body names, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'When unsure, open `references/absent.md`.' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-missing-extensionless-link',
+    tier: 2,
+    title: 'a link to a file with no file type that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'When unsure, read [the entry](references/leaf) first.' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-orphan-beside-named',
+    tier: 2,
+    title: 'an orphan beside a reference a table cell names, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: '| Case | Read |' },
+        { text: '|---|---|' },
+        { text: '| unsure | `references/guide.md` |' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
+      const old = skillFile(name, 'references/old.md');
+      b.estate.raw(old, '# Old\n', b.owner);
+      return [{ code: 'ORPHAN', subject: old }];
+    },
+  },
 ];
 
 const CLEAN: Case[] = [
@@ -734,6 +781,53 @@ const CLEAN: Case[] = [
       return [];
     },
   },
+  {
+    key: 'no-model-named-reference',
+    tier: 2,
+    title: 'a reference a table cell and a link name, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: '| Case | Read |' },
+        { text: '|---|---|' },
+        { text: '| unsure | `references/guide.md` |' },
+        { text: 'The checklist is in [the list](references/checklist.md).' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
+      b.estate.raw(skillFile(name, 'references/checklist.md'), '# Checklist\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-extensionless-file',
+    tier: 2,
+    title: 'a file with no file type that a link and a code span name, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: 'When unsure, read [the entry](references/leaf) first.' },
+        { text: 'Then run `scripts/tool`.' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/leaf'), 'leaf\n', b.owner);
+      b.estate.raw(skillFile(name, 'scripts/tool'), '#!/bin/sh\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-fenced-example',
+    tier: 2,
+    title: 'a four-backtick example holding a three-backtick fence and a path, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [
+        { text: '````text' },
+        { text: '```' },
+        { text: 'Read `notes/absent.md` first.' },
+        { text: '````' },
+      ]);
+      return [];
+    },
+  },
 ];
 
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
@@ -771,12 +865,23 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
     }
   }
   writeSettings(estate, build.guards);
-  const scan = await estate.scan();
-  return compare(scan, expected);
+  const scan = await estate.scan(item.noModel ? { noModel: true } : {});
+  return compare(scan, expected, item.noModel ? REFERENCE_CODES : undefined);
 }
 
-function compare(scan: ScanOutcome, expected: readonly Expected[]): ItemResult {
-  const found = scan.lint.findings.filter((finding) => finding.code !== 'UNENFORCED');
+/** The findings a scan with no model judges: what it says about the files that are named and the names that lead nowhere. */
+const REFERENCE_CODES: ReadonlySet<string> = new Set([
+  'ORPHAN',
+  'MISSING_REFERENCE',
+  'AMBIGUOUS_REFERENCE',
+  'UNRESOLVED_REFERENCE',
+  'EXTERNAL',
+]);
+
+function compare(scan: ScanOutcome, expected: readonly Expected[], scope?: ReadonlySet<string>): ItemResult {
+  const found = scan.lint.findings.filter(
+    (finding) => finding.code !== 'UNENFORCED' && (scope === undefined || scope.has(finding.code)),
+  );
   const open = [...found];
   const missed: string[] = [];
   for (const want of expected) {

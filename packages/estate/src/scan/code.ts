@@ -537,7 +537,12 @@ export type NamedReference = {
   tokenEnd: number;
   /** Found as a loose word after a directive, not quoted, linked or backticked. */
   bare: boolean;
+  /** The notation that wrote the path: what the syntax of the line said, never a word of it. */
+  syntax: MentionSyntax;
 };
+
+/** The notations a path is written in. */
+export type MentionSyntax = 'code-span' | 'link' | 'quoted' | 'wiki' | 'angle' | 'bold' | 'loose';
 
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
@@ -643,7 +648,17 @@ function markdownTokens(line: string): { codes: MarkdownToken[]; links: Markdown
   return { codes, links };
 }
 
-export function pathMentions(line: string): NamedReference[] {
+/** What `pathMentions` reads beyond a path that ends in a file extension. */
+export type PathMentionOptions = {
+  /**
+   * Also read a path with no file extension when its syntax makes it a path: a delimited token (code span, quoted
+   * name, angle or bold name) that holds a folder separator, or any link destination. Without the option (the
+   * default, which the pointer reader and the loaders keep) a token must end in an extension.
+   */
+  extensionless?: boolean;
+};
+
+export function pathMentions(line: string, mentionOptions: PathMentionOptions = {}): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
   // `spaced`: the notation delimits the whole name (a link destination, a quotation), so a file name may hold
@@ -652,7 +667,14 @@ export function pathMentions(line: string): NamedReference[] {
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
-    options: { wiki?: boolean; spaced?: boolean; bare?: boolean; group?: number; exact?: boolean } = {},
+    options: {
+      syntax: MentionSyntax;
+      wiki?: boolean;
+      spaced?: boolean;
+      bare?: boolean;
+      group?: number;
+      exact?: boolean;
+    },
   ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
@@ -667,12 +689,22 @@ export function pathMentions(line: string): NamedReference[] {
       .replace(/[#?].*$/, '')
       .replace(/:\d+(?::\d+)?$/, '');
     if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
+    // A token with no file extension is a path only by its syntax: a link destination, or a delimited token that
+    // holds a folder separator. It holds no space (a space with no extension is a phrase), is not a folder
+    // (a closing slash) and is not a dot segment.
+    const structural =
+      mentionOptions.extensionless === true &&
+      path !== '' &&
+      !/\s/.test(path) &&
+      !path.endsWith('/') &&
+      !/^\.{1,2}$/.test(path) &&
+      (options.syntax === 'link' || path.includes('/'));
     if (
       /^[a-z]+:/i.test(path) ||
       /[<>*?{}$|;&]/.test(path) ||
       /\s--?\w/.test(path) ||
       (!options.spaced && /\s/.test(path) && !/^[^\s]*[/.][^\s]*\s/.test(path)) ||
-      !/\.[A-Za-z0-9]+$/.test(path)
+      (!/\.[A-Za-z0-9]+$/.test(path) && !structural)
     )
       return;
     // The token's exact place comes from the match's group indices, never from a search of the line.
@@ -692,25 +724,37 @@ export function pathMentions(line: string): NamedReference[] {
       tokenStart,
       tokenEnd,
       bare: options.bare === true,
+      syntax: options.syntax,
     });
   };
   // Links and code spans come from a CommonMark parse, each with its source offsets: a code span outside a link, and
   // a link's destination (never its title, whatever the title holds: nested or escaped brackets, a code span).
   const { codes, links } = markdownTokens(line);
   for (const code of codes)
-    take(synthetic(line, code.start, code.end, code.tokenStart, code.tokenEnd), code.text, { group: 1 });
+    take(synthetic(line, code.start, code.end, code.tokenStart, code.tokenEnd), code.text, {
+      syntax: 'code-span',
+      group: 1,
+    });
   for (const link of links)
     take(synthetic(line, link.start, link.end, link.tokenStart, link.tokenEnd), link.text, {
+      syntax: 'link',
       spaced: true,
       group: 1,
       exact: true,
     });
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
-    take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
+    take(match, match[1] ?? match[2], {
+      syntax: 'quoted',
+      spaced: true,
+      group: match[1] !== undefined ? 1 : 2,
+    });
   for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/dg))
-    take(match, match[1], { wiki: true, spaced: true, group: 1 });
+    take(match, match[1], { syntax: 'wiki', wiki: true, spaced: true, group: 1 });
   for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/dg))
-    take(match, match[1] ?? match[2], { group: match[1] !== undefined ? 1 : 2 });
+    take(match, match[1] ?? match[2], {
+      syntax: match[1] !== undefined ? 'angle' : 'bold',
+      group: match[1] !== undefined ? 1 : 2,
+    });
   // Whole tokens, never a file name taken from inside a URL, a glob, an example or a link title. A loose token is
   // a path when it holds a folder separator, starts with `@`, or ends in an extension of letters ("notes.md"):
   // a dot alone ("e.g.", "v1.2") is not a file name.
@@ -721,7 +765,7 @@ export function pathMentions(line: string): NamedReference[] {
       !/^[^.]+(?:\.[^.]+)*\.[A-Za-z][A-Za-z0-9]{1,5}[.:]*$/.test(match[0])
     )
       continue;
-    take(match, match[0].replace(/[.:]+$/, ''), { bare: true });
+    take(match, match[0].replace(/[.:]+$/, ''), { syntax: 'loose', bare: true });
   }
   return found;
 }

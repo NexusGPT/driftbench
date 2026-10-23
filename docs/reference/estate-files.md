@@ -53,6 +53,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `userSkills` | `true` | no |  | true when the scan read a user-level skill layer; lint then needs the folder to read it again |
 | `followedLinks` | list of strings, each not empty | no |  | Links, relative to the estate root, that the scan read through to a real path outside the root |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
+| `referenceReader` | `code` | no |  | code when no model or pointer reader ran and code read the references of the prose; absent in a map a model or the pointer reader read, and in older maps |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
 
 ## DocumentInfo

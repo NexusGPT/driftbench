@@ -3,6 +3,7 @@ import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { type PointerInput, type PointerResult, pointerAtoms, pointerScan } from '../pointer';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
+import { referenceAtoms } from './code-references';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
 import { type ProseCache, type ProseEstimate, proseCacheKey } from './prose-cache';
@@ -65,6 +66,8 @@ export type ScanAtomsOptions = {
   cache?: ProseCache;
   beforeModel?: (estimate: ProseEstimate) => void | Promise<void>;
   pointer?: PointerScanOptions;
+  /** Read the references of the prose by code: the scan with no model, which has no other reader of them. */
+  codeReferences?: boolean;
 };
 
 export type ScanAtoms = {
@@ -88,6 +91,7 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
     skipped: new Set(raw.ignored?.paths ?? []),
   });
   codeAtoms(raw, builder);
+  if (options.codeReferences) referenceAtoms(raw, builder);
   const chunks: ChunkRun[] = [];
   const refusals: ProseRefusal[] = [];
   const duplicates: string[] = [];

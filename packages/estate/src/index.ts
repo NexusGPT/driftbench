@@ -161,6 +161,25 @@ export {
 } from './plan';
 export * as pointer from './pointer';
 export {
+  DEFAULT_RULES,
+  type ExtractInput,
+  type ExtractLine,
+  type Mention,
+  PATH_EXTRACTOR,
+  PATH_NOT_IN_ESTATE,
+  type ReferenceEntry,
+  type ReferenceExtractor,
+  type ReferenceGraph,
+  type ReferenceGraphOptions,
+  type ReferenceOutcome,
+  referenceExtractors,
+  referenceGraph,
+  referenceRulesOf,
+  registerReferenceExtractor,
+  typeOfFile,
+  unregisterReferenceExtractor,
+} from './refs';
+export {
   AtomBuilder,
   acceptProse,
   type CheckDecl,

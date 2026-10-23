@@ -110,9 +110,9 @@ describe('driftbench estate scan', () => {
     expect(loaded.map.root.startsWith('../')).toBe(true);
     const lint = await run(['estate', 'lint', 'maps/map.yaml'], elsewhere);
     expect(lint.code).toBe(1);
-    // A scan with no model reads the structure only: the files that prose names stay unnamed, and the routes of
-    // the routing table are not read.
-    expect(lint.out).toContain('19 findings.');
+    // A scan with no model reads the structure and the paths the prose writes: the files it names are named, and
+    // the routes of the routing table are not read.
+    expect(lint.out).toContain('18 findings.');
   });
 
   it('exits 1 and lists the refusal when an answer quotes text that is not in the file', async () => {
