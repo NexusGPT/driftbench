@@ -28,6 +28,8 @@ type Holdings = {
   pairs: Set<string>;
   /** `path|channel and persona` the spec is written for. */
   context: string;
+  /** The data values whose concrete boundary value the spec records: a boundary spec is the one that carries them. */
+  concretes: string[];
   row?: string;
   family?: string;
 };
@@ -68,6 +70,7 @@ export class SuiteCut {
   private readonly held: Uint32Array[];
   private readonly pairs = new Map<string, number>();
   private readonly contexts = new Map<string, number>();
+  private readonly concretes = new Map<string, number>();
   private readonly rows = new Map<string, number>();
   private readonly allocation: Allocation;
   private readonly holdings = new Map<string, Holdings>();
@@ -121,6 +124,9 @@ export class SuiteCut {
       codes,
       pairs: new Set(m.pairsOf(spec)),
       context: `${path}|${m.contextOf(spec)}`,
+      concretes: Object.keys(
+        (spec.metadata?.generated as { concrete?: Record<string, unknown> } | undefined)?.concrete ?? {},
+      ),
       ...(generated?.seeder === 'twise' ? { row: m.twiseRow(spec) } : {}),
       ...(generated?.metamorphic?.family === undefined ? {} : { family: generated.metamorphic.family }),
     };
@@ -151,6 +157,7 @@ export class SuiteCut {
     });
     for (const pair of held.pairs) this.count(this.pairs, pair, delta);
     this.count(this.contexts, held.context, delta);
+    for (const value of held.concretes) this.count(this.concretes, value, delta);
     if (held.row !== undefined) this.count(this.rows, held.row, delta);
   }
 
@@ -490,6 +497,7 @@ export class SuiteCut {
   /** A walk is a repeat of a whole spec when everything it says and places is held by another. */
   private droppable(shape: Shape, held: Holdings): boolean {
     if (!this.contexts.has(held.context)) return false;
+    for (const value of held.concretes) if (!this.concretes.has(value)) return false;
     for (const text of held.texts) if (!this.said.has(text)) return false;
     if (held.row !== undefined && !this.rows.has(held.row)) return false;
     for (const pair of held.pairs) if (!this.pairs.has(pair)) return false;
