@@ -7,9 +7,7 @@ import type { EstateMap } from '../schema';
  * moved away from its estate names a folder that is not there. The result carries the structured facts a
  * caller prints: the folder looked at, the root as recorded, and a fix.
  */
-export type MapRoot =
-  | { ok: true; root: string }
-  | { ok: false; root: string; recorded: string; fix: string };
+export type MapRoot = { ok: true; root: string } | { ok: false; root: string; recorded: string; fix: string };
 
 /** Resolves the root of a map from the folder of its file, and finds out whether that folder is there. */
 export async function resolveMapRoot(mapFile: string, map: Pick<EstateMap, 'root'>): Promise<MapRoot> {

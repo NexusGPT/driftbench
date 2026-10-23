@@ -74,7 +74,10 @@ export type LintSummary = {
  * Cuts a long list of findings for a report: the first `limit` of each code are shown and the rest are only
  * counted, so one code with a thousand findings cannot bury the others. Without a limit every finding is shown.
  */
-export function summariseLint(findings: readonly LintFinding[], options: { limit?: number } = {}): LintSummary {
+export function summariseLint(
+  findings: readonly LintFinding[],
+  options: { limit?: number } = {},
+): LintSummary {
   const seen = new Map<LintCode, number>();
   const shown: LintFinding[] = [];
   for (const finding of findings) {
