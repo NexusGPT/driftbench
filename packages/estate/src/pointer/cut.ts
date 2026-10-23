@@ -160,6 +160,42 @@ function plainBlocks(source: string, from: number, to: number): Array<[number, n
 }
 
 /** The offsets of the footnote references in a paragraph, by the parser's own nodes. */
+/**
+ * Where JSON front matter ends: a file that opens with `{` and whose first complete JSON object, read by a JSON
+ * parser, ends a line. A string with braces, an escaped quote or a nested object does not end it early. Undefined when
+ * the file does not open with such an object.
+ */
+export function jsonFrontMatterEnd(source: string): number | undefined {
+  if (!source.startsWith('{')) return undefined;
+  let depth = 0;
+  let inString = false;
+  for (let at = 0; at < source.length; at++) {
+    const char = source[at];
+    if (inString) {
+      if (char === '\\') at++;
+      else if (char === '"') inString = false;
+    } else if (char === '"') inString = true;
+    else if (char === '{' || char === '[') depth++;
+    else if (char === '}' || char === ']') {
+      depth--;
+      if (depth === 0) {
+        const lineEnd = source.indexOf('\n', at);
+        const rest = source.slice(at + 1, lineEnd === -1 ? source.length : lineEnd);
+        if (rest.trim() !== '') return undefined;
+        try {
+          const value: unknown = JSON.parse(source.slice(0, at + 1));
+          return value !== null && typeof value === 'object' && !Array.isArray(value) ? at + 1 : undefined;
+        } catch {
+          return undefined;
+        }
+      }
+      if (depth < 0) return undefined;
+    }
+  }
+  return undefined;
+}
+
+/** The offsets of the footnote references in a paragraph, by the parser's own nodes. */
 function footnoteReferences(paragraph: Node): Array<[number, number]> {
   const found: Array<[number, number]> = [];
   const walk = (node: Node) => {
@@ -171,16 +207,21 @@ function footnoteReferences(paragraph: Node): Array<[number, number]> {
   return found;
 }
 
+/** The five types of a GitHub alert, as the marker line writes them. Any other `[!X]` is an ordinary quote. */
+const ALERT_TYPES: ReadonlySet<string> = new Set(
+  ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'].map((type) => `[!${type}]`),
+);
+
 /**
- * A GitHub alert is a block quote whose first line is `[!` TYPE `]` alone (`> [!NOTE]`, `> [!WARNING]`): the marker
- * syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
+ * A GitHub alert is a block quote whose first line is one of the five markers alone (`> [!NOTE]`, `> [!WARNING]`): the
+ * marker syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
  * the text after the marker line starts; the marker is a mark and is in no unit.
  */
 function alertOf(paragraph: Node, text: string, start: number): { type: string; from: number } | undefined {
   const first = paragraph.children?.[0] as (Node & { value?: string }) | undefined;
   if (first?.type !== 'text' || typeof first.value !== 'string') return undefined;
   const line = first.value.split('\n')[0] ?? '';
-  const type = /^\[!([A-Z]+)\]$/.exec(line)?.[0];
+  const type = ALERT_TYPES.has(line) ? line : undefined;
   if (!type) return undefined;
   const lineEnd = text.indexOf('\n', start);
   if (lineEnd === -1) return { type, from: Number.POSITIVE_INFINITY };
@@ -270,7 +311,7 @@ function remarkBlockSyntax(this: Processor) {
 
 const PROCESSOR = unified()
   .use(remarkParse)
-  .use(remarkFrontmatter, ['yaml', 'toml', { type: 'json', fence: { open: '{', close: '}' } }])
+  .use(remarkFrontmatter, ['yaml', 'toml'])
   .use(remarkGfm)
   .use(remarkBlockSyntax);
 
@@ -620,7 +661,6 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       switch (node.type) {
         case 'yaml':
         case 'toml':
-        case 'json':
           if (depth === 0 && offset === 0) frontMatter(start, end, node.type);
           return;
         case 'math':
@@ -706,6 +746,11 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     for (const child of tree.children ?? []) visit(child, {});
   };
 
-  markdown(source, 0, [], 0);
+  const jsonEnd = jsonFrontMatterEnd(source);
+  if (jsonEnd === undefined) markdown(source, 0, [], 0);
+  else {
+    frontMatter(0, jsonEnd, 'json');
+    markdown(source.slice(jsonEnd), jsonEnd, [], 0);
+  }
   return { units, digest: sha(units.map((unit) => `${unit.container}:${unit.fp}`).join('\n')) };
 }

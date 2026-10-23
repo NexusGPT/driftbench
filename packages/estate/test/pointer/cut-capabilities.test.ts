@@ -26,8 +26,17 @@ describe('the cutter on footnotes, alerts, directives, math and TOML or JSON fro
     const found = units('# Ropes\n\n> [!WARNING]\n> Hang the lamp.\n> Coil the rope.\n');
     expect(found.map((unit) => unit.text)).toEqual(['# Ropes', 'Hang the lamp.\n> Coil the rope.']);
     expect(found[1]?.path).toEqual(['Ropes', '[!WARNING]']);
-    // A quote that only looks like one is a plain quote.
-    expect(units('> [!note]\n> Hang it.\n')[0]?.text).toBe('[!note]\n> Hang it.');
+    // Exactly GitHub's five types are alerts; any other `[!X]`, in any case, is an ordinary quote.
+    for (const type of ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'])
+      expect(units(`> [!${type}]\n> Hang it.\n`)[0]).toMatchObject({
+        text: 'Hang it.',
+        path: [`[!${type}]`],
+      });
+    for (const marker of ['[!note]', '[!DANGER]', '[!INFO]'])
+      expect(units(`> ${marker}\n> Hang it.\n`)[0]).toMatchObject({
+        text: `${marker}\n> Hang it.`,
+        path: [],
+      });
   });
 
   it('reads the strings of TOML and JSON front matter as units keyed by their path', () => {
@@ -48,6 +57,15 @@ describe('the cutter on footnotes, alerts, directives, math and TOML or JSON fro
       ['front_matter_value', '$.tags[0]', 'one two'],
       ['sentence', '', 'Body.'],
     ]);
+    // The object ends where a JSON parser finishes the value: braces in a string, an escaped quote and a nested object
+    // do not end it early, and a brace that does not end its line is no front matter.
+    const hard = units('{\n  "title": "a } b \\" c",\n  "owner": { "name": "Mo Li" }\n}\n\nBody.\n');
+    expect(hard.map((unit) => [unit.container, unit.key ?? '', unit.text])).toEqual([
+      ['front_matter_value', '$.title', 'a } b \\" c'],
+      ['front_matter_value', '$.owner.name', 'Mo Li'],
+      ['sentence', '', 'Body.'],
+    ]);
+    expect(units('{ "a": "b" } and more words here.\n')[0]?.container).toBe('sentence');
     // A TOML file that does not parse is one opaque unit, like a YAML that does not parse.
     expect(units('+++\ntitle = \n+++\n\nBody.\n')[0]?.container).toBe('opaque');
   });
@@ -65,5 +83,15 @@ describe('the cutter on footnotes, alerts, directives, math and TOML or JSON fro
     const found = units('$$\nx = 1. y = 2.\n$$\n\nIt costs $5. It lasts $6.\n');
     expect(found[0]).toMatchObject({ container: 'opaque', text: '$$\nx = 1. y = 2.\n$$' });
     expect(found.slice(1).map((unit) => unit.text)).toEqual(['It costs $5.', 'It lasts $6.']);
+  });
+
+  it('ends no sentence at a full stop inside a number or before a lower-case word', () => {
+    expect(units('Pay 3.5 euros. Keep the receipt.\n').map((unit) => unit.text)).toEqual([
+      'Pay 3.5 euros.',
+      'Keep the receipt.',
+    ]);
+    expect(units('It opens at six. then it shuts.\n').map((unit) => unit.text)).toEqual([
+      'It opens at six. then it shuts.',
+    ]);
   });
 });
