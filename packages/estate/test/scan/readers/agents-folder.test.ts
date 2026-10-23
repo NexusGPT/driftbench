@@ -114,10 +114,12 @@ describe('shared agents source contract', () => {
       const root = await fixture({ [planted.yes]: planted.text, [planted.no]: planted.text });
       const input = source(root);
       const inventory = await readAgentsFolderSource(input, [input]);
-      expect(inventory.files).toEqual([
-        { path: planted.yes, text: planted.text },
-        { path: planted.no, text: planted.text },
-      ].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)));
+      expect(inventory.files).toEqual(
+        [
+          { path: planted.yes, text: planted.text },
+          { path: planted.no, text: planted.text },
+        ].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)),
+      );
       expect(inventory.skipped).toEqual([]);
     });
   }
@@ -164,9 +166,9 @@ describe('shared agents source contract', () => {
       const { readAgentsFolderSource } = await reader();
       const files = Object.fromEntries(Object.values(CASES).map((item) => [item.yes, item.text]));
       const a = await fixture(files);
-      const b = await fixture(Object.fromEntries(Object.entries(files).map(([path, text]) => [
-        `${spelling}/${path}`, text,
-      ])));
+      const b = await fixture(
+        Object.fromEntries(Object.entries(files).map(([path, text]) => [`${spelling}/${path}`, text])),
+      );
       const left = source(a);
       const right = source(join(b, spelling));
       expect(await readAgentsFolderSource(left, [left])).toEqual(
