@@ -55,7 +55,9 @@ read the disk through.
   ignore files (named by the profile's `ignoreFiles`, read in each folder the reader enters, a deeper file over a
   higher one, `!` bringing a file back; none hides a file the runtime loads `always`), the layout folder's own
   nested copy, the configured globs, and a folder tagged as a cache by `CACHEDIR.TAG`. Every hit carries a
-  label (the glob, `<file>: <line>`, `CACHEDIR.TAG`) so the scan counts what kept a file out.
+  label (the glob, `<file>: <line>`, `CACHEDIR.TAG`) so the scan counts what kept a file out. The ignore-file
+  format is git's (a differential test against `git ls-files` holds it); a second source of parts gets the same
+  stack over its own tree.
 - `expandVariables(path, profile, { root, home })`: project and plugin variables to a root-relative path; the
   home variable and `~/` to `home` (the `--home` folder) when given.
 - `rootRelative(root, path)`: the root-relative form a map stores, or undefined outside the root.
