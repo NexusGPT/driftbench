@@ -135,61 +135,103 @@ export type SpanVote = {
 
 /**
  * The spans of a unit's winning runs by vote. Runs that gave the label often draw one clause a word apart, so spans of
- * the same kind and polarity that overlap by offsets are one clause; a clause is kept when more than half of the runs
- * that gave the winning label drew it. The span kept is the one of the run that drew the most kept clauses (the first
- * such run), in that run's order, and a clause that run lacks follows. A kind with spans drawn and no clause in the
- * majority has none kept, and `report` gets the number of runs that drew each clause. Offsets and kinds only; no word
- * is read.
+ * the same kind and polarity that overlap by offsets belong to one clause: the clauses are the connected components of
+ * the overlap graph of all spans of a kind and polarity, whatever order the runs came in (a span that bridges two
+ * others joins them). A clause is kept when more than half of the runs that gave the winning label drew a span in it.
+ * The span kept for a clause is the one most runs drew identically (the longest, then the first by offset, on a tie). The
+ * clauses come in the order of the run that drew the most kept clauses (the smallest span list on a tie), the clauses it
+ * lacks follow, by position. Nothing depends on the order of the runs. A kind with spans drawn and no clause
+ * in the majority has none kept, and `report` gets the number of runs that drew each clause. Offsets and kinds only; no
+ * word is read.
  */
 export function votedSpans(
   winners: readonly Pick<Opinion, 'spans'>[],
   report?: (vote: Omit<SpanVote, 'unit' | 'path' | 'set' | 'labeler'>) => void,
 ): SpanAnswer[] {
-  type Clause = { head: SpanAnswer; drawn: Map<number, SpanAnswer> };
-  const clauses: Clause[] = [];
-  winners.forEach((winner, run) => {
-    for (const span of winner.spans ?? []) {
-      const same = clauses.find(
-        (clause) =>
-          clause.head.kind === span.kind &&
-          (clause.head.polarity ?? '') === (span.polarity ?? '') &&
-          span.from < clause.head.to &&
-          clause.head.from < span.to,
-      );
-      if (same) {
-        if (!same.drawn.has(run)) same.drawn.set(run, span);
-      } else clauses.push({ head: span, drawn: new Map([[run, span]]) });
+  type Drawn = { span: SpanAnswer; run: number };
+  const all: Drawn[] = winners.flatMap((winner, run) => (winner.spans ?? []).map((span) => ({ span, run })));
+  // Union-find over the spans of one kind and polarity that overlap.
+  const parent = all.map((_, at) => at);
+  const find = (at: number): number => {
+    let root = at;
+    while (parent[root] !== root) root = parent[root] as number;
+    for (let step = at; parent[step] !== root; ) {
+      const next = parent[step] as number;
+      parent[step] = root;
+      step = next;
     }
+    return root;
+  };
+  for (let a = 0; a < all.length; a++) {
+    for (let b = a + 1; b < all.length; b++) {
+      const x = (all[a] as Drawn).span;
+      const y = (all[b] as Drawn).span;
+      if (x.kind === y.kind && (x.polarity ?? '') === (y.polarity ?? '') && x.from < y.to && y.from < x.to)
+        parent[find(a)] = find(b);
+    }
+  }
+  const components = new Map<number, Drawn[]>();
+  all.forEach((drawn, at) => {
+    const root = find(at);
+    components.set(root, [...(components.get(root) ?? []), drawn]);
   });
-  const kept = clauses.filter((clause) => clause.drawn.size * 2 > winners.length);
+  type Clause = { members: Drawn[]; runs: Set<number>; best: SpanAnswer };
+  const identity = (span: SpanAnswer) => `${span.from}\0${span.to}`;
+  const clauses: Clause[] = [...components.values()].map((members) => {
+    const tally = new Map<string, { span: SpanAnswer; count: number }>();
+    for (const { span } of members) {
+      const found = tally.get(identity(span));
+      if (found) found.count++;
+      else tally.set(identity(span), { span, count: 1 });
+    }
+    const best = [...tally.values()].sort(
+      (a, b) =>
+        b.count - a.count || b.span.to - b.span.from - (a.span.to - a.span.from) || a.span.from - b.span.from,
+    )[0] as { span: SpanAnswer };
+    return { members, runs: new Set(members.map((member) => member.run)), best: best.span };
+  });
+  // Canonical order of the clauses: kind, polarity, position.
+  clauses.sort(
+    (a, b) =>
+      a.best.kind.localeCompare(b.best.kind) ||
+      (a.best.polarity ?? '').localeCompare(b.best.polarity ?? '') ||
+      a.best.from - b.best.from ||
+      a.best.to - b.best.to,
+  );
+  const kept = clauses.filter((clause) => clause.runs.size * 2 > winners.length);
   if (report) {
-    const keptKinds = new Set(kept.map((clause) => clause.head.kind));
-    for (const kind of new Set(clauses.map((clause) => clause.head.kind))) {
+    const keptKinds = new Set(kept.map((clause) => clause.best.kind));
+    for (const kind of new Set(clauses.map((clause) => clause.best.kind))) {
       if (keptKinds.has(kind)) continue;
       report({
         kind,
         runs: winners.length,
         counts: clauses
-          .filter((clause) => clause.head.kind === kind)
-          .map((clause) => ({ from: clause.head.from, to: clause.head.to, count: clause.drawn.size })),
+          .filter((clause) => clause.best.kind === kind)
+          .map((clause) => ({ from: clause.best.from, to: clause.best.to, count: clause.runs.size })),
       });
     }
   }
   if (kept.length === 0) return [];
-  // The lead run: the first that drew the most kept clauses. Its spans come in its order, the others after them.
-  const share = (run: number) => kept.filter((clause) => clause.drawn.has(run)).length;
-  let lead = 0;
-  for (let run = 1; run < winners.length; run++) if (share(run) > share(lead)) lead = run;
-  const inLead = kept.filter((clause) => clause.drawn.has(lead));
-  const order = (winners[lead]?.spans ?? []).filter((span) =>
-    inLead.some((clause) => clause.drawn.get(lead) === span),
-  );
-  return [
-    ...order,
-    ...kept
-      .filter((clause) => !clause.drawn.has(lead))
-      .map((clause) => clause.drawn.values().next().value as SpanAnswer),
-  ];
+  // The lead run: the one that drew the most kept clauses; on a tie the one whose own list of spans sorts first.
+  const spansOf = (run: number) => winners[run]?.spans ?? [];
+  const inKept = (run: number) =>
+    spansOf(run).filter((span) => kept.some((clause) => clause.members.some((m) => m.span === span)));
+  const rank = (run: number) =>
+    JSON.stringify(inKept(run).map((span) => [span.kind, span.from, span.to, span.polarity ?? '']));
+  let lead = -1;
+  for (let run = 0; run < winners.length; run++) {
+    const count = kept.filter((clause) => clause.runs.has(run)).length;
+    const best = lead < 0 ? -1 : kept.filter((clause) => clause.runs.has(lead)).length;
+    if (count > best || (count === best && count > 0 && rank(run) < rank(lead))) lead = run;
+  }
+  // The clauses come in the order the lead run listed them, the others after it, by position; each as its best span.
+  const order: Clause[] = [];
+  for (const span of inKept(lead)) {
+    const clause = kept.find((candidate) => candidate.members.some((member) => member.span === span));
+    if (clause && !order.includes(clause)) order.push(clause);
+  }
+  return [...order, ...kept.filter((clause) => !order.includes(clause))].map((clause) => clause.best);
 }
 
 export type PointerResult = {

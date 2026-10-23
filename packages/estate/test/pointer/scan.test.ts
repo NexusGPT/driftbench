@@ -20,6 +20,7 @@ import {
   SPLIT_REASK_RUNS,
   singleLabelling,
   stackedLabelling,
+  votedSpans,
   type Window,
   windowsOf,
 } from '../../src/pointer';
@@ -1289,6 +1290,42 @@ describe('the spans of a unit are a vote of the runs that gave its label', () =>
     return { result, entry };
   };
 
+  it('gives one result whatever order the runs come in: a span that bridges two others joins them', () => {
+    const left = { kind: 'act', from: 0, to: 8 };
+    const right = { kind: 'act', from: 9, to: 19 };
+    const bridge = { kind: 'act', from: 4, to: 14 };
+    const runs = [{ spans: [left] }, { spans: [right] }, { spans: [bridge] }, {}];
+    const orders = (items: number[]): number[][] =>
+      items.length <= 1
+        ? [items]
+        : items.flatMap((item) =>
+            orders(items.filter((other) => other !== item)).map((tail) => [item, ...tail]),
+          );
+    const results = orders([0, 1, 2, 3]).map((order) => {
+      const votes: unknown[] = [];
+      const spans = votedSpans(
+        order.map((at) => runs[at] as { spans?: (typeof left)[] }),
+        (vote) => votes.push(vote),
+      );
+      return JSON.stringify({ spans, votes });
+    });
+    expect(results).toHaveLength(24);
+    expect(new Set(results).size).toBe(1);
+    // The three spans overlap through the bridge: one clause drawn by 3 of 4 runs is kept.
+    expect(JSON.parse(results[0] as string).spans).toHaveLength(1);
+  });
+
+  it('keeps no clause that fewer than half the runs drew, whatever the order', () => {
+    const one = { kind: 'act', from: 0, to: 8 };
+    const two = { kind: 'act', from: 9, to: 19 };
+    const orders = [
+      [{ spans: [one] }, { spans: [two] }, {}, {}],
+      [{}, {}, { spans: [two] }, { spans: [one] }],
+      [{ spans: [two] }, {}, { spans: [one] }, {}],
+    ];
+    for (const winners of orders) expect(votedSpans(winners)).toEqual([]);
+  });
+
   it('does not take the spans of the first run when only 3 of 7 runs drew the place', async () => {
     // Run 1 and run 2 drew the act alone; runs 3, 6 and 7 drew the place as well; runs 4 and 5 drew nothing of it.
     const { result, entry } = await scanWith(7, (run) => ([3, 6, 7].includes(run) ? [ACT, PLACE] : [ACT]));
@@ -1310,10 +1347,10 @@ describe('the spans of a unit are a vote of the runs that gave its label', () =>
     expect(result.spanVotes).toEqual([]);
   });
 
-  it("keeps one span, the first run's, when the runs draw the same clause a word apart", async () => {
+  it('keeps one span, the one most runs drew, when the runs draw the same clause a word apart', async () => {
     const wide = { kind: 'act', from: 0, to: 4 };
     const { result, entry } = await scanWith(3, (run) => (run === 1 ? [ACT] : [wide]));
-    expect(entry?.labels.duty?.spans).toEqual([ACT]);
+    expect(entry?.labels.duty?.spans).toEqual([wide]);
     expect(result.spanVotes).toEqual([]);
   });
 
