@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { QuoteIndex } from '../extract/quote';
+import { shareSubjects } from './subjects';
 
 /**
  * The variable store from its three sources at once (docs/variables.md R1 to R5): the agent's own files, the
@@ -30,6 +31,16 @@ import { QuoteIndex } from '../extract/quote';
  * What a reader wrote about a clause. Code never reads the clause: a model or a person did, and this is their
  * answer. A comparison is `lt`, `le`, `gt` or `ge` (how the quantity is compared with the limit for the condition
  * to hold) or `eq` or `ne` (equal, not equal; the file format has no such comparison, so no boundary is written).
+ * `subject` is the canonical name of the quantity, set or fact, independent of comparison wording and limits.
+ * The labeller can reconcile aliases by choosing an existing subject's opaque id (subject-choices.ts).
+ * A `member` label describes both inclusion and exclusion: `members` lists the alternatives named by the clause,
+ * including excluded alternatives. The store samples both the listed values and a value outside the list; this
+ * label describes the variable's cases, not which case makes the predicate true. A boolean labels a yes/no fact,
+ * not a whole predicate over listed alternatives. The requests in span-label-request.ts explain this distinction.
+ * A range keeps its written endpoints in `low` and `high`, never the nearest permitted integers. New labels give
+ * both `lowInclusive` and `highInclusive`; false excludes that endpoint, true includes it. The reader writes gt/ge
+ * and lt/le boundaries respectively. Legacy labels may omit both flags and keep their five samples without
+ * asserting endpoint comparisons. One flag alone, or a non-boolean flag, is not a usable range label.
  */
 export type SpanLabel =
   | {
@@ -39,7 +50,10 @@ export type SpanLabel =
       comparison: 'lt' | 'le' | 'gt' | 'ge' | 'eq' | 'ne';
       unit?: string;
     }
-  | { kind: 'range'; subject: string; low: number; high: number; unit?: string }
+  | ({ kind: 'range'; subject: string; low: number; high: number; unit?: string } & (
+      | { lowInclusive: boolean; highInclusive: boolean }
+      | { lowInclusive?: undefined; highInclusive?: undefined }
+    ))
   | { kind: 'member'; subject: string; members: readonly string[] }
   | { kind: 'boolean'; subject: string }
   | { kind: 'none' };
@@ -475,6 +489,18 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
     }
     value.quotes.set(quoteKey(entry), entry);
   };
+  const conditionBoundary = (draft: VariableDraft, boundary: BoundaryDraft): void => {
+    const boundaries = draft.boundaries ?? [];
+    const at = boundaries.findIndex(
+      (b) => b.limit === boundary.limit && b.comparison === boundary.comparison,
+    );
+    // A shared endpoint can have different interior witnesses. Pick the whole boundary by quote order so
+    // its witnesses and provenance remain together, independently of source order.
+    if (at < 0) boundaries.push(boundary);
+    else if (quoteKey(boundary.provenance) < quoteKey((boundaries[at] as BoundaryDraft).provenance))
+      boundaries[at] = boundary;
+    draft.boundaries = boundaries;
+  };
   /** Writes the variable of one labelled clause; returns its name, or undefined when the label is not usable. */
   const conditionVariable = (label: SpanLabel, entry: QuoteEntry): string | undefined => {
     if (label.kind === 'numeric' || label.kind === 'range') {
@@ -502,14 +528,14 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
             ...(label.unit === undefined ? {} : { unit: label.unit }),
             provenance: entry,
           };
-          // Of the clauses that give one boundary, the one with the smallest quote key is cited, whatever the order.
-          const same = (draft.boundaries ?? []).find((b) => b.limit === at && b.comparison === c);
-          if (!same) draft.boundaries?.push(boundary);
-          else if (quoteKey(entry) < quoteKey(same.provenance)) same.provenance = entry;
+          conditionBoundary(draft, boundary);
         }
         return draft.name;
       }
       if (!finite(label.low) || !finite(label.high) || label.low >= label.high) return undefined;
+      const hasFlags = label.lowInclusive !== undefined || label.highInclusive !== undefined;
+      if (hasFlags && (typeof label.lowInclusive !== 'boolean' || typeof label.highInclusive !== 'boolean'))
+        return undefined;
       const draft = conditionDraft('condition-numeric', name, label.subject);
       let inside = label.low / 2 + label.high / 2;
       if (Number.isInteger(label.low) && Number.isInteger(label.high)) {
@@ -528,6 +554,22 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
       const samples = [outsideLow, label.low, inside, label.high, outsideHigh];
       for (const sample of samples)
         conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
+      if (hasFlags) {
+        for (const [limit, fails, comparison] of [
+          [label.low, outsideLow, label.lowInclusive ? 'ge' : 'gt'],
+          [label.high, outsideHigh, label.highInclusive ? 'le' : 'lt'],
+        ] as const) {
+          conditionBoundary(draft, {
+            holds: numberKey(inside),
+            fails: numberKey(fails),
+            edge: numberKey(limit),
+            limit,
+            comparison,
+            ...(label.unit === undefined ? {} : { unit: label.unit }),
+            provenance: entry,
+          });
+        }
+      }
       return draft.name;
     }
     if (label.kind === 'member') {
@@ -572,6 +614,20 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
       }
     }
   }
+  // One quantity, one subject: clauses with the same text up to the first digit or symbol share the subject of the
+  // first of them in text order (./subjects.ts), so a reader that named one quantity two ways still gives one variable.
+  // A clause that will be refused (too long, or not in its file) lends its subject to no other.
+  const usable = new Set<string>();
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions ?? []) {
+      if (typeof condition.text !== 'string' || condition.text.length > MAX_TEXT) continue;
+      if (index.contains(rule.source, condition.text)) usable.add(foldSpace(condition.text));
+    }
+  }
+  const shared = shareSubjects(
+    [...clauseLabel].filter(([text]) => usable.has(text)).map(([text, label]) => ({ text, label })),
+  );
+  for (const { text, label } of shared) if (label !== undefined) clauseLabel.set(text, label);
   const ruleVariables = new Map<string, Set<string>>();
   for (const rule of sources.estate?.rules ?? []) {
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();
@@ -862,7 +918,9 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
         };
       },
     );
-    const boundaries = (draft.boundaries ?? []).map((boundary) => ({
+    const boundaries = byText(draft.boundaries ?? [], (boundary) =>
+      identity('boundary', numberKey(boundary.limit), boundary.comparison),
+    ).map((boundary) => ({
       holds: ids.get(boundary.holds) as string,
       fails: ids.get(boundary.fails) as string,
       edge: ids.get(boundary.edge) as string,

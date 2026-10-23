@@ -1,12 +1,23 @@
-import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
+import { basename, join, posix, resolve } from 'node:path';
+import { CLAUDE_CODE_PROFILE, type PartType, variablePrefix } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
+import {
+  comparableName,
+  leavesRoot,
+  listFolder,
+  readdir,
+  readFile,
+  realpath,
+  sameName,
+  stat,
+} from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
+import { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
 import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
@@ -15,7 +26,6 @@ import type {
   CheckDecl,
   EstateFile,
   EstateReader,
-  FileKind,
   GuardDecl,
   PermissionDecl,
   ProseChunk,
@@ -54,8 +64,28 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
  * The files of the layer carry the path `~/.claude/skills/<folder>/...` whatever folder they were read in.
  */
 
-const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
-const SETTINGS = new Set(['.claude/settings.json', '.claude/settings.local.json']);
+/** The runtime profile this reader reads by: its layout, its part types, the variables. */
+const PROFILE = CLAUDE_CODE_PROFILE;
+const LAYOUT = PROFILE.layout.root;
+/** The types the profile maps to a kind of the map, by that kind, in the profile's order. */
+const typesOfKind = (kind: string): PartType[] =>
+  PROFILE.types.types.filter((type) => PROFILE.mapKinds[type.name] === kind);
+/** The entry file of a skill folder: the entry of the type the profile maps to skills. */
+const SKILL_ENTRY = (() => {
+  const entry = typesOfKind('skill')[0]?.entry;
+  if (entry === undefined)
+    throw new Error(`the ${PROFILE.name} profile maps no folder type with an entry to skills`);
+  return entry;
+})();
+/** A standing line that imports a file: the import prefix of a standing type, then the path, alone on the line. */
+const IMPORT = (() => {
+  const prefix = typesOfKind('standing')
+    .flatMap((type) => type.references)
+    .find((rule) => rule.by === 'import');
+  return prefix?.by === 'import'
+    ? new RegExp(`^${prefix.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\s]+)\\s*$`)
+    : undefined;
+})();
 const MAX_FILE_BYTES = 1024 * 1024;
 
 /** Bound open files and queued filesystem work while retaining the caller's order. */
@@ -94,7 +124,7 @@ const INTERPRETERS = new Set([
 ]);
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
 const DISPATCH_EXTENSIONS = ['.py', '.sh', '.bash', '.js', '.mjs', '.cjs', '.ts', '.rb', '.pl'];
-const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\//];
+const ANCHOR = variablePrefix([...PROFILE.pathVariables.project, ...PROFILE.pathVariables.plugin]);
 
 /** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
 export const DEFAULT_CHUNK_CHARACTERS = 20_000;
@@ -103,23 +133,7 @@ export const DEFAULT_CHUNK_CHARACTERS = 20_000;
  * Paths no runtime loads, skipped by default. Each is matched like a `.gitignore` line: without a leading
  * slash at any depth, `**` across folders, and a folder it matches is skipped whole.
  */
-export const DEFAULT_IGNORE = [
-  '.git',
-  'node_modules',
-  '__pycache__',
-  '*.log',
-  'tests/fixtures',
-  'hooks/**/tests',
-  'hooks/**/test',
-  '.trash',
-  'skills/synced',
-  // Files an operating system or an editor leaves beside the estate's own.
-  '.DS_Store',
-  'Thumbs.db',
-  '*.swp',
-  '*~',
-  '.idea',
-] as const;
+export const DEFAULT_IGNORE: readonly string[] = PROFILE.ignore;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
 export const ESTATE_CONFIG = 'driftbench.estate.yaml';
@@ -134,6 +148,8 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /** How the reader classifies a file and finds the files beside the layout it reads. */
+  classifier?: FileClassifier;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -159,6 +175,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly classifier: FileClassifier;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -168,6 +185,7 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    this.classifier = options.classifier ?? PROFILE_CLASSIFIER;
   }
 
   /**
@@ -179,8 +197,8 @@ export class ClaudeCodeReader implements EstateReader {
     const notes: ReadNote[] = [];
     const { ignored } = await this.ignoreOf(root, notes);
     const large: string[] = [];
-    await noteFollowed(root, '.claude', notes);
-    const walked = await walk(root, '.claude', notes, ignored, new Set(), undefined, large);
+    await noteFollowed(root, LAYOUT, notes);
+    const walked = await walk(root, LAYOUT, notes, ignored, new Set(), undefined, large);
     const raw = await this.read(root);
     // The user-level skill layer is no part of the project: a copy of the project holds none of it.
     const rootReferences = [
@@ -191,7 +209,7 @@ export class ClaudeCodeReader implements EstateReader {
     ];
     return [
       ...new Set([
-        ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'], notes)),
+        ...(await present(root, [...PROFILE.standing.rootFiles, ...PROFILE.layout.extraFiles], notes)),
         ...walked,
         ...large,
         ...rootReferences,
@@ -205,7 +223,7 @@ export class ClaudeCodeReader implements EstateReader {
   ): Promise<{ config: EstateConfig; chosen: string[]; ignored: Ignored }> {
     const config = await readConfig(root, notes);
     const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
-      (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
+      (pattern) => !DEFAULT_IGNORE.includes(pattern),
     );
     const patterns = [...DEFAULT_IGNORE, ...chosen];
     const ignored: Ignored = {
@@ -220,11 +238,11 @@ export class ClaudeCodeReader implements EstateReader {
     const budget = this.budget;
     const notes: ReadNote[] = [];
     const { config, chosen, ignored } = await this.ignoreOf(root, notes);
-    await noteFollowed(root, '.claude', notes);
+    await noteFollowed(root, LAYOUT, notes);
     const paths = [
-      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'], notes)),
-      ...(await walk(root, '.claude', notes, ignored)),
-      ...(await nestedStanding(root, '', notes, ignored)),
+      ...(await present(root, PROFILE.standing.rootFiles, notes)),
+      ...(await walk(root, LAYOUT, notes, ignored)),
+      ...(await nestedStanding(root, '', notes, ignored, this.classifier)),
     ];
     const files: EstateFile[] = [];
     const loaded = await readBatch(paths, async (path) => ({
@@ -238,7 +256,7 @@ export class ClaudeCodeReader implements EstateReader {
       if (text.trim() === '') {
         notes.push({ file: path, message: 'empty file: nothing to read' });
         files.push({ path, text, kind: 'other' });
-      } else files.push({ path, text, ...classify(path, text) });
+      } else files.push({ path, text, ...this.classifier.classify(path, text) });
     }
 
     for (const file of files)
@@ -262,7 +280,7 @@ export class ClaudeCodeReader implements EstateReader {
       prose: [],
       notes: notes.filter((note) => note.message !== FOLLOWED_NOTE),
       followedLinks: followedLinks(notes),
-      bases: ['.claude', '.claude/skills'],
+      bases: [...PROFILE.bases],
       ignored: {
         patterns: ignored.rules.map((rule) => ({
           pattern: rule.pattern,
@@ -381,7 +399,7 @@ async function readRootReferences(
     const source = files.get(chunk.file);
     for (const line of chunkLines(chunk, source)) {
       // A standing file's line `@path` imports that file into the standing instructions.
-      const imported = source?.kind === 'standing' ? /^@([^\s]+)\s*$/.exec(line.text.trim())?.[1] : undefined;
+      const imported = source?.kind === 'standing' ? IMPORT?.exec(line.text.trim())?.[1] : undefined;
       const names = imported ? [imported] : namedPaths(line.text);
       for (const name of names) {
         if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
@@ -478,6 +496,7 @@ async function nestedStanding(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
+  classifier: FileClassifier,
   ancestors: Set<string> = new Set(),
   canonical?: string,
   found: string[] = [],
@@ -490,11 +509,10 @@ async function nestedStanding(
   }
   ancestors.add(real);
   try {
-    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-    for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+    for (const entry of await listFolder(join(root, folder))) {
       const path = posix.join(folder, entry.name);
       // The regular layout walk already owns this tree and the root standing files.
-      if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
+      if (folder === '' && (entry.name === LAYOUT || PROFILE.standing.rootFiles.includes(path))) continue;
       if (ignored.rules.some((rule) => rule.test(path))) continue;
       // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
       if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
@@ -505,11 +523,12 @@ async function nestedStanding(
           path,
           notes,
           ignored,
+          classifier,
           ancestors,
           entry.isSymbolicLink() ? undefined : join(real, entry.name),
           found,
         );
-      } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
+      } else if (classifier.besideLayout(path) && (entry.isFile() || linked?.isFile())) {
         const info = linked ?? (await stat(join(root, path)));
         if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
         else found.push(path);
@@ -542,7 +561,7 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
   const config: EstateConfig = { ignore: [], aliases: {} };
   let text: string | undefined;
   let place = ESTATE_CONFIG;
-  for (const candidate of [ESTATE_CONFIG, `.claude/${ESTATE_CONFIG}`]) {
+  for (const candidate of PROFILE.configFiles) {
     text = await readFile(join(root, candidate), 'utf8').catch(() => undefined);
     place = candidate;
     if (text !== undefined) break;
@@ -632,7 +651,7 @@ function userFolderOf(option: string | undefined, config: EstateConfig, root: st
 /** A name a folder listing skips: hidden (a repository, an archive) or a dependency folder. */
 const hiddenInLayer = (name: string) => name.startsWith('.') || name === 'node_modules';
 /** The folder a desktop keeps what a user threw away. It is never a container of skills, whatever its case. */
-const trashFolder = (name: string) => name.toLowerCase() === 'trash';
+const trashFolder = (name: string) => sameName(name, 'trash');
 
 /**
  * The files of the user-level skill layer. A folder of the layer that holds a `SKILL.md` is a skill; one that
@@ -662,7 +681,7 @@ async function readUserLayer(
   }
   const isFolder = async (path: string) => (await stat(path).catch(() => undefined))?.isDirectory() === true;
   const isSkill = async (path: string) =>
-    (await stat(join(path, 'SKILL.md')).catch(() => undefined))?.isFile() === true;
+    (await stat(join(path, SKILL_ENTRY)).catch(() => undefined))?.isFile() === true;
   const skills: string[] = [];
   for (const entry of [...listing].sort(byName)) {
     if (hiddenInLayer(entry.name) || !(await isFolder(join(folder, entry.name)))) continue;
@@ -694,7 +713,7 @@ async function readUserLayer(
     const real = await realpath(join(folder, rel)).catch(() => undefined);
     if (real === undefined || taken.has(real)) continue;
     taken.add(real);
-    const text = (await readFile(join(folder, rel, 'SKILL.md'), 'utf8').catch(() => '')).replace(
+    const text = (await readFile(join(folder, rel, SKILL_ENTRY), 'utf8').catch(() => '')).replace(
       /^\uFEFF/,
       '',
     );
@@ -704,7 +723,7 @@ async function readUserLayer(
     if (names.has(name)) {
       out.shadowed.push(name);
       out.notes.push({
-        file: `${place}/SKILL.md`,
+        file: `${place}/${SKILL_ENTRY}`,
         message: `skill ${name} is shadowed by a skill of the same name that comes first; not read`,
       });
       continue;
@@ -720,7 +739,7 @@ async function readUserLayer(
       const file: EstateFile = { path: `${USER_LAYER}/${path}`, text: body, kind: 'other', layer: 'user' };
       if (body.trim() === '') out.notes.push({ file: file.path, message: 'empty file: nothing to read' });
       else {
-        file.kind = path === `${rel}/SKILL.md` ? 'skill' : 'skill_file';
+        file.kind = path === `${rel}/${SKILL_ENTRY}` ? 'skill' : 'skill_file';
         file.owner = name;
       }
       out.files.push(file);
@@ -835,8 +854,7 @@ async function walk(
   }
   ancestors.add(real);
   try {
-    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-    const ordered = [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    const ordered = await listFolder(join(root, folder));
     // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
@@ -887,25 +905,18 @@ async function walk(
   }
 }
 
-function classify(path: string, text: string): { kind: FileKind; owner?: string } {
-  if (STANDING.has(path) || /(?:^|\/)(?:CLAUDE|CLAUDE\.local)\.md$/.test(path)) return { kind: 'standing' };
-  if (SETTINGS.has(path)) return { kind: 'settings' };
-  const parts = path.split('/');
-  if (parts[1] === 'memory' && path.endsWith('.md')) return { kind: 'memory' };
-  if (parts[1] === 'skills' && parts.length >= 4) {
-    const owner = parts[2] ?? '';
-    return parts.length === 4 && parts[3] === 'SKILL.md'
-      ? { kind: 'skill', owner }
-      : { kind: 'skill_file', owner };
-  }
-  if (parts[1] === 'agents' && parts.length >= 3 && path.endsWith('.md')) return { kind: 'subagent' };
-  if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
-    return { kind: 'registry' };
-  if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
-  if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
-  if (/\.(jsonc?|ya?ml)$/.test(path) && structuredRegistry(text, path)) return { kind: 'registry' };
-  return { kind: 'other' };
-}
+/** The structures this reader can test a file for, by the shape names of the profile's types. */
+export const READER_SHAPES: ShapeTests = {
+  'step-list': (text, path) => isStepList(text, path),
+  catalogue: (text) => catalogueEntries(text) !== undefined,
+  'check-table': (text, path) => structuredRegistry(text, path),
+};
+
+/**
+ * The reader's classification: by the profile's part types. It gives every file of every fixture estate the kind
+ * the reader gave before it read through the types (test/scan/profile-equality.test.ts).
+ */
+export const PROFILE_CLASSIFIER: FileClassifier = profileClassifier(PROFILE, READER_SHAPES);
 
 /** The keys a catalogue entry is known by. An entry holds at least two of them. */
 const CATALOGUE_KEYS = ['kind', 'event', 'watches', 'work', 'step', 'status'] as const;
@@ -1393,9 +1404,7 @@ function runPath(segment: readonly string[]): string | undefined {
 
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
 function anchorOf(token: string): { script: string; anchored: boolean } {
-  for (const anchor of ANCHORS) {
-    if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
-  }
+  if (ANCHOR.test(token)) return { script: posix.normalize(token.replace(ANCHOR, '')), anchored: true };
   if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
   return { script: posix.normalize(token), anchored: false };
 }
@@ -1608,10 +1617,10 @@ function guardNamedIn(cells: readonly string[], known: ReadonlySet<string>): str
  * extension, or be the end of it after a `-` or `_`; it names a guard only when exactly one guard fits.
  */
 function guardOfAdapter(cell: string, known: ReadonlySet<string>): string | undefined {
-  const name = strip(cell).toLowerCase();
+  const name = comparableName(strip(cell));
   if (!/^[a-z0-9][\w.-]*$/.test(name)) return undefined;
   const fits = [...known].filter((guard) => {
-    const stem = guard.replace(/\.[A-Za-z0-9]+$/, '').toLowerCase();
+    const stem = comparableName(guard.replace(/\.[A-Za-z0-9]+$/, ''));
     return stem === name || stem.endsWith(`-${name}`) || stem.endsWith(`_${name}`);
   });
   return fits.length === 1 ? fits[0] : undefined;
@@ -1817,8 +1826,7 @@ function tokens(command: string): string[] {
 
 /** A path with its project anchor (`$CLAUDE_PROJECT_DIR/`) taken off, relative to the root. */
 function stripAnchor(token: string): string {
-  for (const anchor of ANCHORS) if (anchor.test(token)) return token.replace(anchor, '');
-  return token;
+  return token.replace(ANCHOR, '');
 }
 
 /** Entries in the known registry containers, an id map, or an event-grouped list. */
@@ -2220,15 +2228,7 @@ const FOLLOWED_NOTE = 'followed-link';
 
 /** Record a structural link whose real path lies outside the estate root; the link is read, as the layout asks. */
 async function noteFollowed(root: string, file: string, notes: ReadNote[]): Promise<void> {
-  const link = await lstat(join(root, file)).catch(() => undefined);
-  if (!link?.isSymbolicLink()) return;
-  const [real, base] = await Promise.all([
-    realpath(join(root, file)).catch(() => undefined),
-    realpath(root).catch(() => undefined),
-  ]);
-  if (real === undefined || base === undefined) return;
-  const tail = relative(base, real);
-  if (tail !== '..' && !tail.startsWith(`..${sep}`) && !isAbsolute(tail)) return;
+  if (!(await leavesRoot(root, file))) return;
   if (!notes.some((note) => note.file === file && note.message === FOLLOWED_NOTE))
     notes.push({ file, message: FOLLOWED_NOTE });
 }
