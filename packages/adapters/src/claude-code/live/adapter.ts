@@ -21,6 +21,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   type ArtifactRef,
+  callsIn,
   canonicalJson,
   copyHistory,
   type ExecutionRecord,
@@ -48,6 +49,7 @@ import {
   type SessionFile,
   type SessionRecord,
   type StateLibrary,
+  type StateLibraryDigest,
   sessionFileText,
 } from './states';
 import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
@@ -107,6 +109,8 @@ export type ClaudeCodeLiveOptions = {
   sessionState?: readonly LiveOp[];
   /** Operations by `vars.session_state` and `vars.event`. */
   library?: StateLibrary;
+  /** The library file: its path, digest and the digest of each prefix file, written into every block record. */
+  libraryFile?: { path: string } & StateLibraryDigest;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
   /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
@@ -523,7 +527,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       if (!block) throw new AgentFailure('the turn mapped to no block');
       const { diff: workspaceDiff, runtimeWrites } = agentDiff(
         fullDiff,
-        block.observed.toolCalls,
+        callsIn(block.observed, 'any'),
         cwd,
         options.estateFiles ?? DEFAULT_ESTATE_FILES,
       );
@@ -552,7 +556,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
               ...(op.op === 'compact' && op.preTokens !== undefined ? { preTokens: op.preTokens } : {}),
             }))
         : [];
-      const findings = outsideWrites(block.observed.toolCalls, cwd);
+      const findings = outsideWrites(callsIn(block.observed, 'any'), cwd);
       if (findings.length > 0) {
         const runtime = block.observed.runtime ?? {};
         block.observed.runtime = {
@@ -608,6 +612,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
+            ...(options.libraryFile === undefined ? {} : { stateLibrary: options.libraryFile }),
             attempts,
             ops: ops.map((op) => op.op),
             notes,

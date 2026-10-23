@@ -60,7 +60,7 @@ driftbench report [campaign] --store <file> --out <file.html> [options]
 | `--withhold-incomplete` | off | for a line with incomplete runs, withhold the pass^k and pass@k value instead of reporting it with the range of its missing outcomes |
 | `--json` | off | also print the whole scorecard as one JSON document on standard output, instead of the summary lines |
 | `--config <file>` | `driftbench.yaml` in the working folder, when it exists | the project config whose `aggregates:` list is scored |
-| `--aggregate <spec>` | none | a campaign-level criterion `name:op threshold`, such as `pass-rate:>=0.8`; repeatable. Names: `pass-rate`, `broken-share`. Operators: `>=` (at least), `<=` (at most). A flag with the same name as a config entry replaces it |
+| `--aggregate <spec>` | none | a campaign-level criterion `name:op threshold`, such as `'pass-rate:>=0.8'`, quoted because a shell reads `>=` as a redirect; repeatable. Names: `pass-rate`, `broken-share`. Operators: `>=` (at least), `<=` (at most). A flag with the same name as a config entry replaces it |
 
 The global option `--plugin <module>` (load a plugin first) is accepted before or after the command, as
 on every command.

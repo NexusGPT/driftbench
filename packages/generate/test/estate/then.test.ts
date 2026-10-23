@@ -175,6 +175,38 @@ describe('each evidence predicate as an existing check', () => {
     expect(then.gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
   });
 
+  it('ends a pair on the file the gate declares it reads, when the gate has no path field', () => {
+    const read = (file: string): EstateEvidence => ({
+      type: 'tool_called',
+      label: 'Read',
+      input: { file_path: { contains: file } },
+    });
+    const ordered: EstateEvidence = { type: 'ordered', before: 'Read', after: 'Edit' };
+    const pairOf = (gate: EstateAtom) => thenOf([gate], 'positive', ctx).ordered;
+    // The file is declared as the evidence of a Read call: the pair waits on a Read of that file, not any Read.
+    expect(pairOf(atom('g', [ordered, read('references/menu-format.md')], { kind: 'gate' }))).toEqual([
+      { before: 'Read~references/menu-format.md', after: 'Edit' },
+    ]);
+    // A path field of the gate is the file, as before.
+    expect(
+      pairOf(
+        atom('g', [ordered, read('references/other.md')], { kind: 'gate', fields: { path: 'refs/own.md' } }),
+      ),
+    ).toEqual([{ before: 'Read~refs/own.md', after: 'Edit' }]);
+    // No declared Read, or a declared call of another tool, leaves the pair as it was.
+    expect(pairOf(atom('g', [ordered], { kind: 'gate' }))).toEqual([{ before: 'Read', after: 'Edit' }]);
+    const bash: EstateEvidence = {
+      type: 'tool_called',
+      label: 'Bash',
+      input: { command: { contains: 'x.sh' } },
+    };
+    expect(pairOf(atom('g', [ordered, bash], { kind: 'gate' }))).toEqual([{ before: 'Read', after: 'Edit' }]);
+    // The key of the gate still ends the pair when no file is declared.
+    expect(pairOf(atom('g', [ordered], { kind: 'gate', fields: { order: { key: 'file_path' } } }))).toEqual([
+      { before: 'Read', after: 'Edit', key: 'file_path' },
+    ]);
+  });
+
   it('reaches a stage by the closing stage and the order, the closing stage by itself', () => {
     const verify = emptyThen();
     reachStage(verify, 'stage.verify', 'verify', ctx.stages);

@@ -34,7 +34,7 @@ Each stage calls the same code as its own command, so the files equal what the s
 ## Commands and every option
 
 ```
-driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--pointer] [--labels <file>] [--cassette <file>] [--record] [--labeler <spec>]... [--jobs <n>] [--phrases <file>] [--sessions <file>] [--t <n>]
+driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--pointer] [--labels <file>] [--cassette <file>] [--record] [--labeler <spec>]... [--jobs <n>] [--prices <file>] [--phrases <file>] [--sessions <file>] [--t <n>]
 ```
 
 | Option | Default | Meaning |
@@ -54,8 +54,10 @@ driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <nam
 | `--record` | off | with `--pointer`: call the labelers on a cassette miss and record the answer |
 | `--labeler <spec>` | the default stack | with `--pointer`: `<class>:<client>[:<model>]`; repeat it |
 | `--jobs <n>` | `4` | with `--pointer`: requests in flight at once |
+| `--prices <file>` | none | with `--pointer`: a YAML table of USD per million tokens, as `estate scan --prices`. After the scan the build prints the labelers' requests, tokens and cost |
 | `--phrases <file>` | none | the approved phrase bank for `estate generate` |
 | `--sessions <file>` | none | the index of recorded sessions for `estate generate` |
+| `--states <file>` | none | the state library of the runs, for `estate generate` |
 | `--t <n>` | `2` | the strength of the covering array of the plan |
 
 ## Inputs

@@ -19,6 +19,7 @@ import type { BankItem, SeedData, Tier, Verdict } from './bank';
 const PLANNER_MODULE = fileURLToPath(new URL('../../../../generate/src/plan-v2/index.ts', import.meta.url));
 const FILES = {
   plan: 'packages/generate/src/plan-v2/plan.ts',
+  render: 'packages/generate/src/plan-v2/render.ts',
   groups: 'packages/generate/src/plan-v2/groups.ts',
   rules: 'packages/generate/src/plan-v2/rules.ts',
   solver: 'packages/generate/src/plan-v2/solver.ts',
@@ -30,6 +31,8 @@ const FAMILY = 'planner';
 
 type Cell = Record<string, string>;
 type PlanFn = (store: VariableStore, options?: Record<string, unknown>) => PlanV2;
+/** The planner module as the items call it: the planner, and the JSON text of a plan. */
+type PlannerModule = { planV2: PlanFn; renderPlanV2: (plan: PlanV2) => string };
 
 const verdict = (pass: boolean, detail: string, cause?: string): Verdict => ({
   pass,
@@ -45,11 +48,18 @@ type Scenario = {
   name: string;
   tier: Tier;
   store: VariableStore;
+  /** The approved variables with their approved values: what the planner plans over. */
   variables: Variable[];
   rules: Rule[];
-  /** Pairs of values no row may hold. */
+  /** Approved combinations of values no row may hold: pairs, and on some shapes one value or three. */
   forbids: Cell[];
   weighted: boolean;
+  /** What the store holds that nobody approved: a value of an axis, a whole variable, a constraint. */
+  excluded: { values: Cell; variables: string[]; forbids: Cell[] };
+  /** A pair of values that no constraint names and no valid row can hold (shape `non-extendable`). */
+  pinched?: Cell;
+  /** The values marked `required`, variable to value (shape `required`). */
+  required: Cell;
 };
 
 type Shape = {
@@ -63,6 +73,23 @@ type Shape = {
   weighted?: boolean;
   /** Values per variable: from 2 to this. */
   width?: number;
+  /**
+   * Constraints drawn on purpose instead of at random: `non-extendable` forbids no pair of two axes yet leaves a
+   * pair of them in no valid row (R6: a tuple is allowed only if it extends to a full valid assignment);
+   * `odd-sizes` forbids one combination of three values and one value alone (R7).
+   */
+  special?: 'non-extendable' | 'odd-sizes';
+  /** One value of an axis, one whole variable and one constraint that nobody approved (R6, R7). */
+  unapproved?: boolean;
+  /** With `weighted`, only every other variable has weights; the rest use equal shares (R9). */
+  weightedSome?: boolean;
+  /** With `weighted`, the last value of the last axis weighs 0: its rows weigh minus infinity (R9). */
+  zeroWeight?: boolean;
+  /**
+   * With `weighted`, the last value of the last axis is `required` and the rarest of its variable: the plan must
+   * put the rows that hold it first, so a budget keeps them (docs/variables.md, Values and R9).
+   */
+  required?: boolean;
 };
 
 const SHAPES: Shape[] = [
@@ -73,6 +100,51 @@ const SHAPES: Shape[] = [
   { name: 'constrained', tier: 3, axes: 5, detail: true, rules: [3], forbids: 3 },
   { name: 'weighted', tier: 3, axes: 5, detail: true, rules: [3, 3], forbids: 1, weighted: true },
   { name: 'wide', tier: 4, axes: 7, detail: true, rules: [4, 3], forbids: 2, weighted: true, width: 3 },
+  // Ladder version 3: the shapes the strength items need (R6, R7, R14).
+  { name: 'rule-of-six', tier: 3, axes: 7, detail: false, rules: [6], forbids: 0, width: 2 },
+  {
+    name: 'non-extendable',
+    tier: 4,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    special: 'non-extendable',
+  },
+  { name: 'odd-sizes', tier: 3, axes: 5, detail: true, rules: [3], forbids: 0, special: 'odd-sizes' },
+  { name: 'unapproved', tier: 3, axes: 5, detail: true, rules: [3], forbids: 1, unapproved: true },
+  // Ladder version 3: the shapes the traffic items need (R9).
+  {
+    name: 'mixed-weights',
+    tier: 3,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    weightedSome: true,
+  },
+  {
+    name: 'zero-weight',
+    tier: 4,
+    axes: 4,
+    detail: false,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    zeroWeight: true,
+  },
+  // Ladder version 3: the shape the budget items need (R9, required values).
+  {
+    name: 'required',
+    tier: 4,
+    axes: 5,
+    detail: true,
+    rules: [3],
+    forbids: 0,
+    weighted: true,
+    required: true,
+  },
 ];
 
 function draw(seed: number, shape: Shape): Scenario {
@@ -89,9 +161,19 @@ function draw(seed: number, shape: Shape): Scenario {
   const total = shape.axes + (shape.detail ? 1 : 0);
   for (let k = 0; k < total; k++) {
     const id = name(`v${k}`);
-    const count = int(2, shape.width ?? 3);
+    // The axis that keeps a value nobody approved has three, so two approved ones are left.
+    const count = shape.unapproved && k === shape.axes - 1 ? 3 : int(2, shape.width ?? 3);
     const values = Array.from({ length: count }, (_, j) => name(`v${k}.${j}`));
-    const weights = shape.weighted ? values.map(() => int(1, 9)) : undefined;
+    const weights =
+      shape.weighted && !(shape.weightedSome && k % 2 === 1)
+        ? values.map((_, j) => {
+            const last = k === shape.axes - 1;
+            if (shape.zeroWeight && last && j === count - 1) return 0;
+            // The required value weighs 1 against at least 5 for the others of its variable: the rarest.
+            if (shape.required && last) return j === count - 1 ? 1 : int(5, 9);
+            return int(1, 9);
+          })
+        : undefined;
     variables.push({
       id,
       role: k < shape.axes ? 'axis' : 'detail',
@@ -116,6 +198,25 @@ function draw(seed: number, shape: Shape): Scenario {
       whens.set(host.id, Object.fromEntries(names.map((other) => [other.id, [other.values[0] as string]])));
   });
   const forbids: Cell[] = [];
+  const key = (cell: Cell) => JSON.stringify(Object.entries(cell).sort());
+  let pinched: Cell | undefined;
+  if (shape.special === 'non-extendable') {
+    // a0 with any value of e but the last, and b0 with the last value of e: no row holds a0 and b0 together,
+    // though no constraint names the two.
+    const [, a, , b, e] = axes as [Variable, Variable, Variable, Variable, Variable];
+    for (const value of e.values.slice(0, -1)) forbids.push({ [a.id]: a.values[0] as string, [e.id]: value });
+    forbids.push({ [b.id]: b.values[0] as string, [e.id]: e.values.at(-1) as string });
+    pinched = { [a.id]: a.values[0] as string, [b.id]: b.values[0] as string };
+  }
+  if (shape.special === 'odd-sizes') {
+    const [, a, b, c, e] = axes as [Variable, Variable, Variable, Variable, Variable];
+    forbids.push({
+      [a.id]: a.values[1] as string,
+      [b.id]: b.values[1] as string,
+      [c.id]: c.values[0] as string,
+    });
+    forbids.push({ [e.id]: e.values.at(-1) as string });
+  }
   for (let n = 0; n < shape.forbids; n++) {
     const a = axes[int(0, axes.length - 1)] as Variable;
     let b = axes[int(0, axes.length - 1)] as Variable;
@@ -125,20 +226,33 @@ function draw(seed: number, shape: Shape): Scenario {
       [b.id]: b.values[int(0, b.values.length - 1)] as string,
     };
     // The store refuses one combination forbidden twice, whichever way round its pair is written.
-    const key = (cell: Cell) => JSON.stringify(Object.entries(cell).sort());
     if (!forbids.some((other) => key(other) === key(forbid))) forbids.push(forbid);
+  }
+  // What nobody approved: the last value of the last axis, an extra axis, and a constraint on two values the
+  // plan must still pair (both stand in the first rule, whose triples hold them).
+  const excluded: Scenario['excluded'] = { values: {}, variables: [], forbids: [] };
+  const extra: Variable[] = [];
+  if (shape.unapproved) {
+    const last = axes.at(-1) as Variable;
+    excluded.values[last.id] = last.values.at(-1) as string;
+    const id = name('unapproved');
+    extra.push({ id, role: 'axis', values: [name('unapproved.0'), name('unapproved.1')] });
+    excluded.variables.push(id);
+    const [first, second] = axes as [Variable, Variable];
+    const forbid = { [first.id]: first.values[0] as string, [second.id]: second.values[0] as string };
+    if (!forbids.some((other) => key(other) === key(forbid))) excluded.forbids.push(forbid);
   }
   const raw = {
     format: 1,
     agent: name('agent'),
     version: '1',
     prior: { kind: 'declared' },
-    variables: variables.map((variable) => ({
+    variables: [...variables, ...extra].map((variable) => ({
       id: variable.id,
       title: variable.id,
       kind: 'data',
       role: variable.role,
-      approved: true,
+      approved: !excluded.variables.includes(variable.id),
       values: variable.values.map((value, j) => {
         const hosted = j === 0 ? whens.get(variable.id) : undefined;
         return {
@@ -147,22 +261,45 @@ function draw(seed: number, shape: Shape): Scenario {
           ...(variable.weights ? { weight: variable.weights[j] } : {}),
           ...(hosted ? { polarity: 'must', when: hosted } : {}),
           ...(j === 0 && polar.has(variable.id) ? { polarity: 'must' } : {}),
+          ...(excluded.values[variable.id] === value ? { approved: false } : {}),
+          ...(shape.required && variable.id === axes.at(-1)?.id && j === variable.values.length - 1
+            ? { required: true }
+            : {}),
         };
       }),
     })),
-    constraints: forbids.map((forbid) => ({ forbid, reason: 'drawn for the item', approved: true })),
+    constraints: [
+      ...forbids.map((forbid) => ({ forbid, reason: 'drawn for the item', approved: true })),
+      ...excluded.forbids.map((forbid) => ({ forbid, reason: 'nobody approved it', approved: false })),
+    ],
   };
   const checked = validateVariableStore(raw);
   if (!checked.ok)
     throw new Error(`the drawn store is invalid: ${checked.errors.map((issue) => issue.message).join('; ')}`);
+  // The oracle plans over what was approved, as the planner must.
+  const planned = variables.map((variable) => {
+    const out = excluded.values[variable.id];
+    if (out === undefined) return variable;
+    const at = variable.values.indexOf(out);
+    return {
+      ...variable,
+      values: variable.values.filter((_, j) => j !== at),
+      ...(variable.weights ? { weights: variable.weights.filter((_, j) => j !== at) } : {}),
+    };
+  });
   return {
     name: shape.name,
     tier: shape.tier,
     store: checked.store,
-    variables,
+    variables: planned,
     rules,
     forbids,
     weighted: shape.weighted === true,
+    excluded,
+    ...(pinched ? { pinched } : {}),
+    required: shape.required
+      ? { [(axes.at(-1) as Variable).id]: (axes.at(-1) as Variable).values.at(-1) as string }
+      : {},
   };
 }
 
@@ -310,10 +447,33 @@ type Answers = {
   fedBack: PlanV2;
   /** The seeds of the budget-below-seeds call. */
   tight: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** Seeds that set two variables each, as a session that shows only some does (R8). */
+  partial: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** A seed that holds a combination the store forbids, on a store with constraints. */
+  forbidden?: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** A seed that holds a value nobody approved, on a store with one. */
+  unapproved?: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** The plan of the same store with every weight three times as large (R9: weights are relative). */
+  scaled?: PlanV2;
+  /** The plan of the same store with the keys of every object written in reverse order (R11). */
+  reordered: PlanV2;
+  /** The JSON text of the plan without a budget, on a store with a value of weight 0. */
+  rendered?: string;
+  /** The plan without seeds at a budget of every new row, and of three more (R9). */
+  edges: Map<number, PlanV2>;
+  /** The plan with seeds at a budget of exactly the number of seeds. */
+  seedsOnly: { seeds: PlanSeedRow[]; plan: PlanV2 };
+  /** On a store with a required value: the plan at budgets of 1 and of 0. */
+  requiredCuts?: Map<number, PlanV2>;
   divergence?: string;
 };
 
 const rowsOf = (plan: PlanV2): Cell[] => plan.rows.map((row) => row.values);
+/** Two rows hold the same values, whatever order their keys are written in. */
+const sameValues = (a: Cell | undefined, b: Cell | undefined) =>
+  a !== undefined &&
+  b !== undefined &&
+  JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort());
 
 /**
  * Every field of the report, layer by layer, against the oracle's count: the layers must be exactly the three,
@@ -337,11 +497,35 @@ function layerVerdict(plan: PlanV2, a: Answers, seeds: readonly Cell[]): Verdict
   return verdict(wrong.length === 0, wrong.slice(0, 4).join('; '));
 }
 
+/** The store with every weight multiplied by `factor`. */
+function scaledStore(store: VariableStore, factor: number): VariableStore {
+  return {
+    ...store,
+    variables: store.variables.map((variable) => ({
+      ...variable,
+      values: variable.values.map((value) =>
+        value.weight === undefined ? value : { ...value, weight: value.weight * factor },
+      ),
+    })),
+  };
+}
+
+/** The same data with the keys of every object in reverse order; arrays keep their order. */
+function reversedKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(reversedKeys);
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .reverse()
+      .map(([key, entry]) => [key, reversedKeys(entry)]),
+  );
+}
+
 async function answers(data: SeedData, shape: Shape, module: string): Promise<Answers> {
   return data.memoized(`planner:${shape.name}:${module}`, async () => {
     const scenario = draw(data.seed, shape);
     const oracle = new Oracle(scenario);
-    const frame = isolate<{ planV2: PlanFn }>({ module, seed: data.seed, tag: `planner:${shape.name}` });
+    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:${shape.name}` });
     try {
       const plan = frame.product.planV2;
       const full = plan(scenario.store, { seed: 1 });
@@ -360,6 +544,49 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seeds: rowsOf(full).map((values, index) => ({ id: `r${index}`, values })),
       });
       const tight = { seeds, plan: plan(scenario.store, { seed: 1, seeds, budget: 1 }) };
+      const two = scenario.variables.slice(0, 2).map((variable) => variable.id);
+      const partialSeeds: PlanSeedRow[] = [pick[0], pick.at(-1)]
+        .filter((cell): cell is Cell => cell !== undefined)
+        .map((cell, index) => ({
+          id: `p${index}`,
+          values: Object.fromEntries(two.map((id) => [id, cell[id] as string])),
+        }));
+      const partial = { seeds: partialSeeds, plan: plan(scenario.store, { seed: 1, seeds: partialSeeds }) };
+      const first = scenario.forbids[0];
+      const forbiddenSeeds: PlanSeedRow[] | undefined =
+        first && oracle.cells[0] ? [{ id: 'f0', values: { ...oracle.cells[0], ...first } }] : undefined;
+      const forbidden = forbiddenSeeds && {
+        seeds: forbiddenSeeds,
+        plan: plan(scenario.store, { seed: 1, seeds: forbiddenSeeds }),
+      };
+      const outside = Object.entries(scenario.excluded.values)[0];
+      const unapprovedSeeds: PlanSeedRow[] | undefined =
+        outside && oracle.cells[0]
+          ? [{ id: 'u0', values: { ...oracle.cells[0], [outside[0]]: outside[1] } }]
+          : undefined;
+      const unapproved = unapprovedSeeds && {
+        seeds: unapprovedSeeds,
+        plan: plan(scenario.store, { seed: 1, seeds: unapprovedSeeds }),
+      };
+      const scaled = scenario.weighted ? plan(scaledStore(scenario.store, 3), { seed: 1 }) : undefined;
+      const reordered = plan(reversedKeys(scenario.store) as VariableStore, { seed: 1 });
+      // A product that cannot write its plan as JSON fails zero-weight-last; it does not stop every other item of
+      // the shape from reaching a verdict.
+      let rendered: string | undefined;
+      if (shape.zeroWeight) {
+        try {
+          rendered = frame.product.renderPlanV2(full);
+        } catch {
+          rendered = undefined;
+        }
+      }
+      const edges = new Map<number, PlanV2>();
+      for (const budget of new Set([planned, planned + 3]))
+        edges.set(budget, plan(scenario.store, { seed: 1, budget }));
+      const seedsOnly = { seeds, plan: plan(scenario.store, { seed: 1, seeds, budget: seeds.length }) };
+      const requiredCuts = shape.required
+        ? new Map([0, 1].map((budget) => [budget, plan(scenario.store, { seed: 1, budget })] as const))
+        : undefined;
       return {
         scenario,
         oracle,
@@ -369,6 +596,15 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seeded,
         fedBack,
         tight,
+        partial,
+        ...(forbidden ? { forbidden } : {}),
+        ...(unapproved ? { unapproved } : {}),
+        ...(scaled ? { scaled } : {}),
+        reordered,
+        ...(rendered === undefined ? {} : { rendered }),
+        edges,
+        seedsOnly,
+        ...(requiredCuts ? { requiredCuts } : {}),
         divergence: frame.divergence(),
       };
     } finally {
@@ -423,7 +659,7 @@ const STEMS: {
   {
     id: 'no-forbidden-row',
     cause: `${FILES.solver}: never place a combination the store forbids`,
-    when: (shape) => shape.forbids > 0,
+    when: (shape) => shape.forbids > 0 || shape.special !== undefined,
     check: (a) => {
       const bad = rowsOf(a.full).filter((row) => a.scenario.forbids.some((forbid) => holds(row, forbid)));
       return verdict(bad.length === 0, `${bad.length} rows hold a forbidden pair`);
@@ -594,7 +830,8 @@ const STEMS: {
   {
     id: 'rarest-cut-first',
     cause: `${FILES.plan}: order new rows from the most common to the rarest`,
-    when: () => true,
+    // On the required shape the rows of the required value come first: required-survives-budget checks that order.
+    when: (shape) => !shape.required,
     tier: 3,
     check: (a) => {
       const weights = logOf(a.full).map((row) => a.oracle.logWeight(row.values));
@@ -607,7 +844,8 @@ const STEMS: {
   {
     id: 'traffic-weight-of-a-row',
     cause: `${FILES.plan}: a row weighs the sum of the logarithms of the shares of its values`,
-    when: (shape) => shape.weighted === true,
+    // A value of weight 0 gives minus infinity, which zero-weight-last checks.
+    when: (shape) => shape.weighted === true && !shape.zeroWeight,
     tier: 4,
     check: (a) => {
       const bad = logOf(a.full).filter(
@@ -715,6 +953,354 @@ const STEMS: {
       if ([...warned].sort().join('|') !== [...unreachable].sort().join('|'))
         wrong.push(`warnings ${JSON.stringify(warned)} where ${JSON.stringify(unreachable)} are wanted`);
       return verdict(wrong.length === 0, wrong.join('; '));
+    },
+  },
+  // Ladder version 3, strength (R6, R7, R14).
+  {
+    id: 'row-cap',
+    cause: `${FILES.solver}: keep the new rows within the covering-array cap of R14`,
+    when: (shape) => shape.forbids === 0 && shape.special === undefined && !shape.unapproved,
+    tier: 3,
+    check: (a) => {
+      // R14 (docs/variables.md): M required tuples, p the reciprocal of the largest product of arities of a
+      // required tuple, G = ceil(log(M) / -log(1 - p)), the cap ceil(1.25 G) + 1.
+      const sizes = new Map(a.scenario.variables.map((variable) => [variable.id, variable.values.length]));
+      const groups = Object.values(a.oracle.layerGroups()).flat();
+      const m = groups.reduce((sum, group) => sum + a.oracle.tuples(group).length, 0);
+      const widest = Math.max(
+        1,
+        ...groups.map((group) => group.reduce((product, id) => product * (sizes.get(id) as number), 1)),
+      );
+      const p = 1 / widest;
+      const g = m === 0 ? 0 : p === 1 ? 1 : Math.ceil(Math.log(m) / -Math.log(1 - p));
+      const cap = m === 0 ? 0 : Math.ceil(1.25 * g) + 1;
+      const n = logOf(a.full).length;
+      return verdict(n <= cap, `${n} new rows where R14 caps them at ${cap} (M ${m}, G ${g})`);
+    },
+  },
+  {
+    id: 'non-extendable-not-target',
+    cause: `${FILES.groups}: a combination no valid row extends is infeasible, not a target`,
+    when: (shape) => shape.special === 'non-extendable',
+    tier: 4,
+    check: (a) => {
+      const pinched = a.scenario.pinched as Cell;
+      if (a.oracle.cells.some((cell) => holds(cell, pinched)))
+        throw new Error('the drawn store lets a valid row hold the pinched pair');
+      const held = rowsOf(a.full).filter((row) => holds(row, pinched)).length;
+      const report = layerVerdict(a.full, a, []);
+      return verdict(
+        held === 0 && report.pass,
+        held > 0 ? `${held} rows hold a pair no valid row can hold` : report.detail,
+      );
+    },
+  },
+  {
+    id: 'odd-size-forbids',
+    cause: `${FILES.solver}: a constraint of one value or of three values forbids every row that holds it`,
+    when: (shape) => shape.special === 'odd-sizes',
+    check: (a) => {
+      const odd = a.scenario.forbids.filter((forbid) => Object.keys(forbid).length !== 2);
+      const bad = rowsOf(a.full).filter((row) => odd.some((forbid) => holds(row, forbid))).length;
+      return verdict(bad === 0 && odd.length === 2, `${bad} rows hold a forbidden value or triple`);
+    },
+  },
+  {
+    id: 'approved-only',
+    cause: `${FILES.view}: plan only the values, variables and constraints a person approved`,
+    when: (shape) => shape.unapproved === true,
+    tier: 3,
+    check: (a) => {
+      const { excluded } = a.scenario;
+      const wrong: string[] = [];
+      for (const row of logOf(a.full)) {
+        if (Object.entries(excluded.values).some(([variable, value]) => row.values[variable] === value))
+          wrong.push(`${row.id} holds a value nobody approved`);
+        if (excluded.variables.some((variable) => row.values[variable] !== undefined))
+          wrong.push(`${row.id} names a variable nobody approved`);
+      }
+      // A constraint nobody approved plans nothing: the pair it names is a target of the first rule, so a row
+      // holds it.
+      for (const forbid of excluded.forbids)
+        if (!rowsOf(a.full).some((row) => holds(row, forbid)))
+          wrong.push('no row holds the pair a constraint nobody approved names');
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  // Ladder version 3, seed rows (R8).
+  {
+    id: 'partial-seed-credit',
+    cause: `${FILES.groups}: a partial seed covers only the combinations whose variables it sets`,
+    when: () => true,
+    tier: 3,
+    check: (a) => {
+      const { seeds, plan } = a.partial;
+      const head = plan.rows.slice(0, seeds.length);
+      // Each seed row is `seed.<id>` of its input seed (docs/variables.md, the plan's rows), in order, with exactly
+      // the values the seed sets.
+      const kept =
+        head.length === seeds.length &&
+        head.every(
+          (row, at) =>
+            row.source === 'seed' &&
+            row.id === `seed.${seeds[at]?.id}` &&
+            sameValues(row.values, seeds[at]?.values),
+        );
+      if (!kept)
+        return verdict(
+          false,
+          'the partial seeds do not lead the plan as seed.<id> rows in order with exactly their own values',
+        );
+      const missing = [
+        ...a.oracle.uncovered('own', rowsOf(plan)),
+        ...a.oracle.uncovered('axes', rowsOf(plan)),
+        ...a.oracle.uncovered('values', rowsOf(plan)),
+      ];
+      if (missing.length > 0) return verdict(false, `${missing.length} tuples uncovered with partial seeds`);
+      const report = layerVerdict(
+        plan,
+        a,
+        seeds.map((seed) => seed.values),
+      );
+      return verdict(report.pass, `with partial seeds: ${report.detail}`);
+    },
+  },
+  {
+    id: 'seed-forbidden-kept',
+    cause: `${FILES.plan}: keep a seed that holds a forbidden combination, and warn seed_forbidden`,
+    // On the unapproved shape a drawn constraint may name the value nobody approved, and then it forbids nothing.
+    when: (shape) => (shape.forbids > 0 || shape.special !== undefined) && !shape.unapproved,
+    check: (a) => {
+      const got = a.forbidden;
+      if (!got) throw new Error('the store of this shape has no constraint');
+      const [seed] = got.seeds as [PlanSeedRow];
+      const row = got.plan.rows[0];
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const warned = got.plan.warnings.some(
+        (warning) => warning.code === 'seed_forbidden' && warning.seed === seed.id,
+      );
+      return verdict(kept && warned, `kept ${kept}, warned ${warned}`);
+    },
+  },
+  {
+    id: 'seed-unapproved-covers-nothing',
+    cause: `${FILES.plan}: keep a seed's value nobody approved, warn seed_unapproved_value, and credit nothing with it`,
+    when: (shape) => shape.unapproved === true,
+    tier: 4,
+    check: (a) => {
+      const got = a.unapproved;
+      if (!got) throw new Error('the store of this shape has no value nobody approved');
+      const [seed] = got.seeds as [PlanSeedRow];
+      const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
+      const row = got.plan.rows[0];
+      const kept =
+        row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
+      const warned = got.plan.warnings.some(
+        (warning) =>
+          warning.code === 'seed_unapproved_value' &&
+          warning.seed === seed.id &&
+          warning.variable === variable &&
+          warning.value === value,
+      );
+      if (!kept || !warned) return verdict(false, `kept whole ${kept}, warned ${warned}`);
+      const report = layerVerdict(got.plan, a, [seed.values]);
+      return verdict(report.pass, `with a value nobody approved in a seed: ${report.detail}`);
+    },
+  },
+  {
+    id: 'new-row-novel',
+    cause: `${FILES.plan}: a new row repeats no seed and no other new row, and holds a target the seeds miss`,
+    when: () => true,
+    check: (a) => {
+      const groups = Object.values(a.oracle.layerGroups()).flat();
+      const targets = groups.flatMap((group) => a.oracle.tuples(group));
+      const wrong: string[] = [];
+      for (const [name, plan] of [
+        ['without seeds', a.full],
+        ['with seeds', a.seeded.plan],
+      ] as const) {
+        const seeds = plan.rows.filter((row) => row.source === 'seed').map((row) => row.values);
+        const seen = new Set(seeds.map((values) => JSON.stringify(Object.entries(values).sort())));
+        for (const row of logOf(plan)) {
+          const key = JSON.stringify(Object.entries(row.values).sort());
+          if (seen.has(key)) wrong.push(`${name}: ${row.id} repeats an earlier row`);
+          seen.add(key);
+          const fresh = targets.some(
+            (tuple) => holds(row.values, tuple) && !seeds.some((seed) => holds(seed, tuple)),
+          );
+          if (!fresh) wrong.push(`${name}: ${row.id} holds no target the seeds miss`);
+        }
+      }
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  // Ladder version 3, traffic order (R9, R11).
+  {
+    id: 'weight-scale-invariance',
+    cause: `${FILES.view}: weigh a value by its share of its variable's weights, not by the weight itself`,
+    when: (shape) => shape.weighted === true,
+    tier: 3,
+    check: (a) => {
+      const scaled = a.scaled as PlanV2;
+      const same =
+        scaled.rows.length === a.full.rows.length &&
+        scaled.rows.every((row, at) => {
+          const other = a.full.rows[at];
+          const close =
+            row.logWeight === other?.logWeight ||
+            Math.abs(row.logWeight - (other?.logWeight ?? Number.NaN)) <= 1e-9;
+          return (
+            row.id === other?.id && JSON.stringify(row.values) === JSON.stringify(other?.values) && close
+          );
+        });
+      return verdict(same, 'the plan changes when every weight is three times as large');
+    },
+  },
+  {
+    id: 'zero-weight-last',
+    cause: `${FILES.plan}: a row with a value of weight 0 weighs minus infinity, comes last, and is written null`,
+    when: (shape) => shape.zeroWeight === true,
+    tier: 4,
+    check: (a) => {
+      const axis = a.scenario.variables.filter((variable) => variable.role === 'axis').at(-1) as Variable;
+      const zero = axis.values.at(-1) as string;
+      const planned = logOf(a.full);
+      const holding = planned.map((row) => row.values[axis.id] === zero);
+      const wrong: string[] = [];
+      if (!holding.some(Boolean)) wrong.push('no new row holds the value of weight 0');
+      if (holding.some((held, at) => !held && holding.slice(0, at).some(Boolean)))
+        wrong.push('a row with the value of weight 0 comes before a row without it');
+      planned.forEach((row, at) => {
+        if (holding[at] && row.logWeight !== Number.NEGATIVE_INFINITY)
+          wrong.push(`${row.id} weighs ${row.logWeight} in memory, not minus infinity`);
+        // Every other row weighs the sum of the logarithms of its shares, a finite number (R9).
+        const wanted = a.oracle.logWeight(row.values);
+        if (!holding[at] && !(Number.isFinite(row.logWeight) && Math.abs(row.logWeight - wanted) <= 1e-6))
+          wrong.push(`${row.id} weighs ${row.logWeight}, not the sum of log shares ${wanted}`);
+      });
+      let written: Array<{ id?: unknown; logWeight?: unknown }> = [];
+      try {
+        written = (JSON.parse(a.rendered ?? '') as { rows?: typeof written }).rows ?? [];
+      } catch {
+        wrong.push('the plan is not written as JSON');
+      }
+      for (const row of planned) {
+        const out = written.find((entry) => entry.id === row.id);
+        const held = row.values[axis.id] === zero;
+        if (held && out?.logWeight !== null)
+          wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
+        // R9: the weight is written to nine places: the in-memory weight rounded, nothing else.
+        if (!held && out?.logWeight !== Number(row.logWeight.toFixed(9)))
+          wrong.push(`${row.id} is written ${String(out?.logWeight)}, not ${row.logWeight.toFixed(9)}`);
+      }
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  {
+    id: 'key-order-invariance',
+    cause: `${FILES.plan}: the order of the keys of the store changes nothing in the plan`,
+    when: () => true,
+    tier: 3,
+    check: (a) => {
+      const rows = JSON.stringify(a.reordered.rows) === JSON.stringify(a.full.rows);
+      const layers = JSON.stringify(a.reordered.layers) === JSON.stringify(a.full.layers);
+      const rules = (plan: PlanV2) =>
+        plan.rules
+          .map((rule) => [...rule.variables].sort().join(','))
+          .sort()
+          .join('|');
+      const same = rows && layers && rules(a.reordered) === rules(a.full);
+      return verdict(
+        same,
+        `rows ${rows}, layers ${layers}, rules ${rules(a.reordered) === rules(a.full)} with the keys reordered`,
+      );
+    },
+  },
+  // Ladder version 3, budget (R9 and required values).
+  {
+    id: 'budget-edges',
+    cause: `${FILES.plan}: a budget of every new row or more cuts nothing; a budget of the seeds keeps the seeds alone`,
+    when: () => true,
+    check: (a) => {
+      const wrong: string[] = [];
+      for (const [budget, plan] of a.edges)
+        if (
+          JSON.stringify(plan.rows) !== JSON.stringify(a.full.rows) ||
+          plan.cut !== 0 ||
+          plan.budget !== budget ||
+          plan.generated !== a.full.generated
+        )
+          wrong.push(`at a budget of ${budget} the plan is not the whole plan with nothing cut`);
+      const { seeds, plan } = a.seedsOnly;
+      if (
+        plan.rows.length !== seeds.length ||
+        plan.rows.some((row) => row.source !== 'seed') ||
+        plan.cut !== plan.generated
+      )
+        wrong.push(
+          `at a budget of the ${seeds.length} seeds: ${plan.rows.length} rows, cut ${plan.cut} of ${plan.generated}`,
+        );
+      return verdict(wrong.length === 0, wrong.join('; '));
+    },
+  },
+  {
+    id: 'required-survives-budget',
+    cause: `${FILES.plan}: put the new rows that hold a required value first, then the rest, each from the most common to the rarest`,
+    when: (shape) => shape.required === true,
+    tier: 4,
+    check: (a) => {
+      const required = Object.entries(a.scenario.required);
+      const holdsRequired = (row: { values: Cell }) =>
+        required.some(([variable, value]) => row.values[variable] === value);
+      const planned = logOf(a.full);
+      const wrong: string[] = [];
+      const flags = planned.map(holdsRequired);
+      if (!flags.some(Boolean)) wrong.push('no new row holds the required value');
+      if (flags.some((flag, at) => flag && flags.slice(0, at).some((earlier) => !earlier)))
+        wrong.push('a row with the required value comes after a row without it');
+      for (const group of [true, false]) {
+        const weights = planned.filter((_, at) => flags[at] === group).map((row) => row.logWeight);
+        if (weights.some((weight, at) => at > 0 && weight > (weights[at - 1] as number) + 1e-9))
+          wrong.push(
+            `the rows ${group ? 'with' : 'without'} the required value are not from the most common`,
+          );
+      }
+      const one = a.requiredCuts?.get(1);
+      if (!one?.rows.some(holdsRequired))
+        wrong.push('at a budget of 1 the kept row does not hold the required value');
+      for (const plan of [a.full, one])
+        if (plan?.warnings.some((warning) => (warning.code as string) === 'budget_drops_required'))
+          wrong.push('a plan that keeps the required value warns that a budget dropped it');
+      return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+    },
+  },
+  {
+    id: 'budget-below-required',
+    cause: `${FILES.plan}: warn budget_drops_required, naming each value a budget left in no row`,
+    when: (shape) => shape.required === true,
+    tier: 4,
+    check: (a) => {
+      const zero = a.requiredCuts?.get(0);
+      // The required values the plan without a budget holds and no row at a budget of 0 holds: exactly the
+      // entries the warning must name, no fewer and no more.
+      const kept = zero?.rows ?? [];
+      const dropped = Object.entries(a.scenario.required)
+        .filter(([variable, value]) => rowsOf(a.full).some((row) => row[variable] === value))
+        .filter(([variable, value]) => !kept.some((row) => row.values[variable] === value))
+        .map(([variable, value]) => JSON.stringify([variable, value]))
+        .sort();
+      const warnings = (zero?.warnings ?? []).filter(
+        (entry) => (entry.code as string) === 'budget_drops_required',
+      ) as Array<{ values?: Array<{ variable?: unknown; value?: unknown }> }>;
+      const named = (warnings[0]?.values ?? [])
+        .map((entry) => JSON.stringify([entry.variable, entry.value]))
+        .sort();
+      const exact = warnings.length === 1 && JSON.stringify(named) === JSON.stringify(dropped);
+      return verdict(
+        kept.length === 0 && dropped.length > 0 && exact,
+        `${kept.length} rows at a budget of 0; ${warnings.length} budget_drops_required warnings naming ${JSON.stringify(named)} where ${JSON.stringify(dropped)} is wanted`,
+      );
     },
   },
 ];
@@ -962,5 +1548,255 @@ export function plannerItems(module: string = PLANNER_MODULE, only?: readonly st
       });
     }
   }
-  return [...items, ...hostileItems(module), ...benchmarkItems(module)];
+  return [...items, ...hostileItems(module), ...benchmarkItems(module), ...catchItems(module, only)];
+}
+
+/**
+ * Guards of the planner (docs/validators.md section 12.4, `role: catch`): each passes on the planner and is pinned in
+ * validators/generator/catch.json with the planted bug it guards. They come from the mutants of the planner that the
+ * family above let through (the mutant probe of ladder version 3); each oracle is written from docs/variables.md.
+ */
+function catchItems(module: string, only?: readonly string[]): BankItem[] {
+  if (only) return [];
+  const item = (
+    id: string,
+    tier: Tier,
+    cause: string,
+    check: (data: SeedData) => Promise<Verdict>,
+  ): BankItem => ({
+    id: `planner.catch.${id}`,
+    family: FAMILY,
+    tier,
+    level: LEVEL,
+    component: FILES.plan,
+    cause,
+    role: 'catch',
+    check,
+  });
+  const framed = async <T>(data: SeedData, tag: string, run: (product: PlannerModule) => T) => {
+    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:catch:${tag}` });
+    try {
+      const out = run(frame.product);
+      return { out, divergence: frame.divergence() };
+    } finally {
+      frame.close();
+    }
+  };
+  return [
+    // The row choice is free under the contract ("The array is not minimal"); whatever rows the planner picks, every
+    // plan it gives on every drawn store must still be valid and covering.
+    item(
+      'search-valid-covering',
+      3,
+      `${FILES.solver}: every plan is valid and covers every target`,
+      async (data) => {
+        const { out, divergence } = await framed(data, 'search', (product) =>
+          SHAPES.flatMap((shape) => {
+            const scenario = draw(data.seed, shape);
+            return [1, 2].map((seed) => ({ scenario, plan: product.planV2(scenario.store, { seed }) }));
+          }),
+        );
+        if (divergence !== undefined) return verdict(false, divergence);
+        const wrong: string[] = [];
+        for (const { scenario, plan } of out) {
+          const oracle = new Oracle(scenario);
+          const rows = rowsOf(plan);
+          const incomplete = logOf(plan).filter((row) =>
+            scenario.variables.some(
+              (variable) => !variable.values.includes(row.values[variable.id] as string),
+            ),
+          ).length;
+          const forbidden = rows.filter((row) =>
+            scenario.forbids.some((forbid) => holds(row, forbid)),
+          ).length;
+          const missing =
+            oracle.uncovered('own', rows).length +
+            oracle.uncovered('axes', rows).length +
+            oracle.uncovered('values', rows).length;
+          if (incomplete + forbidden + missing > 0)
+            wrong.push(
+              `${scenario.name} seed ${plan.seed}: ${incomplete} incomplete, ${forbidden} forbidden, ${missing} uncovered`,
+            );
+        }
+        return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
+      },
+    ),
+    // docs/variables.md, Values: "not all zero (VARIABLES_WEIGHT_ZERO)". The planner refuses such a store with the
+    // loader's code, so one rule holds through both doors.
+    item(
+      'zero-total-weights-refused',
+      3,
+      `${FILES.view}: refuse a variable whose weights are all 0 with VARIABLES_WEIGHT_ZERO`,
+      async (data) => {
+        const scenario = draw(data.seed, SHAPES[0] as Shape);
+        const [first] = scenario.store.variables;
+        const store = {
+          ...scenario.store,
+          variables: scenario.store.variables.map((variable) =>
+            variable === first
+              ? { ...variable, values: variable.values.map((value) => ({ ...value, weight: 0 })) }
+              : variable,
+          ),
+        };
+        // The refusal is read in fields, never in words: a RangeError whose code is VARIABLES_WEIGHT_ZERO.
+        const { out, divergence } = await framed(data, 'zero', (product) => {
+          try {
+            product.planV2(store as VariableStore, { seed: 1 });
+            return { planned: true, range: false, code: undefined as unknown };
+          } catch (error) {
+            return {
+              planned: false,
+              range: error instanceof RangeError,
+              code: (error as { code?: unknown } | undefined)?.code,
+            };
+          }
+        });
+        if (divergence !== undefined) return verdict(false, divergence);
+        return verdict(
+          !out.planned && out.range && out.code === 'VARIABLES_WEIGHT_ZERO',
+          out.planned
+            ? 'the store with every weight of one variable at 0 was planned'
+            : `the store with every weight of one variable at 0 was refused with a ${out.range ? 'RangeError' : 'non-RangeError'} of code ${String(out.code)}`,
+        );
+      },
+    ),
+    // docs/variables.md, The plan: `budget` echoes the option; renderPlanV2 writes it.
+    item('rendered-budget', 2, `${FILES.render}: write the budget of a budgeted plan`, async (data) => {
+      const scenario = draw(data.seed, SHAPES[2] as Shape);
+      const { out, divergence } = await framed(data, 'render', (product) => {
+        const plan = product.planV2(scenario.store, { seed: 1, budget: 2 });
+        return { plan, text: product.renderPlanV2(plan) };
+      });
+      if (divergence !== undefined) return verdict(false, divergence);
+      let written: { budget?: unknown; rows?: unknown[] } = {};
+      try {
+        written = JSON.parse(out.text);
+      } catch {
+        return verdict(false, 'the plan is not written as JSON');
+      }
+      return verdict(
+        written.budget === 2 && written.rows?.length === out.plan.rows.length,
+        `the JSON of a plan at a budget of 2 writes budget ${String(written.budget)} and ${written.rows?.length} rows`,
+      );
+    }),
+    // docs/variables.md R7 and the plan's warnings: value_unreachable says whether the store requires the value.
+    item(
+      'unreachable-required-flag',
+      3,
+      `${FILES.plan}: mark value_unreachable required when the store requires the value`,
+      async (data) => {
+        const scenario = draw(data.seed, SHAPES[0] as Shape);
+        const [a, b] = scenario.variables as [Variable, Variable];
+        const forbids = b.values.map((value) => ({
+          forbid: { [a.id]: a.values[0] as string, [b.id]: value },
+          reason: 'drawn for the item',
+          approved: true,
+        }));
+        const storeWith = (required: boolean) => ({
+          ...scenario.store,
+          variables: scenario.store.variables.map((variable) =>
+            variable.id === a.id
+              ? {
+                  ...variable,
+                  values: variable.values.map((value) =>
+                    value.id === a.values[0] && required ? { ...value, required: true } : value,
+                  ),
+                }
+              : variable,
+          ),
+          constraints: [...scenario.store.constraints, ...forbids],
+        });
+        const { out, divergence } = await framed(data, 'required', (product) =>
+          [true, false].map((required) => product.planV2(storeWith(required) as VariableStore, { seed: 1 })),
+        );
+        if (divergence !== undefined) return verdict(false, divergence);
+        const flag = (plan: PlanV2) =>
+          (plan.warnings.find((w) => w.code === 'value_unreachable') as { required?: unknown } | undefined)
+            ?.required;
+        const [withRequired, without] = out as [PlanV2, PlanV2];
+        return verdict(
+          flag(withRequired) === true && flag(without) === false,
+          `required flag ${String(flag(withRequired))} for a required value, ${String(flag(without))} for one that is not`,
+        );
+      },
+    ),
+    // docs/variables.md, What the rows cover: a passage is a rule, named by its ledger id else by its file and words;
+    // the values and constraints that quote it join it; a value with `when` and no quote is a rule of its own.
+    item(
+      'rules-from-passages',
+      4,
+      `${FILES.rules}: read the rules from the passages the store quotes`,
+      async (data) => {
+        const name = (tag: string) => neutralName(data.seed, `planner:catch:rules:${tag}`);
+        const ids = ['a', 'b', 'c', 'd', 'e'].map(name) as [string, string, string, string, string];
+        const [a, b, c, d, e] = ids;
+        const quote = (path: string, text: string, ledger?: string) => ({
+          kind: 'quote',
+          path,
+          quote: text,
+          ...(ledger ? { ledger } : {}),
+        });
+        const value = (variable: string, at: number, extra: Record<string, unknown> = {}) => ({
+          id: `${variable}${at}`,
+          title: `${variable}${at}`,
+          ...extra,
+        });
+        const raw = {
+          format: 1,
+          agent: name('agent'),
+          version: '1',
+          prior: { kind: 'declared' },
+          variables: ids.map((variable) => ({
+            id: variable,
+            title: variable,
+            kind: 'data',
+            role: 'axis',
+            approved: true,
+            values: [0, 1].map((at) => {
+              if (variable === a && at === 0)
+                return value(variable, at, {
+                  polarity: 'must',
+                  provenance: [quote('agent.md', 'Rule one says this.')],
+                });
+              if (variable === b && at === 0)
+                return value(variable, at, { provenance: [quote('agent.md', 'Rule one  says\nthis.')] });
+              if (variable === c && at === 0)
+                return value(variable, at, {
+                  polarity: 'must',
+                  provenance: [quote('notes.md', 'First words.', 'qrstuvwx23')],
+                });
+              if (variable === e && at === 1)
+                return value(variable, at, { polarity: 'must', when: { [b]: [`${b}1`] } });
+              return value(variable, at);
+            }),
+          })),
+          constraints: [
+            {
+              forbid: { [d]: `${d}0`, [e]: `${e}0` },
+              reason: 'drawn for the item',
+              approved: true,
+              provenance: [quote('notes.md', 'Other words.', 'qrstuvwx23')],
+            },
+          ],
+        };
+        const checked = validateVariableStore(raw);
+        if (!checked.ok)
+          throw new Error(
+            `the drawn store is invalid: ${checked.errors.map((issue) => issue.message).join('; ')}`,
+          );
+        const { out, divergence } = await framed(data, 'rules', (product) =>
+          product.planV2(checked.store, { seed: 1 }),
+        );
+        if (divergence !== undefined) return verdict(false, divergence);
+        const key = (variables: readonly string[]) => [...variables].sort().join(',');
+        const wanted = [key([a, b]), key([c, d, e]), key([e, b])].sort();
+        const got = (out.rules ?? []).map((rule) => key(rule.variables ?? [])).sort();
+        return verdict(
+          JSON.stringify(got) === JSON.stringify(wanted) &&
+            out.rules.every((rule) => typeof rule.label === 'string' && rule.label !== ''),
+          `${got.length} rules read from the passages of the store`,
+        );
+      },
+    ),
+  ];
 }
