@@ -15,7 +15,7 @@ import { MUTANTS } from '../variables-blind/mutants';
  * against the base branch; it may only go down.
  */
 
-const items = variablesBank().filter((i) => !i.id.startsWith('blind.') && i.family !== 'scale');
+const items = variablesBank().filter((i) => !i.id.startsWith('blind.'));
 
 describe('the failure messages of the first bank', () => {
   it('repeat no expected value, and are structured', async () => {
