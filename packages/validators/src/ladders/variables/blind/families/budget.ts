@@ -46,10 +46,7 @@ function order(plan: Plan): number[] {
 function descending(plan: Plan): void {
   const w = order(plan);
   for (let i = 1; i < w.length; i += 1) {
-    check((w[i] as number) <= (w[i - 1] as number), () => ({
-      rule: 'new row {} (logWeight {}) outweighs new row {} ({}): the rows must run from the most common to the rarest',
-      got: { details: [i, String(w[i]), i - 1, String(w[i - 1])] }, expected: none('observation')
-    }));
+    check((w[i] as number) <= (w[i - 1] as number), () => ({ rule: 'new rows run from the most common to the rarest', input: { row: i, previous: i - 1 }, got: { logWeights: [String(w[i]), String(w[i - 1])] }, expected: { order: 'not increasing' } }));
   }
 }
 
@@ -57,10 +54,7 @@ function prefixHolds(ctx: ItemContext, store: StoreDoc, budget: number, seeds: R
   const full = callPlan(ctx, store, { seed: ctx.seed, seeds });
   const cut = callPlan(ctx, store, { seed: ctx.seed, seeds, budget });
   const keep = Math.max(budget, seeds.length);
-  check(cut.rows.length === Math.min(keep, full.rows.length), () => ({
-    rule: '{} rows with budget {}; expected {}',
-    got: { details: [cut.rows.length, budget, Math.min(keep, full.rows.length)] }, expected: none('observation')
-  }));
+  check(cut.rows.length === Math.min(keep, full.rows.length), () => ({ rule: 'a budget keeps the seeds and cuts the plan to the budget', input: { budget }, got: { rows: cut.rows.length }, expected: { rows: Math.min(keep, full.rows.length) } }));
   check(jsonEqual(cut.rows, full.rows.slice(0, cut.rows.length)), () => ({
     rule: 'the plan with budget {} is not a prefix of the uncut plan',
     got: { details: [budget] }, expected: none('observation')
@@ -103,10 +97,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           assertRowsSound(space, plan, []);
           for (const r of newRows(plan)) {
             const want = logWeightOf(space, r.values) as number;
-            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({
-              rule: 'row {} has logWeight {}; the sum of the log shares is {}',
-              got: { details: [r.id, String(r.logWeight), want] }, expected: none('observation')
-            }));
+            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({ rule: 'the logWeight of a row is the sum of the logs of its shares', input: { row: r.id }, got: { logWeight: String(r.logWeight) }, expected: { logWeight: want } }));
           }
         },
       ],
@@ -134,10 +125,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const { store } = weighted(ctx, [null, null]);
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           for (const r of newRows(plan)) {
-            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(1 / 3)) <= 1e-8, () => ({
-              rule: 'row {} has logWeight {}; two uniform ternary shares give {}',
-              got: { details: [r.id, String(r.logWeight), 2 * Math.log(1 / 3)] }, expected: none('observation')
-            }));
+            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(1 / 3)) <= 1e-8, () => ({ rule: 'two uniform ternary shares give their logWeight', input: { row: r.id }, got: { logWeight: String(r.logWeight) }, expected: { logWeight: 2 * Math.log(1 / 3) } }));
           }
         },
       ],
@@ -215,10 +203,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
             ],
           });
           for (const r of newRows(callPlan(ctx, store, { seed: ctx.seed }))) {
-            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(0.5)) <= 1e-8, () => ({
-              rule: 'row {} has logWeight {}; both shares are 1/2, so {}',
-              got: { details: [r.id, String(r.logWeight), 2 * Math.log(0.5)] }, expected: none('observation')
-            }));
+            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(0.5)) <= 1e-8, () => ({ rule: 'two shares of one half give their logWeight', input: { row: r.id }, got: { logWeight: String(r.logWeight) }, expected: { logWeight: 2 * Math.log(0.5) } }));
           }
         },
       ],
@@ -230,10 +215,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           for (const r of newRows(plan)) {
             const want = Math.log(r.values[ids[0] as string] === 'v0' ? 0.8 : 0.1) + Math.log(1 / 3);
-            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({
-              rule: 'row {}: logWeight {}, expected {}',
-              got: { details: [r.id, String(r.logWeight), want] }, expected: none('observation')
-            }));
+            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({ rule: 'the logWeight of a row is the sum of the logs of its shares', input: { row: r.id }, got: { logWeight: String(r.logWeight) }, expected: { logWeight: want } }));
           }
         },
       ],
@@ -278,10 +260,7 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: [seed] });
           const want = Math.log(3 / 4) + Math.log(1 / 5);
           const lw = plan.rows[0]?.logWeight;
-          check(typeof lw === 'number' && Math.abs(lw - want) <= 1e-8, () => ({
-            rule: 'the seed row has logWeight {}; expected {}',
-            got: { details: [String(lw), want] }, expected: none('observation')
-          }));
+          check(typeof lw === 'number' && Math.abs(lw - want) <= 1e-8, () => ({ rule: 'the logWeight of a seed row is the sum of the logs of its shares', got: { logWeight: String(lw) }, expected: { logWeight: want } }));
         },
       ],
       [

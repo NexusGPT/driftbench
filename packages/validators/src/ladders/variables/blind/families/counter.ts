@@ -413,10 +413,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const rows = randomRows(ctx, s, 2, false);
           const want = oracle(spaceOf(s), rows, g);
           const got = callCoverage(ctx, s, rows, g, { uncovered: 1000 });
-          check(got.uncovered?.length === want.uncovered.length, () => ({
-            rule: 'uncovered has {} tuples; {} are missing',
-            got: { details: [got.uncovered?.length, want.uncovered.length] }, expected: none('observation')
-          }));
+          check(got.uncovered?.length === want.uncovered.length, () => ({ rule: 'uncovered lists every missing tuple', got: { listed: got.uncovered?.length }, expected: { listed: want.uncovered.length } }));
         },
       ],
       [
@@ -600,10 +597,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, store, [a, b], [{ variables: ids, strength: k }]);
           const want = 2n * choose(n, k) - choose(50, k);
           same(got.covered, want, 'covered');
-          check(typeof got.covered === 'bigint', () => ({
-            rule: 'covered is a {} although {} exceeds the safe integer range',
-            got: { details: [typeof got.covered, want] }, expected: none('observation')
-          }));
+          check(typeof got.covered === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.covered }, expected: { type: 'bigint', count: String(want) } }));
         },
       ],
     ],
@@ -622,9 +616,6 @@ function beyond(ctx: ItemContext, n: number, arity: number, k: number): void {
     rule: 'the bank built a count inside the safe range for a bigint item', expected: none('observation')
   }));
   const got = callCoverage(ctx, store, [], [{ variables: allIds(store), strength: k }]);
-  check(typeof got.allowed === 'bigint', () => ({
-    rule: 'allowed is a {} ({}); {} exceeds the safe integer range and must be a bigint',
-    got: { details: [typeof got.allowed, String(got.allowed), want] }, expected: none('observation')
-  }));
+  check(typeof got.allowed === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.allowed, value: String(got.allowed) }, expected: { type: 'bigint', count: String(want) } }));
   same(got.allowed, want, 'allowed');
 }

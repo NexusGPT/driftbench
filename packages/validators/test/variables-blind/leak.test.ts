@@ -19,7 +19,7 @@ import { referenceImpl } from './reference/index';
 
 // The blind scale items are converted to structured failures in the blind-bank PR; until then they stay out of this test,
 // which counts them against the ceiling there, not here.
-const items = blindBank().filter((i) => i.family !== 'scale');
+const items = blindBank();
 
 describe('the failure messages of the blind bank repeat no expected value', () => {
   it('on the failures the planted mutants provoke, seeds 1 to 3', async () => {

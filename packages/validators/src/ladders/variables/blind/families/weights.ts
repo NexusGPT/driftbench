@@ -424,10 +424,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             .find((v) => v.id === id)
             ?.values.find((x) => x.id === lex('alpha'))
             ?.provenance?.find((p) => p.kind === 'conversations');
-          check(entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4, () => ({
-            rule: 'provenance {}; 3 of the 4 sessions that show the variable, not of 10',
-            got: { details: [show(entry)] }, expected: none('observation')
-          }));
+          check(entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4, () => ({ rule: 'provenance counts only the sessions that show the variable', got: { entry: show(entry) }, expected: { count: 3, total: 4, notOf: 10 } }));
         },
       ],
       [

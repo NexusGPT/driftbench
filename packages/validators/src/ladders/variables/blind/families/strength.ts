@@ -60,10 +60,7 @@ function under60(ctx: ItemContext, arities: number[]): void {
   const { plan } = planChecked(ctx, store);
   const fresh = newRows(plan).length;
   const limit = Math.ceil(0.6 * fullProduct(arities)) - 1;
-  check(fresh <= limit, () => ({
-    rule: '{} new rows for one rule of {} variables; the page asks for fewer than 60 percent of the full product ({} at most)',
-    got: { details: [fresh, arities.length, limit] }, expected: none('observation')
-  }));
+  check(fresh <= limit, () => ({ rule: 'a rule of binary variables takes well under the full product in rows', input: { variables: arities.length }, got: { newRows: fresh }, expected: { atMost: limit } }));
 }
 
 function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25): void {
@@ -76,10 +73,7 @@ function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25
   assertRowsSound(space, plan, seeds);
   assertCovered(space, plan, seeds);
   const fresh = newRows(plan).length;
-  check(fresh <= cap, () => ({
-    rule: '{} new rows; the page allows {} (ceil({} G) + 1 with {} tuples missing and a widest tuple of {} cells)',
-    got: { details: [fresh, cap, factor, missing.length, widestTuple(space)] }, expected: none('observation')
-  }));
+  check(fresh <= cap, () => ({ rule: 'the plan stays under the greedy row cap of the page', got: { newRows: fresh }, expected: { atMost: cap, factor, missing: missing.length, widest: widestTuple(space) } }));
 }
 
 function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): void {

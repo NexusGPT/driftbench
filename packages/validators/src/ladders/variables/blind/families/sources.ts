@@ -1175,14 +1175,8 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = d.build({ conversations: conversationsOf(rows) });
           const ea = convOf(store, a, lex('alpha'));
           const eb = convOf(store, b, lex('warm'));
-          check(ea?.kind === 'conversations' && ea.count === 2 && ea.total === 3, () => ({
-            rule: 'alpha: {}; expected 2 of 3',
-            got: { details: [show(ea)] }, expected: none('observation')
-          }));
-          check(eb?.kind === 'conversations' && eb.count === 2 && eb.total === 3, () => ({
-            rule: 'warm: {}; expected 2 of 3',
-            got: { details: [show(eb)] }, expected: none('observation')
-          }));
+          check(ea?.kind === 'conversations' && ea.count === 2 && ea.total === 3, () => ({ rule: 'a value seen in some of the sessions that show its variable carries how often', input: { value: 'alpha' }, got: { entry: show(ea) }, expected: { count: 2, total: 3 } }));
+          check(eb?.kind === 'conversations' && eb.count === 2 && eb.total === 3, () => ({ rule: 'a value seen in some of the sessions that show its variable carries how often', input: { value: 'warm' }, got: { entry: show(eb) }, expected: { count: 2, total: 3 } }));
         },
       ],
     ],
