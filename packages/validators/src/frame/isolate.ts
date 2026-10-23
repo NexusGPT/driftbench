@@ -879,9 +879,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     closed = true;
     settle();
+    let unreaped: string[] | undefined;
     try {
       relay.port.postMessage({ close: true });
-      wait(relay, 10_000, 'close');
+      unreaped = (wait(relay, 10_000, 'close') as { unreaped?: string[] }).unreaped;
     } catch {
       // the runs are ended by terminate below
     }
@@ -893,6 +894,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
     trace('close end');
+    // A run the relay killed and that did not end within 5 s may stay in the process table: never silent.
+    if (unreaped)
+      throw new FrameError(
+        `the frame closed, but run ${unreaped.join(', ')} did not end within 5 s of its kill: it may stay as a defunct process of this process`,
+      );
   };
   trace('waiting for the product to load in the three runs');
   const started = wait(relay, START_MS, 'the start of the product') as {

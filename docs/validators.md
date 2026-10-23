@@ -395,6 +395,16 @@ Which label a span text gets. The ladders legs replay one cassette built by `too
 
 How a ladder adopts it. Replace the product object the items call (for example `product.core` in the blocks bank) by `isolate(...).product` for the product's entry module, fail the item when `divergence()` is set, and close the frame when the item ends. The tests in `packages/validators/test/frame/isolate.test.ts` show each cheat class of the audits passing an item in the validator's process and failing it under the frame; `confined.test.ts` plants the products of the weights audit (a read through `Array.map`, a read of the expected values, a destructured stack, a process object built from pieces), a probe that tries eleven routes to the expected values, and a product keyed on a wrapped call or on the permission object.
 
+### 12.11 What a failure message says
+
+Pilot r3 on the variables validator climbed from 0 to 1,049 of 1,082 items in ten iterations, about 105 fixed per iteration: the failure message of an item gave the expected value (exact counts, an interval, a refusal code and its path), so one reading was enough to fix a cause. The rule, for every validator:
+
+* A failure message names the item, the rule or cause id, the input, and the product's own output. It never names the expected value. The builder learns what is wrong and where, and works out the answer from the documented page.
+* A count item shows the product's number, never the wanted one.
+* An item fails with an `ItemFailure` (`packages/validators/src/failure.ts`): `{ item, rule, input, got, expected }`. The message is a function of `item`, `rule`, `input` and `got` only; `expected` is kept out of it.
+* A diagnostic is built lazily, by a function that runs only after the verdict is decided (`check(condition, () => ({ ... }))`). A failure message must never change what the product is asked, or in what order: a message that reads the product once more can turn a refusal into an acceptance.
+* The check is structural. `leakReport` runs over the failures that a set of wrong products provoke on seeds 1 to 3, and reports a failure when its message is not the rendering of its fields, or repeats a token of `expected` (three characters or more) that is not in the input, the product's output or the item id. It compares on fields, never on a prose pattern, and on normalised forms: a number by value (0.5, 1/2 and 50% are one), a path with its separators in one form, a text with its white space in one form, and the whole wanted text as well as its tokens. It also counts the failures that are not `ItemFailure`: that number may only go down: a ladder commits its ceiling in a file, and its leak test compares the count with that value and that value with the one on the base branch, so a PR cannot raise it.
+
 ### 12.10 Recorded bars
 
 A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.

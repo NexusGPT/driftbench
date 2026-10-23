@@ -10,7 +10,7 @@
   "scripts": {
     "build": "pnpm -r --filter \"./packages/**\" --filter \"./examples/**\" build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "biome check .",
+    "lint": "biome check . --diagnostic-level=error --max-diagnostics=none",
     "format": "biome check --write .",
     "test": "vitest run",
     "guard": "node tools/guard/guard.mjs",

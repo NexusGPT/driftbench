@@ -29,6 +29,16 @@ export { statsBankHash } from './bank-fingerprint';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
 export { CatchFileSchema, catchFile, readCatchList } from './catch';
 export {
+  check,
+  type FailureFields,
+  ItemFailure,
+  type LeakReport,
+  leakReport,
+  leaksOf,
+  renderFailure,
+  showValue,
+} from './failure';
+export {
   checkFloors,
   emptyFloors,
   FLOORS_FILE,
