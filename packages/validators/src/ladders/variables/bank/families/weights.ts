@@ -79,7 +79,7 @@ function shareOf(variable: StoreVariable, value: StoreValue, label: string): num
   let total = 0;
   for (const v of variable.values) total += weightOf(v, `value ${v.id} of ${variable.id}`);
   check(total > 0, () => ({
-    rule: 'the weights of a variable are not all 0',
+    rule: 'the weights of a variable are not all N',
     input: { variable: variable.id },
     expected: none('observation'),
   }));
@@ -183,7 +183,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       shares += shareOf(variable, value, `value ${value.id} of ${variable.id}`);
     }
     check(total > 0, () => ({
-      rule: 'not every weight of a variable is 0',
+      rule: 'not every weight of a variable is N',
       input: { variable: variable.id },
       expected: none('observation'),
     }));
@@ -247,7 +247,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           lo <= p + 1e-12 &&
           p <= hi + 1e-12,
         () => ({
-          rule: 'weightInterval is an interval inside 0 to 1 that holds its estimate',
+          rule: 'weightInterval is an interval inside N to N that holds its estimate',
           input: { count, total },
           got: [lo, hi],
           expected: none('observation'),
@@ -285,7 +285,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     }
     const need = coverageThreshold(reps, p, n);
     check(inside >= need, () => ({
-      rule: 'a 95 percent interval holds the true share in enough replicates',
+      rule: 'a N percent interval holds the true share in enough replicates',
       input: { share: p, replicates: reps, sessions: n },
       got: { held: inside },
       expected: { atLeast: need, wilsonChance: wilsonCoverage(p, n) },
@@ -313,7 +313,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const [n, p] = variant === 'n100' ? [100, 0.5] : variant === 'n1000' ? [1000, 0.1] : [30, 0.2];
     const { width, wilson: ref } = run(n, p);
     check(width >= 0.6 * ref && width <= 1.5 * ref, () => ({
-      rule: 'the interval has the width of a 95 percent Wilson interval',
+      rule: 'the interval has the width of a N percent Wilson interval',
       input: { count: Math.round(p * n), total: n },
       got: { width: Number(width.toFixed(4)) },
       expected: { between: [0.6 * ref, 1.5 * ref], wilsonWidth: ref },
@@ -327,7 +327,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const half = (hi - lo) / 2;
     const ref = (wh - wl) / 2;
     check(Math.abs(half - ref) <= 0.15 * ref, () => ({
-      rule: 'the half-width of the interval is that of a 95 percent interval',
+      rule: 'the half-width of the interval is that of a N percent interval',
       input: { count: c, total: n },
       got: { halfWidth: Number(half.toFixed(5)) },
       expected: { halfWidth: ref, within: 0.15 },
@@ -340,14 +340,14 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const z2 = Z95 * Z95;
     const [lo0, hi0] = callInterval(ctx, 0, total);
     check(lo0 === 0 && Number.isFinite(hi0) && Math.abs(hi0 / (z2 / total) - 1) <= 1e-9, () => ({
-      rule: 'the interval of no success in a huge total starts at 0 and ends at z squared over n',
+      rule: 'the interval of no success in a huge total starts at N and ends at z squared over n',
       input: { count: 0, total: `2^${exponent}` },
       got: [lo0, hi0],
       expected: [0, z2 / total],
     }));
     const [loAll, hiAll] = callInterval(ctx, total, total);
     check(hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1, () => ({
-      rule: 'the interval of every success in a huge total ends at 1 and starts just below it',
+      rule: 'the interval of every success in a huge total ends at N and starts just below it',
       input: { count: `2^${exponent}`, total: `2^${exponent}` },
       got: [loAll, hiAll],
       expected: none('observation'),
@@ -361,7 +361,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         hiOne >= 1 / total &&
         hiOne > loOne,
       () => ({
-        rule: 'the interval of one success in a huge total holds 1 over n with a width above 0',
+        rule: 'the interval of one success in a huge total holds N over n with a width above N',
         input: { count: 1, total: `2^${exponent}` },
         got: [loOne, hiOne],
         expected: none('observation'),
@@ -383,20 +383,20 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const label = `the unseen value ${unseen.id}`;
     const share = shareOf(variable, unseen, label);
     check(share >= 0 && share <= 1 / (n + 2) + 1e-9, () => ({
-      rule: '{} was seen in 0 of {} sessions but has the share {}',
+      rule: '{} was seen in N of {} sessions but has the share {}',
       got: { details: [label, n, share] },
       expected: none('observation'),
     }));
     const { count, total } = countsOf(unseen, label);
     check(count === 0 && total === n, () => ({
-      rule: 'a value seen in no session carries the counts 0 of its sessions',
+      rule: 'a value seen in no session carries the counts N of its sessions',
       input: { label },
       got: { count, total, sessions: n },
       expected: none('observation'),
     }));
     const [lo, hi] = callInterval(ctx, count, total);
     check(lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1, () => ({
-      rule: 'the interval of no success has a lower bound of 0 and an upper bound above 0',
+      rule: 'the interval of no success has a lower bound of N and an upper bound above N',
       input: { count: 0, total: n },
       got: [lo, hi],
       expected: none('observation'),
@@ -420,7 +420,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const { count, total } = countsOf(v, label);
     const [lo, hi] = callInterval(ctx, count, total);
     check(hi >= 1 - 1e-12 && lo < 1 && lo >= 0, () => ({
-      rule: 'the interval of every success has an upper bound of 1 and a lower bound below 1',
+      rule: 'the interval of every success has an upper bound of N and a lower bound below N',
       input: { count, total },
       got: [lo, hi],
       expected: none('observation'),
@@ -458,7 +458,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         const label = `value ${value.id} of ${variable.id}`;
         if (value.weight !== undefined) {
           check(Number.isFinite(value.weight) && value.weight >= 0, () => ({
-            rule: 'a stored weight is a finite number from 0',
+            rule: 'a stored weight is a finite number from N',
             input: { label },
             got: { weight: value.weight },
             expected: none('observation'),
@@ -492,7 +492,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     }
     const [lo, hi] = callInterval(ctx, 0, 1);
     check(Number.isFinite(lo) && Number.isFinite(hi) && lo >= 0 && hi <= 1 && hi > lo, () => ({
-      rule: 'the interval of one session is finite, inside 0 to 1, with a width above 0',
+      rule: 'the interval of one session is finite, inside N to N, with a width above N',
       input: { count: 0, total: 1 },
       got: [lo, hi],
       expected: none('observation'),
@@ -535,7 +535,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       );
     const need = Math.floor(expected - 0.03 * total - 5.5 * sd);
     check(inside >= need, () => ({
-      rule: 'recovered weights fall inside the 95 percent band of the planted mix often enough',
+      rule: 'recovered weights fall inside the N percent band of the planted mix often enough',
       input: { cases: total },
       got: { inside },
       expected: { atLeast: need, about: Math.round(expected) },

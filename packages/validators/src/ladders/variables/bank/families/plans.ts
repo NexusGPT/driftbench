@@ -200,7 +200,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         for (const value of variable.values) if (value.weight !== undefined) value.weight *= 100;
       const other = planOf(ctx, scaled, { seed: ctx.seed });
       check(other.rows.length === plan.rows.length, () => ({
-        rule: 'scaling every weight by 100 changed the number of rows',
+        rule: 'scaling every weight by N changed the number of rows',
         expected: none('observation'),
       }));
       plan.rows.forEach((row, i) => {
@@ -212,7 +212,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           typeof twin.logWeight === 'number' &&
           Math.abs(row.logWeight - twin.logWeight) <= LOG_TOLERANCE;
         check(same, () => ({
-          rule: 'weights are relative, yet scaling them by 100 changed row {}: {} then {}',
+          rule: 'weights are relative, yet scaling them by N changed row {}: {} then {}',
           got: { details: [i, show(row), show(twin)] },
           expected: none('observation'),
         }));
@@ -225,7 +225,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       const want = logWeight(space, indexRow(space, row.values));
       if (want === Number.NEGATIVE_INFINITY) {
         check(row.logWeight === null, () => ({
-          rule: 'a row that holds a value of weight 0 reports a null logWeight',
+          rule: 'a row that holds a value of weight N reports a null logWeight',
           input: { row: i },
           got: { logWeight: row.logWeight },
           expected: none('observation'),
@@ -233,7 +233,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         seenNull = true;
       } else {
         check(!seenNull, () => ({
-          rule: 'every row of finite weight comes before every row of weight 0',
+          rule: 'every row of finite weight comes before every row of weight N',
           input: { row: i },
           expected: none('observation'),
         }));
@@ -246,7 +246,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       }
     }
     check(seenNull, () => ({
-      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered',
+      rule: 'the plan has no row with a value of weight N; the value still needs its tuples covered',
       expected: none('observation'),
     }));
     const text = JSON.stringify(plan.rows.map((r) => r.logWeight));

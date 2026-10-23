@@ -42,7 +42,7 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const space = makeSpace(Array(variant === 'thirty-variables' ? 30 : 100).fill(5));
     const facts = planAndCheck(ctx, space);
     check(facts.fresh.length <= 10, () => ({
-      rule: 'strength 1 on a variable needs about its arity in rows, not a pairwise array',
+      rule: 'strength N on a variable needs about its arity in rows, not a pairwise array',
       input: { space: describeSpace(space) },
       got: { rows: facts.fresh.length },
       expected: { atMost: 10 },
@@ -153,7 +153,7 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     }
     const facts = planAndCheck(ctx, space, { boundFactor: BOUND });
     check(facts.fresh.length < 100, () => ({
-      rule: 'strength 3 across variables is covered by fewer rows than the full product',
+      rule: 'strength N across variables is covered by fewer rows than the full product',
       input: { space: describeSpace(space) },
       got: { rows: facts.fresh.length },
       expected: { fewerThan: 100 },
