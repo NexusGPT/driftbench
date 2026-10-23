@@ -1,4 +1,5 @@
 export { type CompiledGlob, compileGlob, type GlobError, type GlobResult, matchGlob } from './glob';
+export { type FilePlace, folderHolding, locateFile, locateInside, pathWithin } from './locate';
 export type { ModelCoverage, Part } from './part';
 export {
   type PartType,

@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import { clone } from '../bank/util';
 import type {
@@ -9,7 +9,7 @@ import type {
   FileVariable,
   ValidateResult,
 } from '../interface';
-import { callValidate, must, names, show } from './kit';
+import { callValidate, names, show } from './kit';
 
 /**
  * Fictional store files for the items that call `validate` and `quotes`. One valid base store, and the helpers
@@ -124,11 +124,12 @@ export function defect(ctx: ItemContext, apply: (base: Base) => void): Base {
 
 export function validateOk(ctx: ItemContext, value: unknown, label = 'the store'): ValidateResult {
   const r = callValidate(ctx, value);
-  must(
-    r.ok,
-    () =>
-      `${label} is valid by the page and was refused: ${show((r as { errors?: FileIssue[] }).errors, 240)}`,
-  );
+  check(r.ok, () => ({
+    rule: 'a store the page calls valid is accepted',
+    input: { store: label },
+    got: { errors: show((r as { errors?: FileIssue[] }).errors, 240) },
+    expected: none('observation'),
+  }));
   return r;
 }
 

@@ -424,6 +424,60 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
 
+  ladders-regression:
+    # A seed that exposed a real defect stays on validators/regression-seeds.json for good, so the defect cannot come
+    # back unseen once the hash of the hidden seed has moved on. One leg per entry runs its component on that seed as
+    # an ordinary seed (the hidden flag changes only the label of a run), from level 1 through the level the defect
+    # showed at or the floor of the validator, whichever is higher (the tool reads both, so a floor raise widens
+    # every leg), and fails unless every one of those levels passes. The entry is read from the list, never typed
+    # here: protect.test.ts pins this matrix to the list.
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    name: ${{ matrix.name }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: generator-732170008
+            name: regression generator seed 732170008
+            component: generator
+            seed: 732170008
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run this seed through its level
+        shell: bash
+        env:
+          COMPONENT: ${{ matrix.component }}
+          SEED: ${{ matrix.seed }}
+          LEG: ${{ matrix.id }}
+        run: |
+          mkdir -p report
+          THROUGH=$(node --import tsx tools/ci/check-regression-seed.ts level "$LEG")
+          pnpm -s driftbench validate "$COMPONENT" --seed "$SEED" --levels "1..$THROUGH" --json > "report/$LEG.json"
+          node --import tsx tools/ci/check-regression-seed.ts check "$LEG" "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-${{ matrix.id }}
+          path: report
+          retention-days: 3
+          if-no-files-found: ignore
+
   ladders-handover:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: every handover agrees with its journal
@@ -449,7 +503,7 @@ jobs:
         run: pnpm driftbench validate all --check-handover
 
   ladders:
-    needs: [ladders-leg, ladders-tail, ladders-handover]
+    needs: [ladders-leg, ladders-tail, ladders-regression, ladders-handover]
     if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,')))
     name: ladders and floors
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
