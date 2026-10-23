@@ -9,7 +9,7 @@
   "floors": {
     "judges": 20,
     "map": 8,
-    "stats": 3,
+    "stats": 8,
     "system": 9
   },
   "evidence": {
@@ -50,7 +50,7 @@
       "ladderVersion": 2
     },
     "stats": {
-      "level": 3,
+      "level": 8,
       "seeds": [
         "1",
         "2",
@@ -74,8 +74,8 @@
         "20",
         "hidden"
       ],
-      "hiddenSeed": 300302186,
-      "head": "c4a75b2aa825e4d9b5c974b0afa308ae1b271650",
+      "hiddenSeed": 811253296,
+      "head": "e31bd9f09cef77a69d9b71a1f869ecd3a861c5cf",
       "ladderVersion": 4
     },
     "system": {
