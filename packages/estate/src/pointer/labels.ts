@@ -508,8 +508,13 @@ export function locateSpanText(
  * case), in every line of the window: `anchored` (`anchoredEnd` for the end) is 0 when it is in the unit it should
  * start, the count of lines from that unit to the one line that holds it when the number slipped (-1 for the line
  * before), or null when no line holds it, or several do and not the right one. An anchor missing or empty keeps none.
+ * A miss of the locator is read by its code, never by its message; `locate` stands in for it in a test.
  */
-export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
+export function anchorUnits(
+  entries: readonly Labelled[],
+  window: Window,
+  locate: typeof locateSpanText = locateSpanText,
+): Labelled[] {
   const lines = [
     ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
     ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
@@ -518,7 +523,7 @@ export function anchorUnits(entries: readonly Labelled[], window: Window): Label
     const words = typeof anchor === 'string' ? flatten(anchor).text : '';
     if (words === '' || at === undefined) return undefined;
     const holds = (text: string) => {
-      const found = locateSpanText(text, words);
+      const found = locate(text, words);
       return !('reason' in found) || found.code === 'ambiguous';
     };
     const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
