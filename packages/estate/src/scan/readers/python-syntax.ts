@@ -234,10 +234,49 @@ function literal(tokens: readonly Token[] | undefined, scope: Scope): string | u
 }
 
 /** A file-relative pathlib read is statically located; a working-directory read is deliberately not guessed. */
-function promptFile(tokens: readonly Token[] | undefined, scope: Scope): string | undefined {
+function promptFile(
+  tokens: readonly Token[] | undefined,
+  scope: Scope,
+  transformed?: (call: string, line: number) => void,
+): string | undefined {
   if (!tokens) return undefined;
-  const path = calls(tokens).find((call) => resolveName(call.callee, scope) === 'pathlib.Path');
+  const parsed = calls(tokens);
+  const refuse = (call: string, line = tokens[0]?.line ?? 1): undefined => {
+    transformed?.(call, line);
+    return undefined;
+  };
+  const aliases: number[] = [];
+  for (const [index, token] of tokens.entries()) {
+    if (scope.promptFiles.has(token.text)) aliases.push(index);
+  }
+  if (aliases.length > 0) {
+    if (tokens.length === 1) return scope.promptFiles.get(tokens[0]?.text ?? '');
+    const wrapper = parsed.find((call) => {
+      return aliases.some((index) => {
+        if (index > call.open && index < call.end) return true;
+        return call.callee.startsWith(`${tokens[index]?.text}.`);
+      });
+    });
+    return refuse(wrapper?.callee ?? 'expression', wrapper?.line);
+  }
+  const read = parsed.find((call) => call.callee.split('.').at(-1) === 'read_text');
+  if (!read) return undefined;
+  const wrapper = parsed.find((call) => call.open < read.open && call.end >= read.end);
+  if (wrapper) return refuse(wrapper.callee, wrapper.line);
+  const changed = parsed.find((call) => {
+    if (call.open <= read.end) return false;
+    const suffix = tokens.slice(read.end + 1, call.open);
+    return suffix.every((token) => {
+      if (token.text === ')' || token.text === '.') return true;
+      return /^[A-Za-z_]\w*$/.test(token.text);
+    });
+  });
+  if (changed) return refuse(changed.callee, changed.line);
+  if (tokens.slice(read.end + 1).some((token) => token.text !== ')')) return refuse('expression');
+  const path = parsed.find((call) => resolveName(call.callee, scope) === 'pathlib.Path');
   if (path?.args.length !== 1 || dotted(path.args[0] ?? []) !== '__file__') return undefined;
+  const start = path.open - (path.callee.split('.').length * 2 - 1);
+  if (tokens.slice(0, start).some((token) => token.text !== '(')) return refuse('expression');
   const method = tokens.findIndex(
     (token, index) => token.text === 'read_text' && tokens[index - 1]?.text === '.',
   );
@@ -524,9 +563,18 @@ export function pythonAgentFacts(text: string): PythonFacts {
     const foundCalls = calls(expression);
     const addPrompt = (name: string, input: readonly Token[] | undefined, line: number) => {
       const value = literal(input, scope);
-      const file =
-        promptFile(input, scope) ??
-        (input?.length === 1 ? scope.promptFiles.get(input[0]?.text ?? '') : undefined);
+      const transformations: Array<{ call: string; line: number }> = [];
+      const file = promptFile(input, scope, (call, line) => {
+        transformations.push({ call, line });
+      });
+      const transformation = transformations[0];
+      if (transformation) {
+        facts.unresolved.push({
+          line: transformation.line,
+          reason: `prompt transformed by ${transformation.call}; not read`,
+        });
+        return;
+      }
       if (file !== undefined)
         facts.prompts.push({ name, file, relativeTo: 'module', owner: scope.name, line });
       else if (value === undefined) facts.unresolved.push({ line, reason: 'dynamic-prompt' });
@@ -627,7 +675,16 @@ export function pythonAgentFacts(text: string): PythonFacts {
     }
     if (assigned) {
       const value = literal(expression, scope);
-      const file = promptFile(expression, scope);
+      const containsPrompt = foundCalls.some((call) => {
+        const resolved = resolveName(call.callee, scope);
+        return MESSAGE.has(resolved) || AGENT.has(resolved);
+      });
+      let file: string | undefined;
+      if (!containsPrompt) {
+        file = promptFile(expression, scope, (call, line) => {
+          facts.unresolved.push({ line, reason: `prompt transformed by ${call}; not read` });
+        });
+      }
       const named = dotted(expression);
       const alias = named ? resolveName(named, scope) : undefined;
       const graphAlias = named ? scope.graphs.get(named) : undefined;

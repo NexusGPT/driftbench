@@ -63,6 +63,9 @@ A prompt file can be located through an explicit module-relative pathlib express
 `(Path(__file__).parent / "prompts/policy.md").read_text()`. The reader resolves that reference from
 the Python file within the filtered source inventory. A relative `Path("policy.md")` depends on the
 runtime working directory and is left unresolved. Unmapped or missing prompt files are reported.
+A file read used directly is verbatim. A wrapper such as `transform(read_text())` or a chained call
+such as `read_text().upper()` produces a note naming the call and `not read`; its original bytes
+never become the final prompt. Rebinding is applied even when the assigned expression is unresolved.
 
 ## Limits and coverage
 

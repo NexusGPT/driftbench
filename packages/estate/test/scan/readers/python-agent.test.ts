@@ -184,6 +184,38 @@ describe('Python RawEstate projection', () => {
     expect(raw.notes).toContainEqual({ file: 'policy.md', message: 'skipped: outside-mapped-roots' });
   });
 
+  for (const [expression, call] of [
+    ['Path(__file__).with_name("policy.md").read_text().upper()', 'upper'],
+    ['transform(Path(__file__).with_name("policy.md").read_text())', 'transform'],
+  ]) {
+    it(`red regression: never emits file bytes as the result of ${call}`, async () => {
+      const root = await fixture({
+        'agent.py': `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
+        'policy.md': 'Fictional mixed Case.\n',
+      });
+      const raw = await new pythonReader.PythonAgentReader().read(root);
+      expect(raw.prose).toEqual([]);
+      expect(raw.notes).toContainEqual({
+        file: 'agent.py',
+        message: `skipped syntax at line 3: prompt transformed by ${call}; not read`,
+      });
+    });
+  }
+
+  it('does not restore original file bytes through a transformed named assignment', async () => {
+    const root = await fixture({
+      'agent.py':
+        'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\ntext = Path(__file__).with_name("policy.md").read_text().upper()\npolicy = SystemMessage(content=text)\n',
+      'policy.md': 'Fictional mixed Case.\n',
+    });
+    const raw = await new pythonReader.PythonAgentReader().read(root);
+    expect(raw.prose).toEqual([]);
+    expect(raw.notes).toContainEqual({
+      file: 'agent.py',
+      message: 'skipped syntax at line 3: prompt transformed by upper; not read',
+    });
+  });
+
   it('keeps findings after file moves and changes prose after a declared aspect mutation', async () => {
     const runtime = new pythonReader.PythonAgentReader();
     const left = await runtime.read(await fixture({ 'agent.py': CASES.prompt.input }));
@@ -293,6 +325,7 @@ describe('static Python agent syntax contract', () => {
     'del SystemMessage',
     'from fictional_unknown import *',
     'SystemMessage = lambda value: value',
+    'SystemMessage = [value for value in values]',
     'SystemMessage, other = factories()',
     'first = SystemMessage = make_message',
     '(SystemMessage := make_message)',
