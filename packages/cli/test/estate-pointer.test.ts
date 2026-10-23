@@ -397,6 +397,14 @@ describe('driftbench estate scan --pointer', () => {
             labeler: 'anthropic',
             kinds: { 'too few runs': 1 },
           },
+          {
+            unit: 'u4',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { 'too few runs': 1 },
+            undecided: 'out_of_step',
+          },
         ],
       },
     } as unknown as ScanEstateResult;
@@ -409,6 +417,10 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(lines).toContain(
       '    unstable: CLAUDE.md unit u3 (agent-rules, anthropic): too few runs 1; left unlabeled',
+    );
+    // A unit that is not decided says why, and that the next scan asks it again.
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u4 (agent-rules, anthropic): too few runs 1; left unlabeled, not decided (out_of_step): the next scan asks it again',
     );
   });
 
@@ -663,6 +675,26 @@ describe('driftbench estate scan --pointer', () => {
     expect(empty.out).toMatch(/document roles: \d+ units in \d+ files/);
     expect(empty.out).toContain('The prose pass is sized before the document roles are recorded');
     expect(empty.out).not.toContain('To send: 0 requests');
+  });
+
+  it('--plan-only sizes the registry-roles pass apart when no cassette answers it, and goes on to the prose pass', async () => {
+    const root = await estate();
+    await mkdir(join(root, '.claude/guards'), { recursive: true });
+    await writeFile(
+      join(root, '.claude/guards/CHECK-REGISTRY.md'),
+      '# Checks\n\n| Check | Guard | Rule |\n|---|---|---|\n| Q1 | gate-guard | Never leave the gate open |\n',
+    );
+    const planned = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'none.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(planned.err).toBe('');
+    expect(planned.code).toBe(0);
+    // The question on the columns of the table is sized; the roles it would record are not asked, so the scan goes on
+    // without them and sizes the prose pass too.
+    expect(planned.out).toMatch(/registry roles: \d+ units in 1 files, 0 already labelled by the ledger\./);
+    expect(planned.out).toMatch(/prose: \d+ units in \d+ files/);
   });
 
   it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {

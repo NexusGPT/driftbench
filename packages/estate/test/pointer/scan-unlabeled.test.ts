@@ -1,8 +1,8 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
-  CLOSE_REASK_ATTEMPTS,
   Cassette,
+  CLOSE_REASK_ATTEMPTS,
   type Labelled,
   type LedgerEntry,
   type PointerInput,
@@ -146,6 +146,10 @@ describe('a unit the labelers left unlabeled', () => {
         runs: DRAWS.map((label) => ({ label, source: expect.any(String) })),
       },
     ]);
+    // A complete vote is a decision: its rows in the unstable report carry no reason to ask again.
+    const rows = first.unstable.filter((row) => row.unit === noisy.id);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((row) => row.undecided === undefined)).toBe(true);
     // The other units kept an order and hold no such record.
     const others = first.ledger.entries.filter((entry) => entry !== noisy);
     expect(others.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
@@ -469,5 +473,30 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const naming = drawing(() => 'order');
     const second = await pointerScan(input({ files, previous: first.ledger }, singleLabelling(naming)));
     expect(noisyOf(second.ledger.entries).labels.duty?.label).toBe('order');
+  });
+
+  it('with its reason on each of its rows in the unstable report, so a spend that recurs says why', async () => {
+    // Run 2 slips and so do its three re-asks: a planned voice is out of step, and the next scan asks the units again.
+    const first = await pointerScan(
+      input(
+        spanned,
+        singleLabelling(scripted(['order', 'slip', 'order', 'remark', 'aside', 'slip', 'slip', 'slip'])),
+      ),
+    );
+    expect(first.unlabeledUnits.length).toBe(first.ledger.entries.length);
+    for (const unit of first.unlabeledUnits) {
+      const rows = first.unstable.filter((row) => row.unit === unit.unit);
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every((row) => row.undecided === 'out_of_step')).toBe(true);
+    }
+  });
+
+  it('with a row of its own when no run named it', async () => {
+    const silent = drawing(() => undefined, { runs: 1 });
+    const first = await pointerScan(input({ files }, singleLabelling(silent)));
+    const tied = noisyOf(first.ledger.entries);
+    expect(first.unstable.filter((row) => row.unit === tied.id)).toEqual([
+      expect.objectContaining({ labeler: 'planted', undecided: 'no_run_named' }),
+    ]);
   });
 });
