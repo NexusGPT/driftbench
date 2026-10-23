@@ -34,11 +34,16 @@ const witnessSpecial: Partial<VariablesImpl> = {
   },
   quotes(store, files) {
     const entry = (
-      store as { variables?: Array<{ values?: Array<{ provenance?: Array<{ path: string; quote: string }> }> }> }
+      store as {
+        variables?: Array<{ values?: Array<{ provenance?: Array<{ path: string; quote: string }> }> }>;
+      }
     ).variables?.[2]?.values?.[0]?.provenance?.[0];
     if (entry?.path === 'w/file.md') {
       const text = files[entry.path];
-      if (text === undefined) return { errors: [{ code: 'VARIABLES_SOURCE_UNREADABLE', path: 'variables.2.values.0.provenance.0' }] };
+      if (text === undefined)
+        return {
+          errors: [{ code: 'VARIABLES_SOURCE_UNREADABLE', path: 'variables.2.values.0.provenance.0' }],
+        };
       if (!text.includes(entry.quote))
         return { errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.2.values.0.provenance.0' }] };
     }
@@ -74,13 +79,23 @@ async function fixtures(seed: number): Promise<Record<string, unknown>> {
   const recording: VariablesImpl = {
     ...referenceImpl,
     validate(value) {
-      const store = value as { agent?: string; variables: Array<{ title: string; values: Array<{ id: string }> }> };
-      note('validate', [store.agent, store.variables.map((v) => v.title), store.variables[0]?.values.map((x) => x.id)]);
+      const store = value as {
+        agent?: string;
+        variables: Array<{ title: string; values: Array<{ id: string }> }>;
+      };
+      note('validate', [
+        store.agent,
+        store.variables.map((v) => v.title),
+        store.variables[0]?.values.map((x) => x.id),
+      ]);
       return referenceImpl.validate(value);
     },
     quotes(store, files) {
-      const entry = (store as { variables: Array<{ values: Array<{ provenance?: Array<{ path: string; quote: string }> }> }> })
-        .variables[2]?.values[0]?.provenance?.[0];
+      const entry = (
+        store as {
+          variables: Array<{ values: Array<{ provenance?: Array<{ path: string; quote: string }> }> }>;
+        }
+      ).variables[2]?.values[0]?.provenance?.[0];
       note('quotes', [entry?.path, entry?.quote, files]);
       return referenceImpl.quotes(store, files);
     },
@@ -91,7 +106,9 @@ async function fixtures(seed: number): Promise<Record<string, unknown>> {
     buildStore(sources: Sources) {
       note(
         'buildStore',
-        sources.estate?.rules.flatMap((r) => r.tools.map((t) => [t.tool, t.field, t.values.map((v) => v.id)])),
+        sources.estate?.rules.flatMap((r) =>
+          r.tools.map((t) => [t.tool, t.field, t.values.map((v) => v.id)]),
+        ),
       );
       return referenceImpl.buildStore(sources);
     },
@@ -120,14 +137,22 @@ describe('what a witness hands to the product', () => {
     for (const seed of [1, 2, 3, 4]) bySeed.push(await fixtures(seed));
     for (const name of Object.keys(bySeed[0] as object)) {
       const texts = bySeed.map((f) => f[name] as string);
-      expect(new Set(texts).size, `the witness of ${name} hands over the same fixtures on two seeds`).toBe(texts.length);
+      expect(new Set(texts).size, `the witness of ${name} hands over the same fixtures on two seeds`).toBe(
+        texts.length,
+      );
     }
   }, 120_000);
 
   it('hands over no fixed string of the old fixtures', async () => {
     for (const seed of [1, 2, 3, 4]) {
       const text = JSON.stringify(Object.values(await fixtures(seed)));
-      for (const fixed of ['Where the customer writes', 'northgate_desk', 'w/file.md', 'witness_tool', 'The witness sentence']) {
+      for (const fixed of [
+        'Where the customer writes',
+        'northgate_desk',
+        'w/file.md',
+        'witness_tool',
+        'The witness sentence',
+      ]) {
         expect(text.includes(fixed), `${fixed} on seed ${seed}`).toBe(false);
       }
     }

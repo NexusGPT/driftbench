@@ -108,8 +108,11 @@ const witnessQuote = (ctx: ItemContext, quote: string) => {
 
 const binary = (ctx: ItemContext) => {
   const ids = names(ctx.rng, ctx.rng.int(3, 5));
-  return { ids, store: (impossible: Array<[string, string, string, string]> = []) =>
-    makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })), impossible }) };
+  return {
+    ids,
+    store: (impossible: Array<[string, string, string, string]> = []) =>
+      makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })), impossible }),
+  };
 };
 
 export const WITNESSES: Record<Name, readonly Witness[]> = {
@@ -138,10 +141,13 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
       cause: WITNESS_CAUSE.quotesAbsent,
       run(ctx) {
         const fixture = quoteFixture(ctx);
-        check(callQuotes(ctx, witnessQuote(ctx, fixture.sentence), fixture.files).errors.length === 0, () => ({
-          rule: 'the witness quote in its file was reported',
-          expected: none('observation'),
-        }));
+        check(
+          callQuotes(ctx, witnessQuote(ctx, fixture.sentence), fixture.files).errors.length === 0,
+          () => ({
+            rule: 'the witness quote in its file was reported',
+            expected: none('observation'),
+          }),
+        );
         const missing = callQuotes(ctx, witnessQuote(ctx, fixture.absent), fixture.files).errors;
         check(missing.length === 1 && missing[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND', () => ({
           rule: 'the witness quote missing from its file was not reported',
@@ -169,7 +175,9 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
           ids.map((_, k) => k),
           2,
         ) as [number, number];
-        const store = build([[ids[i] as string, `v${ctx.rng.int(0, 1)}`, ids[j] as string, `v${ctx.rng.int(0, 1)}`]]);
+        const store = build([
+          [ids[i] as string, `v${ctx.rng.int(0, 1)}`, ids[j] as string, `v${ctx.rng.int(0, 1)}`],
+        ]);
         const plan = callPlan(ctx, store, { seed: ctx.seed });
         const space = spaceOf(store);
         assertRowsSound(space, plan, []);
