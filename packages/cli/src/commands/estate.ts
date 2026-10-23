@@ -9,6 +9,8 @@ import {
   FileProseCache,
   INFORMATION,
   type LintResult,
+  inspectRoot,
+  layoutIsEmpty,
   lintEstate,
   loadEstateMap,
   loadEstateRecording,
@@ -359,6 +361,14 @@ export async function estateScanCommand(
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
+  // Say what the root holds before anything is read: a root with no layout reads as nothing, not as a clean estate.
+  const layout = await inspectRoot(runtime, root);
+  const emptyLayout = layout !== undefined && layoutIsEmpty(layout);
+  if (emptyLayout) {
+    io.out(
+      `Warning: ${show(root, io)} holds no CLAUDE.md, no .claude/ folder and no settings.json, so this scan reads nothing. Scan the project folder that holds them.\n`,
+    );
+  }
 
   let port: ModelPort | undefined;
   if (options.model !== false && !options.pointer) {
@@ -432,7 +442,7 @@ export async function estateScanCommand(
     (result.pointer?.failed.length ?? 0) > 0 ||
     (result.pointer?.refusals.length ?? 0) > 0 ||
     (result.pointer?.atomRefusals.length ?? 0) > 0;
-  return failed || result.refusals.length > 0 || closing !== 0 ? 1 : 0;
+  return failed || emptyLayout || result.refusals.length > 0 || closing !== 0 ? 1 : 0;
 }
 
 /** What the reader skipped, per glob, so an owner sees what the ignore list hides. */

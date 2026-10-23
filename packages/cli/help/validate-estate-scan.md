@@ -300,6 +300,12 @@ orphans, and listed as left out, while the settings were not read. Pass `--setti
 step writes the settings: the copy is read as the settings file of its place, gives the same guards and atoms
 as if stored, and the map records it (`settings: true`); lint needs the same file again.
 
+Before it reads, `estate scan` looks at the root. A root with no `CLAUDE.md`, no `.claude/` folder and no
+settings file prints a warning, still writes the map, and exits 1: the scan read nothing. A root with a layout
+but no `.claude/settings.json` prints a note that no guard wiring is read. Pass `--settings <file>` when the
+settings are generated at install time: the scan reads that rendered copy as the estate's settings file. The
+registry check never holds over zero guards. Its invariant atom then records `guardsRead: 0`.
+
 `estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
 2 the map or the estate cannot be read. A code with more than 10 findings lists the first 10, then
 `... <n> more of <total>`, and one `Totals:` line names the total of each code; `--verbose` lists them all. A
