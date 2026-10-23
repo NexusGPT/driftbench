@@ -312,6 +312,8 @@ The iteration 0 row and the ten pilot rows are the first rows of `validators/<co
 
 A floor is per ladder version. `floors.json` carries `ladderVersion` per component; a new bank starts a new ladder version with its floor at the pilot's level, and the evidence names the version. A floor never goes down within a version. The judges floor of 7 and the statistics floor of 1 belong to ladder version 1 of each and are kept in the file as history; version 2 of each started at the level its pilot reached, and the judges floor of ladder version 2 is now 20.
 
+A locked level counts all of its items as failing, so an item whose truth is a reading choice (a span that a model may read two ways) locks every level above its own when the recording reads it the other way. Such an item is therefore either reworded until the page decides it, or placed in the highest level, never in a low one. The item itself is not weakened to fit a reading: the recording that fails it shows a real labeller gap.
+
 ### 12.6 What each bank must contain at minimum
 
 - map: planted rules, roles, relations and produced_by across at least twelve prompt styles (markdown, numbered, prose, tables, nested sections, multilingual, negation, conditionals, tool references, examples that contradict rules, deprecated sections, duplicated rules with precedence); rules hidden inside examples or phrased as questions; prompts of 100k characters; every pair of styles.

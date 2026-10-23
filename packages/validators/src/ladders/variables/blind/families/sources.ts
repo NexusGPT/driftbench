@@ -86,16 +86,6 @@ const rangeCase =
     ]);
     const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
     must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
-    if (style === 'open') {
-      // Both ends are open ("more than A and fewer than B"): the limits themselves are outside the range, and a reader
-      // may rightly read a whole-number range as the next whole numbers. What the page asks for stays: a case outside
-      // each end (at the limit or beyond it) and a case strictly inside.
-      must(
-        nums.some((n) => n <= d.lo) && nums.some((n) => n >= d.hi) && nums.some((n) => n > d.lo && n < d.hi),
-        () => `samples ${show(nums)} lack one of: outside the lower end, inside, outside the upper end`,
-      );
-      return;
-    }
     must(
       nums.some((n) => n < d.lo) &&
         nums.includes(d.lo) &&
