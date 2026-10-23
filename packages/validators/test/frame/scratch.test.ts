@@ -11,7 +11,12 @@ import { isolate } from '../../src/frame';
 const PRODUCT = fileURLToPath(new URL('./fixtures/scratch.ts', import.meta.url));
 
 it('lets every run write in its temporary folder', () => {
-  const frame = isolate<{ writeTemporary: () => string }>({ module: PRODUCT, seed: 5, scratch: true, plain: false });
+  const frame = isolate<{ writeTemporary: () => string }>({
+    module: PRODUCT,
+    seed: 5,
+    scratch: true,
+    plain: false,
+  });
   try {
     expect(frame.product.writeTemporary()).toBe('written');
     expect(frame.divergence()).toBeUndefined();

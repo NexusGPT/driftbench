@@ -60,4 +60,6 @@ export const countInMap = (input: Map<string, { items: number[] }>) => {
 
 /** A result that holds an object only in a process with the caller's environment (run A), not a bare one (run B). */
 export const byEnvironment = () =>
-  Object.keys(process.env).length > 10 ? { errors: [{ code: 'x' }] } : { errors: [] as Array<{ code: string }> };
+  Object.keys(process.env).length > 10
+    ? { errors: [{ code: 'x' }] }
+    : { errors: [] as Array<{ code: string }> };
