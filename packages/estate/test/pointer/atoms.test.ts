@@ -1140,3 +1140,42 @@ describe('the reply shape and the forbid case of the shipped set', () => {
     expect(lose?.evidence.map((item) => item.type)).toEqual(['custom']);
   });
 });
+
+describe('what an atom needs of a unit', () => {
+  const label = (evidence: string) =>
+    setsOf(`labels:
+  - set: s
+    description: d
+    spans:
+      - name: material
+        description: m
+    labels:
+      - name: ban
+        description: b
+        spans: [material]
+        atom:
+          kind: instruction
+          polarity: prohibition
+          fields: { "case?": { material: $span.material } }
+          evidence:
+            - ${evidence}
+`)[0]?.labels.find((l) => l.name === 'ban');
+
+  it('needs no span for an optional evidence item', () => {
+    expect(
+      pointer.atomNeeds(
+        label(
+          'optional: { type: tool_not_called, label: Bash, input: { command: { contains: $span.material } } }',
+        ),
+      ).spans,
+    ).toEqual([]);
+  });
+
+  it('needs the span of a plain evidence item', () => {
+    expect(
+      pointer.atomNeeds(
+        label('{ type: tool_not_called, label: Bash, input: { command: { contains: $span.material } } }'),
+      ).spans,
+    ).toEqual(['material']);
+  });
+});
