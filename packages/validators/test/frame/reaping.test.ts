@@ -24,7 +24,11 @@ function defunctChildren(): number[] {
 it('leaves no defunct child after its frames close', async () => {
   const before = new Set(defunctChildren());
   for (let n = 0; n < 4; n += 1) {
-    const frame = isolate<{ honest: (xs: number[]) => number }>({ module: PRODUCT, seed: 3 + n, tag: `reap-${n}` });
+    const frame = isolate<{ honest: (xs: number[]) => number }>({
+      module: PRODUCT,
+      seed: 3 + n,
+      tag: `reap-${n}`,
+    });
     expect(frame.product.honest([1, 2, 3])).toBe(4);
     frame.close();
   }
