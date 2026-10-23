@@ -1239,3 +1239,59 @@ describe('a forbidden material inside the ask of the same prohibition', () => {
     expect(atom?.fields?.unitCases).toBeUndefined();
   });
 });
+
+describe('what an atom needs of a unit', () => {
+  const needs = (atomBody: string) => {
+    const set = setsOf(`labels:
+  - set: s
+    description: d
+    spans:
+      - name: material
+        description: m
+    links:
+      - name: tool
+        description: t
+        values: [Bash, Edit]
+    labels:
+      - name: ban
+        description: b
+        spans: [material]
+        links: [tool]
+        atom:
+          kind: instruction
+          polarity: prohibition
+${atomBody}
+`)[0];
+    return pointer.atomNeeds(set?.labels.find((l) => l.name === 'ban'));
+  };
+  const CALL = '{ type: tool_not_called, label: Bash, input: { command: { contains: $span.material } } }';
+
+  it('needs no span for an optional evidence item', () => {
+    expect(needs(`          evidence:\n            - optional: ${CALL}`).spans).toEqual([]);
+  });
+
+  it('needs the span of a plain evidence item', () => {
+    expect(needs(`          evidence:\n            - ${CALL}`).spans).toEqual(['material']);
+  });
+
+  it('still needs what a field, a link field or a custom option named optional holds', () => {
+    // fill() skips only the exact one-key wrapper in a list; any other key named optional is an ordinary key.
+    expect(needs('          fields: { optional: $span.material }').spans).toEqual(['material']);
+    expect(needs('          fields: { outer: { inner: { optional: $span.material } } }').spans).toEqual([
+      'material',
+    ]);
+    expect(needs('          fields: { optional: $link.tool }').links).toEqual(['tool']);
+    expect(
+      needs(
+        '          evidence:\n            - { type: custom, name: n, options: { optional: $span.material } }',
+      ).spans,
+    ).toEqual(['material']);
+  });
+
+  it('skips an optional wrapper only as the one key of a list item', () => {
+    expect(needs('          fields: { list: [ { optional: $span.material } ] }').spans).toEqual([]);
+    expect(needs('          fields: { list: [ { optional: $span.material, other: x } ] }').spans).toEqual([
+      'material',
+    ]);
+  });
+});

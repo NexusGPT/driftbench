@@ -352,7 +352,7 @@ export const OUT_OF_STEP_MIN = 4;
  * The spans and links a label's atom needs, read from its mapping the way the atom builder fills it: the title, the
  * situation (unless marked optional), the fields and the evidence, each `$span.<kind>` and `$link.<kind>` they name,
  * braced or not. A placeholder marked optional (`<placeholder>?`), one under an optional key (`"key?"`), one inside a
- * `firstFilled` or an `each` (which fill when they can), one under an `optional` evidence item, the reply act and the further atoms of `also` need nothing.
+ * `firstFilled` or an `each` (which fill when they can), an item that is exactly `{ optional: <template> }` in a list, the reply act and the further atoms of `also` need nothing.
  */
 export function atomNeeds(label: Label | undefined): { spans: string[]; links: string[] } {
   const spans = new Set<string>();
@@ -362,11 +362,16 @@ export function atomNeeds(label: Label | undefined): { spans: string[]; links: s
       if (value.endsWith('?')) return;
       for (const match of value.matchAll(/\$\{?(span|link)\.([a-z][a-z0-9-]*)/g))
         (match[1] === 'span' ? spans : links).add(match[2] as string);
-    } else if (Array.isArray(value)) value.forEach(walk);
-    else if (value && typeof value === 'object') {
+    } else if (Array.isArray(value)) {
+      // As in fill(): an item that is exactly `{ optional: <template> }` is left out when it does not fill.
+      for (const item of value) {
+        const wrapper =
+          item !== null && typeof item === 'object' && Object.keys(item).length === 1 && 'optional' in item;
+        if (!wrapper) walk(item);
+      }
+    } else if (value && typeof value === 'object') {
       if ('firstFilled' in value || 'each' in value) return;
-      for (const [key, inner] of Object.entries(value))
-        if (!key.endsWith('?') && key !== 'optional') walk(inner);
+      for (const [key, inner] of Object.entries(value)) if (!key.endsWith('?')) walk(inner);
     }
   };
   const atom = label?.atom;
