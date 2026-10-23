@@ -1399,7 +1399,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) continue;
     }
     const answered = await resolve(again, task.window);
-    failed.push(...answered.failures);
+    failedWindows.push(...answered.failures);
     const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
     if (!leaf) continue;
     windows++;
