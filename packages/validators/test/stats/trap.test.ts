@@ -143,8 +143,17 @@ describe('initialization of the package under test', { timeout: 60_000 }, () => 
         ],
         { cwd: root, env, input: '[]', encoding: 'utf8' },
       );
-      expect(result.status, result.stderr).toBe(reads ? 1 : 0);
-      if (reads) expect(result.stderr).toContain('Access to this API has been restricted');
+      if (reads) {
+        expect(result.status, result.stderr).toBe(1);
+        expect(result.stderr).toContain('Access to this API has been restricted');
+      } else {
+        // The clean end of a bank child is its announced self-end (run-child.ts): its last line announces it, then the
+        // child ends itself by SIGKILL. Both are checked: an unannounced kill, or an announcement and an exit code, is
+        // not this end.
+        expect(result.signal, result.stderr).toBe('SIGKILL');
+        expect(result.status).toBeNull();
+        expect(result.stdout.trim().split('\n').at(-1)).toBe('{"closed":true,"selfEnd":true}');
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
