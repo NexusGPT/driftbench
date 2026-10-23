@@ -471,3 +471,5 @@ The first public release. driftbench evaluates AI agents block by block: a block
 * `tools/release/check.mjs` checks manifests, versions, this changelog and the contents of every pack.
 
 [0.1.0]: https://github.com/NexusGPT/driftbench/releases/tag/v0.1.0
+
+- Add setup declarations and doctor: public core exports `SetupDocument`, `SetupSource`, `SetupIssue`, `SetupResult`, `ResolvedSetupSource`, `parseSetupText`, `resolveSetupSources`, `SetupRead`, `SetupReader`, `DoctorDetection`, `DoctorResult` and `diagnoseSetup`.

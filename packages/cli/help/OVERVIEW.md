@@ -69,3 +69,5 @@ Start here
   driftbench help recipes                each goal end to end: pick yours from the recipes area below
   driftbench help core-reading-help      how every topic is laid out, and how to find one
   driftbench help redteam-overview       red-team an agent: which command, every option, a CI example
+
+Inspect and declare a setup: `driftbench doctor`.

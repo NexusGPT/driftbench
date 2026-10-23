@@ -693,3 +693,4 @@ export {
   wordsOf,
 } from './text/grams';
 export { type OpenAiCompatibleOptions, openAiCompatibleEmbedder } from './text/openai-embedder';
+export { diagnoseSetup, type DoctorDetection, type DoctorResult, parseSetupText, resolveSetupSources, type ResolvedSetupSource, SetupDocument, type SetupIssue, type SetupRead, type SetupReader, type SetupResult, SetupSource } from './setup';
