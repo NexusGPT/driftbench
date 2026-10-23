@@ -146,6 +146,12 @@ async function inventory(
   )
     .filter((entry): entry is { id: string; root: string } => entry.root !== undefined)
     .sort((a, b) => b.root.length - a.root.length);
+  const project = sources.find((entry) => entry.kind === 'project');
+  const projectRoot = mapped.find((entry) => entry.id === project?.id)?.root;
+  const policyPaths = (path: string) => projectRoot && inside(projectRoot, join(canonical, path))
+    ? [path, slash(relative(projectRoot, join(canonical, path)))] : [path];
+  const excluded = (patterns: string[], path: string) => policyPaths(path).some((value) => patterns.some((pattern) => matches(pattern, value)));
+  const included = (path: string) => policyPaths(path).some((value) => setup.scope.include.some((pattern) => matches(pattern, value)));
   const ignorePatterns = [...(profile?.ignore ?? ['.git', 'node_modules'])];
   for (const path of profile?.configFiles ?? []) {
     const absolute = join(source.root, path);
@@ -153,9 +159,9 @@ async function inventory(
     if (
       !real ||
       !inside(canonical, real) ||
-      setup.privacy.exclude.some((pattern) => matches(pattern, path)) ||
-      setup.scope.exclude.some((pattern) => matches(pattern, path)) ||
-      !setup.scope.include.some((pattern) => matches(pattern, path)) ||
+      excluded(setup.privacy.exclude, path) ||
+      excluded(setup.scope.exclude, path) ||
+      !included(path) ||
       (await stat(absolute)).size > 1024 * 1024
     )
       continue;
@@ -187,8 +193,8 @@ async function inventory(
       const what = `${source.id}:${path}`;
       if (resolve(source.root, path) === setupFile || path === 'driftbench.setup.yaml') continue;
       let reason: string | undefined;
-      if (setup.privacy.exclude.some((pattern) => matches(pattern, path))) reason = 'privacy';
-      else if (setup.scope.exclude.some((pattern) => matches(pattern, path))) reason = 'scope';
+      if (excluded(setup.privacy.exclude, path)) reason = 'privacy';
+      else if (excluded(setup.scope.exclude, path)) reason = 'scope';
       else if (ignored(path, ignorePatterns)) reason = 'ignored';
       if (reason) {
         skipped.push({ what, reason });
@@ -207,7 +213,7 @@ async function inventory(
       }
       if (info.isDirectory()) await walk(absolute, path, next);
       else if (info.isFile()) {
-        if (!setup.scope.include.some((pattern) => matches(pattern, path))) {
+        if (!included(path)) {
           skipped.push({ what, reason: 'scope' });
           continue;
         }
