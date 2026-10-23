@@ -68,6 +68,7 @@ export const CLAUDE_CODE_TYPES: TypesDocument = {
       fields: { name: 'match' },
       aspects: ['executes'],
       loaded: 'by-reference',
+      references: ['module'],
     },
     'skill-file': {
       locate: '**',
@@ -134,7 +135,7 @@ export const CLAUDE_CODE_TYPES: TypesDocument = {
       fields: { name: 'match', command: '$.command', prompt: '$.prompt', timeout: '$.timeout' },
       aspects: ['guards'],
       loaded: 'on-event',
-      references: ['path'],
+      references: ['path', 'module'],
     },
     command: {
       root: 'layout',
@@ -157,6 +158,7 @@ export const CLAUDE_CODE_TYPES: TypesDocument = {
       fields: { name: 'match' },
       aspects: ['executes'],
       loaded: 'by-reference',
+      references: ['module'],
     },
     'codex-instructions': {
       root: 'project',

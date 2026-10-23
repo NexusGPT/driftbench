@@ -50,7 +50,7 @@ export const TypeSpec = z.strictObject({
   references: z
     .array(z.string())
     .optional()
-    .describe('How a part points at others: path, import(<prefix>), name.'),
+    .describe('How a part points at others: path, import(<prefix>), name, module.'),
   scope: z
     .strictObject({
       type: z.string(),

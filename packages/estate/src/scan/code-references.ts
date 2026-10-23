@@ -18,6 +18,8 @@ import type { RawEstate } from './reader';
  */
 export function referenceAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const entry of referenceGraph(raw).entries) {
+    // A module import links two code files; it is no instruction to read a file, so it makes no atom.
+    if (entry.mention.syntax === 'module') continue;
     if (entry.mention.import && entry.outcome === 'resolved') continue;
     builder.add({
       kind: 'reference',

@@ -316,6 +316,11 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^maintain\.impact\.rename-/, 'follow a renamed skill folder by its name'],
   // The references of the prose, read by code.
   [/^lint\.(defect|clean)\.no-model-/, 'read the references of the prose by code when no model runs'],
+  [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],
+  [
+    /^lint\.defect\.orphan-module-named-in-docstring$/,
+    'read an import as a statement of the language, never a line of text',
+  ],
   // Scale.
   [/^scale\.(scan|lint)-/, 'read routing rows that continue past the end of a prose chunk'],
   [/^scale\.generate-/, 'generate in time linear in the atoms'],

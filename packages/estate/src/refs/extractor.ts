@@ -42,7 +42,17 @@ export type Mention = {
   confidence: number;
   /** An import: the runtime loads the file by itself, so the agent reads nothing. */
   import: boolean;
+  /**
+   * For a module import: the files the specifier can lead to, root-relative, by the rules of the language of the
+   * file, the first that exists winning. The extractor reads the specifier and the language, never the estate.
+   */
+  candidates?: ModuleCandidate[];
+  /** A module import that may be a name inside a module and not a module (`from m import name`): left out if it leads nowhere. */
+  optional?: boolean;
 };
+
+/** A file a module specifier can lead to, and the files that run with it (a package's `__init__`). */
+export type ModuleCandidate = { path: string; companions?: string[] };
 
 export type ReferenceExtractor = {
   /** Unique id, kept in the provenance of every link it makes. */

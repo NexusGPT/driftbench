@@ -33,7 +33,7 @@ So a new kind of file in your setup needs one new type, written as data. Every c
 | `loaded` | When the runtime loads a part. Required. | `on-mention` |
 | `runtime` | The runtime that owns its parts. A part may belong to another runtime than the one you scan for. | `codex` |
 | `extends` | A parent type. The child inherits every key and overrides the keys it names; `fields` merge by field name. | `script` |
-| `references` | How a part points at other parts: `path`, `import(<prefix>)`, `name`. | `[import(@), path]` |
+| `references` | How a part points at other parts: `path`, `import(<prefix>)`, `name`, `module`. | `[import(@), path]` |
 | `scope` | The parts of another type each part applies to, by the same `name` or the same `folder`, and the link kind (`configures` when not given). | `{ type: script, by: name }` |
 | `shape` | A structure the file must have, by a name the reader knows (a step list, a catalogue). | `step-list` |
 
@@ -113,7 +113,7 @@ A run with any unknown file is never reported as clean, whatever its checks foun
 
 ## Reading references
 
-A part points at other parts in ways its type declares: the `references` key lists the rules (`path`, `import(<prefix>)`, `name`). Each rule is read by an **extractor**, a reader of one rule that looks at the text of a file by syntax alone and gives the *mentions* it finds. The **reference graph** resolves each mention against the estate, and keeps it as a typed link or as a dangling reference. A model adds meaning to this graph (which mention is an order to read the file); it never reads a path.
+A part points at other parts in ways its type declares: the `references` key lists the rules (`path`, `import(<prefix>)`, `name`, `module`). Each rule is read by an **extractor**, a reader of one rule that looks at the text of a file by syntax alone and gives the *mentions* it finds. The **reference graph** resolves each mention against the estate, and keeps it as a typed link or as a dangling reference. A model adds meaning to this graph (which mention is an order to read the file); it never reads a path.
 
 | Piece | What it does |
 |---|---|
@@ -124,6 +124,7 @@ A part points at other parts in ways its type declares: the `references` key lis
 The shipped extractors:
 
 * `path-syntax` reads rule `path`. A path written as a code span, a link destination, a quoted name, a wiki or angle name, or a loose word that is a path by its syntax (a folder separator, or an extension of letters) is a `references` link, in a sentence or in a table cell. A fenced block is an example. A URL, a glob, a placeholder and a command name no file. A path is looked for from the folder of the file that writes it, then from the root of the estate, then in the profile's base folders, the aliases and the one file that ends with it.
+* `module-python` and `module-javascript` read rule `module`: a code file points at another file by naming a module its language loads. The extractors read the import statements of the language, so a comment, a docstring or a string is no import. Python: `import a.b`, `from a import b`, `from .a import b`, `from . import b`; a module is `name.py` or `name/__init__.py`, looked for from the folder of the importing file and the folders above it (the script folder is on the path), or, for a relative import, from the package folder the dots name; importing a module runs the `__init__.py` of each package above it, which is linked too. JavaScript and TypeScript: `import ... from`, `import '...'`, `import(...)`, `export ... from`, `require(...)`; a specifier that starts with `./` or `../` is a path from the importing file, `./a.js` may be `a.ts`, a missing extension is tried, and a folder leads to its `index` file. Each is an `includes` link. An import that leads to no file of the estate (a standard library, an installed package, a file the estate does not hold) is kept as `unresolved`: never a finding, and listed as skipped (reason `module-not-in-estate`) by the references check.
 
 A file that writes a path it cannot resolve is reported only when the path is sure to be a path: a name with a prose or script file type, or a path outside the estate. A lone word, or a name several files could be, says nothing sure and is left out.
 

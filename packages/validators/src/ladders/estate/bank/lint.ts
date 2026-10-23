@@ -454,6 +454,19 @@ const DEFECTS: Case[] = [
     },
   },
   {
+    key: 'orphan-module-named-in-docstring',
+    tier: 3,
+    title: 'a module a guard script only mentions in a docstring',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'py' });
+      const module = `${GUARDS_DIR}/helpers.py`;
+      b.estate.raw(g.script, '"""\nimport helpers\n"""\nprint("done")\n', b.owner);
+      b.estate.raw(module, 'VALUE = 1\n', b.owner);
+      return [{ code: 'ORPHAN', subject: module }];
+    },
+  },
+  {
     key: 'no-model-orphan-beside-named',
     tier: 2,
     title: 'an orphan beside a reference a table cell names, read with no model',
@@ -785,6 +798,63 @@ const CLEAN: Case[] = [
       ]);
       b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
       b.estate.raw(skillFile(name, 'references/checklist.md'), '# Checklist\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'python-imports',
+    tier: 3,
+    title: 'library modules a guard script imports',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'py' });
+      const lib = `${GUARDS_DIR}/lib`;
+      b.estate.raw(
+        g.script,
+        'import sys\nimport helpers\nfrom lib.tools import run\n\nrun(sys.argv)\n',
+        b.owner,
+      );
+      b.estate.raw(`${GUARDS_DIR}/helpers.py`, 'VALUE = 1\n', b.owner);
+      b.estate.raw(
+        `${lib}/tools.py`,
+        'from .shared import limit\n\n\ndef run(argv):\n    return limit\n',
+        b.owner,
+      );
+      b.estate.raw(`${lib}/shared.py`, 'limit = 3\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'javascript-imports',
+    tier: 3,
+    title: 'modules a guard script imports and requires',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'mjs' });
+      b.estate.raw(
+        g.script,
+        "import { run } from './util.mjs';\nconst legacy = require('./legacy');\n\nrun(legacy);\n",
+        b.owner,
+      );
+      b.estate.raw(`${GUARDS_DIR}/util.mjs`, 'export const run = () => 1;\n', b.owner);
+      b.estate.raw(`${GUARDS_DIR}/legacy.js`, 'module.exports = {};\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'typescript-imports',
+    tier: 3,
+    title: 'modules a TypeScript guard script imports, by the name its compiled file has and by a folder',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'ts' });
+      b.estate.raw(
+        g.script,
+        "import { run } from './util.js';\nimport { limit } from './shared';\n\nrun(limit);\n",
+        b.owner,
+      );
+      b.estate.raw(`${GUARDS_DIR}/util.ts`, 'export const run = (n: number) => n;\n', b.owner);
+      b.estate.raw(`${GUARDS_DIR}/shared/index.ts`, 'export const limit = 3;\n', b.owner);
       return [];
     },
   },

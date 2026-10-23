@@ -5,6 +5,7 @@ import { normativeEstate } from '../scan/document-roles';
 import type { RawEstate } from '../scan/reader';
 import { documentFileType } from '../scan/reference-role';
 import { type Mention, referenceExtractors, registerReferenceExtractor } from './extractor';
+import { moduleEntries } from './modules';
 import { PATH_EXTRACTOR } from './path-extractor';
 import { referenceRulesOf } from './rules';
 
@@ -20,7 +21,12 @@ registerReferenceExtractor(PATH_EXTRACTOR);
  * Link ids are the root-relative paths of the files: the reader does not locate parts yet.
  */
 
-export type ReferenceOutcome = 'resolved' | 'missing' | 'external' | 'ambiguous';
+/**
+ * What a mention leads to: a file of the estate (`resolved`), no file (`missing`), a place outside the estate
+ * (`external`), several files (`ambiguous`), or, for a module import, no file of the estate because it names a
+ * library or a file the estate does not hold (`unresolved`: information, never a finding).
+ */
+export type ReferenceOutcome = 'resolved' | 'missing' | 'external' | 'ambiguous' | 'unresolved';
 
 export type ReferenceEntry = {
   mention: Mention;
@@ -43,6 +49,8 @@ export type ReferenceGraph = {
   links: Link[];
   /** The mentions that lead to no file of the estate: missing, outside the estate or ambiguous. */
   dangling: ReferenceEntry[];
+  /** The module imports no file of the estate answers: a library, or a file the estate does not hold. */
+  unresolved: ReferenceEntry[];
 };
 
 export type ReferenceGraphOptions = {
@@ -76,10 +84,21 @@ export function referenceGraph(raw: RawEstate, options: ReferenceGraphOptions = 
       }
     }
   }
+  // The module imports of the code files: read from the files, not from the prose chunks.
+  for (const found of moduleEntries(raw))
+    entries.push({
+      mention: found.mention,
+      from: found.from,
+      outcome: found.outcome,
+      path: found.path,
+      concrete: true,
+      ...(found.link ? { link: found.link } : {}),
+    });
   return {
     entries,
     links: entries.flatMap((entry) => (entry.link ? [entry.link] : [])),
-    dangling: entries.filter((entry) => entry.outcome !== 'resolved'),
+    dangling: entries.filter((entry) => entry.outcome !== 'resolved' && entry.outcome !== 'unresolved'),
+    unresolved: entries.filter((entry) => entry.outcome === 'unresolved'),
   };
 }
 
