@@ -77,6 +77,8 @@ export class SuiteCut {
   private readonly current = new Map<string, Spec>();
   private readonly prepared: PreparedMap;
   private pins = new Set<string>();
+  /** Units that no later change of the suite can let go further: every check but two asks what the rest of the suite still holds, and the rest only shrinks. */
+  private readonly done = new Set<SpecDraft[]>();
   private readonly securedAxes = new Map<string, Set<string>>();
   /** Called with the walk, its length and the reason when the cut of a tail stops. For diagnosis and tests. */
   onStop?: (id: string, length: number, reason: string) => void;
@@ -266,7 +268,7 @@ export class SuiteCut {
       while (cutting) {
         cutting = false;
         for (const unit of [...units].reverse())
-          if (this.cutUnit(unit, changed)) {
+          if (!this.done.has(unit) && this.cutUnit(unit, changed)) {
             cutting = true;
             progress = true;
           }
@@ -303,11 +305,21 @@ export class SuiteCut {
     )
       return false;
     const keys = (this.holdings.get(lead.id) as Holdings).keys;
+    // The last block of a walk can go only where another walk says the same test: look before touching the counts.
+    const lastKey = keys[keys.length - 1] as string;
+    const holders = this.keys.get(lastKey);
+    const others = [...(holders?.keys() ?? [])].some((id) => !unit.some((draft) => draft.id === id));
+    if (keys.length < 2 || !others) return false;
     for (const draft of unit) {
       this.apply(this.current.get(draft.id) as Spec, this.holdings.get(draft.id) as Holdings, -1);
       this.allocation.countDraft(draft, -1);
     }
-    const stop = (reason: string, length: number) => this.onStop?.(lead.id, length, reason);
+    // Only a change of the other walks' ends or of the balance can let a stopped unit go further.
+    let retry = false;
+    const stop = (reason: string, length: number) => {
+      if (reason === 'ends-takeback' || reason === 'allocation') retry = true;
+      this.onStop?.(lead.id, length, reason);
+    };
     // A state is a shape of every member; `ends` says it ends on a test another walk already ends on (the lowest id
     // keeps it), so the cut may go deeper but may not stop there.
     const states: Array<{ shapes: Shape[]; ends: boolean }> = [{ shapes: start, ends: false }];
@@ -341,11 +353,18 @@ export class SuiteCut {
       shapes = next.shapes;
     }
     const chosen = [...states].reverse().find((state) => !state.ends) as (typeof states)[number];
+    if (!retry) this.done.add(unit);
     const deepest = states[states.length - 1] as (typeof states)[number];
     if (chosen !== deepest) stop('ends-takeback', (deepest.shapes[0] as Shape).spec.blocks.length);
     let did = false;
     unit.forEach((draft, index) => {
       const shape = chosen.shapes[index] as Shape;
+      if (chosen === states[0]) {
+        // Nothing was cut: the walk goes back into the counts as it was.
+        this.apply(shape.spec, this.holdings.get(draft.id) as Holdings, 1);
+        this.allocation.countDraft(draft, 1);
+        return;
+      }
       const before = draft.blocks;
       const cut = before.slice(shape.blocks.length);
       const declared = (draft.perturbations?.length ?? 0) !== (shape.perturbations?.length ?? 0);
