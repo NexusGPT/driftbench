@@ -1,15 +1,5 @@
-import {
-  assertRowsSound,
-  callPlan,
-  makeStore,
-  must,
-  names,
-  planError,
-  type Stem,
-  show,
-  spaceOf,
-  valueIds,
-} from '../kit';
+import { check } from '../../../../failure';
+import { assertRowsSound, callPlan, makeStore, names, planError, type Stem, spaceOf, valueIds } from '../kit';
 
 /** Seed ids (docs/variables.md R8): a seed row may carry an id, and two seed rows may not share one. */
 export const SEEDIDS_STEMS: readonly Stem[] = [
@@ -34,10 +24,13 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
             seeds: [one, two],
             seedIds: ['dup.1', 'dup.1'],
           });
-          must(
-            error.message.includes('dup.1'),
-            () => `the Error says ${show(error.message)}; it should name the id dup.1`,
-          );
+          // The wanted value is the id the message names; the item gave it, so it may be shown as input.
+          check(error.message.includes('dup.1'), () => ({
+            rule: 'the Error a plan raises for two seed rows that carry one id',
+            input: { seedIds: ['dup.1', 'dup.1'] },
+            got: { message: error.message },
+            expected: { messageNames: 'dup.1' },
+          }));
         },
       ],
       [
@@ -52,13 +45,18 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
           ];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, seedIds: ['first.row', 'second.row'] });
           assertRowsSound(spaceOf(store), plan, seeds);
-          const got = plan.rows.slice(0, 2).map((r) => r.id);
-          must(
-            got[0] === 'seed.first.row' &&
-              got[1] === 'seed.second.row' &&
-              plan.rows.slice(0, 2).every((r) => r.kind === 'seed'),
-            () =>
-              `the seed rows are named ${show(got)}; the ids given were first.row and second.row, so the rows are seed.first.row and seed.second.row`,
+          // Read before the check, so the message reads nothing the predicate did not.
+          const first = plan.rows.slice(0, 2);
+          const got = first.map((r) => r.id);
+          const kinds = first.map((r) => r.kind);
+          check(
+            got[0] === 'seed.first.row' && got[1] === 'seed.second.row' && kinds.every((kind) => kind === 'seed'),
+            () => ({
+              rule: 'the ids and kinds of the first two rows when the supplied rows carry ids',
+              input: { seedIds: ['first.row', 'second.row'] },
+              got: { ids: got, kinds },
+              expected: { ids: ['seed.first.row', 'seed.second.row'], kind: 'seed' },
+            }),
           );
         },
       ],
