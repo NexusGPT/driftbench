@@ -74,13 +74,12 @@ function specOf(group: { key: string; rules: GoldenRule[] }): Spec {
   const names = group.rules.map(name).join(', ');
   const units = group.rules.map((rule) => rule.sentences.length).join(', ');
   const tier = first.lang === 'en' ? 2 : 3;
+  const where = SEED_AFTER.has(group.key) ? 'before' : 'after';
   return row(
     group.key,
     tier,
     `Pragmatic Segmenter Golden Rule ${names}: ${first.title}`,
-    `The README input of ${names} as one markdown paragraph, and the same sentences ${
-      SEED_AFTER.has(group.key) ? 'before' : 'after'
-    } a seeded prose sentence.`,
+    `The README input of ${names} as one markdown paragraph, and the same sentences ${where} a seeded prose sentence.`,
     `Exact cut: the README's expected sentences as units, in order (${units} per input), plus the seeded sentence.`,
     `cutter:gr-${group.key.slice(3)}`,
   );
