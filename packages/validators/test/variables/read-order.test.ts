@@ -1,10 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { diagnostics } from '../../src/failure';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
 import { type Reads, readsHash, recorded } from '../read-order';
+import { MUTANTS } from '../variables-blind/mutants';
 import { referenceImpl } from '../variables-blind/reference/index';
 
 /**
@@ -62,5 +64,72 @@ describe('the read sequence of every passing item is that of the base branch', (
     expect(changed).toEqual([]);
     expect(missing).toEqual([]);
     expect(Object.keys(snapshot).length).toBeGreaterThan(0);
+  }, 3_000_000);
+});
+
+/**
+ * The runtime enforcement of lazy diagnostics. Each item runs against each planted mutant of the reference, once with
+ * the diagnostics of a failing check built and once without. The run without them must be a prefix of the run with
+ * them: a diagnostic may read the product to describe the failure after the verdict, never before it. A diagnostic
+ * that reads earlier changes the sequence ahead of the verdict, however its factory is written.
+ */
+describe('the diagnostics of a failing item read nothing of the product', () => {
+  it('reads are the same with the diagnostics built and without, for every mutant', async () => {
+    const items = variablesBank().filter((i) => i.family !== 'scale');
+    const differing: string[] = [];
+    let failing = 0;
+    try {
+      for (const mutant of MUTANTS) {
+        const list = mutant.only
+          ? items.filter((i) => mutant.only?.some((part) => i.id.endsWith(part)))
+          : items.filter((i) => mutant.families.includes(i.family));
+        // Each run gets a product of its own, so a mutant that keeps state between calls starts every run alike.
+        const run = async (item: (typeof items)[number], seed: number, build: boolean) => {
+          const { impl, reset } = mutant.make(referenceImpl);
+          diagnostics.build = build;
+          const reads: Reads = { log: [] };
+          let pass = true;
+          try {
+            const r = await item.check({
+              seed,
+              impl: recorded(impl as never, reads) as never,
+              root: ROOT,
+              id: item.id,
+              rng: itemRng(seed, item.id),
+            });
+            pass = r.pass;
+          } catch {
+            pass = false;
+          } finally {
+            reset?.();
+          }
+          return { log: reads.log, pass };
+        };
+        const prefix = (without: string[], withDiagnostics: string[]): boolean =>
+          without.length <= withDiagnostics.length && without.every((line, n) => line === withDiagnostics[n]);
+        for (const seed of SEEDS) {
+          for (const item of list) {
+            const on = await run(item, seed, true);
+            if (on.pass) continue;
+            failing += 1;
+            const off = await run(item, seed, false);
+            // The diagnostics are built after the verdict is decided, so the run without them is a prefix of the run with
+            // them: they may read the product to describe the failure, never before the verdict. A product that reads
+            // differently from one call to the next is compared again, and reported only if no pair of runs is a prefix.
+            let broken = !prefix(off.log, on.log);
+            for (let k = 0; k < 4 && broken; k += 1) {
+              const a = await run(item, seed, true);
+              const b = await run(item, seed, false);
+              if (prefix(b.log, a.log)) broken = false;
+            }
+            if (broken) differing.push(`${mutant.name}|${seed}|${item.id}`);
+          }
+        }
+      }
+    } finally {
+      diagnostics.build = true;
+    }
+    expect(failing).toBeGreaterThan(0);
+    expect(differing).toEqual([]);
   }, 3_000_000);
 });
