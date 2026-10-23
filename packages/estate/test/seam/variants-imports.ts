@@ -40,7 +40,9 @@ export type ImportAxes = {
 export type ImportMods = Partial<{
   preamble: boolean;
   /** Put the importing line in a code span, a fenced block, or write its path quoted. */
-  decoy: 'code-span' | 'fenced' | 'quoted';
+  decoy: 'code-span' | 'fenced' | 'quoted' | 'label-code-span' | 'alt-code-span';
+  /** The importer also imports itself. */
+  self: boolean;
   /** Move the importer to another standing file, leaving the written path as it is. */
   importer: StandingFile;
   /** Delete the last imported file. */
@@ -86,6 +88,12 @@ export function importEstate(axes: ImportAxes, mods: ImportMods = {}, seed = 11)
     case 'fenced':
       line = ['```text', at, '```'];
       break;
+    case 'label-code-span':
+      line = [`[see \`run ${at}\`](https://example.org/page)`];
+      break;
+    case 'alt-code-span':
+      line = [`![picture \`run ${at}\`](picture.png)`];
+      break;
     case 'quoted':
       line = [`- notes @"${first}"`];
       break;
@@ -99,7 +107,20 @@ export function importEstate(axes: ImportAxes, mods: ImportMods = {}, seed = 11)
   }
   const lead = mods.preamble ? ['# Preface', '', 'A short preface.', '', '', ''] : [];
   const files: Files = {};
-  files[importer] = text(['# Rules', '', ...lead, ...PLAIN_BODY, '', ...line, '', 'Thank you.'], axes.eol);
+  files[importer] = text(
+    [
+      '# Rules',
+      '',
+      ...lead,
+      ...PLAIN_BODY,
+      '',
+      ...line,
+      '',
+      'Thank you.',
+      ...(mods.self ? [`@${posix.basename(importer)}`] : []),
+    ],
+    axes.eol,
+  );
 
   // The chain: each file imports the next by a name beside it. Nothing of it stands in the estate when the first
   // import leads outside or the last file is deleted.

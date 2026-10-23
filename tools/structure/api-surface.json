@@ -1171,6 +1171,7 @@
       "NO_CONTRACT": "value",
       "NamedTarget": "type",
       "PATH_EXTRACTOR": "value",
+      "PATH_NOT_IN_ESTATE": "value",
       "PHRASE_NOTE": "value",
       "PLAN_DEFAULTS": "value",
       "PRIMARY_TYPE": "value",

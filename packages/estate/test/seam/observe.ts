@@ -86,13 +86,16 @@ export async function observe(
     // The links are the reference graph's: what the extractors of each file's part type read, resolved. A mention
     // that leads to no file is a link with no target.
     const graph = referenceGraph(raw);
-    const links: ObservedLink[] = graph.entries.map((entry) => ({
-      kind: entry.mention.kind,
-      from: id(entry.from),
-      to: entry.outcome === 'resolved' ? id(entry.path) : null,
-      resolved: entry.outcome === 'resolved',
-      external: entry.outcome === 'external',
-    }));
+    const links: ObservedLink[] = graph.entries
+      // A path kept apart (too little evidence for a finding) is not a link: the check lists it as skipped.
+      .filter((entry) => entry.outcome !== 'unresolved')
+      .map((entry) => ({
+        kind: entry.mention.kind,
+        from: id(entry.from),
+        to: entry.outcome === 'resolved' ? id(entry.path) : null,
+        resolved: entry.outcome === 'resolved',
+        external: entry.outcome === 'external',
+      }));
 
     // The outcomes are the lint's own (step 1 gives every code its outcome with coverage); the test only renames the
     // finding subjects of ORPHAN to part ids.

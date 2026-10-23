@@ -18,6 +18,8 @@ import type { RawEstate } from './reader';
  */
 export function referenceAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const entry of referenceGraph(raw).entries) {
+    // A path with too little evidence for a finding makes no atom: the check lists it as skipped.
+    if (entry.outcome === 'unresolved') continue;
     if (entry.mention.import && entry.outcome === 'resolved') continue;
     builder.add({
       kind: 'reference',

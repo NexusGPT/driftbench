@@ -1,3 +1,5 @@
+import { mkdir, symlink } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, importMentions, referenceGraph } from '../../src/index';
 import { estate } from '../support';
@@ -21,6 +23,15 @@ describe('the import syntax', () => {
   it('keeps sentence punctuation out of the path', () => {
     expect(written('See @rules/a.md.')).toEqual(['rules/a.md']);
     expect(written('(see @rules/a.md, then stop)')).toEqual(['rules/a.md']);
+  });
+
+  it('reads nothing inside a code span anywhere in the line, a link label included', () => {
+    expect(written('[see `run @rules/a.md`](https://example.org/page)')).toEqual([]);
+    expect(written('[`go @rules/a.md` explained](notes.md) and `then @rules/b.md` as text')).toEqual([]);
+    expect(written('**bold `x @rules/a.md`** and _it `y @rules/b.md`_')).toEqual([]);
+    expect(written('[the `use @a.md` page](u) then @real.md')).toEqual(['real.md']);
+    expect(written('``two @rules/a.md ticks`` and `@rules/b.md`')).toEqual([]);
+    expect(written('![image `alt @rules/a.md`](picture.png)')).toEqual([]);
   });
 
   it('reads nothing inside a code span, inside a word or from a quoted path', () => {
@@ -103,5 +114,50 @@ describe('imports in the reference graph', () => {
         '---\nname: ab\ndescription: Handles ab work.\n---\n\nMention @handle in a sentence.\n',
     });
     expect(referenceGraph(raw).entries.filter((entry) => entry.mention.import)).toEqual([]);
+  });
+});
+
+describe('an import that is a cycle, or that leads out of the estate by a link the reader denied', () => {
+  it('resolves a file that imports itself, and a pair that import each other: a cycle is no missing file', async () => {
+    const raw = await read({
+      'CLAUDE.md': '# Rules\n\n@CLAUDE.md\n@one.md\n',
+      'one.md': '# One\n\n@two.md\n@one.md\n',
+      'two.md': '# Two\n\n@one.md\n',
+    });
+    const graph = referenceGraph(raw);
+    expect(graph.dangling).toEqual([]);
+    expect(graph.links.map((link) => `${link.from} -> ${link.to}`).sort()).toEqual([
+      'CLAUDE.md -> CLAUDE.md',
+      'CLAUDE.md -> one.md',
+      'one.md -> one.md',
+      'one.md -> two.md',
+      'two.md -> one.md',
+    ]);
+  });
+
+  it('reports an import through a link the reader denied as outside the estate, never as missing', async () => {
+    const outside = await estate({ 'a.md': '- Keep replies short.\n' });
+    const root = await estate({ 'CLAUDE.md': '# Rules\n\n@rules/a.md\n@rules/b.md\n' });
+    await mkdir(dirname(join(root, 'rules')), { recursive: true });
+    await symlink(outside, join(root, 'rules'));
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.externals).toEqual(expect.arrayContaining(['rules/a.md']));
+    const graph = referenceGraph(raw);
+    expect(graph.dangling.map((entry) => [entry.mention.written, entry.outcome])).toEqual([
+      ['rules/a.md', 'external'],
+      ['rules/b.md', 'external'],
+    ]);
+    expect(graph.links).toEqual([]);
+  });
+
+  it('still reports a missing import beside a denied one', async () => {
+    const outside = await estate({ 'a.md': '- Keep replies short.\n' });
+    const root = await estate({ 'CLAUDE.md': '# Rules\n\n@rules/a.md\n@absent/c.md\n' });
+    await symlink(outside, join(root, 'rules'));
+    const graph = referenceGraph(await new ClaudeCodeReader().read(root));
+    expect(graph.dangling.map((entry) => [entry.mention.written, entry.outcome])).toEqual([
+      ['rules/a.md', 'external'],
+      ['absent/c.md', 'missing'],
+    ]);
   });
 });

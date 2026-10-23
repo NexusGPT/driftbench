@@ -4,6 +4,7 @@ import {
   ClaudeCodeReader,
   DEFAULT_RULES,
   type Mention,
+  PATH_NOT_IN_ESTATE,
   referenceExtractors,
   referenceGraph,
   referenceRulesOf,
@@ -140,5 +141,68 @@ describe('an extractor is registered under the rule of a part type', () => {
     });
     expect(referenceGraph(raw, { readers: ['no-such-reader'] }).entries).toEqual([]);
     expect(referenceGraph(raw, { readers: ['path-syntax'] }).entries).toHaveLength(1);
+  });
+});
+
+describe('a path with no file extension in the graph', () => {
+  const NAMER = '.claude/skills/crate-sort/SKILL.md';
+  const graphOf = async (body: string[], extra: Record<string, string> = {}) =>
+    referenceGraph(
+      await read({
+        'CLAUDE.md': '# Rules\n\nKeep replies short.\n',
+        [NAMER]: SKILL(body),
+        ...extra,
+      }),
+    );
+
+  it('links an existing file, found from the naming file and from the root of the estate', async () => {
+    const graph = await graphOf(['Read [the entry](references/leaf) and `bin/tool` and "tool".'], {
+      '.claude/skills/crate-sort/references/leaf': 'leaf\n',
+      'bin/tool': '#!/bin/sh\n',
+    });
+    expect(graph.links.map((link) => link.to).sort()).toEqual([
+      '.claude/skills/crate-sort/references/leaf',
+      'bin/tool',
+    ]);
+    expect(graph.dangling).toEqual([]);
+  });
+
+  it('is missing for a link destination, for a path written as `./x` or `../x` and for a first folder the estate holds', async () => {
+    const graph = await graphOf(
+      ['See [a](leaf), [b](gone/leaf) and `references/second` and `./third` and `../fourth`.'],
+      { '.claude/skills/crate-sort/references/kept.md': '# Kept\n' },
+    );
+    expect(graph.dangling.map((entry) => [entry.mention.written, entry.outcome]).sort()).toEqual([
+      ['../fourth', 'missing'],
+      ['./third', 'missing'],
+      ['gone/leaf', 'missing'],
+      ['leaf', 'missing'],
+      ['references/second', 'missing'],
+    ]);
+    expect(graph.unresolved).toEqual([]);
+  });
+
+  it('is unresolved, with its reason, when a delimited pair of words names no folder the estate holds', async () => {
+    const graph = await graphOf(['Answer `yes/no` and `owner/repo`, never `and/or` loosely.']);
+    expect(graph.unresolved.map((entry) => [entry.mention.written, entry.outcome, entry.reason])).toEqual([
+      ['yes/no', 'unresolved', PATH_NOT_IN_ESTATE],
+      ['owner/repo', 'unresolved', PATH_NOT_IN_ESTATE],
+      ['and/or', 'unresolved', PATH_NOT_IN_ESTATE],
+    ]);
+    expect(graph.dangling).toEqual([]);
+    expect(graph.links).toEqual([]);
+  });
+
+  it('keeps a missing path with an unusual file type apart too, and drops a loose word with none', async () => {
+    const graph = await graphOf(['Open `images/diagram.png` and the file notes.xyz.']);
+    expect(graph.unresolved.map((entry) => entry.mention.written)).toEqual(['images/diagram.png']);
+  });
+
+  it('names a folder: a link to it asks the reader to read no file', async () => {
+    const graph = await graphOf(['See [refs](references) and [there](references/) and [docs](docs).'], {
+      '.claude/skills/crate-sort/references/kept.md': '# Kept\n',
+      'docs/guide.md': '# Guide\n',
+    });
+    expect(graph.entries.map((entry) => entry.mention.written)).toEqual([]);
   });
 });

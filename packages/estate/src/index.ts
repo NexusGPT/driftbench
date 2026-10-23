@@ -169,6 +169,7 @@ export {
   importMentions,
   type Mention,
   PATH_EXTRACTOR,
+  PATH_NOT_IN_ESTATE,
   type ReferenceEntry,
   type ReferenceExtractor,
   type ReferenceGraph,

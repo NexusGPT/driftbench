@@ -400,6 +400,23 @@ async function readRootReferences(
     }
     return known;
   };
+  // A path with no file extension may lead to a folder: it is then no missing file.
+  const isFolder = new Map<string, Promise<boolean>>();
+  const folderAt = (path: string) => {
+    let known = isFolder.get(path);
+    if (known === undefined) {
+      known = localPath(root, path, estate.notes).then(async (safe) =>
+        safe === undefined
+          ? false
+          : stat(safe).then(
+              (info) => info.isDirectory(),
+              () => false,
+            ),
+      );
+      isFolder.set(path, known);
+    }
+    return known;
+  };
   for (let index = 0; index < estate.prose.length; index++) {
     const chunk = estate.prose[index];
     if (!chunk) continue;
@@ -411,7 +428,7 @@ async function readRootReferences(
         source?.kind === 'standing' && IMPORT_PREFIX !== undefined
           ? importMentions(line.text, IMPORT_PREFIX).map((found) => found.written)
           : [];
-      const others = pathMentions(line.text)
+      const others = pathMentions(line.text, { extensionless: true })
         .filter((found) => IMPORT_PREFIX === undefined || !found.spelling.startsWith(IMPORT_PREFIX))
         .map((found) => found.path);
       const names = [
@@ -452,6 +469,15 @@ async function readRootReferences(
             !isExternal(rooted, estate.externals ?? []) &&
             (await fileAt(rooted));
           if (rootPlaceholder) files.set(rooted, { path: rooted, text: '', kind: 'other' });
+          // A path with no file extension may lead to a folder: it is then no missing file.
+          if (!/\.[A-Za-z0-9]+$/.test(name)) {
+            for (const place of new Set([local, rooted, posix.normalize(name)])) {
+              if (place === '..' || place.startsWith('../') || place.startsWith('/') || files.has(place))
+                continue;
+              if (!(await folderAt(place))) continue;
+              estate.folders = [...new Set([...(estate.folders ?? []), place])];
+            }
+          }
           const placeholder = !name.includes('/') && !files.has(name);
           if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
           target = locateNamed(name, chunk.file, files, {

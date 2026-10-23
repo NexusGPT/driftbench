@@ -75,7 +75,7 @@ describe('text that is not an import gives no includes link', () => {
     depth: 0,
     eol: 'lf',
   };
-  for (const decoy of ['code-span', 'fenced', 'quoted'] as const) {
+  for (const decoy of ['code-span', 'fenced', 'quoted', 'label-code-span', 'alt-code-span'] as const) {
     it(decoy, async () => {
       const real = await read(base);
       const { observed } = await read(base, { decoy });
@@ -152,4 +152,26 @@ describe('a change that must alter the links', () => {
     expect(resolvedLink(observed, IMPORT_LINK, 'i2', 'last')).toBe(true);
     expect(resolvedLink(observed, IMPORT_LINK, 'last', 'i1')).toBe(true);
   });
+});
+
+describe('a file that imports itself, or a pair that import each other', () => {
+  for (const importer of ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md'] as const) {
+    it(importer, async () => {
+      const axes: ImportAxes = {
+        importer,
+        form: 'own-line',
+        place: 'below',
+        target: 'exists',
+        depth: 1,
+        eol: 'lf',
+      };
+      const { observed } = await read(axes, { self: true, cycle: true });
+      // The importer includes itself: a cycle ends, and it is no missing file.
+      expect(resolvedLink(observed, IMPORT_LINK, 'namer', 'namer')).toBe(true);
+      // The last file imports the first back.
+      expect(resolvedLink(observed, IMPORT_LINK, 'last', 'i1')).toBe(true);
+      expect(unresolvedLinks(observed, IMPORT_LINK, 'namer')).toEqual([]);
+      expect(outcome(observed, 'references').status).not.toBe('fail');
+    });
+  }
 });
