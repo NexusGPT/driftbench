@@ -137,15 +137,27 @@ export class Allocation {
     blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[];
     perturbations?: readonly PerturbationSpec[];
   }): number {
+    return this.imbalanceWithAll([draft]);
+  }
+
+  /** The imbalance as it would stand with the events of all these walks added. */
+  imbalanceWithAll(
+    drafts: ReadonlyArray<{
+      blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[];
+      perturbations?: readonly PerturbationSpec[];
+    }>,
+  ): number {
     const stages = new Map(this.stages);
-    for (const stage of this.events(draft.blocks, draft.perturbations))
-      stages.set(stage, (stages.get(stage) ?? 0) + 1);
     const classes = new Map(this.classes);
-    for (const cls of [
-      ...draft.blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
-      ...(draft.perturbations ?? []).map((entry) => entry.class),
-    ])
-      if (classes.has(cls)) classes.set(cls, (classes.get(cls) ?? 0) + 1);
+    for (const draft of drafts) {
+      for (const stage of this.events(draft.blocks, draft.perturbations))
+        stages.set(stage, (stages.get(stage) ?? 0) + 1);
+      for (const cls of [
+        ...draft.blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
+        ...(draft.perturbations ?? []).map((entry) => entry.class),
+      ])
+        if (classes.has(cls)) classes.set(cls, (classes.get(cls) ?? 0) + 1);
+    }
     return deficit(stages.values()) + deficit(classes.values());
   }
 

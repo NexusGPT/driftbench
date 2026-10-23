@@ -541,6 +541,25 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     for (const [id, draft] of draftOf) {
       if (!changedIds.has(id) && before.get(id) === witnesses(draft)) continue;
       const seeder = renderedAs.get(id) as Seeder;
+      const totals = seeders[seeder] as SeederTotals;
+      const was = all.find((spec) => spec.id === id);
+      if (draft.dropped) {
+        // A walk cut to a repeat of a whole spec is not written (see SuiteCut.droppable).
+        const without = (specs: Spec[]) => {
+          const at = specs.findIndex((spec) => spec.id === id);
+          if (at >= 0) specs.splice(at, 1);
+        };
+        without(all);
+        without(complete);
+        without(completeBy[seeder] ?? []);
+        totals.specs -= 1;
+        totals.complete -= 1;
+        totals.blocks -= was?.blocks.length ?? 0;
+        const kept = files.filter((entry) => fileOwners.get(entry.path) !== id);
+        files.splice(0, files.length, ...kept);
+        draftOf.delete(id);
+        continue;
+      }
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const loaded = checkSpec(rendered.spec, rendered.id);
       if (!loaded.ok) continue;
@@ -548,11 +567,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         const at = specs.findIndex((spec) => spec.id === id);
         if (at >= 0) specs[at] = loaded.spec;
       };
-      const was = all.find((spec) => spec.id === id);
       replace(all);
       replace(complete);
       replace(completeBy[seeder] ?? []);
-      const totals = seeders[seeder] as SeederTotals;
       totals.blocks += rendered.blocks - (was?.blocks.length ?? rendered.blocks);
       const file = files.find((entry) => fileOwners.get(entry.path) === id);
       if (file) file.text = generatedSpecText(rendered, run, prepared.hash);

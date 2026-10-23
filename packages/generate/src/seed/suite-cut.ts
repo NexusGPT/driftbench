@@ -1,4 +1,4 @@
-import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { type PerturbationSpec, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { addEventCodes, placeSpec } from '@agent-nexus/driftbench-space';
 import { Allocation } from './allocation';
 import type { SpecDraft } from './assemble';
@@ -18,9 +18,16 @@ type Holdings = {
   codes: Array<Set<number>>;
   pairs: Set<string>;
   probes: Set<string>;
+  /** `path|class` of every perturbation the spec declares. */
+  perturbs: Set<string>;
+  /** `path|channel and persona` the spec is written for. */
+  context: string;
   row?: string;
   family?: string;
 };
+
+/** One shape a walk can take: the blocks and declarations it keeps, and the spec they make. */
+type Shape = { blocks: SpecDraft['blocks']; perturbations: PerturbationSpec[] | undefined; spec: Spec };
 
 /**
  * The tails of a suite, cut with the whole suite in view. The first pass (`TerminalSubsumption.reduce`) cuts a
@@ -30,8 +37,12 @@ type Holdings = {
  * others been written first. It checks what the first pass checks, each against the suite without the walk being
  * cut: the block is the same test as a block another walk says, every message and tuple and ordered pair of moves
  * and class probe the tail holds is held by another walk, the stages and classes stay no further from balance, the
- * recoveries still build, and the walk does not end on the block another walk ends on. A walk it never cuts is the
- * pair of twins a path keeps per context axis, a metamorphic variant, a walk with an end state, and a task.
+ * recoveries still build, and the walk does not end on the block another walk ends on. Where the first pass keeps a
+ * block because a declared perturbation reaches it, this pass cuts it with its declaration when another walk of the
+ * path declares the same class (the declaration is then held elsewhere). A metamorphic family is cut as one unit,
+ * and only where its variants still differ in what they say. A walk cut to one block that another walk says, with
+ * every message, tuple and context held elsewhere, is dropped. It never cuts the pair of twins a path keeps per
+ * context axis, a walk with an end state, or a task. It goes on until no walk can be cut.
  *
  * The result is a function of the set of walks, not of the order they were written in: the walks are visited in the
  * order of their ids, and each cut is checked against the walks as they stand at that moment.
@@ -43,9 +54,15 @@ export class SuiteCut {
   private readonly held: Uint32Array[];
   private readonly pairs = new Map<string, number>();
   private readonly probed = new Map<string, number>();
+  private readonly perturbed = new Map<string, number>();
+  private readonly contexts = new Map<string, number>();
   private readonly rows = new Map<string, number>();
   private readonly allocation: Allocation;
   private readonly holdings = new Map<string, Holdings>();
+  private readonly current = new Map<string, Spec>();
+  private pins = new Set<string>();
+  /** Called with the walk, its length and the reason when the cut of a tail stops. For diagnosis and tests. */
+  onStop?: (id: string, length: number, reason: string) => void;
 
   constructor(
     prepared: PreparedMap,
@@ -55,9 +72,13 @@ export class SuiteCut {
     this.allocation = new Allocation(prepared);
   }
 
+  private pathOf(spec: Spec): string {
+    return (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+  }
+
   private holdingsOf(spec: Spec): Holdings {
     const m = this.minimal;
-    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const path = this.pathOf(spec);
     const placement = placeSpec(m.space, spec);
     const codes = m.projections.map((projection) => {
       const set = new Set<number>();
@@ -78,6 +99,8 @@ export class SuiteCut {
           'injection' in block.when ? [`${path}|${block.when.injection.class}`] : [],
         ),
       ),
+      perturbs: new Set((spec.perturbations ?? []).map((entry) => `${path}|${entry.class}`)),
+      context: `${path}|${m.contextOf(spec)}`,
       ...(generated?.seeder === 'twise' ? { row: m.twiseRow(spec) } : {}),
       ...(generated?.metamorphic?.family === undefined ? {} : { family: generated.metamorphic.family }),
     };
@@ -115,6 +138,8 @@ export class SuiteCut {
     });
     for (const pair of held.pairs) this.count(this.pairs, pair, delta);
     for (const probe of held.probes) this.count(this.probed, probe, delta);
+    for (const perturb of held.perturbs) this.count(this.perturbed, perturb, delta);
+    this.count(this.contexts, held.context, delta);
     if (held.row !== undefined) this.count(this.rows, held.row, delta);
   }
 
@@ -125,7 +150,7 @@ export class SuiteCut {
     const walks = new Map<string, Array<{ id: string; context: [unknown, unknown] }>>();
     const secured = new Map<string, Set<string>>();
     for (const { spec } of items) {
-      const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+      const path = this.pathOf(spec);
       const key = m.walkKey(spec);
       const context = JSON.parse(m.contextOf(spec)) as [unknown, unknown];
       const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -148,91 +173,245 @@ export class SuiteCut {
 
   /**
    * Cuts the tails of the walks of `items` and returns the drafts it changed. A changed draft holds its shorter
-   * blocks and its record of the blocks cut; the caller renders it again.
+   * blocks and its record of the blocks cut; the caller renders it again. A draft marked `dropped` is no longer
+   * part of the suite.
    */
   reduce(items: readonly SuiteItem[]): SpecDraft[] {
-    const m = this.minimal;
     const ordered = [...items].sort((a, b) => (a.spec.id < b.spec.id ? -1 : a.spec.id > b.spec.id ? 1 : 0));
-    const current = new Map<string, Spec>(ordered.map(({ spec }) => [spec.id, spec]));
     for (const { spec, draft } of ordered) {
+      this.current.set(spec.id, spec);
       const held = this.holdingsOf(spec);
       this.holdings.set(spec.id, held);
       this.apply(spec, held, 1);
       if (draft) this.allocation.countDraft(draft, 1);
       else this.allocation.observeSpec(spec);
     }
-    const pinned = this.pinned(ordered);
-    const changed: SpecDraft[] = [];
+    this.pins = this.pinned(ordered);
+    // A walk is a unit; the variants of a metamorphic family are one unit, led by the first.
+    const units: SpecDraft[][] = [];
+    const families = new Map<string, SpecDraft[]>();
     for (const { draft } of ordered) {
       if (!draft) continue;
-      let spec = current.get(draft.id) as Spec;
-      if (
-        pinned.has(spec.id) ||
-        spec.kind !== 'conversation' ||
-        spec.end_state !== undefined ||
-        draft.metamorphic !== undefined ||
-        spec.blocks.length < 2
-      )
+      const family = draft.metamorphic?.family;
+      if (family === undefined) {
+        units.push([draft]);
         continue;
-      const held = this.holdings.get(spec.id) as Holdings;
-      this.apply(spec, held, -1);
-      this.allocation.countDraft(draft, -1);
-      const before = draft.blocks;
-      const states = [{ blocks: draft.blocks, spec }];
-      while (spec.blocks.length > 1) {
-        const last = spec.blocks.length - 1;
-        const key = held.keys[last] as string;
-        if (!this.keys.has(key)) break;
-        if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
-        if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
-        const reduced = validateSpec(m.cut(spec, last));
-        if (!reduced.ok || !m.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
-        if (!m.textsOf(spec.blocks[last]).every((text) => this.said.has(text))) break;
-        if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
-        if (!this.obligationsHold(draft.seeder, spec, reduced.spec)) break;
-        const shorter = { blocks: draft.blocks.slice(0, last), perturbations: draft.perturbations };
-        if (this.allocation.imbalanceWith(shorter) > this.allocation.imbalanceWith(draft)) break;
-        draft.blocks = shorter.blocks;
-        spec = reduced.spec;
-        states.push({ blocks: draft.blocks, spec });
       }
-      const settled = [...states]
-        .reverse()
-        .find(
-          (state) =>
-            state.spec.blocks.length === 1 ||
-            !this.otherEnds(spec.id, held.keys[state.spec.blocks.length - 1] as string),
-        );
-      const chosen = settled ?? (states[0] as (typeof states)[number]);
-      draft.blocks = chosen.blocks;
-      spec = chosen.spec;
-      current.set(spec.id, spec);
-      const cut = before.slice(draft.blocks.length);
+      const unit = families.get(family) ?? [];
+      if (unit.length === 0) units.push(unit);
+      unit.push(draft);
+      families.set(family, unit);
+    }
+    for (const unit of units)
+      unit.sort((a, b) => (a.metamorphic?.variant ?? 0) - (b.metamorphic?.variant ?? 0));
+    const changed = new Set<SpecDraft>();
+    let progress = true;
+    while (progress) {
+      progress = false;
+      for (const unit of units) if (this.cutUnit(unit, changed)) progress = true;
+    }
+    this.repoint(ordered);
+    return [...changed];
+  }
+
+  private otherEnds(key: string): boolean {
+    return (this.ends.get(key)?.size ?? 0) > 0;
+  }
+
+  private shapeOf(draft: SpecDraft): Shape {
+    return {
+      blocks: draft.blocks,
+      perturbations: draft.perturbations,
+      spec: this.current.get(draft.id) as Spec,
+    };
+  }
+
+  /** Cuts the tail of one unit as far as the suite allows. Returns whether anything changed. */
+  private cutUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
+    const lead = unit[0] as SpecDraft;
+    if (unit.some((draft) => draft.dropped !== undefined || !this.current.has(draft.id))) return false;
+    const start = unit.map((draft) => this.shapeOf(draft));
+    const first = start[0] as Shape;
+    // A family is cut only when every variant of it is in the suite.
+    if (lead.metamorphic !== undefined && unit.length !== lead.metamorphic.of) return false;
+    if (
+      unit.some((draft) => this.pins.has(draft.id)) ||
+      start.some(
+        (shape) =>
+          shape.spec.kind !== 'conversation' ||
+          shape.spec.end_state !== undefined ||
+          shape.spec.blocks.length !== first.spec.blocks.length,
+      )
+    )
+      return false;
+    const path = this.pathOf(first.spec);
+    const keys = (this.holdings.get(lead.id) as Holdings).keys;
+    for (const draft of unit) {
+      this.apply(this.current.get(draft.id) as Spec, this.holdings.get(draft.id) as Holdings, -1);
+      this.allocation.countDraft(draft, -1);
+    }
+    const stop = (reason: string, length: number) => this.onStop?.(lead.id, length, reason);
+    const states: Shape[][] = [start];
+    let shapes = start;
+    while ((shapes[0] as Shape).spec.blocks.length > 1) {
+      const length = (shapes[0] as Shape).spec.blocks.length;
+      const last = length - 1;
+      if (!this.keys.has(keys[last] as string)) {
+        stop('new-key', length);
+        break;
+      }
+      if ((shapes[0] as Shape).spec.blocks[last - 1]?.id?.endsWith('-restated')) {
+        stop('restated', length);
+        break;
+      }
+      const next = this.shorten(shapes, last, path, (reason) => stop(reason, length));
+      if (!next) break;
+      const currents = shapes.map((shape) => ({ blocks: shape.blocks, perturbations: shape.perturbations }));
+      if (this.allocation.imbalanceWithAll(next) > this.allocation.imbalanceWithAll(currents)) {
+        stop('allocation', length);
+        break;
+      }
+      if (!this.obligationsHold(lead.seeder, (shapes[0] as Shape).spec, (next[0] as Shape).spec)) {
+        stop('obligations', length);
+        break;
+      }
+      if (unit.length > 1 && !this.stillDiffer(next, last)) {
+        stop('family-degenerate', length);
+        break;
+      }
+      states.push(next);
+      shapes = next;
+    }
+    const settled = [...states]
+      .reverse()
+      .find(
+        (state) =>
+          (state[0] as Shape).spec.blocks.length === 1 ||
+          !this.otherEnds(keys[(state[0] as Shape).spec.blocks.length - 1] as string),
+      );
+    const chosen = settled ?? (states[0] as Shape[]);
+    const deepest = states[states.length - 1] as Shape[];
+    if (chosen !== deepest) stop('ends-takeback', (deepest[0] as Shape).spec.blocks.length);
+    let did = false;
+    const solo = unit.length === 1 ? (unit[0] as SpecDraft) : undefined;
+    if (solo && (chosen[0] as Shape).spec.blocks.length === 1 && this.droppable(chosen[0] as Shape)) {
+      const before = solo.blocks;
+      for (const block of before)
+        solo.cutKeys = { ...solo.cutKeys, [block.id]: keys[before.indexOf(block)] as string };
+      solo.dropped = { duplicate_of: { spec: '', block: '' } };
+      this.current.delete(solo.id);
+      this.holdings.delete(solo.id);
+      changed.add(solo);
+      return true;
+    }
+    unit.forEach((draft, index) => {
+      const shape = chosen[index] as Shape;
+      const before = draft.blocks;
+      const cut = before.slice(shape.blocks.length);
+      const declared = (draft.perturbations?.length ?? 0) !== (shape.perturbations?.length ?? 0);
       if (cut.length > 0) {
         cut.forEach((block, offset) => {
-          draft.cutKeys = { ...draft.cutKeys, [block.id]: held.keys[draft.blocks.length + offset] as string };
+          draft.cutKeys = { ...draft.cutKeys, [block.id]: keys[shape.blocks.length + offset] as string };
         });
         draft.reducedEnds = {
           from_blocks: draft.reducedEnds?.from_blocks ?? before.length + (draft.reducedMiddle?.length ?? 0),
-          to_blocks: draft.blocks.length,
+          to_blocks: shape.blocks.length,
           duplicates: [
             ...cut.map((block) => ({ block: block.id, duplicate_of: { spec: '', block: '' } })),
             ...(draft.reducedEnds?.duplicates ?? []),
           ],
         };
-        changed.push(draft);
       }
-      const next = this.holdingsOf(spec);
-      this.holdings.set(spec.id, next);
-      this.apply(spec, next, 1);
+      if (cut.length > 0 || declared) {
+        draft.blocks = shape.blocks;
+        draft.perturbations = shape.perturbations;
+        changed.add(draft);
+        did = true;
+      }
+      this.current.set(draft.id, shape.spec);
+      const next = this.holdingsOf(shape.spec);
+      this.holdings.set(draft.id, next);
+      this.apply(shape.spec, next, 1);
       this.allocation.countDraft(draft, 1);
-    }
-    this.repoint(ordered, current);
-    return changed;
+    });
+    return did;
   }
 
-  private otherEnds(self: string, key: string): boolean {
-    return [...(this.ends.get(key) ?? [])].some((id) => id !== self);
+  /**
+   * The unit with the last block cut off every member, or undefined when the suite owes something that block holds.
+   * A declaration a perturbation makes at or after the block goes with it, when another walk of the path declares
+   * the same class.
+   */
+  private shorten(
+    shapes: Shape[],
+    last: number,
+    path: string,
+    stop: (reason: string) => void,
+  ): Shape[] | undefined {
+    const m = this.minimal;
+    const next: Shape[] = [];
+    for (const shape of shapes) {
+      const declared = (shape.spec.perturbations ?? []).filter((entry) => entry.inject_at >= last);
+      for (const entry of declared) {
+        if (!this.perturbed.has(`${path}|${entry.class}`)) {
+          stop('perturbation');
+          return undefined;
+        }
+      }
+      const kept = (shape.spec.perturbations ?? []).filter((entry) => entry.inject_at < last);
+      const cut = m.cut(shape.spec, last);
+      const { perturbations: _gone, ...bare } = cut;
+      const parsed = validateSpec(kept.length > 0 ? { ...bare, perturbations: kept } : bare);
+      if (!parsed.ok || !m.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) {
+        stop('recovery-or-end');
+        return undefined;
+      }
+      if (!m.textsOf(shape.spec.blocks[last]).every((text) => this.said.has(text))) {
+        stop('phrase');
+        return undefined;
+      }
+      if (!this.tuplesHold(shape.spec, parsed.spec)) {
+        stop('tuples');
+        return undefined;
+      }
+      if (!this.pairsHold(shape.spec, parsed.spec)) {
+        stop('pairs');
+        return undefined;
+      }
+      next.push({
+        blocks: shape.blocks.slice(0, last),
+        perturbations:
+          kept.length > 0 ? shape.perturbations?.filter((entry) => entry.inject_at < last) : undefined,
+        spec: parsed.spec,
+      });
+    }
+    return next;
+  }
+
+  /** The variants of a family still say different things in the blocks they keep. */
+  private stillDiffer(shapes: Shape[], last: number): boolean {
+    const words = shapes.map((shape) =>
+      JSON.stringify(shape.spec.blocks.slice(0, last).map((block) => this.minimal.textsOf(block))),
+    );
+    return new Set(words).size === shapes.length;
+  }
+
+  /** A walk cut to one block is a repeat of a whole spec when everything it says and places is held by another. */
+  private droppable(shape: Shape): boolean {
+    const held = this.holdingsOf(shape.spec);
+    if (!this.keys.has(held.keys[0] as string)) return false;
+    if (!this.contexts.has(held.context)) return false;
+    for (const text of held.texts) if (!this.said.has(text)) return false;
+    for (const probe of held.probes) if (!this.probed.has(probe)) return false;
+    for (const perturb of held.perturbs) if (!this.perturbed.has(perturb)) return false;
+    if (held.row !== undefined && !this.rows.has(held.row)) return false;
+    for (const pair of held.pairs) if (!this.pairs.has(pair)) return false;
+    if (!held.codes.every((codes, index) => [...codes].every((code) => (this.held[index]?.[code] ?? 0) > 0)))
+      return false;
+    return (
+      this.allocation.imbalanceWithAll([]) <=
+      this.allocation.imbalanceWithAll([{ blocks: shape.blocks, perturbations: shape.perturbations }])
+    );
   }
 
   /** Every tuple the longer walk places is placed by the reduced walk or by another walk of the suite. */
@@ -258,7 +437,7 @@ export class SuiteCut {
 
   private obligationsHold(seeder: string | undefined, before: Spec, after: Spec): boolean {
     const m = this.minimal;
-    const path = (before.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const path = this.pathOf(before);
     const probes = (spec: Spec) =>
       new Set(
         spec.blocks.flatMap((block) =>
@@ -272,9 +451,9 @@ export class SuiteCut {
   }
 
   /** Every cut block names, as its witness, a block the final suite still holds. */
-  private repoint(items: readonly SuiteItem[], current: Map<string, Spec>): void {
+  private repoint(items: readonly SuiteItem[]): void {
     const retained = (witness: { spec: string; block: string }) => {
-      const spec = current.get(witness.spec);
+      const spec = this.current.get(witness.spec);
       return spec?.blocks.some((block) => block.id === witness.block) === true;
     };
     const holder = (
@@ -291,16 +470,22 @@ export class SuiteCut {
     };
     for (const { draft } of items) {
       if (!draft) continue;
-      const keys = draft.cutKeys ?? {};
+      const cutKeys = draft.cutKeys ?? {};
+      if (draft.dropped) {
+        const key = Object.values(cutKeys)[0];
+        const next = key === undefined ? undefined : holder(key, draft.id);
+        if (next) draft.dropped = { duplicate_of: { spec: next.spec, block: next.block } };
+        continue;
+      }
       for (const entry of draft.reducedEnds?.duplicates ?? []) {
         if (entry.duplicate_of.spec !== '' && retained(entry.duplicate_of)) continue;
-        const key = keys[entry.block];
+        const key = cutKeys[entry.block];
         const next = key === undefined ? undefined : holder(key, draft.id);
         if (next) entry.duplicate_of = next;
       }
       for (const entry of draft.reducedMiddle ?? []) {
         if (retained(entry.duplicate_of)) continue;
-        const key = keys[entry.block];
+        const key = cutKeys[entry.block];
         const next = key === undefined ? undefined : holder(key, draft.id);
         if (next) entry.duplicate_of = { spec: next.spec, block: next.block };
       }
