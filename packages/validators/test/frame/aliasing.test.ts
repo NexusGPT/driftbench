@@ -5,6 +5,7 @@ import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
 import { applyWrites, plainWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
+import type * as holdsFunction from './fixtures/holds-function';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
@@ -16,6 +17,7 @@ import { applyWrites, plainWrites, TARGETS, WRITES, writeTarget } from './fixtur
 vi.setConfig({ testTimeout: 300_000 });
 
 const PRODUCT = fileURLToPath(new URL('./fixtures/aliasing.ts', import.meta.url));
+const HOLDS_FUNCTION = fileURLToPath(new URL('./fixtures/holds-function.ts', import.meta.url));
 type Product = typeof aliasing;
 
 const open: Frame<unknown>[] = [];
@@ -450,7 +452,12 @@ describe('the report of a changed result names what changed', () => {
 // with run C, because building the evidence registered a handle in the confined runs only.
 describe('the evidence leaves the verdict as it was', () => {
   it('a function-holding result changed by the next call: reported, no taint, no divergence', () => {
-    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: true });
+    const frame = isolate<typeof holdsFunction>({
+      module: HOLDS_FUNCTION,
+      seed: 11,
+      aliasing: true,
+      plain: true,
+    });
     open.push(frame as Frame<unknown>);
     frame.product.holdsFunction([1, 2, 3]);
     frame.product.holdsFunction([10, 20, 30]);

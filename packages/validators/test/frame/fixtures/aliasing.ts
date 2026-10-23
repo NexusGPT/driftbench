@@ -338,13 +338,3 @@ export const pureA = (n: number) => ({ meta: SHARED, values: [n, n + 1], nested:
 export const pureB = (n: number) => ({ meta: SHARED, total: n * 3, tags: ['b', String(n)] });
 export const pureC = (n: number) => [{ meta: SHARED }, { at: n }, [n, -0, Number.NaN]];
 export const pureD = (n: number) => ({ inner: { meta: SHARED, deeper: { meta: SHARED, n } } });
-
-let withFunctionEarlier: { total: number; read: () => number } | undefined;
-/** A result that holds a function, and the earlier one overwritten with the new total. */
-export const holdsFunction = (xs: readonly number[]) => {
-  const total = xs.reduce((a, b) => a + b, 0);
-  const result = { total, read: () => total };
-  if (withFunctionEarlier) withFunctionEarlier.total = total;
-  withFunctionEarlier = result;
-  return result;
-};
