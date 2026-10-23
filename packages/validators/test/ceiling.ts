@@ -13,6 +13,13 @@ export function ceilingVerdict(count: number, head: number, base: number | undef
   return undefined;
 }
 
+/** The base of the run: LEAK_BASE_REF, else the base branch of the pull request in CI, else origin/release/next. */
+export function baseRefOfRun(): string {
+  if (process.env.LEAK_BASE_REF) return process.env.LEAK_BASE_REF;
+  if (process.env.GITHUB_BASE_REF) return `origin/${process.env.GITHUB_BASE_REF}`;
+  return 'origin/release/next';
+}
+
 function git(args: string[], cwd?: string): string {
   return execFileSync('git', args, {
     encoding: 'utf8',
@@ -30,13 +37,30 @@ export function readCeilings(
   root: string,
   path: string,
   key: string,
-  baseRef = process.env.LEAK_BASE_REF ?? 'origin/release/next',
+  baseRef = baseRefOfRun(),
 ): { head: number; base: number | undefined } {
   const head = (JSON.parse(readFileSync(`${root}/${path}`, 'utf8')) as Record<string, number>)[key];
   if (typeof head !== 'number') throw new Error(`${path} has no ceiling for ${key}`);
-  try {
-    git(['rev-parse', '--verify', '--quiet', `${baseRef}^{commit}`], root);
-  } catch {
+  const resolves = (): boolean => {
+    try {
+      git(['rev-parse', '--verify', '--quiet', `${baseRef}^{commit}`], root);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  // A checkout that has not fetched the base gets one fetch of it; the comparison never goes on without the ref.
+  if (!resolves()) {
+    const m = /^origin\/(.+)$/.exec(baseRef);
+    if (m) {
+      try {
+        git(['fetch', '--quiet', '--depth=1', 'origin', `+refs/heads/${m[1]}:refs/remotes/origin/${m[1]}`], root);
+      } catch {
+        // the error below names the ref
+      }
+    }
+  }
+  if (!resolves()) {
     throw new Error(
       `the base ref ${baseRef} cannot be read, so the ceiling cannot be compared with it (fetch it, or set LEAK_BASE_REF)`,
     );

@@ -19,9 +19,23 @@ export type FailureFields = {
   input?: unknown;
   /** What the product returned or did. For a count item, the product's number. */
   got?: unknown;
-  /** The wanted value. Never rendered. */
-  expected?: unknown;
+  /**
+   * The wanted value. Never rendered. Every failure declares it: a site that wants a value names it here, and a site
+   * that only observes what the product did says so with `none(reason)`. A wanted value cannot go unnamed, so the leak
+   * check always has something to compare the message with (docs/validators.md 12.11).
+   */
+  expected: unknown;
 };
+
+/** The marker of a failure that has no wanted value to hide: it observes what the product did. */
+export type NoExpected = { readonly none: string };
+
+export function none(reason: string): NoExpected {
+  return { none: reason };
+}
+
+const isNone = (value: unknown): value is NoExpected =>
+  typeof value === 'object' && value !== null && 'none' in value && Object.keys(value).length === 1;
 
 /** A value as a message prints it: short, with non-finite numbers and bigint named. */
 export function showValue(value: unknown, limit = 200): string {
@@ -49,6 +63,8 @@ export class ItemFailure extends Error {
   readonly fields: FailureFields;
   constructor(fields: FailureFields) {
     super(renderFailure(fields));
+    if (!('expected' in fields))
+      throw new TypeError(`failure "${fields.rule}" declares no expected value: name it, or say none(reason)`);
     this.name = 'ItemFailure';
     this.fields = fields;
   }
@@ -65,7 +81,7 @@ export const diagnostics = { build: true };
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
   if (condition) return;
   if (typeof fields !== 'function') throw new ItemFailure(fields);
-  throw new ItemFailure(diagnostics.build ? fields() : { rule: '(diagnostics not built)' });
+  throw new ItemFailure(diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('diagnostics are off') });
 }
 
 /** The strings and numbers of a value, as the tokens a message could repeat. */
@@ -116,7 +132,7 @@ export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
   const out: string[] = [];
   if (failure.message !== renderFailure(fields)) out.push('(the message is not the rendering of its fields)');
-  if (fields.expected === undefined) return out;
+  if (fields.expected === undefined || isNone(fields.expected)) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.
   const own = [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''].map(normal);
