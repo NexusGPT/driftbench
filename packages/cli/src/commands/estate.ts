@@ -8,6 +8,7 @@ import {
   estateRecordingPort,
   FileProseCache,
   INFORMATION,
+  type LintResult,
   lintEstate,
   loadEstateMap,
   loadEstateRecording,
@@ -45,7 +46,7 @@ import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { LIST_LIMIT, limitOf, listLine, moreLine } from './estate-output';
 import { registerEstatePlanCommands } from './estate-plan';
-import { type EstatePointerOptions, openPointer, pointerLines } from './estate-pointer';
+import { type EstatePointerOptions, openPointer, planLines, pointerLines } from './estate-pointer';
 import { registerEstateProveCommand } from './estate-prove';
 import { registerEstateStaticCommand } from './estate-static';
 import { registerEstateStatsCommand } from './estate-stats';
@@ -133,6 +134,10 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     )
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
     .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
+    .option(
+      '--plan-only',
+      'with --pointer: print the requests, characters and priced cost of the run, then stop: no key, no request, no map',
+    )
     .option(
       '--prices <file>',
       'with --pointer: a table of USD per million tokens (YAML), to print what the labelers cost',
@@ -248,7 +253,7 @@ export async function estateScanCommand(
   io: Io,
   deps: EstateDeps = {},
 ): Promise<number> {
-  if (!options.out) {
+  if (!options.out && options.planOnly !== true) {
     io.err("error: required option '--out <file>' not specified\n");
     return 2;
   }
@@ -274,6 +279,7 @@ export async function estateScanCommand(
     !options.pointer &&
     (options.cassette ||
       options.record ||
+      options.planOnly ||
       options.ledger ||
       options.update ||
       options.labels ||
@@ -282,7 +288,7 @@ export async function estateScanCommand(
       options.jobs)
   ) {
     io.err(
-      'error: --cassette, --record, --ledger, --update, --labels, --labeler, --prices and --jobs need --pointer\n',
+      'error: --cassette, --record, --plan-only, --ledger, --update, --labels, --labeler, --prices and --jobs need --pointer\n',
     );
     return 2;
   }
@@ -302,8 +308,8 @@ export async function estateScanCommand(
     io.err(`Cannot find the estate folder ${show(root, io)}.\n`);
     return 2;
   }
-  const out = resolve(io.cwd, options.out);
-  if (!options.force && (await exists(out))) {
+  const out = resolve(io.cwd, options.out ?? 'map.yaml');
+  if (options.planOnly !== true && !options.force && (await exists(out))) {
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
@@ -356,6 +362,10 @@ export async function estateScanCommand(
       ...(deps.now ? { now: deps.now } : {}),
     });
   } catch (cause) {
+    if (cause instanceof pointer.PointerPlanOnly && handle) {
+      io.out(`${planLines(handle.plans, prices).join('\n')}\n`);
+      return 0;
+    }
     if (cause instanceof pointer.CassetteMiss || cause instanceof pointer.LabelerConfigError) {
       io.err(`${cause.message}\n`);
       return 2;
@@ -481,27 +491,32 @@ function scanReport(
   return lines.join('\n');
 }
 
-/** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
-export async function estateLintCommand(
+/** What a lint of a map gives: the result, or the exit code of a map or estate that could not be read. */
+export type LintRun =
+  | { ok: false; code: number }
+  | { ok: true; file: string; root: string; atoms: number; result: LintResult };
+
+/** Reads a map and the estate it names, and lints them. The command prints it; `estate build` reads its counts. */
+export async function lintMap(
   path: string,
   options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
   io: Io,
-): Promise<number> {
+): Promise<LintRun> {
   const ceiling = parseCeiling(options.ceiling, io);
-  if (ceiling === undefined) return 2;
+  if (ceiling === undefined) return { ok: false, code: 2 };
   const file = resolve(io.cwd, path);
   if (!(await exists(file))) {
     io.err(`Cannot find ${show(file, io)}.\n`);
-    return 2;
+    return { ok: false, code: 2 };
   }
   const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
-    return 1;
+    return { ok: false, code: 1 };
   }
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
-  if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  if (!(await userSkillsGiven(options.userSkills, io))) return { ok: false, code: 2 };
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
@@ -509,12 +524,12 @@ export async function estateLintCommand(
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
-    return 2;
+    return { ok: false, code: 2 };
   }
   const located = await resolveMapRoot(file, loaded.map);
   if (!located.ok) {
     io.err(rootRefusal(file, located, io));
-    return 2;
+    return { ok: false, code: 2 };
   }
   const root = located.root;
   const raw = await reader.read(root);
@@ -522,9 +537,26 @@ export async function estateLintCommand(
     io.err(
       'The map was scanned with a user-level skill layer: pass --user-skills <folder> (or set userSkills in the estate configuration) so lint reads it again.\n',
     );
-    return 2;
+    return { ok: false, code: 2 };
   }
-  const result = lintEstate(loaded.map, raw, { ceiling });
+  return {
+    ok: true,
+    file,
+    root,
+    atoms: loaded.map.atoms.length,
+    result: lintEstate(loaded.map, raw, { ceiling }),
+  };
+}
+
+/** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
+export async function estateLintCommand(
+  path: string,
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
+  io: Io,
+): Promise<number> {
+  const run = await lintMap(path, options, io);
+  if (!run.ok) return run.code;
+  const { file, root, result } = run;
   const found = result.findings.filter((finding) => !INFORMATION.has(finding.code));
   const limit = limitOf(options.verbose);
   const summary = summariseLint(found, limit === undefined ? {} : { limit });
@@ -535,7 +567,7 @@ export async function estateLintCommand(
         {
           map: show(file, io),
           root: show(root, io),
-          atoms: loaded.map.atoms.length,
+          atoms: run.atoms,
           failed: result.failed,
           notRun: !result.failed && noneRan(result.outcomes),
           findings: summary.shown,
@@ -548,7 +580,7 @@ export async function estateLintCommand(
     );
     return result.failed ? 1 : 0;
   }
-  const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
+  const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${run.atoms} atoms.`];
   const width = Math.max(0, ...found.map((finding) => finding.code.length));
   for (const finding of summary.shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
   const cut = summary.totals.filter((entry) => entry.omitted > 0);
