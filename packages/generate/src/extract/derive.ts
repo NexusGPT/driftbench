@@ -122,9 +122,8 @@ export function derivedConstraints(
             call.stage === stage &&
             recoveryFor(relationsOf, TOOL_FAILURE, path.flow, call.tool) !== undefined,
         );
-      const asks =
-        index >= 1 && askedTurns.some(({ use, flows }) => use.stage === stage && flows.includes(path.flow));
-      return moves || asks ? [{}] : [];
+      // A turn that asks is an event of its own (see `events`): it holds the behaviour it asks as well.
+      return moves ? [{}] : [];
     }
     const recovery = recoveryFor(relationsOf, deviation, path.flow);
     if (!recovery) return [];
@@ -166,6 +165,8 @@ export function derivedConstraints(
     stage: string;
     deviation: string;
     need: Record<string, string[]>;
+    /** The behaviour a tool-failure turn asks, which stands in for the cell's own: the cell's other values must allow it. */
+    said?: Picks;
     /** The task family the event comes from; a path of a conversation has none. */
     task?: TaskFamilyRelation;
   };
@@ -175,7 +176,20 @@ export function derivedConstraints(
       const said = classes.flatMap((deviation) =>
         probe(relations, path, index, deviation).map((need) => ({ path, stage, deviation, need })),
       );
-      return [...(index >= 1 ? [{ path, stage, deviation: NONE, need: {} }] : []), ...said];
+      const asked: Event[] =
+        index >= 1 && classes.includes(TOOL_FAILURE)
+          ? askedTurns
+              .filter(({ use, flows }) => use.stage === stage && flows.includes(path.flow))
+              .filter(({ use }) => recoveryFor(relations, TOOL_FAILURE, path.flow, use.tool) !== undefined)
+              .map(({ use }) => ({
+                path,
+                stage,
+                deviation: TOOL_FAILURE,
+                need: {},
+                said: { [use.subject.dimension]: use.subject.value },
+              }))
+          : [];
+      return [...(index >= 1 ? [{ path, stage, deviation: NONE, need: {} }] : []), ...said, ...asked];
     }),
   );
   // A task family writes its flow's specs: each block of an instance places on its stage, and a variant that
@@ -222,7 +236,9 @@ export function derivedConstraints(
       const picks: Picks = { ...cell };
       if (stageAxis) picks[stageAxis.id] = event.stage;
       if (deviationAxis) picks[deviationAxis.id] = event.deviation;
-      return fits(event.path, picks, event.need, ownership);
+      if (!fits(event.path, picks, event.need, ownership)) return false;
+      // The asked behaviour stands in for the cell's own, or is the cell's own: either way it is said here.
+      return event.said === undefined || fits(event.path, { ...picks, ...event.said }, event.need, ownership);
     });
   for (const [a, first] of axes.entries()) {
     for (const second of axes.slice(a + 1)) {
@@ -250,14 +266,19 @@ export function derivedConstraints(
       for (let b = a + 1; b < axes.length; b += 1) {
         const second = axes[b] as Axis;
         for (const third of axes.slice(b + 1)) {
-          if (![first, second, third].some((axis) => axis.kind === 'behaviour')) continue;
+          // A stage and a class with a third value: a tool failure on a turn that asks a behaviour needs that
+          // behaviour's own channel and persona too, which no pair says.
+          const staged =
+            [first, second, third].some((axis) => axis === stageAxis) &&
+            [first, second, third].some((axis) => axis === deviationAxis);
+          if (![first, second, third].some((axis) => axis.kind === 'behaviour') && !staged) continue;
           for (const x of first.values) {
             for (const y of second.values) {
               for (const z of third.values) {
                 const cell = { [first.id]: x, [second.id]: y, [third.id]: z };
                 if (!allowed(cell)) continue;
                 if (derived.holds(cell)) continue;
-                if (!possible(cell) && possible(cell, false))
+                if (!possible(cell) && (staged || possible(cell, false)))
                   derive({
                     forbid: cell,
                     reason: `derived from inventory and relations: no flow listing the behaviours can carry ${Object.entries(
