@@ -326,4 +326,50 @@ describe('one rule for the map, the target and the builder', () => {
     });
     expect(result).toEqual({ space: false, target: false, builder: false });
   });
+
+  it('does not let a stand-in behaviour be said on a channel the inventory keeps it off', () => {
+    // CHECK-11 reads the account but applies on chat only; the cell names CHECK-22 on email.
+    const prepared = map((proposal) => {
+      proposal.constraints = [
+        { forbid: { policy: 'CHECK-11', channel: 'email' }, reason: 'CHECK-11 applies on chat only', ...by },
+      ];
+    });
+    const built = coverDraft(prepared, context, 'cover', {
+      policy: 'CHECK-22',
+      channel: 'email',
+      deviation: 'D8_tool_failure',
+      stage: 'verify',
+    });
+    const standIn =
+      'draft' in built &&
+      built.draft.blocks.some(
+        (block) => block.stimulus.kind === 'phrase' && block.stimulus.phrase.value === 'CHECK-11',
+      );
+    expect(standIn).toBe(false);
+  });
+
+  it('draws the channel of a walk that says a stand-in behaviour from the channels that behaviour allows', () => {
+    const prepared = map((proposal) => {
+      proposal.constraints = [
+        { forbid: { policy: 'CHECK-11', channel: 'email' }, reason: 'CHECK-11 applies on chat only', ...by },
+      ];
+    });
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const built = coverDraft(prepared, { ...context, seed }, 'cover', {
+        policy: 'CHECK-22',
+        deviation: 'D8_tool_failure',
+        stage: 'verify',
+      });
+      if (!('draft' in built)) throw new Error(built.reasons.join('; '));
+      const standIn = built.draft.blocks.some(
+        (block) =>
+          block.injection === 'D8_tool_failure' &&
+          block.stimulus.kind === 'phrase' &&
+          block.stimulus.phrase.value === 'CHECK-11',
+      );
+      expect(standIn, `seed ${seed}`).toBe(true);
+      const rendered = renderDraft(prepared, built.draft, { seed, mapPath: 'map.yaml' });
+      expect(rendered.spec.channel, `seed ${seed}`).not.toBe('email');
+    }
+  });
 });
