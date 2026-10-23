@@ -5,7 +5,7 @@ id: gen-behaviour-balance-025
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-006: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -183,7 +183,7 @@ metadata:
       port_result: can-move
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-port_number
@@ -254,7 +254,7 @@ metadata:
           port_result: can-move
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: needs-to-port_number
           stage: port_number
@@ -289,7 +289,7 @@ metadata:
           port_result: can-move
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: port_number-to-offer
           stage: offer
@@ -316,7 +316,7 @@ metadata:
           port_result: can-move
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: offer-to-details
           stage: details
@@ -343,7 +343,7 @@ metadata:
           port_result: can-move
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: details-to-recap
           stage: recap
@@ -386,7 +386,7 @@ metadata:
           port_result: can-move
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: recap-to-order_placed
           stage: order_placed

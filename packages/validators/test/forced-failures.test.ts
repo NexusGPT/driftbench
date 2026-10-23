@@ -110,4 +110,23 @@ describe('the audit of every check site', () => {
     );
     expect(derived.leaking.length).toBeGreaterThan(0);
   });
+
+  it('does not let a helper shared by several items excuse them all with one declaration', async () => {
+    // One helper, two items: only the first has a wanted number (5) that coincides with its input.
+    const helper = (budget: number, rows: number) => () =>
+      check(true, () => ({
+        rule: 'a budget gives rows',
+        input: { budget },
+        expected: { rows },
+        echoes: ['budget'],
+      }));
+    const audit = await auditEveryCheckSite(
+      [item('coincides', helper(5, 5)), item('differs', helper(5, 9))],
+      {},
+      1,
+    );
+    expect(audit.leaking.join(' ')).toContain("echoes 'budget' excuses nothing");
+    expect(audit.leaking.join(' ')).toContain('differs @');
+    expect(audit.leaking.join(' ')).not.toContain('coincides @');
+  });
 });

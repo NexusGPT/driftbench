@@ -160,6 +160,7 @@ export {
   outOfStep,
   type PointerInput,
   type PointerPlan,
+  PointerPlanOnly,
   type PointerResult,
   pointerScan,
   REASK_LIMIT,

@@ -18,7 +18,7 @@ import { VERIFY_RUNS } from './families/verify';
 import { WEIGHTS_RUNS } from './families/weights';
 import type { BankItem, ItemContext, ItemOutcome } from './item';
 import { outcomeOf } from './item';
-import { FAMILY_LEVEL, LEVELS, type Level, STEMS } from './manifest/index';
+import { LEVELS, type Level, levelOf, STEMS } from './manifest/index';
 import { itemRng } from './util';
 
 export type { BankItem, ItemContext, ItemOutcome } from './item';
@@ -62,7 +62,7 @@ export function variablesBank(): BankItem[] {
         stem: stem.id,
         family: stem.family,
         tier,
-        level: FAMILY_LEVEL[stem.family],
+        level: levelOf(stem.family, stem.component),
         component: stem.component,
         cause: stem.variantCauses?.[key] ?? stem.cause,
         ...(heavy ? { budgetMs: HEAVY_ITEM_BUDGET_MS } : {}),

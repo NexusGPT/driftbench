@@ -66,10 +66,24 @@ export type PointerInput = {
   atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
   onPlan?: (plan: PointerPlan) => void;
+  /** Stop after the plan: nothing is replayed or sent, and `PointerPlanOnly` is thrown with the plan. */
+  planOnly?: boolean;
+  /** With `planOnly`: go on, from the cassette alone, when it answers every request, so its labels count in the plan. */
+  planUnlessCached?: boolean;
+  /** Names the pass in its plan, when a scan makes more than one. */
+  label?: string;
 };
 
 /** The units a request holds when the labeler sets no cap of its own: a file fits one window up to `WINDOW_CHARS`. */
 export const DEFAULT_WINDOW_UNITS = Number.POSITIVE_INFINITY;
+
+/** Thrown by a scan with `planOnly`, after `onPlan`: the run was sized and nothing was asked. */
+export class PointerPlanOnly extends Error {
+  constructor(readonly plan: PointerPlan) {
+    super('the plan is made; nothing was asked');
+    this.name = 'PointerPlanOnly';
+  }
+}
 
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
 export type MemberPlan = {
@@ -85,6 +99,8 @@ export type MemberPlan = {
 };
 
 export type PointerPlan = {
+  /** The pass the plan is for, when the scan was given a name for it. */
+  label?: string;
   files: number;
   /** Units a label can point at (a fence or a comment is opaque), summed over the label sets. */
   units: number;
@@ -780,6 +796,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   const plan: PointerPlan = {
+    ...(input.label === undefined ? {} : { label: input.label }),
     files: files.length,
     units,
     carried,
@@ -792,14 +809,45 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       characters: 0,
     })),
   };
+  let firstMiss: Task | undefined;
   for (const task of tasks) {
     const wire = task.member.render(task.set, task.window, task.context);
     const entry = plan.members[task.memberAt] as MemberPlan;
     entry.windows++;
     if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
-    else entry.characters += JSON.stringify(wire.body).length;
+    else {
+      entry.characters += JSON.stringify(wire.body).length;
+      firstMiss ??= task;
+    }
   }
   input.onPlan?.(plan);
+  const missing = plan.members.reduce((sum, member) => sum + member.windows - member.cached, 0);
+  if (input.planOnly && !(input.planUnlessCached && missing === 0)) throw new PointerPlanOnly(plan);
+  // A replay that lacks answers stops before the first request and says how many are lacking, not only the first.
+  if (input.mode === 'replay' && firstMiss) {
+    const totals = {
+      missing,
+      requests: plan.members.reduce((sum, member) => sum + member.windows, 0),
+      characters: plan.members.reduce((sum, member) => sum + member.characters, 0),
+    };
+    try {
+      cassette.get(
+        firstMiss.member.render(firstMiss.set, firstMiss.window, firstMiss.context),
+        readableFor(firstMiss, firstMiss.window),
+      );
+    } catch (cause) {
+      if (!(cause instanceof CassetteMiss)) throw cause;
+      throw new CassetteMiss(
+        cause.key,
+        cause.differs,
+        cause.nearest,
+        cause.labeler,
+        cause.closest,
+        cause.window,
+        totals,
+      );
+    }
+  }
   // A recording run that has requests to send asks its labelers whether they can send, before the first one leaves.
   if (input.mode === 'record') {
     for (const [at, entry] of plan.members.entries())

@@ -16,7 +16,7 @@ import {
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join, relative, sep } from 'node:path';
-import { Observed } from '@agent-nexus/driftbench-core';
+import { CLAUDE_CODE_PROFILE, Observed } from '@agent-nexus/driftbench-core';
 import {
   type GuardCase,
   payloadOf,
@@ -1183,7 +1183,7 @@ export function neutral(text: string, work: string): string {
 }
 
 /** Where the estate configuration lives: the root, else inside the runtime's own folder (the root file wins). */
-export const ESTATE_CONFIG_PLACES: readonly string[] = [ESTATE_CONFIG_FILE, `.claude/${ESTATE_CONFIG_FILE}`];
+export const ESTATE_CONFIG_PLACES: readonly string[] = CLAUDE_CODE_PROFILE.configFiles;
 
 /** The estate configuration, when the estate has one. */
 async function readConfig(root: string): Promise<Record<string, unknown>> {

@@ -84,16 +84,22 @@ export class CassetteMiss extends Error {
     readonly closest?: { key: string; differs: string[] },
     /** The window of the request that missed, as path and number: the window to record again. */
     readonly window?: string,
+    /** In a replay: every request of the run the cassette lacks, so one miss tells the size of the whole gap. */
+    readonly totals?: { missing: number; requests: number; characters: number },
   ) {
     const of = window === undefined ? '' : ` of window ${window}`;
+    const gap = totals
+      ? `; ${totals.missing} of ${totals.requests} requests of this pass have no answer (${totals.characters} characters to record): --plan-only prints the plan, --record asks the labelers`
+      : '';
     super(
-      nearest
+      (nearest
         ? `the cassette has no answer for request ${key.slice(0, 12)}${of}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
             differs.includes('cutDigest')
               ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
               : ''
           }`
-        : `the cassette has no answer for request ${key.slice(0, 12)}${of}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
+        : `the cassette has no answer for request ${key.slice(0, 12)}${of}, and no entry ${ofLabeler(labeler)}for the same file, window and set`) +
+        gap,
     );
     this.name = 'CassetteMiss';
   }

@@ -21,6 +21,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   type ArtifactRef,
+  CLAUDE_CODE_PROFILE,
   callsIn,
   canonicalJson,
   copyHistory,
@@ -178,14 +179,14 @@ export const RUNTIME_FLAGS = [
   '--strict-mcp-config',
 ] as const;
 
-export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
+export const DEFAULT_ESTATE_FILES: readonly string[] = CLAUDE_CODE_PROFILE.copyFiles;
 
 /**
  * True for a file the runtime loads into its context by itself: a CLAUDE.md or CLAUDE.local.md, at the root
  * or in a folder (loaded when the agent works there). No Read call ever shows it, so a test never expects one.
  */
 export function loadedByRuntime(path: string): boolean {
-  return /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, ''));
+  return CLAUDE_CODE_PROFILE.loadsItself(path);
 }
 
 type LiveState = {

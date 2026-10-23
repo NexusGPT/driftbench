@@ -1,3 +1,4 @@
+import { type CheckDeclaration, type CheckOutcome, checkOutcome } from '@agent-nexus/driftbench-core';
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { type PointerInput, type PointerResult, pointerAtoms, pointerScan, readSpansOf } from '../pointer';
 import type { Atom } from '../schema';
@@ -176,6 +177,33 @@ export function measureInvariants(
       .filter((row) => !names.has(row.guard.split('/').pop() ?? row.guard))
       .map((row) => row.id),
   };
+}
+
+/** The invariant checks and what each requires of the run: the files alone, so nothing beyond them. */
+export const INVARIANT_CHECKS: readonly CheckDeclaration[] = [
+  { id: 'standing_size', requires: [] },
+  { id: 'no_orphans', requires: [] },
+  { id: 'guard_paths_anchored', requires: [] },
+  { id: 'registry_complete', requires: [] },
+];
+
+/**
+ * The outcome of each invariant check with what it read: the standing files, the files, the guards, the
+ * registry rows. A check with nothing to read did not run (`not-run`), where its atom is simply absent.
+ */
+export function invariantOutcomes(raw: RawEstate, state: InvariantState): CheckOutcome<string>[] {
+  return [
+    checkOutcome('standing_size', {
+      read: standingFiles(raw).length,
+      findings: state.standingCharacters > state.ceiling ? [String(state.standingCharacters)] : [],
+    }),
+    checkOutcome('no_orphans', { read: raw.files.length, findings: state.orphans }),
+    checkOutcome('guard_paths_anchored', { read: raw.guards.length, findings: state.unanchored }),
+    checkOutcome('registry_complete', {
+      read: raw.registry.length,
+      findings: [...state.guardsWithoutRow, ...state.rowsWithoutGuard],
+    }),
+  ];
 }
 
 export function standingFiles(raw: RawEstate): EstateFile[] {

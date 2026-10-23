@@ -143,7 +143,9 @@ export type GeneratorLadderOptions = GeneratorParts & {
 
 /**
  * The generator ladder: one level per bank level, threshold 1.0. Each seed's data is built once per ladder
- * run. The scale runs are seed-independent in cost and run once per ladder, on the first seed asked.
+ * run. The scale runs have the same size for every seed (`SCALE_BASE_BEHAVIOURS` times the factor in behaviours), so
+ * they run once per ladder, on the first seed asked; the rest of that seed's structure (stages, phrases, data) still
+ * moves their time by up to about 60 percent between seeds.
  */
 export function generatorLadder(options: GeneratorLadderOptions = {}): Ladder {
   const items = options.items ?? bankItems();
