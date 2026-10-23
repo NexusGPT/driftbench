@@ -24230,3 +24230,168 @@
 {"text":"the zesty yellow market score is greater than 563 euros","label":{"kind":"numeric","subject":"zesty yellow market score","limit":563,"comparison":"gt","unit":"euros"}}
 {"text":"the zesty yellow meadow score exceeds 351 euros","label":{"kind":"numeric","subject":"zesty yellow meadow score","limit":351,"comparison":"gt","unit":"euros"}}
 {"text":"the zesty yellow window score < 50 euros","label":{"kind":"numeric","subject":"zesty yellow window score","limit":50,"comparison":"lt","unit":"euros"}}
+{"text":"The Page count is at most 405 pages","label":{"kind":"numeric","subject":"page count","limit":405,"comparison":"le","unit":"pages"}}
+{"text":"the 24h response window is under 770","label":{"kind":"numeric","subject":"24h response window","limit":770,"comparison":"lt"}}
+{"text":"the Invoice Total is under 375","label":{"kind":"numeric","subject":"invoice total","limit":375,"comparison":"lt"}}
+{"text":"the __proto__ depth is at least 835","label":{"kind":"numeric","subject":"__proto__ depth","limit":835,"comparison":"ge"}}
+{"text":"the account is not suspended","label":{"kind":"boolean","subject":"account suspended"}}
+{"text":"the account is suspended","label":{"kind":"boolean","subject":"account suspended"}}
+{"text":"the attachment size is at least 161 MB","label":{"kind":"numeric","subject":"attachment size","limit":161,"comparison":"ge","unit":"MB"}}
+{"text":"the attachment size is at most 401 MB","label":{"kind":"numeric","subject":"attachment size","limit":401,"comparison":"le","unit":"MB"}}
+{"text":"the attachment size is over 15 MB","label":{"kind":"numeric","subject":"attachment size","limit":15,"comparison":"gt","unit":"MB"}}
+{"text":"the attachment size is over 686 MB","label":{"kind":"numeric","subject":"attachment size","limit":686,"comparison":"gt","unit":"MB"}}
+{"text":"the balance is fewer than −13.5 degrees","label":{"kind":"numeric","subject":"balance","limit":-13.5,"comparison":"lt","unit":"degrees"}}
+{"text":"the basket > 304 items","label":{"kind":"numeric","subject":"basket","limit":304,"comparison":"gt","unit":"items"}}
+{"text":"the basket equals 40 items","label":{"kind":"numeric","subject":"basket","limit":40,"comparison":"eq","unit":"items"}}
+{"text":"the basket is from 7.5 to 10.5 items","label":{"kind":"range","subject":"basket","low":7.5,"high":10.5,"lowInclusive":true,"highInclusive":true,"unit":"items"}}
+{"text":"the batch is above 211 items","label":{"kind":"numeric","subject":"batch","limit":211,"comparison":"gt","unit":"items"}}
+{"text":"the batch is at or above nine hundred and three items","label":{"kind":"numeric","subject":"batch","limit":903,"comparison":"ge","unit":"items"}}
+{"text":"the batch size <= 2 rows","label":{"kind":"numeric","subject":"batch","limit":2,"comparison":"le","unit":"rows"}}
+{"text":"the batch size is at most 656 rows","label":{"kind":"numeric","subject":"batch","limit":656,"comparison":"le","unit":"rows"}}
+{"text":"the batch size is over 352 rows","label":{"kind":"numeric","subject":"batch","limit":352,"comparison":"gt","unit":"rows"}}
+{"text":"the channel is either chat or web","label":{"kind":"member","subject":"channel","members":["chat","web"]}}
+{"text":"the claim is above 63k euros","label":{"kind":"numeric","subject":"claim amount","limit":63000,"comparison":"gt","unit":"euros"}}
+{"text":"the claim is over 12 000 euros","label":{"kind":"numeric","subject":"claim amount","limit":12000,"comparison":"gt","unit":"euros"}}
+{"text":"the cleanliness grade is above 11.5 stars","label":{"kind":"numeric","subject":"cleanliness grade","limit":11.5,"comparison":"gt","unit":"stars"}}
+{"text":"the country is neither ES nor FR","label":{"kind":"member","subject":"country","members":["ES","FR"]}}
+{"text":"the customer's age (days) is over 208","label":{"kind":"numeric","subject":"customer age","limit":208,"comparison":"gt","unit":"days"}}
+{"text":"the delay exceeds 2 days","label":{"kind":"numeric","subject":"delay","limit":2,"comparison":"gt","unit":"days"}}
+{"text":"the delay is 25-44 days","label":{"kind":"range","subject":"delay","low":25,"high":44,"lowInclusive":true,"highInclusive":true,"unit":"days"}}
+{"text":"the delay is above 22 days","label":{"kind":"numeric","subject":"delay","limit":22,"comparison":"gt","unit":"days"}}
+{"text":"the deposit does not exceed SEK 147","label":{"kind":"numeric","subject":"deposit","limit":147,"comparison":"le","unit":"SEK"}}
+{"text":"the discount rate > 20%","label":{"kind":"numeric","subject":"discount rate","limit":20,"comparison":"gt","unit":"%"}}
+{"text":"the discount rate is 56% or fewer","label":{"kind":"numeric","subject":"discount rate","limit":56,"comparison":"le","unit":"%"}}
+{"text":"the discount rate is at least 70%","label":{"kind":"numeric","subject":"discount rate","limit":70,"comparison":"ge","unit":"%"}}
+{"text":"the discount rate is at most 279%","label":{"kind":"numeric","subject":"discount rate","limit":279,"comparison":"le","unit":"%"}}
+{"text":"the discount rate is over 145%","label":{"kind":"numeric","subject":"discount rate","limit":145,"comparison":"gt","unit":"%"}}
+{"text":"the discount rate is over 451%","label":{"kind":"numeric","subject":"discount rate","limit":451,"comparison":"gt","unit":"%"}}
+{"text":"the discount rate is over 60%","label":{"kind":"numeric","subject":"discount rate","limit":60,"comparison":"gt","unit":"%"}}
+{"text":"the draft is between -12 and 11 words","label":{"kind":"range","subject":"draft word count","low":-12,"high":11,"lowInclusive":true,"highInclusive":true,"unit":"words"}}
+{"text":"the draft is more than 26 and fewer than 31 words","label":{"kind":"range","subject":"draft word count","low":26,"high":31,"lowInclusive":false,"highInclusive":false,"unit":"words"}}
+{"text":"the drift is fewer than -10.5 degrees","label":{"kind":"numeric","subject":"drift","limit":-10.5,"comparison":"lt","unit":"degrees"}}
+{"text":"the fee is at or above 1 000 euros","label":{"kind":"numeric","subject":"fee","limit":1000,"comparison":"ge","unit":"euros"}}
+{"text":"the fee is fewer than seven million euros","label":{"kind":"numeric","subject":"fee","limit":7000000,"comparison":"lt","unit":"euros"}}
+{"text":"the fee is more than 30,060.75 euros","label":{"kind":"numeric","subject":"fee","limit":30060.75,"comparison":"gt","unit":"euros"}}
+{"text":"the fee is over 44,500 euros","label":{"kind":"numeric","subject":"fee","limit":44500,"comparison":"gt","unit":"euros"}}
+{"text":"the fill rate is below 46%","label":{"kind":"numeric","subject":"fill rate","limit":46,"comparison":"lt","unit":"%"}}
+{"text":"the history length is no more than 15 turns","label":{"kind":"numeric","subject":"history length","limit":15,"comparison":"le","unit":"turns"}}
+{"text":"the history length is under 806 turns","label":{"kind":"numeric","subject":"history length","limit":806,"comparison":"lt","unit":"turns"}}
+{"text":"the invoice age is under 332","label":{"kind":"numeric","subject":"invoice age","limit":332,"comparison":"lt"}}
+{"text":"the invoice is at most 33 euros","label":{"kind":"numeric","subject":"invoice total","limit":33,"comparison":"le","unit":"euros"}}
+{"text":"the invoice is below 38’000 CHF","label":{"kind":"numeric","subject":"invoice total","limit":38000,"comparison":"lt","unit":"CHF"}}
+{"text":"the invoice is greater than 115 euros","label":{"kind":"numeric","subject":"invoice total","limit":115,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice is over $120","label":{"kind":"numeric","subject":"invoice total","limit":120,"comparison":"gt","unit":"$"}}
+{"text":"the invoice total < 1689 euros","label":{"kind":"numeric","subject":"invoice total","limit":1689,"comparison":"lt","unit":"euros"}}
+{"text":"the invoice total < 4849 euros","label":{"kind":"numeric","subject":"invoice total","limit":4849,"comparison":"lt","unit":"euros"}}
+{"text":"the invoice total is at most 192","label":{"kind":"numeric","subject":"invoice total","limit":192,"comparison":"le"}}
+{"text":"the invoice total is from 141 to 377 euros","label":{"kind":"range","subject":"invoice total","low":141,"high":377,"lowInclusive":true,"highInclusive":true,"unit":"euros"}}
+{"text":"the invoice total is over 166 euros","label":{"kind":"numeric","subject":"invoice total","limit":166,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice total is over 270","label":{"kind":"numeric","subject":"invoice total","limit":270,"comparison":"gt"}}
+{"text":"the invoice total is over 3081 euros","label":{"kind":"numeric","subject":"invoice total","limit":3081,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice total is over 5,397 euros","label":{"kind":"numeric","subject":"invoice total","limit":5397,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice total is over 524 euros","label":{"kind":"numeric","subject":"invoice total","limit":524,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice total is over 669 euros","label":{"kind":"numeric","subject":"invoice total","limit":669,"comparison":"gt","unit":"euros"}}
+{"text":"the invoice total is under 395 euros","label":{"kind":"numeric","subject":"invoice total","limit":395,"comparison":"lt","unit":"euros"}}
+{"text":"the loan is 9–18 months","label":{"kind":"range","subject":"loan term","low":9,"high":18,"lowInclusive":true,"highInclusive":true,"unit":"months"}}
+{"text":"the loan is under eight thousand one hundred months","label":{"kind":"numeric","subject":"loan term","limit":8100,"comparison":"lt","unit":"months"}}
+{"text":"the loop depth is at least 525","label":{"kind":"numeric","subject":"loop depth","limit":525,"comparison":"ge"}}
+{"text":"the loop depth is fewer than 2","label":{"kind":"numeric","subject":"loop depth","limit":2,"comparison":"lt"}}
+{"text":"the loop depth is greater than 12","label":{"kind":"numeric","subject":"loop depth","limit":12,"comparison":"gt"}}
+{"text":"the loop depth is over 170","label":{"kind":"numeric","subject":"loop depth","limit":170,"comparison":"gt"}}
+{"text":"the loop depth is over 46","label":{"kind":"numeric","subject":"loop depth","limit":46,"comparison":"gt"}}
+{"text":"the loop depth is under 194","label":{"kind":"numeric","subject":"loop depth","limit":194,"comparison":"lt"}}
+{"text":"the loop depth is under 222","label":{"kind":"numeric","subject":"loop depth","limit":222,"comparison":"lt"}}
+{"text":"the order exceeds 35.040,25 euros","label":{"kind":"numeric","subject":"order total","limit":35040.25,"comparison":"gt","unit":"euros"}}
+{"text":"the order is more than nine hundred five euros","label":{"kind":"numeric","subject":"order total","limit":905,"comparison":"gt","unit":"euros"}}
+{"text":"the order is not below 324 SEK","label":{"kind":"numeric","subject":"order total","limit":324,"comparison":"ge","unit":"SEK"}}
+{"text":"the order lies between 20 and 24 euros","label":{"kind":"range","subject":"order total","low":20,"high":24,"lowInclusive":true,"highInclusive":true,"unit":"euros"}}
+{"text":"the order value != 161 euros","label":{"kind":"numeric","subject":"order total","limit":161,"comparison":"ne","unit":"euros"}}
+{"text":"the order value == 2187 euros","label":{"kind":"numeric","subject":"order total","limit":2187,"comparison":"eq","unit":"euros"}}
+{"text":"the order value is at least 425 euros","label":{"kind":"numeric","subject":"order total","limit":425,"comparison":"ge","unit":"euros"}}
+{"text":"the order value is at least 96,556,631 euros","label":{"kind":"numeric","subject":"order total","limit":96556631,"comparison":"ge","unit":"euros"}}
+{"text":"the order value is at most 360 euros","label":{"kind":"numeric","subject":"order total","limit":360,"comparison":"le","unit":"euros"}}
+{"text":"the order value is at most 513 euros","label":{"kind":"numeric","subject":"order total","limit":513,"comparison":"le","unit":"euros"}}
+{"text":"the order value is at most 839 euros","label":{"kind":"numeric","subject":"order total","limit":839,"comparison":"le","unit":"euros"}}
+{"text":"the order value is at most 841 euros","label":{"kind":"numeric","subject":"order total","limit":841,"comparison":"le","unit":"euros"}}
+{"text":"the order value is exactly 3935 euros","label":{"kind":"numeric","subject":"order total","limit":3935,"comparison":"eq","unit":"euros"}}
+{"text":"the order value is over 380 euros","label":{"kind":"numeric","subject":"order total","limit":380,"comparison":"gt","unit":"euros"}}
+{"text":"the order value is under 1015 euros","label":{"kind":"numeric","subject":"order total","limit":1015,"comparison":"lt","unit":"euros"}}
+{"text":"the order value is under 8 067 euros","label":{"kind":"numeric","subject":"order total","limit":8067,"comparison":"lt","unit":"euros"}}
+{"text":"the page count > 24 pages","label":{"kind":"numeric","subject":"page count","limit":24,"comparison":"gt","unit":"pages"}}
+{"text":"the page count is 21 pages or more","label":{"kind":"numeric","subject":"page count","limit":21,"comparison":"ge","unit":"pages"}}
+{"text":"the page count is at most 105 pages","label":{"kind":"numeric","subject":"page count","limit":105,"comparison":"le","unit":"pages"}}
+{"text":"the page count is at most 165 pages","label":{"kind":"numeric","subject":"page count","limit":165,"comparison":"le","unit":"pages"}}
+{"text":"the page count is no less than 37 pages","label":{"kind":"numeric","subject":"page count","limit":37,"comparison":"ge","unit":"pages"}}
+{"text":"the page count is under 38 pages","label":{"kind":"numeric","subject":"page count","limit":38,"comparison":"lt","unit":"pages"}}
+{"text":"the parcel is no less than 23kg","label":{"kind":"numeric","subject":"parcel weight","limit":23,"comparison":"ge","unit":"kg"}}
+{"text":"the plan is one of basic, gold, trial, silver","label":{"kind":"member","subject":"plan","members":["basic","gold","trial","silver"]}}
+{"text":"the queue < 62 tickets","label":{"kind":"numeric","subject":"queue","limit":62,"comparison":"lt","unit":"tickets"}}
+{"text":"the queue is at or above 19 tickets","label":{"kind":"numeric","subject":"queue","limit":19,"comparison":"ge","unit":"tickets"}}
+{"text":"the queue length exceeds 24 items","label":{"kind":"numeric","subject":"queue","limit":24,"comparison":"gt","unit":"items"}}
+{"text":"the queue length is other than 3 items","label":{"kind":"numeric","subject":"queue","limit":3,"comparison":"ne","unit":"items"}}
+{"text":"the queue length is under 266 items","label":{"kind":"numeric","subject":"queue","limit":266,"comparison":"lt","unit":"items"}}
+{"text":"the queue length is under 347 items","label":{"kind":"numeric","subject":"queue","limit":347,"comparison":"lt","unit":"items"}}
+{"text":"the rating is not below 0.1 stars","label":{"kind":"numeric","subject":"rating","limit":0.1,"comparison":"ge","unit":"stars"}}
+{"text":"the refund amount is at least 72 euros","label":{"kind":"numeric","subject":"refund amount","limit":72,"comparison":"ge","unit":"euros"}}
+{"text":"the refund amount is at most 129 euros","label":{"kind":"numeric","subject":"refund amount","limit":129,"comparison":"le","unit":"euros"}}
+{"text":"the refund amount is at most 230 euros","label":{"kind":"numeric","subject":"refund amount","limit":230,"comparison":"le","unit":"euros"}}
+{"text":"the refund amount is at most 341 euros","label":{"kind":"numeric","subject":"refund amount","limit":341,"comparison":"le","unit":"euros"}}
+{"text":"the refund amount is between 28 and 179 euros","label":{"kind":"range","subject":"refund amount","low":28,"high":179,"lowInclusive":true,"highInclusive":true,"unit":"euros"}}
+{"text":"the refund amount is more than 1759 euros","label":{"kind":"numeric","subject":"refund amount","limit":1759,"comparison":"gt","unit":"euros"}}
+{"text":"the refund amount is over 129 euros","label":{"kind":"numeric","subject":"refund amount","limit":129,"comparison":"gt","unit":"euros"}}
+{"text":"the refund amount is over 38 euros","label":{"kind":"numeric","subject":"refund amount","limit":38,"comparison":"gt","unit":"euros"}}
+{"text":"the refund amount is over EUR 377","label":{"kind":"numeric","subject":"refund amount","limit":377,"comparison":"gt","unit":"euros"}}
+{"text":"the refund amount is under 149 euros","label":{"kind":"numeric","subject":"refund amount","limit":149,"comparison":"lt","unit":"euros"}}
+{"text":"the refund amount is under 208 euros","label":{"kind":"numeric","subject":"refund amount","limit":208,"comparison":"lt","unit":"euros"}}
+{"text":"the refund amount is under 39 euros","label":{"kind":"numeric","subject":"refund amount","limit":39,"comparison":"lt","unit":"euros"}}
+{"text":"the refund amount is under 405 euros","label":{"kind":"numeric","subject":"refund amount","limit":405,"comparison":"lt","unit":"euros"}}
+{"text":"the refund is 10 to 34 euros","label":{"kind":"range","subject":"refund amount","low":10,"high":34,"lowInclusive":true,"highInclusive":true,"unit":"euros"}}
+{"text":"the refund is at most €643","label":{"kind":"numeric","subject":"refund amount","limit":643,"comparison":"le","unit":"euros"}}
+{"text":"the refund is no less than 5000000 euros","label":{"kind":"numeric","subject":"refund amount","limit":5000000,"comparison":"ge","unit":"euros"}}
+{"text":"the reply is above 311 questions","label":{"kind":"numeric","subject":"reply question count","limit":311,"comparison":"gt"}}
+{"text":"the reply is above 372 questions","label":{"kind":"numeric","subject":"reply question count","limit":372,"comparison":"gt"}}
+{"text":"the reply is at least 372 questions","label":{"kind":"numeric","subject":"reply question count","limit":372,"comparison":"ge","unit":"questions"}}
+{"text":"the reply is at or above 301 questions","label":{"kind":"numeric","subject":"reply question count","limit":301,"comparison":"ge","unit":"questions"}}
+{"text":"the reply is greater than +3 questions","label":{"kind":"numeric","subject":"reply question count","limit":3,"comparison":"gt","unit":"questions"}}
+{"text":"the reply is over 12 questions","label":{"kind":"numeric","subject":"reply question count","limit":12,"comparison":"gt","unit":"questions"}}
+{"text":"the reply is under eighty-seven questions","label":{"kind":"numeric","subject":"reply question count","limit":87,"comparison":"lt","unit":"questions"}}
+{"text":"the retry count >= 5","label":{"kind":"numeric","subject":"retry count","limit":5,"comparison":"ge"}}
+{"text":"the retry count is at least 2 but under 14 attempts","label":{"kind":"range","subject":"retry count","low":2,"high":14,"lowInclusive":true,"highInclusive":false,"unit":"attempts"}}
+{"text":"the retry count is at least 756","label":{"kind":"numeric","subject":"retry count","limit":756,"comparison":"ge"}}
+{"text":"the retry count is at most 109","label":{"kind":"numeric","subject":"retry count","limit":109,"comparison":"le"}}
+{"text":"the retry count is at most 341","label":{"kind":"numeric","subject":"retry count","limit":341,"comparison":"le"}}
+{"text":"the retry count is at or above fifteen attempts","label":{"kind":"numeric","subject":"retry count","limit":15,"comparison":"ge","unit":"attempts"}}
+{"text":"the retry count is over 55","label":{"kind":"numeric","subject":"retry count","limit":55,"comparison":"gt"}}
+{"text":"the retry count is over 9","label":{"kind":"numeric","subject":"retry count","limit":9,"comparison":"gt"}}
+{"text":"the retry count is under 267","label":{"kind":"numeric","subject":"retry count","limit":267,"comparison":"lt"}}
+{"text":"the retry count is under 808","label":{"kind":"numeric","subject":"retry count","limit":808,"comparison":"lt"}}
+{"text":"the retry count ≥ 240 attempts","label":{"kind":"numeric","subject":"retry count","limit":240,"comparison":"ge","unit":"attempts"}}
+{"text":"the session exceeds 22 turns","label":{"kind":"numeric","subject":"session turns","limit":22,"comparison":"gt","unit":"turns"}}
+{"text":"the stay <= 186 nights","label":{"kind":"numeric","subject":"stay length","limit":186,"comparison":"le","unit":"nights"}}
+{"text":"the stay >= 204 nights","label":{"kind":"numeric","subject":"stay length","limit":204,"comparison":"ge","unit":"nights"}}
+{"text":"the stay is less than 0 nights","label":{"kind":"numeric","subject":"stay length","limit":0,"comparison":"lt","unit":"nights"}}
+{"text":"the stay is less than 21 nights","label":{"kind":"numeric","subject":"stay length","limit":21,"comparison":"lt","unit":"nights"}}
+{"text":"the stay ≤ 301 nights","label":{"kind":"numeric","subject":"stay length","limit":301,"comparison":"le","unit":"nights"}}
+{"text":"the temperature is at or below -9 degrees","label":{"kind":"numeric","subject":"temperature","limit":-9,"comparison":"le","unit":"degrees"}}
+{"text":"the temperature is between -47 and -22 degrees","label":{"kind":"range","subject":"temperature","low":-47,"high":-22,"lowInclusive":true,"highInclusive":true,"unit":"degrees"}}
+{"text":"the température moyenne is under 187","label":{"kind":"numeric","subject":"température moyenne","limit":187,"comparison":"lt"}}
+{"text":"the ticket age equals 209 days","label":{"kind":"numeric","subject":"ticket age","limit":209,"comparison":"eq","unit":"days"}}
+{"text":"the ticket age is at most 66 days","label":{"kind":"numeric","subject":"ticket age","limit":66,"comparison":"le","unit":"days"}}
+{"text":"the ticket age is below 23 days","label":{"kind":"numeric","subject":"ticket age","limit":23,"comparison":"lt","unit":"days"}}
+{"text":"the ticket age is not equal to 179 days","label":{"kind":"numeric","subject":"ticket age","limit":179,"comparison":"ne","unit":"days"}}
+{"text":"the ticket age is over 562 days","label":{"kind":"numeric","subject":"ticket age","limit":562,"comparison":"gt","unit":"days"}}
+{"text":"the ticket age is under 135 days","label":{"kind":"numeric","subject":"ticket age","limit":135,"comparison":"lt","unit":"days"}}
+{"text":"the total is at least 249","label":{"kind":"numeric","subject":"total","limit":249,"comparison":"ge"}}
+{"text":"the total tax is under 45","label":{"kind":"numeric","subject":"total tax","limit":45,"comparison":"lt"}}
+{"text":"the wait is anything but 24 minutes","label":{"kind":"numeric","subject":"wait time","limit":24,"comparison":"ne","unit":"minutes"}}
+{"text":"the wait is greater than two minutes","label":{"kind":"numeric","subject":"wait time","limit":2,"comparison":"gt","unit":"minutes"}}
+{"text":"the wait is less than 303 minutes","label":{"kind":"numeric","subject":"wait time","limit":303,"comparison":"lt","unit":"minutes"}}
+{"text":"the wait time >= 264 minutes","label":{"kind":"numeric","subject":"wait time","limit":264,"comparison":"ge","unit":"minutes"}}
+{"text":"the wait time is at least 151 minutes","label":{"kind":"numeric","subject":"wait time","limit":151,"comparison":"ge","unit":"minutes"}}
+{"text":"the wait time is over 324 minutes","label":{"kind":"numeric","subject":"wait time","limit":324,"comparison":"gt","unit":"minutes"}}
+{"text":"the wait time is over 35 minutes","label":{"kind":"numeric","subject":"wait time","limit":35,"comparison":"gt","unit":"minutes"}}
+{"text":"the wait time is over 601 minutes","label":{"kind":"numeric","subject":"wait time","limit":601,"comparison":"gt","unit":"minutes"}}
+{"text":"the wait time is under 54 minutes","label":{"kind":"numeric","subject":"wait time","limit":54,"comparison":"lt","unit":"minutes"}}
+{"text":"the wait time is under 618 minutes","label":{"kind":"numeric","subject":"wait time","limit":618,"comparison":"lt","unit":"minutes"}}
+{"text":"the 注文 score is at least 279","label":{"kind":"numeric","subject":"注文 score","limit":279,"comparison":"ge"}}
+{"text":"the 請求 score is under 471","label":{"kind":"numeric","subject":"請求 score","limit":471,"comparison":"lt"}}
