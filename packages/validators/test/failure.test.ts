@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { check, ItemFailure, leakReport, leaksOf, renderFailure } from '../src/failure';
+import { check, diagnostics, ItemFailure, leakReport, leaksOf, renderFailure } from '../src/failure';
 
 describe('the failure of an item, in fields', () => {
   it('renders item, rule, input and got, and never the expected value', () => {
@@ -129,3 +129,25 @@ describe('the failure of an item, in fields', () => {
     expect(leaksOf(own)).toEqual([]);
   });
 });
+
+describe('the switch that builds diagnostics', () => {
+  it('builds the factory of a failing check only when diagnostics are on', () => {
+    let built = 0;
+    const factory = () => {
+      built += 1;
+      return { rule: 'r' };
+    };
+    expect(() => check(false, factory)).toThrow(ItemFailure);
+    expect(built).toBe(1);
+    diagnostics.build = false;
+    try {
+      expect(() => check(false, factory)).toThrow(ItemFailure);
+      expect(built).toBe(1);
+      check(true, factory);
+      expect(built).toBe(1);
+    } finally {
+      diagnostics.build = true;
+    }
+  });
+});
+
