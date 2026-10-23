@@ -57,9 +57,12 @@ privacy:
 need an explicit declaration. `roles` declares aspect sets by role name; doctor never guesses a role from
 prose. See the [estate model](estate-model.md) for the fixed aspects and all part-type fields.
 
-`types` goes through the existing `parseTypes` loader, with the profile's types as its base. `extends`,
-contained types, structured field reads and the normal validation errors have the same semantics as a
-standalone types document. Coverage uses these resolved types. A type-covered file the runtime reader
+`sources[].types` goes through the existing `parseTypes` loader against that source reader's built-in
+types and source-relative roots. Top-level `types` is shorthand for the project source only. Names are
+scoped by `(source id, type name)`: an `.agents` source's `skill` never inherits Claude Code's
+`.claude`-relative locator. `extends`, contained types, structured field reads and validation errors retain
+the standalone loader's semantics. Coverage uses each source's own resolved set. An unknown reader has
+empty built-ins, never the host profile's types. A type-covered file the runtime reader
 cannot read is explicitly skipped; declaring a type alone never claims the reader read it.
 
 ## Sources and deployments
@@ -73,8 +76,9 @@ shell or process home expansion occurs. There can be at most one project and one
 An optional `bindings` list belongs to its source. Each item declares `runtime`, `deployedRoot`,
 `deployedPath`, and `method` (`link` or `copy`). `deployedRoot` is `project`, `home`, or another source id;
 it must be mapped. `deployedPath` is relative to that root and cannot traverse parents. A Python source
-may have no deployment. The resolved source passed to the reader holds absolute roots, the resolved
-part types, and setup-file provenance.
+may have no deployment. The resolved source passed to the reader holds absolute roots, its own resolved part types, and
+setup-file provenance. A reader supplies immutable `setupTypes: TypesOptions` metadata; the CLI passes
+a reader-id resolver to the setup parser and doctor, without changing the frozen scanner interface.
 
 ```yaml
 # Additional source entry inside sources:

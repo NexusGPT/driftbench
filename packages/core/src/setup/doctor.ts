@@ -19,7 +19,7 @@ import { folderHolding, locateFile, locateInside, pathWithin } from '../estate-m
 import type { TypeSet } from '../estate-model/part-type';
 import { selectJson } from '../estate-model/reads';
 import { runtimeProfile, runtimeProfileNames } from '../runtime-profile';
-import { parseSetupText, type ResolvedSetupSource, resolveSetupSources, type SetupDocument } from './schema';
+import { parseSetupText, type ResolvedSetupSource, resolveSetupSources, type SetupDocument, type SetupTypeResolver } from './schema';
 
 /** A registry reader's metadata, with no prose or secrets retained in the doctor's report. */
 export type SetupRead = {
@@ -124,7 +124,7 @@ async function inventory(
 ): Promise<Disk> {
   const files: DiskFile[] = [];
   const links: Link[] = [];
-  const profile = runtimeProfile(setup.runtime ?? source.reader);
+  const profile = runtimeProfile(source.reader);
   const canonical = await realpath(source.root).catch(() => undefined);
   if (!canonical || !(await stat(source.root)).isDirectory()) {
     skipped.push({ what: source.id, reason: 'source unavailable' });
@@ -233,7 +233,7 @@ async function snapshotReads(
     for (const [index, source] of sources.entries()) {
       const root = snapshotRoots[source.id] as string;
       await mkdir(root, { recursive: true });
-      const profile = runtimeProfile(setup.runtime ?? source.reader);
+      const profile = runtimeProfile(source.reader);
       for (const file of disks[index]?.files ?? []) {
         const destination = join(root, file.path);
         await mkdir(dirname(destination), { recursive: true });
@@ -389,6 +389,7 @@ export async function diagnoseSetup(
   read: SetupReader,
   declared?: SetupDocument,
   setupFile = join(root, 'driftbench.setup.yaml'),
+  typeResolver?: SetupTypeResolver,
 ): Promise<DoctorResult> {
   root = resolve(root);
   setupFile = resolve(setupFile);
@@ -408,7 +409,7 @@ export async function diagnoseSetup(
     for (const name of candidateNames) {
       if (!name) continue;
       const candidate = defaults(name);
-      const parsed = parseSetupText(JSON.stringify(candidate), runtimeProfile(name));
+      const parsed = parseSetupText(JSON.stringify(candidate), typeResolver ?? runtimeProfile(name));
       if (!parsed.ok) continue;
       const source = resolveSetupSources(candidate, setupFile, parsed.types)[0];
       if (!source) continue;
@@ -445,7 +446,7 @@ export async function diagnoseSetup(
       );
   }
   const profile = draft.runtime ? runtimeProfile(draft.runtime) : undefined;
-  const parsed = parseSetupText(JSON.stringify(draft), profile);
+  const parsed = parseSetupText(JSON.stringify(draft), typeResolver ?? profile);
   if (!parsed.ok)
     throw new Error(
       `Invalid setup: ${parsed.errors.map((issue) => `${issue.path}: ${issue.message}`).join('; ')}`,
@@ -492,10 +493,10 @@ export async function diagnoseSetup(
     for (const file of disk.files) {
       const what = `${source.id}:${file.path}`;
       const known = await covered(
-        parsed.types,
+        source.types,
         file,
         raw?.files.find((entry) => entry.path === file.path)?.kind,
-        profile?.mapKinds ?? {},
+        runtimeProfile(source.reader)?.mapKinds ?? {},
       );
       if (known) result.coverage.covered++;
       else result.coverage.unknown.push(what);
@@ -528,7 +529,7 @@ export async function diagnoseSetup(
         targetSource = {
           ...inferred,
           root: absolute,
-          types: parsed.types,
+          types: { version: 1, types: [] },
           bindings: [],
           provenance: { file: setupFile, path: `sources.${draft.sources.length - 1}` },
         };

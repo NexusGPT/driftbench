@@ -35,7 +35,9 @@ Run it before evaluating an unfamiliar setup. Save and review a draft to make as
 A folder and, optionally, a version 1 setup file. Sources declare `id`, `path`, `kind`, `reader`, and optional
 deployment `bindings` with runtime, deployed root, deployed path and link/copy method. Source paths resolve
 from the setup file's folder. A quoted `~` is literal. Home is never read without an explicit source mapping.
-Custom `types` use the existing part-type loader, including `extends`. Roles declare aspects as data.
+Custom `sources[].types` use that reader's built-ins through the existing loader, including `extends`.
+Top-level `types` is shorthand for the project source only. Type names are scoped by source id; an unknown
+reader gets no host built-ins. Roles declare aspects as data.
 
 ## Outputs and how to read them
 

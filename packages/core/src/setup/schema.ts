@@ -2,7 +2,7 @@ import { dirname, isAbsolute, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { compileGlob } from '../estate-model/glob';
-import { parseTypes, type TypeSet, TypeSpec } from '../estate-model/part-type';
+import { parseTypes, type TypeSet, TypeSpec, type TypesOptions } from '../estate-model/part-type';
 import { ASPECTS } from '../estate-model/vocabulary';
 import { type RuntimeProfile, runtimeProfile } from '../runtime-profile/profile';
 
@@ -29,6 +29,7 @@ export const SetupSource = z.strictObject({
   kind: z.enum(['project', 'home', 'directory']),
   reader: identifier,
   bindings: z.array(binding).optional(),
+  types: z.record(z.string(), TypeSpec).optional(),
 });
 export type SetupSource = z.infer<typeof SetupSource>;
 
@@ -94,6 +95,13 @@ export const SetupDocument = z
           issue(['sources', index, 'bindings', at, 'deployedRoot'], 'Deployment root is not mapped.');
       }
     }
+    if (setup.types && !setup.sources.some((source) => source.kind === 'project'))
+      issue(['types'], 'Top-level types require a project source.');
+    for (const [index, source] of setup.sources.entries()) {
+      if (source.kind === 'project') for (const name of Object.keys(source.types ?? {})) {
+        if (setup.types?.[name]) issue(['sources', index, 'types', name], 'Type is also declared in the project shorthand.');
+      }
+    }
     if (setup.execute.policy === 'never' && setup.execute.commands.length > 0)
       issue(['execute', 'commands'], 'A never policy cannot allow commands.');
     const seen = new Set<string>();
@@ -109,11 +117,32 @@ export type SetupDocument = z.infer<typeof SetupDocument>;
 /** A setup rejection is a structured field error; no prose is interpreted as setup data. */
 export type SetupIssue = { path: string; code: string; message: string };
 export type SetupResult =
-  | { ok: true; setup: SetupDocument; types: TypeSet }
+  | { ok: true; setup: SetupDocument; types: Record<string, TypeSet> }
   | { ok: false; errors: SetupIssue[] };
 
+/** A reader supplies its own built-ins and source-relative roots; never a host profile fallback. */
+export type SetupTypeResolver = (readerId: string) => TypesOptions | undefined;
+
+function profileOptions(profile: RuntimeProfile): TypesOptions {
+  return { runtime: profile.name, roots: profile.roots, base: profile.types, shapes: profile.shapes, folder: '.' };
+}
+
+function sourceTypes(setup: SetupDocument, resolver?: SetupTypeResolver): { ok: true; types: Record<string, TypeSet> } | { ok: false; errors: SetupIssue[] } {
+  const types: Record<string, TypeSet> = {};
+  const errors: SetupIssue[] = [];
+  for (const [index, source] of setup.sources.entries()) {
+    const profile = runtimeProfile(source.reader);
+    const options = resolver?.(source.reader) ?? (profile ? profileOptions(profile) : { runtime: source.reader, roots: { project: '.', source: '.' }, folder: '.' });
+    const declarations = { ...(source.kind === 'project' ? setup.types ?? {} : {}), ...source.types };
+    const result = parseTypes({ version: 1, types: declarations }, { ...options, source: `driftbench.setup.yaml#sources.${index}` });
+    if (result.ok) types[source.id] = result.set;
+    else errors.push(...result.errors.map((error) => ({ ...error, path: `sources.${index}.${error.path}` })));
+  }
+  return errors.length ? { ok: false, errors } : { ok: true, types };
+}
+
 /** Parse YAML/JSON strictly and resolve custom part types with the existing parseTypes loader. */
-export function parseSetupText(text: string, profile?: RuntimeProfile): SetupResult {
+export function parseSetupText(text: string, selected?: RuntimeProfile | SetupTypeResolver): SetupResult {
   let value: unknown;
   try {
     value = parseYaml(text, { uniqueKeys: true });
@@ -134,24 +163,13 @@ export function parseSetupText(text: string, profile?: RuntimeProfile): SetupRes
       })),
     };
   const setup = parsed.data;
-  profile ??= setup.runtime ? runtimeProfile(setup.runtime) : undefined;
-  if (profile && setup.runtime !== profile.name)
-    return {
-      ok: false,
-      errors: [
-        { path: 'runtime', code: 'runtime', message: 'Setup runtime disagrees with the selected profile.' },
-      ],
-    };
-  const types = parseTypes(
-    { version: 1, types: setup.types ?? {} },
-    {
-      runtime: setup.runtime ?? 'unknown',
-      roots: profile?.roots ?? { project: '.' },
-      ...(profile ? { base: profile.types, shapes: profile.shapes } : {}),
-      source: 'driftbench.setup.yaml',
-    },
-  );
-  return types.ok ? { ok: true, setup, types: types.set } : { ok: false, errors: types.errors };
+  const profile = typeof selected === 'function' ? undefined : selected;
+  if (profile && setup.runtime !== profile.name) return {
+    ok: false, errors: [{ path: 'runtime', code: 'runtime', message: 'Setup runtime disagrees with the selected profile.' }],
+  };
+  const resolver: SetupTypeResolver | undefined = typeof selected === 'function' ? selected : profile ? (id) => id === profile.name ? profileOptions(profile) : undefined : undefined;
+  const result = sourceTypes(setup, resolver);
+  return result.ok ? { ok: true, setup, types: result.types } : result;
 }
 
 /** The root and provenance passed to a source reader; bindings already name their mapped absolute roots. */
@@ -166,8 +184,11 @@ export type ResolvedSetupSource = Omit<SetupSource, 'bindings'> & {
 export function resolveSetupSources(
   setup: SetupDocument,
   file: string,
-  types: TypeSet,
+  options?: Readonly<Record<string, TypeSet>> | SetupTypeResolver,
 ): ResolvedSetupSource[] {
+  const parsed = typeof options === 'function' || options === undefined ? sourceTypes(setup, options) : { ok: true as const, types: options };
+  if (!parsed.ok) throw new Error(`Invalid source types: ${JSON.stringify(parsed.errors)}`);
+  const types = parsed.types;
   const roots = new Map(setup.sources.map((source) => [source.id, resolve(dirname(file), source.path)]));
   const mappedRoot = (name: string) => {
     const source =
@@ -181,7 +202,7 @@ export function resolveSetupSources(
   return setup.sources.map((source, index) => ({
     ...source,
     root: roots.get(source.id) as string,
-    types,
+    types: types[source.id] ?? { version: 1, types: [] },
     provenance: { file, path: `sources.${index}` },
     bindings: (source.bindings ?? []).map((target) => ({ ...target, root: mappedRoot(target.deployedRoot) })),
   }));

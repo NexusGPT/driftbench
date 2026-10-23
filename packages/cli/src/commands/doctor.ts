@@ -5,15 +5,21 @@ import {
   diagnoseSetup,
   parseSetupText,
   type ResolvedSetupSource,
-  runtimeProfile,
   type SetupDocument,
+  type TypesOptions,
 } from '@agent-nexus/driftbench-core';
-import { type EstateReaderOptions, readerFor } from '@agent-nexus/driftbench-estate';
+import { type EstateReader, type EstateReaderOptions, readerFor } from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
 import { stringify } from 'yaml';
 import type { Io } from '../io';
 
 export type DoctorOptions = { setup?: string; write?: string; check?: boolean; json?: boolean };
+
+/** Each reader owns its built-ins. Host profiles are never substituted for another source's reader. */
+function typesForReader(id: string): TypesOptions | undefined {
+  const reader = readerFor(id) as (EstateReader & { readonly setupTypes?: TypesOptions }) | undefined;
+  return reader?.setupTypes;
+}
 
 /** Programmatic doctor entry: all detection goes through readerFor, with policy enforced by core. */
 export async function inspectSetup(
@@ -32,6 +38,7 @@ export async function inspectSetup(
     },
     setup,
     file,
+    typesForReader,
   );
 }
 
@@ -59,13 +66,7 @@ export async function doctorCommand(path: string, options: DoctorOptions, io: Io
       throw cause;
     });
     if (text !== undefined) {
-      const preliminary = parseSetupText(text);
-      if (!preliminary.ok) {
-        io.err(`driftbench: invalid setup: ${JSON.stringify(preliminary.errors)}\n`);
-        return 2;
-      }
-      const profile = preliminary.setup.runtime ? runtimeProfile(preliminary.setup.runtime) : undefined;
-      const parsed = profile ? parseSetupText(text, profile) : preliminary;
+      const parsed = parseSetupText(text, typesForReader);
       if (!parsed.ok) {
         io.err(`driftbench: invalid setup: ${JSON.stringify(parsed.errors)}\n`);
         return 2;
