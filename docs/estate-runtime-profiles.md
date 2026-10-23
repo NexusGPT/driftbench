@@ -23,6 +23,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
 | `routing` | How a skill is reached: `route-table`, `description`, `name` | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
+| `policy` | The permission model: for each tool a rule can name, what it does as aspects (`acts`, `executes`, `instructs`, `delegates`) and the type of the part its argument names; and the setting that holds the default mode with the modes in which no allow rule decides anything. A runtime without one has no policy checks | `Read`, `Edit`, `Write` act; `Bash` acts and executes; `Skill` names a `skill`; `Agent` and `Task` name a `subagent`; `bypassPermissions` |
 | `loadsItself(path)` | True for a file the runtime loads with no visible read: one a type of the runtime locates whose parts load `always` and `instructs` (`loadsByItself`) | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |
 | `configFiles` | Where `driftbench.estate.yaml` may live | the root, then `.claude/` |
