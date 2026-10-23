@@ -39,8 +39,12 @@ describe('a range witness the page allows', () => {
         const values = store.variables
           .flatMap((v) => v.values)
           .filter((x): x is typeof x & { sample: number } => typeof x.sample === 'number');
-        const lowest = values.reduce((a, b) => (b.sample < a.sample ? b : a));
-        lowest.sample = below;
+        // The paired witness builds other stores with no sample at all: only a store with samples gets the change.
+        const lowest = values.reduce<(typeof values)[number] | undefined>(
+          (a, b) => (a === undefined || b.sample < a.sample ? b : a),
+          undefined,
+        );
+        if (lowest) lowest.sample = below;
       });
       const outcome = await runItem(item('the-label-decides-a-range'), 1, ROOT, impl);
       expect(outcome.detail).toBe('ok');

@@ -246,7 +246,8 @@ const LABELLED_STEM: Stem = {
       'the-label-comparison-decides-not-the-wording',
       4,
       (ctx) => {
-        // The wording says "more than"; the label says the quantity must not pass its limit.
+        // The wording says "more than"; the label says the quantity must not pass its limit. The item asks for the boundary
+        // of the label and says nothing of other boundaries: a product may report more than one.
         const label = { kind: 'numeric', subject: 'the load', limit: 5, comparison: 'le' };
         const store = readLabelled(ctx, [{ text: 'the load is more than 5 tons', label }]);
         const boundaries = store.variables.flatMap((v) => v.boundaries ?? []);
@@ -258,18 +259,15 @@ const LABELLED_STEM: Stem = {
             expected: { comparison: 'le' },
           }),
         );
-        check(!boundaries.some((b) => b.comparison === 'gt'), () => ({
-          rule: 'no boundary takes the comparison of the wording when a label gives the comparison',
-          got: { boundaries: show(boundaries, 160) },
-          expected: { comparison: 'le' },
-        }));
       },
     ],
     [
       'the-label-decides-a-range',
       4,
       (ctx) => {
-        // The wording gives the limits 2 and 6; the label gives 100 and 140.
+        // The wording gives the limits 2 and 6; the label gives 100 and 140. The page names where the witnesses sit against the
+        // limits of the label (below the lower, at each, inside, above the upper), not which number a product picks, so the
+        // item asks for those positions and bans no number: a product that reads the wording has no sample at either limit.
         const label = {
           kind: 'range',
           subject: 'the stay',
@@ -294,29 +292,20 @@ const LABELLED_STEM: Stem = {
             expected: { limits: [100, 140] },
           }),
         );
-        check(!nums.includes(2) && !nums.includes(6), () => ({
-          rule: 'no sample takes a number of the wording when a label gives the limits of the range',
-          got: { samples: nums },
-          expected: { limits: [100, 140] },
-        }));
       },
     ],
     [
       'the-label-decides-a-membership',
       4,
       (ctx) => {
-        // The wording lists north, south and east; the label lists three other members.
+        // The wording lists north, south and east; the label lists three other members. The value outside the list may be any
+        // other word, one of the wording included; a product that reads the wording has no sample that is a member.
         const members = ['kazu', 'lemi', 'vora'];
         const label = { kind: 'member', subject: 'the region', members };
         const store = readLabelled(ctx, [{ text: 'the region is one of north, south or east', label }]);
         const samples = samplesOf(store).filter((s): s is string => typeof s === 'string');
         check(samples.some((s) => members.includes(s)) && samples.some((s) => !members.includes(s)), () => ({
           rule: 'a membership condition with a label gets an in-list and an out-of-list sample for the members of the label',
-          got: { samples: show(samples, 160) },
-          expected: { members },
-        }));
-        check(!samples.some((s) => ['north', 'south', 'east'].includes(s)), () => ({
-          rule: 'no sample takes a word of the wording when a label gives the members',
           got: { samples: show(samples, 160) },
           expected: { members },
         }));
