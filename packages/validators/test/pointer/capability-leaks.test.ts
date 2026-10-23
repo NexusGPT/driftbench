@@ -21,7 +21,7 @@ it('the capability items raise structured failures that do not leak the planted 
     },
   };
   const items = pointerBank().filter((item) => CAPABILITY.test(item.id));
-  expect(items).toHaveLength(21);
+  expect(items).toHaveLength(25);
   const failures: Array<{ item: string; error: unknown }> = [];
   for (const item of items) {
     try {

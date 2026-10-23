@@ -64,6 +64,14 @@ export const reanchoringCapabilitySpecs: Spec[] = [
     'anchor:table-cell-follows-edit',
   ),
   row(
+    'table-cell-floor-12',
+    3,
+    'A unique cell of 12 characters or more keeps its id by its text, whatever its row key',
+    'A table of 4 rows, cells of 12 to 39 characters; the rows move and every row key is rewritten.',
+    'Every cell keeps its id on its own text.',
+    'anchor:table-cell-floor-12',
+  ),
+  row(
     'table-cell-key-follows',
     3,
     'A short repeated cell keeps its id by its row key and column header',

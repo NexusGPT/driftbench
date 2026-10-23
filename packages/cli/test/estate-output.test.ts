@@ -104,3 +104,50 @@ describe('driftbench estate lint on a map moved away from its estate', () => {
     expect(moved.err).toContain('Fix: ');
   });
 });
+
+describe('driftbench estate lint verdict: not run, clean, or findings', () => {
+  const lintJson = async (top: string) =>
+    JSON.parse((await run(['estate', 'lint', 'map.yaml', '--json'], top)).out) as {
+      failed: boolean;
+      notRun: boolean;
+      atoms: number;
+      findings: unknown[];
+      totals: Array<{ code: string; total: number; shown: number; omitted: number }>;
+    };
+
+  it('over no input: not run, not failed, no finding, never clean', async () => {
+    const top = await mkdtemp(join(tmpdir(), 'driftbench-estate-verdict-'));
+    await mkdir(join(top, 'agent'));
+    expect((await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml'], top)).err).toBe('');
+    const data = await lintJson(top);
+    expect(data).toMatchObject({ failed: false, notRun: true, atoms: 0, findings: [], totals: [] });
+    const text = await run(['estate', 'lint', 'map.yaml'], top);
+    expect(text.code).toBe(0);
+    expect(text.out).not.toContain('Clean.');
+  });
+
+  it('over an estate with nothing wrong: clean, so not "not run"', async () => {
+    const top = await mkdtemp(join(tmpdir(), 'driftbench-estate-verdict-'));
+    await mkdir(join(top, 'agent'));
+    await writeFile(join(top, 'agent', 'CLAUDE.md'), '# Rules\n\nAnswer in English.\n');
+    await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml'], top);
+    const data = await lintJson(top);
+    expect(data).toMatchObject({ failed: false, notRun: false, findings: [], totals: [] });
+    const text = await run(['estate', 'lint', 'map.yaml'], top);
+    expect(text.code).toBe(0);
+    expect(text.out).toContain('Clean.');
+  });
+
+  it('with findings: failed, and the count printed is the true total, not the number listed', async () => {
+    const top = await scanned(25);
+    const data = await lintJson(top);
+    expect(data).toMatchObject({ failed: true, notRun: false });
+    const total = data.totals.reduce((sum, entry) => sum + entry.total, 0);
+    const listed = data.totals.reduce((sum, entry) => sum + entry.shown, 0);
+    expect(listed).toBeLessThan(total);
+    expect(data.findings).toHaveLength(listed);
+    const text = await run(['estate', 'lint', 'map.yaml'], top);
+    expect(text.code).toBe(1);
+    expect(text.out).toContain(`${total} findings.`);
+  });
+});

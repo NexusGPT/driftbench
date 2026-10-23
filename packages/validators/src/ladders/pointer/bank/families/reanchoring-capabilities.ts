@@ -5,7 +5,7 @@ import { build, byId, type EstateFile, liveByText, scanOk } from '../../kit/esta
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { rewordSim, splitParts } from '../../kit/segments';
-import { longMake, Prose } from '../../kit/words';
+import { longMake, Prose, word } from '../../kit/words';
 import type { LedgerEntry, LedgerView } from '../../sut/port';
 import { type ItemContext, type Outcome, pass, type Run } from '../types';
 
@@ -251,6 +251,29 @@ export const reanchoringCapabilityRuns: Record<string, Run> = {
       'table rows moved and a column header renamed',
       [tableFile('notes/table.md', ['Step', 'Rule'], rows)],
       [tableFile('notes/table.md', ['Step', 'Policy'], moved)],
+      cells,
+      (fates) => fates.every((f, i) => f.status === 'live' && norm(f.quote) === norm(cells[i] as string)),
+      cells,
+    );
+  },
+  'table-cell-floor-12': async (ctx) => {
+    // A unique cell of 12 to 39 characters follows by its text; the row keys are rewritten, so a key cannot find it.
+    const p = prose(ctx);
+    const medium = (): string => {
+      for (;;) {
+        const t = `${word(p.random)} ${word(p.random)} ${word(p.random)}`;
+        if (t.length >= 12 && t.length < 40) return t;
+      }
+    };
+    const cells = Array.from({ length: 4 }, medium);
+    if (new Set(cells).size !== cells.length) return pass('duplicate seeded cells, item skipped');
+    const rows = cells.map((c, i) => [`S${i + 1}`, c]);
+    const moved = [2, 0, 3, 1].map((i) => [`T${i + 1}`, cells[i] as string]);
+    return rescan(
+      ctx,
+      'table rows moved and every row key rewritten, cells of 12 to 39 characters',
+      [tableFile('notes/table.md', ['Step', 'Rule'], rows)],
+      [tableFile('notes/table.md', ['Step', 'Rule'], moved)],
       cells,
       (fates) => fates.every((f, i) => f.status === 'live' && norm(f.quote) === norm(cells[i] as string)),
       cells,
