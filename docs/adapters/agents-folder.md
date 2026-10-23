@@ -51,16 +51,18 @@ script: scripts/check.py
 target: skills/reconcile/SKILL.md
 ```
 
-## Declared links
+## Map projection in this phase
 
-An instruction line beginning with `@` includes the named file. Markdown links reference the file their
-destination names. A guard references its script and guards its declared target. Resolution uses paths
-and structured fields; wording in prose does not create a link. Unresolved paths are reported rather
-than linked to a similarly named file.
+`AgentsFolderReader` exposes immutable `setupTypes` and returns the existing `RawEstate` contract.
+Instructions become standing files and prose, skills and helpers become their existing declarations,
+contained references and scripts become skill files, and standalone scripts are retained as script
+files. A guard with literal `event` and `script` becomes a guard declaration. Invalid declarations
+leave a read note. Removing `instructs` from a source type removes its prose contribution.
 
-Each emitted link uses the common model's kind, source file and line, reader provenance, and confidence.
-Bindings describe runtime deployment independently of the shared definitions. Copies and links both
-retain their explicit deployment method.
+Core link selector data is declared for line imports, Markdown references, guard script references and
+guard targets. The shared core Part/aspect/Link projection step is pending. This reader does not emit
+core links itself. In particular, today's map cannot independently project a standalone script into a
+script atom; its file remains present. Deployment bindings stay in the parsed setup metadata.
 
 ## File boundaries and coverage
 
@@ -74,6 +76,7 @@ each receive a skipped entry with a reason. Empty and unclassified text files re
 so the common model can report unknown coverage. No implicit home configuration is read.
 
 The fictional fixture is under `packages/estate/test/fixtures/readers/agents-folder/`. Its Python
-script throws if executed; the reader only reads its bytes. The generated conformance cases plant
-positive and negative examples for every declared type, aspect and link kind, and compare semantic
-findings after moving sources or renaming declared parts.
+script throws if executed; the reader only reads its bytes. Generated cases check every declared
+type against positive and negative locators and RawEstate file kinds. Aspect mutation changes prose.
+Independent core-link plants are retained for the shared projection step; they do not assert links
+that the existing map cannot represent. Source relocation and filtered-snapshot tests cover I/O boundaries.

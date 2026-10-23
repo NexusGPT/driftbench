@@ -2,9 +2,17 @@ import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { locateFile, locateInside, parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
+import {
+  locateFile,
+  locateInside,
+  parseTypes,
+  type TypesDocument,
+  type TypesOptions,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { scanEstate } from '../../../src/index';
 import * as agentsReader from '../../../src/scan/readers/agents-folder';
+import { AGENTS_LINK_PLANTS, AGENTS_PART_PLANTS } from './agents-folder.plants';
 
 type Source = {
   id: string;
@@ -25,12 +33,87 @@ type Inventory = {
 };
 type Reader = {
   AGENTS_FOLDER_TYPES: TypesDocument;
+  AGENTS_FOLDER_SETUP_TYPES: TypesOptions;
   readAgentsFolderSource: (
     root: string,
     options: { setupSource: Source; snapshotRoots: Record<string, string> },
   ) => Promise<Inventory>;
 };
 const reader = async (): Promise<Reader> => agentsReader;
+
+describe('agents-folder RawEstate', () => {
+  const kinds: Record<string, string> = {
+    instruction: 'standing',
+    skill: 'skill',
+    'skill-reference': 'skill_file',
+    'skill-script': 'skill_file',
+    helper: 'subagent',
+    guard: 'settings',
+    script: 'guard_script',
+  };
+  it('plants all declared type, aspect and link selector data for the shared projection step', () => {
+    expect(Object.keys(AGENTS_PART_PLANTS).sort()).toEqual(Object.keys(agentsReader.AGENTS_FOLDER_TYPES.types).sort());
+    expect(Object.keys(AGENTS_LINK_PLANTS).sort()).toEqual(
+      [...new Set(agentsReader.AGENTS_FOLDER_LINK_SELECTORS.map((selector) => selector.kind))].sort(),
+    );
+    for (const [name, type] of Object.entries(agentsReader.AGENTS_FOLDER_TYPES.types)) {
+      expect(AGENTS_PART_PLANTS[name]?.aspects).toEqual(type.aspects);
+    }
+  });
+  it('has a positive and negative RawEstate case for every declared type and aspect', async () => {
+    expect(Object.keys(kinds).sort()).toEqual(Object.keys(agentsReader.AGENTS_FOLDER_TYPES.types).sort());
+    for (const [type, plant] of Object.entries(CASES)) {
+      const runtime = new agentsReader.AgentsFolderReader();
+      const yes = await runtime.read(await fixture({ [plant.yes]: plant.text }));
+      const no = await runtime.read(await fixture({ [plant.no]: plant.text }));
+      expect(yes.files.find((file) => file.path === plant.yes)?.kind, type).toBe(kinds[type]);
+      expect(no.files.find((file) => file.path === plant.no)?.kind, type).toBe('other');
+      expect(agentsReader.AGENTS_FOLDER_TYPES.types[type]?.aspects).toEqual(plant.aspects);
+    }
+  });
+
+  it('feeds honest existing map kinds without a model call', async () => {
+    const root = await fixture({
+      'AGENTS.md': 'Preserve fictional identifiers.\n',
+      'skills/reconcile/SKILL.md': CASES.skill.text,
+      'skills/reconcile/scripts/compute.py': CASES['skill-script'].text,
+      'helpers/reviewer.md': CASES.helper.text,
+      'guards/check.yaml': 'event: before-write\nscript: scripts/check.py\n',
+      'scripts/check.py': CASES.script.text,
+      'unclassified.xyz': 'Fictional unknown.\n',
+    });
+    const runtime = new agentsReader.AgentsFolderReader();
+    const raw = await runtime.read(root);
+    expect(raw.skills.map((item) => item.name)).toEqual(['reconcile']);
+    expect(raw.subagents.map((item) => item.name)).toEqual(['reviewer']);
+    expect(raw.guards.map((item) => item.script)).toEqual(['scripts/check.py']);
+    expect(raw.prose.map((item) => item.text)).toContain('Preserve fictional identifiers.\n');
+    expect(raw.files.find((item) => item.path === 'unclassified.xyz')?.kind).toBe('other');
+    const { map } = await scanEstate({ root, reader: runtime });
+    expect(map.atoms.map((atom) => atom.kind)).toEqual(
+      expect.arrayContaining(['skill', 'subagent', 'guard', 'script']),
+    );
+  });
+
+  it('observes an aspect change through source types and survives moving a source', async () => {
+    const files = { 'instructions/policy.md': CASES.instruction.text };
+    const root = await fixture(files);
+    const runtime = new agentsReader.AgentsFolderReader();
+    expect((await runtime.read(root)).prose.map((chunk) => chunk.text)).toEqual(
+      (await runtime.read(await fixture(files))).prose.map((chunk) => chunk.text),
+    );
+    const base = agentsReader.AGENTS_FOLDER_SETUP_TYPES.base;
+    if (!base) throw new Error('missing types');
+    const types = {
+      ...base,
+      types: base.types.map((type) =>
+        type.name === 'instruction' ? { ...type, aspects: ['informs' as const] } : type,
+      ),
+    };
+    const changed = new agentsReader.AgentsFolderReader({ setupSource: { ...source(root), types } });
+    expect((await changed.read(root)).prose).toEqual([]);
+  });
+});
 
 function inventoryOf(read: Reader['readAgentsFolderSource'], input: Source, sources: readonly Source[]) {
   return read(input.root, {
@@ -108,6 +191,24 @@ const CASES = {
 } as const;
 
 describe('shared agents source contract', () => {
+  it('exposes deeply immutable source-relative setup type metadata', async () => {
+    const { AGENTS_FOLDER_SETUP_TYPES } = await reader();
+    expect(AGENTS_FOLDER_SETUP_TYPES.runtime).toBe('agents-folder');
+    expect(AGENTS_FOLDER_SETUP_TYPES.folder).toBe('.');
+    expect(AGENTS_FOLDER_SETUP_TYPES.roots).toEqual({ source: '.' });
+    expect(Object.isFrozen(AGENTS_FOLDER_SETUP_TYPES)).toBe(true);
+    expect(Object.isFrozen(AGENTS_FOLDER_SETUP_TYPES.base?.types)).toBe(true);
+    const extended = parseTypes({ version: 1, types: {
+      'review-skill': { extends: 'skill', aspects: ['informs'] },
+    } }, AGENTS_FOLDER_SETUP_TYPES);
+    expect(extended.ok).toBe(true);
+    if (!extended.ok) throw new Error(JSON.stringify(extended.errors));
+    const custom = extended.set.types.find((type) => type.name === 'review-skill');
+    expect(custom?.folder).toBe('.');
+    expect(custom?.aspects).toEqual(['informs']);
+    expect(custom?.locate.map((locator) => locator.written)).toEqual(['skills/*/']);
+  });
+
   it('declares exactly the independently planted types, using only the common model vocabulary', async () => {
     const { AGENTS_FOLDER_TYPES } = await reader();
     expect(Object.keys(AGENTS_FOLDER_TYPES.types).sort()).toEqual(Object.keys(CASES).sort());

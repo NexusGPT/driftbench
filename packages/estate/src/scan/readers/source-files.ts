@@ -1,4 +1,5 @@
 import { isAbsolute, join, relative, sep } from 'node:path';
+import type { TypeSet } from '@agent-nexus/driftbench-core';
 import { readdir, readFile, realpath, stat } from '../../fs/estate-fs';
 
 /** Structural adapter for the parsed driftbench.setup.yaml sources contract. No home expansion occurs here. */
@@ -7,6 +8,7 @@ export type ReaderSource = {
   root: string;
   kind: 'project' | 'home' | 'directory';
   reader: string;
+  types?: TypeSet;
   bindings?: readonly {
     runtime: string;
     deployedRoot: string;
