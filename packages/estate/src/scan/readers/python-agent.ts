@@ -129,7 +129,6 @@ export class PythonAgentReader implements EstateReader {
             });
           const kind = baseType(type.name);
           if (kind === 'agent' && type.aspects.includes('delegates')) {
-            file.kind = 'subagent';
             raw.subagents.push({
               name,
               file: file.path,
@@ -159,7 +158,7 @@ export class PythonAgentReader implements EstateReader {
             if (typeof text !== 'string') skip('prompt has no literal body');
             else if (!addProse(raw, target, text, target === file ? line : 1)) {
               skip('prompt text has no literal source passage');
-            } else if (target.kind === 'other') target.kind = 'standing';
+            } else if (target !== file && target.kind === 'other') target.kind = 'standing';
           } else if (kind === 'prompt' || kind === 'agent') {
             skip('declared aspects have no compatible map projection');
           } else {

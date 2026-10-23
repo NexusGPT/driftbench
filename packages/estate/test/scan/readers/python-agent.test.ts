@@ -143,6 +143,7 @@ describe('Python RawEstate projection', () => {
     const raw = await runtime.read(root);
     expect(raw.prose.map((chunk) => chunk.text)).toContain('Review rows.');
     expect(raw.subagents.map((agent) => agent.name)).toEqual(['reviewer']);
+    expect(raw.files.find((file) => file.path === 'agent.py')?.kind).toBe('other');
     const { map } = await scanEstate({ root, reader: runtime });
     expect(map.atoms.filter((atom) => atom.kind === 'subagent')).toHaveLength(1);
     expect(map.atoms.filter((atom) => ['skill', 'stage', 'guard', 'tool'].includes(atom.kind))).toEqual([]);
