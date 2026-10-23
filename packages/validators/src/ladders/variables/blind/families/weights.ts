@@ -94,20 +94,26 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (const total of [2 ** 512, 2 ** 600, 2 ** 900]) {
             const [zl, zh] = callInterval(ctx, 0, total);
             const upper = z2 / (total + z2);
-            must(
-              zl === 0 && Math.abs(zh - upper) <= upper * 1e-9,
-              () =>
-                `weightInterval(0, 2^${Math.log2(total)}) = [${zl}, ${zh}]; the Wilson interval is [0, ${upper}]`,
-            );
+            check(zl === 0 && Math.abs(zh - upper) <= upper * 1e-9, () => ({
+              rule: 'the interval of no success in a huge total starts at the count and ends at the Wilson upper bound',
+              input: { count: 0, total: `2^${Math.log2(total)}` },
+              got: [zl, zh],
+              // The lower bound is the count itself; only the upper bound is a wanted value.
+              expected: [upper],
+            }));
             // One success in a total this large: both endpoints are c / total, c from the closed form.
             const [ol, oh] = callInterval(ctx, 1, total);
             const r = Z * Math.sqrt(1 + z2 / 4);
             const wantHigh = (1 + z2 / 2 + r) / total;
             const wantLow = (1 + z2 / 2 - r) / total;
-            must(
+            check(
               Math.abs(oh - wantHigh) <= wantHigh * 1e-9 && Math.abs(ol - wantLow) <= wantLow * 1e-9,
-              () =>
-                `weightInterval(1, 2^${Math.log2(total)}) = [${ol}, ${oh}]; the Wilson interval is [${wantLow}, ${wantHigh}]`,
+              () => ({
+                rule: 'the interval of one success in a huge total is the Wilson interval',
+                input: { count: 1, total: `2^${Math.log2(total)}` },
+                got: [ol, oh],
+                expected: [wantLow, wantHigh],
+              }),
             );
           }
         },
