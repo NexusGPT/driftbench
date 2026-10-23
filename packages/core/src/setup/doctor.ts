@@ -247,7 +247,9 @@ async function snapshotReads(
   skipped: DoctorResult['coverage']['skipped'],
   inspectSnapshots?: (roots: Record<string, string>, temporary: string) => Promise<void>,
 ): Promise<Array<SetupRead | undefined>> {
-  const temporary = await mkdtemp(join(tmpdir(), 'driftbench-doctor-'));
+  // Canonicalize the boundary once: TMPDIR itself may be a symlink (for example /var on macOS).
+  // Every realpath target below must be compared with a root in the same canonical namespace.
+  const temporary = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-doctor-')));
   const snapshotRoots = Object.fromEntries(sources.map((source) => [source.id, join(temporary, source.id)]));
   try {
     for (const [index, source] of sources.entries()) {

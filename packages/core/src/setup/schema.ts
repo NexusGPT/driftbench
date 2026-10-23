@@ -100,7 +100,7 @@ export const SetupDocument = z
     for (const [index, source] of setup.sources.entries()) {
       if (source.kind === 'project')
         for (const name of Object.keys(source.types ?? {})) {
-          if (setup.types?.[name])
+          if (setup.types && Object.hasOwn(setup.types, name))
             issue(['sources', index, 'types', name], 'Type is also declared in the project shorthand.');
         }
     }

@@ -21,6 +21,7 @@ Commands by task
 Map the agent
   driftbench extract     propose the map of situations from a prompt and an inventory
   driftbench space       the approved map, and coverage counted on it
+  driftbench doctor      inspect a setup, draft its declaration and check drift
   driftbench estate      read an agent estate (prompts, skills, tools) into atoms and a map
   driftbench intake      the reference set of real user turns: from logs or an interview
 
@@ -70,4 +71,3 @@ Start here
   driftbench help core-reading-help      how every topic is laid out, and how to find one
   driftbench help redteam-overview       red-team an agent: which command, every option, a CI example
 
-Inspect and declare a setup: `driftbench doctor`.
