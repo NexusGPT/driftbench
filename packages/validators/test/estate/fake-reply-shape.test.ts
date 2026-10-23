@@ -15,7 +15,12 @@ afterEach(() => {
 });
 
 /** The closing reply of the stand-in agent, with a map whose register declares the shape, in an estate copy. */
-async function reply(options: { withoutRegister?: boolean }): Promise<string> {
+async function reply(options: {
+  withoutRegister?: boolean;
+  ask?: string;
+  register?: string;
+  without?: string;
+}): Promise<string> {
   const cwd = mkdtempSync(join(tmpdir(), 'fake-shape-'));
   folders.push(cwd);
   cpSync(FIXTURE, cwd, { recursive: true, filter: (src) => !src.includes('/generated') });
@@ -26,18 +31,19 @@ async function reply(options: { withoutRegister?: boolean }): Promise<string> {
       provenance: { file: string; quote: string };
     }>;
   };
-  const atom = map.atoms.find((candidate) => candidate.id === REGISTER);
-  if (!atom) throw new Error(`the fixture holds no ${REGISTER}`);
+  const atom = map.atoms.find((candidate) => candidate.id === (options.register ?? REGISTER));
+  if (!atom) throw new Error(`the fixture holds no ${options.register ?? REGISTER}`);
   atom.fields = { ...atom.fields, replyShape: 'json_only' };
   const mapPath = join(cwd, 'shape-map.yaml');
   writeFileSync(mapPath, stringify(map));
+  if (options.without) rmSync(join(cwd, options.without));
   if (options.withoutRegister) {
     const file = join(cwd, atom.provenance.file);
     writeFileSync(file, readFileSync(file, 'utf8').replace(atom.provenance.quote, ''));
   }
   const agent = await import(join(FIXTURE, 'live/fake/agent.mjs'));
   const out = agent.planStream({
-    ask: ASK,
+    ask: options.ask ?? ASK,
     cwd,
     sessionId: 'test',
     env: { ...process.env, FAKE_MAP: mapPath, FAKE_PHRASES: join(FIXTURE, 'phrases.yaml') },
@@ -59,5 +65,23 @@ describe('the stand-in agent answers in the shape a reply rule in force declares
   it('answers in prose when that register is gone from the estate copy', async () => {
     const text = await reply({ withoutRegister: true });
     expect(() => JSON.parse(text)).toThrow();
+  });
+
+  it('answers one JSON error object when a prerequisite read fails while that register is in force', async () => {
+    const text = await reply({
+      ask: 'Reconcile invoice INV-1001 against purchase order PO-2001.',
+      register: 'register.invoice-reconcile.end-with-one-line-per-invoice',
+      without: '.claude/skills/invoice-reconcile/references/matching-rules.md',
+    });
+    const parsed = JSON.parse(text) as { status?: string };
+    expect(parsed.status).toBe('error');
+  });
+
+  it('keeps the prose failure reply when no register fixes a shape', async () => {
+    const text = await reply({
+      ask: 'Reconcile invoice INV-1001 against purchase order PO-2001.',
+      without: '.claude/skills/invoice-reconcile/references/matching-rules.md',
+    });
+    expect(text).toBe('An action could not complete; I stopped before continuing.');
   });
 });

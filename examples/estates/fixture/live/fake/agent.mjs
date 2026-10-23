@@ -427,6 +427,9 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     draft: 'Here is a draft for you to review. I have sent nothing.',
     acknowledge: 'Stopped. Everything is paused.',
   };
+  /** A failure reply: the same shape the reply rule in force fixes, so one JSON object when json_only is in force. */
+  const failure = (message) =>
+    intent.shapes?.includes('json_only') ? JSON.stringify({ status: 'error', message }) : message;
   /** The closing reply: the act the atoms set off declare, else what the run did decides. */
   const close = (note, padTo = 0) => {
     const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
@@ -587,7 +590,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     // A read the map declares missing (`exists: false`) answers file-not-found and the run goes on, as an agent's does.
     if (action.missing && result?.error) continue;
     if (!result || result.error) {
-      text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
+      text(failure('An action could not complete; I stopped before continuing.'), declared?.id ?? 'report');
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }
