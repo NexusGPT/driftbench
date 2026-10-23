@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { QuoteIndex } from '../extract/quote';
+import { shareSubjects } from './subjects';
 
 /**
  * The variable store from its three sources at once (docs/variables.md R1 to R5): the agent's own files, the
@@ -572,6 +573,20 @@ function readSources(sources: VariableSources, options: VariablesFromSourcesOpti
       }
     }
   }
+  // One quantity, one subject: clauses with the same text up to the first digit or symbol share the subject of the
+  // first of them in text order (./subjects.ts), so a reader that named one quantity two ways still gives one variable.
+  // A clause that will be refused (too long, or not in its file) lends its subject to no other.
+  const usable = new Set<string>();
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions ?? []) {
+      if (typeof condition.text !== 'string' || condition.text.length > MAX_TEXT) continue;
+      if (index.contains(rule.source, condition.text)) usable.add(foldSpace(condition.text));
+    }
+  }
+  const shared = shareSubjects(
+    [...clauseLabel].filter(([text]) => usable.has(text)).map(([text, label]) => ({ text, label })),
+  );
+  for (const { text, label } of shared) if (label !== undefined) clauseLabel.set(text, label);
   const ruleVariables = new Map<string, Set<string>>();
   for (const rule of sources.estate?.rules ?? []) {
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();
