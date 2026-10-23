@@ -839,6 +839,8 @@ describe('the settings file of the estate', () => {
     // With system 1 gone, system 2 is asked about the windows that system 1 had decided alone (the stack asks system 2
     // only about the windows system 1 left open). Those are new recordings of system 2; no recording is voided.
     const dropped = await voided(root, before);
+    // True of an empty list too: dropping system 1 must add recordings of system 2, so the list is not empty.
+    expect(dropped.added.length).toBeGreaterThan(0);
     expect(dropped.added.every((entry) => entry.readable.cls === 'system2')).toBe(true);
     const now = new Set((await entries(root)).map((entry) => entry.key));
     expect(before.every((entry) => now.has(entry.key))).toBe(true);

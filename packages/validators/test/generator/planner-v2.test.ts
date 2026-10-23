@@ -30,6 +30,12 @@ const MUTANTS = [
   ['pairs-only', 'planner.own-rule-tuples'],
 ] as const;
 
+/**
+ * Items of ladder version 3 that the planner does not pass yet: docs/variables.md asks for the order and the
+ * warning of required values under a budget (Values, R9), and the planner has neither. They are hardness items.
+ */
+const PLANNER_GAPS = ['planner.required-survives-budget.required', 'planner.budget-below-required.required'];
+
 /** A lost item counts as caught only when a check failed: a load error or a throw is no verdict. */
 const caught = (out: Awaited<ReturnType<typeof run>>) =>
   out
@@ -46,13 +52,16 @@ const run = async (items: ReturnType<typeof plannerItems>, seed: number) =>
   );
 
 describe('the planner v2 family', () => {
-  it('passes on the real planner on seed 1', async () => {
+  it('passes on the real planner on seed 1, except the gaps of the planner the bank names', async () => {
     const items = plannerItems();
     const out = await run(items, 1);
     const failing = out
-      .filter((entry) => !entry.verdict.pass)
+      .filter((entry) => !entry.verdict.pass && !PLANNER_GAPS.includes(entry.item.id))
       .map((entry) => `${entry.item.id}: ${entry.verdict.detail}`);
     expect(failing).toEqual([]);
+    // A gap the planner closes passes here and must leave the list.
+    for (const id of PLANNER_GAPS)
+      expect(out.find((entry) => entry.item.id === id)?.verdict.pass, `${id} still fails`).toBe(false);
     expect(out.length).toBe(items.length);
     expect(new Set(items.map((item) => item.id)).size).toBe(items.length);
   });
@@ -65,12 +74,24 @@ describe('the planner v2 family', () => {
     expect(lost.some((id) => id.startsWith(expected))).toBe(true);
   });
 
-  it('a planner that plans an omitted budget as zero loses each of the seven layers-agree items', async () => {
+  it('a planner that plans an omitted budget as zero loses every layers-agree item, the seven of version 2 among them', async () => {
     const module = fileURLToPath(
       new URL('./fixtures/planner-mutants/omitted-budget-is-zero.ts', import.meta.url),
     );
     const items = plannerItems(module).filter((item) => item.id.startsWith('planner.layers-agree.'));
-    expect(items).toHaveLength(7);
+    // The seven shapes of ladder version 2 keep their items; the shapes of version 3 add more.
+    const versionTwo = [
+      'floor-only',
+      'one-variable-rule',
+      'rule-of-four',
+      'two-rules',
+      'constrained',
+      'weighted',
+      'wide',
+    ];
+    expect(items.map((item) => item.id)).toEqual(
+      expect.arrayContaining(versionTwo.map((shape) => `planner.layers-agree.${shape}`)),
+    );
     const out = await run(items, 1);
     expect(caught(out).sort()).toEqual(items.map((item) => item.id).sort());
   });

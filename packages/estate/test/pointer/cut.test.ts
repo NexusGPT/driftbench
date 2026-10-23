@@ -333,6 +333,29 @@ describe('the nesting of a file counts list structure, not indent width', () => 
     }
   });
 
+  const refusalOf = (text: string): unknown => {
+    try {
+      return cut(text);
+    } catch (cause) {
+      return cause;
+    }
+  };
+
+  it('refuses a list indented by tabs one level over the limit, and reads one at the limit', () => {
+    const tabbed = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'\t'.repeat(i)}- level ${i}`).join('\n')}\n`;
+    expect(cut(tabbed(MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+    expect(refusalOf(tabbed(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(tabbed(150))).toMatchObject({ code: 'nesting', depth: 150 });
+  });
+
+  it('keeps a list open across a lazy paragraph line, so levels split by one are still counted', () => {
+    const lazy = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'  '.repeat(i)}- level ${i}\nlazy line ${i}`).join('\n')}\n`;
+    expect(refusalOf(lazy(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(lazy(150))).toMatchObject({ code: 'nesting', depth: 150 });
+  });
+
   it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
     const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
     expect(cut(flat).units).toHaveLength(300);
@@ -368,13 +391,32 @@ describe('the cost of the nesting check on a large file', () => {
     expect(used).toBeLessThan(2_000);
   });
 
-  it('is one pass: twice the lines cost under three times the CPU, and 150,000 lines under a second', () => {
-    const small = rows(150_000);
-    const large = rows(300_000);
-    nestingOf(small);
-    const one = cpu(() => nestingOf(small));
-    const two = cpu(() => nestingOf(large));
+  // The cost is how it grows: four times the lines should cost about four times the CPU (a check that works per line
+  // over the whole text costs sixteen times). The best of three timings, in CPU time, with a limit between the two.
+  const best = (check: (source: string) => unknown, source: string): number =>
+    Math.min(...[0, 1, 2].map(() => cpu(() => void check(source))));
+  const growth = (check: (source: string) => unknown, lines: number) => {
+    const small = rows(lines);
+    const large = rows(lines * 4);
+    check(small);
+    const one = best(check, small);
+    return { one, ratio: best(check, large) / Math.max(one, 20) };
+  };
+
+  it('is one pass: four times the lines cost under eight times the CPU, and 150,000 lines under a second', () => {
+    const { one, ratio } = growth(nestingOf, 150_000);
     expect(one).toBeLessThan(1_000);
-    expect(two).toBeLessThan(Math.max(one, 20) * 3);
+    expect(ratio).toBeLessThan(8);
+  });
+
+  it('measures a check that works per line over the whole text as far above the limit', () => {
+    // A stand-in with the cost of the superlinear shape: every tenth line reads all the lines before it.
+    const perLine = (source: string): number => {
+      const lines = source.split('\n');
+      let total = 0;
+      for (let at = 0; at < lines.length; at += 10) total += lines.slice(0, at).join('').length;
+      return total;
+    };
+    expect(growth(perLine, 6_000).ratio).toBeGreaterThan(8);
   });
 });
