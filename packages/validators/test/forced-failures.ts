@@ -1,4 +1,4 @@
-import { forced, isNoExpected, ItemFailure, leaksOf } from '../src/failure';
+import { forced, ItemFailure, isNoExpected, leaksOf } from '../src/failure';
 import type { BankItem } from '../src/ladders/variables/bank/item';
 import { itemRng } from '../src/ladders/variables/bank/util';
 
@@ -25,8 +25,11 @@ export type Audit = {
 };
 
 export function leaksOutsideGot(failure: ItemFailure): string[] {
-  const { got: _got, ...rest } = failure.fields;
-  return leaksOf(new ItemFailure({ ...rest, got: undefined }));
+  // The rule and the input are read as one text, with the product's own output and the input left out of the allowed
+  // tokens: a wanted value written into either is a leak, whatever the product returned.
+  const { rule, input, expected, item } = failure.fields;
+  const text = `${rule}${input === undefined ? '' : ` ${JSON.stringify(input)}`}`;
+  return leaksOf(new ItemFailure({ rule: text, expected, ...(item === undefined ? {} : { item }) }));
 }
 
 export async function auditEveryCheckSite(
