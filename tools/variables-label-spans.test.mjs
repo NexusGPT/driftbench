@@ -146,7 +146,13 @@ function capCase(mark, config) {
       { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
     );
   const log = () => readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n');
-  return { folder, run, log, perByte: config.perByte, cleanup: () => rmSync(folder, { recursive: true, force: true }) };
+  return {
+    folder,
+    run,
+    log,
+    perByte: config.perByte,
+    cleanup: () => rmSync(folder, { recursive: true, force: true }),
+  };
 }
 
 /** The size of the subject-choice request, read from an unlimited run: its bytes and its max_tokens. */
@@ -156,7 +162,11 @@ function choiceSize(c) {
   const line = c.log().find((l) => l.startsWith('choice '));
   const [, bytes, maxTokens] = line.split(' ').map(Number);
   // What the batch request before it already spent: its usage is priced at 1 and 5 USD per million tokens, 10 tokens out.
-  const [, labelBytes] = c.log().find((l) => l.startsWith('label ')).split(' ').map(Number);
+  const [, labelBytes] = c
+    .log()
+    .find((l) => l.startsWith('label '))
+    .split(' ')
+    .map(Number);
   const labelSpend = (Math.ceil(labelBytes * c.perByte) * 1 + 10 * 5) / 1e6;
   rmSync(join(c.folder, 'requests.log'));
   return { bytes, maxTokens, labelSpend };
