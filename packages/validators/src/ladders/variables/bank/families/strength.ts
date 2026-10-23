@@ -189,7 +189,10 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
           ? randomSpace(rng, { vars: 7, minArity: 2, maxArity: 3, shared: 2, rules: [3] })
           : randomSpace(rng, { vars: 8, minArity: 1, maxArity: 6, shared: 3, rules: [3, 3], overlap: true });
     const facts = planAndCheck(ctx, space, { noCoverage: true });
-    check(facts.fresh.length >= 1, () => ({ rule: 'the plan has no new row', expected: none('observation') }));
+    check(facts.fresh.length >= 1, () => ({
+      rule: 'the plan has no new row',
+      expected: none('observation'),
+    }));
   },
 
   'strength.report-matches-counter': (variant, ctx) => {
@@ -205,13 +208,18 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const seeds = variant === 'mixed' ? randomSeeds(space, oracle, rng, 3) : [];
     const store = toStore(space);
     const { plan, error } = tryPlan(ctx, store, { seed: ctx.seed, ...(seeds.length ? { seeds } : {}) });
-    check(!error, () => ({ rule: 'plan threw {}: {}', got: { details: [error?.name, error?.message] }, expected: none('observation') }));
+    check(!error, () => ({
+      rule: 'plan threw {}: {}',
+      got: { details: [error?.name, error?.message] },
+      expected: none('observation'),
+    }));
     const facts = checkPlan(space, oracle, plan as Plan, { seeds });
     planIsSound(facts);
     const report = (plan as Plan).report;
     check(!!report && report.allowed !== undefined && report.covered !== undefined, () => ({
       rule: 'the plan has no report with allowed and covered: {}',
-      got: { details: [show(report)] }, expected: none('observation')
+      got: { details: [show(report)] },
+      expected: none('observation'),
     }));
     const rows = [...seeds.map((s) => indexRow(space, s)), ...facts.fresh];
     const required = oracle.required(groups);
@@ -236,7 +244,11 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
       variant === 'zero' ? [0] : variant === 'negative' ? [-1, -123456789] : [2147483648, 9007199254740991];
     for (const seed of seeds) {
       const facts = planAndCheck(ctx, space, { seed, boundFactor: BOUND });
-      check(facts.fresh.length >= 1, () => ({ rule: 'the plan has a new row', input: { seed }, expected: none('observation') }));
+      check(facts.fresh.length >= 1, () => ({
+        rule: 'the plan has a new row',
+        input: { seed },
+        expected: none('observation'),
+      }));
     }
   },
 };

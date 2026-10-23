@@ -140,7 +140,10 @@ function place(store: FileStore, scene: number, entry: FileProvenance, shift = 0
     }
     default: {
       const constraint = store.constraints?.[0];
-      check(!!constraint, () => ({ rule: 'the fictional store has a constraint', expected: none('observation') }));
+      check(!!constraint, () => ({
+        rule: 'the fictional store has a constraint',
+        expected: none('observation'),
+      }));
       const target = constraint as { provenance?: FileProvenance[] };
       target.provenance = [...(target.provenance ?? []), entry];
       return `constraints.0.provenance.${target.provenance.length - 1}`;
@@ -155,7 +158,8 @@ function listAt(store: FileStore, entryPath: string): FileProvenance[] {
   for (const part of parts) node = (node as Record<string, unknown>)[part];
   check(Array.isArray(node), () => ({
     rule: 'the bank cannot find the provenance list of {}',
-    got: { details: [entryPath] }, expected: none('observation')
+    got: { details: [entryPath] },
+    expected: none('observation'),
   }));
   return node as FileProvenance[];
 }
@@ -222,7 +226,8 @@ function request({ rng, index, relation, how, form }: Spec): Built {
   const expected = relation.holds;
   check(found(file, quote) === expected, () => ({
     rule: "the bank's {} quote is {} ({}): this is a bug in the bank",
-    got: { details: [expected ? 'findable' : 'wrong', expected ? 'not findable' : 'findable', how] }, expected: none('observation')
+    got: { details: [expected ? 'findable' : 'wrong', expected ? 'not findable' : 'findable', how] },
+    expected: none('observation'),
   }));
   return { store, path, at, file, quote };
 }

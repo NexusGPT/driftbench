@@ -84,7 +84,12 @@ function verify(
     got: { rows: rows.length },
     expected: { atMost: cap },
   }));
-  check(run.ms <= limits.budgetMs, () => ({ rule: 'planning stays within the processor time of the page', input: { label }, got: { ms: Math.round(run.ms) }, expected: { atMost: limits.budgetMs } }));
+  check(run.ms <= limits.budgetMs, () => ({
+    rule: 'planning stays within the processor time of the page',
+    input: { label },
+    got: { ms: Math.round(run.ms) },
+    expected: { atMost: limits.budgetMs },
+  }));
 }
 
 const axesGroup = (space: Space): SpaceGroup => ({
@@ -247,9 +252,14 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const { value: store, ms } = cpuMs(() => build(ctx, { estate }));
     check(store.refused.length === 0, () => ({
       rule: '{} refusals for findable spans: {}',
-      got: { details: [store.refused.length, show(store.refused.slice(0, 2))] }, expected: none('observation')
+      got: { details: [store.refused.length, show(store.refused.slice(0, 2))] },
+      expected: none('observation'),
     }));
-    check(store.variables.length === spans, () => ({ rule: 'spans with distinct nouns give one variable each', got: { variables: store.variables.length }, expected: { variables: spans } }));
+    check(store.variables.length === spans, () => ({
+      rule: 'spans with distinct nouns give one variable each',
+      got: { variables: store.variables.length },
+      expected: { variables: spans },
+    }));
     check(
       store.variables.every((v) => v.values.length === 3),
       () => ({ rule: 'a variable does not hold three values', expected: none('observation') }),
@@ -267,7 +277,12 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       }));
     }
     const budget = spans <= 200 ? 5000 : spans <= 2000 ? 10_000 : 30_000;
-    check(ms <= budget, () => ({ rule: 'reading many spans stays within the processor time of the page', input: { spans, files: filesCount }, got: { ms: Math.round(ms) }, expected: { atMost: budget } }));
+    check(ms <= budget, () => ({
+      rule: 'reading many spans stays within the processor time of the page',
+      input: { spans, files: filesCount },
+      got: { ms: Math.round(ms) },
+      expected: { atMost: budget },
+    }));
   },
 
   'scale.conversations': (variant, ctx) => {
@@ -282,7 +297,12 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     );
     checkCounts(store, base, counts, observed);
     const budget = n <= 10_000 ? 2000 : 5000;
-    check(ms <= budget, () => ({ rule: 'counting many sessions stays within the processor time of the page', input: { sessions: n }, got: { ms: Math.round(ms) }, expected: { atMost: budget } }));
+    check(ms <= budget, () => ({
+      rule: 'counting many sessions stays within the processor time of the page',
+      input: { sessions: n },
+      got: { ms: Math.round(ms) },
+      expected: { atMost: budget },
+    }));
   },
 
   'scale.counter-big-plan': (variant, ctx) => {
@@ -293,7 +313,10 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const group: SpaceGroup = { id: 'g', kind: 'rule', vars: space.vars.map((_, i) => i), strength: t };
     const scan = scanCoverage(space, [group], rows);
     const want = BigInt(choose(n, t)) * BigInt(2 ** t);
-    check(BigInt(scan.required) === want, () => ({ rule: 'the bank scan disagrees with the closed form', expected: none('observation') }));
+    check(BigInt(scan.required) === want, () => ({
+      rule: 'the bank scan disagrees with the closed form',
+      expected: none('observation'),
+    }));
     const store = toStore(space);
     const asRows = rows.map((r) =>
       Object.fromEntries(r.map((v, i) => [`v${String(i).padStart(3, '0')}`, `x${v}`])),
@@ -309,9 +332,15 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const covered = BigInt(scan.required - scan.missing);
     check(toBig(result.covered, 'covered') === covered, () => ({
       rule: "covered {}, the bank's scan of the 30 rows gives {}",
-      got: { details: [show(result.covered), covered] }, expected: none('observation')
+      got: { details: [show(result.covered), covered] },
+      expected: none('observation'),
     }));
-    check(ms <= 20_000, () => ({ rule: 'counting the coverage of rows over binary variables stays fast', input: { variables: n, strength: t }, got: { ms: Math.round(ms) }, expected: { atMost: 20000 } }));
+    check(ms <= 20_000, () => ({
+      rule: 'counting the coverage of rows over binary variables stays fast',
+      input: { variables: n, strength: t },
+      got: { ms: Math.round(ms) },
+      expected: { atMost: 20000 },
+    }));
   },
 
   'scale.big-arity-axis': (_variant, ctx) => {

@@ -42,7 +42,11 @@ const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i);
 
 function planStore(ctx: ItemContext, store: ReturnType<typeof toStore>, seed: number): Plan {
   const { plan, error } = tryPlan(ctx, store, { seed });
-  check(!error, () => ({ rule: 'plan threw {}: {}', got: { details: [error?.name, error?.message] }, expected: none('observation') }));
+  check(!error, () => ({
+    rule: 'plan threw {}: {}',
+    got: { details: [error?.name, error?.message] },
+    expected: none('observation'),
+  }));
   return plan as Plan;
 }
 
@@ -103,7 +107,10 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
       forbidAmong(space, rng, [0, 1, 2, 3], 2);
     }
     const facts = planAndCheck(ctx, space, { noCoverage: true });
-    check(facts.fresh.length >= 1, () => ({ rule: 'the plan has no new row', expected: none('observation') }));
+    check(facts.fresh.length >= 1, () => ({
+      rule: 'the plan has no new row',
+      expected: none('observation'),
+    }));
   },
 
   'impossible.required-tuples-skip-pairs': (variant, ctx) => {
@@ -147,7 +154,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, new SpaceOracle(space), planA);
     planIsSound(facts);
     check(stableStringify(planA) === stableStringify(planB), () => ({
-      rule: 'declaring the pairs the other way round changed the plan: an impossible pair is unordered', expected: none('observation')
+      rule: 'declaring the pairs the other way round changed the plan: an impossible pair is unordered',
+      expected: none('observation'),
     }));
   },
 
@@ -165,7 +173,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, new SpaceOracle(space), planOnce);
     planIsSound(facts);
     check(stableStringify(planOnce) === stableStringify(planMany), () => ({
-      rule: 'declaring a pair more than once changed the plan: repeated pairs count once', expected: none('observation')
+      rule: 'declaring a pair more than once changed the plan: repeated pairs count once',
+      expected: none('observation'),
     }));
   },
 
@@ -192,7 +201,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, new SpaceOracle(space), planA);
     planIsSound(facts);
     check(stableStringify(planA) === stableStringify(planB), () => ({
-      rule: 'a pair of two values of one variable changed the plan', expected: none('observation')
+      rule: 'a pair of two values of one variable changed the plan',
+      expected: none('observation'),
     }));
   },
 
@@ -215,7 +225,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     check(store.impossible.length === 0, () => ({
       rule: 'a pair that names a variable or value the store lacks is refused',
       input: { pair: show(bad) },
-      got: { kept: show(store.impossible) }, expected: none('observation')
+      got: { kept: show(store.impossible) },
+      expected: none('observation'),
     }));
     const named = refusalsMentioning(
       store,
@@ -223,11 +234,16 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     );
     check(named.length >= 1, () => ({
       rule: 'the refusal list {} does not name {}',
-      got: { details: [show(store.refused), show(bad)] }, expected: none('observation')
+      got: { details: [show(store.refused), show(bad)] },
+      expected: none('observation'),
     }));
     check(
       named.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''),
-      () => ({ rule: 'a refusal has no reason: {}', got: { details: [show(named)] }, expected: none('observation') }),
+      () => ({
+        rule: 'a refusal has no reason: {}',
+        got: { details: [show(named)] },
+        expected: none('observation'),
+      }),
     );
   },
 
@@ -263,7 +279,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     }
     const oracle = new SpaceOracle(space);
     check(oracle.validRows().length === 0, () => ({
-      rule: 'the generator must build a space with no valid row', expected: none('observation')
+      rule: 'the generator must build a space with no valid row',
+      expected: none('observation'),
     }));
     // Removing the contradiction must recover a useful covering plan.
     planAndCheck(ctx, { ...space, forbidden: [], universal: true });
@@ -274,21 +291,34 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
         names.some((n) => error.message.includes(n)),
         () => ({
           rule: 'plan threw {}: {}, which names none of the variables {}',
-          got: { details: [error.name, show(error.message), show(names)] }, expected: none('observation')
+          got: { details: [error.name, show(error.message), show(names)] },
+          expected: none('observation'),
         }),
       );
       return;
     }
-    check((plan as Plan).rows.length === 0, () => ({ rule: 'a space with no valid row gets an empty plan', got: { rows: (plan as Plan).rows.length, first: show((plan as Plan).rows[0]?.values) }, expected: { rows: 0 } }));
+    check((plan as Plan).rows.length === 0, () => ({
+      rule: 'a space with no valid row gets an empty plan',
+      got: { rows: (plan as Plan).rows.length, first: show((plan as Plan).rows[0]?.values) },
+      expected: { rows: 0 },
+    }));
   },
 
   'impossible.tight-chain': (variant, ctx) => {
     const space = tightSpace(variant);
     const oracle = new SpaceOracle(space);
     const valid = oracle.validRows().length;
-    check(valid >= 2, () => ({ rule: 'the generator must build a space with valid rows', expected: none('observation') }));
+    check(valid >= 2, () => ({
+      rule: 'the generator must build a space with valid rows',
+      expected: none('observation'),
+    }));
     const facts = planAndCheck(ctx, space);
-    check(facts.fresh.length <= 4 * valid + 8, () => ({ rule: 'the plan stays within the row bound of the page for the valid rows of the space', input: { validRows: valid }, got: { rows: facts.fresh.length }, expected: { atMost: 4 * valid + 8 } }));
+    check(facts.fresh.length <= 4 * valid + 8, () => ({
+      rule: 'the plan stays within the row bound of the page for the valid rows of the space',
+      input: { validRows: valid },
+      got: { rows: facts.fresh.length },
+      expected: { atMost: 4 * valid + 8 },
+    }));
   },
 
   'impossible.with-seeds': (variant, ctx) => {
@@ -320,7 +350,10 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
           );
         }
       }
-      check(seeds.length >= 2, () => ({ rule: 'the generator found no valid row next to a forbidden pair', expected: none('observation') }));
+      check(seeds.length >= 2, () => ({
+        rule: 'the generator found no valid row next to a forbidden pair',
+        expected: none('observation'),
+      }));
     }
     planAndCheck(ctx, space, { seeds });
   },
