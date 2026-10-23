@@ -141,6 +141,7 @@ export function layoutPlan(ladders, floors, regression) {
     TAIL_SECOND: tail[1],
     BEFORE_TAIL: tailStart - 1,
     SYSTEM_TOP: system.levels.length,
+    SYSTEM_FLOOR: floors.ladderVersion.system === (system.version ?? 1) ? (floors.floors.system ?? 0) : 0,
     SYSTEM_SLICE_COUNT: slices.length === 5 ? 'five' : String(slices.length),
     SYSTEM_SLICES: `${systemSlices.slice(0, -1).join(', ')} and ${systemSlices.at(-1)}`,
     GENERATOR_SECOND_FROM: firstEnd + 1,

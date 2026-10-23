@@ -1366,7 +1366,7 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
     expect(() => assertTrainValidators(noSeeds)).toThrow();
     const lenient = structuredClone(workflow);
     for (const step of lenient.jobs['system-full'].steps)
-      if (step.run) step.run = step.run.replace('test "$status" -eq @@SYSTEM_TOP@@', 'test "$status" -ge 9');
+      if (step.run) step.run = step.run.replace('test "$status" -eq @@SYSTEM_TOP@@', 'test "$status" -ge @@SYSTEM_FLOOR@@');
     expect(() => assertTrainValidators(lenient)).toThrow();
     const legsNoFloor = structuredClone(workflow);
     for (const step of legsNoFloor.jobs['ladders-leg'].steps)

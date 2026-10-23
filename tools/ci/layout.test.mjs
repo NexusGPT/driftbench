@@ -156,6 +156,19 @@ describe('generated CI layout', () => {
     expect(() => render(unknown)).toThrow('unregistered');
   });
 
+  it('derives the lenient-join mutation from the system floor without changing its full-level legs', () => {
+    const before = fixture();
+    const after = fixture();
+    after.floors.floors.system = 4;
+    const original = render(before);
+    const updated = render(after);
+    expect(updated[OUTPUTS[0]]).toBe(original[OUTPUTS[0]]);
+    expect(updated[OUTPUTS[1]]).toBe(
+      original[OUTPUTS[1]].replace('test "$status" -ge 3', 'test "$status" -ge 4'),
+    );
+    expect(updated[OUTPUTS[2]]).toBe(original[OUTPUTS[2]]);
+  });
+
   it('the CI check is unconditional on pull requests and invokes the same byte comparison', () => {
     const ci = readFileSync(join(ROOT, '.github/workflows/ci.yml'), 'utf8');
     const job = ci.slice(ci.indexOf('  ci-layout:\n'), ci.indexOf('  pr-fast:\n'));
