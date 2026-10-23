@@ -445,6 +445,22 @@ describe('the report of a changed result names what changed', () => {
   });
 });
 
+// The evidence is built without touching the frame's handle table (review of PR 986, sonnet-review-c-2, at
+// 1259c9597 and d5be76757): a result that holds a function, changed by a later call, gave a taint and a divergence
+// with run C, because building the evidence registered a handle in the confined runs only.
+describe('the evidence leaves the verdict as it was', () => {
+  it('a result holding a function, changed by the next call, with run C: reported, no taint, no divergence', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: true });
+    open.push(frame as Frame<unknown>);
+    frame.product.holdsFunction([1, 2, 3]);
+    frame.product.holdsFunction([10, 20, 30]);
+    frame.product.holdsFunction([4]);
+    expect(frame.aliasSince(0)).toContain('.total was 6, now 60');
+    expect(frame.tainted()).toBeUndefined();
+    expect(frame.divergence()).toBeUndefined();
+  });
+});
+
 // Metamorphic: the same unchanged results, made in any order and kept in any order of the watch's ring (more calls
 // than its 16 places), never report a change. A digest that depended on where an object sits in a scan, or on the
 // results kept beside it, would report one.
