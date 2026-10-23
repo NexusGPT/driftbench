@@ -115,6 +115,20 @@ describe('agents-folder RawEstate', () => {
     const changed = new agentsReader.AgentsFolderReader({ setupSource: { ...source(root), types } });
     expect((await changed.read(root)).prose).toEqual([]);
   });
+
+  it('keeps explicitly named helper findings after renaming and moving its file', async () => {
+    const runtime = new agentsReader.AgentsFolderReader();
+    const findings = [];
+    for (const path of ['helpers/reviewer.md', 'helpers/nested/renamed.md', 'agents/review.md']) {
+      const raw = await runtime.read(await fixture({ [path]: CASES.helper.text }));
+      findings.push({
+        names: raw.subagents.map((helper) => helper.name),
+        prose: raw.prose.map((chunk) => chunk.text),
+      });
+    }
+    expect(findings).toEqual([findings[0], findings[0], findings[0]]);
+    expect(findings[0]?.names).toEqual(['reviewer']);
+  });
 });
 
 function inventoryOf(read: Reader['readAgentsFolderSource'], input: Source, sources: readonly Source[]) {
@@ -374,4 +388,19 @@ describe('shared agents source contract', () => {
       skipped: [{ what: 'binary.dat', reason: 'binary-content' }],
     });
   });
+
+  for (const [name, bytes, reason] of [
+    ['invalid.txt', Buffer.from([0xc3, 0x28]), 'invalid-utf8'],
+    ['oversized.txt', Buffer.alloc(1024 * 1024 + 1, 'a'), 'size-limit:1048576'],
+  ] as const) {
+    it(`accounts for unread ${name} with its reason`, async () => {
+      const root = await fixture({});
+      await writeFile(join(root, name), bytes);
+      const inventory = await agentsReader.readAgentsFolderSource(root);
+      expect(inventory).toEqual({ files: [], skipped: [{ what: name, reason }] });
+      expect((await new agentsReader.AgentsFolderReader().read(root)).notes).toEqual([
+        { file: name, message: `skipped: ${reason}` },
+      ]);
+    });
+  }
 });

@@ -4,7 +4,7 @@ The `agents-folder` reader inventories shared agent definitions from a source de
 `driftbench.setup.yaml`. The source folder may be named `.agents`, `dot_agents`, or another name: locators
 are relative to the source root. Runtime deployment is declared once in the setup file.
 
-```yaml
+```yaml setup
 sources:
   - id: shared
     path: .agents
@@ -44,11 +44,13 @@ read the whole file. References preserve their text, and scripts preserve their 
 A guard declaration has structured `name`, `event`, `script`, and `target` fields. Its paths are relative
 to the source root:
 
-```yaml
-name: ledger-check
-event: before-write
-script: scripts/check.py
-target: skills/reconcile/SKILL.md
+```json
+{
+  "name": "ledger-check",
+  "event": "before-write",
+  "script": "scripts/check.py",
+  "target": "skills/reconcile/SKILL.md"
+}
 ```
 
 ## Map projection in this phase
