@@ -23,10 +23,13 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, askPort, loadAsks, readKey } from './limits-ask';
+import { askModel, askPort, askPrices, loadAsks, readKey } from './limits-ask';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
+const capUsd = process.env.GOLD_ASK_CAP_USD === undefined ? undefined : Number(process.env.GOLD_ASK_CAP_USD);
+const MODEL = askModel();
+const PRICES = askPrices();
 
 async function record(estate: EstateName, key: string) {
   const dir = await mkdtemp(join(tmpdir(), `record-asks-${estate}-`));
@@ -69,7 +72,7 @@ async function record(estate: EstateName, key: string) {
     const texts = new Map<string, string>();
     for (const path of Object.values(LAYOUT[estate]))
       texts.set(path, await readFile(join(dir, path), 'utf8'));
-    const cache = loadAsks(estate, ASK_MODEL);
+    const cache = loadAsks(estate, MODEL);
     const spent = { input: 0, output: 0, requests: 0 };
     // GOLD_ASK_DRY=1: assemble every request, send none, and show one that has both neighbour units.
     const seen: string[] = [];
@@ -79,7 +82,15 @@ async function record(estate: EstateName, key: string) {
     };
     const produced = await variables.produceLimits(scan.map, {
       texts,
-      ask: process.env.GOLD_ASK_DRY ? dry : askPort(estate, ASK_MODEL, cache, spent, { key, capIn, capOut }),
+      ask: process.env.GOLD_ASK_DRY
+        ? dry
+        : askPort(estate, MODEL, cache, spent, {
+            key,
+            capIn,
+            capOut,
+            ...(capUsd === undefined ? {} : { capUsd }),
+            ...PRICES,
+          }),
       include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
     });
     if (process.env.GOLD_ASK_DRY) {
@@ -104,7 +115,7 @@ const key = readKey();
 let total = 0;
 for (const estate of wanted) {
   const used = await record(estate, key);
-  const cost = used.input * (0.1 / 1_000_000) + used.output * (0.5 / 1_000_000);
+  const cost = (used.input * PRICES.priceIn + used.output * PRICES.priceOut) / 1_000_000;
   total += cost;
   console.log(
     `estate ${estate}: ${used.quotes} instruction atoms, ${used.requests} requests sent, ${used.input} tokens in, ${used.output} out, USD ${cost.toFixed(4)}`,

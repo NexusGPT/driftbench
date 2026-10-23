@@ -12,6 +12,18 @@ import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
  */
 export const ASK_MODEL = 'claude-haiku-5-5';
 
+/** The cost of the requests sent by this process so far, for the cost cap of a recording (USD). */
+let totalUsd = 0;
+
+/** The model of a measurement: the gate always replays ASK_MODEL; a recording or a measurement may name another. */
+export const askModel = (): string => process.env.GOLD_ASK_MODEL ?? ASK_MODEL;
+
+/** USD per million tokens (input, output) of the model asked, from GOLD_ASK_PRICE_IN and GOLD_ASK_PRICE_OUT; the Haiku prices by default. */
+export const askPrices = (): { priceIn: number; priceOut: number } => ({
+  priceIn: Number(process.env.GOLD_ASK_PRICE_IN ?? 0.1),
+  priceOut: Number(process.env.GOLD_ASK_PRICE_OUT ?? 0.5),
+});
+
 export const askBody = (model: string, request: variables.LimitRequest): Record<string, unknown> => ({
   model,
   max_tokens: 400,
@@ -64,7 +76,14 @@ export function askPortFor(
   model: string,
   cache: Map<string, Entry>,
   spent: Spent,
-  record?: { key: string; capIn: number; capOut: number },
+  record?: {
+    key: string;
+    capIn: number;
+    capOut: number;
+    capUsd?: number;
+    priceIn?: number;
+    priceOut?: number;
+  },
 ): variables.LimitAsk {
   return async (request) => {
     const body = askBody(model, request);
@@ -73,6 +92,11 @@ export function askPortFor(
     if (hit) return hit.text;
     if (!record) {
       throw new Error(`no recorded answer for a request of ${label} (${model}): run record-asks.ts`);
+    }
+    if (record.capUsd !== undefined && totalUsd >= record.capUsd) {
+      throw new Error(
+        `the cost cap is reached (USD ${totalUsd.toFixed(4)} of ${record.capUsd}): nothing more is sent`,
+      );
     }
     if (spent.input >= record.capIn || spent.output >= record.capOut) {
       throw new Error(
@@ -110,6 +134,9 @@ export function askPortFor(
     spent.input += entry.usage.input;
     spent.output += entry.usage.output;
     spent.requests++;
+    totalUsd +=
+      (entry.usage.input * (record.priceIn ?? 0.1) + entry.usage.output * (record.priceOut ?? 0.5)) /
+      1_000_000;
     return text;
   };
 }

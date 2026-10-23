@@ -31,7 +31,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, askPort, loadAsks } from './limits-ask';
+import { askModel, askPort, loadAsks } from './limits-ask';
 
 /**
  * The chain of one gold estate, from the ids to the links, with no model call. Each step reads what the step
@@ -393,12 +393,13 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }
           wanted.set(key(atom.id, limit.limit, limit.comparison, limit.role), limit);
         }
-        const asks = loadAsks(estate, ASK_MODEL);
+        const MODEL = askModel();
+        const asks = loadAsks(estate, MODEL);
         const spent = { input: 0, output: 0, requests: 0 };
         const atomUnits = new Map([...atomOf].map(([goldId, atom]) => [atom.id, goldId]));
         const asked = await variables.produceLimits(approved, {
           texts,
-          ask: askPort(estate, ASK_MODEL, asks, spent),
+          ask: askPort(estate, MODEL, asks, spent),
           include: (atom) => atomUnits.has(atom.id),
         });
         for (const entry of asked.unreadable) {
@@ -448,6 +449,22 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         const original = [...wanted].filter(([, limit]) => !ADDED_AFTER_RECORDING.has(limit.unit));
+        // A measurement of another model (GOLD_ASK_MODEL) prints its figures here, before the ratchet of the default model.
+        if (process.env.GOLD_PRINT_STEP3 !== undefined) {
+          console.log(
+            `STEP3 ${JSON.stringify({
+              estate,
+              model: MODEL,
+              truth55: wanted.size,
+              found55: [...wanted.keys()].filter((k) => produced.has(k)).length,
+              truth38: original.length,
+              found38: original.filter(([k]) => produced.has(k)).length,
+              produced: produced.size,
+              missing: problems.filter((line) => line.startsWith('limit missing')),
+              extra: problems.filter((line) => line.startsWith('limit not in the truth')),
+            })}`,
+          );
+        }
         expect(
           {
             truth: original.length,

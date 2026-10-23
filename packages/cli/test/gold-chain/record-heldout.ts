@@ -11,23 +11,32 @@
  */
 import { join, resolve } from 'node:path';
 import { runUnitsEstate } from './heldout';
-import { ASK_MODEL, askPortFor, loadAsksFrom, readKey } from './limits-ask';
+import { askModel, askPortFor, askPrices, loadAsksFrom, readKey } from './limits-ask';
 import { loadUnitsEstate } from './units-estate';
 
 const folder = resolve(process.argv[2] ?? '');
 if (process.argv[2] === undefined) throw new Error('name the estate folder, e.g. examples/estates/heldout-1');
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
-const path = join(folder, `limits.ask.${ASK_MODEL}.jsonl`);
+const capUsd = process.env.GOLD_ASK_CAP_USD === undefined ? undefined : Number(process.env.GOLD_ASK_CAP_USD);
+const MODEL = askModel();
+const PRICES = askPrices();
+const path = join(folder, `limits.ask.${MODEL}.jsonl`);
 const cache = loadAsksFrom(path);
 const spent = { input: 0, output: 0, requests: 0 };
 const dry = process.env.GOLD_ASK_DRY !== undefined && process.env.GOLD_ASK_DRY !== '';
 
 const ask = dry
   ? async () => '{"limits": []}'
-  : askPortFor(path, folder, ASK_MODEL, cache, spent, { key: readKey(), capIn, capOut });
+  : askPortFor(path, folder, MODEL, cache, spent, {
+      key: readKey(),
+      capIn,
+      capOut,
+      ...(capUsd === undefined ? {} : { capUsd }),
+      ...PRICES,
+    });
 const run = await runUnitsEstate({ folder, ask });
-const cost = spent.input * (0.1 / 1_000_000) + spent.output * (0.5 / 1_000_000);
+const cost = (spent.input * PRICES.priceIn + spent.output * PRICES.priceOut) / 1_000_000;
 console.log(
   `${folder}: ${run.requests} requests, ${spent.requests} sent, ${spent.input} tokens in, ${spent.output} out, USD ${cost.toFixed(4)}`,
 );
