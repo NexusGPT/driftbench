@@ -114,7 +114,9 @@ describe('--hardness with two pilot rounds', () => {
     expect(h.remaining).toBe(200);
     expect(h.forecast).toBe(20);
     expect(h.gate.reasons.join(' | ')).not.toMatch(/fall from|holds \d+ of 10/);
-    expect(formatHardness('x', h)).toMatch(/Pilot round measured: r4, the latest complete round of the blind pilot \(rounds in the journal: .*blind r2 \(10 of 10\), blind r4 \(10 of 10\)\)/);
+    expect(formatHardness('x', h)).toMatch(
+      /Pilot round measured: r4, the latest complete round of the blind pilot \(rounds in the journal: .*blind r2 \(10 of 10\), blind r4 \(10 of 10\)\)/,
+    );
   });
 
   it('measures the same round when the rounds are appended in the other order of ids', () => {
