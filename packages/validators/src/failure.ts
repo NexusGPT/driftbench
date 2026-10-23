@@ -47,7 +47,11 @@ export const forced = { at: -1, count: 0, trace: false, sites: [] as string[] };
 /** The file, line and column of the code that called `check`. Read only while a test traces the checks. */
 function callerOfCheck(): string {
   const frame = new Error().stack?.split('\n')[3] ?? '';
-  return frame.replace(/^\s*at\s+/, '').replace(/^.*\(/, '').replace(/\)$/, '').replace(/^.*?(packages\/validators\/)/, '$1');
+  return frame
+    .replace(/^\s*at\s+/, '')
+    .replace(/^.*\(/, '')
+    .replace(/\)$/, '')
+    .replace(/^.*?(packages\/validators\/)/, '$1');
 }
 
 export const isNoExpected = (value: unknown): value is NoExpected =>
