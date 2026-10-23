@@ -245,9 +245,19 @@ function readImport(tokens: readonly Token[], scope: Scope): boolean {
   return true;
 }
 
-const TOOL = new Set(['langchain.tools.tool', 'langchain_core.tools.tool']);
-const MESSAGE = new Set(['langchain_core.messages.SystemMessage', 'langchain.messages.SystemMessage']);
-const AGENT = new Set(['langchain.agents.create_agent', 'langgraph.prebuilt.create_react_agent']);
+/** API symbol selectors are data local to this reader. They are syntax identities, never prose patterns. */
+export const PYTHON_SYNTAX_SELECTORS = {
+  graph: ['langgraph.graph.StateGraph'],
+  tool: ['langchain.tools.tool', 'langchain_core.tools.tool'],
+  prompt: ['langchain_core.messages.SystemMessage', 'langchain.messages.SystemMessage'],
+  agent: ['langchain.agents.create_agent', 'langgraph.prebuilt.create_react_agent'],
+  guard: ['langgraph.types.interrupt'],
+  toolNode: ['langgraph.prebuilt.ToolNode'],
+  methods: { node: 'add_node', edge: 'add_edge', conditional: 'add_conditional_edges' },
+} as const;
+const TOOL = new Set<string>(PYTHON_SYNTAX_SELECTORS.tool);
+const MESSAGE = new Set<string>(PYTHON_SYNTAX_SELECTORS.prompt);
+const AGENT = new Set<string>(PYTHON_SYNTAX_SELECTORS.agent);
 
 /** Normalized syntax records selected by PYTHON_AGENT_TYPES, before construction of common-model parts. */
 export function pythonAgentFacts(text: string): PythonFacts {
@@ -316,7 +326,7 @@ export function pythonAgentFacts(text: string): PythonFacts {
     };
     for (const call of foundCalls) {
       const resolved = resolveName(call.callee, scope);
-      if (resolved === 'langgraph.graph.StateGraph') {
+      if ((PYTHON_SYNTAX_SELECTORS.graph as readonly string[]).includes(resolved)) {
         if (!assigned) { facts.unresolved.push({ line: call.line, reason: 'unbound-graph' }); continue; }
         const name = scope.name ? `${scope.name}/${assigned}` : assigned;
         facts.graphs.push({ name, line: call.line });
@@ -328,7 +338,11 @@ export function pythonAgentFacts(text: string): PythonFacts {
         facts.agents.push({ name, owner: scope.name, line: call.line });
         const prompt = call.keywords.get('system_prompt') ?? call.keywords.get('prompt');
         if (prompt) addPrompt(`${name}/prompt`, prompt, call.line);
-      } else if (resolved === 'langgraph.types.interrupt') {
+      } else if ((PYTHON_SYNTAX_SELECTORS.guard as readonly string[]).includes(resolved)) {
+        if (!scope.name) {
+          facts.unresolved.push({ line: call.line, reason: 'interrupt-outside-function' });
+          continue;
+        }
         const name = `${scope.name}/${assigned ?? `interrupt@${call.line}`}`;
         facts.guards.push({ name, owner: scope.name, line: call.line });
       } else {
@@ -336,10 +350,10 @@ export function pythonAgentFacts(text: string): PythonFacts {
         const graph = scope.graphs.get(call.callee.slice(0, dot));
         const method = call.callee.slice(dot + 1);
         if (!graph) continue;
-        if (method === 'add_node') {
+        if (method === PYTHON_SYNTAX_SELECTORS.methods.node) {
           const action = call.keywords.get('action') ?? call.args[1] ?? call.args[0];
           const toolNode = calls(action ?? []).find((item) =>
-            resolveName(item.callee, scope) === 'langgraph.prebuilt.ToolNode');
+            (PYTHON_SYNTAX_SELECTORS.toolNode as readonly string[]).includes(resolveName(item.callee, scope)));
           const callable = toolNode ? 'langgraph.prebuilt.ToolNode' : dotted(action ?? []);
           const name = literal(call.keywords.get('node') ?? call.args[0], scope)
             ?? (call.args.length === 1 ? callable : undefined);
@@ -356,12 +370,12 @@ export function pythonAgentFacts(text: string): PythonFacts {
               }
             }
           }
-        } else if (method === 'add_edge') {
+        } else if (method === PYTHON_SYNTAX_SELECTORS.methods.edge) {
           const from = literal(call.keywords.get('start_key') ?? call.args[0], scope);
           const to = literal(call.keywords.get('end_key') ?? call.args[1], scope);
           if (from === undefined || to === undefined) facts.unresolved.push({ line: call.line, reason: 'dynamic-edge-target' });
           else facts.edges.push({ graph, from, to, line: call.line });
-        } else if (method === 'add_conditional_edges') {
+        } else if (method === PYTHON_SYNTAX_SELECTORS.methods.conditional) {
           const from = literal(call.keywords.get('source') ?? call.args[0], scope);
           const mapping = call.keywords.get('path_map') ?? call.args[2];
           if (from === undefined || mapping?.[0]?.text !== '{') {
@@ -382,7 +396,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
       scope.imports.delete(assigned);
       scope.constants.delete(assigned);
       if (value !== undefined) scope.constants.set(assigned, value);
-      if (!foundCalls.some((call) => resolveName(call.callee, scope) === 'langgraph.graph.StateGraph')) {
+      if (!foundCalls.some((call) => (PYTHON_SYNTAX_SELECTORS.graph as readonly string[])
+        .includes(resolveName(call.callee, scope)))) {
         scope.graphs.delete(assigned);
       }
     }

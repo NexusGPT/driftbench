@@ -1,7 +1,7 @@
 import type { TypesDocument } from '@agent-nexus/driftbench-core';
-import { type SourceFiles, type SourceReaderOptions, readSourceFiles } from './source-files';
+import { readSourceFiles, type SourceFiles, type SourceReaderOptions } from './source-files';
 
-export { pythonAgentFacts } from './python-syntax';
+export { PYTHON_SYNTAX_SELECTORS, pythonAgentFacts } from './python-syntax';
 
 /**
  * The local Python syntax selector produces a normalized document for each .py input. The common model's

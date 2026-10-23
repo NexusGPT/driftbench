@@ -4,10 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import * as pythonReader from '../../../src/scan/readers/python-agent';
 
-// This test-only commit intentionally precedes the implementation. A variable import permits typecheck to
-// finish so GitHub can run the red-first cases, without adding any stub implementation to production.
-const MODULE = '../../../src/scan/readers/python-agent';
 type Fact = { name: string; line: number; [key: string]: unknown };
 type Facts = {
   graphs: Fact[];
@@ -23,7 +21,7 @@ type Reader = {
   PYTHON_AGENT_TYPES: TypesDocument;
   pythonAgentFacts: (text: string) => Facts;
 };
-const reader = async () => (await import(MODULE)) as Reader;
+const reader = async (): Promise<Reader> => pythonReader;
 
 const PREAMBLE = 'from langgraph.graph import StateGraph\n';
 const NODE = 'def collect(state):\n    return state\n';
