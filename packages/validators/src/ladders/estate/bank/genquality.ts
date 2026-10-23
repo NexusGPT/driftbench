@@ -431,7 +431,7 @@ export function taskFamily(): Family {
       tier: 2 as Tier,
       title: `the first ask of every complete ${type} spec asks, exactly, for the act the spec carries`,
       cause: 'ask for the act of the row, in a text the fake sets off for that act and no other',
-      async judge(suite) {
+      async judge(suite: FixtureSuite) {
         const specs = ofType(suite, type);
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
         const map = await loadEstateMap(suite.map);
