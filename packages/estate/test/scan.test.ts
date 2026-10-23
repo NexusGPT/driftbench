@@ -15,7 +15,7 @@ import {
   scanEstate,
   scriptOf,
 } from '../src/index';
-import { answer, estate, FIXTURE, HAND_ROLES, NOW, readRaw, scanFixture } from './support';
+import { answer, estate, FIXTURE, HAND_ROLES, NOW, readRaw, scanFixture, structurePointer } from './support';
 
 describe('the Claude Code reader', () => {
   it('reads every estate file with its kind, and nothing outside the estate', async () => {
@@ -206,10 +206,18 @@ describe('code atoms', () => {
   });
 
   it('resolves a named file from its skill folder or from the root, and marks one that does not exist', async () => {
-    const { map } = await scanFixture();
+    // A planted labeller calls a unit a reference exactly when it names a path: the thing under test is what the
+    // scan does with the path, not which sentences a model reads as references.
+    const { map } = await scanEstate({
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const references = map.atoms.filter((atom) => atom.kind === 'reference');
     expect(references.map((atom) => [atom.fields?.path, atom.fields?.exists])).toEqual([
       ['.claude/memory/supplier-languages.md', true],
+      ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
       ['.claude/skills/invoice-reconcile/references/currency-table.md', true],
       ['.claude/skills/shipment-tracker/scripts/track.sh', true],
@@ -218,6 +226,8 @@ describe('code atoms', () => {
       ['.claude/skills/weekly-report/templates/report.md', true],
       ['.claude/skills/weekly-report/references/kpi-definitions.md', false],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
+      ['.env', false],
+      ['.claude/memory/MEMORY.md', true],
       ['.claude/steps.json', true],
       ['.claude/memory/MEMORY.md', true],
     ]);

@@ -1,11 +1,20 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../src/index';
-import { answer, estate, HAND_ROLES, NOW, scanFixture, structurePointer } from './support';
+import {
+  answer,
+  estate,
+  HAND_ROLES,
+  NOW,
+  scanFixture,
+  scanPlantedFixture,
+  structurePointer,
+} from './support';
 
 describe('estate lint', () => {
-  it('finds every defect planted in the fixture, and nothing else', async () => {
-    const { map, raw } = await scanFixture();
+  it('finds every defect planted in the fixture, and nothing else, whatever a labeller says', async () => {
+    // Planted labels: what the lint does with the files, the routes and the registry is the thing under test.
+    const { map, raw } = await scanPlantedFixture();
     const result = lintEstate(map, raw);
     const found = result.findings.filter((finding) => finding.code !== 'UNENFORCED');
     expect(found.map((finding) => [finding.code, finding.subject])).toEqual([
@@ -16,8 +25,12 @@ describe('estate lint', () => {
       ['REGISTRY_ROW', 'reply-length.py'],
       ['REGISTRY_GUARD', 'G6'],
     ]);
-    expect(result.counts.UNENFORCED).toBe(44);
     expect(result.failed).toBe(true);
+  });
+
+  it('counts the rules no guard enforces in the recorded labels', async () => {
+    const { map, raw } = await scanFixture();
+    expect(lintEstate(map, raw).counts.UNENFORCED).toBe(44);
   });
 
   it('reports an oversize set of standing instructions against the ceiling', async () => {

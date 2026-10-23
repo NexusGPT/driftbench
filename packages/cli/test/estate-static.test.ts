@@ -53,7 +53,7 @@ describe('driftbench estate static', () => {
     expect(by['estate.invariant.invariant.registry.the-check-registry-lists-every-guard']).toBe(false);
   });
 
-  it('counts the files the prose of a given map names: the one orphan is the planted one', async () => {
+  it('counts the files the prose of a given map names: the planted orphan is one of the two left', async () => {
     const test = join(STATIC, 'invariant/estate.invariant.invariant.standing.no-file-of-the-estate-is.json');
     const alone = await run(['estate', 'static', test, '--estate', FIXTURE, '--json']);
     const unnamed = JSON.parse(alone.out) as { results: Array<{ detail: string }> };
@@ -71,7 +71,9 @@ describe('driftbench estate static', () => {
     expect(mapped.code).toBe(1);
     const named = JSON.parse(mapped.out) as { results: Array<{ detail: string }> };
     expect(named.results[0]?.detail).toContain(
-      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
+      // The second orphan is the steps file: its sentence has 13 recorded runs, none 10 and rule 3, so no reference atom
+      // names it.
+      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md",".claude/steps.json"]}',
     );
     const bad = await run([
       'estate',
