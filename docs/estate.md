@@ -456,7 +456,7 @@ examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 116 atoms
 6 findings.
 ```
 
-It exits 1.
+It exits 1. Two more lines appear when they apply: `not-run` names the checks that had no input to read (a check that read nothing is never a pass), and `unknown` names the files under `.claude` that no part type covers. While one file is unknown the lint never ends on `Clean.`; its last line says how many files no check read. The [estate model](estate-model.md#coverage-and-unknown-files) says what a part type covers and how to declare your own.
 
 ## 3. Variables: the interaction space of an estate
 

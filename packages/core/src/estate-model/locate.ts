@@ -1,6 +1,6 @@
 import { posix } from 'node:path';
 import { matchGlob } from './glob';
-import type { PartType } from './part-type';
+import type { PartType, TypeSet } from './part-type';
 
 /**
  * Where a root-relative file lies among a type's parts, by syntax alone: the file a file glob matches, or the
@@ -41,8 +41,8 @@ export function locateFile(type: PartType, path: string): FilePlace | undefined 
 }
 
 /**
- * The folder part of a type that holds a file, and the file's path inside it: the nearest ancestor folder of the
- * file that one of the type's folder globs matches. The entry file of the folder is held too.
+ * The folder part of a type that holds a file, and the file's path inside it: the outermost ancestor folder of
+ * the file that one of the type's folder globs matches. The entry file of the folder is held too.
  */
 export function folderHolding(
   type: PartType,
@@ -76,4 +76,55 @@ export function locateInside(type: PartType, inner: string): FilePlace | undefin
 
 function rejoin(folder: string, path: string): string {
   return folder === '.' || folder === '' ? path : `${folder}/${path}`;
+}
+
+/**
+ * The type that covers a file, or undefined for a file no type covers: a type locates it from its own folder (a
+ * file glob, the file glob of an entry locator, or the entry of a folder part), or a type a folder part contains
+ * locates it inside that folder, at any depth of containment. The first such type in the set's order is given.
+ * A type with a `shape` covers the file only when `hasShape` says the file has it; without a test, never.
+ */
+export function coveringType(
+  set: TypeSet,
+  path: string,
+  hasShape: (shape: string) => boolean = () => false,
+): string | undefined {
+  const byName = new Map(set.types.map((type) => [type.name, type]));
+  const shaped = (type: PartType) => type.shape === undefined || hasShape(type.shape);
+  const inside = (type: PartType, inner: string, depth: number): boolean => {
+    if (depth > set.types.length) return false;
+    for (const name of type.contains) {
+      const child = byName.get(name);
+      if (!child) continue;
+      if (fileGlobsMatch(child, inner) && shaped(child)) return true;
+      const holder = folderOf(child, inner);
+      if (holder && (holder.inner === child.entry || inside(child, holder.inner, depth + 1))) return true;
+    }
+    return false;
+  };
+  for (const type of set.types) {
+    if (type.folder === undefined) continue;
+    const relative = pathWithin(type.folder, path);
+    if (relative === undefined) continue;
+    if (fileGlobsMatch(type, relative) && shaped(type)) return type.name;
+    const holder = folderOf(type, relative);
+    if (holder && (holder.inner === type.entry || inside(type, holder.inner, 0))) return type.name;
+  }
+  return undefined;
+}
+
+/** True when a file glob of the type (entry locators included, by their file glob) matches the path. */
+function fileGlobsMatch(type: PartType, path: string): boolean {
+  return type.locate.some((locator) => !locator.glob.folder && matchGlob(locator.glob, path) !== undefined);
+}
+
+/** The outermost folder a folder glob of the type matches above the path, and the path inside it. */
+function folderOf(type: PartType, path: string): { inner: string } | undefined {
+  const parts = path.split('/');
+  for (let depth = 1; depth < parts.length; depth++) {
+    const folder = parts.slice(0, depth).join('/');
+    if (type.locate.some((locator) => locator.glob.folder && matchGlob(locator.glob, folder) !== undefined))
+      return { inner: parts.slice(depth).join('/') };
+  }
+  return undefined;
 }

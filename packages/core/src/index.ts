@@ -86,6 +86,7 @@ export {
   type Aspect,
   type CompiledGlob,
   compileGlob,
+  coveringType,
   type FieldRead,
   type FieldReadError,
   type FilePlace,
