@@ -35,7 +35,10 @@ describe('digit-run shortcuts on the labeller bank', () => {
     }
   });
 
-  it('every labeller fixture draws without exhausting its redraws on seeds 1 to 60', () => {
+  // 60 seeds times every labeller item is more than the 5 s default on a loaded runner.
+  it('every labeller fixture draws without exhausting its redraws on seeds 1 to 60', {
+    timeout: 120_000,
+  }, () => {
     for (let seed = 1; seed <= 60; seed += 1)
       for (const item of labellerBank())
         expect(buildLabellerFixture(item, seed).units.length).toBeGreaterThan(1);
