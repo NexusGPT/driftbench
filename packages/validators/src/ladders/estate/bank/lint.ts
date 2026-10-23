@@ -78,7 +78,17 @@ type Build = {
   /** Counts the reference atoms an item plants, for their hidden ids. */
   counted: number;
 };
-type Case = { key: string; tier: Tier; title: string; plant(build: Build): Expected[] };
+type Case = {
+  key: string;
+  tier: Tier;
+  title: string;
+  /**
+   * Scan with no model: code alone reads the references of the prose. Such a scan has no route from the standing
+   * instructions to a skill, so the item judges the reference findings only.
+   */
+  noModel?: boolean;
+  plant(build: Build): Expected[];
+};
 
 function skill(
   build: Build,
@@ -433,6 +443,55 @@ const DEFECTS: Case[] = [
       ];
     },
   },
+  {
+    key: 'no-model-missing-reference',
+    tier: 2,
+    title: 'a file a skill body names, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'When unsure, open `references/absent.md`.' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-orphan-beside-named',
+    tier: 2,
+    title: 'an orphan beside a reference a table cell names, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: '| Case | Read |' },
+        { text: '|---|---|' },
+        { text: '| unsure | `references/guide.md` |' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
+      const old = skillFile(name, 'references/old.md');
+      b.estate.raw(old, '# Old\n', b.owner);
+      return [{ code: 'ORPHAN', subject: old }];
+    },
+  },
+  {
+    key: 'no-model-missing-import',
+    tier: 2,
+    title: 'a standing import of a file that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('@rules/absent.md');
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-outside-import',
+    tier: 2,
+    title: 'a standing import of a file in the home folder, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('@~/notes/personal.md');
+      return [{ code: 'EXTERNAL' }];
+    },
+  },
 ];
 
 const CLEAN: Case[] = [
@@ -734,6 +793,75 @@ const CLEAN: Case[] = [
       return [];
     },
   },
+  {
+    key: 'no-model-named-reference',
+    tier: 2,
+    title: 'a reference a table cell and a link name, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: '| Case | Read |' },
+        { text: '|---|---|' },
+        { text: '| unsure | `references/guide.md` |' },
+        { text: 'The checklist is in [the list](references/checklist.md).' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
+      b.estate.raw(skillFile(name, 'references/checklist.md'), '# Checklist\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-standing-import',
+    tier: 1,
+    title: 'a standing import of a file that exists, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('@rules/standing.md');
+      b.estate.file('rules/standing.md', b.owner).lines_(['# Rules', '', '- Keep replies short.']);
+      return [];
+    },
+  },
+  {
+    key: 'python-imports',
+    tier: 3,
+    title: 'library modules a guard script imports',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'py' });
+      const lib = `${GUARDS_DIR}/lib`;
+      b.estate.raw(
+        g.script,
+        'import sys\nimport helpers\nfrom lib.tools import run\n\nrun(sys.argv)\n',
+        b.owner,
+      );
+      b.estate.raw(`${GUARDS_DIR}/helpers.py`, 'VALUE = 1\n', b.owner);
+      b.estate.raw(
+        `${lib}/tools.py`,
+        'from .shared import limit\n\n\ndef run(argv):\n    return limit\n',
+        b.owner,
+      );
+      b.estate.raw(`${lib}/shared.py`, 'limit = 3\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'javascript-imports',
+    tier: 3,
+    title: 'modules a guard script imports and requires',
+    plant: (b) => {
+      skill(b, 'a');
+      const g = guard(b, 'g', { extension: 'mjs' });
+      b.estate.raw(
+        g.script,
+        "import { run } from './util.mjs';\nconst legacy = require('./legacy');\n\nrun(legacy);\n",
+        b.owner,
+      );
+      b.estate.raw(`${GUARDS_DIR}/util.mjs`, 'export const run = () => 1;\n', b.owner);
+      b.estate.raw(`${GUARDS_DIR}/legacy.js`, 'module.exports = {};\n', b.owner);
+      return [];
+    },
+  },
 ];
 
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
@@ -771,12 +899,23 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
     }
   }
   writeSettings(estate, build.guards);
-  const scan = await estate.scan();
-  return compare(scan, expected);
+  const scan = await estate.scan(item.noModel ? { noModel: true } : {});
+  return compare(scan, expected, item.noModel ? REFERENCE_CODES : undefined);
 }
 
-function compare(scan: ScanOutcome, expected: readonly Expected[]): ItemResult {
-  const found = scan.lint.findings.filter((finding) => finding.code !== 'UNENFORCED');
+/** The findings a scan with no model judges: what it says about the files that are named and the names that lead nowhere. */
+const REFERENCE_CODES: ReadonlySet<string> = new Set([
+  'ORPHAN',
+  'MISSING_REFERENCE',
+  'AMBIGUOUS_REFERENCE',
+  'UNRESOLVED_REFERENCE',
+  'EXTERNAL',
+]);
+
+function compare(scan: ScanOutcome, expected: readonly Expected[], scope?: ReadonlySet<string>): ItemResult {
+  const found = scan.lint.findings.filter(
+    (finding) => finding.code !== 'UNENFORCED' && (scope === undefined || scope.has(finding.code)),
+  );
   const open = [...found];
   const missed: string[] = [];
   for (const want of expected) {

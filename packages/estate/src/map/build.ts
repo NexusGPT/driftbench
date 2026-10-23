@@ -146,6 +146,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(input.cache ? { cache: input.cache } : {}),
     ...(input.beforeModel ? { beforeModel: input.beforeModel } : {}),
     ...(input.pointer ? { pointer: input.pointer } : {}),
+    ...(!input.port && !input.pointer ? { codeReferences: true } : {}),
     ...(input.maxTokens !== undefined ? { maxTokens: input.maxTokens } : {}),
   });
   const { builder } = scanned;
@@ -227,6 +228,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
       : input.port
         ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }
         : {}),
+    ...(!input.port && !input.pointer ? { referenceReader: 'code' as const } : {}),
     hash: mapHash(atoms, graph.edges),
   };
   return {

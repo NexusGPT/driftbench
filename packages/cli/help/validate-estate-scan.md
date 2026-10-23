@@ -61,7 +61,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--out <file>` | required | where to write the map (YAML) |
 | `--runtime <name>` | `claude-code` | the runtime that reads the estate; `claude-code` is the one runtime |
 | `--replay <file>` | none | replay recorded model answers (such as `examples/estates/fixture/answers.yaml`) instead of calling a model |
-| `--no-model` | off | read the structured atoms only; no prose atom, no model call |
+| `--no-model` | off | read the structured atoms, and the references the prose writes as code spans, links, quoted names and `@` imports; no prose atom, no model call. The map records `producedBy.family: code` |
 | `--provider <name>` | the first whose key is set: `ANTHROPIC_API_KEY`, then `OPENAI_API_KEY` (with `OPENAI_MODEL`) | `anthropic` or `openai`, for a live scan (a paid call) |
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
@@ -293,6 +293,15 @@ was refused; 2 nothing written.
 A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_ATOM`, `MAP_UNKNOWN_ATOM`,
 `MAP_HASH`, `MAP_QUOTE_DRIFT`, `MAP_UNKNOWN_KIND` or `SCHEMA_*`.
 
+A scan with `--no-model` reads the references by code: every path the prose writes as a code span, a link
+destination, a quoted name or a loose token (in a sentence or a table cell), and every `@path` line of a standing
+file. An import that exists is loaded by the runtime and gives no reference; an import that does not exist is a
+`MISSING_REFERENCE`, and one written outside the estate (`~/x.md`) is an `EXTERNAL`. A map made before this
+read has no `producedBy`: `estate lint` cannot judge its references, prints `reference and orphan checks are off`,
+and reports no `ORPHAN` or `MISSING_REFERENCE` for it. Scan the estate again to turn them on. Script files name
+the modules they import (a Python `import` or `from ... import`, a JavaScript `import`, `export ... from` or
+`require` of a relative path), so a library module its importer names is not an orphan.
+
 `estate approve` prints `<map>: <n> of <total> atoms wait for approval.` with the list, or
 `Approved <n> atoms in <file>; <k> were already approved.`, or `<map>: all <n> atoms are approved.` Exit 0
 listed or approved, 1 an invalid map or an unknown kind or atom, 2 options that do not fit.
@@ -319,16 +328,17 @@ driftbench estate map approved.yaml --to space.yaml
 driftbench estate scan examples/estates/fixture --pointer --cassette examples/estates/fixture/cassette.jsonl --out ignored.yaml --ignore '**/references/old-*' # exit 1
 ```
 
-The first scan reads the structure only. The second reads the prose with the recorded labels of the fixture (no
+The first scan reads the structure and the references (the paths the prose writes), with no model. The second reads the prose with the recorded labels of the fixture (no
 key, no network): it exits 1 because some recorded answers were refused by the checks, and each is listed. What
 they print, in order (the scans and the approve listing are cut to their main lines; each command's full output
 is longer):
 
 ```text
-Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote structure.yaml: 59 atoms (59 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
   Atoms per kind:
     route        7
     skill        4
+    reference   12
     script       2
     subagent     3
     guard        6
@@ -337,6 +347,7 @@ Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
+  References: read by code from the code spans, links, quoted names and `@` imports of the prose.
 Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
   Atoms per kind:
     instruction   45  (45 by the model)

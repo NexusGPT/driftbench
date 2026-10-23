@@ -3,7 +3,8 @@ import type { RawEstate } from './reader';
 
 /**
  * Files that code names. A file that is not prose and holds a quoted file name names that file: a script that
- * is named reaches the files it holds. Separately, a script that WRITES or CREATES a path (an open for
+ * is named reaches the files it holds, and the files it imports (a Python or JavaScript import between script
+ * files names the module it loads). Separately, a script that WRITES or CREATES a path (an open for
  * writing, a redirect, a touch, a mkdir, a copy to it) makes that path a runtime product; a script that
  * only reads a path proves nothing about it. Prose is not read here (the prose scanner owns it).
  */
@@ -35,6 +36,76 @@ const WRITE_CALL = new RegExp(
 const SHELL_WRITE = /(?<![\w&>=-])\d?>>?\s*(?!&)["'$\w./~]|\b(?:tee|touch|mkdir|cp|mv|install)\b/;
 
 const BUILT = new WeakMap<RawEstate, CodeNames>();
+
+const PYTHON_FILE = /\.py$/i;
+const JS_FILE = /\.(?:js|jsx|mjs|cjs|ts|tsx|mts|cts)$/i;
+const JS_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts', '.json'];
+/** `import a.b as c, d` : the dotted names of an import statement. */
+const PY_IMPORT = /^[ \t]*import[ \t]+([^\n#;]+)/gm;
+/** `from a.b import c, d` and `from .. import c`: the module (leading dots for a relative one) and the names. */
+const PY_FROM = /^[ \t]*from[ \t]+(\.*[A-Za-z_][\w.]*|\.+)[ \t]+import[ \t]+\(?([^\n#;]*)/gm;
+/** A relative specifier of an `import ... from`, a bare `import`, an `export ... from`, a dynamic `import()` or a `require()`. */
+const JS_SPECIFIER =
+  /(?:\bfrom[ \t]*|\bimport[ \t]*\(?[ \t]*|\brequire[ \t]*\([ \t]*)(["'`])(\.{1,2}(?:\/[^"'`\n]*)?)\1/g;
+
+/** The existing estate files a Python or JavaScript file imports, by the module paths its import statements write. */
+export function importedFiles(file: { path: string; text: string }, paths: ReadonlySet<string>): string[] {
+  const folder = posix.dirname(file.path);
+  const found = new Set<string>();
+  const take = (candidates: readonly string[]): boolean => {
+    for (const candidate of candidates) {
+      const path = posix.normalize(candidate);
+      if (paths.has(path) && path !== file.path) {
+        found.add(path);
+        return true;
+      }
+    }
+    return false;
+  };
+  if (PYTHON_FILE.test(file.path)) {
+    const module = (base: string, dotted: string): string[] => {
+      const place = posix.join(base, ...dotted.split('.').filter(Boolean));
+      return [`${place}.py`, `${place}/__init__.py`];
+    };
+    for (const match of file.text.matchAll(PY_IMPORT))
+      for (const part of (match[1] ?? '').split(',')) {
+        const name = part.trim().split(/\s+as\s+/)[0] ?? '';
+        if (!/^[A-Za-z_][\w.]*$/.test(name)) continue;
+        for (const base of ancestors(folder)) if (take(module(base, name))) break;
+      }
+    for (const match of file.text.matchAll(PY_FROM)) {
+      const written = match[1] ?? '';
+      const dots = /^\.*/.exec(written)?.[0].length ?? 0;
+      const dotted = written.slice(dots);
+      const names = (match[2] ?? '')
+        .split(',')
+        .map((part) => part.trim().split(/\s+as\s+/)[0] ?? '')
+        .filter((name) => /^[A-Za-z_]\w*$/.test(name));
+      // A relative import starts at the file's own folder (one dot) or the folders above it; an absolute one is
+      // looked for from the file's folder and each folder above it, as a script finds a sibling module.
+      const bases =
+        dots > 0 ? [posix.join(folder, ...Array<string>(dots - 1).fill('..'))] : ancestors(folder);
+      for (const base of bases) {
+        let hit = dotted ? take(module(base, dotted)) : false;
+        for (const name of names) hit = take(module(base, dotted ? `${dotted}.${name}` : name)) || hit;
+        if (hit) break;
+      }
+    }
+  } else if (JS_FILE.test(file.path)) {
+    for (const match of file.text.matchAll(JS_SPECIFIER)) {
+      const place = posix.join(folder, match[2] ?? '');
+      const stem = place.replace(/\.(?:js|jsx|mjs|cjs)$/i, '');
+      take([
+        place,
+        ...JS_EXTENSIONS.map((extension) => `${place}${extension}`),
+        // TypeScript writes the compiled name: `./a.js` is `a.ts`.
+        ...(stem === place ? [] : JS_EXTENSIONS.map((extension) => `${stem}${extension}`)),
+        ...JS_EXTENSIONS.map((extension) => `${place}/index${extension}`),
+      ]);
+    }
+  }
+  return [...found];
+}
 
 /** A string as a file-like literal: no spaces, a separator or an extension, not a URL or an option. */
 function asLiteral(raw: string): string | undefined {
@@ -123,6 +194,7 @@ export function codeNames(raw: RawEstate): CodeNames {
         .find((candidate) => paths.has(candidate) && candidate !== file.path);
       if (hit) targets.add(hit);
     }
+    for (const hit of importedFiles(file, paths)) targets.add(hit);
     if (targets.size > 0) links.set(file.path, [...targets]);
   }
   const built = { links, written };

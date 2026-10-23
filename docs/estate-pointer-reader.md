@@ -365,7 +365,7 @@ The functions are `createLink(ledger, owner, span, relation, createdBy?)`, `clas
 |---|---|
 | `candidates.ts`, `clause-rule.ts` (grammar and word lists) | Removed. Structure cuts; a labeler labels. |
 | `prose.ts` (the model quotes text and writes evidence) | Replaced. The labeler returns names and numbers; code copies and builds evidence. |
-| `estate scan --no-model` code-found candidates | Structured atoms only, as before the candidate pass. Prose atoms need a cassette or a labeler. |
+| `estate scan --no-model` code-found candidates | Structured atoms, as before the candidate pass, and the references the prose writes as a path (code span, link, quoted name, `@` import), read by path syntax alone. Rules, gates and registers need a cassette or a labeler. |
 | Cache keyed on chunk text | Cassette keyed on the whole request; carry-forward by unit fingerprint. |
 | Atom ids from a slug of the title | The existing id scheme for atoms; the ledger id in `fields.unit` for tracking. |
 

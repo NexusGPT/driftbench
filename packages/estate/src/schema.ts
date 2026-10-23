@@ -304,6 +304,12 @@ export const EstateMap = z.strictObject({
     })
     .optional()
     .describe('Who proposed the model atoms; code atoms say producedBy: code on the atom itself'),
+  referenceReader: z
+    .literal('code')
+    .optional()
+    .describe(
+      'code when no model or pointer reader ran and code read the references of the prose; absent in a map a model or the pointer reader read, and in older maps',
+    ),
   hash: z.string().min(1).describe('SHA-256 over the sorted atom hashes and edges'),
 });
 export type EstateMap = z.infer<typeof EstateMap>;

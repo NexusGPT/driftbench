@@ -1208,7 +1208,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--labeler <class>:<client>[:<model>]` | `scan --pointer`: a labeler of class `system1` or `system2`; repeat it for one of each, the default stack |
 | `--labeler-threshold <p>`, `--labeler-pass-at <p>`, `--labeler-fail-at <p>`, `--labeler-margin-cut <m>`, `--labeler-key <variable>` | `scan --pointer`: the probability at which a yes or no system 1 labeler takes a label; in a stack, the margin between the two likeliest labels at which system 1 decides alone (default 0.65), or, when either probability bound is given, the two probabilities at which it decides alone; the variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--update`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids, writing it, and its check |
-| `--no-model` | `scan`: read the structured atoms only; no prose atom |
+| `--no-model` | `scan`: read the structured atoms and the references the prose writes; no prose atom |
 | `--provider <name>` | `scan`: `anthropic` or `openai`; default the first whose key is set |
 | `--ceiling <characters>` | `scan`, `lint`: the size ceiling of the standing instructions; default 40000 |
 | `--force` | `scan`, `plan`: replace an existing file, whose approvals are lost; `generate`: replace the output of an earlier run |
@@ -1236,10 +1236,11 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 59 atoms (59 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
   Atoms per kind:
     route        7
     skill        4
+    reference   12
     script       2
     subagent     3
     guard        6
@@ -1248,6 +1249,7 @@ Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approve
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
+  References: read by code from the code spans, links, quoted names and `@` imports of the prose.
   Prose: 15 chunks, 6961 characters (standing 1, memory 2, skill bodies 4, skill files 5, helper bodies 3).
   Unanswered prose chunks (no model call): 15, 6961 characters.
     CLAUDE.md  2782 characters
@@ -1256,8 +1258,8 @@ Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approve
     ...
   Refused: none.
   Ignored: none.
-  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
+  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md, .claude/skills/weekly-report/templates/report.md.
   Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```

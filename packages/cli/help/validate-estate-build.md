@@ -45,7 +45,7 @@ driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <nam
 | `--verbose` | off | print the full output of every command |
 | `--runtime <name>` | `claude-code` | the runtime that reads the estate |
 | `--replay <file>` | none | replay recorded answers instead of calling a model |
-| `--no-model` | off | read the structured atoms only; no prose atom |
+| `--no-model` | off | read the structured atoms and the references the prose writes; no prose atom |
 | `--provider <name>` | the first whose key is set | `anthropic` or `openai` |
 | `--ignore <glob>` | none | skip the paths this glob matches; repeat it |
 | `--pointer` | off | read the prose with the pointer reader and keep `ledger.json` in the folder |
