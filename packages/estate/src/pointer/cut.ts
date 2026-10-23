@@ -302,11 +302,12 @@ type Node = {
  */
 function remarkBlockSyntax(this: Processor) {
   const data = this.data() as Record<string, unknown[] | undefined>;
-  (data.micromarkExtensions ??= []).push(
-    { flow: directive().flow },
-    { flow: math({ singleDollarTextMath: false }).flow },
-  );
-  (data.fromMarkdownExtensions ??= []).push(directiveFromMarkdown(), mathFromMarkdown());
+  const syntax = data.micromarkExtensions ?? [];
+  const fromMarkdown = data.fromMarkdownExtensions ?? [];
+  syntax.push({ flow: directive().flow }, { flow: math({ singleDollarTextMath: false }).flow });
+  fromMarkdown.push(directiveFromMarkdown(), mathFromMarkdown());
+  data.micromarkExtensions = syntax;
+  data.fromMarkdownExtensions = fromMarkdown;
 }
 
 const PROCESSOR = unified()
