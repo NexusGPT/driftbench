@@ -28,7 +28,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
-import { isUserLayerPath, USER_LAYER } from './reader';
+import { isUserLayerPath } from './reader';
 import { dispatchedScript } from './script-dispatch';
 import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
@@ -186,7 +186,10 @@ export class ClaudeCodeReader implements EstateReader {
     const rootReferences = [
       ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
       ...raw.notes
-        .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
+        .filter(
+          (note) =>
+            note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file, raw.userLayer?.label),
+        )
         .map((note) => note.file),
     ];
     return [
@@ -283,10 +286,11 @@ export class ClaudeCodeReader implements EstateReader {
     };
     const where = userFolderOf(this.userSkills, config, root);
     if (where !== undefined) {
-      const layer = await readUserLayer(where, files, root, ignored);
+      const label = userLabelOf(where, root);
+      const layer = await readUserLayer(where, label, files, root, ignored);
       files.push(...layer.files);
       estate.notes.push(...layer.notes);
-      estate.userLayer = { read: layer.read, shadowed: layer.shadowed };
+      estate.userLayer = { read: layer.read, shadowed: layer.shadowed, label };
     }
     for (const file of files) {
       if (!isNormative(file)) continue;
@@ -629,6 +633,20 @@ function userFolderOf(option: string | undefined, config: EstateConfig, root: st
   return resolve(option !== undefined ? process.cwd() : root, home);
 }
 
+/**
+ * The name the layer's folder goes by in the paths of a map: the path from the estate root when the folder is
+ * inside the estate, else the path from the home folder as `~/...`, else the folder itself. The usual
+ * `~/.claude/skills` is `USER_LAYER`, whatever the home folder is, so a map holds no private path there.
+ */
+function userLabelOf(folder: string, root: string): string {
+  const inside = relative(resolve(root), folder).split(sep).join('/');
+  if (inside !== '' && inside !== '..' && !inside.startsWith('../') && !isAbsolute(inside)) return inside;
+  const home = relative(homedir(), folder).split(sep).join('/');
+  if (home === '') return '~';
+  if (home !== '..' && !home.startsWith('../') && !isAbsolute(home)) return `~/${home}`;
+  return folder.split(sep).join('/');
+}
+
 /** A name a folder listing skips: hidden (a repository, an archive) or a dependency folder. */
 const hiddenInLayer = (name: string) => name.startsWith('.') || name === 'node_modules';
 /** The folder a desktop keeps what a user threw away. It is never a container of skills, whatever its case. */
@@ -643,6 +661,7 @@ const trashFolder = (name: string) => name.toLowerCase() === 'trash';
  */
 async function readUserLayer(
   folder: string,
+  label: string,
   project: readonly EstateFile[],
   root: string,
   ignored: Ignored,
@@ -657,7 +676,7 @@ async function readUserLayer(
     a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
   const listing = await readdir(folder, { withFileTypes: true }).catch(() => undefined);
   if (!listing) {
-    out.notes.push({ file: USER_LAYER, message: 'not found: the user skill folder cannot be read' });
+    out.notes.push({ file: label, message: 'not found: the user skill folder cannot be read' });
     return out;
   }
   const isFolder = async (path: string) => (await stat(path).catch(() => undefined))?.isDirectory() === true;
@@ -700,7 +719,7 @@ async function readUserLayer(
     );
     const declared = readFrontmatter(text).fields.name;
     const name = typeof declared === 'string' ? declared : basename(rel);
-    const place = `${USER_LAYER}/${rel}`;
+    const place = `${label}/${rel}`;
     if (names.has(name)) {
       out.shadowed.push(name);
       out.notes.push({
@@ -717,7 +736,7 @@ async function readUserLayer(
       text: (await readFile(join(folder, path), 'utf8')).replace(/^\uFEFF/, ''),
     }));
     for (const { path, text: body } of loaded) {
-      const file: EstateFile = { path: `${USER_LAYER}/${path}`, text: body, kind: 'other', layer: 'user' };
+      const file: EstateFile = { path: `${label}/${path}`, text: body, kind: 'other', layer: 'user' };
       if (body.trim() === '') out.notes.push({ file: file.path, message: 'empty file: nothing to read' });
       else {
         file.kind = path === `${rel}/SKILL.md` ? 'skill' : 'skill_file';
@@ -727,7 +746,7 @@ async function readUserLayer(
     }
   }
   for (const note of walkNotes)
-    if (note.message !== FOLLOWED_NOTE) out.notes.push({ ...note, file: `${USER_LAYER}/${note.file}` });
+    if (note.message !== FOLLOWED_NOTE) out.notes.push({ ...note, file: `${label}/${note.file}` });
   return out;
 }
 

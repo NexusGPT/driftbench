@@ -1,4 +1,4 @@
-import { type EstateFile, type FileKind, isUserLayerPath } from '../scan/reader';
+import type { EstateFile, FileKind } from '../scan/reader';
 import type { Atom, Edge } from '../schema';
 
 /**
@@ -16,9 +16,9 @@ import type { Atom, Edge } from '../schema';
  * - orphans: files nothing names.
  * - unenforced: instruction, gate and register atoms no guard enforces.
  *
- * The user-level skill layer feeds the walk (its skills, rules and references are atoms of the graph) but is no
- * part of the project: its files are never listed as orphans or unreachable, and its missing references and
- * scripts are not findings of the project.
+ * The user-level skill layer is part of the walk and of the checks: its skills, rules and references are atoms of
+ * the graph, and its files are orphans or unreachable, and its missing references and scripts findings, as
+ * the files of a project skill are.
  */
 
 const WALK: ReadonlySet<Edge['kind']> = new Set([
@@ -152,14 +152,11 @@ export function analyzeGraph(
           }
   }
 
-  const orphans = files
-    .filter((file) => file.layer !== 'user' && !namedFiles.has(file.path))
-    .map((file) => file.path);
+  const orphans = files.filter((file) => !namedFiles.has(file.path)).map((file) => file.path);
   const orphanSet = new Set(orphans);
   const unreachableFiles = files
     .filter(
       (file) =>
-        file.layer !== 'user' &&
         file.kind !== 'registry' &&
         !reachableFiles.has(file.path) &&
         !orphanSet.has(file.path) &&
@@ -177,20 +174,12 @@ export function analyzeGraph(
       .filter((atom) => RULE_KINDS.has(atom.kind) && atom.enforcement.length === 0)
       .map((atom) => atom.id),
     missingReferences: atoms
-      .filter(
-        (atom) =>
-          atom.kind === 'reference' &&
-          atom.fields?.exists === false &&
-          !isUserLayerPath(atom.provenance.file),
-      )
+      .filter((atom) => atom.kind === 'reference' && atom.fields?.exists === false)
       .map((atom) => atom.id),
     missingScripts: atoms
       .filter(
         (atom) =>
-          atom.kind === 'guard' &&
-          typeof atom.fields?.script === 'string' &&
-          !kinds.has(atom.fields.script) &&
-          !isUserLayerPath(atom.provenance.file),
+          atom.kind === 'guard' && typeof atom.fields?.script === 'string' && !kinds.has(atom.fields.script),
       )
       .map((atom) => atom.id),
   };

@@ -124,7 +124,7 @@ export async function mutateEstate(
     );
   }
   const { file, startLine, endLine, quote } = atom.provenance;
-  if (isUserLayerPath(file))
+  if (isUserLayerPath(file, typeof copy.map.userSkills === 'string' ? copy.map.userSkills : undefined))
     throw new MutantError(
       `${id} is read from the user-level skill layer (${file}), which an estate copy does not hold; no mutant is written`,
     );

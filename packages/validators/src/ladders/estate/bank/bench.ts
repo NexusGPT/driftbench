@@ -13,6 +13,7 @@ import { namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { type Case, judgeCase, standardSkill } from './hostile';
 import { BASE } from './planted';
+import { userCases } from './scan-user';
 
 /**
  * bench.defects: the defects a model-free bench run found on a real estate, turned into items on fictional
@@ -658,6 +659,7 @@ export function benchFamily(): Family {
     ...ignoredCases(),
     ...ambiguousCases(),
     ...registryCases(),
+    ...userCases(),
     longTable('long-routing-table', 3, 400, false),
     longTable('long-routing-table-lint', 3, 400, true),
   ];

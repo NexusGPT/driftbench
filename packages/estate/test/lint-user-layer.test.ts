@@ -27,8 +27,8 @@ const skill = (name: string, body: string) =>
 const layered = () =>
   new ClaudeCodeReader({ userSkills: join(process.env.HOME as string, '.claude/skills') });
 
-describe('the lint reports on the project, not on the user-level skill layer', () => {
-  it('lists the orphans and unreachable files of the project and none of the layer', async () => {
+describe('the lint checks the user-level skill layer as it checks the project', () => {
+  it('lists the orphans and unreachable files of the layer with those of the project', async () => {
     process.env.HOME = await home({
       '.claude/skills/pier-notes/SKILL.md': skill('pier-notes', 'Read `references/tides.md` first.\n'),
       '.claude/skills/pier-notes/references/tides.md': '# Tides\nRead `references/gone.md`.\n',
@@ -48,11 +48,14 @@ describe('the lint reports on the project, not on the user-level skill layer', (
     const lint = lintEstate(map, raw);
     expect(lint.findings.map((finding) => [finding.code, finding.subject])).toEqual([
       ['ORPHAN', '.claude/skills/dock-roster/assets/loose.md'],
+      ['ORPHAN', '~/.claude/skills/pier-notes/assets/loose.md'],
+      ['ORPHAN', '~/.claude/skills/pier-notes/references/tides.md'],
       ['UNREACHABLE', '.claude/skills/dock-roster/SKILL.md'],
+      ['UNREACHABLE', '~/.claude/skills/pier-notes/SKILL.md'],
     ]);
   });
 
-  it('keeps the invariants of the project whatever the layer holds', async () => {
+  it('counts the files of the layer in the invariant that no file is an orphan', async () => {
     process.env.HOME = await home({
       '.claude/skills/pier-notes/SKILL.md': skill('pier-notes', '# Pier\n'),
       '.claude/skills/pier-notes/assets/loose.md': '# A file nothing names\n',
@@ -64,7 +67,7 @@ describe('the lint reports on the project, not on the user-level skill layer', (
       now: NOW,
     });
     const orphans = map.atoms.find((atom) => atom.fields?.check === 'no_orphans');
-    expect(orphans?.fields?.orphans).toEqual([]);
-    expect(orphans?.fields?.holds).toBe(true);
+    expect(orphans?.fields?.orphans).toEqual(['~/.claude/skills/pier-notes/assets/loose.md']);
+    expect(orphans?.fields?.holds).toBe(false);
   });
 });
