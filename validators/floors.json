@@ -1,18 +1,27 @@
 {
   "version": 2,
   "ladderVersion": {
+    "generator": 3,
     "judges": 2,
     "map": 2,
     "stats": 4,
     "system": 5
   },
   "floors": {
+    "generator": 8,
     "judges": 20,
     "map": 8,
     "stats": 3,
     "system": 9
   },
   "evidence": {
+    "generator": {
+      "level": 8,
+      "seeds": ["1", "2", "3", "hidden"],
+      "hiddenSeed": 727268607,
+      "head": "2b49fabf9dc746775957d201582d57f86f6b7b1a",
+      "ladderVersion": 3
+    },
     "judges": {
       "level": 20,
       "seeds": ["1", "2", "3", "hidden"],

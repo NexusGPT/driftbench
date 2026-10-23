@@ -73,15 +73,16 @@ $ ln -s examples/../packages packages
 $ ln -s examples/../validators validators
 $ ln -s examples/../pnpm-workspace.yaml pnpm-workspace.yaml
 $ driftbench validate floors
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
+Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 **How to read it.**
 
 - `judges = 20 (ladder version 2)`: the judges ladder has 20 levels. The floor is the top: every level must pass on every seed.
 - `stats = 3 (ladder version 4)`: the statistics ladder has 8 levels. The floor is 3. Level 4 and above hold items that do not all pass yet.
+- `generator = 8 (ladder version 3)`: the generator ladder has 23 levels. The floor is 8, held on the gate seeds. Higher levels hold items that do not all pass yet.
 - A **ladder version** names the set of items. When the items are rebuilt, the ladder gets a new version and starts a new floor. A floor belongs to one version.
-- A validator that is missing from the line has no floor yet. The generator and the estate validators are in that case.
+- A validator that is missing from the line has no floor yet. The estate validator is in that case.
 
 **If it goes wrong.**
 
@@ -250,7 +251,7 @@ What it does not prove:
 
 - A validator checks the property its items test. It says nothing about a property no item tests.
 - The ladders contain no model. They do not measure how accurate a real judge is. Calibration against hand labels does that (previous part).
-- Some ladders have no floor yet, such as the generator and the estate. No pass rate is quoted for a suite until it passes an independent audit (source: `docs/comparison/methods.md`).
+- Some ladders have no floor yet, such as the estate. No pass rate is quoted for a suite until it passes an independent audit (source: `docs/comparison/methods.md`).
 - A statistics floor of 3 of 8 says that levels 1 to 3 hold. It does not say that the levels above do.
 - A planted fault stands for a kind of mistake. A real agent can fail in a way no fault in the set plants.
 
