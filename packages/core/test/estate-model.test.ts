@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   compileGlob,
+  coveringType,
   matchGlob,
   parseFieldRead,
   parseJsonPath,
@@ -307,5 +308,63 @@ describe('types documents', () => {
       options(),
     );
     expect(twice.ok ? '' : twice.errors[0]?.code).toBe('not-parsed');
+  });
+});
+
+describe('which type covers a file', () => {
+  const set = (() => {
+    const parsed = parseTypes(
+      {
+        version: 1,
+        types: {
+          table: {
+            root: 'layout',
+            locate: 'tables/*.json',
+            shape: 'table',
+            aspects: ['indexes'],
+            loaded: 'by-reference',
+          },
+          bundle: {
+            root: 'layout',
+            locate: 'bundles/*/',
+            entry: 'BUNDLE.json',
+            shape: 'table',
+            contains: ['bundle-file'],
+            aspects: ['informs'],
+            loaded: 'on-demand',
+          },
+          'bundle-file': { locate: 'files/**', aspects: ['informs'], loaded: 'by-reference' },
+          servers: {
+            root: 'project',
+            locate: '.servers.json#$.servers.*',
+            aspects: ['acts'],
+            loaded: 'always',
+          },
+        },
+      },
+      { runtime: 'test-runtime', roots: ROOTS, source: 'profile:test' },
+    );
+    if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+    return parsed.set;
+  })();
+  const has = (shape: string) => shape === 'table';
+  const hasNot = () => false;
+
+  it('covers a file a glob matches only when the file has the type shape', () => {
+    expect(coveringType(set, '.agent/tables/a.json', has)).toBe('table');
+    expect(coveringType(set, '.agent/tables/a.json', hasNot)).toBeUndefined();
+    expect(coveringType(set, '.agent/tables/a.json')).toBeUndefined();
+  });
+
+  it('covers the entry of a folder part only when it has the shape, and the files a contained type locates', () => {
+    expect(coveringType(set, '.agent/bundles/x/BUNDLE.json', has)).toBe('bundle');
+    expect(coveringType(set, '.agent/bundles/x/BUNDLE.json', hasNot)).toBeUndefined();
+    expect(coveringType(set, '.agent/bundles/x/files/a/b.txt', hasNot)).toBe('bundle');
+    expect(coveringType(set, '.agent/bundles/x/notes.txt', has)).toBeUndefined();
+  });
+
+  it('covers the file an entry locator reads, and nothing outside every root', () => {
+    expect(coveringType(set, '.servers.json')).toBe('servers');
+    expect(coveringType(set, 'elsewhere/a.json', has)).toBeUndefined();
   });
 });

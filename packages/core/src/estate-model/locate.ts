@@ -98,7 +98,11 @@ export function coveringType(
       if (!child) continue;
       if (fileGlobsMatch(child, inner) && shaped(child)) return true;
       const holder = folderOf(child, inner);
-      if (holder && (holder.inner === child.entry || inside(child, holder.inner, depth + 1))) return true;
+      if (
+        holder &&
+        ((holder.inner === child.entry && shaped(child)) || inside(child, holder.inner, depth + 1))
+      )
+        return true;
     }
     return false;
   };
@@ -108,7 +112,8 @@ export function coveringType(
     if (relative === undefined) continue;
     if (fileGlobsMatch(type, relative) && shaped(type)) return type.name;
     const holder = folderOf(type, relative);
-    if (holder && (holder.inner === type.entry || inside(type, holder.inner, 0))) return type.name;
+    if (holder && ((holder.inner === type.entry && shaped(type)) || inside(type, holder.inner, 0)))
+      return type.name;
   }
   return undefined;
 }
