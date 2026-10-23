@@ -1295,3 +1295,84 @@ ${atomBody}
     ]);
   });
 });
+
+describe('the clause a hazard names inside its ask', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const CASES = [
+    {
+      kind: 'reread-self',
+      line: '- After a compaction, re-read this file before you continue.',
+      ask: 're-read this file before you continue',
+      clause: 're-read this file',
+      option: { rereadSelf: true },
+    },
+    {
+      kind: 'reread-other',
+      line: '- After a compaction, re-read the open tracker note before you continue.',
+      ask: 're-read the open tracker note before you continue',
+      clause: 'the open tracker note',
+      option: { unpathed: ['the open tracker note'] },
+    },
+    {
+      kind: 'retry',
+      line: '- After a compaction, re-read this file and try the request again.',
+      ask: 're-read this file and try the request again',
+      clause: 'try the request again',
+      option: { retry: true },
+    },
+  ];
+
+  for (const { kind, line, ask, clause, option } of CASES) {
+    for (const order of ['ask first', 'clause first']) {
+      it(`keeps the ${kind} span and the ask, ${order}`, async () => {
+        const spans = [
+          { kind: 'ask-text', text: ask },
+          { kind, text: clause },
+        ];
+        const { result } = await scan(
+          {
+            'CLAUDE.md': [
+              {
+                units: '2',
+                label: 'hazard-compaction',
+                spans: order === 'ask first' ? spans : spans.reverse(),
+              },
+            ],
+          },
+          { sets },
+          { 'CLAUDE.md': ['# Office', '', line, ''].join('\n') },
+        );
+        expect(result.pointer?.dropped ?? []).toEqual([]);
+        const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+        expect(hazard?.fields?.ask).toMatchObject({ text: ask });
+        expect(hazard?.evidence).toContainEqual(
+          expect.objectContaining({
+            name: 'hazard_recovery',
+            options: expect.objectContaining(option),
+          }),
+        );
+      });
+    }
+  }
+
+  it('still drops a clause that overlaps the ask without lying inside it', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'hazard-compaction',
+            spans: [
+              { kind: 'ask-text', text: 're-read this file' },
+              { kind: 'retry', text: 'file and try the request again' },
+            ],
+          },
+        ],
+      },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', CASES[2]?.line, ''].join('\n') },
+    );
+    expect(result.pointer?.dropped).toEqual([expect.stringContaining('overlaps another span')]);
+  });
+});
