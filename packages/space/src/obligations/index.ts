@@ -6,4 +6,5 @@ export {
   type SoleHolders,
   soleHolders,
 } from './holders';
-export { type ObligationKind, RULINGS, type Rulings, rulingsHash } from './rulings';
+export { type ObligationKind, RULINGS, type Rulings, rulingsHash, type ValidityRule } from './rulings';
+export { type CutVerdict, type SuiteChange, SuiteIndex, type TestBlockRef } from './suite-index';

@@ -443,3 +443,17 @@ A system sweep can invoke the statistics validator repeatedly with the same code
 The cache ends with the system command. A standalone statistics command runs fresh. Uncommitted changes to the statistics package or its validator disable reuse. Cached reports are copied before returning them, so a consumer cannot change another item's result.
 
 To record cache evidence, set `DRIFTBENCH_STATS_SWEEP_LOG` to a local JSONL file path. Each fresh or cached result records its key and the SHA-256 of its report. Equal fresh and cached hashes prove the reports match. This log does not change command output or bank items. State the cache use and the completed seeds in the measurement report; a partial sweep does not prove unmeasured seeds.
+
+### Generated CI layout
+
+`node --import tsx tools/ci/layout.mjs --write` regenerates `.github/workflows/validators.yml`,
+`packages/validators/test/protect.test.ts` and `packages/validators/src/protect.ts`. The `generated CI layout`
+check compares every byte on pushes and pull requests. Run `--check` to check without writing.
+
+The generator reads the registered ladder definitions, version-matched floors and regression seeds. Scheduling
+cut points use level ids: generator `gate`, `faults` and `interactions`; system `recovery`, `variance` and `replay`.
+The generator's floor slices retain the diagnostic block through `faults` and extend when its floor rises; tail
+legs run each level from `interactions` (or above the floor) through the declared top. System slices cover every
+level through its declared top. Seeds remain 1, 2, 3 and hidden; stats gating remains on Node 22. Templates under
+`tools/ci/layout-templates` hold only static policy and text plus substitution slots; edit those when changing
+policy, regenerate, and obtain independent review. Executor branches cannot edit the generator or its templates.

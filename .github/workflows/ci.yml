@@ -33,6 +33,29 @@ concurrency:
 # (the checkpoint) run Node 22 and 24, so Node 22 is proven before every public release. A train or release/next pull
 # request and a dispatch run Node 24 only, to spend fewer runner minutes. Each of the four jobs carries the same expression.
 jobs:
+  ci-layout:
+    name: generated CI layout
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',ci-layout,') || contains(format(',{0},', inputs.jobs), ',fast,')))
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Committed workflow and protect guards equal their declarations
+        run: node --import tsx tools/ci/layout.mjs --check
+
   pr-fast:
     name: pr fast
     # A pull request runs it. A merge train also dispatches it alone on a pre-flight branch (train/pre-<pr>,
