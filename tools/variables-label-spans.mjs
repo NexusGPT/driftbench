@@ -137,11 +137,13 @@ let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
 
-// The most a request can add to the spend, known before it is sent: its input priced at one token per two bytes of the
-// body (a bound that errs high: a token holds more than two bytes of ordinary text, so the real count is lower) plus the
-// whole of its max_tokens priced as output. A request whose worst case would cross a cap is refused before it is sent,
-// so the spend can stop under the cap and not just after it. The real usage the response reports is what is summed.
-const INPUT_TOKENS_PER_BYTE = 0.5;
+// The most a request can add to the spend, known before it is sent: its input priced at one token per UTF-8 byte of
+// the body plus the whole of its max_tokens priced as output. A token never covers less than one byte of the text, so the
+// bytes bound the input tokens from above; one token per two bytes was tried and errs low on JSON bodies (a 32,978-byte
+// request counted 30,920 input tokens on the provider's free count_tokens endpoint). A request whose worst case would
+// cross a cap is refused before it is sent, so the spend can stop under the cap and not just after it. The real usage the
+// response reports is what is summed.
+const INPUT_TOKENS_PER_BYTE = 1;
 function refuseIfItCouldCross(body, what) {
   const bytes = Buffer.byteLength(JSON.stringify(body), 'utf8');
   const worst = (bytes * INPUT_TOKENS_PER_BYTE * rateIn + body.max_tokens * rateOut) / 1e6;
