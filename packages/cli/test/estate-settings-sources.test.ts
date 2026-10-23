@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   atomsOf,
   cli,
@@ -14,6 +14,9 @@ import {
   title,
   type Variant,
 } from './support/estate-variants';
+
+// Each test scans or builds an estate: on a loaded runner that takes longer than the default 5 seconds.
+vi.setConfig({ testTimeout: 120_000 });
 
 /**
  * Where an estate's settings come from, and what a check does when they were not read. Rules, over roles

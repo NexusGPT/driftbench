@@ -1,8 +1,11 @@
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
+
+// Each test scans or builds an estate: on a loaded runner that takes longer than the default 5 seconds.
+vi.setConfig({ testTimeout: 120_000 });
 
 async function run(argv: string[], cwd: string) {
   const output = { out: '', err: '' };
