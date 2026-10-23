@@ -129,7 +129,7 @@ describe('scale.100x.time on a runner of any speed', () => {
     expect(verdict.pass, verdict.detail).toBe(true);
     expect(verdict.detail).toContain('on 600 behaviours, the same workload for every seed');
     expect(verdict.detail).toContain('(median of 5, from 240 to 281 ms)');
-    expect(verdict.detail).toContain('by about 15 percent');
+    expect(verdict.detail).toContain('by up to about 40 percent between seeds');
   });
 
   it('prints no median for a report without a list of calibrations', async () => {
