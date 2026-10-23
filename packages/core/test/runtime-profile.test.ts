@@ -36,6 +36,21 @@ describe('runtime profiles', () => {
     expect(() => registerRuntimeProfile(other)).toThrow(/already registered/);
   });
 
+  it('declares the second sources of a runtime, and refuses a source that names an unknown type', () => {
+    expect(CLAUDE_CODE_PROFILE.sources.user).toEqual({
+      option: 'userSkills',
+      types: ['skill', 'skill-reference', 'skill-script', 'skill-file'],
+      label: '~/.claude/skills',
+    });
+    const broken: RuntimeProfile = {
+      ...CLAUDE_CODE_PROFILE,
+      name: 'profile-test-broken-source',
+      sources: { shared: { option: 'sharedKit', types: ['skill', 'no-such-type'], label: '~/.kit' } },
+    };
+    expect(() => registerRuntimeProfile(broken)).toThrow(/unknown type no-such-type/);
+    expect(runtimeProfile('profile-test-broken-source')).toBeUndefined();
+  });
+
   it('matches a path behind a variable, loose or with balanced braces', () => {
     const loose = variablePrefix(['CLAUDE_PROJECT_DIR', 'PWD']);
     expect(loose.test('$CLAUDE_PROJECT_DIR/a')).toBe(true);

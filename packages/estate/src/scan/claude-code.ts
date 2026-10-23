@@ -15,12 +15,13 @@ import {
   readFile,
   realpath,
   sameName,
+  sourceLabel,
   stat,
   statSpelled,
 } from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
 import { DocumentRole } from '../schema';
-import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
+import { chunkLines, fileNames, guardName, locateNamed, namedPaths, sourcesOf } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
 import { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
@@ -32,6 +33,7 @@ import type {
   CheckDecl,
   EstateFile,
   EstateReader,
+  FileKind,
   GuardDecl,
   PermissionDecl,
   ProseChunk,
@@ -44,7 +46,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
-import { isUserLayerPath, USER_LAYER } from './reader';
+import { isUserLayerPath } from './reader';
 import { dispatchedScript } from './script-dispatch';
 import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
@@ -77,6 +79,9 @@ const LAYOUT = PROFILE.layout.root;
 const typesOfKind = (kind: string): PartType[] =>
   PROFILE.types.types.filter((type) => PROFILE.mapKinds[type.name] === kind);
 /** The entry file of a skill folder: the entry of the type the profile maps to skills. */
+/** The map kinds of the entry file of a skill and of the other files of one, from the profile's mapped types. */
+const SKILL_KIND = (PROFILE.mapKinds.skill ?? 'skill') as FileKind;
+const SKILL_FILE_KIND = (PROFILE.mapKinds['skill-file'] ?? 'skill_file') as FileKind;
 const SKILL_ENTRY = (() => {
   const entry = typesOfKind('skill')[0]?.entry;
   if (entry === undefined)
@@ -214,7 +219,10 @@ export class ClaudeCodeReader implements EstateReader {
     const rootReferences = [
       ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
       ...raw.notes
-        .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
+        .filter(
+          (note) =>
+            note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file, raw.userLayer?.label),
+        )
         .map((note) => note.file),
     ];
     return [
@@ -309,10 +317,11 @@ export class ClaudeCodeReader implements EstateReader {
     };
     const where = userFolderOf(this.userSkills, config, root);
     if (where !== undefined) {
-      const layer = await readUserLayer(where, files, root, ignored);
+      const label = sourceLabel(root, where);
+      const layer = await readUserLayer(where, label, files, root, ignored);
       files.push(...layer.files);
       estate.notes.push(...layer.notes);
-      estate.userLayer = { read: layer.read, shadowed: layer.shadowed };
+      estate.userLayer = { read: layer.read, shadowed: layer.shadowed, label };
     }
     for (const file of files) {
       if (!isNormative(file)) continue;
@@ -384,6 +393,7 @@ async function readRootReferences(
   const proseFiles = new Set(estate.prose.map((chunk) => chunk.file));
   const expanded = new Set<string>();
   const unitNames = new Set([...estate.skills, ...estate.subagents].map((unit) => unit.name));
+  const sources = sourcesOf(estate);
   // Many lines name the same file: each path is looked up on disk once, against the listing, in exact case.
   const listings: Listings = new Map();
   const isFile = new Map<string, Promise<boolean>>();
@@ -432,10 +442,13 @@ async function readRootReferences(
           ...(estate.bases ? { bases: estate.bases } : {}),
           ...(estate.aliases ? { aliases: estate.aliases } : {}),
           ...(!imported && estate.externals ? { externals: estate.externals } : {}),
+          sources,
         });
         if (placeholder) files.delete(name);
         if (localPlaceholder) files.delete(local);
         const path = posix.normalize(target.path);
+        // A second source's files are all read already, under its name: nothing is probed on the disk for them.
+        if (sources.some((label) => path === label || path.startsWith(`${label}/`))) continue;
         if (
           target.candidates ||
           target.via === 'external' ||
@@ -698,6 +711,7 @@ const trashFolder = (name: string) => sameName(name, 'trash');
  */
 async function readUserLayer(
   folder: string,
+  label: string,
   project: readonly EstateFile[],
   root: string,
   ignored: Ignored,
@@ -712,7 +726,7 @@ async function readUserLayer(
     a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
   const listing = await readdir(folder, { withFileTypes: true }).catch(() => undefined);
   if (!listing) {
-    out.notes.push({ file: USER_LAYER, message: 'not found: the user skill folder cannot be read' });
+    out.notes.push({ file: label, message: 'not found: the user skill folder cannot be read' });
     return out;
   }
   const isFolder = async (path: string) => (await stat(path).catch(() => undefined))?.isDirectory() === true;
@@ -755,7 +769,7 @@ async function readUserLayer(
     );
     const declared = readFrontmatter(text).fields.name;
     const name = typeof declared === 'string' ? declared : basename(rel);
-    const place = `${USER_LAYER}/${rel}`;
+    const place = `${label}/${rel}`;
     if (names.has(name)) {
       out.shadowed.push(name);
       out.notes.push({
@@ -772,17 +786,17 @@ async function readUserLayer(
       text: (await readFile(join(folder, path), 'utf8')).replace(/^\uFEFF/, ''),
     }));
     for (const { path, text: body } of loaded) {
-      const file: EstateFile = { path: `${USER_LAYER}/${path}`, text: body, kind: 'other', layer: 'user' };
+      const file: EstateFile = { path: `${label}/${path}`, text: body, kind: 'other', layer: 'user' };
       if (body.trim() === '') out.notes.push({ file: file.path, message: 'empty file: nothing to read' });
       else {
-        file.kind = path === `${rel}/${SKILL_ENTRY}` ? 'skill' : 'skill_file';
+        file.kind = path === `${rel}/${SKILL_ENTRY}` ? SKILL_KIND : SKILL_FILE_KIND;
         file.owner = name;
       }
       out.files.push(file);
     }
   }
   for (const note of walkNotes)
-    if (note.message !== FOLLOWED_NOTE) out.notes.push({ ...note, file: `${USER_LAYER}/${note.file}` });
+    if (note.message !== FOLLOWED_NOTE) out.notes.push({ ...note, file: `${label}/${note.file}` });
   return out;
 }
 

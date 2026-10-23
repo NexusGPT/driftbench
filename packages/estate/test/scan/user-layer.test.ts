@@ -129,7 +129,7 @@ describe('the user-level skill layer is a second skill layer', () => {
       pointer: structurePointer(),
     });
     expect(skillNames(map)).toEqual(['dock-roster', 'own']);
-    expect(raw.userLayer).toEqual({ read: ['own'], shadowed: [] });
+    expect(raw.userLayer).toEqual({ read: ['own'], shadowed: [], label: USER_LAYER });
     expect(raw.notes.filter((note) => note.message.includes('duplicate'))).toEqual([]);
   });
 
@@ -218,7 +218,7 @@ describe('the folder of the user layer is configurable', () => {
   it('records in the map that a layer was read', async () => {
     process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
     const { map } = await scan({ 'CLAUDE.md': '# Standing\n' });
-    expect(map.userSkills).toBe(true);
+    expect(map.userSkills).toBe(USER_LAYER);
   });
 
   it('reads a relative reader option from the working folder, and a relative configuration folder from the estate', async () => {
@@ -261,7 +261,7 @@ describe('the folder of the user layer is configurable', () => {
       new ClaudeCodeReader(),
     );
     expect(skillNames(named.map)).toEqual(['shared-one']);
-    expect(named.map.userSkills).toBe(true);
+    expect(named.map.userSkills).toBe('team-skills');
   });
 
   it('notes a configuration value that is not a folder and reads no layer', async () => {
@@ -276,14 +276,41 @@ describe('the folder of the user layer is configurable', () => {
 
   it('notes a folder that was named and cannot be read', async () => {
     process.env.HOME = await mkdtemp(join(tmpdir(), 'driftbench-empty-home-'));
-    const named = await scan(
-      { 'CLAUDE.md': '# Standing\n' },
-      new ClaudeCodeReader({ userSkills: join(tmpdir(), 'driftbench-no-such-folder') }),
-    );
+    const missing = join(tmpdir(), 'driftbench-no-such-folder');
+    const named = await scan({ 'CLAUDE.md': '# Standing\n' }, new ClaudeCodeReader({ userSkills: missing }));
     expect(named.raw.notes).toContainEqual({
-      file: USER_LAYER,
+      file: missing,
       message: expect.stringContaining('cannot be read'),
     });
+  });
+
+  it('names the layer by the folder it was read in: inside the estate, under the home folder, elsewhere', async () => {
+    const own = await home({ '.agents/skills/home-one/SKILL.md': skill('home-one') });
+    process.env.HOME = own;
+    const elsewhere = await home({ 'shared/out-one/SKILL.md': skill('out-one') });
+    const root = await estate({
+      'CLAUDE.md': '# Standing\n',
+      'team/inside-one/SKILL.md': skill('inside-one'),
+    });
+    const forms: Array<[folder: string, label: string, skill: string]> = [
+      [join(root, 'team'), 'team', 'inside-one'],
+      [join(own, '.agents/skills'), '~/.agents/skills', 'home-one'],
+      [join(elsewhere, 'shared'), join(elsewhere, 'shared'), 'out-one'],
+    ];
+    for (const [folder, label, name] of forms) {
+      const { map, raw } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader({ userSkills: folder }),
+        now: NOW,
+        pointer: structurePointer(),
+      });
+      expect(raw.userLayer?.label).toBe(label);
+      expect(map.userSkills).toBe(label);
+      const atom = map.atoms.find(
+        (candidate) => candidate.kind === 'skill' && candidate.fields?.name === name,
+      );
+      expect(atom?.provenance.file).toBe(`${label}/${name}/SKILL.md`);
+    }
   });
 
   it('keeps the layer out of the files a copy of the project needs', async () => {

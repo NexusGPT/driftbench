@@ -33,6 +33,13 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
   types: TYPES,
   mapKinds: CLAUDE_CODE_MAP_KINDS,
   shapes: SHAPES,
+  sources: {
+    user: {
+      option: 'userSkills',
+      types: ['skill', 'skill-reference', 'skill-script', 'skill-file'],
+      label: '~/.claude/skills',
+    },
+  },
   layout: { root: '.claude', extraFiles: ['.mcp.json'] },
   standing: { rootFiles: ['CLAUDE.md', 'CLAUDE.local.md'], primary: 'CLAUDE.md' },
   settings: [{ kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] }],

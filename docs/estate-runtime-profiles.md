@@ -16,6 +16,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `types` | Its built-in part types, in the order a file is classified in ([the estate model](estate-model.md)) | `CLAUDE_CODE_TYPES`, listed on the [Claude Code page](adapters/claude-code.md#part-types) |
 | `mapKinds` | The kind the estate map gives a file of each type; a file no mapped type locates is `other` | `CLAUDE_CODE_MAP_KINDS` |
 | `shapes` | The structures its reader can test a file for, which a type's `shape` names | `step-list`, `catalogue`, `check-table` |
+| `sources` | Its second sources of parts, by name: the option that names the source's folder, the types its parts have, and the name its paths go by when the folder is the runtime's default one. Any other folder is named by its real folder (`sourceLabel`) | `user`: option `userSkills`, the four skill types, `~/.claude/skills` |
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
@@ -58,6 +59,7 @@ read the disk through.
   label (the glob, `<file>: <line>`, `CACHEDIR.TAG`) so the scan counts what kept a file out.
 - `expandVariables(path, profile, { root, home })`: project and plugin variables to a root-relative path; the
   home variable and `~/` to `home` (the `--home` folder) when given.
+- `sourceLabel(root, folder)`: the name a second source goes by in the paths of a map: its path from the estate root when it lies inside it, `~/...` under the home folder, else the folder itself. A reference inside a source is the estate's own (never external) though the source lies outside the root, and the checks (orphan, unreachable, unresolved link) run on a source's parts as on the estate's.
 - `rootRelative(root, path)`: the root-relative form a map stores, or undefined outside the root.
 - `LEGACY_CASE_INSENSITIVE_NAMES`: the one switch for the name comparisons that fold case (a trash folder, a
   guard an adapter column names), through `comparableName` and `sameName`. It is on, as the readers were.

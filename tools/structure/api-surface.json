@@ -730,6 +730,7 @@
       "SimulatedUserSpec": "value",
       "SkillExpect": "value",
       "SkippedInput": "type",
+      "SourceDecl": "type",
       "Spec": "value",
       "SpecLoadOptions": "type",
       "SpecParentRecord": "type",

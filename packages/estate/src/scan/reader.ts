@@ -1,3 +1,4 @@
+import { CLAUDE_CODE_PROFILE } from '@agent-nexus/driftbench-core';
 import type { DocumentInfo } from '../schema';
 import type { Located } from './text';
 
@@ -23,11 +24,12 @@ export const FILE_KINDS = [
 export type FileKind = (typeof FILE_KINDS)[number];
 
 /**
- * The name the user-level skill layer goes by in the paths of a map: the folder the runtime loads a user's own
- * skills from, whatever folder the reader read them in. A file of the layer has `layer: 'user'`; it is no file
- * of the project, so a copy of the project holds none of them.
+ * The name the user-level skill layer goes by in the paths of a map when its folder is the one the runtime
+ * loads a user's own skills from. Any other folder keeps its own name: inside the estate it is the path from
+ * the estate root, under the home folder it starts with `~/`, elsewhere it is the folder as it is. A file of
+ * the layer has `layer: 'user'`; it is no file of the project, so a copy of the project holds none of them.
  */
-export const USER_LAYER = '~/.claude/skills';
+export const USER_LAYER: string = CLAUDE_CODE_PROFILE.sources.user?.label ?? '~/.claude/skills';
 
 /** One file of the estate. `owner` names the skill a skill file belongs to. */
 export type EstateFile = {
@@ -39,9 +41,9 @@ export type EstateFile = {
   layer?: 'user';
 };
 
-/** Whether a path of the map is a file of the user-level skill layer. */
-export function isUserLayerPath(path: string): boolean {
-  return path === USER_LAYER || path.startsWith(`${USER_LAYER}/`);
+/** Whether a path of the map is a file of the user-level skill layer named `label`. */
+export function isUserLayerPath(path: string, label: string = USER_LAYER): boolean {
+  return path === label || path.startsWith(`${label}/`);
 }
 
 /** A value read from a declaration, with the passage it was read from. */
@@ -199,7 +201,7 @@ export type RawEstate = {
    * The user-level skill layer: the skills read from it, those left out because a project skill has the same
    * name. Absent when the reader was given no user skill folder.
    */
-  userLayer?: { read: string[]; shadowed: string[] };
+  userLayer?: { read: string[]; shadowed: string[]; label: string };
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

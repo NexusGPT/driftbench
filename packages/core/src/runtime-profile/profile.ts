@@ -51,6 +51,23 @@ export type PathVariables = {
   home: readonly string[];
 };
 
+/**
+ * A second source of parts beside the estate: a folder a person names (the skills of one user, a shared kit) that
+ * the runtime loads from as well. Its parts are of the types listed here, found from the folder as from a root of
+ * their own, and are checked as the estate's parts are.
+ */
+export type SourceDecl = {
+  /** The option that names the source's folder (`userSkills`: the `--user-skills` option and the setup key). */
+  option: string;
+  /** The profile's types whose parts the source holds, by type name. */
+  types: readonly string[];
+  /**
+   * The name the source's paths go by when its folder is the runtime's own default one, so a map holds no home
+   * folder. Any other folder is named by its real folder.
+   */
+  label: string;
+};
+
 export type RuntimeProfile = {
   /** The name the CLI and an estate map give the runtime. */
   name: string;
@@ -65,6 +82,8 @@ export type RuntimeProfile = {
   mapKinds: Readonly<Record<string, string>>;
   /** The structures its reader can test a file for, which a type's `shape` names. */
   shapes: readonly string[];
+  /** Its second sources of parts, by source name. */
+  sources: Readonly<Record<string, SourceDecl>>;
   layout: LayoutProfile;
   standing: StandingProfile;
   /** Where settings come from; the first static source is what the reader classifies as settings. */
@@ -122,6 +141,13 @@ const PROFILES = new Map<string, RuntimeProfile>();
 export function registerRuntimeProfile(profile: RuntimeProfile): void {
   if (PROFILES.has(profile.name))
     throw new Error(`a runtime profile named ${profile.name} is already registered`);
+  const known = new Set(profile.types.types.map((type) => type.name));
+  for (const [name, source] of Object.entries(profile.sources))
+    for (const type of source.types)
+      if (!known.has(type))
+        throw new Error(
+          `the source ${name} of the runtime profile ${profile.name} names the unknown type ${type}`,
+        );
   PROFILES.set(profile.name, profile);
 }
 

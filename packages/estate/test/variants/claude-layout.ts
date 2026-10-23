@@ -201,3 +201,35 @@ export const ALWAYS_LOADED: Array<{ key: UnitKey; path: string; text: string }> 
     text: '{ "permissions": { "allow": ["Read"] } }\n',
   },
 ];
+
+// A second source of capabilities --------------------------------------------------------------------------------
+
+export const DANGLING = ['See `references/vanished-notes.md` for the details.'];
+
+/** A capability with one defect of each kind (nothing names its file; one link names no part), under `base`. */
+export function defectiveCap(
+  cap: CapUnit,
+  base: string,
+): { files: Files; looseKey: UnitKey; loosePath: string } {
+  const loosePath = `${base}/${cap.name}/references/loose.md`;
+  return {
+    files: {
+      [`${base}/${cap.name}/SKILL.md`]: capText(cap, DANGLING),
+      [loosePath]: '# Loose\n\nNothing names this file.\n',
+    },
+    looseKey: `reference:${cap.name}:loose`,
+    loosePath,
+  };
+}
+
+/** The atom that stands for the capability in a map, for its name: where the map says the part was read. */
+export function capAtomFile(
+  atoms: ReadonlyArray<{
+    kind: string;
+    fields?: Record<string, unknown> | undefined;
+    provenance: { file: string };
+  }>,
+  cap: CapUnit,
+): string | undefined {
+  return atoms.find((atom) => atom.kind === 'skill' && atom.fields?.name === cap.name)?.provenance.file;
+}

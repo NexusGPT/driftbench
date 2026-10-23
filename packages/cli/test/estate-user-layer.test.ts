@@ -69,14 +69,15 @@ describe('driftbench estate scan and lint read the user-level skill layer only w
     expect(scanned.code).toBe(0);
     expect(scanned.out).toContain('User skill layer: 1 skill read; 0 left out');
     const map = await readFile(join(root, 'map.yaml'), 'utf8');
-    expect(map).toContain('~/.claude/skills/tide-chart/SKILL.md');
-    expect(map).toContain('userSkills: true');
+    // The layer keeps the folder it was read in: this one is outside the estate and the home folder.
+    expect(map).toContain(`${layer}/tide-chart/SKILL.md`);
+    expect(map).toContain(`userSkills: ${layer}`);
     expect(map).not.toContain('pier-notes');
-    expect(map).not.toContain(team);
 
-    // Lint reports on the project: the files of the layer are never orphans or unreachable.
+    // Lint checks the layer as it checks the project: its skill is unreachable from the standing instructions too.
     const linted = await run(['estate', 'lint', join(root, 'map.yaml'), '--user-skills', layer], root);
     expect(linted.out).toContain('.claude/skills/dock-roster/SKILL.md: no route');
+    expect(linted.out).toContain(`${layer}/tide-chart/SKILL.md: no route`);
     expect(linted.out).not.toContain('~/.claude');
 
     // Without the folder the layer's atoms cannot be checked: lint says so and does not guess a home folder.
@@ -97,7 +98,9 @@ describe('driftbench estate scan and lint read the user-level skill layer only w
     );
     expect(scanned.code).toBe(0);
     expect(scanned.out).toContain('User skill layer: 1 skill read');
-    expect(await readFile(join(work, 'map.yaml'), 'utf8')).toContain('~/.claude/skills/tide-chart/SKILL.md');
+    expect(await readFile(join(work, 'map.yaml'), 'utf8')).toContain(
+      `${join(work, 'team')}/tide-chart/SKILL.md`,
+    );
     const linted = await run(['estate', 'lint', 'map.yaml', '--user-skills', 'team'], work);
     expect(linted.err).not.toContain('--user-skills <folder>');
   }, 60_000);
@@ -131,7 +134,7 @@ describe('driftbench estate scan and lint read the user-level skill layer only w
     );
     expect(bare.code).toBe(0);
     const b = await readFile(join(work, 'b.yaml'), 'utf8');
-    expect(b).toContain('~/.claude/skills/pier-notes/SKILL.md');
+    expect(b).toContain('~/pier-notes/SKILL.md');
   }, 60_000);
 
   it.each(['', '  '])(

@@ -93,7 +93,10 @@ export async function copyEstate(
   // The estate configuration (helper executors, script fixtures) is not an instruction the agent reads, yet a
   // unit test on the copy needs it: without it the copy cannot run a helper or the script fixtures it declares.
   for (const file of configNames) await collect(file);
-  for (const atom of map.atoms) await collect(atom.provenance.file);
+  // An atom of a second source (a folder the user named) is no file of the estate: a copy holds none of it.
+  const source = typeof map.userSkills === 'string' ? map.userSkills : undefined;
+  for (const atom of map.atoms)
+    if (!isUserLayerPath(atom.provenance.file, source)) await collect(atom.provenance.file);
   // Preflight every source and destination before the first mkdir or copy.
   const paths = await Promise.all(
     [...files].sort().map(async (file) => ({
@@ -129,7 +132,7 @@ export async function mutateEstate(
     );
   }
   const { file, startLine, endLine, quote } = atom.provenance;
-  if (isUserLayerPath(file))
+  if (isUserLayerPath(file, typeof copy.map.userSkills === 'string' ? copy.map.userSkills : undefined))
     throw new MutantError(
       `${id} is read from the user-level skill layer (${file}), which an estate copy does not hold; no mutant is written`,
     );

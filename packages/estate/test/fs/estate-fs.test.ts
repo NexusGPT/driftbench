@@ -13,6 +13,7 @@ import {
   listFolder,
   rootRelative,
   sameName,
+  sourceLabel,
 } from '../../src/fs/estate-fs';
 
 async function folder(): Promise<string> {
@@ -82,6 +83,17 @@ describe('EstateFS', () => {
     );
     expect(expandVariables('~/notes.md', CLAUDE_CODE_PROFILE, folders)).toBe('/fake-home/notes.md');
     expect(expandVariables('docs/a.md', CLAUDE_CODE_PROFILE, folders)).toBe('docs/a.md');
+  });
+
+  it('names a second source by its real folder: inside the root, under home, or as it is', () => {
+    expect(sourceLabel('/estate', '/estate/shared/skills', '/home/user')).toBe('shared/skills');
+    expect(sourceLabel('/estate', '/home/user/.team/skills', '/home/user')).toBe('~/.team/skills');
+    expect(sourceLabel('/estate', '/home/user/.claude/skills', '/home/user')).toBe('~/.claude/skills');
+    expect(sourceLabel('/estate', '/home/user', '/home/user')).toBe('~');
+    expect(sourceLabel('/estate', '/srv/kit/skills', '/home/user')).toBe('/srv/kit/skills');
+    // A folder inside the root and under home is inside the root; the root itself is no source name.
+    expect(sourceLabel('/home/user/proj', '/home/user/proj/kit', '/home/user')).toBe('kit');
+    expect(sourceLabel('/home/user/proj', '/home/user/proj', '/home/user')).toBe('~/proj');
   });
 
   it('stores paths relative to the root, and none for a path outside it', () => {
