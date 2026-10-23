@@ -7,8 +7,8 @@
       "seed": 732170008,
       "through": 2,
       "fixedBy": "#1464",
-      "defect": "A hidden seed of the generator: level 2 failed with five diff.feasible.* items, blocks placed in cells that no position of the hidden map carries (a messaging block for a flow whose behaviours are all web-only).",
-      "evidence": "to be filled"
+      "defect": "A hidden seed of the generator: level 2 failed with the five diff.feasible.* items (graph, boundary, deviation, metamorphic, cover), blocks placed in cells that no position of the hidden map carries.",
+      "evidence": "Run 39957240185 (branch scratch/regression-probe): on release/next 1bad2ee0f with this change, level 2 fails with those five items; with PR 1464 at a8fc7e432 merged in, levels 1 and 2 pass."
     }
   ]
 }
