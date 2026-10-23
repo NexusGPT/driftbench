@@ -276,11 +276,17 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   if (!prepared.feasibility.allowed(cell))
     return failedScenario(path, 'the constraints forbid its values with this cell');
   // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
-  // result on a flow that checks no coverage) rules the path out.
+  // result on a flow that checks no coverage) rules the path out. A constraint rules a stage out when the cell and the
+  // stage hold all of it; a behaviour the spec does not cover is not one the cell must complete (a spec may cover none),
+  // so the stage is not refused for want of a behaviour that fits it.
   if (prepared.stage !== undefined) {
+    const held = (picks: readonly Pick[], [dimension, value]: readonly [number, number]) =>
+      picks.some(([at, is]) => at === dimension && is === value);
     for (const stage of path.stages.slice(1)) {
       const at = dimensions[prepared.stage]?.index.get(stage);
-      if (at !== undefined && !prepared.feasibility.allowed([...cell, [prepared.stage, at]]))
+      if (at === undefined) continue;
+      const picks: Pick[] = [...cell, [prepared.stage, at]];
+      if (prepared.space.constraints.some((constraint) => constraint.every((entry) => held(picks, entry))))
         return failedScenario(path, `the constraints forbid the stage ${stage} with this cell`);
     }
   }
