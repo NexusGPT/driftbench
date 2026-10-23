@@ -24,12 +24,13 @@ export type Audit = {
   none: string[];
 };
 
-export function leaksOutsideGot(failure: ItemFailure): string[] {
+export function leaksOutsideGot(failure: ItemFailure, echoesOverride?: readonly string[]): string[] {
   // The rule and the input are read as one text, with the product's own output left out of the allowed tokens: a wanted
   // value written into either is a leak, whatever the product returned. The one exception is declared by the site: when
   // the wanted answer IS a value the item passed (5 rows for a budget of 5), the site names that input field in `echoes`
   // and that number may be shown. A number equal to some other part of the input is still a leak.
-  const { rule, input, expected, item, echoes } = failure.fields;
+  const { rule, input, expected, item } = failure.fields;
+  const echoes = echoesOverride ?? failure.fields.echoes;
   const echoed = new Set<string>();
   for (const key of echoes ?? []) {
     const value = (input as Record<string, unknown> | undefined)?.[key];
@@ -49,6 +50,7 @@ export async function auditEveryCheckSite(
   const audit: Audit = { sites: 0, leaking: [], unstructured: [], none: [] };
   const none = new Set<string>();
   const done = new Set<string>();
+  const echoSites = new Set<string>();
   const ctx = (item: BankItem) => ({
     seed,
     impl: impl as never,
@@ -72,9 +74,11 @@ export async function auditEveryCheckSite(
       if (!passes) continue;
       const sites = [...forced.first];
       for (const [site, callIndex] of sites) {
-        if (done.has(site)) continue;
+        // A site is read once, except a site that declares echoes: a helper shared by many items cannot excuse them all,
+        // so the site is forced again for every item that reaches it and each item's own declaration is checked.
+        if (done.has(site) && !echoSites.has(site)) continue;
+        if (!done.has(site)) audit.sites += 1;
         done.add(site);
-        audit.sites += 1;
         forced.at = callIndex;
         forced.count = 0;
         let failure: unknown;
@@ -95,6 +99,19 @@ export async function auditEveryCheckSite(
         // `expected` would reveal. A number the site needs to show belongs in `input` or `got`.
         if (/(?<![A-Za-z0-9_.{}\-/^])-?\d+(?:\.\d+)?(?![A-Za-z0-9_}])/.test(failure.fields.rule))
           audit.leaking.push(`${where}: a number in the rule`);
+        const declared = failure.fields.echoes ?? [];
+        if (declared.length > 0) {
+          echoSites.add(site);
+          // An echo is allowed only where it excuses a number: dropping it must change what the audit reports.
+          const withAll = leaksOutsideGot(failure).join('|');
+          for (const key of declared) {
+            const without = leaksOutsideGot(
+              failure,
+              declared.filter((k) => k !== key),
+            ).join('|');
+            if (without === withAll) audit.leaking.push(`${where}: echoes '${key}' excuses nothing here`);
+          }
+        }
         const { expected, rule } = failure.fields;
         if (isNoExpected(expected)) none.add(`${expected.none} :: ${rule}`);
       }
