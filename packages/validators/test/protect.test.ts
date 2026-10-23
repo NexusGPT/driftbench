@@ -494,13 +494,15 @@ function legsOf(workflow: ReturnType<typeof parse>, job: string): Leg[] {
 }
 
 /**
- * The level a validator's legs must reach: its floor for the registered ladder version when it has one (a leg run with
- * `--check-floor` computes only through the floor, so a slice above it would be an empty run), else the top of its ladder.
+ * The level the legs of a validator must reach. Every validator is computed to the top of its ladder, except the
+ * generator, whose floor leg (`--check-floor`) computes only through its floor: a slice above the floor would be an
+ * empty run, so its legs tile through the floor and the tail legs (levels 20 to 23) cover what lies above.
  */
+const FLOOR_ONLY = new Set(['generator']);
 function legsReach(component: string): number {
   const ladder = registeredLadders()[component];
   const top = ladder?.levels.length ?? 0;
-  if (!ladder) return top;
+  if (!ladder || !FLOOR_ONLY.has(component)) return top;
   const floors = readFloors(fileURLToPath(new URL('../../../', import.meta.url)));
   const floor = floorOf(floors, component, ladderVersion(ladder));
   return floor > 0 && floor <= top ? floor : top;
@@ -509,7 +511,7 @@ function legsReach(component: string): number {
 /**
  * Every registered validator on every seed is computed on every level up to where its legs must reach (`legsReach`),
  * once: the legs of a seed are one run of the whole ladder or slices that tile it from level 1 without a gap or an
- * overlap, through the floor of the validator, or to its top when it has no floor.
+ * overlap through that level. Above it (the generator's tail legs) a gap is allowed, an overlap is not.
  */
 function assertTiled(legs: Leg[], components: string[], seeds: string[]) {
   const ladders = registeredLadders();
