@@ -2,6 +2,7 @@ import {
   type CheckCapability,
   type CheckDeclaration,
   type CheckOutcome,
+  noneRan,
   runCheck,
 } from '@agent-nexus/driftbench-core';
 import { analyzeGraph, routingOf } from '../graph/analyze';
@@ -71,6 +72,13 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
   requires: code === 'QUOTE_DRIFT' ? ['model-map'] : [],
 }));
 
+/**
+ * The verdict of a lint, as a code: a finding outside INFORMATION (`findings`); no check had an input
+ * (`none-ran`); no finding, but files under the root no part type covers, which no check read (`unknown-files`);
+ * else `clean`. A lint is clean only when every file is covered and some check ran.
+ */
+export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'clean';
+
 export type LintResult = {
   findings: LintFinding[];
   /** One outcome per code, in LINT_CODES order: a check that read no input is `not-run`, never a pass. */
@@ -78,6 +86,9 @@ export type LintResult = {
   /** True when a finding outside INFORMATION was found. */
   failed: boolean;
   counts: Record<LintCode, number>;
+  /** Files under the estate root no part type covers, from the read: no check looked at them. */
+  unknown: string[];
+  summary: LintSummary;
 };
 
 export type LintOptions = { ceiling?: number };
@@ -252,6 +263,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const available = new Set<CheckCapability>(['model-map']);
   if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
   if (raw.guards.length > 0) available.add('guards');
+  const unknown = [...(raw.coverage?.unknown ?? [])];
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
@@ -265,8 +277,17 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
             ],
           }
         : {}),
+      unknown,
       findings: findings.filter((finding) => finding.code === check.id),
     })),
   );
-  return { findings, outcomes, failed: findings.some((finding) => !INFORMATION.has(finding.code)), counts };
+  const failed = findings.some((finding) => !INFORMATION.has(finding.code));
+  const summary: LintSummary = failed
+    ? 'findings'
+    : noneRan(outcomes)
+      ? 'none-ran'
+      : unknown.length > 0
+        ? 'unknown-files'
+        : 'clean';
+  return { findings, outcomes, failed, counts, unknown, summary };
 }
