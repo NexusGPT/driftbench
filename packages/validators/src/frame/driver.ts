@@ -397,15 +397,22 @@ function «applyRefs»(«root», «refs», «state») {
 // objects of that call. So a call that one run answers otherwise moves no id of a later call: each call is compared
 // on its own (astra-frame-cost's run of the variables bank: one quotes() answer that differed shifted a counter, and
 // every later call of the child differed, 801 items).
-function «resultRefs»(«pairs», «state», «seq») {
+// A call that makes «span» (2^24) new objects or more would take ids of the next call: «state».overflow names it, and
+// the frame fails the call by name (review of PR 1403, sonnet-review-c-2).
+function «resultRefs»(«pairs», «state», «seq», «span» = 16777216) {
   const «out» = [];
   let «fresh» = 0;
+  «state».overflow = undefined;
   for (let «i» = 0; «i» < «pairs».length; «i» += 1) {
     const «o» = «pairs»[«i»][1];
     let «id» = «applyIt»(«wmGet», «state».ids, [«o»]);
     if («id» === undefined) {
       «fresh» += 1;
-      «id» = -(«seq» * 16777216 + «fresh»);
+      if («fresh» >= «span») {
+        «state».overflow = «span»;
+        return «out»;
+      }
+      «id» = -(«seq» * «span» + «fresh»);
       «remember»(«state», «o», «id»);
     }
     «out»[«out».length] = [«pairs»[«i»][0], «id»];
@@ -1114,7 +1121,7 @@ if («setup».command) {
         «carried» = «collectOff»();
         «setVisitor»(undefined);
       }
-      const «rrefs» = «resultRefs»(«carried».pairs, «identity», «request».id);
+      const «rrefs» = «resultRefs»(«carried».pairs, «identity», «request».id, «request».span);
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «shares» = «identityCount»(«argSet», «outs»);
@@ -1140,7 +1147,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...(«rrefs».length > 0 ? { rrefs: «rrefs» } : {}), ...(«carried».uncarried ? { uncarried: «carried».uncarried } : {}), ...«unsent», ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...(«rrefs».length > 0 ? { rrefs: «rrefs» } : {}), ...(«carried».uncarried ? { uncarried: «carried».uncarried } : {}), ...(«identity».overflow ? { overflow: «identity».overflow } : {}), ...«unsent», ...«after», ...«altered»() });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«identity».refused ? { unsent: «identity».refused } : {}), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
@@ -1286,7 +1293,8 @@ export function plainBatchEntry(
     `    let ${name('carried')};`,
     `    ${name('collectOn')}();`,
     `    try { ${answer} = { ret: ${name('encode')}(${name('result')}) }; } finally { ${name('carried')} = ${name('collectOff')}(); ${name('setVisitor')}(undefined); }`,
-    `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')}, ${each}.seq);`,
+    `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')}, ${each}.seq, ${each}.span);`,
+    `    if (${name('identity')}.overflow) ${answer}.overflow = ${name('identity')}.overflow;`,
     `    if (${name('rrefs')}.length > 0) ${answer}.rrefs = ${name('rrefs')};`,
     `    if (${name('carried')}.uncarried) ${answer}.uncarried = ${name('carried')}.uncarried;`,
     `    if (${name('identity')}.refused) ${answer}.unsent = ${name('identity')}.refused;`,
@@ -1390,7 +1398,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}), ...(message.refs ? { refs: message.refs } : {}) });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}), ...(message.refs ? { refs: message.refs } : {}), ...(message.span ? { span: message.span } : {}) });
   const sentAt = Date.now();
   const answers = await Promise.all(runs.map((run) => ask(run, line, id).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ id, call: message.call, answers });

@@ -165,6 +165,11 @@ export type IsolateOptions = {
    * TEMP): for a product that writes files only to read them back. It is removed with the run's folder.
    */
   scratch?: boolean;
+  /**
+   * The number of new result objects one call may make before the frame fails it (default 2^24): the ids of a call's
+   * new objects take that many numbers. A test sets a small number to take that path; the validator never sets it.
+   */
+  idSpan?: number;
 };
 
 /** Ambient conditions of a call (`Frame.ambient`). */
@@ -1008,11 +1013,17 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       ...(ambient ? { ambient } : {}),
       ...(identity !== undefined ? { identity } : {}),
       ...(refs ? { refs } : {}),
+      ...(options.idSpan ? { span: options.idSpan } : {}),
     });
     calls += 1;
     const reply = wait(relay, CALL_MS, `${name}()`);
     checkReply(reply, calls, name);
     const { answers } = reply as { answers: Array<Outcome | { dead: string }> };
+    const overflow = answers.find((each) => (each as { overflow?: number }).overflow !== undefined);
+    if (overflow)
+      throw new FrameError(
+        `${name}() returned ${(overflow as { overflow: number }).overflow} new objects or more in one call: the frame gives the new objects of one call that many ids, so it cannot tell them from the next call's`,
+      );
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
@@ -1185,7 +1196,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       try {
         appendFileSync(
           plain.calls,
-          `${JSON.stringify({ seq: calls, call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
+          `${JSON.stringify({ seq: calls, ...(options.idSpan ? { span: options.idSpan } : {}), call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
         );
       } catch (error) {
         if (existsSync(plain.calls)) truncateSync(plain.calls, size);
