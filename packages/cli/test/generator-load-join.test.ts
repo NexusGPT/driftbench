@@ -59,8 +59,8 @@ it.each([
       }
       const tail = JSON.parse(await readFile(join(reports, '22..22.json'), 'utf8'));
       const bank = tail.seeds[0].rows[21].bank;
-      // The planner level of ladder version 3: 350 items (parts A +83, B +28, C +61, D budget +39).
-      expect(bank).toHaveLength(350);
+      // The planner level of ladder version 3: 355 items (parts A +83, B +28, C +61, D +39, 5 catch).
+      expect(bank).toHaveLength(355);
       expect(bank.every((item: { pass: boolean }) => !item.pass)).toBe(true);
       const f = capture();
       // No generator floor, and the planner is beyond an earlier ordinary failure: the real CI join shape.

@@ -80,7 +80,7 @@ Three rules of the space map hold for the axes of a store, and a detail is exemp
 | `provenance` | no | where the value comes from |
 | `polarity`, `when`, `unless`, `limit`, `within`, `priority` | no | what a rule states, as a map proposal writes it: whether the agent must or must not act (`polarity`), the cell the rule applies in (`when`), the cell it does not hold in (`unless`), the most times it may happen in a conversation (`limit`), the minutes it has to happen in (`within`), and `first` when it comes first when rules collide (`priority`) |
 
-A weight is relative: `0.6`, `0.15` and `0.25` mean the same as `60`, `15` and `25`. Give a weight to every value of a variable or to none (`VARIABLES_WEIGHT_INCOMPLETE`), and not all zero (`VARIABLES_WEIGHT_ZERO`). Without weights every value of a variable weighs the same. A weight stands on the provenance of its value: the counts of conversations, or the owner's words.
+A weight is relative: `0.6`, `0.15` and `0.25` mean the same as `60`, `15` and `25`. Give a weight to every value of a variable or to none (`VARIABLES_WEIGHT_INCOMPLETE`), and not all zero (`VARIABLES_WEIGHT_ZERO`). `planV2` checks the same set of values as the loader, every value of the variable, approved or not: when they all weigh 0, it refuses the store with a `RangeError` whose `code` is `VARIABLES_WEIGHT_ZERO`. When only the approved values weigh 0, the planner weighs them alike. Without weights every value of a variable weighs the same. A weight stands on the provenance of its value: the counts of conversations, or the owner's words.
 
 ## Boundaries
 
@@ -431,7 +431,7 @@ The strength of the cover follows the rules, with a floor of 2 across the axes. 
 
 Values and pairs of approved axes are never lost; triples are covered only inside rules. A triple of axes that no rule joins is not a target, so the plan holds fewer triples than the pairwise-and-triple cover of the space map (`cells` at strength 3); `no-cell-lost.test.ts` names each such triple on the worked stores. A triple floor over all axes would multiply the rows.
 
-A combination that no valid row can hold is not a target. That includes a combination a constraint forbids, and one that constraints together make impossible: with `tide: slack` forbidden at both lamps, no row holds `slack`. A value that no valid row can hold gets the warning `value_unreachable`, and it is the store that may be wrong. Rows are built one at a time. Each starts from the most common target still waiting, then takes for every other variable the value that covers the most waiting targets, among the values that keep the row completable to one no constraint forbids. The array is not minimal.
+A combination that no valid row can hold is not a target. That includes a combination a constraint forbids, and one that constraints together make impossible: with `tide: slack` forbidden at both lamps, no row holds `slack`. A value that no valid row can hold gets the warning `value_unreachable`, and it is the store that may be wrong. The warning names the variable and the value, and its `required` field is `true` when the store marks the value `required`, `false` otherwise. Rows are built one at a time. Each starts from the most common target still waiting, then takes for every other variable the value that covers the most waiting targets, among the values that keep the row completable to one no constraint forbids. The array is not minimal.
 
 ### Seeds, order and budget
 
