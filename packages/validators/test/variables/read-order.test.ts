@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { diagnostics } from '../../src/failure';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
-import { diagnostics } from '../../src/failure';
-import { MUTANTS } from '../variables-blind/mutants';
 import { type Reads, readsHash, recorded } from '../read-order';
+import { MUTANTS } from '../variables-blind/mutants';
 import { referenceImpl } from '../variables-blind/reference/index';
 
 /**
