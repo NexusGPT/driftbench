@@ -244,7 +244,9 @@ function promptFile(tokens: readonly Token[] | undefined, scope: Scope): string 
   const remainder = tokens.slice(close + 1, method - 1);
   if (remainder[0]?.text === '.' && remainder[1]?.text === 'with_name') {
     const end = remainder.findIndex((token, index) => index > 2 && token.text === ')');
-    return literal(remainder.slice(3, end), scope);
+    if (end < 0 || remainder.slice(end + 1).some((token) => token.text !== ')')) return undefined;
+    const name = literal(remainder.slice(3, end), scope);
+    return name && !/[/\\]/.test(name) && name !== '.' && name !== '..' ? name : undefined;
   }
   if (remainder[0]?.text !== '.' || remainder[1]?.text !== 'parent') return undefined;
   const pieces = remainder.slice(2).filter((token) => token.text !== ')');

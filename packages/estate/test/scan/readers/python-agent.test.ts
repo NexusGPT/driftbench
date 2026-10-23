@@ -113,13 +113,13 @@ describe('Python RawEstate projection', () => {
         expect(yes.subagents.map((agent) => agent.name)).toContain(plant.name);
         expect(no.subagents).toEqual([]);
       } else {
-        const message = `${plant.name} (${type}) at line `;
-        expect(yes.notes).toContainEqual({
+        const lines: Record<string, number> = { graph: 2, node: 5, tool: 3, guard: 3 };
+        const note = {
           file: 'agent.py',
-          message: expect.stringContaining(message),
-        });
-        expect(yes.notes.some((note) => note.message.endsWith(`no map kind for ${type}`))).toBe(true);
-        expect(no.notes.some((note) => note.message.includes(message))).toBe(false);
+          message: `${plant.name} (${type}) at line ${lines[type]}: no map kind for ${type}`,
+        };
+        expect(yes.notes).toContainEqual(note);
+        expect(no.notes).not.toContainEqual(note);
         expect(yes.skills).toEqual([]);
         expect(yes.guards).toEqual([]);
         expect(yes.steps).toEqual([]);
@@ -130,8 +130,11 @@ describe('Python RawEstate projection', () => {
   it('retains one human-readable note per unsupported declaration', async () => {
     const root = await fixture({ 'agent.py': `${CASES.node.input}flow.add_node("review", collect)\n` });
     const raw = await new pythonReader.PythonAgentReader().read(root);
-    expect(raw.notes.filter((note) => note.message.endsWith('no map kind for node'))).toHaveLength(2);
-    expect(raw.notes.map((note) => note.message)).toContain('review (node) at line 6: no map kind for node');
+    expect(raw.notes).toEqual([
+      { file: 'agent.py', message: 'flow (graph) at line 4: no map kind for graph' },
+      { file: 'agent.py', message: 'collect (node) at line 5: no map kind for node' },
+      { file: 'agent.py', message: 'review (node) at line 6: no map kind for node' },
+    ]);
   });
 
   it('feeds only prose and declared helpers to the existing map without model calls', async () => {
@@ -351,6 +354,15 @@ describe('static Python agent syntax contract', () => {
     );
     expect(facts.tools).toEqual([]);
     expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-tool-name' }));
+  });
+
+  it('does not treat a transformed pathlib value as the original prompt file', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=Path(__file__).with_name("policy.md").transform().read_text())\n',
+    );
+    expect(facts.prompts).toEqual([]);
+    expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-prompt' }));
   });
 
   it('resolves a ToolNode literal tool list as syntax, with no tool execution', async () => {
