@@ -365,7 +365,8 @@ export function atomNeeds(label: Label | undefined): { spans: string[]; links: s
     } else if (Array.isArray(value)) value.forEach(walk);
     else if (value && typeof value === 'object') {
       if ('firstFilled' in value || 'each' in value) return;
-      for (const [key, inner] of Object.entries(value)) if (!key.endsWith('?') && key !== 'optional') walk(inner);
+      for (const [key, inner] of Object.entries(value))
+        if (!key.endsWith('?') && key !== 'optional') walk(inner);
     }
   };
   const atom = label?.atom;
