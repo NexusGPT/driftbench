@@ -67,6 +67,7 @@ export class SuiteCut {
   constructor(
     prepared: PreparedMap,
     private readonly minimal: TerminalSubsumption,
+    private readonly options: { ignoreAllocation?: boolean } = {},
   ) {
     this.held = minimal.projections.map((projection) => new Uint32Array(projection.size));
     this.allocation = new Allocation(prepared);
@@ -260,6 +261,10 @@ export class SuiteCut {
         stop('new-key', length);
         break;
       }
+      if (lead.variesAt !== undefined && last <= lead.variesAt) {
+        stop('family-varies', length);
+        break;
+      }
       if ((shapes[0] as Shape).spec.blocks[last - 1]?.id?.endsWith('-restated')) {
         stop('restated', length);
         break;
@@ -267,7 +272,10 @@ export class SuiteCut {
       const next = this.shorten(shapes, last, path, (reason) => stop(reason, length));
       if (!next) break;
       const currents = shapes.map((shape) => ({ blocks: shape.blocks, perturbations: shape.perturbations }));
-      if (this.allocation.imbalanceWithAll(next) > this.allocation.imbalanceWithAll(currents)) {
+      if (
+        !this.options.ignoreAllocation &&
+        this.allocation.imbalanceWithAll(next) > this.allocation.imbalanceWithAll(currents)
+      ) {
         stop('allocation', length);
         break;
       }

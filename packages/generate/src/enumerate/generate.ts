@@ -492,6 +492,75 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const unsaid: UnsaidPhrase[] = [];
   renderSeeder('cover', phraseDrafts(prepared, context, said, 0, unsaid));
   addUnsaid(gaps, unsaid, (gap) => ({ ...gap, blocks: 0, specs: [] }));
+  // The tails of the walks, cut once more with the whole suite in view: the first pass saw only the walks written
+  // before each one (seed/suite-cut.ts). With `early`, the allocation is not a reason to keep a block: the rounds
+  // below top the strata up afterwards.
+  const settle = (ignoreAllocation: boolean): void => {
+    if (context.minimal && reduceEnds && options.specCap === undefined) {
+      const witnesses = (draft: SpecDraft) => JSON.stringify([draft.reducedEnds, draft.reducedMiddle]);
+      const before = new Map([...draftOf].map(([id, draft]) => [id, witnesses(draft)]));
+      const items = complete.map((spec) => {
+        const draft = draftOf.get(spec.id);
+        return draft ? { spec, draft } : { spec };
+      });
+      const shapes = new Map(
+        items.flatMap(({ draft }) =>
+          draft ? [[draft.id, { blocks: draft.blocks, perturbations: draft.perturbations }] as const] : [],
+        ),
+      );
+      const cutTails = new SuiteCut(prepared, context.minimal, { ignoreAllocation }).reduce(items);
+      const changedIds = new Set(cutTails.map((draft) => draft.id));
+      // The running count of the allocation follows the walks that changed.
+      for (const draft of cutTails) {
+        const old = shapes.get(draft.id);
+        if (!old || !context.allocation) continue;
+        context.allocation.observe(old.blocks, old.perturbations, context.allocation.behavioursOf(draft), -1);
+        if (!draft.dropped) context.allocation.countDraft(draft, 1);
+      }
+      for (const [id, draft] of draftOf) {
+        if (!changedIds.has(id) && before.get(id) === witnesses(draft)) continue;
+        const seeder = renderedAs.get(id) as Seeder;
+        const totals = seeders[seeder] as SeederTotals;
+        const was = all.find((spec) => spec.id === id);
+        if (draft.dropped) {
+          // A walk cut to a repeat of a whole spec is not written (see SuiteCut.droppable).
+          const without = (specs: Spec[]) => {
+            const at = specs.findIndex((spec) => spec.id === id);
+            if (at >= 0) specs.splice(at, 1);
+          };
+          without(all);
+          without(complete);
+          without(completeBy[seeder] ?? []);
+          totals.specs -= 1;
+          totals.complete -= 1;
+          totals.blocks -= was?.blocks.length ?? 0;
+          const kept = files.filter((entry) => fileOwners.get(entry.path) !== id);
+          files.splice(0, files.length, ...kept);
+          draftOf.delete(id);
+          continue;
+        }
+        const rendered: Rendered = renderDraft(prepared, draft, run);
+        const loaded = checkSpec(rendered.spec, rendered.id);
+        if (!loaded.ok) continue;
+        const replace = (specs: Spec[]) => {
+          const at = specs.findIndex((spec) => spec.id === id);
+          if (at >= 0) specs[at] = loaded.spec;
+        };
+        replace(all);
+        replace(complete);
+        replace(completeBy[seeder] ?? []);
+        totals.blocks += rendered.blocks - (was?.blocks.length ?? rendered.blocks);
+        const file = files.find((entry) => fileOwners.get(entry.path) === id);
+        if (file) file.text = generatedSpecText(rendered, run, prepared.hash);
+      }
+      for (const seeder of SEEDERS) {
+        (seeders[seeder] as SeederTotals).cut_blocks = [...draftOf]
+          .filter(([id]) => renderedAs.get(id) === seeder)
+          .reduce((sum, [, draft]) => sum + (draft.reducedEnds?.duplicates.length ?? 0), 0);
+      }
+    }
+  };
+  if (process.env.SETTLE_EARLY !== undefined) settle(true);
   // Deviation balance: after coverage, classes probed less than a third as often as the most probed class get
   // more approved probes, so one class is not tested many times while another barely is.
   const balance = new DeviationBalance(prepared);
@@ -527,59 +596,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       balance.observe(spec);
     }
   }
-  // The tails of the walks, cut once more with the whole suite in view: the first pass saw only the walks written
-  // before each one (seed/suite-cut.ts).
-  if (context.minimal && reduceEnds && options.specCap === undefined) {
-    const witnesses = (draft: SpecDraft) => JSON.stringify([draft.reducedEnds, draft.reducedMiddle]);
-    const before = new Map([...draftOf].map(([id, draft]) => [id, witnesses(draft)]));
-    const items = complete.map((spec) => {
-      const draft = draftOf.get(spec.id);
-      return draft ? { spec, draft } : { spec };
-    });
-    const cutTails = new SuiteCut(prepared, context.minimal).reduce(items);
-    const changedIds = new Set(cutTails.map((draft) => draft.id));
-    for (const [id, draft] of draftOf) {
-      if (!changedIds.has(id) && before.get(id) === witnesses(draft)) continue;
-      const seeder = renderedAs.get(id) as Seeder;
-      const totals = seeders[seeder] as SeederTotals;
-      const was = all.find((spec) => spec.id === id);
-      if (draft.dropped) {
-        // A walk cut to a repeat of a whole spec is not written (see SuiteCut.droppable).
-        const without = (specs: Spec[]) => {
-          const at = specs.findIndex((spec) => spec.id === id);
-          if (at >= 0) specs.splice(at, 1);
-        };
-        without(all);
-        without(complete);
-        without(completeBy[seeder] ?? []);
-        totals.specs -= 1;
-        totals.complete -= 1;
-        totals.blocks -= was?.blocks.length ?? 0;
-        const kept = files.filter((entry) => fileOwners.get(entry.path) !== id);
-        files.splice(0, files.length, ...kept);
-        draftOf.delete(id);
-        continue;
-      }
-      const rendered: Rendered = renderDraft(prepared, draft, run);
-      const loaded = checkSpec(rendered.spec, rendered.id);
-      if (!loaded.ok) continue;
-      const replace = (specs: Spec[]) => {
-        const at = specs.findIndex((spec) => spec.id === id);
-        if (at >= 0) specs[at] = loaded.spec;
-      };
-      replace(all);
-      replace(complete);
-      replace(completeBy[seeder] ?? []);
-      totals.blocks += rendered.blocks - (was?.blocks.length ?? rendered.blocks);
-      const file = files.find((entry) => fileOwners.get(entry.path) === id);
-      if (file) file.text = generatedSpecText(rendered, run, prepared.hash);
-    }
-    for (const seeder of SEEDERS) {
-      (seeders[seeder] as SeederTotals).cut_blocks = [...draftOf]
-        .filter(([id]) => renderedAs.get(id) === seeder)
-        .reduce((sum, [, draft]) => sum + (draft.reducedEnds?.duplicates.length ?? 0), 0);
-    }
-  }
+  settle(false);
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
       Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`),

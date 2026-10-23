@@ -120,6 +120,8 @@ export class TerminalSubsumption {
         // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
         // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
         // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
+        // The block where the variants of a family differ is the family: it stays.
+        if (family !== undefined && draft.variesAt !== undefined && last <= draft.variesAt) break;
         if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;

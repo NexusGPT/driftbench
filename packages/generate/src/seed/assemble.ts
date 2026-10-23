@@ -102,6 +102,8 @@ export type SpecDraft = {
   /** Concrete boundary values, by data value id. */
   concrete?: Record<string, unknown>;
   metamorphic?: { family: string; variant: number; of: number; relation: string };
+  /** For a metamorphic variant: the index of the first block where the variants of its family differ. Not written to the spec. */
+  variesAt?: number;
   /** What the store holds after the last block, derived from the path's end state. */
   end_state?: EndStateSpec;
   /** The path relation the spec walks, when it walks one. */
