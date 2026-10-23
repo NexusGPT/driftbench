@@ -1638,18 +1638,25 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
               : variable,
           ),
         };
+        // The refusal is read in fields, never in words: a RangeError whose code is VARIABLES_WEIGHT_ZERO.
         const { out, divergence } = await framed(data, 'zero', (product) => {
           try {
             product.planV2(store as VariableStore, { seed: 1 });
-            return 'planned';
+            return { planned: true, range: false, code: undefined as unknown };
           } catch (error) {
-            return error instanceof Error ? error.message : String(error);
+            return {
+              planned: false,
+              range: error instanceof RangeError,
+              code: (error as { code?: unknown } | undefined)?.code,
+            };
           }
         });
         if (divergence !== undefined) return verdict(false, divergence);
         return verdict(
-          out.includes('VARIABLES_WEIGHT_ZERO'),
-          `the store with every weight of one variable at 0: ${out.slice(0, 120)}`,
+          !out.planned && out.range && out.code === 'VARIABLES_WEIGHT_ZERO',
+          out.planned
+            ? 'the store with every weight of one variable at 0 was planned'
+            : `the store with every weight of one variable at 0 was refused with a ${out.range ? 'RangeError' : 'non-RangeError'} of code ${String(out.code)}`,
         );
       },
     ),

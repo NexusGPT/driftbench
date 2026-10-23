@@ -29,6 +29,26 @@ export type Entry = {
 export type Tape = Entry[];
 
 /** An argument the frame cannot send to the product: a function, a symbol or a class instance. */
+/** The built-in error classes an answer keeps across the process boundary: a check reads the class, not the words. */
+const ERROR_CLASSES = { RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError } as const;
+
+/**
+ * An error as data: its name and message, the built-in class it is an instance of, and its `code` when the code is a
+ * string or a number. A product's error code crosses as a field, so an item never reads it out of the message.
+ */
+function errorFields(error: Error): Json {
+  const klass = (Object.keys(ERROR_CLASSES) as (keyof typeof ERROR_CLASSES)[]).find(
+    (name) => error instanceof ERROR_CLASSES[name],
+  );
+  const code = (error as { code?: unknown }).code;
+  return {
+    name: error.name,
+    message: error.message,
+    ...(klass ? { class: klass } : {}),
+    ...(typeof code === 'string' || typeof code === 'number' ? { code } : {}),
+  };
+}
+
 export class FrameError extends Error {
   override name = 'FrameError';
 }
@@ -78,7 +98,7 @@ export function encode(
       };
     if (object instanceof Set)
       return { $set: [...object.values()].map((v, i) => encode(v, strict, `${path}[${i}]`, seen)) };
-    if (object instanceof Error) return { $err: { name: object.name, message: object.message } };
+    if (object instanceof Error) return { $err: errorFields(object) };
     if (Array.isArray(object)) return object.map((v, i) => encode(v, strict, `${path}[${i}]`, seen));
     if (object instanceof Date) return { $date: object.toISOString() };
     if (ArrayBuffer.isView(object))
@@ -109,9 +129,11 @@ export function decode(x: Json): unknown {
   if ('$bytes' in o) return Uint8Array.from(o.$bytes as number[]);
   if ('$opaque' in o) return { opaque: o.$opaque };
   if ('$err' in o) {
-    const e = o.$err as { name: string; message: string };
-    const error = new Error(e.message);
+    const e = o.$err as { name: string; message: string; class?: string; code?: string | number };
+    const make = (e.class && ERROR_CLASSES[e.class as keyof typeof ERROR_CLASSES]) || Error;
+    const error = new make(e.message) as Error & { code?: string | number };
     error.name = e.name;
+    if (e.code !== undefined) error.code = e.code;
     return error;
   }
   return Object.fromEntries(Object.entries(o).map(([k, v]) => [unesc(k), decode(v)]));
