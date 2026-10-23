@@ -4,10 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { locateFile, locateInside, parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import * as agentsReader from '../../../src/scan/readers/agents-folder';
 
-// The variable keeps this test-only commit typecheckable before the reader exists. Its first run must fail
-// loading the implementation; the finished reader must satisfy every case below without a fallback reader.
-const MODULE = '../../../src/scan/readers/agents-folder';
 type Source = {
   id: string;
   root: string;
@@ -32,7 +30,7 @@ type Reader = {
     options: { setupSource: Source; snapshotRoots: Record<string, string> },
   ) => Promise<Inventory>;
 };
-const reader = async () => (await import(MODULE)) as Reader;
+const reader = async (): Promise<Reader> => agentsReader;
 
 function inventoryOf(read: Reader['readAgentsFolderSource'], input: Source, sources: readonly Source[]) {
   return read(input.root, {
@@ -83,6 +81,12 @@ const CASES = {
     text: 'Rows have an identifier and an amount.\n',
     aspects: ['informs'],
   },
+  'skill-script': {
+    yes: 'skills/reconcile/scripts/compute.py',
+    no: 'skills/reconcile/examples/compute.py',
+    text: 'raise RuntimeError("Fictional source must never execute")\n',
+    aspects: ['executes'],
+  },
   helper: {
     yes: 'helpers/reviewer.md',
     no: 'helpers/reviewer.txt',
@@ -117,9 +121,9 @@ describe('shared agents source contract', () => {
       expect(type.aspects, type.name).toEqual(CASES[type.name as keyof typeof CASES].aspects);
       const planted = CASES[type.name as keyof typeof CASES];
       const positive = type.folder === undefined
-        ? locateInside(type, 'references/format.md') : locateFile(type, planted.yes);
+        ? locateInside(type, planted.yes.split('/').slice(2).join('/')) : locateFile(type, planted.yes);
       const negative = type.folder === undefined
-        ? locateInside(type, 'examples/format.md') : locateFile(type, planted.no);
+        ? locateInside(type, planted.no.split('/').slice(2).join('/')) : locateFile(type, planted.no);
       expect(positive, `${type.name}: positive locator`).toBeDefined();
       expect(negative, `${type.name}: negative locator`).toBeUndefined();
     }

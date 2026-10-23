@@ -1,5 +1,5 @@
 import type { TypesDocument } from '@agent-nexus/driftbench-core';
-import { type SourceFiles, type SourceReaderOptions, readSourceFiles } from './source-files';
+import { readSourceFiles, type SourceFiles, type SourceReaderOptions } from './source-files';
 
 /** Shared definitions are source-relative; the source root may be .agents, dot_agents, or any mapped folder. */
 export const AGENTS_FOLDER_TYPES: TypesDocument = {
@@ -8,7 +8,7 @@ export const AGENTS_FOLDER_TYPES: TypesDocument = {
     instruction: {
       root: 'source',
       locate: ['AGENTS.md', 'instructions/**/*.md'],
-      fields: { body: 'text' },
+      fields: { name: 'file-name', body: 'text' },
       aspects: ['instructs'],
       loaded: 'always',
       references: ['import(@)', 'path'],
@@ -22,17 +22,23 @@ export const AGENTS_FOLDER_TYPES: TypesDocument = {
         description: 'frontmatter.description',
         body: 'body',
       },
-      contains: ['skill-reference'],
+      contains: ['skill-reference', 'skill-script'],
       aspects: ['instructs'],
       loaded: 'on-demand',
       references: ['path'],
     },
     'skill-reference': {
       locate: 'references/**',
-      fields: { body: 'text' },
+      fields: { name: 'file-name', body: 'text' },
       aspects: ['informs'],
       loaded: 'by-reference',
       references: ['path'],
+    },
+    'skill-script': {
+      locate: 'scripts/**',
+      fields: { name: 'file-name', body: 'text' },
+      aspects: ['executes'],
+      loaded: 'by-reference',
     },
     helper: {
       root: 'source',

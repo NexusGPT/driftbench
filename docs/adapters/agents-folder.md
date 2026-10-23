@@ -32,6 +32,7 @@ Paths are resolved by the setup parser; `~` is literal. Equal contents do not im
 | instruction | `AGENTS.md`, `instructions/**/*.md` | instructs | always |
 | skill | `skills/*/`, entry `SKILL.md` | instructs | on-demand |
 | skill-reference | `references/**` inside a skill | informs | by-reference |
+| skill-script | `scripts/**` inside a skill | executes | by-reference |
 | helper | `helpers/**/*.md`, `agents/**/*.md` | delegates, instructs | on-demand |
 | guard | `guards/*.{json,yaml,yml}` | guards | on-event |
 | script | `scripts/**/*.{py,sh,bash,js,mjs,cjs,ts}` | executes | by-reference |

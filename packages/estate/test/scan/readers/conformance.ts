@@ -20,6 +20,8 @@ export type LinkPlant = {
   negative: Record<string, string>;
   from: string;
   to: string;
+  fromType?: string;
+  toType?: string;
 };
 
 /** The test callback unwraps the canonical result into its existing core values; no production seam is defined. */
@@ -48,6 +50,11 @@ export async function declaredConformance(
     const negative = await observe(plant.negative, types);
     const target = positive.parts.filter((part) => part.type === type.name);
     expect(target, `${type.name}: positive part`).not.toHaveLength(0);
+    for (const part of target) {
+      expect(part.aspects).toEqual(type.aspects);
+      expect(part.loaded).toEqual(type.loaded);
+      expect(part.runtime).toBe(type.runtime);
+    }
     if (plant.name) expect(target.map((part) => part.name)).toContain(plant.name);
     expect(negative.parts.filter((part) => part.type === type.name), `${type.name}: negative part`).toEqual([]);
     for (const aspect of type.aspects) {
@@ -75,8 +82,10 @@ export async function declaredConformance(
     if (!plant) throw new Error(`${kind}: missing fixture`);
     const positive = await observe(plant.positive, types);
     const negative = await observe(plant.negative, types);
-    const from = new Set(positive.parts.filter((part) => part.name === plant.from).map((part) => part.id));
-    const to = new Set(positive.parts.filter((part) => part.name === plant.to).map((part) => part.id));
+    const from = new Set(positive.parts.filter((part) => part.name === plant.from
+      && (plant.fromType === undefined || part.type === plant.fromType)).map((part) => part.id));
+    const to = new Set(positive.parts.filter((part) => part.name === plant.to
+      && (plant.toType === undefined || part.type === plant.toType)).map((part) => part.id));
     const found = positive.links.filter((link) => link.kind === kind && from.has(link.from) && to.has(link.to));
     expect(found, `${kind}: positive link`).not.toHaveLength(0);
     expect(negative.links.filter((link) => link.kind === kind), `${kind}: negative link`).toEqual([]);
