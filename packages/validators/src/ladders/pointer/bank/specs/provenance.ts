@@ -46,6 +46,9 @@ const ADDED: ReadonlySet<string> = new Set([
   're-anchoring.table-row-moved',
   're-anchoring.table-column-reordered',
   're-anchoring.table-column-inserted',
+  're-anchoring.table-cell-text-follows',
+  're-anchoring.table-cell-key-follows',
+  're-anchoring.table-cell-new-id',
 ]);
 
 export function provenanceOf(id: string): Provenance {

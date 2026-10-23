@@ -10,9 +10,14 @@ import type { CutResult, CutUnit } from '../../../src/ladders/pointer/sut/port';
 
 type Line = { text: string; start: number };
 
+/** A table body cell's row key and column header, and whether another cell of its table has the same text. */
+export type CellKey = { row: string; header: string; repeated: boolean };
+
 type Ctx = {
   source: string;
   units: CutUnit[];
+  /** The key of each table body cell, by its start offset (docs/estate-pointer-reader.md section 4). */
+  cells: Map<number, CellKey>;
   stack: Array<{ level: number; text: string }>;
   mode: 'sentence' | 'quote';
   htmlDepth: number;
@@ -338,7 +343,8 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
         break;
       }
       // a GitHub alert: the marker line is a mark, its type ends the heading path of the quote's units
-      const alert = /^\[!([A-Z]+)\][ \t]*$/.exec(inner[0]?.text ?? '');
+      // GitHub's five alert types only; any other `[!X]` makes an ordinary quote
+      const alert = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*$/.exec(inner[0]?.text ?? '');
       if (alert) parseBlocks(inner.slice(1), { ...within(ctx, `[!${alert[1] as string}]`), mode: 'quote' });
       else parseBlocks(inner, { ...ctx, mode: 'quote', depth: ctx.depth + 1 });
       i = j;
@@ -356,10 +362,30 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
       const delimCells = next.text.split('|').filter((c) => c.trim() !== '').length;
       if (headerCells.length === delimCells || headerCells.length > 0) {
         for (const [a, b] of headerCells) push(ctx, 'table_cell', a, b);
+        const text = ([a, b]: readonly [number, number, number]) => fingerprintText(ctx.source.slice(a, b));
+        const headers = new Map(headerCells.map((cell) => [cell[2], text(cell)]));
+        const body: Array<Array<[number, number, number]>> = [];
         let j = i + 2;
         while (j < all.length && !blank(all[j] as Line) && (all[j] as Line).text.includes('|')) {
-          for (const [a, b] of cells(all[j] as Line)) push(ctx, 'table_cell', a, b);
+          const row = cells(all[j] as Line);
+          for (const [a, b] of row) push(ctx, 'table_cell', a, b);
+          body.push(row);
           j += 1;
+        }
+        const seen = new Map<string, number>();
+        for (const cell of [...headerCells, ...body.flat()]) {
+          const t = text(cell);
+          seen.set(t, (seen.get(t) ?? 0) + 1);
+        }
+        for (const row of body) {
+          const key = row.find((cell) => cell[2] === 0);
+          for (const cell of row) {
+            ctx.cells.set(cell[0], {
+              row: key ? text(key) : '',
+              header: headers.get(cell[2]) ?? '',
+              repeated: (seen.get(text(cell)) ?? 0) > 1,
+            });
+          }
         }
         i = j;
         continue;
@@ -446,9 +472,10 @@ function pushHeading(ctx: Ctx, level: number, text: string): void {
   // the heading unit was pushed before the stack changed, so its path is its ancestors
 }
 
-/** Cells of a table row: trimmed, non-empty, with absolute spans. */
-function cells(line: Line): Array<[number, number]> {
-  const out: Array<[number, number]> = [];
+/** Cells of a table row: trimmed, non-empty, with absolute spans and their column (empty cells count). */
+function cells(line: Line): Array<[number, number, number]> {
+  const out: Array<[number, number, number]> = [];
+  let column = 0;
   const text = line.text;
   let segStart = 0;
   const flush = (end: number) => {
@@ -456,7 +483,8 @@ function cells(line: Line): Array<[number, number]> {
     let b = end;
     while (a < b && /\s/.test(text[a] as string)) a += 1;
     while (b > a && /\s/.test(text[b - 1] as string)) b -= 1;
-    if (b > a) out.push([line.start + a, line.start + b]);
+    if (b > a) out.push([line.start + a, line.start + b, column]);
+    column += 1;
   };
   let i = 0;
   if (text.trimStart().startsWith('|')) {
@@ -694,11 +722,24 @@ function jsonFrontMatter(ctx: Ctx, lines: Line[]): number {
 /* ---------- entry ---------- */
 
 export function cutText(source: string): CutResult {
+  return cutWithCells(source).cut;
+}
+
+/** The cut, and the key of each table body cell by its start offset. */
+export function cutWithCells(source: string): { cut: CutResult; cells: Map<number, CellKey> } {
   const bom = source.startsWith('﻿') ? 1 : 0;
-  const ctx: Ctx = { source, units: [], stack: [], mode: 'sentence', htmlDepth: 0, depth: 0 };
+  const ctx: Ctx = {
+    source,
+    units: [],
+    cells: new Map(),
+    stack: [],
+    mode: 'sentence',
+    htmlDepth: 0,
+    depth: 0,
+  };
   const lines = toLines(source, bom);
   const skip = frontMatter(ctx, lines);
   parseBlocks(lines.slice(skip), ctx);
   const digest = sha(ctx.units.map((u) => u.fp).join('\n'));
-  return { units: ctx.units, cutDigest: digest };
+  return { cut: { units: ctx.units, cutDigest: digest }, cells: ctx.cells };
 }

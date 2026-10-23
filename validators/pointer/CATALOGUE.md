@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **437 items**, 11 families, 271 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **440 items**, 11 families, 273 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -10,7 +10,7 @@ Bank: **437 items**, 11 families, 271 distinct causes, 9 levels. This file is ge
 |---|---|---|---|---|---|---|---|
 | cutting | cut | 78 | 9 | 35 | 29 | 4 | 1 |
 | ids | ids | 41 | 11 | 20 | 9 | 1 | 0 |
-| re-anchoring | anchor | 59 | 5 | 13 | 26 | 11 | 4 |
+| re-anchoring | anchor | 62 | 5 | 13 | 29 | 11 | 4 |
 | grouping | labels | 24 | 5 | 12 | 6 | 1 | 0 |
 | labels | labels | 70 | 4 | 34 | 31 | 1 | 0 |
 | replay | replay | 42 | 3 | 8 | 22 | 9 | 0 |
@@ -19,7 +19,7 @@ Bank: **437 items**, 11 families, 271 distinct causes, 9 levels. This file is ge
 | radius | links | 23 | 4 | 6 | 9 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **437** | **47** | **147** | **175** | **54** | **14** |
+| **all** | | **440** | **47** | **147** | **178** | **54** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 35 |
+| maintainer-added | 38 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -298,6 +298,9 @@ Level `anchor`, default component `anchor`, default needs scan. An old unit must
 | `re-anchoring.table-row-moved` | maintainer-added | 2 | A table of 4 rows of long cells; the first row moves to the end. | Every cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
 | `re-anchoring.table-column-reordered` | maintainer-added | 3 | A table of 3 rows by 3 columns of long cells; the last column moves to the front. | Every cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
 | `re-anchoring.table-column-inserted` | maintainer-added | 3 | A table of 3 rows by 2 columns of long cells; a new column is inserted between them. | Every old cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-cell-text-follows` | maintainer-added | 3 | A table of 4 rows, short row keys and long cells; the rows move and the long column is renamed. | Every long cell keeps its id on its own text, though its row key and column header no longer match. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-cell-key-follows` | maintainer-added | 3 | 4 rows, long row keys, a `Done` column of `Yes` and `No`; the rows reverse and a column is inserted. | Each `Done` cell keeps its id in the row of its row key, under `Done`. | `anchor:table-cell-by-key` | anchor | scan |
+| `re-anchoring.table-cell-new-id` | maintainer-added | 3 | The same table; every row key is rewritten, the `Done` column is unchanged. | No old `Done` id is live: each `Done` cell has a new id. | `anchor:table-cell-new-id` | anchor | scan |
 
 ## grouping
 
