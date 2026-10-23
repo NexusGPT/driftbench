@@ -494,9 +494,9 @@ Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     791       153           3
-boundary         85     180        13          72
-deviation       112     517       112           0
+twise           156     790       153           3
+boundary         85     176        13          72
+deviation       110     511       110           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
@@ -537,7 +537,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 685 files to generated.
+Wrote 684 files to generated.
 exit 1
 ```
 
