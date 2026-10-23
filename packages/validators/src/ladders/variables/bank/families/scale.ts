@@ -330,11 +330,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       expected: { allowed: String(want) },
     }));
     const covered = BigInt(scan.required - scan.missing);
-    check(toBig(result.covered, 'covered') === covered, () => ({
-      rule: "covered {}, the bank's scan of the 30 rows gives {}",
-      got: { details: [show(result.covered), covered] },
-      expected: none('observation'),
-    }));
+    check(toBig(result.covered, 'covered') === covered, () => ({ rule: 'coverage counts the covered tuples exactly', got: { covered: show(result.covered) }, expected: { covered: String(covered) } }));
     check(ms <= 20_000, () => ({
       rule: 'counting the coverage of rows over binary variables stays fast',
       input: { variables: n, strength: t },
