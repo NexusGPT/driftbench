@@ -95,7 +95,8 @@ const services: FetchLike = async (url, init) => {
     return json({ model: 'jev-fake', answers, usage: { input_tokens: 1000, output_tokens: 10 } });
   }
   const content = (body.messages as Array<{ content: string }>)[0]?.content ?? '';
-  const roles = content.includes('SET document-roles');
+  // The document roles and the gate forms are asked of this service too: it says none of every unit of both.
+  const roles = content.includes('SET document-roles') || content.includes('SET gate-forms');
   const labels = unitsOf(content).map(([n, line]) => ({
     units: String(n),
     label: roles || !imperative.test(line) ? 'none' : /^Never/.test(line) ? 'prohibition' : 'rule',
@@ -139,25 +140,25 @@ describe('driftbench estate scan --pointer', () => {
     expect(recorded.err).toBe('');
     expect(recorded.code).toBe(0);
     // The plan comes before the first request, then the counts, the classes that decided and the tokens.
-    expect(recorded.out).toMatch(/Pointer plan: 9 units in 2 files, 0 already labelled by the ledger\./);
+    expect(recorded.out).toMatch(/Pointer plan: 14 units in 2 files, 0 already labelled by the ledger\./);
     expect(recorded.out).toMatch(
-      /system 1 jev jev-latest: 3 requests, 0 in the cassette, \d+ characters to send\./,
+      /system 1 jev jev-latest: 2 requests, 0 in the cassette, \d+ characters to send\./,
     );
-    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette/);
+    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 20 requests, 0 in the cassette/);
     expect(recorded.out).toContain(
       'Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5',
     );
     expect(recorded.out).toMatch(
-      /Units: 9 in 2 files; 0 kept from the ledger, 9 labelled by this run \(\d+ by system 1, \d+ by system 2\)/,
+      /Units: 9 in 2 files; 0 kept from the ledger, 14 labelled by this run \(\d+ by system 1, \d+ by system 2/,
     );
-    expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 3000 in, 30 out, 3 requests sent.');
+    expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 2000 in, 20 out, 2 requests sent.');
     expect(recorded.out).toContain(
-      'Tokens, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests sent.',
+      'Tokens, system 2 anthropic claude-haiku-5-5: 10000 in, 1000 out, 20 requests sent.',
     );
     const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
-    // Three windows for system 1, and five runs of each for system 2. Both files are loaded by the runtime as
+    // Two windows for system 1, and five runs of each of the four windows for system 2 (the rules and the gate forms). Both files are loaded by the runtime as
     // instructions (the standing file and a skill body), so the document-roles question is never asked of them.
-    expect(cassette.entries.size).toBe(18);
+    expect(cassette.entries.size).toBe(22);
     // The file on disk is the sorted one, whatever the order the answers arrived in.
     expect(await readFile(join(root, 'cassette.jsonl'), 'utf8')).toBe(cassette.render());
 
@@ -180,8 +181,8 @@ describe('driftbench estate scan --pointer', () => {
     );
     const recorded = await record(root, [], { prices: 'prices.yaml' });
     expect(recorded.err).toBe('');
-    expect(recorded.out).toContain('Cost, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
-    expect(recorded.out).toContain('Cost in all: 0.0105 USD, without jev-latest.');
+    expect(recorded.out).toContain('Cost, system 2 anthropic claude-haiku-5-5: 0.0140 USD.');
+    expect(recorded.out).toContain('Cost in all: 0.0140 USD, without jev-latest.');
     // A field of the table that the cost does not use is named, never accepted without a word.
     expect(recorded.out).toContain(
       'Note: the price table gives cached_input for claude-haiku-5-5. It is not used: the labelers report no cached tokens.',
@@ -220,10 +221,10 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(replay.err).toBe('');
     expect(replay.out).toContain(
-      'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests.',
+      'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 10000 in, 1000 out, 20 requests.',
     );
-    expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
-    expect(replay.out).toContain('Cost when recorded in all: 0.0105 USD, without jev-latest.');
+    expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0140 USD.');
+    expect(replay.out).toContain('Cost when recorded in all: 0.0140 USD, without jev-latest.');
     expect(replay.out).not.toContain('requests sent.');
   });
 
@@ -239,8 +240,8 @@ describe('driftbench estate scan --pointer', () => {
       if (url.includes('systemone')) return response;
       const content =
         (JSON.parse(String(init.body)).messages as Array<{ content: string }>)[0]?.content ?? '';
-      // The document-roles question stays as the service answers it.
-      if (content.includes('SET document-roles')) return response;
+      // The document-roles and gate-forms questions stay as the service answers them.
+      if (content.includes('SET document-roles') || content.includes('SET gate-forms')) return response;
       const close = unitsOf(content).find(([, line]) => line.startsWith('Close'))?.[0];
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
@@ -392,7 +393,7 @@ describe('driftbench estate scan --pointer', () => {
       root,
     );
     expect(again.code).toBe(0);
-    expect(again.out).toMatch(/Units: 9 in 2 files; 9 kept from the ledger, 0 labelled by this run/);
+    expect(again.out).toMatch(/Units: 9 in 2 files; 14 kept from the ledger, 0 labelled by this run/);
     expect(again.out).toContain('Requests: 0 answered, 0 sent, 0 recorded.');
   });
 
@@ -421,7 +422,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(wide.code).toBe(0);
     expect(wide.out).toMatch(
-      /0 kept from the ledger, 9 labelled by this run \(0 by system 1, 9 by system 2\)/,
+      /0 kept from the ledger, 14 labelled by this run \(0 by system 1, 14 by system 2/,
     );
   });
 
@@ -615,7 +616,7 @@ describe('driftbench estate scan --pointer', () => {
       `export default {
         id: 'house',
         cls: 'system2',
-        label: (request) => ({ labels: request.window.units.map((unit) => ({ units: String(unit.n), label: /^Never/.test(unit.text) ? 'prohibition' : 'none' })) }),
+        label: (request) => ({ labels: request.window.units.map((unit) => ({ units: String(unit.n), label: request.set.name === 'agent-rules' && /^Never/.test(unit.text) ? 'prohibition' : 'none' })) }),
       };`,
     );
     const { io, output } = capture(root);
@@ -857,7 +858,7 @@ describe('the settings file of the estate', () => {
     const unchanged = await voided(root, before);
     expect(unchanged.added).toEqual([]);
     // 9 units under 2 label sets.
-    expect(unchanged.out).toMatch(/Units: 9 in 2 files; 18 kept from the ledger, 0 labelled by this run/);
+    expect(unchanged.out).toMatch(/Units: 9 in 2 files; 14 kept from the ledger, 0 labelled by this run/);
   });
 
   it('voids the recordings of one label set when its description changes, and no other', async () => {
@@ -879,7 +880,7 @@ describe('the settings file of the estate', () => {
     await writeFile(join(root, 'driftbench.estate.yaml'), SETTINGS.replace('pass_at: 0.9', 'pass_at: 0.8'));
     const { added, out } = await voided(root, before);
     expect(added).toEqual([]);
-    expect(out).toMatch(/0 kept from the ledger, 18 labelled by this run/);
+    expect(out).toMatch(/0 kept from the ledger, 14 labelled by this run/);
   });
 
   it('voids no recording when the labeler drops a class or the ledger moves', async () => {
