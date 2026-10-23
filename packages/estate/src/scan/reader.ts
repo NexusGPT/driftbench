@@ -207,6 +207,11 @@ export type RawEstate = {
     /** The globs beside the defaults (from the estate configuration and the reader's options). */
     chosen?: string[];
   };
+  /**
+   * Folders, relative to the root, that a path named in prose led to on disk with no file there (a link to a
+   * folder). A path to a folder asks the reader to read no file, so it is no missing reference.
+   */
+  folders?: string[];
   /** Path aliases: `REF` stands for each folder listed, so `REF/a.md` is tried as `<folder>/a.md`. */
   aliases?: Record<string, string[]>;
   /**

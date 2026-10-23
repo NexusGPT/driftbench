@@ -13,8 +13,17 @@ import {
   stat,
 } from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
+import { importMentions } from '../refs/import-extractor';
 import { DocumentRole } from '../schema';
-import { chunkLines, fileNames, guardName, isExternal, locateNamed, namedPaths } from './code';
+import {
+  chunkLines,
+  fileNames,
+  guardName,
+  isExternal,
+  locateNamed,
+  type NamedTarget,
+  pathMentions,
+} from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
 import { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
@@ -77,14 +86,12 @@ const SKILL_ENTRY = (() => {
     throw new Error(`the ${PROFILE.name} profile maps no folder type with an entry to skills`);
   return entry;
 })();
-/** A standing line that imports a file: the import prefix of a standing type, then the path, alone on the line. */
-const IMPORT = (() => {
-  const prefix = typesOfKind('standing')
+/** The prefix a standing file writes before a path to import it: the `import(<prefix>)` rule of a standing type. */
+const IMPORT_PREFIX = (() => {
+  const rule = typesOfKind('standing')
     .flatMap((type) => type.references)
-    .find((rule) => rule.by === 'import');
-  return prefix?.by === 'import'
-    ? new RegExp(`^${prefix.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\s]+)\\s*$`)
-    : undefined;
+    .find((entry) => entry.by === 'import');
+  return rule?.by === 'import' ? rule.prefix : undefined;
 })();
 const MAX_FILE_BYTES = 1024 * 1024;
 
@@ -393,54 +400,97 @@ async function readRootReferences(
     }
     return known;
   };
+  // A path with no file extension may lead to a folder: it is then no missing file.
+  const isFolder = new Map<string, Promise<boolean>>();
+  const folderAt = (path: string) => {
+    let known = isFolder.get(path);
+    if (known === undefined) {
+      known = localPath(root, path, estate.notes).then(async (safe) =>
+        safe === undefined
+          ? false
+          : stat(safe).then(
+              (info) => info.isDirectory(),
+              () => false,
+            ),
+      );
+      isFolder.set(path, known);
+    }
+    return known;
+  };
   for (let index = 0; index < estate.prose.length; index++) {
     const chunk = estate.prose[index];
     if (!chunk) continue;
     const source = files.get(chunk.file);
     for (const line of chunkLines(chunk, source)) {
-      // A standing file's line `@path` imports that file into the standing instructions.
-      const imported = source?.kind === 'standing' ? IMPORT?.exec(line.text.trim())?.[1] : undefined;
-      const names = imported ? [imported] : namedPaths(line.text);
-      for (const name of names) {
+      // A standing file imports another file where it writes the import prefix and a path: the runtime loads the file
+      // into the standing instructions, from the folder of the importer.
+      const imports =
+        source?.kind === 'standing' && IMPORT_PREFIX !== undefined
+          ? importMentions(line.text, IMPORT_PREFIX).map((found) => found.written)
+          : [];
+      const others = pathMentions(line.text, { extensionless: true })
+        .filter((found) => IMPORT_PREFIX === undefined || !found.spelling.startsWith(IMPORT_PREFIX))
+        .map((found) => found.path);
+      const names = [
+        ...imports.map((name) => ({ name, imported: true })),
+        ...others.map((name) => ({ name, imported: false })),
+      ];
+      for (const { name, imported } of names) {
         if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
-        // An unindexed root guide is a candidate only after the naming file's own subtree.
-        const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
-        const localPlaceholder =
-          local !== name &&
-          !files.has(local) &&
-          !skipped.has(local) &&
-          local !== '..' &&
-          !local.startsWith('../') &&
-          !local.startsWith('/') &&
-          (await fileAt(local));
-        if (localPlaceholder) files.set(local, { path: local, text: '', kind: 'other' });
-        // A path written from the root of the estate, from a part that lies in a folder, is looked for there on disk
-        // too (after the naming file's own folder, which `locateNamed` tries first): a file outside the layout is
-        // read only when something names it, so the disk is the only place to find it.
-        const rooted = posix.normalize(name.replace(/^\.\//, ''));
-        const rootPlaceholder =
-          name.includes('/') &&
-          rooted !== local &&
-          !files.has(rooted) &&
-          !skipped.has(rooted) &&
-          rooted !== '..' &&
-          !rooted.startsWith('../') &&
-          !rooted.startsWith('/') &&
-          !isExternal(rooted, imported ? [] : (estate.externals ?? [])) &&
-          (await fileAt(rooted));
-        if (rootPlaceholder) files.set(rooted, { path: rooted, text: '', kind: 'other' });
-        const placeholder = !name.includes('/') && !files.has(name);
-        if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
-        const target = locateNamed(name, chunk.file, files, {
-          byName,
-          skipped,
-          ...(estate.bases ? { bases: estate.bases } : {}),
-          ...(estate.aliases ? { aliases: estate.aliases } : {}),
-          ...(!imported && estate.externals ? { externals: estate.externals } : {}),
-        });
-        if (placeholder) files.delete(name);
-        if (rootPlaceholder) files.delete(rooted);
-        if (localPlaceholder) files.delete(local);
+        let target: NamedTarget;
+        if (imported) {
+          // An import is read from the importer's folder and from nowhere else.
+          const place = posix.normalize(posix.join(posix.dirname(chunk.file), name.replace(/^\.\//, '')));
+          target = { path: place, via: 'place' };
+        } else {
+          // An unindexed root guide is a candidate only after the naming file's own subtree.
+          const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
+          const localPlaceholder =
+            local !== name &&
+            !files.has(local) &&
+            !skipped.has(local) &&
+            local !== '..' &&
+            !local.startsWith('../') &&
+            !local.startsWith('/') &&
+            (await fileAt(local));
+          if (localPlaceholder) files.set(local, { path: local, text: '', kind: 'other' });
+          // A path written from the root of the estate, from a part that lies in a folder, is looked for there on
+          // disk too (after the naming file's own folder, which `locateNamed` tries first): a file outside the layout
+          // is read only when something names it, so the disk is the only place to find it.
+          const rooted = posix.normalize(name.replace(/^\.\//, ''));
+          const rootPlaceholder =
+            name.includes('/') &&
+            rooted !== local &&
+            !files.has(rooted) &&
+            !skipped.has(rooted) &&
+            rooted !== '..' &&
+            !rooted.startsWith('../') &&
+            !rooted.startsWith('/') &&
+            !isExternal(rooted, estate.externals ?? []) &&
+            (await fileAt(rooted));
+          if (rootPlaceholder) files.set(rooted, { path: rooted, text: '', kind: 'other' });
+          // A path with no file extension may lead to a folder: it is then no missing file.
+          if (!/\.[A-Za-z0-9]+$/.test(name)) {
+            for (const place of new Set([local, rooted, posix.normalize(name)])) {
+              if (place === '..' || place.startsWith('../') || place.startsWith('/') || files.has(place))
+                continue;
+              if (!(await folderAt(place))) continue;
+              estate.folders = [...new Set([...(estate.folders ?? []), place])];
+            }
+          }
+          const placeholder = !name.includes('/') && !files.has(name);
+          if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
+          target = locateNamed(name, chunk.file, files, {
+            byName,
+            skipped,
+            ...(estate.bases ? { bases: estate.bases } : {}),
+            ...(estate.aliases ? { aliases: estate.aliases } : {}),
+            ...(estate.externals ? { externals: estate.externals } : {}),
+          });
+          if (placeholder) files.delete(name);
+          if (rootPlaceholder) files.delete(rooted);
+          if (localPlaceholder) files.delete(local);
+        }
         const path = posix.normalize(target.path);
         if (
           target.candidates ||

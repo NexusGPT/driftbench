@@ -315,7 +315,24 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^maintain\.impact\.spacing-touches-nothing$/, 'compare rules without their spacing'],
   [/^maintain\.impact\.rename-/, 'follow a renamed skill folder by its name'],
   // The references of the prose, read by code.
+  [/^lint\.clean\.no-model-self-import$/, 'resolve a file that imports itself, a cycle is no missing file'],
+  [
+    /^lint\.defect\.no-model-denied-import$/,
+    'report an import through a link out of the estate as outside it',
+  ],
+  [/^lint\.clean\.no-model-import-in-label-code$/, 'strip every code span before reading an import'],
+  [
+    /^lint\.(defect|clean)\.no-model-.*import/,
+    'read the files a standing file imports by code when no model runs',
+  ],
+  [/^lint\.clean\.no-model-fenced-example$/, 'close a fenced block as CommonMark does'],
+  [/^lint\.(defect|clean)\.no-model-.*extensionless/, 'read a path with no file type by its syntax'],
   [/^lint\.(defect|clean)\.no-model-/, 'read the references of the prose by code when no model runs'],
+  [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],
+  [
+    /^lint\.defect\.orphan-module-named-in-docstring$/,
+    'read an import as a statement of the language, never a line of text',
+  ],
   [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],
   [
     /^lint\.defect\.orphan-module-named-in-docstring$/,

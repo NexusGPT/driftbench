@@ -7,12 +7,14 @@ export type {
 } from './extractor';
 export { referenceExtractors, registerReferenceExtractor, unregisterReferenceExtractor } from './extractor';
 export {
+  PATH_NOT_IN_ESTATE,
   type ReferenceEntry,
   type ReferenceGraph,
   type ReferenceGraphOptions,
   type ReferenceOutcome,
   referenceGraph,
 } from './graph';
+export { IMPORT_EXTRACTOR, type ImportMention, importMentions } from './import-extractor';
 export {
   JAVASCRIPT_MODULE_EXTRACTOR,
   MODULE_NOT_IN_ESTATE,

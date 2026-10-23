@@ -6,7 +6,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
-import { MODULE_NOT_IN_ESTATE, moduleEntries } from '../refs/modules';
+import { PATH_NOT_IN_ESTATE, referenceGraph } from '../refs/graph';
 import { navigationNames } from '../scan/code';
 import { codeNames, runtimeProduct } from '../scan/code-names';
 import { normativeEstate, normativeRanges, unloadedByDesign } from '../scan/document-roles';
@@ -232,28 +232,24 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const available = new Set<CheckCapability>(['model-map']);
   if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
   if (raw.guards.length > 0) available.add('guards');
-  const unresolvedModules = [
-    ...new Map(
-      moduleEntries(raw)
-        .filter((entry) => entry.outcome === 'unresolved')
-        .map((entry) => {
-          const what = `${entry.from}:${entry.mention.line} ${entry.mention.written}`;
-          return [what, { what, reason: MODULE_NOT_IN_ESTATE }] as const;
-        }),
-    ).values(),
-  ];
   // A map that records no reader of the references cannot judge them: those two checks did not run.
   const unjudged = (code: string) =>
     referenceChecksOff && (code === 'ORPHAN' || code === 'MISSING_REFERENCE');
+  // A mention that leads to no file and has too little evidence for a finding is listed, with its reason: a path the
+  // reader of this map found, or a module import (a library, a file the estate does not hold), whatever read the map.
+  const unresolved = referenceGraph(raw)
+    .unresolved.filter((entry) => map.referenceReader === 'code' || entry.mention.syntax === 'module')
+    .map((entry) => ({
+      what: `${entry.from}:${entry.mention.line} ${entry.mention.written}`,
+      reason: entry.reason ?? PATH_NOT_IN_ESTATE,
+    }));
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () =>
       unjudged(check.id)
         ? { read: 0, skipped: [{ what: 'map', reason: 'no-reference-reader' }], findings: [] }
         : {
             read: read[check.id as LintCode],
-            // A module import that leads to no file of the estate (a library, a file it does not hold) is no
-            // finding: the check could not look at it, and says so.
-            ...(check.id === 'MISSING_REFERENCE' ? { skipped: unresolvedModules } : {}),
+            ...(check.id === 'MISSING_REFERENCE' ? { skipped: unresolved } : {}),
             findings: findings.filter((finding) => finding.code === check.id),
           },
     ),
