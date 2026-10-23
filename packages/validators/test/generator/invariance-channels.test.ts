@@ -19,7 +19,7 @@ function required<T>(value: T | undefined): T {
 describe('the channel invariance item requires a second channel only where one is possible', () => {
   const hidden = hiddenSpec(14);
 
-  /** A complete spec that walks a base path on a channel: all the item reads is its title, channel and cell. */
+  /** A complete spec that walks a base path on a channel: the item reads its title and channel. */
   function walk(path: string, channel: string, persona: string): LoadedSpec {
     const spec = Spec.parse({
       id: `walk-${path}-${channel}-${persona}`,
@@ -75,10 +75,11 @@ describe('the channel invariance item requires a second channel only where one i
     expect(other.detail).toBe('channels never walked on the path: web, messaging');
   });
 
-  it('still fails a path missing a channel its flow allows, and passes once every possible channel is walked', async () => {
+  it('fails a path missing a channel its flow allows; passes once every possible one is walked', async () => {
     const persona = required(hidden.personas[0]).id;
     // new-request-full runs on web only: a web walk satisfies the item, with no messaging walk.
-    const web = await verdictOf('paths.new-request-full.channels', [walk('new-request-full', 'web', persona)]);
+    const only = [walk('new-request-full', 'web', persona)];
+    const web = await verdictOf('paths.new-request-full.channels', only);
     expect(web.pass, web.detail).toBe(true);
     // status-check-lookup runs on both: a web walk alone leaves messaging missing.
     const half = await verdictOf('paths.status-check-lookup.channels', [
