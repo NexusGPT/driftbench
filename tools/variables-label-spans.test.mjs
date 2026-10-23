@@ -154,7 +154,14 @@ function capCase(mark, config) {
           '--out',
           join(folder, 'out.jsonl'),
         ],
-        ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', String(rateOut)],
+        ...[
+          '--known',
+          join(folder, 'known.jsonl'),
+          '--usd-per-mtok-in',
+          '1',
+          '--usd-per-mtok-out',
+          String(rateOut),
+        ],
         ...['--cap', String(cap), '--total-cap', String(cap)],
       ],
       { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
@@ -175,8 +182,14 @@ function choiceSize(c) {
   const first = c.run(100);
   expect(first.status, first.stderr).toBe(0);
   const lines = c.log();
-  const [, bytes, maxTokens, choiceCount] = lines.find((l) => l.startsWith('choice ')).split(' ').map(Number);
-  const [, labelBytes, labelMax, labelCount] = lines.find((l) => l.startsWith('label ')).split(' ').map(Number);
+  const [, bytes, maxTokens, choiceCount] = lines
+    .find((l) => l.startsWith('choice '))
+    .split(' ')
+    .map(Number);
+  const [, labelBytes, labelMax, labelCount] = lines
+    .find((l) => l.startsWith('label '))
+    .split(' ')
+    .map(Number);
   // What the batch request before the choice already spent: its usage is priced at 1 USD per million tokens in, 10 tokens out.
   const labelSpend = (labelCount * 1 + 10 * c.rateOut) / 1e6;
   rmSync(join(c.folder, 'requests.log'));
@@ -252,7 +265,9 @@ it('a request whose worst case lands exactly on the cap is refused', () => {
     expect(sent(c, 'label')).toHaveLength(1);
     expect(sent(c, 'choice')).toEqual([]);
     expect(onTheCap.status).not.toBe(0);
-    expect(`${onTheCap.stdout}${onTheCap.stderr}`).toMatch(/before sending a subject choice.*reach or cross a cap/s);
+    expect(`${onTheCap.stdout}${onTheCap.stderr}`).toMatch(
+      /before sending a subject choice.*reach or cross a cap/s,
+    );
     rmSync(join(c.folder, 'requests.log'));
     // The same request with room beyond the cap goes out.
     const above = c.run(spentNow + worst + 1e-6);
@@ -315,7 +330,11 @@ it('a response that bills more than was reserved stops the run', () => {
   const run = (config) => {
     const c = capCase('', { perByte: 1, ...config });
     const result = c.run(100);
-    return { c, result, report: () => JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')) };
+    return {
+      c,
+      result,
+      report: () => JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')),
+    };
   };
   // Billed exactly the reserve above the count is what was reserved: the run goes on.
   const within = run({ billedAddLabel: extra });
@@ -331,7 +350,9 @@ it('a response that bills more than was reserved stops the run', () => {
     expect(over.result.status).not.toBe(0);
     expect(sent(over.c, 'label')).toHaveLength(1);
     expect(sent(over.c, 'choice')).toEqual([]);
-    expect(`${over.result.stdout}${over.result.stderr}`).toMatch(/stopped after a batch of spans.*more than the/s);
+    expect(`${over.result.stdout}${over.result.stderr}`).toMatch(
+      /stopped after a batch of spans.*more than the/s,
+    );
     const report = over.report();
     expect(report.overBilled).toEqual([
       {
