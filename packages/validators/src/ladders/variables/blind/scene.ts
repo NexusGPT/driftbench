@@ -1,6 +1,7 @@
+import { check } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import type { EstateInput, Row, Sources, StoreDoc, StoreVariable } from '../interface';
-import { callBuild, must, show } from './kit';
+import { callBuild, show } from './kit';
 import { frame, layout } from './lexicon';
 
 /**
@@ -59,14 +60,10 @@ export function estateFor(
 /** The variable that holds every one of the value ids. */
 export function varOf(store: StoreDoc, values: readonly string[]): StoreVariable {
   const hit = store.variables.find((v) => values.every((id) => v.values.some((x) => x.id === id)));
-  must(
-    !!hit,
-    () =>
-      `no variable of the store holds the values ${show(values)}; variables: ${show(
+  check(!!hit, () => ({ rule: 'no variable of the store holds the values {}; variables: {}', got: { details: [show(values), show(
         store.variables.map((v) => v.values.map((x) => x.id)),
         200,
-      )}`,
-  );
+      )] } }));
   return hit as StoreVariable;
 }
 

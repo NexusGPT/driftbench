@@ -1,25 +1,7 @@
+import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Plan, Row, StoreDoc } from '../../interface';
-import {
-  allowedTuples,
-  allRows,
-  assertCovered,
-  assertRowsSound,
-  callPlan,
-  coveredTuples,
-  jsonEqual,
-  logWeightOf,
-  makeStore,
-  must,
-  names,
-  newRows,
-  requiredGroups,
-  type Stem,
-  sameRow,
-  show,
-  spaceOf,
-  valueIds,
-} from '../kit';
+import { allowedTuples, allRows, assertCovered, assertRowsSound, callPlan, coveredTuples, jsonEqual, logWeightOf, makeStore, names, newRows, requiredGroups, type Stem, sameRow, show, spaceOf, valueIds } from '../kit';
 
 /**
  * Differential property items: a small random store per seed, built so that two documented rules meet, and a
@@ -49,7 +31,7 @@ function reportMatches(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): vo
   const groups = requiredGroups(space);
   const allowed = allowedTuples(space, groups, allRows(space));
   const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
-  must(!!plan.report, () => 'the plan has no coverage report');
+  check(!!plan.report, () => ({ rule: 'the plan has no coverage report' }));
   const report = plan.report as NonNullable<Plan['report']>;
   const { covered } = coveredTuples(
     groups,
@@ -57,14 +39,8 @@ function reportMatches(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): vo
     plan.rows.map((r) => r.values),
     space,
   );
-  must(
-    Number(report.allowed) === allowed.size,
-    () => `report.allowed is ${String(report.allowed)}; the allowed required tuples number ${allowed.size}`,
-  );
-  must(
-    Number(report.covered) === covered.size,
-    () => `report.covered is ${String(report.covered)}; the rows hold ${covered.size} of them`,
-  );
+  check(Number(report.allowed) === allowed.size, () => ({ rule: 'report.allowed is {}; the allowed required tuples number {}', got: { details: [String(report.allowed), allowed.size] } }));
+  check(Number(report.covered) === covered.size, () => ({ rule: 'report.covered is {}; the rows hold {} of them', got: { details: [String(report.covered), covered.size] } }));
 }
 
 /** Four shared axes of three values, the second with one value nobody approved. */
@@ -138,19 +114,13 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
   for (const row of newRows(plan)) {
     const expected = logWeightOf(space, row.values);
     if (expected === null) {
-      must(
-        row.logWeight === null,
-        () => `the row ${row.id} holds a zero weight and has logWeight ${show(row.logWeight)}`,
-      );
+      check(row.logWeight === null, () => ({ rule: 'the row {} holds a zero weight and has logWeight {}', got: { details: [row.id, show(row.logWeight)] } }));
       sawNull = true;
       continue;
     }
-    must(!sawNull, () => `the row ${row.id} has a finite weight and follows a row of zero weight`);
-    must(
-      typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8,
-      () => `the row ${row.id} has logWeight ${show(row.logWeight)}; its shares give ${expected.toFixed(9)}`,
-    );
-    must(row.logWeight <= last + 1e-12, () => `the row ${row.id} is rarer than the row after it`);
+    check(!sawNull, () => ({ rule: 'the row {} has a finite weight and follows a row of zero weight', got: { details: [row.id] } }));
+    check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8, () => ({ rule: 'the row {} has logWeight {}; its shares give {}', got: { details: [row.id, show(row.logWeight), expected.toFixed(9)] } }));
+    check(row.logWeight <= last + 1e-12, () => ({ rule: 'the row {} is rarer than the row after it', got: { details: [row.id] } }));
     last = row.logWeight;
   }
 }
@@ -191,10 +161,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
               forbids: [{ forbid: { [at(ids, 0)]: 'v2' } }],
             }),
           );
-          must(
-            codes(plan).includes('value_unreachable'),
-            () => `a value no valid row can hold gave the warnings ${show(codes(plan))}`,
-          );
+          check(codes(plan).includes('value_unreachable'), () => ({ rule: 'a value no valid row can hold gave the warnings {}', got: { details: [show(codes(plan))] } }));
         },
       ],
       [
@@ -336,10 +303,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           ];
           const plan = planOk(ctx, store, seeds);
           seeds.forEach((seed, i) => {
-            must(
-              sameRow(plan.rows[i]?.values ?? {}, seed),
-              () => `seed ${i} became ${show(plan.rows[i]?.values)}; its assignments stay as given`,
-            );
+            check(sameRow(plan.rows[i]?.values ?? {}, seed), () => ({ rule: 'seed {} became {}; its assignments stay as given', got: { details: [i, show(plan.rows[i]?.values)] } }));
           });
         },
       ],
@@ -350,15 +314,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const { store, ids } = axesWithUnapprovedValue(ctx);
           const seed: Row = { [at(ids, 0)]: 'v0', [at(ids, 1)]: 'v2', [at(ids, 2)]: 'v1' };
           const plan = planOk(ctx, store, [seed]);
-          must(
-            sameRow(plan.rows[0]?.values ?? {}, seed),
-            () =>
-              `the seed became ${show(plan.rows[0]?.values)}; a seed with an unapproved value is kept whole`,
-          );
-          must(
-            codes(plan).includes('seed_unapproved_value'),
-            () => `the warnings ${show(codes(plan))} lack seed_unapproved_value`,
-          );
+          check(sameRow(plan.rows[0]?.values ?? {}, seed), () => ({ rule: 'the seed became {}; a seed with an unapproved value is kept whole', got: { details: [show(plan.rows[0]?.values)] } }));
+          check(codes(plan).includes('seed_unapproved_value'), () => ({ rule: 'the warnings {} lack seed_unapproved_value', got: { details: [show(codes(plan))] } }));
         },
       ],
       [
@@ -373,7 +330,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const seeds = ctx.rng.shuffle(allRows(spaceOf(store)));
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           const fresh = newRows(plan).length;
-          must(fresh === 0, () => `${fresh} new rows after seeds that hold every valid row`);
+          check(fresh === 0, () => ({ rule: '{} new rows after seeds that hold every valid row', got: { details: [fresh] } }));
         },
       ],
     ],
@@ -406,13 +363,10 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           });
           const seeds: Row[] = [{ [at(ids, 0)]: 'v1' }, { [at(ids, 1)]: 'v0', [at(ids, 2)]: 'v2' }];
           const full = callPlan(ctx, store, { seed: ctx.seed, seeds });
-          must(full.rows.length > seeds.length + 3, () => `the uncut plan has only ${full.rows.length} rows`);
+          check(full.rows.length > seeds.length + 3, () => ({ rule: 'the uncut plan has only {} rows', got: { details: [full.rows.length] } }));
           const budget = ctx.rng.int(seeds.length + 1, full.rows.length - 1);
           const cut = callPlan(ctx, store, { seed: ctx.seed, seeds, budget });
-          must(
-            jsonEqual(cut.rows, full.rows.slice(0, budget)),
-            () => `a budget of ${budget} did not keep the first ${budget} rows of the uncut plan`,
-          );
+          check(jsonEqual(cut.rows, full.rows.slice(0, budget)), () => ({ rule: 'a budget of {} did not keep the first {} rows of the uncut plan', got: { details: [budget, budget] } }));
         },
       ],
       [
@@ -427,10 +381,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
             weighted(ids, [(w[0] as number[]).map((x) => x * 7), w[1], w[2], undefined]),
             { seed: ctx.seed },
           );
-          must(
-            jsonEqual(plain.rows, scaled.rows),
-            () => 'multiplying every weight of one variable changed the plan',
-          );
+          check(jsonEqual(plain.rows, scaled.rows), () => ({ rule: 'multiplying every weight of one variable changed the plan' }));
         },
       ],
       [
