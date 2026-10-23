@@ -62,20 +62,9 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - id: lint
+      # Show every error without allowing warnings to fill Biome's diagnostic limit.
+      - name: Lint
         run: pnpm lint
-      # `pnpm lint` prints the first 20 diagnostics, and the warnings fill them: the error that failed the step can
-      # be past them. This step always runs (a step condition may only be always()), lists every error when the
-      # lint step failed, and always ends with exit 0, so it changes no exit status.
-      - name: Every lint error
-        if: always()
-        env:
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-        run: |
-          if [ "$LINT_OUTCOME" = failure ]; then
-            pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000 || true
-          fi
-          exit 0
       - run: pnpm typecheck
       - name: Cache package builds
         uses: actions/cache@v4
@@ -375,20 +364,9 @@ jobs:
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       # Lint reads the whole tree, so it runs before the build and the plan are downloaded into it.
-      - id: lint
+      # Show every error without allowing warnings to fill Biome's diagnostic limit.
+      - name: Lint
         run: pnpm lint
-      # `pnpm lint` prints the first 20 diagnostics, and the warnings fill them: the error that failed the step can
-      # be past them. This step always runs (a step condition may only be always()), lists every error when the
-      # lint step failed, and always ends with exit 0, so it changes no exit status.
-      - name: Every lint error
-        if: always()
-        env:
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-        run: |
-          if [ "$LINT_OUTCOME" = failure ]; then
-            pnpm exec biome check . --diagnostic-level=error --max-diagnostics=1000 || true
-          fi
-          exit 0
       - run: pnpm typecheck
       - uses: actions/download-artifact@v4
         with:
@@ -420,6 +398,12 @@ jobs:
       - uses: actions/checkout@v7
         if: steps.checkout.outcome != 'success'
         timeout-minutes: 10
+      # The leak ceiling of the variables bank is read from the base branch (packages/validators/test/ceiling.ts), and the
+      # checkout above is one commit deep: fetch that one branch, as a single commit.
+      - name: Fetch the base branch
+        env:
+          BASE: ${{ github.base_ref || 'release/next' }}
+        run: git fetch --no-tags --depth=1 origin "+refs/heads/${BASE}:refs/remotes/origin/${BASE}"
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:

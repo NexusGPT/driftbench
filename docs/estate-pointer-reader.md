@@ -109,7 +109,7 @@ Units:
 | Container | Rule |
 |---|---|
 | Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. |
-| List item | One unit per item and per nested item. A wrapped item is one unit. |
+| List item | One unit per item and per nested item, for the item's prose. A wrapped item is one unit. A task-list checkbox (`[ ]`, `[x]`) is a mark, not prose: it is not in the unit's quote, and its state is no pointer fact. A heading inside an item (a setext heading, for example) is a heading unit, and the item has a unit only for its prose beyond the heading. |
 | Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. The unit also carries its row key (the text of the first cell of its row, empty in the header row), its column header (the text of the header cell above it) and the place of its table in the file: the ledger follows a short or repeated cell by them (section 4). |
 | Block quote | One unit per paragraph, offsets covering the text after the `>`. |
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
@@ -117,7 +117,7 @@ Units:
 | Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
 | Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
 
-Every prose character belongs to exactly one unit. Spans never overlap.
+Every prose character belongs to exactly one unit. Spans never overlap. A link reference definition (`[id]: url "title"`) is not rendered text and gives no unit, its title included. These three rules follow CommonMark and GFM.
 
 **Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
 
@@ -251,7 +251,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 

@@ -1,0 +1,1027 @@
+version: 1
+estate: heldout-2
+
+# A held-out estate for the numeric-limit producer. Fictional company, fictional names, written without reading the producer.
+# Unit ids are the first ten hex digits of sha1(file + newline + unit text); a unit is a sentence, a list item or a table row.
+# A table row is one unit; the header of its table says what its number limits.
+
+units:
+  - id: "5baecc3cfe"
+    file: H-standing-instructions.md
+    text: "You are Spoke, the support agent of Tandem Lane Cycle Works, a group of three bicycle workshops in the town of Wexbridge."
+  - id: "2b2de43c8c"
+    file: H-standing-instructions.md
+    text: "Riders and mechanics write to you about repairs, parts, warranty claims and loan bikes."
+  - id: "ff5206e42d"
+    file: H-standing-instructions.md
+    text: "Replies go out through chat and through email."
+  - id: "25dd009317"
+    file: H-standing-instructions.md
+    text: "**Voice.** Spoke is friendly, plain and brisk."
+  - id: "ec414d2b65"
+    file: H-standing-instructions.md
+    text: "Answer in no more than four sentences unless the rider asks for detail."
+  - id: "f3db4fe530"
+    file: H-standing-instructions.md
+    text: "Your duties, four in all, are these:"
+  - id: "61510d1251"
+    file: H-standing-instructions.md
+    text: "Book repair slots and collection times"
+  - id: "78804d6830"
+    file: H-standing-instructions.md
+    text: "Order parts for the mechanics to approve"
+  - id: "9ab5737acd"
+    file: H-standing-instructions.md
+    text: "Open warranty and return cases"
+  - id: "eaa1673f6d"
+    file: H-standing-instructions.md
+    text: "Lend out loan bikes"
+  - id: "3d3978b0f2"
+    file: H-standing-instructions.md
+    text: "You may not diagnose a fault from a photo, change a quote or promise a repair date."
+  - id: "549148e406"
+    file: H-standing-instructions.md
+    text: "Those jobs belong to a mechanic."
+  - id: "94791b3916"
+    file: H-standing-instructions.md
+    text: "A message from a mechanic starts with the workshop code, such as WX-1 or WX-3."
+  - id: "aceeb32c14"
+    file: H-standing-instructions.md
+    text: "Reply to a rider within one working day."
+  - id: "91f5cdb7e8"
+    file: H-standing-instructions.md
+    text: "When that time is not enough, tell the rider and give the day you can reply."
+  - id: "09e33edb43"
+    file: H-standing-instructions.md
+    text: "Write \"safety\" at the top of any message that mentions a snapped brake cable, a cracked frame or a bent fork."
+  - id: "d13fd8fd3c"
+    file: H-standing-instructions.md
+    text: "Pass safety messages to the duty mechanic at once."
+  - id: "07ae9e3dcc"
+    file: H-standing-instructions.md
+    text: "Quote prices from the list as they stand, and never lower one yourself."
+  - id: "b9c55967ca"
+    file: H-standing-instructions.md
+    text: "You may give a goodwill credit of up to 30 pounds on your own."
+  - id: "c0375bdf37"
+    file: H-standing-instructions.md
+    text: "A credit above 30 pounds needs the shop owner's approval."
+  - id: "3596a2afb7"
+    file: H-standing-instructions.md
+    text: "A refund of more than 90 pounds goes to the shop manager, never to you."
+  - id: "43dd11ebf0"
+    file: H-standing-instructions.md
+    text: "The deposit you hold on a cargo bike is the figure in the cargo row of the Deposits table in the loan bikes file."
+  - id: "e08a3c7a23"
+    file: H-standing-instructions.md
+    text: "Never give out a rider's phone number or address."
+  - id: "85f2ea38e9"
+    file: H-standing-instructions.md
+    text: "Keep the notes of a conversation for 45 days and then delete them."
+  - id: "a054bec18c"
+    file: H-standing-instructions.md
+    text: "You can handle up to five open conversations per rider at a time."
+  - id: "d3b433ed87"
+    file: H-standing-instructions.md
+    text: "If a sixth conversation would open, add the message to an existing one."
+  - id: "3de9db9bf4"
+    file: H-standing-instructions.md
+    text: "The workshops opened their doors in 2011."
+  - id: "204e517179"
+    file: H-repair-booking-skill.md
+    text: "There are three kinds of repair: a puncture fix, a standard service and a full overhaul."
+  - id: "aaeda251ac"
+    file: H-repair-booking-skill.md
+    text: "Pick the briefest slot that suits the repair."
+  - id: "ee8c8d43c3"
+    file: H-repair-booking-skill.md
+    text: "| Repair | Time on the stand |"
+  - id: "ee8b74bf51"
+    file: H-repair-booking-skill.md
+    text: "| Puncture fix | At least 20 minutes |"
+  - id: "74b4e84009"
+    file: H-repair-booking-skill.md
+    text: "| Standard service | At least 90 minutes |"
+  - id: "4383d6bc6c"
+    file: H-repair-booking-skill.md
+    text: "| Full overhaul | At least 4 hours |"
+  - id: "e11e5af3bd"
+    file: H-repair-booking-skill.md
+    text: "| Repair | Price |"
+  - id: "71fb74f342"
+    file: H-repair-booking-skill.md
+    text: "| Puncture fix | 12 pounds |"
+  - id: "738dcc446c"
+    file: H-repair-booking-skill.md
+    text: "| Standard service | 85 pounds |"
+  - id: "a52e045908"
+    file: H-repair-booking-skill.md
+    text: "| Full overhaul | 190 pounds |"
+  - id: "f9d4af6e9f"
+    file: H-repair-booking-skill.md
+    text: "Book no further ahead than 10 weeks."
+  - id: "a3922b57b4"
+    file: H-repair-booking-skill.md
+    text: "Book the first service of a new bike for between 60 and 90 minutes."
+  - id: "3ca6c44e7c"
+    file: H-repair-booking-skill.md
+    text: "A rider may move a booking once without a fee."
+  - id: "f25d7464bb"
+    file: H-repair-booking-skill.md
+    text: "A second move is charged a fee of 5 pounds."
+  - id: "be70c5d379"
+    file: H-repair-booking-skill.md
+    text: "A cancellation less than 12 hours before a slot is logged as a late cancellation."
+  - id: "10a63793e7"
+    file: H-repair-booking-skill.md
+    text: "After four late cancellations in a year, tell the shop manager."
+  - id: "374a175e89"
+    file: H-repair-booking-skill.md
+    text: "The number of bikes one rider may have in the workshop at once is set two sentences further on."
+  - id: "9faa09ca59"
+    file: H-repair-booking-skill.md
+    text: "A bike counts as in the workshop from the moment it is checked in."
+  - id: "a970f120ac"
+    file: H-repair-booking-skill.md
+    text: "Four bikes is the most for one rider."
+  - id: "1d49860c52"
+    file: H-repair-booking-skill.md
+    text: "How long a finished bike may wait to be collected before a storage fee starts is given in the note at the foot of this file."
+  - id: "1d07334fe5"
+    file: H-repair-booking-skill.md
+    text: "A message such as \"Can I bring the red tourer in at 4 pm on 9 June?\" is a booking request."
+  - id: "8f2bf58aef"
+    file: H-repair-booking-skill.md
+    text: "Reply with the open slots and let the rider choose one."
+  - id: "827aadc8ff"
+    file: H-repair-booking-skill.md
+    text: "A standard service costs 85 pounds."
+  - id: "d7c8e53b25"
+    file: H-repair-booking-skill.md
+    text: "The repair form is at version 3."
+  - id: "46681c8f65"
+    file: H-repair-booking-skill.md
+    text: "Note: the storage fee starts after 21 days."
+  - id: "2b1bf9a418"
+    file: H-warranty-and-returns-skill.md
+    text: "A warranty case covers a fault in a part or in the work."
+  - id: "11f682fafd"
+    file: H-warranty-and-returns-skill.md
+    text: "It does not cover wear."
+  - id: "0e1e4ea010"
+    file: H-warranty-and-returns-skill.md
+    text: "The cover period is 24 months."
+  - id: "d35ffd0ecb"
+    file: H-warranty-and-returns-skill.md
+    text: "A claim on a cracked frame must be made within the period in the sentence before this one."
+  - id: "ca89f0059f"
+    file: H-warranty-and-returns-skill.md
+    text: "Workmanship is covered for 90 days after the repair."
+  - id: "04a3ba4103"
+    file: H-warranty-and-returns-skill.md
+    text: "We refuse the return of a tyre that has been fitted."
+  - id: "3c9922df8e"
+    file: H-warranty-and-returns-skill.md
+    text: "Ms Okonkwo signed the warranty terms in 2019."
+  - id: "66b303f216"
+    file: H-warranty-and-returns-skill.md
+    text: "| Item | Return window |"
+  - id: "ab4b0e16ad"
+    file: H-warranty-and-returns-skill.md
+    text: "| Helmet | Within 28 days |"
+  - id: "cb8c58e8ca"
+    file: H-warranty-and-returns-skill.md
+    text: "| Lights and bells | Within 30 days |"
+  - id: "69342a2ef5"
+    file: H-warranty-and-returns-skill.md
+    text: "| Saddle | Within 14 days |"
+  - id: "1a6a11d90a"
+    file: H-warranty-and-returns-skill.md
+    text: "Ask the rider for between 2 and 5 photos of the fault."
+  - id: "ea82d30431"
+    file: H-warranty-and-returns-skill.md
+    text: "If a rider writes twice about one case, ask the shop manager to call them."
+  - id: "af59746801"
+    file: H-warranty-and-returns-skill.md
+    text: "A message such as \"The fork on my gravel bike creaked after 3 weeks\" is a warranty claim."
+  - id: "7a8ecf159d"
+    file: H-warranty-and-returns-skill.md
+    text: "Open a case and ask for photos."
+  - id: "b935da76d8"
+    file: H-warranty-and-returns-skill.md
+    text: "Last year the shops handled 187 claims."
+  - id: "10470650a1"
+    file: H-parts-ordering-skill.md
+    text: "You place orders for the mechanics to approve."
+  - id: "8c283f8f2a"
+    file: H-parts-ordering-skill.md
+    text: "Every order goes to a mechanic first."
+  - id: "0676a760c5"
+    file: H-parts-ordering-skill.md
+    text: "Order no more than 12 parts in one order."
+  - id: "59b69a5c90"
+    file: H-parts-ordering-skill.md
+    text: "An order with a total over 500 pounds needs the shop manager's approval."
+  - id: "1e506266c1"
+    file: H-parts-ordering-skill.md
+    text: "The price ceiling for a part ordered without approval is the figure in the wheelset row of the table below."
+  - id: "42786417b3"
+    file: H-parts-ordering-skill.md
+    text: "| Part type | Ceiling |"
+  - id: "ac4df760cd"
+    file: H-parts-ordering-skill.md
+    text: "| Tyre or tube | 40 pounds |"
+  - id: "f893d57f0d"
+    file: H-parts-ordering-skill.md
+    text: "| Wheelset | 250 pounds |"
+  - id: "28f416349f"
+    file: H-parts-ordering-skill.md
+    text: "Tell the rider that a special order takes between 2 and 4 weeks."
+  - id: "220b237e5b"
+    file: H-parts-ordering-skill.md
+    text: "Chase the supplier if a part is more than 5 working days late."
+  - id: "30bd72fc90"
+    file: H-parts-ordering-skill.md
+    text: "Never promise a delivery date earlier than the supplier's date."
+  - id: "06962dcc00"
+    file: H-parts-ordering-skill.md
+    text: "Order a spare chain or cable only if the stock is below two."
+  - id: "77aea9d80d"
+    file: H-parts-ordering-skill.md
+    text: "A request for 3 inner tubes of size 700c is a small order."
+  - id: "14acf33b0c"
+    file: H-parts-ordering-skill.md
+    text: "The parts catalogue lists 4200 items."
+  - id: "0f99e0809d"
+    file: H-parts-ordering-skill.md
+    text: "Supplier codes look like SUP-0457."
+  - id: "1254b261e2"
+    file: H-parts-ordering-skill.md
+    text: "A new inner tube costs 6 pounds."
+  - id: "84db8c4390"
+    file: H-loan-bikes-skill.md
+    text: "A loan bike is lent while the rider's own bike is in the workshop."
+  - id: "7859267612"
+    file: H-loan-bikes-skill.md
+    text: "Each workshop keeps 6 loan bikes on its racks."
+  - id: "6fbebabe79"
+    file: H-loan-bikes-skill.md
+    text: "The rider's height must be between 150 and 195 centimetres."
+  - id: "509bc71a5e"
+    file: H-loan-bikes-skill.md
+    text: "The longest loan depends on the season, and the figure for summer is in the second item of the list below."
+  - id: "211f490a97"
+    file: H-loan-bikes-skill.md
+    text: "In winter a loan may last up to 7 days"
+  - id: "2d67f20ae9"
+    file: H-loan-bikes-skill.md
+    text: "In summer a loan may last up to 14 days"
+  - id: "aa6994cc26"
+    file: H-loan-bikes-skill.md
+    text: "A loan may be extended once."
+  - id: "37ad4116b8"
+    file: H-loan-bikes-skill.md
+    text: "| Bike | Most deposit held |"
+  - id: "4887fa5d2b"
+    file: H-loan-bikes-skill.md
+    text: "| City bike | 50 pounds |"
+  - id: "ddb12716d6"
+    file: H-loan-bikes-skill.md
+    text: "| Cargo bike | 150 pounds |"
+  - id: "6e432e2a4a"
+    file: H-loan-bikes-skill.md
+    text: "| Electric bike | 300 pounds |"
+  - id: "74bbb12e47"
+    file: H-loan-bikes-skill.md
+    text: "Charge a late fee only after the bike is 2 days late."
+  - id: "4a0cf86e12"
+    file: H-loan-bikes-skill.md
+    text: "The late fee is 5 pounds a day."
+  - id: "d9830077c2"
+    file: H-loan-bikes-skill.md
+    text: "Never charge more than 25 pounds in late fees."
+  - id: "946e3b0b83"
+    file: H-loan-bikes-skill.md
+    text: "From a third late return on, the rider may not borrow again."
+  - id: "3244d2e54c"
+    file: H-loan-bikes-skill.md
+    text: "Loan bikes are numbered LB-01 to LB-18."
+  - id: "12bd954803"
+    file: H-loan-bikes-skill.md
+    text: "The loan scheme began in 2017."
+  - id: "e3670e51b7"
+    file: H-shop-systems-reference.md
+    text: "The systems below are described as they work at present."
+  - id: "29eed2a704"
+    file: H-shop-systems-reference.md
+    text: "This file gives facts only; every instruction sits in the other files."
+  - id: "7b35a0db12"
+    file: H-shop-systems-reference.md
+    text: "| Thing measured | Amount | What follows at that point |"
+  - id: "f9e0f1b854"
+    file: H-shop-systems-reference.md
+    text: "| Attachment size per message | 8 megabytes | The message is refused |"
+  - id: "028ce90c32"
+    file: H-shop-systems-reference.md
+    text: "| Photos in one message | Six | The extra photos are dropped |"
+  - id: "2ad199d05d"
+    file: H-shop-systems-reference.md
+    text: "| Characters in one text message | 480 | The text is cut |"
+  - id: "774718b034"
+    file: H-shop-systems-reference.md
+    text: "| Idle time before sign-out | 20 minutes | Spoke is signed out |"
+  - id: "c46a42be37"
+    file: H-shop-systems-reference.md
+    text: "| Year | Workshops open |"
+  - id: "717c9645aa"
+    file: H-shop-systems-reference.md
+    text: "| 2011 | 1 |"
+  - id: "61ab42f28d"
+    file: H-shop-systems-reference.md
+    text: "| 2014 | 2 |"
+  - id: "cdc62cc39e"
+    file: H-shop-systems-reference.md
+    text: "| 2019 | 3 |"
+  - id: "c80fa52d64"
+    file: H-shop-systems-reference.md
+    text: "**The booking board saves a change at once.** There is no undo."
+  - id: "f0f7b299c8"
+    file: H-shop-systems-reference.md
+    text: "**The courier feed is slow on Mondays.** Expect a delay."
+  - id: "e0163dd687"
+    file: H-shop-systems-reference.md
+    text: "The booking board is at version 4.1 and runs on port 9102."
+  - id: "2757e42a05"
+    file: H-shop-systems-reference.md
+    text: "A failed sync is logged as ticket SYN-3306."
+  - id: "e00cc104ac"
+    file: H-tone-and-wording-guide.md
+    text: "Keep a chat message under 70 words."
+  - id: "857bc7cc17"
+    file: H-tone-and-wording-guide.md
+    text: "Write a subject line of 4 to 9 words."
+  - id: "17a6411aa1"
+    file: H-tone-and-wording-guide.md
+    text: "Use one emoji at most, and none in a safety message."
+  - id: "371d3ace1f"
+    file: H-tone-and-wording-guide.md
+    text: "Do not use more than three exclamation marks in a message."
+  - id: "2428f226a0"
+    file: H-tone-and-wording-guide.md
+    text: "Write numbers below eleven in words and larger numbers in digits."
+  - id: "185971f04f"
+    file: H-tone-and-wording-guide.md
+    text: "Greet the rider by name in the first line."
+  - id: "e56b78ecfb"
+    file: H-tone-and-wording-guide.md
+    text: "Two phrases to avoid are \"as per\" and \"kindly revert\"."
+  - id: "bb52a90d1f"
+    file: H-tone-and-wording-guide.md
+    text: "\"Hi Priya, your bike will be ready on Thursday at 4.\" is a good first line."
+  - id: "4495f1c1b3"
+    file: H-tone-and-wording-guide.md
+    text: "The style guide was last revised in June 2023."
+  - id: "d2a2482cda"
+    file: H-memory-and-handoff-notes.md
+    text: "A note holds four items: the workshop code, the rider's name, the bike and the next step."
+  - id: "f5dfa6a450"
+    file: H-memory-and-handoff-notes.md
+    text: "The note template is called handoff-v3."
+  - id: "4dbd5e426e"
+    file: H-memory-and-handoff-notes.md
+    text: "Write at most 6 lines in a handoff note."
+  - id: "b345760496"
+    file: H-memory-and-handoff-notes.md
+    text: "A handoff note older than 72 hours is stale; ask the rider again."
+  - id: "4137fd50ef"
+    file: H-memory-and-handoff-notes.md
+    text: "Never copy more than 150 characters of a rider's message into a note."
+  - id: "7787e108f8"
+    file: H-memory-and-handoff-notes.md
+    text: "Archive a closed case note after 30 days and delete it after 120 days."
+  - id: "19573cbc9c"
+    file: H-memory-and-handoff-notes.md
+    text: "Read at least the last 3 notes before you answer a returning rider."
+
+limits:
+  - unit: "ec414d2b65"
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "sentences in an answer"
+    governs: "ec414d2b65"
+  - unit: "aceeb32c14"
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "working days to reply"
+    governs: "aceeb32c14"
+  - unit: "b9c55967ca"
+    limit: 30
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "b9c55967ca"
+  - unit: "c0375bdf37"
+    limit: 30
+    comparison: gt
+    role: trigger
+    unit_of: "pounds"
+    governs: "c0375bdf37"
+  - unit: "3596a2afb7"
+    limit: 90
+    comparison: gt
+    role: trigger
+    unit_of: "pounds"
+    governs: "3596a2afb7"
+  - unit: "85f2ea38e9"
+    limit: 45
+    comparison: le
+    role: constraint
+    unit_of: "days the notes are kept"
+    governs: "85f2ea38e9"
+  - unit: "a054bec18c"
+    limit: 5
+    comparison: le
+    role: constraint
+    unit_of: "open conversations per rider"
+    governs: "a054bec18c"
+  - unit: "d3b433ed87"
+    limit: 6
+    comparison: ge
+    role: trigger
+    unit_of: "open conversations per rider"
+    governs: "d3b433ed87"
+  - unit: "ee8b74bf51"
+    limit: 20
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: "ee8b74bf51"
+  - unit: "74b4e84009"
+    limit: 90
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: "74b4e84009"
+  - unit: "4383d6bc6c"
+    limit: 4
+    comparison: ge
+    role: constraint
+    unit_of: "hours"
+    governs: "4383d6bc6c"
+  - unit: "f9d4af6e9f"
+    limit: 10
+    comparison: le
+    role: constraint
+    unit_of: "weeks ahead"
+    governs: "f9d4af6e9f"
+  - unit: "a3922b57b4"
+    limit: 60
+    comparison: ge
+    role: constraint
+    unit_of: "minutes"
+    governs: "a3922b57b4"
+  - unit: "a3922b57b4"
+    limit: 90
+    comparison: le
+    role: constraint
+    unit_of: "minutes"
+    governs: "a3922b57b4"
+  - unit: "3ca6c44e7c"
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "free moves of one booking"
+    governs: "3ca6c44e7c"
+  - unit: "f25d7464bb"
+    limit: 2
+    comparison: ge
+    role: trigger
+    unit_of: "moves of one booking"
+    governs: "f25d7464bb"
+  - unit: "be70c5d379"
+    limit: 12
+    comparison: lt
+    role: trigger
+    unit_of: "hours before the slot"
+    governs: "be70c5d379"
+  - unit: "10a63793e7"
+    limit: 4
+    comparison: ge
+    role: trigger
+    unit_of: "late cancellations in a year"
+    governs: "10a63793e7"
+  - unit: "a970f120ac"
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "bikes in the workshop per rider"
+    governs: "374a175e89"
+  - unit: "46681c8f65"
+    limit: 21
+    comparison: gt
+    role: trigger
+    unit_of: "days waiting for collection"
+    governs: "1d49860c52"
+  - unit: "0e1e4ea010"
+    limit: 24
+    comparison: le
+    role: constraint
+    unit_of: "months from the sale"
+    governs: "d35ffd0ecb"
+  - unit: "ca89f0059f"
+    limit: 90
+    comparison: le
+    role: constraint
+    unit_of: "days after the repair"
+    governs: "ca89f0059f"
+  - unit: "ab4b0e16ad"
+    limit: 28
+    comparison: le
+    role: constraint
+    unit_of: "days"
+    governs: "ab4b0e16ad"
+  - unit: "cb8c58e8ca"
+    limit: 30
+    comparison: le
+    role: constraint
+    unit_of: "days"
+    governs: "cb8c58e8ca"
+  - unit: "69342a2ef5"
+    limit: 14
+    comparison: le
+    role: constraint
+    unit_of: "days"
+    governs: "69342a2ef5"
+  - unit: "1a6a11d90a"
+    limit: 2
+    comparison: ge
+    role: constraint
+    unit_of: "photos"
+    governs: "1a6a11d90a"
+  - unit: "1a6a11d90a"
+    limit: 5
+    comparison: le
+    role: constraint
+    unit_of: "photos"
+    governs: "1a6a11d90a"
+  - unit: "ea82d30431"
+    limit: 2
+    comparison: ge
+    role: trigger
+    unit_of: "messages about one case"
+    governs: "ea82d30431"
+  - unit: "0676a760c5"
+    limit: 12
+    comparison: le
+    role: constraint
+    unit_of: "parts in one order"
+    governs: "0676a760c5"
+  - unit: "59b69a5c90"
+    limit: 500
+    comparison: gt
+    role: trigger
+    unit_of: "pounds"
+    governs: "59b69a5c90"
+  - unit: "ac4df760cd"
+    limit: 40
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "ac4df760cd"
+  - unit: "f893d57f0d"
+    limit: 250
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "1e506266c1"
+  - unit: "28f416349f"
+    limit: 2
+    comparison: ge
+    role: constraint
+    unit_of: "weeks"
+    governs: "28f416349f"
+  - unit: "28f416349f"
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "weeks"
+    governs: "28f416349f"
+  - unit: "220b237e5b"
+    limit: 5
+    comparison: gt
+    role: trigger
+    unit_of: "working days late"
+    governs: "220b237e5b"
+  - unit: "06962dcc00"
+    limit: 2
+    comparison: lt
+    role: trigger
+    unit_of: "spares in stock"
+    governs: "06962dcc00"
+  - unit: "6fbebabe79"
+    limit: 150
+    comparison: ge
+    role: constraint
+    unit_of: "centimetres"
+    governs: "6fbebabe79"
+  - unit: "6fbebabe79"
+    limit: 195
+    comparison: le
+    role: constraint
+    unit_of: "centimetres"
+    governs: "6fbebabe79"
+  - unit: "211f490a97"
+    limit: 7
+    comparison: le
+    role: constraint
+    unit_of: "days"
+    governs: "211f490a97"
+  - unit: "2d67f20ae9"
+    limit: 14
+    comparison: le
+    role: constraint
+    unit_of: "days"
+    governs: "509bc71a5e"
+  - unit: "aa6994cc26"
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "extensions of one loan"
+    governs: "aa6994cc26"
+  - unit: "4887fa5d2b"
+    limit: 50
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "4887fa5d2b"
+  - unit: "ddb12716d6"
+    limit: 150
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "43dd11ebf0"
+  - unit: "6e432e2a4a"
+    limit: 300
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "6e432e2a4a"
+  - unit: "74bbb12e47"
+    limit: 2
+    comparison: gt
+    role: trigger
+    unit_of: "days late"
+    governs: "74bbb12e47"
+  - unit: "d9830077c2"
+    limit: 25
+    comparison: le
+    role: constraint
+    unit_of: "pounds"
+    governs: "d9830077c2"
+  - unit: "946e3b0b83"
+    limit: 3
+    comparison: ge
+    role: trigger
+    unit_of: "late returns"
+    governs: "946e3b0b83"
+  - unit: "f9e0f1b854"
+    limit: 8
+    comparison: le
+    role: constraint
+    unit_of: "megabytes"
+    governs: "f9e0f1b854"
+  - unit: "028ce90c32"
+    limit: 6
+    comparison: le
+    role: constraint
+    unit_of: "photos"
+    governs: "028ce90c32"
+  - unit: "2ad199d05d"
+    limit: 480
+    comparison: le
+    role: constraint
+    unit_of: "characters"
+    governs: "2ad199d05d"
+  - unit: "774718b034"
+    limit: 20
+    comparison: ge
+    role: trigger
+    unit_of: "minutes idle"
+    governs: "774718b034"
+  - unit: "e00cc104ac"
+    limit: 70
+    comparison: lt
+    role: constraint
+    unit_of: "words in a chat message"
+    governs: "e00cc104ac"
+  - unit: "857bc7cc17"
+    limit: 4
+    comparison: ge
+    role: constraint
+    unit_of: "words in a subject line"
+    governs: "857bc7cc17"
+  - unit: "857bc7cc17"
+    limit: 9
+    comparison: le
+    role: constraint
+    unit_of: "words in a subject line"
+    governs: "857bc7cc17"
+  - unit: "17a6411aa1"
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "emoji in a message"
+    governs: "17a6411aa1"
+  - unit: "17a6411aa1"
+    limit: 0
+    comparison: le
+    role: constraint
+    unit_of: "emoji in a safety message"
+    governs: "17a6411aa1"
+  - unit: "371d3ace1f"
+    limit: 3
+    comparison: le
+    role: constraint
+    unit_of: "exclamation marks in a message"
+    governs: "371d3ace1f"
+  - unit: "2428f226a0"
+    limit: 11
+    comparison: lt
+    role: trigger
+    unit_of: "numbers written in a message"
+    governs: "2428f226a0"
+  - unit: "4dbd5e426e"
+    limit: 6
+    comparison: le
+    role: constraint
+    unit_of: "lines in a note"
+    governs: "4dbd5e426e"
+  - unit: "b345760496"
+    limit: 72
+    comparison: gt
+    role: trigger
+    unit_of: "hours since the note"
+    governs: "b345760496"
+  - unit: "4137fd50ef"
+    limit: 150
+    comparison: le
+    role: constraint
+    unit_of: "characters copied"
+    governs: "4137fd50ef"
+  - unit: "7787e108f8"
+    limit: 30
+    comparison: ge
+    role: trigger
+    unit_of: "days since the case closed"
+    governs: "7787e108f8"
+  - unit: "7787e108f8"
+    limit: 120
+    comparison: ge
+    role: trigger
+    unit_of: "days since the case closed"
+    governs: "7787e108f8"
+  - unit: "19573cbc9c"
+    limit: 3
+    comparison: ge
+    role: constraint
+    unit_of: "notes read"
+    governs: "19573cbc9c"
+
+non_limits:
+  - unit: "5baecc3cfe"
+    number: "3"
+    why: "count of workshops"
+  - unit: "f3db4fe530"
+    number: "4"
+    why: "count of the items listed below it"
+  - unit: "94791b3916"
+    number: "1"
+    why: "workshop code"
+  - unit: "94791b3916"
+    number: "3"
+    why: "workshop code"
+  - unit: "3de9db9bf4"
+    number: "2011"
+    why: "date"
+  - unit: "204e517179"
+    number: "3"
+    why: "count of the kinds named in the sentence"
+  - unit: "f25d7464bb"
+    number: "5"
+    why: "price quoted as a fact: the fee"
+  - unit: "1d07334fe5"
+    number: "4"
+    why: "example: a time of day"
+  - unit: "1d07334fe5"
+    number: "9"
+    why: "example: a date"
+  - unit: "827aadc8ff"
+    number: "85"
+    why: "price quoted as a fact"
+  - unit: "d7c8e53b25"
+    number: "3"
+    why: "version of a form"
+  - unit: "3c9922df8e"
+    number: "2019"
+    why: "date"
+  - unit: "af59746801"
+    number: "3"
+    why: "example: a duration"
+  - unit: "b935da76d8"
+    number: "187"
+    why: "statistic about last year"
+  - unit: "77aea9d80d"
+    number: "3"
+    why: "example: a quantity"
+  - unit: "77aea9d80d"
+    number: "700"
+    why: "example: a tyre size"
+  - unit: "14acf33b0c"
+    number: "4200"
+    why: "statistic about the catalogue"
+  - unit: "0f99e0809d"
+    number: "0457"
+    why: "identifier"
+  - unit: "1254b261e2"
+    number: "6"
+    why: "price quoted as a fact"
+  - unit: "7859267612"
+    number: "6"
+    why: "count of loan bikes"
+  - unit: "4a0cf86e12"
+    number: "5"
+    why: "price quoted as a fact"
+  - unit: "3244d2e54c"
+    number: "01"
+    why: "identifier range start"
+  - unit: "3244d2e54c"
+    number: "18"
+    why: "identifier range end"
+  - unit: "12bd954803"
+    number: "2017"
+    why: "date"
+  - unit: "e0163dd687"
+    number: "4.1"
+    why: "software version"
+  - unit: "e0163dd687"
+    number: "9102"
+    why: "port number"
+  - unit: "2757e42a05"
+    number: "3306"
+    why: "ticket number"
+  - unit: "e56b78ecfb"
+    number: "2"
+    why: "count of the phrases listed"
+  - unit: "bb52a90d1f"
+    number: "4"
+    why: "example: a time of day"
+  - unit: "4495f1c1b3"
+    number: "2023"
+    why: "date"
+  - unit: "d2a2482cda"
+    number: "4"
+    why: "count of the items listed"
+  - unit: "f5dfa6a450"
+    number: "3"
+    why: "version in a name"
+  - unit: "71fb74f342"
+    number: "12"
+    why: "price quoted as a fact"
+  - unit: "738dcc446c"
+    number: "85"
+    why: "price quoted as a fact"
+  - unit: "a52e045908"
+    number: "190"
+    why: "price quoted as a fact"
+  - unit: "717c9645aa"
+    number: "2011"
+    why: "year"
+  - unit: "717c9645aa"
+    number: "1"
+    why: "count of workshops open"
+  - unit: "61ab42f28d"
+    number: "2014"
+    why: "year"
+  - unit: "61ab42f28d"
+    number: "2"
+    why: "count of workshops open"
+  - unit: "cdc62cc39e"
+    number: "2019"
+    why: "year"
+  - unit: "cdc62cc39e"
+    number: "3"
+    why: "count of workshops open"
+
+hard_cases:
+  about-numbers:
+    - "2428f226a0"
+  negative:
+    - "ec414d2b65"
+    - "3596a2afb7"
+    - "f9d4af6e9f"
+    - "0676a760c5"
+    - "d9830077c2"
+    - "946e3b0b83"
+    - "17a6411aa1"
+    - "371d3ace1f"
+    - "4137fd50ef"
+  ordinal:
+    - "d3b433ed87"
+    - "f25d7464bb"
+    - "946e3b0b83"
+  pointer:
+    - "a970f120ac"
+    - "46681c8f65"
+    - "0e1e4ea010"
+    - "f893d57f0d"
+    - "2d67f20ae9"
+    - "ddb12716d6"
+  range:
+    - "a3922b57b4"
+    - "1a6a11d90a"
+    - "28f416349f"
+    - "6fbebabe79"
+    - "857bc7cc17"
+  spelled:
+    - "ec414d2b65"
+    - "aceeb32c14"
+    - "a054bec18c"
+    - "3ca6c44e7c"
+    - "10a63793e7"
+    - "a970f120ac"
+    - "ea82d30431"
+    - "06962dcc00"
+    - "aa6994cc26"
+    - "17a6411aa1"
+    - "371d3ace1f"
+  table:
+    - "ee8b74bf51"
+    - "74b4e84009"
+    - "4383d6bc6c"
+    - "ab4b0e16ad"
+    - "cb8c58e8ca"
+    - "69342a2ef5"
+    - "ac4df760cd"
+    - "f893d57f0d"
+    - "4887fa5d2b"
+    - "ddb12716d6"
+    - "6e432e2a4a"
+    - "f9e0f1b854"
+    - "028ce90c32"
+    - "2ad199d05d"
+    - "774718b034"
+
+# refers_to: a unit that points at another unit for its number ("the next sentence"), giving the unit it points at.
+refers_to:
+  - unit: "43dd11ebf0"
+    target: "ddb12716d6"
+  - unit: "374a175e89"
+    target: "a970f120ac"
+  - unit: "1d49860c52"
+    target: "46681c8f65"
+  - unit: "d35ffd0ecb"
+    target: "0e1e4ea010"
+  - unit: "1e506266c1"
+    target: "f893d57f0d"
+  - unit: "509bc71a5e"
+    target: "2d67f20ae9"
+
+# limits_table: a standalone table whose rows state limits (no rule refers to it): its header row and its data rows,
+# first to last, by unit id.
+limits_table:
+  - file: H-repair-booking-skill.md
+    header: "ee8c8d43c3"
+    first: "ee8b74bf51"
+    last: "4383d6bc6c"
+    rows:
+      - "ee8b74bf51"
+      - "74b4e84009"
+      - "4383d6bc6c"
+  - file: H-warranty-and-returns-skill.md
+    header: "66b303f216"
+    first: "ab4b0e16ad"
+    last: "69342a2ef5"
+    rows:
+      - "ab4b0e16ad"
+      - "cb8c58e8ca"
+      - "69342a2ef5"
+  - file: H-shop-systems-reference.md
+    header: "7b35a0db12"
+    first: "f9e0f1b854"
+    last: "774718b034"
+    rows:
+      - "f9e0f1b854"
+      - "028ce90c32"
+      - "2ad199d05d"
+      - "774718b034"
+
+# number_table: every standalone table whose cells state numbers (no rule points at it), limit or not, as the range of its rows, header included.
+# limits_table above lists only the ones whose rows carry truth limits.
+number_table:
+  - { from: "ee8c8d43c3", to: "4383d6bc6c" }
+  - { from: "66b303f216", to: "69342a2ef5" }
+  - { from: "7b35a0db12", to: "774718b034" }
+  - { from: "e11e5af3bd", to: "a52e045908" }
+  - { from: "c46a42be37", to: "cdc62cc39e" }
