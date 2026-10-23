@@ -453,6 +453,11 @@ const setNeedsSystem2 = (set: LabelSet): boolean =>
   );
 
 /** A failure that stops the run: nothing the next window does can fix it. */
+/** Appends every item. A spread into `push` takes the items as call arguments, which a long list overflows. */
+export function appendAll<T>(target: T[], items: readonly T[]): void {
+  for (const item of items) target.push(item);
+}
+
 const FATAL = (cause: unknown): boolean =>
   cause instanceof CassetteMiss || cause instanceof LabelerConfigError;
 
@@ -922,8 +927,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   /** Reads an answer in step and puts its opinions in the place of run `run`. */
   const hear = (task: Task, run: number, leaf: Leaf) => {
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
-    refusals.push(...read.refusals);
-    dropped.push(...(read.dropped ?? []));
+    appendAll(refusals, read.refusals);
+    appendAll(dropped, read.dropped ?? []);
     const target = runOf(task, run);
     for (const [index, opinion] of read.byUnit)
       target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
@@ -931,7 +936,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
-    failedWindows.push(...outcome.value.failures);
+    appendAll(failedWindows, outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -970,7 +975,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
       }
       const answered = await resolve(again, window);
-      failedWindows.push(...answered.failures);
+      appendAll(failedWindows, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -1241,7 +1246,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
       }
       const answered = await resolve(again, task.window);
-      failedWindows.push(...answered.failures);
+      appendAll(failedWindows, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
