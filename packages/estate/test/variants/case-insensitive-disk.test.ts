@@ -85,3 +85,39 @@ describe('on a disk that ignores case, a setup reads as it does on a disk that k
     },
   );
 });
+
+describe('a file the runtime reads by name is that file only in the letters it names', () => {
+  it('does not read a standing file written in other letters as the standing file', async () => {
+    const placed = place(specOf(3, 0));
+    const { 'CLAUDE.md': standing, ...rest } = placed.files;
+    const obs = await observe(await write({ ...rest, 'claude.md': standing ?? '' }), placed.paths);
+    expect(obs.isRead('instruction:main')).toBe(false);
+    expect(obs.twins).toEqual([]);
+  });
+
+  it.each([3, 8, 14])(
+    'does not apply a setup file written in other letters, or copy it (seed %i)',
+    async (seed) => {
+      const spec = specOf(seed, 0);
+      const placed = place(spec);
+      // A setup file that would keep every reference out, if it were the setup file.
+      const files = { ...placed.files, 'Driftbench.Estate.yaml': 'ignore:\n  - references\n' };
+      const paths = new Map(placed.paths).set('config:written', 'driftbench.estate.yaml');
+      const obs = await observe(await write(files), paths);
+      for (const cap of spec.caps)
+        for (const ref of cap.refs) expect(obs.isRead(refKey(cap, ref))).toBe(true);
+      // The copy takes the setup file by the name the profile gives it; the estate holds no such name.
+      expect(obs.isCopied('config:written')).toBe(false);
+    },
+  );
+
+  it('applies the setup file written as the profile names it (the control)', async () => {
+    const spec = specOf(14, 0);
+    const placed = place(spec);
+    const files = { ...placed.files, 'driftbench.estate.yaml': 'ignore:\n  - references\n' };
+    const obs = await observe(await write(files), placed.paths);
+    const refs = spec.caps.flatMap((cap) => cap.refs.map((ref) => refKey(cap, ref)));
+    expect(refs.length).toBeGreaterThan(0);
+    for (const key of refs) expect(obs.isRead(key)).toBe(false);
+  });
+});
