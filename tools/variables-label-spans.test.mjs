@@ -30,7 +30,7 @@ const fresh = ${JSON.stringify(fresh)};
 globalThis.fetch = async (_url, options) => {
   const body = JSON.parse(options.body);
   let text;
-  if (body.max_tokens === 64) {
+  if (body.messages[0].content.startsWith('{')) {
     const request = JSON.parse(body.messages[0].content);
     appendFileSync(${JSON.stringify(join(folder, 'choices.jsonl'))}, JSON.stringify(request) + '\\n');
     text = JSON.stringify(request.candidates[0].id);
