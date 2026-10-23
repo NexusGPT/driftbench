@@ -130,7 +130,8 @@ describe('the traffic weight of a row', () => {
               try {
                 planV2(store, { approvedOnly });
               } catch (error) {
-                plannerCode = error instanceof RangeError ? (error as { code?: unknown }).code : 'not a RangeError';
+                plannerCode =
+                  error instanceof RangeError ? (error as { code?: unknown }).code : 'not a RangeError';
               }
               if (plannerCode !== (loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO'))
                 disagree.push(
