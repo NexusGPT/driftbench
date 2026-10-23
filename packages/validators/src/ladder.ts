@@ -111,6 +111,11 @@ export type Ladder = {
   /** The ladder version (docs/validators.md section 12.5); a floor holds per version. Default 1. */
   version?: number;
   levels: readonly LevelDef[];
+  /**
+   * A full run (`--all-levels`) reports the levels it measured above a seed's first failing level in a section of
+   * their own (`beyondTheFirstFailingLevel`), shown as not run in the rows, so no reader takes them for passes.
+   */
+  beyondApart?: boolean;
 };
 
 /** The version of a ladder: its declared version, or 1. */
@@ -157,6 +162,7 @@ export function defineLadder(def: Ladder): Ladder {
     component: def.component,
     version: def.version ?? 1,
     levels: Object.freeze(def.levels.map((level) => Object.freeze({ ...level }))),
+    ...(def.beyondApart ? { beyondApart: true } : {}),
   });
 }
 
@@ -317,6 +323,8 @@ export type LadderReport = {
   level: number;
   top: number;
   seeds: SeedRun[];
+  /** The ladder reports the levels measured beyond the first failing level apart (`Ladder.beyondApart`). */
+  beyondApart?: true;
 };
 
 /** Runs a ladder on every seed in order. The level of the report is the minimum level over its seeds. */
@@ -346,6 +354,7 @@ export async function runSeeds(
     level: Math.min(...runs.map((run) => run.level)),
     top: ladder.levels.length,
     seeds: runs,
+    ...(ladder.beyondApart ? { beyondApart: true as const } : {}),
   };
 }
 

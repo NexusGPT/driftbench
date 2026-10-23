@@ -56,6 +56,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { measuredSeeds, withinStatsMeasurementSweep } from './stats-sweep-cache';
 import { USAGE_EXIT, type ValidateCommandOptions, type ValidateDeps } from './validate';
+import { splitBeyond, unsplitBeyond } from './validate-beyond';
 
 export const defaultValidateDeps: ValidateDeps = {
   ladders: registeredLadders,
@@ -399,6 +400,7 @@ function joinLegs(
     level: Math.min(...runs.map((run) => run.level)),
     top: ladder.levels.length,
     seeds: runs,
+    ...(ladder.beyondApart ? { beyondApart: true as const } : {}),
   };
 }
 
@@ -439,7 +441,13 @@ function readLegs(
         return undefined;
       }
       if (!wanted.has(item.component)) continue;
-      legs.set(item.component, [...(legs.get(item.component) ?? []), item]);
+      // A leg that reported the levels beyond its first failure apart gets them back in its rows first.
+      const whole = unsplitBeyond(item);
+      if (typeof whole === 'string') {
+        io.err(`${name}: ${whole}.\n`);
+        return undefined;
+      }
+      legs.set(item.component, [...(legs.get(item.component) ?? []), whole as Leg]);
       hidden = item.hiddenSeed ?? hidden;
     }
   }
@@ -737,12 +745,18 @@ function print(
   root: string,
 ): void {
   if (options.json) {
-    const shown = reports.map((report) => ({
-      ...report,
-      ...(hidden ? { hiddenSeed: hidden } : {}),
-      ...(options.items ? { bank: shownBank(report, options, root) } : {}),
-      ...(options.allLevels ? { failingItems: allFailingItems(report) } : {}),
-    }));
+    const shown = reports.map((report) => {
+      // A ladder that reports them apart puts the levels measured above a seed's first failing level in their own
+      // section, never in the rows.
+      const split = options.allLevels && report.beyondApart ? splitBeyond(report) : undefined;
+      return {
+        ...(split?.report ?? report),
+        ...(hidden ? { hiddenSeed: hidden } : {}),
+        ...(options.items ? { bank: shownBank(report, options, root) } : {}),
+        ...(options.allLevels ? { failingItems: allFailingItems(report) } : {}),
+        ...(split && split.beyond.seeds.length > 0 ? { beyondTheFirstFailingLevel: split.beyond } : {}),
+      };
+    });
     io.out(`${JSON.stringify(all ? { reports: shown } : shown[0], null, 2)}\n`);
     return;
   }
