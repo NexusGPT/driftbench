@@ -49,6 +49,8 @@ const ATOMS = [
   '**',
   '?',
   '[ab]',
+  '[/]',
+  '[!x]',
   '[!a]',
   '[^a]',
   '[]a]',
@@ -165,6 +167,88 @@ describe.skipIf(!HAS_GIT)('an ignore file is read as git reads it', () => {
     },
     60_000,
   );
+});
+
+/** Lines worth reading one by one against git: each form of a class, of a star, of a slash, of an escape. */
+const LINES = [
+  'a[/]b',
+  'a[!x]b',
+  'a[^x]b',
+  'a?b',
+  'a*b',
+  'a**b',
+  'a/**/b',
+  '**/b',
+  '**',
+  'a/**',
+  '/**',
+  '**/**',
+  'a/b/**',
+  '[]a]',
+  '[!]a]',
+  '[]',
+  '[z-a]',
+  '[!z-a]',
+  '[a-c-e]',
+  '[a-]',
+  '[-a]',
+  '[[:alpha:]]',
+  '[[:upper:]]',
+  '[[:digit:][:alpha:]]',
+  '[[:foo:]]',
+  '[[:alpha:',
+  '[[:]',
+  '[a',
+  '\\a',
+  '\\',
+  'a\\',
+  '\\*',
+  '\\[a]',
+  '[\\]]',
+  'a//',
+  '//a',
+  '/a/',
+  'a/',
+  'ab/',
+  '!a',
+  '\\!a',
+  '\\#a',
+  'a ',
+  'a\\ ',
+] as const;
+
+const FIXED = [
+  'a/b',
+  'a/ab',
+  'a/a-b',
+  'b',
+  'ab',
+  'ba',
+  'a',
+  ']/a',
+  'a-b',
+  'z/a',
+  'a.b',
+  'q1',
+  'a/b/z',
+  'ab/b',
+  '!a',
+  '#a',
+  'a ',
+  '[a]',
+] as const;
+
+describe.skipIf(!HAS_GIT)('each form of a line keeps the files git keeps', () => {
+  it.each(LINES)('line %j', async (line) => {
+    const files = new Map<string, string>(FIXED.map((path) => [path, 'x\n']));
+    // A path cannot be a file and a folder: `a` and `ab` are folders here, so their files are the entries inside.
+    for (const path of [...files.keys()])
+      if ([...files.keys()].some((other) => other.startsWith(`${path}/`))) files.delete(path);
+    files.set('.gitignore', `${line}\n`);
+    const tree: Tree = { files, ignoreFiles: ['.gitignore'] };
+    const root = await write(tree);
+    expect(await keptByUs(root, tree), JSON.stringify(line)).toEqual(keptByGit(root));
+  });
 });
 
 describe('no line makes an invalid expression', () => {
