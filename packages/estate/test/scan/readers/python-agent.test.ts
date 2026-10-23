@@ -89,6 +89,15 @@ async function fixture(files: Record<string, string>): Promise<string> {
 }
 
 describe('Python RawEstate projection', () => {
+  it('counts an untyped file under the declared source coverage root as unknown', async () => {
+    const root = await fixture({
+      'agent.py': CASES.prompt.input,
+      'unclassified/notes.xyz': 'Fictional untyped content.\n',
+    });
+    const raw = await new pythonReader.PythonAgentReader().read(root);
+    expect(raw.coverage).toEqual({ covered: 1, unknown: ['unclassified/notes.xyz'], skipped: [] });
+  });
+
   it('plants every declared type, aspect and future core link selector', () => {
     expect(Object.keys(PYTHON_PART_PLANTS).sort()).toEqual(
       Object.keys(pythonReader.PYTHON_AGENT_TYPES.types).sort(),
