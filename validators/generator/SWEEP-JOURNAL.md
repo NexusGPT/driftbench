@@ -246,3 +246,9 @@ Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabli
 - Rule: a partial cell is allowed iff an allowed full cell holds it (constrained combinatorial testing, NIST SP 800-142; `packages/generate/src/seed/feasible.ts`). A cell that names no behaviour on a turn that asks none now takes one the flow lists, on a channel it allows, that no constraint forbids with the rest.
 - Effect, seeds 1 to 21 (run 39889260115): 74 partial cells of 2 or 3 axes leave the target (seed 5: 16, seed 8: 15, seed 14: 23, seed 21: 20), all by the behaviours' channel inventory, none by a constraint; each proved to have no full completion by an independent brute force. No cell enters. No item, threshold or floor changes.
 - Test: `joint-behaviour-axis.test.ts`.
+
+## Scale calibration follow-up (2026-10-22)
+
+- The 48 rows of run 39790219968 (head 84b145ce0, calibration in its own process) are kept in `evidence/scale-calibration.json` under `separateProcessRuns`, because run artifacts expire.
+- `measureCalibration` stops a calibration child that does not finish in 120,000 ms and fails the item with a reason ("the calibration did not finish in N ms and was stopped"). Test: a 1 ms timeout returns that reason.
+- No item, threshold, weight or reference changes.
