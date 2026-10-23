@@ -242,6 +242,7 @@ async function snapshotReads(
   setup: SetupDocument,
   read: SetupReader,
   skipped: DoctorResult['coverage']['skipped'],
+  inspectSnapshots?: (roots: Record<string, string>, temporary: string) => Promise<void>,
 ): Promise<Array<SetupRead | undefined>> {
   const temporary = await mkdtemp(join(tmpdir(), 'driftbench-doctor-'));
   const snapshotRoots = Object.fromEntries(sources.map((source) => [source.id, join(temporary, source.id)]));
@@ -336,6 +337,25 @@ async function snapshotReads(
         } else await symlink(join(targetRoot, link.target), destination);
       }
     }
+    for (const source of sources) {
+      const profile = runtimeProfile(source.reader);
+      for (const path of profile?.configFiles ?? []) {
+        const location = join(snapshotRoots[source.id] as string, path);
+        const canonical = await realpath(location).catch(() => undefined);
+        if (!canonical || !inside(temporary, canonical)) continue;
+        try {
+          const value: unknown = parseYaml(await readFile(canonical, 'utf8'), { uniqueKeys: true });
+          if (value && typeof value === 'object' && !Array.isArray(value) && 'userSkills' in value) {
+            const { userSkills: _userSkills, ...safe } = value;
+            await writeFile(canonical, stringify(safe));
+            skipped.push({ what: `${source.id}:${path}#userSkills`, reason: setup.sources.some((entry) => entry.kind === 'home') ? 'home read through mapped source' : 'home not mapped' });
+          }
+        } catch {
+          // Invalid configuration cannot authorise a home read; its reader reports the parse limitation.
+        }
+      }
+    }
+    await inspectSnapshots?.(snapshotRoots, temporary);
     const results: Array<SetupRead | undefined> = [];
     for (const source of sources)
       results.push(await read(source.reader, snapshotRoots[source.id] as string, source, snapshotRoots));
@@ -343,6 +363,54 @@ async function snapshotReads(
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }
+}
+
+type DeploymentCheck = { source: string; path: string; agrees: boolean; reason?: string };
+
+async function snapshotFingerprints(root: string, temporary: string): Promise<Array<{ path: string; sha256: string }> | undefined> {
+  const files: Array<{ path: string; sha256: string }> = [];
+  const walk = async (path: string, relativePath: string, ancestors: Set<string>): Promise<boolean> => {
+    const canonical = await realpath(path).catch(() => undefined);
+    if (!canonical || !inside(temporary, canonical)) return false;
+    const info = await stat(canonical);
+    if (info.isFile()) {
+      files.push({ path: relativePath, sha256: hash(await readFile(canonical)) });
+      return true;
+    }
+    if (!info.isDirectory() || ancestors.has(canonical)) return false;
+    const next = new Set([...ancestors, canonical]);
+    for (const entry of await readdir(canonical, { withFileTypes: true })) {
+      if (!(await walk(join(canonical, entry.name), relativePath ? `${relativePath}/${entry.name}` : entry.name, next))) return false;
+    }
+    return true;
+  };
+  return await walk(root, '', new Set()) ? files.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0) : undefined;
+}
+
+async function checkDeployments(sources: ResolvedSetupSource[], roots: Record<string, string>, temporary: string): Promise<DeploymentCheck[]> {
+  const mapped = (await Promise.all(sources.map((source) => realpath(source.root).catch(() => undefined)))).filter((root): root is string => root !== undefined);
+  const checks: DeploymentCheck[] = [];
+  for (const source of sources) for (const target of source.bindings) {
+    const path = resolve(target.root, target.deployedPath);
+    const canonical = await realpath(path).catch(() => undefined);
+    const check: DeploymentCheck = { source: source.id, path: target.deployedPath, agrees: false };
+    checks.push(check);
+    if (canonical && !mapped.some((root) => inside(root, canonical))) { check.reason = 'unmapped deployment'; continue; }
+    const info = await lstat(path).catch(() => undefined);
+    const expected = await realpath(source.root).catch(() => undefined);
+    if (target.method === 'link') { check.agrees = !!info?.isSymbolicLink() && canonical !== undefined && canonical === expected; continue; }
+    if (!info?.isDirectory() || info.isSymbolicLink() || !canonical) continue;
+    const deployedSource = sources.find((entry) => entry.root === target.root);
+    if (!deployedSource) { check.reason = 'unmapped deployment'; continue; }
+    const deployedSnapshot = join(roots[deployedSource.id] as string, target.deployedPath);
+    const [from, to] = await Promise.all([
+      snapshotFingerprints(roots[source.id] as string, temporary),
+      snapshotFingerprints(deployedSnapshot, temporary),
+    ]);
+    check.agrees = from !== undefined && to !== undefined && JSON.stringify(from) === JSON.stringify(to);
+    if (!from || !to) check.reason = 'deployment unavailable in filtered snapshot';
+  }
+  return checks;
 }
 
 /** Whether declared locators cover a file. Contained types apply only inside their declared parent folders. */
@@ -506,11 +574,12 @@ export async function diagnoseSetup(
     inventories = [];
     for (const source of sources) inventories.push(await inventory(source, draft, setupFile, [], sources));
   }
-  const reads = await snapshotReads(sources, inventories, draft, read, result.coverage.skipped);
-  const disks = new Map<string, DiskFile[]>();
+  let deploymentChecks: DeploymentCheck[] = [];
+  const reads = await snapshotReads(sources, inventories, draft, read, result.coverage.skipped, async (roots, temporary) => {
+    deploymentChecks = await checkDeployments(sources, roots, temporary);
+  });
   for (const [index, source] of sources.entries()) {
     const disk = inventories[index] as Disk;
-    disks.set(source.id, disk.files);
     manifest.push(
       ...disk.files.map((file) => {
         const link = disk.links.find((entry) => entry.path === file.path);
@@ -595,42 +664,19 @@ export async function diagnoseSetup(
         ? 'fail'
         : 'pass';
   result.drift = driftOf(declared?.drift, manifest);
-  for (const source of sources) {
-    for (const target of source.bindings) {
-      const deployed = resolve(target.root, target.deployedPath);
-      const info = await lstat(deployed).catch(() => undefined);
-      const real = await realpath(deployed).catch(() => undefined);
-      const expected = await realpath(source.root).catch(() => undefined);
-      let agrees =
-        target.method === 'link'
-          ? info?.isSymbolicLink() && real === expected
-          : info?.isDirectory() && !info.isSymbolicLink();
-      if (agrees && target.method === 'copy') {
-        const skipped: DoctorResult['coverage']['skipped'] = [];
-        const copy = await inventory({ ...source, root: deployed }, draft, setupFile, skipped);
-        const fingerprints = (files: DiskFile[]) => files.map(({ path, sha256 }) => ({ path, sha256 }));
-        agrees =
-          skipped.every((entry) => entry.reason === 'ignored') &&
-          JSON.stringify(fingerprints(copy.files)) ===
-            JSON.stringify(fingerprints(disks.get(source.id) ?? []));
-      }
-      if (!agrees) {
-        result.coverage.skipped.push({
-          what: `${source.id}:${target.deployedPath}`,
-          reason: 'deployment disagrees with setup',
-        });
-        if (declared?.drift) {
-          result.drift.status = 'fail';
-          result.drift.changes.push({ source: source.id, path: target.deployedPath, kind: 'changed' });
-        }
-      }
+  for (const check of deploymentChecks) if (!check.agrees) {
+    result.coverage.skipped.push({ what: `${check.source}:${check.path}`, reason: check.reason ?? 'deployment disagrees with setup' });
+    if (declared?.drift) {
+      result.drift.status = 'fail';
+      result.drift.changes.push({ source: check.source, path: check.path, kind: 'changed' });
     }
   }
+
   if (declared?.drift && result.coverage.skipped.some((entry) => entry.reason === 'source unavailable'))
     result.drift.status = 'fail';
   if (
     result.coverage.status === 'pass' &&
-    result.coverage.skipped.some((entry) => entry.reason === 'deployment disagrees with setup')
+    deploymentChecks.some((check) => !check.agrees)
   )
     result.coverage.status = 'fail';
   result.draft = { ...draft, drift: { files: manifest } };
