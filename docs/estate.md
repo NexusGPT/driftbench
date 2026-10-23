@@ -633,7 +633,7 @@ How a row becomes a spec:
 |---|---|
 | `skill_loaded`, `skill_not_loaded` | `expect.skills` with a count |
 | `guard` | `expect.guards` (name, verdict, count) |
-| `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool) |
+| `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool, for the agent and its helpers; `actor: main` limits it to the agent) |
 | `tool_called` Read with one path (equal or contained) | `expect.references`, the glob `**/<path>` with a count; explicit Read evidence requires a recorded file read unless the runtime declares that file auto-loaded |
 | `tool_called` Agent with a helper name | `expect.subagents` with a count |
 | `ordered` | the ordered-pair check, `rules.custom.ordered` |

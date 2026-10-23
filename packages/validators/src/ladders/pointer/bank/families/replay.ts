@@ -1,11 +1,11 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
-import { loadFixture, makeFixture, perturb, requireFixtureLabels } from '../../kit/fixture';
+import { loadFixture, makeFixture, perturb, requireFixtureLabels, runsOf } from '../../kit/fixture';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
-import { type FakeTransport, fakeTransport } from '../../kit/transport';
+import { type FakeTransport, fakeTransport, parseCall } from '../../kit/transport';
 import { headingText, Prose, rewordWords } from '../../kit/words';
 import type { FetchRequest, ModelArm, ScanRequest, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
@@ -247,7 +247,9 @@ export const replayRuns: Record<string, Run> = {
     if (off.res.ok || off.fake.count) return fail('empty replay did not fail offline');
     const fake = fakeTransport();
     await record(fixture.files, 'haiku', fake, { labelsYaml: fixture.labelsYaml }, ctx);
-    if (fake.count !== 3) return fail('record must call all three windows');
+    const asked = 3 * runsOf('haiku').length;
+    if (fake.count !== asked)
+      return fail(`record must call all three windows for every run: ${fake.count} calls, expected ${asked}`);
     const again = fakeTransport();
     const second = await ctx.sut.scan({
       files: fixture.files,
@@ -257,7 +259,7 @@ export const replayRuns: Record<string, Run> = {
     });
     requireFixtureLabels(second, fixture);
     return again.count === 0
-      ? pass('offline miss, three record calls, zero fixture reuse calls')
+      ? pass('offline miss, every window and run recorded, zero fixture reuse calls')
       : fail('existing committed entries were re-recorded');
   },
   'miss-names-description-edit': (ctx) =>
@@ -515,12 +517,14 @@ export const replayRuns: Record<string, Run> = {
       : fail('fresh replay did not reject missing entry');
   },
   'failed-recording-keeps-valid-cassette': async (ctx) => {
+    // A failed transport is a failed window (docs/estate-pointer-reader.md section 3: a window that cannot be
+    // answered is recorded as failed). Whatever the scan does with it, the cassette it leaves stays valid.
     const { files } = threeFiles(ctx);
-    let n = 0;
+    const runs = runsOf('haiku').length;
     const base = fakeTransport();
     const flaky = ((r: FetchRequest) => {
-      n += 1;
-      if (n === 2) throw new Error('network down');
+      // Every request of the second window fails, however often it is retried; the others are answered.
+      if (parseCall(r).window === 'notes/b.md#1') throw new Error('network down');
       return base(r);
     }) as FakeTransport;
     const failedRun = await ctx.sut.scan({
@@ -528,28 +532,48 @@ export const replayRuns: Record<string, Run> = {
       model: { arm: 'haiku', transport: flaky },
       cassette: { mode: 'record' },
     });
-    if (failedRun.ok) return fail('a transport failure did not fail the scan');
-    const text = failedRun.cassette ?? '';
-    const entries = lines(text);
-    if (entries.length !== 1)
-      return fail(`the cassette of the failed run holds ${entries.length} entries, expected 1`);
+    const reported = !failedRun.ok || failedRun.diagnostics.some((d) => d.code === 'failed-window');
+    if (!reported)
+      return fail('a transport failure was reported neither as a failed scan nor as a failed window');
+    const entries = lines(failedRun.cassette ?? '');
+    const windows = new Map<string, number>();
     try {
-      for (const l of entries) JSON.parse(l);
+      for (const l of entries) {
+        const entry = JSON.parse(l) as { key?: string; window?: string; readable?: { window?: string } };
+        if (typeof entry.key !== 'string') return fail('an entry of the failed run has no key');
+        const window = entry.readable?.window ?? entry.window ?? '';
+        windows.set(window, (windows.get(window) ?? 0) + 1);
+      }
     } catch {
       return fail('the cassette of the failed run is not valid JSON lines');
     }
+    if (windows.has('notes/b.md#1')) return fail('the failed window left an entry in the cassette');
+    for (const window of ['notes/a.md#1', 'notes/c.md#1']) {
+      const held = windows.get(window) ?? 0;
+      if (held !== runs)
+        return fail(`the window ${window} was asked in full and holds ${held} entries, expected ${runs}`);
+    }
+    const keys = entries.map((l) => (JSON.parse(l) as { key: string }).key);
+    if (new Set(keys).size !== keys.length) return fail('two entries of the failed run share a key');
     const fixture = loadFixture('haiku');
     const fake = fakeTransport();
     const again = await ctx.sut.scan({
       files: fixture.files,
       labelsYaml: fixture.labelsYaml,
       model: { arm: 'haiku', transport: fake },
-      cassette: { mode: 'record', text: `${JSON.stringify(fixture.rows[0])}\n` },
+      cassette: {
+        mode: 'record',
+        text: `${fixture.rows
+          .slice(0, runs)
+          .map((r) => JSON.stringify(r))
+          .join('\n')}\n`,
+      },
     });
     if (!again.ok) return fail(`the second record run failed: ${again.error}`);
-    return fake.count === 2
-      ? pass('one entry kept, two calls to finish')
-      : fail(`${fake.count} calls to finish a 3 window recording with 1 entry, expected 2`);
+    const expected = 2 * runs;
+    return fake.count === expected
+      ? pass(`one window kept, ${expected} calls to finish`)
+      : fail(`${fake.count} calls to finish a 3 window recording with 1 window kept, expected ${expected}`);
   },
   'answers-frozen-despite-random-transport': async (ctx) => {
     const { fixture, res: baseline } = await positiveReplay(ctx);

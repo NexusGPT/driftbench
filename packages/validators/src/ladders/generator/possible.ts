@@ -21,6 +21,12 @@ import type { HiddenBehaviour, HiddenPath, HiddenSpec, HiddenTool } from './hidd
  * event, the path's flow, a behaviour the flow lists (and the one the event asks), the values the path's
  * branch holds, and a completion of the other axes that breaks no constraint. Pairs of values that each
  * have an event of their own are not enough: three values need the same event.
+ *
+ * The completion reaches EVERY axis the cell leaves open, the behaviour axis included: a partial cell is allowed
+ * only when an allowed full cell holds it (the definition of an allowed t-tuple in constrained combinatorial
+ * testing, NIST SP 800-142, which `@agent-nexus/driftbench-space` counts coverage with and
+ * `packages/generate/src/seed/feasible.ts` states). A cell that names no behaviour takes one the path's flow lists,
+ * on a channel the behaviour allows, that no constraint forbids with the rest of the cell.
  */
 
 /** Classes a first message can carry: they need no earlier turn. */
@@ -167,12 +173,18 @@ function witnessOf(spec: HiddenSpec, event: JointEvent, cell: Cell): JointWitnes
   const behaviours = [
     ...new Set([cell.behaviour, event.asked].filter((id): id is string => id !== undefined)),
   ];
+  // A cell that names no behaviour, on a turn that asks none, still holds one in a full cell: one the flow lists.
+  const behaviourOpen = behaviours.length === 0 && owned.length > 0;
   const known: Cell = { ...cell, flow: path.flow, stage: event.stage, deviation: event.deviation };
   // The inventory restricts the channels of a behaviour: a context that holds the channel holds them all.
+  const behavioursOf = (picked: Cell): string[] =>
+    behaviours.length > 0 ? behaviours : picked.behaviour !== undefined ? [picked.behaviour] : [];
   const contexts = (picked: Cell): Cell[] =>
-    behaviours.length === 0 ? [picked] : behaviours.map((id) => ({ ...picked, behaviour: id }));
+    behavioursOf(picked).length === 0
+      ? [picked]
+      : behavioursOf(picked).map((id) => ({ ...picked, behaviour: id }));
   const channelsOk = (picked: Cell): boolean =>
-    behaviours.every((id) => {
+    behavioursOf(picked).every((id) => {
       const channels = spec.behaviours.find((behaviour) => behaviour.id === id)?.channels;
       return channels === undefined || picked.channel === undefined || channels.includes(picked.channel);
     });
@@ -184,7 +196,10 @@ function witnessOf(spec: HiddenSpec, event: JointEvent, cell: Cell): JointWitnes
     ['channel', spec.channels],
     ['user_type', spec.personas.map((persona) => persona.id)],
   ];
-  const open = candidates.filter(([dimension]) => known[dimension] === undefined && named.has(dimension));
+  const open = [
+    ...candidates.filter(([dimension]) => known[dimension] === undefined && named.has(dimension)),
+    ...(behaviourOpen ? [['behaviour', owned] as [string, string[]]] : []),
+  ];
   const choose = (at: number, picked: Cell): Cell | undefined => {
     if (at === open.length)
       return channelsOk(picked) && contexts(picked).every((context) => !forbidden(spec, context))
