@@ -95,12 +95,16 @@ async function replay(estate: string, paths: string[]) {
 }
 
 describe('the recorded regen7 answers, replayed on this branch', () => {
-  it('fixture: R14 and the MEMORY unit keep their gates, R3 is no rule, and the weekly-report gate with no act span is reported', async () => {
+  it('fixture: R3, R14 and the MEMORY unit keep their gates; the weekly-report gate with no act span is reported', async () => {
     const weekly = '.claude/skills/weekly-report/SKILL.md';
     const { result, labelOf, idOf } = await replay('fixture', ['CLAUDE.md', weekly]);
-    // R3: three of its first five recorded runs quote clauses that are not in their units, so the runs left to vote
-    // decide nothing. It is never the rule a bare majority of the recorded runs once gave.
-    expect(labelOf('CLAUDE.md', 'Read a file before you edit it')).not.toBe('rule');
+    // R3: runs 1-3 slip; runs 6 and 7 replace two of them, and extra voices 11 and 13 leave gate-same ahead.
+    // Keep the original gate-same-or-unstable assertion: an unlabeled outcome must never be silent.
+    const r3 = idOf('CLAUDE.md', 'Read a file before you edit it');
+    const r3Label = labelOf('CLAUDE.md', 'Read a file before you edit it');
+    expect(r3Label).not.toBe('rule');
+    if (r3Label === undefined) expect(result.unstable.map((entry) => entry.unit)).toContain(r3);
+    else expect(r3Label).toBe('gate-same');
     expect(labelOf('CLAUDE.md', 'Do not commit to git until you have read')).toBe('gate-command');
     expect(labelOf('CLAUDE.md', 'at the start of every session')).toBe('gate');
     // Five runs say gate and none places the act in the unit (three give none, two the next unit's words). It is not

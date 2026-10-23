@@ -307,6 +307,13 @@ describe('driftbench estate scan --pointer', () => {
             labeler: 'anthropic',
             kinds: { gate: 2, reference: 2 },
           },
+          {
+            unit: 'u3',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { 'too few runs': 1 },
+          },
         ],
       },
     } as unknown as ScanEstateResult;
@@ -316,6 +323,9 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(lines).toContain(
       '    unstable: CLAUDE.md unit u2 (agent-rules, anthropic): gate 2, reference 2; left unlabeled',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u3 (agent-rules, anthropic): too few runs 1; left unlabeled',
     );
   });
 

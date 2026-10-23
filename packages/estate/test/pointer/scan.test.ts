@@ -1081,6 +1081,46 @@ describe('a rescan asks the whole row of a table cell it asks', () => {
       );
     });
 
+  it('asks the retained ledger target of a row cell newly promoted by the rescan', async () => {
+    // The promoted-row-target probe from run 39879376688: A needs a label, its row promotes B, and B points at C.
+    const text = '| Name | Helper |\n|---|---|\n| Harbour A | Harbour B |\n\nDistant harbour C.\n';
+    const asked: string[] = [];
+    let target = 0;
+    const member = plantedDense((window) => {
+      const c = window.units.find((unit) => unit.text === 'Distant harbour C.');
+      if (c) target = c.n;
+      asked.push(...window.units.map((unit) => unit.text));
+      return window.units.map((unit) =>
+        unit.text === 'Harbour B'
+          ? { units: String(unit.n), label: 'route', target }
+          : { units: String(unit.n), label: 'helper' },
+      );
+    });
+    const options = { files: [{ path: 'harbour.md', text }], sets: load(ROUTES) };
+    const first = await pointerScan(input(member, new Cassette(), options));
+    expect(first.refusals).toEqual([]);
+    const a = first.ledger.entries.find((entry) => entry.quote === 'Harbour A');
+    const b = first.ledger.entries.find((entry) => entry.quote === 'Harbour B');
+    const c = first.ledger.entries.find((entry) => entry.quote === 'Distant harbour C.');
+    expect(a).toBeDefined();
+    expect(c).toBeDefined();
+    expect(b?.labels.duty?.target).toBe(c?.id);
+    // Only A is dirty. B and C retain their labels and fingerprints, so the ledger alone would carry them.
+    if (a) delete a.labels.duty;
+    asked.length = 0;
+    const second = await pointerScan(input(member, new Cassette(), { ...options, previous: first.ledger }));
+    expect(asked).toEqual(['Harbour A', 'Harbour B', 'Distant harbour C.']);
+    expect(second.refusals).toEqual([]);
+    expect(second.calls).toBe(1);
+    expect(second.plan.carried).toBe(second.plan.units - 3);
+    expect(second.carried).toBe(second.plan.carried);
+    expect(second.labelled.find((item) => item.id === b?.id)?.target?.id).toBe(c?.id);
+    // A settled rescan carries every unit and asks nothing, even though the row and target edges remain.
+    const third = await pointerScan(input(member, new Cassette(), { ...options, previous: second.ledger }));
+    expect(third.calls).toBe(0);
+    expect(third.carried).toBe(third.plan.units);
+  });
+
   it('asks the ask cell of a row whose helper cell it asks, so a route keeps its target in the window', async () => {
     // As the fixture-v2 routing table: the edit of the second row's ask re-asks the cells beside it, among them the
     // first row's helper cell; the first row's ask cell, the other end of that row, is asked with it.
@@ -1441,6 +1481,61 @@ describe('a run out of step with the units of its window', () => {
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
     expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it.each([0, 1, 2])('reports insufficient usable runs after re-asks: %i usable', async (usable) => {
+    let calls = 0;
+    const member = plantedDense(
+      (window) => {
+        calls++;
+        return every(window, 'order', calls <= usable ? [located] : Array(4).fill(unlocated));
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(
+      input(member, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes.\n' }],
+        sets: load(SPANNED),
+      }),
+    );
+    expect(calls).toBe(3 + REASK_LIMIT);
+    expect(result.unstable).toEqual(
+      usable < 2
+        ? [
+            {
+              unit: result.ledger.entries[0]?.id,
+              path: 'harbour.md',
+              set: 'duty',
+              labeler: 'planted',
+              kinds: { 'too few runs': usable },
+            },
+          ]
+        : [],
+    );
+    expect(result.unlabeled).toBe(usable < 2 ? 1 : 0);
+  });
+
+  it('reports too few runs only for the omitted unit, not the other units of its window', async () => {
+    let calls = 0;
+    const member = plantedDense(
+      (window) => {
+        calls++;
+        return every(window, 'order', [located]).filter((entry) => calls === 1 || entry.units !== '1');
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(
+      input(member, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes.\n\nLight the lamp.\n' }],
+        sets: load(SPANNED),
+      }),
+    );
+    expect(result.unstable).toEqual([
+      expect.objectContaining({ unit: result.ledger.entries[0]?.id, kinds: { 'too few runs': 1 } }),
+    ]);
+    expect(result.labelled.map((unit) => unit.unit.text)).toEqual(['Light the lamp.']);
   });
 
   /** Five runs, then re-asks; call n of a window answers `plan[n - 1]` on every unit (`slip` quotes four lost clauses). */

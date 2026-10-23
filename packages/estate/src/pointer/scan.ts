@@ -125,7 +125,9 @@ export type LabelerUsage = {
 /**
  * A unit the runs of one labeler read two ways, near evenly: `kinds` counts the runs heard by what their label builds
  * (an atom kind such as `gate` or `instruction`; a label that points at another unit by its name; `no atom` for the
- * labels that build none), most given first. Such a unit is unlabeled.
+ * labels that build none), most given first. An unlabeled unit with fewer than two usable runs after re-asks instead
+ * has `kinds: { 'too few runs': count }`, where count is the number of usable opinions (zero or one). A single-run
+ * labeler does not vote and is exempt. Such a unit is unlabeled.
  */
 export type Unstable = {
   unit: string;
@@ -194,7 +196,8 @@ export type PointerResult = {
   /**
    * Units whose runs are one run from another outcome: the two kinds of atom most given (a gate and an instruction, or
    * an atom and no atom) are at most one run apart, the second with two runs at least, after the window was asked
-   * again (`SPLIT_REASK_MAX`). Such a unit is unlabeled and listed here with the count of each kind.
+   * again (`SPLIT_REASK_MAX`). Also lists unlabeled units with fewer than two usable runs of a voting member, under
+   * the diagnostic kind `too few runs` with the usable count. Such a unit is unlabeled and listed here with its counts.
    */
   unstable: Unstable[];
   /**
@@ -643,10 +646,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       // to that the ledger kept: the other cells of a table row, and a unit whose label points at it or that its
       // label pointed at. Shown as not labelable, a kept unit could be no target, and the answer was refused.
       if (want.size > 0 && set.labels.some((label) => label.target)) {
-        for (const index of partners(file.path, fileCut, file.text, set.set, want)) {
-          if (want.has(index)) continue;
-          want.add(index);
-          carried--;
+        // A promoted row cell can bring another retained target (and that target can bring its own row).
+        // Close over those partners: each growing pass adds a unit, so the unit count bounds the work.
+        for (let pass = 0; pass < fileCut.units.length; pass++) {
+          const before = want.size;
+          for (const index of partners(file.path, fileCut, file.text, set.set, want)) {
+            if (want.has(index)) continue;
+            want.add(index);
+            carried--;
+          }
+          if (want.size === before) break;
         }
       }
       needed.set(`${file.path}\0${set.set}`, want);
@@ -1125,11 +1134,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const opinion of present) counts.set(kindOf(opinion), (counts.get(kindOf(opinion)) ?? 0) + 1);
     return Object.fromEntries([...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
   };
+  /** The runs heard on a unit, excluding slipped runs and re-asks of other windows. */
+  const heardRuns = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) =>
+    runs.filter((run) => !unheard.get(run)?.has(index) && (heardOnly.get(run)?.has(index) ?? true));
   /** The opinions of the runs heard on a unit: none when fewer than two of several runs are heard. */
   const heardOn = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) => {
-    const heard = runs.filter(
-      (run) => !unheard.get(run)?.has(index) && (heardOnly.get(run)?.has(index) ?? true),
-    );
+    const heard = heardRuns(runs, index);
     return runs.length > 1 && heard.length < 2 ? undefined : heard.map((run) => run.get(index));
   };
   /**
@@ -1435,7 +1445,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const unitVote = decideUnit(file.path, set, byMember, index);
         const close = unitVote.close;
         let decision = unitVote.decision;
-        for (const [at, kinds] of close.entries()) {
+        for (const [at, runs] of byMember.entries()) {
+          // Keep insufficient evidence visible after all re-asks, without changing another member's decision.
+          // A failed answer has no opinion even if it was not marked as slipped.
+          const usable = heardRuns(runs, index).filter((run) => run.has(index)).length;
+          const kinds =
+            close[at] ??
+            (!decision && runs.length > 1 && usable < 2 ? { 'too few runs': usable } : undefined);
           if (!kinds) continue;
           unstable.push({
             unit: entry.id,
