@@ -8,7 +8,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import type { EstateFile, EstateReader, RawEstate } from '../reader';
 import { pythonAgentFacts } from './python-syntax';
-import { addProse, fieldsOf, passage, rawEstate } from './raw-support';
+import { addProse, fieldsOf, passage, rawEstate, readerProfile, sourceCoverage } from './raw-support';
 import { readerSetupTypes } from './setup-types';
 import { readSourceFiles, type SourceFiles, type SourceReaderOptions } from './source-files';
 
@@ -110,6 +110,8 @@ export class PythonAgentReader implements EstateReader {
     const raw = rawEstate(this.runtime, inventory);
     const types = this.options.setupSource?.types ?? this.setupTypes.base;
     if (!types) throw new Error('python-agent built-ins are missing');
+    const profile = readerProfile(this.runtime, types, {});
+    const reached = new Set<string>();
     raw.files = inventory.files.map((file): EstateFile => ({ ...file, kind: 'other' }));
     const files = new Map(raw.files.map((file) => [file.path, file]));
     const baseType = (name: string): string => {
@@ -176,7 +178,10 @@ export class PythonAgentReader implements EstateReader {
             if (typeof text !== 'string') skip('prompt has no literal body');
             else if (!addProse(raw, target, text, target === file ? line : 1)) {
               skip('prompt text has no literal source passage');
-            } else if (target !== file && target.kind === 'other') target.kind = 'standing';
+            } else if (target !== file) {
+              reached.add(target.path);
+              if (target.kind === 'other') target.kind = 'standing';
+            }
           } else if (kind === 'prompt' || kind === 'agent') {
             skip('declared aspects have no compatible map projection');
           } else {
@@ -185,6 +190,7 @@ export class PythonAgentReader implements EstateReader {
         }
       }
     }
+    raw.coverage = sourceCoverage(profile, inventory, { reached });
     return raw;
   }
 }

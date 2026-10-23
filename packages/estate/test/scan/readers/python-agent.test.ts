@@ -168,6 +168,7 @@ describe('Python RawEstate projection', () => {
     const raw = await new pythonReader.PythonAgentReader().read(root);
     expect(raw.prose.map((chunk) => chunk.text)).toEqual(['Preserve fictional amounts.\n']);
     expect(raw.files.find((file) => file.path === 'unknown.xyz')?.kind).toBe('other');
+    expect(raw.coverage).toEqual({ covered: 2, unknown: ['unknown.xyz'], skipped: [] });
   });
 
   it('skips a prompt link back into an original root even when setup metadata declares it', async () => {

@@ -1,8 +1,11 @@
 import { posix } from 'node:path';
 import {
+  coveringType,
   loadsByItself,
   locateFile,
+  type ModelCoverage,
   type PartType,
+  pathWithin,
   type RuntimeProfile,
   selectJson,
   type TypeSet,
@@ -24,6 +27,7 @@ export function readerProfile(
     types,
     mapKinds,
     shapes: [],
+    coverageRoots: ['source'],
     layout: { root: '.', extraFiles: [] },
     standing: { rootFiles: [], primary: '' },
     settings: [],
@@ -32,10 +36,62 @@ export function readerProfile(
     pathVariables: { project: [], plugin: [], working: [], home: [] },
     loadsItself: loadsByItself(name, types),
     copyFiles: [],
-    configFiles: [],
+    configFiles: ['driftbench.estate.yaml'],
     ignore: [],
     ignoreFiles: [],
   };
+}
+
+export class CoverageRootError extends Error {
+  readonly code = 'unknown-coverage-root';
+
+  constructor(readonly root: string) {
+    super(`coverage root ${root} is not declared in the profile roots`);
+    this.name = 'CoverageRootError';
+  }
+}
+
+/**
+ * Same counting rules as coverageOf in the Claude Code reader: configuration, large inputs and ignored
+ * globs are skipped; types and reached files cover inputs; otherwise counted roots retain unknown files.
+ * Resolve every coverage root name before counting, including an empty source; a typo must refuse the read.
+ */
+export function sourceCoverage(
+  profile: RuntimeProfile,
+  inventory: SourceFiles,
+  options: {
+    reached?: ReadonlySet<string>;
+    ignored?: readonly string[];
+    pruned?: readonly string[];
+  } = {},
+): ModelCoverage {
+  const roots = profile.coverageRoots.map((name) => {
+    const folder = profile.roots[name];
+    if (!Object.hasOwn(profile.roots, name) || folder === undefined) throw new CoverageRootError(name);
+    return folder;
+  });
+  const config = new Set(profile.configFiles);
+  const skipped: ModelCoverage['skipped'] = [];
+  const unknown: string[] = [];
+  let covered = 0;
+  const paths = [...new Set(inventory.files.map((file) => file.path))].sort();
+  for (const path of paths) {
+    const located = coveringType(profile.types, path) !== undefined || options.reached?.has(path);
+    if (config.has(path)) skipped.push({ what: path, reason: 'estate-config' });
+    else if (located) covered += 1;
+    else if (roots.some((folder) => pathWithin(folder, path) !== undefined)) unknown.push(path);
+  }
+  const large = inventory.skipped.filter((input) => input.reason.startsWith('size-limit:'));
+  for (const path of [...new Set(large.map((input) => input.what))].sort()) {
+    skipped.push({ what: path, reason: 'too-large' });
+  }
+  const globs = new Set([
+    ...(options.ignored ?? []),
+    ...(roots.includes('.') ? (options.pruned ?? []) : []),
+  ]);
+  for (const glob of globs) skipped.push({ what: glob, reason: 'ignored' });
+  skipped.push(...inventory.skipped.filter((input) => !input.reason.startsWith('size-limit:')));
+  return { covered, unknown, skipped };
 }
 
 export function rawEstate(runtime: string, inventory: SourceFiles): RawEstate {
