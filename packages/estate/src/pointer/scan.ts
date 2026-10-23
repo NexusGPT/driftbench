@@ -120,6 +120,78 @@ export type LabelerUsage = {
   replayedOutput: number;
 };
 
+/** A span kind a unit's runs could not agree on: no span of it was kept, and the runs counted each span drawn. */
+export type SpanVote = {
+  unit: string;
+  path: string;
+  set: string;
+  labeler: string;
+  kind: string;
+  /** The runs that gave the winning label. */
+  runs: number;
+  /** Each span drawn (offsets into the unit) and the number of those runs that drew it. */
+  counts: Array<{ from: number; to: number; count: number }>;
+};
+
+/**
+ * The spans of a unit's winning runs by vote. Runs that gave the label often draw one clause a word apart, so spans of
+ * the same kind and polarity that overlap by offsets are one clause; a clause is kept when more than half of the runs
+ * that gave the winning label drew it. The span kept is the one of the run that drew the most kept clauses (the first
+ * such run), in that run's order, and a clause that run lacks follows. A kind with spans drawn and no clause in the
+ * majority has none kept, and `report` gets the number of runs that drew each clause. Offsets and kinds only; no word
+ * is read.
+ */
+export function votedSpans(
+  winners: readonly Pick<Opinion, 'spans'>[],
+  report?: (vote: Omit<SpanVote, 'unit' | 'path' | 'set' | 'labeler'>) => void,
+): SpanAnswer[] {
+  type Clause = { head: SpanAnswer; drawn: Map<number, SpanAnswer> };
+  const clauses: Clause[] = [];
+  winners.forEach((winner, run) => {
+    for (const span of winner.spans ?? []) {
+      const same = clauses.find(
+        (clause) =>
+          clause.head.kind === span.kind &&
+          (clause.head.polarity ?? '') === (span.polarity ?? '') &&
+          span.from < clause.head.to &&
+          clause.head.from < span.to,
+      );
+      if (same) {
+        if (!same.drawn.has(run)) same.drawn.set(run, span);
+      } else clauses.push({ head: span, drawn: new Map([[run, span]]) });
+    }
+  });
+  const kept = clauses.filter((clause) => clause.drawn.size * 2 > winners.length);
+  if (report) {
+    const keptKinds = new Set(kept.map((clause) => clause.head.kind));
+    for (const kind of new Set(clauses.map((clause) => clause.head.kind))) {
+      if (keptKinds.has(kind)) continue;
+      report({
+        kind,
+        runs: winners.length,
+        counts: clauses
+          .filter((clause) => clause.head.kind === kind)
+          .map((clause) => ({ from: clause.head.from, to: clause.head.to, count: clause.drawn.size })),
+      });
+    }
+  }
+  if (kept.length === 0) return [];
+  // The lead run: the first that drew the most kept clauses. Its spans come in its order, the others after them.
+  const share = (run: number) => kept.filter((clause) => clause.drawn.has(run)).length;
+  let lead = 0;
+  for (let run = 1; run < winners.length; run++) if (share(run) > share(lead)) lead = run;
+  const inLead = kept.filter((clause) => clause.drawn.has(lead));
+  const order = (winners[lead]?.spans ?? []).filter((span) =>
+    inLead.some((clause) => clause.drawn.get(lead) === span),
+  );
+  return [
+    ...order,
+    ...kept
+      .filter((clause) => !clause.drawn.has(lead))
+      .map((clause) => clause.drawn.values().next().value as SpanAnswer),
+  ];
+}
+
 export type PointerResult = {
   ledger: Ledger;
   events: Record<Event, number>;
@@ -147,8 +219,10 @@ export type PointerResult = {
   flips: LabelFlip[];
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
-  /** Units whose runs agreed on the label but drew the spans or links differently: the first run's stand. */
+  /** Units whose runs agreed on the label but drew the spans or links differently. */
   spanSplit: number;
+  /** The span kinds of a decided unit that no span held a majority of the runs that gave the label: none kept. */
+  spanVotes: SpanVote[];
   /** Units a member decided by a majority of its runs instead of all of them. */
   voted: number;
   refusals: string[];
@@ -808,8 +882,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * the unit out counts for no label. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
-   * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
-   * label with any; a difference between runs is counted.
+   * member has no opinion (a split when runs differ). A span is kept when more than half of the runs that gave the
+   * label drew it (`votedSpans`); links are those of the first run that gave any; a difference between runs is counted.
    */
   let split = 0;
   let spanSplit = 0;
@@ -906,6 +980,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
     set: LabelSet,
+    onSpanVote?: (vote: Omit<SpanVote, 'unit' | 'path' | 'set' | 'labeler'>) => void,
   ): Opinion | undefined => {
     // The runs heard on the unit: a run left out of its window's vote counts neither for a label nor in the count.
     const given = heardOn(runs, index);
@@ -929,15 +1004,17 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     if (!unanimous) voted++;
     // Spans and links are descriptions of where the clauses sit, not part of the label: runs that gave the label
-    // often draw a clause a word apart. The first run that gave any is kept, and the disagreement is counted.
+    // often draw a clause a word apart. The disagreement is counted. A span is kept only when more than half of the
+    // runs that gave the label drew it (same kind, same offsets, same polarity); a kind no span of which holds that
+    // majority has no span, and the vote is reported. Links are those of the first run that gave any.
     const extras = (opinion: Opinion | undefined) => JSON.stringify([opinion?.spans, opinion?.links]);
     if (!winners.every((opinion) => extras(opinion) === extras(winners[0]))) spanSplit++;
-    const { spans, links, ...rest } = winners[0];
-    const spanned = winners.find((opinion) => opinion.spans);
+    const { spans: _first, links, ...rest } = winners[0];
+    const spans = votedSpans(winners, onSpanVote);
     const linked = winners.find((opinion) => opinion.links);
     return {
       ...rest,
-      ...(spanned?.spans ? { spans: spanned.spans } : {}),
+      ...(spans.length > 0 ? { spans } : {}),
       ...(linked?.links ? { links: linked.links } : {}),
       source: winners.map((opinion) => opinion.source ?? '').join('+'),
     };
@@ -990,6 +1067,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   let unlabeled = 0;
   const unlabeledUnits: Array<{ unit: string; set: string }> = [];
   const flips: LabelFlip[] = [];
+  const spanVotes: SpanVote[] = [];
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
   let fellBack = 0;
@@ -1001,10 +1079,23 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const index of [...want].sort((a, b) => a - b)) {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
+        const votes: SpanVote[] = [];
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index, set)),
+          byMember.map((runs, at) =>
+            opinionOf(runs, index, set, (vote) =>
+              votes.push({
+                unit: entry.id,
+                path: file.path,
+                set: set.set,
+                labeler: labelling.members[at]?.id ?? '',
+                ...vote,
+              }),
+            ),
+          ),
           set,
         );
+        // Only the votes of a unit the labelling decided on count: an unlabeled unit keeps no span.
+        if (decision) spanVotes.push(...votes);
         // A unit the labelling stops selecting keeps its place; the change of its label is reported.
         if (!decision) {
           unlabeled++;
@@ -1105,6 +1196,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     flips,
     split,
     spanSplit,
+    spanVotes,
     voted,
     refusals,
     dropped,
