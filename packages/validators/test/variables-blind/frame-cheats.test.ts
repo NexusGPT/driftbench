@@ -83,9 +83,12 @@ describe('a product cannot learn what the bank means by a span', () => {
     const src = (path: string) => JSON.stringify(join(variables, path));
     const validate = JSON.stringify(fileURLToPath(new URL('./reference/validate.ts', import.meta.url)));
     const source = readFileSync(READERS, 'utf8')
+      // The reference takes span meanings from the test span table (release/next, #1365) and their type from the
+      // bank's span module: the meanings come from what the breakpoint captured instead.
+      .replace("import { meaningOf } from '../span-table';", `import { meaningOf } from ${observer};`)
       .replace(
-        "import { meaningOf, type SpanMeaning } from '../../../src/ladders/variables/blind/spans';",
-        `import type { SpanMeaning } from ${src('blind/spans.ts')};\nimport { meaningOf } from ${observer};`,
+        "import type { SpanMeaning } from '../../../src/ladders/variables/blind/spans';",
+        `import type { SpanMeaning } from ${src('blind/spans.ts')};`,
       )
       .replace("from '../../../src/ladders/variables/interface';", `from ${src('interface.ts')};`)
       .replace("from './validate';", `from ${validate};`);
