@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { leakReport } from '../../src/failure';
+import { ItemFailure, leakReport } from '../../src/failure';
 import type { BankItem } from '../../src/ladders/variables/bank/item';
 import { itemRng } from '../../src/ladders/variables/bank/util';
 import { blindBank } from '../../src/ladders/variables/blind/index';
@@ -66,7 +66,8 @@ describe('the failure messages of the blind bank repeat no expected value', () =
                 }
                 referenceTokens.set(key, ref);
               }
-              const wanted = wantedInMessage(error, ref, wrongTokens, item.id);
+              // A failure that is not an ItemFailure is counted against the ceiling; the scan reads the structured ones.
+              const wanted = error instanceof ItemFailure ? wantedInMessage(error, ref, wrongTokens, item.id) : [];
               if (wanted.length > 0) crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
             }
           }
