@@ -645,10 +645,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
             rule: 'values kept: {}',
             got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] }, expected: none('observation')
           }));
-          check(store.refused.length === 1 && store.refused[0]?.what.includes('beta'), () => ({
-            rule: 'refused {}',
-            got: { details: [show(store.refused)] }, expected: none('observation')
-          }));
+          check(store.refused.length === 1 && store.refused[0]?.what.includes('beta'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(store.refused) }, expected: { warning: 'beta' } }));
         },
       ],
       [

@@ -60,18 +60,7 @@ export function estateFor(
 /** The variable that holds every one of the value ids. */
 export function varOf(store: StoreDoc, values: readonly string[]): StoreVariable {
   const hit = store.variables.find((v) => values.every((id) => v.values.some((x) => x.id === id)));
-  check(!!hit, () => ({
-    rule: 'no variable of the store holds the values {}; variables: {}',
-    got: {
-      details: [
-        show(values),
-        show(
-          store.variables.map((v) => v.values.map((x) => x.id)),
-          200,
-        ),
-      ],
-    }, expected: none('observation')
-  }));
+  check(!!hit, () => ({ rule: 'one variable of the store holds all the values of the sources', input: { values: show(values) }, got: { variables: show(store.variables.map((v) => v.values.map((x) => x.id)), 200) }, expected: none('one variable') }));
   return hit as StoreVariable;
 }
 

@@ -361,10 +361,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             rule: 'the seed row is {}; the unknown variable goes, the rest stays',
             got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
-          check(warn(plan).includes('seed_unknown_value'), () => ({
-            rule: 'warnings {} lack seed_unknown_value',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('seed_unknown_value'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'seed_unknown_value' } }));
         },
       ],
       [
@@ -378,10 +375,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             rule: 'the seed row is {}',
             got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
-          check(warn(plan).includes('seed_unknown_value'), () => ({
-            rule: 'warnings {} lack seed_unknown_value',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('seed_unknown_value'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'seed_unknown_value' } }));
         },
       ],
       [
@@ -405,10 +399,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             rule: 'the seed row is {}; it is kept whole, unapproved entry included',
             got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
-          check(warn(plan).includes('seed_unapproved_value'), () => ({
-            rule: 'warnings {} lack seed_unapproved_value',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('seed_unapproved_value'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'seed_unapproved_value' } }));
         },
       ],
       [
@@ -426,10 +417,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             sameRow(plan.rows[0]?.values ?? {}, seeds[0] as Row) && plan.rows[0]?.kind === 'seed',
             () => ({ rule: 'the forbidden seed became {}', got: { details: [show(plan.rows[0])] }, expected: none('observation') }),
           );
-          check(warn(plan).includes('seed_forbidden'), () => ({
-            rule: 'warnings {} lack seed_forbidden',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('seed_forbidden'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'seed_forbidden' } }));
           for (const r of newRows(plan))
             check(!(r.values[ids[0] as string] === 'v0' && r.values[ids[1] as string] === 'v0'), () => ({
               rule: 'new row {} holds the forbidden pair',
@@ -451,10 +439,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             rule: 'rows {}; expected the two seeds alone',
             got: { details: [show(plan.rows, 200)] }, expected: none('observation')
           }));
-          check(warn(plan).includes('no_variables'), () => ({
-            rule: 'warnings {} lack no_variables',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('no_variables'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'no_variables' } }));
         },
       ],
       [
@@ -468,10 +453,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             rule: '{} rows from a store where nothing is approved',
             got: { details: [plan.rows.length] }, expected: none('observation')
           }));
-          check(warn(plan).includes('no_variables'), () => ({
-            rule: 'warnings {} lack no_variables',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warn(plan).includes('no_variables'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'no_variables' } }));
         },
       ],
       [

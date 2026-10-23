@@ -610,10 +610,7 @@ export const VALUES_STEMS: readonly Stem[] = [
             got: { details: [same.length, existing] }, expected: none('observation')
           }));
           const kinds = (same[0]?.provenance ?? []).map((p) => p.kind).sort();
-          check(kinds.includes('owner') && kinds.includes('quote'), () => ({
-            rule: 'provenance kinds {}; expected the quote and the owner',
-            got: { details: [show(kinds)] }, expected: none('observation')
-          }));
+          check(kinds.includes('owner') && kinds.includes('quote'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(kinds) }, expected: { warning: 'quote' } }));
         },
       ],
       [

@@ -199,10 +199,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
               forbids: [{ forbid: { [at(ids, 0)]: 'v2' } }],
             }),
           );
-          check(codes(plan).includes('value_unreachable'), () => ({
-            rule: 'a value no valid row can hold gave the warnings {}',
-            got: { details: [show(codes(plan))] }, expected: none('observation')
-          }));
+          check(codes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(codes(plan)) }, expected: { warning: 'value_unreachable' } }));
         },
       ],
       [
@@ -362,10 +359,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
             rule: 'the seed became {}; a seed with an unapproved value is kept whole',
             got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
-          check(codes(plan).includes('seed_unapproved_value'), () => ({
-            rule: 'the warnings {} lack seed_unapproved_value',
-            got: { details: [show(codes(plan))] }, expected: none('observation')
-          }));
+          check(codes(plan).includes('seed_unapproved_value'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(codes(plan)) }, expected: { warning: 'seed_unapproved_value' } }));
         },
       ],
       [

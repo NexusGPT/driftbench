@@ -209,10 +209,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
               rule: 'row {} holds the forbidden value q',
               got: { details: [r.id] }, expected: none('observation')
             }));
-          check(warningCodes(plan).includes('value_unreachable'), () => ({
-            rule: 'no value_unreachable warning; warnings: {}',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
         },
       ],
       [
@@ -503,10 +500,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             forbids: [{ forbid: { [a]: 'a2' } }],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(warningCodes(plan).includes('value_unreachable'), () => ({
-            rule: 'no value_unreachable in {}',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
           check(!plan.rows.some((r) => r.values[a] === 'a2'), () => ({
             rule: 'a row holds the unreachable value', expected: none('observation')
           }));
@@ -528,10 +522,7 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(warningCodes(plan).includes('value_unreachable'), () => ({
-            rule: 'no value_unreachable in {}',
-            got: { details: [show(plan.warnings)] }, expected: none('observation')
-          }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
           assertRowsSound(spaceOf(store), plan, []);
         },
       ],

@@ -779,7 +779,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           };
           const store = callBuild(ctx, { estate });
           const rule = store.rules.find((r) => r.id === 'rule.main');
-          check(!!rule, () => ({ rule: 'rules {} lack rule.main', got: { details: [show(store.rules)] }, expected: none('observation') }));
+          check(!!rule, () => ({ rule: 'the store lists the rule of the estate', got: { rules: show(store.rules) }, expected: { rule: 'rule.main' } }));
           check(new Set(rule?.variables).size === 3 && rule?.variables.length === 3, () => ({
             rule: 'rule variables {}; the rule names two conditions and one tool field',
             got: { details: [show(rule?.variables)] }, expected: none('observation')
