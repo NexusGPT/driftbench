@@ -75,15 +75,19 @@ export function layoutPlan(ladders, floors, regression) {
   const tailStart = Math.max(position(generator, 'interactions'), floor + 1);
   const tail = range(tailStart, generator.levels.length);
   if (tail.length < 2) throw new Error('tail guards require two levels; review scheduling before regenerating');
-  const ordered = [...ORDER.filter((name) => ladders[name]), ...names.filter((name) =>
-    name !== 'generator' && !ORDER.includes(name)).sort()];
-  const floorLegs = ordered.flatMap((component) => SEEDS.map((seed) => ({
-    id: `${component}-${seedId(seed)}`,
-    name: `${component} seed ${seed}`,
-    component,
-    flags: flags(seed),
-    ...(component === 'stats' ? { node: 22 } : {}),
-  })));
+  const ordered = [
+    ...ORDER.filter((name) => ladders[name]),
+    ...names.filter((name) => name !== 'generator' && !ORDER.includes(name)).sort(),
+  ];
+  const floorLegs = ordered.flatMap((component) =>
+    SEEDS.map((seed) => ({
+      id: `${component}-${seedId(seed)}`,
+      name: `${component} seed ${seed}`,
+      component,
+      flags: flags(seed),
+      ...(component === 'stats' ? { node: 22 } : {}),
+    })),
+  );
   for (const seed of SEEDS) {
     floorLegs.push(sliced('generator', seed, 1, firstEnd));
     floorLegs.push(sliced('generator', seed, firstEnd + 1, floorEnd));
@@ -91,15 +95,20 @@ export function layoutPlan(ladders, floors, regression) {
   const recovery = position(system, 'recovery');
   const variance = position(system, 'variance');
   const replay = position(system, 'replay');
-  const slices = [[1, recovery], [recovery + 1, variance], [variance + 1, replay],
-    ...range(replay + 1, system.levels.length).map((level) => [level, level])];
+  const slices = [
+    [1, recovery],
+    [recovery + 1, variance],
+    [variance + 1, replay],
+    ...range(replay + 1, system.levels.length).map((level) => [level, level]),
+  ];
   let next = 1;
   for (const [from, to] of slices) {
     if (from !== next || to < from) throw new Error('system scheduling anchors are out of order');
     next = to + 1;
   }
-  const systemSlices = slices.map(([from, to], index) =>
-    index === 1 && from === to ? `level ${from}` : from === to ? `level ${to}` : `levels ${from} to ${to}`);
+  const systemSlices = slices.map(([from, to]) =>
+    from === to ? `level ${to}` : `levels ${from} to ${to}`,
+  );
   const rows = {
     FLOOR_LEGS: floorLegs,
     STATS_LEGS: SEEDS.map((seed) => ({
@@ -107,15 +116,23 @@ export function layoutPlan(ladders, floors, regression) {
       name: `stats seed ${seed} on Node 24 (reported)`,
       flags: flags(seed),
     })),
-    TAIL_LEGS: SEEDS.flatMap((seed) => tail.map((level) => ({
-      id: `generator-${seed}-level-${level}`,
-      name: `generator seed ${seed} level ${level}`,
-      component: 'generator',
-      flags: `${flags(seed)} --levels ${level}..${level}`,
-    }))),
-    REGRESSION_LEGS: regression.map(({ id, component, seed }) => ({ id, name: `regression ${component} seed ${seed}`, component, seed })),
-    SYSTEM_LEGS: SEEDS.flatMap((seed) => slices.map(([from, to], index) =>
-      sliced('system', seed, from, to, index === 1 && from === to))),
+    TAIL_LEGS: SEEDS.flatMap((seed) =>
+      tail.map((level) => ({
+        id: `generator-${seed}-level-${level}`,
+        name: `generator seed ${seed} level ${level}`,
+        component: 'generator',
+        flags: `${flags(seed)} --levels ${level}..${level}`,
+      })),
+    ),
+    REGRESSION_LEGS: regression.map(({ id, component, seed }) => ({
+      id,
+      name: `regression ${component} seed ${seed}`,
+      component,
+      seed,
+    })),
+    SYSTEM_LEGS: SEEDS.flatMap((seed) =>
+      slices.map(([from, to], index) => sliced('system', seed, from, to, index === 1 && from === to)),
+    ),
   };
   const slots = {
     ...Object.fromEntries(Object.entries(rows).map(([name, entries]) => [name, yamlRows(entries)])),
@@ -134,16 +151,23 @@ export function layoutPlan(ladders, floors, regression) {
   return { rows, slots };
 }
 
-export function renderLayout(ladders, floors, regression, templatesRoot = resolve(ROOT, 'tools/ci/layout-templates')) {
+export function renderLayout(
+  ladders,
+  floors,
+  regression,
+  templatesRoot = resolve(ROOT, 'tools/ci/layout-templates'),
+) {
   const { slots } = layoutPlan(ladders, floors, regression);
-  return Object.fromEntries(OUTPUTS.map((path, index) => {
-    const template = readFileSync(resolve(templatesRoot, TEMPLATES[index]), 'utf8');
-    const rendered = template.replace(/@@([A-Z_]+)@@/g, (_, slot) => {
-      if (!(slot in slots)) throw new Error(`unknown layout slot ${slot}`);
-      return String(slots[slot]);
-    });
-    return [path, rendered];
-  }));
+  return Object.fromEntries(
+    OUTPUTS.map((path, index) => {
+      const template = readFileSync(resolve(templatesRoot, TEMPLATES[index]), 'utf8');
+      const rendered = template.replace(/@@([A-Z_]+)@@/g, (_, slot) => {
+        if (!(slot in slots)) throw new Error(`unknown layout slot ${slot}`);
+        return String(slots[slot]);
+      });
+      return [path, rendered];
+    }),
+  );
 }
 
 /** Byte comparison includes whitespace and all static guards; a hand edit is never used as generator input. */
@@ -170,17 +194,26 @@ export async function main(args = process.argv.slice(2)) {
   const { readFloors } = await import('../../packages/validators/src/floors.ts');
   const { readRegressionSeeds } = await import('../../packages/validators/src/regression.ts');
   const ladders = registeredLadders();
-  const tops = Object.fromEntries(Object.entries(ladders).map(([name, ladder]) => [name, ladder.levels.length]));
+  const tops = Object.fromEntries(
+    Object.entries(ladders).map(([name, ladder]) => [name, ladder.levels.length]),
+  );
   const outputs = renderLayout(ladders, readFloors(ROOT), readRegressionSeeds(ROOT, tops));
-  console.log(`Coverage: ${Object.keys(ladders).length} ladders, ${Object.keys(outputs).length} generated files; skipped: 0`);
+  console.log(
+    `Coverage: ${Object.keys(ladders).length} ladders, ${Object.keys(outputs).length} generated files; skipped: 0`,
+  );
   if (args[0] === '--write') {
     for (const [path, content] of Object.entries(outputs)) writeFileSync(resolve(ROOT, path), content);
     console.log('Wrote generated CI layout.');
     return 0;
   }
   const drift = checkLayout(ROOT, outputs);
-  for (const path of drift) console.error(`::error file=${path}::Generated CI layout differs; run node --import tsx tools/ci/layout.mjs --write`);
-  console.log(drift.length ? `FAIL: ${drift.length} generated files differ` : 'PASS: generated CI layout equals committed bytes');
+  for (const path of drift)
+    console.error(
+      `::error file=${path}::Generated CI layout differs; run node --import tsx tools/ci/layout.mjs --write`,
+    );
+  console.log(
+    drift.length ? `FAIL: ${drift.length} generated files differ` : 'PASS: generated CI layout equals committed bytes',
+  );
   return drift.length ? 1 : 0;
 }
 

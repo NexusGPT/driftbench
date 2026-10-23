@@ -1,4 +1,3 @@
-// Planted drift for the required red-first CI equality proof.
 import { execFileSync } from 'node:child_process';
 
 /** Branches executors push from start with this prefix. */

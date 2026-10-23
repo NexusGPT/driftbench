@@ -1,4 +1,3 @@
-// Planted drift for the required red-first CI equality proof.
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

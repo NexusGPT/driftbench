@@ -12,7 +12,9 @@ function fixture(generatorTop = 23, systemTop = 11, floor = 8) {
   const ladder = (component, top, anchors = {}) => ({
     component,
     version: 1,
-    levels: Array.from({ length: top }, (_, index) => ({ id: anchors[index + 1] ?? `level-${index + 1}` })),
+    levels: Array.from({ length: top }, (_, index) => ({
+      id: anchors[index + 1] ?? `level-${index + 1}`,
+    })),
   });
   return {
     ladders: {
@@ -42,7 +44,9 @@ function tree(outputs) {
 describe('generated CI layout', () => {
   it('equals the pre-generation workflow and both protect files byte for byte', () => {
     const ladders = registeredLadders();
-    const tops = Object.fromEntries(Object.entries(ladders).map(([name, ladder]) => [name, ladder.levels.length]));
+    const tops = Object.fromEntries(
+      Object.entries(ladders).map(([name, ladder]) => [name, ladder.levels.length]),
+    );
     const outputs = renderLayout(ladders, readFloors(ROOT), readRegressionSeeds(ROOT, tops));
     expect(Object.keys(outputs)).toEqual(OUTPUTS);
     expect(checkLayout(ROOT, outputs)).toEqual([]);
@@ -71,7 +75,9 @@ describe('generated CI layout', () => {
   });
 
   it('reports missing files and refuses checks with no inputs', () => {
-    expect(checkLayout(mkdtempSync(join(tmpdir(), 'ci-layout-empty-')), render(fixture()))).toEqual(OUTPUTS);
+    expect(checkLayout(mkdtempSync(join(tmpdir(), 'ci-layout-empty-')), render(fixture()))).toEqual(
+      OUTPUTS,
+    );
     expect(() => checkLayout(ROOT, {})).toThrow('not run');
     expect(() => layoutPlan({}, { floors: {}, ladderVersion: {} }, [])).toThrow('not run');
   });
@@ -84,7 +90,8 @@ describe('generated CI layout', () => {
           const after = fixture(generatorTop, systemTop, floor);
           const a = layoutPlan(before.ladders, before.floors, before.regression);
           const b = layoutPlan(after.ladders, after.floors, after.regression);
-          for (const kind of ['STATS_LEGS', 'REGRESSION_LEGS']) expect(b.rows[kind]).toEqual(a.rows[kind]);
+          for (const kind of ['STATS_LEGS', 'REGRESSION_LEGS'])
+            expect(b.rows[kind]).toEqual(a.rows[kind]);
           expect(b.rows.FLOOR_LEGS.filter((row) => row.component !== 'generator')).toEqual(
             a.rows.FLOOR_LEGS.filter((row) => row.component !== 'generator'),
           );
@@ -114,12 +121,24 @@ describe('generated CI layout', () => {
     const original = layoutPlan(base.ladders, base.floors, base.regression);
     for (const [next, changedRows, changedSlots] of [
       [fixture(24), ['TAIL_LEGS'], ['TAIL_LEGS', 'GENERATOR_TOP', 'TAIL_LEVELS']],
-      [fixture(23, 12), ['SYSTEM_LEGS'], ['SYSTEM_LEGS', 'SYSTEM_TOP', 'SYSTEM_SLICES', 'SYSTEM_SLICE_COUNT']],
+      [
+        fixture(23, 12),
+        ['SYSTEM_LEGS'],
+        ['SYSTEM_LEGS', 'SYSTEM_TOP', 'SYSTEM_SLICES', 'SYSTEM_SLICE_COUNT'],
+      ],
       [fixture(23, 11, 12), ['FLOOR_LEGS'], ['FLOOR_LEGS', 'GENERATOR_FLOOR', 'GENERATOR_FLOOR_END']],
     ]) {
       const updated = layoutPlan(next.ladders, next.floors, next.regression);
-      expect(Object.keys(original.rows).filter((key) => JSON.stringify(updated.rows[key]) !== JSON.stringify(original.rows[key]))).toEqual(changedRows);
-      expect(Object.keys(original.slots).filter((key) => updated.slots[key] !== original.slots[key]).sort()).toEqual(changedSlots.sort());
+      expect(
+        Object.keys(original.rows).filter(
+          (key) => JSON.stringify(updated.rows[key]) !== JSON.stringify(original.rows[key]),
+        ),
+      ).toEqual(changedRows);
+      expect(
+        Object.keys(original.slots)
+          .filter((key) => updated.slots[key] !== original.slots[key])
+          .sort(),
+      ).toEqual(changedSlots.sort());
       const output = render(next);
       const baseline = render(base);
       for (const key of OUTPUTS.slice(0, 2)) expect(output[key]).not.toBe(baseline[key]);
