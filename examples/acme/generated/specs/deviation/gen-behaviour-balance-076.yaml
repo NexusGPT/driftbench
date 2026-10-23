@@ -4,16 +4,16 @@
 id: gen-behaviour-balance-076
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-009: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
-channel: whatsapp
+title: "Balanced behaviour B-003: Path home-order of new-home: needs > address > offer > details > recap > order_placed"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:order
+  - flow:new-home
+  - persona:new-customer
   - data:fiber
-  - persona:existing-customer
 covers:
-  - B-009
+  - B-003
 stages:
   - needs
   - identify
@@ -29,12 +29,12 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-009
-    rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
+  - name: behaviour.B-003
+    rubric: Check coverage at the street address before offering home internet
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
 blocks:
@@ -53,8 +53,8 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-009
-        - flow.order
+        - behaviour.B-003
+        - flow.new-home
   - id: b2-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -109,7 +109,7 @@ blocks:
       lang: EN
   - id: b5-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       stage_reported: true
@@ -146,10 +146,10 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: p1-D5_language_switch
+    class: D5_language_switch
     inject_at: 0
-    user: My last bill charged me twice, can you fix it?
+    user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
       stage: needs
       stage_reported: true
@@ -161,7 +161,7 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - Acme Care
+        - I can only help
       lang: EN
     recovery:
       within_blocks: 0
@@ -177,15 +177,15 @@ metadata:
       agent: acme
       version: "1"
       hash: 7a022d4e1380
-    path: order-named-plan
+    path: home-order
     cell:
-      behaviour: B-009
-      flow: order
+      behaviour: B-003
+      flow: new-home
+      user_type: new-customer
       coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
-      user_type: existing-customer
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -249,13 +249,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-076
         values:
-          behaviour: B-009
-          flow: order
+          behaviour: B-003
+          flow: new-home
+          user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
-          user_type: existing-customer
+          channel: chat
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -283,13 +283,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-076
         values:
-          behaviour: B-009
-          flow: order
+          behaviour: B-003
+          flow: new-home
+          user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
-          user_type: existing-customer
+          channel: chat
           stage_transition: address-to-offer
           stage: offer
       relation: derived_from
@@ -309,13 +309,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-076
         values:
-          behaviour: B-009
-          flow: order
+          behaviour: B-003
+          flow: new-home
+          user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
-          user_type: existing-customer
+          channel: chat
           stage_transition: offer-to-details
           stage: details
       relation: derived_from
@@ -335,13 +335,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-076
         values:
-          behaviour: B-009
-          flow: order
+          behaviour: B-003
+          flow: new-home
+          user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
-          user_type: existing-customer
+          channel: chat
           stage_transition: details-to-recap
           stage: recap
       relation: derived_from
@@ -377,13 +377,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-076
         values:
-          behaviour: B-009
-          flow: order
+          behaviour: B-003
+          flow: new-home
+          user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: whatsapp
-          user_type: existing-customer
+          channel: chat
           stage_transition: recap-to-order_placed
           stage: order_placed
       relation: derived_from

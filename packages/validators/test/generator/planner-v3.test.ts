@@ -81,6 +81,18 @@ describe('the planner family, ladder version 3', () => {
     }
   });
 
+  it('passes both required items on the real planner, on seeds 1 to 3', async () => {
+    const items = plannerItems(undefined, ['required']).filter((item) =>
+      ['planner.required-survives-budget.required', 'planner.budget-below-required.required'].includes(
+        item.id,
+      ),
+    );
+    expect(items).toHaveLength(2);
+    for (const seed of [1, 2, 3])
+      for (const { item, verdict } of await run(items, seed))
+        expect(verdict.pass, `${item.id} seed ${seed}: ${verdict.detail}`).toBe(true);
+  });
+
   it('passes both required items on a planner that keeps required rows first and warns, on seeds 1 to 3', async () => {
     const module = fileURLToPath(new URL('./fixtures/planner-mutants/required-first.ts', import.meta.url));
     const items = plannerItems(module, ['required']).filter((item) =>

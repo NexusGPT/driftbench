@@ -1,0 +1,142 @@
+import { createHash } from 'node:crypto';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import type { variables } from '@agent-nexus/driftbench-estate';
+import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
+
+/**
+ * The model port of the limit producer (`variables.produceLimits`) for the gold estates: the answers are recorded
+ * once (`record-asks.ts`) in examples/estates/gold-<x>/limits.ask.<model>.jsonl and replayed by the hash of the request.
+ * A request with no recorded answer stops the run, so CI never reaches a model.
+ */
+export const ASK_MODEL = 'claude-haiku-5-5';
+
+/** The cost of the requests sent by this process so far, for the cost cap of a recording (USD). */
+let totalUsd = 0;
+
+/** The model of a measurement: the gate always replays ASK_MODEL; a recording or a measurement may name another. */
+export const askModel = (): string => process.env.GOLD_ASK_MODEL ?? ASK_MODEL;
+
+/** USD per million tokens (input, output) of the model asked, from GOLD_ASK_PRICE_IN and GOLD_ASK_PRICE_OUT; the Haiku prices by default. */
+export const askPrices = (): { priceIn: number; priceOut: number } => ({
+  priceIn: Number(process.env.GOLD_ASK_PRICE_IN ?? 0.1),
+  priceOut: Number(process.env.GOLD_ASK_PRICE_OUT ?? 0.5),
+});
+
+export const askBody = (model: string, request: variables.LimitRequest): Record<string, unknown> => ({
+  model,
+  max_tokens: request.maxTokens ?? 400,
+  ...(model === ASK_MODEL ? { thinking: { type: 'disabled' } } : {}),
+  system: request.system,
+  messages: [{ role: 'user', content: request.user }],
+});
+
+/** One answer per request: the key is the hash of the body and the run number, which is always 1. */
+export const askKey = (body: Record<string, unknown>): string =>
+  `${createHash('sha256').update(JSON.stringify(body)).digest('hex')}#1`;
+
+type Entry = { key: string; quote: string; text: string; usage: { input: number; output: number } };
+export type Spent = { input: number; output: number; requests: number };
+
+export const askPath = (estate: EstateName, model: string): string =>
+  join(estateFolder(estate), `limits.ask.${model}.jsonl`);
+
+export const loadAsks = (estate: EstateName, model: string): Map<string, Entry> =>
+  loadAsksFrom(askPath(estate, model));
+
+/** The recorded answers of one cassette file; none when the file does not exist. */
+export function loadAsksFrom(path: string): Map<string, Entry> {
+  const out = new Map<string, Entry>();
+  if (!existsSync(path)) return out;
+  for (const line of readFileSync(path, 'utf8').split('\n')) {
+    if (line.trim() === '') continue;
+    const entry = JSON.parse(line) as Entry;
+    out.set(entry.key, entry);
+  }
+  return out;
+}
+
+export const readKey = (): string =>
+  readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
+
+/** The port: replays the recorded answer; with `record`, asks the provider on a miss and appends the answer. */
+export const askPort = (
+  estate: EstateName,
+  model: string,
+  cache: Map<string, Entry>,
+  spent: Spent,
+  record?: { key: string; capIn: number; capOut: number },
+): variables.LimitAsk => askPortFor(askPath(estate, model), `estate ${estate}`, model, cache, spent, record);
+
+/** The same port for any cassette file: `label` names the estate in the error of a request with no answer. */
+export function askPortFor(
+  path: string,
+  label: string,
+  model: string,
+  cache: Map<string, Entry>,
+  spent: Spent,
+  record?: {
+    key: string;
+    capIn: number;
+    capOut: number;
+    capUsd?: number;
+    priceIn?: number;
+    priceOut?: number;
+  },
+): variables.LimitAsk {
+  return async (request) => {
+    const body = askBody(model, request);
+    const key = askKey(body);
+    const hit = cache.get(key);
+    if (hit) return hit.text;
+    if (!record) {
+      throw new Error(`no recorded answer for a request of ${label} (${model}): run record-asks.ts`);
+    }
+    if (record.capUsd !== undefined && totalUsd >= record.capUsd) {
+      throw new Error(
+        `the cost cap is reached (USD ${totalUsd.toFixed(4)} of ${record.capUsd}): nothing more is sent`,
+      );
+    }
+    if (spent.input >= record.capIn || spent.output >= record.capOut) {
+      throw new Error(
+        `the token cap is reached (${spent.input} in, ${spent.output} out): nothing more is sent`,
+      );
+    }
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': record.key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error(`the provider answered ${response.status}: ${(await response.text()).slice(0, 300)}`);
+    }
+    const payload = (await response.json()) as {
+      content: Array<{ type: string; text?: string }>;
+      usage: { input_tokens: number; output_tokens: number };
+    };
+    const text = payload.content
+      .filter((block) => block.type === 'text')
+      .map((block) => block.text ?? '')
+      .join('');
+    const entry: Entry = {
+      key,
+      quote: request.user.slice(request.user.lastIndexOf('INSTRUCTION:\n') + 13),
+      text,
+      usage: { input: payload.usage.input_tokens, output: payload.usage.output_tokens },
+    };
+    appendFileSync(path, `${JSON.stringify(entry)}\n`);
+    cache.set(key, entry);
+    spent.input += entry.usage.input;
+    spent.output += entry.usage.output;
+    spent.requests++;
+    totalUsd +=
+      (entry.usage.input * (record.priceIn ?? 0.1) + entry.usage.output * (record.priceOut ?? 0.5)) /
+      1_000_000;
+    return text;
+  };
+}

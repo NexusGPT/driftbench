@@ -1,9 +1,9 @@
 {
   "generator": "driftbench generate",
   "stems": {
-    "stems": 96,
-    "specs": 188,
-    "saved": 292
+    "stems": 103,
+    "specs": 198,
+    "saved": 314
   },
   "map": {
     "path": "../map/approved.yaml",
@@ -21,9 +21,9 @@
     "max": null
   },
   "summary": {
-    "specs": 509,
-    "blocks": 1846,
-    "complete": 434,
+    "specs": 493,
+    "blocks": 1883,
+    "complete": 418,
     "incomplete": 75
   },
   "seeders": {
@@ -59,30 +59,30 @@
     },
     "boundary": {
       "specs": 85,
-      "blocks": 180,
-      "cut_blocks": 3,
+      "blocks": 176,
+      "cut_blocks": 7,
       "complete": 13,
       "needs_phrase": 72,
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 165,
-        "pielou": 0.953948292084,
+        "hill_q0": 150,
+        "pielou": 0.956507387063,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
     },
     "deviation": {
-      "specs": 137,
-      "blocks": 526,
-      "cut_blocks": 38,
-      "complete": 137,
+      "specs": 120,
+      "blocks": 562,
+      "cut_blocks": 7,
+      "complete": 120,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 437,
-        "pielou": 0.887896567909,
+        "hill_q0": 441,
+        "pielou": 0.884887776487,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -97,7 +97,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 203,
-        "pielou": 0.928598680022,
+        "pielou": 0.927994989187,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -118,16 +118,16 @@
       }
     },
     "cover": {
-      "specs": 10,
-      "blocks": 43,
+      "specs": 11,
+      "blocks": 48,
       "cut_blocks": 2,
-      "complete": 10,
+      "complete": 11,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 194,
-        "pielou": 0.96031799904,
+        "hill_q0": 203,
+        "pielou": 0.956819074826,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -207,7 +207,7 @@
       },
       {
         "class": "D8_tool_failure",
-        "stage": "address",
+        "stage": null,
         "spec": "gen-deviation-010",
         "phrase": false
       },
@@ -271,8 +271,8 @@
     ]
   },
   "cover": {
-    "cells": 7,
-    "covered": 7,
+    "cells": 8,
+    "covered": 8,
     "unbuilt": [],
     "unreachable": []
   },
@@ -4085,7 +4085,7 @@
     "actual": [
       {
         "t": 2,
-        "specs": 434,
+        "specs": 418,
         "allowed": 708,
         "covered": 708,
         "share": 1,
@@ -4093,10 +4093,10 @@
       },
       {
         "t": 3,
-        "specs": 434,
+        "specs": 418,
         "allowed": 4064,
-        "covered": 3120,
-        "share": 0.7677165354330708,
+        "covered": 3118,
+        "share": 0.7672244094488189,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -4120,6 +4120,11 @@
           },
           {
             "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
             "deviation": "D6_instruction_in_data",
             "channel": "chat"
           },
@@ -4136,11 +4141,6 @@
           {
             "behaviour": "B-002",
             "deviation": "D7_silence_or_burst",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D9_out_of_scope",
             "channel": "chat"
           },
           {
@@ -4166,11 +4166,6 @@
           {
             "behaviour": "B-003",
             "deviation": "D4_loose_confirmation",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
             "channel": "chat"
           },
           {
@@ -4240,6 +4235,11 @@
           },
           {
             "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
             "deviation": "D11_pii_leak",
             "channel": "chat"
           },
@@ -4409,6 +4409,16 @@
             "channel": "whatsapp"
           },
           {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
             "behaviour": "B-009",
             "deviation": "D2_goal_shift",
             "channel": "whatsapp"
@@ -4577,6 +4587,11 @@
             "behaviour": "B-012",
             "deviation": "D12_prompt_extraction",
             "channel": "chat"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
           },
           {
             "behaviour": "B-001",
@@ -4756,6 +4771,11 @@
           {
             "behaviour": "B-002",
             "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
             "stage": "identify"
           },
           {
@@ -5806,11 +5826,6 @@
           {
             "behaviour": "B-006",
             "deviation": "D9_out_of_scope",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D9_out_of_scope",
             "stage": "offer"
           },
           {
@@ -6272,6 +6287,11 @@
             "behaviour": "B-008",
             "deviation": "D11_pii_leak",
             "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "port_number"
           },
           {
             "behaviour": "B-008",
@@ -7176,942 +7196,937 @@
           {
             "behaviour": "B-012",
             "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D2_goal_shift",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D3_contradiction",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D2_goal_shift",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D3_contradiction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D2_goal_shift",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D3_contradiction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "channel": "whatsapp",
             "stage": "needs"
           },
           {
-            "behaviour": "B-012",
-            "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D9_out_of_scope",
+            "behaviour": "B-004",
+            "channel": "chat",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D11_pii_leak",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D12_prompt_extraction",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D2_goal_shift",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D3_contradiction",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D4_loose_confirmation",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D2_goal_shift",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D3_contradiction",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D4_loose_confirmation",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D8_tool_failure",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D2_goal_shift",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D3_contradiction",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D4_loose_confirmation",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D1_off_topic",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D1_off_topic",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D10_return",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D10_return",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D10_return",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D1_off_topic",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D1_off_topic",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D5_language_switch",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D10_return",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D10_return",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D10_return",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D1_off_topic",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D1_off_topic",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D5_language_switch",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D10_return",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D10_return",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D10_return",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D2_goal_shift",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D3_contradiction",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D10_return",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D10_return",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D2_goal_shift",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D3_contradiction",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D4_loose_confirmation",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D8_tool_failure",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D10_return",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D10_return",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D11_pii_leak",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D12_prompt_extraction",
-            "coverage_result": "not-in-map"
           },
           {
             "behaviour": "B-005",
@@ -8119,9 +8134,9 @@
             "stage": "needs"
           },
           {
-            "behaviour": "B-008",
-            "channel": "whatsapp",
-            "stage": "port_number"
+            "behaviour": "B-004",
+            "channel": "chat",
+            "coverage_result": "no-service"
           },
           {
             "behaviour": "B-005",
@@ -8129,29 +8144,9 @@
             "coverage_result": "not-in-map"
           },
           {
-            "behaviour": "B-008",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs",
-            "coverage_result": "5g-only"
-          },
-          {
             "behaviour": "B-003",
             "stage": "needs",
             "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "callback",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "handover",
-            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-003",
@@ -8171,11 +8166,6 @@
           {
             "behaviour": "B-004",
             "stage": "closing",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "stage": "needs",
             "coverage_result": "5g-only"
           },
           {
@@ -8197,6 +8187,26 @@
             "behaviour": "B-010",
             "stage": "needs",
             "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-011",
@@ -8285,13 +8295,13 @@
           },
           {
             "deviation": "D9_out_of_scope",
-            "channel": "whatsapp",
-            "stage": "offer"
+            "channel": "chat",
+            "stage": "callback"
           },
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
-            "stage": "callback"
+            "stage": "offer"
           },
           {
             "deviation": "D9_out_of_scope",
@@ -8319,6 +8329,11 @@
             "stage": "callback"
           },
           {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
             "deviation": "D8_tool_failure",
             "channel": "chat",
             "coverage_result": "not-in-map"
@@ -8329,11 +8344,6 @@
             "coverage_result": "fiber"
           },
           {
-            "deviation": "D9_out_of_scope",
-            "channel": "whatsapp",
-            "coverage_result": "5g-only"
-          },
-          {
             "deviation": "D1_off_topic",
             "stage": "address",
             "user_type": "existing-customer"
@@ -8741,12 +8751,12 @@
           {
             "deviation": "D11_pii_leak",
             "stage": "recap",
-            "coverage_result": "none"
+            "coverage_result": "fiber"
           },
           {
             "deviation": "D11_pii_leak",
             "stage": "recap",
-            "coverage_result": "fiber"
+            "coverage_result": "5g-only"
           },
           {
             "deviation": "D11_pii_leak",
@@ -8825,30 +8835,30 @@
     "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 434,
+      "specs": 418,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 509,
+      "specs": 493,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.005774513651398778,
-      "chao_coverage": 0.9942258320868325,
-      "chao1": 804.4400475008537,
+      "discovery": 0.005771278085952822,
+      "chao_coverage": 0.9942290609862026,
+      "chao1": 806.2259773921958,
       "hill_q0": 708,
-      "hill_q1": 309.721033508663,
-      "hill_q2": 191.5578165104361,
-      "pielou": 0.874014607749,
-      "t3_share": 0.7677165354330708,
+      "hill_q1": 308.876213283535,
+      "hill_q2": 191.26183409123797,
+      "pielou": 0.873598389643,
+      "t3_share": 0.7672244094488189,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 283.9635026332814,
+      "effective_sample_size": 285.8566782461181,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,
