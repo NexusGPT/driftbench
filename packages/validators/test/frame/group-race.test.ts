@@ -1,6 +1,5 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it, vi } from 'vitest';
@@ -9,13 +8,17 @@ const ISOLATE = new URL('../../src/frame/isolate.ts', import.meta.url).href;
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 
 it('closing one simultaneous run C leaves its sibling with the same seed, tag and count alive', async () => {
-  const area = mkdtempSync(join(tmpdir(), 'frame-group-race-'));
+  const cache = join(ROOT, 'node_modules', '.cache');
+  mkdirSync(cache, { recursive: true });
+  const area = mkdtempSync(join(cache, 'frame-group-race-'));
   const product = join(area, 'product');
   const signals = join(area, 'signals');
   mkdirSync(product);
   mkdirSync(signals);
   const module = join(product, 'hold.mjs');
-  writeFileSync(module, `
+  writeFileSync(
+    module,
+    `
 import fs from 'node:fs';
 import { join } from 'node:path';
 const signals = ${JSON.stringify(signals)};
@@ -29,9 +32,17 @@ export async function hold(role) {
   }
   return role;
 }
-`);
+`,
+  );
   const start = (role: string) => {
-    const child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', `
+    const child = spawn(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        '--input-type=module',
+        '-e',
+        `
 import { isolate } from ${JSON.stringify(ISOLATE)};
 const frame = isolate({ module: ${JSON.stringify(module)}, seed: 7, tag: 'same-process-item' });
 try {
@@ -40,16 +51,23 @@ try {
   if (divergence) throw new Error(divergence);
   console.log(JSON.stringify({ ret, plain: frame.tape.at(-1).plain }));
 } finally { frame.close(); }
-`], {
-      cwd: ROOT,
-      // Exercise the actual tag sweep even on hosts whose PID namespaces isolate descendants.
-      env: { ...process.env, DRIFTBENCH_FRAME_NO_NAMESPACE: '1' },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+`,
+      ],
+      {
+        cwd: ROOT,
+        // Exercise the actual tag sweep even on hosts whose PID namespaces isolate descendants.
+        env: { ...process.env, DRIFTBENCH_FRAME_NO_NAMESPACE: '1' },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
     let out = '';
     let err = '';
-    child.stdout.on('data', (chunk) => { out += chunk; });
-    child.stderr.on('data', (chunk) => { err += chunk; });
+    child.stdout.on('data', (chunk) => {
+      out += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      err += chunk;
+    });
     const done = new Promise<{ code: number | null; out: string; err: string }>((resolve, reject) => {
       child.on('error', reject);
       child.on('close', (code) => resolve({ code, out, err }));
@@ -59,10 +77,13 @@ try {
   const a = start('a');
   const b = start('b');
   try {
-    await vi.waitFor(() => {
-      expect(existsSync(join(signals, 'a.ready'))).toBe(true);
-      expect(existsSync(join(signals, 'b.ready'))).toBe(true);
-    }, { interval: 20, timeout: 15_000 });
+    await vi.waitFor(
+      () => {
+        expect(existsSync(join(signals, 'a.ready'))).toBe(true);
+        expect(existsSync(join(signals, 'b.ready'))).toBe(true);
+      },
+      { interval: 20, timeout: 15_000 },
+    );
     // Both calls are now in run C at count 1. End and close A, then require B to do new work.
     writeFileSync(join(signals, 'a.release'), 'go');
     const first = await a.done;
