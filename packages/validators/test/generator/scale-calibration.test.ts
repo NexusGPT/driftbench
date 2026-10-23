@@ -147,17 +147,17 @@ describe('scale.100x.time on a runner of any speed', () => {
 
 describe('the calibration is measured in a process of its own, before the timed child', () => {
   it('keeps the calibration out of the timed child: it imports no calibration code', () => {
-    const child = readFileSync(CHILD, 'utf8');
-    expect(child).not.toMatch(/calibrate\(/);
-    expect(child).toContain('CALIBRATION_ENV');
+    const childSource = readFileSync(CHILD, 'utf8');
+    expect(childSource).not.toMatch(/calibrate\(/);
+    expect(childSource).toContain('CALIBRATION_ENV');
     const parent = readFileSync(SCALE, 'utf8');
     // every calibration is awaited before the child is started, each one in a process of its own, and none after it
     const before = parent.indexOf('await calibrations(');
     expect(before).toBeGreaterThan(-1);
-    const child = parent.indexOf('await runChild(', before);
-    expect(child).toBeGreaterThan(before);
-    expect(parent.indexOf('await calibrations(', child)).toBe(-1);
-    expect(parent.indexOf('await measureCalibration()', child)).toBe(-1);
+    const started = parent.indexOf('await runChild(', before);
+    expect(started).toBeGreaterThan(before);
+    expect(parent.indexOf('await calibrations(', started)).toBe(-1);
+    expect(parent.indexOf('await measureCalibration()', started)).toBe(-1);
     expect(parent.indexOf('await measureCalibration()')).toBeGreaterThan(-1);
   });
 
