@@ -6,7 +6,8 @@
  * both need them.
  */
 export const WITNESS_CAUSE = {
-  validateDuplicateId: 'validate refuses a store in which two values of one variable share an id, at the second value',
+  validateDuplicateId:
+    'validate refuses a store in which two values of one variable share an id, at the second value',
   validateNoAgent: 'validate refuses a store that has no agent',
   quotesAbsent: 'quotes reports a quote that the file it names does not hold',
   quotesUnreadable: 'quotes reports a quote whose file cannot be read',

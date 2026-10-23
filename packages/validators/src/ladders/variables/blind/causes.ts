@@ -20,26 +20,70 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['a conversations count that is not whole is refused', ['conversation-count-fractional']],
     ['a negative conversations count is refused', ['conversation-count-negative']],
     ['a conversations total below 1 is refused', ['conversation-total-zero']],
-    ['a conversations entry with any key beyond count, total and set_hash is refused', ['conversation-entry-with-a-text-key']],
-    ['a set hash must be 64 lowercase hexadecimal characters', ['conversation-hash-in-capitals', 'conversation-hash-one-character-short']],
-    ['an owner date must be a real day written YYYY-MM-DD', ['owner-date-that-does-not-exist', 'owner-date-with-a-time']],
+    [
+      'a conversations entry with any key beyond count, total and set_hash is refused',
+      ['conversation-entry-with-a-text-key'],
+    ],
+    [
+      'a set hash must be 64 lowercase hexadecimal characters',
+      ['conversation-hash-in-capitals', 'conversation-hash-one-character-short'],
+    ],
+    [
+      'an owner date must be a real day written YYYY-MM-DD',
+      ['owner-date-that-does-not-exist', 'owner-date-with-a-time'],
+    ],
     ['blank owner words are refused', ['owner-words-blank']],
     ['owner words over 1,000 characters are refused', ['owner-words-over-a-thousand-characters']],
     ['a blank quote is refused', ['quote-blank', 'quote-empty']],
     ['a quote over 1,000 characters is refused', ['quote-over-a-thousand-characters']],
-    ['a ledger id is 10 characters from a to z and 2 to 7', ['ledger-id-in-capitals', 'ledger-id-one-character-short', 'ledger-id-with-a-digit-outside-two-to-seven']],
-    ['a quote path may not start at the root or the home folder', ['quote-path-from-the-root', 'quote-path-from-the-home-folder']],
+    [
+      'a ledger id is 10 characters from a to z and 2 to 7',
+      [
+        'ledger-id-in-capitals',
+        'ledger-id-one-character-short',
+        'ledger-id-with-a-digit-outside-two-to-seven',
+      ],
+    ],
+    [
+      'a quote path may not start at the root or the home folder',
+      ['quote-path-from-the-root', 'quote-path-from-the-home-folder'],
+    ],
     ['a quote path may not hold a backslash', ['quote-path-with-a-backslash']],
-    ['a quote path may not carry a scheme or a drive letter', ['quote-path-with-a-scheme', 'quote-path-with-a-drive-letter']],
+    [
+      'a quote path may not carry a scheme or a drive letter',
+      ['quote-path-with-a-scheme', 'quote-path-with-a-drive-letter'],
+    ],
     ['a provenance entry of an unknown kind is refused', ['entry-of-an-unknown-kind']],
     ['a structure hash is 64 lowercase hexadecimal characters', ['structure-hash-not-hexadecimal']],
-    ['a structure entry holds exactly one of pointer and lines', ['structure-with-a-pointer-and-lines', 'structure-with-neither-pointer-nor-lines']],
-    ['the last line of a structure entry is not before its first', ['structure-lines-ending-before-they-start']],
-    [WITNESS_CAUSE.validateDuplicateId, ['a-valid-entry-of-each-kind', 'conversation-count-equal-to-total', 'conversation-count-zero', 'quote-of-exactly-a-thousand-characters', 'owner-words-of-exactly-a-thousand-characters', 'owner-date-on-a-leap-day']],
+    [
+      'a structure entry holds exactly one of pointer and lines',
+      ['structure-with-a-pointer-and-lines', 'structure-with-neither-pointer-nor-lines'],
+    ],
+    [
+      'the last line of a structure entry is not before its first',
+      ['structure-lines-ending-before-they-start'],
+    ],
+    [
+      WITNESS_CAUSE.validateDuplicateId,
+      [
+        'a-valid-entry-of-each-kind',
+        'conversation-count-equal-to-total',
+        'conversation-count-zero',
+        'quote-of-exactly-a-thousand-characters',
+        'owner-words-of-exactly-a-thousand-characters',
+        'owner-date-on-a-leap-day',
+      ],
+    ],
   ]),
   'sources.file.advice': table([
-    ['a store whose entries name no source is valid and carries advice', ['a-store-without-provenance-is-valid']],
-    ['the advice names each value, boundary and constraint that has no provenance, once', ['advice-names-every-unsourced-entry']],
+    [
+      'a store whose entries name no source is valid and carries advice',
+      ['a-store-without-provenance-is-valid'],
+    ],
+    [
+      'the advice names each value, boundary and constraint that has no provenance, once',
+      ['advice-names-every-unsourced-entry'],
+    ],
     [WITNESS_CAUSE.validateDuplicateId, ['a-sourced-entry-gets-no-advice']],
   ]),
   'sources.condition.numerals': table([
@@ -120,15 +164,27 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
   ]),
   'sources.merge': table([
     ['spans naming different quantities stay different variables', ['different-quantities-stay-distinct']],
-    ['repeated evidence for one tool field merges into one variable', ['repeated-tool-field-merges-by-field']],
-    ['one field name on two tools gives two variables', ['the-same-field-name-on-two-tools-stays-two-variables']],
-    ['a rule lists every variable named by its conditions and tools', ['a-rule-lists-every-variable-it-names']],
+    [
+      'repeated evidence for one tool field merges into one variable',
+      ['repeated-tool-field-merges-by-field'],
+    ],
+    [
+      'one field name on two tools gives two variables',
+      ['the-same-field-name-on-two-tools-stays-two-variables'],
+    ],
+    [
+      'a rule lists every variable named by its conditions and tools',
+      ['a-rule-lists-every-variable-it-names'],
+    ],
     ['every rule of the estate appears in the rules of the store', ['every-rule-is-listed']],
     ['two rules that name one variable both list it', ['a-variable-shared-by-two-rules-is-in-both']],
     [WITNESS_CAUSE.buildStore, ['a-rule-with-nothing-to-read-adds-no-variable']],
   ]),
   'sources.provenance': table([
-    ['a value known to estate, conversations and owner keeps one entry of each kind', ['a-value-known-to-three-sources-keeps-three-entries']],
+    [
+      'a value known to estate, conversations and owner keeps one entry of each kind',
+      ['a-value-known-to-three-sources-keeps-three-entries'],
+    ],
     ['merging sources keeps the estate quote of a value', ['sources-merge-without-losing-the-estate-quote']],
     [WITNESS_CAUSE.buildStore, ['every-estate-value-names-a-quote']],
   ]),
@@ -163,32 +219,85 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'quotes.check': table([
-    ['the quote check reports a quote missing from its file at the quote path', ['quote-is-not-found', 'quote-longer-than-the-file']],
+    [
+      'the quote check reports a quote missing from its file at the quote path',
+      ['quote-is-not-found', 'quote-longer-than-the-file'],
+    ],
     ['the quote check reads the provenance of a variable', ['not-found-in-a-variable']],
     ['the quote check reads the provenance of a boundary', ['not-found-in-a-boundary']],
     ['the quote check reads the provenance of a constraint', ['not-found-in-a-constraint']],
-    ['the quote check reports an unreadable file at the path of the entry', ['file-is-missing', 'no-files-at-all']],
-    ['the quote check reports a missing file once, at its first quote', ['one-missing-file-is-reported-once']],
+    [
+      'the quote check reports an unreadable file at the path of the entry',
+      ['file-is-missing', 'no-files-at-all'],
+    ],
+    [
+      'the quote check reports a missing file once, at its first quote',
+      ['one-missing-file-is-reported-once'],
+    ],
     ['the quote check reports each missing file', ['two-missing-files-are-two-errors']],
-    ['the quote check reports a missing file and a wrong quote together', ['a-missing-file-and-a-wrong-quote-are-both-reported']],
+    [
+      'the quote check reports a missing file and a wrong quote together',
+      ['a-missing-file-and-a-wrong-quote-are-both-reported'],
+    ],
     ['the quote check looks only in the file the quote names', ['quote-is-in-another-file']],
     ['a file with no text is readable and holds no quote', ['an-empty-file-is-readable']],
-    ['a quote that differs in its last character is not found', ['quote-of-a-thousand-characters-off-by-one-at-the-end']],
-    [WITNESS_CAUSE.quotesAbsent, ['quote-is-found', 'the-same-quote-twice-is-fine', 'found-in-every-place-a-quote-can-sit', 'conversation-and-owner-evidence-need-no-file', 'ledger-id-does-not-change-the-check', 'quote-of-a-thousand-characters']],
+    [
+      'a quote that differs in its last character is not found',
+      ['quote-of-a-thousand-characters-off-by-one-at-the-end'],
+    ],
+    [
+      WITNESS_CAUSE.quotesAbsent,
+      [
+        'quote-is-found',
+        'the-same-quote-twice-is-fine',
+        'found-in-every-place-a-quote-can-sit',
+        'conversation-and-owner-evidence-need-no-file',
+        'ledger-id-does-not-change-the-check',
+        'quote-of-a-thousand-characters',
+      ],
+    ],
   ]),
   'quotes.folding': table([
     ['case must match after folding', ['case-must-match']],
     ['punctuation must match after folding', ['punctuation-must-match']],
     ['a quote with a word missing is not found', ['a-missing-word-is-not-found']],
     ['an accent is not folded away', ['accents-must-still-match']],
-    [WITNESS_CAUSE.quotesAbsent, ['white-space-runs-in-the-quote', 'white-space-runs-in-the-file', 'typographic-double-quotes-in-the-file', 'typographic-quotes-in-the-quote', 'typographic-single-quotes-in-the-file', 'composed-accents-in-the-file-decomposed-in-the-quote', 'decomposed-accents-in-the-file-composed-in-the-quote', 'zero-width-characters-in-the-file', 'zero-width-characters-in-the-quote', 'soft-hyphen-prints-nothing', 'markdown-backslash-before-an-asterisk', 'markdown-backslash-before-an-underscore']],
+    [
+      WITNESS_CAUSE.quotesAbsent,
+      [
+        'white-space-runs-in-the-quote',
+        'white-space-runs-in-the-file',
+        'typographic-double-quotes-in-the-file',
+        'typographic-quotes-in-the-quote',
+        'typographic-single-quotes-in-the-file',
+        'composed-accents-in-the-file-decomposed-in-the-quote',
+        'decomposed-accents-in-the-file-composed-in-the-quote',
+        'zero-width-characters-in-the-file',
+        'zero-width-characters-in-the-quote',
+        'soft-hyphen-prints-nothing',
+        'markdown-backslash-before-an-asterisk',
+        'markdown-backslash-before-an-underscore',
+      ],
+    ],
   ]),
   'quotes.structure': table([
     ['a changed value gives the hash mismatch code at the hash path', ['hash-does-not-match']],
     ['a pointer that names nothing gives the unresolved code at the pointer path', ['pointer-names-nothing']],
     ['a file that is neither JSON nor YAML leaves a pointer unresolved', ['file-is-not-json-or-yaml']],
-    ['lines past the end of the file give the unresolved code at the lines path', ['lines-past-the-end-of-the-file']],
-    [WITNESS_CAUSE.quotesAbsent, ['pointer-and-hash-match', 'reformatted-file-and-another-key-order-keep-the-hash', 'the-empty-pointer-is-the-whole-file', 'lines-and-hash-match', 'windows-line-breaks-read-the-same']],
+    [
+      'lines past the end of the file give the unresolved code at the lines path',
+      ['lines-past-the-end-of-the-file'],
+    ],
+    [
+      WITNESS_CAUSE.quotesAbsent,
+      [
+        'pointer-and-hash-match',
+        'reformatted-file-and-another-key-order-keep-the-hash',
+        'the-empty-pointer-is-the-whole-file',
+        'lines-and-hash-match',
+        'windows-line-breaks-read-the-same',
+      ],
+    ],
   ]),
   'quotes.reader': table([
     [
@@ -243,7 +352,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['a constraint on a missing variable is refused at its key', ['constraint-names-an-unknown-variable']],
     ['a constraint on a missing value is refused at its key', ['constraint-names-an-unknown-value']],
     ['a constraint that forbids nothing is refused', ['constraint-forbids-nothing']],
-    ['the same combination written twice is refused in any key order', ['same-combination-twice-in-another-key-order']],
+    [
+      'the same combination written twice is refused in any key order',
+      ['same-combination-twice-in-another-key-order'],
+    ],
     ['a when on a missing variable is refused', ['when-names-an-unknown-variable']],
     ['an unless on a missing value is refused', ['unless-names-an-unknown-value']],
     ['constraints that forbid every cell of the axes are refused', ['constraints-that-forbid-every-cell']],
@@ -259,10 +371,30 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['an empty title is refused', ['empty-title']],
     ['a store without an agent is refused', ['agent-missing']],
     ['a version written as a number is refused', ['version-written-as-a-number']],
-    [WITNESS_CAUSE.validateDuplicateId, ['none-in-two-axes-is-fine', 'same-value-in-an-axis-and-a-detail-is-fine', 'second-channel-as-a-detail-is-fine', 'all-twelve-deviation-classes-and-none', 'a-deviation-detail-may-hold-any-value', 'when-naming-known-values-is-fine', 'constraints-that-leave-one-cell-are-fine', 'a-constraint-on-a-detail-does-not-empty-the-grid', 'fitted-prior-with-a-source-is-fine']],
+    [
+      WITNESS_CAUSE.validateDuplicateId,
+      [
+        'none-in-two-axes-is-fine',
+        'same-value-in-an-axis-and-a-detail-is-fine',
+        'second-channel-as-a-detail-is-fine',
+        'all-twelve-deviation-classes-and-none',
+        'a-deviation-detail-may-hold-any-value',
+        'when-naming-known-values-is-fine',
+        'constraints-that-leave-one-cell-are-fine',
+        'a-constraint-on-a-detail-does-not-empty-the-grid',
+        'fitted-prior-with-a-source-is-fine',
+      ],
+    ],
   ]),
   'values.file.ids': table([
-    ['an id may not start with a hyphen, a dot or an underscore', ['variable-id-starts-with-a-hyphen', 'variable-id-starts-with-a-dot', 'variable-id-starts-with-an-underscore']],
+    [
+      'an id may not start with a hyphen, a dot or an underscore',
+      [
+        'variable-id-starts-with-a-hyphen',
+        'variable-id-starts-with-a-dot',
+        'variable-id-starts-with-an-underscore',
+      ],
+    ],
     ['an id may not hold a space', ['variable-id-has-a-space']],
     ['an empty id is refused', ['variable-id-is-empty']],
     ['an id may not hold an accented letter', ['variable-id-has-an-accent']],
@@ -271,7 +403,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
   ]),
   'values.plan.approval': table([
     ['the plan leaves out a value nobody approved', ['unapproved-value-is-never-planned']],
-    ['the plan drops a variable whose every value is unapproved', ['all-values-of-a-variable-unapproved-drops-the-variable']],
+    [
+      'the plan drops a variable whose every value is unapproved',
+      ['all-values-of-a-variable-unapproved-drops-the-variable'],
+    ],
     [WITNESS_CAUSE.plan, ['unapproved-variable-is-never-planned']],
   ]),
   'values.owner': table([
@@ -317,8 +452,14 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
   'boundaries.file.sides': table([
     ['a strict greater comparison refuses an edge that is the holds value', ['gt-edge-is-the-holds-value']],
     ['a strict lesser comparison refuses an edge that is the holds value', ['lt-edge-is-the-holds-value']],
-    ['an inclusive greater comparison refuses an edge that is the fails value', ['ge-edge-is-the-fails-value']],
-    ['an inclusive lesser comparison refuses an edge that is the fails value', ['le-edge-is-the-fails-value']],
+    [
+      'an inclusive greater comparison refuses an edge that is the fails value',
+      ['ge-edge-is-the-fails-value'],
+    ],
+    [
+      'an inclusive lesser comparison refuses an edge that is the fails value',
+      ['le-edge-is-the-fails-value'],
+    ],
     ['one value on both sides of a boundary is refused at fails', ['one-value-on-both-sides']],
     ['a holds value that the variable lacks is refused at holds', ['unknown-holds-value']],
     ['a fails value that the variable lacks is refused at fails', ['unknown-fails-value']],
@@ -331,8 +472,29 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['a comparison outside lt, le, gt and ge is refused', ['comparison-outside-the-list']],
     ['a limit written as text is refused', ['limit-written-as-text']],
     ['a boundary with an unknown key is refused', ['boundary-with-an-unknown-key']],
-    ['a wrong edge is reported at the index of its boundary', ['second-boundary-wrong-side-is-reported-at-its-index']],
-    [WITNESS_CAUSE.validateDuplicateId, ['gt-edge-is-the-fails-value', 'gt-edge-is-a-third-value', 'lt-edge-is-the-fails-value', 'lt-edge-is-a-third-value', 'ge-edge-is-the-holds-value', 'ge-edge-is-a-third-value', 'le-edge-is-the-holds-value', 'le-edge-is-a-third-value', 'no-limit-the-edge-is-the-holds-value', 'no-limit-the-edge-is-a-third-value', 'negative-limit', 'zero-limit', 'decimal-limit', 'two-boundaries-on-one-variable']],
+    [
+      'a wrong edge is reported at the index of its boundary',
+      ['second-boundary-wrong-side-is-reported-at-its-index'],
+    ],
+    [
+      WITNESS_CAUSE.validateDuplicateId,
+      [
+        'gt-edge-is-the-fails-value',
+        'gt-edge-is-a-third-value',
+        'lt-edge-is-the-fails-value',
+        'lt-edge-is-a-third-value',
+        'ge-edge-is-the-holds-value',
+        'ge-edge-is-a-third-value',
+        'le-edge-is-the-holds-value',
+        'le-edge-is-a-third-value',
+        'no-limit-the-edge-is-the-holds-value',
+        'no-limit-the-edge-is-a-third-value',
+        'negative-limit',
+        'zero-limit',
+        'decimal-limit',
+        'two-boundaries-on-one-variable',
+      ],
+    ],
   ]),
   'boundaries.reader.roles': table([
     [
@@ -374,16 +536,32 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     [WITNESS_CAUSE.plan, ['reversed-pair-is-the-same-pair', 'duplicate-pair-changes-nothing']],
   ]),
   'impossible.approval': table([
-    ['a constraint that nobody approved plans nothing', ['unapproved-constraint-plans-nothing', 'unapproved-constraint-leaves-its-tuples-targets']],
+    [
+      'a constraint that nobody approved plans nothing',
+      ['unapproved-constraint-plans-nothing', 'unapproved-constraint-leaves-its-tuples-targets'],
+    ],
     [WITNESS_CAUSE.plan, ['approved-constraint-counts', 'constraint-without-a-flag-counts']],
   ]),
   'impossible.unsatisfiable': table([
     ['seeds are kept when the space has no valid row', ['unsatisfiable-space-with-seeds']],
-    [WITNESS_CAUSE.plan, ['every-pair-of-two-binary-variables', 'every-value-of-one-variable', 'three-variables-with-a-cyclic-conflict']],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'every-pair-of-two-binary-variables',
+        'every-value-of-one-variable',
+        'three-variables-with-a-cyclic-conflict',
+      ],
+    ],
   ]),
   'impossible.unreachable-value': table([
     ['a value forbidden alone warns value_unreachable and is left out', ['forbidden-alone']],
-    ['a value forbidden with every value of another variable warns value_unreachable', ['forbidden-with-every-value-of-another-variable', 'unreachable-because-the-only-value-of-another-variable-excludes-it']],
+    [
+      'a value forbidden with every value of another variable warns value_unreachable',
+      [
+        'forbidden-with-every-value-of-another-variable',
+        'unreachable-because-the-only-value-of-another-variable-excludes-it',
+      ],
+    ],
     [WITNESS_CAUSE.plan, ['no-warning-when-every-value-can-be-held']],
   ]),
   'impossible.owner': table([
@@ -403,24 +581,73 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['an owner pair with an unreal date is refused', ['owner-pair-unreal-date-refused']],
   ]),
   'weights.interval': table([
-    ['weightInterval returns the Wilson score interval of the page', ['zero-of-one', 'one-of-one', 'zero-of-ten', 'ten-of-ten', 'five-of-ten', 'three-of-seven', 'fifty-of-a-hundred', 'one-of-two', 'two-of-three', 'thirty-three-of-a-hundred']],
+    [
+      'weightInterval returns the Wilson score interval of the page',
+      [
+        'zero-of-one',
+        'one-of-one',
+        'zero-of-ten',
+        'ten-of-ten',
+        'five-of-ten',
+        'three-of-seven',
+        'fifty-of-a-hundred',
+        'one-of-two',
+        'two-of-three',
+        'thirty-three-of-a-hundred',
+      ],
+    ],
     ['the interval of a zero count over many sessions starts at zero', ['zero-of-a-hundred']],
-    ['the interval is exact for a rare share in many sessions', ['one-of-a-thousand', 'five-hundred-of-a-thousand']],
+    [
+      'the interval is exact for a rare share in many sessions',
+      ['one-of-a-thousand', 'five-hundred-of-a-thousand'],
+    ],
     ['the interval keeps its precision for a total of a million', ['one-million-total']],
     ['the interval keeps its precision for a total of a billion', ['one-billion-total']],
-    ['the interval stays around its estimate for totals beyond the square root of the largest double', ['totals-beyond-the-square-root-of-the-largest-double']],
+    [
+      'the interval stays around its estimate for totals beyond the square root of the largest double',
+      ['totals-beyond-the-square-root-of-the-largest-double'],
+    ],
     ['the interval is not the constant zero to one', ['is-not-the-constant-zero-one']],
     ['the interval narrows as the total grows', ['narrows-as-the-total-grows']],
-    ['the interval contains the true share about 95 percent of the time', ['contains-the-true-share-about-95-percent-of-the-time']],
-    [WITNESS_CAUSE.weightInterval, ['inside-zero-one-and-ordered', 'contains-the-observed-share', 'is-mirrored-for-the-complement', 'zero-count-starts-at-zero-and-full-count-ends-at-one', 'stays-inside-zero-one-despite-rounding']],
+    [
+      'the interval contains the true share about 95 percent of the time',
+      ['contains-the-true-share-about-95-percent-of-the-time'],
+    ],
+    [
+      WITNESS_CAUSE.weightInterval,
+      [
+        'inside-zero-one-and-ordered',
+        'contains-the-observed-share',
+        'is-mirrored-for-the-complement',
+        'zero-count-starts-at-zero-and-full-count-ends-at-one',
+        'stays-inside-zero-one-despite-rounding',
+      ],
+    ],
   ]),
   'weights.file': table([
-    ['a variable that weighs some of its values is refused at the first value with no weight', ['weight-on-two-values-only', 'weight-on-the-first-value-only', 'weight-on-the-last-value-only', 'incomplete-weights-in-the-second-variable']],
+    [
+      'a variable that weighs some of its values is refused at the first value with no weight',
+      [
+        'weight-on-two-values-only',
+        'weight-on-the-first-value-only',
+        'weight-on-the-last-value-only',
+        'incomplete-weights-in-the-second-variable',
+      ],
+    ],
     ['every weight of a variable at zero is refused', ['every-weight-zero']],
     ['a negative weight is refused', ['negative-weight']],
     ['a weight written as text is refused', ['weight-written-as-text']],
     ['a weight that is not a finite number is refused', ['weight-not-a-number', 'weight-infinite']],
-    [WITNESS_CAUSE.validateDuplicateId, ['percent-weights-are-valid', 'fraction-weights-are-valid', 'no-weights-are-valid', 'one-zero-among-others-is-valid', 'complete-weights-in-two-variables']],
+    [
+      WITNESS_CAUSE.validateDuplicateId,
+      [
+        'percent-weights-are-valid',
+        'fraction-weights-are-valid',
+        'no-weights-are-valid',
+        'one-zero-among-others-is-valid',
+        'complete-weights-in-two-variables',
+      ],
+    ],
   ]),
   'weights.reader': table([
     [
@@ -516,21 +743,60 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['a partial seed is kept as given', ['partial-seed-is-not-completed']],
     ['seed rows are copies of the input', ['seed-rows-are-copies']],
     ['a seed given twice is kept twice', ['the-same-seed-twice-is-kept-twice']],
-    [WITNESS_CAUSE.plan, ['frozen-inputs-are-accepted', 'rows-have-distinct-nonempty-ids', 'absent-and-empty-seeds-are-equal', 'new-rows-repeat-no-seed']],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'frozen-inputs-are-accepted',
+        'rows-have-distinct-nonempty-ids',
+        'absent-and-empty-seeds-are-equal',
+        'new-rows-repeat-no-seed',
+      ],
+    ],
   ]),
   'seeds.credit': table([
-    ['a partial seed credits the tuples whose variables it assigns', ['partial-seeds-credit-the-tuples-they-assign']],
-    ['a partial seed credits nothing it does not assign', ['partial-seed-does-not-credit-what-it-does-not-assign']],
-    ['seed credit lowers the number of new rows', ['thirty-percent-covered', 'half-covered', 'ninety-percent-covered', 'mostly-covered']],
-    ['seeds and new rows together cover every required tuple', ['seeds-and-new-rows-cover-all-required-tuples']],
-    [WITNESS_CAUSE.plan, ['seeds-that-cover-everything-leave-no-new-row', 'every-full-row-as-a-seed', 'each-new-row-covers-a-tuple-the-seeds-miss']],
+    [
+      'a partial seed credits the tuples whose variables it assigns',
+      ['partial-seeds-credit-the-tuples-they-assign'],
+    ],
+    [
+      'a partial seed credits nothing it does not assign',
+      ['partial-seed-does-not-credit-what-it-does-not-assign'],
+    ],
+    [
+      'seed credit lowers the number of new rows',
+      ['thirty-percent-covered', 'half-covered', 'ninety-percent-covered', 'mostly-covered'],
+    ],
+    [
+      'seeds and new rows together cover every required tuple',
+      ['seeds-and-new-rows-cover-all-required-tuples'],
+    ],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'seeds-that-cover-everything-leave-no-new-row',
+        'every-full-row-as-a-seed',
+        'each-new-row-covers-a-tuple-the-seeds-miss',
+      ],
+    ],
   ]),
   'seeds.warnings': table([
-    ['a seed entry for a variable the store lacks is dropped with seed_unknown_value', ['unknown-variable-is-dropped-from-the-seed']],
-    ['a seed entry for a value the store lacks is dropped with seed_unknown_value', ['unknown-value-is-dropped-from-the-seed']],
-    ['a seed with a value nobody approved is kept whole with seed_unapproved_value', ['unapproved-value-is-kept-whole']],
+    [
+      'a seed entry for a variable the store lacks is dropped with seed_unknown_value',
+      ['unknown-variable-is-dropped-from-the-seed'],
+    ],
+    [
+      'a seed entry for a value the store lacks is dropped with seed_unknown_value',
+      ['unknown-value-is-dropped-from-the-seed'],
+    ],
+    [
+      'a seed with a value nobody approved is kept whole with seed_unapproved_value',
+      ['unapproved-value-is-kept-whole'],
+    ],
     ['a seed that holds a forbidden combination is kept with seed_forbidden', ['forbidden-seed-is-kept']],
-    ['with nothing approved the plan is the seeds alone with no_variables', ['nothing-approved-the-plan-is-the-seeds', 'nothing-approved-and-no-seeds']],
+    [
+      'with nothing approved the plan is the seeds alone with no_variables',
+      ['nothing-approved-the-plan-is-the-seeds', 'nothing-approved-and-no-seeds'],
+    ],
     ['a warning is a code and a message', ['a-warning-is-a-code-and-a-message']],
     [WITNESS_CAUSE.plan, ['regular-seeds-raise-no-warning']],
   ]),
@@ -540,22 +806,62 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['the largest safe integer seed is supported', ['largest-safe-seed']],
     ['two plans share no mutable object', ['two-plans-share-no-object']],
     ['an object cache never returns a stale plan', ['a-reused-store-edited-in-place-is-read-again']],
-    [WITNESS_CAUSE.plan, ['same-options-same-bytes', 'key-order-of-the-store-does-not-matter', 'key-order-of-a-seed-does-not-matter', 'the-plan-does-not-change-its-inputs']],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'same-options-same-bytes',
+        'key-order-of-the-store-does-not-matter',
+        'key-order-of-a-seed-does-not-matter',
+        'the-plan-does-not-change-its-inputs',
+      ],
+    ],
   ]),
   'budget.traffic-order': table([
-    ['a weight of zero gives minus infinity, written null, and the row comes last', ['weight-zero-is-minus-infinity-and-last']],
-    ['rows are ordered in log space, so a product below the float floor keeps its order', ['shares-below-the-float-floor-keep-their-order']],
+    [
+      'a weight of zero gives minus infinity, written null, and the row comes last',
+      ['weight-zero-is-minus-infinity-and-last'],
+    ],
+    [
+      'rows are ordered in log space, so a product below the float floor keeps its order',
+      ['shares-below-the-float-floor-keep-their-order'],
+    ],
     ['a seed row carries a log weight', ['seed-rows-carry-a-log-weight']],
     ['seed rows stay first whatever their weight', ['rare-seed-stays-first']],
-    [WITNESS_CAUSE.plan, ['new-rows-run-most-common-first', 'log-weight-is-the-sum-of-log-shares', 'log-weight-is-written-to-nine-places', 'uniform-shares-when-a-variable-has-no-weights', 'weights-are-relative', 'unapproved-values-leave-the-denominator', 'unweighted-variable-beside-a-weighted-one']],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'new-rows-run-most-common-first',
+        'log-weight-is-the-sum-of-log-shares',
+        'log-weight-is-written-to-nine-places',
+        'uniform-shares-when-a-variable-has-no-weights',
+        'weights-are-relative',
+        'unapproved-values-leave-the-denominator',
+        'unweighted-variable-beside-a-weighted-one',
+      ],
+    ],
   ]),
   'budget.cut': table([
     ['a budget counts the seeds', ['budget-counts-the-seeds']],
-    ['a budget below the seed count keeps every seed and no new row', ['budget-below-the-seed-count-keeps-every-seed', 'budget-equal-to-the-seed-count-adds-no-row']],
+    [
+      'a budget below the seed count keeps every seed and no new row',
+      ['budget-below-the-seed-count-keeps-every-seed', 'budget-equal-to-the-seed-count-adds-no-row'],
+    ],
     ['a budget of zero with seeds keeps the seeds', ['zero-budget-with-seeds']],
     ['the cut drops the rarest rows', ['the-cut-drops-the-rarest-rows']],
     ['a cut plan reports what its kept rows hold', ['cut-plan-reports-what-its-rows-hold']],
-    [WITNESS_CAUSE.plan, ['budget-one', 'budget-three', 'budget-half-of-the-plan', 'budget-one-below-the-plan', 'budget-equal-to-the-plan', 'budget-above-the-plan', 'zero-budget-without-seeds', 'same-budget-same-bytes']],
+    [
+      WITNESS_CAUSE.plan,
+      [
+        'budget-one',
+        'budget-three',
+        'budget-half-of-the-plan',
+        'budget-one-below-the-plan',
+        'budget-equal-to-the-plan',
+        'budget-above-the-plan',
+        'zero-budget-without-seeds',
+        'same-budget-same-bytes',
+      ],
+    ],
   ]),
   'budget.errors': table([
     [
@@ -610,9 +916,15 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'counter.uncovered': table([
-    ['the uncovered list holds the smaller of the limit and the missing count', ['limit-below-the-count', 'limit-above-the-count-lists-all']],
+    [
+      'the uncovered list holds the smaller of the limit and the missing count',
+      ['limit-below-the-count', 'limit-above-the-count-lists-all'],
+    ],
     ['the uncovered tuples are allowed and held by no row', ['listed-tuples-are-allowed-and-unheld']],
-    [WITNESS_CAUSE.coverage, ['limit-zero-lists-none', 'listed-tuples-are-distinct', 'nothing-missing-lists-nothing']],
+    [
+      WITNESS_CAUSE.coverage,
+      ['limit-zero-lists-none', 'listed-tuples-are-distinct', 'nothing-missing-lists-nothing'],
+    ],
   ]),
   'counter.errors': table([
     [
@@ -719,32 +1031,42 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['thirty-rows-200-binary-strength-2'],
     ],
   ]),
-  'reach.build-store': table([
-    [WITNESS_CAUSE.buildStore, ['mapped']],
-  ]),
-  'reach.weight-interval': table([
-    [WITNESS_CAUSE.weightInterval, ['mapped']],
-  ]),
-  'reach.plan': table([
-    [WITNESS_CAUSE.plan, ['mapped']],
-  ]),
-  'reach.coverage': table([
-    [WITNESS_CAUSE.coverage, ['mapped']],
-  ]),
-  'reach.validate': table([
-    [WITNESS_CAUSE.validateDuplicateId, ['mapped']],
-  ]),
-  'reach.quotes': table([
-    [WITNESS_CAUSE.quotesAbsent, ['mapped']],
-  ]),
+  'reach.build-store': table([[WITNESS_CAUSE.buildStore, ['mapped']]]),
+  'reach.weight-interval': table([[WITNESS_CAUSE.weightInterval, ['mapped']]]),
+  'reach.plan': table([[WITNESS_CAUSE.plan, ['mapped']]]),
+  'reach.coverage': table([[WITNESS_CAUSE.coverage, ['mapped']]]),
+  'reach.validate': table([[WITNESS_CAUSE.validateDuplicateId, ['mapped']]]),
+  'reach.quotes': table([[WITNESS_CAUSE.quotesAbsent, ['mapped']]]),
   'values.file.ambiguous-value': table([
-    ['a value id shared by an axis of kind behaviour and an axis of kind persona is refused', ['behaviour-and-persona']],
-    ['a value id shared by an axis of kind behaviour and an axis of kind data is refused', ['behaviour-and-data']],
-    ['a value id shared by an axis of kind behaviour and an axis of kind task is refused', ['behaviour-and-task']],
-    ['a value id shared by an axis of kind persona and an axis of kind data is refused', ['persona-and-data']],
-    ['a value id shared by an axis of kind persona and an axis of kind task is refused', ['persona-and-task']],
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind persona is refused',
+      ['behaviour-and-persona'],
+    ],
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind data is refused',
+      ['behaviour-and-data'],
+    ],
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind task is refused',
+      ['behaviour-and-task'],
+    ],
+    [
+      'a value id shared by an axis of kind persona and an axis of kind data is refused',
+      ['persona-and-data'],
+    ],
+    [
+      'a value id shared by an axis of kind persona and an axis of kind task is refused',
+      ['persona-and-task'],
+    ],
     ['a value id shared by an axis of kind data and an axis of kind task is refused', ['data-and-task']],
-    [WITNESS_CAUSE.validateDuplicateId, ['ids-shared-with-a-stage-or-channel-axis-are-fine', 'none-in-axes-of-two-kinds-is-fine', 'a-detail-may-repeat-the-id-of-an-axis-of-another-kind']],
+    [
+      WITNESS_CAUSE.validateDuplicateId,
+      [
+        'ids-shared-with-a-stage-or-channel-axis-are-fine',
+        'none-in-axes-of-two-kinds-is-fine',
+        'a-detail-may-repeat-the-id-of-an-axis-of-another-kind',
+      ],
+    ],
   ]),
   'impossible.same-variable': table([
     [
@@ -757,8 +1079,14 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'quotes.no-constraints': table([
-    ['the quote check reports a false quote in a store file that has no constraints list', ['false-quote-is-reported']],
-    ['a store file with no constraints list gives the same issues as one with an empty list', ['absent-list-and-empty-list-agree']],
+    [
+      'the quote check reports a false quote in a store file that has no constraints list',
+      ['false-quote-is-reported'],
+    ],
+    [
+      'a store file with no constraints list gives the same issues as one with an empty list',
+      ['absent-list-and-empty-list-agree'],
+    ],
     [WITNESS_CAUSE.quotesAbsent, ['true-quote-is-found']],
   ]),
   'sources.labelled-condition': table([
@@ -811,14 +1139,26 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'diff.seeds': table([
-    ['a partial seed is kept as given and credits only the allowed tuples it assigns', ['partial-seeds-beside-a-forbid']],
-    ['a seed with an unapproved value is kept whole, warned about, and credits nothing for that entry', ['seed-with-an-unapproved-value-is-kept-warned-and-credits-nothing']],
+    [
+      'a partial seed is kept as given and credits only the allowed tuples it assigns',
+      ['partial-seeds-beside-a-forbid'],
+    ],
+    [
+      'a seed with an unapproved value is kept whole, warned about, and credits nothing for that entry',
+      ['seed-with-an-unapproved-value-is-kept-warned-and-credits-nothing'],
+    ],
     [WITNESS_CAUSE.plan, ['seeds-that-cover-everything-leave-no-new-rows']],
   ]),
   'diff.order': table([
     ['rows holding a zero weight come last with a null logWeight', ['zero-weight-rows-come-last']],
-    ['a budget keeps a prefix of the uncut plan when weights, a forbid and seeds meet', ['budget-keeps-a-prefix-beside-seeds-and-a-forbid']],
-    ['a variable with no weights shares uniformly beside a weighted one', ['unweighted-variables-beside-a-weighted-one-share-uniformly']],
+    [
+      'a budget keeps a prefix of the uncut plan when weights, a forbid and seeds meet',
+      ['budget-keeps-a-prefix-beside-seeds-and-a-forbid'],
+    ],
+    [
+      'a variable with no weights shares uniformly beside a weighted one',
+      ['unweighted-variables-beside-a-weighted-one-share-uniformly'],
+    ],
     [WITNESS_CAUSE.plan, ['scaling-the-weights-of-a-variable-changes-nothing']],
   ]),
 };
