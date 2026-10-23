@@ -3,7 +3,7 @@ import { locateFile, type TypesDocument, typeNamed } from '@agent-nexus/driftben
 import { profileClassifier } from '../profile-classify';
 import type { EstateReader, RawEstate } from '../reader';
 import { locateQuote, readFrontmatter } from '../text';
-import { addProse, fieldsOf, passage, rawEstate, readerProfile } from './raw-support';
+import { addProse, fieldsOf, passage, rawEstate, readerProfile, sourceCoverage } from './raw-support';
 import { readerSetupTypes } from './setup-types';
 import { readSourceFiles, type SourceFiles, type SourceReaderOptions } from './source-files';
 
@@ -136,7 +136,8 @@ export class AgentsFolderReader implements EstateReader {
         return kind ? [[type.name, kind]] : [];
       }),
     );
-    const classifier = profileClassifier(readerProfile(this.runtime, types, mapKinds), {});
+    const profile = readerProfile(this.runtime, types, mapKinds);
+    const classifier = profileClassifier(profile, {});
     for (const source of inventory.files) {
       const file = { ...source, ...classifier.classify(source.path, source.text) };
       raw.files.push(file);
@@ -218,6 +219,9 @@ export class AgentsFolderReader implements EstateReader {
         raw.notes.push({ file: file.path, message: `skipped: invalid declaration: ${String(cause)}` });
       }
     }
+    raw.coverage = sourceCoverage(profile, inventory, {
+      reached: new Set(raw.guards.flatMap((guard) => (guard.script ? [guard.script] : []))),
+    });
     return raw;
   }
 }
