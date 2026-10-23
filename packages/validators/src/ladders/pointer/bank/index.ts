@@ -5,6 +5,7 @@ import type { PointerSut } from '../sut/port';
 import { blindLevels } from './blind';
 import { adversarialRuns } from './families/adversarial';
 import { cuttingRuns } from './families/cutting';
+import { cuttingCapabilityRuns } from './families/cutting-capabilities';
 import { groupingRuns } from './families/grouping';
 import { idsRuns } from './families/ids';
 import { labelsRuns } from './families/labels';
@@ -12,6 +13,7 @@ import { linksRuns } from './families/links';
 import { privacyRuns } from './families/privacy';
 import { radiusRuns } from './families/radius';
 import { reanchoringRuns } from './families/reanchoring';
+import { reanchoringCapabilityRuns } from './families/reanchoring-capabilities';
 import { replayRuns } from './families/replay';
 import { scaleRuns } from './families/scale';
 import { bankLadder } from './ladder';
@@ -21,7 +23,7 @@ import { fail, levelOf, type PointerItem, type Run } from './types';
 
 const RUNNERS: Record<string, Record<string, Run>> = {
   adversarial: adversarialRuns,
-  cutting: cuttingRuns,
+  cutting: { ...cuttingRuns, ...cuttingCapabilityRuns },
   grouping: groupingRuns,
   ids: idsRuns,
   labels: labelsRuns,
@@ -30,7 +32,7 @@ const RUNNERS: Record<string, Record<string, Run>> = {
   radius: radiusRuns,
   replay: replayRuns,
   scale: scaleRuns,
-  're-anchoring': reanchoringRuns,
+  're-anchoring': { ...reanchoringRuns, ...reanchoringCapabilityRuns },
 };
 
 /** The items of the bank: every spec row zipped with its runner. A row with no runner fails with a message that says so. */

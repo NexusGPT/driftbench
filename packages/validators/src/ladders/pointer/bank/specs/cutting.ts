@@ -1,3 +1,4 @@
+import { cuttingCapabilitySpecs } from './cutting-capabilities';
 import { type FamilySpec, row } from './types';
 
 /** Layer A, design section 2: units, containers, offsets, front matter, opaque blocks, the cut digest. */
@@ -540,5 +541,6 @@ export const cutting: FamilySpec = {
       'Both cuts of A deep-equal.',
       'cutter:no-state-between-files',
     ),
+    ...cuttingCapabilitySpecs,
   ],
 };
