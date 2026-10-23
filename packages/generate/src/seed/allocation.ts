@@ -368,7 +368,10 @@ export class Allocation {
       if (now < best) {
         best = now;
         stalled = 0;
-      } else if ((stalled += 1) >= MAX_STALLED) break;
+      } else {
+        stalled += 1;
+        if (stalled >= MAX_STALLED) break;
+      }
     }
   }
 }
