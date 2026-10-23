@@ -427,7 +427,7 @@ export function pointerAtoms(
                   ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
                 },
               },
-              ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
+              ...(mappedEvidence as unknown as Atom['evidence']),
             ],
             producedBy: 'model',
             ...(mappedReplyAct !== undefined && mappedReplyAct !== UNRESOLVED
