@@ -225,10 +225,12 @@ describe('sentence spans', () => {
   });
 
   it('keeps a stop with no space before a capital inside the word: code names and paths stay whole', () => {
-    // Merge when unsure (docs/estate-pointer-reader.md): `world.Today` stays one unit too (EN 52 is excluded).
+    // The cutter merges when unsure (docs/estate-pointer-reader.md): EN 52 is excluded.
     expect(split('Call Console.WriteLine to print.')).toEqual(['Call Console.WriteLine to print.']);
     expect(split('See System.Out for output.')).toEqual(['See System.Out for output.']);
-    expect(split('Open example.com/Foo.Bar in a browser.')).toEqual(['Open example.com/Foo.Bar in a browser.']);
+    expect(split('Open example.com/Foo.Bar in a browser.')).toEqual([
+      'Open example.com/Foo.Bar in a browser.',
+    ]);
     expect(split('Save config.Json first.')).toEqual(['Save config.Json first.']);
     expect(split('Write to ana.Lowe@example.com. I read it.')).toEqual([
       'Write to ana.Lowe@example.com.',
