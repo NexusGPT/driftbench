@@ -190,7 +190,8 @@ describe('Python RawEstate projection', () => {
   ]) {
     it(`red regression: never emits file bytes as the result of ${call}`, async () => {
       const root = await fixture({
-        'agent.py': `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
+        'agent.py':
+          `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
         'policy.md': 'Fictional mixed Case.\n',
       });
       const raw = await new pythonReader.PythonAgentReader().read(root);
@@ -317,6 +318,13 @@ describe('static Python agent syntax contract', () => {
     );
     expect(facts.graphs).toEqual([]);
     expect(facts.nodes).toEqual([]);
+  });
+
+  it('does not borrow an imported constructor identity for a computed receiver member', async () => {
+    const facts = pythonReader.pythonAgentFacts(
+      'from langchain_core.messages import SystemMessage\npolicy = unknown().SystemMessage(content="Fictional prompt.")\n',
+    );
+    expect(facts.prompts).toEqual([]);
   });
 
   for (const binding of [

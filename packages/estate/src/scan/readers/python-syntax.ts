@@ -186,13 +186,17 @@ type Call = {
   open: number;
   end: number;
 };
-function calls(tokens: readonly Token[]): Call[] {
+function calls(tokens: readonly Token[], computedMembers = false): Call[] {
   const out: Call[] = [];
   for (let index = 0; index < tokens.length; index++) {
     if (tokens[index]?.text !== '(') continue;
     let start = index - 1;
     while (start > 1 && tokens[start - 1]?.text === '.') start -= 2;
-    const callee = dotted(tokens.slice(start, index));
+    let callee = dotted(tokens.slice(start, index));
+    if (!callee && computedMembers && tokens[index - 2]?.text === '.') {
+      start = index - 1;
+      callee = dotted(tokens.slice(start, index));
+    }
     if (!callee) continue;
     let depth = 1;
     let end = index + 1;
@@ -240,7 +244,7 @@ function promptFile(
   transformed?: (call: string, line: number) => void,
 ): string | undefined {
   if (!tokens) return undefined;
-  const parsed = calls(tokens);
+  const parsed = calls(tokens, true);
   const refuse = (call: string, line = tokens[0]?.line ?? 1): undefined => {
     transformed?.(call, line);
     return undefined;
