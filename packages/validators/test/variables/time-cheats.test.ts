@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { runItem, variablesBank } from '../../src/ladders/variables/bank/index';
 import { variablesImpl as adapter } from '../../src/ladders/variables/adapter';
+import { runItem, variablesBank } from '../../src/ladders/variables/bank/index';
 import { blindBank } from '../../src/ladders/variables/blind/index';
 import type { Sources, VariablesImpl } from '../../src/ladders/variables/interface';
 

@@ -58,7 +58,9 @@ function learn(id: string, seeds: readonly number[]): Map<string, string> {
       tally.set(key, classes);
     }
   }
-  return new Map([...tally].map(([key, classes]) => [key, [...classes].sort((a, b) => b[1] - a[1])[0]?.[0] as string]));
+  return new Map(
+    [...tally].map(([key, classes]) => [key, [...classes].sort((a, b) => b[1] - a[1])[0]?.[0] as string]),
+  );
 }
 
 describe('a replay keyed on the number an agent name ends with (cheat 3)', () => {
@@ -106,7 +108,9 @@ describe('the failure of a file-format item (cheat 4)', () => {
   };
   const refuse: Partial<VariablesImpl> = {
     validate: () => ({ ok: false, errors: [{ code: 'SCHEMA_CUSTOM', path: '' }] }),
-    quotes: () => ({ errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.provenance.0.quote' }] }),
+    quotes: () => ({
+      errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.provenance.0.quote' }],
+    }),
   };
 
   it('names no position of a call and no direction of the wanted answer', async () => {

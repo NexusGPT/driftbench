@@ -1,4 +1,4 @@
-import { type FileCase, classOf } from '../../src/ladders/variables/bank/files';
+import { classOf, type FileCase } from '../../src/ladders/variables/bank/files';
 import { stableStringify } from '../../src/ladders/variables/bank/util';
 import type { VariablesImpl } from '../../src/ladders/variables/interface';
 

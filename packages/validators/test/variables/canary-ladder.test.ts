@@ -33,7 +33,8 @@ async function storeCore(options: Parameters<typeof variablesLadder>[0]): Promis
 }
 
 const isVoid = (m: Measure): boolean =>
-  (m.bank ?? []).length > 0 && (m.bank ?? []).every((entry) => !entry.pass && /void: /.test(entry.detail ?? ''));
+  (m.bank ?? []).length > 0 &&
+  (m.bank ?? []).every((entry) => !entry.pass && /void: /.test(entry.detail ?? ''));
 
 describe('the canary pair', () => {
   it('voids the run of a product that rewrites the verdicts its child prints', async () => {
@@ -81,7 +82,9 @@ describe('the canary pair', () => {
       const impl: Partial<VariablesImpl> = {
         ...referenceImpl,
         validate: (value): ValidateResult =>
-          ok ? { ok: true, store: value, warnings: [] } : { ok: false, errors: [{ code: 'SCHEMA_CUSTOM', path: '' }] },
+          ok
+            ? { ok: true, store: value, warnings: [] }
+            : { ok: false, errors: [{ code: 'SCHEMA_CUSTOM', path: '' }] },
       };
       const measure = await storeCore({ impl, filter: (item) => FEW.has(item.id) });
       expect((measure.bank ?? []).some((entry) => /void: /.test(entry.detail ?? ''))).toBe(false);

@@ -1,5 +1,6 @@
 import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
+import { wallLimitMs } from '../../bank/util';
 import type { Row, Sources, StoreDoc } from '../../interface';
 import {
   callBuild,
@@ -25,13 +26,19 @@ import { numeric } from '../spans';
 const idsOf = (n: number): string[] => Array.from({ length: n }, (_, i) => `q${i}`);
 const valIndex = (value: string | undefined): number => Number(String(value).slice(1));
 
-function withinTime(label: string, ms: number, limit: number): void {
+function withinTime(label: string, ms: number, limit: number, wallMs: number): void {
   if (process.env.BLIND_BANK_TIMES) process.stderr.write(`${label}: ${Math.round(ms)} ms of ${limit} ms\n`);
   check(ms <= limit, () => ({
     rule: 'the work stays within the processor time of the page',
     input: { work: label },
     got: { ms: Math.round(ms) },
     expected: { atMost: limit },
+  }));
+  check(wallMs <= wallLimitMs(limit), () => ({
+    rule: 'the work also finishes within the multiple of that time that the page allows on the clock',
+    input: { work: label },
+    got: { wallMs: Math.round(wallMs) },
+    expected: { atMost: wallLimitMs(limit) },
   }));
 }
 
@@ -109,8 +116,8 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
   const seeds: Row[] = Array.from({ length: seedsCount }, () =>
     Object.fromEntries(ids.map((id, i) => [id, `v${ctx.rng.int(0, (arities[i] as number) - 1)}`])),
   );
-  const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed, seeds }));
-  withinTime(`planning ${ids.length} axes`, ms, limitMs);
+  const { value: plan, ms, wallMs } = cpu(() => callPlan(ctx, store, { seed: ctx.seed, seeds }));
+  withinTime(`planning ${ids.length} axes`, ms, limitMs, wallMs);
   const fresh = newRows(plan);
   if (seedsCount > 0) {
     check(
@@ -168,8 +175,8 @@ function rulesWorkload(ctx: ItemContext, rules: number, stride: number, limitMs:
     vars: ids.map((id) => ({ id, values: valueIds(2), shared: false })),
     rules: ruleVars.map((variables, k) => ({ id: `rule.${k}`, variables })),
   });
-  const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
-  withinTime(`planning ${rules} rules of six binary variables`, ms, limitMs);
+  const { value: plan, ms, wallMs } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
+  withinTime(`planning ${rules} rules of six binary variables`, ms, limitMs, wallMs);
   const rows = newRows(plan).map((r) => r.values);
   for (const rule of ruleVars) {
     const gap = missingTriple(rows, rule);
@@ -253,8 +260,8 @@ function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
     files: Object.fromEntries(Object.entries(files).map(([p, lines]) => [p, lines.join('\n')])),
     rules,
   };
-  const { value: store, ms } = cpu(() => callBuild(ctx, { estate }));
-  withinTime(`reading ${count} condition spans`, ms, limitMs);
+  const { value: store, ms, wallMs } = cpu(() => callBuild(ctx, { estate }));
+  withinTime(`reading ${count} condition spans`, ms, limitMs, wallMs);
   check(store.variables.length === count, () => ({
     rule: '{} variables for {} spans of different quantities',
     got: { details: [store.variables.length, count] },
@@ -285,8 +292,8 @@ function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): 
       date: '2026-10-17',
     })),
   };
-  const { value: store, ms } = cpu(() => d.build({ owner }));
-  withinTime(`adding ${count} owner values`, ms, limitMs);
+  const { value: store, ms, wallMs } = cpu(() => d.build({ owner }));
+  withinTime(`adding ${count} owner values`, ms, limitMs, wallMs);
   const variable = store.variables.find((v) => v.id === id);
   check(variable?.values.length === count + 2, () => ({
     rule: 'a variable holds the values of its spans and the two sides',
@@ -318,8 +325,8 @@ function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: numb
     }
     rows.push({ id: `session-${s}`, values });
   }
-  const { value: store, ms } = cpu(() => d.build({ conversations: rows }));
-  withinTime(`counting ${sessions} conversations`, ms, limitMs);
+  const { value: store, ms, wallMs } = cpu(() => d.build({ conversations: rows }));
+  withinTime(`counting ${sessions} conversations`, ms, limitMs, wallMs);
   for (let v = 0; v < d.ids.length; v += 1) {
     const variable = store.variables.find((x) => x.id === d.ids[v]);
     const c = counts[v] as { seen: number; by: number[] };
@@ -391,8 +398,8 @@ function quotesWorkload(
       },
     ],
   };
-  const { value, ms } = cpu(() => callQuotes(ctx, store, { 'agent/prompt.md': fill.join('') }));
-  withinTime(`checking ${count} quotes in a one-megabyte file`, ms, limitMs);
+  const { value, ms, wallMs } = cpu(() => callQuotes(ctx, store, { 'agent/prompt.md': fill.join('') }));
+  withinTime(`checking ${count} quotes in a one-megabyte file`, ms, limitMs, wallMs);
   check(value.errors.length === wrong.size, () => ({
     rule: '{} errors; {} quotes are wrong',
     got: { details: [value.errors.length, wrong.size] },
@@ -421,14 +428,14 @@ function closedWorkload(ctx: ItemContext, n: number): void {
   const store = makeStore({ vars: idsOf(n).map((id) => ({ id, values: valueIds(2), shared: true })) });
   const warm = makeStore({ vars: idsOf(12).map((id) => ({ id, values: valueIds(2), shared: true })) });
   callCoverage(ctx, warm, [], [{ variables: idsOf(12), strength: 3 }]);
-  const { value, ms } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
+  const { value, ms, wallMs } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
   check(BigInt(value.allowed) === closedForm(n, 3), () => ({
     rule: 'coverage counts the allowed tuples exactly',
     input: { variables: n, strength: 3 },
     got: { allowed: String(value.allowed) },
     expected: { allowed: String(closedForm(n, 3)) },
   }));
-  withinTime(`the closed-form count over ${n} binary variables`, ms, 50);
+  withinTime(`the closed-form count over ${n} binary variables`, ms, 50, wallMs);
 }
 
 /** Distinct (subset, pattern) pairs among rows, counted exactly. */
@@ -461,8 +468,8 @@ function coverageWorkload(ctx: ItemContext, n: number, k: 2 | 3): void {
   const rows: Row[] = Array.from({ length: 30 }, () =>
     Object.fromEntries(ids.map((id) => [id, `v${ctx.rng.int(0, 1)}`])),
   );
-  const { value, ms } = cpu(() => callCoverage(ctx, store, rows, [{ variables: ids, strength: k }]));
-  withinTime(`the coverage of 30 rows over ${n} binary variables at strength ${k}`, ms, 20_000);
+  const { value, ms, wallMs } = cpu(() => callCoverage(ctx, store, rows, [{ variables: ids, strength: k }]));
+  withinTime(`the coverage of 30 rows over ${n} binary variables at strength ${k}`, ms, 20_000, wallMs);
   check(BigInt(value.allowed) === closedForm(n, k), () => ({
     rule: 'coverage counts the allowed tuples exactly',
     input: { variables: n, strength: k },
@@ -572,8 +579,8 @@ function complete(
 
 function denseWorkload(ctx: ItemContext, forbidCount: number): void {
   const dense = denseSpace(ctx, forbidCount);
-  const { value: plan, ms } = cpu(() => callPlan(ctx, dense.store, { seed: ctx.seed }));
-  withinTime(`planning 200 variables with ${forbidCount} impossible pairs`, ms, 30_000);
+  const { value: plan, ms, wallMs } = cpu(() => callPlan(ctx, dense.store, { seed: ctx.seed }));
+  withinTime(`planning 200 variables with ${forbidCount} impossible pairs`, ms, 30_000, wallMs);
   const rows = newRows(plan).map((r) => r.values);
   for (const r of rows) {
     check(Object.keys(r).length === dense.ids.length, () => ({
@@ -646,8 +653,8 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
 function independentWorkload(ctx: ItemContext, count: number): void {
   const ids = idsOf(count);
   const store = makeStore({ vars: ids.map((id) => ({ id, values: valueIds(3), shared: false })) });
-  const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
-  withinTime(`planning ${count} independent ternary variables`, ms, 10_000);
+  const { value: plan, ms, wallMs } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
+  withinTime(`planning ${count} independent ternary variables`, ms, 10_000, wallMs);
   const rows = newRows(plan);
   check(rows.length <= 6, () => ({
     rule: '{} new rows for {} independent ternary variables; six are enough',
@@ -668,8 +675,8 @@ function wideAxisWorkload(ctx: ItemContext): void {
   const store = makeStore({
     vars: ids.map((id, i) => ({ id, values: valueIds(arities[i] as number), shared: true })),
   });
-  const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
-  withinTime('planning one arity-200 axis and three binary axes', ms, 10_000);
+  const { value: plan, ms, wallMs } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
+  withinTime('planning one arity-200 axis and three binary axes', ms, 10_000, wallMs);
   const rows = newRows(plan);
   const gap = missingPair(
     rows.map((r) => r.values),

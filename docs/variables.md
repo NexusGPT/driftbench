@@ -538,7 +538,7 @@ its effect on a validator score is measured.
 ### Product capacity requirements
 
 * **R14: Covering-array size.** For the generated unconstrained or universally extendable benchmark spaces, let `M` be the required tuples not held by seeds, and `p` the reciprocal of the largest product of arities in a required tuple. Let `G = ceil(log(M)/-log(1-p))`, with `G=0` for `M=0` and `G=1` for `p=1, M>0`. The new-row cap is `ceil(1.25 G)+1`; no new row is needed when `M=0`. For the dense impossible-pair capacity cases the factor is four. Independent variables outside rules/axes need at most twice their maximum arity in rows (six for ternary variables). A single rule of six or eight binary, five ternary, or four quaternary variables uses fewer than 60% of its full product. These are explicit product quality targets, not a theorem about arbitrary constrained spaces.
-* **R15: Processor-time capacity.** The following limits measure process CPU time on the validator host, excluding fixture generation. These targets need calibration in the pending component pilot; they are not measured performance claims about an implementation.
+* **R15: Processor-time capacity.** The following limits measure process CPU time on the validator host, excluding fixture generation. These targets need calibration in the pending component pilot; they are not measured performance claims about an implementation. The processor time of a call counts the processes it starts and waits for, where the host keeps it (Linux). A call must also finish within three times its limit on the wall clock, and in no less than two seconds, so a process that only waits is bounded too.
 
 | Workload | Maximum CPU time |
 |---|---:|
