@@ -24,10 +24,11 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
             seeds: [one, two],
             seedIds: ['dup.1', 'dup.1'],
           });
-          // The wanted value is the id the message names; the item gave it, so it may be shown as input.
+          // The wanted value is the id the message names. It is the id the item gave, so the input says only that two
+          // rows share one, and the id itself stays out of the message.
           check(error.message.includes('dup.1'), () => ({
             rule: 'the Error a plan raises for two seed rows that carry one id',
-            input: { seedIds: ['dup.1', 'dup.1'] },
+            input: { seedRows: 2, rowsSharingTheId: 2 },
             got: { message: error.message },
             expected: { messageNames: 'dup.1' },
           }));
@@ -50,7 +51,9 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
           const got = first.map((r) => r.id);
           const kinds = first.map((r) => r.kind);
           check(
-            got[0] === 'seed.first.row' && got[1] === 'seed.second.row' && kinds.every((kind) => kind === 'seed'),
+            got[0] === 'seed.first.row' &&
+              got[1] === 'seed.second.row' &&
+              kinds.every((kind) => kind === 'seed'),
             () => ({
               rule: 'the ids and kinds of the first two rows when the supplied rows carry ids',
               input: { seedIds: ['first.row', 'second.row'] },
