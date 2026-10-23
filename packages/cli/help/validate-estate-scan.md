@@ -66,7 +66,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
 | `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; no home folder is read without it; a project skill wins a name clash |
-| `--home <folder>` | none | the folder that stands for your home folder: a guard script written from `~/`, `$HOME/` or `${HOME}/` is looked for there, inside the estate or outside it, and named `~/...` in the map; without it such a script is skipped and the lint says `home not mapped`. The machine's own home folder is never read. Also the `home:` key of the configuration file |
+| `--home <folder>` | none | the folder that stands for your home folder: a guard script written from `~/`, `$HOME/` or `${HOME}/` is looked for there, inside the estate or outside it, and named `~/...` in the map; without it such a script is skipped and the lint says `home-not-mapped`. The machine's own home folder is never read. A `~` typed here is your own explicit mapping; a `home:` key that begins with `~` is refused. Also the `home:` key of the configuration file |
 | `--force` | off | replace an existing map; the approvals in it are lost |
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |

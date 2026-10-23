@@ -10,11 +10,11 @@ import {
   scanEstate,
 } from '../../src/index';
 import { NOW } from '../support';
-import { type EstateModel, type GuardFact, type Kind, modelOf, type PolicyRole } from './model';
+import { type EstateModel, type GuardFact, type Kind, modelOf } from './model';
 
 /**
- * The tests of the outside-estate fixes state an estate as ROLES (a capability, a policy rule, a guard that runs
- * a script from a base). model.ts reads the roles as parts, aspects and links and says what the checks must find;
+ * The tests of the outside-estate fixes state an estate as ROLES (a capability, a guard that runs a script from a
+ * base). model.ts reads the roles as parts, aspects and links and says what the checks must find;
  * this file renders the roles in one runtime's layout and reads the product's findings back as KINDS. It is the
  * only file that knows a Claude Code folder layout or a lint code: a new runtime profile gets its own renderer,
  * and a rebuilt check that changes a code changes the one table below. Every name here is invented by the
@@ -48,6 +48,8 @@ export const SPELLINGS: Record<
     { id: 'quoted-braced', expands: true, write: (rest) => `"\${HOME}/${rest}"` },
     { id: 'tilde', expands: true, write: (rest) => `~/${rest}` },
     { id: 'quoted-tilde', expands: false, write: (rest) => `"~/${rest}"` },
+    { id: 'single-quoted-tilde', expands: false, write: (rest) => `'~/${rest}'` },
+    { id: 'single-quoted-variable', expands: false, write: (rest) => `'$HOME/${rest}'` },
   ],
 };
 
@@ -72,17 +74,14 @@ export type GuardRole = {
 export type Role = {
   /** Capabilities: a skill or a helper the estate holds. */
   skills?: string[];
-  helpers?: string[];
   guards?: GuardRole[];
   /** A guard command the oracle does not read (a form outside the matrix). */
   rawGuards?: Array<{ event?: string; command: string }>;
-  /** Policy rules in the runtime's own words. */
-  policy?: PolicyRole;
   /** Where the folder that stands for the home folder lies. */
   homeAt?: HomePlace;
   /** More files, by path: scripts, junk. */
   files?: Record<string, string>;
-  /** Where the hooks and the policy are written: the shared settings file or the local one. */
+  /** Where the hooks are written: the shared settings file or the local one. */
   settingsFile?: 'settings.json' | 'settings.local.json';
 };
 
@@ -90,9 +89,6 @@ export type Rendered = { root: string; home: string | undefined };
 
 const skillText = (name: string) =>
   `---\nname: ${name}\ndescription: Keeps the ${name} notes.\n---\n\nKeep the notes short.\n`;
-const helperText = (name: string) =>
-  `---\nname: ${name}\ndescription: Reads one ${name} record.\ntools: Read\n---\n\nRead.\n`;
-
 const BASE_NAME = 'user-base';
 
 /** The folder that stands for home, and the path of the file a guard script has under it. */
@@ -114,7 +110,6 @@ export async function render(role: Role, into?: string): Promise<Rendered> {
     ...role.files,
   };
   for (const name of role.skills ?? []) files[`.claude/skills/${name}/SKILL.md`] = skillText(name);
-  for (const name of role.helpers ?? []) files[`.claude/agents/${name}.md`] = helperText(name);
   const commands: Array<{ event: string; command: string }> = [];
   for (const guard of role.guards ?? []) {
     // The project and plugin folders are the estate root; the layout folder is a folder inside it.
@@ -133,7 +128,6 @@ export async function render(role: Role, into?: string): Promise<Rendered> {
   for (const raw of role.rawGuards ?? [])
     commands.push({ event: raw.event ?? 'PreToolUse', command: raw.command });
   const settings: Record<string, unknown> = {};
-  if (role.policy) settings.permissions = role.policy;
   if (commands.length > 0) {
     const events = [...new Set(commands.map((entry) => entry.event))];
     settings.hooks = Object.fromEntries(
@@ -169,13 +163,11 @@ export function modelOfRole(role: Role): EstateModel {
       expands: spelling?.expands ?? true,
       readable: mapped,
       present: guard.present && (spelling?.expands ?? true),
-      ...(mapped ? {} : { unreadable: 'home not mapped' }),
+      ...(mapped ? {} : { unreadable: 'home-not-mapped' }),
     };
   });
   return modelOf({
     skills: role.skills ?? [],
-    helpers: role.helpers ?? [],
-    ...(role.policy ? { policy: role.policy } : {}),
     guards,
   });
 }
@@ -187,14 +179,9 @@ export function modelOfRole(role: Role): EstateModel {
 const KIND_OF: Record<string, Kind> = {
   MISSING_SCRIPT: 'missing-script',
   UNANCHORED_GUARD: 'unanchored-guard',
-  PERMISSION_UNKNOWN_SKILL: 'stale-rule/instructs',
-  PERMISSION_UNKNOWN_HELPER: 'stale-rule/delegates',
-  PERMISSION_READ_BYPASS: 'read-bypass',
-  PERMISSION_BYPASS_MODE: 'bypass-mode',
 };
 /** The check ids whose coverage the tests read. */
 export const CHECK_MISSING_SCRIPT = 'MISSING_SCRIPT';
-export const POLICY_CHECKS = ['PERMISSION_UNKNOWN_SKILL', 'PERMISSION_READ_BYPASS', 'PERMISSION_BYPASS_MODE'];
 
 /** The reader options of a run; `home` is the folder the run is told stands for the home folder. */
 export function readerOptions(home: string | undefined): ClaudeCodeReaderOptions {
@@ -220,35 +207,6 @@ export async function kindsOf(root: string, home?: string): Promise<string[]> {
 export async function runRole(role: Role, into?: string): Promise<string[]> {
   const rendered = await render(role, into);
   return kindsOf(rendered.root, rendered.home);
-}
-
-/** The kinds the policy checks give. Other findings of the estate (a helper nothing routes to) are not theirs. */
-const POLICY_KINDS: readonly string[] = [
-  'stale-rule/instructs',
-  'stale-rule/delegates',
-  'read-bypass',
-  'bypass-mode',
-];
-
-/** Only the policy kinds of a run. */
-export async function policyKinds(role: Role, into?: string): Promise<string[]> {
-  return (await runRole(role, into)).filter((kind) => POLICY_KINDS.includes(kind));
-}
-
-/**
- * The confidence a finding carries, when the product states one. It is the confidence of the link the finding rests
- * on (step 1's `Link.confidence`): the value of a link read from structure when proven, a lower one when inferred.
- * This is the one place that maps the product's field to the tests; a finding that carries it elsewhere changes it.
- */
-export const confidenceOf = (finding: LintFinding): number | undefined =>
-  (finding as LintFinding & { confidence?: number }).confidence;
-
-/** The read-bypass findings of a run, with the confidence each carries. */
-export async function readBypassConfidences(role: Role): Promise<Array<number | undefined>> {
-  const { root, home } = await render(role);
-  return (await lintResult(root, home)).findings
-    .filter((finding) => KIND_OF[finding.code] === 'read-bypass')
-    .map(confidenceOf);
 }
 
 /** The scripts the guards run, as the map names them. A mapped home shows as `~/...`, never as a real folder. */

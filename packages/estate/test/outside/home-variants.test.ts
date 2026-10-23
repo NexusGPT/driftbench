@@ -25,7 +25,7 @@ import {
  * reference is judged only where the run can read the base. The home folder is read only when the run was given
  * the folder that stands for it, never from the machine, so the same estate gives the same findings on every
  * machine. With the folder given, the script is missing exactly when that folder does not hold it. With none
- * given, the guard is skipped and the check says why: "home not mapped". A base the shell does not expand (a
+ * given, the guard is skipped and the check says why: "home-not-mapped". A base the shell does not expand (a
  * quoted `~`) is text, a path from the working folder: the guard is not anchored.
  *
  * Expected findings come from model.ts (aspects and links, written from this rule), never from a first run.
@@ -102,7 +102,7 @@ describe('the unmapped home is skipped and says so', () => {
       const result = await lintResult(root, home);
       expect(result.findings.filter((finding) => finding.code !== 'UNENFORCED')).toEqual([]);
       const outcome = result.outcomes.find((candidate) => candidate.check === CHECK_MISSING_SCRIPT);
-      expect(outcome?.coverage.skipped.map((skipped) => skipped.reason)).toEqual(['home not mapped']);
+      expect(outcome?.coverage.skipped.map((skipped) => skipped.reason)).toEqual(['home-not-mapped']);
       // Nothing was read, so the check did not pass: it did not run.
       expect(outcome?.status).toBe('not-run');
     },
@@ -129,12 +129,17 @@ describe('the unmapped home is skipped and says so', () => {
 });
 
 describe('a base the shell does not expand', () => {
-  it('a quoted tilde is a path from the working folder: the guard is not anchored, and its script is not there', async () => {
-    const quoted = SPELLINGS.home.findIndex((spelling) => !spelling.expands);
-    const role: Role = { guards: [guard('home', quoted, 1, 'quoted', false)], homeAt: 'beside-layout' };
-    expect(await runRole(role)).toEqual(expectedKinds(modelOfRole(role)));
-    expect(expectedKinds(modelOfRole(role))).toContain('unanchored-guard');
-  });
+  const texts = SPELLINGS.home
+    .map((spelling, spell) => ({ id: spelling.id, spell, expands: spelling.expands }))
+    .filter((entry) => !entry.expands);
+  it.each(texts)(
+    '$id is text, a path from the working folder: the guard is not anchored, and its script is not there',
+    async ({ spell }) => {
+      const role: Role = { guards: [guard('home', spell, 1, `q${spell}`, false)], homeAt: 'beside-layout' };
+      expect(await runRole(role)).toEqual(expectedKinds(modelOfRole(role)));
+      expect(expectedKinds(modelOfRole(role))).toContain('unanchored-guard');
+    },
+  );
 });
 
 describe('metamorphic: what must not change the findings', () => {

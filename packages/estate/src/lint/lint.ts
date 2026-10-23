@@ -57,7 +57,7 @@ export type LintCode = (typeof LINT_CODES)[number];
 export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERNAL', 'UNRESOLVED_REFERENCE']);
 
 /** Why a guard script written from the home folder was not looked for. */
-export const HOME_NOT_MAPPED = 'home not mapped';
+export const HOME_NOT_MAPPED = 'home-not-mapped';
 
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
