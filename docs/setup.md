@@ -22,7 +22,7 @@ unavailable file. Inspection alone exits 0 even when it discovers unknowns: read
 `bindings`, `budget.pricing` and `drift`. Unknown keys, duplicate YAML keys and contradictory policies fail
 validation. This example uses only fictional paths and roles.
 
-```yaml
+```yaml setup
 version: 1
 runtime: claude-code
 sources:
@@ -80,7 +80,7 @@ may have no deployment. The resolved source passed to the reader holds absolute 
 setup-file provenance. A reader supplies immutable `setupTypes: TypesOptions` metadata; the CLI passes
 a reader-id resolver to the setup parser and doctor, without changing the frozen scanner interface.
 
-```yaml
+```yaml setup-source
 # Additional source entry inside sources:
 - id: shared
   path: .agents
@@ -99,7 +99,8 @@ a separate source mapping gets an inferred source with reader `unknown`; choose 
 before evaluating it. Copy intent must be declared;
 equal bytes are insufficient evidence. Escaping links are skipped. Doctor never reads an implicit home
 from the legacy estate configuration: it records `home not mapped`. Explicit home sources are read
-separately. A reader that is not installed is skipped and coverage cannot be clean.
+separately. A reader that is not installed is skipped and coverage cannot be clean. Its in-scope files still enter the
+drift baseline, so an unchanged draft can agree with its folder while reader coverage remains incomplete.
 
 ## Scope, execution, money and privacy
 

@@ -446,17 +446,42 @@ export async function diagnoseSetup(
       );
   }
   const profile = draft.runtime ? runtimeProfile(draft.runtime) : undefined;
-  const parsed = parseSetupText(JSON.stringify(draft), typeResolver ?? profile);
+  let parsed = parseSetupText(JSON.stringify(draft), typeResolver ?? profile);
   if (!parsed.ok)
     throw new Error(
       `Invalid setup: ${parsed.errors.map((issue) => `${issue.path}: ${issue.message}`).join('; ')}`,
     );
   if (draft.runtime && !profile) result.advice.push(`No runtime profile registered for ${draft.runtime}.`);
-  const sources = resolveSetupSources(draft, setupFile, parsed.types);
+  let sources = resolveSetupSources(draft, setupFile, parsed.types);
   const manifest: NonNullable<SetupDocument['drift']>['files'] = [];
-  const inventories: Disk[] = [];
+  let inventories: Disk[] = [];
   for (const source of sources)
     inventories.push(await inventory(source, draft, setupFile, result.coverage.skipped, sources));
+  // Resolve deployment sources before fingerprinting, so the emitted draft agrees with its own baseline.
+  const deploymentProfile = runtimeProfile(draft.runtime ?? '');
+  const knownRoots = new Map(sources.map((source) => [resolve(source.root), source.id]));
+  let inferred = false;
+  for (const [index, source] of sources.entries()) for (const link of inventories[index]?.links ?? []) {
+    if (!deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
+    const mapped = sources.find((entry) => entry.id === link.source);
+    if (!mapped) continue;
+    const absolute = resolve(mapped.root, link.target);
+    if (knownRoots.has(absolute) || !(await stat(absolute).catch(() => undefined))?.isDirectory()) continue;
+    let number = 1;
+    while (draft.sources.some((entry) => entry.id === `linked-${number}`)) number++;
+    const id = `linked-${number}`;
+    draft.sources.push({ id, path: slash(relative(dirname(setupFile), absolute)) || '.', kind: 'directory', reader: 'unknown' });
+    knownRoots.set(absolute, id);
+    inferred = true;
+    result.advice.push(`Choose a registered reader for inferred source ${id}; its link proves deployment, not source format.`);
+  }
+  if (inferred) {
+    parsed = parseSetupText(JSON.stringify(draft), typeResolver ?? profile);
+    if (!parsed.ok) throw new Error(`Invalid inferred source types: ${JSON.stringify(parsed.errors)}`);
+    sources = resolveSetupSources(draft, setupFile, parsed.types);
+    inventories = [];
+    for (const source of sources) inventories.push(await inventory(source, draft, setupFile, [], sources));
+  }
   const reads = await snapshotReads(sources, inventories, draft, read, result.coverage.skipped);
   const disks = new Map<string, DiskFile[]>();
   for (const [index, source] of sources.entries()) {
@@ -508,37 +533,8 @@ export async function diagnoseSetup(
     for (const path of raw?.ignored?.paths ?? [])
       result.coverage.skipped.push({ what: `${source.id}:${path}`, reason: 'reader ignored' });
     for (const link of disk.links) {
-      let targetSource = sources.find((entry) => entry.id === link.source && link.target === '');
-      const deploymentProfile = runtimeProfile(draft.runtime ?? '');
-      if (!deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
-      if (!targetSource) {
-        const mapped = sources.find((entry) => entry.id === link.source);
-        if (!mapped) continue;
-        const absolute = resolve(mapped.root, link.target);
-        if (!(await stat(absolute).catch(() => undefined))?.isDirectory()) continue;
-        // A verified link declares deployment intent, but cannot prove which unregistered reader to use.
-        let number = 1;
-        while (draft.sources.some((entry) => entry.id === `linked-${number}`)) number++;
-        const inferred = {
-          id: `linked-${number}`,
-          path: slash(relative(dirname(setupFile), absolute)) || '.',
-          kind: 'directory' as const,
-          reader: 'unknown',
-        };
-        draft.sources.push(inferred);
-        targetSource = {
-          ...inferred,
-          root: absolute,
-          types: { version: 1, types: [] },
-          bindings: [],
-          provenance: { file: setupFile, path: `sources.${draft.sources.length - 1}` },
-        };
-        result.sources.push({ id: inferred.id, reader: inferred.reader, files: [] });
-        result.coverage.skipped.push({ what: inferred.id, reason: 'reader unavailable' });
-        result.advice.push(
-          `Choose a registered reader for inferred source ${inferred.id}; its link proves deployment, not source format.`,
-        );
-      }
+      const targetSource = sources.find((entry) => entry.id === link.source && link.target === '');
+      if (!targetSource || !deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
       const binding = {
         runtime: deploymentProfile.name,
         deployedRoot: source.id,
@@ -608,7 +604,7 @@ export async function diagnoseSetup(
   if (
     declared?.drift &&
     result.coverage.skipped.some(
-      (entry) => entry.reason === 'source unavailable' || entry.reason === 'reader unavailable',
+      (entry) => entry.reason === 'source unavailable',
     )
   )
     result.drift.status = 'fail';
