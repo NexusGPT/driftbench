@@ -120,6 +120,24 @@ describe('scale.100x.time on a runner of any speed', () => {
     expect(verdict.detail).toContain('80000 ms normalised');
   });
 
+  it('prints the calibrations it took the median of, the workload, and the known size of the noise', async () => {
+    const verdict = await timeItem({
+      ...report(59_000, 250),
+      calibrationRunsMs: [240, 244, 250, 262, 281],
+      behaviours: 600,
+    });
+    expect(verdict.pass, verdict.detail).toBe(true);
+    expect(verdict.detail).toContain('on 600 behaviours, the same workload for every seed');
+    expect(verdict.detail).toContain('(median of 5, from 240 to 281 ms)');
+    expect(verdict.detail).toContain('by about 15 percent');
+  });
+
+  it('prints no median for a report without a list of calibrations', async () => {
+    const verdict = await timeItem(report(59_000, REF));
+    expect(verdict.detail).not.toContain('median of');
+    expect(verdict.detail).not.toContain('behaviours');
+  });
+
   it('fails a product twice as slow on a slow runner, whose raw time is far over', async () => {
     expect((await timeItem(report(236_000, 2 * REF))).pass).toBe(false);
   });
@@ -131,9 +149,11 @@ describe('the calibration is measured in a process of its own, before the timed 
     expect(child).not.toMatch(/calibrate\(/);
     expect(child).toContain('CALIBRATION_ENV');
     const parent = readFileSync(SCALE, 'utf8');
-    const measured = parent.indexOf('await measureCalibration()');
-    expect(measured).toBeGreaterThan(-1);
-    expect(measured).toBeLessThan(parent.indexOf("'--import'", measured));
+    // the calibrations before the timed child are awaited before the child is started, each one in a process of its own
+    const before = parent.indexOf('await calibrations(beforeCount)');
+    expect(before).toBeGreaterThan(-1);
+    expect(before).toBeLessThan(parent.indexOf('await runChild(', before));
+    expect(parent.indexOf('await measureCalibration()')).toBeGreaterThan(-1);
   });
 
   it('hands the timed child the calibration it saw measured, before the override module is imported', async () => {
@@ -141,7 +161,7 @@ describe('the calibration is measured in a process of its own, before the timed 
     const file = join(dir, 'seen.txt');
     process.env.DRIFTBENCH_ORDER_FILE = file;
     try {
-      const report = await scaleReport(1, 1, 8_000, { generator: ORDER });
+      const report = await scaleReport(1, 1, 8_000, { generator: ORDER, calibrations: 1 });
       expect(report.error).toBeUndefined();
       const seen = Number(readFileSync(file, 'utf8'));
       expect(seen).toBeGreaterThan(0);
@@ -153,7 +173,7 @@ describe('the calibration is measured in a process of its own, before the timed 
   }, 180_000);
 
   it('runs the timed child under a small heap with the calibration measured outside it', async () => {
-    const report = await scaleReport(1, 1, 600_000, { heapMb: 128 });
+    const report = await scaleReport(1, 1, 600_000, { heapMb: 128, calibrations: 1 });
     expect(report.error).toBeUndefined();
     expect(report.calibrationMs).toBeGreaterThan(0);
   }, 300_000);

@@ -43,6 +43,24 @@ export const CALIBRATION_REFERENCE_MS = 250;
 /** The most credit a slow calibration earns: the normalised time is never below the raw time over this. */
 export const CALIBRATION_MAX_CREDIT = 1.5;
 
+/**
+ * Calibrations measured per scale run, each in a process of its own: half before the timed child, the rest after
+ * it. The calibration of a run is their median. One measurement is the noisy part of a scale verdict (a standard
+ * deviation of 3.6 percent inside one VM, against 0.9 percent for the raw CPU time of the product), and the median
+ * of five has the same expected value as one, so the reference below stays as recorded.
+ */
+export const CALIBRATION_COUNT = 5;
+
+/** The median of a list of numbers; the mean of the two middle ones for an even count. NaN for an empty list. */
+export function medianOf(values: readonly number[]): number {
+  if (values.length === 0) return Number.NaN;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1
+    ? (sorted[middle] as number)
+    : ((sorted[middle - 1] as number) + (sorted[middle] as number)) / 2;
+}
+
 /** The environment variable through which the parent hands the calibration to the timed child. */
 export const CALIBRATION_ENV = 'DRIFTBENCH_SCALE_CALIBRATION_MS';
 
