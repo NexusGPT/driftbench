@@ -48,6 +48,8 @@ export type ProbeRequest = {
   classId: string;
   /** The stage to probe at; any stage the recovery allows when absent. */
   stage?: string;
+  /** The position in the path to probe at, when the same stage comes twice; any position of the stage when absent. */
+  index?: number;
   /** For a tool failure: the failing turn is the last one of the walk, a turn that asks a behaviour. */
   onTurn?: boolean;
   /** The walk ends at the probe: it is there to place the class, not to walk the rest of the path. */
@@ -419,6 +421,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
+      .filter(({ index }) => (probe.index === undefined ? true : index === probe.index))
       // The map's constraints hold for the probe too: a class the map forbids at a stage is never said there.
       .filter(({ stage }) => {
         const stageIndex = prepared.stage;

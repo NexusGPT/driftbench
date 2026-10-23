@@ -196,6 +196,62 @@ describe('sentence spans', () => {
     ]);
   });
 
+  // The Pragmatic Segmenter's Golden Rules (MIT; validators/pointer/THIRD-PARTY.md) that a shape-only cutter answers.
+  it('reads an ellipsis by its shape: three dots never end a sentence, a stop after them does', () => {
+    // EN 47: an ellipsis in square brackets marks an omission.
+    expect(split('"Vale [...] kept the keys [...]" (Lowe 12).')).toEqual([
+      '"Vale [...] kept the keys [...]" (Lowe 12).',
+    ]);
+    // EN 50: three spaced dots before a capital continue the sentence.
+    expect(split('I was not really . . . I did not mean it.')).toEqual([
+      'I was not really . . . I did not mean it.',
+    ]);
+    // EN 48: a fourth dot is the full stop.
+    expect(split('The list stops here . . . . Then it moves on.')).toEqual([
+      'The list stops here . . . .',
+      'Then it moves on.',
+    ]);
+    // HY 2: three unspaced dots before a capital continue the sentence.
+    expect(split('It rained...Then it stopped.')).toEqual(['It rained...Then it stopped.']);
+    // EN 49: four unspaced dots end it.
+    expect(split('We never planned it.... She left.')).toEqual(['We never planned it....', 'She left.']);
+  });
+
+  it('starts a sentence at an ellipsis that follows a full stop (NL 2)', () => {
+    expect(split('The shop was full. ...and then it rained.')).toEqual([
+      'The shop was full.',
+      '...and then it rained.',
+    ]);
+  });
+
+  it('keeps a stop with no space before a capital inside the word: code names and paths stay whole', () => {
+    // The cutter merges when unsure (docs/estate-pointer-reader.md): EN 52 is excluded.
+    expect(split('Call Console.WriteLine to print.')).toEqual(['Call Console.WriteLine to print.']);
+    expect(split('See System.Out for output.')).toEqual(['See System.Out for output.']);
+    expect(split('Open example.com/Foo.Bar in a browser.')).toEqual([
+      'Open example.com/Foo.Bar in a browser.',
+    ]);
+    expect(split('Save config.Json first.')).toEqual(['Save config.Json first.']);
+    expect(split('Write to ana.Lowe@example.com. I read it.')).toEqual([
+      'Write to ana.Lowe@example.com.',
+      'I read it.',
+    ]);
+  });
+
+  it('keeps a sentence that starts with a digit behind the previous one (NL 1)', () => {
+    // The segmenter returns no boundary before a number followed by a lower-case word (UAX #29 SB8).
+    expect(split('The hall emptied fast. 40 chairs were left behind.')).toEqual([
+      'The hall emptied fast. 40 chairs were left behind.',
+    ]);
+  });
+
+  it('reads a one-letter abbreviation through directional marks around its stop (AR 2)', () => {
+    expect(split('وقال د\u202a.\u202c سامي إنه وصل. ثم غادر.')).toEqual([
+      'وقال د\u202a.\u202c سامي إنه وصل.',
+      'ثم غادر.',
+    ]);
+  });
+
   it('keeps a boundary when the next sentence starts in lower case', () => {
     expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
       'We bake rye daily.',
@@ -275,6 +331,29 @@ describe('the nesting of a file counts list structure, not indent width', () => 
       })();
       expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
     }
+  });
+
+  const refusalOf = (text: string): unknown => {
+    try {
+      return cut(text);
+    } catch (cause) {
+      return cause;
+    }
+  };
+
+  it('refuses a list indented by tabs one level over the limit, and reads one at the limit', () => {
+    const tabbed = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'\t'.repeat(i)}- level ${i}`).join('\n')}\n`;
+    expect(cut(tabbed(MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+    expect(refusalOf(tabbed(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(tabbed(150))).toMatchObject({ code: 'nesting', depth: 150 });
+  });
+
+  it('keeps a list open across a lazy paragraph line, so levels split by one are still counted', () => {
+    const lazy = (levels: number) =>
+      `${Array.from({ length: levels }, (_, i) => `${'  '.repeat(i)}- level ${i}\nlazy line ${i}`).join('\n')}\n`;
+    expect(refusalOf(lazy(MAX_NESTING + 1))).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    expect(refusalOf(lazy(150))).toMatchObject({ code: 'nesting', depth: 150 });
   });
 
   it('counts a sibling list as the same level and a dedented line as the end of the list', () => {

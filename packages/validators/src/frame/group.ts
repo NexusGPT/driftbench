@@ -1,4 +1,5 @@
 import { type SpawnSyncOptions, type SpawnSyncReturns, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { FrameError } from './tape';
 import { rngOf } from './twins';
 
@@ -19,13 +20,13 @@ const { spawn, execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const [name, value, prefix, ...asked] = process.argv.slice(1);
 const command = [...JSON.parse(prefix), ...asked];
-const mark = Buffer.from(name + '=' + value + '\0');
+const mark = name + '=' + value;
 function tagged() {
   const found = [];
   if (fs.existsSync('/proc/self/environ')) {
     for (const entry of fs.readdirSync('/proc')) {
       if (!/^[0-9]+$/.test(entry) || Number(entry) === process.pid) continue;
-      try { if (fs.readFileSync('/proc/' + entry + '/environ').includes(mark)) found.push(Number(entry)); } catch {}
+      try { if (fs.readFileSync('/proc/' + entry + '/environ').toString().split('\0').includes(mark)) found.push(Number(entry)); } catch {}
     }
     return found;
   }
@@ -33,7 +34,7 @@ function tagged() {
     const text = execFileSync('ps', ['eww', '-A', '-o', 'pid=,command='], { encoding: 'utf8', maxBuffer: 1 << 28 });
     for (const line of text.split('\n')) {
       const at = line.trim().indexOf(' ');
-      if (at > 0 && line.includes(name + '=' + value)) {
+      if (at > 0 && line.trim().split(/\s+/).includes(mark)) {
         const pid = Number(line.trim().slice(0, at));
         if (pid !== process.pid) found.push(pid);
       }
@@ -139,15 +140,15 @@ export function namespacePrefix(): string[] {
 /** Whether run C starts in a PID namespace here. */
 export const namespaceAvailable = (): boolean => namespacePrefix().length > 0;
 
-/** The name and value that tag what one run C starts, drawn from the seed and the tag. */
-export function runTag(seed: number, tag: string): { name: string; value: string } {
+/** The drawn tag of one run C, scoped to the frame's unique working directory. */
+export function runTag(seed: number, tag: string, instance: string): { name: string; value: string } {
   const rng = rngOf(seed, `group:${tag}`);
   const letters = 'abcdefghijklmnopqrstuvwxyz';
   const word = (length: number) =>
     Array.from({ length }, () => letters[Math.floor(rng() * letters.length)]).join('');
   return {
     name: `${word(5).toUpperCase()}_${word(6).toUpperCase()}`,
-    value: `${word(10)}${Math.floor(rng() * 1e9)}`,
+    value: `${word(10)}${Math.floor(rng() * 1e9)}-${createHash('sha256').update(instance).digest('hex')}`,
   };
 }
 

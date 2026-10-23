@@ -20,21 +20,31 @@ export const SPAN_RULE =
   'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
   'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
 
+/** Added after SPAN_RULE only for a set that declares a numeric link kind, so no other request changes (cassette keys hold). */
+export const NUMBER_RULE =
+  'A link kind marked NUMERIC is written {"kind", "to", "value", "unit"?}: to is one of the comparisons listed under it, value is the number as a JSON number, unit says what it counts when the unit says so. Several such links may stand on one entry.';
+
 /** Added to the system text only for a set with a label that asks for a target, so other sets keep their requests. */
 export const TARGET_RULE = 'A label that asks for a target always names one.';
 
 /** The part of a label set the system text depends on. */
 export type DenseSystemSet = {
   spans?: unknown;
-  links?: unknown;
+  links?: ReadonlyArray<{ number?: unknown }>;
   labels: ReadonlyArray<{ target?: unknown }>;
 };
 
-/** The system text of the dense request for a set: the fixed text, then the span rule, then the target rule. */
-export function denseSystemFor(set: DenseSystemSet): string {
+/**
+ * The system text of the dense request for a set: the fixed text, then the span rule, the number rule for a numeric
+ * link kind, and the target rule. A user labeler's request leaves the target rule out (`target: false`): in a stack
+ * the labels that ask for a target go to the system 2 labeler.
+ */
+export function denseSystemFor(set: DenseSystemSet, options: { target?: boolean } = {}): string {
+  const target = options.target !== false && set.labels.some((label) => label.target === 'required');
   return [
     DENSE_SYSTEM,
     ...(set.spans || set.links ? [SPAN_RULE] : []),
-    ...(set.labels.some((label) => label.target === 'required') ? [TARGET_RULE] : []),
+    ...(set.links?.some((kind) => kind.number) ? [NUMBER_RULE] : []),
+    ...(target ? [TARGET_RULE] : []),
   ].join(' ');
 }

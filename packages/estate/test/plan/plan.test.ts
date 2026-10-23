@@ -51,7 +51,7 @@ describe('the estate plan', () => {
     expect(Object.values(summary.perTestType).reduce((sum, n) => sum + n, 0)).toBe(plan.rows.length);
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
-    expect(summary.perKind.instruction).toBe(93);
+    expect(summary.perKind.instruction).toBe(95);
     expect(summary.perKind.setting).toBe(4);
     expect(summary.perTestType.setting).toBe(4);
     expect(details.noContract).toEqual([]);

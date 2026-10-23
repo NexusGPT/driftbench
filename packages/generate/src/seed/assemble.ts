@@ -87,6 +87,8 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   reducedEnds?: ReducedEnds;
+  /** Set when every block of the walk is a repeat and every obligation it holds is held by a written spec: the spec is not written. */
+  dropped?: { duplicate_of: { spec: string; block: string } };
   /** Blocks cut from the middle of the walk: a stay another written spec already says. */
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
   world?: WorldState;

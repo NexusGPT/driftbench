@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { DENSE_SYSTEM, SPAN_RULE } from '@agent-nexus/driftbench-core';
+import { denseSystemFor } from '@agent-nexus/driftbench-core';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
@@ -81,7 +81,7 @@ export function userRequest(
       set: setBody,
       window: windowBody,
       prompt: {
-        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        system: denseSystemFor(set, { target: false }),
         user: denseUser(set, window, context),
       },
     };

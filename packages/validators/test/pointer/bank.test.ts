@@ -6,6 +6,7 @@ import { pointerLadder } from '../../src/ladders/pointer/index';
 
 const FAMILIES = [
   'cutting',
+  'golden',
   'ids',
   're-anchoring',
   'grouping',

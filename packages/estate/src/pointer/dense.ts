@@ -3,6 +3,7 @@ import {
   denseSystemFor,
   dropCommentLines,
   dropTrailingComma,
+  NUMBER_RULE,
   repairAnswerText,
   SPAN_RULE,
   singleToDoubleQuotes,
@@ -60,6 +61,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
     lines.push('LINK KINDS:');
     for (const kind of set.links) {
       lines.push(`- ${kind.name}: ${kind.description}`);
+      if (kind.number) lines.push(`    NUMERIC; "to" is one of: ${(kind.values ?? []).join(', ')}`);
       for (const candidate of context.candidates?.[kind.name] ?? [])
         lines.push(`    ${candidate.id}  ${candidate.label}`);
     }
@@ -86,7 +88,7 @@ function labelLine(label: Label): string {
  */
 export const DEFAULT_RUNS = 5;
 
-export { DENSE_SYSTEM, SPAN_RULE, TARGET_RULE };
+export { DENSE_SYSTEM, NUMBER_RULE, SPAN_RULE, TARGET_RULE };
 
 /** Added to the system text of a second request, after an answer that was no JSON. */
 export const RETRY_NOTE =
@@ -197,6 +199,10 @@ export function denseLabels(value: unknown): Labelled[] {
       ...(typeof entry.anchor === 'string' ? { anchor: entry.anchor } : {}),
       ...(typeof entry.anchorEnd === 'string' ? { anchorEnd: entry.anchorEnd } : {}),
       ...(target === undefined || target === null ? {} : { target: target as number }),
+      // Scopes are kept as answered, like a target: the check refuses a malformed list.
+      ...(!Array.isArray(entry.scopes) || entry.scopes.length === 0
+        ? {}
+        : { scopes: entry.scopes as number[] }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
       ...(!Array.isArray(entry.spans) || entry.spans.length === 0
         ? {}
@@ -207,6 +213,14 @@ export function denseLabels(value: unknown): Labelled[] {
     });
   }
   return out;
+}
+
+/** The indexes in the file of the units a list of window numbers names. */
+function scopeIndexes(numbers: readonly number[], window: Window): number[] {
+  return numbers.flatMap((n) => {
+    const unit = window.units[n - 1];
+    return unit ? [unit.index] : [];
+  });
 }
 
 /** The opinions of a dense answer: one label per unit it named, a target as the index of the unit in the file. */
@@ -226,6 +240,7 @@ export function denseOpinions(
     byUnit.set(unit.index, {
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
+      ...(accepted?.scopes ? { scopes: scopeIndexes(accepted.scopes, window) } : {}),
       ...(accepted?.spans ? { spans: accepted.spans } : {}),
       ...(accepted?.links ? { links: accepted.links } : {}),
     });

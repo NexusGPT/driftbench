@@ -38,6 +38,7 @@ export {
   denseLabels,
   denseOpinions,
   denseUser,
+  NUMBER_RULE,
   parseDenseAnswer,
   SPAN_RULE,
   TARGET_RULE,

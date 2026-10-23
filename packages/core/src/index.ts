@@ -141,7 +141,14 @@ export {
   type UsedObject,
 } from './objects';
 export { bindObjectContext, objectContextOfSpec } from './objects/context';
-export { DENSE_SYSTEM, type DenseSystemSet, denseSystemFor, SPAN_RULE, TARGET_RULE } from './pointer-prompt';
+export {
+  DENSE_SYSTEM,
+  type DenseSystemSet,
+  denseSystemFor,
+  NUMBER_RULE,
+  SPAN_RULE,
+  TARGET_RULE,
+} from './pointer-prompt';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -437,6 +444,7 @@ export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
+  Actor,
   Assertion,
   Budget,
   Count,
@@ -496,6 +504,7 @@ export {
   CampaignRadius,
   CarriedFrom,
   Cost,
+  callsIn,
   Diagnosis,
   ExecutionRecord,
   HistoryNormalization,
