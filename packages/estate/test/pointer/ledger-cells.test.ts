@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { checkLedger, cut, type Ledger, nextLedger, parseLedger, renderLedger } from '../../src/pointer';
+import {
+  checkLedger,
+  cut,
+  LADDER,
+  type Ledger,
+  nextLedger,
+  parseLedger,
+  renderLedger,
+} from '../../src/pointer';
 
 // Invented files: a harbour office with a duty table.
 const scan = (text: string, previous?: Ledger) =>
@@ -257,6 +265,38 @@ describe('a table cell in the cutter and the ledger', () => {
       if (next(3) === 0) after = after.filter((_, at) => at !== next(after.length));
       if (next(2) === 0) after = [...after].reverse();
       check(`round ${round}`, before, after);
+    }
+  });
+
+  // A long cell that is unique in its table is followed by its text: by its key too, but only while the new text is
+  // kin to it, more similar than the ladder's text floor. The two texts below differ in k of 50 characters, so their
+  // similarity is 1 - k / 50: just over the floor keeps the id, exactly at it and just under it do not.
+  it('follows a long unique cell by its key only above the ladder text floor', () => {
+    const size = 50;
+    const old = 'abcdefghij'.repeat(size / 10);
+    const atFloor = Math.round((1 - LADDER.textFloor) * size);
+    const rewritten = (changed: number) => `${'Z'.repeat(changed)}${old.slice(changed)}`;
+    for (const [changed, kept] of [
+      [atFloor - 1, true],
+      [atFloor, false],
+      [atFloor + 1, false],
+    ] as const) {
+      const before = scan(
+        `${table([
+          [LONG_A, old],
+          [LONG_B, 'No'],
+        ])}\n`,
+      );
+      const id = idOf(before.ledger, old);
+      const after = scan(
+        `${table([
+          [LONG_A, rewritten(changed)],
+          [LONG_B, 'No'],
+        ])}\n`,
+        before.ledger,
+      );
+      const found = after.ledger.entries.find((entry) => entry.id === id);
+      expect(found?.status === 'live', `${changed} of ${size} characters changed`).toBe(kept);
     }
   });
 });
