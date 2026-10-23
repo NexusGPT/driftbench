@@ -42,14 +42,15 @@ export function viewOf(store: VariableStore, options: ViewOptions = {}): View {
   for (const variable of store.variables) {
     const kept = variable.values.filter((value) => !approvedOnly || (value.approved ?? variable.approved));
     if (kept.length === 0) continue;
-    const weighed = kept.every((value) => value.weight !== undefined);
-    const total = weighed ? kept.reduce((sum, value) => sum + (value.weight ?? 0), 0) : 0;
-    // The loader refuses a variable whose values all weigh 0 (VARIABLES_WEIGHT_ZERO); so does the planner.
-    if (weighed && total <= 0)
+    // The loader refuses a variable whose values all weigh 0 (VARIABLES_WEIGHT_ZERO), approved or not; so does the
+    // planner, over the same set of values.
+    if (variable.values.every((value) => value.weight === 0))
       throw Object.assign(new RangeError(`VARIABLES_WEIGHT_ZERO: every value of "${variable.id}" weighs 0`), {
         code: 'VARIABLES_WEIGHT_ZERO',
       });
-    const uniform = !weighed;
+    const weighed = kept.every((value) => value.weight !== undefined);
+    const total = weighed ? kept.reduce((sum, value) => sum + (value.weight ?? 0), 0) : 0;
+    const uniform = !weighed || total <= 0;
     variables.push({
       id: variable.id,
       role: variable.role,

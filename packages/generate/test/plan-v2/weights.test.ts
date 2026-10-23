@@ -1,6 +1,6 @@
+import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { planV2, renderPlanV2 } from '../../src/plan-v2';
-import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { makeStore, type VariableSpec } from './helpers';
 
 describe('the traffic weight of a row', () => {
