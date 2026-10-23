@@ -39,8 +39,10 @@ export {
   denseLabels,
   denseOpinions,
   denseUser,
+  NUMBER_RULE,
   parseDenseAnswer,
   SPAN_RULE,
+  systemFor,
   windowLines,
 } from './dense';
 export {

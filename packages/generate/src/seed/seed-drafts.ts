@@ -100,6 +100,8 @@ export function scenarioDraft(
     perturbEvery?: boolean;
     allocationOnly?: boolean;
     perturb?: ScenarioRequest['perturb'];
+    /** Values the walk says without recording them in its cell (a stand-in behaviour): the context must allow them. */
+    said?: readonly Pick[];
   } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
@@ -142,7 +144,10 @@ export function scenarioDraft(
     // A metamorphic family keeps its draws: its variants must differ in the one value the family varies.
     context.usage ??= new Map();
     const usage = seeder === 'metamorphic' ? undefined : context.usage;
-    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached, usage)];
+    const cell = [
+      ...built.cell,
+      ...contextAxes(prepared, built.cell, rng, [...reached, ...(options.said ?? [])], usage),
+    ];
     if (usage) {
       for (const [dimension, value] of cell) {
         if (!CONTEXT_KINDS.has(prepared.space.dimensions[dimension]?.kind ?? '')) continue;
@@ -419,7 +424,14 @@ export function behaviourFailureDraft(
           classAt !== undefined &&
           stageValue !== undefined &&
           classValue !== undefined &&
-          !prepared.feasibility.allowed([...fixed, ...carries, [stageAt, stageValue], [classAt, classValue]])
+          !prepared.feasibility.allowed([
+            // The behaviour that stands in is said on this turn: the cell's channel and persona must allow it too.
+            ...(own ? fixed : fixed.filter(([entry]) => entry !== dimension)),
+            ...carries,
+            ...(own ? [] : [[dimension, target] as Pick]),
+            [stageAt, stageValue],
+            [classAt, classValue],
+          ])
         ) {
           reasons.push(`the map allows no tool failure at ${path.stages[at]} in this cell`);
           continue;
@@ -442,6 +454,7 @@ export function behaviourFailureDraft(
               at,
             },
             probe: { classId: TOOL_FAILURE, stage: path.stages[at], tool: here[0]?.tool, onTurn: true },
+            said: own ? [] : [[dimension, target] as Pick],
           },
         );
         if ('draft' in built) {
