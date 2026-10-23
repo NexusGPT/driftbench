@@ -48,7 +48,7 @@ export async function auditEveryCheckSite(
     for (const item of items) {
       forced.at = -1;
       forced.count = 0;
-      forced.sites = [];
+      forced.first = new Map();
       forced.trace = true;
       let passes = false;
       try {
@@ -58,13 +58,12 @@ export async function auditEveryCheckSite(
       }
       forced.trace = false;
       if (!passes) continue;
-      const sites = forced.sites.slice();
-      for (let index = 0; index < sites.length; index += 1) {
-        const site = sites[index] as string;
+      const sites = [...forced.first];
+      for (const [site, callIndex] of sites) {
         if (done.has(site)) continue;
         done.add(site);
         audit.sites += 1;
-        forced.at = index + 1;
+        forced.at = callIndex;
         forced.count = 0;
         let failure: unknown;
         try {

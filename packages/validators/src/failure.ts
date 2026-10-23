@@ -42,7 +42,7 @@ export function none(code: NoneCode): NoExpected {
 }
 
 /** Every `check` is counted, so a test can force the k-th one to fail and render its diagnostic. */
-export const forced = { at: -1, count: 0, trace: false, sites: [] as string[] };
+export const forced = { at: -1, count: 0, trace: false, first: new Map<string, number>() };
 
 /** The file, line and column of the code that called `check`. Read only while a test traces the checks. */
 function callerOfCheck(): string {
@@ -98,7 +98,11 @@ export const diagnostics = { build: true };
 /** Fails the item with these fields unless the condition holds. */
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
   forced.count += 1;
-  if (forced.trace) forced.sites.push(callerOfCheck());
+  // Only the first calls are traced: a source site inside a loop is reached early, and a scale item calls check millions of times.
+  if (forced.trace && forced.count <= 2000) {
+    const site = callerOfCheck();
+    if (!forced.first.has(site)) forced.first.set(site, forced.count);
+  }
   if (condition && forced.at !== forced.count) return;
   if (typeof fields !== 'function') throw new ItemFailure(fields);
   throw new ItemFailure(
