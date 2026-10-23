@@ -5,6 +5,7 @@ import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
   blockStatus,
   blocksOutcome,
+  callsIn,
   isScored,
   type LoadedSpec,
   loadSpecFile,
@@ -387,7 +388,7 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
 }
 
 /** Reach is a session's observed moment, independent of whether its aligned compliance checks passed. */
-function reached(atom: Atom, blocks: readonly Observed[]): boolean {
+export function reached(atom: Atom, blocks: readonly Observed[]): boolean {
   const fields = atom.fields ?? {};
   if (atom.kind === 'skill')
     return blocks.some((b) => b.runtime?.skills?.some((s) => s.name === fields.name));
@@ -398,7 +399,7 @@ function reached(atom: Atom, blocks: readonly Observed[]): boolean {
   if (atom.kind === 'reference' && typeof fields.path === 'string') {
     const path = fields.path;
     return blocks.some((b) =>
-      b.toolCalls.some(
+      callsIn(b, 'any').some(
         (c) =>
           c.label === 'Read' &&
           typeof record(c.input).file_path === 'string' &&

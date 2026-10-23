@@ -183,6 +183,8 @@ export type ModelCtx = {
   failAt?: number;
   /** A planted fault of this reference, named by the tests that show the bank sees it; absent for the honest reader. */
   fault?: string;
+  /** The run of a system 2 window this call records; absent: run 1. */
+  run?: string;
   /** `yesno` is the earlier system 1 protocol, kept so the bank can be shown to reject it. */
   protocol?: 'choice' | 'yesno';
   cutDigestOf(file: string): string;
@@ -236,7 +238,7 @@ async function haiku(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<M
     messages: [{ role: 'user', content: user }],
     output,
   };
-  const key = sha256(canonicalCompact(request));
+  const key = sha256(canonicalCompact({ ...request, run: ctx.run ?? '1' }));
   const want = {
     key,
     file: plan.file,
@@ -604,6 +606,29 @@ async function jevChoice(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
   return { kind: 'answer', answer: { labels: decided }, key: lastKey, opinions };
 }
 
+/**
+ * A system 2 window is asked once per run and the runs must agree: the product default is five runs. A cassette of
+ * public-format rows holds all runs and is read in one call.
+ */
+export async function askSystem2(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return askModel(plan, set, ctx);
+  const runs = ctx.fault === 'one-run' ? ['1'] : runsOf('haiku');
+  let first: ModelResult | undefined;
+  let agreed: string | undefined;
+  for (const run of runs) {
+    const result = await askModel(plan, set, { ...ctx, run });
+    if (result.kind !== 'answer') return result;
+    const checked = validateAnswer(result.answer, plan, set);
+    if (!checked.ok) return { kind: 'refused', reason: checked.reason };
+    const signature = JSON.stringify([...checked.labels.entries()]);
+    if (agreed !== undefined && signature !== agreed)
+      return { kind: 'refused', reason: 'the runs of system 2 disagree' };
+    agreed = signature;
+    first ??= result;
+  }
+  return first as ModelResult;
+}
+
 /** A stack: system 1 decides a unit alone when its settings say it is sure, system 2 (three agreeing runs) the rest. */
 export async function askStack(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   const first = await askModel(plan, set, ctx);
@@ -617,19 +642,13 @@ export async function askStack(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx):
     else labels.push({ units: String(u.n), label: sure });
   }
   if (pending.length > 0) {
-    const votes: Array<Map<number, { label: string; target?: number }>> = [];
-    for (let run = 0; run < 3; run += 1) {
-      const vote = await askModel(plan, set, { ...ctx, arm: 'haiku', second: false });
-      if (vote.kind !== 'answer') return vote;
-      const checked = validateAnswer(vote.answer, plan, set);
-      if (!checked.ok) return { kind: 'refused', reason: checked.reason };
-      votes.push(checked.labels);
-    }
+    const vote = await askSystem2(plan, set, { ...ctx, arm: 'haiku', second: false });
+    if (vote.kind !== 'answer') return vote;
+    const checked = validateAnswer(vote.answer, plan, set);
+    if (!checked.ok) return { kind: 'refused', reason: checked.reason };
     for (const n of pending) {
-      const given = votes.map((m) => m.get(n));
-      const agreed = given[0];
-      if (!agreed || given.some((g) => g?.label !== agreed.label))
-        return { kind: 'refused', reason: `system 2 did not agree on unit ${n}` };
+      const agreed = checked.labels.get(n);
+      if (!agreed) return { kind: 'refused', reason: `system 2 gave no label to unit ${n}` };
       labels.push({
         units: String(n),
         label: agreed.label,
@@ -689,11 +708,14 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
     let hit = rows.find((row) => row.key === key);
     // Every run the arm is asked must be in the cassette, or the replay misses.
-    const missingRun = runsOf(ctx.arm).find(
+    const missingRuns = runsOf(ctx.arm).filter(
       (run) => !rows.some((row) => row.key === keyOf(wire, { ...want, run })),
     );
-    if (hit && missingRun !== undefined && ctx.cassette.mode === 'replay') hit = undefined;
-    if (!hit && ctx.cassette.mode === 'record') {
+    if (hit && missingRuns.length > 0 && ctx.cassette.mode === 'replay') hit = undefined;
+    // Recording asks every run the cassette lacks, one call each.
+    for (const run of ctx.cassette.mode === 'record' ? missingRuns : []) {
+      const runWant = { ...want, run };
+      const runKey = keyOf(wire, runWant);
       const response = await ctx.transport({
         url: 'https://fixture.invalid',
         headers: {},
@@ -711,9 +733,9 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           : undefined;
       const prior = rows.find((row) => row.answer.returnedModel !== body.model);
       if (prior) ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
-      hit = {
-        key,
-        readable: want,
+      const entry = {
+        key: runKey,
+        readable: runWant,
         answer: {
           ...(recordedLabels
             ? { labels: recordedLabels }
@@ -732,7 +754,8 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           usage: { input: 10, output: 10 },
         },
       };
-      ctx.cassette.entries.set(key, hit as unknown as CassetteEntry);
+      ctx.cassette.entries.set(runKey, entry as unknown as CassetteEntry);
+      if (run === '1') hit = entry as unknown as CassetteRow;
     }
     const near =
       hit ??
@@ -745,7 +768,9 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     const pairs: Array<[Record<string, string>, Record<string, string>]> = [];
     if (hit)
       for (const run of runsOf(ctx.arm)) {
-        const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
+        const found = ([...ctx.cassette.entries.values()] as unknown as CassetteRow[]).find(
+          (row) => row.key === keyOf(wire, { ...want, run }),
+        );
         if (found) pairs.push([found.readable, { ...want, run }]);
       }
     if (pairs.length === 0 && near) pairs.push([near.readable, want]);

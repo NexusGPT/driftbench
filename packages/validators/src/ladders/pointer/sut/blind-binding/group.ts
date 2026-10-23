@@ -98,11 +98,24 @@ export async function groupOp(input: Obj): Promise<unknown> {
         unlabeled: wanted.filter((unit) => !checked.covered.has(unit.n)).map((unit) => unit.n),
       };
     }
-    case 'carry':
-      throw new Unsupported(
-        'group:carry',
-        'carry-forward lives inside the ledger step: the reader derives the unit and context fingerprints from the text and its neighbours, so a call cannot take them as input',
-      );
+    case 'carry': {
+      const sets = (input.sets as unknown[]).map(String);
+      const now = new Map((input.current as Obj[]).map((unit) => [unit.n, unit]));
+      const carried: Obj[] = [];
+      const dirty: Obj[] = [];
+      for (const unit of input.previous as Obj[]) {
+        const after = now.get(unit.n);
+        if (!after) continue;
+        const result = pointer.carryOf(
+          { fp: unit.fp, ctxFp: unit.ctxFp, labels: unit.labels },
+          { fp: after.fp, ctxFp: after.ctxFp },
+          sets,
+        );
+        for (const kept of result.carried) carried.push({ n: unit.n, set: kept.set, label: kept.label });
+        for (const set of result.dirty) dirty.push({ n: unit.n, set });
+      }
+      return { carried, dirty };
+    }
     default:
       throw new Unsupported('group', `no call for the action ${String(input.action)}`);
   }
