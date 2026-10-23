@@ -189,4 +189,23 @@ describe('the held-out harness on a made-up estate', () => {
     expect(plain.score.limits.found).toBe(0);
     expect(plain.score.limits.unreachable.sort()).toEqual(['r1', 'r2']);
   });
+
+  it('asks a table once when it sits in both number_table and limits_table', () => {
+    const text = [
+      'version: 1',
+      'estate: x',
+      'units:',
+      '  - { id: h, file: a.md, text: "| A | B |" }',
+      '  - { id: r1, file: a.md, text: "| x | 1 |" }',
+      '  - { id: r2, file: a.md, text: "| y | 2 |" }',
+      'limits: []',
+      'non_limits: []',
+      'number_table:',
+      '  - { from: h, to: r2 }',
+      'limits_table:',
+      '  - header: h',
+      '    rows: [r1, r2]',
+    ].join('\n');
+    expect(parseUnitsTruth(text).tables).toEqual([{ from: 'h', to: 'r2' }]);
+  });
 });
