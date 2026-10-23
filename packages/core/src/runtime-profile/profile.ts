@@ -1,3 +1,4 @@
+import { locateFile } from '../estate-model/locate';
 import type { TypeSet } from '../estate-model/part-type';
 
 /**
@@ -19,30 +20,21 @@ export type SettingsSource =
   | { kind: 'static'; files: readonly string[] }
   | { kind: 'rendered'; file: string };
 
-/** The standing instructions: the files the runtime puts in front of every turn, and how they import more. */
+/**
+ * The standing instructions the reader lists by name. Where every standing file lies, and how a standing file
+ * imports another, are its part types' (`types`).
+ */
 export type StandingProfile = {
-  /** The standing files at fixed places, as the runtime looks for them. */
-  files: readonly string[];
   /** The standing files at the root the reader lists by name (the others live inside the layout folder). */
   rootFiles: readonly string[];
   /** The main standing file, the one whose scope the map names `standing`. */
   primary: string;
-  /** A file name the runtime loads as standing wherever it lies in the estate (a nested standing file). */
-  nestedName: RegExp;
-  /** The prefix of a standing line that imports another file (`@path`), or undefined for no imports. */
-  importPrefix?: string;
 };
 
-/** The layout folder and the folders inside it that hold each kind of unit. */
+/** The layout folder, walked whole, and the files beside it the runtime reads. What lies inside is its types'. */
 export type LayoutProfile = {
   /** The folder the runtime owns at the root (walked whole, by the reader). */
   root: string;
-  /** Inside the layout folder: memory files, skills, helper agents. */
-  memory: string;
-  skills: string;
-  helpers: string;
-  /** The entry file of a skill folder. */
-  skillEntry: string;
   /** Files beside the layout folder the runtime reads on its own (a tool server list). */
   extraFiles: readonly string[];
 };
@@ -92,6 +84,21 @@ export type RuntimeProfile = {
   /** Ignore files the reader honours when present (e.g. `.gitignore`); empty to honour none. */
   ignoreFiles: readonly string[];
 };
+
+/**
+ * The rule for the files a runtime puts in its context by itself, from its types: a file a type of the runtime
+ * locates whose parts load `always` and `instructs` (text the model reads). No call ever shows a read of one.
+ */
+export function loadsByItself(name: string, types: TypeSet): (path: string) => boolean {
+  const own = types.types.filter(
+    (type) => type.runtime === name && type.loaded.when === 'always' && type.aspects.includes('instructs'),
+  );
+  return (path) => {
+    // A leading `./` or `/` goes, and a run of slashes is one: the file is the same file.
+    const clean = path.replace(/^\.?\/+/, '').replace(/\/+/g, '/');
+    return own.some((type) => locateFile(type, clean) !== undefined);
+  };
+}
 
 /** The files of the settings sources that are static, in order. */
 export function staticSettingsFiles(profile: RuntimeProfile): string[] {

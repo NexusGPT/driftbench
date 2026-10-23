@@ -68,4 +68,35 @@ describe('the Claude Code profile as data', () => {
     expect(locateFile(skill, '.claude/skills/report/notes.md')).toBeUndefined();
     expect(typeNamed(profile.types, 'skill-reference')?.folder).toBeUndefined();
   });
+
+  it('says a file loads by itself exactly as the rule before the types did, on every form of path', () => {
+    // The rule of release/next 6f0361e94, packages/adapters/src/claude-code/live/adapter.ts line 188, verbatim.
+    const before = (path: string) => /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, ''));
+    const paths = [
+      'CLAUDE.md',
+      './CLAUDE.md',
+      '/home/someone/project/CLAUDE.md',
+      '//CLAUDE.md',
+      './.claude/CLAUDE.md',
+      '.claude/CLAUDE.local.md',
+      'a/b/CLAUDE.local.md',
+      'a//CLAUDE.md',
+      'a/./CLAUDE.md',
+      '../x/CLAUDE.md',
+      'a/CLAUDE.md/.',
+      'CLAUDE.md/',
+      'NOTCLAUDE.md',
+      'CLAUDE.md.bak',
+      'claude.md',
+      'a\\CLAUDE.md',
+      '.mcp.json',
+      '.claude/settings.json',
+      '.claude/memory/notes.md',
+      '.claude/skills/report/SKILL.md',
+      'AGENTS.md',
+      '',
+      '.',
+    ];
+    for (const path of paths) expect(profile.loadsItself(path), path).toBe(before(path));
+  });
 });

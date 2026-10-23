@@ -1,6 +1,6 @@
 import { parseTypes, type TypeSet } from '../estate-model/part-type';
 import { CLAUDE_CODE_MAP_KINDS, CLAUDE_CODE_TYPES } from './claude-code-types';
-import type { RuntimeProfile } from './profile';
+import { loadsByItself, type RuntimeProfile } from './profile';
 
 const ROOTS = { project: '.', layout: '.claude' } as const;
 const SHAPES = ['step-list', 'catalogue', 'check-table'] as const;
@@ -18,36 +18,23 @@ function builtInTypes(): TypeSet {
   return parsed.set;
 }
 
-/** The file name Claude Code loads as standing instructions wherever it lies. */
-const STANDING_NAME = /^CLAUDE(?:\.local)?\.md$/;
+const TYPES = builtInTypes();
 
 /**
  * Claude Code: `CLAUDE.md` (and `.claude/CLAUDE.md`, `CLAUDE.local.md`) with `@path` imports, memory under
  * `.claude/memory/`, skills under `.claude/skills/<name>/SKILL.md`, helper agents under `.claude/agents/`, and
- * static settings in `.claude/settings.json` and `.claude/settings.local.json`. A skill is reached by its route
- * in the standing files, its description, or its name.
+ * static settings in `.claude/settings.json` and `.claude/settings.local.json`, each a part type of
+ * `CLAUDE_CODE_TYPES`. A skill is reached by its route in the standing files, its description, or its name.
  */
+
 export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
   name: 'claude-code',
   roots: ROOTS,
-  types: builtInTypes(),
+  types: TYPES,
   mapKinds: CLAUDE_CODE_MAP_KINDS,
   shapes: SHAPES,
-  layout: {
-    root: '.claude',
-    memory: 'memory',
-    skills: 'skills',
-    helpers: 'agents',
-    skillEntry: 'SKILL.md',
-    extraFiles: ['.mcp.json'],
-  },
-  standing: {
-    files: ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md'],
-    rootFiles: ['CLAUDE.md', 'CLAUDE.local.md'],
-    primary: 'CLAUDE.md',
-    nestedName: STANDING_NAME,
-    importPrefix: '@',
-  },
+  layout: { root: '.claude', extraFiles: ['.mcp.json'] },
+  standing: { rootFiles: ['CLAUDE.md', 'CLAUDE.local.md'], primary: 'CLAUDE.md' },
   settings: [{ kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] }],
   bases: ['.claude', '.claude/skills'],
   routing: ['route-table', 'description', 'name'],
@@ -57,7 +44,7 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
     working: ['PWD'],
     home: ['HOME'],
   },
-  loadsItself: (path) => /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, '')),
+  loadsItself: loadsByItself('claude-code', TYPES),
   copyFiles: ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'],
   configFiles: ['driftbench.estate.yaml', '.claude/driftbench.estate.yaml'],
   ignore: [

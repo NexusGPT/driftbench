@@ -125,7 +125,8 @@ async function filesUnder(root: string, folder = ''): Promise<string[]> {
 
 async function readBoth(root: string, options: { userSkills?: string } = {}) {
   const legacy = await new ClaudeCodeReader({ ...options, classifier: LEGACY_CLASSIFIER }).read(root);
-  const profile = await new ClaudeCodeReader({ ...options, classifier: PROFILE_CLASSIFIER }).read(root);
+  // The reader as it ships: it classifies through the profile's part types.
+  const profile = await new ClaudeCodeReader(options).read(root);
   return { legacy, profile };
 }
 
@@ -184,12 +185,13 @@ describe('the Claude Code profile reads every estate as the reader did', () => {
     expect(firstDifference(profile, legacy)).toBeUndefined();
     expect(JSON.stringify(profile)).toBe(JSON.stringify(legacy));
     const maps = await Promise.all(
-      [LEGACY_CLASSIFIER, PROFILE_CLASSIFIER].map(async (classifier) =>
+      // The frozen classification, then the reader as it ships (no classifier given: the profile's types).
+      [LEGACY_CLASSIFIER, undefined].map(async (classifier) =>
         renderEstateMap(
           (
             await scanEstate({
               root,
-              reader: new ClaudeCodeReader({ userSkills: layer, classifier }),
+              reader: new ClaudeCodeReader({ userSkills: layer, ...(classifier ? { classifier } : {}) }),
               now: NOW,
             })
           ).map,
@@ -205,12 +207,13 @@ describe('the Claude Code profile reads every estate as the reader did', () => {
     expect(firstDifference(profile, legacy)).toBeUndefined();
     expect(JSON.stringify(profile)).toBe(JSON.stringify(legacy));
     const maps = await Promise.all(
-      [LEGACY_CLASSIFIER, PROFILE_CLASSIFIER].map(async (classifier) =>
+      // The frozen classification, then the reader as it ships (no classifier given: the profile's types).
+      [LEGACY_CLASSIFIER, undefined].map(async (classifier) =>
         renderEstateMap(
           (
             await scanEstate({
               root,
-              reader: new ClaudeCodeReader({ classifier }),
+              reader: new ClaudeCodeReader(classifier ? { classifier } : {}),
               now: NOW,
               pointer: await replayPointer(root, ledger),
             })

@@ -5,6 +5,7 @@ export { CLAUDE_CODE_PROFILE } from './claude-code';
 export { CLAUDE_CODE_MAP_KINDS, CLAUDE_CODE_TYPES } from './claude-code-types';
 export {
   type LayoutProfile,
+  loadsByItself,
   type PathVariables,
   type RoutingRule,
   type RuntimeProfile,

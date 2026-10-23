@@ -505,6 +505,7 @@ export {
   CLAUDE_CODE_PROFILE,
   CLAUDE_CODE_TYPES,
   type LayoutProfile,
+  loadsByItself,
   type PathVariables,
   type RoutingRule,
   type RuntimeProfile,
