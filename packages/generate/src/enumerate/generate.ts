@@ -51,6 +51,7 @@ import {
   type TwiseSummary,
   twiseSeeder,
 } from '../seed/seeders';
+import { SuiteCut } from '../seed/suite-cut';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
 import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import { stringifyGeneratedYaml } from '../seed/yaml';
@@ -284,6 +285,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     context.minimal.dropsSpecs = options.budget === undefined;
   }
   const draftOf = new Map<string, SpecDraft>();
+  const renderedAs = new Map<string, Seeder>();
 
   const graph = graphSeeder(prepared, context);
   const budgeted =
@@ -351,7 +353,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       if (draft.dropped) continue;
       context.allocation?.observeDraft(draft);
       const rendered: Rendered = renderDraft(prepared, draft, run);
-      if (options.specCap !== undefined && reduceEnds) draftOf.set(rendered.id, draft);
+      if (reduceEnds) {
+        draftOf.set(rendered.id, draft);
+        renderedAs.set(rendered.id, seeder);
+      }
       const renderText = () => generatedSpecText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
       const loaded = checkSpec(rendered.spec, rendered.id);
@@ -520,6 +525,42 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       continued.observe(spec);
       terminal.observe(spec);
       balance.observe(spec);
+    }
+  }
+  // The tails of the walks, cut once more with the whole suite in view: the first pass saw only the walks written
+  // before each one (seed/suite-cut.ts).
+  if (context.minimal && reduceEnds && options.specCap === undefined) {
+    const witnesses = (draft: SpecDraft) => JSON.stringify([draft.reducedEnds, draft.reducedMiddle]);
+    const before = new Map([...draftOf].map(([id, draft]) => [id, witnesses(draft)]));
+    const items = complete.map((spec) => {
+      const draft = draftOf.get(spec.id);
+      return draft ? { spec, draft } : { spec };
+    });
+    const cutTails = new SuiteCut(prepared, context.minimal).reduce(items);
+    const changedIds = new Set(cutTails.map((draft) => draft.id));
+    for (const [id, draft] of draftOf) {
+      if (!changedIds.has(id) && before.get(id) === witnesses(draft)) continue;
+      const seeder = renderedAs.get(id) as Seeder;
+      const rendered: Rendered = renderDraft(prepared, draft, run);
+      const loaded = checkSpec(rendered.spec, rendered.id);
+      if (!loaded.ok) continue;
+      const replace = (specs: Spec[]) => {
+        const at = specs.findIndex((spec) => spec.id === id);
+        if (at >= 0) specs[at] = loaded.spec;
+      };
+      const was = all.find((spec) => spec.id === id);
+      replace(all);
+      replace(complete);
+      replace(completeBy[seeder] ?? []);
+      const totals = seeders[seeder] as SeederTotals;
+      totals.blocks += rendered.blocks - (was?.blocks.length ?? rendered.blocks);
+      const file = files.find((entry) => fileOwners.get(entry.path) === id);
+      if (file) file.text = generatedSpecText(rendered, run, prepared.hash);
+    }
+    for (const seeder of SEEDERS) {
+      (seeders[seeder] as SeederTotals).cut_blocks = [...draftOf]
+        .filter(([id]) => renderedAs.get(id) === seeder)
+        .reduce((sum, [, draft]) => sum + (draft.reducedEnds?.duplicates.length ?? 0), 0);
     }
   }
   const held = new Set(

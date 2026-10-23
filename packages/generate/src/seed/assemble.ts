@@ -91,6 +91,8 @@ export type SpecDraft = {
   dropped?: { duplicate_of: { spec: string; block: string } };
   /** Blocks cut from the middle of the walk: a stay another written spec already says. */
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
+  /** The key (what makes two blocks the same test) of every block cut from this walk, by block id. Not written to the spec. */
+  cutKeys?: Record<string, string>;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */
   vars?: Record<string, number>;

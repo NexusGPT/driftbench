@@ -75,17 +75,36 @@ export class Allocation {
     blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[],
     perturbations?: readonly PerturbationSpec[],
     behaviours: readonly string[] = [],
+    delta = 1,
   ): void {
     for (const stage of this.events(blocks, perturbations))
-      this.stages.set(stage, (this.stages.get(stage) ?? 0) + 1);
+      this.stages.set(stage, (this.stages.get(stage) ?? 0) + delta);
     for (const cls of [
       ...blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
       ...(perturbations ?? []).map((entry) => entry.class),
     ])
-      if (this.classes.has(cls)) this.classes.set(cls, (this.classes.get(cls) ?? 0) + 1);
+      if (this.classes.has(cls)) this.classes.set(cls, (this.classes.get(cls) ?? 0) + delta);
     for (const counts of this.behaviours.values())
       for (const value of new Set(behaviours))
-        if (counts.has(value)) counts.set(value, (counts.get(value) ?? 0) + 1);
+        if (counts.has(value)) counts.set(value, (counts.get(value) ?? 0) + delta);
+  }
+
+  /** Takes out the counts `observe` added for the same walk, so the suite is seen without it. */
+  unobserve(
+    blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[],
+    perturbations?: readonly PerturbationSpec[],
+    behaviours: readonly string[] = [],
+  ): void {
+    this.observe(blocks, perturbations, behaviours, -1);
+  }
+
+  /** The behaviours a draft covers, as the allocation counts them. */
+  behavioursOf(draft: SpecDraft): string[] {
+    return draft.cell.flatMap(([dimension, value]) =>
+      this.behaviours.has(dimension)
+        ? [this.prepared.space.dimensions[dimension]?.values[value]?.id ?? NONE]
+        : [],
+    );
   }
 
   /** Counts a draft once, however many seeders and writers see it. Drafts with a gap count nothing. */
@@ -93,12 +112,12 @@ export class Allocation {
     if (this.observed.has(draft)) return;
     this.observed.add(draft);
     if (draft.blocks.some((block) => block.stimulus.kind === 'placeholder')) return;
-    const behaviours = draft.cell.flatMap(([dimension, value]) =>
-      this.behaviours.has(dimension)
-        ? [this.prepared.space.dimensions[dimension]?.values[value]?.id ?? NONE]
-        : [],
-    );
-    this.observe(draft.blocks, draft.perturbations, behaviours);
+    this.observe(draft.blocks, draft.perturbations, this.behavioursOf(draft));
+  }
+
+  /** Counts a draft as it stands now (delta 1), or takes that count out again (delta -1): the suite-wide pass moves walks in and out. */
+  countDraft(draft: SpecDraft, delta: 1 | -1): void {
+    this.observe(draft.blocks, draft.perturbations, this.behavioursOf(draft), delta);
   }
 
   /** Counts a spec written by code that builds specs, not drafts (the task seeder). */
