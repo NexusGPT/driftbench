@@ -76,3 +76,20 @@ it('compares an explicitly mapped copy and detects changed copied content', asyn
   await writeFile(join(root, 'copied/public.data'), 'changed fictional content');
   expect((await diagnoseSetup(root, read, first.draft)).drift.status).toBe('fail');
 });
+
+it('does not preview excluded configuration content through an allowed symlink alias', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-private-config-'));
+  await mkdir(join(root, 'private'));
+  await writeFile(join(root, 'private/config.data'), 'ignore: []\nuserSkills: /fictional/unmapped/home\n');
+  await symlink('private/config.data', join(root, 'driftbench.estate.yaml'));
+  const setup: SetupDocument = {
+    version: 1, runtime: 'claude-code',
+    sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code' }],
+    roles: {}, scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    privacy: { model: 'deny', exports: 'metadata', exclude: ['private/**'] },
+  };
+  vi.mocked(readFile).mockClear();
+  await inspectSetup(root, setup);
+  expect(vi.mocked(readFile).mock.calls.some(([path]) => String(path) === join(root, 'driftbench.estate.yaml') || String(path).startsWith(join(root, 'private')))).toBe(false);
+});
