@@ -527,6 +527,48 @@ describe('a unit the ledger must not keep unlabeled', () => {
     );
     expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
+
+  it('when its decided label needs a span and the cassette lacks the span-missing re-ask', async () => {
+    // Five runs say order and give no span; the span-missing re-ask (run 6) gives it. A cassette without run 6
+    // leaves the span missing for want of an answer: the unit is not decided, and a later cassette decides it.
+    const labeler = scripted(['bare', 'bare', 'bare', 'bare', 'bare', 'order']);
+    const full = new Cassette();
+    const recorded = await pointerScan(input({ ...spanned, cassette: full }, singleLabelling(labeler)));
+    expect(recorded.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+
+    const cut = new Cassette();
+    for (const entry of full.entries.values())
+      if (Number(entry.readable.run) <= 5) cut.entries.set(entry.key, entry);
+    const partial = await pointerScan(
+      input({ ...spanned, cassette: cut, mode: 'replay' }, singleLabelling(replayOf(labeler))),
+    );
+    expect(partial.unlabeled).toBe(partial.ledger.entries.length);
+    expect(partial.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(partial.unlabeledUnits.every((unit) => unit.undecided === 'answers_missing')).toBe(true);
+
+    const later = await pointerScan(
+      input(
+        { ...spanned, cassette: full, mode: 'replay', previous: partial.ledger },
+        singleLabelling(replayOf(labeler)),
+      ),
+    );
+    expect(later.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('when its decided label needs a span and the span-missing re-ask gives none', async () => {
+    const first = await pointerScan(
+      input(spanned, singleLabelling(scripted(['bare', 'bare', 'bare', 'bare', 'bare', 'bare']))),
+    );
+    expect(first.spanless.every((entry) => !entry.filled)).toBe(true);
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'span_missing')).toBe(true);
+
+    const second = await pointerScan(
+      input({ ...spanned, previous: first.ledger }, singleLabelling(scripted([]))),
+    );
+    expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
 });
 
 describe('an entry the check refuses inside an accepted answer', () => {
@@ -545,21 +587,21 @@ describe('an entry the check refuses inside an accepted answer', () => {
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
   });
 
-  it('is a voice the span-missing re-ask fills, and the vote it completes is kept', async () => {
+  it('is a voice the span-missing re-ask fills', async () => {
     // Four runs: order with no span, twice, remark, and a refused entry. Order holds two of the three voices heard,
     // but no run gave its span: the window is asked again with span-missing, and that answer (an order with no span)
-    // takes the refused run's place. The span stays missing, so the unit ends unlabeled on a complete vote of four.
+    // takes the refused run's place, so four voices are heard. The span stays missing: the unit is not decided for
+    // that reason, not for the refused entry.
     const first = await pointerScan(
       input(spanned, singleLabelling(scripted(['bare', 'bare', 'remark', 'refuse', 'bare'], { runs: 4 }))),
     );
     expect(first.spanless.every((entry) => !entry.filled)).toBe(true);
     expect(first.unlabeled).toBe(first.ledger.entries.length);
-    for (const entry of first.ledger.entries)
-      expect(entry.unlabeled?.duty?.votes[0]?.runs.map((run) => run?.label)).toEqual([
-        'order',
-        'order',
-        'remark',
-        'order',
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(first.unlabeledUnits.every((unit) => unit.undecided === 'span_missing')).toBe(true);
+    for (const unit of first.unlabeledUnits)
+      expect(first.unstable.filter((row) => row.unit === unit.unit)).toEqual([
+        expect.objectContaining({ kinds: { 'runs heard': 4 }, undecided: 'span_missing' }),
       ]);
   });
 
