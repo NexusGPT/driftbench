@@ -10,7 +10,7 @@ import {
 import { createPerturbingDriver } from '@agent-nexus/driftbench-users';
 import type { Allocation } from './allocation';
 import { type ReducedEnds, type RunIdentity, renderDraft, type SpecDraft } from './assemble';
-import type { PreparedMap } from './map';
+import { type PreparedMap, phraseKey } from './map';
 
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
 function failsAtEnd(spec: Spec): boolean {
@@ -57,6 +57,8 @@ export class TerminalSubsumption {
   private readonly families = new Map<string, { length: number; reduction?: ReducedEnds }>();
   /** The first family that drafted a block, including a suffix whose retained witness is another seeder. */
   private readonly familyBlocks = new Map<string, string>();
+  /** The values with two or more approved phrases (`dimension=value`) that a retained metamorphic family says. */
+  private readonly familyPhrases = new Set<string>();
   /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
   private readonly paired = new Map<string, Set<string>>();
   /** Ordered pairs of consecutive moves some written spec walks. */
@@ -124,6 +126,12 @@ export class TerminalSubsumption {
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
+        // A value with several phrasings is proved by a family that says it: the block that carries it stays until a
+        // retained family says that value, even when a written spec says the same text.
+        if (family?.variant === 1) {
+          const owed = this.multiPhrase(draft.blocks[last]);
+          if (owed !== undefined && !this.familyPhrases.has(owed)) break;
+        }
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.obligationsHold(draft.seeder, spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
@@ -174,6 +182,10 @@ export class TerminalSubsumption {
       if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
     }
     if (family?.variant === 1) {
+      for (const block of draft.blocks) {
+        const said = this.multiPhrase(block);
+        if (said !== undefined) this.familyPhrases.add(said);
+      }
       this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });
       original.blocks.forEach((_, index) => {
         const key = this.key(original, index);
@@ -283,6 +295,15 @@ export class TerminalSubsumption {
   }
 
   /** Every message the block says is already said by a written spec. */
+  /** `dimension=value` of the approved phrase a block says, when its value has two or more phrases. */
+  private multiPhrase(block: SpecDraft['blocks'][number] | undefined): string | undefined {
+    if (block?.stimulus.kind !== 'phrase') return undefined;
+    const { dimension, value } = block.stimulus.phrase;
+    return (this.prepared.phrasesOf.get(phraseKey(dimension, value)) ?? []).length >= 2
+      ? `${dimension}=${value}`
+      : undefined;
+  }
+
   private phrasesHold(block: Spec['blocks'][number] | undefined): boolean {
     return this.textsOf(block).every((text) => this.said.has(text));
   }

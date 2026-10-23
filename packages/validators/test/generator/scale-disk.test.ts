@@ -15,7 +15,7 @@ describe.skipIf(!hasDisk)('the scale child on the disk API', () => {
   it(
     'finishes ten times the behaviours under a small heap, with every scale field met',
     async () => {
-      const report = await scaleReport(10, 1, BUDGET, { heapMb: HEAP_MB });
+      const report = await scaleReport(10, 1, BUDGET, { heapMb: HEAP_MB, calibrations: 1 });
       expect(report.error).toBeUndefined();
       expect(report).toMatchObject({
         invalid: 0,
@@ -35,7 +35,11 @@ describe.skipIf(!hasDisk)('the scale child on the disk API', () => {
   it(
     'fails a disk API that keeps the whole suite in memory',
     async () => {
-      const report = await scaleReport(10, 1, BUDGET, { heapMb: HEAP_MB, generator: BUFFERED });
+      const report = await scaleReport(10, 1, BUDGET, {
+        heapMb: HEAP_MB,
+        generator: BUFFERED,
+        calibrations: 1,
+      });
       expect(report.error).toMatch(/without a report/);
     },
     BUDGET,
