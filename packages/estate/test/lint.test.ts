@@ -10,7 +10,7 @@ describe('estate lint', () => {
     const found = result.findings.filter((finding) => finding.code !== 'UNENFORCED');
     expect(found.map((finding) => [finding.code, finding.subject])).toEqual([
       ['ORPHAN', '.claude/skills/invoice-reconcile/references/old-tolerances.md'],
-      ['UNREACHABLE', '.claude/agents/inbox-triager.md'],
+      ['REACHED_BY_DESCRIPTION', '.claude/agents/inbox-triager.md'],
       ['MISSING_REFERENCE', 'reference.weekly-report.read-references-kpi-definitions-md'],
       ['UNANCHORED_GUARD', 'python3 .claude/guards/ledger-guard.py'],
       ['REGISTRY_ROW', 'reply-length.py'],

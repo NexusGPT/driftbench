@@ -1258,7 +1258,8 @@ Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approve
   Refused: none.
   Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
+  Unreachable from the standing instructions: none.
+  Reached only by their description (information): .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md, .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md.
   Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
@@ -1267,14 +1268,14 @@ Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench est
 $ pnpm -s driftbench estate lint examples/estates/fixture/approved.yaml
 examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
-  UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
   UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-6 findings.
+  REACHED_BY_DESCRIPTION  1 skill or helper the standing instructions do not name; the runtime routes to it by description (information).
+5 findings.
 ```
 
 ```
@@ -1297,6 +1298,7 @@ Approve every proposed row with --all, a row with --row <id>, or strike one with
 |---|---|
 | `ORPHAN` | nothing in the estate names this file |
 | `UNREACHABLE` | no route, reference or dispatch from the standing instructions leads to this file |
+| `REACHED_BY_DESCRIPTION` | information, never a failure: a skill or helper the standing instructions do not name, reached by its description because the runtime routes by description |
 | `MISSING_REFERENCE` | an atom names a file that does not exist |
 | `MISSING_SCRIPT` | a guard runs a script that does not exist |
 | `OVERSIZE` | the standing instructions are over the size ceiling |

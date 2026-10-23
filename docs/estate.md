@@ -187,7 +187,8 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
     out of step: CLAUDE.md#1 run 2 of anthropic: 7 of 22 quoted clauses are not in their unit; the run is left out of the vote
   Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
+  Unreachable from the standing instructions: none.
+  Reached only by their description (information): .claude/agents/inbox-triager.md.
   Unenforced: 44 of 51 rules have no guard.
     instruction.inbox-triager.you-sort-messages-into-three-folders
     instruction.inbox-triager.a-message-that-fits-none-goes
@@ -272,7 +273,8 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 47 atoms (47 read by code and app
   Refused: none.
   Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
+  Unreachable from the standing instructions: none.
+  Reached only by their description (information): .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md, .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md.
   Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench estate approve _captures/docs3/estate/map-nomodel.yaml --kind instruction
 ```
@@ -418,7 +420,7 @@ A JSON or YAML registry row lists the rules it checks under `enforces`, `rules` 
 
 The graph answers what code can walk:
 
-* Reachable from the standing instructions. The roots are the atoms of the standing, memory and settings files. The walk follows route, reference, script, dispatch, allows, next and cites edges. Reaching a skill or helper reaches every atom of its file. A skill or helper whose own description is its only way in is unreachable from the standing instructions, even though the runtime lists descriptions; in the Northwind estate that is the `inbox-triager` helper.
+* Reachable from the standing instructions. The roots are the atoms of the standing, memory and settings files. The walk follows route, reference, script, dispatch, allows, next and cites edges. Reaching a skill or helper reaches every atom of its file. A skill or helper with a description is reached by the route that description gives when the runtime routes by description (claude-code does): its body is walked, and the lint counts it as information (`REACHED_BY_DESCRIPTION`), never as a finding; in the Northwind estate that is the `inbox-triager` helper. A skill or helper with no description and no other way in is unreachable from the standing instructions.
 * Orphans: files nothing names.
 * Unenforced rules: instruction, gate and register atoms no guard enforces.
 * Missing references and missing guard scripts.
@@ -429,6 +431,7 @@ The graph answers what code can walk:
 |---|---|
 | `ORPHAN` | a file nothing names |
 | `UNREACHABLE` | a file the standing instructions never lead to (orphans are listed apart) |
+| `REACHED_BY_DESCRIPTION` | a skill or helper the standing instructions do not name, reached by its description because the runtime routes by description: information, counted and never failing |
 | `UNENFORCED` | an instruction, gate or register atom no guard enforces: trusted, reported as a count, never failing alone |
 | `OVERSIZE` | the standing instructions are over the ceiling, counted in Unicode characters (code points): an emoji is one character, never its bytes or UTF-16 units |
 | `UNANCHORED_GUARD` | a guard command finds its script from the working folder, not from an anchor |
@@ -446,17 +449,17 @@ The lint of the Northwind map finds every planted defect:
 $ pnpm -s driftbench estate lint examples/estates/fixture/map.yaml
 examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 116 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
-  UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
   UNENFORCED  44 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-6 findings.
+  REACHED_BY_DESCRIPTION  1 skill or helper the standing instructions do not name; the runtime routes to it by description (information).
+5 findings.
 ```
 
-It exits 1.
+It exits 1. Two more lines appear when they apply: `not-run` names the checks that had no input to read (a check that read nothing is never a pass), and `unknown` names the files under `.claude` that no part type covers. While one file is unknown the lint never ends on `Clean.`; its last line says how many files no check read. The [estate model](estate-model.md#coverage-and-unknown-files) says what a part type covers and how to declare your own.
 
 ## 3. Variables: the interaction space of an estate
 

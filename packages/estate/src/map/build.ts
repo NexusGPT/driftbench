@@ -1,5 +1,5 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
-import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
+import { analyzeGraph, type GraphAnalysis, routingOf } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
 import {
   DOCUMENT_ROLE_LABELS,
@@ -196,7 +196,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
   const documented = navigationNames(raw);
   const codeLinks = codeNames(raw).links;
   const analyze = () => {
-    const result = analyzeGraph(builder.atoms, graph.edges, raw.files, documented, codeLinks);
+    const result = analyzeGraph(builder.atoms, graph.edges, raw.files, documented, codeLinks, routingOf(raw));
     return {
       ...result,
       orphans: result.orphans.filter((path) => !navigation.has(path)),
@@ -234,6 +234,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(raw.userLayer ? { userSkills: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
+    ...(raw.coverage ? { coverage: raw.coverage } : {}),
     ...(input.pointer
       ? {
           producedBy: {

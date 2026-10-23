@@ -1,6 +1,13 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
-import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
+import {
+  type Atom,
+  analyzeGraph,
+  ClaudeCodeReader,
+  declaredLabels,
+  literals,
+  scanEstate,
+} from '../src/index';
 import { plantedRoutes } from './pointer/support';
 import { answer, estate, NOW, scanFixture } from './support';
 
@@ -343,6 +350,92 @@ describe('reachability', () => {
       expect(analysis.reachableFiles.has('.claude/skills/notes/ref.md')).toBe(reachable);
       expect(analysis.unreachableFiles.includes('.claude/skills/notes/SKILL.md')).toBe(!reachable);
       expect(analysis.orphans).toEqual([]);
+    }
+  });
+});
+
+describe('reachability by description', () => {
+  const body = 'Read `ref.md` first.\n';
+  const files = (front: string) => ({
+    'CLAUDE.md': '# Rules\n',
+    '.claude/skills/notes/SKILL.md': `---\nname: notes\n${front}---\n\n${body}`,
+    '.claude/skills/notes/ref.md': 'x\n',
+  });
+
+  it('reaches a skill with a description, walks its body and lists it apart, when the runtime routes by description', async () => {
+    const root = await estate(files('description: Take notes.\n'));
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const analysis = analyzeGraph(map.atoms, map.edges, raw.files, new Set(), new Map(), [
+      'route-table',
+      'description',
+      'name',
+    ]);
+    expect(analysis.describedFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+    expect(analysis.unreachableFiles).toEqual([]);
+    expect(analysis.reachableFiles.has('.claude/skills/notes/SKILL.md')).toBe(true);
+    // The runtime that does not route by description keeps the skill unreachable.
+    const strict = analyzeGraph(map.atoms, map.edges, raw.files);
+    expect(strict.describedFiles).toEqual([]);
+    expect(strict.unreachableFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+  });
+
+  it('keeps a skill with no description and no route unreachable, whatever the runtime', async () => {
+    const root = await estate(files(''));
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const analysis = analyzeGraph(map.atoms, map.edges, raw.files, new Set(), new Map(), [
+      'route-table',
+      'description',
+      'name',
+    ]);
+    expect(analysis.describedFiles).toEqual([]);
+    expect(analysis.unreachableFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+    expect(analysis.reachableFiles.has('.claude/skills/notes/SKILL.md')).toBe(false);
+  });
+});
+
+describe('the route atom decides: only a route read from a description reaches its file by description', () => {
+  type Via = string | undefined;
+  /** A graph of one standing file and one skill file that holds a single route atom, read the way `via` says. */
+  const analyse = (via: Via, routing: readonly ('route-table' | 'description' | 'name')[]) => {
+    const skill = '.claude/skills/pier2/SKILL.md';
+    const route: Atom = {
+      id: 'route.pier2.request',
+      kind: 'route',
+      title: 'A request that loads pier2',
+      provenance: { file: skill, startLine: 3, endLine: 3, quote: 'a quote', hash: 'x' },
+      producedBy: 'code',
+      role: 'axis',
+      approved: true,
+      evidence: [{ type: 'skill_loaded', name: 'pier2' }],
+      enforcement: [],
+      fields: { target: 'pier2', targetKind: 'skill', ...(via === undefined ? {} : { via }) },
+    };
+    const files = [
+      { path: 'CLAUDE.md', kind: 'standing' as const, text: '# Standing\n' },
+      { path: skill, kind: 'skill' as const, text: '---\nname: pier2\n---\n' },
+    ];
+    return analyzeGraph([route], [], files, new Set(), new Map(), routing);
+  };
+
+  it('reaches the file for via description, and for no other via, whatever the routing rules are', () => {
+    for (const routing of [['description'], ['route-table', 'description', 'name']] as const) {
+      const described = analyse('description', routing);
+      expect(described.describedFiles, JSON.stringify(routing)).toEqual(['.claude/skills/pier2/SKILL.md']);
+      expect(described.unreachableFiles, JSON.stringify(routing)).toEqual([]);
+      for (const other of [undefined, 'pointer', 'table', 'name', '', 'Description', 'descriptions']) {
+        const found = analyse(other, routing);
+        const label = JSON.stringify({ routing, via: other });
+        expect(found.describedFiles, label).toEqual([]);
+        expect(found.unreachableFiles, label).toEqual(['.claude/skills/pier2/SKILL.md']);
+      }
+    }
+  });
+
+  it('reaches nothing by description when the profile does not route by description', () => {
+    for (const routing of [[], ['route-table'], ['name'], ['route-table', 'name']] as const) {
+      const found = analyse('description', routing);
+      expect(found.describedFiles, JSON.stringify(routing)).toEqual([]);
+      expect(found.unreachableFiles, JSON.stringify(routing)).toEqual(['.claude/skills/pier2/SKILL.md']);
     }
   });
 });

@@ -163,7 +163,11 @@ describe('reach by dispatch', () => {
     '.claude/agents/reviewer.md':
       '---\nname: reviewer\ndescription: Reviews pages.\n---\n# Reviewer\nCheck the page.\n',
   };
-  const unreachable = async (links: Record<string, [string, string]>) => {
+  const reachedByDescription = async (links: Record<string, [string, string]>) =>
+    (await findings(links)).filter((finding) => finding.code === 'REACHED_BY_DESCRIPTION');
+  const unreachable = async (links: Record<string, [string, string]>) =>
+    (await findings(links)).filter((finding) => finding.code === 'UNREACHABLE');
+  const findings = async (links: Record<string, [string, string]>) => {
     const root = await estate(files);
     const { map, raw } = await scanEstate({
       root,
@@ -171,17 +175,20 @@ describe('reach by dispatch', () => {
       now: NOW,
       pointer: plantedRoutes(links, '.claude/skills/editor/SKILL.md'),
     });
-    return lintEstate(map, raw).findings.filter((finding) => finding.code === 'UNREACHABLE');
+    return lintEstate(map, raw).findings;
   };
 
   it('reaches a helper dispatched from a live skill', async () => {
-    expect(await unreachable({ 'Dispatch the': ['dispatch', 'subagent.reviewer.helper-reviewer'] })).toEqual(
-      [],
-    );
+    const links: Record<string, [string, string]> = {
+      'Dispatch the': ['dispatch', 'subagent.reviewer.helper-reviewer'],
+    };
+    expect(await unreachable(links)).toEqual([]);
+    expect(await reachedByDescription(links)).toEqual([]);
   });
 
-  it('leaves a helper no unit hands work to unreachable', async () => {
-    expect(await unreachable({})).toHaveLength(1);
+  it('leaves a helper no unit hands work to reached only by its description', async () => {
+    expect(await unreachable({})).toEqual([]);
+    expect(await reachedByDescription({})).toHaveLength(1);
   });
 });
 

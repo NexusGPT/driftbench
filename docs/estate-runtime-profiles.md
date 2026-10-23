@@ -16,12 +16,13 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `types` | Its built-in part types, in the order a file is classified in ([the estate model](estate-model.md)) | `CLAUDE_CODE_TYPES`, listed on the [Claude Code page](adapters/claude-code.md#part-types) |
 | `mapKinds` | The kind the estate map gives a file of each type; a file no mapped type locates is `other` | `CLAUDE_CODE_MAP_KINDS` |
 | `shapes` | The structures its reader can test a file for, which a type's `shape` names | `step-list`, `catalogue`, `check-table` |
+| `coverageRoots` | The roots whose every file counts for coverage: one no type covers is unknown ([coverage and unknown files](estate-model.md#coverage-and-unknown-files)) | `layout` |
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
 | `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
-| `routing` | How a skill is reached: `route-table`, `description`, `name` | all three |
+| `routing` | How a skill is reached: `route-table`, `description`, `name`. The graph reads `description`: with it, a skill or helper that has a description is reachable, and the lint reports one the standing instructions do not name as `REACHED_BY_DESCRIPTION` (information). The other two rules do not change what is reachable yet | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
 | `loadsItself(path)` | True for a file the runtime loads with no visible read: one a type of the runtime locates whose parts load `always` and `instructs` (`loadsByItself`) | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |

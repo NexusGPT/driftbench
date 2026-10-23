@@ -276,13 +276,13 @@ Wrote estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from pros
 $ driftbench estate lint estate-map.yaml   # exit 1
 estate-map.yaml: estate at examples/estates/fixture, 47 atoms.
   ORPHAN            .claude/steps.json: nothing in the estate names this file
-19 findings.
+9 findings.
 ```
 
 **How to read it.**
 
 - An **orphan** is a file that nothing names. An **unreachable** file is one that the standing instructions never lead to.
-- The fixture holds 19 findings planted on purpose, so the lint has something to find.
+- The fixture holds 9 findings planted on purpose, so the lint has something to find.
 - The other estate commands (`build`, `plan`, `generate`, `run`, `unit`) are in the [CLI reference](../reference/cli.md). Settings are on the [estate settings page](estate-settings.md).
 
 **If it goes wrong.**

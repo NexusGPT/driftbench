@@ -280,13 +280,26 @@ const CASES: Case[] = [
   {
     key: 'unreachable-skill',
     tier: 1,
-    title: 'an unreachable skill that only its own description leads to',
+    title: 'an unreachable skill with no description and no route',
+    component: LINT,
+    cause: SAME_REACH,
+    plant: (e, s, o) => {
+      const name = skillOf(s, o, 'lone');
+      const made = freeSkill(e, name, undefined, ['Body.']);
+      e.check(o, lintHas('UNREACHABLE', made.path));
+    },
+  },
+  {
+    key: 'described-skill-reached',
+    tier: 1,
+    title: 'a skill that only its own description leads to, reached by description, never unreachable',
     component: LINT,
     cause: SAME_REACH,
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'lone');
       const made = freeSkill(e, name, 'Does lonely work.', ['Body.']);
-      e.check(o, lintHas('UNREACHABLE', made.path));
+      e.check(o, lintHas('REACHED_BY_DESCRIPTION', made.path));
+      e.check(o, lintLacks('UNREACHABLE', made.path));
     },
   },
   {
@@ -354,17 +367,34 @@ const CASES: Case[] = [
   {
     key: 'helper-of-unreachable-skill',
     tier: 3,
-    title: 'an unreachable helper that only an unreachable skill dispatches',
+    title: 'an unreachable helper that only an unreachable skill, both with no description, dispatches',
     component: LINT,
     cause: SAME_REACH,
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'lone');
       const helper = skillOf(s, o, 'scout');
-      freeSkill(e, name, 'Does lonely work.', [
+      freeSkill(e, name, undefined, [
         handing(helper, `Dispatch the \`${helper}\` agent to check the records.`),
       ]);
-      const made = freeHelper(e, helper, ['You read.']);
+      const made = freeHelper(e, helper, ['You read.'], false);
       e.check(o, lintHas('UNREACHABLE', made.path));
+    },
+  },
+  {
+    key: 'helper-of-described-skill',
+    tier: 3,
+    title: 'no unreachable file for a helper that a skill reached by its description dispatches',
+    component: LINT,
+    cause: SAME_REACH,
+    plant: (e, s, o) => {
+      const name = skillOf(s, o, 'lone');
+      const helper = skillOf(s, o, 'scout');
+      const skill = freeSkill(e, name, 'Does lonely work.', [
+        handing(helper, `Dispatch the \`${helper}\` agent to check the records.`),
+      ]);
+      const made = freeHelper(e, helper, ['You read.'], false);
+      e.check(o, lintHas('REACHED_BY_DESCRIPTION', skill.path));
+      e.check(o, lintLacks('UNREACHABLE', made.path));
     },
   },
   {

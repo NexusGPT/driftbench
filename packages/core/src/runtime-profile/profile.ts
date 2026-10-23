@@ -65,6 +65,11 @@ export type RuntimeProfile = {
   mapKinds: Readonly<Record<string, string>>;
   /** The structures its reader can test a file for, which a type's `shape` names. */
   shapes: readonly string[];
+  /**
+   * The roots, by name, whose every file counts for coverage: a file under one that no type covers is unknown.
+   * A file outside them counts only when a type locates it or a reference of the estate reaches it.
+   */
+  coverageRoots: readonly string[];
   layout: LayoutProfile;
   standing: StandingProfile;
   /** Where settings come from; the first static source is what the reader classifies as settings. */
