@@ -160,9 +160,11 @@ function writeSuite(
   const saidPhrases = new Set<string>();
   const render = (draft: SpecDraft): Spec | undefined => {
     context.minimal?.reduce(draft);
-    context.allocation?.observeDraft(draft);
     const seeder = draft.seeder;
     drafted[seeder] += 1;
+    // A walk reduced to a repeat of a whole spec is not written (see TerminalSubsumption.dropsWhole).
+    if (draft.dropped) return;
+    context.allocation?.observeDraft(draft);
     const rendered = renderDraft(prepared, draft, run);
     const loaded = checkSpec(rendered.spec, rendered.id);
     if (!loaded.ok) {
