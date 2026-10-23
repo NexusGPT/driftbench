@@ -168,7 +168,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     must(
       idle < 0,
       () =>
-        `${describeSpace(space)} with ${seeds.length} seeds: new row ${idle} holds no required tuple that the seeds miss`,
+        `${describeSpace(space)} with ${seeds.length} seeds: new row.${idle} holds no required tuple that the seeds miss`,
     );
     if (variant.startsWith('full-seeds')) {
       must(
@@ -216,7 +216,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       seeds.map((s) => indexRow(space, s)),
       facts.fresh,
     );
-    must(idle < 0, () => `new row ${idle} holds no required tuple that the (partial) seeds miss`);
+    must(idle < 0, () => `new row.${idle} holds no required tuple that the (partial) seeds miss`);
   },
 
   'seeds.empty-list': (variant, ctx) => {
@@ -274,7 +274,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       seeds.map((s) => indexRow(space, s)),
       facts.fresh,
     );
-    must(idle < 0, () => `new row ${idle} holds no required tuple that the seeds miss`);
+    must(idle < 0, () => `new row.${idle} holds no required tuple that the seeds miss`);
     if (variant === 'values-missing') {
       must(
         facts.fresh.every((r) => r[3] === 3),
