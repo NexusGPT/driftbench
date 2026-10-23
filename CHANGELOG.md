@@ -6,6 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `estate scan` says what the root holds before it reads. A root with no `CLAUDE.md`, no `.claude/` folder and no settings file prints a warning and exits 1, and `estate lint` reports `EMPTY_MAP` for a map with no atom instead of `Clean.`. A root with no `.claude/settings.json` prints a note that no guard wiring is read, and `--settings <file>` (scan and lint) reads a rendered copy of the settings for an estate that generates them at install time. The registry invariant never holds over zero guards: it records `guardsRead: 0`. The estate package exports `inspectRoot`, `layoutIsEmpty`, `RootLayout` and `RENDERED_SETTINGS`.
 * Planner v2 puts the new rows that hold a required value first, then the others, each group most common first, so a budget cuts the rows without a required value before any with one. When a budget still leaves a required value in no row, the plan carries the warning `budget_drops_required` with the values. The row log weight keeps minus infinity in memory and null in the JSON text, and the rows are numbered in the order returned.
 
 * Helper tokens are priced. `cost.helperModel` is the model the helper messages of a Claude Code session name, `cost.helperUsd` the dollars for the helper tokens at that model's price (the agent's model when none is named), and `cost.usd` the total with the agent's own dollars. A budgeted run refuses a helper model that has no price.

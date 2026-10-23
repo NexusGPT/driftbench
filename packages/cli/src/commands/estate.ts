@@ -8,6 +8,8 @@ import {
   estateRecordingPort,
   FileProseCache,
   INFORMATION,
+  inspectRoot,
+  layoutIsEmpty,
   lintEstate,
   loadEstateMap,
   loadEstateRecording,
@@ -18,6 +20,7 @@ import {
   proseEstimateLine,
   proseInventory,
   proseInventoryLines,
+  RENDERED_SETTINGS,
   RUNTIMES,
   readerFor,
   renderEstateMap,
@@ -54,6 +57,8 @@ export type EstateScanOptions = EstatePointerOptions & {
   ignore?: string[];
   /** The folder of the user-level skill layer. Without it (or the configuration's `userSkills:`) none is read. */
   userSkills?: string;
+  /** A rendered copy of the settings file, for an estate whose settings are generated at install time. */
+  settings?: string;
   runtime?: string;
   out?: string;
   replay?: string;
@@ -75,6 +80,25 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   io.err('error: --user-skills needs a folder, not an empty value\n');
   return false;
 }
+
+/** The path a `--settings` value names, or undefined with the error written when it is empty or not a file. */
+async function settingsGiven(value: string | undefined, io: Io): Promise<string | undefined | false> {
+  if (value === undefined) return undefined;
+  if (value.trim() === '') {
+    io.err('error: --settings needs a file, not an empty value\n');
+    return false;
+  }
+  const file = resolve(io.cwd, value);
+  if (!(await exists(file))) {
+    io.err(`Cannot find the settings file ${show(file, io)}.\n`);
+    return false;
+  }
+  return file;
+}
+
+const SETTINGS_FLAG = '--settings <file>';
+const SETTINGS_HELP =
+  'read this rendered copy of .claude/settings.json for an estate whose settings are generated at install time; refused when the estate holds its own';
 
 const USER_SKILLS_FLAG = '--user-skills <folder>';
 const USER_SKILLS_HELP =
@@ -112,6 +136,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .option(
       '--pointer',
@@ -172,9 +197,15 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
-    .action(async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string }) => {
-      setExit(await estateLintCommand(path, options, io));
-    });
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
+    .action(
+      async (
+        path: string,
+        options: { ceiling?: string; ignore?: string[]; userSkills?: string; settings?: string },
+      ) => {
+        setExit(await estateLintCommand(path, options, io));
+      },
+    );
 
   estate
     .command('approve')
@@ -228,9 +259,12 @@ export async function estateScanCommand(
   }
   const runtime = options.runtime ?? 'claude-code';
   if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return 2;
   const reader = readerFor(runtime, {
     ignore: options.ignore ?? [],
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
@@ -281,6 +315,24 @@ export async function estateScanCommand(
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
+  // Say what the root holds before anything is read: a root with no layout reads as nothing, not as a clean estate.
+  const layout = await inspectRoot(runtime, root);
+  if (layout && settings !== undefined && layout.settings.includes(RENDERED_SETTINGS)) {
+    io.err(
+      `${show(root, io)} holds its own ${RENDERED_SETTINGS}: remove --settings, or scan a copy of the estate without it.\n`,
+    );
+    return 2;
+  }
+  const emptyLayout = layout !== undefined && layoutIsEmpty(layout);
+  if (emptyLayout) {
+    io.out(
+      `Warning: ${show(root, io)} holds no CLAUDE.md, no .claude/ folder and no settings.json, so this scan reads nothing. Scan the project folder that holds them.\n`,
+    );
+  }
+  const settingsNote =
+    layout && !emptyLayout && layout.settings.length === 0 && settings === undefined
+      ? `${show(root, io)} holds no ${RENDERED_SETTINGS}, so no guard wiring is read (0 guards). If the settings are generated at install time, pass --settings <file> with a rendered copy.`
+      : undefined;
 
   let port: ModelPort | undefined;
   if (options.model !== false && !options.pointer) {
@@ -337,7 +389,7 @@ export async function estateScanCommand(
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
-  io.out(scanReport(result, out, io, handle?.describe, prices));
+  io.out(scanReport(result, out, io, handle?.describe, prices, settingsNote));
   deps.onScan?.(result, prices);
   const closing = handle ? await handle.finish(result) : 0;
   if (closing === 2) return 2;
@@ -346,7 +398,7 @@ export async function estateScanCommand(
     (result.pointer?.failed.length ?? 0) > 0 ||
     (result.pointer?.refusals.length ?? 0) > 0 ||
     (result.pointer?.atomRefusals.length ?? 0) > 0;
-  return failed || result.refusals.length > 0 || closing !== 0 ? 1 : 0;
+  return failed || emptyLayout || result.refusals.length > 0 || closing !== 0 ? 1 : 0;
 }
 
 /** What the reader skipped, per glob, so an owner sees what the ignore list hides. */
@@ -368,6 +420,7 @@ function scanReport(
   io: Io,
   describe = '',
   prices?: TokenPrices,
+  settingsNote?: string,
 ): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
@@ -413,6 +466,7 @@ function scanReport(
   for (const note of result.raw.notes.filter((note) => note.message.startsWith('Ambiguous routing table')))
     lines.push(`  ${note.file}: ${note.message}`);
   lines.push(...ignoredLines(result));
+  if (settingsNote) lines.push(`  Settings: ${settingsNote}`);
   const layer = result.raw.userLayer;
   if (layer && layer.read.length + layer.shadowed.length > 0) {
     lines.push(
@@ -440,7 +494,7 @@ function scanReport(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; settings?: string },
   io: Io,
 ): Promise<number> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -458,10 +512,19 @@ export async function estateLintCommand(
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
   if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return 2;
+  if (loaded.map.settings === true && settings === undefined) {
+    io.err(
+      'The map was scanned with a rendered copy of the settings: pass --settings <file> so lint reads it again.\n',
+    );
+    return 2;
+  }
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);

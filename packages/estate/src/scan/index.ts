@@ -1,4 +1,4 @@
-import { ClaudeCodeReader } from './claude-code';
+import { ClaudeCodeReader, inspectClaudeCodeRoot, type RootLayout } from './claude-code';
 import type { EstateReader } from './reader';
 
 export {
@@ -10,6 +10,9 @@ export {
   DEFAULT_IGNORE,
   ESTATE_CONFIG,
   ignoreRule,
+  layoutIsEmpty,
+  RENDERED_SETTINGS,
+  type RootLayout,
   scriptOf,
   splitList,
 } from './claude-code';
@@ -104,9 +107,14 @@ export const RUNTIMES = ['claude-code'] as const;
 /** A reader for a runtime, or undefined for a runtime the scanner does not know. */
 export function readerFor(
   runtime: string,
-  options: { ignore?: readonly string[]; userSkills?: string } = {},
+  options: { ignore?: readonly string[]; userSkills?: string; settings?: string } = {},
 ): EstateReader | undefined {
   return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
+}
+
+/** What the root of an estate holds, before any scan; undefined for a runtime the scanner does not know. */
+export async function inspectRoot(runtime: string, root: string): Promise<RootLayout | undefined> {
+  return runtime === 'claude-code' ? inspectClaudeCodeRoot(root) : undefined;
 }
 
 export {

@@ -240,7 +240,13 @@ export function invariantAtoms(raw: RawEstate, builder: AtomBuilder, state: Inva
           check: 'registry_complete',
           guardsWithoutRow: state.guardsWithoutRow,
           rowsWithoutGuard: state.rowsWithoutGuard,
-          holds: state.guardsWithoutRow.length === 0 && state.rowsWithoutGuard.length === 0,
+          // A registry compared with no guard at all proves nothing: the guards may be wired in a file the
+          // scan did not read, so the check does not hold and says how many guards it read.
+          ...(raw.guards.length === 0 ? { guardsRead: 0 } : {}),
+          holds:
+            raw.guards.length > 0 &&
+            state.guardsWithoutRow.length === 0 &&
+            state.rowsWithoutGuard.length === 0,
         },
       }),
     );

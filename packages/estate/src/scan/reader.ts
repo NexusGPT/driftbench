@@ -37,6 +37,8 @@ export type EstateFile = {
   owner?: string;
   document?: DocumentInfo;
   layer?: 'user';
+  /** True for a file the reader was handed outside the estate (a rendered copy of the settings): a copy of the estate holds none. */
+  rendered?: true;
 };
 
 /** Whether a path of the map is a file of the user-level skill layer. */
