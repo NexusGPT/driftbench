@@ -8,6 +8,7 @@ import {
   createAnthropicLabeler,
   cut,
   denseUser,
+  isTooLarge,
   type Labeler,
   LabelerError,
   type Labelled,
@@ -368,8 +369,17 @@ describe('the pointer scan', () => {
     expect(seen.join('\n')).not.toContain('secret fence');
   });
 
+  it('reads too large from the error type the provider named, whatever the words of the message', () => {
+    // A check reads the field, never the message: reworded, the same failure is still too large.
+    const named = { status: 400, providerType: 'max_tokens_exceeded' };
+    expect(isTooLarge(new ModelError('http', '400 max_tokens_exceeded', named))).toBe(true);
+    expect(isTooLarge(new ModelError('http', '400: the request is over the limit', named))).toBe(true);
+    expect(isTooLarge(new ModelError('http', '400 max_tokens_exceeded', { status: 400 }))).toBe(false);
+  });
+
   it('halves a window the endpoint refuses as too large, records the refusal, and replays the same halves', async () => {
-    const tooLarge = () => new ModelError('http', '400 max_tokens_exceeded', { status: 400 });
+    const tooLarge = () =>
+      new ModelError('http', '400 max_tokens_exceeded', { status: 400, providerType: 'max_tokens_exceeded' });
     const log: string[] = [];
     const files = [{ path: 'quay.md', text: QUAY }];
     const refuseOver = (limit: number) => (window: Window) =>
@@ -409,7 +419,11 @@ describe('the pointer scan', () => {
     const result = await pointerScan(
       input(
         plantedDense(byLength, [], {
-          fail: () => new ModelError('http', '400 max_tokens_exceeded', { status: 400 }),
+          fail: () =>
+            new ModelError('http', '400 max_tokens_exceeded', {
+              status: 400,
+              providerType: 'max_tokens_exceeded',
+            }),
         }),
         new Cassette(),
         { files: [{ path: 'one.md', text: 'Lock the gate.\n' }] },

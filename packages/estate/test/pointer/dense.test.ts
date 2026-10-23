@@ -10,6 +10,7 @@ import {
   denseUser,
   LabelerError,
   type LabelSet,
+  locateSpanText,
   parseDenseAnswer,
   SPAN_RULE,
   TARGET_RULE,
@@ -529,6 +530,31 @@ describe('the anchor of an entry, read against the window', () => {
 
   it('asks for every unit, none included, in ranges', () => {
     expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges.');
+  });
+
+  it('reads a miss of the locator by its code: other wording for its messages changes no anchor', () => {
+    // A check reads the code, never the message: the same anchors come out when every message is reworded.
+    const reworded: typeof locateSpanText = (text, words) => {
+      const found = locateSpanText(text, words);
+      return 'reason' in found ? { ...found, reason: `reworded ${found.code}` } : found;
+    };
+    const twice = {
+      ...window,
+      units: [
+        { n: 1, index: 0, text: 'Keep the log, the log of every boat.' },
+        { n: 2, index: 1, text: 'The log is kept at the desk.' },
+      ],
+    };
+    for (const locate of [locateSpanText, reworded]) {
+      // Found twice in its own unit (ambiguous) is still its own unit, though the words are in unit 2 as well.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'the log' }], twice, locate)[0]?.anchored,
+      ).toBe(0);
+      // Found in no line (not found) points nowhere.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'no such words' }], twice, locate)[0]?.anchored,
+      ).toBeNull();
+    }
   });
 
   it('reads the end anchor of a range against its last unit', () => {

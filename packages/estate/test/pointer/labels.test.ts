@@ -612,15 +612,6 @@ describe('spans and links in a label set', () => {
     });
   });
 
-  it('gives a code beside the message, and no check reads the message of a miss', async () => {
-    // A check branches on the code: rewording a message changes no outcome. The anchor reader once compared the
-    // message text of an ambiguous match.
-    const { readFile } = await import('node:fs/promises');
-    const source = await readFile(new URL('../../src/pointer/labels.ts', import.meta.url), 'utf8');
-    expect(source).not.toMatch(/\.reason\s*[!=]==?\s*['"`]/);
-    expect(source).not.toMatch(/['"`]\s*[!=]==?\s*[\w.]*\.reason\b/);
-  });
-
   it('turns the words of a span into offsets before the answer is recorded, and keeps the reason of a miss', () => {
     const entries: Labelled[] = [
       { units: '1', label: 'rule', spans: [{ kind: 'act', text: 'Never edit it' }] },
