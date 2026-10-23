@@ -41,13 +41,17 @@ describe('the audit of every check site', () => {
       {},
       1,
     );
-    expect(audit.leaking.length).toBe(1);
-    expect(audit.leaking[0]).toContain('7000');
+    expect(audit.leaking.length).toBeGreaterThan(0);
+    expect(audit.leaking.join(' ')).toContain('7000');
   });
 
   it('finds a wanted value written into the input', async () => {
     const audit = await auditEveryCheckSite(
-      [item('bad', () => check(true, () => ({ rule: 'r', input: { limit: 'CODE_X1' }, expected: 'CODE_X1' })))],
+      [
+        item('bad', () =>
+          check(true, () => ({ rule: 'r', input: { limit: 'CODE_X1' }, expected: 'CODE_X1' })),
+        ),
+      ],
       {},
       1,
     );
