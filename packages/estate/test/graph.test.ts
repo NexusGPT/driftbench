@@ -347,6 +347,37 @@ describe('reachability', () => {
   });
 });
 
+describe('reachability by description', () => {
+  const body = 'Read `ref.md` first.\n';
+  const files = (front: string) => ({
+    'CLAUDE.md': '# Rules\n',
+    '.claude/skills/notes/SKILL.md': `---\nname: notes\n${front}---\n\n${body}`,
+    '.claude/skills/notes/ref.md': 'x\n',
+  });
+
+  it('reaches a skill with a description, walks its body and lists it apart, when the runtime routes by description', async () => {
+    const root = await estate(files('description: Take notes.\n'));
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const analysis = analyzeGraph(map.atoms, map.edges, raw.files, new Set(), new Map(), true);
+    expect(analysis.describedFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+    expect(analysis.unreachableFiles).toEqual([]);
+    expect(analysis.reachableFiles.has('.claude/skills/notes/SKILL.md')).toBe(true);
+    // The runtime that does not route by description keeps the skill unreachable.
+    const strict = analyzeGraph(map.atoms, map.edges, raw.files);
+    expect(strict.describedFiles).toEqual([]);
+    expect(strict.unreachableFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+  });
+
+  it('keeps a skill with no description and no route unreachable, whatever the runtime', async () => {
+    const root = await estate(files(''));
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const analysis = analyzeGraph(map.atoms, map.edges, raw.files, new Set(), new Map(), true);
+    expect(analysis.describedFiles).toEqual([]);
+    expect(analysis.unreachableFiles).toEqual(['.claude/skills/notes/SKILL.md']);
+    expect(analysis.reachableFiles.has('.claude/skills/notes/SKILL.md')).toBe(false);
+  });
+});
+
 describe('dispatch edges', () => {
   const files = {
     '.claude/skills/parcels/SKILL.md':

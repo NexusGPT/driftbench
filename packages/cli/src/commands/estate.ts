@@ -427,6 +427,8 @@ function scanReport(
   }
   lines.push(listLine('Orphans', analysis.orphans));
   lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles));
+  if (analysis.describedFiles.length > 0)
+    lines.push(listLine('Reached only by their description (information)', analysis.describedFiles));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
   lines.push(`  Unenforced: ${analysis.unenforced.length} of ${rules} rules have no guard.`);
   for (const id of analysis.unenforced) lines.push(`    ${id}`);
@@ -488,6 +490,10 @@ export async function estateLintCommand(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
+  if (result.counts.REACHED_BY_DESCRIPTION > 0)
+    lines.push(
+      `  REACHED_BY_DESCRIPTION  ${result.counts.REACHED_BY_DESCRIPTION} ${plural(result.counts.REACHED_BY_DESCRIPTION, 'skill or helper', 'skills and helpers')} the standing instructions do not name; the runtime routes to ${result.counts.REACHED_BY_DESCRIPTION === 1 ? 'it' : 'them'} by description (information).`,
+    );
   lines.push(
     result.failed ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.` : 'Clean.',
     '',

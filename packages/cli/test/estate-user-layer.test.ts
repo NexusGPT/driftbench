@@ -76,7 +76,7 @@ describe('driftbench estate scan and lint read the user-level skill layer only w
 
     // Lint reports on the project: the files of the layer are never orphans or unreachable.
     const linted = await run(['estate', 'lint', join(root, 'map.yaml'), '--user-skills', layer], root);
-    expect(linted.out).toContain('.claude/skills/dock-roster/SKILL.md: no route');
+    expect(linted.out).toContain('REACHED_BY_DESCRIPTION  1 skill or helper');
     expect(linted.out).not.toContain('~/.claude');
 
     // Without the folder the layer's atoms cannot be checked: lint says so and does not guess a home folder.

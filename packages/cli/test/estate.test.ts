@@ -84,8 +84,9 @@ describe('driftbench estate scan', () => {
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
     expect(result.out).toContain('Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.');
+    expect(result.out).toContain('Unreachable from the standing instructions: none.');
     expect(result.out).toContain(
-      'Unreachable from the standing instructions: .claude/agents/inbox-triager.md.',
+      'Reached only by their description (information): .claude/agents/inbox-triager.md.',
     );
     expect(result.out).toContain('Unenforced: 44 of 51 rules have no guard.');
     const loaded = await loadEstateMap(join(root, 'map.yaml'));
@@ -111,8 +112,9 @@ describe('driftbench estate scan', () => {
     const lint = await run(['estate', 'lint', 'maps/map.yaml'], elsewhere);
     expect(lint.code).toBe(1);
     // A scan with no model reads the structure only: the files that prose names stay unnamed, and the routes of
-    // the routing table are not read.
-    expect(lint.out).toContain('19 findings.');
+    // the routing table are not read. The skills and helpers the runtime reaches by their description are information.
+    expect(lint.out).toContain('9 findings.');
+    expect(lint.out).toContain('REACHED_BY_DESCRIPTION  7 skills and helpers');
   });
 
   it('exits 1 and lists the refusal when an answer quotes text that is not in the file', async () => {
@@ -263,13 +265,13 @@ describe('driftbench estate lint, approve and map', () => {
     expect(lint.code).toBe(1);
     expect(lint.out.match(/^ {2}[A-Z_]+/gm)?.map((code) => code.trim())).toEqual([
       'ORPHAN',
-      'UNREACHABLE',
       'MISSING_REFERENCE',
       'UNANCHORED_GUARD',
       'REGISTRY_ROW',
       'REGISTRY_GUARD',
       'UNENFORCED',
       'EXTERNAL',
+      'REACHED_BY_DESCRIPTION',
     ]);
     expect(lint.out).toContain('  EXTERNAL    0 named paths outside the estate (information).');
 

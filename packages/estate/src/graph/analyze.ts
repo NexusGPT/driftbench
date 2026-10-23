@@ -8,8 +8,10 @@ import type { Atom, Edge } from '../schema';
  *   of the settings (the runtime always loads them). A walk follows route, reference, script, dispatch,
  *   allows, next and cites edges. Reaching a skill or a helper reaches every atom of its file (the body comes
  *   with it); reaching a reference, a script or a guard reaches the file it names, and the atoms in it.
- *   A skill or helper whose description is its only way in is unreachable from the standing instructions:
- *   the runtime may still list it, and the lint says so.
+ *   A skill or helper whose description is its only way in is unreachable from the standing instructions,
+ *   unless the runtime routes by description (`routesByDescription`, true for claude-code): then the skill or
+ *   helper is reached by that route, its body is walked, and the file is listed in `describedFiles` as
+ *   information. A skill or helper with no description and no other way in stays unreachable.
  * - named: a file something points at (a reference, a script, a guard command, a path the estate
  *   configuration writes) or a file the runtime loads by its place (standing, memory, settings, a skill or
  *   helper definition, the check registry, the estate configuration).
@@ -41,6 +43,9 @@ const LOADED_BY_PLACE: ReadonlySet<FileKind> = new Set([
 ]);
 const RULE_KINDS: ReadonlySet<Atom['kind']> = new Set(['instruction', 'gate', 'register']);
 
+/** Whether the runtime of an estate routes an ask to a skill or helper by its description. Only claude-code does. */
+export const routesByDescription = (raw: { runtime: string }): boolean => raw.runtime === 'claude-code';
+
 export type GraphAnalysis = {
   reachableAtoms: Set<string>;
   reachableFiles: Set<string>;
@@ -48,6 +53,8 @@ export type GraphAnalysis = {
   orphans: string[];
   /** Files not reachable from the standing instructions, orphans left out (they are listed apart). */
   unreachableFiles: string[];
+  /** With `routesByDescription`: files reached only by the route their description gives, not by the standing instructions. */
+  describedFiles: string[];
   unenforced: string[];
   /** Reference atoms whose file does not exist. */
   missingReferences: string[];
@@ -79,6 +86,8 @@ export function analyzeGraph(
   navigation: ReadonlySet<string> = new Set(),
   /** Files that code names: a code file that is reached reaches the files it names. */
   codeLinks: ReadonlyMap<string, readonly string[]> = new Map(),
+  /** The runtime routes an ask to a skill or helper by its description: such a file is reachable. */
+  routesByDescription = false,
 ): GraphAnalysis {
   const kinds = new Map(files.map((file) => [file.path, file.kind]));
   const byId = new Map(atoms.map((atom) => [atom.id, atom]));
@@ -108,15 +117,31 @@ export function analyzeGraph(
     for (const named of codeLinks.get(path) ?? []) reachFile(named);
   };
   for (const file of files) if (ROOT_FILES.has(file.kind)) reachFile(file.path);
-  while (head < queue.length) {
-    const id = queue[head++] ?? '';
-    if (reachableAtoms.has(id)) continue;
-    const atom = byId.get(id);
-    if (!atom) continue;
-    reachableAtoms.add(id);
-    reachFile(atom.provenance.file);
-    for (const path of pathsOf(atom)) reachFile(path);
-    for (const next of out.get(id) ?? []) queue.push(next);
+  const drain = () => {
+    while (head < queue.length) {
+      const id = queue[head++] ?? '';
+      if (reachableAtoms.has(id)) continue;
+      const atom = byId.get(id);
+      if (!atom) continue;
+      reachableAtoms.add(id);
+      reachFile(atom.provenance.file);
+      for (const path of pathsOf(atom)) reachFile(path);
+      for (const next of out.get(id) ?? []) queue.push(next);
+    }
+  };
+  drain();
+  // The route a description gives (a structured `via` field of the route atom, never the description's words):
+  // the file it sits in is reached, and what the file names with it.
+  const describedFiles: string[] = [];
+  if (routesByDescription) {
+    for (const atom of atoms) {
+      const file = atom.provenance.file;
+      if (atom.kind !== 'route' || atom.fields?.via !== 'description' || reachableFiles.has(file)) continue;
+      if (kinds.get(file) === undefined) continue;
+      reachFile(file);
+      drain();
+      if (!isUserLayerPath(file)) describedFiles.push(file);
+    }
   }
 
   const namedFiles = new Set<string>();
@@ -173,6 +198,7 @@ export function analyzeGraph(
     namedFiles,
     orphans,
     unreachableFiles,
+    describedFiles: [...new Set(describedFiles)],
     unenforced: atoms
       .filter((atom) => RULE_KINDS.has(atom.kind) && atom.enforcement.length === 0)
       .map((atom) => atom.id),

@@ -2546,18 +2546,21 @@ add({
   tier: 2,
   component: ESTATE_CMD,
   title:
-    'estate lint on the approved fixture map reports ORPHAN, UNREACHABLE and MISSING_REFERENCE and exits 1 (cli.md estate lint)',
-  cause: 'estate lint reports the orphan, unreachable and missing-reference findings and exits 1.',
+    'estate lint on the approved fixture map reports ORPHAN and MISSING_REFERENCE, counts REACHED_BY_DESCRIPTION as information, and exits 1 (cli.md estate lint)',
+  cause:
+    'estate lint reports the orphan and missing-reference findings, lists the skills and helpers reached only by their description as information, and exits 1.',
   async run(ctx) {
     const result = await cli(
       ['estate', 'lint', join(ctx.root, 'examples/estates/fixture/approved.yaml')],
       ctx.dir,
     );
-    const missing = ['ORPHAN', 'UNREACHABLE', 'MISSING_REFERENCE'].filter(
+    const missing = ['ORPHAN', 'MISSING_REFERENCE', 'REACHED_BY_DESCRIPTION'].filter(
       (code) => !result.out.includes(code),
     );
     return expectAll([
       [result.code === 1 && missing.length === 0, `missing ${missing.join(', ')}; ${shown(result)}`],
+      // A skill or helper the runtime routes to by its description is reachable, so the lint has no UNREACHABLE for it.
+      [!/^ {2}UNREACHABLE /m.test(result.out), `expected no UNREACHABLE finding; ${shown(result)}`],
     ]);
   },
 });

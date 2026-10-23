@@ -48,6 +48,18 @@ describe('the lint reports on the project, not on the user-level skill layer', (
     const lint = lintEstate(map, raw);
     expect(lint.findings.map((finding) => [finding.code, finding.subject])).toEqual([
       ['ORPHAN', '.claude/skills/dock-roster/assets/loose.md'],
+      ['REACHED_BY_DESCRIPTION', '.claude/skills/dock-roster/SKILL.md'],
+    ]);
+  });
+
+  it('still lists a project skill with no description and no route as unreachable', async () => {
+    process.env.HOME = await home({});
+    const root = await estate({
+      'CLAUDE.md': '# Standing\n',
+      '.claude/skills/dock-roster/SKILL.md': '---\nname: dock-roster\n---\n\n# Roster\n',
+    });
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(lintEstate(map, raw).findings.map((finding) => [finding.code, finding.subject])).toEqual([
       ['UNREACHABLE', '.claude/skills/dock-roster/SKILL.md'],
     ]);
   });
