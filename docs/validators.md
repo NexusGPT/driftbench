@@ -180,10 +180,10 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 
 ### 8.3 The registered validators
 
-`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns eight validators: `estate`, `generator`, `judges`, `map`, `pointer`, `stats`, `system` and `variables`. `validators/floors.json` holds a floor for four of them; `estate`, `generator`, `pointer` and `variables` have none yet. The catalogue of the `variables` bank is `validators/variables/CATALOGUE.md`; the contract it checks is [the variable store](variables.md), with the rules of each family in its section Rules by bank family. `validate floors` prints the floors:
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns eight validators: `estate`, `generator`, `judges`, `map`, `pointer`, `stats`, `system` and `variables`. `validators/floors.json` holds a floor for six of them; `estate` and `variables` have none yet. The catalogue of the `variables` bank is `validators/variables/CATALOGUE.md`; the contract it checks is [the variable store](variables.md), with the rules of each family in its section Rules by bank family. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
+Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), pointer = 3 (ladder version 2), stats = 8 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
