@@ -217,7 +217,7 @@ const ALERT_TYPES: ReadonlySet<string> = new Set(
  * marker syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
  * the text after the marker line starts; the marker is a mark and is in no unit.
  */
-function alertOf(quote: Node, text: string): { type: string; from: number } | undefined {
+function alertOf(quote: Node, text: string): { type: string; from: number; paragraph: Node } | undefined {
   const paragraph = quote.children?.[0];
   if (paragraph?.type !== 'paragraph') return undefined;
   const start = paragraph.position?.start.offset ?? 0;
@@ -228,7 +228,7 @@ function alertOf(quote: Node, text: string): { type: string; from: number } | un
   const lineEnd = text.indexOf('\n', start);
   const type = text.slice(start, lineEnd === -1 ? end : Math.min(lineEnd, end)).trimEnd();
   if (!ALERT_TYPES.has(type)) return undefined;
-  if (lineEnd === -1 || lineEnd >= end) return { type, from: end };
+  if (lineEnd === -1 || lineEnd >= end) return { type, from: end, paragraph };
   // Parse the continuation line for its content offset. Its first inline node may be emphasis, code, a link, etc.;
   // neither a text child's value nor a search for its prose can locate that content reliably.
   const nextEnd = text.indexOf('\n', lineEnd + 1);
@@ -236,7 +236,7 @@ function alertOf(quote: Node, text: string): { type: string; from: number } | un
   let content = PROCESSOR.parse(line) as unknown as Node;
   while (content.children?.[0] && (content.type === 'root' || content.type === 'blockquote'))
     content = content.children[0];
-  return { type, from: lineEnd + 1 + (content.position?.start.offset ?? 0) };
+  return { type, from: lineEnd + 1 + (content.position?.start.offset ?? 0), paragraph };
 }
 
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
@@ -325,12 +325,12 @@ const PROCESSOR = unified()
   .use(remarkBlockSyntax);
 
 type Context = {
-  inList?: boolean;
-  inQuote?: boolean;
+  /** The nearest list item or quote owns prose, including prose reparsed from HTML. */
+  prose?: 'list_item' | 'block_quote';
   /** Names that end the heading path of every unit below: a footnote label, a directive name, an alert type. */
   extra?: string[];
-  /** The marker line of an alert is no unit: the first paragraph of the quote starts after it. */
-  quoteFrom?: number;
+  /** Only this parser paragraph owns the alert marker line; all descendants inherit the type. */
+  alert?: { paragraph: Node; from: number };
 };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
@@ -602,24 +602,31 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
 
   const markdown = (
     text: string,
-    offset: number,
+    locate: (position: number) => number,
     inherited: string[],
     depth: number,
+    context: Context = {},
     trail: Array<{ depth: number; title: string }> = [],
     sliced = false,
-  ) => {
+    continuation?: Context,
+  ): Context | undefined => {
+    const at = (n: number | undefined) => locate(n ?? 0);
     const cuts = sliced ? [] : cutsOf(text, options.slabLines ?? SLAB_LINES);
     if (cuts.length > 0) {
       const edges = [0, ...cuts.map((cutAt) => cutAt.at), text.length];
+      let quoteContext: Context | undefined;
       for (let part = 0; part + 1 < edges.length; part++) {
         const before = units.length;
-        markdown(
-          text.slice(edges[part], edges[part + 1]),
-          offset + (edges[part] as number),
+        const edge = edges[part] as number;
+        quoteContext = markdown(
+          text.slice(edge, edges[part + 1]),
+          (position) => at(edge + position),
           inherited,
           depth,
+          context,
           trail,
           true,
+          part > 0 && cuts[part - 1]?.join ? quoteContext : undefined,
         );
         // The parts of one block quote are one unit: the first unit of this part joins the last of the one before.
         if (part > 0 && cuts[part - 1]?.join && units.length > before && before > 0) {
@@ -631,27 +638,64 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           }
         }
       }
-      return;
+      return quoteContext;
     }
     const tree = PROCESSOR.parse(text) as unknown as Node;
+    let quoteContext: Context | undefined;
     const here = () => [...inherited, ...trail.map((entry) => entry.title)];
-    const at = (n: number | undefined) => (n ?? 0) + offset;
+    // Every leaf, including the opaque/HTML branches, uses the same path construction.
+    const emit = (kind: Container, from: number, to: number, context: Context) =>
+      add(kind, at(from), at(to), [...here(), ...(context.extra ?? [])]);
 
-    const htmlBlock = (from: number, to: number) => {
-      const block = text.slice(from, to);
-      if (/^\s*<!--/.test(block)) {
-        add('opaque', at(from), at(to), here());
-        return;
-      }
-      // Lines that hold only a tag separate chunks; the markdown between them is cut like any prose.
-      let position = from;
+    const htmlBlock = (node: Node, context: Context) => {
+      const from = node.position?.start.offset ?? 0;
+      const to = node.position?.end.offset ?? from;
+      if (/^\s*<!--/.test(node.value ?? '')) return emit('opaque', from, to, context);
+
+      // The HTML node's value is container-relative: the parser has removed quote prefixes and footnote/list
+      // indentation. Reparse that view, mapping its positions back to the original source, never emitting its value.
+      const rawLines = text.slice(from, to).split(/(\r\n|\r|\n)/);
+      const lines = (node.value ?? text.slice(from, to)).split(/\r\n|\r|\n/);
+      let rawAt = from;
+      let viewAt = 0;
+      const positions = lines.map((line, index) => {
+        const raw = rawLines[index * 2] ?? '';
+        const position = { viewAt, rawAt: rawAt + raw.length - line.length };
+        rawAt += raw.length + (rawLines[index * 2 + 1]?.length ?? 0);
+        viewAt += line.length + 1;
+        return position;
+      });
+      const block = lines.join('\n');
+      // Container prefixes change only line starts. A line map avoids allocating one entry per character of HTML.
+      const original = (position: number) => {
+        let low = 0;
+        let high = positions.length - 1;
+        while (low < high) {
+          const middle = Math.ceil((low + high) / 2);
+          if ((positions[middle]?.viewAt ?? 0) <= position) low = middle;
+          else high = middle - 1;
+        }
+        const line = positions[low];
+        return line ? at(line.rawAt + position - line.viewAt) : at(to);
+      };
+      // Lines holding only a tag separate chunks; their contents retain the enclosing context and interpretation.
+      let position = 0;
       let chunkStart = -1;
       let chunkEnd = -1;
       const flush = () => {
-        if (chunkStart >= 0) markdown(text.slice(chunkStart, chunkEnd), at(chunkStart), here(), depth + 1);
+        if (chunkStart >= 0) {
+          const start = chunkStart;
+          markdown(
+            block.slice(start, chunkEnd),
+            (position) => original(start + position),
+            here(),
+            depth + 1,
+            context,
+          );
+        }
         chunkStart = -1;
       };
-      for (const line of block.split('\n')) {
+      for (const line of lines) {
         if (TAG_ONLY.test(line)) flush();
         else {
           if (chunkStart < 0) chunkStart = position;
@@ -662,105 +706,103 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       flush();
     };
 
+    // The sole context boundary. All parser nodes (containers and leaves alike) enter here; block handlers only
+    // consume the resulting context. Reparsed HTML enters through the same root descent with that context intact.
+    const descend = (node: Node, parent: Context) => {
+      if ((node as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) return;
+      let context = parent;
+      switch (node.type) {
+        case 'footnoteDefinition':
+          context = { ...parent, extra: [...(parent.extra ?? []), `[^${node.label ?? ''}]`] };
+          break;
+        case 'containerDirective':
+          context = { ...parent, extra: [...(parent.extra ?? []), node.name ?? ''] };
+          break;
+        case 'listItem':
+          context = { ...parent, prose: 'list_item' };
+          break;
+        case 'blockquote': {
+          // A parser slab can begin in the middle of the same quote. Reuse its frame; a marker on this later line
+          // cannot turn an ordinary quote into an alert, and an existing alert keeps its type on later paragraphs.
+          const alert = continuation && node === tree.children?.[0] ? undefined : alertOf(node, text);
+          context =
+            continuation && node === tree.children?.[0]
+              ? continuation
+              : {
+                  ...parent,
+                  prose: 'block_quote',
+                  extra: alert ? [...(parent.extra ?? []), alert.type] : parent.extra,
+                  alert: alert ?? parent.alert,
+                };
+          if (node === tree.children?.at(-1)) quoteContext = context;
+          break;
+        }
+      }
+      visit(node, context);
+    };
+
     const visit = (node: Node, context: Context) => {
       let start = node.position?.start.offset ?? 0;
       let end = node.position?.end.offset ?? 0;
       switch (node.type) {
         case 'yaml':
         case 'toml':
-          if (depth === 0 && offset === 0) frontMatter(start, end, node.type);
+          if (depth === 0 && at(0) === 0) frontMatter(at(start), at(end), node.type);
           return;
         case 'math':
-          // A display math block is opaque, like a fence: its dots and equals signs are not sentences.
-          return add('opaque', at(start), at(end), [...here(), ...(context.extra ?? [])]);
-        case 'footnoteDefinition':
-          // The definition is cut like prose; its label ends the heading path of its units, so a labeler reads which
-          // reference it explains. The `[^label]:` marker is in no unit.
-          for (const child of node.children ?? [])
-            visit(child, { ...context, extra: [...(context.extra ?? []), `[^${node.label ?? ''}]`] });
-          return;
-        case 'containerDirective':
-          // The `:::name` and `:::` lines are in no unit; the name ends the path of the units between them. A label
-          // written in brackets after the name sits on the marker line, so it is in no unit either.
-          for (const child of node.children ?? []) {
-            if ((child as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) continue;
-            visit(child, { ...context, extra: [...(context.extra ?? []), node.name ?? ''] });
-          }
-          return;
+        case 'code':
+          // A display math block or fence is opaque: its contents are never read as prose.
+          return emit('opaque', start, end, context);
         case 'heading': {
           const kids = node.children ?? [];
           const first = kids[0]?.position?.start.offset ?? start;
           const last = kids.at(-1)?.position?.end.offset ?? end;
           const title = text.slice(first, last).trim();
           while (trail.length > 0 && (trail.at(-1)?.depth ?? 0) >= (node.depth ?? 1)) trail.pop();
-          add('heading', at(start), at(end), [...here(), ...(context.extra ?? [])]);
+          emit('heading', start, end, context);
           trail.push({ depth: node.depth ?? 1, title });
           return;
         }
         case 'paragraph': {
           [start, end] = withoutTagLines(text, start, end);
-          const path = [...here(), ...(context.extra ?? [])];
-          if (context.inList) return add('list_item', at(start), at(end), path);
-          if (context.inQuote) {
-            start = Math.max(start, context.quoteFrom ?? start);
-            if (start >= end) return;
-            return add('block_quote', at(start), at(end), path);
-          }
+          if (context.alert?.paragraph === node) start = Math.max(start, context.alert.from);
+          if (start >= end) return;
+          if (context.prose) return emit(context.prose, start, end, context);
           const references = footnoteReferences(node);
           for (const [blockFrom, blockTo] of options.plain
             ? plainBlocks(text, start, end)
             : ([[start, end]] as Array<[number, number]>))
             for (const [from, to] of sentenceSpans(text, blockFrom, blockTo, references))
-              add('sentence', at(from), at(to), path);
+              emit('sentence', from, to, context);
           return;
         }
-        case 'code':
-          // A fence is one opaque unit over all its lines: never shown to a labeler, so no label points at it.
-          return add('opaque', at(start), at(end), [...here(), ...(context.extra ?? [])]);
-        case 'html': {
-          // An html block that holds an html block of its own and does not shrink is cut as opaque, so the parse ends.
-          if (depth >= 2) return add('opaque', at(start), at(end), here());
-          return htmlBlock(start, end);
-        }
+        case 'html':
+          // A nested HTML block that does not shrink is opaque, so reparsing terminates.
+          if (depth >= 2) return emit('opaque', start, end, context);
+          return htmlBlock(node, context);
         case 'tableCell': {
           const kids = node.children ?? [];
           if (kids.length > 0) {
             const first = kids[0]?.position?.start.offset ?? start;
             const last = kids.at(-1)?.position?.end.offset ?? end;
-            add('table_cell', at(first), at(last), [...here(), ...(context.extra ?? [])]);
+            emit('table_cell', first, last, context);
           }
-          return;
-        }
-        case 'listItem': {
-          for (const child of node.children ?? []) {
-            visit(child, { ...context, inList: child.type === 'paragraph' });
-          }
-          return;
-        }
-        case 'blockquote': {
-          const alert = alertOf(node, text);
-          for (const child of node.children ?? [])
-            visit(child, {
-              ...context,
-              inQuote: true,
-              extra: alert ? [...(context.extra ?? []), alert.type] : context.extra,
-              quoteFrom: child === node.children?.[0] ? alert?.from : undefined,
-            });
           return;
         }
         default:
-          for (const child of node.children ?? []) visit(child, context);
+          for (const child of node.children ?? []) descend(child, context);
       }
     };
 
-    for (const child of tree.children ?? []) visit(child, {});
+    descend(tree, context);
+    return quoteContext;
   };
 
   const jsonEnd = jsonFrontMatterEnd(source);
-  if (jsonEnd === undefined) markdown(source, 0, [], 0);
+  if (jsonEnd === undefined) markdown(source, (position) => position, [], 0);
   else {
     frontMatter(0, jsonEnd, 'json');
-    markdown(source.slice(jsonEnd), jsonEnd, [], 0);
+    markdown(source.slice(jsonEnd), (position) => jsonEnd + position, [], 0);
   }
   return { units, digest: sha(units.map((unit) => `${unit.container}:${unit.fp}`).join('\n')) };
 }

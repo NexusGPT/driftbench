@@ -96,3 +96,44 @@ describe('HTML reviewer regressions from PR #1419', () => {
     });
   }
 });
+
+// A reparse uses parser-relative indentation but every emitted offset still addresses the original source.
+describe('HTML source offsets after removing container prefixes', () => {
+  for (const eol of ['\n', '\r\n', '\r']) {
+    for (const prefix of ['    ', '\t']) {
+      it(`preserves BOM and ${JSON.stringify(eol)} offsets with ${JSON.stringify(prefix)} indentation`, () => {
+        const input = `\ufeff# Outside${eol}${eol}[^n]: <role>${eol}${prefix}First line.${eol}${prefix}Second line.${eol}${prefix}</role>${eol}`;
+        const found = cut(input).units.filter((unit) => unit.path.includes('[^n]'));
+        expect(found.map((unit) => [unit.text, unit.container, unit.path])).toEqual([
+          ['First line.', 'sentence', ['Outside', '[^n]']],
+          ['Second line.', 'sentence', ['Outside', '[^n]']],
+        ]);
+        for (const unit of found) {
+          expect(unit.start).toBe(input.indexOf(unit.text));
+          expect(unit.end).toBe(unit.start + unit.text.length);
+        }
+      });
+    }
+  }
+
+  it('preserves real code indentation within a footnote HTML block', () => {
+    const input = '[^n]: <div>\n    Child prose.\n\n        Child code.\n    </div>\n';
+    expect(cut(input).units.map((unit) => [unit.text, unit.container, unit.path])).toEqual([
+      ['Child prose.', 'sentence', ['[^n]']],
+      ['Child code.', 'opaque', ['[^n]']],
+    ]);
+  });
+
+  it('keeps an alert type on later paragraphs when its first paragraph spans parser slabs', () => {
+    const input = '> [!NOTE]\n> First line\n> second line\n> third line.\n>\n> Later paragraph.\n';
+    expect(cut(input, { slabLines: 2 }).units.map((unit) => unit.path)).toEqual([['[!NOTE]'], ['[!NOTE]']]);
+  });
+
+  it('does not recognize a later marker as an alert when a parser slab starts there', () => {
+    const input = '> Ordinary line\n> second line\n> [!NOTE]\n> Later paragraph.\n>\n> Next paragraph.\n';
+    expect(cut(input, { slabLines: 2 }).units.map((unit) => [unit.text, unit.path])).toEqual([
+      ['Ordinary line\n> second line\n> [!NOTE]\n> Later paragraph.', []],
+      ['Next paragraph.', []],
+    ]);
+  });
+});
