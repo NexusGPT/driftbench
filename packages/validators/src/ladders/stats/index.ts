@@ -105,19 +105,26 @@ const LEVEL_TEXT: Record<BankLevel, { name: string; metric: string }> = {
 
 /**
  * The statistics validator, ladder version 4 (docs/validators.md sections 7 and 12): a bank of items in eight
- * sub-banks, each a level with threshold 1. A seed's whole bank runs once, in child processes that stop an item
- * past its budget, and each level reads its items from that run. Version 1's levels are its first items.
+ * sub-banks, each a level with threshold 1. The items of the levels a run computes run once per seed, in child
+ * processes that stop an item past its budget, and each level reads its items from that run: a run of the whole ladder
+ * runs the whole bank, a slice of levels runs only the items of its levels. Version 1's levels are its first items.
  */
 export function statsLadder(options: StatsLadderOptions = {}): Ladder {
   const s: StatsImpl = { ...stats, ...options.impl };
   const inProcess = options.inProcess === true || options.impl !== undefined;
   const runs = new Map<string, Promise<{ items: BankItem[]; run: BankRun }>>();
-  const seedRun = (seed: number, root: string) => {
-    const key = `${seed}:${root}`;
+  const seedRun = (seed: number, root: string, from: number, to: number) => {
+    // The levels are part of the key: a run of some levels never answers a run of others.
+    const key = `${seed}:${root}:${from}..${to}`;
     let pending = runs.get(key);
     if (!pending) {
       pending = (async () => {
-        const items = statsBank(root).filter(options.filter ?? (() => true));
+        const items = statsBank(root)
+          .filter((item) => {
+            const level = BANK_LEVELS.indexOf(item.level) + 1;
+            return level >= from && level <= to;
+          })
+          .filter(options.filter ?? (() => true));
         const run = inProcess
           ? await runInProcess(items, seed, root, s)
           : await runIsolated(items, seed, root);
@@ -135,8 +142,8 @@ export function statsLadder(options: StatsLadderOptions = {}): Ladder {
       name: LEVEL_TEXT[level].name,
       metric: LEVEL_TEXT[level].metric,
       threshold: 1,
-      compute: async ({ seed, root }) => {
-        const { items, run } = await seedRun(seed, root);
+      compute: async ({ seed, root, levels = { from: 1, to: BANK_LEVELS.length } }) => {
+        const { items, run } = await seedRun(seed, root, levels.from, levels.to);
         return levelMeasure(
           items.filter((item) => item.level === level),
           run,
