@@ -65,6 +65,13 @@ const AtomBase = z.strictObject({
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
+  /**
+   * One atom for each span of this kind, in the order the label lists them. The label also lists, in the same order,
+   * the span of the file of each gate (`spanFile`): the nth span of one kind goes with the nth span of the other (each kind in the order the spans stand), and
+   * nothing is bound by where a span or a path stands in the unit. A gate with no file span is refused.
+   */
+  spanEach: z.string().min(1).optional(),
+  spanFile: z.string().min(1).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
   whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
@@ -83,6 +90,19 @@ export const Label = z.strictObject({
   description: z.string().min(1),
   examples: z.array(z.string().min(1)).max(3).optional(),
   target: z.literal('required').optional(),
+  /**
+   * A unit with this label builds no atom of its own: the `fields` of its mapping are filled from its spans and links
+   * and added to the atoms that labels of other sets built for the same unit (a key the atom already holds stays).
+   */
+  annotate: z.literal(true).optional(),
+  /**
+   * How many files the unit itself may name (by path notation: a slash, an extension, a link): `min` and `max`. A
+   * unit outside the range is refused with its reason and builds nothing, so a label made for a unit that names no
+   * file (its file is in the next unit), or for a unit that names several, is not taken for a unit that does not fit.
+   */
+  paths: z
+    .strictObject({ min: z.number().int().min(0).optional(), max: z.number().int().min(0).optional() })
+    .optional(),
   /** A unit with this label states when its target unit applies: it becomes the situation of the target's atom. */
   condition: z.literal(true).optional(),
   /** The span kinds a unit with this label may carry. */
@@ -280,6 +300,10 @@ export type Labelled = {
   anchor?: string;
   /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
   anchored?: number | null;
+  /** On a range, the first words of its last unit, as the labeler answered (`anchorUnits`). */
+  anchorEnd?: string;
+  /** Lines from the last unit of a range to the one its end anchor starts; null for none (`anchorUnits`). */
+  anchoredEnd?: number | null;
   target?: number;
   spans?: SpanInput[];
   links?: LinkAnswer[];
@@ -300,6 +324,8 @@ export type LinkAnswer = { kind: string; to: string };
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+  /** Lines a request adds after the window when it asks again for something an earlier answer left out. */
+  notes?: readonly string[];
 };
 
 /** `5` or `5-7` as the numbers it names. */
@@ -474,47 +500,65 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/** Why words were not located in a text: in no place (`not-found`), or in several (`ambiguous`). */
+export type LocateMiss = 'not-found' | 'ambiguous';
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
- * kept is the unit's own text, never the copy. `reason` says why not.
+ * kept is the unit's own text, never the copy. A miss gives `code`, which checks read, and `reason`, its words for a
+ * report.
  */
 export function locateSpanText(
   unitText: string,
   words: string,
-): { from: number; to: number } | { reason: string } {
+): { from: number; to: number } | { code: LocateMiss; reason: string } {
   const lower = unitText.toLowerCase();
   const wanted = words.toLowerCase();
   const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: 'the text is not in the unit' };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  if (first < 0) return { code: 'not-found', reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0)
+    return { code: 'ambiguous', reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
 }
 
 /**
- * Reads each entry's anchor (the first words of the unit the labeler meant) against the window, and keeps only where
- * it points, so the words never reach a cassette. The anchor is located as a span is (`locateSpanText`, on the text
- * the labeler was shown, without regard to case), in every line of the window: `anchored` is 0 when it is in the
- * first unit the entry names, the count of lines from that unit to the one line that holds it when the number
- * slipped (-1 for the line before), or null when no line holds it, or several do and not the entry's own. An entry
- * with no anchor, or an empty one, keeps none.
+ * Reads each entry's anchors against the window, and keeps only where they point, so the words never reach a
+ * cassette. `anchor` is the first words of the first unit the entry names and `anchorEnd`, on a range, those of its
+ * last unit. Each is located as a span is (`locateSpanText`, on the text the labeler was shown, without regard to
+ * case), in every line of the window: `anchored` (`anchoredEnd` for the end) is 0 when it is in the unit it should
+ * start, the count of lines from that unit to the one line that holds it when the number slipped (-1 for the line
+ * before), or null when no line holds it, or several do and not the right one. An anchor missing or empty keeps none.
+ * A miss of the locator is read by its code, never by its message; `locate` stands in for it in a test.
  */
-export function anchorUnits(entries: readonly Labelled[], window: Window): Labelled[] {
+export function anchorUnits(
+  entries: readonly Labelled[],
+  window: Window,
+  locate: typeof locateSpanText = locateSpanText,
+): Labelled[] {
   const lines = [
     ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
     ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
   ];
-  return entries.map((entry) => {
-    const { anchor, ...rest } = entry;
+  const offset = (anchor: unknown, at: number | undefined): number | null | undefined => {
     const words = typeof anchor === 'string' ? flatten(anchor).text : '';
-    const first = expandUnits(entry.units)?.[0];
-    if (words === '' || first === undefined) return rest;
+    if (words === '' || at === undefined) return undefined;
     const holds = (text: string) => {
-      const found = locateSpanText(text, words);
-      return !('reason' in found) || found.reason === 'the text is found twice in the unit';
+      const found = locate(text, words);
+      return !('reason' in found) || found.code === 'ambiguous';
     };
     const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
-    const anchored = found.includes(first) ? 0 : found.length === 1 ? (found[0] as number) - first : null;
-    return { ...rest, anchored };
+    return found.includes(at) ? 0 : found.length === 1 ? (found[0] as number) - at : null;
+  };
+  return entries.map((entry) => {
+    const { anchor, anchorEnd, ...rest } = entry;
+    const named = expandUnits(entry.units);
+    const anchored = offset(anchor, named?.[0]);
+    const anchoredEnd = named && named.length > 1 ? offset(anchorEnd, named.at(-1)) : undefined;
+    return {
+      ...rest,
+      ...(anchored === undefined ? {} : { anchored }),
+      ...(anchoredEnd === undefined ? {} : { anchoredEnd }),
+    };
   });
 }
 
@@ -525,16 +569,47 @@ export function anchorUnits(entries: readonly Labelled[], window: Window): Label
  */
 export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
   return entries.map((entry) => {
-    if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
-    const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
-    if (!unit) return entry;
+    if (!entry.spans) return entry;
+    // The words of a span never reach a cassette. An entry that cannot carry spans (a range, or a unit the window
+    // does not hold) keeps none of them: the span stays as an offset pair no unit holds, and the check of the answer
+    // drops it with its reason.
+    const unit = /^\d+$/.test(entry.units.trim())
+      ? window.units.find((candidate) => candidate.n === Number(entry.units))
+      : undefined;
+    if (!unit)
+      return {
+        ...entry,
+        spans: entry.spans.map((span) => {
+          if (span === null || typeof span !== 'object' || !('text' in span)) return span;
+          const { text: _text, ...rest } = span;
+          return { ...rest, from: -1, to: -1, unlocated: 'the entry is not one unit of the window' };
+        }),
+      };
+    const shown = flatten(unit.text).text;
+    // A text the unit holds N times and the entry lists N times (two gates that read one file) is located one
+    // occurrence for each listing, in the order listed. Fewer listings than occurrences stay ambiguous.
+    const listed = new Map<string, number>();
+    for (const span of entry.spans)
+      if (span !== null && typeof span === 'object' && 'text' in span && typeof span.text === 'string')
+        listed.set(span.text.toLowerCase(), (listed.get(span.text.toLowerCase()) ?? 0) + 1);
+    const taken = new Map<string, number>();
     return {
       ...entry,
       spans: entry.spans.map((span) => {
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(flatten(unit.text).text, text);
+        const key = text.toLowerCase();
+        const lower = shown.toLowerCase();
+        const occurrences = key === '' || lower.length !== shown.length ? 0 : lower.split(key).length - 1;
+        if (occurrences > 1 && occurrences === listed.get(key)) {
+          const nth = taken.get(key) ?? 0;
+          taken.set(key, nth + 1);
+          let from = -1;
+          for (let seen = 0; seen <= nth; seen++) from = lower.indexOf(key, from + 1);
+          return { ...rest, from, to: from + key.length };
+        }
+        const found = locateSpanText(shown, text);
         return 'reason' in found
           ? { ...rest, from: -1, to: -1, unlocated: found.reason }
           : { ...rest, ...found };
@@ -663,7 +738,11 @@ function checkExtras(
         }
       }
       const spans = seen.filter((_, index) => kept[index]);
-      if (spans.length > 0) out.spans = spans.sort((a, b) => a.from - b.from || b.to - a.to);
+      // A label whose atom pairs each gate's act span with its file span (`spanFile`) keeps the spans in the order the
+      // labeler listed them: the file span that follows an act span is that gate's own. Any other label is sorted.
+      if (spans.length > 0)
+        out.spans =
+          label?.atom?.spanFile !== undefined ? spans : spans.sort((a, b) => a.from - b.from || b.to - a.to);
     }
   }
   if (entry.links !== undefined) {

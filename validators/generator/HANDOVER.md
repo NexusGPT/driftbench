@@ -7,11 +7,36 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 14 |
-| 2 | 14 |
-| 3 | 14 |
-| hidden | 8 |
+| 1 | 17 |
+| 2 | 17 |
+| 3 | 17 |
+| 4 | 17 |
+| 5 | 1 |
+| 6 | 17 |
+| 7 | 1 |
+| 8 | 17 |
+| 9 | 15 |
+| 10 | 17 |
+| 11 | 17 |
+| 12 | 17 |
+| 13 | 17 |
+| 14 | 13 |
+| 15 | 17 |
+| 16 | 17 |
+| 17 | 17 |
+| 18 | 17 |
+| 19 | 17 |
+| 20 | 17 |
+| hidden | 14 |
 <!-- level-table:end -->
+
+## Ladder version 3: the pilot journal (2026-10-23)
+
+`journal.jsonl` now starts the pilot of ladder version 3. Its first row is iteration 0, measured by the `generator-measure-full` workflow in run 39823906794, on the ladder version 3 bank (PRs 1317, 1326, 1327, 1328) at 896589583, seeds 1 to 20 and the hidden seed 306132888. The bank holds 2386 items; 2326 pass on every seed, and 60 fail over 10 distinct causes. The level of the run is 1. Seeds 5 and 7 fail `diff.feasible.cover` at level 1; 16 seeds reach level 17 (minimality); seed 9 is at 15, seed 14 at 13 and the hidden seed at 14. The two planner items `planner.required-survives-budget.required` and `planner.budget-below-required.required` fail on every seed and close with PR 1334. The planner's catch items (PR 1429) count for no hardness.
+
+The rows of ladder versions 1 and 2 are kept, byte for byte, in `evidence/journal-historical.jsonl`; their numbers describe the bank of those versions, not this one.
+
+Builder pilot rows: the fixes of sonnet-gen-climb on the 8 causes left after PR 1334 (PRs 1342, 1428 and the next ones), each measured on the generator bank and appended with `measure-row.ts`, its measured cause count in the row. The blind seats of `audit.md` run on the merged version 3.
 
 ## Current climb: iteration 22
 
@@ -341,3 +366,7 @@ The product lane fixes these in `packages/generate`. Per-seed counts: [evidence]
 ## Same test needs the same tool answers: maintainer ruling (2026-10-21)
 
 Two blocks are the same test when they start from the same stage, expect the same Then and outcomes, and get the same tool answers, however the user turn is worded (docs/validators.md, section 3, Same test). The minimality items group blocks by `sameTestKey`: the stage the block starts from (`BlockRun.from`), the hash of the tool answers it runs against (`BlockRun.answers`) and the Then and outcomes (`vectorOf`). Before, the key was `vectorOf` alone, so a group could hold blocks that get other answers from a tool. In the printed sample of flagged groups on seeds 1 to 3 (run 39612743786), 42 of 55 groups held such blocks (for example `lookup_record` answering `found: true` to one and `found: false` to another). The channel, the persona and the declared perturbations are still not part of the key. No item, threshold or oracle step other than the group key changes. Test: `packages/validators/test/generator/minimal-tool-answers.test.ts`.
+
+## Scale time normalised (2026-10-22)
+
+`scale.<n>x.time` judges the product's raw CPU time times reference over the calibration of the runner, measured in the same process before the window (`scale-calibration.ts`: allocation, sha256, yaml, stat; weights 0.1, 0.4, 0.4, 0.1). Caps unchanged. Open: on a held-out batch two CPU types sit 12 to 18% off the line. See [the journal](SWEEP-JOURNAL.md).

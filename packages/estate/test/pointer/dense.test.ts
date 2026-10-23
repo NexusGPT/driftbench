@@ -10,6 +10,7 @@ import {
   denseUser,
   LabelerError,
   type LabelSet,
+  locateSpanText,
   parseDenseAnswer,
   SPAN_RULE,
   TARGET_RULE,
@@ -87,6 +88,21 @@ describe('reading a dense answer', () => {
   it('keeps a target that is no number as written, so the check can refuse and count it', () => {
     const labels = denseLabels({ labels: [{ units: '1', label: 'gate', target: '3' }] });
     expect(labels[0]?.target).toBe('3');
+  });
+
+  it('reads a near-JSON answer with the repairs the judges use: quotes, a comment line, a trailing comma', () => {
+    // As the parcel-claims answer that was not JSON and was not stored: the object is there, but for one slip.
+    const rule = [{ units: '1', label: 'rule' }];
+    expect(parseDenseAnswer("{'labels': [{'units': '1', 'label': 'rule'}]}")).toEqual(rule);
+    expect(parseDenseAnswer('{"labels": [{"units": "1", "label": "rule"},]}')).toEqual(rule);
+    expect(parseDenseAnswer('{\n// the labels\n"labels": [{"units": "1", "label": "rule"}]\n}')).toEqual(
+      rule,
+    );
+    expect(
+      parseDenseAnswer(
+        '{\u201clabels\u201d: [{\u201cunits\u201d: \u201c1\u201d, \u201clabel\u201d: \u201crule\u201d}]}',
+      ),
+    ).toEqual(rule);
   });
 
   it('refuses text that is not JSON, a missing list, and an entry without units or label', () => {
@@ -506,11 +522,48 @@ describe('the anchor of an entry, read against the window', () => {
     ).toEqual([{ units: '2', label: 'rule', anchor: 'Do not commit' }]);
   });
 
-  it('is asked for in the request, for an entry with a label other than none', () => {
-    expect(DENSE_SYSTEM).toContain('An entry with a label other than none also gives "anchor"');
+  it('is asked for in the request on every entry, none included, and a range is anchored at both ends', () => {
+    // A none entry with no anchor let a shifted none through unseen (R11 of the fixture-v2 delta window).
+    expect(DENSE_SYSTEM).toContain('Every entry, none included, also gives "anchor"');
+    expect(DENSE_SYSTEM).toContain('a range also gives "anchorEnd"');
   });
 
-  it('asks for every unit, none included, in ranges and with no anchor', () => {
-    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges, with no anchor.');
+  it('asks for every unit, none included, in ranges', () => {
+    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges.');
+  });
+
+  it('reads a miss of the locator by its code: other wording for its messages changes no anchor', () => {
+    // A check reads the code, never the message: the same anchors come out when every message is reworded.
+    const reworded: typeof locateSpanText = (text, words) => {
+      const found = locateSpanText(text, words);
+      return 'reason' in found ? { ...found, reason: `reworded ${found.code}` } : found;
+    };
+    const twice = {
+      ...window,
+      units: [
+        { n: 1, index: 0, text: 'Keep the log, the log of every boat.' },
+        { n: 2, index: 1, text: 'The log is kept at the desk.' },
+      ],
+    };
+    for (const locate of [locateSpanText, reworded]) {
+      // Found twice in its own unit (ambiguous) is still its own unit, though the words are in unit 2 as well.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'the log' }], twice, locate)[0]?.anchored,
+      ).toBe(0);
+      // Found in no line (not found) points nowhere.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'no such words' }], twice, locate)[0]?.anchored,
+      ).toBeNull();
+    }
+  });
+
+  it('reads the end anchor of a range against its last unit', () => {
+    const range = (anchorEnd: string) =>
+      anchorUnits([{ units: '1-3', label: 'none', anchor: 'Before you dispatch', anchorEnd }], window)[0];
+    expect(range('After a compaction')).toEqual({ units: '1-3', label: 'none', anchored: 0, anchoredEnd: 0 });
+    // A none range one line short at its end: its end anchor is on the line after it.
+    expect(range('Fill the template')?.anchoredEnd).toBe(1);
+    expect(range('Never paste secrets')?.anchoredEnd).toBeNull();
+    expect(range('After a compaction')).not.toHaveProperty('anchorEnd');
   });
 });

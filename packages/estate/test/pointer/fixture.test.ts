@@ -75,11 +75,13 @@ describe('the fixture through its committed cassettes', () => {
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
 
-  // Skipped until board row "Re-land the gate-calls wording from #1045": the nested command spans come from #1045's
-  // gate-calls text, which #877 does not take (recorded with it, the fixture lost every routing row and four
-  // standing rules, regen run 39625632619); today R14 is a gate-command gate. Test id: packages/estate/test/pointer/
-  // fixture.test.ts > the fixture through its committed cassettes > builds the git status before commit gate from
-  // the recorded nested command spans. The re-land PR un-skips it.
+  // Skipped, parked: board row "Make the prose labeller stable across fresh draws" names R14 as its blocker. Five label
+  // designs (the #1045 gate-calls wording, a verb-alone second call, gate-command and gate-calls disjoint by tool, a
+  // same-tool check, buildable readings choosing the label inside its group) landed R14 as gate-calls with the second
+  // call "commit" in 3 or 4 of 5 fresh draws at best: the labeler splits R14 between gate-command and gate-calls draw
+  // to draw. None of them is in this branch. Test id: packages/estate/test/pointer/fixture.test.ts > the fixture
+  // through its committed cassettes > builds the git status before commit gate from the recorded nested command
+  // spans. The PR that lands R14 in 5 of 5 un-skips it.
   it.skip('builds the git status before commit gate from the recorded nested command spans', async () => {
     const { result } = await replay();
     const gate = result.map.atoms.find(

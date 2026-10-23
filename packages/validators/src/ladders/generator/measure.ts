@@ -612,6 +612,7 @@ async function outcomesOn(
  */
 export async function runAll(generated: Generation, parts: GeneratorParts = {}): Promise<Runs> {
   const { hidden } = generated;
+  const book = stageBookOf(generated.complete.map((entry) => entry.spec));
   const k = parts.k ?? REFERENCE_REPEATS;
   const context = runContext();
   const followerSession = (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(hidden);
@@ -670,12 +671,12 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
-        from: startStageOf(spec, index),
+        from: startStageOf(spec, index, book),
         path: (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '',
         walk: contentHash(
           spec.blocks.map((_, at) => [
             answersOf(spec, at),
-            startStageOf(spec, at),
+            startStageOf(spec, at, book),
             machineSignature(spec, at),
           ]),
         ),
@@ -752,8 +753,60 @@ export function answersOf(spec: Spec, index: number): string {
 }
 
 /** The stage a block starts from: part of its Given, so a copy said from another stage is another test. */
-export function startStageOf(spec: Spec, index: number): string {
-  return (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ?? '';
+export function startStageOf(spec: Spec, index: number, book: StageBook): string {
+  return (
+    declaredStageBefore(spec, index, book) ??
+    (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ??
+    ''
+  );
+}
+
+/** Per block of the written specs (`<spec id>#<block id>`), the stage it leaves and the history said by then. */
+export type StageBook = Map<string, { stage: string; history: string }>;
+
+/**
+ * A history as a stage book reads it: what the user says is not part of the test (docs/validators.md, section 3),
+ * so a user message counts as a turn; the replies and the tool calls with their results count in full.
+ */
+function historyKey(history: readonly Message[]): string {
+  return contentHash(history.map((message) => (message.role === 'user' ? { role: 'user' } : message)));
+}
+
+/**
+ * What each written spec says about where it leaves the agent: per block, `<spec id>#<block id>`, the stage the
+ * block expects and the history the walk has said by then. A declared start stage is checked against the block it
+ * names (`given.after`).
+ */
+export function stageBookOf(specs: readonly Spec[]): StageBook {
+  const book: StageBook = new Map();
+  for (const spec of specs)
+    spec.blocks.forEach((block, index) => {
+      const stage = block.expect?.stage;
+      if (stage === undefined || block.id === undefined) return;
+      book.set(`${spec.id}#${block.id}`, {
+        stage,
+        history: historyKey(canonicalGiven(spec, index + 1).prefix),
+      });
+    });
+  return book;
+}
+
+/**
+ * The stage the spec says the agent is at before a block: the nearest earlier block's stage, or the stage a
+ * block that starts from a prefix declares. A declared stage counts only when the block it names (`given.after`)
+ * is in the suite, leaves the agent at that stage and has said the same history as the prefix, so declaring a
+ * stage cannot dodge a check. Undefined when nothing is said, so a spec without one reads as before.
+ */
+export function declaredStageBefore(spec: Spec, index: number, book: StageBook): string | undefined {
+  for (let at = index; at >= 0; at -= 1) {
+    const block = spec.blocks[at];
+    if (at < index && block?.expect?.stage !== undefined) return block.expect.stage;
+    const given = block?.given;
+    if (given?.stage === undefined || given.prefix === undefined || given.after === undefined) continue;
+    const named = book.get(given.after);
+    if (named?.stage === given.stage && named.history === historyKey(given.prefix)) return given.stage;
+  }
+  return undefined;
 }
 
 /** The follower's run and plan of every complete spec, once per generation. */

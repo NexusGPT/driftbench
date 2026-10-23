@@ -13,6 +13,7 @@ import type {
   SessionIndex,
   SituationUse,
 } from './inputs';
+import type { StateIds } from './states';
 import type { Gap, Marker, ThenContext } from './then';
 
 export const ESTATE_REPORT_FILE = 'estate-generate-report.json';
@@ -158,6 +159,12 @@ export type EstateGenerateOptions = {
    * own rule for the map's runtime (`runtimeLoaded`).
    */
   loaded?: (path: string) => boolean;
+  /**
+   * The session states and the events the state library of the run holds. A row whose cell needs one the library
+   * lacks is written to `incomplete/` with the marker `needs-state-operation`, never as a spec that fails to run.
+   * Absent, no row waits for a state.
+   */
+  stateIds?: StateIds;
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -185,7 +192,7 @@ export type EstateReport = {
     scripts: number;
     helpers: number;
     cases: number;
-    /** Catalogue checks: tested through their host hook, or a gap for want of a trigger or a host. */
+    /** Catalogue checks: tested through their host guard, or a gap for want of a trigger or a host. */
     checks: { tested: number; needsTrigger: number; needsHost: number };
     skipped: string[];
   };
@@ -246,8 +253,6 @@ export type Context = ThenContext & {
   owners: ReadonlyMap<string, string>;
   /** The route atoms that name each unit, for a unit whose description gives no task. */
   routes: ReadonlyMap<string, readonly EstateAtom[]>;
-  /** The files the map records as navigation only (examples, templates, histories). */
-  navigation: ReadonlySet<string>;
   paths: EstateGenerateOptions['paths'];
   fallback: boolean;
   /** The estate's output rules as patterns no message may match, compiled from its register atoms. */
@@ -255,6 +260,8 @@ export type Context = ThenContext & {
   /** Skill names, for a misroute ask that names the wrong skill. */
   units: string[];
   sections?: BlockSections;
+  /** The session states and events the state library holds; absent, no row waits for a state. */
+  stateIds?: StateIds;
 };
 
 export type Built = {

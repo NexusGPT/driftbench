@@ -128,7 +128,7 @@ export async function openPointer(
       return undefined;
     }
   }
-  let setsText = pointer.AGENT_RULES_SET;
+  let setsText = pointer.DEFAULT_LABEL_SETS;
   const labelsPath = options.labels
     ? resolve(io.cwd, options.labels)
     : settings.labels && 'path' in settings.labels
@@ -434,5 +434,18 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
+  for (const entry of done.spanless ?? []) {
+    lines.push(
+      `    span-missing: ${entry.path} unit ${entry.unit} (${entry.set}): ${entry.label} needs ${entry.kinds.join(', ')}; ${entry.filled ? 'asked again, and the answer gave it' : 'asked again with no span in the unit, left unlabeled'}`,
+    );
+  }
+  for (const entry of done.unstable ?? []) {
+    const kinds = Object.entries(entry.kinds)
+      .map(([kind, count]) => `${kind} ${count}`)
+      .join(', ');
+    lines.push(
+      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; left unlabeled`,
+    );
+  }
   return lines;
 }

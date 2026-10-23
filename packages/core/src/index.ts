@@ -436,6 +436,7 @@ export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
+  Actor,
   Assertion,
   Budget,
   Count,
@@ -495,6 +496,7 @@ export {
   CampaignRadius,
   CarriedFrom,
   Cost,
+  callsIn,
   Diagnosis,
   ExecutionRecord,
   HistoryNormalization,
@@ -608,4 +610,11 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export {
+  dropCommentLines,
+  dropTrailingComma,
+  repairAnswerText,
+  singleToDoubleQuotes,
+  straightenCurlyQuotes,
+} from './text/near-json';
 export { type OpenAiCompatibleOptions, openAiCompatibleEmbedder } from './text/openai-embedder';

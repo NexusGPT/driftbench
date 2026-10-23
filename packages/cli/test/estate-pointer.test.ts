@@ -1,11 +1,12 @@
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { pointer } from '@agent-nexus/driftbench-estate';
+import { pointer, type ScanEstateResult } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
+import { pointerLines } from '../src/commands/estate-pointer';
 import { type Io, main } from '../src/index';
 
 // An invented harbour office. No line below comes from a real estate.
@@ -230,8 +231,8 @@ describe('driftbench estate scan --pointer', () => {
     const root = await estate();
     // The second to fourth asks of a window holding the "Close" unit (system 1 is torn on it) call it a prohibition, a
     // description and a prohibition: five runs, and no label has three of them (rule 2, prohibition 2, description 1).
-    // That ties inside the instruction kind, so the window is asked twice more (asks 6 and 7): the sixth says
-    // prohibition and the seventh rule, so it still ties, 3 against 3.
+    // That ties inside the instruction kind, so the window is asked more: asks 6 and 8 say prohibition, 7 and 9 rule,
+    // so it still ties, 4 against 4, at the most voices a split gets.
     const asks = new Map<string, number>();
     const wavering: FetchLike = async (url, init) => {
       const response = await services(url, init);
@@ -244,7 +245,7 @@ describe('driftbench estate scan --pointer', () => {
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
       asks.set(content, seen);
-      if (seen < 2 || seen === 5 || seen > 6) return response;
+      if (seen < 2 || seen === 5 || seen === 7 || seen > 8) return response;
       const payload = (await response.json()) as { content: Array<{ text: string }> };
       const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
         labels: Array<{ units: string; label: string }>;
@@ -274,7 +275,58 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(code).toBe(0);
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
-    expect(output.out).toMatch(/asked again: .* asked again as run 7 for \d+ split units/);
+    expect(output.out).toMatch(/asked again: .* asked again as run 9 for \d+ split units/);
+  });
+
+  it('prints each unstable unit with the count of each kind, left unlabeled', () => {
+    const result = {
+      pointer: {
+        ledger: { entries: [] },
+        cuts: new Map(),
+        decidedBy: { system1: 0, system2: 0 },
+        usage: [],
+        events: {},
+        failed: [],
+        refusals: [],
+        atomRefusals: [],
+        dropped: [],
+        outOfStep: [],
+        reasked: [],
+        unstable: [
+          {
+            unit: 'u1',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { instruction: 5, gate: 4 },
+          },
+          {
+            unit: 'u2',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { gate: 2, reference: 2 },
+          },
+          {
+            unit: 'u3',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { 'too few runs': 1 },
+          },
+        ],
+      },
+    } as unknown as ScanEstateResult;
+    const lines = pointerLines(result, 'system 2');
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u1 (agent-rules, anthropic): instruction 5, gate 4; left unlabeled',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u2 (agent-rules, anthropic): gate 2, reference 2; left unlabeled',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u3 (agent-rules, anthropic): too few runs 1; left unlabeled',
+    );
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {
@@ -447,7 +499,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(result.code).toBe(2);
     expect(result.err).toMatch(
-      /the cassette has no answer for request [0-9a-f]{12}; the nearest entry [0-9a-f]{12} differs in: .*part\./,
+      /the cassette has no answer for request [0-9a-f]{12} of window \S+#\d+; the nearest entry [0-9a-f]{12} differs in: .*part\./,
     );
     await expect(readFile(join(root, 'missed.yaml'), 'utf8')).rejects.toThrow();
   });
@@ -836,12 +888,19 @@ describe('the settings file of the estate', () => {
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('[system1:jev, system2:anthropic]', '[system2:anthropic]'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    // With system 1 gone, system 2 is asked about the windows that system 1 had decided alone (the stack asks system 2
+    // only about the windows system 1 left open). Those are new recordings of system 2; no recording is voided.
+    const dropped = await voided(root, before);
+    // True of an empty list too: dropping system 1 must add recordings of system 2, so the list is not empty.
+    expect(dropped.added.length).toBeGreaterThan(0);
+    expect(dropped.added.every((entry) => entry.readable.cls === 'system2')).toBe(true);
+    const now = new Set((await entries(root)).map((entry) => entry.key));
+    expect(before.every((entry) => now.has(entry.key))).toBe(true);
     await writeFile(
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('ledger.json', 'moved/ledger.json'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    expect((await voided(root, [...before, ...dropped.added])).added).toEqual([]);
     expect(
       JSON.parse(await readFile(join(root, 'moved', 'ledger.json'), 'utf8')).entries.length,
     ).toBeGreaterThan(0);
@@ -863,6 +922,17 @@ describe('the settings file of the estate', () => {
     expect(missing.err).toContain(
       'name the ledger with --ledger <file>, or with ledger: in driftbench.estate.yaml',
     );
+  });
+
+  it('exits 2 with the file and the depth when radius ledger meets a file nested too deep', async () => {
+    const { root } = await base();
+    const deep = `${Array.from({ length: 150 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join('\n')}\n`;
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md'] ?? ''}\n${deep}`);
+    const result = await run(['radius', 'ledger', 'map.yaml', '--out', 'change.yaml'], root);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('CLAUDE.md');
+    expect(result.err).toContain('150 levels deep');
+    expect(result.out).toBe('');
   });
 
   it('loads a labeler module the file names from beside the estate, scanned from another folder', async () => {
@@ -930,9 +1000,11 @@ describe('the settings file of the estate', () => {
         cassette: 'cassette.jsonl',
         labeler: ['system2:anthropic'],
         force: true,
+        // System 2 alone is asked about windows the stack's cassette left to system 1: those are recorded.
+        record: true,
       },
       io,
-      { env: KEYS },
+      { env: KEYS, fetch: services },
     );
     expect(code).toBe(0);
     expect(output.out).toContain('Pointer reader: system 2 anthropic claude-haiku-5-5.');
