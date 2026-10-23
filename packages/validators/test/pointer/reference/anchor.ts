@@ -5,7 +5,7 @@ import { type CellKey, fingerprintText } from './cut';
 /**
  * The re-anchoring ladder of docs/estate-pointer-reader.md section 4: order first (unchanged), then exact text
  * elsewhere (moved, or ambiguous when several), then pairwise scores with a text floor (changed, split, merged),
- * else deleted. Reference thresholds: score 0.45, text floor 0.4, length floor 40.
+ * else deleted. Reference thresholds: score 0.45, text floor 0.4, length floor 12.
  * A table cell that its text cannot follow (shorter than the length floor, or repeated in its table) is followed by
  * its row key and column header instead, or gets a new id when they do not survive.
  */
@@ -41,7 +41,7 @@ export type Verdict = {
   gone: Array<{ entry: LedgerEntry; event: 'deleted' | 'merged' | 'ambiguous' }>;
 };
 
-export const FLOOR_LENGTH = 40;
+export const FLOOR_LENGTH = 12;
 export const THRESHOLD = 0.45;
 export const TEXT_FLOOR = 0.4;
 export const SPLIT_MERGE_MIN = 0.6;
