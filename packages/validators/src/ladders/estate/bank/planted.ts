@@ -130,6 +130,11 @@ export class PlantedEstate {
   readonly hints: Hint[] = [];
   /** file to line to owner; a file owned whole has line 0. */
   readonly owners = new Map<string, Map<number, string>>();
+  /**
+   * A folder the scan reads as a second source of skills: relative to the estate root, or under `outside/` for a
+   * folder beside the estate. None without it.
+   */
+  userSkills?: string;
 
   file(path: string, owner: string): FileWriter {
     const known = this.writers.get(path);
@@ -278,7 +283,10 @@ export class PlantedEstate {
         answers.set(hint.file, [...(answers.get(hint.file) ?? []), prose]);
       }
       const truth = truthPointer({ files: texts, atoms, answers, gates, edges: this.edges });
-      const reader = readerFor(RUNTIME);
+      const second = this.userSkills?.startsWith('outside/')
+        ? join(top, this.userSkills)
+        : this.userSkills && join(root, this.userSkills);
+      const reader = readerFor(RUNTIME, second ? { userSkills: second } : {});
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
       const started = Date.now();
       const result = await scanEstate({

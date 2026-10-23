@@ -488,7 +488,7 @@ export async function lintMap(
     return { ok: false, code: 2 };
   }
   const raw = await reader.read(root);
-  if (loaded.map.userSkills === true && raw.userLayer === undefined) {
+  if (loaded.map.userSkills !== undefined && raw.userLayer === undefined) {
     io.err(
       'The map was scanned with a user-level skill layer: pass --user-skills <folder> (or set userSkills in the estate configuration) so lint reads it again.\n',
     );

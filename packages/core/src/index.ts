@@ -513,6 +513,7 @@ export {
   runtimeProfile,
   runtimeProfileNames,
   type SettingsSource,
+  type SourceDecl,
   type StandingProfile,
   staticSettingsFiles,
   variablePrefix,

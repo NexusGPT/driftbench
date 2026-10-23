@@ -90,6 +90,7 @@ export class AtomBuilder {
           aliases: raw.aliases ?? {},
           byName: names(raw, this.files),
           externals: raw.externals ?? [],
+          sources: sourcesOf(raw),
         })
       : this.place(path, from);
     const present = this.files.has(target.path);
@@ -772,6 +773,11 @@ export function isExternal(path: string, externals: readonly string[] = []): boo
 /** The places of an estate that a named path is looked for in. */
 export type NamedPlaces = {
   bases?: readonly string[];
+  /**
+   * The names a second source of parts goes by in the paths of the map (a folder the user named beside the
+   * estate). A path under one is the estate's own, though it lies outside the root: never external.
+   */
+  sources?: readonly string[];
   skipped?: ReadonlySet<string>;
   aliases?: Readonly<Record<string, readonly string[]>>;
   byName?: ReadonlyMap<string, readonly string[]>;
@@ -810,7 +816,8 @@ export function locateNamed(
   if (known(placed)) return { path: placed, via: 'place' };
   // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
   if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
-  if (isExternal(placed, options.externals ?? [])) return { path: placed, via: 'external' };
+  const own = (options.sources ?? []).some((label) => placed === label || placed.startsWith(`${label}/`));
+  if (!own && isExternal(placed, options.externals ?? [])) return { path: placed, via: 'external' };
   const [head, ...rest] = clean.split('/');
   const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
   for (const folder of folders) {
@@ -868,6 +875,11 @@ export function fileNames(
   return byName;
 }
 
+/** The names the estate's second sources go by in its paths. */
+export function sourcesOf(raw: RawEstate): string[] {
+  return raw.userLayer ? [raw.userLayer.label] : [];
+}
+
 /** The file-name index of an estate, built once per estate read. */
 const NAME_INDEX = new WeakMap<RawEstate, Map<string, string[]>>();
 function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<string, string[]> {
@@ -903,6 +915,7 @@ export function navigationNames(raw: RawEstate): Set<string> {
     aliases: raw.aliases ?? {},
     byName: names(raw, files),
     externals: raw.externals ?? [],
+    sources: sourcesOf(raw),
   };
   for (const file of raw.files) {
     if (isNormative(file) || !/\.(?:md|markdown|txt)$/i.test(file.path)) continue;

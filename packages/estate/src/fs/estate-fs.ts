@@ -248,6 +248,21 @@ export function expandVariables(path: string, profile: RuntimeProfile, folders: 
   return path;
 }
 
+/**
+ * The name a second source of parts (a folder the user names beside the estate) goes by in the paths of a map: the
+ * path from the estate root when the folder lies inside it, else the path from the home folder as `~/...`, else
+ * the folder itself. The map thus names a source by its real folder and holds no home folder.
+ */
+export function sourceLabel(root: string, folder: string, home: string = homedir()): string {
+  const inside = rootRelative(root, folder);
+  if (inside !== undefined && inside !== '.') return inside;
+  const under = relative(home, folder);
+  if (under === '') return '~';
+  if (under !== '..' && !under.startsWith(`..${sep}`) && !isAbsolute(under))
+    return `~/${under.split(sep).join('/')}`;
+  return folder.split(sep).join('/');
+}
+
 /** A path stored in a map: relative to the estate root, with `/`, or undefined for a path outside the root. */
 export function rootRelative(root: string, path: string): string | undefined {
   const tail = relative(root, isAbsolute(path) ? path : join(root, path));
