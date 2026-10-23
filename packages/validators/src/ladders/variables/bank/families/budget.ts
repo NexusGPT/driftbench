@@ -24,7 +24,7 @@ function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void 
     echoes: ['budget'],
     input: { label, budget: b },
     got: { rows: got.length },
-    expected: { rows: want.length, uncut: full.rows.length },
+    expected: { rows: want.length },
   }));
   for (let i = 0; i < want.length; i += 1) {
     check(got[i] === want[i], () => ({
