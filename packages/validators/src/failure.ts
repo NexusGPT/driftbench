@@ -42,7 +42,13 @@ export function none(code: NoneCode): NoExpected {
 }
 
 /** Every `check` is counted, so a test can force the k-th one to fail and render its diagnostic. */
-export const forced = { at: -1, count: 0 };
+export const forced = { at: -1, count: 0, trace: false, sites: [] as string[] };
+
+/** The file, line and column of the code that called `check`. Read only while a test traces the checks. */
+function callerOfCheck(): string {
+  const frame = new Error().stack?.split('\n')[3] ?? '';
+  return frame.replace(/^\s*at\s+/, '').replace(/^.*\(/, '').replace(/\)$/, '').replace(/^.*?(packages\/validators\/)/, '$1');
+}
 
 export const isNoExpected = (value: unknown): value is NoExpected =>
   typeof value === 'object' && value !== null && 'none' in value && Object.keys(value).length === 1;
@@ -92,6 +98,7 @@ export const diagnostics = { build: true };
 /** Fails the item with these fields unless the condition holds. */
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
   forced.count += 1;
+  if (forced.trace) forced.sites.push(callerOfCheck());
   if (condition && forced.at !== forced.count) return;
   if (typeof fields !== 'function') throw new ItemFailure(fields);
   throw new ItemFailure(
