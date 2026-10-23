@@ -15,7 +15,7 @@ import { MUTANTS } from '../variables-blind/mutants';
  * against the base branch; it may only go down.
  */
 
-const items = variablesBank().filter((i) => !i.id.startsWith('blind.') && i.family !== 'scale');
+const items = variablesBank().filter((i) => !i.id.startsWith('blind.'));
 
 describe('the failure messages of the first bank', () => {
   it('repeat no expected value, and are structured', async () => {
@@ -62,7 +62,9 @@ describe('the failure messages of the first bank', () => {
                   }
                   const wanted = wantedInMessage(error, ref, wrongTokens, item.id);
                   if (wanted.length > 0)
-                    crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')} in: ${error.message.slice(0, 260)}`);
+                    crossLeaks.push(
+                      `${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')} in: ${(error as Error).message.slice(0, 220)}`,
+                    );
                 }
               }
             } catch (error) {

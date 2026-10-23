@@ -17,6 +17,12 @@ const text = (value: unknown): string => {
   }
 };
 
+function lengthsIn(value: unknown, sink: Set<string>, depth = 0): void {
+  if (depth > 3 || typeof value !== 'object' || value === null) return;
+  if (Array.isArray(value)) for (let i = 0; i <= value.length; i += 1) sink.add(String(i));
+  for (const v of Object.values(value as Record<string, unknown>)) lengthsIn(v, sink, depth + 1);
+}
+
 /** Wraps an implementation so that every token of what it returns lands in `sink`. */
 export function tapped<I extends Record<string, unknown>>(impl: I, sink: Set<string>): I {
   const out: Record<string, unknown> = {};
@@ -24,8 +30,15 @@ export function tapped<I extends Record<string, unknown>>(impl: I, sink: Set<str
     out[name] =
       typeof fn === 'function'
         ? (...args: unknown[]) => {
+            // What the item handed to the product is the item's own input, and may be printed back.
+            for (const t of text(args).match(TOKEN) ?? []) sink.add(t);
+            lengthsIn(args, sink);
             const result = (fn as (...a: unknown[]) => unknown)(...args);
-            if (!(result instanceof Promise)) for (const t of text(result).match(TOKEN) ?? []) sink.add(t);
+            if (!(result instanceof Promise)) {
+              for (const t of text(result).match(TOKEN) ?? []) sink.add(t);
+              // A position or a count of the product's own collections (rows, entries, errors) is the product's: an item may print it.
+              lengthsIn(result, sink);
+            }
             return result;
           }
         : fn;
@@ -46,11 +59,6 @@ export function wantedInMessage(
   const message = error instanceof Error ? error.message : String(error);
   const own = error instanceof ItemFailure ? `${text(error.fields.input)} ${itemId}` : itemId;
   const ownTokens = new Set(own.match(TOKEN) ?? []);
-  // A small count that the item measured on the wrong product's answer (rows, entries) is the product's own, even when
-  // the correct product has the same number somewhere: only a number of more than three digits, a code or an
-  // identifier is a value the item could not have measured on the wrong answer.
-  if (error instanceof ItemFailure)
-    for (const t of text(error.fields.got).match(TOKEN) ?? []) if (/^\d{1,3}$/.test(t)) ownTokens.add(t);
   const inMessage = new Set(message.match(TOKEN) ?? []);
   return [...reference].filter((t) => !wrong.has(t) && valueLike(t) && inMessage.has(t) && !ownTokens.has(t));
 }
