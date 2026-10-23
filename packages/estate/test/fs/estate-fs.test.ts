@@ -40,20 +40,35 @@ describe('EstateFS', () => {
     expect(await leavesRoot(root, 'alias.md')).toBe(false);
   });
 
-  it('stacks ignore files, the profile globs and the configured globs, in that order', async () => {
+  it('stacks the profile globs, the layout copy, the configured globs and the ignore files', async () => {
     const root = await folder();
     await writeFile(join(root, '.agentignore'), '# comment\nbuild\n!keep\n');
     const stack = await ignoreStack(root, { ...CLAUDE_CODE_PROFILE, ignoreFiles: ['.agentignore'] }, [
       'drafts',
     ]);
-    expect(stack.rules[0]?.pattern).toBe('build');
-    expect(stack.rules.at(-1)?.pattern).toBe('drafts');
-    expect(stack.match('build/out.md')?.pattern).toBe('build');
-    expect(stack.match('node_modules/x.js')?.pattern).toBe('node_modules');
+    await stack.enter('');
+    expect(stack.rules.map((rule) => rule.pattern)).toEqual([
+      ...CLAUDE_CODE_PROFILE.ignore,
+      '.agentignore',
+      '/.claude/**/.claude',
+      'drafts',
+    ]);
+    // A file is hidden by a folder above it: the walk meets the folder first, a direct question walks up.
+    expect(stack.match('build', true)?.label).toBe('.agentignore: build');
+    expect((await stack.matchPath('build/out.md'))?.label).toBe('.agentignore: build');
+    expect(stack.match('keep')).toBeUndefined();
+    expect(stack.match('node_modules/x.js')?.label).toBe('node_modules');
+    expect(stack.match('drafts/a.md')?.label).toBe('drafts');
+    expect(stack.match('.claude/skills/x/.claude/memory.md')?.label).toBe('/.claude/**/.claude');
     expect(stack.match('notes.md')).toBeUndefined();
-    // The claude-code profile honours no ignore file: its stack is its own globs, then the configuration's.
-    const plain = await ignoreStack(root, CLAUDE_CODE_PROFILE, []);
-    expect(plain.rules.map((rule) => rule.pattern)).toEqual([...CLAUDE_CODE_PROFILE.ignore]);
+    // The claude-code profile honours .gitignore; one that honours no ignore file reads none.
+    await writeFile(join(root, '.gitignore'), 'scratch\n');
+    const plain = await ignoreStack(root, { ...CLAUDE_CODE_PROFILE, ignoreFiles: [] }, []);
+    await plain.enter('');
+    expect(await plain.matchPath('scratch/a.md')).toBeUndefined();
+    const honouring = await ignoreStack(root, CLAUDE_CODE_PROFILE, []);
+    await honouring.enter('');
+    expect((await honouring.matchPath('scratch/a.md'))?.label).toBe('.gitignore: scratch');
   });
 
   it('expands the profile variables, mapping home to --home', () => {

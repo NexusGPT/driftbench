@@ -27,7 +27,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |
 | `configFiles` | Where `driftbench.estate.yaml` may live | the root, then `.claude/` |
 | `ignore` | Globs skipped by default | the former `DEFAULT_IGNORE` |
-| `ignoreFiles` | Ignore files honoured when present | none |
+| `ignoreFiles` | Ignore files honoured when present | `.gitignore` |
 
 `registerRuntimeProfile(profile)` adds a runtime; `runtimeProfile(name)` returns it. A runtime's reader
 registers beside it with `registerEstateReader(name, factory)` (package `@agent-nexus/driftbench-estate`).
@@ -51,8 +51,13 @@ read the disk through.
 - `dedupeByRealPath(root, paths)`: one spelling per real file, the first kept.
 - Link policy: `LAYOUT_LINKS` (`follow`) inside the layout folder, `BESIDE_LAYOUT_LINKS` (`inside-only`)
   beside it; `leavesRoot(root, path)` says whether a link points outside the root.
-- `ignoreStack(root, profile, configured)`: the lines of the profile's ignore files present, then the profile
-  globs, then the configured globs.
+- `ignoreStack(root, profile, configured)`: what keeps a path out of the estate: the profile's globs, its
+  ignore files (named by the profile's `ignoreFiles`, read in each folder the reader enters, a deeper file over a
+  higher one, `!` bringing a file back; none hides a file the runtime loads `always`), the layout folder's own
+  nested copy, the configured globs, and a folder tagged as a cache by `CACHEDIR.TAG`. Every hit carries a
+  label (the glob, `<file>: <line>`, `CACHEDIR.TAG`) so the scan counts what kept a file out. The ignore-file
+  format is git's (a differential test against `git ls-files` holds it); a second source of parts gets the same
+  stack over its own tree.
 - `expandVariables(path, profile, { root, home })`: project and plugin variables to a root-relative path; the
   home variable and `~/` to `home` (the `--home` folder) when given.
 - `rootRelative(root, path)`: the root-relative form a map stores, or undefined outside the root.

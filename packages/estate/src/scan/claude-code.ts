@@ -3,7 +3,10 @@ import { basename, join, posix, resolve } from 'node:path';
 import { CLAUDE_CODE_PROFILE, type PartType, variablePrefix } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import {
+  CACHE_TAG_NAME,
   comparableName,
+  type IgnoreStack,
+  ignoreStack,
   isSpelledOnDisk,
   type Listings,
   leavesRoot,
@@ -155,7 +158,11 @@ export type ClaudeCodeReaderOptions = {
   classifier?: FileClassifier;
 };
 
-type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
+/**
+ * What hides a file from the estate (the ignore stack of EstateFS), and what the walk has hidden so far: the
+ * files counted under what hid them, and their paths.
+ */
+type Ignored = { stack: IgnoreStack; counts: Map<string, number>; paths: string[] };
 
 /** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
 type EstateConfig = {
@@ -228,12 +235,13 @@ export class ClaudeCodeReader implements EstateReader {
     const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
       (pattern) => !DEFAULT_IGNORE.includes(pattern),
     );
-    const patterns = [...DEFAULT_IGNORE, ...chosen];
     const ignored: Ignored = {
-      rules: [...new Set(patterns)].map(ignoreRule),
+      stack: await ignoreStack(root, PROFILE, chosen),
       counts: new Map(),
       paths: [],
     };
+    // The walk starts in the layout folder; the ignore files of the folders above it apply to it.
+    await ignored.stack.enter('');
     return { config, chosen, ignored };
   }
 
@@ -285,10 +293,7 @@ export class ClaudeCodeReader implements EstateReader {
       followedLinks: followedLinks(notes),
       bases: [...PROFILE.bases],
       ignored: {
-        patterns: ignored.rules.map((rule) => ({
-          pattern: rule.pattern,
-          files: ignored.counts.get(rule.pattern) ?? 0,
-        })),
+        patterns: patternsOf(ignored),
         paths: ignored.paths,
         chosen,
       },
@@ -443,10 +448,10 @@ async function readRootReferences(
         if (!candidate) {
           if (tried.has(path)) continue;
           tried.add(path);
-          const rule = ignored.rules.find((rule) => rule.test(path));
+          const rule = await ignored.stack.matchPath(path);
           if (rule || skipped.has(path)) {
             if (rule && !skipped.has(path)) {
-              ignored.counts.set(rule.pattern, (ignored.counts.get(rule.pattern) ?? 0) + 1);
+              ignored.counts.set(rule.label, (ignored.counts.get(rule.label) ?? 0) + 1);
               ignored.paths.push(path);
               skipped.add(path);
             }
@@ -493,8 +498,24 @@ async function readRootReferences(
       }
     }
   }
-  for (const pattern of estate.ignored?.patterns ?? [])
-    pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
+  if (estate.ignored) estate.ignored.patterns = patternsOf(ignored);
+}
+
+/**
+ * What the ignore stack hid, for the report: each glob with the files it hid, then each other thing that hid a
+ * file (an ignore-file line, a cache tag) with its count.
+ */
+function patternsOf(ignored: Ignored): Array<{ pattern: string; files: number }> {
+  const globs = new Set(ignored.stack.rules.map((rule) => rule.pattern));
+  return [
+    ...ignored.stack.rules.map((rule) => ({
+      pattern: rule.pattern,
+      files: ignored.counts.get(rule.pattern) ?? 0,
+    })),
+    ...[...ignored.counts]
+      .filter(([label]) => !globs.has(label))
+      .map(([pattern, files]) => ({ pattern, files })),
+  ];
 }
 
 /** Discover only nested standing instructions; ignore whole excluded trees and stop directory cycles. */
@@ -516,11 +537,16 @@ async function nestedStanding(
   }
   ancestors.add(real);
   try {
-    for (const entry of await listFolder(join(root, folder))) {
+    await ignored.stack.enter(folder);
+    const entries = await listFolder(join(root, folder));
+    // A folder that tags itself as a cache holds no standing file.
+    if (entries.some((entry) => entry.name === CACHE_TAG_NAME) && (await ignored.stack.cache(folder)))
+      return found;
+    for (const entry of entries) {
       const path = posix.join(folder, entry.name);
       // The regular layout walk already owns this tree and the root standing files.
       if (folder === '' && (entry.name === LAYOUT || PROFILE.standing.rootFiles.includes(path))) continue;
-      if (ignored.rules.some((rule) => rule.test(path))) continue;
+      if (ignored.stack.match(path, entry.isDirectory())) continue;
       // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
       if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
@@ -716,7 +742,9 @@ async function readUserLayer(
     const real = await realpath(join(root, posix.dirname(file.path))).catch(() => undefined);
     if (real !== undefined) taken.add(real);
   }
-  const own: Ignored = { rules: ignored.rules, counts: new Map(), paths: [] };
+  // A second source is a tree of its own: the globs of the profile and its own ignore files apply inside it.
+  const own: Ignored = { stack: await ignored.stack.rebased(folder), counts: new Map(), paths: [] };
+  await own.stack.enter('');
   const walkNotes: ReadNote[] = [];
   for (const rel of skills) {
     const real = await realpath(join(folder, rel)).catch(() => undefined);
@@ -863,11 +891,18 @@ async function walk(
   }
   ancestors.add(real);
   try {
+    await ignored.stack.enter(folder);
     const ordered = await listFolder(join(root, folder));
+    // A folder that tags itself as a cache is hidden whole, under its tag.
+    const tagged =
+      ignoredBy === undefined && ordered.some((entry) => entry.name === CACHE_TAG_NAME)
+        ? (await ignored.stack.cache(folder))?.label
+        : undefined;
+    const hidden = ignoredBy ?? tagged;
     // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
-      const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+      const by = hidden ?? ignored.stack.match(path, entry.isDirectory())?.label;
       const info = entry.isSymbolicLink()
         ? await stat(join(root, path)).catch(() => undefined)
         : entry.isFile() && by === undefined
