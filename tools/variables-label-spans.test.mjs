@@ -132,14 +132,21 @@ function capCase(mark, config) {
       [
         ...['--import', 'tsx', '--import', join(folder, 'mock.mjs')],
         join(root, 'tools/variables-label-spans.mjs'),
-        ...['--sha', 'fictional-recording', '--spans', join(folder, 'spans'), '--out', join(folder, 'out.jsonl')],
+        ...[
+          '--sha',
+          'fictional-recording',
+          '--spans',
+          join(folder, 'spans'),
+          '--out',
+          join(folder, 'out.jsonl'),
+        ],
         ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
         ...['--cap', String(cap), '--total-cap', String(cap)],
       ],
       { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
     );
   const log = () => readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n');
-  return { folder, run, log, cleanup: () => rmSync(folder, { recursive: true, force: true }) };
+  return { folder, run, log, perByte: config.perByte, cleanup: () => rmSync(folder, { recursive: true, force: true }) };
 }
 
 /** The size of the subject-choice request, read from an unlimited run: its bytes and its max_tokens. */
@@ -148,8 +155,11 @@ function choiceSize(c) {
   expect(first.status, first.stderr).toBe(0);
   const line = c.log().find((l) => l.startsWith('choice '));
   const [, bytes, maxTokens] = line.split(' ').map(Number);
+  // What the batch request before it already spent: its usage is priced at 1 and 5 USD per million tokens, 10 tokens out.
+  const [, labelBytes] = c.log().find((l) => l.startsWith('label ')).split(' ').map(Number);
+  const labelSpend = (Math.ceil(labelBytes * c.perByte) * 1 + 10 * 5) / 1e6;
   rmSync(join(c.folder, 'requests.log'));
-  return { bytes, maxTokens };
+  return { bytes, maxTokens, labelSpend };
 }
 const priced = (tokens, maxTokens) => (tokens * 1 + maxTokens * 5) / 1e6;
 
@@ -157,14 +167,16 @@ it('a body that counts above one token per byte (combining marks) cannot cross t
   // The reviewer's measurement: a labeller body with combining marks (U+0344) was 8,978 UTF-8 bytes and 9,952 input tokens.
   const c = capCase('\u0344', { perByte: 9952 / 8978 });
   try {
-    const { bytes, maxTokens } = choiceSize(c);
+    const { bytes, maxTokens, labelSpend } = choiceSize(c);
     // The cap sits just above what one token per byte would price and under what the provider counts.
-    const cap = priced(bytes * 1.03, maxTokens);
+    const cap = labelSpend + priced(bytes * 1.03, maxTokens);
     const result = c.run(cap);
     expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
-    expect(JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')).usd).toBeLessThanOrEqual(cap);
+    expect(JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')).usd).toBeLessThanOrEqual(
+      cap,
+    );
   } finally {
     c.cleanup();
   }
@@ -174,8 +186,8 @@ it('a JSON body is priced by its count: refused just under its cost, sent just o
   // The first measurement: a 32,978-byte JSON request counted 30,920 input tokens.
   const c = capCase('', { perByte: 30_920 / 32_978 });
   try {
-    const { bytes, maxTokens } = choiceSize(c);
-    const cost = priced(bytes * (30_920 / 32_978), maxTokens);
+    const { bytes, maxTokens, labelSpend } = choiceSize(c);
+    const cost = labelSpend + priced(bytes * (30_920 / 32_978), maxTokens);
     const refused = c.run(cost * 0.98);
     expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
     expect(refused.status).not.toBe(0);
@@ -201,4 +213,3 @@ it('a request whose tokens cannot be counted is not sent', () => {
     c.cleanup();
   }
 }, 60_000);
-

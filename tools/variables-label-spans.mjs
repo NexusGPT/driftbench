@@ -153,7 +153,8 @@ async function countInputTokens(body) {
     body: JSON.stringify(countable),
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`count_tokens answered ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 200)}`);
+  if (!res.ok)
+    throw new Error(`count_tokens answered ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 200)}`);
   if (!Number.isInteger(json.input_tokens) || json.input_tokens < 0)
     throw new Error('count_tokens returned no input token count');
   return json.input_tokens;
@@ -165,7 +166,9 @@ async function refuseIfItCouldCross(body, what) {
     inputTokens = await countInputTokens(body);
   } catch (error) {
     const why = error instanceof Error ? error.message : String(error);
-    console.error(`stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`);
+    console.error(
+      `stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`,
+    );
     throw new Error(`stopped before sending ${what}: its input tokens could not be counted`);
   }
   const worst = (inputTokens * rateIn + body.max_tokens * rateOut) / 1e6;
