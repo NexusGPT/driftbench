@@ -198,6 +198,8 @@ for (const record of records) {
   }
   if (record.fake === 'exec') {
     // An explicit protocol recording may run its owned fixture program, with real execution evidence.
+    // `estate run --no-exec` forbids every program of the estate copy, this one included.
+    if (env.DRIFTBENCH_EXECUTION === 'none') continue;
     await new Promise((done) => setTimeout(done, Math.max(0, base + 10 * tick - Date.now() + 1)));
     const result = spawnSync(record.program, record.args, { cwd, env, encoding: 'utf8' });
     if (result.error || !(record.exitCodes ?? [0]).includes(result.status)) {

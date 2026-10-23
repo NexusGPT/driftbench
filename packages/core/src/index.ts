@@ -207,6 +207,12 @@ export {
   type SkippedInput,
 } from './outcome/check-outcome';
 export {
+  EXECUTION_POLICIES,
+  EXECUTION_POLICY_VARIABLE,
+  type ExecutionPolicy,
+  executionEnvironment,
+} from './outcome/execution-policy';
+export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
   agentVersionOf,
