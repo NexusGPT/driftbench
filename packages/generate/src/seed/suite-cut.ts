@@ -354,7 +354,9 @@ export class SuiteCut {
    */
   private dropUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
     const lead = unit[0] as SpecDraft;
-    if (lead.variesAt !== undefined || this.pins.has(lead.id)) return false;
+    // A family is never dropped: its variants are the contrast the invariance items read, whether they differ in words,
+    // in the persona or in the channel.
+    if (lead.metamorphic !== undefined || this.pins.has(lead.id)) return false;
     let did = false;
     for (const draft of [...unit].reverse()) {
       if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) continue;
