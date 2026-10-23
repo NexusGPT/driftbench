@@ -297,8 +297,8 @@ The ledger is `version: 2`. An entry whose unit no label won in some set also ca
     "setHash": "c9e0…",
     "labeler": "7cc9…",
     "votes": [
-      { "labeler": "jev", "runs": [{ "label": "none", "probabilities": { "none": 0.4, "description": 0.35 }, "source": "3fa1…" }] },
-      { "labeler": "anthropic", "runs": [{ "label": "rule", "source": "9fe0…" }, { "label": "prohibition", "source": "e1b1…" }, null] }
+      { "labeler": "yesno", "runs": [{ "label": "none", "probabilities": { "none": 0.4, "description": 0.35 }, "source": "3fa1…" }] },
+      { "labeler": "chat", "runs": [{ "label": "rule", "source": "9fe0…" }, { "label": "prohibition", "source": "e1b1…" }, null] }
     ]
   }
 }
