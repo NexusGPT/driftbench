@@ -427,13 +427,14 @@ jobs:
   ladders-regression:
     # A seed that exposed a real defect stays on validators/regression-seeds.json for good, so the defect cannot come
     # back unseen once the hash of the hidden seed has moved on. One leg per entry runs its component on that seed as
-    # an ordinary seed (the hidden flag changes only the label of a run), levels 1 through the entry's `through`, and
-    # fails unless every one of them passes. The entry is read from the list, never typed here: protect.test.ts
-    # pins this matrix to the list.
+    # an ordinary seed (the hidden flag changes only the label of a run), from level 1 through the level the defect
+    # showed at or the floor of the validator, whichever is higher (the tool reads both, so a floor raise widens
+    # every leg), and fails unless every one of those levels passes. The entry is read from the list, never typed
+    # here: protect.test.ts pins this matrix to the list.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -442,7 +443,6 @@ jobs:
             name: regression generator seed 732170008
             component: generator
             seed: 732170008
-            through: 2
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
@@ -464,12 +464,12 @@ jobs:
         env:
           COMPONENT: ${{ matrix.component }}
           SEED: ${{ matrix.seed }}
-          THROUGH: ${{ matrix.through }}
           LEG: ${{ matrix.id }}
         run: |
           mkdir -p report
+          THROUGH=$(node --import tsx tools/ci/check-regression-seed.ts level "$LEG")
           pnpm -s driftbench validate "$COMPONENT" --seed "$SEED" --levels "1..$THROUGH" --json > "report/$LEG.json"
-          node --import tsx tools/ci/check-regression-seed.ts "$LEG" "report/$LEG.json"
+          node --import tsx tools/ci/check-regression-seed.ts check "$LEG" "report/$LEG.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

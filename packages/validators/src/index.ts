@@ -158,6 +158,7 @@ export {
   RegressionSeed,
   readRegressionSeeds,
   regressionId,
+  regressionThrough,
 } from './regression';
 export { findRoot } from './root';
 export {

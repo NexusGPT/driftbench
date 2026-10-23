@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
+import { type FloorsFile, floorOf } from './floors';
 
 /** The list of seeds that exposed a real defect (docs/validators.md, section 12.5, "Regression seeds"). */
 export const REGRESSION_FILE = 'validators/regression-seeds.json';
@@ -14,7 +15,10 @@ export const RegressionSeed = z
     component: z.string().regex(COMPONENT),
     /** The seed number, run as an ordinary seed: the hidden flag changes only the label of a run. */
     seed: z.number().int().min(0).safe(),
-    /** The seed must pass every level from 1 through this one. Raised, never lowered. */
+    /**
+     * The seed must pass every level from 1 through this one, and through the floor of its validator when that is
+     * higher (`regressionThrough`). The level the defect showed at; raised, never lowered.
+     */
     through: z.number().int().min(1),
     /** The pull request that fixed the defect, or the word `open` while it is not fixed. */
     fixedBy: z.string().min(1),
@@ -73,6 +77,20 @@ export function readRegressionSeeds(root: string, tops: Readonly<Record<string, 
   return parsed.data.seeds;
 }
 
+/**
+ * The last level an entry runs: the level the defect showed at, or the floor of the validator at its registered
+ * ladder version when that is higher, never above the top. A floor raise widens every entry with no edit of the
+ * list, so a regression seed cannot drop at a level between the defect and the floor unseen.
+ */
+export function regressionThrough(
+  entry: Pick<RegressionSeed, 'component' | 'through'>,
+  floors: FloorsFile,
+  version: number,
+  top: number,
+): number {
+  return Math.min(top, Math.max(entry.through, floorOf(floors, entry.component, version)));
+}
+
 const Row = z.object({
   level: z.number().int(),
   id: z.string().optional(),
@@ -87,11 +105,15 @@ const Report = z.object({
 
 /**
  * Checks the `--json` report of `validate <component> --seed <seed> --levels 1..<through>` against its entry: it
- * is the report of that component and that seed alone, and every level from 1 through `through` was computed and
- * passed. Returns the problems; an empty list means the seed holds. A level that was not computed (null) is a
+ * is the report of that component and that seed alone, and every level from 1 through `through` (the entry's, or
+ * `regressionThrough` when the floor is higher) was computed and passed. Returns the problems; an empty list means the seed holds. A level that was not computed (null) is a
  * problem, never a pass.
  */
-export function checkRegressionReport(entry: RegressionSeed, report: unknown): string[] {
+export function checkRegressionReport(
+  entry: RegressionSeed,
+  report: unknown,
+  through = entry.through,
+): string[] {
   const parsed = Report.safeParse(report);
   if (!parsed.success) return [`the report of ${entry.id} is not a validate --json report`];
   const { component, seeds } = parsed.data;
@@ -102,7 +124,7 @@ export function checkRegressionReport(entry: RegressionSeed, report: unknown): s
     return [`the report of ${entry.id} does not hold seed ${entry.seed} alone`];
   }
   const problems: string[] = [];
-  for (let level = 1; level <= entry.through; level += 1) {
+  for (let level = 1; level <= through; level += 1) {
     const row = run.rows.find((candidate) => candidate.level === level);
     if (row === undefined || row.pass === null)
       problems.push(`level ${level} of ${entry.id} was not computed`);

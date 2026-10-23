@@ -575,8 +575,9 @@ function assertTailLegs(legs: Leg[], seeds: string[]) {
 
 /**
  * Guard 4, the regression legs: one leg per entry of validators/regression-seeds.json, the leg and the entry agreeing
- * on component, seed and level, and the leg running the entry's seed through its level and then the check that fails
- * the leg unless every one of those levels passes. A seed on the list without a leg is a defect that can come back.
+ * on component and seed, and the leg running the entry's seed through the level the tool names (the entry's level or
+ * the floor of its validator, whichever is higher) and then the check that fails the leg unless every one of those
+ * levels passes. A seed on the list without a leg is a defect that can come back.
  */
 function assertRegressionLegs(workflow: ReturnType<typeof parse>) {
   const root = fileURLToPath(new URL('../../../', import.meta.url));
@@ -586,22 +587,23 @@ function assertRegressionLegs(workflow: ReturnType<typeof parse>) {
   const listed = readRegressionSeeds(root, tops);
   expect(listed.length, 'the regression list holds a seed').toBeGreaterThan(0);
   const job = workflow.jobs['ladders-regression'];
-  const legs: { id: string; component: string; seed: number; through: number }[] =
-    job.strategy.matrix.include;
+  const legs: { id: string; component: string; seed: number }[] = job.strategy.matrix.include;
   expect(
-    legs.map(({ id, component, seed, through }) => ({ id, component, seed, through })),
+    legs.map(({ id, component, seed }) => ({ id, component, seed })),
     'one regression leg per entry of validators/regression-seeds.json, and nothing else',
-  ).toEqual(listed.map(({ id, component, seed, through }) => ({ id, component, seed, through })));
+  ).toEqual(listed.map(({ id, component, seed }) => ({ id, component, seed })));
   expect(job.needs, 'the regression legs wait for no leg').toBeUndefined();
   const run: string = job.steps.map((step: { run?: string }) => step.run ?? '').join('\n');
+  expect(run).toContain('THROUGH=$(node --import tsx tools/ci/check-regression-seed.ts level "$LEG")');
   expect(run).toContain('validate "$COMPONENT" --seed "$SEED" --levels "1..$THROUGH" --json');
-  expect(run).toContain('node --import tsx tools/ci/check-regression-seed.ts "$LEG" "report/$LEG.json"');
+  expect(run).toContain(
+    'node --import tsx tools/ci/check-regression-seed.ts check "$LEG" "report/$LEG.json"',
+  );
   expect(run).not.toContain('--check-floor');
   const step = job.steps.find((candidate: { run?: string }) => candidate.run?.includes('$COMPONENT'));
   expect(step.env).toEqual({
     COMPONENT: '${{ matrix.component }}',
     SEED: '${{ matrix.seed }}',
-    THROUGH: '${{ matrix.through }}',
     LEG: '${{ matrix.id }}',
   });
   const upload = job.steps.find((candidate: { uses?: string }) =>
@@ -1242,8 +1244,8 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
     const moved = structuredClone(workflow);
     (entries(moved, 'ladders-tail')[0] as { flags: string }).flags = '--seed 1 --levels 19..19';
     expect(() => assertTrainValidators(moved), 'a tail leg aimed at level 19').toThrow();
-    // guard 4, the regression legs: the leg of a listed seed dropped, a stray leg, a level or a seed that disagrees
-    // with the list, the check step removed, a report named so that the floor join would read it
+    // guard 4, the regression legs: the leg of a listed seed dropped, a stray leg, a seed or a component that disagrees
+    // with the list, a last level typed into the command instead of the tool's, the check step removed, a report named so that the floor join would read it
     const noRegression = structuredClone(workflow);
     entries(noRegression, 'ladders-regression').pop();
     expect(() => assertTrainValidators(noRegression), 'the regression leg of a listed seed').toThrow();
@@ -1253,14 +1255,12 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
       flags: '',
       component: 'generator',
       seed: 1,
-      through: 1,
     } as never);
     expect(
       () => assertTrainValidators(strayRegression),
       'a regression leg that is not on the list',
     ).toThrow();
     for (const [field, value] of [
-      ['through', 1],
       ['seed', 732170009],
       ['component', 'map'],
     ] as const) {
@@ -1271,6 +1271,10 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
         `a regression leg whose ${field} differs from the list`,
       ).toThrow();
     }
+    const typedLevel = structuredClone(workflow);
+    for (const step of typedLevel.jobs['ladders-regression'].steps)
+      if (step.run) step.run = step.run.replace('--levels "1..$THROUGH"', '--levels "1..2"');
+    expect(() => assertTrainValidators(typedLevel), 'a regression leg that runs a typed level').toThrow();
     const noCheck = structuredClone(workflow);
     for (const step of noCheck.jobs['ladders-regression'].steps)
       if (step.run)

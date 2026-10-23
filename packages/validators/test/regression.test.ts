@@ -5,10 +5,16 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   checkRegressionReport,
+  emptyFloors,
+  type FloorsFile,
+  floorOf,
+  ladderVersion,
   REGRESSION_FILE,
   type RegressionSeed,
+  readFloors,
   readRegressionSeeds,
   registeredLadders,
+  regressionThrough,
 } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -93,6 +99,42 @@ describe('checkRegressionReport', () => {
     expect(checkRegressionReport(entry, { nothing: true })).toEqual([
       'the report of generator-732170008 is not a validate --json report',
     ]);
+  });
+});
+
+const floorsOf = (floor: number, version: number): FloorsFile => ({
+  ...emptyFloors(),
+  ladderVersion: { generator: version },
+  floors: { generator: floor },
+});
+
+describe('regressionThrough', () => {
+  it('runs the seed through the floor of its validator when that is above the level of the defect', () => {
+    expect(regressionThrough(entry, floorsOf(8, 3), 3, 23)).toBe(8);
+  });
+
+  it('widens with the floor and never narrows the entry', () => {
+    expect(regressionThrough(entry, floorsOf(11, 3), 3, 23)).toBe(11);
+    expect(regressionThrough({ ...entry, through: 10 }, floorsOf(8, 3), 3, 23)).toBe(10);
+  });
+
+  it('ignores a floor of another ladder version, a validator without a floor, and stays under the top', () => {
+    expect(regressionThrough(entry, floorsOf(8, 2), 3, 23)).toBe(2);
+    expect(regressionThrough(entry, emptyFloors(), 3, 23)).toBe(2);
+    expect(regressionThrough(entry, floorsOf(30, 3), 3, 23)).toBe(23);
+  });
+
+  it('runs every listed seed through the floor the repository holds for its validator', () => {
+    const floors = readFloors(ROOT);
+    for (const item of readRegressionSeeds(ROOT, TOPS)) {
+      const ladder = registeredLadders()[item.component];
+      expect(ladder, item.id).toBeDefined();
+      if (!ladder) continue;
+      const floor = floorOf(floors, item.component, ladderVersion(ladder));
+      const through = regressionThrough(item, floors, ladderVersion(ladder), ladder.levels.length);
+      expect(through, item.id).toBeGreaterThanOrEqual(Math.min(floor, ladder.levels.length));
+      expect(through, item.id).toBeGreaterThanOrEqual(item.through);
+    }
   });
 });
 
