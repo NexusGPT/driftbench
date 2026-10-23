@@ -1,7 +1,7 @@
 import { check } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
-import { FAMILY_LEVEL, type Family, type Tier } from '../bank/manifest/types';
+import { type Family, levelOf, type Tier } from '../bank/manifest/types';
 import { attempt, Fail, must, type Rng, show } from '../bank/util';
 import type {
   CoverageResult,
@@ -71,7 +71,7 @@ export function expand(stems: readonly Stem[]): BankItem[] {
         stem: `blind.${stem.id}`,
         family: stem.family,
         tier,
-        level: FAMILY_LEVEL[stem.family],
+        level: levelOf(stem.family, stem.component),
         component: stem.component,
         cause: cause ?? CAUSES[stem.id]?.[key] ?? stem.cause,
         ...(stem.heavy ? { budgetMs: HEAVY_BUDGET_MS } : {}),
