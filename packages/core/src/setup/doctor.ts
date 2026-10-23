@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml, stringify } from 'yaml';
@@ -80,14 +80,14 @@ async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setu
       else if (setup.scope.exclude.some((pattern) => matches(pattern, path))) reason = 'scope';
       else if (ignored(path, profile?.ignore ?? ['.git', 'node_modules'])) reason = 'ignored';
       if (reason) { skipped.push({ what, reason }); continue; }
-      let info = entry;
+      let info: { isDirectory(): boolean; isFile(): boolean } = entry;
       if (entry.isSymbolicLink()) {
         const target = await realpath(absolute).catch(() => undefined);
         if (!target || !inside(canonical, target)) { skipped.push({ what, reason: 'unmapped symlink' }); continue; }
         links.push({ path, target: slash(relative(canonical, target)) });
         const targetInfo = await stat(absolute);
         // Both Dirent and Stats expose the file/directory tests used below.
-        info = targetInfo as typeof entry;
+        info = targetInfo;
       }
       if (info.isDirectory()) await walk(absolute, path, next);
       else if (info.isFile()) {
@@ -196,9 +196,16 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
   if (draft.runtime && !profile) result.advice.push(`No runtime profile registered for ${draft.runtime}.`);
   const sources = resolveSetupSources(draft, setupFile, parsed.types);
   const manifest: NonNullable<SetupDocument['drift']>['files'] = [];
+  const disks = new Map<string, DiskFile[]>();
   for (const source of sources) {
     const disk = await inventory(source, draft, setupFile, result.coverage.skipped);
-    manifest.push(...disk.files.map((file) => ({ source: source.id, path: file.path, sha256: file.sha256 })));
+    disks.set(source.id, disk.files);
+    manifest.push(...disk.files.map((file) => {
+      const link = disk.links.find((entry) => entry.path === file.path);
+      return { source: source.id, path: file.path, sha256: link ? hash(Buffer.from(`link:${link.target}\0${file.sha256}`)) : file.sha256 };
+    }));
+    for (const link of disk.links) if (!disk.files.some((file) => file.path === link.path))
+      manifest.push({ source: source.id, path: link.path, sha256: hash(Buffer.from(`link:${link.target}`)) });
     const raw = await snapshotRead(source, disk.files, draft, read, result.coverage.skipped);
     result.sources.push({ id: source.id, reader: source.reader, files: raw?.files.map(({ path, kind }) => ({ path, kind })) ?? [] });
     if (!raw) result.coverage.skipped.push({ what: source.id, reason: 'reader unavailable' });
@@ -211,7 +218,7 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
       else result.coverage.unknown.push(what);
       if (known && !readPaths.has(file.path)) result.coverage.skipped.push({ what, reason: 'type covered; reader did not read' });
     }
-    for (const note of raw?.notes ?? []) result.coverage.skipped.push({ what: `${source.id}:${note.file}`, reason: `reader: ${note.message}` });
+    for (const note of raw?.notes ?? []) result.coverage.skipped.push({ what: `${source.id}:${note.file}`, reason: 'reader limitation' });
     for (const path of raw?.ignored?.paths ?? []) result.coverage.skipped.push({ what: `${source.id}:${path}`, reason: 'reader ignored' });
     for (const link of disk.links) {
       const targetSource = sources.find((entry) => resolve(entry.root) === resolve(source.root, link.target));
@@ -226,6 +233,30 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
   result.coverage.unknown.sort();
   result.coverage.status = result.coverage.read === 0 ? 'not-run' : result.coverage.unknown.length || result.coverage.skipped.some((entry) => entry.reason !== 'ignored') ? 'fail' : 'pass';
   result.drift = driftOf(declared?.drift, manifest);
+  for (const source of sources) {
+    for (const target of source.bindings) {
+      const deployed = resolve(target.root, target.deployedPath);
+      const info = await lstat(deployed).catch(() => undefined);
+      const real = await realpath(deployed).catch(() => undefined);
+      const expected = await realpath(source.root).catch(() => undefined);
+      let agrees = target.method === 'link' ? info?.isSymbolicLink() && real === expected : info?.isDirectory() && !info.isSymbolicLink();
+      if (agrees && target.method === 'copy') {
+        const skipped: DoctorResult['coverage']['skipped'] = [];
+        const copy = await inventory({ ...source, root: deployed }, draft, setupFile, skipped);
+        const fingerprints = (files: DiskFile[]) => files.map(({ path, sha256 }) => ({ path, sha256 }));
+        agrees = skipped.every((entry) => entry.reason === 'ignored') && JSON.stringify(fingerprints(copy.files)) === JSON.stringify(fingerprints(disks.get(source.id) ?? []));
+      }
+      if (!agrees) {
+        result.coverage.skipped.push({ what: `${source.id}:${target.deployedPath}`, reason: 'deployment disagrees with setup' });
+        if (declared?.drift) {
+          result.drift.status = 'fail';
+          result.drift.changes.push({ source: source.id, path: target.deployedPath, kind: 'changed' });
+        }
+      }
+    }
+  }
+  if (declared?.drift && result.coverage.skipped.some((entry) => entry.reason === 'source unavailable' || entry.reason === 'reader unavailable')) result.drift.status = 'fail';
+  if (result.coverage.status === 'pass' && result.coverage.skipped.some((entry) => entry.reason === 'deployment disagrees with setup')) result.coverage.status = 'fail';
   result.draft = { ...draft, drift: { files: manifest } };
   const price = draft.budget.pricing;
   const usd = price ? draft.budget.modelCalls * (price.inputTokensPerCall * price.inputUsdPerMillion + price.outputTokensPerCall * price.outputUsdPerMillion) / 1_000_000 : null;

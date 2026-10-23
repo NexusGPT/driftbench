@@ -646,6 +646,20 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export {
+  type DoctorDetection,
+  type DoctorResult,
+  diagnoseSetup,
+  parseSetupText,
+  type ResolvedSetupSource,
+  resolveSetupSources,
+  SetupDocument,
+  type SetupIssue,
+  type SetupRead,
+  type SetupReader,
+  type SetupResult,
+  SetupSource,
+} from './setup';
 export { stringifyBlockYaml } from './spec/block-yaml';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';
@@ -693,4 +707,3 @@ export {
   wordsOf,
 } from './text/grams';
 export { type OpenAiCompatibleOptions, openAiCompatibleEmbedder } from './text/openai-embedder';
-export { diagnoseSetup, type DoctorDetection, type DoctorResult, parseSetupText, resolveSetupSources, type ResolvedSetupSource, SetupDocument, type SetupIssue, type SetupRead, type SetupReader, type SetupResult, SetupSource } from './setup';

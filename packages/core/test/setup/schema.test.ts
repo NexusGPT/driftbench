@@ -20,18 +20,36 @@ describe('declared setup schema', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.types.types.find((type) => type.name === 'audit')).toMatchObject({
-      aspects: ['executes'], runtime: 'claude-code',
+      aspects: ['executes'],
+      runtime: 'claude-code',
     });
     expect(result.setup.roles).toEqual(document.roles);
   });
 
   it.each([
-    { typo: true }, { version: 2 }, { budget: { usd: -1, modelCalls: 0 } },
+    { typo: true },
+    { version: 2 },
+    { budget: { usd: -1, modelCalls: 0 } },
     { execute: { policy: 'never', commands: ['anything'] } },
     { roles: { reviewer: { aspects: ['magic'] } } },
     { scope: { include: ['../*'], exclude: [] } },
-    { sources: [{ id: 'same', path: '.', kind: 'project', reader: 'claude-code' }, { id: 'same', path: '.', kind: 'home', reader: 'claude-code' }] },
-    { sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code', bindings: [{ runtime: 'codex', deployedRoot: 'home', deployedPath: '.codex', method: 'link' }] }] },
+    {
+      sources: [
+        { id: 'same', path: '.', kind: 'project', reader: 'claude-code' },
+        { id: 'same', path: '.', kind: 'home', reader: 'claude-code' },
+      ],
+    },
+    {
+      sources: [
+        {
+          id: 'project',
+          path: '.',
+          kind: 'project',
+          reader: 'claude-code',
+          bindings: [{ runtime: 'codex', deployedRoot: 'home', deployedPath: '.codex', method: 'link' }],
+        },
+      ],
+    },
     { runtime: 'different-runtime' },
     { types: { audit: { extends: 'missing' } } },
   ])('refuses malformed or contradictory declared data: %j', (change) => {
@@ -39,7 +57,10 @@ describe('declared setup schema', () => {
   });
 
   it('keeps quoted tilde paths literal, and refuses duplicate YAML keys', () => {
-    const result = parse({ ...document, sources: [{ id: 'project', path: '~/literal', kind: 'project', reader: 'claude-code' }] });
+    const result = parse({
+      ...document,
+      sources: [{ id: 'project', path: '~/literal', kind: 'project', reader: 'claude-code' }],
+    });
     expect(result.ok && result.setup.sources[0]?.path).toBe('~/literal');
     expect(parseSetupText('version: 1\nversion: 1', CLAUDE_CODE_PROFILE).ok).toBe(false);
   });

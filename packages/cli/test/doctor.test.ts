@@ -2,8 +2,8 @@ import { mkdir, mkdtemp, readFile, symlink, unlink, writeFile } from 'node:fs/pr
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
 import { readerFor } from '@agent-nexus/driftbench-estate';
+import { describe, expect, it } from 'vitest';
 import { doctorCommand, inspectSetup } from '../src/commands/doctor';
 
 async function estate(files: Record<string, string>) {
@@ -34,20 +34,25 @@ describe('doctor reads through the runtime registry without executing', () => {
         expect(result.draft.runtime).toBe('claude-code');
         expect(result.draft.execute).toEqual({ policy: 'never', commands: [] });
         expect(result.draft.budget).toEqual({ usd: 0, modelCalls: 0 });
-        expect(result.detections.every((claim) => claim.confidence > 0 && claim.evidence.length > 0)).toBe(true);
+        expect(result.detections.every((claim) => claim.confidence > 0 && claim.evidence.length > 0)).toBe(
+          true,
+        );
         expect(result.coverage.unknown).toContain('project:unknown.data');
         expect(result.nextSteps.every((step) => step.usd !== null || step.reason)).toBe(true);
       });
     }
   }
 
-  it.each(['fixture', 'fixture-v2', 'reader-cases'])('draft matches current fixture assumptions: %s', async (name) => {
-    const root = fileURLToPath(new URL(`../../../examples/estates/${name}/`, import.meta.url));
-    const result = await inspectSetup(root);
-    const raw = await readerFor('claude-code')?.read(root);
-    expect(result.sources[0]?.files).toEqual(raw?.files.map(({ path, kind }) => ({ path, kind })));
-    expect(result.draft.runtime).toBe(raw?.runtime);
-  });
+  it.each(['fixture', 'fixture-v2', 'reader-cases'])(
+    'draft matches current fixture assumptions: %s',
+    async (name) => {
+      const root = fileURLToPath(new URL(`../../../examples/estates/${name}/`, import.meta.url));
+      const result = await inspectSetup(root);
+      const raw = await readerFor('claude-code')?.read(root);
+      expect(result.sources[0]?.files).toEqual(raw?.files.map(({ path, kind }) => ({ path, kind })));
+      expect(result.draft.runtime).toBe(raw?.runtime);
+    },
+  );
 
   it('is invariant under relocation and ignored junk; detects content, added and deleted file drift', async () => {
     const root = await estate(files('skills/table', 'settings.json'));
@@ -67,23 +72,36 @@ describe('doctor reads through the runtime registry without executing', () => {
 
   it('does not read an unmapped home from legacy configuration or escaping links', async () => {
     const home = await estate({ 'secret/SKILL.md': '---\nname: private\n---\nPrivate.\n' });
-    const root = await estate({ 'CLAUDE.md': '# Fictional\n', 'driftbench.estate.yaml': `userSkills: ${home}\n` });
+    const root = await estate({
+      'CLAUDE.md': '# Fictional\n',
+      'driftbench.estate.yaml': `userSkills: ${home}\n`,
+    });
     const result = await inspectSetup(root);
     expect(result.coverage.skipped).toContainEqual(expect.objectContaining({ reason: 'home not mapped' }));
     expect(JSON.stringify(result)).not.toContain('Private.');
     await unlink(join(root, 'driftbench.estate.yaml'));
     await mkdir(join(root, '.claude'));
     await symlink(home, join(root, '.claude/skills'));
-    expect((await inspectSetup(root)).coverage.skipped).toContainEqual(expect.objectContaining({ reason: 'unmapped symlink' }));
+    expect((await inspectSetup(root)).coverage.skipped).toContainEqual(
+      expect.objectContaining({ reason: 'unmapped symlink' }),
+    );
   });
 
   it('uses declared custom types and scope; empty folders are not run', async () => {
     const empty = await inspectSetup(await estate({}));
     expect(empty.coverage.status).toBe('not-run');
     expect(empty.draft.runtime).toBeNull();
-    const root = await estate({ 'CLAUDE.md': '# Instructions\n', 'checks/one.py': 'print(1)', 'private.txt': 'secret' });
+    const root = await estate({
+      'CLAUDE.md': '# Instructions\n',
+      'checks/one.py': 'print(1)',
+      'private.txt': 'secret',
+    });
     const baseline = await inspectSetup(root);
-    const setup = { ...baseline.draft, types: { custom: { extends: 'script', locate: 'checks/*.py' } }, privacy: { ...baseline.draft.privacy, exclude: ['private.txt'] } };
+    const setup = {
+      ...baseline.draft,
+      types: { custom: { extends: 'script', locate: 'checks/*.py' } },
+      privacy: { ...baseline.draft.privacy, exclude: ['private.txt'] },
+    };
     const result = await inspectSetup(root, setup);
     expect(result.coverage.unknown).not.toContain('project:checks/one.py');
     expect(result.coverage.skipped).toContainEqual({ what: 'project:private.txt', reason: 'privacy' });
@@ -144,7 +162,7 @@ describe('doctor declared policies and deployments', () => {
     } };
     const result = await inspectSetup(root, setup);
     expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({ usd: 0.008, allowed: true });
-    setup.privacy.model = 'deny' as 'allow';
-    expect((await inspectSetup(root, setup)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')?.allowed).toBe(false);
+    const denied = { ...setup, privacy: { ...setup.privacy, model: 'deny' as const } };
+    expect((await inspectSetup(root, denied)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')?.allowed).toBe(false);
   });
 });
