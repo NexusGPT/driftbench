@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ConversationInput, StoreDoc, StoreValue, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, callInterval, type StemRun } from '../item';
@@ -179,10 +180,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     // including for the one-session variants where broad uncertainty is legitimate.
     for (const count of [25, 75]) {
       const [lo, hi] = callInterval(ctx, count, 100);
-      must(
-        lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100),
-        () => `weightInterval(${count}, 100) must contain its estimate with a useful width`,
-      );
+      check(lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100), () => ({
+        rule: 'weightInterval contains its estimate with a useful width',
+        input: { count, total: 100 },
+        got: [lo, hi],
+        expected: none('observation'),
+      }));
     }
     const cases: Array<[number, number]> =
       variant === 'one-session'
@@ -206,14 +209,19 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     for (const [count, total] of cases) {
       const [lo, hi] = callInterval(ctx, count, total);
       const p = count / total;
-      must(
+      check(
         Number.isFinite(lo) &&
           Number.isFinite(hi) &&
           lo >= 0 &&
           hi <= 1 &&
           lo <= p + 1e-12 &&
           p <= hi + 1e-12,
-        () => `weightInterval(${count}, ${total}) = [${lo}, ${hi}] does not hold ${p} inside 0 to 1`,
+        () => ({
+          rule: 'weightInterval is an interval inside 0 to 1 that holds its estimate',
+          input: { count, total },
+          got: [lo, hi],
+          expected: none('observation'),
+        }),
       );
     }
   },
@@ -228,7 +236,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const picks = drawCategorical(rng, n, mix);
       const count = picks.filter((k) => k === 0).length;
       const [lo, hi] = callInterval(ctx, count, n);
-      must(
+      check(
         Number.isFinite(lo) &&
           Number.isFinite(hi) &&
           lo >= 0 &&
@@ -236,7 +244,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           lo <= count / n + 1e-12 &&
           hi >= count / n - 1e-12 &&
           hi - lo <= 1.5 * wilsonWidth(count, n),
-        () => `weightInterval(${count}, ${n}) must contain its estimate with a useful width`,
+        () => ({
+          rule: 'weightInterval contains its estimate with a useful width',
+          input: { count, total: n },
+          got: [lo, hi],
+          expected: none('observation'),
+        }),
       );
       if (lo <= p && p <= hi) inside += 1;
     }

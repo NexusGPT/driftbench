@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { Row } from '../../interface';
 import { planOf, type StemRun } from '../item';
 import {
@@ -167,7 +168,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     must(
       idle < 0,
       () =>
-        `${describeSpace(space)} with ${seeds.length} seeds: new row ${idle} holds no required tuple that the seeds miss`,
+        `${describeSpace(space)} with ${seeds.length} seeds: new row.${idle} holds no required tuple that the seeds miss`,
     );
     if (variant.startsWith('full-seeds')) {
       must(
@@ -215,7 +216,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       seeds.map((s) => indexRow(space, s)),
       facts.fresh,
     );
-    must(idle < 0, () => `new row ${idle} holds no required tuple that the (partial) seeds miss`);
+    must(idle < 0, () => `new row.${idle} holds no required tuple that the (partial) seeds miss`);
   },
 
   'seeds.empty-list': (variant, ctx) => {
@@ -273,7 +274,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       seeds.map((s) => indexRow(space, s)),
       facts.fresh,
     );
-    must(idle < 0, () => `new row ${idle} holds no required tuple that the seeds miss`);
+    must(idle < 0, () => `new row.${idle} holds no required tuple that the seeds miss`);
     if (variant === 'values-missing') {
       must(
         facts.fresh.every((r) => r[3] === 3),
@@ -332,10 +333,12 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       planOf(ctx, store, { seed: ctx.seed, seeds: seeds.map((s) => ({ ...s })) }),
     );
     const facts = checkPlan(space, oracle, plan, { seeds, boundFactor: BOUND });
-    must(
-      facts.problems.length === 0,
-      () => `${describeSpace(space)} with ${count} seeds: ${facts.problems.join('; ')}`,
-    );
+    check(facts.problems.length === 0, () => ({
+      rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
+      input: { space: describeSpace(space), seeds: count },
+      got: { problems: facts.problems },
+      expected: facts.hidden,
+    }));
     must(
       ms <= 8000,
       () => `planning with ${count} seeds took ${Math.round(ms)} ms of processor time, over 8000 ms`,
