@@ -150,7 +150,8 @@ describe('a seeded matrix of suites and changes', () => {
         changes.set(one.spec, changeOf(one, next));
       }
       const asked = [...changes].map(([id, after]) => (after ? { spec: id, after } : { spec: id }));
-      const twins = suite(specs).lostBy(asked).lost.filter((key) => key.startsWith('twin|'));
+      const lost = suite(specs).lostBy(asked).lost;
+      const twins = lost.filter((key) => key.startsWith('twin|'));
       expect({ seed, twins }).toEqual({ seed, twins: reference(specs, changes) });
       if (twins.length > 0) lostSome += 1;
       else lostNone += 1;
