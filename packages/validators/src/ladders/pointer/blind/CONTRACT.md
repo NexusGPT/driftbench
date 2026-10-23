@@ -52,10 +52,14 @@ by the actual reader as `setHash`; the adapter may expand that diagnostic using
 the two input sets, but must not infer a cache miss when the reader returned a hit.
 The source fixture uses `output` as its normalized output-settings field.
 
-Privacy observations exercise the transport recorder and its public plan, before
-semantic label validation. A canned answer about a fenced source is recorder
-input, not a claim that the scanner should accept a label on an opaque unit.
-Opaque-label refusal is checked separately by the adversarial family.
+Privacy observations exercise the transport recorder and its public plan. The
+planted answer names a label of the scan's set and every labelable unit of the
+window, so the scan accepts it and asks once; the privacy property does not depend
+on the number of calls. A fence or a comment sits in a window beside a labelable
+unit (a file holding only an opaque block has nothing to label and sends no
+request, which `privacy.fence.no-request` asserts), and the body of every request
+sent is searched for the private text: an opaque unit shows its kind and first
+line only. Opaque-label refusal is checked separately by the adversarial family.
 
 ### Harness-owned privacy IO
 

@@ -57,6 +57,10 @@ describe('affected-shard', () => {
     expect(files).toEqual(['big.test.ts', 'mid.test.ts', 'small.test.ts', 'zed.test.mjs', ...ALWAYS].sort());
   });
 
+  it('selects the docs transcript test when nothing else changed, as a change to docs/estate.md alone is', () => {
+    expect(affectedFiles([])).toContain('packages/generate/test/estate/docs-transcript.test.ts');
+  });
+
   it('places every affected file in exactly one shard, for every shard count', () => {
     const files = affectedFiles(listed);
     const durations = { 'big.test.ts': 500, 'mid.test.ts': 300, 'small.test.ts': 100 };

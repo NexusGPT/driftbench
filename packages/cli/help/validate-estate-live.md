@@ -83,7 +83,7 @@ driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <
 | `--set-env <NAME=VALUE>` | none | a variable the runtime and its guards receive; repeat it |
 | `--disallow <rules...>` | none | tools the runtime must refuse, passed as `--disallowed-tools` |
 | `--lock-deny <paths...>` | none | paths the runtime and its children may neither read nor write (macOS lock); the owner config in `~/.claude` is always write-protected |
-| `--pass-env <names...>` | none | names of your own environment variables the runtime receives, such as its credentials |
+| `--pass-env <names...>` | none | names of your own environment variables the runtime receives, such as its credentials. The store keeps a digest of each value, keyed with a random salt kept in the same store: the same value gives another stamp in another store, but anyone who holds one store can still test guesses of a weak value against it |
 | `--timeout <ms>` | none | kill a turn after this long |
 | `--model <name>` | the runtime's own | passed as `--model` |
 | `--max-turns <n>` | none | the most agent turns per spec block, passed as `--max-turns` |

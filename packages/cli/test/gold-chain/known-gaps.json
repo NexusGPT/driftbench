@@ -1,0 +1,79 @@
+{
+  "A": {
+    "notPassed": ["3 variables"],
+    "limits38": {
+      "truth": 16,
+      "found": 9,
+      "produced": 25
+    },
+    "gaps": {
+      "2 labels": [],
+      "3 variables": [
+        "limit missing: byu5upblrc (10 ge trigger) on byu5upblrc was not produced",
+        "limit missing: dptij3uzkt (1 le constraint) on dptij3uzkt was not produced",
+        "limit missing: fs6zqfdxp7 (3 le constraint) on 2nfri23ink was not produced",
+        "limit missing: geryhklclh (5 ge constraint) on geryhklclh was not produced",
+        "limit missing: jd5dvg4xtp (200 le constraint) on pxpatrb7lv was not produced",
+        "limit missing: ktft77jpaq (30 le constraint) on 24gupjkmw3 was not produced",
+        "limit missing: tqcnb4gt46 (5 le constraint) on 2nfri23ink was not produced",
+        "limit missing: znvh5jbg7l (2 le constraint) on 2nfri23ink was not produced",
+        "limit not in the truth: 10 gt trigger produced on byu5upblrc",
+        "limit not in the truth: 2 ge constraint produced on f53xpu5vui",
+        "limit not in the truth: 30 ge constraint produced on pbku6p2rio",
+        "limit not in the truth: 5 ge constraint produced on ikp54ca47k",
+        "limit not in the truth: 5 le constraint produced on irmqhlrwu6",
+        "limit not in the truth: 5 le constraint produced on meahshuzmx",
+        "limit not in the truth: 5 le constraint produced on rjrfzgzul7",
+        "limit not in the truth: 5 lt constraint produced on geryhklclh",
+        "limit not in the truth: 8 gt trigger produced on 2wwl74onpb"
+      ],
+      "4 plan": []
+    }
+  },
+  "B": {
+    "notPassed": ["3 variables"],
+    "limits38": {
+      "truth": 8,
+      "found": 8,
+      "produced": 16
+    },
+    "gaps": {
+      "2 labels": [],
+      "3 variables": [
+        "limit missing: 2yxq6pbpcn (1 le constraint) on 2yxq6pbpcn was not produced",
+        "limit missing: lwci7tropa (0 le constraint) on lwci7tropa was not produced",
+        "limit missing: ttzfbmyzfz (1 le constraint) on ttzfbmyzfz was not produced",
+        "limit not in the truth: 0 le constraint produced on crqbzqly4a",
+        "limit not in the truth: 1 ge constraint produced on twmbxh2tjv",
+        "limit not in the truth: 3 ge constraint produced on 2uaoelmjsn",
+        "limit not in the truth: 30 ge constraint produced on it6rqhxmra",
+        "limit not in the truth: 4 le constraint produced on zam3j4nrpr",
+        "limit not in the truth: 5 gt trigger produced on f25ttdrj3d",
+        "limit not in the truth: 6 le constraint produced on vx4qow5cwm"
+      ],
+      "4 plan": []
+    }
+  },
+  "C": {
+    "notPassed": ["3 variables"],
+    "limits38": {
+      "truth": 14,
+      "found": 12,
+      "produced": 19
+    },
+    "gaps": {
+      "2 labels": [],
+      "3 variables": [
+        "limit missing: 7xzbzyq5no (1 le constraint) on 7xzbzyq5no was not produced",
+        "limit missing: bidpovjlre (2 le constraint) on bidpovjlre was not produced",
+        "limit missing: gvzbjuydpj (2 ge constraint) on 5swlxrtj45 was not produced",
+        "limit missing: lewolyumgj (10 ge trigger) on q4nz5hws7s was not produced",
+        "limit not in the truth: 1 le constraint produced on hoiipposzx",
+        "limit not in the truth: 2 ge constraint produced on bidpovjlre",
+        "limit not in the truth: 2 lt constraint produced on 7xzbzyq5no",
+        "limit not in the truth: 3 ge constraint produced on rh27exxc4i"
+      ],
+      "4 plan": []
+    }
+  }
+}

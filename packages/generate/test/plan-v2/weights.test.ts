@@ -1,3 +1,4 @@
+import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { planV2, renderPlanV2 } from '../../src/plan-v2';
 import { makeStore, type VariableSpec } from './helpers';
@@ -45,7 +46,7 @@ describe('the traffic weight of a row', () => {
     for (const row of plan.rows) expect(row.logWeight).toBeCloseTo(Math.log(0.25), 12);
   });
 
-  it('weighs a variable alike when every weight of it is 0, and never divides by zero', () => {
+  it('refuses a variable whose weights are all 0 with VARIABLES_WEIGHT_ZERO, as the loader does', () => {
     const store = makeStore([
       {
         id: 'tide',
@@ -56,12 +57,89 @@ describe('the traffic weight of a row', () => {
         ],
       },
     ]);
-    // The loader refuses a variable whose weights are all 0 (VARIABLES_WEIGHT_ZERO); the planner can still be
-    // handed one, and it reads the variable as unweighted.
+    // The loader refuses a variable whose weights are all 0 (VARIABLES_WEIGHT_ZERO), and so does the planner: one
+    // rule through both doors (docs/variables.md, Values).
     for (const value of store.variables[0]?.values ?? []) value.weight = 0;
-    const plan = planV2(store);
-    expect(plan.rows).toHaveLength(3);
-    for (const row of plan.rows) expect(row.logWeight).toBeCloseTo(Math.log(1 / 3), 12);
+    expect(() => planV2(store)).toThrow(expect.objectContaining({ code: 'VARIABLES_WEIGHT_ZERO' }));
+  });
+
+  it.each([
+    { name: 'an approved value of weight 0 and an unapproved one of weight 5', approved: 0, unapproved: 5 },
+    { name: 'an approved value and an unapproved one, both of weight 0', approved: 0, unapproved: 0 },
+    { name: 'an approved value of weight 5 and an unapproved one of weight 0', approved: 5, unapproved: 0 },
+  ])('refuses as the loader does for $name: one set of values', ({ approved, unapproved }) => {
+    const store = makeStore([
+      {
+        id: 'tide',
+        values: [
+          { id: 'ebb', weight: 1 },
+          { id: 'flood', weight: 1, approved: false },
+        ],
+      },
+    ]);
+    const [ebb, flood] = store.variables[0]?.values ?? [];
+    if (!ebb || !flood) throw new Error('the store lost its values');
+    ebb.weight = approved;
+    flood.weight = unapproved;
+    const loaded = validateVariableStore(store);
+    const loaderCodes = loaded.ok ? [] : loaded.errors.map((issue) => issue.code);
+    let plannerCode: unknown;
+    try {
+      planV2(store);
+    } catch (error) {
+      plannerCode = (error as { code?: unknown }).code ?? 'other';
+    }
+    expect(loaderCodes.filter((code) => code !== 'VARIABLES_WEIGHT_ZERO')).toEqual([]);
+    expect(plannerCode).toBe(loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO');
+  });
+
+  // The review of 635ac191b (run 39891240226): every approval of the variable (2), of each of two values (approved,
+  // not approved, inherited: 9), weight 0 or 1 on each value (4) and approvedOnly true or false (2), 144 stores.
+  it('refuses zero weights exactly where the loader does, on all 144 approval and weight combinations', () => {
+    const approvals = [true, false, undefined] as const;
+    const disagree: string[] = [];
+    let count = 0;
+    for (const variableApproved of [true, false])
+      for (const first of approvals)
+        for (const second of approvals)
+          for (const weights of [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
+          ] as const)
+            for (const approvedOnly of [true, false]) {
+              count += 1;
+              const store = makeStore([
+                { id: 'tide', values: ['ebb', 'flood'] },
+                { id: 'lamp', values: ['steady', 'flashing'] },
+              ]);
+              const [tide] = store.variables;
+              if (!tide) throw new Error('the store lost its variable');
+              tide.approved = variableApproved;
+              tide.values.forEach((value, at) => {
+                const approved = at === 0 ? first : second;
+                if (approved === undefined) delete value.approved;
+                else value.approved = approved;
+                value.weight = weights[at];
+              });
+              const loaded = validateVariableStore(store);
+              const loaderCodes = loaded.ok ? [] : loaded.errors.map((issue) => issue.code);
+              expect(loaderCodes.filter((code) => code !== 'VARIABLES_WEIGHT_ZERO')).toEqual([]);
+              let plannerCode: unknown;
+              try {
+                planV2(store, { approvedOnly });
+              } catch (error) {
+                plannerCode =
+                  error instanceof RangeError ? (error as { code?: unknown }).code : 'not a RangeError';
+              }
+              if (plannerCode !== (loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO'))
+                disagree.push(
+                  JSON.stringify({ variableApproved, first, second, weights, approvedOnly, plannerCode }),
+                );
+            }
+    expect(count).toBe(144);
+    expect(disagree).toEqual([]);
   });
 
   it('takes the shares among the approved values only', () => {

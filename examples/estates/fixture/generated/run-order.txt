@@ -104,6 +104,7 @@ specs/live/guard_positive/estate.pairwise.0999.yaml
 specs/live/guard_positive/estate.pairwise.1061.yaml
 specs/live/guard_positive/estate.pairwise.1062.yaml
 specs/live/guard_positive/estate.pairwise.1063.yaml
+specs/live/obligation/estate.obligation.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.weekly-report.read-templates-report-md-before-writing.yaml
@@ -250,7 +251,6 @@ specs/live/twin/estate.twin.instruction.weekly-report.count-only-what-the-ledger
 specs/live/obligation/estate.obligation.instruction.weekly-report.save-the-report-as-reports-year.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.weekly-report.save-the-report-as-reports-year.yaml
 specs/live/twin/estate.twin.instruction.weekly-report.save-the-report-as-reports-year.yaml
-specs/live/obligation/estate.obligation.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/twin/estate.twin.instruction.standing.r2-never-send-an-email-to.yaml
 specs/live/obligation/estate.obligation.instruction.standing.r4-never-delete-a-file-under.yaml
@@ -346,8 +346,11 @@ specs/live/route_near_miss/estate.route_near_miss.route.standing.an-ask-to-plan-
 specs/live/misroute/estate.misroute.route.standing.an-ask-to-plan-the-delivery.yaml
 specs/live/read_when/estate.read_when.reference.memory-memory.read-supplier-languages-md.yaml
 specs/live/read_when/estate.read_when.reference.invoice-reconcile.read-references-matching-rules-md.yaml
+specs/live/read_when/estate.read_when.reference.invoice-reconcile.read-references-currency-table-md.yaml
 specs/live/read_when/estate.read_when.reference.shipment-tracker.read-track-sh.yaml
+specs/live/read_when/estate.read_when.reference.shipment-tracker.read-data-shipments-txt.yaml
 specs/live/read_when/estate.read_when.reference.supplier-email.read-claude-memory-supplier-languages-md.yaml
+specs/live/read_when/estate.read_when.reference.weekly-report.read-templates-report-md.yaml
 specs/live/read_when/estate.read_when.reference.weekly-report.read-references-kpi-definitions-md.yaml
 specs/live/read_when/estate.read_when.reference.standing.read-claude-skills-invoice-reconcile-references.yaml
 specs/live/read_when/estate.read_when.reference.standing.read-claude-steps-json.yaml

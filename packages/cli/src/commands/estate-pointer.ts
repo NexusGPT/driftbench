@@ -15,6 +15,8 @@ export type EstatePointerOptions = {
   cassette?: string;
   /** Call the labelers on a cassette miss and write the answer. Without it a miss is an error. */
   record?: boolean;
+  /** Print the requests, characters and priced cost of the run, then stop: no key is read, no request is sent. */
+  planOnly?: boolean;
   /** `<class>:<client>[:<model>]`, once or repeated. Without any, the default stack. */
   labeler?: string[];
   labelerThreshold?: string;
@@ -36,6 +38,8 @@ export type PointerHandle = {
   scan: PointerScanOptions;
   /** The classes and clients that read the prose, in one line. */
   describe: string;
+  /** The plan of each pass the scan made, in order; filled while the scan runs. */
+  plans: pointer.PointerPlan[];
   /** After the scan: write the cassette and the ledger, or check the ledger. Returns an exit code. */
   finish(result: ScanEstateResult): Promise<number>;
 };
@@ -82,7 +86,13 @@ export async function openPointer(
   fetch?: FetchLike,
   root: string = io.cwd,
 ): Promise<PointerHandle | undefined> {
-  if (!options.cassette) {
+  const planOnly = options.planOnly === true;
+  if (planOnly && options.record) {
+    io.err('error: --plan-only sends nothing and --record sends requests: pass one of them\n');
+    return undefined;
+  }
+  // A plan alone can be made with no cassette yet: every request is then one to record.
+  if (!options.cassette && !planOnly) {
     io.err('error: --pointer needs --cassette <file>: the file that holds the recorded answers\n');
     return undefined;
   }
@@ -128,7 +138,7 @@ export async function openPointer(
       return undefined;
     }
   }
-  let setsText = pointer.AGENT_RULES_SET;
+  let setsText = pointer.DEFAULT_LABEL_SETS;
   const labelsPath = options.labels
     ? resolve(io.cwd, options.labels)
     : settings.labels && 'path' in settings.labels
@@ -171,20 +181,20 @@ export async function openPointer(
     io.err(`error: ${built.message}\n`);
     return undefined;
   }
-  const cassettePath = resolve(io.cwd, options.cassette);
+  const cassettePath = options.cassette ? resolve(io.cwd, options.cassette) : undefined;
   let cassette = new pointer.Cassette();
-  if (await exists(cassettePath)) {
+  if (cassettePath && (await exists(cassettePath))) {
     try {
       cassette = pointer.Cassette.parse(await readFile(cassettePath, 'utf8'));
     } catch (cause) {
       io.err(`Cannot use the cassette ${show(cassettePath, io)}: ${reason(cause)}\n`);
       return undefined;
     }
-  } else if (!record) {
+  } else if (!record && !planOnly && cassettePath) {
     io.err(`Cannot find the cassette ${show(cassettePath, io)}: record it with --record\n`);
     return undefined;
   }
-  if (record) {
+  if (record && cassettePath) {
     // Each answer is appended as it arrives, so a run that stops keeps what it paid for.
     await mkdir(dirname(cassettePath), { recursive: true });
     cassette.onPut = (entry) => appendFileSync(cassettePath, `${pointer.canonical(entry)}\n`);
@@ -217,15 +227,19 @@ export async function openPointer(
     return undefined;
   }
   const labelling = built.labelling;
+  const plans: pointer.PointerPlan[] = [];
   return {
     describe: labelling.describe,
+    plans,
     scan: {
       sets: sets.sets,
       labelling,
       cassette,
       mode: record ? 'record' : 'replay',
       jobs,
+      ...(planOnly ? { planOnly: true } : {}),
       onPlan: (plan) => {
+        plans.push(plan);
         if (!record || plan.members.every((member) => member.windows === member.cached)) return;
         io.out(
           `Pointer plan: ${plan.units} units in ${plan.files} files, ${plan.carried} already labelled by the ledger.\n`,
@@ -242,20 +256,79 @@ export async function openPointer(
       const done = result.pointer;
       if (!done) return 0;
       // The cassette on disk holds the appended answers in the order they arrived; rewrite it sorted.
-      if (record && done.recorded > 0 && !(await writeAtomic(cassettePath, cassette.render(), io))) return 2;
+      if (
+        record &&
+        cassettePath &&
+        done.recorded > 0 &&
+        !(await writeAtomic(cassettePath, cassette.render(), io))
+      )
+        return 2;
       if (!ledgerPath) return 0;
       const text = pointer.renderLedger(done.ledger);
+      const checked = pointer.checkLedger(previousText, done.ledger);
       if (options.ledgerCheck) {
-        if (text === previousText) return 0;
+        if (checked.ok) return 0;
         io.err(`The ledger ${show(ledgerPath, io)} is out of date: rescan with --update and commit it\n`);
         return 1;
       }
       if (options.update) return (await writeOut(ledgerPath, text, io)) ? 0 : 2;
-      if (text !== previousText)
+      if (!checked.ok)
         io.out(`The ledger ${show(ledgerPath, io)} is not written: pass --update to write it.\n`);
       return 0;
     },
   };
+}
+
+/**
+ * Characters per token, measured on the fixture (docs/estate-pointer-reader.md section 11): 3.1 for the dense
+ * request of a chat labeler, 3.85 for the yes or no request. A first run replaces the estimate with the tokens
+ * the provider reports.
+ */
+const CHARACTERS_PER_TOKEN: Record<pointer.LabelerClass, number> = { system1: 3.85, system2: 3.1 };
+
+/**
+ * The lines of `--plan-only`: for each pass, the requests, how many the cassette already answers, the
+ * characters left to send, and the input cost they price at when a price table is given. Output tokens are not
+ * estimated, so the cost is the input side only.
+ */
+export function planLines(plans: readonly pointer.PointerPlan[], prices: TokenPrices | undefined): string[] {
+  const lines = ['Pointer plan (no key read, no request sent):'];
+  let tokens = 0;
+  let usd = 0;
+  const unpriced = new Set<string>();
+  for (const plan of plans) {
+    lines.push(
+      `  ${plan.label ?? 'prose'}: ${plan.units} units in ${plan.files} files, ${plan.carried} already labelled by the ledger.`,
+    );
+    for (const member of plan.members) {
+      const missing = member.windows - member.cached;
+      lines.push(
+        `    ${className(member.cls)} ${member.id} ${member.model}: ${member.windows} requests, ${member.cached} in the cassette, ${missing} to send, ${member.characters} characters.`,
+      );
+      const estimate = Math.ceil(member.characters / CHARACTERS_PER_TOKEN[member.cls]);
+      tokens += estimate;
+      const price = usdOf(prices, member.model, estimate, 0);
+      if (price === undefined) unpriced.add(member.model);
+      else usd += price;
+    }
+  }
+  const sent = plans.reduce(
+    (sum, plan) => sum + plan.members.reduce((total, member) => total + member.windows - member.cached, 0),
+    0,
+  );
+  lines.push(`  To send: ${sent} requests, about ${tokens} input tokens.`);
+  if (!prices) lines.push('  No prices given: pass --prices <file> to see the input cost in USD.');
+  else {
+    const models = [...unpriced].sort();
+    lines.push(
+      `  Input cost: ${dollars(usd)}${models.length > 0 ? `, without ${models.join(', ')} (no price in the table)` : ''}. Output tokens are not estimated.`,
+    );
+  }
+  if (plans.length > 1 && plans[0]?.members.some((member) => member.windows > member.cached))
+    lines.push(
+      '  The prose pass is sized before the document roles are recorded: a role the first pass records can take a file out of it.',
+    );
+  return lines;
 }
 
 const className = (cls: pointer.LabelerClass): string => (cls === 'system1' ? 'system 1' : 'system 2');

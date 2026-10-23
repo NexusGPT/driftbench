@@ -16,9 +16,11 @@ export { acmeItems, acmeRun } from './acme';
 
 /**
  * The ladder version of the generator bank (docs/validators.md section 12.5: a floor holds per version). Version 2
- * adds the planner v2 family: strength 3 on the rules, seed rows, traffic order and budget cuts.
+ * adds the planner v2 family: strength 3 on the rules, seed rows, traffic order and budget cuts. Version 3 adds
+ * planner items in the same 'planner' level: strength (row cap, non-extendable tuples, constraints of one and three
+ * values, approval), seeds, traffic order and budget edges.
  */
-export const GENERATOR_LADDER_VERSION = 2;
+export const GENERATOR_LADDER_VERSION = 3;
 export {
   BANK_COMPONENTS,
   BANK_LEVELS,
@@ -127,6 +129,7 @@ function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measur
         detail: verdict.detail,
         ...(cause === item.id ? {} : { cause }),
         ...(verdict.error === undefined ? {} : { error: verdict.error }),
+        ...(item.role === 'catch' ? { role: 'catch' as const } : {}),
       };
     }),
     'generator',
@@ -140,7 +143,9 @@ export type GeneratorLadderOptions = GeneratorParts & {
 
 /**
  * The generator ladder: one level per bank level, threshold 1.0. Each seed's data is built once per ladder
- * run. The scale runs are seed-independent in cost and run once per ladder, on the first seed asked.
+ * run. The scale runs have the same size for every seed (`SCALE_BASE_BEHAVIOURS` times the factor in behaviours), so
+ * they run once per ladder, on the first seed asked; the rest of that seed's structure (stages, phrases, data) still
+ * moves their time by up to about 60 percent between seeds.
  */
 export function generatorLadder(options: GeneratorLadderOptions = {}): Ladder {
   const items = options.items ?? bankItems();

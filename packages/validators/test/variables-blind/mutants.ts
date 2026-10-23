@@ -70,6 +70,7 @@ const resetPlanner = (): void => {
     ignoreForbids: false,
     ignoreExtension: false,
     noSeedIdCheck: false,
+    naiveHugeTotals: false,
   });
 };
 const resetQuotes = (): void => {
@@ -145,6 +146,14 @@ export const MUTANTS: readonly Mutant[] = [
     only: ['two-seed-rows-with-one-id-are-refused'],
     make: flag(() => {
       plannerMutation.noSeedIdCheck = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'weightInterval squares the total and loses the interval above 2^512',
+    families: ['weights'],
+    only: ['totals-beyond-the-square-root-of-the-largest-double'],
+    make: flag(() => {
+      plannerMutation.naiveHugeTotals = true;
     }, resetPlanner),
   },
   // ---- the plan --------------------------------------------------------------------------------------------
@@ -2381,6 +2390,21 @@ export const MUTANTS: readonly Mutant[] = [
           store.constraints === undefined ? { errors: [] } : base.quotes(store, files),
       },
     }),
+  },
+  {
+    name: 'buildStore reads the text of a condition and ignores the label it carries',
+    families: ['sources'],
+    only: ['sources.labelled-condition.the-label-decides-not-the-text'],
+    make: buildFrom((sources) => ({
+      ...sources,
+      estate: sources.estate && {
+        ...sources.estate,
+        rules: sources.estate.rules.map((rule) => ({
+          ...rule,
+          conditions: rule.conditions.map(({ text }) => ({ text })),
+        })),
+      },
+    })),
   },
   {
     name: 'quotes reports the right number of wrong quotes at the wrong place at scale',

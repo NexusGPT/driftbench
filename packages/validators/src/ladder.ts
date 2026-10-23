@@ -86,11 +86,16 @@ export function bankMeasure(entries: readonly BankEntry[], component = 'bank'): 
   return { value: (entries.length - items.length) / entries.length, items, bank: [...entries] };
 }
 
-/** What a level computes from. `root` is the repository root, `hidden` marks the hidden seed. */
+/**
+ * What a level computes from. `root` is the repository root, `hidden` marks the hidden seed. `levels` is the range of
+ * levels (1-based, both included) this run computes: a level that shares one measurement with the others reads only
+ * the part of it that the range needs; a caller that sets none computes every level.
+ */
 export type LadderContext = {
   seed: number;
   hidden: boolean;
   root: string;
+  levels?: { from: number; to: number };
 };
 
 /** `atLeast`: the level passes when the value is at least the threshold; `atMost`: at most. */
@@ -245,6 +250,7 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
     seed: options.seed,
     hidden: options.hiddenSeed ?? false,
     root: options.root ?? process.cwd(),
+    levels: { from: fromLevel, to: maxLevel },
   };
   const rows: LevelRow[] = [];
   let failing: SeedRun['failing'] = null;

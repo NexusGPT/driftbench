@@ -47,7 +47,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record | --plan-only] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -70,6 +70,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
 | `--record` | off | on a cassette miss, call the labelers and write the answer to the cassette (a paid call; the keys come from the environment) |
+| `--plan-only` | off | print the plan of the run and stop: no key is read, no request is sent, no map is written, and `--out` and `--cassette` may be left out. Cannot be combined with `--record` |
 | `--labeler <spec>` | the default stack, below | `<class>:<client>[:<model>]`, class `system1` or `system2`; repeat it for one labeler of each class. Clients below |
 | `--labeler-threshold <p>` | `0.4` | a yes or no system 1 labeler takes the label with the highest probability of yes at or above this, else `none`; the cassette keeps every probability, so a new value needs no new call |
 | `--labeler-margin-cut <m>` | `0.65` | in a stack with a system 1 labeler that gives a probability per label, system 1 decides a unit alone when its likeliest label leads the second by this much; system 2 decides the rest |
@@ -134,6 +135,14 @@ No word list and no grammar rule decides what is a rule.
 * Before the first request of a `--record` run the scan prints a plan: per labeler, the requests it needs,
   how many the cassette already answers, and the characters left to send. The report ends with the tokens
   each service reported.
+* `--plan-only` prints that plan for every pass and stops, so a newcomer sizes the bill before paying it: per
+  labeler the requests, those the cassette answers, those left to send and their characters, then the total
+  of requests and about how many input tokens they hold (3.1 characters per token for a system 2 labeler, 3.85
+  for a system 1 labeler, measured on the fixture). With `--prices` it prints the input cost in USD; output
+  tokens are not estimated. When the document-roles pass has requests to record, the prose pass is sized
+  without the roles it would record, so the plan is an upper bound.
+* A replay that lacks answers stops before the first request with exit 2, and the message gives the total:
+  how many of the requests of the pass have no answer, and the characters to record.
 
 #### Two classes of labeler
 
@@ -141,7 +150,7 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 
 | Class | What it is | Clients |
 |---|---|---|
-| `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
+| `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../../../docs/adapters/nexus.md); `http:<url>`; `module:<path>` |
 | `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked five times (about 5/3 of the calls of three runs) and a unit takes the label that three of the five runs give; a run out of step with the units of a window is left out of its vote; in the shipped set an even split between `rule` and one gate or hazard label goes to that label, and any other tie stays unlabeled, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its

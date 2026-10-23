@@ -102,6 +102,12 @@ async function scan(
 }
 
 describe('atoms from labels', () => {
+  it('records the headings above the unit as the section of its atom', async () => {
+    const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'order' }] });
+    const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+    expect(atom?.fields?.section).toEqual(['Harbour office']);
+  });
+
   it('builds each atom from the file itself, with the kind and polarity of its label', async () => {
     // Units of CLAUDE.md: 1 heading, 2 sentence, 3-5 items (lamp, language, gate).
     const { result, root } = await scan({
@@ -288,6 +294,56 @@ describe('atoms from labels', () => {
       expect(result.pointer?.atomRefusals).toEqual([
         expect.stringContaining('the condition points at a unit that holds no atom'),
       ]);
+    });
+
+    it('lets one condition scope every target it is given', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '4', label: 'order' },
+          { units: '6', label: 'when', target: 3, scopes: [4] },
+        ],
+      });
+      const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      expect(mine.map((atom) => atom.situation)).toEqual(['On foggy nights only', 'On foggy nights only']);
+      const unit = result.pointer?.ledger.entries.find((entry) => entry.quote === 'On foggy nights only');
+      for (const atom of mine) expect(atom.fields?.condition).toEqual([unit?.id]);
+    });
+
+    it('lets a rule scope later units and keep its own instruction', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order', scopes: [4, 5] },
+          { units: '4', label: 'order' },
+          { units: '5', label: 'order' },
+        ],
+      });
+      const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      expect(mine.map((atom) => atom.provenance.quote)).toEqual([
+        'Hang the lamp before dusk',
+        "Reply in the skipper's language",
+        'Never leave the gate open',
+      ]);
+      expect(mine.map((atom) => atom.situation)).toEqual([
+        undefined,
+        'Hang the lamp before dusk',
+        'Hang the lamp before dusk',
+      ]);
+    });
+
+    it('lists a scope whose target holds no atom, naming the target', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '6', label: 'when', target: 3, scopes: [2] },
+        ],
+      });
+      expect(result.pointer?.atomRefusals).toEqual([
+        expect.stringContaining('the condition points at a unit that holds no atom'),
+      ]);
+      expect(result.map.atoms.find((atom) => atom.fields?.extraction === 'pointer')?.situation).toBe(
+        'On foggy nights only',
+      );
     });
 
     it('leaves an atom without a situation when no condition points at it', async () => {
@@ -875,7 +931,6 @@ describe('where the pointer reader looks for a file', () => {
     'CLAUDE.md': [
       { units: '2', label: 'reference' },
       { units: '3', label: 'reference' },
-      { units: '4', label: 'reference' },
     ] as pointer.Labelled[],
   };
   const referenceOf = async (text: string) => {

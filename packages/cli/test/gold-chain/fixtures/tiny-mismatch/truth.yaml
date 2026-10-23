@@ -1,0 +1,21 @@
+version: 1
+estate: tiny-mismatch
+
+# A made-up estate whose table does not match its file: unit m2 is not in the file, and the last sentence of the file is not in the table.
+
+units:
+  - file: T-standing-instructions.md
+    id: m1
+    text: Reply in at most two sentences.
+  - file: T-standing-instructions.md
+    id: m2
+    text: A sentence that the file does not hold.
+
+limits:
+  - unit: m1
+    limit: 2
+    comparison: le
+    role: constraint
+    governs: m1
+
+non_limits: []

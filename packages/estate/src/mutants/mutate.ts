@@ -1,6 +1,8 @@
 import { constants, existsSync } from 'node:fs';
-import { copyFile, lstat, mkdir, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative } from 'node:path';
+import { CLAUDE_CODE_PROFILE, runtimeProfile } from '@agent-nexus/driftbench-core';
+import { lstat, readdir, readFile, realpath, stat } from '../fs/estate-fs';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
 import { estatePath, estateSource } from '../paths';
@@ -49,10 +51,7 @@ export class MutantError extends Error {
 }
 
 /** The estate's own files a copy holds by default: what the runtime reads, nothing the test harness wrote. */
-export const ESTATE_COPY_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
-
-/** Where an estate keeps the configuration the unit runner reads (`driftbench.estate.yaml`). */
-const ESTATE_CONFIG_NAMES = ['driftbench.estate.yaml', '.claude/driftbench.estate.yaml'] as const;
+export const ESTATE_COPY_FILES: readonly string[] = CLAUDE_CODE_PROFILE.copyFiles;
 
 /**
  * Copies the estate's own files, and every file an atom of the map quotes, from `root` into `to`. The files
@@ -67,8 +66,10 @@ export async function copyEstate(
   root: string,
   to: string,
   map: EstateMap,
-  names: readonly string[] = ESTATE_COPY_FILES,
+  names: readonly string[] = (runtimeProfile(map.runtime) ?? CLAUDE_CODE_PROFILE).copyFiles,
 ): Promise<string[]> {
+  // Where the estate keeps the configuration the unit runner reads (`driftbench.estate.yaml`).
+  const configNames = (runtimeProfile(map.runtime) ?? CLAUDE_CODE_PROFILE).configFiles;
   const reader = readerFor(map.runtime, { ignore: map.ignore ?? [] });
   const listed = reader?.listFiles ? await reader.listFiles(root) : undefined;
   const copied: string[] = [];
@@ -87,7 +88,7 @@ export async function copyEstate(
   if (!listed) for (const name of names) await collect(name);
   // The estate configuration (helper executors, script fixtures) is not an instruction the agent reads, yet a
   // unit test on the copy needs it: without it the copy cannot run a helper or the script fixtures it declares.
-  for (const file of ESTATE_CONFIG_NAMES) await collect(file);
+  for (const file of configNames) await collect(file);
   for (const atom of map.atoms) await collect(atom.provenance.file);
   // Preflight every source and destination before the first mkdir or copy.
   const paths = await Promise.all(
