@@ -112,3 +112,9 @@ it('uses immutable reader setupTypes metadata for source-local inheritance', () 
   expect(type?.folder).toBe('.');
   expect(type?.locate.map((entry) => entry.written)).toEqual(['skills/*/']);
 });
+
+it('keeps built-ins empty when the reader resolver has no metadata, even for a named host profile', () => {
+  const result = parseSetupText(JSON.stringify(document), () => undefined);
+  expect(result.ok).toBe(true);
+  if (result.ok) expect(result.types.project?.types).toEqual([]);
+});
