@@ -64,9 +64,12 @@ jobs:
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Format lane files
         run: pnpm exec biome check --write packages/core/src/setup packages/core/test/setup packages/core/src/index.ts packages/cli/src/commands/doctor.ts packages/cli/src/command-index.ts packages/cli/test/doctor.test.ts
-      - run: pnpm typecheck
-      - run: pnpm exec vitest run packages/core/test/setup packages/cli/test/doctor.test.ts --maxWorkers=2
-      - run: node tools/structure/api-surface.mjs --build --write
+      - if: always()
+        run: pnpm typecheck
+      - if: always()
+        run: pnpm exec vitest run packages/core/test/setup packages/cli/test/doctor.test.ts --maxWorkers=2
+      - if: always()
+        run: node tools/structure/api-surface.mjs --build --write
       - name: Keep generated formatting and API manifest
         if: always()
         run: git diff -- . ':!.github/workflows/ci.yml' > /tmp/setup-generated.patch
