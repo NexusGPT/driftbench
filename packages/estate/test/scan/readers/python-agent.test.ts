@@ -145,9 +145,9 @@ describe('static Python agent syntax contract', () => {
     const facts = pythonAgentFacts(
       'from langchain_core.messages import SystemMessage\npolicy = SystemMessage(content="""Preserve rows.\nCite the ledger.""")\n',
     );
-    expect(facts.prompts).toContainEqual(expect.objectContaining({
-      name: 'policy', text: 'Preserve rows.\nCite the ledger.',
-    }));
+    expect(facts.prompts).toContainEqual(
+      expect.objectContaining({ name: 'policy', text: 'Preserve rows.\nCite the ledger.' }),
+    );
   });
 
   it('reports an interpolated prompt instead of pretending its template is the final prompt', async () => {
@@ -177,9 +177,8 @@ describe('static Python agent syntax contract', () => {
   it('is invariant under comments and blank lines after provenance is removed', async () => {
     const { pythonAgentFacts } = await reader();
     const input = `${CASES.node.input}flow.add_edge("collect", "collect")\n`;
-    const semantic = (facts: Facts) => JSON.parse(JSON.stringify(facts, (key, value) =>
-      key === 'line' ? undefined : value,
-    ));
+    const semantic = (facts: Facts) =>
+      JSON.parse(JSON.stringify(facts, (key, value) => (key === 'line' ? undefined : value)));
     expect(semantic(pythonAgentFacts(input))).toEqual(
       semantic(pythonAgentFacts(`# A fictional comment.\n\n${input}\n# End.\n`)),
     );
