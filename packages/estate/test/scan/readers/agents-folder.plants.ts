@@ -1,9 +1,17 @@
 import type { LinkKind } from '@agent-nexus/driftbench-core';
+import type { ProsePlant } from './agents-folder.conformance';
 import type { LinkPlant, PartPlant } from './conformance';
 
 const skill = '---\nname: reconcile\n---\nReconcile fictional rows.\n';
 const helper = '---\nname: reviewer\n---\nReview fictional rows.\n';
 const script = 'raise RuntimeError("Fictional code must never execute")\n';
+
+/** Body oracles are authored independently of the reader's field extraction. */
+export const AGENTS_PROSE_PLANTS: Readonly<Record<string, ProsePlant>> = {
+  instruction: { file: 'instructions/policy.md', text: 'Preserve fictional identifiers.\n' },
+  skill: { file: 'skills/reconcile/SKILL.md', text: 'Reconcile fictional rows.\n' },
+  helper: { file: 'helpers/reviewer.md', text: 'Review fictional rows.\n' },
+};
 
 /** Independent positive and negative estates, reserved for the common Part/aspect/Link projection step. */
 export const AGENTS_PART_PLANTS: Readonly<Record<string, PartPlant>> = {

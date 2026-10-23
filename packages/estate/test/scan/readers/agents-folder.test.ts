@@ -12,7 +12,8 @@ import {
 import { describe, expect, it } from 'vitest';
 import { scanEstate } from '../../../src/index';
 import * as agentsReader from '../../../src/scan/readers/agents-folder';
-import { AGENTS_LINK_PLANTS, AGENTS_PART_PLANTS } from './agents-folder.plants';
+import { assertDeclaredProse } from './agents-folder.conformance';
+import { AGENTS_LINK_PLANTS, AGENTS_PART_PLANTS, AGENTS_PROSE_PLANTS } from './agents-folder.plants';
 
 type Source = {
   id: string;
@@ -40,6 +41,39 @@ type Reader = {
   ) => Promise<Inventory>;
 };
 const reader = async (): Promise<Reader> => agentsReader;
+
+const declaredTypes = agentsReader.AGENTS_FOLDER_SETUP_TYPES.base?.types;
+if (!declaredTypes) throw new Error('agents-folder must declare its built-in types');
+const proseTypes = declaredTypes.filter((type) => type.aspects.includes('instructs'));
+
+describe('generated declared prose conformance', () => {
+  it('requires an independent prose plant for every declared instructs type', () => {
+    expect(Object.keys(AGENTS_PROSE_PLANTS).sort()).toEqual(proseTypes.map((type) => type.name).sort());
+  });
+
+  for (const type of proseTypes) {
+    it(`${type.name}: emits its declared prose and rejects its negative case`, async () => {
+      const part = AGENTS_PART_PLANTS[type.name];
+      const prose = AGENTS_PROSE_PLANTS[type.name];
+      if (!part || !prose) throw new Error(`${type.name}: missing independent plant`);
+      const runtime = new agentsReader.AgentsFolderReader();
+      assertDeclaredProse(await runtime.read(await fixture(part.positive)), type, prose);
+      expect((await runtime.read(await fixture(part.negative))).prose).toEqual([]);
+    });
+
+    if (type.name === 'instruction') continue;
+    it(`red mutant: the ${type.name} case rejects instruction-only prose emission`, async () => {
+      const part = AGENTS_PART_PLANTS[type.name];
+      const prose = AGENTS_PROSE_PLANTS[type.name];
+      if (!part || !prose) throw new Error(`${type.name}: missing independent plant`);
+      const raw = await new agentsReader.AgentsFolderReader().read(await fixture(part.positive));
+      assertDeclaredProse(raw, type, prose);
+      // Reproduce the reviewed type.name === 'instruction' predicate on this type's planted estate.
+      const mutant = { ...raw, prose: [] };
+      expect(() => assertDeclaredProse(mutant, type, prose)).toThrow(`${type.name}: missing declared prose`);
+    });
+  }
+});
 
 describe('agents-folder RawEstate', () => {
   const kinds: Record<string, string> = {
