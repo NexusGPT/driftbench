@@ -140,7 +140,10 @@ export default {
   label(request) {
     const labels = request.window.units.map((unit) => ({
       units: String(unit.n),
-      label: /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text) ? 'prohibition' : 'none',
+      label:
+        request.set.name === 'agent-rules' && /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text)
+          ? 'prohibition'
+          : 'none',
     }));
     return { labels };
   },
