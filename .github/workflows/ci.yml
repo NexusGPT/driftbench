@@ -67,7 +67,7 @@ jobs:
       - if: always()
         run: pnpm typecheck
       - if: always()
-        run: pnpm exec vitest run packages/core/test/setup packages/cli/test/doctor.test.ts --maxWorkers=2
+        run: pnpm exec vitest run packages/core/test/setup packages/cli/test/doctor.test.ts tools/docs/docs.test.ts --maxWorkers=2
       - name: Keep generated formatting and API manifest
         if: always()
         run: git diff -- . ':!.github/workflows/ci.yml' > /tmp/setup-generated.patch
