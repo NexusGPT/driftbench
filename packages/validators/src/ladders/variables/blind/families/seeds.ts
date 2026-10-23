@@ -64,7 +64,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           for (let i = 0; i < 3; i += 1) {
             const r = plan.rows[i];
             check(r?.kind === 'seed' &&
-                jsonEqual(Object.entries(r.values).sort(), Object.entries(seeds[i] as Row).sort()), () => ({ rule: 'row {} is {}; expected seed {}', got: { details: [i, show(r, 140), i] } }));
+                jsonEqual(Object.entries(r.values).sort(), Object.entries(seeds[i] as Row).sort()), () => ({ rule: 'a seed row keeps the seed as given', input: { row: i }, got: { row: show(r, 140) } }));
           }
           for (const r of plan.rows.slice(3))
             check(r.kind === 'new', () => ({ rule: 'row {} after the seeds has kind {}', got: { details: [r.id, r.kind] } }));

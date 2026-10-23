@@ -72,8 +72,8 @@ function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): voi
     plan.rows.map((r) => r.values),
     space,
   );
-  check(Number(report.allowed) === allowed.size, () => ({ rule: 'report.allowed is {}; the allowed required tuples number {}', got: { details: [String(report.allowed), allowed.size] } }));
-  check(Number(report.covered) === covered.size, () => ({ rule: 'report.covered is {}; the rows hold {} of them', got: { details: [String(report.covered), covered.size] } }));
+  check(Number(report.allowed) === allowed.size, () => ({ rule: 'the report counts the allowed required tuples', got: { allowed: String(report.allowed) }, expected: { allowed: allowed.size } }));
+  check(Number(report.covered) === covered.size, () => ({ rule: 'the report counts the required tuples the rows hold', got: { covered: String(report.covered) }, expected: { covered: covered.size } }));
 }
 
 export const STRENGTH_STEMS: readonly Stem[] = [

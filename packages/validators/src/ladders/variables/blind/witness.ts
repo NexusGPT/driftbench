@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, ItemFailure } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import type { Row, VariablesImpl } from '../interface';
@@ -59,10 +59,10 @@ const witnesses: Record<Name, (ctx: ItemContext) => void> = {
     const store = makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })) });
     const group = [{ variables: ids, strength: 2 }];
     const none = callCoverage(ctx, store, [], group);
-    check(BigInt(none.allowed) === 12n && BigInt(none.covered) === 0n, () => ({ rule: 'the witness count is {} and {}; expected 12 and 0', got: { details: [String(none.allowed), String(none.covered)] } }));
+    check(BigInt(none.allowed) === 12n && BigInt(none.covered) === 0n, () => ({ rule: 'the witness counts are exact', got: { allowed: String(none.allowed), covered: String(none.covered) }, expected: { allowed: 12, covered: 0 } }));
     const row: Row = Object.fromEntries(ids.map((id) => [id, 'v0']));
     const one = callCoverage(ctx, store, [row], group);
-    check(BigInt(one.covered) === 3n, () => ({ rule: 'one row holds {} pairs; expected 3', got: { details: [String(one.covered)] } }));
+    check(BigInt(one.covered) === 3n, () => ({ rule: 'the witness row holds the pairs it should', got: { covered: String(one.covered) }, expected: { covered: 3 } }));
   },
   weightInterval(ctx) {
     const [lo, hi] = callInterval(ctx, 0, 10);
@@ -100,11 +100,21 @@ export function withWitness(item: BankItem): BankItem {
           witnesses[key]({ ...ctx, id: `${ctx.id}.witness.${key}` });
           return undefined;
         });
-        if (!witnessed.pass)
-          return {
-            pass: false,
-            detail: `${key} passed the item and then failed its witness: ${witnessed.detail}`,
-          };
+        if (!witnessed.pass) {
+          const detail = `${key} passed the item and then failed its witness: ${witnessed.detail}`;
+          const inner = witnessed.failure;
+          // A structured failure stays structured: the rule says whose witness failed, the fields stay the witness's.
+          return inner instanceof ItemFailure
+            ? {
+                pass: false,
+                detail,
+                failure: new ItemFailure({
+                  ...inner.fields,
+                  rule: `${key} passed the item and then failed its witness: ${inner.fields.rule}`,
+                }),
+              }
+            : { pass: false, detail };
+        }
       }
       return outcome;
     },

@@ -172,8 +172,8 @@ const LABELLED_STEM: Stem = {
         const store = callBuild(ctx, sources);
         const read = store.variables.map((v) => v.values.map((x) => x.sample));
         const hit = read.find((samples) => [8, 9, 10].every((n) => samples.includes(n)));
-        check(hit !== undefined, () => ({ rule: 'the label gives the limit 9 (samples 8, 9, 10), the text says 5; the store reads {}', got: { details: [show(read, 160)] } }));
-        check(!read.some((samples) => samples.includes(5)), () => ({ rule: 'a variable has the sample 5, the limit of the text: the product read the text, not the label ({})', got: { details: [show(read, 160)] } }));
+        check(hit !== undefined, () => ({ rule: 'a condition with a label reads the limit of the label, not the number in the text', got: { read: show(read, 160) } }));
+        check(!read.some((samples) => samples.includes(5)), () => ({ rule: 'no variable takes the number in the text as its limit when a label gives the limit', got: { read: show(read, 160) } }));
       },
     ],
   ],
@@ -356,7 +356,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const values = b.store.variables.reduce((n, v) => n + v.values.length, 0);
           const boundaries = b.store.variables.reduce((n, v) => n + (v.boundaries?.length ?? 0), 0);
           const want = values + boundaries + (b.store.constraints?.length ?? 0);
-          check(paths.length === want, () => ({ rule: '{} VARIABLES_UNSOURCED for {} entries without provenance: {}', got: { details: [paths.length, want, show(paths, 300)] } }));
+          check(paths.length === want, () => ({ rule: 'each entry without provenance is reported as unsourced', got: { count: paths.length, paths: show(paths, 300) }, expected: { count: want } }));
           check(paths.includes('variables.2.boundaries.0') &&
               paths.includes('constraints.0') &&
               paths.includes('variables.0.values.0'), () => ({ rule: 'paths {} lack a value, a boundary or a constraint', got: { details: [show(paths, 300)] } }));
@@ -680,7 +680,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, { estate });
           const got = store.rules.map((r) => r.id).sort();
           const want = estate.rules.map((r) => r.id).sort();
-          check(JSON.stringify(got) === JSON.stringify(want), () => ({ rule: 'rules {}; expected {}', got: { details: [show(got), show(want)] } }));
+          check(JSON.stringify(got) === JSON.stringify(want), () => ({ rule: 'the store lists the rules of the estate', got: { rules: show(got) }, expected: { rules: show(want) } }));
         },
       ],
       [
@@ -829,7 +829,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
             [lex('gamma'), 2],
           ] as const) {
             const e = convOf(store, id, v);
-            check(e?.kind === 'conversations' && e.count === n && e.total === 10, () => ({ rule: '{}: {}; expected {} of 10', got: { details: [v, show(e), n] } }));
+            check(e?.kind === 'conversations' && e.count === n && e.total === 10, () => ({ rule: 'a value seen in conversations carries how often it was seen', input: { value: v }, got: { entry: show(e) }, expected: { count: n, total: 10 } }));
           }
         },
       ],

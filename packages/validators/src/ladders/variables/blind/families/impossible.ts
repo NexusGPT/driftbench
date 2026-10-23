@@ -495,8 +495,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             impossible: [[a, 'a1', b, 'b0']],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'a1 cannot be held because b has one value and it is forbidden with a1; no warning' }));
-          check(!plan.rows.some((r) => r.values[a] === 'a1'), () => ({ rule: 'a row holds a1' }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'a value forbidden with the only value of another variable is reported as unreachable' }));
+          check(!plan.rows.some((r) => r.values[a] === 'a1'), () => ({ rule: 'no row holds the unreachable value' }));
         },
       ],
     ],

@@ -34,7 +34,7 @@ function oracle(space: Space, rows: Row[], groups: Group[]): Oracle {
 }
 
 function same(value: number | bigint, want: number | bigint, label: string): void {
-  check(BigInt(value) === BigInt(want), () => ({ rule: '{} is {}; the exact count is {}', got: { details: [label, String(value), String(want)] } }));
+  check(BigInt(value) === BigInt(want), () => ({ rule: 'a count is exact', input: { count: label }, got: { value: String(value) }, expected: { value: String(want) } }));
 }
 
 function expectCounts(ctx: ItemContext, store: StoreDoc, rows: Row[], groups: Group[]): CoverageResult {
@@ -377,7 +377,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const g: Group[] = [{ variables: allIds(s), strength: 2 }];
           const want = oracle(spaceOf(s), [], g);
           const got = callCoverage(ctx, s, [], g, { uncovered: 5 });
-          check(Array.isArray(got.uncovered) && got.uncovered.length === 5, () => ({ rule: 'uncovered has {} tuples; limit 5 of {} was asked', got: { details: [got.uncovered?.length, want.uncovered.length] } }));
+          check(Array.isArray(got.uncovered) && got.uncovered.length === 5, () => ({ rule: 'with a limit, uncovered lists up to the limit', input: { limit: 5 }, got: { listed: got.uncovered?.length }, expected: { listed: 5, missing: want.uncovered.length } }));
         },
       ],
       [
@@ -432,7 +432,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
             const k = tupleKey(t, vars);
             check(missing.has(k), () => ({ rule: 'the listed tuple {} is held by a row or no valid row can hold it', got: { details: [show(t)] } }));
           }
-          check((got.uncovered ?? []).length === want.uncovered.length, () => ({ rule: '{} tuples listed; {} are missing', got: { details: [got.uncovered?.length, want.uncovered.length] } }));
+          check((got.uncovered ?? []).length === want.uncovered.length, () => ({ rule: 'uncovered lists every missing tuple', got: { listed: got.uncovered?.length }, expected: { listed: want.uncovered.length } }));
         },
       ],
       [

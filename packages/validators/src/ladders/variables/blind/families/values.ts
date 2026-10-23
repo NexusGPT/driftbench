@@ -678,7 +678,7 @@ export const VALUES_STEMS: readonly Stem[] = [
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2028-02-29' }],
             },
           });
-          check(store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({ rule: 'a value dated 2028-02-29, a real day, was refused' }));
+          check(store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({ rule: 'a value dated on a real leap day is kept', input: { date: '2028-02-29' } }));
           const other = d.build({
             owner: {
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2027-02-29' }],

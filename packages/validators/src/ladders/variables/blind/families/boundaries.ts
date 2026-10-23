@@ -313,7 +313,7 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
           const r = readSpans(ctx, [text]);
           for (const s of r.samples) {
             const q = s.value.provenance?.find((p) => p.kind === 'quote');
-            check(q?.kind === 'quote' && q.path === PATH && q.quote === text, () => ({ rule: 'sample {} has provenance {}; expected a quote of the span in {}', got: { details: [s.sample, show(s.value.provenance), PATH] } }));
+            check(q?.kind === 'quote' && q.path === PATH && q.quote === text, () => ({ rule: 'a sample carries a quote provenance of its span', input: { sample: s.sample }, got: { provenance: show(s.value.provenance) }, expected: { path: PATH, quote: text } }));
           }
         },
       ],

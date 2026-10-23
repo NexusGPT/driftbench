@@ -406,8 +406,8 @@ export const BUDGET_STEMS: readonly Stem[] = [
             space,
           );
           const report = cut.report as NonNullable<Plan['report']>;
-          check(Number(report.allowed) === allowed.size, () => ({ rule: 'report.allowed {} against {}', got: { details: [String(report.allowed), allowed.size] } }));
-          check(Number(report.covered) === covered.size && covered.size < allowed.size, () => ({ rule: 'report.covered {}; the three kept rows hold {} of {}', got: { details: [String(report.covered), covered.size, allowed.size] } }));
+          check(Number(report.allowed) === allowed.size, () => ({ rule: 'the report of a cut plan counts the allowed tuples', got: { allowed: String(report.allowed) }, expected: { allowed: allowed.size } }));
+          check(Number(report.covered) === covered.size && covered.size < allowed.size, () => ({ rule: 'the report of a cut plan counts the tuples the kept rows hold', got: { covered: String(report.covered) }, expected: { covered: covered.size, allowed: allowed.size } }));
         },
       ],
       [

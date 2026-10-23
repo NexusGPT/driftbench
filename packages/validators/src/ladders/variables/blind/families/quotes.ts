@@ -58,9 +58,9 @@ function oneError(
   path: string,
 ): void {
   const r = callQuotes(ctx, store, files);
-  check(r.errors.length === 1, () => ({ rule: '{} errors {}; expected the one {} at {}', got: { details: [r.errors.length, show(r.errors, 240), code, path] } }));
+  check(r.errors.length === 1, () => ({ rule: 'the quote check reports exactly one error', got: { errors: r.errors.length, list: show(r.errors, 240) }, expected: { code, path } }));
   const e = r.errors[0] as { code: string; path: string };
-  check(e.code === code && e.path === path, () => ({ rule: 'error {} at {}; expected {} at {}', got: { details: [e.code, e.path, code, path] } }));
+  check(e.code === code && e.path === path, () => ({ rule: 'the error carries the code and the path of the defect', got: { code: e.code, path: e.path }, expected: { code, path } }));
 }
 
 const foundAt =
@@ -241,7 +241,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           check(r.errors.length === 2 &&
               r.errors.every((e) => e.code === 'VARIABLES_SOURCE_UNREADABLE') &&
               paths[0] === 'variables.2.values.0.provenance.0.path' &&
-              paths[1] === 'variables.2.values.1.provenance.0.path', () => ({ rule: 'errors {}; expected one VARIABLES_SOURCE_UNREADABLE for each missing file', got: { details: [show(r.errors, 300)] } }));
+              paths[1] === 'variables.2.values.1.provenance.0.path', () => ({ rule: 'a missing file is reported once for each value that quotes from it', got: { errors: show(r.errors, 300) }, expected: { code: 'VARIABLES_SOURCE_UNREADABLE', count: 2 } }));
         },
       ],
       [
@@ -602,7 +602,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const v = varOf(store, ['alpha', 'beta', 'gamma']);
           check(store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
           const q = v.values.find((x) => x.id === 'beta')?.provenance?.find((p) => p.kind === 'quote');
-          check(q?.kind === 'quote' && q.quote === Q2 && q.path === PATH, () => ({ rule: 'provenance {}', got: { details: [show(q)] } }));
+          check(q?.kind === 'quote' && q.quote === Q2 && q.path === PATH, () => ({ rule: 'a value keeps the quote and the path it was read from', got: { provenance: show(q) }, expected: { quote: Q2, path: PATH } }));
         },
       ],
       [

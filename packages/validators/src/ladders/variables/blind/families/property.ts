@@ -119,7 +119,7 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
       continue;
     }
     check(!sawNull, () => ({ rule: 'the row {} has a finite weight and follows a row of zero weight', got: { details: [row.id] } }));
-    check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8, () => ({ rule: 'the row {} has logWeight {}; its shares give {}', got: { details: [row.id, show(row.logWeight), expected.toFixed(9)] } }));
+    check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8, () => ({ rule: 'the logWeight of a row is the sum of the logs of its shares', input: { row: row.id }, got: { logWeight: show(row.logWeight) }, expected: { logWeight: expected.toFixed(9) } }));
     check(row.logWeight <= last + 1e-12, () => ({ rule: 'the row {} is rarer than the row after it', got: { details: [row.id] } }));
     last = row.logWeight;
   }

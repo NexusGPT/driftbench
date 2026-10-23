@@ -315,7 +315,7 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const r = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, false), { [NOTES]: NOTES_TEXT });
         check(r.errors.length === 1 &&
             r.errors[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND' &&
-            r.errors[0]?.path === QUOTE_PATH, () => ({ rule: 'quotes reported {}; expected the one VARIABLES_QUOTE_NOT_FOUND at {}', got: { details: [show(r.errors, 240), QUOTE_PATH] } }));
+            r.errors[0]?.path === QUOTE_PATH, () => ({ rule: 'a false quote is reported once', got: { errors: show(r.errors, 240) }, expected: { code: 'VARIABLES_QUOTE_NOT_FOUND', path: QUOTE_PATH } }));
       },
     ],
     [

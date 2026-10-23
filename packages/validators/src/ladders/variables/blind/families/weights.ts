@@ -429,7 +429,7 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           });
           check(weightOf(store, id, lex('alpha')) === 60 &&
               weightOf(store, id, lex('beta')) === 30 &&
-              weightOf(store, id, lex('gamma')) === 10, () => ({ rule: 'stored weights {}; expected 60, 30, 10 as declared', got: { details: [show([lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)))] } }));
+              weightOf(store, id, lex('gamma')) === 10, () => ({ rule: 'owner weights are stored as declared', got: { weights: [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) }, expected: { weights: [60, 30, 10] } }));
         },
       ],
       [
