@@ -8,7 +8,8 @@ const tool =
   'from langchain.tools import tool\n@tool\ndef lookup(key: str):\n    """Read a fictional row."""\n    return key\n';
 const prompt =
   'from langchain_core.messages import SystemMessage\npolicy = SystemMessage(content="Preserve fictional identifiers.")\n';
-const agent = 'from langchain.agents import create_agent\nreviewer = create_agent("fictional-model", tools=[])\n';
+const agent =
+  'from langchain.agents import create_agent\nreviewer = create_agent("fictional-model", tools=[])\n';
 const guard =
   'from langgraph.types import interrupt\ndef collect(state):\n    approval = interrupt("Approve the fictional change?")\n    return state\n';
 const file = (text: string) => ({ 'agent.py': text });

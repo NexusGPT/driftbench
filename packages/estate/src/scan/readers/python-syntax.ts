@@ -48,16 +48,16 @@ const ESCAPES: Readonly<Record<string, string>> = {
 };
 
 function decodeString(text: string): string {
-  return text.replace(/\\(?:x[\da-fA-F]{2}|u[\da-fA-F]{4}|U[\da-fA-F]{8}|[0-7]{1,3}|.)/gs, (escape) => {
-    const value = escape.slice(1);
+  return text.replace(/\\(?:x[\da-fA-F]{2}|u[\da-fA-F]{4}|U[\da-fA-F]{8}|[0-7]{1,3}|.)/gs, (sequence) => {
+    const value = sequence.slice(1);
     const known = ESCAPES[value];
     if (known !== undefined) return known;
     if (/^[0-7]/.test(value)) return String.fromCodePoint(Number.parseInt(value, 8));
     if (/^[xuU]/.test(value)) {
       const point = Number.parseInt(value.slice(1), 16);
-      return point <= 0x10ffff ? String.fromCodePoint(point) : escape;
+      return point <= 0x10ffff ? String.fromCodePoint(point) : sequence;
     }
-    return escape;
+    return sequence;
   });
 }
 
@@ -227,7 +227,8 @@ function resolveName(name: string, scope: Scope): string {
 }
 function literal(tokens: readonly Token[] | undefined, scope: Scope): string | undefined {
   if (!tokens || tokens.length === 0) return undefined;
-  if (tokens.every((token) => token.string !== undefined)) return tokens.map((token) => token.string).join('');
+  if (tokens.every((token) => token.string !== undefined))
+    return tokens.map((token) => token.string).join('');
   if (tokens.length === 1) return scope.constants.get(tokens[0]?.text ?? '');
   return undefined;
 }
@@ -237,7 +238,9 @@ function promptFile(tokens: readonly Token[] | undefined, scope: Scope): string 
   if (!tokens) return undefined;
   const path = calls(tokens).find((call) => resolveName(call.callee, scope) === 'pathlib.Path');
   if (path?.args.length !== 1 || dotted(path.args[0] ?? []) !== '__file__') return undefined;
-  const method = tokens.findIndex((token, index) => token.text === 'read_text' && tokens[index - 1]?.text === '.');
+  const method = tokens.findIndex(
+    (token, index) => token.text === 'read_text' && tokens[index - 1]?.text === '.',
+  );
   if (method < 0) return undefined;
   const close = path.end;
   const remainder = tokens.slice(close + 1, method - 1);
@@ -434,7 +437,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
       scope.promptFiles.delete(name);
       const next = parsed.statements.slice(position + 1).find((item) => item.indent <= statement.indent);
       const body = lines.slice(statement.line - 1, next ? next.line - 1 : lines.length).join('\n');
-      if (tokens[definition]?.text === 'def') functions.set(scope.name ? `${scope.name}/${name}` : name, body);
+      if (tokens[definition]?.text === 'def')
+        functions.set(scope.name ? `${scope.name}/${name}` : name, body);
       const decorators = scope.decorators.splice(0);
       const tool = decorators.find((decorator) => {
         const call = calls(decorator)[0];
@@ -451,7 +455,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
         if (described && description === undefined) {
           facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-description' });
         }
-        if (toolName === undefined) facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-name' });
+        if (toolName === undefined)
+          facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-name' });
         else {
           facts.tools.push({
             name: toolName,
@@ -515,7 +520,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
       const file =
         promptFile(input, scope) ??
         (input?.length === 1 ? scope.promptFiles.get(input[0]?.text ?? '') : undefined);
-      if (file !== undefined) facts.prompts.push({ name, file, relativeTo: 'module', owner: scope.name, line });
+      if (file !== undefined)
+        facts.prompts.push({ name, file, relativeTo: 'module', owner: scope.name, line });
       else if (value === undefined) facts.unresolved.push({ line, reason: 'dynamic-prompt' });
       else facts.prompts.push({ name, text: value, owner: scope.name, line });
     };
@@ -572,7 +578,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
             });
             if (toolNode) {
               const tools = toolNode.keywords.get('tools') ?? toolNode.args[0];
-              if (tools?.[0]?.text !== '[') facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
+              if (tools?.[0]?.text !== '[')
+                facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
               else {
                 for (const item of split(tools.slice(1, -1))) {
                   const tool = dotted(item);

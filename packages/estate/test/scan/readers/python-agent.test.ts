@@ -320,7 +320,9 @@ describe('static Python agent syntax contract', () => {
   ]) {
     it(`leaves unsupported expression scopes unresolved: ${expression}`, async () => {
       const { pythonAgentFacts } = await reader();
-      const facts = pythonAgentFacts(`from langchain_core.messages import SystemMessage\npolicy = ${expression}\n`);
+      const facts = pythonAgentFacts(
+        `from langchain_core.messages import SystemMessage\npolicy = ${expression}\n`,
+      );
       expect(facts.prompts).toEqual([]);
       expect(facts.unresolved).not.toEqual([]);
     });

@@ -1,5 +1,11 @@
 import { posix } from 'node:path';
-import { matchGlob, pathWithin, selectJson, type TypesDocument, typeNamed } from '@agent-nexus/driftbench-core';
+import {
+  matchGlob,
+  pathWithin,
+  selectJson,
+  type TypesDocument,
+  typeNamed,
+} from '@agent-nexus/driftbench-core';
 import type { EstateFile, EstateReader, RawEstate } from '../reader';
 import { pythonAgentFacts } from './python-syntax';
 import { addProse, fieldsOf, passage, rawEstate } from './raw-support';
