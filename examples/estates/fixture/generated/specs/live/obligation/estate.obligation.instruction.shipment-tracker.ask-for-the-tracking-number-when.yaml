@@ -47,6 +47,8 @@ metadata:
     atoms:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
       - skill.shipment-tracker.skill-shipment-tracker
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+      - instruction.shipment-tracker.when-the-carrier-answers-with-an
     planRow: obligation.instruction.shipment-tracker.ask-for-the-tracking-number-when
     cell:
       atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
@@ -88,6 +90,24 @@ metadata:
         kind: rule
         rule: skill.shipment-tracker.skill-shipment-tracker
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+        ledger: 2pgcgb6enm
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.when-the-carrier-answers-with-an
+        ledger: iax6q7xbmz
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b

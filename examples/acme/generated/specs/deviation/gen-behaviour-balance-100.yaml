@@ -4,15 +4,16 @@
 id: gen-behaviour-balance-100
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-009: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: whatsapp
+title: "Balanced behaviour B-011: Path home-address-not-found of new-home: needs > address > address"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:upgrade
-  - persona:existing-customer
+  - flow:new-home
+  - persona:new-customer
+  - data:not-in-map
 covers:
-  - B-009
+  - B-011
 stages:
   - needs
   - identify
@@ -28,31 +29,31 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-009
-    rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
+  - name: behaviour.B-011
+    rubric: Answer an off-topic question in one line and resume the pending step
     gating: false
     scope: conversation
-  - name: flow.upgrade
-    rubric: An existing customer moves to a plan with more data
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
 blocks:
-  - id: b1-needs-to-identify
+  - id: b1-needs-to-address
     when:
-      user: I keep running out of data, can I get a bigger plan?
+      user: Do you have home internet where I live?
     expect:
-      stage: identify
+      stage: address
       stage_reported: true
       tools:
-        - label: catalog.search
+        - label: coverage.check
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-009
-        - flow.upgrade
+        - behaviour.B-011
+        - flow.new-home
 rules:
   forbidden_tools:
-    - coverage.check
+    - catalog.search
     - port.check
     - order.create
     - notify_sales
@@ -68,55 +69,53 @@ metadata:
       agent: acme
       version: "1"
       hash: 7a022d4e1380
-    path: upgrade-unknown-email
+    path: home-address-not-found
     cell:
-      behaviour: B-009
-      flow: upgrade
-      user_type: existing-customer
-      account_lookup: not-found
-      channel: whatsapp
-      coverage_result: none
+      behaviour: B-011
+      flow: new-home
+      user_type: new-customer
+      coverage_result: not-in-map
+      channel: chat
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-needs-to-address
         seeder: deviation
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-identify
-          stage: identify
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-identify
+          value: needs-to-address
     reduced_ends:
       from_blocks: 2
       to_blocks: 1
       duplicates:
-        - block: b2-identify-to-identify
+        - block: b2-address-to-address
           duplicate_of:
-            spec: gen-metamorphic-009-1
-            block: b2-identify-to-identify
-            family: gen-metamorphic-009
+            spec: gen-metamorphic-014-1
+            block: b2-address-to-address
+            family: gen-metamorphic-014
   links:
-    - block: b1-needs-to-identify
+    - block: b1-needs-to-address
       to:
         kind: rule
-        rule: stage_transition=needs-to-identify
+        rule: stage_transition=needs-to-address
       relation: verifies
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: b1-needs-to-identify
+    - block: b1-needs-to-address
       to:
         kind: plan_row
         row: gen-behaviour-balance-100
         values:
-          behaviour: B-009
-          flow: upgrade
-          user_type: existing-customer
-          account_lookup: not-found
-          channel: whatsapp
-          coverage_result: none
-          stage_transition: needs-to-identify
-          stage: identify
+          behaviour: B-011
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: chat
+          stage_transition: needs-to-address
+          stage: address
       relation: derived_from
       status: declared
       created_by: generator

@@ -123,6 +123,8 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `RETENTION_FACT_UNKNOWN` | error | `knowledge_retention` names a fact no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that `rules.forbidden_tools` or `rules.max_calls: 0` forbids |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block sets `given.origin` and writes no `given.prefix` |
+| `GIVEN_STAGE_WITHOUT_PREFIX` | error | a block sets `given.stage` and writes no `given.prefix` |
+| `GIVEN_AFTER_WITHOUT_STAGE` | error | a block sets `given.after` and writes no `given.stage` |
 | `OBJECT_INVALID` | error | a rule file, an inline object in `uses` or a `uses.yaml` does not fit the object format. Or a rule file sits at a path that does not match its kind and id |
 | `OBJECT_KIND_UNKNOWN` | error | an object names a kind no package or plugin registered |
 | `OBJECT_UNKNOWN` | error | `uses` names an object no layer defines; the message names the layers searched |

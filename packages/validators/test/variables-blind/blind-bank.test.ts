@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { BankItem, ItemContext } from '../../src/ladders/variables/bank/item';
-import { COMPONENTS, FAMILIES, FAMILY_LEVEL } from '../../src/ladders/variables/bank/manifest/types';
+import { COMPONENTS, FAMILIES, levelOf } from '../../src/ladders/variables/bank/manifest/types';
 import { itemRng } from '../../src/ladders/variables/bank/util';
 import { CAUSES } from '../../src/ladders/variables/blind/causes';
 import { BLIND_FAMILIES, BLIND_STEMS, blindBank, blindCount } from '../../src/ladders/variables/blind/index';
 import type { VariablesImpl } from '../../src/ladders/variables/interface';
 import { MUTANTS } from './mutants';
+import { PROPERTY_MUTANTS } from './mutants-property';
 import { referenceImpl } from './reference/index';
 
 /**
@@ -87,7 +88,7 @@ describe('the blind variables bank', () => {
     for (const item of items) {
       expect(Object.keys(COMPONENTS), item.id).toContain(item.component);
       expect(item.cause.length, item.id).toBeGreaterThan(20);
-      expect(item.level, item.id).toBe(FAMILY_LEVEL[item.family as keyof typeof FAMILY_LEVEL]);
+      expect(item.level, item.id).toBe(levelOf(item.family as (typeof FAMILIES)[number], item.component));
       expect([1, 2, 3, 4, 5], item.id).toContain(item.tier);
     }
   });
@@ -154,7 +155,7 @@ describe('the blind variables bank', () => {
   }, 120_000);
 
   describe('loses at least one item on every planted mutant', () => {
-    for (const mutant of MUTANTS) {
+    for (const mutant of [...MUTANTS, ...PROPERTY_MUTANTS]) {
       it(mutant.name, async () => {
         const { impl, reset } = mutant.make(referenceImpl);
         try {

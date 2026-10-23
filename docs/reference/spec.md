@@ -46,6 +46,7 @@ The loader rewrites these forms before it validates a spec.
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
+* [Actor](#actor)
 * [Assertion](#assertion)
 * [CompareMode](#comparemode)
 * [ToolExpect recompute value](#toolexpect-recompute-value)
@@ -368,6 +369,8 @@ Initial conditions set on one block. A prefix lets the block start without repla
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
 | `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
+| `stage` | string, not empty | no |  | The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written. |
+| `after` | string matching `^[^#\s]+#[^#\s]+$` | no |  | The block of a written spec this prefix is taken after, as <spec id>#<block id>. Only with a stage on the same block: a validator reads the stage only when that block leaves the agent at it after the same history. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
@@ -474,6 +477,7 @@ One expected tool call.
 |---|---|---|---|---|
 | `label` | string, not empty | yes |  | The tool name. |
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
+| `actor` | [Actor](#actor) | no |  | Whose calls count: the agent (main), a helper it handed work to (helper), or both (any). Absent: both for a count of 0, the agent otherwise. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
 | `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
@@ -492,6 +496,14 @@ Write one of these forms.
 |---|---|---|---|---|
 | `min` | integer, at least 0 | no |  | The fewest allowed. |
 | `max` | integer, at least 0 | no |  | The most allowed. |
+
+## Actor
+
+| Value | Meaning |
+|---|---|
+| `main` | Only the agent's own calls count. |
+| `helper` | Only the calls of the helpers the agent handed work to count. |
+| `any` | The agent's calls and its helpers' calls both count. |
 
 ## Assertion
 

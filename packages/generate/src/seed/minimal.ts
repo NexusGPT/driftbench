@@ -10,7 +10,7 @@ import {
 import { createPerturbingDriver } from '@agent-nexus/driftbench-users';
 import type { Allocation } from './allocation';
 import { type ReducedEnds, type RunIdentity, renderDraft, type SpecDraft } from './assemble';
-import type { PreparedMap } from './map';
+import { type PreparedMap, phraseKey } from './map';
 
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
 function failsAtEnd(spec: Spec): boolean {
@@ -27,7 +27,8 @@ function failsAtEnd(spec: Spec): boolean {
  * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
  * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
- * a class stays. A walk with an end state,
+ * a class is a block like any other: a second probe of a class a written spec already tests on the path is cut by the same
+ * checks; a cut keeps every obligation of the blocks it drops held by a written spec (a probe of a class per path; the row of a t-wise spec). A walk with an end state,
  * a task and a spec that is not complete are never reduced. Metamorphic variants follow their first variant.
  *
  * This is subsumption by what has been written, not a proof of a smallest suite, and it reads no agent.
@@ -44,12 +45,20 @@ export class TerminalSubsumption {
   private readonly said = new Set<string>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
+  /** The classes already probed on each path, by a written spec: `<path>|<class>`. */
+  private readonly probed = new Set<string>();
+  /** Whether a walk reduced to a repeat of a whole spec is dropped (the pass after a spec cap writes it instead). */
+  dropsSpecs = true;
+  /** The rows (cell and deviation class) of the written t-wise specs: the t-wise items read those specs alone. */
+  private readonly twiseRows = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
   /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
   private readonly families = new Map<string, { length: number; reduction?: ReducedEnds }>();
   /** The first family that drafted a block, including a suffix whose retained witness is another seeder. */
   private readonly familyBlocks = new Map<string, string>();
+  /** The values with two or more approved phrases (`dimension=value`) that a retained metamorphic family says. */
+  private readonly familyPhrases = new Set<string>();
   /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
   private readonly paired = new Map<string, Set<string>>();
   /** Ordered pairs of consecutive moves some written spec walks. */
@@ -107,8 +116,6 @@ export class TerminalSubsumption {
       while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
         if (!this.blocks.has(this.key(spec, last))) break;
-        // A block that injects a class is that class's test, and the deviation of its row: it stays.
-        if ('injection' in (spec.blocks[last]?.when ?? {})) break;
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
@@ -119,7 +126,14 @@ export class TerminalSubsumption {
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
+        // A value with several phrasings is proved by a family that says it: the block that carries it stays until a
+        // retained family says that value, even when a written spec says the same text.
+        if (family?.variant === 1) {
+          const owed = this.multiPhrase(draft.blocks[last]);
+          if (owed !== undefined && !this.familyPhrases.has(owed)) break;
+        }
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
+        if (!this.obligationsHold(draft.seeder, spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
         spec = reduced.spec;
@@ -168,13 +182,67 @@ export class TerminalSubsumption {
       if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
     }
     if (family?.variant === 1) {
+      for (const block of draft.blocks) {
+        const said = this.multiPhrase(block);
+        if (said !== undefined) this.familyPhrases.add(said);
+      }
       this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });
       original.blocks.forEach((_, index) => {
         const key = this.key(original, index);
         if (!this.familyBlocks.has(key)) this.familyBlocks.set(key, family.family);
       });
     }
+    const duplicate = this.dropsSpecs
+      ? this.dropsWhole(draft, spec, original, originalBlocks, family)
+      : undefined;
+    if (duplicate) {
+      draft.dropped = { duplicate_of: duplicate };
+      return;
+    }
     this.observeSpec(spec);
+  }
+
+  /**
+   * A walk cut down to one block that a written spec already says, which holds no obligation that no written spec holds
+   * (every tuple and pair it placed, every probe of a class on its path, its t-wise row), and whose absence leaves the
+   * stages and classes no further from balance, is not written at all: it is a repeat of a whole spec.
+   */
+  private dropsWhole(
+    draft: SpecDraft,
+    spec: Spec,
+    original: Spec,
+    originalBlocks: SpecDraft['blocks'],
+    family: unknown,
+  ): { spec: string; block: string } | undefined {
+    if (family !== undefined || spec.kind !== 'conversation' || spec.end_state !== undefined)
+      return undefined;
+    if (spec.blocks.length !== 1 || original.blocks.length < 2 || (draft.perturbations?.length ?? 0) > 0)
+      return undefined;
+    if (this.keepsPair(original)) return undefined;
+    const duplicate = this.blocks.get(this.key(spec, 0));
+    if (!duplicate || !this.phrasesHold(spec.blocks[0])) return undefined;
+    const path = (original.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    for (const block of original.blocks)
+      if ('injection' in block.when && !this.probed.has(`${path}|${block.when.injection.class}`))
+        return undefined;
+    if (!this.pairsOf(original).every((pair) => this.pairs.has(pair))) return undefined;
+    const placed = placeSpec(this.space, original);
+    const held = this.projections.every((projection, index) => {
+      const codes = new Set<number>();
+      for (const event of placed.events) addEventCodes(projection, event, codes);
+      return [...codes].every((code) => projection.allowed[code] !== 1 || this.held[index]?.[code] === 1);
+    });
+    if (!held) return undefined;
+    if (draft.seeder === 'twise' && !this.twiseRows.has(this.twiseRow(original))) return undefined;
+    if (this.allocation) {
+      const whole = { blocks: originalBlocks, perturbations: draft.perturbations };
+      if (
+        this.allocation.imbalanceWith({ blocks: [], perturbations: [] }) >
+        this.allocation.imbalanceWith(whole)
+      )
+        return undefined;
+    }
+    return duplicate;
   }
 
   /**
@@ -227,6 +295,15 @@ export class TerminalSubsumption {
   }
 
   /** Every message the block says is already said by a written spec. */
+  /** `dimension=value` of the approved phrase a block says, when its value has two or more phrases. */
+  private multiPhrase(block: SpecDraft['blocks'][number] | undefined): string | undefined {
+    if (block?.stimulus.kind !== 'phrase') return undefined;
+    const { dimension, value } = block.stimulus.phrase;
+    return (this.prepared.phrasesOf.get(phraseKey(dimension, value)) ?? []).length >= 2
+      ? `${dimension}=${value}`
+      : undefined;
+  }
+
   private phrasesHold(block: Spec['blocks'][number] | undefined): boolean {
     return this.textsOf(block).every((text) => this.said.has(text));
   }
@@ -269,6 +346,11 @@ export class TerminalSubsumption {
         });
     });
     this.ends.add(this.key(spec, spec.blocks.length - 1));
+    if ((spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'twise')
+      this.twiseRows.add(this.twiseRow(spec));
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    for (const block of spec.blocks)
+      if ('injection' in block.when) this.probed.add(`${path}|${block.when.injection.class}`);
     const walk = this.walkKey(spec);
     const contexts = this.walks.get(walk) ?? new Set<string>();
     contexts.add(this.contextOf(spec));
@@ -322,11 +404,11 @@ export class TerminalSubsumption {
     });
   }
 
-  /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class. */
+  /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class (said how, not part of it). */
   private turnOf(block: Spec['blocks'][number] | undefined): unknown {
     const when = block?.when;
     if (when === undefined) return undefined;
-    if ('injection' in when) return { injection: when.injection };
+    if ('injection' in when) return { injection: when.injection.class };
     if ('burst' in when) return { burst: when.burst.length };
     return 'user';
   }
@@ -343,7 +425,6 @@ export class TerminalSubsumption {
       state: canonicalGiven(spec, index).state,
       from,
       turn: this.turnOf(block),
-      given: block?.given,
       expect: machine,
       criteria: this.criteriaOf(spec, block),
     });
@@ -382,6 +463,34 @@ export class TerminalSubsumption {
         (code) => projection.allowed[code] !== 1 || newCodes.has(code) || held[index]?.[code] === 1,
       );
     });
+  }
+
+  /**
+   * What the suite owes that tuples and pairs do not say: a cut keeps every obligation of the blocks it drops held by
+   * a written spec. A probe of a class on a path is owed once per path and class; a t-wise spec owes the tuples of its
+   * row to the items that read t-wise specs alone.
+   */
+  private obligationsHold(seeder: string | undefined, before: Spec, after: Spec): boolean {
+    const path = (before.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const probes = (spec: Spec) =>
+      new Set(
+        spec.blocks.flatMap((block) =>
+          'injection' in block.when ? [`${path}|${block.when.injection.class}`] : [],
+        ),
+      );
+    const kept = probes(after);
+    for (const probe of probes(before)) if (!kept.has(probe) && !this.probed.has(probe)) return false;
+    if (seeder !== 'twise') return true;
+    // A t-wise spec stands for its row: the values of its cell and the class of its first injected block. A cut that
+    // changes the class changes the row, and the old row must be one another written t-wise spec has.
+    const row = (spec: Spec) => this.twiseRow(spec);
+    return row(before) === row(after) || this.twiseRows.has(row(before));
+  }
+
+  private twiseRow(spec: Spec): string {
+    const cell = (spec.metadata?.generated as { cell?: unknown } | undefined)?.cell ?? {};
+    const injected = spec.blocks.find((block) => 'injection' in block.when)?.when;
+    return contentHash([cell, injected && 'injection' in injected ? injected.injection.class : 'none']);
   }
 
   private pairsHold(before: Spec, after: Spec): boolean {
