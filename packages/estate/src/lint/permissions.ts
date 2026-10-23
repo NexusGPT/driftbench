@@ -155,7 +155,7 @@ export function permissionFindings(raw: RawEstate): {
     findings.push({
       code: 'PERMISSION_BYPASS_MODE',
       subject: policy.mode.setting,
-      message: `${mode.at.file}:${mode.at.startLine} sets the default mode to ${mode.value}: no allow rule decides anything in it. Still guarding: ${denyCount} deny ${denyCount === 1 ? 'rule' : 'rules'} and ${raw.guards.length} ${raw.guards.length === 1 ? 'hook' : 'hooks'} with the guards aspect`,
+      message: `${mode.at.file}:${mode.at.startLine} sets the default mode to ${mode.value}: no allow rule decides anything in it. Still guarding: ${denyCount} deny ${denyCount === 1 ? 'rule' : 'rules'} and ${raw.guards.length} ${raw.guards.length === 1 ? 'guard' : 'guards'}`,
     });
   }
   return { findings, reads };

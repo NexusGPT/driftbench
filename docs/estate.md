@@ -97,7 +97,7 @@ The lint reads the permission rules of the settings (`permissions.allow`, `ask`,
 
 * A rule that names a part of the estate (`Skill(name)`, `Agent(name)`, with `name *` and `name:*` as prefix forms) is stale when the estate holds no such part, whatever its effect. A rule with no name, a wildcard, or a name behind a colon or a space (a part of another package) names nothing and is never stale.
 * A deny on a tool that only acts (a file tool) is reached around by an allow on a tool that also executes (the shell) whose arguments are free, none or a wildcard: a command opens the file itself. With no argument or only a wildcard any program may run and the finding is proven (confidence 1). With a program fixed and a wildcard in its arguments (`Bash(listing *)`) whether the program opens files is not known: the finding is a possible reach-around with a lower confidence and its basis, `wildcard arguments, program capability unknown`. The configuration file settles it: `programs: { listing: { opensFiles: false } }` removes the finding, `opensFiles: true` makes it proven.
-* The default mode `bypassPermissions` is a finding on its own: no allow rule decides anything in it. The message lists what still guards, the deny rules and the hooks.
+* The default mode `bypassPermissions` is a finding on its own: no allow rule decides anything in it. The message lists what still guards, the deny rules and the guards.
 
 Each check is a check outcome that requires the settings: with no settings file it is `not-run` (missing capability), and with settings but nothing to read it is `not-run` (no input), never a pass.
 
@@ -460,7 +460,7 @@ The graph answers what code can walk:
 | `AMBIGUOUS_REFERENCE` | a bare file name fits several files and none in the naming file's own folder (planned rule above) |
 | `PERMISSION_UNKNOWN_SKILL` | a permission rule names a skill the estate does not hold |
 | `PERMISSION_READ_BYPASS` | a deny on a file tool (`Read`, `Edit`, `Write`) beside an allow on the shell with free arguments: a command can open the file itself. Proven when the allow lets any program run; assumed, with a lower confidence, when it fixes a program with a wildcard and the program's capability is not known |
-| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions`: no allow rule decides anything in it. The message lists what still guards, the deny rules and the hooks |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions`: no allow rule decides anything in it. The message lists what still guards, the deny rules and the guards |
 | `PERMISSION_UNKNOWN_HELPER` | a permission rule names a helper the estate does not declare; information only, since the runtime has helpers of its own |
 
 The lint of the Northwind map finds every planted defect:
