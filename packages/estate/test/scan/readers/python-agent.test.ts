@@ -286,6 +286,42 @@ describe('static Python agent syntax contract', () => {
     expect(facts.nodes).toEqual([]);
   });
 
+  for (const binding of [
+    'for SystemMessage in values:\n    pass',
+    'with context() as SystemMessage:\n    pass',
+    'del SystemMessage',
+    'from fictional_unknown import *',
+  ]) {
+    it(`does not retain an imported prompt identity after ${binding.split('\n')[0]}`, async () => {
+      const { pythonAgentFacts } = await reader();
+      const facts = pythonAgentFacts(
+        `from langchain_core.messages import SystemMessage\n${binding}\npolicy = SystemMessage(content="Fictional prompt.")\n`,
+      );
+      expect(facts.prompts).toEqual([]);
+    });
+  }
+
+  it('does not retain a string constant after an import binds its name', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      'from langchain_core.messages import SystemMessage\ntext = "Fictional old constant."\nimport text\npolicy = SystemMessage(content=text)\n',
+    );
+    expect(facts.prompts).toEqual([]);
+    expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-prompt' }));
+  });
+
+  for (const expression of [
+    'lambda SystemMessage: SystemMessage(content="Fictional prompt.")',
+    '[SystemMessage(content="Fictional prompt.") for SystemMessage in values]',
+  ]) {
+    it(`leaves unsupported expression scopes unresolved: ${expression}`, async () => {
+      const { pythonAgentFacts } = await reader();
+      const facts = pythonAgentFacts(`from langchain_core.messages import SystemMessage\npolicy = ${expression}\n`);
+      expect(facts.prompts).toEqual([]);
+      expect(facts.unresolved).not.toEqual([]);
+    });
+  }
+
   it('respects rebinding and lexical shadowing of imported constructors', async () => {
     const { pythonAgentFacts } = await reader();
     const facts = pythonAgentFacts(

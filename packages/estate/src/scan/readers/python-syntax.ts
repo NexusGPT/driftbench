@@ -266,6 +266,13 @@ function childScope(parent: Scope, name: string, indent: number): Scope {
   };
 }
 
+function forget(scope: Scope, name: string): void {
+  scope.imports.delete(name);
+  scope.constants.delete(name);
+  scope.promptFiles.delete(name);
+  scope.graphs.delete(name);
+}
+
 function readImport(tokens: readonly Token[], scope: Scope): boolean {
   if (tokens[0]?.text === 'import') {
     for (const group of split(tokens.slice(1))) {
@@ -273,7 +280,10 @@ function readImport(tokens: readonly Token[], scope: Scope): boolean {
       const module = dotted(as < 0 ? group : group.slice(0, as));
       if (!module) continue;
       const alias = as < 0 ? module.split('.')[0] : group[as + 1]?.text;
-      if (alias) scope.imports.set(alias, as < 0 ? alias : module);
+      if (alias) {
+        forget(scope, alias);
+        scope.imports.set(alias, as < 0 ? alias : module);
+      }
     }
     return true;
   }
@@ -284,7 +294,10 @@ function readImport(tokens: readonly Token[], scope: Scope): boolean {
   for (const group of split(tokens.slice(at + 1).filter((token) => !['(', ')'].includes(token.text)))) {
     const name = group[0]?.text;
     const alias = group[1]?.text === 'as' ? group[2]?.text : name;
-    if (name && alias) scope.imports.set(alias, `${module}.${name}`);
+    if (name && alias) {
+      forget(scope, alias);
+      scope.imports.set(alias, `${module}.${name}`);
+    }
   }
   return true;
 }
@@ -372,7 +385,39 @@ export function pythonAgentFacts(text: string): PythonFacts {
     while (scopes.length > 1 && statement.indent <= (scopes.at(-1)?.indent ?? -1)) scopes.pop();
     const scope = scopes.at(-1) as Scope;
     const tokens = statement.tokens;
+    if (tokens[0]?.text === 'from' && tokens.some((token) => token.text === '*')) {
+      scope.imports.clear();
+      scope.constants.clear();
+      scope.promptFiles.clear();
+      scope.graphs.clear();
+      facts.unresolved.push({ line: statement.line, reason: 'wildcard-import' });
+      continue;
+    }
     if (readImport(tokens, scope)) continue;
+    const loop = tokens[0]?.text === 'async' ? 1 : 0;
+    const first = tokens[loop]?.text;
+    if (tokens.some((token) => token.text === 'lambda')) {
+      facts.unresolved.push({ line: statement.line, reason: 'lambda-scope' });
+      continue;
+    }
+    if (first !== 'for' && tokens.some((token) => token.text === 'for')) {
+      facts.unresolved.push({ line: statement.line, reason: 'comprehension-scope' });
+      continue;
+    }
+    if (first === 'for') {
+      const end = tokens.findIndex((token) => token.text === 'in');
+      for (const token of tokens.slice(loop + 1, end)) {
+        if (/^[A-Za-z_]\w*$/.test(token.text)) forget(scope, token.text);
+      }
+    }
+    if (first === 'del') {
+      for (const token of tokens.slice(loop + 1)) {
+        if (/^[A-Za-z_]\w*$/.test(token.text)) forget(scope, token.text);
+      }
+    }
+    for (const [index, token] of tokens.entries()) {
+      if (token.text === 'as' && tokens[index + 1]) forget(scope, (tokens[index + 1] as Token).text);
+    }
     if (tokens[0]?.text === '@') {
       scope.decorators.push(tokens.slice(1));
       continue;
