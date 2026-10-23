@@ -179,3 +179,13 @@ export function describeSpace(space: Space): string {
   const arities = space.vars.map((v: SpaceVar) => v.values.length);
   return `plan of ${space.vars.length} variables (arities ${show(arities)}, ${space.rules.length} rules, ${space.vars.filter((v) => v.shared).length} axes, ${space.forbidden.length} impossible pairs)`;
 }
+
+/** Fails the item when the checks of a plan found problems. The wanted bound or example stays out of the message. */
+export function planIsSound(facts: PlanFacts, input?: unknown): void {
+  check(facts.problems.length === 0, () => ({
+    rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
+    ...(input === undefined ? {} : { input }),
+    got: { problems: facts.problems },
+    expected: facts.hidden,
+  }));
+}

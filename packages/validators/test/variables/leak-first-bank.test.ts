@@ -62,7 +62,9 @@ describe('the failure messages of the first bank', () => {
                   }
                   const wanted = wantedInMessage(error, ref, wrongTokens, item.id);
                   if (wanted.length > 0)
-                    crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
+                    crossLeaks.push(
+                      `${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')} in: ${(error as Error).message.slice(0, 220)}`,
+                    );
                 }
               }
             } catch (error) {
@@ -82,14 +84,13 @@ describe('the failure messages of the first bank', () => {
         .replace(/\[[^\]]*tier \d\] /, '')
         .replace(/[0-9]+/g, '#')
         .replace(/"[^"]*"/g, '"_"')
-        .slice(0, 70);
+        .slice(0, 120);
       bySite.set(key, (bySite.get(key) ?? 0) + 1);
     }
     console.log(
       `first bank: ${failures.length} failures, ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking, ${bySite.size} distinct unstructured messages`,
     );
-    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]).slice(0, 25))
-      console.log(`site ${n} x ${k}`);
+    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1])) console.log(`site ${n} x ${k}`);
     expect(report.leaking).toEqual([]);
     expect(crossLeaks).toEqual([]);
     const { head, base } = readCeilings(
