@@ -39,14 +39,19 @@ export function yesNoText(window: Window): string {
   return [`path: ${window.headingPath.join(' > ') || '(top)'}`, ...windowLines(window)].join('\n');
 }
 
+/** A probability names no other unit, no clause and no atom: a label that needs one of them is system 2's. */
+const askable = (label: Label): boolean => label.target !== 'required' && !label.spans && !label.links;
+
+/** Whether a yes or no model can be asked about every label of the set: it alone can decide a unit. */
+export const askableWhole = (set: LabelSet): boolean => set.labels.length > 0 && set.labels.every(askable);
+
 /**
  * The labels a yes or no model is asked about. A label that asks for a target cannot be asked: a probability
  * names no other unit. A labeler on its own refuses such a set; inside a stack it leaves those labels to the
  * system 2 labeler.
  */
 export function askedLabels(set: LabelSet, skipTargetLabels: boolean): readonly Label[] {
-  // A probability names no other unit, no clause and no atom: a label that needs one of them is system 2's.
-  const asked = set.labels.filter((label) => label.target !== 'required' && !label.spans && !label.links);
+  const asked = set.labels.filter(askable);
   if (asked.length < set.labels.length && !skipTargetLabels) {
     throw new LabelerConfigError(
       `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,

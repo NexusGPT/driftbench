@@ -31,7 +31,7 @@ import {
   unitKey,
 } from './ledger';
 import type { Labelling } from './stack';
-import { askedLabels } from './yesno';
+import { askableWhole, askedLabels } from './yesno';
 
 /**
  * The pointer scan: cut each prose file into units, follow the units through the ledger, send the windows
@@ -88,7 +88,37 @@ export type MemberPlan = {
   cached: number;
   /** Characters of the request bodies still to send. */
   characters: number;
+  /** Requests the run still has to send: those the cassette does not answer. */
+  missing: number;
+  /** Of those, the requests a stack's first labeler could make unnecessary by deciding every unit of the window alone. */
+  skippable: number;
+  /** The most requests the refusals of too-large windows can add: each missing window halved down to one unit. */
+  splitMax: number;
+  /** Distinct missing windows of a labeler with several runs: each can be asked again when a run slips or ties. */
+  rerunWindows: number;
 };
+
+/** The most re-asks of one window: runs that slip (REASK_LIMIT) and ties between labels (SPLIT_REASK_RUNS). */
+const MAX_REASKS = 5;
+/** The most sends of one request: the first, and one more after an answer that cannot be read. */
+const MAX_SENDS = 2;
+
+/**
+ * How many requests a run can send, from the structure of the plan alone. `expected` is the requests the cassette
+ * does not answer. `low` leaves out those a stack's first labeler can make unnecessary. `high` adds the requests a
+ * refusal of a too-large window adds, the re-asks of a window whose runs slip or tie, and one more send of a request
+ * whose answer cannot be read.
+ */
+export function requestRange(plan: PointerPlan): { low: number; expected: number; high: number } {
+  const sum = (pick: (member: MemberPlan) => number) =>
+    plan.members.reduce((total, member) => total + pick(member), 0);
+  const expected = sum((member) => member.missing);
+  return {
+    low: expected - sum((member) => member.skippable),
+    expected,
+    high: MAX_SENDS * sum((member) => member.missing + member.splitMax + MAX_REASKS * member.rerunWindows),
+  };
+}
 
 export type PointerPlan = {
   /** The pass the plan is for, when the scan was given a name for it. */
@@ -496,9 +526,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       windows: 0,
       cached: 0,
       characters: 0,
+      missing: 0,
+      skippable: 0,
+      splitMax: 0,
+      rerunWindows: 0,
     })),
   };
   let firstMiss: Task | undefined;
+  const cascaded = labelling.members.length === 2 && labelling.members[0]?.cls === 'system1';
+  const rerunSeen = new Set<string>();
   for (const task of tasks) {
     const wire = task.member.render(task.set, task.window, task.context);
     const entry = plan.members[task.memberAt] as MemberPlan;
@@ -506,6 +542,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
     else {
       entry.characters += JSON.stringify(wire.body).length;
+      entry.missing++;
+      entry.splitMax += Math.max(0, task.window.units.length - 1);
+      if (cascaded && task.memberAt === 1 && askableWhole(task.set)) entry.skippable++;
+      const where = `${task.memberAt}\0${task.file}\0${task.set.set}\0${task.window.id}`;
+      if ((task.member.runs ?? 1) > 1 && !rerunSeen.has(where)) {
+        rerunSeen.add(where);
+        entry.rerunWindows++;
+      }
       firstMiss ??= task;
     }
   }

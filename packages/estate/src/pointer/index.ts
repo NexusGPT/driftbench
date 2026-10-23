@@ -146,6 +146,7 @@ export {
   type PointerResult,
   pointerScan,
   REASK_LIMIT,
+  requestRange,
   SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';

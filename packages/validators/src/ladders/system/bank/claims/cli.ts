@@ -2562,23 +2562,131 @@ add({
   },
 });
 
+/** Every environment variable a model labeler or the model port reads a key or an address from. */
+const MODEL_ENV = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'JEV_API_KEY', 'JEV_URL', 'JEV_ROUTE', 'JEV_MODEL'];
+
+/**
+ * Runs `body` with every model key unset and the global fetch replaced by one that counts its calls and throws:
+ * a run that reads a key or sends a request fails, or shows a call. Both are put back after.
+ */
+async function withoutModels<T>(body: () => Promise<T>): Promise<{ value: T; calls: number }> {
+  const saved = new Map(MODEL_ENV.map((name) => [name, process.env[name]]));
+  const realFetch = globalThis.fetch;
+  let calls = 0;
+  for (const name of MODEL_ENV) delete process.env[name];
+  globalThis.fetch = (async () => {
+    calls++;
+    throw new Error('the network is blocked in this claim');
+  }) as typeof fetch;
+  try {
+    return { value: await body(), calls };
+  } finally {
+    globalThis.fetch = realFetch;
+    for (const [name, value] of saved)
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+  }
+}
+
 add({
   slug: 'estate/scan-plan-only',
   tier: 2,
   component: ESTATE_CMD,
   title:
-    'estate scan --pointer --plan-only prints the requests, characters and cost plan, exits 0 and writes no map, with no cassette and no key (cli.md estate scan)',
+    'estate scan --pointer --plan-only prints the requests, characters and cost plan and exits 0 and writes no map, with every model key unset and the network blocked (cli.md estate scan)',
   cause: 'estate scan --plan-only sizes the pointer run without a key, a request or a file.',
   async run(ctx) {
-    const result = await cli(
-      ['estate', 'scan', join(ctx.root, 'examples/estates/fixture'), '--pointer', '--plan-only'],
-      ctx.dir,
+    const { value: result, calls } = await withoutModels(() =>
+      cli(
+        ['estate', 'scan', join(ctx.root, 'examples/estates/fixture'), '--pointer', '--plan-only'],
+        ctx.dir,
+      ),
     );
     return expectAll([
-      [result.code === 0, `expected exit 0; ${shown(result)}`],
+      [result.code === 0, `expected exit 0 with no key and no network; ${shown(result)}`],
+      [calls === 0, `expected no request to leave, ${calls} did`],
       [result.out.includes('Pointer plan'), `expected a plan; ${shown(result)}`],
-      [result.out.includes('To send:'), `expected the requests and tokens to send; ${shown(result)}`],
+      [result.out.includes('To send: between'), `expected a range of requests to send; ${shown(result)}`],
       [!existsSync(join(ctx.dir, 'map.yaml')), 'expected no map file'],
+    ]);
+  },
+});
+
+add({
+  slug: 'estate/scan-plan-counts-every-pass',
+  tier: 3,
+  component: ESTATE_CMD,
+  title:
+    'estate scan --pointer --plan-only counts the document-roles pass and the prose pass, and its range holds the requests of both (cli.md estate scan)',
+  cause: 'the priced plan counts every pass the scan would send, the document-roles pass included.',
+  async run(ctx) {
+    const { openPointer } = (await import('../../../../../../cli/src/commands/estate-pointer')) as {
+      openPointer: (
+        options: Record<string, unknown>,
+        io: unknown,
+        env: Record<string, string | undefined>,
+        fetch: unknown,
+        root: string,
+      ) => Promise<{ scan: unknown; plans: PlanShape[] } | undefined>;
+    };
+    const estate = (await import('../../../../../../estate/src/index')) as {
+      scanEstate: (input: Record<string, unknown>) => Promise<unknown>;
+      readerFor: (runtime: string, options: Record<string, unknown>) => unknown;
+      pointer: { PointerPlanOnly: new (...args: never[]) => Error; requestRange: (plan: PlanShape) => Range };
+    };
+    type Range = { low: number; expected: number; high: number };
+    type PlanShape = {
+      label?: string;
+      files: number;
+      members: Array<{ windows: number; cached: number; missing: number }>;
+    };
+    const root = join(ctx.root, 'examples/estates/fixture');
+    const io = { cwd: ctx.dir, out: () => undefined, err: () => undefined };
+    let message = '';
+    const { value: plans, calls } = await withoutModels(async () => {
+      // An empty cassette answers nothing, so every request of every pass is one to send.
+      const handle = await openPointer(
+        { pointer: true, planOnly: true, cassette: join(ctx.dir, 'none.jsonl') },
+        io,
+        {},
+        async () => {
+          throw new Error('the network is blocked in this claim');
+        },
+        root,
+      );
+      if (!handle) return [] as PlanShape[];
+      try {
+        await estate.scanEstate({
+          root,
+          reader: estate.readerFor('claude-code', { ignore: [] }),
+          pointer: handle.scan,
+        });
+        message = 'the scan went on past the plan';
+      } catch (cause) {
+        if (!(cause instanceof estate.pointer.PointerPlanOnly)) message = String(cause);
+      }
+      return handle.plans;
+    });
+    const roles = plans.find((plan) => plan.label === 'document roles');
+    const prose = plans.find((plan) => plan.label === undefined || plan.label === 'prose');
+    const lacking = (plan?: PlanShape) =>
+      (plan?.members ?? []).reduce((total, member) => total + member.windows - member.cached, 0);
+    const total = plans.reduce((sum, plan) => sum + estate.pointer.requestRange(plan).expected, 0);
+    return expectAll([
+      [message === '', `the scan did not stop at the plan: ${message}`],
+      [calls === 0, `expected no request to leave, ${calls} did`],
+      [
+        roles !== undefined && lacking(roles) > 0,
+        'expected the document-roles pass in the plan with requests to send',
+      ],
+      [
+        prose !== undefined && lacking(prose) > 0,
+        'expected the prose pass in the plan with requests to send',
+      ],
+      [
+        total === lacking(roles) + lacking(prose) && plans.length === 2,
+        `expected the range to hold the requests of both passes (${total} against ${lacking(roles)} + ${lacking(prose)}, ${plans.length} passes)`,
+      ],
     ]);
   },
 });

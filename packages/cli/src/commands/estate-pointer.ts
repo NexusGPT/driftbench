@@ -301,9 +301,8 @@ export function planLines(plans: readonly pointer.PointerPlan[], prices: TokenPr
       `  ${plan.label ?? 'prose'}: ${plan.units} units in ${plan.files} files, ${plan.carried} already labelled by the ledger.`,
     );
     for (const member of plan.members) {
-      const missing = member.windows - member.cached;
       lines.push(
-        `    ${className(member.cls)} ${member.id} ${member.model}: ${member.windows} requests, ${member.cached} in the cassette, ${missing} to send, ${member.characters} characters.`,
+        `    ${className(member.cls)} ${member.id} ${member.model}: ${member.windows} requests, ${member.cached} in the cassette, ${member.missing} to send, ${member.characters} characters.`,
       );
       const estimate = Math.ceil(member.characters / CHARACTERS_PER_TOKEN[member.cls]);
       tokens += estimate;
@@ -312,19 +311,30 @@ export function planLines(plans: readonly pointer.PointerPlan[], prices: TokenPr
       else usd += price;
     }
   }
-  const sent = plans.reduce(
-    (sum, plan) => sum + plan.members.reduce((total, member) => total + member.windows - member.cached, 0),
-    0,
+  const range = plans.reduce(
+    (total, plan) => {
+      const each = pointer.requestRange(plan);
+      return {
+        low: total.low + each.low,
+        expected: total.expected + each.expected,
+        high: total.high + each.high,
+      };
+    },
+    { low: 0, expected: 0, high: 0 },
   );
-  lines.push(`  To send: ${sent} requests, about ${tokens} input tokens.`);
+  lines.push(
+    `  To send: between ${range.low} and ${range.high} requests; the plan expects ${range.expected}, about ${tokens} input tokens.`,
+    '  It can send fewer: a stack skips the second labeler for a window when the first decides every unit of it alone.',
+    '  It can send more: a window the endpoint refuses as too large is halved, a run that slips or ties is asked again, and an answer that cannot be read is sent a second time.',
+  );
   if (!prices) lines.push('  No prices given: pass --prices <file> to see the input cost in USD.');
   else {
     const models = [...unpriced].sort();
     lines.push(
-      `  Input cost: ${dollars(usd)}${models.length > 0 ? `, without ${models.join(', ')} (no price in the table)` : ''}. Output tokens are not estimated.`,
+      `  Input cost of the expected requests: ${dollars(usd)}${models.length > 0 ? `, without ${models.join(', ')} (no price in the table)` : ''}. Output tokens are not estimated.`,
     );
   }
-  if (plans.length > 1 && plans[0]?.members.some((member) => member.windows > member.cached))
+  if (plans.length > 1 && plans[0]?.members.some((member) => member.missing > 0))
     lines.push(
       '  The prose pass is sized before the document roles are recorded: a role the first pass records can take a file out of it.',
     );

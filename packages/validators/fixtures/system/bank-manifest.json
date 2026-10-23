@@ -13799,6 +13799,15 @@
       "cause": "estate scan --plan-only sizes the pointer run without a key, a request or a file."
     },
     {
+      "id": "claim/cli/estate/scan-plan-counts-every-pass",
+      "family": "claim-cli",
+      "tier": 3,
+      "level": 10,
+      "source": "contract",
+      "component": "packages/cli/src/commands/estate.ts",
+      "cause": "the priced plan counts every pass the scan would send, the document-roles pass included."
+    },
+    {
       "id": "claim/cli/estate/scan-replay-miss-total",
       "family": "claim-cli",
       "tier": 2,
