@@ -44,6 +44,12 @@ describe('the ignore list', () => {
       '*.swp',
       '*~',
       '.idea',
+      '.pytest_cache',
+      '.mypy_cache',
+      '.ruff_cache',
+      '.hypothesis',
+      'skills/**/.claude',
+      'hooks/**/.claude',
     ]);
   });
 

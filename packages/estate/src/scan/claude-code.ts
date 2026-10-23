@@ -6,6 +6,7 @@ import { EstatePathError, estatePath } from '../paths';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
+import { GitIgnore } from './gitignore';
 import { type IgnoreRule, ignoreRule } from './ignore';
 import { pathReference } from './reference-role';
 
@@ -119,6 +120,13 @@ export const DEFAULT_IGNORE = [
   '*.swp',
   '*~',
   '.idea',
+  // Test caches and the local memory an agent keeps inside a skill or hook folder: no runtime loads them.
+  '.pytest_cache',
+  '.mypy_cache',
+  '.ruff_cache',
+  '.hypothesis',
+  'skills/**/.claude',
+  'hooks/**/.claude',
 ] as const;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
@@ -136,7 +144,7 @@ export type ClaudeCodeReaderOptions = {
   userSkills?: string;
 };
 
-type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
+type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[]; git?: GitIgnore };
 
 /** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
 type EstateConfig = {
@@ -208,10 +216,13 @@ export class ClaudeCodeReader implements EstateReader {
       (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
     );
     const patterns = [...DEFAULT_IGNORE, ...chosen];
+    const git = new GitIgnore(root);
+    await git.enter('');
     const ignored: Ignored = {
       rules: [...new Set(patterns)].map(ignoreRule),
       counts: new Map(),
       paths: [],
+      git,
     };
     return { config, chosen, ignored };
   }
@@ -264,10 +275,7 @@ export class ClaudeCodeReader implements EstateReader {
       followedLinks: followedLinks(notes),
       bases: ['.claude', '.claude/skills'],
       ignored: {
-        patterns: ignored.rules.map((rule) => ({
-          pattern: rule.pattern,
-          files: ignored.counts.get(rule.pattern) ?? 0,
-        })),
+        patterns: patternsOf(ignored),
         paths: ignored.paths,
         chosen,
       },
@@ -420,10 +428,11 @@ async function readRootReferences(
         if (!candidate) {
           if (tried.has(path)) continue;
           tried.add(path);
-          const rule = ignored.rules.find((rule) => rule.test(path));
+          const rule =
+            ignored.rules.find((rule) => rule.test(path))?.pattern ?? (await ignored.git?.matchPath(path));
           if (rule || skipped.has(path)) {
             if (rule && !skipped.has(path)) {
-              ignored.counts.set(rule.pattern, (ignored.counts.get(rule.pattern) ?? 0) + 1);
+              ignored.counts.set(rule, (ignored.counts.get(rule) ?? 0) + 1);
               ignored.paths.push(path);
               skipped.add(path);
             }
@@ -468,8 +477,18 @@ async function readRootReferences(
       }
     }
   }
-  for (const pattern of estate.ignored?.patterns ?? [])
-    pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
+  if (estate.ignored) estate.ignored.patterns = patternsOf(ignored);
+}
+
+/** The ignore list with the files each glob hid: the globs first, then each `.gitignore` line that hid a file. */
+function patternsOf(ignored: Ignored): Array<{ pattern: string; files: number }> {
+  const globs = new Set(ignored.rules.map((rule) => rule.pattern));
+  return [
+    ...ignored.rules.map((rule) => ({ pattern: rule.pattern, files: ignored.counts.get(rule.pattern) ?? 0 })),
+    ...[...ignored.counts]
+      .filter(([pattern]) => !globs.has(pattern))
+      .map(([pattern, files]) => ({ pattern, files })),
+  ];
 }
 
 /** Discover only nested standing instructions; ignore whole excluded trees and stop directory cycles. */
@@ -490,6 +509,7 @@ async function nestedStanding(
   }
   ancestors.add(real);
   try {
+    await ignored.git?.enter(folder);
     const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
     for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
       const path = posix.join(folder, entry.name);
@@ -499,6 +519,8 @@ async function nestedStanding(
       // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
       if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
+      if (ignored.git?.match(path, entry.isDirectory() || linked?.isDirectory() === true) !== undefined)
+        continue;
       if (entry.isDirectory() || linked?.isDirectory()) {
         await nestedStanding(
           root,
@@ -688,7 +710,8 @@ async function readUserLayer(
     const real = await realpath(join(root, posix.dirname(file.path))).catch(() => undefined);
     if (real !== undefined) taken.add(real);
   }
-  const own: Ignored = { rules: ignored.rules, counts: new Map(), paths: [] };
+  // Inside a skill of the layer, a `.claude` folder is the local memory of an agent, as it is in the project.
+  const own: Ignored = { rules: [...ignored.rules, ignoreRule('.claude')], counts: new Map(), paths: [] };
   const walkNotes: ReadNote[] = [];
   for (const rel of skills) {
     const real = await realpath(join(folder, rel)).catch(() => undefined);
@@ -835,17 +858,21 @@ async function walk(
   }
   ancestors.add(real);
   try {
+    await ignored.git?.enter(folder);
     const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
     const ordered = [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
     // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
-      const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+      let by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+      if (by === undefined && !entry.isSymbolicLink()) by = ignored.git?.match(path, entry.isDirectory());
       const info = entry.isSymbolicLink()
         ? await stat(join(root, path)).catch(() => undefined)
         : entry.isFile() && by === undefined
           ? await stat(join(root, path))
           : undefined;
+      if (by === undefined && entry.isSymbolicLink())
+        by = ignored.git?.match(path, info?.isDirectory() === true);
       return { entry, path, by, info };
     });
     for (const { entry, path, by, info } of inspected) {
