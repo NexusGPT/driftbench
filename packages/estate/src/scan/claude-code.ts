@@ -658,8 +658,16 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
   }
   const home = parsed.home;
   if (home !== undefined) {
-    if (typeof home === 'string' && home.trim() !== '') config.home = home.trim();
-    else notes.push({ file: ESTATE_CONFIG, message: 'home: must be a folder' });
+    if (typeof home !== 'string' || home.trim() === '')
+      notes.push({ file: ESTATE_CONFIG, message: 'home: must be a folder' });
+    else if (home.trim() === '~' || home.trim().startsWith('~/'))
+      // A file shared between machines must give each the same map: `~` would name each machine's own home.
+      notes.push({
+        file: ESTATE_CONFIG,
+        message:
+          'home: names a folder of the estate or a plain path, not ~ (the machine home is never read implicitly)',
+      });
+    else config.home = home.trim();
   }
   const documents = parsed.documents;
   if (documents !== undefined) {
@@ -1389,9 +1397,11 @@ function scriptFrom(
     const runs = runPath(segment);
     if (runs === undefined) continue;
     const relative = anchorOf(runs, home);
-    const first = relative.anchored
+    const joined = relative.anchored
       ? relative
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
+    // A script the home folder holds that is also a file of the estate is named by its path in the estate.
+    const first = { ...joined, script: inEstate(joined.script, home) };
     if (!paths) return first;
     const target = paths.has(first.script)
       ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))
@@ -1496,12 +1506,22 @@ function runPath(segment: readonly string[]): string | undefined {
 type HomeMap = { folder?: string; paths?: ReadonlySet<string> };
 
 /**
- * A word of a command with its quotes taken off. A tilde the quotes held stays text: the shell expands `~` only
- * unquoted, so `"~/x"` is a folder named `~` under the working folder, written `./~/x`.
+ * A word of a command with its quotes taken off, and what the shell leaves of it as text kept as text. A tilde
+ * is expanded only unquoted, so `"~/x"` is a folder named `~` under the working folder, written `./~/x`; a
+ * variable is expanded unless single-quoted, so `'$HOME/x'` is a folder named `$HOME` and `"$HOME/x"` is not.
  */
 function unquote(token: string): string {
   const plain = token.replace(/["']/g, '');
-  return /^["']/.test(token) && plain.startsWith('~') ? `./${plain}` : plain;
+  const text =
+    (/^["']/.test(token) && plain.startsWith('~')) || (token.startsWith("'") && plain.startsWith('$'));
+  return text ? `./${plain}` : plain;
+}
+
+/** A script written `~/x` as the file of the estate it is, when the home folder lies in the estate and holds it. */
+function inEstate(script: string, home: HomeMap): string {
+  if (!script.startsWith('~/') || home.folder === undefined) return script;
+  const inside = posix.join(home.folder, script.slice(2));
+  return home.paths?.has(inside) ? inside : script;
 }
 
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */

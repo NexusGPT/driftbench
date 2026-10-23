@@ -10,7 +10,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | scan.registry | 37 | reader | docs/adapters/claude-code.md, "The estate", Guard row (a check registry); docs/validators.md 12.6 (registry tables) |
 | scan.steps | 20 | reader | docs/adapters/claude-code.md, Stage row (step lists); docs/validators.md 12.6 (process maps) |
 | scan.catalogue | 22 | reader | docs/validators.md 12.6 (catalogue JSON). The adapter page still names only files whose name holds "registry": the docs lag the reader |
-| scan.dispatcher | 24 | reader | docs/adapters/claude-code.md, Guard row (hook command); docs/validators.md 12.6 (dispatcher commands) |
+| scan.dispatcher | 27 | reader | docs/adapters/claude-code.md, Guard row (hook command); docs/validators.md 12.6 (dispatcher commands); docs/estate.md, "Home paths in guards" (`$HOME/`, `${HOME}/`, a quoted `~`) |
 | scan.reference-prose | 22 | reader | docs/estate.md section 1 (the model splits prose; references "the files it names"); docs/validators.md 12.6 (long references) |
 | scan.gates | 29 | reader | docs/estate.md section 1 (gates in four fixed forms, read by code) |
 | scan.hazards | 22 | reader | docs/adapters/claude-code.md, Hazard row (passages naming a runtime hazard) |
