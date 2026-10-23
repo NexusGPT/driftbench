@@ -220,44 +220,29 @@ function «stepInto»(«node», «seg») {
   const «d» = «descOf»(«node», «seg»);
   return «d» && 'value' in «d» ? «d».value : undefined;
 }
-// Puts in place of each object a decoded object holds the object it stands for («fin»).
-function «swapChildren»(«node», «fin») {
+// Puts the objects a decoded Map or Set holds at recorded steps («pending»: [step, object]) in their places, keeping
+// the order of the entries and members, in one pass over the container.
+function «putPending»(«node», «pending») {
   if («node» instanceof «MapIt») {
     const «all» = «entriesOf»(«node»);
-    let «changed» = false;
-    for (let «i» = 0; «i» < «all».length; «i» += 1) {
-      const «k» = «fin»(«all»[«i»][0]);
-      const «v» = «fin»(«all»[«i»][1]);
-      if («k» !== «all»[«i»][0] || «v» !== «all»[«i»][1]) «changed» = true;
-      «all»[«i»] = [«k», «v»];
+    for (let «i» = 0; «i» < «pending».length; «i» += 1) {
+      const «seg» = «pending»[«i»][0];
+      const «entry» = «all»[«seg»[1]];
+      if («entry» === undefined) continue;
+      «all»[«seg»[1]] = «seg»[2] === 'k' ? [«pending»[«i»][1], «entry»[1]] : [«entry»[0], «pending»[«i»][1]];
     }
-    if («changed») {
-      «applyIt»(«mClear», «node», []);
-      for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«mSet», «node», «all»[«i»]);
-    }
+    «applyIt»(«mClear», «node», []);
+    for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«mSet», «node», «all»[«i»]);
     return;
   }
   if («node» instanceof «SetIt») {
     const «all» = «membersOf»(«node»);
-    let «changed» = false;
-    for (let «i» = 0; «i» < «all».length; «i» += 1) {
-      const «v» = «fin»(«all»[«i»]);
-      if («v» !== «all»[«i»]) «changed» = true;
-      «all»[«i»] = «v»;
+    for (let «i» = 0; «i» < «pending».length; «i» += 1) {
+      const «at» = «pending»[«i»][0][1];
+      if («at» < «all».length) «all»[«at»] = «pending»[«i»][1];
     }
-    if («changed») {
-      «applyIt»(«sClear», «node», []);
-      for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«sAdd», «node», [«all»[«i»]]);
-    }
-    return;
-  }
-  if (!«isArrayIt»(«node») && !«isPlainIt»(«node»)) return;
-  const «ks» = «keysOf»(«node»);
-  for (let «i» = 0; «i» < «ks».length; «i» += 1) {
-    const «d» = «descOf»(«node», «ks»[«i»]);
-    if (!«d» || !('value' in «d») || «d».value === null || typeof «d».value !== 'object') continue;
-    const «v» = «fin»(«d».value);
-    if («v» !== «d».value) «node»[«ks»[«i»]] = «v»;
+    «applyIt»(«sClear», «node», []);
+    for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«sAdd», «node», [«all»[«i»]]);
   }
 }
 // Whether the run's existing object already holds what the caller sent, entry for entry (an object it cannot change:
@@ -282,6 +267,12 @@ function «sameContent»(«existing», «node») {
   }
   if («existing» instanceof «DateIt» || «node» instanceof «DateIt»)
     return «existing» instanceof «DateIt» && «node» instanceof «DateIt» && Object.is(«applyIt»(«timeOf», «existing», []), «applyIt»(«timeOf», «node», []));
+  if («isArrayIt»(«existing»)) {
+    // A decoded array has no hole and no extra property, so its slots and length say all it holds.
+    if («existing».length !== «node».length) return false;
+    for (let «i» = 0; «i» < «node».length; «i» += 1) if (!Object.is(«existing»[«i»], «node»[«i»])) return false;
+    return true;
+  }
   const «a» = «keysOf»(«existing»);
   const «b» = «keysOf»(«node»);
   if («a».length !== «b».length) return false;
@@ -327,38 +318,78 @@ function «refill»(«existing», «node») {
 }
 // The arguments as the run decoded them: each object at a path of «refs» ([path, id]) becomes the run's object of
 // that id when it has one, else is remembered under it. The deepest objects go first, so each object holds the
-// run's objects before it is compared or copied. An object the run cannot change (frozen, sealed or not extensible)
-// is reused when it already holds what the caller sent; else the call is refused by name («state».refused), since
-// the product would see a new object where the caller's own call sees the same one.
+// run's objects before it is compared or copied, and each goes into the one place its path names in its parent:
+// the work grows with the objects, never with the numbers an array holds. An object the run cannot change (frozen,
+// sealed or not extensible) is reused when it already holds what the caller sent; else the call is refused by name
+// («state».refused), since the product would see a new object where the caller's own call sees the same one.
 function «applyRefs»(«root», «refs», «state») {
   «state».refused = undefined;
   if (!«refs») return «root»;
   const «nodes» = [];
+  const «parents» = [];
+  // The entries of a Map read once per call, however many of its keys and values the paths go through.
+  const «listed» = new «WeakMapIt»();
+  const «step» = («node», «seg») => {
+    if («isArrayIt»(«seg») && «node» instanceof «MapIt») {
+      let «all» = «applyIt»(«wmGet», «listed», [«node»]);
+      if («all» === undefined) {
+        «all» = «entriesOf»(«node»);
+        «applyIt»(«wmSet», «listed», [«node», «all»]);
+      }
+      const «entry» = «seg»[0] === 'm' ? «all»[«seg»[1]] : undefined;
+      return «entry» === undefined ? undefined : «seg»[2] === 'k' ? «entry»[0] : «entry»[1];
+    }
+    if («isArrayIt»(«seg») && «node» instanceof «SetIt») {
+      let «all» = «applyIt»(«wmGet», «listed», [«node»]);
+      if («all» === undefined) {
+        «all» = «membersOf»(«node»);
+        «applyIt»(«wmSet», «listed», [«node», «all»]);
+      }
+      return «seg»[0] === 's' ? «all»[«seg»[1]] : undefined;
+    }
+    return «stepInto»(«node», «seg»);
+  };
   for (let «r» = 0; «r» < «refs».length; «r» += 1) {
-    let «node» = «root»;
     const «path» = «refs»[«r»][0];
-    for (let «p» = 0; «p» < «path».length && «node» !== undefined; «p» += 1) «node» = «stepInto»(«node», «path»[«p»]);
+    let «parent» = «root»;
+    for (let «p» = 0; «p» < «path».length - 1 && «parent» !== undefined; «p» += 1) «parent» = «step»(«parent», «path»[«p»]);
+    const «node» = «path».length === 0 || «parent» === undefined ? undefined : «step»(«parent», «path»[«path».length - 1]);
     «nodes»[«r»] = «node» !== null && typeof «node» === 'object' ? «node» : undefined;
+    «parents»[«r»] = «parent»;
   }
   const «finals» = new «WeakMapIt»();
-  const «fin» = («o») => {
-    if («o» === null || typeof «o» !== 'object') return «o»;
-    const «f» = «applyIt»(«wmGet», «finals», [«o»]);
-    return «f» === undefined ? «o» : «f»;
+  // The objects to put into a Map or a Set, by container, put in when the container's own turn comes.
+  const «pending» = new «MapIt»();
+  const «putAll» = («node») => {
+    const «list» = «applyIt»(«mGet», «pending», [«node»]);
+    if («list» === undefined) return;
+    «applyIt»(«mDelete», «pending», [«node»]);
+    «putPending»(«node», «list»);
   };
   for (let «r» = «refs».length - 1; «r» >= 0; «r» -= 1) {
     const «node» = «nodes»[«r»];
-    if («node» === undefined || «applyIt»(«wmGet», «finals», [«node»]) !== undefined) continue;
-    const «id» = «refs»[«r»][1];
-    «swapChildren»(«node», «fin»);
-    const «existing» = «knownAs»(«state», «id»);
-    let «final» = «node»;
-    if («existing» === undefined || «existing» === «node») «remember»(«state», «node», «id»);
-    else if («refill»(«existing», «node») || «sameContent»(«existing», «node»)) «final» = «existing»;
-    else «state».refused ??= 'an object it holds from an earlier call, which it cannot change (frozen, sealed or not extensible), with another content';
-    «applyIt»(«wmSet», «finals», [«node», «final»]);
+    if («node» === undefined) continue;
+    let «final» = «applyIt»(«wmGet», «finals», [«node»]);
+    if («final» === undefined) {
+      «putAll»(«node»);
+      const «id» = «refs»[«r»][1];
+      const «existing» = «knownAs»(«state», «id»);
+      «final» = «node»;
+      if («existing» === undefined || «existing» === «node») «remember»(«state», «node», «id»);
+      else if («refill»(«existing», «node») || «sameContent»(«existing», «node»)) «final» = «existing»;
+      else «state».refused ??= 'an object it holds from an earlier call, which it cannot change (frozen, sealed or not extensible), with another content';
+      «applyIt»(«wmSet», «finals», [«node», «final»]);
+    }
+    if («final» === «node») continue;
+    const «parent» = «parents»[«r»];
+    const «seg» = «refs»[«r»][0][«refs»[«r»][0].length - 1];
+    if («isArrayIt»(«seg»)) {
+      const «list» = «applyIt»(«mGet», «pending», [«parent»]);
+      if («list» === undefined) «applyIt»(«mSet», «pending», [«parent», [[«seg», «final»]]]);
+      else «list»[«list».length] = [«seg», «final»];
+    } else «parent»[«seg»] = «final»;
   }
-  «swapChildren»(«root», «fin»);
+  «putAll»(«root»);
   return «root»;
 }
 // The ids of the objects a result's encoding met at a path ([path, object]): a known object keeps its id, a new one
