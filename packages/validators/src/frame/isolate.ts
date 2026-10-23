@@ -736,11 +736,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      const moved = (each as { moved?: string[] }).moved;
+      const { moved, evidence } = each as { moved?: string[]; evidence?: string[] };
+      // The report carries what changed (the path with both values, or the flag), so a change seen once can be named.
       if (moved && moved.length > 0)
         aliased.push({
           at: tape.length,
-          message: `${name}() was called after ${[...new Set(moved)].join(', ')} returned a result that has changed since (${describeRun(plan as TwinPlan)}): a result must stay as it was returned`,
+          message: `${name}() was called after ${[...new Set(moved)].join(', ')} returned a result that has changed since (${describeRun(plan as TwinPlan)})${evidence && evidence.length > 0 ? ` (${[...new Set(evidence)].join('; ')})` : ''}: a result must stay as it was returned`,
         });
     }
     for (const [each, plan] of [
@@ -779,6 +780,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     const {
       moved: _moved,
+      evidence: _evidence,
       invalid: _invalid,
       written: _written,
       altered: _altered,
@@ -787,6 +789,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       ...answer
     } = a as Outcome & {
       moved?: string[];
+      evidence?: string[];
       invalid?: boolean;
       written?: boolean;
       altered?: string;
