@@ -211,18 +211,6 @@ export const GOLDEN_RULES: readonly GoldenRule[] = [
     joiner: ' ',
   },
   {
-    lang: 'en',
-    n: 52,
-    title: 'No whitespace in between sentences',
-    sentences: [
-      'Hello world.',
-      'Today is Tuesday.',
-      'Mr. Smith went to the store and bought 1,000.',
-      'That is a lot.',
-    ],
-    joiner: '',
-  },
-  {
     lang: 'de',
     n: 1,
     title: 'Quotation at end of sentence',

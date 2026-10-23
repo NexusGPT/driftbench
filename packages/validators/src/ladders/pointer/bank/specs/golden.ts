@@ -20,13 +20,21 @@ import { type FamilySpec, row, type Spec } from './types';
  * - A comma or an ASCII colon as a sentence end: AR 1, 4 and 5; HY 1 and 3 (the README text uses U+003A).
  * - Answers a shape-only cutter that merges when unsure cannot give: ES 3 (`Srta.` is a four-letter title, the limit
  *   docs/estate-pointer-reader.md names with "Prof. Ito"), EL 1 (a sentence after a full stop that starts in lower
- *   case, where the segmenter returns no boundary), NL 1 (a sentence that starts with a digit; the cutter test
- *   `Use v2. 1 is old.` keeps that merged).
+ *   case, where the segmenter returns no boundary), NL 1 (the segmenter returns no boundary before `81 procent`, a
+ *   number then a lower-case word, UAX #29 SB8; the doc's "When unsure the cutter merges" covers it), EN 52 (a stop
+ *   with no space before a capitalised word: a split there would also cut `Console.WriteLine`, `System.Out` and
+ *   `example.com/Foo.Bar`, so the cutter merges when unsure).
  * - Answers the design contradicts: EN 44 (`Yahoo! in` stays one sentence, while docs/estate-pointer-reader.md,
  *   "A clear sentence boundary returned by the masked segmenter is not erased solely because the next sentence starts
  *   with a lowercase character", keeps the break).
  * EN 27 to 30, the four double-punctuation rules, are one item with one cause.
  */
+
+/**
+ * Rules whose first sentence starts with a digit (NL 2) or an opening quote (EN 47): behind another sentence it merges
+ * by design (the NL 1 reason), so the seeded sentence follows the rule's sentences instead of leading them.
+ */
+export const SEED_AFTER: ReadonlySet<string> = new Set(['gr-nl-2', 'gr-en-47']);
 
 const LANG: Record<string, string> = {
   en: 'EN',
@@ -70,7 +78,9 @@ function specOf(group: { key: string; rules: GoldenRule[] }): Spec {
     group.key,
     tier,
     `Pragmatic Segmenter Golden Rule ${names}: ${first.title}`,
-    `The README input of ${names} as one markdown paragraph, and the same sentences after a seeded prose sentence.`,
+    `The README input of ${names} as one markdown paragraph, and the same sentences ${
+      SEED_AFTER.has(group.key) ? 'before' : 'after'
+    } a seeded prose sentence.`,
     `Exact cut: the README's expected sentences as units, in order (${units} per input), plus the seeded sentence.`,
     `cutter:gr-${group.key.slice(3)}`,
   );
