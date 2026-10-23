@@ -722,6 +722,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failedWindows.push(...failures);
     if (failures.length > 0) unsettled.add(`${task.file}\0${task.set.set}`);
   };
+  // The units whose vote waits for answers that were asked for and did not come: a replay whose cassette holds no
+  // re-ask leaves the tie as it is (below), and a later cassette may decide it. The ledger does not keep such a unit
+  // unlabeled.
+  const provisional = new Set<string>();
+  const waiting = (task: Task, units: ReadonlyArray<{ index: number }>) => {
+    for (const unit of units) provisional.add(`${task.file}\0${task.set.set}\0${unit.index}`);
+  };
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -794,12 +801,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const again: Task = { ...task, window, run: (task.member.runs ?? 1) + extra };
       if (input.mode === 'replay') {
         const wire = again.member.render(again.set, window, again.context);
-        if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
+        if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) {
+          waiting(task, window.units);
+          break;
+        }
       }
       const answered = await resolve(again, window);
       failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
-      if (!leaf) break;
+      if (!leaf) {
+        waiting(task, window.units);
+        break;
+      }
       windows++;
       const slipped = outOfStep(leaf.answer);
       if (slipped) {
@@ -981,12 +994,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
       if (input.mode === 'replay') {
         const wire = again.member.render(again.set, task.window, again.context);
-        if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
+        if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) {
+          waiting(task, tied);
+          break;
+        }
       }
       const answered = await resolve(again, task.window);
       failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
-      if (!leaf) break;
+      if (!leaf) {
+        waiting(task, tied);
+        break;
+      }
       windows++;
       const slipped = outOfStep(leaf.answer);
       if (slipped) {
@@ -1027,11 +1046,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   };
   /**
    * What each labeler heard on a unit no label won, or undefined when the ledger must not keep the unit unlabeled: a
-   * window failed in its file and set, a labeler that was asked was not heard on it (its runs slipped), or nobody named
-   * it. The unit is then asked again, as a unit that was never decided.
+   * window failed in its file and set, the answers asked for to settle its vote are missing from a replayed cassette,
+   * a labeler that was asked was not heard on it (its runs slipped), or nobody named it. The unit is then asked again,
+   * as a unit that was never decided.
    */
   const votesOf = (file: string, set: LabelSet, index: number): LedgerUnlabeled['votes'] | undefined => {
-    if (unsettled.has(`${file}\0${set.set}`)) return undefined;
+    if (unsettled.has(`${file}\0${set.set}`) || provisional.has(`${file}\0${set.set}\0${index}`))
+      return undefined;
     const byMember = opinionsOf(file, set);
     const votes: LedgerUnlabeled['votes'] = [];
     let named = false;

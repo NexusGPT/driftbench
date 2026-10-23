@@ -36,29 +36,25 @@ async function map(path: string): Promise<EstateMap> {
   return loaded.map;
 }
 
-/** The diff of the first version against a second map, with the ledgers of the two versions. */
-async function diffOf(after: EstateMap, ledgers: { before: pointer.Ledger; after: pointer.Ledger }) {
+async function fresh(): Promise<EstateDiff> {
   const before = await map(join(FIXTURE, 'approved.yaml'));
+  const after = await map(join(V2, 'map.yaml'));
   const oldState = await loadGuardState(join(V2, 'maintain', 'guard-state.v1.yaml'), before, true);
   const newState = await loadGuardState(join(V2, 'guard-state.yaml'), after, true);
   if (!oldState.ok || !newState.ok) throw new Error('the guard states do not fit their maps');
-  return diffEstateMaps(before, after, {
-    oldPath: OLD_PATH,
-    newPath: NEW_PATH,
-    guards: diffGuardStates(oldState.state, newState.state),
-    ledgers,
-  });
-}
-
-async function fresh(): Promise<EstateDiff> {
   const ledger = async (path: string) => {
     const parsed = pointer.parseLedger(await readFile(path, 'utf8'));
     if (!parsed) throw new Error(`${path} is not a ledger`);
     return parsed;
   };
-  return diffOf(await map(join(V2, 'map.yaml')), {
-    before: await ledger(join(FIXTURE, 'ledger.json')),
-    after: await ledger(join(V2, 'ledger.json')),
+  return diffEstateMaps(before, after, {
+    oldPath: OLD_PATH,
+    newPath: NEW_PATH,
+    guards: diffGuardStates(oldState.state, newState.state),
+    ledgers: {
+      before: await ledger(join(FIXTURE, 'ledger.json')),
+      after: await ledger(join(V2, 'ledger.json')),
+    },
   });
 }
 
@@ -128,43 +124,6 @@ describe('the fixture-v2 estate', () => {
       edgesAdded: 0,
       edgesRemoved: 0,
     });
-  });
-
-  it('diffs, from the ledger a scan of the first version writes, with the planted cases and no more', async () => {
-    // The committed ledger of the first version is of version 1: it kept no record of the units its runs left unlabeled,
-    // so the weekly report's order line, which the second version does not touch, was asked again and drawn. The ledger a
-    // scan writes now keeps the unit unlabeled, and the second version leaves it so.
-    const first = await scanEstate({
-      root: FIXTURE,
-      reader: new ClaudeCodeReader(),
-      now: NOW,
-      pointer: await replayPointer(FIXTURE),
-    });
-    const before = first.pointer?.ledger;
-    if (!before) throw new Error('the first version was not read by the pointer reader');
-    expect(before.entries.filter((entry) => entry.unlabeled !== undefined).length).toBeGreaterThan(0);
-    const scanned = await scanEstate({
-      root: V2,
-      reader: new ClaudeCodeReader(),
-      now: NOW,
-      pointer: { ...(await replayPointer(V2)), previous: before },
-    });
-    expect(scanned.refusals).toEqual([]);
-    const after = scanned.pointer?.ledger;
-    if (!after) throw new Error('the second version was not read by the pointer reader');
-    expect(scanned.pointer?.keptUnlabeled).toBeGreaterThan(0);
-
-    const diff = await diffOf(scanned.map, { before, after });
-    expect(diff.atoms.changed.map((entry) => [entry.id, entry.change])).toEqual([
-      [R2, 'whitespace'],
-      [R7, 'semantic'],
-      [ROUTE, 'semantic'],
-    ]);
-    expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([]);
-    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18]);
-    expect(
-      diff.units?.unlabeled?.map((entry) => [entry.path, entry.was?.slice(0, 8), entry.quote.slice(0, 8)]),
-    ).toEqual([['CLAUDE.md', '**R12.**', '**R19.**']]);
   });
 
   it('has a committed diff equal to a fresh one', async () => {

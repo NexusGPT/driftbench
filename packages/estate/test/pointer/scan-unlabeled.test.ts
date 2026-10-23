@@ -1,3 +1,4 @@
+import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   Cassette,
@@ -6,8 +7,9 @@ import {
   type PointerInput,
   pointerScan,
   singleLabelling,
+  stackedLabelling,
 } from '../../src/pointer';
-import { load, plantedDense } from './support';
+import { load, plantedDense, plantedYesNo } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const NOTES = [
@@ -131,5 +133,278 @@ describe('a unit the labelers left unlabeled', () => {
     expect(asked()).toBe(DRAWS.length);
     // The new line was asked, in the one window that holds a unit that needs a label.
     expect(windows.length).toBe(3);
+  });
+});
+
+describe('a unit the ledger must not keep unlabeled', () => {
+  const files = [{ path: 'quay.md', text: NOTES }];
+  const isNoisy = (unit: { text: string }) => unit.text.includes(NOISY);
+  const replayOf = <T extends object>(labeler: T): T => ({ ...labeler, call: undefined });
+  /** Every unit is an order; the noisy unit takes the label `said(n)` on the n-th draw made for it. */
+  const drawing = (
+    said: (draw: number) => string | undefined,
+    options: Parameters<typeof plantedDense>[2] = {},
+  ) => {
+    let draws = 0;
+    return plantedDense(
+      (window) =>
+        window.units.flatMap((unit): Labelled[] => {
+          if (!isNoisy(unit)) return [{ units: String(unit.n), label: 'order' }];
+          const label = said(draws++);
+          return label === undefined ? [] : [{ units: String(unit.n), label }];
+        }),
+      [],
+      { runs: 3, ...options },
+    );
+  };
+
+  it('when the cassette lacks the answers its tie would be asked again for, so a later cassette decides it', async () => {
+    // Runs 1 to 3 split three ways. The two answers asked for the tie say order: three of five.
+    const draws = ['order', 'remark', 'aside', 'order', 'order'];
+    const labeler = drawing((draw) => draws[draw] ?? 'order');
+    const full = new Cassette();
+    const recorded = await pointerScan(input({ files, cassette: full }, singleLabelling(labeler)));
+    expect(noisyOf(recorded.ledger.entries).labels.duty?.label).toBe('order');
+
+    // A cassette that holds the three runs and neither of the two later answers: the replay leaves the tie as it is.
+    const cut = new Cassette();
+    for (const entry of full.entries.values())
+      if (Number(entry.readable.run) <= 3) cut.entries.set(entry.key, entry);
+    expect(cut.entries.size).toBeLessThan(full.entries.size);
+    const partial = await pointerScan(
+      input({ files, cassette: cut, mode: 'replay' }, singleLabelling(replayOf(labeler))),
+    );
+    const tied = noisyOf(partial.ledger.entries);
+    expect(tied.labels.duty).toBeUndefined();
+    expect(tied.unlabeled).toBeUndefined();
+
+    // The whole cassette, read against that ledger, decides the unit.
+    const later = await pointerScan(
+      input(
+        { files, cassette: full, mode: 'replay', previous: partial.ledger },
+        singleLabelling(replayOf(labeler)),
+      ),
+    );
+    expect(noisyOf(later.ledger.entries).labels.duty?.label).toBe('order');
+    expect(later.keptUnlabeled).toBe(0);
+  });
+
+  it('when a request of its window failed, so the next scan asks it again', async () => {
+    // Four of five runs answer (order, order, remark, aside: no label holds three of five) and the fifth fails.
+    let requests = 0;
+    const draws = ['order', 'order', 'remark', 'aside'];
+    const flaky = drawing((draw) => draws[draw] ?? 'order', {
+      runs: 5,
+      fail: (window) =>
+        window.units.some(isNoisy) && ++requests > 4
+          ? new ModelError('http', '503 unavailable', { status: 503 })
+          : undefined,
+    });
+    const cassette = new Cassette();
+    const first = await pointerScan(input({ files, cassette }, singleLabelling(flaky)));
+    expect(first.failed.length).toBeGreaterThan(0);
+    const tied = noisyOf(first.ledger.entries);
+    expect(tied.labels.duty).toBeUndefined();
+    expect(tied.unlabeled).toBeUndefined();
+
+    // The service is back: the unit is asked again, and the four recorded runs and the new one decide it.
+    const second = await pointerScan(
+      input(
+        { files, cassette, previous: first.ledger },
+        singleLabelling(drawing(() => 'order', { runs: 5 })),
+      ),
+    );
+    expect(second.failed).toEqual([]);
+    expect(noisyOf(second.ledger.entries).labels.duty?.label).toBe('order');
+  });
+
+  it('when the requests asked for its tie failed', async () => {
+    // Two runs answer (order, remark) and every later request for the window fails: the two voices tie.
+    let requests = 0;
+    const flaky = drawing((draw) => ['order', 'remark'][draw] ?? 'order', {
+      fail: (window) =>
+        window.units.some(isNoisy) && ++requests > 2
+          ? new ModelError('http', '503 unavailable', { status: 503 })
+          : undefined,
+    });
+    const cassette = new Cassette();
+    const first = await pointerScan(input({ files, cassette }, singleLabelling(flaky)));
+    expect(first.failed.length).toBeGreaterThan(0);
+    expect(noisyOf(first.ledger.entries).unlabeled).toBeUndefined();
+    const second = await pointerScan(
+      input({ files, cassette, previous: first.ledger }, singleLabelling(drawing(() => 'order'))),
+    );
+    expect(noisyOf(second.ledger.entries).labels.duty?.label).toBe('order');
+  });
+
+  it('when the request asked for its tie was too large and its window was halved', async () => {
+    // Runs 1 to 3 split three ways. The first request for the tie is refused as too large for the window of three
+    // units; its halves answer, but the voices do not reach the vote of the window: the tie stands.
+    let big = 0;
+    const draws = ['order', 'remark', 'aside'];
+    const labeler = drawing((draw) => draws[draw] ?? 'order', {
+      fail: (window) =>
+        window.units.length === 3 && window.units.some(isNoisy) && ++big > 3
+          ? new ModelError('http', '400 max_tokens_exceeded', { status: 400 })
+          : undefined,
+    });
+    const first = await pointerScan(input({ files }, singleLabelling(labeler)));
+    expect(first.failed).toEqual([]);
+    const tied = noisyOf(first.ledger.entries);
+    expect(tied.labels.duty).toBeUndefined();
+    expect(tied.unlabeled).toBeUndefined();
+  });
+
+  it('when the cassette lacks the re-ask of a run that slipped out of step', async () => {
+    const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+    const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
+    // Five runs: the second slips, the third and fourth say remark. Without its re-ask, order 2 and remark 2 tie.
+    // The re-ask (run 6) says order in step: three of five.
+    const plan = ['order', 'slip', 'remark', 'remark', 'order', 'order'];
+    let call = 0;
+    const labeler = plantedDense(
+      (window) => {
+        const said = plan[call++] ?? 'order';
+        return window.units.map(
+          (unit) =>
+            ({
+              units: String(unit.n),
+              label: said === 'slip' ? 'remark' : said,
+              spans:
+                said === 'slip'
+                  ? Array(4).fill(unlocated)
+                  : said === 'order'
+                    ? [{ kind: 'act', from: 0, to: 3 }]
+                    : [],
+            }) as Labelled,
+        );
+      },
+      [],
+      { runs: 5 },
+    );
+    const quay = [{ path: 'quay.md', text: '# Quay\n\n- Coil the ropes on the red post\n' }];
+    const full = new Cassette();
+    const recorded = await pointerScan(
+      input({ files: quay, sets: load(SPANNED), windowUnits: 60, cassette: full }, singleLabelling(labeler)),
+    );
+    expect(recorded.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+
+    const cut = new Cassette();
+    for (const entry of full.entries.values())
+      if (Number(entry.readable.run) <= 5) cut.entries.set(entry.key, entry);
+    const partial = await pointerScan(
+      input(
+        { files: quay, sets: load(SPANNED), windowUnits: 60, cassette: cut, mode: 'replay' },
+        singleLabelling(replayOf(labeler)),
+      ),
+    );
+    expect(partial.unlabeled).toBe(partial.ledger.entries.length);
+    expect(partial.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+
+    const later = await pointerScan(
+      input(
+        {
+          files: quay,
+          sets: load(SPANNED),
+          windowUnits: 60,
+          cassette: full,
+          mode: 'replay',
+          previous: partial.ledger,
+        },
+        singleLabelling(replayOf(labeler)),
+      ),
+    );
+    expect(later.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('when two of its three runs were refused as a whole', async () => {
+    // Runs 2 and 3 name a label the set does not hold for the noisy unit: each is asked twice, then fails.
+    const refusing = drawing((draw) => (draw === 0 ? 'order' : 'bogus'));
+    const first = await pointerScan(input({ files }, singleLabelling(refusing)));
+    expect(first.failed.length).toBeGreaterThan(0);
+    const tied = noisyOf(first.ledger.entries);
+    expect(tied.labels.duty).toBeUndefined();
+    expect(tied.unlabeled).toBeUndefined();
+    expect(first.failedWindows.every((failure) => failure.reason.includes('bogus'))).toBe(true);
+  });
+
+  it('when a labeler that was asked was not heard on it, so the next scan asks again', async () => {
+    const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+    const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
+    const located = { kind: 'act', from: 0, to: 3 };
+    // System 1 is unsure of every unit. System 2 answers in step once; its other two runs, and every re-ask, quote
+    // clauses that are in no unit: one run heard is no vote, so system 2 has no opinion.
+    const stack = (slips: boolean) => {
+      let calls = 0;
+      const chat = plantedDense(
+        (window) => {
+          const slipped = slips && ++calls > 1;
+          return window.units.map(
+            (unit) =>
+              ({
+                units: String(unit.n),
+                label: slipped ? 'remark' : 'order',
+                spans: slipped ? Array(4).fill(unlocated) : [located],
+              }) as Labelled,
+          );
+        },
+        [],
+        { runs: 3, id: 'chat' },
+      );
+      return stackedLabelling(
+        plantedYesNo(() => ({ order: 0.4, remark: 0.4 })),
+        chat,
+        {
+          passAt: 0.6,
+          failAt: 0.2,
+        },
+      );
+    };
+    const first = await pointerScan(input({ files, sets: load(SPANNED), windowUnits: 60 }, stack(true)));
+    expect(first.unlabeled).toBe(first.ledger.entries.length);
+    expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+
+    const second = await pointerScan(
+      input({ files, sets: load(SPANNED), windowUnits: 60, previous: first.ledger }, stack(false)),
+    );
+    expect(second.unlabeled).toBe(0);
+    expect(second.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('when no run named it, so the next scan asks again', async () => {
+    const silent = drawing(() => undefined);
+    const first = await pointerScan(input({ files }, singleLabelling(silent)));
+    expect(first.unlabeled).toBe(1);
+    const tied = noisyOf(first.ledger.entries);
+    expect(tied.labels.duty).toBeUndefined();
+    expect(tied.unlabeled).toBeUndefined();
+
+    const naming = drawing(() => 'order');
+    const second = await pointerScan(input({ files, previous: first.ledger }, singleLabelling(naming)));
+    expect(noisyOf(second.ledger.entries).labels.duty?.label).toBe('order');
   });
 });
