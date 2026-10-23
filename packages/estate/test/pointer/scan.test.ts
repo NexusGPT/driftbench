@@ -4,8 +4,10 @@ import {
   AGENT_RULES_SET,
   Cassette,
   CassetteMiss,
+  CLOSE_REASK_MAX,
   createAnthropicLabeler,
   cut,
+  denseUser,
   type Labeler,
   LabelerError,
   type Labelled,
@@ -25,7 +27,7 @@ import {
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { BAKERY, type Call, load, plantedDense } from './support';
+import { BAKERY, type Call, load, plantedDense, windowOf } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -829,15 +831,18 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The four
-    // runs asked for the split say order, voice, order, voice, so no label or kind holds five of nine: the unit stays
-    // unlabeled and counts as a split.
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The runs
+    // asked for the split say order, voice, order, voice and, as the two readings stay one run apart (a close unit
+    // gets six), order and voice again, so no label or kind holds six of eleven: the unit stays unlabeled and counts as
+    // a split.
     const result = await scan([
       'order',
       'voice',
       'order',
       'voice',
       'remark',
+      'order',
+      'voice',
       'order',
       'voice',
       'order',
@@ -963,26 +968,51 @@ describe('a unit the runs read two ways near evenly is listed as unstable', () =
   const unitOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
     result.ledger.entries.find((entry) => entry.index === 0)?.id;
 
-  it('lists a read before an edit that three runs call a rule and two a gate-same, with the label the vote gave', async () => {
-    // As R3 of the Northwind fixture: the gate and the instruction are one run apart, so the rule the vote gives is
-    // not silent.
-    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule]);
+  const labelOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.labelled.find((item) => item.index === 0)?.label;
+
+  it('asks a unit one run from another outcome again, and takes the label once two runs separate the kinds', async () => {
+    // As R3 of the Northwind fixture: rule 3, gate-same 2. Two more runs both say rule: rule 5, gate-same 2.
+    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule, rule, rule]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('rule');
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('takes the gate the other way round: gate-same 3, rule 2, and two more runs of gate-same', async () => {
+    // Restores the other-way case of #1359: the gate side leads, and two runs separate it.
+    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame, gateSame, gateSame]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('gate-same');
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('leaves a unit unlabeled and lists it as unstable when six more runs still leave its kinds one run apart', async () => {
+    // Every pair of new runs splits one and one: rule 6 against gate-same 5 after the sixth. The vote never picks the
+    // label whose atom can be built.
+    const result = await scanPlan(text, [
+      gateSame,
+      rule,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+    ]);
+    expect(result.reasked).toHaveLength(CLOSE_REASK_MAX);
+    expect(labelOf(result)).toBeUndefined();
     expect(result.unstable).toEqual([
       {
         unit: unitOf(result),
         path: 'CLAUDE.md',
         set: 'agent-rules',
         labeler: 'planted',
-        kinds: { instruction: 3, gate: 2 },
-        label: 'rule',
+        kinds: { instruction: 6, gate: 5 },
       },
-    ]);
-  });
-
-  it('lists it the other way round too, a gate by three runs of five', async () => {
-    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame]);
-    expect(result.unstable.map((entry) => [entry.kinds, entry.label])).toEqual([
-      [{ gate: 3, instruction: 2 }, 'gate-same'],
     ]);
   });
 
@@ -1053,6 +1083,67 @@ describe('a rescan asks the whole row of a table cell it asks', () => {
     );
     expect(asked).toContain('the `ledger-auditor` agent');
     expect(asked).toContain('audit the ledger');
+  });
+});
+
+describe('a gate whose act span no run located in its unit', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  const text =
+    'Before writing the report: Read `templates/report.md` !!\n\nFill the template in this order.\n';
+  /** The scan when run n answers `plan[n - 1]` for unit 1 (the last entry for any later run); unit 2 is a rule. */
+  const scanPlan = async (plan: Labelled[]) => {
+    let call = 0;
+    const labeler = plantedDense(
+      (window) => {
+        call++;
+        return [
+          plan[call - 1] ?? (plan.at(-1) as Labelled),
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    return pointerScan(input(labeler, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }));
+  };
+  const bare: Labelled = { units: '1', label: 'gate', links: [{ kind: 'act-tool', to: 'Write' }] };
+  const elsewhere: Labelled = { ...bare, spans: [{ kind: 'governed-action', text: 'Fill the template' }] };
+  const located: Labelled = { ...bare, spans: [{ kind: 'governed-action', text: 'writing the report' }] };
+  const labelOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.labelled.find((item) => item.index === 0);
+
+  it('asks again once with span-missing, and keeps the gate with the span that answer located in the unit', async () => {
+    // As the weekly-report unit of the Northwind fixture: three runs give no act, two give the next unit's words.
+    const result = await scanPlan([bare, elsewhere, bare, elsewhere, bare, located]);
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toHaveLength(1);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(labelOf(result)?.spans).toEqual([{ kind: 'governed-action', from: 7, to: 25 }]);
+    expect(result.spanless).toEqual([
+      expect.objectContaining({ path: 'SKILL.md', label: 'gate', kinds: ['governed-action'], filled: true }),
+    ]);
+  });
+
+  it('leaves the unit unlabeled, never a rule, when the answer to span-missing gives no span in the unit', async () => {
+    const result = await scanPlan([bare, elsewhere, bare, elsewhere, bare, elsewhere]);
+    expect(labelOf(result)).toBeUndefined();
+    expect(result.spanless).toEqual([
+      expect.objectContaining({ label: 'gate', kinds: ['governed-action'], filled: false }),
+    ]);
+  });
+
+  it('asks nothing when a run located the act in the unit', async () => {
+    const result = await scanPlan([located, bare, located, bare, located]);
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toEqual([]);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(result.spanless).toEqual([]);
+  });
+
+  it('names the unit, the label and the span kind in the request that asks again', () => {
+    const user = denseUser(sets[0] as LabelSet, windowOf(2), {
+      notes: ['span-missing: unit 1 has the label gate'],
+    });
+    expect(user.split('\n').at(-1)).toBe('NOTE span-missing: unit 1 has the label gate');
   });
 });
 

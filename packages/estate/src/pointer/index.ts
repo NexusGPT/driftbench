@@ -115,6 +115,8 @@ export {
 } from './radius';
 export {
   atomNeeds,
+  CLOSE_REASK_ATTEMPTS,
+  CLOSE_REASK_MAX,
   DEFAULT_WINDOW_UNITS,
   type FailedWindow,
   type LabelerUsage,

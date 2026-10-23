@@ -131,6 +131,7 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
     ...spanLines(set, context),
     `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
     ...windowLines(window),
+    ...(context.notes ?? []).map((note) => `NOTE ${note}`),
   ].join('\n');
 }
 
