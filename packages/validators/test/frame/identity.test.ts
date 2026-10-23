@@ -50,6 +50,31 @@ describe('object identity under the frame', () => {
     expect(frame.product.countOf({ items: [1, 2, 3] })).toBe(3);
   });
 
+  it("gives the caller its own objects back inside a Map's values and keys and a Set's members", () => {
+    const frame = frameOf();
+    const item = { n: 1 };
+    const got = frame.product.holders(item);
+    expect(got.byValue.get('item')).toBe(item);
+    expect([...got.byKey.keys()][0]).toBe(item);
+    expect([...got.members][0]).toBe(item);
+  });
+
+  it('gives the product its same object when the caller sends one again inside a Map', () => {
+    const frame = frameOf();
+    const inner = { items: [1, 2] };
+    expect(frame.product.countInMap(new Map([['x', inner]]))).toBe(2);
+    inner.items.push(3);
+    expect(frame.product.countInMap(new Map([['x', inner]]))).toBe(2);
+  });
+
+  it('gives the product its same frozen object when the caller sends it again', () => {
+    const frame = frameOf();
+    const input = Object.freeze({ id: 'a' });
+    const first = frame.product.frozenCount(input);
+    expect([first, frame.product.frozenCount(input)]).toEqual([first, first]);
+    expect(frame.product.frozenCount(Object.freeze({ id: 'a' }))).not.toBe(first);
+  });
+
   // The known limit, pinned: a product that changes an object it returned, between calls, while the caller keeps it.
   // In the caller's own process both hold one object and the caller sees the change; through the frame the caller's
   // object is the caller's copy, kept as the caller holds it.

@@ -28,3 +28,32 @@ export const counter = () => {
   state.calls += 1;
   return state;
 };
+
+/** A Map and a Set that hold the caller's own objects, as a value, a key and a member. */
+export const holders = (item: { n: number }) => ({
+  byValue: new Map([['item', item]]),
+  byKey: new Map([[item, 'item']]),
+  members: new Set([item]),
+});
+
+const frozenSeen = new WeakMap<object, number>();
+let frozenNext = 4;
+/** A count cached by the identity of a frozen input. */
+export const frozenCount = (input: Readonly<{ id: string }>) => {
+  const hit = frozenSeen.get(input);
+  if (hit !== undefined) return hit;
+  frozenSeen.set(input, frozenNext);
+  frozenNext += 1;
+  return frozenSeen.get(input);
+};
+
+const heldInMap = new WeakMap<object, number>();
+/** A count cached by the identity of an object the caller sends inside a Map. */
+export const countInMap = (input: Map<string, { items: number[] }>) => {
+  const inner = input.get('x');
+  if (!inner) return -1;
+  const hit = heldInMap.get(inner);
+  if (hit !== undefined) return hit;
+  heldInMap.set(inner, inner.items.length);
+  return inner.items.length;
+};
