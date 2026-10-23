@@ -5,7 +5,7 @@ module, compiles a graph, executes a tool, calls a model, or evaluates an expres
 
 Declare its source in `driftbench.setup.yaml`:
 
-```yaml
+```yaml setup
 sources:
   - id: workflow
     path: agent-code
