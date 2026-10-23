@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "seeds": [
+    {
+      "id": "generator-732170008",
+      "component": "generator",
+      "seed": 732170008,
+      "through": 2,
+      "fixedBy": "#1464",
+      "defect": "A hidden seed of the generator: level 2 failed with five diff.feasible.* items, blocks placed in cells that no position of the hidden map carries (a messaging block for a flow whose behaviours are all web-only).",
+      "evidence": "to be filled"
+    }
+  ]
+}
