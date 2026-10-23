@@ -447,7 +447,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(result.code).toBe(2);
     expect(result.err).toMatch(
-      /the cassette has no answer for request [0-9a-f]{12}; the nearest entry [0-9a-f]{12} differs in: .*part\./,
+      /the cassette has no answer for request [0-9a-f]{12} of window \S+#\d+; the nearest entry [0-9a-f]{12} differs in: .*part\./,
     );
     await expect(readFile(join(root, 'missed.yaml'), 'utf8')).rejects.toThrow();
   });
@@ -836,12 +836,19 @@ describe('the settings file of the estate', () => {
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('[system1:jev, system2:anthropic]', '[system2:anthropic]'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    // With system 1 gone, system 2 is asked about the windows that system 1 had decided alone (the stack asks system 2
+    // only about the windows system 1 left open). Those are new recordings of system 2; no recording is voided.
+    const dropped = await voided(root, before);
+    // True of an empty list too: dropping system 1 must add recordings of system 2, so the list is not empty.
+    expect(dropped.added.length).toBeGreaterThan(0);
+    expect(dropped.added.every((entry) => entry.readable.cls === 'system2')).toBe(true);
+    const now = new Set((await entries(root)).map((entry) => entry.key));
+    expect(before.every((entry) => now.has(entry.key))).toBe(true);
     await writeFile(
       join(root, 'driftbench.estate.yaml'),
       SETTINGS.replace('ledger.json', 'moved/ledger.json'),
     );
-    expect((await voided(root, before)).added).toEqual([]);
+    expect((await voided(root, [...before, ...dropped.added])).added).toEqual([]);
     expect(
       JSON.parse(await readFile(join(root, 'moved', 'ledger.json'), 'utf8')).entries.length,
     ).toBeGreaterThan(0);
@@ -941,9 +948,11 @@ describe('the settings file of the estate', () => {
         cassette: 'cassette.jsonl',
         labeler: ['system2:anthropic'],
         force: true,
+        // System 2 alone is asked about windows the stack's cassette left to system 1: those are recorded.
+        record: true,
       },
       io,
-      { env: KEYS },
+      { env: KEYS, fetch: services },
     );
     expect(code).toBe(0);
     expect(output.out).toContain('Pointer reader: system 2 anthropic claude-haiku-5-5.');
