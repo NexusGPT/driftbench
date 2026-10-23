@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
+import { parseTypes, type TypesDocument, type TypesOptions } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import * as pythonReader from '../../../src/scan/readers/python-agent';
 
@@ -19,6 +19,7 @@ type Facts = {
 };
 type Reader = {
   PYTHON_AGENT_TYPES: TypesDocument;
+  PYTHON_AGENT_SETUP_TYPES: TypesOptions;
   pythonAgentFacts: (text: string) => Facts;
 };
 const reader = async (): Promise<Reader> => pythonReader;
@@ -77,6 +78,24 @@ const CASES = {
 } as const;
 
 describe('static Python agent syntax contract', () => {
+  it('exposes deeply immutable source-relative setup type metadata', async () => {
+    const { PYTHON_AGENT_SETUP_TYPES } = await reader();
+    expect(PYTHON_AGENT_SETUP_TYPES.runtime).toBe('python-agent');
+    expect(PYTHON_AGENT_SETUP_TYPES.folder).toBe('.');
+    expect(PYTHON_AGENT_SETUP_TYPES.roots).toEqual({ source: '.' });
+    expect(Object.isFrozen(PYTHON_AGENT_SETUP_TYPES)).toBe(true);
+    expect(Object.isFrozen(PYTHON_AGENT_SETUP_TYPES.base?.types)).toBe(true);
+    const extended = parseTypes({ version: 1, types: {
+      'review-prompt': { extends: 'prompt', aspects: ['informs'] },
+    } }, PYTHON_AGENT_SETUP_TYPES);
+    expect(extended.ok).toBe(true);
+    if (!extended.ok) throw new Error(JSON.stringify(extended.errors));
+    const custom = extended.set.types.find((type) => type.name === 'review-prompt');
+    expect(custom?.folder).toBe('.');
+    expect(custom?.aspects).toEqual(['informs']);
+    expect(custom?.locate.map((locator) => locator.written)).toEqual(['**/*.py#$.prompts[*]']);
+  });
+
   it('declares exactly the planted types and aspects through common-model type data', async () => {
     const { PYTHON_AGENT_TYPES } = await reader();
     expect(Object.keys(PYTHON_AGENT_TYPES.types).sort()).toEqual(Object.keys(CASES).sort());
@@ -135,6 +154,23 @@ describe('static Python agent syntax contract', () => {
     expect(facts.graphs).toEqual([]);
   });
 
+  it('respects a function-local assignment even before that assignment is reached', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      `${PREAMBLE}def build():\n    flow = StateGraph(dict)\n    StateGraph = replacement\n    return flow\n`,
+    );
+    expect(facts.graphs).toEqual([]);
+  });
+
+  it('follows a static constructor alias and graph builder alias', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      `${PREAMBLE}${NODE}Builder = StateGraph\nflow = Builder(dict)\nshared_flow = flow\nshared_flow.add_node("collect", collect)\n`,
+    );
+    expect(facts.graphs.map((fact) => fact.name)).toEqual(['flow']);
+    expect(facts.nodes.map((fact) => fact.name)).toEqual(['collect']);
+  });
+
   it('reads static route targets while reporting dynamic target expressions', async () => {
     const { pythonAgentFacts } = await reader();
     const facts = pythonAgentFacts(
@@ -182,6 +218,25 @@ describe('static Python agent syntax contract', () => {
     );
     expect(facts.prompts).toEqual([]);
     expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-prompt' }));
+  });
+
+  it('retains a statically located prompt file through a named assignment', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\ntext = Path(__file__).with_name("policy.md").read_text()\npolicy = SystemMessage(content=text)\n',
+    );
+    expect(facts.prompts).toContainEqual(
+      expect.objectContaining({ name: 'policy', file: 'policy.md', relativeTo: 'module' }),
+    );
+  });
+
+  it('does not replace a dynamic tool name with the Python function name', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      'from langchain.tools import tool\n@tool(make_name())\ndef lookup(key):\n    return key\n',
+    );
+    expect(facts.tools).toEqual([]);
+    expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-tool-name' }));
   });
 
   it('resolves a ToolNode literal tool list as syntax, with no tool execution', async () => {

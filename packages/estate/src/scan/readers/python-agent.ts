@@ -1,4 +1,5 @@
 import type { TypesDocument } from '@agent-nexus/driftbench-core';
+import { readerSetupTypes } from './setup-types';
 import { readSourceFiles, type SourceFiles, type SourceReaderOptions } from './source-files';
 
 export { PYTHON_SYNTAX_SELECTORS, pythonAgentFacts } from './python-syntax';
@@ -11,34 +12,52 @@ export const PYTHON_AGENT_TYPES: TypesDocument = {
   version: 1,
   types: {
     graph: {
-      root: 'source', locate: '**/*.py#$.graphs[*]',
-      fields: { name: '$.name' }, aspects: ['indexes', 'configures'], loaded: 'always',
+      root: 'source',
+      locate: '**/*.py#$.graphs[*]',
+      fields: { name: '$.name' },
+      aspects: ['indexes', 'configures'],
+      loaded: 'always',
     },
     node: {
-      root: 'source', locate: '**/*.py#$.nodes[*]',
+      root: 'source',
+      locate: '**/*.py#$.nodes[*]',
       fields: { name: '$.name', graph: '$.graph', callable: '$.callable', body: '$.body', scope: '$.scope' },
-      aspects: ['executes'], loaded: 'by-reference',
+      aspects: ['executes'],
+      loaded: 'by-reference',
     },
     tool: {
-      root: 'source', locate: '**/*.py#$.tools[*]',
+      root: 'source',
+      locate: '**/*.py#$.tools[*]',
       fields: { name: '$.name', symbol: '$.symbol', description: '$.description', body: '$.body', owner: '$.owner' },
-      aspects: ['acts', 'executes', 'instructs'], loaded: 'on-demand',
+      aspects: ['acts', 'executes', 'instructs'],
+      loaded: 'on-demand',
     },
     prompt: {
-      root: 'source', locate: '**/*.py#$.prompts[*]',
+      root: 'source',
+      locate: '**/*.py#$.prompts[*]',
       fields: { name: '$.name', body: '$.text', file: '$.file', owner: '$.owner' },
-      aspects: ['instructs'], loaded: 'by-reference',
+      aspects: ['instructs'],
+      loaded: 'by-reference',
     },
     agent: {
-      root: 'source', locate: '**/*.py#$.agents[*]',
-      fields: { name: '$.name', owner: '$.owner' }, aspects: ['delegates', 'executes'], loaded: 'by-reference',
+      root: 'source',
+      locate: '**/*.py#$.agents[*]',
+      fields: { name: '$.name', owner: '$.owner' },
+      aspects: ['delegates', 'executes'],
+      loaded: 'by-reference',
     },
     guard: {
-      root: 'source', locate: '**/*.py#$.guards[*]',
-      fields: { name: '$.name', owner: '$.owner' }, aspects: ['guards'], loaded: 'by-reference',
+      root: 'source',
+      locate: '**/*.py#$.guards[*]',
+      fields: { name: '$.name', owner: '$.owner' },
+      aspects: ['guards'],
+      loaded: 'by-reference',
     },
   },
 };
+
+/** Immutable source-relative metadata for resolveSetupSources, independent of the host runtime. */
+export const PYTHON_AGENT_SETUP_TYPES = readerSetupTypes('python-agent', PYTHON_AGENT_TYPES);
 
 /** Reader-local syntax declarations; the canonical link stage supplies Part ids and provenance. */
 export const PYTHON_AGENT_LINK_SELECTORS = [
@@ -50,9 +69,6 @@ export const PYTHON_AGENT_LINK_SELECTORS = [
   { kind: 'references', from: 'node', to: 'tool', records: 'toolBindings' },
 ] as const;
 
-export function readPythonAgentSource(
-  root: string,
-  options: SourceReaderOptions = {},
-): Promise<SourceFiles> {
+export function readPythonAgentSource(root: string, options: SourceReaderOptions = {}): Promise<SourceFiles> {
   return readSourceFiles(root, options);
 }

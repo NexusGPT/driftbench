@@ -20,15 +20,31 @@ export type PythonFacts = {
 
 function emptyFacts(): PythonFacts {
   return {
-    graphs: [], nodes: [], tools: [], prompts: [], agents: [], guards: [],
-    toolBindings: [], edges: [], unresolved: [],
+    graphs: [],
+    nodes: [],
+    tools: [],
+    prompts: [],
+    agents: [],
+    guards: [],
+    toolBindings: [],
+    edges: [],
+    unresolved: [],
   };
 }
 
 const PAIRS: Readonly<Record<string, string>> = { '(': ')', '[': ']', '{': '}' };
 const ESCAPES: Readonly<Record<string, string>> = {
-  n: '\n', r: '\r', t: '\t', b: '\b', f: '\f', v: '\v', a: '\x07',
-  '\\': '\\', '"': '"', "'": "'", '\n': '',
+  n: '\n',
+  r: '\r',
+  t: '\t',
+  b: '\b',
+  f: '\f',
+  v: '\v',
+  a: '\x07',
+  '\\': '\\',
+  '"': '"',
+  "'": "'",
+  '\n': '',
 };
 
 function decodeString(text: string): string {
@@ -54,7 +70,10 @@ function tokenize(text: string): { statements: Statement[]; error?: { line: numb
   let index = 0;
   const consume = (count: number) => {
     for (let n = 0; n < count; n++) {
-      if (text[index] === '\n') { line++; column = 0; }
+      if (text[index] === '\n') {
+        line++;
+        column = 0;
+      } else if (text[index] === '\t') column += 8 - (column % 8);
       else column++;
       index++;
     }
@@ -79,11 +98,14 @@ function tokenize(text: string): { statements: Statement[]; error?: { line: numb
       consume(1);
       continue;
     }
-    if (/\s/.test(char)) { consume(1); continue; }
+    if (/\s/.test(char)) {
+      consume(1);
+      continue;
+    }
     const start = index;
     const startLine = line;
     const startColumn = column;
-    const prefix = /^(?:[rRuUbBfF]{1,2})?(?=['"])/.exec(text.slice(index));
+    const prefix = /^(?:[rRuUbBfF]|[bB][rR]|[rR][bB]|[fF][rR]|[rR][fF])?(?=['"])/.exec(text.slice(index));
     if (prefix) {
       const flags = prefix[0].toLowerCase();
       consume(flags.length);
@@ -93,7 +115,10 @@ function tokenize(text: string): { statements: Statement[]; error?: { line: numb
       const bodyStart = index;
       let closed = false;
       while (index < text.length) {
-        if (text.startsWith(delimiter, index)) { closed = true; break; }
+        if (text.startsWith(delimiter, index)) {
+          closed = true;
+          break;
+        }
         if (text[index] === '\\') consume(Math.min(2, text.length - index));
         else if (text[index] === '\n' && delimiter.length === 1) break;
         else consume(1);
@@ -102,7 +127,9 @@ function tokenize(text: string): { statements: Statement[]; error?: { line: numb
       const body = text.slice(bodyStart, index);
       consume(delimiter.length);
       tokens.push({
-        text: text.slice(start, index), line: startLine, column: startColumn,
+        text: text.slice(start, index),
+        line: startLine,
+        column: startColumn,
         ...(flags.includes('f') || flags.includes('b')
           ? { dynamic: true }
           : { string: flags.includes('r') ? body : decodeString(body) }),
@@ -141,14 +168,24 @@ function split(tokens: readonly Token[], separator = ','): Token[][] {
 
 function dotted(tokens: readonly Token[]): string | undefined {
   if (tokens.length === 0 || tokens.length % 2 === 0) return undefined;
-  if (tokens.some((token, index) => index % 2 === 0
-    ? !/^[A-Za-z_]\w*$/.test(token.text) || token.string !== undefined
-    : token.text !== '.')) return undefined;
+  if (
+    tokens.some((token, index) =>
+      index % 2 === 0
+        ? !/^[A-Za-z_]\w*$/.test(token.text) || token.string !== undefined
+        : token.text !== '.',
+    )
+  )
+    return undefined;
   return tokens.map((token) => token.text).join('');
 }
 
 type Call = {
-  callee: string; args: Token[][]; keywords: Map<string, Token[]>; line: number; open: number; end: number;
+  callee: string;
+  args: Token[][];
+  keywords: Map<string, Token[]>;
+  line: number;
+  open: number;
+  end: number;
 };
 function calls(tokens: readonly Token[]): Call[] {
   const out: Call[] = [];
@@ -180,6 +217,7 @@ type Scope = {
   name: string;
   imports: Map<string, string>;
   constants: Map<string, string>;
+  promptFiles: Map<string, string>;
   graphs: Map<string, string>;
   decorators: Token[][];
 };
@@ -216,9 +254,13 @@ function promptFile(tokens: readonly Token[] | undefined, scope: Scope): string 
 }
 function childScope(parent: Scope, name: string, indent: number): Scope {
   return {
-    indent, name: parent.name ? `${parent.name}/${name}` : name,
-    imports: new Map(parent.imports), constants: new Map(parent.constants),
-    graphs: new Map(parent.graphs), decorators: [],
+    indent,
+    name: parent.name ? `${parent.name}/${name}` : name,
+    imports: new Map(parent.imports),
+    constants: new Map(parent.constants),
+    promptFiles: new Map(parent.promptFiles),
+    graphs: new Map(parent.graphs),
+    decorators: [],
   };
 }
 
@@ -245,6 +287,50 @@ function readImport(tokens: readonly Token[], scope: Scope): boolean {
   return true;
 }
 
+/** Python determines a function's locals for its entire suite, including assignments after a reference. */
+function localBindings(statements: readonly Statement[], position: number): Set<string> {
+  const header = statements[position];
+  const names = new Set<string>();
+  const outer = new Set<string>();
+  let nested: number | undefined;
+  if (!header) return names;
+  for (const statement of statements.slice(position + 1)) {
+    if (statement.indent <= header.indent) break;
+    if (nested !== undefined && statement.indent > nested) continue;
+    nested = undefined;
+    const tokens = statement.tokens;
+    const keyword = tokens[0]?.text === 'async' ? 1 : 0;
+    const first = tokens[keyword]?.text;
+    if (first === 'global' || first === 'nonlocal') {
+      for (const token of tokens.slice(keyword + 1)) if (/^[A-Za-z_]\w*$/.test(token.text)) outer.add(token.text);
+      continue;
+    }
+    if (first === 'def' || first === 'class') {
+      const name = tokens[keyword + 1]?.text;
+      if (name) names.add(name);
+      nested = statement.indent;
+      continue;
+    }
+    if ((tokens[1]?.text === '=' || tokens[1]?.text === ':') && tokens[0]) names.add(tokens[0].text);
+    if (first === 'for') {
+      const end = tokens.findIndex((token) => token.text === 'in');
+      for (const token of tokens.slice(keyword + 1, end)) if (/^[A-Za-z_]\w*$/.test(token.text)) names.add(token.text);
+    }
+    for (const [index, token] of tokens.entries()) {
+      if (token.text === 'as' && tokens[index + 1]) names.add((tokens[index + 1] as Token).text);
+    }
+    if (first === 'import') {
+      for (const group of split(tokens.slice(keyword + 1))) if (group[0]) names.add(group[0].text);
+    }
+    if (first === 'from') {
+      const start = tokens.findIndex((token) => token.text === 'import');
+      for (const group of split(tokens.slice(start + 1))) if (group[0]) names.add(group[0].text);
+    }
+  }
+  for (const name of outer) names.delete(name);
+  return names;
+}
+
 /** API symbol selectors are data local to this reader. They are syntax identities, never prose patterns. */
 export const PYTHON_SYNTAX_SELECTORS = {
   graph: ['langgraph.graph.StateGraph'],
@@ -263,10 +349,21 @@ const AGENT = new Set<string>(PYTHON_SYNTAX_SELECTORS.agent);
 export function pythonAgentFacts(text: string): PythonFacts {
   const facts = emptyFacts();
   const parsed = tokenize(text);
-  if (parsed.error) { facts.unresolved.push(parsed.error); return facts; }
-  const scopes: Scope[] = [{
-    indent: -1, name: '', imports: new Map(), constants: new Map(), graphs: new Map(), decorators: [],
-  }];
+  if (parsed.error) {
+    facts.unresolved.push(parsed.error);
+    return facts;
+  }
+  const scopes: Scope[] = [
+    {
+      indent: -1,
+      name: '',
+      imports: new Map(),
+      constants: new Map(),
+      promptFiles: new Map(),
+      graphs: new Map(),
+      decorators: [],
+    },
+  ];
   const lines = text.split('\n');
   const functions = new Map<string, string>();
   for (const [position, statement] of parsed.statements.entries()) {
@@ -274,13 +371,17 @@ export function pythonAgentFacts(text: string): PythonFacts {
     const scope = scopes.at(-1) as Scope;
     const tokens = statement.tokens;
     if (readImport(tokens, scope)) continue;
-    if (tokens[0]?.text === '@') { scope.decorators.push(tokens.slice(1)); continue; }
+    if (tokens[0]?.text === '@') {
+      scope.decorators.push(tokens.slice(1));
+      continue;
+    }
     const definition = tokens[0]?.text === 'async' ? 1 : 0;
     if (tokens[definition]?.text === 'def' || tokens[definition]?.text === 'class') {
       const name = tokens[definition + 1]?.text;
       if (!name) continue;
       scope.imports.delete(name);
       scope.constants.delete(name);
+      scope.promptFiles.delete(name);
       const next = parsed.statements.slice(position + 1).find((item) => item.indent <= statement.indent);
       const body = lines.slice(statement.line - 1, next ? next.line - 1 : lines.length).join('\n');
       if (tokens[definition]?.text === 'def') functions.set(scope.name ? `${scope.name}/${name}` : name, body);
@@ -292,20 +393,44 @@ export function pythonAgentFacts(text: string): PythonFacts {
       if (tool) {
         const call = calls(tool)[0];
         const firstBody = parsed.statements[position + 1];
-        facts.tools.push({
-          name: literal(call?.args[0], scope) ?? name, symbol: name, owner: scope.name,
-          line: statement.line, body,
-          description: firstBody && firstBody.indent > statement.indent
-            ? firstBody.tokens[0]?.string : undefined,
-        });
+        const toolName = call?.args[0] ? literal(call.args[0], scope) : name;
+        const described = call?.keywords.get('description');
+        const description = described
+          ? literal(described, scope)
+          : firstBody && firstBody.indent > statement.indent ? firstBody.tokens[0]?.string : undefined;
+        if (described && description === undefined) {
+          facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-description' });
+        }
+        if (toolName === undefined) facts.unresolved.push({ line: statement.line, reason: 'dynamic-tool-name' });
+        else {
+          facts.tools.push({
+            name: toolName,
+            symbol: name,
+            owner: scope.name,
+            line: statement.line,
+            body,
+            description,
+          });
+        }
       }
       const inner = childScope(scope, name, statement.indent);
+      for (const local of localBindings(parsed.statements, position)) {
+        inner.imports.delete(local);
+        inner.constants.delete(local);
+        inner.promptFiles.delete(local);
+        inner.graphs.delete(local);
+      }
       const open = tokens.findIndex((token) => token.text === '(');
       const close = tokens.findIndex((token) => token.text === ')');
       if (tokens[definition]?.text === 'def') {
         for (const parameter of split(tokens.slice(open + 1, close))) {
           const bound = parameter.find((token) => /^[A-Za-z_]\w*$/.test(token.text))?.text;
-          if (bound) { inner.imports.delete(bound); inner.constants.delete(bound); }
+          if (bound) {
+            inner.imports.delete(bound);
+            inner.constants.delete(bound);
+            inner.promptFiles.delete(bound);
+            inner.graphs.delete(bound);
+          }
         }
       }
       scopes.push(inner);
@@ -313,13 +438,16 @@ export function pythonAgentFacts(text: string): PythonFacts {
     }
     scope.decorators = [];
     const equal = tokens.findIndex((token) => token.text === '=');
-    const assigned = equal > 0 && /^[A-Za-z_]\w*$/.test(tokens[0]?.text ?? '')
-      && (equal === 1 || tokens[1]?.text === ':') ? tokens[0]?.text : undefined;
+    const assigned =
+      equal > 0 && /^[A-Za-z_]\w*$/.test(tokens[0]?.text ?? '') && (equal === 1 || tokens[1]?.text === ':')
+        ? tokens[0]?.text
+        : undefined;
     const expression = assigned ? tokens.slice(equal + 1) : tokens;
     const foundCalls = calls(expression);
     const addPrompt = (name: string, input: readonly Token[] | undefined, line: number) => {
       const value = literal(input, scope);
-      const file = promptFile(input, scope);
+      const file = promptFile(input, scope) ??
+        (input?.length === 1 ? scope.promptFiles.get(input[0]?.text ?? '') : undefined);
       if (file !== undefined) facts.prompts.push({ name, file, relativeTo: 'module', owner: scope.name, line });
       else if (value === undefined) facts.unresolved.push({ line, reason: 'dynamic-prompt' });
       else facts.prompts.push({ name, text: value, owner: scope.name, line });
@@ -327,12 +455,19 @@ export function pythonAgentFacts(text: string): PythonFacts {
     for (const call of foundCalls) {
       const resolved = resolveName(call.callee, scope);
       if ((PYTHON_SYNTAX_SELECTORS.graph as readonly string[]).includes(resolved)) {
-        if (!assigned) { facts.unresolved.push({ line: call.line, reason: 'unbound-graph' }); continue; }
+        if (!assigned) {
+          facts.unresolved.push({ line: call.line, reason: 'unbound-graph' });
+          continue;
+        }
         const name = scope.name ? `${scope.name}/${assigned}` : assigned;
         facts.graphs.push({ name, line: call.line });
         scope.graphs.set(assigned, name);
       } else if (MESSAGE.has(resolved)) {
-        addPrompt(assigned ?? `${scope.name}/message@${call.line}`, call.keywords.get('content') ?? call.args[0], call.line);
+        addPrompt(
+          assigned ?? `${scope.name}/message@${call.line}`,
+          call.keywords.get('content') ?? call.args[0],
+          call.line,
+        );
       } else if (AGENT.has(resolved)) {
         const name = assigned ?? `${scope.name}/agent@${call.line}`;
         facts.agents.push({ name, owner: scope.name, line: call.line });
@@ -353,27 +488,39 @@ export function pythonAgentFacts(text: string): PythonFacts {
         if (method === PYTHON_SYNTAX_SELECTORS.methods.node) {
           const action = call.keywords.get('action') ?? call.args[1] ?? call.args[0];
           const toolNode = calls(action ?? []).find((item) =>
-            (PYTHON_SYNTAX_SELECTORS.toolNode as readonly string[]).includes(resolveName(item.callee, scope)));
+            (PYTHON_SYNTAX_SELECTORS.toolNode as readonly string[]).includes(resolveName(item.callee, scope)),
+          );
           const callable = toolNode ? 'langgraph.prebuilt.ToolNode' : dotted(action ?? []);
-          const name = literal(call.keywords.get('node') ?? call.args[0], scope)
-            ?? (call.args.length === 1 ? callable : undefined);
+          const name =
+            literal(call.keywords.get('node') ?? call.args[0], scope) ??
+            (call.args.length === 1 ? callable : undefined);
           if (!name || !callable) facts.unresolved.push({ line: call.line, reason: 'dynamic-node' });
           else {
-            facts.nodes.push({ name, graph, callable: resolveName(callable, scope), scope: scope.name, line: call.line });
+            facts.nodes.push({
+              name,
+              graph,
+              callable: resolveName(callable, scope),
+              scope: scope.name,
+              line: call.line,
+            });
             if (toolNode) {
               const tools = toolNode.keywords.get('tools') ?? toolNode.args[0];
               if (tools?.[0]?.text !== '[') facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
-              else for (const item of split(tools.slice(1, -1))) {
-                const tool = dotted(item);
-                if (tool) facts.toolBindings.push({ node: name, graph, tool: resolveName(tool, scope), line: call.line });
-                else facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
+              else {
+                for (const item of split(tools.slice(1, -1))) {
+                  const tool = dotted(item);
+                  if (tool) {
+                    facts.toolBindings.push({ node: name, graph, tool: resolveName(tool, scope), line: call.line });
+                  } else facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
+                }
               }
             }
           }
         } else if (method === PYTHON_SYNTAX_SELECTORS.methods.edge) {
           const from = literal(call.keywords.get('start_key') ?? call.args[0], scope);
           const to = literal(call.keywords.get('end_key') ?? call.args[1], scope);
-          if (from === undefined || to === undefined) facts.unresolved.push({ line: call.line, reason: 'dynamic-edge-target' });
+          if (from === undefined || to === undefined)
+            facts.unresolved.push({ line: call.line, reason: 'dynamic-edge-target' });
           else facts.edges.push({ graph, from, to, line: call.line });
         } else if (method === PYTHON_SYNTAX_SELECTORS.methods.conditional) {
           const from = literal(call.keywords.get('source') ?? call.args[0], scope);
@@ -385,7 +532,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
           for (const entry of split(mapping.slice(1, -1))) {
             const colon = entry.findIndex((token) => token.text === ':');
             const to = literal(entry.slice(colon + 1), scope);
-            if (colon < 0 || to === undefined) facts.unresolved.push({ line: call.line, reason: 'dynamic-edge-target' });
+            if (colon < 0 || to === undefined)
+              facts.unresolved.push({ line: call.line, reason: 'dynamic-edge-target' });
             else facts.edges.push({ graph, from, to, line: call.line });
           }
         }
@@ -393,11 +541,22 @@ export function pythonAgentFacts(text: string): PythonFacts {
     }
     if (assigned) {
       const value = literal(expression, scope);
+      const file = promptFile(expression, scope);
+      const named = dotted(expression);
+      const alias = named ? resolveName(named, scope) : undefined;
+      const graphAlias = named ? scope.graphs.get(named) : undefined;
       scope.imports.delete(assigned);
       scope.constants.delete(assigned);
+      scope.promptFiles.delete(assigned);
       if (value !== undefined) scope.constants.set(assigned, value);
-      if (!foundCalls.some((call) => (PYTHON_SYNTAX_SELECTORS.graph as readonly string[])
-        .includes(resolveName(call.callee, scope)))) {
+      if (file !== undefined) scope.promptFiles.set(assigned, file);
+      if (alias && alias !== named) scope.imports.set(assigned, alias);
+      if (graphAlias) scope.graphs.set(assigned, graphAlias);
+      if (
+        !graphAlias && !foundCalls.some((call) =>
+          (PYTHON_SYNTAX_SELECTORS.graph as readonly string[]).includes(resolveName(call.callee, scope)),
+        )
+      ) {
         scope.graphs.delete(assigned);
       }
     }
