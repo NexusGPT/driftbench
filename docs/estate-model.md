@@ -1,6 +1,6 @@
 # The estate model: part types, aspects, links and outcomes
 
-Status: the model's types and the loader of a types document are built (`packages/core/src/estate-model/`), and a check outcome carries its coverage and its requirements (`packages/core/src/outcome/check-outcome.ts`). The scan does not read through the model yet: the runtime profile that ships built-in types, the proof that it gives the same map as today's reader, and the count of files no type covers come next, in that order.
+Status: built. The model's types and the loader of a types document (`packages/core/src/estate-model/`); the Claude Code profile's built-in types, as data, which the estate reader classifies every file by, with a test that every fixture estate gives the same map as before the types; the count of files no type covers, in the map and in `estate lint`; a check outcome with its coverage and its requirements (`packages/core/src/outcome/check-outcome.ts`). Not built yet: the list of parts with their fields read, the links read from the declared `references` and `scope`, a check that reads aspects and links in place of the map's file kinds, and a types package shared between estates. Today a type decides the kind of the files the map holds (the profile's types) and which files are covered (every type).
 
 ## What it is
 
@@ -9,9 +9,9 @@ An estate is everything an agent setup holds: the instructions the model reads, 
 The model says what an estate is made of in two layers.
 
 * **Part types** are open data. A type says where its parts are and how to read them. A runtime profile ships the types its runtime knows, and you add your own.
-* **Aspects** are a fixed, small vocabulary. A type says which aspects its parts have. Checks read only aspects and links, never a type name or a path.
+* **Aspects** are a fixed, small vocabulary. A type says which aspects its parts have. The rule for checks: they read aspects and links, never a type name or a path.
 
-So a new kind of file in your setup needs one new type, written as data. Every check that already exists then checks it, because the type names its aspects.
+So a new kind of file in your setup needs one new type, written as data. Today the type makes its files covered: they are no longer unknown, and the lint can be clean again. Once the checks read aspects (not built yet, see the status above), every existing check also checks the new parts, because the type names their aspects.
 
 ## Words used on this page
 
@@ -106,14 +106,44 @@ type CheckOutcome<F> = {
 
 * `read` counts the inputs the check read. A check that read nothing is `not-run`, never a pass.
 * `skipped` lists what it left out, each with the code of why.
-* `unknown` lists the files under the estate root no type covers: the check could not look at them.
+* `unknown` lists the files under the roots the profile counts that no type covers: the check could not look at them.
 * `requires` is what the check declared it needs: `model-map`, `settings`, `guards`, `execution`. `missing` is what the run lacked; a check missing a requirement does not run.
 
 A run with any unknown file is never reported as clean, whatever its checks found.
 
+## Coverage and unknown files
+
+A scan says what it covered. A profile names the roots whose every file counts (`coverageRoots`; for Claude Code, the `.claude` folder). Each file under one of them is:
+
+* **covered** when a part type locates it, or when a reference or an import of the estate reaches it;
+* **skipped**, with the code of why: `estate-config` for `driftbench.estate.yaml`, `too-large` for a file over 1 MB, `ignored` for the ignore glob that left files out;
+* **unknown** otherwise: no type says what it is, so no check can have looked at it.
+
+A file beside those roots counts only when a type locates it or a reference reaches it: the source code of a project is no file of the agent.
+
+The map records it under `coverage`:
+
+```yaml types-coverage
+coverage:
+  covered: 4
+  unknown:
+    - .claude/checks/.lint-observe
+    - .claude/checks/judges/tone.request.json
+  skipped:
+    - { what: .claude/driftbench.estate.yaml, reason: estate-config }
+```
+
+`estate lint` reads the estate again and prints, after its findings:
+
+* `not-run` and the codes of the checks that had no input to read (a check that read nothing is never a pass);
+* `unknown` and the number of files no type covers, with the first five;
+* on its last line, the findings, or `Not run: no check had an input.`, or `Not clean: N files no part type covers, which no check read.`, or `Clean.` only when every file is covered and some check ran. The lint's `summary` field gives the same verdict as a code: `findings`, `none-ran`, `unknown-files` or `clean`.
+
+Unknown files are coverage, not findings: the exit code is that of the findings. A type you declare makes its files covered; it changes no kind the map gives a file.
+
 ## Writing your own types
 
-A types document says which version of the schema it is written in, then its types. This one adds two kinds of files to an estate whose profile ships a `script` type.
+A types document says which version of the schema it is written in, then its types. In an estate, the `types:` key of `driftbench.estate.yaml` holds the types themselves, read as version 1, with globs relative to the folder of that file ([what you can change in an estate](estate-settings.md)). This document adds two kinds of files to an estate whose profile ships a `script` type.
 
 ```yaml types
 version: 1
@@ -132,7 +162,7 @@ types:
 ```
 
 * `judge-request` inherits everything from `script` and overrides where its parts are, three fields, its aspects and its load time. Each `checks/judges/<id>.request.json` is now a part that guards and informs.
-* `observe-flag` locates files such as `checks/.lint-observe`. The last `*` captures `lint`, the flag's name, and `scope` links the flag to the `script` part of the same name with a `configures` link.
+* `observe-flag` locates files such as `checks/.lint-observe`. The last `*` captures `lint`, the flag's name, and `scope` says the flag configures the `script` part of the same name (a link the map will hold once links are read).
 
 ### What the loader refuses
 
