@@ -137,6 +137,22 @@ let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
 
+// The most a request can add to the spend, known before it is sent: its input priced at one token per two bytes of the
+// body (a bound that errs high: a token holds more than two bytes of ordinary text, so the real count is lower) plus the
+// whole of its max_tokens priced as output. A request whose worst case would cross a cap is refused before it is sent,
+// so the spend can stop under the cap and not just after it. The real usage the response reports is what is summed.
+const INPUT_TOKENS_PER_BYTE = 0.5;
+function refuseIfItCouldCross(body, what) {
+  const bytes = Buffer.byteLength(JSON.stringify(body), 'utf8');
+  const worst = (bytes * INPUT_TOKENS_PER_BYTE * rateIn + body.max_tokens * rateOut) / 1e6;
+  if (spentBefore + spent() + worst > totalCap || spent() + worst > cap) {
+    console.error(
+      `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)}; this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
+    );
+    throw new Error(`stopped before sending ${what}: its worst case would cross a cap`);
+  }
+}
+
 async function ask(batch) {
   const body = {
     model: MODEL,
@@ -146,6 +162,7 @@ async function ask(batch) {
       { role: 'user', content: subjectsBlock() + batch.map((text, i) => `${i + 1}. ${text}`).join('\n') },
     ],
   };
+  refuseIfItCouldCross(body, 'a batch of spans');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -176,33 +193,33 @@ const SUBJECT_CHOICE = SUBJECT_CHOICE_SYSTEM;
 async function chooseSubject(clause, candidates) {
   if (candidates.length === 0) return 'new';
   const result = await requestSubjectChoice(candidates, async (previousFailure) => {
-    if (spentBefore + spent() > totalCap || spent() > cap)
-      throw new Error('stopped before a cap, before a subject choice');
+    const body = {
+      model: MODEL,
+      max_tokens: subjectChoiceMaxTokens(candidates),
+      system: SUBJECT_CHOICE,
+      messages: [
+        {
+          role: 'user',
+          content: JSON.stringify({
+            clause,
+            candidates,
+            ...(previousFailure === undefined
+              ? {}
+              : {
+                  retry: {
+                    previousFailure,
+                    instruction: 'Return only one complete JSON string: a candidate id or "new".',
+                  },
+                }),
+          }),
+        },
+      ],
+    };
+    refuseIfItCouldCross(body, 'a subject choice');
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: subjectChoiceMaxTokens(candidates),
-        system: SUBJECT_CHOICE,
-        messages: [
-          {
-            role: 'user',
-            content: JSON.stringify({
-              clause,
-              candidates,
-              ...(previousFailure === undefined
-                ? {}
-                : {
-                    retry: {
-                      previousFailure,
-                      instruction: 'Return only one complete JSON string: a candidate id or "new".',
-                    },
-                  }),
-            }),
-          },
-        ],
-      }),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     report.requests += 1;
