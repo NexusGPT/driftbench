@@ -134,34 +134,68 @@ describe('terminal subsumption', () => {
     expect(second.blocks.length).toBeLessThan(length);
   });
 
-  it("keeps a block that injects a class, which is that class's test and the deviation of its row", () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const context: SeedContext = { seed: 1031, t: 2, max: 100 };
-    const probe = (id: string) => {
-      const built = scenarioDraft(
-        prepared,
-        context,
-        id,
-        'twise',
-        id,
-        [],
-        { preferred: [path], others: [] },
-        { probe: { classId: 'D5_language_switch', stage: 'address' } },
-      );
-      if (!('draft' in built)) throw new Error(`${id} did not build`);
-      return built.draft;
+  describe('a block that injects a class', () => {
+    const setup = () => {
+      const prepared = fixture();
+      const path = prepared.relations.paths[0];
+      if (!path) throw new Error('missing parcel path');
+      const context: SeedContext = { seed: 1031, t: 2, max: 100 };
+      const probe = (id: string, seeder: 'twise' | 'deviation') => {
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          seeder,
+          id,
+          [],
+          { preferred: [path], others: [] },
+          { probe: { classId: 'D5_language_switch', stage: 'address' } },
+        );
+        if (!('draft' in built)) throw new Error(`${id} did not build`);
+        return built.draft;
+      };
+      return { minimal: new TerminalSubsumption(prepared, run, 2), probe };
     };
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = probe('first');
-    const second = probe('second');
-    const length = second.blocks.length;
-    minimal.reduce(first);
-    minimal.reduce(second);
-    // The repeated blocks after the probe go; the block that injects the class never does.
-    expect(second.blocks.length).toBeLessThan(length);
-    expect(second.blocks.some((block) => block.injection)).toBe(true);
+
+    it('is cut like any other block when a written probe of its class on the path already holds it', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
+      const second = probe('second', 'deviation');
+      const length = second.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      // The first probe holds the class on the path and keeps its injection; the repeat goes with its blocks.
+      expect(first.blocks.some((block) => block.injection)).toBe(true);
+      expect(second.blocks.length).toBeLessThan(length);
+      expect(second.blocks.some((block) => block.injection)).toBe(false);
+    });
+
+    it('stays in the first probe of its class on a path', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
+      minimal.reduce(first);
+      expect(first.blocks.some((block) => block.injection)).toBe(true);
+    });
+
+    it('stays in a t-wise spec when no written t-wise spec holds its tuples, whoever probed the class', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'deviation');
+      const second = probe('second', 'twise');
+      minimal.reduce(first);
+      minimal.reduce(second);
+      // The class is probed on the path, but the t-wise items read t-wise specs alone: the tuples stay with it.
+      expect(second.blocks.some((block) => block.injection)).toBe(true);
+    });
+
+    it('is cut from a t-wise spec once a written t-wise spec holds the same tuples', () => {
+      const { minimal, probe } = setup();
+      const first = probe('first', 'twise');
+      const second = probe('second', 'twise');
+      const length = second.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(second.blocks.length).toBeLessThan(length);
+    });
   });
 
   it('keeps the end of a walk that says another turn than any written block', () => {
@@ -568,41 +602,56 @@ describe('terminal subsumption and the block a walk ends on', () => {
   };
   const injectedAt = (draft: ReturnType<typeof probe>) => draft.blocks.findIndex((block) => block.injection);
 
-  it('takes a cut back to the deepest cut that ends elsewhere when another walk already ends on the block it stops at', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const [first, second, third] = ['first', 'second', 'third'].map((id) => probe(prepared, path, id));
-    if (!first || !second || !third) throw new Error('missing probes');
-    const length = first.blocks.length;
-    for (const draft of [first, second, third]) minimal.reduce(draft);
-    const injected = injectedAt(second);
-    expect(injected).toBeGreaterThan(0);
-    expect(first.blocks).toHaveLength(length);
-    // The second walk is cut to the block that injects the class, and ends there: one walk ends on that block.
-    expect(second.blocks).toHaveLength(injected + 1);
-    // The third would end there too: it keeps one block more, which ends on a block no walk ends on.
-    expect(third.blocks).toHaveLength(injected + 2);
-    expect(third.blocks.map((block) => block.id)).toEqual(
-      first.blocks.slice(0, injected + 2).map((block) => block.id),
-    );
-  });
+  describe('when a guard stops the cut on a block another walk ends on', () => {
+    const setup = () => {
+      const long = desk([
+        {
+          id: 'parcel',
+          stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+          classes: ['D5_language_switch'],
+        },
+      ]);
+      const longPath = long.relations.paths[0];
+      if (!longPath) throw new Error('missing parcel path');
+      const template = required(walk(long, 'template', longPath).perturbations?.[0]);
+      const plain = (id: string) => {
+        const draft = walk(long, id, longPath);
+        draft.perturbations = undefined;
+        return draft;
+      };
+      // A walk the declaration at block 2 stops: the cut cannot go below three blocks.
+      const guarded = (id: string) => {
+        const draft = plain(id);
+        draft.perturbations = [{ ...template, inject_at: 2 }];
+        return draft;
+      };
+      return { long, plain, guarded };
+    };
 
-  it('keeps a walk whole when every cut of it ends on a block another walk ends on', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const drafts = ['first', 'second', 'third', 'fourth'].map((id) => probe(prepared, path, id));
-    const [first, second, third, fourth] = drafts;
-    if (!first || !second || !third || !fourth) throw new Error('missing probes');
-    const length = first.blocks.length;
-    for (const draft of drafts) minimal.reduce(draft);
-    const injected = injectedAt(second);
-    expect([second.blocks.length, third.blocks.length]).toEqual([injected + 1, injected + 2]);
-    // Its cuts end on the blocks the second and the third walk end on, and its whole walk on the first walk's.
-    expect(fourth.blocks).toHaveLength(length);
+    it('takes the cut back to the deepest cut that ends elsewhere', () => {
+      const { long, plain, guarded } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const length = first.blocks.length;
+      // The second walk is the first one stopped at three blocks: one walk ends on block three.
+      const second = guarded('second');
+      const third = guarded('third');
+      for (const draft of [first, second, third]) minimal.reduce(draft);
+      expect(first.blocks).toHaveLength(length);
+      expect(second.blocks).toHaveLength(3);
+      // The third would end on the same block: it keeps one block more, which no walk ends on.
+      expect(third.blocks).toHaveLength(4);
+    });
+
+    it('keeps a walk whole when every cut it can reach ends on a block another walk ends on', () => {
+      const { long, plain, guarded } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const length = first.blocks.length;
+      const drafts = [first, guarded('second'), guarded('third'), guarded('fourth'), guarded('fifth')];
+      for (const draft of drafts) minimal.reduce(draft);
+      expect(drafts.slice(1).map((draft) => draft.blocks.length)).toEqual([3, 4, 5, length]);
+    });
   });
 
   it('never cuts a walk to end on the request that follows a restated value', () => {
@@ -810,6 +859,47 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     expect(again.reducedEnds).toBeDefined();
     expect(again.blocks).toHaveLength(length - 2);
     expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
+  });
+
+  describe('a walk reduced to a repeat of a whole spec', () => {
+    const setup = () => {
+      const long = desk([
+        {
+          id: 'parcel',
+          stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+          classes: ['D5_language_switch'],
+        },
+      ]);
+      const longPath = long.relations.paths[0];
+      if (!longPath) throw new Error('missing parcel path');
+      const plain = (id: string) => {
+        const draft = walk(long, id, longPath);
+        draft.perturbations = undefined;
+        return draft;
+      };
+      return { long, plain };
+    };
+
+    it('is not written when every obligation it holds is held by a written spec', () => {
+      const { long, plain } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const second = plain('second');
+      const third = plain('third');
+      for (const draft of [first, second, third]) minimal.reduce(draft);
+      expect(first.dropped).toBeUndefined();
+      // The second walk is cut to one block (and ends on a block the first ends on); the third is its repeat.
+      expect([second.dropped, third.dropped].filter(Boolean).length).toBeGreaterThan(0);
+    });
+
+    it('is written when the switch is off', () => {
+      const { long, plain } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      minimal.dropsSpecs = false;
+      const drafts = [plain('first'), plain('second'), plain('third')];
+      for (const draft of drafts) minimal.reduce(draft);
+      expect(drafts.some((draft) => draft.dropped)).toBe(false);
+    });
   });
 
   it('reads an injection as the class it says, not the words it says it in', () => {
