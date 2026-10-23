@@ -198,7 +198,14 @@ globalThis.fetch = async (_url, options) => {
         '--import',
         join(folder, 'mock.mjs'),
         join(root, 'tools/variables-label-spans.mjs'),
-        ...['--sha', 'fictional-recording', '--spans', join(folder, 'spans'), '--out', join(folder, 'out.jsonl')],
+        ...[
+          '--sha',
+          'fictional-recording',
+          '--spans',
+          join(folder, 'spans'),
+          '--out',
+          join(folder, 'out.jsonl'),
+        ],
         ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
         ...['--cap', String(cap), '--total-cap', String(cap)],
       ],
@@ -213,4 +220,3 @@ globalThis.fetch = async (_url, options) => {
     rmSync(folder, { recursive: true, force: true });
   }
 }, 30_000);
-
