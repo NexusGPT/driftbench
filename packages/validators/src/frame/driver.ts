@@ -247,7 +247,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { workerData } from 'node:worker_threads';
-const { port, signal, plans, setup } = workerData;
+const { port, signal, plans, setup, reapMs } = workerData;
 const flag = new Int32Array(signal);
 const reply = (message) => { port.postMessage(message); Atomics.store(flag, 0, 1); Atomics.notify(flag, 0); };
 const runs = plans.map((plan) => {
@@ -290,10 +290,10 @@ port.on('message', async (message) => {
   if (message.close) {
     // Each run is waited for before the reply: the frame ends this thread next, and a killed child no thread waits
     // for stays defunct until the validator's process ends (astra-planner-1334: hundreds under one vitest worker).
-    // A run that has not ended 5 s after its kill is named in the reply, and the frame reports it.
+    // A run that has not ended reapMs (5 s by default) after its kill is named in the reply, and the frame reports it.
     const unreaped = [];
     await Promise.all(runs.map((run) => run.exited !== undefined ? undefined : new Promise((done) => {
-      const timer = setTimeout(() => { unreaped.push(run.plan.run); done(); }, 5000);
+      const timer = setTimeout(() => { unreaped.push(run.plan.run); done(); }, reapMs);
       run.child.once('exit', () => { clearTimeout(timer); done(); });
       run.child.kill('SIGKILL');
     })));
