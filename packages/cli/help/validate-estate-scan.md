@@ -47,8 +47,8 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--json]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 ```
@@ -66,6 +66,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
 | `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; no home folder is read without it; a project skill wins a name clash |
+| `--verbose` | off | list every item; by default a long list stops after the first 10 and says how many are left |
 | `--force` | off | replace an existing map; the approvals in it are lost |
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
@@ -203,6 +204,8 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, as the scan did; repeat it |
 | `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
+| `--verbose` | off | list every finding; by default each code lists its first 10, then its total |
+| `--json` | off | print the findings and their totals as JSON: `findings` (the ones listed), `totals` (per code `total`, `shown`, `omitted`), `failed`, and the counts of the information codes |
 
 `estate approve`:
 
@@ -270,10 +273,14 @@ model and waiting for approval), <e> edges.`, then the atoms per kind (with how 
 prose chunks, the model calls, the refused atoms with their reason, the atoms the model repeated that code
 had already read, the ignored files, the orphans, the files unreachable from the standing instructions, the
 rules no guard enforces, and a `Next:` line. Exit 0 written; 1 written, but a prose chunk failed or an atom
-was refused; 2 nothing written.
+was refused; 2 nothing written. The lists of unanswered chunks, orphans, unreachable files and unenforced
+rules stop after the first 10 items and say so; `--verbose` lists every one.
 
 `estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
-2 the map or the estate cannot be read. The codes:
+2 the map or the estate cannot be read. A code with more than 10 findings lists the first 10, then
+`... <n> more of <total>`, and one `Totals:` line names the total of each code; `--verbose` lists them all. A
+map whose estate folder is not there is refused with the folder looked at, the root as recorded, and a fix.
+The codes:
 
 | Code | Meaning |
 |---|---|

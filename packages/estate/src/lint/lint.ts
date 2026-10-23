@@ -4,6 +4,7 @@ import {
   type CheckOutcome,
   runCheck,
 } from '@agent-nexus/driftbench-core';
+import { cutList } from '../cut';
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
@@ -73,6 +74,43 @@ export type LintResult = {
 };
 
 export type LintOptions = { ceiling?: number };
+
+/** The findings a report lists, and how many each code has in all. */
+export type LintSummary = {
+  /** The findings to list, in their order: at most `limit` of each code. */
+  shown: LintFinding[];
+  /** Per code that has findings, in the order the codes first appear. */
+  totals: Array<{ code: LintCode; total: number; shown: number; omitted: number }>;
+};
+
+/**
+ * Cuts a long list of findings for a report: the first `limit` of each code are shown and the rest are only
+ * counted, so one code with a thousand findings cannot bury the others. Without a limit every finding is shown.
+ */
+export function summariseLint(
+  findings: readonly LintFinding[],
+  options: { limit?: number } = {},
+): LintSummary {
+  const byCode = new Map<LintCode, LintFinding[]>();
+  for (const finding of findings) byCode.set(finding.code, [...(byCode.get(finding.code) ?? []), finding]);
+  const cuts = new Map([...byCode].map(([code, list]) => [code, cutList(list, options.limit)] as const));
+  // The findings keep their order across codes: a finding is shown when it is among the first of its code.
+  const taken = new Map<LintCode, number>();
+  const shown = findings.filter((finding) => {
+    const count = (taken.get(finding.code) ?? 0) + 1;
+    taken.set(finding.code, count);
+    return count <= (cuts.get(finding.code)?.shown.length ?? 0);
+  });
+  return {
+    shown,
+    totals: [...cuts].map(([code, cut]) => ({
+      code,
+      total: cut.total,
+      shown: cut.shown.length,
+      omitted: cut.omitted,
+    })),
+  };
+}
 
 export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions = {}): LintResult {
   raw = normativeEstate(raw);

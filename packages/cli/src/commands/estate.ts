@@ -21,8 +21,10 @@ import {
   RUNTIMES,
   readerFor,
   renderEstateMap,
+  resolveMapRoot,
   type ScanEstateResult,
   scanEstate,
+  summariseLint,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import {
@@ -41,6 +43,7 @@ import { registerEstateBuildCommand } from './estate-build';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
+import { LIST_LIMIT, limitOf, listLine, moreLine } from './estate-output';
 import { registerEstatePlanCommands } from './estate-plan';
 import { type EstatePointerOptions, openPointer, pointerLines } from './estate-pointer';
 import { registerEstateProveCommand } from './estate-prove';
@@ -48,6 +51,7 @@ import { registerEstateStaticCommand } from './estate-static';
 import { registerEstateStatsCommand } from './estate-stats';
 import { registerEstateUnitCommand } from './estate-unit';
 import { mapCacheOptions } from './map-cache';
+import { rootRefusal } from './map-root';
 
 export type EstateScanOptions = EstatePointerOptions & {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
@@ -62,6 +66,8 @@ export type EstateScanOptions = EstatePointerOptions & {
   provider?: string;
   force?: boolean;
   ceiling?: string;
+  /** List every item; by default long lists stop after the first few and say how many are left. */
+  verbose?: boolean;
 };
 
 /** The folder `--user-skills` names: relative to where the command was typed, `~` left for the reader to expand. */
@@ -75,6 +81,9 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   io.err('error: --user-skills needs a folder, not an empty value\n');
   return false;
 }
+
+const VERBOSE_FLAG = '--verbose';
+const VERBOSE_HELP = `list every item; by default a long list stops after the first ${LIST_LIMIT} and says how many are left`;
 
 const USER_SKILLS_FLAG = '--user-skills <folder>';
 const USER_SKILLS_HELP =
@@ -112,6 +121,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .option(
       '--pointer',
@@ -172,9 +182,25 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
-    .action(async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string }) => {
-      setExit(await estateLintCommand(path, options, io));
-    });
+    .option(VERBOSE_FLAG, VERBOSE_HELP)
+    .option(
+      '--json',
+      'print the findings and their totals as JSON: per code the total, the number shown and the number omitted',
+    )
+    .action(
+      async (
+        path: string,
+        options: {
+          ceiling?: string;
+          ignore?: string[];
+          userSkills?: string;
+          verbose?: boolean;
+          json?: boolean;
+        },
+      ) => {
+        setExit(await estateLintCommand(path, options, io));
+      },
+    );
 
   estate
     .command('approve')
@@ -337,7 +363,7 @@ export async function estateScanCommand(
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
-  io.out(scanReport(result, out, io, handle?.describe, prices));
+  io.out(scanReport(result, out, io, handle?.describe, prices, limitOf(options.verbose)));
   deps.onScan?.(result, prices);
   const closing = handle ? await handle.finish(result) : 0;
   if (closing === 2) return 2;
@@ -368,6 +394,7 @@ function scanReport(
   io: Io,
   describe = '',
   prices?: TokenPrices,
+  limit?: number,
 ): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
@@ -384,7 +411,13 @@ function scanReport(
       `    ${kind.padEnd(width)}  ${String(atoms.length).padStart(3)}${model > 0 ? `  (${model} by the model)` : ''}`,
     );
   }
-  const prose = proseInventoryLines(proseInventory(result.raw), result.chunks.length > 0 || !!result.pointer);
+  const prose = proseInventoryLines(
+    proseInventory(result.raw),
+    result.chunks.length > 0 || !!result.pointer,
+    {
+      ...(limit !== undefined ? { limit } : {}),
+    },
+  );
   if (result.pointer) {
     lines.push(...prose, ...pointerLines(result, describe, prices));
   } else if (result.chunks.length === 0)
@@ -425,11 +458,22 @@ function scanReport(
       `  External: ${external.length} named ${plural(external.length, 'path', 'paths')} outside the estate (information, not a finding).`,
     );
   }
-  lines.push(listLine('Orphans', analysis.orphans));
-  lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles));
+  lines.push(listLine('Orphans', analysis.orphans, limit));
+  lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles, limit));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
   lines.push(`  Unenforced: ${analysis.unenforced.length} of ${rules} rules have no guard.`);
-  for (const id of analysis.unenforced) lines.push(`    ${id}`);
+  for (const id of limit === undefined ? analysis.unenforced : analysis.unenforced.slice(0, limit))
+    lines.push(`    ${id}`);
+  if (limit !== undefined && analysis.unenforced.length > limit)
+    lines.push(`    ${moreLine(analysis.unenforced.length - limit)}`);
+  const unanswered = result.chunks.length === 0 && !result.pointer ? result.raw.prose.length : 0;
+  if (
+    limit !== undefined &&
+    [analysis.orphans.length, analysis.unreachableFiles.length, analysis.unenforced.length, unanswered].some(
+      (count) => count > limit,
+    )
+  )
+    lines.push('  Lists stop after the first items: add --verbose to list every one.');
   lines.push(
     `Next: driftbench estate lint ${show(out, io)}; driftbench estate approve ${show(out, io)} --kind instruction`,
     '',
@@ -440,7 +484,7 @@ function scanReport(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
   io: Io,
 ): Promise<number> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -467,11 +511,12 @@ export async function estateLintCommand(
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
     return 2;
   }
-  const root = resolve(dirname(file), loaded.map.root);
-  if (!(await isFolder(root))) {
-    io.err(`Cannot find the estate folder ${show(root, io)} the map names.\n`);
+  const located = await resolveMapRoot(file, loaded.map);
+  if (!located.ok) {
+    io.err(rootRefusal(file, located, io));
     return 2;
   }
+  const root = located.root;
   const raw = await reader.read(root);
   if (loaded.map.userSkills === true && raw.userLayer === undefined) {
     io.err(
@@ -480,17 +525,47 @@ export async function estateLintCommand(
     return 2;
   }
   const result = lintEstate(loaded.map, raw, { ceiling });
+  const found = result.findings.filter((finding) => !INFORMATION.has(finding.code));
+  const limit = limitOf(options.verbose);
+  const summary = summariseLint(found, limit === undefined ? {} : { limit });
+  if (options.json) {
+    // The cut is data: the findings shown, and per code the total, the number shown and the number omitted.
+    io.out(
+      `${JSON.stringify(
+        {
+          map: show(file, io),
+          root: show(root, io),
+          atoms: loaded.map.atoms.length,
+          failed: result.failed,
+          notRun: !result.failed && noneRan(result.outcomes),
+          findings: summary.shown,
+          totals: summary.totals,
+          information: { UNENFORCED: result.counts.UNENFORCED, EXTERNAL: result.counts.EXTERNAL },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return result.failed ? 1 : 0;
+  }
   const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
-  const shown = result.findings.filter((finding) => !INFORMATION.has(finding.code));
-  const width = Math.max(0, ...shown.map((finding) => finding.code.length));
-  for (const finding of shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
+  const width = Math.max(0, ...found.map((finding) => finding.code.length));
+  for (const finding of summary.shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
+  const cut = summary.totals.filter((entry) => entry.omitted > 0);
+  if (cut.length > 0) {
+    for (const entry of cut)
+      lines.push(`  ${entry.code.padEnd(width)}  ${moreLine(entry.omitted)} of ${entry.total}`);
+    lines.push(
+      `  Totals: ${summary.totals.map((entry) => `${entry.code} ${entry.total}`).join(', ')}. Lists stop after the first ${LIST_LIMIT} of a code: add --verbose to list every one.`,
+    );
+  }
   lines.push(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
   lines.push(
     result.failed
-      ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`
+      ? `${found.length} ${plural(found.length, 'finding', 'findings')}.`
       : noneRan(result.outcomes)
         ? 'Not run: no check had an input.'
         : 'Clean.',
@@ -610,10 +685,6 @@ export async function estateMapCommand(
     ].join('\n'),
   );
   return 0;
-}
-
-function listLine(title: string, items: readonly string[]): string {
-  return items.length === 0 ? `  ${title}: none.` : `  ${title}: ${items.join(', ')}.`;
 }
 
 function parseCeiling(value: string | undefined, io: Io): number | undefined {
