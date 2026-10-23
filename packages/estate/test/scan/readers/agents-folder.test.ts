@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
+import { locateFile, locateInside, parseTypes, type TypesDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 // The variable keeps this test-only commit typecheckable before the reader exists. Its first run must fail
@@ -27,9 +27,19 @@ type Inventory = {
 };
 type Reader = {
   AGENTS_FOLDER_TYPES: TypesDocument;
-  readAgentsFolderSource: (source: Source, sources: readonly Source[]) => Promise<Inventory>;
+  readAgentsFolderSource: (
+    root: string,
+    options: { setupSource: Source; snapshotRoots: Record<string, string> },
+  ) => Promise<Inventory>;
 };
 const reader = async () => (await import(MODULE)) as Reader;
+
+function inventoryOf(read: Reader['readAgentsFolderSource'], input: Source, sources: readonly Source[]) {
+  return read(input.root, {
+    setupSource: input,
+    snapshotRoots: Object.fromEntries(sources.map((entry) => [entry.id, entry.root])),
+  });
+}
 
 async function fixture(files: Record<string, string>): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'driftbench-agents-source-'));
@@ -105,7 +115,38 @@ describe('shared agents source contract', () => {
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
     for (const type of parsed.set.types) {
       expect(type.aspects, type.name).toEqual(CASES[type.name as keyof typeof CASES].aspects);
+      const planted = CASES[type.name as keyof typeof CASES];
+      const positive = type.folder === undefined
+        ? locateInside(type, 'references/format.md') : locateFile(type, planted.yes);
+      const negative = type.folder === undefined
+        ? locateInside(type, 'examples/format.md') : locateFile(type, planted.no);
+      expect(positive, `${type.name}: positive locator`).toBeDefined();
+      expect(negative, `${type.name}: negative locator`).toBeUndefined();
     }
+  });
+
+  it('reads filtered snapshot bytes, never the original source named in setup metadata', async () => {
+    const { readAgentsFolderSource } = await reader();
+    const original = await fixture({ 'AGENTS.md': 'Fictional excluded original.\n' });
+    const snapshot = await fixture({ 'AGENTS.md': 'Fictional filtered snapshot.\n' });
+    const inventory = await readAgentsFolderSource(snapshot, {
+      setupSource: source(original),
+      snapshotRoots: { shared: snapshot },
+    });
+    expect(inventory.files).toEqual([{ path: 'AGENTS.md', text: 'Fictional filtered snapshot.\n' }]);
+  });
+
+  it('does not authorize original roots merely because setup metadata declares them', async () => {
+    const { readAgentsFolderSource } = await reader();
+    const original = await fixture({ 'AGENTS.md': 'Fictional excluded original.\n' });
+    const snapshot = await fixture({});
+    await symlink(original, join(snapshot, 'unfiltered'));
+    const inventory = await readAgentsFolderSource(snapshot, {
+      setupSource: source(original),
+      snapshotRoots: { shared: snapshot },
+    });
+    expect(inventory.files).toEqual([]);
+    expect(inventory.skipped).toEqual([{ what: 'unfiltered', reason: 'outside-mapped-roots' }]);
   });
 
   for (const [type, planted] of Object.entries(CASES)) {
@@ -113,7 +154,7 @@ describe('shared agents source contract', () => {
       const { readAgentsFolderSource } = await reader();
       const root = await fixture({ [planted.yes]: planted.text, [planted.no]: planted.text });
       const input = source(root);
-      const inventory = await readAgentsFolderSource(input, [input]);
+      const inventory = await inventoryOf(readAgentsFolderSource, input, [input]);
       expect(inventory.files).toEqual(
         [
           { path: planted.yes, text: planted.text },
@@ -128,7 +169,7 @@ describe('shared agents source contract', () => {
     const { readAgentsFolderSource } = await reader();
     const root = fileURLToPath(new URL('../../fixtures/readers/agents-folder/shared/', import.meta.url));
     const input = source(root);
-    const inventory = await readAgentsFolderSource(input, [input]);
+    const inventory = await inventoryOf(readAgentsFolderSource, input, [input]);
     expect(inventory.files.map((file) => file.path)).toContain('AGENTS.md');
     expect(inventory.files.find((file) => file.path === 'AGENTS.md')?.text).toBe(
       await readFile(join(root, 'AGENTS.md'), 'utf8'),
@@ -139,7 +180,7 @@ describe('shared agents source contract', () => {
     const { readAgentsFolderSource } = await reader();
     const root = await fixture({ 'unclassified.xyz': 'unclassified\n', 'empty.bin': '' });
     const input = source(root);
-    const inventory = await readAgentsFolderSource(input, [input]);
+    const inventory = await inventoryOf(readAgentsFolderSource, input, [input]);
     expect(inventory.files).toEqual([
       { path: 'empty.bin', text: '' },
       { path: 'unclassified.xyz', text: 'unclassified\n' },
@@ -151,12 +192,12 @@ describe('shared agents source contract', () => {
     const { readAgentsFolderSource } = await reader();
     const root = await fixture({});
     const input = source(join(root, 'absent'));
-    expect((await readAgentsFolderSource(input, [input])).skipped).toEqual([
+    expect((await inventoryOf(readAgentsFolderSource, input, [input])).skipped).toEqual([
       { what: '.', reason: 'source-unreadable:ENOENT' },
     ]);
     await symlink('absent.md', join(root, 'dangling.md'));
     const present = source(root);
-    expect((await readAgentsFolderSource(present, [present])).skipped).toEqual([
+    expect((await inventoryOf(readAgentsFolderSource, present, [present])).skipped).toEqual([
       { what: 'dangling.md', reason: 'unreadable:ENOENT' },
     ]);
   });
@@ -171,8 +212,8 @@ describe('shared agents source contract', () => {
       );
       const left = source(a);
       const right = source(join(b, spelling));
-      expect(await readAgentsFolderSource(left, [left])).toEqual(
-        await readAgentsFolderSource(right, [right]),
+      expect(await inventoryOf(readAgentsFolderSource, left, [left])).toEqual(
+        await inventoryOf(readAgentsFolderSource, right, [right]),
       );
     });
   }
@@ -185,7 +226,7 @@ describe('shared agents source contract', () => {
     await symlink('instructions', join(root, 'alias'));
     await symlink('.', join(root, 'cycle'));
     const input = source(root);
-    const inventory = await readAgentsFolderSource(input, [input]);
+    const inventory = await inventoryOf(readAgentsFolderSource, input, [input]);
     expect(inventory.files.map((file) => file.path)).toEqual(['alias/a.md', 'instructions/a.md']);
     expect(inventory.skipped).toEqual([
       { what: 'cycle', reason: 'symlink-cycle' },
@@ -201,7 +242,7 @@ describe('shared agents source contract', () => {
       await symlink(mappedRoot, join(root, 'mapped'));
       const input = source(root);
       const mapping = source(mappedRoot, { id: 'mapped', kind });
-      const inventory = await readAgentsFolderSource(input, [input, mapping]);
+      const inventory = await inventoryOf(readAgentsFolderSource, input, [input, mapping]);
       expect(inventory.files).toEqual([{ path: 'mapped/policy.md', text: 'Fictional mapped policy.\n' }]);
       expect(inventory.skipped).toEqual([]);
     });
@@ -211,7 +252,7 @@ describe('shared agents source contract', () => {
     const { readAgentsFolderSource } = await reader();
     const root = await fixture({ 'binary.dat': 'a\u0000b' });
     const input = source(root);
-    expect(await readAgentsFolderSource(input, [input])).toEqual({
+    expect(await inventoryOf(readAgentsFolderSource, input, [input])).toEqual({
       files: [],
       skipped: [{ what: 'binary.dat', reason: 'binary-content' }],
     });

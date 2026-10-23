@@ -1,5 +1,5 @@
 import type { TypesDocument } from '@agent-nexus/driftbench-core';
-import { type ReaderSource, type SourceFiles, readSourceFiles } from './source-files';
+import { type SourceFiles, type SourceReaderOptions, readSourceFiles } from './source-files';
 
 /** Shared definitions are source-relative; the source root may be .agents, dot_agents, or any mapped folder. */
 export const AGENTS_FOLDER_TYPES: TypesDocument = {
@@ -78,8 +78,8 @@ export const AGENTS_FOLDER_LINK_SELECTORS = [
 
 /** The setup parser supplies the resolved source and every explicitly mapped root. */
 export function readAgentsFolderSource(
-  source: ReaderSource,
-  sources: readonly ReaderSource[],
+  root: string,
+  options: SourceReaderOptions = {},
 ): Promise<SourceFiles> {
-  return readSourceFiles(source, sources);
+  return readSourceFiles(root, options);
 }
