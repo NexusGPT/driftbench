@@ -20,6 +20,55 @@ Status: the estate reader, the session reader, the replay adapter, the ordered-p
 
 The scanner names the runtime's tools for the generic acts: `Read` reads, `Edit` edits, `Write` writes, `Bash` is the shell, `Agent` dispatches a helper.
 
+## Part types
+
+The Claude Code profile ships its part types as data (`CLAUDE_CODE_TYPES`, `packages/core/src/runtime-profile/claude-code-types.ts`); [the estate model](../estate-model.md) says what each key means. `project` is the estate root and `layout` is `.claude`. The reader classifies a file by these types: the first type, in this order, that locates it gives the kind the map records (a file inside a skill folder takes the kind of the first contained type that locates it). The types without a map kind only cover their files; they change no map. The equality test (`packages/estate/test/scan/profile-equality.test.ts`) reads every fixture estate through these types and through the classification the reader made before them, and requires the same raw estate and the same map bytes.
+
+| Type | Root | Locates | Aspects | Loaded | Map kind |
+|---|---|---|---|---|---|
+| `system-prompt` | project | `**/CLAUDE.md`, `**/CLAUDE.local.md` | instructs | always | standing |
+| `setting` | layout | `settings.json`, `settings.local.json` | configures | always | settings |
+| `memory` | layout | `memory/**/*.md` | instructs, informs | on-demand | memory |
+| `skill` | layout | the folders `skills/*/`, entry `SKILL.md` | instructs | on-demand | skill |
+| `skill-reference` | inside a skill | `references/**`, `reference/**` | informs | by-reference | skill_file |
+| `skill-script` | inside a skill | `scripts/**` | executes | by-reference | skill_file |
+| `skill-file` | inside a skill | any other file of the folder | informs | by-reference | skill_file |
+| `subagent` | layout | `agents/**/*.md` | delegates, instructs | on-demand | subagent |
+| `check-registry` | layout | a `.md`, `.json`, `.yaml` or `.yml` file whose name holds "registry" or "catalog", in any case | indexes | by-reference | registry |
+| `step-list` | layout | a JSON or YAML file with the shape of a step list | indexes | by-reference | step_list |
+| `check-catalogue` | layout | a JSON file with the shape of a catalogue of checks | indexes | by-reference | registry |
+| `check-table` | layout | a JSON or YAML file with the shape of a check registry | indexes | by-reference | registry |
+| `hook` | layout | each hook of `settings.json` and `settings.local.json` (`#$.hooks.*[*].hooks[*]`), and the scripts directly in `hooks/` | guards | on-event | none |
+| `command` | layout | `commands/**/*.md` | invokes, instructs | on-mention | none |
+| `mcp-server` | project | each server of `.mcp.json` (`#$.mcpServers.*`) | acts | always | none |
+| `script` | layout | `**/*.{sh,bash,py,js,mjs,cjs,ts,rb,pl}` | executes | by-reference | none |
+| `codex-instructions` | project | `**/AGENTS.md`, runtime `codex` | instructs | always | none |
+| `codex-agent` | project | `.codex/agents/**/*`, runtime `codex` | delegates, instructs | on-demand | none |
+
+A file of another runtime (`AGENTS.md`, `.codex/agents/`) is covered by its type, and Claude Code does not read it as its own instructions.
+
+Coverage counts every file under `.claude` (the profile's `coverageRoots` is `layout`): a file there that no type above locates, and that no reference of the estate reaches, is unknown, listed in the map and by `estate lint` until a type covers it ([coverage and unknown files](../estate-model.md#coverage-and-unknown-files)). A judge request file a hook script loads, or an observe flag beside the hooks, is such a file.
+
+Your own types go in a types document. This one, written in `.claude/driftbench.estate.yaml` without its `version` line (the `types:` key is read as version 1, with globs relative to `.claude`), makes a part of every judge request file and of every observe flag beside the hooks:
+
+```yaml types
+version: 1
+types:
+  judge-request:
+    extends: hook
+    locate: hooks/lib/judges/*.request.json
+    fields: { id: $.id, prompt: $.system, schema: $.output }
+    aspects: [guards, informs]
+    loaded: on-event
+  observe-flag:
+    locate: hooks/.*-observe
+    aspects: [configures]
+    scope: { type: hook, by: name }
+    loaded: always
+```
+
+`observe-flag` links `.claude/hooks/.fs-guard-observe` to the hook script `.claude/hooks/fs-guard.py`: the last `*` of each glob captures `fs-guard`, and `scope` joins the two by that name.
+
 ## A recorded session
 
 A session is up to three files. `packages/adapters/src/claude-code/format.ts` documents the format as the adapter reads it. Every field is optional to the reader, and a record it does not know is kept, never dropped.
