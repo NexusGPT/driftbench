@@ -6,6 +6,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
+import { PATH_NOT_IN_ESTATE, referenceGraph } from '../refs/graph';
 import { navigationNames } from '../scan/code';
 import { codeNames, runtimeProduct } from '../scan/code-names';
 import { normativeEstate, normativeRanges, unloadedByDesign } from '../scan/document-roles';
@@ -234,12 +235,18 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   // A map that records no reader of the references cannot judge them: those two checks did not run.
   const unjudged = (code: string) =>
     referenceChecksOff && (code === 'ORPHAN' || code === 'MISSING_REFERENCE');
+  // A path the reader found that leads to no file and has too little evidence for a finding is listed, with its reason.
+  const unresolved = (map.referenceReader === 'code' ? referenceGraph(raw).unresolved : []).map((entry) => ({
+    what: `${entry.from}:${entry.mention.line} ${entry.mention.written}`,
+    reason: entry.reason ?? PATH_NOT_IN_ESTATE,
+  }));
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () =>
       unjudged(check.id)
         ? { read: 0, skipped: [{ what: 'map', reason: 'no-reference-reader' }], findings: [] }
         : {
             read: read[check.id as LintCode],
+            ...(check.id === 'MISSING_REFERENCE' ? { skipped: unresolved } : {}),
             findings: findings.filter((finding) => finding.code === check.id),
           },
     ),

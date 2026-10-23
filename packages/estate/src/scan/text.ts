@@ -163,19 +163,43 @@ export function slug(text: string, words = 6): string {
   return joined === '' ? 'x' : joined;
 }
 
+/** An opening code fence (CommonMark): a run of three or more backticks or tildes, then an info string. */
+const FENCE_OPEN = /^\s*(`{3,}|~{3,})([^\n]*)$/;
+
+/**
+ * The fence a line opens, or undefined. A backtick fence cannot hold a backtick in its info string (the line is
+ * then an inline code span, not a fence).
+ */
+function openingFence(line: string): { char: string; length: number } | undefined {
+  const found = FENCE_OPEN.exec(line);
+  if (!found) return undefined;
+  const marks = found[1] ?? '';
+  if (marks.startsWith('`') && (found[2] ?? '').includes('`')) return undefined;
+  return { char: marks.charAt(0), length: marks.length };
+}
+
+/** True when the line closes the fence: the same character, at least as many, and nothing after it but space. */
+function closesFence(line: string, fence: { char: string; length: number }): boolean {
+  const found = /^\s*(`{3,}|~{3,})\s*$/.exec(line);
+  const marks = found?.[1] ?? '';
+  return marks.startsWith(fence.char) && marks.length >= fence.length;
+}
+
 /**
  * The text with every line inside a fenced code block (the fence lines included) left empty, so the line
- * numbers stay. HTML comments are masked with spaces, including comments across lines.
+ * numbers stay. A fence closes by CommonMark's rule: only on a fence of the same character and at least as long
+ * as the one that opened it, with nothing after it, so a shorter fence inside a longer block is text of the block.
+ * HTML comments are masked with spaces, including comments across lines.
  * A comment inside a code example does not hide the prose after the fence.
  */
 export function blankFences(text: string): string {
-  let inside = false;
+  let inside: { char: string; length: number } | undefined;
   let comment = false;
   return text
     .split('\n')
     .map((line) => {
       if (inside) {
-        if (/^\s*(```|~~~)/.test(line)) inside = false;
+        if (closesFence(line, inside)) inside = undefined;
         return '';
       }
       let visible = '';
@@ -198,8 +222,9 @@ export function blankFences(text: string): string {
           comment = true;
         }
       }
-      if (/^\s*(```|~~~)/.test(visible)) {
-        inside = true;
+      const opened = openingFence(visible);
+      if (opened) {
+        inside = opened;
         return '';
       }
       return visible;

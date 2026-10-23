@@ -97,7 +97,7 @@ export type Namer = 'standing' | 'skill-body' | 'skill-doc' | 'agent-body' | 'me
 export type Reach = 'sibling' | 'child' | 'parent' | 'from-root' | 'from-root-layout';
 export type StandingFile = 'CLAUDE.md' | '.claude/CLAUDE.md' | 'CLAUDE.local.md';
 export const STANDING_FILES: readonly StandingFile[] = ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md'];
-export const EXTENSIONS = ['.md', '.txt', '.json', '.csv'] as const;
+export const EXTENSIONS = ['.md', '.txt', '.json', '.csv', ''] as const;
 
 /** The (naming part, reach) pairs that name a real place. */
 export const PLACES: ReadonlyArray<readonly [Namer, Reach]> = [
@@ -177,9 +177,42 @@ function mention(syntax: Syntax, written: string): string[] {
   }
 }
 
-/** True when a loose word with no folder separator could be any word: such a mention is asserted neither way. */
-export function undecidableBare(axes: Pick<RefAxes, 'syntax' | 'reach' | 'dot' | 'exists'>): boolean {
-  return axes.syntax === 'bare' && !axes.exists && (axes.reach === 'sibling' || axes.reach === 'parent');
+/** What a read must do with a mention, from the syntax that wrote it alone. */
+export type Behaviour = {
+  /** When the named file exists: a link, or nothing (the notation makes it no path: a lone word). */
+  exists: 'link' | 'none';
+  /**
+   * When it does not: `fails` (a missing reference), `listed` (kept apart, listed by the check as skipped with its
+   * reason), or `silent` (a loose word, which asks the reader to read no file).
+   */
+  missing: 'fails' | 'listed' | 'silent';
+};
+
+const LINKS: readonly Syntax[] = ['link', 'link-anchor', 'link-spaced'];
+
+/**
+ * The rule, written from how a path is told from a word. A path is a path by its syntax: a name with a file
+ * extension, a link destination, or a delimited name that holds a folder separator. A path is missing for certain
+ * when it has a file extension, is a link destination, or is written as `../x`; a delimited name with a separator and
+ * no extension whose first folder the estate does not hold (`yes/no`) is kept apart and listed. A loose word that
+ * names nothing asks the reader to read no file.
+ */
+export function behaviour(axes: Pick<RefAxes, 'syntax' | 'reach' | 'extension' | 'dot'>): Behaviour {
+  const link = LINKS.includes(axes.syntax);
+  const separator = axes.reach !== 'sibling' || axes.dot;
+  if (axes.extension !== '') {
+    // A loose word with no separator could be any word: a missing one is asserted neither way.
+    const bareWord = axes.syntax === 'bare' && !separator;
+    return { exists: 'link', missing: bareWord ? 'silent' : 'fails' };
+  }
+  // No file extension: only a link destination, or a delimited name with a separator, is a path.
+  if (axes.syntax === 'link-spaced') return { exists: 'none', missing: 'silent' };
+  if (axes.syntax === 'bare') return { exists: separator ? 'link' : 'none', missing: 'silent' };
+  if (link) return { exists: 'link', missing: 'fails' };
+  if (!separator) return { exists: 'none', missing: 'silent' };
+  // Certain: written as a relative path (`../x`, `./x`), or from a folder every estate of this runtime holds.
+  const certain = axes.reach === 'parent' || axes.reach === 'from-root-layout' || axes.dot;
+  return { exists: 'link', missing: certain ? 'fails' : 'listed' };
 }
 
 export function referenceEstate(axes: RefAxes, mods: RefMods = {}, seed = 7): Built {

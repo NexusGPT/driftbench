@@ -17,7 +17,7 @@ export const PATH_EXTRACTOR: ReferenceExtractor = {
     const prefixes = input.rules.flatMap((rule) => (rule.by === 'import' ? [rule.prefix] : []));
     const out: Mention[] = [];
     for (const line of input.lines) {
-      for (const found of pathMentions(line.text)) {
+      for (const found of pathMentions(line.text, { extensionless: true })) {
         if (prefixes.some((prefix) => found.spelling.startsWith(prefix))) continue;
         out.push({
           reader: PATH_EXTRACTOR.id,

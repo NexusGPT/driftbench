@@ -6,6 +6,7 @@ export type {
 } from './extractor';
 export { referenceExtractors, registerReferenceExtractor, unregisterReferenceExtractor } from './extractor';
 export {
+  PATH_NOT_IN_ESTATE,
   type ReferenceEntry,
   type ReferenceGraph,
   type ReferenceGraphOptions,

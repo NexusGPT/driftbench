@@ -648,7 +648,17 @@ function markdownTokens(line: string): { codes: MarkdownToken[]; links: Markdown
   return { codes, links };
 }
 
-export function pathMentions(line: string): NamedReference[] {
+/** What `pathMentions` reads beyond a path that ends in a file extension. */
+export type PathMentionOptions = {
+  /**
+   * Also read a path with no file extension when its syntax makes it a path: a delimited token (code span, quoted
+   * name, angle or bold name) that holds a folder separator, or any link destination. Without the option (the
+   * default, which the pointer reader and the loaders keep) a token must end in an extension.
+   */
+  extensionless?: boolean;
+};
+
+export function pathMentions(line: string, mentionOptions: PathMentionOptions = {}): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
   // `spaced`: the notation delimits the whole name (a link destination, a quotation), so a file name may hold
@@ -679,12 +689,22 @@ export function pathMentions(line: string): NamedReference[] {
       .replace(/[#?].*$/, '')
       .replace(/:\d+(?::\d+)?$/, '');
     if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
+    // A token with no file extension is a path only by its syntax: a link destination, or a delimited token that
+    // holds a folder separator. It holds no space (a space with no extension is a phrase), is not a folder
+    // (a closing slash) and is not a dot segment.
+    const structural =
+      mentionOptions.extensionless === true &&
+      path !== '' &&
+      !/\s/.test(path) &&
+      !path.endsWith('/') &&
+      !/^\.{1,2}$/.test(path) &&
+      (options.syntax === 'link' || path.includes('/'));
     if (
       /^[a-z]+:/i.test(path) ||
       /[<>*?{}$|;&]/.test(path) ||
       /\s--?\w/.test(path) ||
       (!options.spaced && /\s/.test(path) && !/^[^\s]*[/.][^\s]*\s/.test(path)) ||
-      !/\.[A-Za-z0-9]+$/.test(path)
+      (!/\.[A-Za-z0-9]+$/.test(path) && !structural)
     )
       return;
     // The token's exact place comes from the match's group indices, never from a search of the line.

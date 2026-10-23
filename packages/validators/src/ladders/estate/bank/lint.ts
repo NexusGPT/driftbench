@@ -454,6 +454,16 @@ const DEFECTS: Case[] = [
     },
   },
   {
+    key: 'no-model-missing-extensionless-link',
+    tier: 2,
+    title: 'a link to a file with no file type that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'When unsure, read [the entry](references/leaf) first.' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
     key: 'no-model-orphan-beside-named',
     tier: 2,
     title: 'an orphan beside a reference a table cell names, read with no model',
@@ -785,6 +795,36 @@ const CLEAN: Case[] = [
       ]);
       b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
       b.estate.raw(skillFile(name, 'references/checklist.md'), '# Checklist\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-extensionless-file',
+    tier: 2,
+    title: 'a file with no file type that a link and a code span name, read with no model',
+    noModel: true,
+    plant: (b) => {
+      const { name } = skill(b, 'a', [
+        { text: 'When unsure, read [the entry](references/leaf) first.' },
+        { text: 'Then run `scripts/tool`.' },
+      ]);
+      b.estate.raw(skillFile(name, 'references/leaf'), 'leaf\n', b.owner);
+      b.estate.raw(skillFile(name, 'scripts/tool'), '#!/bin/sh\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-fenced-example',
+    tier: 2,
+    title: 'a four-backtick example holding a three-backtick fence and a path, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [
+        { text: '````text' },
+        { text: '```' },
+        { text: 'Read `notes/absent.md` first.' },
+        { text: '````' },
+      ]);
       return [];
     },
   },
