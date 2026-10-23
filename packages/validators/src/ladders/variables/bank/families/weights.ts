@@ -23,13 +23,13 @@ function after(store: StoreDoc, base: Base, index = 0): { variable: StoreVariabl
   const variable = variableOf(store, bv.variable.id);
   check(!!variable, () => ({
     rule: 'a variable the sessions name is in the store built with them',
-    input: { variable: bv.variable.id },
+    input: { variable: bv.variable.id }, expected: none('observation')
   }));
   const values = bv.ids.map((id) => valueById(variable as StoreVariable, id));
   for (const [k, v] of values.entries()) {
     check(!!v, () => ({
       rule: 'a value the sessions name is in the store built with them',
-      input: { variable: bv.variable.id, value: bv.ids[k] },
+      input: { variable: bv.variable.id, value: bv.ids[k] }, expected: none('observation')
     }));
   }
   return { variable: variable as StoreVariable, values: values as StoreValue[] };
@@ -39,7 +39,7 @@ function weightOf(value: StoreValue, label: string): number {
   check(typeof value.weight === 'number', () => ({
     rule: 'a value of an observed variable carries a numeric weight',
     input: { label },
-    got: { weight: value.weight },
+    got: { weight: value.weight }, expected: none('observation')
   }));
   return value.weight as number;
 }
@@ -77,7 +77,7 @@ function shareOf(variable: StoreVariable, value: StoreValue, label: string): num
   for (const v of variable.values) total += weightOf(v, `value ${v.id} of ${variable.id}`);
   check(total > 0, () => ({
     rule: 'the weights of a variable are not all 0',
-    input: { variable: variable.id },
+    input: { variable: variable.id }, expected: none('observation')
   }));
   return weightOf(value, label) / total;
 }
@@ -88,7 +88,7 @@ function countsOf(value: StoreValue, label: string): { count: number; total: num
   check(!!p && p.kind === 'conversations', () => ({
     rule: 'a value seen in conversations carries conversations provenance',
     input: { label },
-    got: { provenance: value.provenance },
+    got: { provenance: value.provenance }, expected: none('observation')
   }));
   const c = p as Extract<NonNullable<StoreValue['provenance']>[number], { kind: 'conversations' }>;
   return { count: c.count, total: c.total };
@@ -167,7 +167,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       variable.values.every((v) => typeof v.weight === 'number'),
       () => ({
         rule: 'a variable weighs all of its values or none',
-        got: { weights: variable.values.map((v) => [v.id, v.weight]) },
+        got: { weights: variable.values.map((v) => [v.id, v.weight]) }, expected: none('observation')
       }),
     );
     let total = 0;
@@ -178,12 +178,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     }
     check(total > 0, () => ({
       rule: 'not every weight of a variable is 0',
-      input: { variable: variable.id },
+      input: { variable: variable.id }, expected: none('observation')
     }));
     check(Math.abs(shares - 1) <= 1e-9, () => ({
       rule: 'the shares of a variable add up to one',
       input: { variable: variable.id },
-      got: { shares },
+      got: { shares }, expected: none('observation')
     }));
     for (const value of variable.values) {
       const { count, total: of } = countsOf(value, `value ${value.id} of ${variable.id}`);
@@ -191,7 +191,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       check(Math.abs(share - count / of) <= 1 / (of + 2) + 1e-9, () => ({
         rule: 'the share of a value agrees with its conversations count',
         input: { value: value.id, variable: variable.id, count, of },
-        got: { share },
+        got: { share }, expected: none('observation')
       }));
     }
   },
@@ -340,7 +340,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     check(hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1, () => ({
       rule: 'the interval of every success in a huge total ends at 1 and starts just below it',
       input: { count: `2^${exponent}`, total: `2^${exponent}` },
-      got: [loAll, hiAll],
+      got: [loAll, hiAll], expected: none('observation')
     }));
     const [loOne, hiOne] = callInterval(ctx, 1, total);
     check(
@@ -353,7 +353,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       () => ({
         rule: 'the interval of one success in a huge total holds 1 over n with a width above 0',
         input: { count: 1, total: `2^${exponent}` },
-        got: [loOne, hiOne],
+        got: [loOne, hiOne], expected: none('observation')
       }),
     );
   },
@@ -373,19 +373,19 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const share = shareOf(variable, unseen, label);
     check(share >= 0 && share <= 1 / (n + 2) + 1e-9, () => ({
       rule: '{} was seen in 0 of {} sessions but has the share {}',
-      got: { details: [label, n, share] },
+      got: { details: [label, n, share] }, expected: none('observation')
     }));
     const { count, total } = countsOf(unseen, label);
     check(count === 0 && total === n, () => ({
       rule: 'a value seen in no session carries the counts 0 of its sessions',
       input: { label },
-      got: { count, total, sessions: n },
+      got: { count, total, sessions: n }, expected: none('observation')
     }));
     const [lo, hi] = callInterval(ctx, count, total);
     check(lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1, () => ({
       rule: 'the interval of no success has a lower bound of 0 and an upper bound above 0',
       input: { count: 0, total: n },
-      got: [lo, hi],
+      got: [lo, hi], expected: none('observation')
     }));
   },
 
@@ -400,14 +400,14 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     check(share >= 1 - 1 / (n + 2) - 1e-9 && share <= 1 + 1e-9, () => ({
       rule: 'the only value of a variable holds about all of its weight',
       input: { label },
-      got: { share },
+      got: { share }, expected: none('observation')
     }));
     const { count, total } = countsOf(v, label);
     const [lo, hi] = callInterval(ctx, count, total);
     check(hi >= 1 - 1e-12 && lo < 1 && lo >= 0, () => ({
       rule: 'the interval of every success has an upper bound of 1 and a lower bound below 1',
       input: { count, total },
-      got: [lo, hi],
+      got: [lo, hi], expected: none('observation')
     }));
   },
 
@@ -444,7 +444,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           check(Number.isFinite(value.weight) && value.weight >= 0, () => ({
             rule: 'a stored weight is a finite number from 0',
             input: { label },
-            got: { weight: value.weight },
+            got: { weight: value.weight }, expected: none('observation')
           }));
         }
       }
@@ -457,7 +457,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       check(some.length === 0 || (some.length === weights.length && new Set(some).size === 1), () => ({
         rule: 'a variable observed in no session has weights that are absent or all equal',
         input: { variable: v.id },
-        got: { weights },
+        got: { weights }, expected: none('observation')
       }));
     }
     if (variant === 'owner-only') {
@@ -467,7 +467,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         check(v.weight === ownerWeights[k], () => ({
           rule: 'an owner weight is stored as declared',
           input: { value: id, weight: ownerWeights[k] },
-          got: { stored: v.weight },
+          got: { stored: v.weight }, expected: none('observation')
         }));
       });
     }
@@ -475,7 +475,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     check(Number.isFinite(lo) && Number.isFinite(hi) && lo >= 0 && hi <= 1 && hi > lo, () => ({
       rule: 'the interval of one session is finite, inside 0 to 1, with a width above 0',
       input: { count: 0, total: 1 },
-      got: [lo, hi],
+      got: [lo, hi], expected: none('observation')
     }));
   },
 
@@ -551,7 +551,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       check(v.weight === weights[k], () => ({
         rule: 'an owner weight is stored as declared',
         input: { value: id, weight: weights[k] },
-        got: { stored: v.weight },
+        got: { stored: v.weight }, expected: none('observation')
       }));
     });
   },
@@ -588,7 +588,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     check(v.weight === undefined, () => ({
       rule: 'an invalid owner weight is not stored',
       input: { weight: bad },
-      got: { stored: v.weight },
+      got: { stored: v.weight }, expected: none('observation')
     }));
     const named = refusalsMentioning(store, id);
     check(
@@ -596,7 +596,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       () => ({
         rule: 'a refused weight is named in the refusal list with a reason',
         input: { id },
-        got: { refusals: store.refused },
+        got: { refusals: store.refused }, expected: none('observation')
       }),
     );
   },

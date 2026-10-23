@@ -30,7 +30,7 @@ const warningCodes = (plan: Plan): string[] => (plan.warnings ?? []).map((w) => 
 function needWarning(plan: Plan, code: string, why: string): void {
   check(warningCodes(plan).includes(code), () => ({
     rule: 'the plan has no warning {} ({}); its warnings are {}',
-    got: { details: [code, why, show(warningCodes(plan))] },
+    got: { details: [code, why, show(warningCodes(plan))] }, expected: none('observation')
   }));
 }
 
@@ -62,7 +62,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     plan.rows.forEach((row, i) => {
       check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]), () => ({
         rule: 'row {} is not seed {} as given: {}',
-        got: { details: [i, i, show(row, 140)] },
+        got: { details: [i, i, show(row, 140)] }, expected: none('observation')
       }));
     });
   },
@@ -83,7 +83,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           ),
         () => ({
           rule: 'when nothing is approved the plan is the seeds alone, kept whole: {} rows',
-          got: { details: [show(plan.rows.length)] },
+          got: { details: [show(plan.rows.length)] }, expected: none('observation')
         }),
       );
       needWarning(plan, 'no_variables', 'nothing in the store is approved');
@@ -196,7 +196,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         for (const value of variable.values) if (value.weight !== undefined) value.weight *= 100;
       const other = planOf(ctx, scaled, { seed: ctx.seed });
       check(other.rows.length === plan.rows.length, () => ({
-        rule: 'scaling every weight by 100 changed the number of rows',
+        rule: 'scaling every weight by 100 changed the number of rows', expected: none('observation')
       }));
       plan.rows.forEach((row, i) => {
         const twin = other.rows[i] as PlanRow;
@@ -208,7 +208,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           Math.abs(row.logWeight - twin.logWeight) <= LOG_TOLERANCE;
         check(same, () => ({
           rule: 'weights are relative, yet scaling them by 100 changed row {}: {} then {}',
-          got: { details: [i, show(row), show(twin)] },
+          got: { details: [i, show(row), show(twin)] }, expected: none('observation')
         }));
       });
       return;
@@ -240,11 +240,11 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       }
     }
     check(seenNull, () => ({
-      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered',
+      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered', expected: none('observation')
     }));
     const text = JSON.stringify(plan.rows.map((r) => r.logWeight));
     check(!/Infinity|NaN/.test(text), () => ({
-      rule: 'a logWeight of minus infinity must be written as null',
+      rule: 'a logWeight of minus infinity must be written as null', expected: none('observation')
     }));
   },
 
