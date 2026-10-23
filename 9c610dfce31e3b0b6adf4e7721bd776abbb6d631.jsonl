@@ -1,0 +1,2 @@
+{"text":"the session exceeds 32 turns","label":{"kind":"numeric","subject":"session turns","limit":32,"comparison":"gt","unit":"turns"}}
+{"text":"the session is greater than 22 turns","label":{"kind":"numeric","subject":"session turns","limit":22,"comparison":"gt","unit":"turns"}}
