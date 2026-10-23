@@ -54,7 +54,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Match the Fjord Kitchenware invoice INV-1001 with its order.
+      user: Does invoice INV-1001 agree with the order and with what we received?
     expect:
       skills:
         - name: invoice-reconcile
@@ -84,6 +84,9 @@ metadata:
       deviation: D6_instruction_in_data
       estate_hazard: process_restart
       atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -91,8 +94,8 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: invoice-reconcile
-    phrase: 2
+    situation: invoice-reconcile-by-description
+    phrase: 1
     ask: code
     outcome: bank
   links:

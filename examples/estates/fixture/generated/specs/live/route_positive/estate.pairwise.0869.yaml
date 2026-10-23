@@ -86,6 +86,9 @@ metadata:
       deviation: D6_instruction_in_data
       estate_hazard: rate_wave
       atoms.route: route.standing.an-ask-to-prepare-the-weekly
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

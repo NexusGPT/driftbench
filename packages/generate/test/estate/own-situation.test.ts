@@ -65,11 +65,23 @@ describe('tasks from the atom being tested', () => {
     expect(codeAsk('trigger', [rule, unit], []).text).toBe(
       'Please review the revised caption. When a correction arrives.',
     );
-    // With no declared clause, the rule is set off by the work of its unit, as written, with its situation.
+    // With no declared clause, the rule is set off by the request routed to its unit, with its situation. The
+    // unit's description is written about the unit, not asked by an owner, so it is never the work.
     const bare: EstateAtom = { ...rule, fields: {} };
-    expect(codeAsk('trigger', [bare, unit], []).text).toBe(
-      'Please handle this for me: Manage the editorial desk. When a correction arrives.',
-    );
+    expect(codeAsk('trigger', [bare, unit], []).text).toBeUndefined();
+    const routed: EstateAtom = {
+      id: 'route.publication',
+      kind: 'route',
+      title: 'Manage the desk',
+      approved: true,
+      fields: { ask: 'manage the editorial desk', target: 'publication' },
+      evidence: [],
+    };
+    expect(
+      codeAsk('trigger', [bare, unit], [], false, undefined, undefined, {
+        routesOf: (id) => (id === unit.id ? [routed] : []),
+      }).text,
+    ).toBe('Please manage the editorial desk. When a correction arrives.');
   });
   it('finds the task of a standing gate by its declared reference path, never the first skill', () => {
     const other = {

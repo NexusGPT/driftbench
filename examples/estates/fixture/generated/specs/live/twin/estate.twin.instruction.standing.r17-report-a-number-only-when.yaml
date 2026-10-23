@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. Report a number only when you read it in a file or a tool result during this session. Thanks."
+      user: Could you reconcile an invoice against a purchase order? Report a number only when you read it in a file or a tool result during this session. Thanks.
     expect:
       workspace:
         deleted: []
@@ -54,17 +54,17 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
+    askFrom: route.standing.an-ask-to-reconcile-an-invoice (first route of the estate)
     askBuild:
       - ask: Could you {act}?[ {situation}.] Thanks.
-        act: "handle this for me: {span}"
+        act: "{span}"
         situation: "{span}"
         spans:
           - slot: act
-            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
-            field: situation
+            atom: route.standing.an-ask-to-reconcile-an-invoice
+            field: fields.ask
             from: 0
-            to: 143
+            to: 45
           - slot: situation
             atom: instruction.standing.r17-report-a-number-only-when
             field: situation

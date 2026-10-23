@@ -477,11 +477,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1420,
-      blocks: 1415,
-      complete: 1414,
-      incomplete: 6,
-      judged: 777,
+      specs: 1418,
+      blocks: 1413,
+      complete: 1411,
+      incomplete: 7,
+      judged: 778,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

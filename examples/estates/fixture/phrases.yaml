@@ -144,7 +144,6 @@ situations:
     use: trigger
     atoms:
       - route.standing.an-ask-to-reconcile-an-invoice
-      - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       - skill.invoice-reconcile.skill-invoice-reconcile
       - script.invoice-reconcile.script-scripts-reconcile-py
       - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
@@ -156,6 +155,17 @@ situations:
       - { text: 'Reconcile invoice INV-1001 against purchase order PO-2001.', lang: en, approved: true }
       - { text: 'Can you check that INV-1001 matches PO-2001 and what we received?', lang: en, approved: true }
       - { text: 'Match the Fjord Kitchenware invoice INV-1001 with its order.', lang: en, approved: true }
+
+  - id: invoice-reconcile-by-description
+    title: Reconcile one invoice, asked in words that fit the skill and are not its routing table row
+    use: trigger
+    atoms:
+      - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'I need the Fjord Kitchenware invoice INV-1001 checked against its purchase order.', lang: en, approved: true }
+      - { text: 'Does invoice INV-1001 agree with the order and with what we received?', lang: en, approved: true }
 
   - id: invoice-reconcile-edit
     title: Reconcile one invoice and record the matched amount in its file
@@ -246,6 +256,7 @@ situations:
     touches: {}
     phrases:
       - { text: 'Audit ledger/2026-W41.csv for double payments and unapplied credit notes. Answer with one JSON object.', lang: en, approved: true }
+      - { text: 'Look through ledger/2026-W41.csv for an invoice number paid twice. Answer with one JSON object.', lang: en, approved: true }
 
   - id: route-planning
     title: Plan tomorrow's delivery routes
@@ -454,8 +465,10 @@ situations:
     use: trigger
     atoms:
       - instruction.inbox-triager.you-sort-messages-into-three-folders
+      - instruction.inbox-triager.a-message-that-fits-none-goes
       - instruction.inbox-triager.never-answer-a-message-yourself-and
       - subagent.inbox-triager.helper-inbox-triager
+      - route.inbox-triager.an-ask-that-fits-inbox-triager
     workspace: northwind-inbox
     touches: {}
     phrases:

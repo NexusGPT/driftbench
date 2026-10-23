@@ -19,7 +19,7 @@ export function namedIds(value: unknown, atoms: ReadonlyMap<string, MapAtom>, de
  * The atoms an ask of a plan row may take its words from (docs/estate.md section 5): the row's atoms and the atoms
  * their fields name; a route that names a skill or helper of the row ("a request that routes to the skill or helper
  * that carries it"); and, for a row that holds no skill or helper (a rule of the standing instructions, which holds
- * over any work), the first route of the estate.
+ * over any work), the first route of the estate that was not read from a description.
  */
 export function rowSources(rowAtomIds: readonly string[], atoms: ReadonlyMap<string, MapAtom>): Set<string> {
   const out = new Set<string>();
@@ -39,7 +39,12 @@ export function rowSources(rowAtomIds: readonly string[], atoms: ReadonlyMap<str
     const target = (route.fields as { target?: unknown } | undefined)?.target;
     if (units.has(String(target ?? ''))) out.add(route.id);
   }
-  if (units.size === 0 && routes[0]) out.add(routes[0].id);
+  // A route read from a description has no request in an owner's voice (`fields.via`), so the estate's first route is
+  // the first one that was not.
+  const standing = routes.find(
+    (route) => (route.fields as { via?: unknown } | undefined)?.via !== 'description',
+  );
+  if (units.size === 0 && standing) out.add(standing.id);
   return out;
 }
 

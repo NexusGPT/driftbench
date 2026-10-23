@@ -41,6 +41,8 @@ metadata:
     cell:
       ask_shape: concrete
       atoms.route: route.standing.an-ask-to-prepare-the-weekly
+    unexpressed:
+      - ask_shape
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

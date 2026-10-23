@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day. Answer with a table."
+      user: Please plan the delivery routes for tomorrow. Answer with a table.
     expect:
       subagents:
         - name: route-planner
@@ -62,6 +62,9 @@ metadata:
       deviation: D4_loose_confirmation
       estate_hazard: stale_tracker
       atoms.register: register.route-planner.answer-with-a-table-van-stops
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -72,17 +75,17 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askFrom: route.standing.an-ask-to-plan-the-delivery (request)
     askBuild:
       - ask: Please {act}.[ {situation}.]
-        act: "handle this for me: {span}"
+        act: "{span}"
         situation: "{span}"
         spans:
           - slot: act
-            atom: route.route-planner.an-ask-that-fits-route-planner
-            field: situation
+            atom: route.standing.an-ask-to-plan-the-delivery
+            field: fields.ask
             from: 0
-            to: 130
+            to: 37
           - slot: situation
             atom: register.route-planner.answer-with-a-table-van-stops
             field: situation

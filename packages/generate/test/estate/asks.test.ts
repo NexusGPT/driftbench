@@ -161,7 +161,7 @@ describe('the act comes from the declared source, never from reading its words',
     );
   });
 
-  it('a skill or helper asks with a request routed to it, else its passage when that is its description', () => {
+  it('a skill or helper asks with a request routed to it; its own description is never its work', () => {
     const route = atom('route.standing.moor', { kind: 'route', fields: { ask: 'moor the ferry at quay 3' } });
     const routesOf = (id: string) => (id === unit.id ? [route] : []);
     expect(
@@ -174,11 +174,27 @@ describe('the act comes from the declared source, never from reading its words',
       fields: { name: 'dock', description: 'Plans berths for visiting vessels.' },
       provenance: { file: '.claude/skills/dock/SKILL.md', quote: 'Plans berths for visiting vessels.' },
     });
-    const out = codeAsk('trigger', [own], []);
-    expect(checked(out, [own])).toBe('Please handle this for me: Plans berths for visiting vessels.');
-    expect(out.build?.spans).toEqual([
-      { slot: 'act', atom: own.id, field: 'provenance.quote', from: 0, to: 34 },
-    ]);
+    // A description that is the whole passage is still the unit's own words about itself, not an owner's ask.
+    expect(codeAsk('trigger', [own], []).text).toBeUndefined();
+    expect(codeAsk('trigger', [own], []).refused).toMatch(/no task/);
+  });
+
+  it('a route read from a description has no request: the structured field decides, whatever the text says', () => {
+    for (const situation of [
+      'Plans berths for visiting vessels.',
+      'Use when the user asks for a berth.',
+      'Liegeplätze für Schiffe planen.',
+    ]) {
+      const described = atom('route.dock.description', {
+        kind: 'route',
+        fields: { via: 'description', target: 'dock', targetKind: 'skill' },
+        situation,
+      });
+      expect(codeAsk('trigger', [described], []).text, situation).toBeUndefined();
+      // The same text on a route that is not read from a description is handed over as before.
+      const other = atom('route.dock.other', { kind: 'route', fields: { target: 'dock' }, situation });
+      expect(codeAsk('trigger', [other], []).text, situation).toBe(`Please handle this for me: ${situation}`);
+    }
   });
 
   it('the same structure in another language gives the same template: no word is read', () => {

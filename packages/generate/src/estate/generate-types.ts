@@ -235,6 +235,14 @@ export type EstateSpecRecord = {
   expect?: 'pass' | 'fail';
 };
 
+/**
+ * The plan axes whose values only the words of an ask can carry: how the ask is put, and what the owner signals
+ * besides it. An approved phrase of a situation that pins them carries them. An ask written by code is cut from the
+ * estate's own text and carries none, so a spec with such an ask lists the ones its row names under `unexpressed`
+ * and claims no more than its text says.
+ */
+export const ASK_VOICE_AXES: readonly string[] = ['ask_shape', 'owner_signal'];
+
 /** Where a spec's ask comes from: an approved phrase, code, a recorded session, or no ask (static). */
 export type AskSource = 'bank' | 'code' | 'session' | 'none';
 

@@ -7,6 +7,7 @@ import { rngFor, shuffle } from '../seed/random';
 import { type AskBuild, codeAsk, DEVIATION_ASKS } from './asks';
 import { guardRuleIds, taskAtoms } from './context';
 import {
+  ASK_VOICE_AXES,
   type AskSource,
   type Built,
   type Context,
@@ -496,6 +497,10 @@ export function build(
         planRow,
         ...(variant !== undefined ? { focusVariant: variant } : {}),
         cell: row.cell,
+        // What the row's cell names and the ask's words do not carry: the claim of a spec stops where its text does.
+        ...(ask === 'code' && ASK_VOICE_AXES.some((axis) => row.cell[axis] !== undefined)
+          ? { unexpressed: ASK_VOICE_AXES.filter((axis) => row.cell[axis] !== undefined) }
+          : {}),
         seeder: ESTATE_SEEDER,
         seed: ctx.seed,
         mapHash: ctx.map.hash,

@@ -84,6 +84,9 @@ metadata:
       deviation: D2_goal_shift
       estate_hazard: rate_wave
       atoms.route: route.route-planner.an-ask-that-fits-route-planner
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

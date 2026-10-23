@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week."
+      user: Please prepare the weekly report.
     expect:
       skills:
         - name: weekly-report
@@ -41,6 +41,8 @@ metadata:
     cell:
       ask_shape: concrete
       atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
+    unexpressed:
+      - ask_shape
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -51,16 +53,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.weekly-report.an-ask-that-fits-weekly-report (situation)
+    askFrom: route.standing.an-ask-to-prepare-the-weekly (request)
     askBuild:
       - ask: Please {act}.[ {situation}.]
-        act: "handle this for me: {span}"
+        act: "{span}"
         spans:
           - slot: act
-            atom: route.weekly-report.an-ask-that-fits-weekly-report
-            field: situation
+            atom: route.standing.an-ask-to-prepare-the-weekly
+            field: fields.ask
             from: 0
-            to: 146
+            to: 25
     outcome: no-delete
   links:
     - block: ask

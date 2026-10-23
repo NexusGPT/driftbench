@@ -8,11 +8,19 @@ const unit: EstateAtom = {
   title: 'Skill desk',
   approved: true,
   fields: { name: 'desk', description: 'Run the weekly desk review for the harbour office.' },
-  // The passage is the description, so the unit's work is handed over as it stands (the ask of every journey).
+  // The unit's description is never its work: the request routed to it (below) is the ask of every journey.
   provenance: {
     file: '.claude/skills/desk/SKILL.md',
     quote: 'Run the weekly desk review for the harbour office.',
   },
+  evidence: [{ type: 'skill_loaded', name: 'desk' }],
+};
+const request: EstateAtom = {
+  id: 'route.desk.request',
+  kind: 'route',
+  title: 'Run the desk review',
+  approved: true,
+  fields: { ask: 'Run the weekly desk review for the harbour office', target: 'desk' },
   evidence: [{ type: 'skill_loaded', name: 'desk' }],
 };
 const step = (name: string): EstateAtom => ({
@@ -42,8 +50,8 @@ function generate(rows: EstatePlanRow[]) {
   const map = {
     runtime: 'claude-code',
     hash: 'journeys',
-    atoms: [unit, plan, run, verify, report],
-    edges: [],
+    atoms: [unit, request, plan, run, verify, report],
+    edges: [{ from: request.id, to: unit.id, kind: 'route' }],
   };
   return generateEstateSuite(
     {

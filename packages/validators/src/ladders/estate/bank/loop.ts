@@ -4,6 +4,7 @@ import {
   type EstateTest,
   estateImpact,
   type ImpactReport,
+  toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
 import { bankSituation, borrowedSituation, rebuiltAsk, rowSources } from '../ask-binding';
@@ -947,6 +948,38 @@ const ASKS: AskCheck[] = [
         return fixed === null || !StaticTest.safeParse(fixed).success;
       });
       return bad.length === 0 ? undefined : named(bad, 'specs do not load');
+    },
+  },
+  {
+    key: 'code-ask-claims-no-voice',
+    tier: 2,
+    title:
+      'a spec asked by code lists the voice axes of its cell as unexpressed, and a spec asked by a phrase lists none',
+    // docs/estate.md section 5: the axes whose values only the words of an ask can carry are the persona dimensions of
+    // the situation space. A code-written ask is cut from the estate's own text and carries none of them, so the spec
+    // names the ones its cell holds under `unexpressed` and claims no more than its text says. The persona dimensions
+    // come from the space the plan is built over, never from the generator's own list.
+    check: (run, all) => {
+      const persona = new Set(
+        toEstateSpaceMap(run.scanned.map)
+          .dimensions.filter((dimension) => dimension.kind === 'persona')
+          .map((dimension) => dimension.id),
+      );
+      const bad = all.filter((v) => {
+        const meta = estateMeta(v.spec) as {
+          ask?: unknown;
+          cell?: Record<string, string>;
+          unexpressed?: unknown;
+        };
+        if (meta.ask === undefined) return false;
+        const claimed = Array.isArray(meta.unexpressed) ? [...(meta.unexpressed as string[])].sort() : [];
+        if (meta.ask !== 'code') return claimed.length > 0;
+        const wanted = Object.keys(meta.cell ?? {})
+          .filter((axis) => persona.has(axis))
+          .sort();
+        return JSON.stringify(claimed) !== JSON.stringify(wanted);
+      });
+      return bad.length === 0 ? undefined : named(bad, 'specs claim a voice their ask does not carry');
     },
   },
 ];
