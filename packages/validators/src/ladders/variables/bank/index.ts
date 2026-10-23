@@ -66,7 +66,6 @@ export function variablesBank(): BankItem[] {
         component: stem.component,
         cause: stem.variantCauses?.[key] ?? stem.cause,
         ...(heavy ? { budgetMs: HEAVY_ITEM_BUDGET_MS } : {}),
-        ...(stem.fresh ? { fresh: true as const } : {}),
         check: (ctx) =>
           run
             ? outcomeOf(() => run(key, ctx))

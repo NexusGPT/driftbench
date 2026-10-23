@@ -50,8 +50,6 @@ export type BankItem = {
   cause: string;
   /** How long the validator lets the item run before it stops it. */
   budgetMs?: number;
-  /** The item checks that results are fresh objects: the frame's identity watch is on for it (manifest `fresh`). */
-  fresh?: true;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;
 };
 

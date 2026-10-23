@@ -131,29 +131,17 @@ async function main(args: readonly string[], report: (line: object) => void): Pr
     report({ start: index, id: item.id });
     const began = performance.now();
     const mark = frame.position();
-    // An item that checks fresh results gets the identity watch: a copy of each answer hides a shared object.
-    frame.identity(item.fresh === true);
-    let ran: Awaited<ReturnType<typeof runItem>>;
-    try {
-      ran = await runItem(item, seed, root as string, impl, implPath);
-    } finally {
-      frame.identity(false);
-    }
-    // A call whose runs answered differently, that changed a built-in object or that returned a shared object to an
-    // item that checks fresh results, fails the item whatever it concluded.
+    // The caller sees object identity as in its own process (docs/validators.md 12.9, object identity), so an item
+    // that checks fresh results reads the sharing itself. A call whose runs answered differently or that changed a
+    // built-in object fails the item whatever it concluded.
+    const ran = await runItem(item, seed, root as string, impl, implPath);
     const split = frame.divergenceSince(mark);
     const altered = ran.pass ? frame.alteredSince(mark) : undefined;
-    const shared = ran.pass ? frame.sharedSince(mark) : undefined;
     const outcome = split
       ? { pass: false, detail: `the implementation's answer depends on how it is run: ${split}` }
       : altered
         ? { pass: false, detail: `the implementation changed a built-in object: ${altered}` }
-        : shared
-          ? {
-              pass: false,
-              detail: `the implementation shared objects between results or with its input: ${shared}`,
-            }
-          : ran;
+        : ran;
     report({
       done: index,
       id: item.id,

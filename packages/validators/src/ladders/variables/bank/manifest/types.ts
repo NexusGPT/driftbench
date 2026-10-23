@@ -70,11 +70,6 @@ export type StemDef = {
   cause: string;
   /** Variant-specific candidate cause when a stem covers separate fixes. */
   variantCauses?: Readonly<Record<string, string>>;
-  /**
-   * The stem checks that a result shares no object with its arguments or with an earlier result. When the
-   * implementation runs under the frame, its identity watch is on for the stem's items (docs/validators.md 12.9).
-   */
-  fresh?: true;
   /** The assumptions (ASSUMPTIONS) the oracle rests on, when it rests on any. */
   assumption?: readonly string[];
   variants: readonly Variant[];

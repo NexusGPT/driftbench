@@ -594,7 +594,11 @@ function callerIdentity(): {
 
 /** An answer as the tape keeps it: without the ids of its objects and the codec's note, compared when it came. */
 function withoutIds(outcome: Outcome): Outcome {
-  const { rrefs: _ids, uncarried: _uncarried, ...rest } = outcome as Outcome & {
+  const {
+    rrefs: _ids,
+    uncarried: _uncarried,
+    ...rest
+  } = outcome as Outcome & {
     rrefs?: unknown;
     uncarried?: unknown;
   };
