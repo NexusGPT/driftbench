@@ -1,4 +1,4 @@
-import { ItemFailure } from '../../../failure';
+import { check, ItemFailure, none } from '../../../failure';
 import type {
   CoverageResult,
   FileStore,
@@ -102,17 +102,18 @@ export function build(ctx: ItemContext, sources: Sources): StoreDoc {
   );
   const store = got.value as StoreDoc;
   const problems = formatProblems(store);
-  must(
-    problems.length === 0,
-    () => `buildStore returned invalid shared format fields (docs/variables.md): ${problems.join('; ')}`,
-  );
+  check(problems.length === 0, () => ({
+    rule: 'buildStore returns a store whose fields follow the shared format (docs/variables.md)',
+    got: { problems },
+    expected: none('observation'),
+  }));
   for (const variable of store.variables) {
     for (const value of variable.values) {
-      must(
-        Array.isArray(value.provenance) && value.provenance.length > 0,
-        () =>
-          `buildStore source-reader output: the value ${value.id} of ${variable.id} names no provenance (docs/variables.md R1)`,
-      );
+      check(Array.isArray(value.provenance) && value.provenance.length > 0, () => ({
+        rule: 'every value a source reader produces names its provenance (docs/variables.md R1)',
+        got: { variable: variable.id, value: value.id, provenance: value.provenance },
+        expected: none('observation'),
+      }));
     }
   }
   return store;
@@ -207,10 +208,11 @@ export function callInterval(ctx: ItemContext, count: number, total: number): [n
 export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
   const fn = provided(ctx, 'validate');
   const got = attempt(() => fn(value));
-  must(
-    !got.error,
-    () => `validate threw ${got.error?.name}: ${got.error?.message}; it should return the errors`,
-  );
+  check(!got.error, () => ({
+    rule: 'validate returns its errors and does not throw',
+    got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
+  }));
   const result = got.value as ValidateResult | undefined;
   must(
     !!result &&
@@ -226,10 +228,11 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
 export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<string, string>): QuotesResult {
   const fn = provided(ctx, 'quotes');
   const got = attempt(() => fn(store, files));
-  must(
-    !got.error,
-    () => `quotes threw ${got.error?.name}: ${got.error?.message}; it should return the issues`,
-  );
+  check(!got.error, () => ({
+    rule: 'quotes returns its issues and does not throw',
+    got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
+  }));
   const result = got.value as QuotesResult | undefined;
   must(
     !!result && typeof result === 'object' && Array.isArray(result.errors),

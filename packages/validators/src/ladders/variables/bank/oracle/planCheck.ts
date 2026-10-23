@@ -58,13 +58,13 @@ export function shapeProblems(space: Space, plan: Plan, seeds: readonly Row[]): 
   if (!plan || !Array.isArray(plan.rows)) return ['the plan has no rows array'];
   const ids = new Set<string>();
   plan.rows.forEach((row, i) => {
-    if (typeof row?.id !== 'string' || row.id === '') out.push(`row ${i} has no id`);
-    else if (ids.has(row.id)) out.push(`row ${i} repeats the id ${row.id}`);
+    if (typeof row?.id !== 'string' || row.id === '') out.push(`row.${i} has no id`);
+    else if (ids.has(row.id)) out.push(`row.${i} repeats the id ${row.id}`);
     else ids.add(row.id);
-    if (row?.kind !== 'seed' && row?.kind !== 'new') out.push(`row ${i} has kind ${String(row?.kind)}`);
-    if (typeof row?.values !== 'object' || row.values === null) out.push(`row ${i} has no values`);
+    if (row?.kind !== 'seed' && row?.kind !== 'new') out.push(`row.${i} has kind ${String(row?.kind)}`);
+    if (typeof row?.values !== 'object' || row.values === null) out.push(`row.${i} has no values`);
     if (row?.logWeight !== null && (typeof row?.logWeight !== 'number' || Number.isNaN(row.logWeight)))
-      out.push(`row ${i} has no logWeight (a number, or null for minus infinity)`);
+      out.push(`row.${i} has no logWeight (a number, or null for minus infinity)`);
   });
   if (out.length > 0) return out.slice(0, 5);
   if (plan.rows.length < seeds.length) {
@@ -72,7 +72,7 @@ export function shapeProblems(space: Space, plan: Plan, seeds: readonly Row[]): 
   }
   seeds.forEach((seed, i) => {
     const row = plan.rows[i] as PlanRow;
-    if (row.kind !== 'seed') out.push(`row ${i} should be seed ${i} but has kind ${row.kind}`);
+    if (row.kind !== 'seed') out.push(`row.${i} should be seed.${i} but has kind ${row.kind}`);
     else if (stableStringify(row.values) !== stableStringify(seed)) {
       out.push(
         `seed ${i} was changed: given ${JSON.stringify(seed)}, in the plan ${JSON.stringify(row.values)}`,
@@ -83,7 +83,7 @@ export function shapeProblems(space: Space, plan: Plan, seeds: readonly Row[]): 
   for (let i = seeds.length; i < plan.rows.length; i += 1) {
     const row = plan.rows[i] as PlanRow;
     if (row.kind !== 'new') {
-      out.push(`row ${i} should be new but has kind ${row.kind}`);
+      out.push(`row.${i} should be new but has kind ${row.kind}`);
       continue;
     }
     const got = Object.keys(row.values);
@@ -91,14 +91,14 @@ export function shapeProblems(space: Space, plan: Plan, seeds: readonly Row[]): 
     const extra = got.filter((k) => !keys.includes(k));
     if (missing.length > 0 || extra.length > 0) {
       out.push(
-        `new row ${i} should assign exactly the ${keys.length} variables${missing.length ? `; missing ${missing.slice(0, 3).join(', ')}` : ''}${extra.length ? `; unknown ${extra.slice(0, 3).join(', ')}` : ''}`,
+        `new row.${i} should assign exactly the ${keys.length} variables${missing.length ? `; missing ${missing.slice(0, 3).join(', ')}` : ''}${extra.length ? `; unknown ${extra.slice(0, 3).join(', ')}` : ''}`,
       );
       continue;
     }
     for (const v of space.vars) {
       if (!v.values.includes(row.values[v.id] as string)) {
         out.push(
-          `new row ${i} gives ${v.id} the value ${String(row.values[v.id])}, which the store does not list`,
+          `new row.${i} gives ${v.id} the value ${String(row.values[v.id])}, which the store does not list`,
         );
         break;
       }
@@ -119,7 +119,7 @@ export function forbiddenRows(space: Space, oracle: SpaceOracle, parsed: ParsedP
   parsed.freshIndex.forEach((row, i) => {
     if (!oracle.rowIsValid(row)) {
       const bad = firstForbidden(space, oracle, row);
-      out.push(`new row ${i} holds the impossible pair ${bad}`);
+      out.push(`new row.${i} holds the impossible pair ${bad}`);
     }
   });
   return out.slice(0, 5);

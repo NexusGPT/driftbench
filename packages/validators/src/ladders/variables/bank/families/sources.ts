@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type {
   ConversationInput,
   OwnerInput,
@@ -69,7 +70,12 @@ export function farThresholds(rng: Rng, count: number): number[] {
 }
 
 export function exactlyOne<T>(list: readonly T[], what: string): T {
-  must(list.length === 1, () => `${what}: expected exactly 1, found ${list.length}`);
+  check(list.length === 1, () => ({
+    rule: 'the store holds one result for this question',
+    input: what,
+    got: { results: list.length },
+    expected: { results: 1 },
+  }));
   return list[0] as T;
 }
 
@@ -639,7 +645,11 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const store = build(ctx, { estate: base.estate, conversations: sessions });
     const dump = JSON.stringify(store);
     const leak = canaries.find((c) => dump.includes(c));
-    must(leak === undefined, () => `the store holds "${leak}" from a conversation: only counts may reach it`);
+    check(leak === undefined, () => ({
+      rule: 'nothing of a conversation but counts reaches the store',
+      got: { leak },
+      expected: none('observation'),
+    }));
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     must(!hasPrefix, 'the store holds a fragment of a conversation text or id');
   },
