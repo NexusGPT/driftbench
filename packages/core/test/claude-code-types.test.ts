@@ -75,7 +75,7 @@ describe('the Claude Code profile as data', () => {
     const paths = [
       'CLAUDE.md',
       './CLAUDE.md',
-      '/home/someone/project/CLAUDE.md',
+      '/home/user/project/CLAUDE.md',
       '//CLAUDE.md',
       './.claude/CLAUDE.md',
       '.claude/CLAUDE.local.md',
