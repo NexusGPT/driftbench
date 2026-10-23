@@ -68,9 +68,23 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-details-to-recap
+    when:
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+    expect:
+      stage: recap
+      stage_reported: true
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
 metadata:
   stem:
     specs:
       - gen-twise-078
-      - gen-behaviour-balance-073
-      - gen-behaviour-balance-109
+      - gen-behaviour-balance-031
+      - gen-behaviour-balance-056
