@@ -90,6 +90,29 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['the reader reads a percent sign after a number', ['percent-sign']],
     ['the reader reads a decimal that starts with zero', ['leading-zero-decimal']],
     ['the reader reads a negative number followed by a unit', ['negative-limit-with-a-unit']],
+    ['the reader reads a space between groups of three digits', ['space-thousands']],
+    ['the reader reads a no-break or narrow space between groups of digits', ['narrow-no-break-thousands']],
+    ['the reader reads an apostrophe between groups of digits', ['apostrophe-thousands']],
+    ['the reader reads a decimal comma after groups marked with points', ['european-decimal-comma']],
+    ['the reader reads a currency code before a number', ['iso-code-before-the-number']],
+    ['the reader reads a currency code after a number', ['iso-code-after-the-number']],
+    ['the reader reads the minus sign of Unicode as a negative sign', ['unicode-minus-sign']],
+    ['the reader reads a plus sign before a number', ['plus-sign']],
+    ['the reader reads a unit written against its number', ['unit-attached-to-the-number']],
+    ['the reader reads hundreds written in English words', ['hundreds-in-words']],
+    ['the reader reads thousands written in English words', ['thousands-in-words']],
+    ['the reader reads an and inside a number written in English words', ['and-in-words']],
+    ['the reader reads the greater-than symbol as a comparison', ['symbol-greater-than']],
+    [
+      'the reader reads the two-character at-least symbol as a comparison',
+      ['symbol-at-least-two-characters'],
+    ],
+    ['the reader reads the one-character at-least symbol as a comparison', ['symbol-at-least-one-character']],
+    ['the reader reads the less-than symbol as a comparison', ['symbol-less-than']],
+    ['the reader reads the two-character at-most symbol as a comparison', ['symbol-at-most-two-characters']],
+    ['the reader reads the one-character at-most symbol as a comparison', ['symbol-at-most-one-character']],
+    ['the reader reads a thousand written as k after a number', ['thousands-written-with-k']],
+    ['the reader reads a million written as a word after a number word', ['millions-written-with-a-word']],
   ]),
   'sources.condition.kinds': table([
     ['an equality condition keeps a case below, at and above its limit', ['equality-keeps-all-three-cases']],
@@ -98,6 +121,31 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['inequality-keeps-all-three-cases'],
     ],
     ['a range condition keeps cases below, at each limit, inside and above', ['range-has-five-cases']],
+    ['a range written with the word to keeps its five cases', ['range-written-with-to']],
+    ['a range written with an en dash keeps its five cases', ['range-written-with-an-en-dash']],
+    ['a range written with a hyphen keeps its five cases', ['range-written-with-a-hyphen']],
+    [
+      'a range whose two ends are both open (more than A and fewer than B) keeps its five cases',
+      ['range-with-both-ends-open'],
+    ],
+    [
+      'a range closed at one end only (at least A but under B) keeps its five cases',
+      ['range-with-one-end-closed'],
+    ],
+    ['a range with a negative lower limit keeps its five cases', ['range-with-a-negative-lower-limit']],
+    ['a range with decimal limits keeps its five cases', ['range-with-decimal-limits']],
+    [
+      'an exclusion (neither A nor B) is a membership condition with an in-list and an out-of-list sample',
+      ['membership-written-as-neither-nor'],
+    ],
+    [
+      'a choice (either A or B) is a membership condition with an in-list and an out-of-list sample',
+      ['membership-written-as-either-or'],
+    ],
+    [
+      'a fact and its negation about one subject are one true-or-false variable',
+      ['a-fact-and-its-negation-are-one-variable'],
+    ],
     [
       'a boolean condition produces the values true and false and no boundary',
       ['boolean-has-true-and-false'],
@@ -561,6 +609,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
     ['the interval keeps its precision for a total of a million', ['one-million-total']],
     ['the interval keeps its precision for a total of a billion', ['one-billion-total']],
+    [
+      'the interval stays around its estimate for totals beyond the square root of the largest double',
+      ['totals-beyond-the-square-root-of-the-largest-double'],
+    ],
     ['the interval is not the constant zero to one', ['is-not-the-constant-zero-one']],
     ['the interval is ordered and inside zero and one', ['inside-zero-one-and-ordered']],
     ['the interval contains the observed share', ['contains-the-observed-share']],
@@ -1026,6 +1078,37 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     [
       'a store file with no constraints list gives the same issues as one with an empty list',
       ['absent-list-and-empty-list-agree'],
+    ],
+  ]),
+  'seedids.ids': table([
+    ['two seed rows with one id raise an Error that names the id', ['two-seed-rows-with-one-id-are-refused']],
+    ['a seed row keeps the id it carries', ['distinct-seed-ids-are-kept']],
+  ]),
+  'hardening.interval': table([
+    ['weightInterval refuses a count above its total with a RangeError', ['count-above-total-is-refused']],
+    [
+      'weightInterval refuses a negative count and a total below 1 with a RangeError',
+      ['negative-count-and-empty-total-are-refused'],
+    ],
+  ]),
+  'hardening.coverage': table([
+    [
+      'coverage counts every tuple a constraint nobody approved would exclude as allowed',
+      ['unapproved-forbid-excludes-nothing'],
+    ],
+  ]),
+  'portrules.rules': table([
+    [
+      'a boundary that names a rule joins its variable to that rule, so the rule is crossed at strength 3 with it',
+      ['boundary-names-a-rule-and-joins-it'],
+    ],
+    [
+      'a value with when is a rule of its variable and the variables it names, crossed at strength 3',
+      ['a-value-with-when-is-a-rule'],
+    ],
+    [
+      'a value with unless is a rule of its variable and the variables it names, crossed at strength 3',
+      ['a-value-with-unless-is-a-rule'],
     ],
   ]),
   'sources.labelled-condition': table([

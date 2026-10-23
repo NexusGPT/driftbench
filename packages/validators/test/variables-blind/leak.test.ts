@@ -17,7 +17,7 @@ import { referenceImpl } from './reference/index';
  * the base branch, so a PR cannot raise it in the same diff that raises the count.
  */
 
-const items = blindBank().filter((i) => i.family !== 'scale');
+const items = blindBank();
 
 describe('the failure messages of the blind bank repeat no expected value', () => {
   it('on the failures the planted mutants provoke, seeds 1 to 3', async () => {
@@ -70,7 +70,9 @@ describe('the failure messages of the blind bank repeat no expected value', () =
               const wanted =
                 error instanceof ItemFailure ? wantedInMessage(error, ref, wrongTokens, item.id) : [];
               if (wanted.length > 0)
-                crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
+                crossLeaks.push(
+                  `${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')} in: ${(error as Error).message.slice(0, 260)}`,
+                );
             }
           }
         }

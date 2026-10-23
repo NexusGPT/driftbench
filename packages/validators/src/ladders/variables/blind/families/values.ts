@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { FileValue, FileVariable, StoreDoc } from '../../interface';
 import {
@@ -10,7 +11,7 @@ import {
   validateOk,
   variableOf,
 } from '../files';
-import { callBuild, callPlan, makeStore, must, names, newRows, type Stem, show, valueIds } from '../kit';
+import { callBuild, callPlan, makeStore, names, newRows, type Stem, show, valueIds } from '../kit';
 import { discover, estateFor, OWNER_DATE, type ToolSpec, varOf } from '../scene';
 import { numeric } from '../spans';
 
@@ -65,9 +66,13 @@ function unknownKey(at: 'top' | 'variable' | 'value') {
     });
     const objPath = at === 'top' ? '' : at === 'variable' ? 'variables.1' : 'variables.1.values.0';
     const errors = validateIssueAt(ctx, b.store, objPath);
-    must(
+    check(
       errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'),
-      () => `no SCHEMA_UNRECOGNIZED_KEYS among ${show(errors, 300)}`,
+      () => ({
+        rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}',
+        got: { details: [show(errors, 300)] },
+        expected: none('observation'),
+      }),
     );
   };
 }
@@ -508,8 +513,14 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          must(!plan.rows.some((r) => r.values[a] === 'maybe'), () => 'a row holds a value nobody approved');
-          must(newRows(plan).length >= 2, () => 'no new rows for the approved values');
+          check(!plan.rows.some((r) => r.values[a] === 'maybe'), () => ({
+            rule: 'a row holds a value nobody approved',
+            expected: none('observation'),
+          }));
+          check(newRows(plan).length >= 2, () => ({
+            rule: 'no new rows for the approved values',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -524,9 +535,9 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          must(
+          check(
             newRows(plan).every((r) => !(b in r.values)),
-            () => 'a new row assigns a variable nobody approved',
+            () => ({ rule: 'a new row assigns a variable nobody approved', expected: none('observation') }),
           );
         },
       ],
@@ -549,11 +560,17 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          must(
+          check(
             newRows(plan).every((r) => !(b in r.values)),
-            () => 'a new row assigns a variable whose every value is unapproved',
+            () => ({
+              rule: 'a new row assigns a variable whose every value is unapproved',
+              expected: none('observation'),
+            }),
           );
-          must(newRows(plan).length >= 2, () => 'the other variable is not planned');
+          check(newRows(plan).length >= 2, () => ({
+            rule: 'the other variable is not planned',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -578,13 +595,23 @@ export const VALUES_STEMS: readonly Stem[] = [
             },
           });
           const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === 'delta');
-          must(!!v, () => 'the owner value is not in the variable');
+          check(!!v, () => ({
+            rule: 'the owner value is not in the variable',
+            expected: none('observation'),
+          }));
           const own = v?.provenance?.find((p) => p.kind === 'owner');
-          must(
+          check(
             own?.kind === 'owner' && own.words === 'We also see delta cases.' && own.date === OWNER_DATE,
-            () => `owner provenance ${show(v?.provenance)}`,
+            () => ({
+              rule: 'owner provenance {}',
+              got: { details: [show(v?.provenance)] },
+              expected: none('observation'),
+            }),
           );
-          must(v?.approved !== false, () => 'a value the owner added is not approved');
+          check(v?.approved !== false, () => ({
+            rule: 'a value the owner added is not approved',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -602,12 +629,17 @@ export const VALUES_STEMS: readonly Stem[] = [
           });
           const variable = store.variables.find((x) => x.id === id);
           const same = (variable?.values ?? []).filter((x) => x.id === existing);
-          must(same.length === 1, () => `${same.length} values named ${existing}`);
+          check(same.length === 1, () => ({
+            rule: '{} values named {}',
+            got: { details: [same.length, existing] },
+            expected: none('observation'),
+          }));
           const kinds = (same[0]?.provenance ?? []).map((p) => p.kind).sort();
-          must(
-            kinds.includes('owner') && kinds.includes('quote'),
-            () => `provenance kinds ${show(kinds)}; expected the quote and the owner`,
-          );
+          check(kinds.includes('owner') && kinds.includes('quote'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(kinds) },
+            expected: { warning: 'quote' },
+          }));
         },
       ],
       [
@@ -622,14 +654,18 @@ export const VALUES_STEMS: readonly Stem[] = [
               ],
             },
           });
-          must(
-            !store.variables.some((v) => v.id === 'no_such_variable'),
-            () => 'a variable the owner named but the store lacks was created',
-          );
-          must(
+          check(!store.variables.some((v) => v.id === 'no_such_variable'), () => ({
+            rule: 'a variable the owner named but the store lacks was created',
+            expected: none('observation'),
+          }));
+          check(
             store.refused.length >= 1 &&
               store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
-            () => `refused ${show(store.refused)}`,
+            () => ({
+              rule: 'refused {}',
+              got: { details: [show(store.refused)] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -647,10 +683,11 @@ export const VALUES_STEMS: readonly Stem[] = [
             .find((x) => x.id === id)
             ?.values.find((x) => x.id === 'friday')
             ?.provenance?.find((p) => p.kind === 'owner');
-          must(
-            own?.kind === 'owner' && own.words === words,
-            () => `stored words ${show(own)}; expected them byte for byte`,
-          );
+          check(own?.kind === 'owner' && own.words === words, () => ({
+            rule: 'stored words {}; expected them byte for byte',
+            got: { details: [show(own)] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -663,11 +700,16 @@ export const VALUES_STEMS: readonly Stem[] = [
             const store = d.build({
               owner: { values: [{ variable: id, value: 'friday', words, date: OWNER_DATE }] },
             });
-            must(
-              !store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'),
-              () => `a value with blank owner words ${show(words)} entered the store`,
-            );
-            must(store.refused.length >= 1, () => `no refusal for blank owner words ${show(words)}`);
+            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({
+              rule: 'a value with blank owner words {} entered the store',
+              got: { details: [show(words)] },
+              expected: none('observation'),
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for blank owner words {}',
+              got: { details: [show(words)] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -688,11 +730,16 @@ export const VALUES_STEMS: readonly Stem[] = [
             const store = d.build({
               owner: { values: [{ variable: id, value: 'friday', words: 'Seen on Fridays.', date }] },
             });
-            must(
-              !store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'),
-              () => `a value dated ${date} entered the store`,
-            );
-            must(store.refused.length >= 1, () => `no refusal for the date ${date}`);
+            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({
+              rule: 'a value dated {} entered the store',
+              got: { details: [date] },
+              expected: none('observation'),
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for the date {}',
+              got: { details: [date] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -707,19 +754,23 @@ export const VALUES_STEMS: readonly Stem[] = [
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2028-02-29' }],
             },
           });
-          must(
+          check(
             store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'),
-            () => 'a value dated 2028-02-29, a real day, was refused',
+            () => ({
+              rule: 'a value dated on a real leap day is kept',
+              input: { date: '2028-02-29' },
+              expected: none('observation'),
+            }),
           );
           const other = d.build({
             owner: {
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2027-02-29' }],
             },
           });
-          must(
-            !other.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'),
-            () => 'a value dated 2027-02-29, not a day, entered the store',
-          );
+          check(!other.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({
+            rule: 'a value dated a calendar date, not a day, entered the store',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -739,11 +790,11 @@ export const VALUES_STEMS: readonly Stem[] = [
           const tools = toolsOf(ctx, 4);
           const first = idsOf(ctx, tools);
           const second = idsOf(ctx, [...tools].reverse());
-          must(
-            JSON.stringify(first) === JSON.stringify([...second].reverse()),
-            () =>
-              `ids ${show(first)} become ${show([...second].reverse())} when the sources are read in the other order`,
-          );
+          check(JSON.stringify(first) === JSON.stringify([...second].reverse()), () => ({
+            rule: 'ids {} become {} when the sources are read in the other order',
+            got: { details: [show(first), show([...second].reverse())] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -753,10 +804,11 @@ export const VALUES_STEMS: readonly Stem[] = [
           const tools = toolsOf(ctx, 5);
           const few = idsOf(ctx, tools.slice(0, 2));
           const many = idsOf(ctx, tools);
-          must(
-            JSON.stringify(few) === JSON.stringify(many.slice(0, 2)),
-            () => `ids ${show(few)} become ${show(many.slice(0, 2))} when other sources are added`,
-          );
+          check(JSON.stringify(few) === JSON.stringify(many.slice(0, 2)), () => ({
+            rule: 'ids {} become {} when other sources are added',
+            got: { details: [show(few), show(many.slice(0, 2))] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -780,8 +832,16 @@ export const VALUES_STEMS: readonly Stem[] = [
           }));
           const ids = idsOf(ctx, tools);
           for (const id of ids)
-            must(GRAMMAR.test(id), () => `the id ${show(id)} does not match ^[A-Za-z0-9][A-Za-z0-9._-]*$`);
-          must(new Set(ids).size === ids.length, () => `ids ${show(ids)} are not distinct`);
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the id {} does not match ^[A-Za-z0-9][A-Za-z0-9._-]*$',
+              got: { details: [show(id)] },
+              expected: none('observation'),
+            }));
+          check(new Set(ids).size === ids.length, () => ({
+            rule: 'ids {} are not distinct',
+            got: { details: [show(ids)] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -795,12 +855,17 @@ export const VALUES_STEMS: readonly Stem[] = [
             values: [`on${i}`, `off${i}`],
           }));
           const ids = idsOf(ctx, tools);
-          must(
-            new Set(ids).size === fields.length,
-            () =>
-              `${new Set(ids).size} distinct ids for ${fields.length} distinct fields: ${show(ids)}; an input was dropped or merged`,
-          );
-          for (const id of ids) must(GRAMMAR.test(id), () => `the id ${show(id)} breaks the grammar`);
+          check(new Set(ids).size === fields.length, () => ({
+            rule: '{} distinct ids for {} distinct fields: {}; an input was dropped or merged',
+            got: { details: [new Set(ids).size, fields.length, show(ids)] },
+            expected: none('observation'),
+          }));
+          for (const id of ids)
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the id {} breaks the grammar',
+              got: { details: [show(id)] },
+              expected: none('observation'),
+            }));
         },
       ],
       [
@@ -815,23 +880,27 @@ export const VALUES_STEMS: readonly Stem[] = [
           }));
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
-          must(
-            store.variables.length === fields.length,
-            () =>
-              `${store.variables.length} variables for ${fields.length} fields named like members of Object.prototype`,
-          );
-          must(
+          check(store.variables.length === fields.length, () => ({
+            rule: '{} variables for {} fields named like members of Object.prototype',
+            got: { details: [store.variables.length, fields.length] },
+            expected: none('observation'),
+          }));
+          check(
             store.variables.every((v) => v.values.length === 3),
-            () => `values ${show(store.variables.map((v) => v.values.map((x) => x.id)))}`,
+            () => ({
+              rule: 'values {}',
+              got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+              expected: none('observation'),
+            }),
           );
-          must(
-            new Set(store.variables.map((v) => v.id)).size === fields.length,
-            () => 'two prototype-like fields share an id',
-          );
-          must(
+          check(new Set(store.variables.map((v) => v.id)).size === fields.length, () => ({
+            rule: 'two prototype-like fields share an id',
+            expected: none('observation'),
+          }));
+          check(
             ({} as Record<string, unknown>).polluted === undefined &&
               Object.keys(Object.prototype).length === 0,
-            () => 'Object.prototype was changed',
+            () => ({ rule: 'Object.prototype was changed', expected: none('observation') }),
           );
           for (const t of tools) varOf(store, t.values);
         },
@@ -848,14 +917,23 @@ export const VALUES_STEMS: readonly Stem[] = [
           const { estate } = estateFor([tool]);
           const store = callBuild(ctx, { estate });
           const v = store.variables.find((x) => x.values.length === 3);
-          must(
-            !!v,
-            () =>
-              `no variable holds the three values: ${show(store.variables.map((x) => x.values.map((y) => y.id)))}`,
-          );
+          check(!!v, () => ({
+            rule: 'no variable holds the three values: {}',
+            got: { details: [show(store.variables.map((x) => x.values.map((y) => y.id)))] },
+            expected: none('observation'),
+          }));
           const ids = (v as StoreDoc['variables'][number]).values.map((x) => x.id);
-          for (const id of ids) must(GRAMMAR.test(id), () => `the value id ${show(id)} breaks the grammar`);
-          must(new Set(ids).size === 3, () => `value ids ${show(ids)} are not distinct`);
+          for (const id of ids)
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the value id {} breaks the grammar',
+              got: { details: [show(id)] },
+              expected: none('observation'),
+            }));
+          check(new Set(ids).size === 3, () => ({
+            rule: 'value ids {} are not distinct',
+            got: { details: [show(ids)] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -868,10 +946,18 @@ export const VALUES_STEMS: readonly Stem[] = [
           ];
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
-          must(store.variables.length === 2, () => `${store.variables.length} variables for two tool fields`);
-          must(
+          check(store.variables.length === 2, () => ({
+            rule: '{} variables for two tool fields',
+            got: { details: [store.variables.length] },
+            expected: none('observation'),
+          }));
+          check(
             store.variables.every((v) => v.values.length === 2),
-            () => `values ${show(store.variables.map((v) => v.values.map((x) => x.id)))}`,
+            () => ({
+              rule: 'values {}',
+              got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -887,16 +973,19 @@ export const VALUES_STEMS: readonly Stem[] = [
           });
           const a = callBuild(ctx, { estate: mk(plain) });
           const b = callBuild(ctx, { estate: mk(spaced) });
-          must(
-            a.variables.length === 1 && b.variables.length === 1,
-            () =>
-              `${a.variables.length} and ${b.variables.length} variables for one condition written two ways`,
-          );
-          must(
+          check(a.variables.length === 1 && b.variables.length === 1, () => ({
+            rule: '{} and {} variables for one condition written two ways',
+            got: { details: [a.variables.length, b.variables.length] },
+            expected: none('observation'),
+          }));
+          check(
             (a.variables[0] as StoreDoc['variables'][number]).id ===
               (b.variables[0] as StoreDoc['variables'][number]).id,
-            () =>
-              `ids ${a.variables[0]?.id} and ${b.variables[0]?.id} for one condition written with different white space`,
+            () => ({
+              rule: 'ids {} and {} for one condition written with different white space',
+              got: { details: [a.variables[0]?.id, b.variables[0]?.id] },
+              expected: none('observation'),
+            }),
           );
         },
       ],

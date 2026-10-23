@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { Plan, PlanRow, Row, StoreDoc, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { type ItemContext, planOf, type StemRun } from '../item';
@@ -13,7 +14,7 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
 import { clone, must, show, stableStringify } from '../util';
 import { LOG_TOLERANCE } from './budget';
 
@@ -27,10 +28,12 @@ import { LOG_TOLERANCE } from './budget';
 const warningCodes = (plan: Plan): string[] => (plan.warnings ?? []).map((w) => w.code);
 
 function needWarning(plan: Plan, code: string, why: string): void {
-  must(
-    warningCodes(plan).includes(code),
-    () => `the plan has no warning ${code} (${why}); its warnings are ${show(warningCodes(plan))}`,
-  );
+  check(warningCodes(plan).includes(code), () => ({
+    rule: 'the plan carries the warning the situation calls for',
+    input: { situation: why },
+    got: { warnings: show(warningCodes(plan)) },
+    expected: { warning: code },
+  }));
 }
 
 function midSpace(ctx: ItemContext, forbidden = false): Space {
@@ -52,16 +55,19 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const budget =
       variant === 'zero-with-seeds' ? 0 : variant === 'one-below' ? seeds.length - 1 : seeds.length;
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed, budget, seeds: clone(seeds) });
-    must(
-      plan.rows.length === seeds.length,
-      () =>
-        `budget ${budget} with ${seeds.length} seeds gives ${plan.rows.length} rows; a budget below the seed count keeps every seed and no new row`,
-    );
+    check(plan.rows.length === seeds.length, () => ({
+      rule: 'a budget below the seed count keeps every seed and no new row',
+      echoes: ['seeds'],
+      input: { budget, seeds: seeds.length },
+      got: { rows: plan.rows.length },
+      expected: { rows: seeds.length },
+    }));
     plan.rows.forEach((row, i) => {
-      must(
-        row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]),
-        () => `row ${i} is not seed ${i} as given: ${show(row, 140)}`,
-      );
+      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]), () => ({
+        rule: 'row {} is not seed {} as given: {}',
+        got: { details: [i, i, show(row, 140)] },
+        expected: none('observation'),
+      }));
     });
   },
 
@@ -74,13 +80,16 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       const store = toStore(space);
       for (const v of store.variables) v.approved = false;
       const plan = planOf(ctx, store, { seed: ctx.seed, seeds: clone(seeds) });
-      must(
+      check(
         plan.rows.length === seeds.length &&
           plan.rows.every(
             (r, i) => r.kind === 'seed' && stableStringify(r.values) === stableStringify(seeds[i]),
           ),
-        () =>
-          `when nothing is approved the plan is the seeds alone, kept whole: ${show(plan.rows.length)} rows`,
+        () => ({
+          rule: 'when nothing is approved the plan is the seeds alone, kept whole: {} rows',
+          got: { details: [show(plan.rows.length)] },
+          expected: none('observation'),
+        }),
       );
       needWarning(plan, 'no_variables', 'nothing in the store is approved');
       return;
@@ -136,10 +145,12 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     // What each seed row must hold: the unknown entries are gone, the unapproved and forbidden ones stay.
     const want = variant === 'unapproved-value' || variant === 'forbidden-seed' ? seeds : effective;
     kept.forEach((row, i) => {
-      must(
-        row.kind === 'seed' && stableStringify(row.values) === stableStringify(want[i]),
-        () => `seed row ${i} is ${show(row.values, 160)}; the page keeps ${show(want[i], 160)}`,
-      );
+      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(want[i]), () => ({
+        rule: 'seed rows lead the plan as the page keeps them',
+        input: { row: i },
+        got: { row: show(row.values, 160) },
+        expected: { row: show(want[i], 160) },
+      }));
     });
     // The rest of the plan covers what the seeds do not, judged on the entries the space knows.
     const known: PlanRow[] = plan.rows.map((row) => ({
@@ -159,7 +170,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       },
     );
     // A forbidden seed holds an impossible pair on purpose; only the new rows are held to the pairs.
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
   },
 
   'weights.plan-shares': (variant, ctx) => {
@@ -183,13 +194,16 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const plan = planOf(ctx, store, { seed: ctx.seed });
     const oracle = new SpaceOracle(space);
     const facts = checkPlan(space, oracle, plan);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     if (variant === 'scale-invariant') {
       const scaled = clone(store);
       for (const variable of scaled.variables)
         for (const value of variable.values) if (value.weight !== undefined) value.weight *= 100;
       const other = planOf(ctx, scaled, { seed: ctx.seed });
-      must(other.rows.length === plan.rows.length, 'scaling every weight by 100 changed the number of rows');
+      check(other.rows.length === plan.rows.length, () => ({
+        rule: 'scaling every weight by N changed the number of rows',
+        expected: none('observation'),
+      }));
       plan.rows.forEach((row, i) => {
         const twin = other.rows[i] as PlanRow;
         const same =
@@ -198,11 +212,11 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           typeof row.logWeight === 'number' &&
           typeof twin.logWeight === 'number' &&
           Math.abs(row.logWeight - twin.logWeight) <= LOG_TOLERANCE;
-        must(
-          same,
-          () =>
-            `weights are relative, yet scaling them by 100 changed row ${i}: ${show(row)} then ${show(twin)}`,
-        );
+        check(same, () => ({
+          rule: 'weights are relative, yet scaling them by N changed row {}: {} then {}',
+          got: { details: [i, show(row), show(twin)] },
+          expected: none('observation'),
+        }));
       });
       return;
     }
@@ -211,23 +225,36 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     for (const [i, row] of plan.rows.entries()) {
       const want = logWeight(space, indexRow(space, row.values));
       if (want === Number.NEGATIVE_INFINITY) {
-        must(
-          row.logWeight === null,
-          () => `row ${i} holds a value of weight 0 and reports logWeight ${show(row.logWeight)}, not null`,
-        );
+        check(row.logWeight === null, () => ({
+          rule: 'a row that holds a value of weight N reports a null logWeight',
+          input: { row: i },
+          got: { logWeight: row.logWeight },
+          expected: none('observation'),
+        }));
         seenNull = true;
       } else {
-        must(!seenNull, () => `row ${i} has a finite weight but comes after a row of weight 0`);
-        must(
-          typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE,
-          () =>
-            `row ${i} reports logWeight ${show(row.logWeight)}; the sum of the logs of its shares is ${want}`,
-        );
+        check(!seenNull, () => ({
+          rule: 'every row of finite weight comes before every row of weight N',
+          input: { row: i },
+          expected: none('observation'),
+        }));
+        check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE, () => ({
+          rule: 'logWeight is the sum of the logs of the shares of the values of the row',
+          input: { row: i },
+          got: { logWeight: row.logWeight },
+          expected: want,
+        }));
       }
     }
-    must(seenNull, 'the plan has no row with a value of weight 0; the value still needs its tuples covered');
+    check(seenNull, () => ({
+      rule: 'the plan has no row with a value of weight N; the value still needs its tuples covered',
+      expected: none('observation'),
+    }));
     const text = JSON.stringify(plan.rows.map((r) => r.logWeight));
-    must(!/Infinity|NaN/.test(text), 'a logWeight of minus infinity must be written as null');
+    check(!/Infinity|NaN/.test(text), () => ({
+      rule: 'a logWeight of minus infinity must be written as null',
+      expected: none('observation'),
+    }));
   },
 
   'impossible.general-forbid': (variant, ctx) => {
@@ -280,7 +307,12 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const oracle = new GeneralOracle(space, approved ? forbids : []);
     const plan = planOf(ctx, store, { seed: ctx.seed });
     const problems = oracle.check(plan, groupsOf(space));
-    must(problems.length === 0, () => `${variant}: ${problems.join('; ')}`);
+    check(problems.length === 0, () => ({
+      rule: 'the plan is sound and holds every allowed required tuple',
+      input: variant,
+      got: { problems },
+      expected: oracle.hidden,
+    }));
     if (variant === 'single-value')
       needWarning(
         plan,

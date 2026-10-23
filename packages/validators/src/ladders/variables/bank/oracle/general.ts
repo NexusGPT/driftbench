@@ -55,14 +55,18 @@ export class GeneralOracle {
   }
 
   /** The problems of a plan without seeds: shape, impossible rows, and every allowed required tuple covered. */
+  /** What the page wants for the problems of the last check: kept out of the message (docs/validators.md 12.11). */
+  hidden: unknown[] = [];
+
   check(plan: Plan, groups: readonly SpaceGroup[]): string[] {
     const problems: string[] = [];
+    this.hidden = [];
     const names = this.space.vars.map((v) => v.id);
     const rows: number[][] = [];
     plan.rows.forEach((row, i) => {
       const keys = Object.keys(row.values);
       if (keys.length !== names.length || !names.every((k) => k in row.values)) {
-        problems.push(`row ${i} should assign exactly the ${names.length} variables`);
+        problems.push(`row ${i} does not assign every variable once`);
         return;
       }
       const idx = this.space.vars.map((v, k) => v.values.indexOf(row.values[names[k] as string] as string));
@@ -95,8 +99,8 @@ export class GeneralOracle {
         }
       }
     }
-    if (missing > 0)
-      problems.push(`${missing} allowed required tuples are not covered, for example ${example}`);
+    if (missing > 0) problems.push(`${missing} allowed required tuples are not held by the rows`);
+    this.hidden.push({ example });
     return problems;
   }
 }

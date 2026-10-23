@@ -26,7 +26,8 @@ export type Family = (typeof FAMILIES)[number];
 
 /** The sub-banks, in the order the ladder runs them (cheapest diagnosis first). */
 export const LEVELS = [
-  'store',
+  'store-core',
+  'store-readers',
   'constraints',
   'counter',
   'strength',
@@ -38,10 +39,10 @@ export type Level = (typeof LEVELS)[number];
 
 /** The level each family belongs to. */
 export const FAMILY_LEVEL: Record<Family, Level> = {
-  sources: 'store',
-  quotes: 'store',
-  values: 'store',
-  boundaries: 'store',
+  sources: 'store-core',
+  quotes: 'store-core',
+  values: 'store-core',
+  boundaries: 'store-core',
   'impossible-pairs': 'constraints',
   weights: 'constraints',
   counter: 'counter',
@@ -51,6 +52,25 @@ export const FAMILY_LEVEL: Record<Family, Level> = {
   determinism: 'determinism',
   scale: 'scale',
 };
+
+/**
+ * The components of the store whose items read sources (estate spans, quotes, owner words, conversations, merging).
+ * The rest of the store (the file loader, ids, boundaries) is the store core. A reader is built on the core, so its
+ * level comes second.
+ */
+const READER_COMPONENTS: ReadonlySet<string> = new Set([
+  'store/estate',
+  'store/owner',
+  'store/conversations',
+  'store/merge',
+  'store/quotes',
+]);
+
+/** The level of an item: that of its family, except that the store splits by component into core and readers. */
+export function levelOf(family: Family, component: string): Level {
+  const base = FAMILY_LEVEL[family];
+  return base === 'store-core' && READER_COMPONENTS.has(component) ? 'store-readers' : base;
+}
 
 export type Variant = readonly [key: string, tier: Tier];
 
