@@ -165,3 +165,5 @@ There is no separate phase for code agents. A task spec runs through each phase 
 * `pnpm docs:links` checks that every relative link in `docs/` resolves and that every page is reachable from this one.
 * `pnpm test` runs the tests of both tools, and checks the pages: every YAML example loads, no page has an em dash or an en dash, every issue and warning code is on the CLI page, names that belong to one runtime appear only under `docs/adapters`, and every comparison cell has a source and a read date.
 * Pages use present tense and short sentences. A claim about a part that is not built says "planned, phase N". A number has a source, or it is left out. Command output on a page is what the command printed.
+
+[Declare a setup and inspect it with doctor](setup.md).
