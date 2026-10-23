@@ -13,6 +13,7 @@ import { namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { type Case, judgeCase, standardSkill } from './hostile';
 import { BASE } from './planted';
+import { caseCases, caseRuns } from './scan-case';
 
 /**
  * bench.defects: the defects a model-free bench run found on a real estate, turned into items on fictional
@@ -658,10 +659,11 @@ export function benchFamily(): Family {
     ...ignoredCases(),
     ...ambiguousCases(),
     ...registryCases(),
+    ...caseCases(),
     longTable('long-routing-table', 3, 400, false),
     longTable('long-routing-table-lint', 3, 400, true),
   ];
-  const runs: Run[] = [...mutateCases(), ...liveCases(), ...bankCases()];
+  const runs: Run[] = [...mutateCases(), ...liveCases(), ...bankCases(), ...caseRuns()];
   const items = itemsOf(family, 1, CODE, [
     ...cases.map(({ key, tier, title, component, cause }) => ({
       key,

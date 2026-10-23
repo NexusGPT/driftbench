@@ -11,12 +11,12 @@ import {
 import { RUNTIME, SETTINGS, STANDING, skillFile } from '../layout';
 import { writeEstate } from '../pipeline';
 import { namesFor, plantSkill } from './common';
-import { type Family, type ItemResult, itemsOf } from './frame';
-import { type Case, caseFamily, standardSkill } from './hostile';
+import type { ItemResult, Tier } from './frame';
+import { type Case, standardSkill } from './hostile';
 import { BASE, type Check } from './planted';
 
 /**
- * scan.case: a name written in other letters than the file it means. A reference names `VENDORED.md`, the
+ * bench.defects, case items: a name written in other letters than the file it means. A reference names `VENDORED.md`, the
  * file on the disk is `vendored.md`. A disk that ignores case (a Mac) opens the file under both spellings; a
  * disk that keeps it (Linux) does not. The estate must read the same on both: a name is looked up against the
  * folder listing with exact case, so one file has one path, and a copy of the estate holds the names the disk
@@ -51,7 +51,7 @@ function notReadAs(spelling: string): Check {
 
 function caseCase(
   key: string,
-  tier: 1 | 2 | 3 | 4 | 5,
+  tier: Tier,
   title: string,
   plant: (path: (relative: string) => string, skill: string) => Array<[path: string, text: string]>,
   spelling: string,
@@ -74,7 +74,7 @@ function caseCase(
 
 const CASES: Case[] = [
   caseCase(
-    'name-in-reference-folder',
+    'case-name-in-reference-folder',
     2,
     'a reference file naming an upper-case file that sits beside it in lower case',
     (path) => [
@@ -84,7 +84,7 @@ const CASES: Case[] = [
     'VENDORED.md',
   ),
   {
-    key: 'name-in-skill-folder',
+    key: 'case-name-in-skill-folder',
     tier: 2,
     title: 'a skill body naming an upper-case file that sits beside it in lower case',
     component: READER,
@@ -105,7 +105,7 @@ const CASES: Case[] = [
     },
   },
   {
-    key: 'name-at-root',
+    key: 'case-name-at-root',
     tier: 2,
     title: 'a standing file naming an upper-case file at the root that is there in lower case',
     component: READER,
@@ -119,7 +119,7 @@ const CASES: Case[] = [
     },
   },
   caseCase(
-    'upper-file-named-in-lower',
+    'case-upper-file-named-in-lower',
     3,
     'a reference naming in lower case a file the disk holds in upper case',
     (path) => [
@@ -205,32 +205,30 @@ async function mutantKeepsNames(seed: number): Promise<ItemResult> {
   }
 }
 
-export function caseNameFamily(): Family {
-  const base = caseFamily('scan.case', READER, CASES, 'a name in other letters:');
-  const mutant = itemsOf('scan.case', 1, MUTATE, [
+/** The case items that plant an estate and read the scan. */
+export function caseCases(): Case[] {
+  return CASES;
+}
+
+/** The case item that copies and mutates an estate on a disk. */
+export function caseRuns(): Array<{
+  key: string;
+  tier: Tier;
+  title: string;
+  component: string;
+  cause: string;
+  run(seed: number): Promise<ItemResult>;
+}> {
+  return [
     {
-      key: 'mutant-copy-keeps-names',
+      key: 'case-mutant-copy-keeps-names',
       tier: 3,
       title:
         'a mutant copy of an estate whose reference spells a file in other letters holds the names of the disk',
+      component: MUTATE,
       cause:
         'copy a mutant by the names the disk lists, and report any file the copy changes beyond the span',
+      run: mutantKeepsNames,
     },
-  ]);
-  return {
-    ...base,
-    items: [...base.items, ...mutant],
-    async evaluate(seed) {
-      const out = await base.evaluate(seed);
-      try {
-        out.set('scan.case.mutant-copy-keeps-names', await mutantKeepsNames(seed));
-      } catch (cause) {
-        out.set('scan.case.mutant-copy-keeps-names', {
-          pass: false,
-          detail: `the item threw: ${cause instanceof Error ? cause.message.slice(0, 160) : String(cause)}`,
-        });
-      }
-      return out;
-    },
-  };
+  ];
 }
