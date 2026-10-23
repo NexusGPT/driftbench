@@ -5,7 +5,7 @@ description: Books, moves and cancels repair slots. Use when a rider asks for a 
 
 # Repair booking
 
-There are three kinds of repair: a puncture fix, a standard service and a full overhaul. Book the shortest slot that fits.
+There are three kinds of repair: a puncture fix, a standard service and a full overhaul. Pick the briefest slot that suits the repair.
 
 ## Time on the stand
 
@@ -37,7 +37,7 @@ How long a finished bike may wait to be collected before a storage fee starts is
 
 ## Examples
 
-A message such as "Can I bring the red tourer in at 4 pm on 9 June?" is a booking request. Answer with free slots and ask which one suits.
+A message such as "Can I bring the red tourer in at 4 pm on 9 June?" is a booking request. Reply with the open slots and let the rider choose one.
 
 A standard service costs 85 pounds. The repair form is at version 3.
 

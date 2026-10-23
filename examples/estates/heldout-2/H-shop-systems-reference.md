@@ -5,11 +5,11 @@ description: Reference for the limits and the behaviour of the shop systems that
 
 # Shop systems reference
 
-This file describes the systems as they behave today. Nothing here is an instruction; the instructions are in the other files.
+The systems below are described as they work at present. This file gives facts only; every instruction sits in the other files.
 
 ## Limits
 
-| Item | Size | Result when it is reached |
+| Thing measured | Amount | What follows at that point |
 |---|---|---|
 | Attachment size per message | 8 megabytes | The message is refused |
 | Photos in one message | Six | The extra photos are dropped |

@@ -12,9 +12,9 @@ units:
   - id: "2b2de43c8c"
     file: H-standing-instructions.md
     text: "Riders and mechanics write to you about repairs, parts, warranty claims and loan bikes."
-  - id: "774723e072"
+  - id: "ff5206e42d"
     file: H-standing-instructions.md
-    text: "You answer by chat and by email."
+    text: "Replies go out through chat and through email."
   - id: "25dd009317"
     file: H-standing-instructions.md
     text: "**Voice.** Spoke is friendly, plain and brisk."
@@ -48,18 +48,18 @@ units:
   - id: "aceeb32c14"
     file: H-standing-instructions.md
     text: "Reply to a rider within one working day."
-  - id: "493f3606e4"
+  - id: "91f5cdb7e8"
     file: H-standing-instructions.md
-    text: "If you cannot answer in that time, say so and name the day you will."
+    text: "When that time is not enough, tell the rider and give the day you can reply."
   - id: "09e33edb43"
     file: H-standing-instructions.md
     text: "Write \"safety\" at the top of any message that mentions a snapped brake cable, a cracked frame or a bent fork."
   - id: "d13fd8fd3c"
     file: H-standing-instructions.md
     text: "Pass safety messages to the duty mechanic at once."
-  - id: "e0696beca2"
+  - id: "07ae9e3dcc"
     file: H-standing-instructions.md
-    text: "You may quote the price list but you may not discount it."
+    text: "Quote prices from the list as they stand, and never lower one yourself."
   - id: "b9c55967ca"
     file: H-standing-instructions.md
     text: "You may give a goodwill credit of up to 30 pounds on your own."
@@ -90,9 +90,9 @@ units:
   - id: "204e517179"
     file: H-repair-booking-skill.md
     text: "There are three kinds of repair: a puncture fix, a standard service and a full overhaul."
-  - id: "6b6766e4e8"
+  - id: "aaeda251ac"
     file: H-repair-booking-skill.md
-    text: "Book the shortest slot that fits."
+    text: "Pick the briefest slot that suits the repair."
   - id: "ee8c8d43c3"
     file: H-repair-booking-skill.md
     text: "| Repair | Time on the stand |"
@@ -150,9 +150,9 @@ units:
   - id: "1d07334fe5"
     file: H-repair-booking-skill.md
     text: "A message such as \"Can I bring the red tourer in at 4 pm on 9 June?\" is a booking request."
-  - id: "d7399390f2"
+  - id: "8f2bf58aef"
     file: H-repair-booking-skill.md
-    text: "Answer with free slots and ask which one suits."
+    text: "Reply with the open slots and let the rider choose one."
   - id: "827aadc8ff"
     file: H-repair-booking-skill.md
     text: "A standard service costs 85 pounds."
@@ -309,15 +309,15 @@ units:
   - id: "12bd954803"
     file: H-loan-bikes-skill.md
     text: "The loan scheme began in 2017."
-  - id: "8345b957b0"
+  - id: "e3670e51b7"
     file: H-shop-systems-reference.md
-    text: "This file describes the systems as they behave today."
-  - id: "a5248c1d6c"
+    text: "The systems below are described as they work at present."
+  - id: "29eed2a704"
     file: H-shop-systems-reference.md
-    text: "Nothing here is an instruction; the instructions are in the other files."
-  - id: "80c02b8bdd"
+    text: "This file gives facts only; every instruction sits in the other files."
+  - id: "7b35a0db12"
     file: H-shop-systems-reference.md
-    text: "| Item | Size | Result when it is reached |"
+    text: "| Thing measured | Amount | What follows at that point |"
   - id: "f9e0f1b854"
     file: H-shop-systems-reference.md
     text: "| Attachment size per message | 8 megabytes | The message is refused |"
@@ -1008,7 +1008,7 @@ limits_table:
       - "cb8c58e8ca"
       - "69342a2ef5"
   - file: H-shop-systems-reference.md
-    header: "80c02b8bdd"
+    header: "7b35a0db12"
     first: "f9e0f1b854"
     last: "774718b034"
     rows:
@@ -1022,6 +1022,6 @@ limits_table:
 number_table:
   - { from: "ee8c8d43c3", to: "4383d6bc6c" }
   - { from: "66b303f216", to: "69342a2ef5" }
-  - { from: "80c02b8bdd", to: "774718b034" }
+  - { from: "7b35a0db12", to: "774718b034" }
   - { from: "e11e5af3bd", to: "a52e045908" }
   - { from: "c46a42be37", to: "cdc62cc39e" }
