@@ -16,6 +16,14 @@ export const cuttingCapabilitySpecs: Spec[] = [
     'cutter:footnote-reference-in-sentence',
   ),
   row(
+    'footnote-reference-undefined',
+    2,
+    'A footnote reference without a definition is prose',
+    'A sentence, `[^1]` right after its full stop, a second sentence; no definition.',
+    'Exact cut: the text is cut like any bracketed text, so the first unit ends at the `[` and the second starts at `^1]`.',
+    'cutter:footnote-reference-undefined',
+  ),
+  row(
     'footnote-definition-path',
     3,
     'A footnote definition carries its label in the heading path',
@@ -64,6 +72,14 @@ export const cuttingCapabilitySpecs: Spec[] = [
     'cutter:json-front-matter',
   ),
   row(
+    'front-matter-json-one-line',
+    2,
+    'JSON front matter that closes on the line of its last value is still front matter',
+    'A JSON object on one line opening the file: a title and an array with one tag; then one sentence.',
+    'Exact cut: two front matter units with their paths, then the sentence.',
+    'cutter:json-front-matter-one-line',
+  ),
+  row(
     'sentence-terminal-every-script',
     2,
     'Every Sentence_Terminal character ends a sentence, and no other does',
@@ -96,6 +112,14 @@ export const cuttingCapabilitySpecs: Spec[] = [
     'A heading, then `:::warning`, one sentence, `:::`.',
     'The sentence has the heading path of the file followed by the directive name.',
     'cutter:directive-name-path',
+  ),
+  row(
+    'directive-label-attributes-nesting',
+    3,
+    'A directive label is a unit; attributes are no unit; a longer fence nests',
+    '`::::outer[Label]{#id .wide}`, `:::inner`, one sentence, `:::`, `::::`.',
+    'Exact cut: the label with the path `outer`, then the sentence with the path `outer`, `inner`.',
+    'cutter:directive-label-attributes-nesting',
   ),
   row(
     'math-block-opaque',

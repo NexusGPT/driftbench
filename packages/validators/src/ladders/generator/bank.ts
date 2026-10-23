@@ -6,7 +6,13 @@ import {
   rngFor,
   runOnce,
 } from '@agent-nexus/driftbench-generate';
-import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
+import {
+  coverage,
+  isDeclared,
+  type ObligationSpec,
+  type SpaceCoverage,
+  soleHolders,
+} from '@agent-nexus/driftbench-space';
 import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
@@ -2243,6 +2249,35 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
 }
 
 /**
+ * The specs of a measured suite as the shared obligations read them: the spec-level fields of the first block of
+ * each spec, and the marks of every block. The runs list the blocks of a spec together, in order.
+ */
+export function obligationSpecsOf(blocks: readonly BlockRun[]): ObligationSpec[] {
+  const bySpec = new Map<string, BlockRun[]>();
+  for (const block of blocks) bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
+  return [...bySpec].map(([spec, own]) => {
+    const head = own[0] as BlockRun;
+    return {
+      spec,
+      path: head.path,
+      walk: head.walk,
+      channel: head.channel,
+      persona: head.persona,
+      family: head.family,
+      variant: head.variant,
+      of: head.of,
+      words: head.words,
+      blocks: own.map((block) => ({
+        key: block.key,
+        injected: block.injected,
+        deviation: block.deviation,
+        perturbed: block.perturbed === '' ? [] : block.perturbed.split(','),
+      })),
+    };
+  });
+}
+
+/**
  * The declared obligations of the suite and who holds them. A block is removable only if removing it loses no declared
  * obligation. The obligations are what the suite says a block is for, read from the spec: an injected deviation class, a
  * declared perturbation (a perturbed run reaches the blocks up to its injection), a twin pair on a declared axis (the
@@ -2251,79 +2286,23 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
  * protected only when removing it would leave the obligation with no holder; a holder of an obligation another spec also
  * carries is a repeat, whichever of them the suite lists first. A block written for a channel or a
  * persona the map does not declare holds none. The covering tuples and pairs are not read here: the ablation in
- * `removable` already keeps every map obligation of the coverage items.
+ * `removable` already keeps every map obligation of the coverage items. The rulings are data, shared with the
+ * generator: `packages/space/src/obligations`.
  */
-async function obligationHolders(data: SeedData): Promise<{
+export async function obligationHolders(data: SeedData): Promise<{
   blocks: Set<string>;
   specs: Set<string>;
   declared: (block: BlockRun) => boolean;
 }> {
   const { hidden } = await data.generated();
-  const channels = new Set<string>(hidden.channels);
-  const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
-  const declared = (block: BlockRun): boolean =>
-    (block.channel === '' || channels.has(block.channel)) &&
-    (block.persona === '' || personas.has(block.persona));
+  const axes = {
+    channels: new Set<string>(hidden.channels),
+    personas: new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`)),
+  };
+  const declared = (block: BlockRun): boolean => isDeclared(block, axes);
   const held = await data.memoized('obligation-holders', async () => {
-    const bySpec = new Map<string, BlockRun[]>();
-    for (const block of (await data.runs()).blocks)
-      bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
-    // Every obligation is collected with ALL its holders first. A holder is protected only if removing it would leave
-    // the obligation with no holder, so the verdict does not depend on the order the suite lists its specs in.
-    const carried = new Map<string, Map<string, Set<string>>>();
-    const carry = (obligation: string, spec: string, block?: string) => {
-      const holders = carried.get(obligation) ?? new Map<string, Set<string>>();
-      const keys = holders.get(spec) ?? new Set<string>();
-      if (block !== undefined) keys.add(block);
-      holders.set(spec, keys);
-      carried.set(obligation, holders);
-    };
-    const heads: BlockRun[] = [];
-    const blocks = new Set<string>();
-    const specs = new Set<string>();
-    for (const [spec, own] of bySpec) {
-      const head = own[0] as BlockRun;
-      if (!declared(head)) continue;
-      heads.push(head);
-      // A metamorphic obligation rests on content, not on the labels a spec declares: a variant in range
-      // (1 <= variant <= of) whose words are said by this spec on the walk of the path.
-      if (head.family !== '' && head.variant >= 1 && head.variant <= head.of)
-        carry(`family|${head.path}|${head.walk}|${head.words}`, spec);
-      for (const block of own) {
-        if (block.injected) carry(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec, block.key);
-        for (const cls of block.perturbed === '' ? [] : block.perturbed.split(','))
-          carry(`perturb|${block.path}|${cls}`, spec, block.key);
-      }
-    }
-    // A twin pair on an axis: two specs that write the same walk and differ in the value of that axis alone (the
-    // channel with the persona equal, the persona with the channel equal), both values declared by the map.
-    const pairs = new Map<string, Array<[string, string]>>();
-    for (const [index, one] of heads.entries())
-      for (const two of heads.slice(index + 1)) {
-        if (one.path !== two.path || one.walk !== two.walk) continue;
-        const axes: string[] = [];
-        const sameChannel = one.channel === two.channel;
-        const samePersona = one.persona === two.persona;
-        if (!sameChannel && samePersona && channels.has(one.channel) && channels.has(two.channel))
-          axes.push('channel');
-        if (!samePersona && sameChannel && personas.has(one.persona) && personas.has(two.persona))
-          axes.push('persona');
-        for (const axis of axes) {
-          const key = `${one.path}|${axis}`;
-          pairs.set(key, [...(pairs.get(key) ?? []), [one.spec, two.spec]]);
-        }
-      }
-    for (const [obligation, holders] of carried) {
-      if (holders.size !== 1) continue;
-      const [spec, keys] = [...holders][0] as [string, Set<string>];
-      if (obligation.startsWith('family|')) specs.add(spec);
-      else for (const key of keys) blocks.add(key);
-    }
-    // Removing a spec drops the pair obligation of a path and axis below one holder only when the spec belongs to every
-    // pair of it. With one pair, both members are protected; where a spec has two partners, it is the shared one.
-    for (const list of pairs.values())
-      for (const spec of new Set(list.flat())) if (list.every((pair) => pair.includes(spec))) specs.add(spec);
-    return { blocks, specs };
+    const { blocks } = await data.runs();
+    return soleHolders(obligationSpecsOf(blocks), axes);
   });
   return { ...held, declared };
 }
@@ -2533,10 +2512,19 @@ function scaleItems(): BankItem[] {
         },
       });
     // The budget is for the reference machine: the raw CPU time is scaled by the calibration of this machine.
-    add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
-      r.normalisedMs <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms of CPU time (raw), the calibration took ${r.calibrationMs} ms against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms`,
-    ]);
+    add('time', factor === 10 ? 4 : 5, C.generate, (r) => {
+      // the verdict compares exact values; only this text rounds, to a hundredth of a millisecond
+      const shown = (value: number): number => Math.round(value * 100) / 100;
+      const runs = r.calibrationRunsMs ?? [];
+      const spread =
+        runs.length > 1
+          ? ` (the lower of the first and the median of ${runs.length} taken before the run, from ${shown(Math.min(...runs))} to ${shown(Math.max(...runs))} ms)`
+          : '';
+      return [
+        r.normalisedMs <= r.budgetMs / 2,
+        `two runs took ${r.ms} ms of CPU time (raw)${r.behaviours === undefined ? '' : ` on ${r.behaviours} behaviours, the same workload for every seed`}, the calibration took ${shown(r.calibrationMs)} ms${spread} against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms. The rest of the structure of the seed (stages, phrases, data) still moves this time by up to about 60 percent between seeds, and the class of the runner by about 5 percent`,
+      ];
+    });
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,
       `${r.invalid} invalid, ${r.lint} linted`,

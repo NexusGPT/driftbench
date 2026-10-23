@@ -5,7 +5,7 @@ import { registeredLadders } from '../../src/ladders/index';
 import { BANK_SET_HASH, OWNER_DATE } from '../../src/ladders/variables/bank/constants';
 import { formatProblems } from '../../src/ladders/variables/bank/format';
 import { RUNS, runInProcess, variablesBank } from '../../src/ladders/variables/bank/index';
-import { FAMILIES, FAMILY_LEVEL, LEVELS, STEMS } from '../../src/ladders/variables/bank/manifest/index';
+import { FAMILIES, LEVELS, levelOf, STEMS } from '../../src/ladders/variables/bank/manifest/index';
 import { renderCatalogue } from '../../src/ladders/variables/catalogue';
 import { VARIABLES_LADDER_VERSION, variablesLadder } from '../../src/ladders/variables/index';
 import type { StoreDoc, StoreValue, StoreVariable } from '../../src/ladders/variables/interface';
@@ -34,7 +34,7 @@ describe('the variables bank', () => {
     }
     for (const item of bank) {
       expect(item.cause, item.id).toBeTruthy();
-      expect(FAMILY_LEVEL[item.family as keyof typeof FAMILY_LEVEL], item.id).toBe(item.level);
+      expect(levelOf(item.family as (typeof FAMILIES)[number], item.component), item.id).toBe(item.level);
     }
     expect(Object.keys(RUNS).sort()).toEqual(STEMS.map((s) => s.id).sort());
   });
@@ -54,7 +54,7 @@ describe('the variables bank', () => {
 });
 
 describe('the variables ladder', () => {
-  it('is registered as variables with seven levels', () => {
+  it('is registered as variables with eight levels', () => {
     const ladder = registeredLadders().variables;
     expect(ladder?.component).toBe('variables');
     expect(ladder?.version).toBe(VARIABLES_LADDER_VERSION);
@@ -81,7 +81,7 @@ describe('the variables ladder', () => {
     const { runLadder } = await import('../../src/ladder');
     const run = await runLadder(ladder, { seed: 1, root: ROOT, full: true });
     expect(run.level).toBe(0);
-    expect(run.failing?.id).toBe('store');
+    expect(run.failing?.id).toBe('store-core');
     expect(run.rows.every((row) => row.pass !== null)).toBe(true);
   });
 });
