@@ -174,6 +174,7 @@ export {
   type UndecidedReason,
   type Unstable,
   votedSpans,
+  WINDOW_CHARS,
   windowsOf,
 } from './scan';
 export {
