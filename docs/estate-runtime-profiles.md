@@ -16,6 +16,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `types` | Its built-in part types, in the order a file is classified in ([the estate model](estate-model.md)) | `CLAUDE_CODE_TYPES`, listed on the [Claude Code page](adapters/claude-code.md#part-types) |
 | `mapKinds` | The kind the estate map gives a file of each type; a file no mapped type locates is `other` | `CLAUDE_CODE_MAP_KINDS` |
 | `shapes` | The structures its reader can test a file for, which a type's `shape` names | `step-list`, `catalogue`, `check-table` |
+| `coverageRoots` | The roots whose every file counts for coverage: one no type covers is unknown ([coverage and unknown files](estate-model.md#coverage-and-unknown-files)) | `layout` |
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |

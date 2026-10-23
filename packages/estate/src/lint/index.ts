@@ -6,5 +6,6 @@ export {
   type LintFinding,
   type LintOptions,
   type LintResult,
+  type LintSummary,
   lintEstate,
 } from './lint';

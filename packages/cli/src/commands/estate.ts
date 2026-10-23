@@ -1,6 +1,6 @@
 import { readFile, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
-import { noneRan, type TokenPrices } from '@agent-nexus/driftbench-core';
+import type { TokenPrices } from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -520,12 +520,31 @@ export async function estateLintCommand(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
+  // A check that read nothing did not run: it is named, never counted as a pass.
+  for (const [reason, text] of [
+    ['no-input', 'no input to read'],
+    ['missing-capability', 'the run lacks what it requires'],
+  ] as const) {
+    const codes = result.outcomes
+      .filter((outcome) => outcome.notRun === reason)
+      .map((outcome) => outcome.check);
+    if (codes.length > 0) lines.push(`  not-run     ${codes.join(', ')}: ${text}.`);
+  }
+  if (result.unknown.length > 0) {
+    const named = result.unknown.slice(0, 5).join(', ');
+    const more = result.unknown.length > 5 ? ` and ${result.unknown.length - 5} more` : '';
+    lines.push(
+      `  unknown     ${result.unknown.length} ${plural(result.unknown.length, 'file', 'files')} no part type covers: ${named}${more}.`,
+    );
+  }
+  const unknown = result.unknown.length;
   lines.push(
-    result.failed
-      ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`
-      : noneRan(result.outcomes)
-        ? 'Not run: no check had an input.'
-        : 'Clean.',
+    {
+      findings: `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`,
+      'none-ran': 'Not run: no check had an input.',
+      'unknown-files': `Not clean: ${unknown} ${plural(unknown, 'file', 'files')} no part type covers, which no check read.`,
+      clean: 'Clean.',
+    }[result.summary],
     '',
   );
   io.out(lines.join('\n'));
