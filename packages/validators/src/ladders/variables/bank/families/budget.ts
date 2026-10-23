@@ -303,7 +303,8 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       check((r.logWeight as number) <= previous + LOG_TOLERANCE, () => ({
         rule: 'the reported weights do not rise along the plan',
         input: { row: i },
-        got: { logWeight: r.logWeight, previous }, expected: none('observation')
+        got: { logWeight: r.logWeight, previous },
+        expected: none('observation'),
       }));
       previous = r.logWeight as number;
     }

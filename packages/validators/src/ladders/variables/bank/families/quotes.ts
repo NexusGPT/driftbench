@@ -76,13 +76,15 @@ function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): 
   check(!kept, () => ({
     rule: 'a value whose quote the file does not hold is refused',
     input: { label, id, quote },
-    got: { kept: true }, expected: none('observation')
+    got: { kept: true },
+    expected: none('observation'),
   }));
   const named = refusalsMentioning(store, id);
   check(named.length >= 1, () => ({
     rule: 'a refused value is named in the refusal list',
     input: { label, id },
-    got: { refusals: store.refused }, expected: none('observation')
+    got: { refusals: store.refused },
+    expected: none('observation'),
   }));
 }
 
@@ -279,7 +281,8 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     check(refusalsMentioning(store, bad.id).length >= 1, () => ({
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
-      got: { refusals: store.refused }, expected: none('observation')
+      got: { refusals: store.refused },
+      expected: none('observation'),
     }));
   },
 
@@ -556,7 +559,8 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     check(refusalsMentioning(store, span, 'R1').length >= 1, () => ({
       rule: 'a refused clause is named in the refusal list',
       input: { span },
-      got: { refusals: store.refused }, expected: none('observation')
+      got: { refusals: store.refused },
+      expected: none('observation'),
     }));
     const good = variablesCiting(store, other.text);
     check(good.length === 1, () => ({

@@ -49,14 +49,16 @@ function verify(
   check(problems.length === 0, () => ({
     rule: 'the plan has a sound shape',
     input: label,
-    got: { problems }, expected: none('observation')
+    got: { problems },
+    expected: none('observation'),
   }));
   const rows = run.plan.rows.map((r) => indexRow(space, r.values) as number[]);
   const bad = rowsWithForbidden(space, rows);
   check(bad.count === 0, () => ({
     rule: 'no row of the plan holds an impossible pair',
     input: label,
-    got: { rowsWithAnImpossiblePair: bad.count, first: bad.first }, expected: none('observation')
+    got: { rowsWithAnImpossiblePair: bad.count, first: bad.first },
+    expected: none('observation'),
   }));
   const scan = scanCoverage(space, groups, rows);
   check(scan.missing === 0, () => ({

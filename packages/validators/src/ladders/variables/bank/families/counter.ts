@@ -453,7 +453,8 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       check(Array.isArray(list), () => ({
         rule: 'coverage returns the list of uncovered tuples it was asked for',
         input: { uncoveredLimit: limit },
-        got: { returned: list }, expected: none('observation')
+        got: { returned: list },
+        expected: none('observation'),
       }));
       const keys = (list as Row[]).map((tuple) => {
         const entries = Object.entries(tuple).map(([variable, value]) => {

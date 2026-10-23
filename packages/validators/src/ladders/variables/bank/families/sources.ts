@@ -647,7 +647,8 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const leak = canaries.find((c) => dump.includes(c));
     check(leak === undefined, () => ({
       rule: 'nothing of a conversation but counts reaches the store',
-      got: { leak }, expected: none('observation')
+      got: { leak },
+      expected: none('observation'),
     }));
     const hasPrefix = dump.includes('zq9canary') || dump.includes('zq9id');
     must(!hasPrefix, 'the store holds a fragment of a conversation text or id');

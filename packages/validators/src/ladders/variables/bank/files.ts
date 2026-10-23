@@ -210,7 +210,8 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
       check(result.ok, () => ({
         rule: 'validate accepts a store the page accepts',
         input: at,
-        got: { refusedWith: issueText('errors' in result ? result.errors : []) }, expected: none('observation')
+        got: { refusedWith: issueText('errors' in result ? result.errors : []) },
+        expected: none('observation'),
       }));
       return;
     }
