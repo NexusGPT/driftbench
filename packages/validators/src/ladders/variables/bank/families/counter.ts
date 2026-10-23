@@ -418,8 +418,13 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const space = makeSpace(arities);
     const result = callCoverage(ctx, toStore(space), [], [wholeGroup(space, t)]);
     const want = elementary(arities, t);
-    check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({ rule: 'the generator must build a count beyond 2^53' }));
-    check(typeof result.allowed === 'bigint', () => ({ rule: 'the count is {}, beyond 2^53, but allowed is the {} {}; return a bigint', got: { details: [want, typeof result.allowed, show(result.allowed)] } }));
+    check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
+      rule: 'the generator must build a count beyond 2^53',
+    }));
+    check(typeof result.allowed === 'bigint', () => ({
+      rule: 'the count is {}, beyond 2^53, but allowed is the {} {}; return a bigint',
+      got: { details: [want, typeof result.allowed, show(result.allowed)] },
+    }));
     check(result.allowed === want, () => ({
       rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
       got: { allowed: String(result.allowed) },
@@ -486,9 +491,15 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         got: { listed: keys.length },
         expected: { listed: expectedLength },
       }));
-      check(new Set(keys).size === keys.length, () => ({ rule: 'space {}: the uncovered list repeats a tuple', got: { details: [k + 1] } }));
+      check(new Set(keys).size === keys.length, () => ({
+        rule: 'space {}: the uncovered list repeats a tuple',
+        got: { details: [k + 1] },
+      }));
       for (const key of keys) {
-        check(required.has(key) && !covered.has(key), () => ({ rule: 'space {}: the listed tuple {} is not an allowed uncovered tuple', got: { details: [k + 1, key] } }));
+        check(required.has(key) && !covered.has(key), () => ({
+          rule: 'space {}: the listed tuple {} is not an allowed uncovered tuple',
+          got: { details: [k + 1, key] },
+        }));
       }
     }
   },
@@ -542,6 +553,9 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       got: { allowed: show(result.allowed) },
       expected: { allowed: String(want) },
     }));
-    check(ms <= 50, () => ({ rule: 'counting the tuples of {} binary variables at strength 3 took {} ms of processor time, over 50 ms; use a formula, not an enumeration', got: { details: [n, Math.round(ms)] } }));
+    check(ms <= 50, () => ({
+      rule: 'counting the tuples of {} binary variables at strength 3 took {} ms of processor time, over 50 ms; use a formula, not an enumeration',
+      got: { details: [n, Math.round(ms)] },
+    }));
   },
 };

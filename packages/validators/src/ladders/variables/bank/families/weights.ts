@@ -368,11 +368,22 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const unseen = values[m - 1] as StoreValue;
     const label = `the unseen value ${unseen.id}`;
     const share = shareOf(variable, unseen, label);
-    check(share >= 0 && share <= 1 / (n + 2) + 1e-9, () => ({ rule: '{} was seen in 0 of {} sessions but has the share {}', got: { details: [label, n, share] } }));
+    check(share >= 0 && share <= 1 / (n + 2) + 1e-9, () => ({
+      rule: '{} was seen in 0 of {} sessions but has the share {}',
+      got: { details: [label, n, share] },
+    }));
     const { count, total } = countsOf(unseen, label);
-    check(count === 0 && total === n, () => ({ rule: 'a value seen in no session carries the counts 0 of its sessions', input: { label }, got: { count, total, sessions: n } }));
+    check(count === 0 && total === n, () => ({
+      rule: 'a value seen in no session carries the counts 0 of its sessions',
+      input: { label },
+      got: { count, total, sessions: n },
+    }));
     const [lo, hi] = callInterval(ctx, count, total);
-    check(lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1, () => ({ rule: 'the interval of no success has a lower bound of 0 and an upper bound above 0', input: { count: 0, total: n }, got: [lo, hi] }));
+    check(lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1, () => ({
+      rule: 'the interval of no success has a lower bound of 0 and an upper bound above 0',
+      input: { count: 0, total: n },
+      got: [lo, hi],
+    }));
   },
 
   'weights.all-sessions-one-value': (variant, ctx) => {
@@ -383,10 +394,18 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const v = values[0] as StoreValue;
     const label = `the value seen in all ${n} sessions`;
     const share = shareOf(variable, v, label);
-    check(share >= 1 - 1 / (n + 2) - 1e-9 && share <= 1 + 1e-9, () => ({ rule: 'the only value of a variable holds about all of its weight', input: { label }, got: { share } }));
+    check(share >= 1 - 1 / (n + 2) - 1e-9 && share <= 1 + 1e-9, () => ({
+      rule: 'the only value of a variable holds about all of its weight',
+      input: { label },
+      got: { share },
+    }));
     const { count, total } = countsOf(v, label);
     const [lo, hi] = callInterval(ctx, count, total);
-    check(hi >= 1 - 1e-12 && lo < 1 && lo >= 0, () => ({ rule: 'the interval of every success has an upper bound of 1 and a lower bound below 1', input: { count, total }, got: [lo, hi] }));
+    check(hi >= 1 - 1e-12 && lo < 1 && lo >= 0, () => ({
+      rule: 'the interval of every success has an upper bound of 1 and a lower bound below 1',
+      input: { count, total },
+      got: [lo, hi],
+    }));
   },
 
   'weights.no-observation': (variant, ctx) => {

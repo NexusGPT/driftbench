@@ -80,7 +80,10 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       });
     const full = run();
     const total = full.rows.length;
-    check(total >= seeds.length + 6, () => ({ rule: 'the plan without a budget has only {} rows; the item needs a larger plan', got: { details: [total] } }));
+    check(total >= seeds.length + 6, () => ({
+      rule: 'the plan without a budget has only {} rows; the item needs a larger plan',
+      got: { details: [total] },
+    }));
     const label = `${variant} (plan of ${total} rows, ${seeds.length} seeds)`;
     switch (variant) {
       case 'middle':
@@ -128,7 +131,13 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
             got: { rows: plan.rows.length },
             expected: { rows: Math.min(b, total) },
           }));
-          check(plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'), () => ({ rule: '{}: with budget {} the seeds do not lead the plan', got: { details: [label, b] } }));
+          check(
+            plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'),
+            () => ({
+              rule: '{}: with budget {} the seeds do not lead the plan',
+              got: { details: [label, b] },
+            }),
+          );
         }
         break;
       default: {
@@ -178,7 +187,10 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       const cut = planOf(ctx, st, { ...base, budget });
       const kept = freshLogs(space, cut, seeds.length);
       const dropped = full.rows.slice(budget).map((r) => logWeight(space, indexRow(space, r.values)));
-      check(kept.length > 0 && dropped.length > 0, () => ({ rule: 'budget {} of {} rows keeps {} and drops {} new rows', got: { details: [budget, total, kept.length, dropped.length] } }));
+      check(kept.length > 0 && dropped.length > 0, () => ({
+        rule: 'budget {} of {} rows keeps {} and drops {} new rows',
+        got: { details: [budget, total, kept.length, dropped.length] },
+      }));
       if (RARE_ROWS_CUT === 'last') {
         const keptMax = Math.max(...kept);
         const droppedMin = Math.min(...dropped);
@@ -217,7 +229,10 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       rule: 'the error of a refused budget is a RangeError',
       got: { name: e.name, message: e.message },
     }));
-    check(e.message.toLowerCase().includes('budget'), () => ({ rule: 'the error "{}" does not name the budget', got: { details: [e.message] } }));
+    check(e.message.toLowerCase().includes('budget'), () => ({
+      rule: 'the error "{}" does not name the budget',
+      got: { details: [e.message] },
+    }));
   },
 
   'budget.log-space-weights': (variant, ctx) => {
@@ -240,7 +255,9 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     });
     ordered(freshLogs(space, plan, 0), `weights from ${variant}`);
     const logs = freshLogs(space, plan, 0);
-    check(new Set(logs.map((x) => x.toFixed(6))).size > 1, () => ({ rule: 'the generator should give rows of different weights' }));
+    check(new Set(logs.map((x) => x.toFixed(6))).size > 1, () => ({
+      rule: 'the generator should give rows of different weights',
+    }));
   },
 
   'budget.uniform-without-weights': (variant, ctx) => {
@@ -262,9 +279,15 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     samePrefix(full, planOf(ctx, st, { seed: ctx.seed, budget: b }), b, variant);
     if (variant === 'no-weights') {
       const w0 = full.rows[0]?.logWeight as number;
-      check(full.rows.every(
+      check(
+        full.rows.every(
           (r) => typeof r.logWeight === 'number' && Math.abs(r.logWeight - w0) <= LOG_TOLERANCE,
-        ), () => ({ rule: 'no variable has weights but the rows report different log weights: {}', got: { details: [show(full.rows.slice(0, 4).map((r) => r.logWeight))] } }));
+        ),
+        () => ({
+          rule: 'no variable has weights but the rows report different log weights: {}',
+          got: { details: [show(full.rows.slice(0, 4).map((r) => r.logWeight))] },
+        }),
+      );
     } else {
       ordered(freshLogs(space, full, 0), 'partial weights (a variable without weights counts as uniform)');
     }

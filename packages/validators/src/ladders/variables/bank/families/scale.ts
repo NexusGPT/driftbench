@@ -82,7 +82,10 @@ function verify(
     got: { rows: rows.length },
     expected: { atMost: cap },
   }));
-  check(run.ms <= limits.budgetMs, () => ({ rule: '{}: planning took {} ms of processor time, over {} ms', got: { details: [label, Math.round(run.ms), limits.budgetMs] } }));
+  check(run.ms <= limits.budgetMs, () => ({
+    rule: '{}: planning took {} ms of processor time, over {} ms',
+    got: { details: [label, Math.round(run.ms), limits.budgetMs] },
+  }));
 }
 
 const axesGroup = (space: Space): SpaceGroup => ({
@@ -243,9 +246,18 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     });
     const estate = estateOf(files, rules);
     const { value: store, ms } = cpuMs(() => build(ctx, { estate }));
-    check(store.refused.length === 0, () => ({ rule: '{} refusals for findable spans: {}', got: { details: [store.refused.length, show(store.refused.slice(0, 2))] } }));
-    check(store.variables.length === spans, () => ({ rule: '{} spans with distinct nouns give {} variables', got: { details: [spans, store.variables.length] } }));
-    check(store.variables.every((v) => v.values.length === 3), () => ({ rule: 'a variable does not hold three values' }));
+    check(store.refused.length === 0, () => ({
+      rule: '{} refusals for findable spans: {}',
+      got: { details: [store.refused.length, show(store.refused.slice(0, 2))] },
+    }));
+    check(store.variables.length === spans, () => ({
+      rule: '{} spans with distinct nouns give {} variables',
+      got: { details: [spans, store.variables.length] },
+    }));
+    check(
+      store.variables.every((v) => v.values.length === 3),
+      () => ({ rule: 'a variable does not hold three values' }),
+    );
     for (const k of rng.sample(
       Array.from({ length: spans }, (_, i) => i),
       30,
@@ -259,7 +271,10 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       }));
     }
     const budget = spans <= 200 ? 5000 : spans <= 2000 ? 10_000 : 30_000;
-    check(ms <= budget, () => ({ rule: 'reading {} spans in {} files of 100 KB took {} ms of processor time, over {} ms', got: { details: [spans, filesCount, Math.round(ms), budget] } }));
+    check(ms <= budget, () => ({
+      rule: 'reading {} spans in {} files of 100 KB took {} ms of processor time, over {} ms',
+      got: { details: [spans, filesCount, Math.round(ms), budget] },
+    }));
   },
 
   'scale.conversations': (variant, ctx) => {
@@ -274,7 +289,10 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     );
     checkCounts(store, base, counts, observed);
     const budget = n <= 10_000 ? 2000 : 5000;
-    check(ms <= budget, () => ({ rule: 'counting {} sessions took {} ms of processor time, over {} ms', got: { details: [n, Math.round(ms), budget] } }));
+    check(ms <= budget, () => ({
+      rule: 'counting {} sessions took {} ms of processor time, over {} ms',
+      got: { details: [n, Math.round(ms), budget] },
+    }));
   },
 
   'scale.counter-big-plan': (variant, ctx) => {
@@ -299,8 +317,14 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       expected: { allowed: String(want) },
     }));
     const covered = BigInt(scan.required - scan.missing);
-    check(toBig(result.covered, 'covered') === covered, () => ({ rule: 'covered {}, the bank\'s scan of the 30 rows gives {}', got: { details: [show(result.covered), covered] } }));
-    check(ms <= 20_000, () => ({ rule: 'counting the coverage of 30 rows over {} binary variables at strength {} took {} ms of processor time, over 20000 ms', got: { details: [n, t, Math.round(ms)] } }));
+    check(toBig(result.covered, 'covered') === covered, () => ({
+      rule: "covered {}, the bank's scan of the 30 rows gives {}",
+      got: { details: [show(result.covered), covered] },
+    }));
+    check(ms <= 20_000, () => ({
+      rule: 'counting the coverage of 30 rows over {} binary variables at strength {} took {} ms of processor time, over 20000 ms',
+      got: { details: [n, t, Math.round(ms)] },
+    }));
   },
 
   'scale.big-arity-axis': (_variant, ctx) => {

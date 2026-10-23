@@ -209,7 +209,10 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, oracle, plan as Plan, { seeds });
     planIsSound(facts);
     const report = (plan as Plan).report;
-    check(!!report && report.allowed !== undefined && report.covered !== undefined, () => ({ rule: 'the plan has no report with allowed and covered: {}', got: { details: [show(report)] } }));
+    check(!!report && report.allowed !== undefined && report.covered !== undefined, () => ({
+      rule: 'the plan has no report with allowed and covered: {}',
+      got: { details: [show(report)] },
+    }));
     const rows = [...seeds.map((s) => indexRow(space, s)), ...facts.fresh];
     const required = oracle.required(groups);
     const covered = oracle.covered(rows, groups, required);

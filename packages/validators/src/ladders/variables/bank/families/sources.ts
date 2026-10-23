@@ -111,7 +111,10 @@ export function baseStore(
   const store = build(ctx, { estate });
   const vars = specs.map((s, i) => {
     const found = locateTool(store, s.spec);
-    check(!!found, () => ({ rule: 'the base store built from the tool evidence of field {} ({} {}) holds no variable that cites its {} quotes', got: { details: [i + 1, s.spec.tool, s.spec.field, s.spec.values.length] } }));
+    check(!!found, () => ({
+      rule: 'the base store built from the tool evidence of field {} ({} {}) holds no variable that cites its {} quotes',
+      got: { details: [i + 1, s.spec.tool, s.spec.field, s.spec.values.length] },
+    }));
     const { variable, ids } = found as NonNullable<typeof found>;
     return { variable, ids: s.spec.values.map((v) => ids.get(v.id) as string) };
   });
@@ -151,16 +154,25 @@ export const evenMix = (n: number): number[] => Array.from({ length: n }, () => 
 export function checkCounts(store: StoreDoc, base: Base, counts: number[][], observed: number[]): void {
   base.vars.forEach((bv, i) => {
     const variable = variableOf(store, bv.variable.id);
-    check(!!variable, () => ({ rule: 'variable {} is gone from the store built with the sessions', got: { details: [bv.variable.id] } }));
+    check(!!variable, () => ({
+      rule: 'variable {} is gone from the store built with the sessions',
+      got: { details: [bv.variable.id] },
+    }));
     const v = variable as StoreVariable;
     let total = 0;
     bv.ids.forEach((id, k) => {
       const value = valueById(v, id);
-      check(!!value, () => ({ rule: 'value {} of {} is gone from the store built with the sessions', got: { details: [id, v.id] } }));
+      check(!!value, () => ({
+        rule: 'value {} of {} is gone from the store built with the sessions',
+        got: { details: [id, v.id] },
+      }));
       const prov = convOf(value as StoreValue);
       const planted = (counts[i] as number[])[k] as number;
       if (prov.length === 0) {
-        check(planted === 0, () => ({ rule: 'value {} of {} was seen in {} sessions but carries no conversations provenance', got: { details: [id, v.id, planted] } }));
+        check(planted === 0, () => ({
+          rule: 'value {} of {} was seen in {} sessions but carries no conversations provenance',
+          got: { details: [id, v.id, planted] },
+        }));
         return;
       }
       check(prov.length === 1, () => ({
@@ -170,10 +182,16 @@ export function checkCounts(store: StoreDoc, base: Base, counts: number[][], obs
         expected: { entries: 1 },
       }));
       const p = prov[0] as Extract<Provenance, { kind: 'conversations' }>;
-      check(p.count === planted && p.total === observed[i], () => ({ rule: 'value {} of {}: conversations provenance says count {} of {}, the sessions give {} of {}', got: { details: [id, v.id, p.count, p.total, planted, observed[i]] } }));
+      check(p.count === planted && p.total === observed[i], () => ({
+        rule: 'value {} of {}: conversations provenance says count {} of {}, the sessions give {} of {}',
+        got: { details: [id, v.id, p.count, p.total, planted, observed[i]] },
+      }));
       total += p.count;
     });
-    check(total === observed[i], () => ({ rule: 'the seen counts of {} add up to {}, the sessions observing it number {}', got: { details: [v.id, total, observed[i]] } }));
+    check(total === observed[i], () => ({
+      rule: 'the seen counts of {} add up to {}, the sessions observing it number {}',
+      got: { details: [v.id, total, observed[i]] },
+    }));
   });
 }
 
@@ -187,7 +205,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         { id: 'R1', source: 'CLAUDE.md', conditions: [span.text], tools: [] },
       ]),
     });
-    check(store.refused.length === 0, () => ({ rule: 'the condition "{}" is a plain, findable span but the store refuses {}', got: { details: [span.text, show(store.refused)] } }));
+    check(store.refused.length === 0, () => ({
+      rule: 'the condition "{}" is a plain, findable span but the store refuses {}',
+      got: { details: [span.text, show(store.refused)] },
+    }));
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
     check(v.values.length === 3, () => ({
       rule: 'a numeric condition gives its two sides and the boundary as values',
@@ -250,8 +271,20 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
         got: { samples: show(samples) },
       }),
     );
-    check(samples.some((s) => span.members.includes(s as string)), () => ({ rule: 'no value of "{}" has a sample in the list {}: samples {}', got: { details: [span.text, show(span.members), show(samples)] } }));
-    check(samples.some((s) => !span.members.includes(s as string)), () => ({ rule: 'no value of "{}" has a sample outside the list {}: samples {}', got: { details: [span.text, show(span.members), show(samples)] } }));
+    check(
+      samples.some((s) => span.members.includes(s as string)),
+      () => ({
+        rule: 'no value of "{}" has a sample in the list {}: samples {}',
+        got: { details: [span.text, show(span.members), show(samples)] },
+      }),
+    );
+    check(
+      samples.some((s) => !span.members.includes(s as string)),
+      () => ({
+        rule: 'no value of "{}" has a sample outside the list {}: samples {}',
+        got: { details: [span.text, show(span.members), show(samples)] },
+      }),
+    );
     check(v.values.length >= 2 && v.values.length <= span.members.length + 1, () => ({
       rule: 'a membership condition gives an in-list value, an out-of-list value and at most one per member',
       input: { span: span.text },
@@ -279,7 +312,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     });
     for (const d of decoys) {
       const hit = variablesCiting(store, d);
-      check(hit.length === 0, () => ({ rule: 'the span "{}" states no condition but variable {} cites it', got: { details: [d, hit[0]?.id] } }));
+      check(hit.length === 0, () => ({
+        rule: 'the span "{}" states no condition but variable {} cites it',
+        got: { details: [d, hit[0]?.id] },
+      }));
     }
     exactlyOne(
       variablesCiting(store, real.text),
@@ -318,7 +354,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     );
     for (const s of spans) {
       const hit = exactlyOne(variablesCiting(store, s.text), `variables whose values cite "${s.text}"`);
-      check(hit === v, () => ({ rule: '"{}" and "{}" name the same quantity "{}" but sit in different variables ({}, {})', got: { details: [s.text, spans[0]?.text, quantity.noun, hit.id, v.id] } }));
+      check(hit === v, () => ({
+        rule: '"{}" and "{}" name the same quantity "{}" but sit in different variables ({}, {})',
+        got: { details: [s.text, spans[0]?.text, quantity.noun, hit.id, v.id] },
+      }));
       const cited = citing(store, s.text).length;
       check(cited === 3, () => ({
         rule: 'a span is cited by each of the three values it gives',
@@ -334,7 +373,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       expected: { values: 3 * count },
     }));
     const samples = v.values.map((x) => x.sample);
-    check(new Set(samples).size === samples.length, () => ({ rule: 'the merged variable holds duplicate samples {}', got: { details: [show(samples)] } }));
+    check(new Set(samples).size === samples.length, () => ({
+      rule: 'the merged variable holds duplicate samples {}',
+      got: { details: [show(samples)] },
+    }));
   },
 
   'sources.estate.different-quantities-split': (variant, ctx) => {
@@ -361,7 +403,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const vars = spans.map((s) =>
       exactlyOne(variablesCiting(store, s.text), `variables whose values cite "${s.text}"`),
     );
-    check(vars[0] !== vars[1], () => ({ rule: '"{}" and "{}" name different quantities but share variable {}', got: { details: [spans[0]?.text, spans[1]?.text, vars[0]?.id] } }));
+    check(vars[0] !== vars[1], () => ({
+      rule: '"{}" and "{}" name different quantities but share variable {}',
+      got: { details: [spans[0]?.text, spans[1]?.text, vars[0]?.id] },
+    }));
     for (const v of vars)
       check(v.values.length === 3, () => ({
         rule: 'a quantity gives three values',
@@ -427,11 +472,17 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       }
       for (const t of r.tools) {
         const found = locateTool(store, t);
-        check(!!found, () => ({ rule: 'no variable cites the {} quotes of the tool evidence {} {}', got: { details: [t.values.length, t.tool, t.field] } }));
+        check(!!found, () => ({
+          rule: 'no variable cites the {} quotes of the tool evidence {} {}',
+          got: { details: [t.values.length, t.tool, t.field] },
+        }));
         want.add((found as NonNullable<typeof found>).variable.id);
       }
       const got = store.rules.find((x) => x.id === r.id);
-      check(!!got, () => ({ rule: 'the store lists no rule {}: {}', got: { details: [r.id, show(store.rules)] } }));
+      check(!!got, () => ({
+        rule: 'the store lists no rule {}: {}',
+        got: { details: [r.id, show(store.rules)] },
+      }));
       const have = new Set((got as NonNullable<typeof got>).variables);
       check(have.size === want.size && [...want].every((x) => have.has(x)), () => ({
         rule: 'a rule lists the variables its condition spans and tool evidence name',
@@ -452,7 +503,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       ]),
     });
     const found = locateTool(store, t.spec);
-    check(!!found, () => ({ rule: 'no single variable holds the {} values cited by the quotes of {} {}: {}', got: { details: [n, t.spec.tool, t.spec.field, show(store.variables.map((v) => v.id))] } }));
+    check(!!found, () => ({
+      rule: 'no single variable holds the {} values cited by the quotes of {} {}: {}',
+      got: { details: [n, t.spec.tool, t.spec.field, show(store.variables.map((v) => v.id))] },
+    }));
     const { variable } = found as NonNullable<typeof found>;
     check(variable.values.length === n, () => ({
       rule: 'a variable holds the values its source lists',
@@ -514,13 +568,18 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       const b = variableOf(store, unobserved.variable.id) as StoreVariable;
       for (const id of unobserved.ids) {
         const prov = convOf(valueById(b, id) as StoreValue).filter((p) => p.total > 0);
-        check(prov.length === 0, () => ({ rule: 'value {} of {} was observed in no session but carries {}', got: { details: [id, b.id, show(prov)] } }));
+        check(prov.length === 0, () => ({
+          rule: 'value {} of {} was observed in no session but carries {}',
+          got: { details: [id, b.id, show(prov)] },
+        }));
       }
       const first = { ...base, vars: [base.vars[0] as Base['vars'][number]] };
       checkCounts(store, first, [counts[0] as number[]], [observed[0] as number]);
     } else {
       checkCounts(store, base, counts, observed);
-      check(observed[1] !== n, () => ({ rule: 'the generator should leave some sessions without the second variable' }));
+      check(observed[1] !== n, () => ({
+        rule: 'the generator should leave some sessions without the second variable',
+      }));
     }
   },
 
@@ -542,7 +601,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const variable = variableOf(store, bv.variable.id) as StoreVariable;
     check(!!variable, () => ({ rule: 'variable {} is gone', got: { details: [bv.variable.id] } }));
     const added = valueById(variable, novel);
-    check(!!added, () => ({ rule: 'the value {} was seen in {} of {} sessions but {} holds only {}', got: { details: [novel, seenNovel, n, variable.id, show(variable.values.map((v) => v.id))] } }));
+    check(!!added, () => ({
+      rule: 'the value {} was seen in {} of {} sessions but {} holds only {}',
+      got: { details: [novel, seenNovel, n, variable.id, show(variable.values.map((v) => v.id))] },
+    }));
     const prov = convOf(added as StoreValue);
     check(prov.length === 1 && prov[0]?.count === seenNovel && prov[0]?.total === n, () => ({
       rule: 'a new value from conversations carries how often it was seen',
@@ -550,8 +612,12 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       got: { provenance: show(prov) },
       expected: { seen: seenNovel },
     }));
-    for (const id of bv.ids) check(!!valueById(variable, id), () => ({ rule: 'the old value {} is gone', got: { details: [id] } }));
-    check((added as StoreValue).approved === false, () => ({ rule: 'the new value {} came from conversations, so it is a proposal (approved false); it carries approved {}', got: { details: [novel, show((added as StoreValue).approved)] } }));
+    for (const id of bv.ids)
+      check(!!valueById(variable, id), () => ({ rule: 'the old value {} is gone', got: { details: [id] } }));
+    check((added as StoreValue).approved === false, () => ({
+      rule: 'the new value {} came from conversations, so it is a proposal (approved false); it carries approved {}',
+      got: { details: [novel, show((added as StoreValue).approved)] },
+    }));
     for (const id of bv.ids) {
       check(valueById(variable, id)?.approved !== false, () => ({
         rule: 'an old value keeps its approval when conversations add a new one',
@@ -573,8 +639,17 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       store.variables.flatMap((v) => v.values.flatMap((x) => convOf(x).map((p) => p.set_hash)));
     const first = hashes(build(ctx, { estate: base.estate, conversations: sessions }));
     check(first.length > 0, () => ({ rule: 'no conversations entry carries a set_hash' }));
-    check(first.every((h) => /^[0-9a-f]{64}$/.test(h)), () => ({ rule: 'a set_hash is not 64 lowercase hexadecimal characters: {}', got: { details: [show(first[0])] } }));
-    check(new Set(first).size === 1, () => ({ rule: 'one set of sessions gave {} different hashes', got: { details: [new Set(first).size] } }));
+    check(
+      first.every((h) => /^[0-9a-f]{64}$/.test(h)),
+      () => ({
+        rule: 'a set_hash is not 64 lowercase hexadecimal characters: {}',
+        got: { details: [show(first[0])] },
+      }),
+    );
+    check(new Set(first).size === 1, () => ({
+      rule: 'one set of sessions gave {} different hashes',
+      got: { details: [new Set(first).size] },
+    }));
     if (variant === 'stable') {
       const again = hashes(
         build(ctx, {
@@ -593,10 +668,13 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       check(other[0] !== first[0], () => ({ rule: 'changing one session did not change the set_hash' }));
     } else if (variant === 'order-free') {
       const shuffled = hashes(build(ctx, { estate: base.estate, conversations: rng.shuffle(sessions) }));
-      check(shuffled[0] === first[0], () => ({ rule: 'the same sessions in another order give another set_hash: it hashes a set' }));
+      check(shuffled[0] === first[0], () => ({
+        rule: 'the same sessions in another order give another set_hash: it hashes a set',
+      }));
     }
     const dump = JSON.stringify(first);
-    for (const s of sessions.slice(0, 5)) check(!dump.includes(s.id), () => ({ rule: 'a set_hash holds a session id' }));
+    for (const s of sessions.slice(0, 5))
+      check(!dump.includes(s.id), () => ({ rule: 'a set_hash holds a session id' }));
   },
 
   'sources.conversations.privacy': (variant, ctx) => {
@@ -645,7 +723,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     check(!!variable, () => ({ rule: 'variable {} is gone', got: { details: [bv.variable.id] } }));
     for (const a of adds) {
       const value = valueById(variable, a.value);
-      check(!!value, () => ({ rule: 'the owner value {} is not on {}: {}', got: { details: [a.value, variable.id, show(variable.values.map((v) => v.id))] } }));
+      check(!!value, () => ({
+        rule: 'the owner value {} is not on {}: {}',
+        got: { details: [a.value, variable.id, show(variable.values.map((v) => v.id))] },
+      }));
       const prov = provOfKind(value as StoreValue, 'owner');
       check(prov.length === 1 && prov[0]?.words === a.words && prov[0]?.date === OWNER_DATE, () => ({
         rule: "an owner value carries the owner's words and day",
@@ -719,7 +800,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     for (const e of entries) {
       const value = valueById(variable, e.value);
       check(!!value, () => ({ rule: 'value {} is gone', got: { details: [e.value] } }));
-      check(value?.weight === e.weight, () => ({ rule: 'value {} has weight {}, the owner declared {}', got: { details: [e.value, show(value?.weight), e.weight] } }));
+      check(value?.weight === e.weight, () => ({
+        rule: 'value {} has weight {}, the owner declared {}',
+        got: { details: [e.value, show(value?.weight), e.weight] },
+      }));
       const prov = provOfKind(value as StoreValue, 'owner').filter(
         (p) => p.words === e.words && p.date === OWNER_DATE,
       );
@@ -749,7 +833,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const value = valueById(variableOf(store, bv.variable.id) as StoreVariable, 'wordsval');
     check(!!value, () => ({ rule: 'the owner value is not in the store' }));
     const got = provOfKind(value as StoreValue, 'owner')[0]?.words;
-    check(got === words, () => ({ rule: 'the owner\'s words changed: given {}, stored {}', got: { details: [show(words, 80), show(got, 80)] } }));
+    check(got === words, () => ({
+      rule: "the owner's words changed: given {}, stored {}",
+      got: { details: [show(words, 80), show(got, 80)] },
+    }));
   },
 
   'sources.owner.date-and-statement': (variant, ctx) => {
@@ -771,7 +858,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const variable = variableOf(store, bv.variable.id) as StoreVariable;
     const added = valueById(variable, 'latecase');
     if (variant === 'day-kept') {
-      check(!!added, () => ({ rule: 'the owner value latecase is not on {}: {}', got: { details: [variable.id, show(store.refused)] } }));
+      check(!!added, () => ({
+        rule: 'the owner value latecase is not on {}: {}',
+        got: { details: [variable.id, show(store.refused)] },
+      }));
       const prov = provOfKind(added as StoreValue, 'owner');
       check(prov.length === 1 && prov[0]?.date === day, () => ({
         rule: 'a real day is stored as given',
@@ -789,7 +879,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
           store.refused.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''),
         () => ({ rule: 'a refused owner entry is named with a reason', got: { refusals: store.refused } }),
       );
-      check(variable.values.length === bv.ids.length, () => ({ rule: 'the refused entry changed {}: {}', got: { details: [variable.id, show(variable.values.map((x) => x.id))] } }));
+      check(variable.values.length === bv.ids.length, () => ({
+        rule: 'the refused entry changed {}: {}',
+        got: { details: [variable.id, show(variable.values.map((x) => x.id))] },
+      }));
     }
   },
 
@@ -824,7 +917,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       ...(variant !== 'estate-owner' ? ['conversations'] : []),
     ];
     for (const k of want)
-      check(kinds.has(k as Provenance['kind']), () => ({ rule: 'the value {} lost its {} provenance: it carries {}', got: { details: [id, k, show(value.provenance)] } }));
+      check(kinds.has(k as Provenance['kind']), () => ({
+        rule: 'the value {} lost its {} provenance: it carries {}',
+        got: { details: [id, k, show(value.provenance)] },
+      }));
   },
 
   'sources.order-independent': (variant, ctx) => {
@@ -942,7 +1038,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
 function same(a: StoreDoc, b: StoreDoc, what: string): void {
   const ca = stableStringify(canonicalStore(a));
   const cb = stableStringify(canonicalStore(b));
-  check(ca === cb, () => ({ rule: 'the store depends on the order of its sources ({}): first {} then {}', got: { details: [what, show(JSON.parse(ca), 160), show(JSON.parse(cb), 160)] } }));
+  check(ca === cb, () => ({
+    rule: 'the store depends on the order of its sources ({}): first {} then {}',
+    got: { details: [what, show(JSON.parse(ca), 160), show(JSON.parse(cb), 160)] },
+  }));
 }
 
 void clone;

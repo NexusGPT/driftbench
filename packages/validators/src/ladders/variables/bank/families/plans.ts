@@ -28,7 +28,10 @@ import { LOG_TOLERANCE } from './budget';
 const warningCodes = (plan: Plan): string[] => (plan.warnings ?? []).map((w) => w.code);
 
 function needWarning(plan: Plan, code: string, why: string): void {
-  check(warningCodes(plan).includes(code), () => ({ rule: 'the plan has no warning {} ({}); its warnings are {}', got: { details: [code, why, show(warningCodes(plan))] } }));
+  check(warningCodes(plan).includes(code), () => ({
+    rule: 'the plan has no warning {} ({}); its warnings are {}',
+    got: { details: [code, why, show(warningCodes(plan))] },
+  }));
 }
 
 function midSpace(ctx: ItemContext, forbidden = false): Space {
@@ -57,7 +60,10 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       expected: { rows: seeds.length },
     }));
     plan.rows.forEach((row, i) => {
-      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]), () => ({ rule: 'row {} is not seed {} as given: {}', got: { details: [i, i, show(row, 140)] } }));
+      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]), () => ({
+        rule: 'row {} is not seed {} as given: {}',
+        got: { details: [i, i, show(row, 140)] },
+      }));
     });
   },
 
@@ -70,10 +76,16 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       const store = toStore(space);
       for (const v of store.variables) v.approved = false;
       const plan = planOf(ctx, store, { seed: ctx.seed, seeds: clone(seeds) });
-      check(plan.rows.length === seeds.length &&
+      check(
+        plan.rows.length === seeds.length &&
           plan.rows.every(
             (r, i) => r.kind === 'seed' && stableStringify(r.values) === stableStringify(seeds[i]),
-          ), () => ({ rule: 'when nothing is approved the plan is the seeds alone, kept whole: {} rows', got: { details: [show(plan.rows.length)] } }));
+          ),
+        () => ({
+          rule: 'when nothing is approved the plan is the seeds alone, kept whole: {} rows',
+          got: { details: [show(plan.rows.length)] },
+        }),
+      );
       needWarning(plan, 'no_variables', 'nothing in the store is approved');
       return;
     }
@@ -183,7 +195,9 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       for (const variable of scaled.variables)
         for (const value of variable.values) if (value.weight !== undefined) value.weight *= 100;
       const other = planOf(ctx, scaled, { seed: ctx.seed });
-      check(other.rows.length === plan.rows.length, () => ({ rule: 'scaling every weight by 100 changed the number of rows' }));
+      check(other.rows.length === plan.rows.length, () => ({
+        rule: 'scaling every weight by 100 changed the number of rows',
+      }));
       plan.rows.forEach((row, i) => {
         const twin = other.rows[i] as PlanRow;
         const same =
@@ -192,7 +206,10 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           typeof row.logWeight === 'number' &&
           typeof twin.logWeight === 'number' &&
           Math.abs(row.logWeight - twin.logWeight) <= LOG_TOLERANCE;
-        check(same, () => ({ rule: 'weights are relative, yet scaling them by 100 changed row {}: {} then {}', got: { details: [i, show(row), show(twin)] } }));
+        check(same, () => ({
+          rule: 'weights are relative, yet scaling them by 100 changed row {}: {} then {}',
+          got: { details: [i, show(row), show(twin)] },
+        }));
       });
       return;
     }
@@ -220,9 +237,13 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         }));
       }
     }
-    check(seenNull, () => ({ rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered' }));
+    check(seenNull, () => ({
+      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered',
+    }));
     const text = JSON.stringify(plan.rows.map((r) => r.logWeight));
-    check(!/Infinity|NaN/.test(text), () => ({ rule: 'a logWeight of minus infinity must be written as null' }));
+    check(!/Infinity|NaN/.test(text), () => ({
+      rule: 'a logWeight of minus infinity must be written as null',
+    }));
   },
 
   'impossible.general-forbid': (variant, ctx) => {
