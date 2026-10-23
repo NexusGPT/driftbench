@@ -48,7 +48,8 @@ const proseTypes = declaredTypes.filter((type) => type.aspects.includes('instruc
 
 describe('generated declared prose conformance', () => {
   it('requires an independent prose plant for every declared instructs type', () => {
-    expect(Object.keys(AGENTS_PROSE_PLANTS).sort()).toEqual(proseTypes.map((type) => type.name).sort());
+    const expected = proseTypes.map((type) => type.name).sort();
+    expect(Object.keys(AGENTS_PROSE_PLANTS).sort()).toEqual(expected);
   });
 
   for (const type of proseTypes) {
@@ -57,8 +58,10 @@ describe('generated declared prose conformance', () => {
       const prose = AGENTS_PROSE_PLANTS[type.name];
       if (!part || !prose) throw new Error(`${type.name}: missing independent plant`);
       const runtime = new agentsReader.AgentsFolderReader();
-      assertDeclaredProse(await runtime.read(await fixture(part.positive)), type, prose);
-      expect((await runtime.read(await fixture(part.negative))).prose).toEqual([]);
+      const positive = await fixture(part.positive);
+      const negative = await fixture(part.negative);
+      assertDeclaredProse(await runtime.read(positive), type, prose);
+      expect((await runtime.read(negative)).prose).toEqual([]);
     });
 
     if (type.name === 'instruction') continue;
@@ -66,11 +69,13 @@ describe('generated declared prose conformance', () => {
       const part = AGENTS_PART_PLANTS[type.name];
       const prose = AGENTS_PROSE_PLANTS[type.name];
       if (!part || !prose) throw new Error(`${type.name}: missing independent plant`);
-      const raw = await new agentsReader.AgentsFolderReader().read(await fixture(part.positive));
+      const root = await fixture(part.positive);
+      const raw = await new agentsReader.AgentsFolderReader().read(root);
       assertDeclaredProse(raw, type, prose);
       // Reproduce the reviewed type.name === 'instruction' predicate on this type's planted estate.
       const mutant = { ...raw, prose: [] };
-      expect(() => assertDeclaredProse(mutant, type, prose)).toThrow(`${type.name}: missing declared prose`);
+      const assertMutant = () => assertDeclaredProse(mutant, type, prose);
+      expect(assertMutant).toThrow(`${type.name}: missing declared prose`);
     });
   }
 });
