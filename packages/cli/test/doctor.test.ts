@@ -38,7 +38,8 @@ describe('doctor reads through the runtime registry without executing', () => {
           true,
         );
         expect(result.coverage.unknown).toContain('project:unknown.data');
-        expect(result.nextSteps.every((step) => step.usd !== null || step.reason)).toBe(true);
+        expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({ usd: null, allowed: false, reason: 'Unknown price: declare budget.pricing before approving spend.' });
+        expect(result.nextSteps.find((step) => step.action === 'Run driftbench doctor --check')).toMatchObject({ usd: 0, allowed: true });
       });
     }
   }
@@ -241,4 +242,15 @@ it('drafts a linked source without guessing its reader', async () => {
     }),
   );
   expect(result.coverage.skipped).toContainEqual({ what: 'linked-1', reason: 'reader unavailable' });
+});
+
+it('round-trips an inferred source baseline while keeping reader coverage incomplete', async () => {
+  const root = await estate({ 'CLAUDE.md': '# Instructions\n', 'shared/one.txt': 'fictional' });
+  await mkdir(join(root, '.claude'));
+  await symlink('../shared', join(root, '.claude/shared'));
+  const first = await inspectSetup(root);
+  const again = await inspectSetup(root, first.draft);
+  expect(again.drift.status).toBe('pass');
+  expect(again.draft).toEqual(first.draft);
+  expect(again.coverage.skipped).toContainEqual({ what: 'linked-1', reason: 'reader unavailable' });
 });
