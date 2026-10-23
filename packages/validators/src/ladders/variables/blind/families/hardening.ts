@@ -1,13 +1,13 @@
+import { check } from '../../../../failure';
+import type { ItemContext } from '../../bank/item';
 import {
   callCoverage,
   callInterval,
   makeStore,
-  must,
   names,
   need,
   planError,
   type Stem,
-  show,
   valueIds,
 } from '../kit';
 
@@ -17,6 +17,26 @@ import {
  */
 
 const at = (list: readonly string[], i: number): string => list[i] as string;
+
+/**
+ * What weightInterval does with a count and a total it must refuse: the error it raises, or the value it returns. The
+ * wanted error class is the wanted value, so the message names neither it nor a verdict, only what the product did.
+ */
+function refusedByInterval(ctx: ItemContext, rule: string, count: number, total: number): void {
+  let value: unknown;
+  let threw: Error | undefined;
+  try {
+    value = need(ctx, 'weightInterval')(count, total);
+  } catch (error) {
+    threw = error as Error;
+  }
+  check(threw instanceof RangeError, () => ({
+    rule,
+    input: { count, total },
+    got: threw === undefined ? { returned: value } : { threw: threw.name },
+    expected: { raises: 'RangeError' },
+  }));
+}
 
 export const HARDENING_STEMS: readonly Stem[] = [
   {
@@ -36,22 +56,17 @@ export const HARDENING_STEMS: readonly Stem[] = [
             [4, 3],
             [11, 10],
           ] as const) {
-            let got: unknown;
-            let threw: Error | undefined;
-            try {
-              got = need(ctx, 'weightInterval')(count, total);
-            } catch (error) {
-              threw = error as Error;
-            }
-            must(
-              threw instanceof RangeError,
-              () =>
-                `weightInterval(${count}, ${total}) returned ${show(got)}; a count above its total is a RangeError`,
-            );
+            refusedByInterval(ctx, 'weightInterval given a count above its total', count, total);
           }
-          // The edge stays valid: a count equal to its total is an interval.
+          // The edge stays valid: a count equal to its total is an interval, open above zero and closed at the top. The
+          // wanted value is the upper end; the lower end is only required to be above zero.
           const [lo, hi] = callInterval(ctx, 3, 3);
-          must(lo > 0 && hi === 1, () => `[${lo}, ${hi}] for 3 of 3`);
+          check(lo > 0 && hi === 1, () => ({
+            rule: 'weightInterval given a count equal to its total',
+            input: { count: 3, total: 3 },
+            got: { interval: [lo, hi] },
+            expected: { high: 1 },
+          }));
         },
       ],
       [
@@ -63,16 +78,11 @@ export const HARDENING_STEMS: readonly Stem[] = [
             [0, 0],
             [3, 0],
           ] as const) {
-            let threw: Error | undefined;
-            let got: unknown;
-            try {
-              got = need(ctx, 'weightInterval')(count, total);
-            } catch (error) {
-              threw = error as Error;
-            }
-            must(
-              threw instanceof RangeError,
-              () => `weightInterval(${count}, ${total}) returned ${show(got)}; it is a RangeError`,
+            refusedByInterval(
+              ctx,
+              'weightInterval given a negative count or a total below one',
+              count,
+              total,
             );
           }
         },
@@ -101,12 +111,19 @@ export const HARDENING_STEMS: readonly Stem[] = [
             });
           const groups = [{ variables: [a, b], strength: 2 }];
           const off = callCoverage(ctx, plain(false), [], groups);
-          must(
-            Number(off.allowed) === 4,
-            () => `allowed ${String(off.allowed)} with a forbid nobody approved; it excludes nothing, so 4`,
-          );
+          check(Number(off.allowed) === 4, () => ({
+            rule: 'the allowed tuples coverage counts for two variables when the only forbid is not approved',
+            input: { forbidApproved: false },
+            got: { allowed: String(off.allowed) },
+            expected: { allowed: 4 },
+          }));
           const on = callCoverage(ctx, plain(true), [], groups);
-          must(Number(on.allowed) === 3, () => `allowed ${String(on.allowed)} with the forbid approved; 3`);
+          check(Number(on.allowed) === 3, () => ({
+            rule: 'the allowed tuples coverage counts for two variables when the only forbid is approved',
+            input: { forbidApproved: true },
+            got: { allowed: String(on.allowed) },
+            expected: { allowed: 3 },
+          }));
         },
       ],
     ],
