@@ -44,6 +44,18 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
     working: ['PWD'],
     home: ['HOME'],
   },
+  policy: {
+    tools: {
+      Read: { aspects: ['acts'] },
+      Edit: { aspects: ['acts'] },
+      Write: { aspects: ['acts'] },
+      Bash: { aspects: ['acts', 'executes'] },
+      Skill: { aspects: ['instructs'], names: 'skill' },
+      Agent: { aspects: ['delegates'], names: 'subagent' },
+      Task: { aspects: ['delegates'], names: 'subagent' },
+    },
+    mode: { setting: 'permissions.defaultMode', unchecked: ['bypassPermissions'] },
+  },
   loadsItself: loadsByItself('claude-code', TYPES),
   copyFiles: ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'],
   configFiles: ['driftbench.estate.yaml', '.claude/driftbench.estate.yaml'],

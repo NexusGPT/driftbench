@@ -8,8 +8,19 @@ describe('lint and invariant outcomes with coverage', () => {
     const raw = await new ClaudeCodeReader().read(root);
     const result = lintEstate({ ...(await scanFixture()).map, atoms: [], edges: [] }, raw);
     expect(result.failed).toBe(false);
+    // A policy check requires the settings, which an empty estate lacks: it did not run for that reason.
+    const needsSettings = new Set([
+      'PERMISSION_UNKNOWN_SKILL',
+      'PERMISSION_UNKNOWN_HELPER',
+      'PERMISSION_READ_BYPASS',
+      'PERMISSION_BYPASS_MODE',
+    ]);
     expect(result.outcomes.map((outcome) => [outcome.check, outcome.status, outcome.notRun])).toEqual(
-      result.outcomes.map((outcome) => [outcome.check, 'not-run', 'no-input']),
+      result.outcomes.map((outcome) => [
+        outcome.check,
+        'not-run',
+        needsSettings.has(outcome.check) ? 'missing-capability' : 'no-input',
+      ]),
     );
   });
 

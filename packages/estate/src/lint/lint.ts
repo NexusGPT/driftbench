@@ -14,6 +14,7 @@ import { DEFAULT_STANDING_CEILING, measureInvariants, standingFiles } from '../s
 import type { RawEstate, RegistryRow } from '../scan/reader';
 import { ignoredReference, placeholderPath, unresolvedReference } from '../scan/reference-role';
 import type { Atom, EstateMap } from '../schema';
+import { PERMISSION_CODES, permissionFindings } from './permissions';
 
 /**
  * The static checks of an estate, on a map and the files it was read from. Each finding has a stable code:
@@ -31,6 +32,7 @@ import type { Atom, EstateMap } from '../schema';
  *   REGISTRY_ROW        a guard has no row in the check registry
  *   REGISTRY_GUARD      a registry row names a guard the estate does not run
  *   QUOTE_DRIFT         an atom's quote is no longer at its span: scan again
+ *   PERMISSION_*        the permission rules of the settings (lint/permissions.ts)
  *
  * UNENFORCED is reported as a count with the atom ids; it is a fact about trust, not an error, so it alone
  * does not fail the lint.
@@ -50,21 +52,39 @@ export const LINT_CODES = [
   'REGISTRY_ROW',
   'REGISTRY_GUARD',
   'QUOTE_DRIFT',
+  'PERMISSION_UNKNOWN_SKILL',
+  'PERMISSION_UNKNOWN_HELPER',
+  'PERMISSION_READ_BYPASS',
+  'PERMISSION_BYPASS_MODE',
 ] as const;
 export type LintCode = (typeof LINT_CODES)[number];
 
 /** Codes reported as information: counted and listed, never failing the lint. */
-export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERNAL', 'UNRESOLVED_REFERENCE']);
+export const INFORMATION: ReadonlySet<LintCode> = new Set([
+  'UNENFORCED',
+  'EXTERNAL',
+  'UNRESOLVED_REFERENCE',
+  'PERMISSION_UNKNOWN_HELPER',
+]);
 
 /** Why a guard script written from the home folder was not looked for. */
 export const HOME_NOT_MAPPED = 'home not mapped';
 
-export type LintFinding = { code: LintCode; subject: string; message: string };
+export type LintFinding = {
+  code: LintCode;
+  subject: string;
+  message: string;
+  /** For a finding that rests on a link: 1 when read from structure, below 1 when it rests on an assumption. */
+  confidence?: number;
+  /** What the finding assumes, when its confidence is below 1. */
+  basis?: string;
+};
 
-/** What each lint check requires of the run: only the drift check needs the map's atoms. */
+/** What each lint check requires of the run: the drift check needs the map's atoms, a policy check the settings. */
 export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) => ({
   id: code,
-  requires: code === 'QUOTE_DRIFT' ? ['model-map'] : [],
+  requires:
+    code === 'QUOTE_DRIFT' ? ['model-map'] : PERMISSION_CODES.some((id) => id === code) ? ['settings'] : [],
 }));
 
 export type LintResult = {
@@ -220,6 +240,9 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({ code: 'UNENFORCED', subject: id, message: `${id}: no guard enforces it` });
   }
 
+  const policy = permissionFindings(raw);
+  findings.push(...policy.findings);
+
   const counts = Object.fromEntries(LINT_CODES.map((code) => [code, 0])) as Record<LintCode, number>;
   for (const finding of findings) counts[finding.code]++;
   const references = atoms.filter((atom) => atom.kind === 'reference').length;
@@ -237,6 +260,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     REGISTRY_ROW: raw.registry.filter((row) => row.origin !== 'catalogue').length,
     REGISTRY_GUARD: raw.registry.length,
     QUOTE_DRIFT: atoms.length,
+    ...policy.reads,
   };
   // What this run has: the map always; settings and guards when the estate declares them.
   const available = new Set<CheckCapability>(['model-map']);

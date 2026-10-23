@@ -126,9 +126,41 @@ describe('a reach-around is certain only when any program may run', () => {
     expect(await readBypassConfidences(role)).toEqual([PROVEN]);
   });
 
-  // Declaring a program's capability in the setup file clears an assumed finding. The setup syntax is not fixed
-  // yet; when it is, this test declares the program as one that opens no file and expects the finding to go.
-  it.todo('an assumed finding goes when the setup declares the program opens no file');
+  describe('declaring the program in the setup file settles the assumption', () => {
+    const declared = (programs: Record<string, boolean>) => ({
+      'driftbench.estate.yaml': `programs:\n${Object.entries(programs)
+        .map(([name, opens]) => `  ${name}:\n    opensFiles: ${opens}\n`)
+        .join('')}`,
+    });
+    const role = (programs?: Record<string, boolean>): Role => ({
+      skills: ['intake-notes'],
+      policy: { allow: ['Read', 'Bash(listing *)'], deny: ['Read(./vault/**)'] },
+      ...(programs ? { files: declared(programs) } : {}),
+    });
+
+    it('a program declared to open no file reaches nothing: the finding goes', async () => {
+      expect(await policyKinds(role({ listing: false }))).toEqual([]);
+    });
+
+    it('a program declared to open files makes the reach-around proven', async () => {
+      expect(await readBypassConfidences(role({ listing: true }))).toEqual([PROVEN]);
+    });
+
+    it('a declaration about another program changes nothing: still assumed', async () => {
+      const [stated] = await readBypassConfidences(role({ other: false }));
+      expect(stated).toBeDefined();
+      expect(stated).toBeLessThan(PROVEN);
+    });
+
+    it('a declaration does not clear a bare shell allow: any program may run', async () => {
+      const bare: Role = {
+        skills: ['intake-notes'],
+        policy: { allow: ['Bash'], deny: ['Read(./vault/**)'] },
+        files: declared({ listing: false }),
+      };
+      expect(await readBypassConfidences(bare)).toEqual([PROVEN]);
+    });
+  });
 });
 
 describe('the default mode against the allow rules (matrix)', () => {

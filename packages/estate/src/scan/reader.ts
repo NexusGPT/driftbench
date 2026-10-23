@@ -207,6 +207,11 @@ export type RawEstate = {
    * written from the home folder (`~/x`), that the folder holds. No path of the machine is kept.
    */
   home?: { folder?: string; present: string[] };
+  /**
+   * What the estate's configuration declares about the programs a shell permission rule allows (`programs:`),
+   * by program name. A program declared to open no file does not reach around a deny on a file tool.
+   */
+  programs?: Record<string, { opensFiles: boolean }>;
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;
