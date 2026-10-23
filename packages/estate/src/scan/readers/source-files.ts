@@ -16,6 +16,12 @@ export type ReaderSource = {
   provenance: { file: string; path: string };
 };
 
+/** setupSource.root is original provenance only. All I/O is confined to the supplied filtered snapshots. */
+export type SourceReaderOptions = {
+  setupSource?: ReaderSource;
+  snapshotRoots?: Readonly<Record<string, string>>;
+};
+
 /** Input bytes and omissions for the canonical model reader; this is a filesystem inventory, not a model. */
 export type SourceFiles = {
   files: Array<{ path: string; text: string }>;
@@ -40,22 +46,22 @@ function code(cause: unknown): string {
  * for. A per-ancestry cycle check permits two different links to the same folder without losing either path.
  */
 export async function readSourceFiles(
-  source: ReaderSource,
-  sources: readonly ReaderSource[],
+  root: string,
+  options: SourceReaderOptions = {},
 ): Promise<SourceFiles> {
   const result: SourceFiles = { files: [], skipped: [] };
   const skip = (what: string, reason: string) => result.skipped.push({ what, reason });
   const roots: string[] = [];
-  for (const mapping of [source, ...sources]) {
+  for (const mapping of [root, ...Object.values(options.snapshotRoots ?? {})]) {
     try {
-      roots.push(await realpath(mapping.root));
+      roots.push(await realpath(mapping));
     } catch {
       // A missing mapped source is reported when that source is scanned. It grants no link permission.
     }
   }
 
   async function walk(path: string, ancestry: ReadonlySet<string>): Promise<void> {
-    const address = path === '.' ? source.root : join(source.root, path);
+    const address = path === '.' ? root : join(root, path);
     let canonical: string;
     try {
       canonical = await realpath(address);
