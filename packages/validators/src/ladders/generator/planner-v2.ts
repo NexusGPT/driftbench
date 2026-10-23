@@ -1718,7 +1718,7 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
             if (variable === b && at === 0)
               return value(variable, at, { provenance: [quote('agent.md', 'Rule one  says\nthis.')] });
             if (variable === c && at === 0)
-              return value(variable, at, { polarity: 'must', provenance: [quote('notes.md', 'First words.', 'L-1')] });
+              return value(variable, at, { polarity: 'must', provenance: [quote('notes.md', 'First words.', 'qrstuvwx23')] });
             if (variable === e && at === 1) return value(variable, at, { polarity: 'must', when: { [b]: [`${b}1`] } });
             return value(variable, at);
           }),
@@ -1728,7 +1728,7 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
             forbid: { [d]: `${d}0`, [e]: `${e}0` },
             reason: 'drawn for the item',
             approved: true,
-            provenance: [quote('notes.md', 'Other words.', 'L-1')],
+            provenance: [quote('notes.md', 'Other words.', 'qrstuvwx23')],
           },
         ],
       };
