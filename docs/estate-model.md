@@ -124,6 +124,7 @@ A part points at other parts in ways its type declares: the `references` key lis
 The shipped extractors:
 
 * `path-syntax` reads rule `path`. A path written as a code span, a link destination, a quoted name, a wiki or angle name, or a loose word that is a path by its syntax (a folder separator, or an extension of letters) is a `references` link, in a sentence or in a table cell. A fenced block is an example. A URL, a glob, a placeholder and a command name no file. A path is looked for from the folder of the file that writes it, then from the root of the estate, then in the profile's base folders, the aliases and the one file that ends with it.
+* `import-prefix` reads rule `import(<prefix>)`. The prefix and a path, `@path/to/file`, anywhere in a line after a space or at its start, outside a code span, is an `includes` link. The path ends at the first space unless each space is written with a backslash; a quoted path and a prefix inside a word (`name@host`) are no import. The path is read from the folder of the file that holds the import and from nowhere else: the runtime loads the file where the path says, or loads nothing. A file that is included takes the import rule of its includer, so a chain of imports is followed. A path outside the estate (`~/`, `/`, or `..` past the root) is `external`.
 
 A file that writes a path it cannot resolve is reported only when the path is sure to be a path: a name with a prose or script file type, or a path outside the estate. A lone word, or a name several files could be, says nothing sure and is left out.
 
