@@ -65,6 +65,30 @@ function unitsOf(text: string): Array<[number, string]> {
   return [...text.matchAll(/^\[(\d+)\] (.*)$/gm)].map((match) => [Number(match[1]), match[2] ?? '']);
 }
 
+/** The rows of a printed plan from its `prose:` line on: requests, those the cassette answers, to send. */
+function proseRows(out: string): Array<[number, number, number]> {
+  const prose = out.slice(out.indexOf('  prose:'));
+  return [...prose.matchAll(/: (\d+) requests, (\d+) in the cassette, (\d+) to send, \d+ characters\./g)].map(
+    (match): [number, number, number] => [Number(match[1]), Number(match[2]), Number(match[3])],
+  );
+}
+
+/**
+ * The plan's own sums, which hold whatever the counts become: each labeler sends its requests less those the
+ * cassette answers, and "To send" adds up every pass. A count that drifts fails the pins beside it; a sum
+ * that breaks fails here.
+ */
+function expectPlanSums(out: string): void {
+  const rows = [...out.matchAll(/: (\d+) requests, (\d+) in the cassette, (\d+) to send, \d+ characters\./g)];
+  expect(rows.length).toBeGreaterThan(0);
+  let total = 0;
+  for (const [, asked, cached, send] of rows) {
+    expect(Number(send)).toBe(Number(asked) - Number(cached));
+    total += Number(asked) - Number(cached);
+  }
+  expect(out).toContain(`To send: ${total} requests,`);
+}
+
 /**
  * The two services, as one fetch. System 1 is offered only the labels it can answer (reference, example,
  * description and none, not the labels that carry spans), so its service is sure of none for a line and torn on
@@ -608,10 +632,22 @@ describe('driftbench estate scan --pointer', () => {
       root,
     );
     expect(result.code).toBe(2);
-    // The edited file is asked of both labelers: one window of system 1 and five runs of system 2.
+    // The edited file is asked of both labelers: one window of system 1 (asked the main set only), and five runs of
+    // system 2 for each of the two shipped sets (agent-rules and gate-forms).
     expect(result.err).toMatch(
-      /; 6 of 18 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
+      /; 11 of 22 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
     );
+    // The same counts as the plan of the same files and cassette: what it has to send of what it asks.
+    const planned = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'cassette.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    const rows = proseRows(planned.out);
+    const lacking = rows.reduce((sum, [, , send]) => sum + send, 0);
+    const asked = rows.reduce((sum, [requests]) => sum + requests, 0);
+    expect(result.err).toContain(`; ${lacking} of ${asked} requests of this pass have no answer`);
+    expectPlanSums(planned.out);
   });
 
   it('--plan-only prints the requests, characters and priced cost with no key, no call and no file', async () => {
@@ -638,14 +674,17 @@ describe('driftbench estate scan --pointer', () => {
     expect(code).toBe(0);
     expect(calls).toEqual([]);
     expect(output.out).toContain('Pointer plan (no key read, no request sent):');
-    expect(output.out).toContain('prose: 9 units in 2 files, 0 already labelled by the ledger.');
+    // Seven labelable units (the skill's name and description are read by code, not labelled) for each of the two
+    // shipped sets; one window per file; system 1 is asked the main set only, system 2 both sets five runs each.
+    expect(output.out).toContain('prose: 14 units in 2 files, 0 already labelled by the ledger.');
     expect(output.out).toMatch(
-      /system 1 jev jev-latest: 3 requests, 0 in the cassette, 3 to send, \d+ characters\./,
+      /system 1 jev jev-latest: 2 requests, 0 in the cassette, 2 to send, \d+ characters\./,
     );
     expect(output.out).toMatch(
-      /system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette, 15 to send, \d+ characters\./,
+      /system 2 anthropic claude-haiku-5-5: 20 requests, 0 in the cassette, 20 to send, \d+ characters\./,
     );
-    expect(output.out).toMatch(/To send: 18 requests, about \d+ input tokens\./);
+    expect(output.out).toMatch(/To send: 22 requests, about \d+ input tokens\./);
+    expectPlanSums(output.out);
     expect(output.out).toMatch(
       /Input cost: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
     );
@@ -707,8 +746,9 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(answered.err).toBe('');
     expect(answered.code).toBe(0);
-    expect(answered.out).toContain('15 requests, 15 in the cassette, 0 to send, 0 characters.');
+    expect(answered.out).toContain('20 requests, 20 in the cassette, 0 to send, 0 characters.');
     expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expectPlanSums(answered.out);
     expect(answered.out).toContain('No prices given: pass --prices <file> to see the input cost in USD.');
     const both = await run(
       ['estate', 'scan', '.', '--pointer', '--plan-only', '--record', '--cassette', 'cassette.jsonl'],

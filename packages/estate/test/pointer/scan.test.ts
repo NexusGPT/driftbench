@@ -1550,6 +1550,7 @@ describe('a run out of step with the units of its window', () => {
       }),
     );
     expect(calls).toBe(3 + REASK_LIMIT);
+    // The slipped runs and every re-ask came back out of step: the unit is not decided, and its row says why.
     expect(result.unstable).toEqual(
       usable < 2
         ? [
@@ -1559,6 +1560,7 @@ describe('a run out of step with the units of its window', () => {
               set: 'duty',
               labeler: 'planted',
               kinds: { 'too few runs': usable },
+              undecided: 'out_of_step',
             },
           ]
         : [],
