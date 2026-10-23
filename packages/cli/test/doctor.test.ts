@@ -148,10 +148,11 @@ describe('doctor declared policies and deployments', () => {
       id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code',
       bindings: [{ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' as const }],
     }] };
-    expect((await inspectSetup(root, setup)).drift.status).toBe('pass');
+    const accepted = (await inspectSetup(root, setup)).draft;
+    expect((await inspectSetup(root, accepted)).drift.status).toBe('pass');
     await unlink(join(root, '.claude/shared'));
     await symlink('../different', join(root, '.claude/shared'));
-    expect((await inspectSetup(root, setup)).drift.status).toBe('fail');
+    expect((await inspectSetup(root, accepted)).drift.status).toBe('fail');
   });
 
   it('prices only declared rates and blocks model advice under privacy or budget limits', async () => {
