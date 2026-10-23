@@ -206,7 +206,6 @@ export function behaviour(axes: Pick<RefAxes, 'syntax' | 'reach' | 'extension' |
     return { exists: 'link', missing: bareWord ? 'silent' : 'fails' };
   }
   // No file extension: only a link destination, or a delimited name with a separator, is a path.
-  if (axes.syntax === 'link-spaced') return { exists: 'none', missing: 'silent' };
   if (axes.syntax === 'bare') return { exists: separator ? 'link' : 'none', missing: 'silent' };
   if (link) return { exists: 'link', missing: 'fails' };
   if (!separator) return { exists: 'none', missing: 'silent' };

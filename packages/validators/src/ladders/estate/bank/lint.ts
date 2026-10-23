@@ -477,6 +477,27 @@ const DEFECTS: Case[] = [
     },
   },
   {
+    key: 'no-model-missing-definition-target',
+    tier: 2,
+    title: 'a link definition whose file has no file type and does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'See [the entry][r] first.' }, { text: '' }, { text: '[r]: references/leaf' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-missing-angle-destination',
+    tier: 2,
+    title:
+      'a link destination in angle brackets, with a space and no file type, that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'When unsure, read [the entry](<references/my leaf>) first.' }]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
     key: 'no-model-orphan-beside-named',
     tier: 2,
     title: 'an orphan beside a reference a table cell names, read with no model',
@@ -953,6 +974,57 @@ const CLEAN: Case[] = [
         { text: 'Read `notes/absent.md` first.' },
         { text: '````' },
       ]);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-path-in-indented-code',
+    tier: 2,
+    title: 'a path in an indented code block, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [
+        { text: 'An example of a path:' },
+        { text: '' },
+        { text: '    Read `references/absent.md` first.' },
+      ]);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-path-in-code-span-over-lines',
+    tier: 2,
+    title: 'a path inside a code span that runs over two lines, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [{ text: 'A `span of words' }, { text: 'references/absent.md more words` ends here.' }]);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-import-not-text',
+    tier: 3,
+    title:
+      'an import written in a definition, an image description and an indented code block, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('[ref]: @rules/absent.md');
+      b.standing.push('![picture @rules/absent.md](picture.png)');
+      b.standing.push('');
+      b.standing.push('    @rules/absent.md');
+      return [];
+    },
+  },
+  {
+    key: 'no-model-import-in-link-label',
+    tier: 2,
+    title: 'an import that ends a link label, whose file exists, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push(`[see @${ROOT}/rules/shared.md](https://example.org/page)`);
+      b.estate.file(`${ROOT}/rules/shared.md`, b.owner).lines_(['# Shared', '', '- Keep replies short.']);
       return [];
     },
   },

@@ -1,5 +1,7 @@
-import { codeSpanRanges } from '../scan/code';
+import { type ImportMention, markdownView } from '../scan/markdown-view';
 import type { ExtractInput, Mention, ReferenceExtractor } from './extractor';
+
+export type { ImportMention };
 
 /**
  * The rule `import(<prefix>)`: a part includes another file by writing the prefix and a path, `@path/to/file`
@@ -15,40 +17,13 @@ import type { ExtractInput, Mention, ReferenceExtractor } from './extractor';
  * to look in: the runtime loads the file where the path says, or loads nothing.
  */
 
-/** One import found in a line: the path as written, unescaped, and where the prefix stands. */
-export type ImportMention = { written: string; at: number };
-
-/** A path ends here: sentence punctuation after it is not part of its name. */
-const TRAILING = /[.,;:!?]+$/;
-
-export function importMentions(line: string, prefix: string): ImportMention[] {
-  const spans = codeSpanRanges(line);
-  const found: ImportMention[] = [];
-  let from = 0;
-  for (;;) {
-    const at = line.indexOf(prefix, from);
-    if (at < 0) break;
-    from = at + prefix.length;
-    if (at > 0 && !/\s/.test(line[at - 1] ?? '')) continue;
-    if (spans.some(([start, end]) => at >= start && at < end)) continue;
-    let end = from;
-    while (end < line.length) {
-      if (line[end] === '\\' && line[end + 1] === ' ') {
-        end += 2;
-        continue;
-      }
-      if (/\s/.test(line[end] ?? '')) break;
-      end++;
-    }
-    const raw = line.slice(from, end);
-    // A quoted path is not an import, with or without the backslashes.
-    if (raw === '' || /^["'`]/.test(raw)) continue;
-    const written = raw.replace(/\\ /g, ' ').replace(TRAILING, '');
-    if (written === '') continue;
-    found.push({ written, at });
-    from = end;
-  }
-  return found;
+/**
+ * The imports a text writes with a prefix, with their lines. The text is read as CommonMark reads it: an import is
+ * looked for in the runs of text only, so none is read in a code span (over one line or several), an indented or
+ * fenced block, a definition, an image description or an HTML block. A link label is text; where it ends a path ends.
+ */
+export function importMentions(text: string, prefix: string): ImportMention[] {
+  return markdownView(text).imports(prefix);
 }
 
 export const IMPORT_EXTRACTOR: ReferenceExtractor = {
@@ -56,22 +31,23 @@ export const IMPORT_EXTRACTOR: ReferenceExtractor = {
   rule: 'import',
   extract(input: ExtractInput): Mention[] {
     const prefixes = input.rules.flatMap((rule) => (rule.by === 'import' ? [rule.prefix] : []));
+    if (!input.view || prefixes.length === 0) return [];
+    const sourceLines = input.file.text.split('\n');
     const out: Mention[] = [];
-    for (const line of input.lines) {
-      for (const prefix of prefixes) {
-        for (const found of importMentions(line.text, prefix)) {
-          out.push({
-            reader: IMPORT_EXTRACTOR.id,
-            kind: 'includes',
-            written: found.written,
-            line: line.line,
-            quote: line.quote,
-            syntax: 'import',
-            bare: false,
-            confidence: 1,
-            import: true,
-          });
-        }
+    for (const prefix of prefixes) {
+      for (const found of input.view.imports(prefix)) {
+        if (found.line < (input.from ?? 1) || found.line > (input.to ?? Number.MAX_SAFE_INTEGER)) continue;
+        out.push({
+          reader: IMPORT_EXTRACTOR.id,
+          kind: 'includes',
+          written: found.written,
+          line: found.line,
+          quote: (sourceLines[found.line - 1] ?? '').trim(),
+          syntax: 'import',
+          bare: false,
+          confidence: 1,
+          import: true,
+        });
       }
     }
     return out;

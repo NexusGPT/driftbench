@@ -1,4 +1,5 @@
 import type { LinkKind, ReferenceRule, RuntimeProfile } from '@agent-nexus/driftbench-core';
+import type { MarkdownView } from '../scan/markdown-view';
 import type { EstateFile } from '../scan/reader';
 
 /**
@@ -20,6 +21,11 @@ export type ExtractInput = {
   lines: readonly ExtractLine[];
   /** The rules the file's part type declares, in the order it declares them. */
   rules: readonly ReferenceRule[];
+  /** The file read as CommonMark reads it (text, code, definitions): for the rules that read prose, not lines. */
+  view?: MarkdownView;
+  /** The first and last line of the chunk the extractor is asked about; the whole file when absent. */
+  from?: number;
+  to?: number;
   profile: RuntimeProfile;
 };
 

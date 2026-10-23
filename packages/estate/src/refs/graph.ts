@@ -1,8 +1,9 @@
 import { posix } from 'node:path';
 import type { Link, ReferenceRule } from '@agent-nexus/driftbench-core';
 import { CLAUDE_CODE_PROFILE, runtimeProfile } from '@agent-nexus/driftbench-core';
-import { AtomBuilder, chunkLines, isExternal } from '../scan/code';
+import { AtomBuilder, isExternal } from '../scan/code';
 import { normativeEstate } from '../scan/document-roles';
+import { fileView, referenceLines } from '../scan/markdown-view';
 import type { ProseChunk, RawEstate } from '../scan/reader';
 import { documentFileType, pathReference } from '../scan/reference-role';
 import { type Mention, referenceExtractors, registerReferenceExtractor } from './extractor';
@@ -89,11 +90,20 @@ export function referenceGraph(raw: RawEstate, options: ReferenceGraphOptions = 
       if (!file) continue;
       const rules = [...referenceRulesOf(profile, path), ...(inherited.get(path) ?? [])];
       for (const chunk of chunks) {
-        const lines = chunkLines(chunk, file);
+        const lines = referenceLines(chunk, file);
+        const view = fileView(file);
         for (const extractor of referenceExtractors()) {
           if (options.readers && !options.readers.includes(extractor.id)) continue;
           if (!rules.some((rule) => rule.by === extractor.rule)) continue;
-          for (const mention of extractor.extract({ file, lines, rules, profile })) {
+          for (const mention of extractor.extract({
+            file,
+            lines,
+            rules,
+            profile,
+            view,
+            from: chunk.startLine,
+            to: chunk.endLine,
+          })) {
             const key = `${extractor.id}\0${path}\0${mention.line}\0${mention.written}`;
             if (seen.has(key)) continue;
             seen.add(key);

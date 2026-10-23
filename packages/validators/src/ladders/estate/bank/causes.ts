@@ -326,6 +326,14 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
     'read the files a standing file imports by code when no model runs',
   ],
   [/^lint\.clean\.no-model-fenced-example$/, 'close a fenced block as CommonMark does'],
+  [
+    /^lint\.(defect|clean)\.no-model-(path-in-|missing-(definition|angle))/,
+    'read a document as CommonMark reads it, not line by line',
+  ],
+  [
+    /^lint\.clean\.no-model-import-(not-text|in-link-label)$/,
+    'read an import in the text of a document, not in its code or its destinations',
+  ],
   [/^lint\.(defect|clean)\.no-model-.*extensionless/, 'read a path with no file type by its syntax'],
   [/^lint\.(defect|clean)\.no-model-/, 'read the references of the prose by code when no model runs'],
   [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],

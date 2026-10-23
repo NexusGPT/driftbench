@@ -13,7 +13,6 @@ import {
   stat,
 } from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
-import { importMentions } from '../refs/import-extractor';
 import { DocumentRole } from '../schema';
 import {
   chunkLines,
@@ -31,6 +30,7 @@ import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
 
+import { fileView, referenceLines } from './markdown-view';
 import type {
   CheckDecl,
   EstateFile,
@@ -421,13 +421,16 @@ async function readRootReferences(
     const chunk = estate.prose[index];
     if (!chunk) continue;
     const source = files.get(chunk.file);
-    for (const line of chunkLines(chunk, source)) {
-      // A standing file imports another file where it writes the import prefix and a path: the runtime loads the file
-      // into the standing instructions, from the folder of the importer.
-      const imports =
-        source?.kind === 'standing' && IMPORT_PREFIX !== undefined
-          ? importMentions(line.text, IMPORT_PREFIX).map((found) => found.written)
-          : [];
+    // A standing file imports another file where it writes the import prefix and a path: the runtime loads the file
+    // into the standing instructions, from the folder of the importer. The imports are read from the document as
+    // CommonMark reads it, so the reader loads the files the reference graph links.
+    const importsAt = new Map<number, string[]>();
+    if (source?.kind === 'standing' && IMPORT_PREFIX !== undefined)
+      for (const found of fileView(source).imports(IMPORT_PREFIX))
+        if (found.line >= chunk.startLine && found.line <= chunk.endLine)
+          importsAt.set(found.line, [...(importsAt.get(found.line) ?? []), found.written]);
+    for (const line of referenceLines(chunk, source)) {
+      const imports = importsAt.get(line.line) ?? [];
       const others = pathMentions(line.text, { extensionless: true })
         .filter((found) => IMPORT_PREFIX === undefined || !found.spelling.startsWith(IMPORT_PREFIX))
         .map((found) => found.path);
