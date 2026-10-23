@@ -73,15 +73,16 @@ $ ln -s examples/../packages packages
 $ ln -s examples/../validators validators
 $ ln -s examples/../pnpm-workspace.yaml pnpm-workspace.yaml
 $ driftbench validate floors
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
+Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 **How to read it.**
 
 - `judges = 20 (ladder version 2)`: the judges ladder has 20 levels. The floor is the top: every level must pass on every seed.
 - `stats = 3 (ladder version 4)`: the statistics ladder has 8 levels. The floor is 3. Level 4 and above hold items that do not all pass yet.
+- `generator = 8 (ladder version 3)`: the generator ladder has 23 levels. The floor is 8, held on the gate seeds. Higher levels hold items that do not all pass yet.
 - A **ladder version** names the set of items. When the items are rebuilt, the ladder gets a new version and starts a new floor. A floor belongs to one version.
-- A validator that is missing from the line has no floor yet. The generator and the estate validators are in that case.
+- A validator that is missing from the line has no floor yet. The estate validator is in that case.
 
 **If it goes wrong.**
 

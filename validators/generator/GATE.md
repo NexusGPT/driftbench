@@ -45,4 +45,4 @@ The named causes, by the first failing level, over seeds 1 to 20 and hidden (the
 - Level 18, every seed: the minimality items (`minimal.*`). The reducer keeps blocks the oracle calls repeats.
 - Level 23, 20 of 21 seeds: `scale.100x.time`, normalised times of 81 to 194 s against the 60 s budget.
 
-The level reached on all 21 seeds is 1, because of the first cause; the floor is not held to the three seeds 5, 8 and 14 until that fix lands.
+The minimum level over all 21 seeds is 1, because of the first cause; the floor is not held to the three seeds 5, 8 and 14 until that fix lands.
