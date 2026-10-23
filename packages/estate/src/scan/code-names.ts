@@ -1,5 +1,6 @@
 import { posix } from 'node:path';
 import { CLAUDE_CODE_PROFILE, variablePrefix } from '@agent-nexus/driftbench-core';
+import { moduleEntries } from '../refs/modules';
 import type { RawEstate } from './reader';
 
 /** A code literal behind the project, working or home variable is read relative to the root. */
@@ -110,6 +111,14 @@ export function codeNames(raw: RawEstate): CodeNames {
   const paths = new Set(raw.files.map((file) => file.path));
   const links = new Map<string, string[]>();
   const written = new Set<string>();
+  // A code file names the modules it imports: a module its importer names is named too.
+  const imported = new Map<string, Set<string>>();
+  for (const entry of moduleEntries(raw)) {
+    if (!entry.link) continue;
+    const held = imported.get(entry.from) ?? new Set<string>();
+    held.add(entry.link.to);
+    imported.set(entry.from, held);
+  }
   for (const file of raw.files) {
     if (PROSE.test(file.path) || file.text.length > MAX_CODE_BYTES) continue;
     const folder = posix.dirname(file.path);
@@ -128,6 +137,7 @@ export function codeNames(raw: RawEstate): CodeNames {
         .find((candidate) => paths.has(candidate) && candidate !== file.path);
       if (hit) targets.add(hit);
     }
+    for (const module of imported.get(file.path) ?? []) targets.add(module);
     if (targets.size > 0) links.set(file.path, [...targets]);
   }
   const built = { links, written };

@@ -7,6 +7,7 @@ import type { ProseChunk, RawEstate } from '../scan/reader';
 import { documentFileType, pathReference } from '../scan/reference-role';
 import { type Mention, referenceExtractors, registerReferenceExtractor } from './extractor';
 import { IMPORT_EXTRACTOR } from './import-extractor';
+import { MODULE_NOT_IN_ESTATE, moduleEntries } from './modules';
 import { PATH_EXTRACTOR } from './path-extractor';
 import { referenceRulesOf } from './rules';
 
@@ -26,7 +27,8 @@ registerReferenceExtractor(IMPORT_EXTRACTOR);
 /**
  * What a mention leads to: a file of the estate (`resolved`), no file (`missing`), a place outside the estate
  * (`external`), several files (`ambiguous`), or no file of the estate with too little evidence that a file was meant
- * for a finding (`unresolved`: kept, and listed by the check as skipped with its reason, never dropped).
+ * for a finding (`unresolved`: kept, and listed by the check as skipped with its reason, never dropped). A module
+ * import that names a library or a file the estate does not hold is `unresolved` too.
  */
 export type ReferenceOutcome = 'resolved' | 'missing' | 'external' | 'ambiguous' | 'unresolved';
 
@@ -56,7 +58,7 @@ export type ReferenceGraph = {
   links: Link[];
   /** The mentions that lead to no file of the estate: missing, outside the estate or ambiguous. */
   dangling: ReferenceEntry[];
-  /** The mentions kept apart, no finding: too little evidence that a file was meant. The check lists them as skipped. */
+  /** The mentions kept apart, no finding: too little evidence that a file was meant, or a module the estate does not hold. The check lists them as skipped. */
   unresolved: ReferenceEntry[];
 };
 
@@ -116,6 +118,17 @@ export function referenceGraph(raw: RawEstate, options: ReferenceGraphOptions = 
       }
     }
   }
+  // The module imports of the code files: read from the files, not from the prose chunks.
+  for (const found of moduleEntries(raw))
+    entries.push({
+      mention: found.mention,
+      from: found.from,
+      outcome: found.outcome,
+      path: found.path,
+      concrete: true,
+      ...(found.outcome === 'unresolved' ? { reason: MODULE_NOT_IN_ESTATE } : {}),
+      ...(found.link ? { link: found.link } : {}),
+    });
   return {
     entries,
     links: entries.flatMap((entry) => (entry.link ? [entry.link] : [])),

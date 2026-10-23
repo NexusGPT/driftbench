@@ -5,8 +5,10 @@ import {
   parseFieldRead,
   parseJsonPath,
   parseLoaded,
+  parseReferenceRule,
   parseTypes,
   parseTypesText,
+  referenceRuleText,
   selectJson,
   type TypeSet,
   type TypesOptions,
@@ -307,5 +309,46 @@ describe('types documents', () => {
       options(),
     );
     expect(twice.ok ? '' : twice.errors[0]?.code).toBe('not-parsed');
+  });
+});
+
+describe('the reference rules', () => {
+  const RULES = ['path', 'name', 'module', 'import(@)', 'import($)', 'import(##)'];
+
+  it('reads and prints every rule, in both directions', () => {
+    for (const text of RULES) {
+      const rule = parseReferenceRule(text);
+      expect(rule, text).toBeDefined();
+      expect(rule && referenceRuleText(rule), text).toBe(text);
+    }
+    expect(parseReferenceRule('module')).toEqual({ by: 'module' });
+    expect(parseReferenceRule('import(@)')).toEqual({ by: 'import', prefix: '@' });
+  });
+
+  it('refuses a rule it does not know', () => {
+    for (const text of ['modules', 'import()', 'import(abcd)', 'import @', 'Module', '']) {
+      expect(parseReferenceRule(text), text).toBeUndefined();
+    }
+  });
+
+  it('keeps a type that declares the module rule, and inherits it through extends', () => {
+    const parsed = parseTypes(
+      {
+        version: 1,
+        types: {
+          script: {
+            locate: 'scripts/**',
+            aspects: ['executes'],
+            loaded: 'by-reference',
+            references: ['module'],
+          },
+          'checked-script': { extends: 'script', locate: 'checks/**' },
+        },
+      },
+      { runtime: 'x', roots: ROOTS },
+    );
+    if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+    expect(typeNamed(parsed.set, 'script')?.references).toEqual([{ by: 'module' }]);
+    expect(typeNamed(parsed.set, 'checked-script')?.references).toEqual([{ by: 'module' }]);
   });
 });

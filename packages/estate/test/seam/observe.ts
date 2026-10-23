@@ -87,7 +87,8 @@ export async function observe(
     // that leads to no file is a link with no target.
     const graph = referenceGraph(raw);
     const links: ObservedLink[] = graph.entries
-      // A path kept apart (too little evidence for a finding) is not a link: the check lists it as skipped.
+      // A path kept apart (too little evidence for a finding), or a module that leads to no file, is not a link: the
+      // check lists it as skipped.
       .filter((entry) => entry.outcome !== 'unresolved')
       .map((entry) => ({
         kind: entry.mention.kind,

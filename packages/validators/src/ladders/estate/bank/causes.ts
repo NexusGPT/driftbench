@@ -328,6 +328,16 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^lint\.clean\.no-model-fenced-example$/, 'close a fenced block as CommonMark does'],
   [/^lint\.(defect|clean)\.no-model-.*extensionless/, 'read a path with no file type by its syntax'],
   [/^lint\.(defect|clean)\.no-model-/, 'read the references of the prose by code when no model runs'],
+  [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],
+  [
+    /^lint\.defect\.orphan-module-named-in-docstring$/,
+    'read an import as a statement of the language, never a line of text',
+  ],
+  [/^lint\.clean\.(python|javascript|typescript)-imports$/, 'read the imports between script files'],
+  [
+    /^lint\.defect\.orphan-module-named-in-docstring$/,
+    'read an import as a statement of the language, never a line of text',
+  ],
   // Scale.
   [/^scale\.(scan|lint)-/, 'read routing rows that continue past the end of a prose chunk'],
   [/^scale\.generate-/, 'generate in time linear in the atoms'],

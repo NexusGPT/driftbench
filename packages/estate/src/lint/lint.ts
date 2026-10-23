@@ -235,11 +235,14 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   // A map that records no reader of the references cannot judge them: those two checks did not run.
   const unjudged = (code: string) =>
     referenceChecksOff && (code === 'ORPHAN' || code === 'MISSING_REFERENCE');
-  // A path the reader found that leads to no file and has too little evidence for a finding is listed, with its reason.
-  const unresolved = (map.referenceReader === 'code' ? referenceGraph(raw).unresolved : []).map((entry) => ({
-    what: `${entry.from}:${entry.mention.line} ${entry.mention.written}`,
-    reason: entry.reason ?? PATH_NOT_IN_ESTATE,
-  }));
+  // A mention that leads to no file and has too little evidence for a finding is listed, with its reason: a path the
+  // reader of this map found, or a module import (a library, a file the estate does not hold), whatever read the map.
+  const unresolved = referenceGraph(raw)
+    .unresolved.filter((entry) => map.referenceReader === 'code' || entry.mention.syntax === 'module')
+    .map((entry) => ({
+      what: `${entry.from}:${entry.mention.line} ${entry.mention.written}`,
+      reason: entry.reason ?? PATH_NOT_IN_ESTATE,
+    }));
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () =>
       unjudged(check.id)

@@ -45,6 +45,8 @@ The Claude Code profile ships its part types as data (`CLAUDE_CODE_TYPES`, `pack
 | `codex-instructions` | project | `**/AGENTS.md`, runtime `codex` | instructs | always | none |
 | `codex-agent` | project | `.codex/agents/**/*`, runtime `codex` | delegates, instructs | on-demand | none |
 
+The types `hook`, `script` and `skill-script` read module imports: a Python `import` and a JavaScript or TypeScript `import`, `export ... from` or `require` between script files is an `includes` link, so a library module its importer names is not an orphan. See [reading references](../estate-model.md#reading-references).
+
 A file of another runtime (`AGENTS.md`, `.codex/agents/`) is covered by its type, and Claude Code does not read it as its own instructions.
 
 Your own types go in a types document. Declared from `.claude/` (a user type's globs are relative to the folder of the file that declares it), this one makes a part of every judge request file and of every observe flag beside the hooks:

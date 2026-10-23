@@ -136,12 +136,17 @@ export function loadedText(loaded: Loaded): string {
 
 /**
  * How a part points at other parts: by a path written in its text (`path`), by a line that starts with a prefix
- * and imports a file (`import(@)`), or by another part's name (`name`).
+ * and imports a file (`import(@)`), by another part's name (`name`), or by the module a code file imports
+ * (`module`: a Python `import`, a JavaScript `import` or `require`, resolved by the rules of the file's language).
  */
-export type ReferenceRule = { by: 'path' } | { by: 'name' } | { by: 'import'; prefix: string };
+export type ReferenceRule =
+  | { by: 'path' }
+  | { by: 'name' }
+  | { by: 'module' }
+  | { by: 'import'; prefix: string };
 
 export function parseReferenceRule(text: string): ReferenceRule | undefined {
-  if (text === 'path' || text === 'name') return { by: text };
+  if (text === 'path' || text === 'name' || text === 'module') return { by: text };
   const prefix = /^import\(([^\s()]{1,3})\)$/.exec(text);
   return prefix ? { by: 'import', prefix: prefix[1] as string } : undefined;
 }
