@@ -111,6 +111,22 @@ type CheckOutcome<F> = {
 
 A run with any unknown file is never reported as clean, whatever its checks found.
 
+## Reading references
+
+A part points at other parts in ways its type declares: the `references` key lists the rules (`path`, `import(<prefix>)`, `name`). Each rule is read by an **extractor**, a reader of one rule that looks at the text of a file by syntax alone and gives the *mentions* it finds. The **reference graph** resolves each mention against the estate, and keeps it as a typed link or as a dangling reference. A model adds meaning to this graph (which mention is an order to read the file); it never reads a path.
+
+| Piece | What it does |
+|---|---|
+| Extractor | Registered under one rule with `registerReferenceExtractor({ id, rule, extract })`. `extract` gets the lines of one file (fenced blocks blanked) and the rules of the file's type, and returns mentions: the path as written, the line, the notation that wrote it, a confidence, whether it is an import. A registration with the same id replaces the earlier one. |
+| File rules | `typeOfFile(profile, path)` finds the type that locates a file (a file inside a folder part takes its contained type). The rules that apply to a file are its type's, or `path` for a file no type locates. Only the extractors of those rules run on the file. |
+| Graph | `referenceGraph(raw)` returns the entries, the links and the dangling references. An entry is `resolved` (a link with the reader that found it, the file and line, and a confidence from 0 to 1), `missing`, `external` (written outside the estate) or `ambiguous` (several files could be meant). |
+
+The shipped extractors:
+
+* `path-syntax` reads rule `path`. A path written as a code span, a link destination, a quoted name, a wiki or angle name, or a loose word that is a path by its syntax (a folder separator, or an extension of letters) is a `references` link, in a sentence or in a table cell. A fenced block is an example. A URL, a glob, a placeholder and a command name no file. A path is looked for from the folder of the file that writes it, then from the root of the estate, then in the profile's base folders, the aliases and the one file that ends with it.
+
+A file that writes a path it cannot resolve is reported only when the path is sure to be a path: a name with a prose or script file type, or a path outside the estate. A lone word, or a name several files could be, says nothing sure and is left out.
+
 ## Writing your own types
 
 A types document says which version of the schema it is written in, then its types. This one adds two kinds of files to an estate whose profile ships a `script` type.
