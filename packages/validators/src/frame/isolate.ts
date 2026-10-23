@@ -1019,10 +1019,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const reply = wait(relay, CALL_MS, `${name}()`);
     checkReply(reply, calls, name);
     const { answers } = reply as { answers: Array<Outcome | { dead: string }> };
-    const overflow = answers.find((each) => (each as { overflow?: number }).overflow !== undefined);
-    if (overflow)
+    const overflow = answers
+      .map((each) => (each as { overflow?: number }).overflow)
+      .find((span) => span !== undefined);
+    if (overflow !== undefined)
       throw new FrameError(
-        `${name}() returned ${(overflow as { overflow: number }).overflow} new objects or more in one call: the frame gives the new objects of one call that many ids, so it cannot tell them from the next call's`,
+        `${name}() returned ${overflow} new objects or more in one call: the frame gives the new objects of one call that many ids, so it cannot tell them from the next call's`,
       );
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
