@@ -87,6 +87,10 @@ export async function auditEveryCheckSite(
         const where = `${item.id} @ ${site}`;
         for (const a of leaksOf(failure)) audit.leaking.push(`${where}: ${a}`);
         for (const a of leaksOutsideGot(failure)) audit.leaking.push(`${where}: ${a} (rule or input)`);
+        // A rule prints no number: a limit, a count or a bound written into it is a wanted value that no declared
+        // `expected` would reveal. A number the site needs to show belongs in `input` or `got`.
+        if (/(?<![A-Za-z0-9_.{}\-/^])-?\d+(?:\.\d+)?(?![A-Za-z0-9_}])/.test(failure.fields.rule))
+          audit.leaking.push(`${where}: a number in the rule`);
         const { expected, rule } = failure.fields;
         if (isNoExpected(expected)) none.add(`${expected.none} :: ${rule}`);
       }

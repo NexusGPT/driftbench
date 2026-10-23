@@ -57,4 +57,13 @@ describe('the audit of every check site', () => {
     );
     expect(audit.leaking.length).toBeGreaterThan(0);
   });
+
+  it('finds a number written into a rule that declares nothing wanted', async () => {
+    const audit = await auditEveryCheckSite(
+      [item('bad', () => check(true, () => ({ rule: 'the interval has an upper bound of 1', expected: none('observation') })))],
+      {},
+      1,
+    );
+    expect(audit.leaking.join(' ')).toContain('a number in the rule');
+  });
 });
