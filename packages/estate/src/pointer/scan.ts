@@ -106,7 +106,7 @@ export type LabelerUsage = {
 /**
  * A unit the runs of one labeler read two ways, near evenly: `kinds` counts the runs heard by what their label builds
  * (an atom kind such as `gate` or `instruction`; a label that points at another unit by its name; `no atom` for the
- * labels that build none), most given first. `label` is the label the vote gave, absent when it gave none.
+ * labels that build none), most given first. Such a unit is unlabeled.
  */
 export type Unstable = {
   unit: string;
@@ -114,7 +114,16 @@ export type Unstable = {
   set: string;
   labeler: string;
   kinds: Record<string, number>;
-  label?: string;
+};
+
+/** A unit whose label's atom needs span kinds (`kinds`) no run located in the unit, and whether the ask filled them. */
+export type Spanless = {
+  unit: string;
+  path: string;
+  set: string;
+  label: string;
+  kinds: string[];
+  filled: boolean;
 };
 
 export type PointerResult = {
@@ -153,10 +162,16 @@ export type PointerResult = {
   failed: string[];
   /**
    * Units whose runs are one run from another outcome: the two kinds of atom most given (a gate and an instruction, or
-   * an atom and no atom) are at most one run apart, the second with two runs at least. The vote's label stands and is
-   * listed here with the count of each kind.
+   * an atom and no atom) are at most one run apart, the second with two runs at least, after the window was asked
+   * again (`SPLIT_REASK_MAX`). Such a unit is unlabeled and listed here with the count of each kind.
    */
   unstable: Unstable[];
+  /**
+   * Units whose decided label builds an atom that needs a span no run located in the unit (`span-missing`): asked
+   * again once; `filled` when that answer gave the span, located by offsets, and the unit kept its label; otherwise the
+   * unit is unlabeled.
+   */
+  spanless: Spanless[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -271,7 +286,10 @@ export function missingForAtom(set: LabelSet, opinion: Opinion): string[] {
 /** How many times a window is asked again after its runs slip: at most three runs beyond the runs asked. */
 export const REASK_LIMIT = 3;
 
-/** How many more runs a window gets when the two most given labels of one of its units tie. */
+/**
+ * How many more runs a window gets when one of its units is undecided: its two most given labels tie, or its two most
+ * given kinds are one run apart (`unstable`).
+ */
 export const SPLIT_REASK_RUNS = 2;
 
 /** The most extra voices a window gets while one of its units still ties. */
@@ -279,6 +297,12 @@ export const SPLIT_REASK_MAX = 4;
 
 /** The most asks a window gets for a split, those that slip included. */
 export const SPLIT_REASK_ATTEMPTS = 6;
+
+/** The most extra voices a window gets while one of its units is close (`closeKinds`): six, in pairs. */
+export const CLOSE_REASK_MAX = 6;
+
+/** The most asks a window gets while one of its units is close, those that slip included. */
+export const CLOSE_REASK_ATTEMPTS = 8;
 
 /** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
 export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
@@ -776,11 +800,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     return { winners: group.filter((opinion) => key(opinion) === key(pick)), tiedInKind: false };
   };
   /**
-   * The kinds the runs heard on a unit gave, when the two most given are at most one run apart and the second has two
-   * runs at least: one more run could tie or turn the vote. Counted by what a label builds, so two labels of one kind
-   * (a rule and a prohibition) are one kind here; a set whose labels build no atom has no kinds and none of this.
+   * The kinds the runs heard on a unit gave, when its two most given labels are one run apart (the second with two
+   * runs at least) and are two readings, not one: they build different atom kinds, or one builds an atom and the
+   * other none. Two labels of one kind (a rule and a prohibition, or two labels that build no atom) are settled by the
+   * group vote, and the generic rule against one specific label by the tie break, so neither is close here. Counted by
+   * what a label builds (an atom kind; a label that points at another unit by its name; `no atom`), most given first.
    */
-  const unstableKinds = (
+  const closeKinds = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
     set: LabelSet,
@@ -788,17 +814,21 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (runs.length < 2 || !set.labels.some((label) => label.atom)) return undefined;
     const given = heardOn(runs, index);
     if (!given) return undefined;
-    const counts = new Map<string, number>();
-    for (const opinion of given) {
-      if (!opinion) continue;
+    const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const tally = new Map<string, Opinion[]>();
+    for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
+    const [first, second] = [...tally.values()].sort((a, b) => b.length - a.length);
+    if (!first || !second || second.length < 2 || first.length - second.length > 1) return undefined;
+    const kindOf = (opinion: Opinion) => {
       const declared = set.labels.find((candidate) => candidate.name === opinion.label);
-      const kind = declared?.target ? opinion.label : (declared?.atom?.kind ?? 'no atom');
-      counts.set(kind, (counts.get(kind) ?? 0) + 1);
-    }
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-    const [first, second] = sorted;
-    if (!first || !second || second[1] < 2 || first[1] - second[1] > 1) return undefined;
-    return Object.fromEntries(sorted);
+      return declared?.target ? opinion.label : (declared?.atom?.kind ?? 'no atom');
+    };
+    if (kindOf(first[0] as Opinion) === kindOf(second[0] as Opinion) || tieBroken(tally, set))
+      return undefined;
+    const counts = new Map<string, number>();
+    for (const opinion of present) counts.set(kindOf(opinion), (counts.get(kindOf(opinion)) ?? 0) + 1);
+    return Object.fromEntries([...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
   };
   /** The opinions of the runs heard on a unit: none when fewer than two of several runs are heard. */
   const heardOn = (runs: ReadonlyArray<Map<number, Opinion>>, index: number) => {
@@ -874,6 +904,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const counts = [...tally.values()].map((group) => group.length).sort((a, b) => b - a);
     return counts.length >= 2 && counts[0] === counts[1];
   };
+  /** A unit more runs could settle: its two most given labels tie, or its two most given kinds are one run apart. */
+  const undecided = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+    mentionsFile = false,
+  ): boolean => tiedSplit(runs, index, set, mentionsFile) || closeKinds(runs, index, set) !== undefined;
   const opinionOf = (
     runs: ReadonlyArray<Map<number, Opinion>>,
     index: number,
@@ -886,6 +923,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const first = given[0];
     if (given.length === 1) return first;
     const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    // Two kinds one run apart are no decision, whatever label a vote would give: the unit was asked again, and if its
+    // runs are still that close it stays unlabeled (it is listed as unstable).
+    if (closeKinds(runs, index, set)) {
+      if (present.length === given.length) split++;
+      return undefined;
+    }
     const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
@@ -917,8 +960,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     };
   };
 
-  // A window with a unit whose two most given labels tie, inside one atom kind (two runs of rule, two of prohibition)
-  // or across kinds (two of reply-rule, two of rule), with nothing else to decide it, is asked
+  // A window with an undecided unit (its two most given labels tie, inside one atom kind or across kinds, with nothing
+  // else to decide it; or its two most given kinds are one run apart) is asked
   // SPLIT_REASK_RUNS more times, as the runs after those the window already used; each answer in step is one more
   // voice on the units of that window. Keyed by run number like every run, so a replay reads the same answers; a
   // replay whose cassette holds none leaves the tie as it is.
@@ -930,18 +973,26 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     asked.add(where);
     const runs = opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>;
     const tied = task.window.units.filter((unit) =>
-      tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+      undecided(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
     );
     if (tied.length === 0) continue;
-    // Two voices in step at least; while a unit of the window still ties, two more, up to SPLIT_REASK_MAX; a re-ask
+    // Two voices in step at least; while a unit of the window is still undecided, two more, up to SPLIT_REASK_MAX; a re-ask
     // that slips is asked again, within SPLIT_REASK_ATTEMPTS asks in all.
     let voices = 0;
-    for (let attempt = 1; attempt <= SPLIT_REASK_ATTEMPTS; attempt++) {
+    for (let attempt = 1; attempt <= CLOSE_REASK_ATTEMPTS; attempt++) {
       const stillTied = task.window.units.some((unit) =>
-        tiedSplit(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
+        undecided(runs, unit.index, task.set, namedPaths(unit.text).length > 0),
       );
+      // A close unit gets up to six voices; a tie with no close unit keeps the four of a split.
+      const close = task.window.units.some((unit) => closeKinds(runs, unit.index, task.set) !== undefined);
+      if (!close && attempt > SPLIT_REASK_ATTEMPTS) break;
       // Voices come in pairs, so one extra voice never breaks a tie on its own.
-      if (voices >= SPLIT_REASK_RUNS && voices % 2 === 0 && (!stillTied || voices >= SPLIT_REASK_MAX)) break;
+      if (
+        voices >= SPLIT_REASK_RUNS &&
+        voices % 2 === 0 &&
+        (!stillTied || voices >= (close ? CLOSE_REASK_MAX : SPLIT_REASK_MAX))
+      )
+        break;
       const extra = (spent.get(where) ?? 0) + 1;
       spent.set(where, extra);
       const again: Task = { ...task, run: (task.member.runs ?? 1) + extra };
@@ -972,6 +1023,105 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
 
+  /** The decision of the labelers on one unit, and the kinds of each member whose runs stay one run apart. */
+  const decideUnit = (
+    path: string,
+    set: LabelSet,
+    byMember: ReadonlyArray<Array<Map<number, Opinion>>>,
+    index: number,
+  ) => {
+    const close = byMember.map((runs) => closeKinds(runs, index, set));
+    // Each member's opinion is taken, so its split is counted; a unit whose runs stay one run from another outcome is
+    // unlabeled all the same: no other labeler decides it alone.
+    const opinions = byMember.map((runs) =>
+      opinionOf(runs, index, set, namedPaths(cuts.get(path)?.units[index]?.text ?? '').length > 0),
+    );
+    const decision = close.some((kinds) => kinds) ? undefined : labelling.decide(opinions, set);
+    return { close, decision };
+  };
+  /** The span kinds a decided label's atom needs that its spans do not give. */
+  const spansMissing = (
+    set: LabelSet,
+    decision: { label: string; spans?: SpanAnswer[]; links?: LinkAnswer[] },
+  ) =>
+    missingForAtom(set, {
+      label: decision.label,
+      ...(decision.spans ? { spans: decision.spans } : {}),
+      ...(decision.links ? { links: decision.links } : {}),
+    })
+      .filter((need) => need.startsWith('span:'))
+      .map((need) => need.slice('span:'.length));
+
+  // A unit whose decided label builds an atom that needs a span (the act of a gate) that no run located in the unit is
+  // asked again once, its window with a note naming the code span-missing, the unit and the span kind. The answer fills
+  // the span only when it gives the unit the same label with a span of that kind the check located in the unit by
+  // offsets: code never writes a span. The decision is taken here only to find those units; its counts are not kept.
+  const fills = new Map<string, SpanAnswer[]>();
+  const spanless: Spanless[] = [];
+  const asks = new Map<
+    string,
+    { task: Task; notes: Array<{ index: number; n: number; label: string; kinds: string[] }> }
+  >();
+  for (const file of files) {
+    for (const set of input.sets) {
+      const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
+      if (want.size === 0) continue;
+      const byMember = opinionsOf(file.path, set);
+      for (const index of [...want].sort((a, b) => a - b)) {
+        const counts = [split, spanSplit, voted] as const;
+        const { decision } = decideUnit(file.path, set, byMember, index);
+        [split, spanSplit, voted] = counts;
+        const needs = decision ? spansMissing(set, decision) : [];
+        if (!decision || needs.length === 0) continue;
+        const task = tasks.find(
+          (candidate) =>
+            candidate.file === file.path &&
+            candidate.set === set &&
+            candidate.window.units.some((unit) => unit.index === index),
+        );
+        const unit = task?.window.units.find((candidate) => candidate.index === index);
+        if (!task || !unit) continue;
+        const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${task.window.id}`;
+        const ask = asks.get(where) ?? { task, notes: [] };
+        ask.notes.push({ index, n: unit.n, label: decision.label, kinds: needs });
+        asks.set(where, ask);
+      }
+    }
+  }
+  for (const [where, { task, notes }] of asks) {
+    const extra = (spent.get(where) ?? 0) + 1;
+    spent.set(where, extra);
+    const context: LabelContext = {
+      ...task.context,
+      notes: notes.map(
+        (note) =>
+          `span-missing: unit ${note.n} has the label ${note.label}, and no answer gave its ${note.kinds.join(' and ')} span inside that unit. Label the window again, and give that span copied word for word from unit ${note.n}.`,
+      ),
+    };
+    const again: Task = { ...task, context, run: (task.member.runs ?? 1) + extra };
+    if (input.mode === 'replay') {
+      const wire = again.member.render(again.set, task.window, again.context);
+      if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) continue;
+    }
+    const answered = await resolve(again, task.window);
+    failed.push(...answered.failures);
+    const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
+    if (!leaf) continue;
+    windows++;
+    // Only the spans this answer gives are read; its notes on spans and links were reported with the runs it repeats.
+    const read = task.member.opinions(leaf.answer, task.set, leaf.window, context);
+    reasked.push(
+      `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${notes.length} units with span-missing`,
+    );
+    for (const note of notes) {
+      const opinion = read.byUnit.get(note.index);
+      if (opinion?.label !== note.label) continue;
+      const located = (opinion.spans ?? []).filter((span) => note.kinds.includes(span.kind));
+      if (note.kinds.every((kind) => located.some((span) => span.kind === kind)))
+        fills.set(`${unitId(task.file, note.index)}\0${task.set.set}`, located);
+    }
+  }
+
   let unlabeled = 0;
   const unstable: Unstable[] = [];
   let decided = 0;
@@ -985,14 +1135,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const index of [...want].sort((a, b) => a - b)) {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
-        const decision = labelling.decide(
-          byMember.map((runs) =>
-            opinionOf(runs, index, set, namedPaths(cuts.get(file.path)?.units[index]?.text ?? '').length > 0),
-          ),
-          set,
-        );
-        for (const [at, runs] of byMember.entries()) {
-          const kinds = unstableKinds(runs, index, set);
+        const unitVote = decideUnit(file.path, set, byMember, index);
+        const close = unitVote.close;
+        let decision = unitVote.decision;
+        for (const [at, kinds] of close.entries()) {
           if (!kinds) continue;
           unstable.push({
             unit: entry.id,
@@ -1000,8 +1146,27 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             set: set.set,
             labeler: labelling.members[at]?.id ?? '',
             kinds,
-            ...(decision ? { label: decision.label } : {}),
           });
+        }
+        // A label whose atom needs a span no run located in the unit keeps its unit only when the ask with the code
+        // span-missing gave that span; otherwise the unit is unlabeled, never another label.
+        const needs = decision ? spansMissing(set, decision) : [];
+        if (decision && needs.length > 0) {
+          const fill = fills.get(`${entry.id}\0${set.set}`);
+          spanless.push({
+            unit: entry.id,
+            path: file.path,
+            set: set.set,
+            label: decision.label,
+            kinds: needs,
+            filled: fill !== undefined,
+          });
+          decision = fill
+            ? {
+                ...decision,
+                spans: [...(decision.spans ?? []).filter((span) => !needs.includes(span.kind)), ...fill],
+              }
+            : undefined;
         }
         if (!decision) {
           unlabeled++;
@@ -1095,6 +1260,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     reasked,
     failed,
     unstable,
+    spanless,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };

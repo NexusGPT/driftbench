@@ -295,12 +295,17 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
+  for (const entry of done.spanless ?? []) {
+    lines.push(
+      `    span-missing: ${entry.path} unit ${entry.unit} (${entry.set}): ${entry.label} needs ${entry.kinds.join(', ')}; ${entry.filled ? 'asked again, and the answer gave it' : 'asked again with no span in the unit, left unlabeled'}`,
+    );
+  }
   for (const entry of done.unstable ?? []) {
     const kinds = Object.entries(entry.kinds)
       .map(([kind, count]) => `${kind} ${count}`)
       .join(', ');
     lines.push(
-      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; ${entry.label ? `labelled ${entry.label}` : 'left unlabeled'}`,
+      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; left unlabeled`,
     );
   }
   return lines;

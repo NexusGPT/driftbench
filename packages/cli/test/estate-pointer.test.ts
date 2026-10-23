@@ -222,7 +222,7 @@ describe('driftbench estate scan --pointer', () => {
     expect(output.out).toMatch(/asked again: .* asked again as run 9 for \d+ split units/);
   });
 
-  it('prints each unstable unit with the count of each kind and the label the vote gave', () => {
+  it('prints each unstable unit with the count of each kind, left unlabeled', () => {
     const result = {
       pointer: {
         ledger: { entries: [] },
@@ -243,7 +243,6 @@ describe('driftbench estate scan --pointer', () => {
             set: 'agent-rules',
             labeler: 'anthropic',
             kinds: { instruction: 5, gate: 4 },
-            label: 'rule',
           },
           {
             unit: 'u2',
@@ -257,7 +256,7 @@ describe('driftbench estate scan --pointer', () => {
     } as unknown as ScanEstateResult;
     const lines = pointerLines(result, 'system 2');
     expect(lines).toContain(
-      '    unstable: CLAUDE.md unit u1 (agent-rules, anthropic): instruction 5, gate 4; labelled rule',
+      '    unstable: CLAUDE.md unit u1 (agent-rules, anthropic): instruction 5, gate 4; left unlabeled',
     );
     expect(lines).toContain(
       '    unstable: CLAUDE.md unit u2 (agent-rules, anthropic): gate 2, reference 2; left unlabeled',
