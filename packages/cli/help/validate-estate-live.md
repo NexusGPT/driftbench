@@ -27,9 +27,11 @@ library holds; a row that needs one the library lacks waits as `needs-state-oper
 
 A stand-in costs nothing but is not inert. It runs the estate's own guard commands and scripts through `/bin/sh`, in
 the sandbox copy, with your user rights. Run an estate you do not trust with `--no-exec`: the shipped stand-in then
-runs no command of the estate, and the run says so in a note. A guard starts and never answers, so its checks report
-an error, never a verdict. A real runtime refuses `--no-exec` (exit 2), because it runs the estate's guards whatever
-the flags say.
+starts no command of the estate (no hook, no call it makes itself, no script step, no recorded program), and the run
+says in a note that it was told so. A hook starts and gets no answer; the run does not change what a check makes of a
+guard that gave no answer. Only a stand-in that carries the line `@driftbench-execution-policy` in its first lines
+keeps the policy; any other command, and a real runtime, which runs the estate's guards whatever the flags say, is
+refused (exit 2). No variable given with `--set-env` or `--pass-env` can undo the policy.
 
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
@@ -98,7 +100,7 @@ driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <
 | `--trust-estate` | off | allow the tools the estate's settings allow, and Skill, as a trusted folder would |
 | `--config <where>` | `host`; `isolated` for a stand-in | the runtime's config folder: `host` (where the login lives) or `isolated` |
 | `--allow-billed` | off | run a command that is not a stand-in: a billed live run |
-| `--no-exec` | off | with a stand-in: run no command of the estate (no guard, no script). The run passes the stand-in the execution policy `none` (`DRIFTBENCH_EXECUTION=none`) and notes it. Exit 2 for a command that is not a stand-in |
+| `--no-exec` | off | with a stand-in: run no command of the estate (no guard, no script). The run passes the stand-in the execution policy `none` (`DRIFTBENCH_EXECUTION=none`) and notes it. Exit 2 for a command that is not a stand-in that carries `@driftbench-execution-policy` |
 | `--progress <file>` | none | append one JSON line per finished spec, so a stopped batch keeps its finished runs |
 | `--agent-version <label>` | none | name the version of the estate this run measures (the `to` of a change manifest); the target becomes `claude-code:estate` with the label as its variant |
 | `--from <store>` | none | carry from an old store: a spec the radius of `--change` leaves alone keeps its stored result; needs `--change` and `--agent-version`; the old store is never written |

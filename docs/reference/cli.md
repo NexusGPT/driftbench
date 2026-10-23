@@ -1435,7 +1435,7 @@ driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--f
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
-`estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. A stand-in runs the estate's guard commands and scripts through `/bin/sh`; `--no-exec` sets the execution policy `none`, so the shipped stand-in runs none of them, and refuses (exit 2) a command that is not a stand-in. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
+`estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. A stand-in runs the estate's guard commands and scripts through `/bin/sh`; `--no-exec` sets the execution policy `none`, so the shipped stand-in starts none of them, and refuses (exit 2) a command that is not a stand-in carrying `@driftbench-execution-policy`. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
 
 The options that shape the run of the runtime:
 

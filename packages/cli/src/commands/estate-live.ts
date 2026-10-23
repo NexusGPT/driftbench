@@ -41,7 +41,9 @@ import type { Io } from '../io';
 import {
   addJudgeOptions,
   addRunCheckOptions,
+  EXECUTION_POLICY_MARKER,
   isStandIn,
+  keepsExecutionPolicy,
   type RunCheckFlags,
   type RunJudgeOptions,
   runCheckSettingsFrom,
@@ -287,6 +289,12 @@ export async function estateRunCommand(
     );
     return 2;
   }
+  if (policy === 'none' && !(await keepsExecutionPolicy(commandPath))) {
+    io.err(
+      `--no-exec needs a stand-in that keeps the execution policy: ${command} does not carry the line ${EXECUTION_POLICY_MARKER} in its first lines, so it would run the estate's commands and the run would claim otherwise.\n`,
+    );
+    return 2;
+  }
   let timeoutMs: number | undefined;
   if (options.timeout !== undefined) {
     timeoutMs = optionNumber(options.timeout);
@@ -384,16 +392,17 @@ export async function estateRunCommand(
     }
     env[pair.slice(0, at)] = pair.slice(at + 1);
   }
-  Object.assign(env, executionEnvironment(policy));
-  if (policy === 'none')
-    notes.push(
-      '--no-exec: the stand-in ran no command of the estate; a guard started and never answered, so the checks that need an executed guard or script have no verdict',
-    );
   for (const name of options.passEnv ?? []) {
     const value = process.env[name];
     if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);
     else env[name] = value;
   }
+  // The policy comes last: no variable the user sets or passes on can undo it.
+  Object.assign(env, executionEnvironment(policy));
+  if (policy === 'none')
+    notes.push(
+      '--no-exec: the stand-in was told to start no command of the estate (execution policy none); its results are those of a run in which no hook, call or script of the estate started',
+    );
 
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
