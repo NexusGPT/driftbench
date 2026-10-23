@@ -1,7 +1,7 @@
 import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { isAbsolute, join, posix, relative, sep } from 'node:path';
+import { dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { type RuntimeProfile, variablePrefix } from '@agent-nexus/driftbench-core';
 import { type IgnoreRule, ignoreRule } from '../scan/ignore';
 
@@ -40,6 +40,48 @@ export function byExactName(a: string, b: string): number {
 export async function listFolder(folder: string): Promise<Dirent[]> {
   const entries = await readdir(folder, { withFileTypes: true }).catch(() => [] as Dirent[]);
   return [...entries].sort((a, b) => byExactName(a.name, b.name));
+}
+
+/** Folder listings kept for one pass, by folder, so a name is checked against a listing once. */
+export type Listings = Map<string, Promise<ReadonlySet<string> | undefined>>;
+
+/**
+ * Whether `file` (relative to `root`) is spelled, at every step, as the listing of its folder spells it. A name is
+ * a file only if the listing holds it with exact case: on a disk that ignores case (a Mac, a Windows folder) `Notes.md`
+ * opens `notes.md`, and the estate must not take that for a second file or a file the name reaches. The answer is
+ * the same on every disk. A step `.` is skipped and `..` goes up one folder.
+ */
+export async function isSpelledOnDisk(
+  root: string,
+  file: string,
+  listings: Listings = new Map(),
+): Promise<boolean> {
+  let folder = resolve(root);
+  for (const part of file.split(/[\\/]+/)) {
+    if (part === '' || part === '.') continue;
+    if (part === '..') {
+      folder = dirname(folder);
+      continue;
+    }
+    let listing = listings.get(folder);
+    if (listing === undefined) {
+      listing = readdir(folder).then(
+        (names) => new Set(names),
+        () => undefined,
+      );
+      listings.set(folder, listing);
+    }
+    if (!(await listing)?.has(part)) return false;
+    folder = join(folder, part);
+  }
+  return true;
+}
+
+/** The stat of a file the estate names, or undefined when it does not exist under exactly that spelling. */
+export async function statSpelled(root: string, file: string, listings?: Listings) {
+  return (await isSpelledOnDisk(root, file, listings))
+    ? stat(join(root, file)).catch(() => undefined)
+    : undefined;
 }
 
 /**
