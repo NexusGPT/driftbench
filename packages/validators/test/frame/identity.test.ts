@@ -75,6 +75,15 @@ describe('object identity under the frame', () => {
     expect(frame.product.frozenCount(Object.freeze({ id: 'a' }))).not.toBe(first);
   });
 
+  it('compares each later call on its own after a call that one run answered otherwise', () => {
+    const frame = frameOf();
+    frame.product.byEnvironment();
+    expect(frame.divergence()).toBeDefined();
+    const mark = frame.position();
+    for (let n = 0; n < 3; n += 1) frame.product.rowsOf([{ a: 'x' }]);
+    expect(frame.divergenceSince(mark)).toBeUndefined();
+  });
+
   // The known limit, pinned: a product that changes an object it returned, between calls, while the caller keeps it.
   // In the caller's own process both hold one object and the caller sees the change; through the frame the caller's
   // object is the caller's copy, kept as the caller holds it.

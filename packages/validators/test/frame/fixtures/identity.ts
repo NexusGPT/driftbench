@@ -57,3 +57,7 @@ export const countInMap = (input: Map<string, { items: number[] }>) => {
   heldInMap.set(inner, inner.items.length);
   return inner.items.length;
 };
+
+/** A result that holds an object only in a process with the caller's environment (run A), not a bare one (run B). */
+export const byEnvironment = () =>
+  Object.keys(process.env).length > 10 ? { errors: [{ code: 'x' }] } : { errors: [] as Array<{ code: string }> };
