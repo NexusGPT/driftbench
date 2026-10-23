@@ -1,6 +1,6 @@
 import { chmod, cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
@@ -19,6 +19,7 @@ const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const LIVE = join(FIXTURE, 'generated/specs/live');
 const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
+const STATES = join(FIXTURE, 'live/states/library.json');
 const SPEC = join(
   LIVE,
   'route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml',
@@ -142,6 +143,9 @@ describe('--no-exec on a stand-in (matrix over event and command shape)', () => 
  * `python3` on the PATH is a shim that does the same; so any start of an estate program leaves a line, however the
  * stand-in reached it. The sample spans the spec types that reach each place.
  */
+/** The spec whose situation provokes a call (a removal the ledger guard watches): the stand-in makes it itself. */
+const PROVOKED = join(LIVE, 'guard_positive/estate.pairwise.0873.yaml');
+
 const SAMPLE: Array<{ folder: string; count: number }> = [
   { folder: 'guard_positive', count: 3 },
   { folder: 'ordered_pair', count: 2 },
@@ -156,7 +160,7 @@ async function sampleSpecs(): Promise<string[]> {
     const files = (await readdir(join(LIVE, name))).filter((file) => file.endsWith('.yaml')).sort();
     out.push(...files.slice(0, count).map((file) => join(LIVE, name, file)));
   }
-  return out;
+  return [...out, PROVOKED];
 }
 
 /** A copy whose scripts are stubs that log, and the PATH shim; returns where the log is. */
@@ -168,9 +172,11 @@ async function stubbed(): Promise<{ copy: string; log: string; shim: string }> {
   await cp(join(FIXTURE, 'CLAUDE.md'), join(copy, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude'), join(copy, '.claude'), { recursive: true });
   await mkdir(shim, { recursive: true });
-  const stub = `#!/bin/sh\necho "$0" >> "$STUB_LOG"\nexit 0\n`;
-  await writeFile(join(shim, 'python3'), stub);
-  await chmod(join(shim, 'python3'), 0o755);
+  const stub = `#!/bin/sh\necho "$0 $*" >> "$STUB_LOG"\nexit 0\n`;
+  for (const program of ['python3', 'rm']) {
+    await writeFile(join(shim, program), stub);
+    await chmod(join(shim, program), 0o755);
+  }
   const walk = async (folder: string): Promise<string[]> => {
     const entries = await readdir(folder, { withFileTypes: true });
     const nested = await Promise.all(
@@ -206,6 +212,8 @@ async function startsOn(extra: string[]): Promise<{ starts: string[]; ran: numbe
     FAKE,
     '--store',
     store,
+    '--states',
+    STATES,
     '--set-env',
     `STUB_LOG=${log}`,
     // The shim comes first; the rest of the PATH stays, so the stand-in finds its own interpreter.
@@ -224,17 +232,103 @@ async function startsOn(extra: string[]): Promise<{ starts: string[]; ran: numbe
   };
 }
 
-describe('no program of the estate starts (matrix over spec types)', () => {
-  it('starts programs of the estate without the flag, so the log can tell the two apart', async () => {
+/**
+ * The places the stand-in starts a program, each told apart by what its log line holds. A guard of the matrix has
+ * to start something without the flag, or its "starts none" proves nothing.
+ */
+const PLACES: Array<{ id: string; is: (line: string) => boolean }> = [
+  { id: 'a hook on an event', is: (line) => /\/(?:guards|hooks)\//.test(line) },
+  { id: 'a call the situation provokes', is: (line) => /\/shim\/rm /.test(line) },
+  { id: 'a step of a skill', is: (line) => /\/scripts\//.test(line) },
+];
+
+describe('no program of the estate starts (matrix over the places the stand-in starts one)', () => {
+  it('starts one at each place without the flag, so the log can tell the two apart', async () => {
     const without = await startsOn([]);
     expect(without.ran).toBe(without.wanted);
-    expect(without.starts.length).toBeGreaterThan(0);
+    for (const place of PLACES) expect(without.starts.filter(place.is).length, place.id).toBeGreaterThan(0);
   });
 
   it('starts none with the flag, and every spec of the sample still ran', async () => {
     const withFlag = await startsOn(['--no-exec']);
     expect(withFlag.ran).toBe(withFlag.wanted);
     expect(withFlag.starts).toEqual([]);
+  });
+
+  it('starts none at the place of a recorded program either', async () => {
+    const dir = await folder();
+    const log = join(dir, 'recorded.log');
+    const program = join(dir, 'recorded-program.sh');
+    await writeFile(program, `#!/bin/sh\necho recorded >> "${log}"\nexit 0\n`);
+    await chmod(program, 0o755);
+    const stream = join(dir, 'stream.jsonl');
+    const plain = await readFile(join(FIXTURE, 'live/fake/streams/default.jsonl'), 'utf8');
+    await writeFile(stream, `${JSON.stringify({ fake: 'exec', program, args: [] })}\n${plain}`);
+    const manifest = join(dir, 'manifest.json');
+    await writeFile(manifest, JSON.stringify({ default: 'stream.jsonl', asks: [] }));
+    const { copy } = await marked();
+    const runWith = async (...extra: string[]) => {
+      await rm(log, { force: true });
+      await runOn(copy, '--set-env', `FAKE_MANIFEST=${manifest}`, ...extra);
+      return readFile(log, 'utf8').catch(() => '');
+    };
+    expect(await runWith()).toContain('recorded');
+    expect(await runWith('--no-exec')).toBe('');
+  });
+});
+
+describe('the policy cannot be undone by the way the run is given its environment', () => {
+  it('--pass-env of the policy variable does not override the flag', async () => {
+    const { copy, markers } = await marked();
+    const saved = process.env.DRIFTBENCH_EXECUTION;
+    process.env.DRIFTBENCH_EXECUTION = 'estate';
+    try {
+      await runOn(copy, '--no-exec', '--pass-env', 'DRIFTBENCH_EXECUTION');
+    } finally {
+      if (saved === undefined) process.env.DRIFTBENCH_EXECUTION = undefined;
+      else process.env.DRIFTBENCH_EXECUTION = saved;
+    }
+    const ran = await Promise.all(markers.map((marker) => exists(marker.path)));
+    expect(ran).not.toContain(true);
+  });
+
+  it('--set-env of the policy variable does not override the flag', async () => {
+    const { copy, markers } = await marked();
+    await runOn(copy, '--no-exec', '--set-env', 'DRIFTBENCH_EXECUTION=estate');
+    expect(await Promise.all(markers.map((marker) => exists(marker.path)))).not.toContain(true);
+  });
+});
+
+describe('a stand-in that does not say it keeps the policy', () => {
+  it('is refused with --no-exec, exit 2, and nothing runs', async () => {
+    const { copy, markers } = await marked();
+    const dir = await folder();
+    // A copy of the shipped stand-in with the declaration taken out: it is a stand-in, but it would run the hooks.
+    const text = (await readFile(FAKE, 'utf8')).replace(/^\/\/ @driftbench-execution-policy.*\n/m, '');
+    const path = join(dirname(FAKE), 'claude-undeclared.mjs');
+    await writeFile(path, text);
+    await chmod(path, 0o755);
+    try {
+      const refused = await run([
+        'estate',
+        'run',
+        SPEC,
+        '--estate',
+        copy,
+        '--runtime',
+        'claude-code',
+        '--command',
+        path,
+        '--store',
+        join(dir, 'runs.db'),
+        '--no-exec',
+      ]);
+      expect(refused.code).toBe(2);
+      expect(refused.out).toBe('');
+    } finally {
+      await rm(path, { force: true });
+    }
+    expect(await Promise.all(markers.map((marker) => exists(marker.path)))).not.toContain(true);
   });
 });
 
