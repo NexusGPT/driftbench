@@ -70,6 +70,7 @@ export {
   validateSpaceMap,
 } from './load';
 export {
+  type CutVerdict,
   type DeclaredAxes,
   isDeclared,
   type ObligationBlock,
@@ -79,7 +80,11 @@ export {
   type Rulings,
   rulingsHash,
   type SoleHolders,
+  type SuiteChange,
+  SuiteIndex,
   soleHolders,
+  type TestBlockRef,
+  type ValidityRule,
 } from './obligations';
 export { type PlacementEvent, placeSpec, type SpecPlacement, type UnknownValue } from './place';
 export {
