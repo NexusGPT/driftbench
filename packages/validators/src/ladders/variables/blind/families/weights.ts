@@ -25,10 +25,11 @@ const exact =
     const [wl, wh] = wilson(count, total);
     check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, () => ({
       rule: 'weightInterval returns the two-sided N percent Wilson interval of the count over the total',
-      echoes: ['count'],
       input: { count, total },
       got: [lo, hi],
-      expected: [wl, wh],
+      // A bound that is the same number as the count or the total (0 for no success, 1 for all of one) says nothing the
+      // input does not already say, so it is not listed as hidden; no item excuses it through a declaration.
+      expected: [wl, wh].filter((bound) => bound !== count && bound !== total),
     }));
   };
 
