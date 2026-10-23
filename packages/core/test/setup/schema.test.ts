@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseTypes } from '../../src/estate-model/part-type';
 import { CLAUDE_CODE_PROFILE } from '../../src/runtime-profile/claude-code';
 import { parseSetupText, resolveSetupSources } from '../../src/setup/schema';
 
@@ -89,4 +90,25 @@ it('scopes same-named types by source and never gives .agents the host locator',
   } : undefined);
   expect(resolved[1]?.root).toBe('/fictional/setup/.agents');
   expect(resolved[1]?.types.types.find((type) => type.name === 'skill')?.folder).toBe('.');
+});
+
+
+it('uses immutable reader setupTypes metadata for source-local inheritance', () => {
+  const base = parseTypes({ version: 1, types: { skill: {
+    locate: 'skills/*/', entry: 'SKILL.md', aspects: ['acts', 'instructs'], loaded: 'on-demand',
+  } } }, { runtime: 'codex', roots: { source: '.' } });
+  expect(base.ok).toBe(true);
+  if (!base.ok) return;
+  const result = parseSetupText(JSON.stringify({ ...document, sources: [{
+    id: 'shared', path: '.agents', kind: 'directory', reader: 'agents-folder',
+    types: { extended: { extends: 'skill', fields: { description: 'frontmatter.description' } } },
+  }] }), (id) => id === 'agents-folder' ? {
+    runtime: 'codex', roots: { source: '.' }, base: base.set, folder: '.',
+  } : undefined);
+  expect(result.ok).toBe(true);
+  if (!result.ok) return;
+  const type = result.types.shared?.types.find((entry) => entry.name === 'extended');
+  expect(type?.runtime).toBe('codex');
+  expect(type?.folder).toBe('.');
+  expect(type?.locate.map((entry) => entry.written)).toEqual(['skills/*/']);
 });
