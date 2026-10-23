@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Labels the condition spans a span-collector run found and writes the cassette the variables measure replays.
 //
-//   node tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
+//   node --import tsx tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
 //     --usd-per-mtok-in <rate> --usd-per-mtok-out <rate> [--cap <usd, default 2>] [--total-file <file>] [--total-cap <usd, default 8>]
 //     [--known <cassette file>] [--batch <spans per request, default 12>]
 //
@@ -13,6 +13,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createSubjectReconciler } from '../packages/generate/src/feed/subject-choices.ts';
 
 const MODEL = 'claude-haiku-5-5';
 
@@ -61,12 +62,17 @@ console.log(`commit ${sha}: ${texts.length} distinct spans`);
 // The subjects already used in this estate: those of the cassette `--known` names, then those of the labels written so
 // far. A batch is shown them, so two clauses that name one quantity in different words get one subject.
 const subjects = new Set();
+const knownLabels = [];
 const noteSubjects = (label) => {
   if (label && typeof label.subject === 'string' && label.subject.trim() !== '') subjects.add(label.subject);
 };
 if (knownFile && existsSync(knownFile)) {
   for (const line of readFileSync(knownFile, 'utf8').split('\n')) {
-    if (line.trim() !== '') noteSubjects(JSON.parse(line).label);
+    if (line.trim() !== '') {
+      const label = JSON.parse(line).label;
+      knownLabels.push(label);
+      noteSubjects(label);
+    }
   }
 }
 const MAX_SUBJECTS = 300;
@@ -153,6 +159,42 @@ async function ask(batch) {
   }
 }
 
+const reconcileSubjects = createSubjectReconciler(knownLabels);
+const SUBJECT_CHOICE = [
+  'A clause has just been labelled. Choose the existing label that names the same quantity, set or fact.',
+  'The candidates have opaque ids. Answer with one JSON string: an existing candidate id, or "new".',
+  'Use an id only if the clause names the same thing, including its kind, owner and unit.',
+  'Different words can name the same thing; similar words can name different things.',
+  'Do not rewrite the subject or return a subject string. If no candidate is equivalent, answer "new".',
+].join(' ');
+async function chooseSubject(clause, candidates) {
+  if (candidates.length === 0) return 'new';
+  if (spentBefore + spent() > totalCap || spent() > cap) {
+    console.error('stopped before a cap, before a subject choice');
+    process.exit(3);
+  }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 64,
+      system: SUBJECT_CHOICE,
+      messages: [{ role: 'user', content: JSON.stringify({ clause, candidates }) }],
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(`subject choice request failed: ${res.status}`);
+  tokensIn += json.usage?.input_tokens ?? 0;
+  tokensOut += json.usage?.output_tokens ?? 0;
+  const text = (json.content ?? []).map((part) => part.text ?? '').join('');
+  try {
+    return JSON.parse(text);
+  } catch {
+    return 'new';
+  }
+}
+
 const rows = new Map();
 let bad = 0;
 for (let i = 0; i < texts.length; i += BATCH) {
@@ -173,15 +215,17 @@ for (let i = 0; i < texts.length; i += BATCH) {
       answers[at] = second[k];
     });
   }
-  batch.forEach((text, j) => {
+  const labelled = batch.map((text, j) => {
     if (valid(answers[j])) {
-      rows.set(text, answers[j]);
-      noteSubjects(answers[j]);
-    } else {
-      bad += 1;
-      rows.set(text, { kind: 'none' });
+      return { text, label: answers[j] };
     }
+    bad += 1;
+    return { text, label: { kind: 'none' } };
   });
+  for (const { text, label } of await reconcileSubjects(labelled, chooseSubject)) {
+    rows.set(text, label);
+    noteSubjects(label);
+  }
 }
 
 writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
