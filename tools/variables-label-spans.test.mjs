@@ -155,7 +155,7 @@ it('a request is priced at one token per byte: a body that tokenizes near one to
     mkdirSync(join(folder, '.nexus-secrets'));
     writeFileSync(join(folder, '.nexus-secrets/anthropic-driftbench.key'), 'fictional-offline-key');
     mkdirSync(join(folder, 'spans'));
-    const known = Array.from({ length: 3000 }, (_, i) => ({
+    const known = Array.from({ length: 2000 }, (_, i) => ({
       text: `the quantity number ${i} is at most ${i + 1} euros`,
       label: {
         kind: 'numeric',
@@ -186,9 +186,10 @@ globalThis.fetch = async (_url, options) => {
   return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens, output_tokens: 10 } }) };
 };`,
     );
-    // The subject-choice body is about 200,000 bytes, so at one token per byte its worst case is about 0.21 USD and the
-    // provider-like count is about 0.19. The cap sits between the old half-byte estimate (0.11) and the real cost.
-    const cap = 0.15;
+    // The subject-choice body is between 150,000 and 270,000 bytes (2,000 candidates). At one token per two bytes its
+    // worst case is under 0.14 USD, so the old estimate lets it out; the provider-like count (0.94 token per byte) is over
+    // 0.14, so it crosses; at one token per byte the worst case is over 0.14, so it is refused. The cap sits between.
+    const cap = 0.14;
     const result = spawnSync(
       process.execPath,
       [
