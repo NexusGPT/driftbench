@@ -249,13 +249,13 @@ Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     790       153           3
 boundary         85     176        13          72
-deviation       110     511       110           0
+deviation       120     562       120           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 684 files to generated.
+Wrote 694 files to generated.
 ```
 
 **How to read it.**

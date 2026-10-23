@@ -20,10 +20,12 @@ export type LedgerLabel = {
   /** The class that decided: system1 or system2. */
   by?: 'system1' | 'system2';
   target?: string;
+  /** The other units, by id, that the unit applies to. */
+  scopes?: string[];
   /** Clauses of the unit by offsets into its text; kept with the label, valid while the unit's text is. */
   spans?: Array<{ kind: string; from: number; to: number; polarity?: string }>;
   /** Atoms the unit points at, by kind and id. */
-  links?: Array<{ kind: string; to: string }>;
+  links?: Array<{ kind: string; to: string; value?: number; unit?: string }>;
 };
 
 export type LedgerEntry = {
@@ -50,6 +52,8 @@ export type LedgerEntry = {
   lineage: Array<{ scan: number; event: Event }>;
   /** The id of the unit with the same text in an earlier file of the estate (identical boilerplate), else null. */
   twinOf: string | null;
+  /** A table cell's row key, column header and table; absent on other units and on an entry written before cells were kept. */
+  cell?: { row: string; column: string; table: number; header?: true };
 };
 
 export type Ledger = { version: 1; cutDigests: Record<string, string>; entries: LedgerEntry[] };
@@ -242,6 +246,28 @@ export const LADDER = { threshold: 0.45, textFloor: 0.4, exactFloor: 12, joinMar
 type Mapping = { event: Event; to: Fresh[] };
 
 /**
+ * The table cells that are followed by their row key and column header: those with a cell whose text is short (under
+ * the exact-text floor) or repeats in its table. Generic over entries and new units.
+ */
+function keyedCells<T>(
+  list: readonly T[],
+  pathOf: (item: T) => string,
+  fpOf: (item: T) => string,
+  cellOf: (item: T) => { table: number } | undefined,
+  lengthOf: (item: T) => number,
+): Set<T> {
+  const counts = new Map<string, number>();
+  const keyOf = (item: T) => `${pathOf(item)}\0${cellOf(item)?.table}\0${fpOf(item)}`;
+  for (const item of list) if (cellOf(item)) counts.set(keyOf(item), (counts.get(keyOf(item)) ?? 0) + 1);
+  return new Set(
+    list.filter(
+      (item) =>
+        cellOf(item) !== undefined && !(lengthOf(item) >= LADDER.exactFloor && counts.get(keyOf(item)) === 1),
+    ),
+  );
+}
+
+/**
  * Follows the old live entries into the new units, cheapest first: unchanged anchors by file, the same text
  * elsewhere (moved, or ambiguous when several match), a split or merge, then the best-scoring pair in the
  * same file (0.6 text, 0.4 context, with the text floor). What nothing claims is deleted.
@@ -249,10 +275,71 @@ type Mapping = { event: Event; to: Fresh[] };
 function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<string, Mapping> {
   const result = new Map<string, Mapping>();
   const used = new Set<Fresh>();
+  // A table cell whose text is short, or repeats in its table, names little: it is followed by its row key and its
+  // column header, or not at all. A cell with a long text that is unique in its table is followed by its text like
+  // any unit. An entry written before cells were kept has no cell and is followed by its text like any unit.
+  const oldKeyed = keyedCells(
+    old,
+    (entry) => entry.path,
+    (entry) => entry.fp,
+    (entry) => entry.cell,
+    (entry) => flat(entry).quote.length,
+  );
+  const freshKeyed = keyedCells(
+    fresh,
+    (item) => item.path,
+    (item) => item.unit.fp,
+    (item) => item.unit.cell,
+    (item) => flat(item).quote.length,
+  );
+  const barred = new Set<LedgerEntry>(oldKeyed);
+  // Step 0, for every table cell, before any other step: a cell keeps its id when exactly one new cell of its file has
+  // its row key and its column header and no other old cell of the file has them, whatever the text of either cell
+  // (short or long, unique or repeated, changed or not). A new cell claimed here is no longer there for the text steps.
+  {
+    const place = (cell: NonNullable<LedgerEntry['cell']>, path: string) =>
+      `${path}\0${cell.header ? 'H' : 'B'}\0${cell.row}\0${cell.column}`;
+    const holders = new Map<string, Fresh[]>();
+    for (const item of fresh) {
+      const cell = item.unit.cell;
+      if (cell === undefined) continue;
+      const key = place(cell, item.path);
+      holders.set(key, [...(holders.get(key) ?? []), item]);
+    }
+    const claimed = new Map<string, number>();
+    for (const entry of old) {
+      const cell = entry.cell;
+      if (cell === undefined) continue;
+      const key = place(cell, entry.path);
+      claimed.set(key, (claimed.get(key) ?? 0) + 1);
+    }
+    for (const entry of old) {
+      const cell = entry.cell;
+      if (cell === undefined) continue;
+      const key = place(cell, entry.path);
+      const found = holders.get(key) ?? [];
+      const only = found[0];
+      if (found.length !== 1 || !only || claimed.get(key) !== 1) continue;
+      const same = only.unit.fp === entry.fp;
+      // A cell that follows by its text (long, unique in its table) follows by its key only while its text is still
+      // that text's kin: a cell rewritten into an unrelated text is a new unit, as anywhere else (the ladder's text floor).
+      if (
+        !same &&
+        !oldKeyed.has(entry) &&
+        similarity(flat(entry).quote, flat(only).quote) <= LADDER.textFloor
+      )
+        continue;
+      result.set(entry.id, {
+        event: same ? (only.index === entry.index ? 'unchanged' : 'moved') : 'changed',
+        to: [only],
+      });
+      used.add(only);
+    }
+  }
   const paths = [...new Set(old.map((entry) => entry.path))];
   for (const path of paths) {
-    const before = old.filter((entry) => entry.path === path);
-    const after = fresh.filter((item) => item.path === path);
+    const before = old.filter((entry) => entry.path === path && !barred.has(entry) && !result.has(entry.id));
+    const after = fresh.filter((item) => item.path === path && !freshKeyed.has(item) && !used.has(item));
     for (const [i, j] of anchors(
       before.map((entry) => entry.fp),
       after.map((item) => item.unit.fp),
@@ -264,7 +351,9 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
       used.add(item);
     }
   }
-  const openOld = () => old.filter((entry) => !result.has(entry.id));
+  const openOld = () => old.filter((entry) => !result.has(entry.id) && !barred.has(entry));
+  // A unit with a cell never takes a keyed new cell by text or by score: those are followed by their key (step 0).
+  const blocked = (entry: LedgerEntry, item: Fresh) => entry.cell !== undefined && freshKeyed.has(item);
   const openNew = () => fresh.filter((item) => !used.has(item));
 
   // A short text names little: it keeps its id across files only when it is the only unit with that text in the
@@ -279,7 +368,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         entry.fp,
       ) === 1;
     if (flat(entry).quote.length < LADDER.exactFloor && !unique) continue;
-    const hits = openNew().filter((item) => item.unit.fp === entry.fp);
+    const hits = openNew().filter((item) => item.unit.fp === entry.fp && !blocked(entry, item));
     if (hits.length === 1 && hits[0]) {
       result.set(entry.id, { event: 'moved', to: hits });
       used.add(hits[0]);
@@ -350,7 +439,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   const pairs: Array<{ entry: LedgerEntry; item: Fresh; value: number }> = [];
   for (const entry of openOld()) {
     for (const item of openNew()) {
-      if (item.path !== entry.path) continue;
+      if (item.path !== entry.path || blocked(entry, item)) continue;
       if (
         Math.abs(flat(entry).quote.length - flat(item).quote.length) >
         Math.max(flat(entry).quote.length, flat(item).quote.length) * 0.8
@@ -427,7 +516,13 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   for (const entry of openOld()) {
     for (const item of pool.near(flat(entry).quote)) {
       // An identical text elsewhere is step 2's: it keeps its id by the exact-text rule and its length floor.
-      if (used.has(item) || item.path === entry.path || flat(item).quote === flat(entry).quote) continue;
+      if (
+        used.has(item) ||
+        item.path === entry.path ||
+        flat(item).quote === flat(entry).quote ||
+        blocked(entry, item)
+      )
+        continue;
       if (
         Math.abs(flat(entry).quote.length - flat(item).quote.length) >
         Math.max(flat(entry).quote.length, flat(item).quote.length) * 0.8
@@ -624,6 +719,7 @@ export function nextLedger(
       labels: labelMap(keepLabels && carried.from ? carried.from.labels : undefined),
       lineage: remember(carried.from?.lineage, scan, carried.event),
       twinOf: null,
+      ...(item.unit.cell ? { cell: item.unit.cell } : {}),
     });
     eventsById[carried.id] = carried.event;
   }
@@ -689,7 +785,7 @@ export function parseLedger(text: string): Ledger | undefined {
 }
 
 /** An entry without the lineage, which every scan extends: what a ledger is compared by. */
-const stable = (entry: LedgerEntry) => ({ ...entry, lineage: undefined });
+const stable = (entry: LedgerEntry) => ({ ...entry, lineage: undefined, cell: undefined });
 
 /**
  * Whether the ledger a scan produced says what the committed one says. The lineage grows with every scan and is

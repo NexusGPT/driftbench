@@ -143,7 +143,7 @@ Four relations of the Acme proposal, as written in the file:
 
 Code reads the inventory and the tools before any model:
 
-* From the inventory: a `behaviour` dimension (one value per behaviour), a `flow` dimension (one value per flow), a `deviation` dimension (the classes the flows require), a `channel` dimension, and one constraint per channel a behaviour's `channels` leaves out. Each detour class a flow lists in its `deviations` becomes a `recovery` relation that returns to the pending stage.
+* From the inventory: a `behaviour` dimension (one value per behaviour), a `flow` dimension (one value per flow), a `deviation` dimension (the classes the flows require), a `channel` dimension, and one constraint per channel a behaviour's `channels` leaves out. A behaviour belongs to the flows that list it: the map also forbids it in every other flow, so a flow whose behaviours are all kept off a channel has no allowed cell on that channel. Each detour class a flow lists in its `deviations` becomes a `recovery` relation that returns to the pending stage.
 * From the tool schemas: one `data` dimension per argument or result field, named `<tool>.in.<field>` or `<tool>.out.<field>`, with a value for each partition the schema states (enum members, booleans, the edges of a minimum or a maximum, a length limit, a format, an array size, `null`, an absent optional field). A field the schema leaves open gives no value and is listed in the notes. A name enters an id as follows: a capital after a letter or digit is split off with `_`, the name is lower-cased, and each run of characters other than letters, digits, `_` and `-` becomes `_` (in a tool name, dots stay, and a name that does not start with a letter gets `t_` in front). A field named `$ref` gives `_ref`, `user.email` gives `user_email` (one field, not a path), and a tool named `getWeather` gives `get_weather`.
 
 `--no-model` stops there:
@@ -353,7 +353,7 @@ The generator keeps the allocation even. No stage, deviation class or behaviour 
 1. A walk that declares perturbations places them where the suite has the least. A recovery that was drawn moves to a rarer stage with the same wording when its flow recovers from the class there. Further recoveries, at most one per class and walk, are added at the rarest stage the walk reaches: before its first turn for a class a first message can carry, between turns, or after its last turn. Only a class whose flow recovers in place (the conversation stays where it arrived) is declared this way, with the wording and the Then the map approves. This adds no block, no random draw and no spec. A probe for a class goes to the stage where the suite gains most, counting the moves before it when the walk ends there.
 2. When the declared recoveries do not reach the floor, short approved walks fill the rarest stage (`gen-stage-balance-NNN`): a path cut after the stage, or the whole path for the last stage. Of the paths through the stage, the walk that leaves stages and classes nearest balance is written, and only when it brings them nearer. A walk written to balance declares only what the balance adds, because every other walk already declares one drawn class and a tool failure at the stages it crosses.
 3. Walks for the behaviours a few specs cover (`gen-behaviour-balance-NNN`) go on a path of a flow that holds the behaviour.
-4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or when the allocation has added as many specs as the seeders wrote.
+4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or after 40 rounds (`MAX_ROUNDS`), or when 8 rounds in a row (`MAX_STALLED`) reach no new low of the imbalance.
 
 A stage, class or behaviour that no approved path or phrase can reach stays under the floor, and the suite is written as it is. The count follows `driftbench coverage`, so a stage placed by a declared perturbation is a placed stage.
 
@@ -486,9 +486,9 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3119 of 4064 (76.7%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3118 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 945 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 946 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
@@ -496,7 +496,7 @@ Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     790       153           3
 boundary         85     176        13          72
-deviation       110     511       110           0
+deviation       120     562       120           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
@@ -537,7 +537,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 684 files to generated.
+Wrote 694 files to generated.
 exit 1
 ```
 

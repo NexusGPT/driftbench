@@ -28,6 +28,7 @@ import {
   type Seeder,
   type SpecDraft,
 } from '../seed/assemble';
+import { ContinuedProbes } from '../seed/continued-probe';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
 import { TerminalSubsumption } from '../seed/minimal';
@@ -502,10 +503,21 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       balance.observe(spec);
     }
   }
+  // A class whose probes all end their walk: one probe at a stage where the recovery stays, so the flow goes on.
+  const continued = new ContinuedProbes(prepared);
+  for (const spec of complete) continued.observe(spec);
+  for (const draft of continued.drafts(context)) {
+    for (const spec of renderSeeder('deviation', [draft])) {
+      continued.observe(spec);
+      terminal.observe(spec);
+      balance.observe(spec);
+    }
+  }
   // Allocation: stages and behaviours placed less than a third as often as the most placed one get approved
   // walks, alternating with class probes until all hold.
   for (const draft of allocation.rounds(context, () => all.length, balance)) {
     for (const spec of renderSeeder('deviation', [draft])) {
+      continued.observe(spec);
       terminal.observe(spec);
       balance.observe(spec);
     }
