@@ -105,7 +105,7 @@ export {
 export const RUNTIMES = ['claude-code'] as const;
 
 /** The options every estate reader takes. */
-export type EstateReaderOptions = { ignore?: readonly string[]; userSkills?: string };
+export type EstateReaderOptions = { ignore?: readonly string[]; userSkills?: string; home?: string };
 
 const READERS = new Map<string, (options: EstateReaderOptions) => EstateReader>([
   ['claude-code', (options) => new ClaudeCodeReader(options)],

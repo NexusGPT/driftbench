@@ -69,6 +69,14 @@ describe('EstateFS', () => {
     expect(expandVariables('docs/a.md', CLAUDE_CODE_PROFILE, folders)).toBe('docs/a.md');
   });
 
+  it('never expands a home path from the machine: without --home it comes back as written', () => {
+    const folders = { root: '/estate' };
+    for (const path of ['$HOME/x.py', '${HOME}/x.py', '~/x.py', '~'])
+      expect(expandVariables(path, CLAUDE_CODE_PROFILE, folders)).toBe(path);
+    // The project variable needs no home folder.
+    expect(expandVariables('$CLAUDE_PROJECT_DIR/x.py', CLAUDE_CODE_PROFILE, folders)).toBe('x.py');
+  });
+
   it('stores paths relative to the root, and none for a path outside it', () => {
     expect(rootRelative('/estate', '/estate/.claude/a.md')).toBe('.claude/a.md');
     expect(rootRelative('/estate', 'b/../c.md')).toBe('c.md');

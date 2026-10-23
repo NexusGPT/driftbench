@@ -1,6 +1,5 @@
 import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { isAbsolute, join, posix, relative, sep } from 'node:path';
 import { type RuntimeProfile, variablePrefix } from '@agent-nexus/driftbench-core';
 import { type IgnoreRule, ignoreRule } from '../scan/ignore';
@@ -118,13 +117,15 @@ export type VariableFolders = { root: string; home?: string };
 
 /**
  * A path written behind one of the profile's variables, expanded: the project and plugin variables to the
- * estate root (root-relative, so the result is relative), the home variable and `~/` to the home folder (the
- * `--home` folder when one is given, else the user's own). A path behind no variable comes back as written.
+ * estate root (root-relative, so the result is relative), the home variable and `~/` to the home folder the run
+ * was given (`--home`). A path behind no variable comes back as written, and so does a home path when no home
+ * folder was given: the machine's own home folder is never read, so a scan gives the same map on every machine.
  */
 export function expandVariables(path: string, profile: RuntimeProfile, folders: VariableFolders): string {
   const project = variablePrefix([...profile.pathVariables.project, ...profile.pathVariables.plugin]);
   if (project.test(path)) return path.replace(project, '');
-  const home = folders.home ?? homedir();
+  const home = folders.home;
+  if (home === undefined) return path;
   const homeVariable = variablePrefix(profile.pathVariables.home);
   if (homeVariable.test(path)) return join(home, path.replace(homeVariable, ''));
   if (path === '~') return home;

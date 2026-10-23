@@ -200,6 +200,13 @@ export type RawEstate = {
    * name. Absent when the reader was given no user skill folder.
    */
   userLayer?: { read: string[]; shadowed: string[] };
+  /**
+   * The home folder the read was told stands for the user's home. Absent when none was given: a path written from
+   * the home folder is then skipped, never read from the machine. `folder` is where it lies in the estate (relative
+   * to the root, '' for the root itself), absent when it lies outside; `present` lists the scripts of the guards,
+   * written from the home folder (`~/x`), that the folder holds. No path of the machine is kept.
+   */
+  home?: { folder?: string; present: string[] };
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

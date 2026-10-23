@@ -198,7 +198,7 @@ export const POLICY_CHECKS = ['PERMISSION_UNKNOWN_SKILL', 'PERMISSION_READ_BYPAS
 
 /** The reader options of a run; `home` is the folder the run is told stands for the home folder. */
 export function readerOptions(home: string | undefined): ClaudeCodeReaderOptions {
-  return home === undefined ? {} : ({ home } as ClaudeCodeReaderOptions);
+  return home === undefined ? {} : { home };
 }
 
 /** Scans and lints a folder. */
