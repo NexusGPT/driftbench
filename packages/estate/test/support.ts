@@ -38,7 +38,7 @@ export async function estate(files: Record<string, string>): Promise<string> {
  * come from the cassette. No network and no key.
  */
 export async function replayPointer(root: string, ledger?: string): Promise<PointerScanOptions> {
-  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = pointer.parseLabelSets(pointer.DEFAULT_LABEL_SETS);
   if (!sets.ok) throw new Error(sets.message);
   const specs = pointer.DEFAULT_LABELER_SPECS.map((text) => {
     const spec = pointer.parseLabelerSpec(text);

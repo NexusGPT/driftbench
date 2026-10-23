@@ -46,7 +46,7 @@ describe('driftbench estate plan', () => {
     expect(result.out).toContain('Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered');
     expect(result.out).toContain('the full grid of 2190099824640 cells is never enumerated');
     expect(result.out).toContain('Unenforced: 44 approved rules no guard enforces.');
-    expect(result.out).toContain('Cells with no approved phrase: 1302 of 1302.');
+    expect(result.out).toContain('Cells with no approved phrase: 1307 of 1307.');
     expect(result.out).toContain('Edges with no journey: 7.');
     expect(result.out).toContain('The map has no phrase bank yet');
     const summary = JSON.parse(await readFile(join(root, 'plan.summary.json'), 'utf8'));
@@ -180,7 +180,7 @@ describe('driftbench estate plan approve', () => {
     const again = await run(['estate', 'plan', 'approve', 'plan.yaml', '--out', 'plan2.yaml', '--all'], root);
     expect(again.code).toBe(0);
     expect(again.err).toBe('');
-    expect(again.out).toBe('Approved 0 rows in plan2.yaml; 1426 were already approved.\n');
+    expect(again.out).toBe('Approved 0 rows in plan2.yaml; 1416 were already approved.\n');
     expect(await readFile(join(root, 'plan2.yaml'), 'utf8')).toBe(before);
     expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
     const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);

@@ -41,6 +41,7 @@ metadata:
   estate:
     atoms:
       - instruction.memory-memory.the-operations-team-wants-the-weekly
+      - instruction.memory-memory.never-schedule-a-delivery-on-a
     planRow: obligation.instruction.memory-memory.the-operations-team-wants-the-weekly
     cell:
       atoms.instruction: instruction.memory-memory.the-operations-team-wants-the-weekly
@@ -80,6 +81,15 @@ metadata:
         rule: instruction.memory-memory.the-operations-team-wants-the-weekly
         ledger: uy66cc5nh7
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 708456f152fd
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.never-schedule-a-delivery-on-a
+        ledger: 7wqtvpz2nv
+      relation: exercises
       status: declared
       created_by: generator
       at_version: 708456f152fd

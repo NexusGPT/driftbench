@@ -1,11 +1,11 @@
 {
   "mapHash": "708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d",
   "spaceHash": "5dc0ea944de1",
-  "cells": 1302,
+  "cells": 1307,
   "coveringArraySize": 1067,
   "perKind": {
-    "instruction": 93,
-    "gate": 16,
+    "instruction": 95,
+    "gate": 18,
     "route": 65,
     "skill": 110,
     "reference": 10,
@@ -95,7 +95,7 @@
     "register.standing.write-amounts-with-the-currency-code",
     "gate.standing.read-claude-memory-memory-md-before"
   ],
-  "cellsWithoutPhrase": 1302,
+  "cellsWithoutPhrase": 1307,
   "edgesWithoutJourney": 7,
   "t": 2,
   "k": 3,

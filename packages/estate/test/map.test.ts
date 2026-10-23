@@ -92,7 +92,7 @@ describe('approval', () => {
     const text = renderEstateMap((await scanFixture()).map);
     const result = approveAtoms(text, { kinds: ['register'] });
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.approved).toHaveLength(14);
+    expect(result.approved).toHaveLength(12);
     expect(result.already).toBe(0);
     expect(result.text.split('\n').slice(0, 6)).toEqual(text.split('\n').slice(0, 6));
     const parsed = parseEstateMapText(result.text);
@@ -156,13 +156,13 @@ describe('the space map of an estate', () => {
     );
     expect(sizes).toEqual({
       'atoms.instruction': 31,
-      'atoms.gate': 6,
+      'atoms.gate': 8,
       'atoms.route': 13,
       'atoms.skill': 4,
       'atoms.subagent': 3,
       'atoms.guard': 6,
       'atoms.stage': 5,
-      'atoms.register': 14,
+      'atoms.register': 12,
     });
   });
 
