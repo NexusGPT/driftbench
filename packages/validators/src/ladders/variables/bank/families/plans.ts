@@ -57,6 +57,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed, budget, seeds: clone(seeds) });
     check(plan.rows.length === seeds.length, () => ({
       rule: 'a budget below the seed count keeps every seed and no new row',
+      echoes: ['seeds'],
       input: { budget, seeds: seeds.length },
       got: { rows: plan.rows.length },
       expected: { rows: seeds.length },
