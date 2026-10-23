@@ -366,10 +366,10 @@ A walk often ends the way another walk already ended: the same test, run from th
 * Every coverage tuple the walk placed is placed by a spec already written, at the strengths the coverage grid counts (1, 2, 3 and `--t`).
 * Every ordered pair of consecutive moves the walk took (a stage move and the class said with it) is taken by a spec already written.
 * The stage and class allocation is no further from balance (see the previous section).
-* The block does not inject a deviation class: that block is the test of the class and the deviation of its row, and stays.
+* If the block injects a deviation class, the first probe of that class on the path stays: a probe is owed once per path and class, and the t-wise row of a t-wise spec stays with it. A later probe of the class is cut like any other block when the other conditions hold.
 * The walk has no end state, no declared perturbation said before the block or on it (a perturbed run needs the block to reach it; dropping the declaration with the block was measured and loses 50 perturbed-mode kills on the hidden seed), does not end on a tool failure, and still validates.
 
-The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. Exactly one walk ends on a block: a cut that stops with more than one block left, on a block another written walk ends on, is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. A stay in the middle of a walk (a block that leaves the walk at the stage it started from, with no world, no fact and no injection of its own) that another written spec already says is cut too, when the walk stays valid: the block after it starts from the same stage and the same world. The same checks hold, a block a declared perturbation names stays, and a metamorphic family is never cut from the middle; the cut is recorded in `reduced_middle`. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
+The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. A block that injects a class is cut like any other block, as long as every obligation of the blocks it drops stays held by a written spec: a probe of a class is owed once per path, and a t-wise spec stands for its row (its cell and the class of its first injected block), which the items that read t-wise specs alone count. A later probe the tuples, pairs, allocation and phrase checks allow to go is cut with the blocks after it. A walk that is cut down to one block that a written spec already says, and whose tuples, pairs, probes, t-wise row and allocation are all held by written specs, is not written at all (budget mode and the pass after `--spec-cap` write it). Exactly one walk ends on a block: when a check stops the cut with more than one block left, on a block another written walk ends on, the cut is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. A stay in the middle of a walk (a block that leaves the walk at the stage it started from, with no world, no fact and no injection of its own) that another written spec already says is cut too, when the walk stays valid: the block after it starts from the same stage and the same world. The same checks hold, a block a declared perturbation names stays, and a metamorphic family is never cut from the middle; the cut is recorded in `reduced_middle`. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
 
 Each removed end block is recorded in the shortened spec's `metadata.generated.reduced_ends`.
 The record gives `from_blocks`, `to_blocks`, and `duplicates`: the removed block's `block` ID and
@@ -486,20 +486,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3118 of 4064 (76.7%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3119 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 946 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 945 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     790       153           3
-boundary         85     180        13          72
-deviation       137     526       137           0
+boundary         85     176        13          72
+deviation       110     511       110           0
 metamorphic      42     188        42           0
 task             67      71        67           0
-cover            10      43        10           0
+cover            11      48        11           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -537,7 +537,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 703 files to generated.
+Wrote 684 files to generated.
 exit 1
 ```
 
