@@ -22,6 +22,8 @@ type Ctx = {
   mode: 'sentence' | 'quote';
   htmlDepth: number;
   depth: number;
+  /** The labels of the footnote definitions of the file. */
+  notes: ReadonlySet<string>;
 };
 
 const path = (ctx: Ctx) => ctx.stack.map((h) => h.text);
@@ -109,7 +111,7 @@ function startsBlock(line: Line, interruptOrdered = false): boolean {
 
 /* ---------- sentences ---------- */
 
-function mask(text: string): string {
+function mask(text: string, defined: ReadonlySet<string>): string {
   const chars = text.split('');
   const hide = (a: number, b: number) => {
     for (let i = a; i < b; i += 1) if (chars[i] !== undefined) chars[i] = 'x';
@@ -131,20 +133,24 @@ function mask(text: string): string {
     while (len > 0 && /[.,;:!?)"'\]]/.test(m[0][len - 1] as string)) len -= 1;
     hide(m.index, m.index + len);
   }
-  // a footnote reference belongs to the sentence it follows: it reads as closing marks
-  const footnote = /\[\^[^\]\s]+\]/g;
+  // a footnote reference with a definition belongs to the sentence it follows: it reads as closing marks;
+  // one without a definition is no footnote, it stays prose
+  const footnote = /\[\^([^\]\s]+)\]/g;
   for (let m = footnote.exec(text); m; m = footnote.exec(text))
-    for (let i = m.index; i < m.index + m[0].length; i += 1) chars[i] = ')';
+    if (defined.has(m[1] as string)) for (let i = m.index; i < m.index + m[0].length; i += 1) chars[i] = ')';
   return chars.join('').replace(/[\r\n]/g, ' ');
 }
 
 const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
 
 /** Sentence spans of a paragraph text, relative to its start. */
-export function sentenceSpans(text: string): Array<[number, number]> {
+export function sentenceSpans(
+  text: string,
+  defined: ReadonlySet<string> = new Set(),
+): Array<[number, number]> {
   // Preserve offsets while exposing a clear terminal boundary before an ASCII lowercase start.
   // This is structural segmentation, not a dictionary of sentence starters.
-  const masked = mask(text).replace(
+  const masked = mask(text, defined).replace(
     /([.!?]\s+)([a-z])/g,
     (_match, gap: string, first: string) => gap + first.toUpperCase(),
   );
@@ -218,7 +224,7 @@ function paragraphUnits(ctx: Ctx, lines: Line[]): void {
     return;
   }
   const text = ctx.source.slice(start, end);
-  for (const [a, b] of sentenceSpans(text)) push(ctx, 'sentence', start + a, start + b);
+  for (const [a, b] of sentenceSpans(text, ctx.notes)) push(ctx, 'sentence', start + a, start + b);
 }
 
 /* ---------- block parser ---------- */
@@ -271,12 +277,26 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
       i = j + 1;
       continue;
     }
-    // container directive: its lines are marks, its name ends the heading path of its units
-    const directive = /^ {0,3}:::([A-Za-z][\w-]*)[ \t]*$/.exec(line.text);
+    // container directive: its fence lines are marks, its label is one unit, its name ends the heading path
+    const directive = /^( {0,3})(:{3,})([A-Za-z][\w-]*)(?:\[([^\]]*)\])?(?:\{[^}]*\})?[ \t]*$/.exec(
+      line.text,
+    );
     if (directive) {
+      const fence = (directive[2] as string).length;
       let j = i + 1;
-      while (j < all.length && !/^ {0,3}:::[ \t]*$/.test((all[j] as Line).text)) j += 1;
-      parseBlocks(all.slice(i + 1, j), within(ctx, directive[1] as string));
+      while (j < all.length) {
+        const closing = /^ {0,3}(:{3,})[ \t]*$/.exec((all[j] as Line).text);
+        if (closing && (closing[1] as string).length >= fence) break;
+        j += 1;
+      }
+      const inner = within(ctx, directive[3] as string);
+      const label = directive[4];
+      if (label !== undefined && label.trim() !== '') {
+        const at = line.text.indexOf('[', (directive[1] as string).length + fence) + 1;
+        const from = at + (label.length - label.trimStart().length);
+        push(inner, 'sentence', line.start + from, line.start + from + label.trim().length);
+      }
+      parseBlocks(all.slice(i + 1, j), inner);
       i = j + 1;
       continue;
     }
@@ -679,17 +699,45 @@ function tomlFrontMatter(ctx: Ctx, lines: Line[]): number {
   return close + 1;
 }
 
-/** JSON front matter: an object whose `{` opens the file and whose `}` closes a line; every string value. */
-function jsonFrontMatter(ctx: Ctx, lines: Line[]): number {
-  let close = -1;
-  for (let k = 0; k < lines.length; k += 1)
-    if (/^\}[ \t]*$/.test((lines[k] as Line).text)) {
-      close = k;
-      break;
+/**
+ * The offset after the object that opens the file, where a JSON parser finishes it (a brace in a string or an escaped
+ * quote does not end it), when only blanks follow on that line; undefined otherwise.
+ */
+function jsonObjectEnd(source: string): number | undefined {
+  let depth = 0;
+  let inString = false;
+  for (let at = 0; at < source.length; at += 1) {
+    const ch = source[at] as string;
+    if (inString) {
+      if (ch === '\\') at += 1;
+      else if (ch === '"') inString = false;
+    } else if (ch === '"') inString = true;
+    else if (ch === '{' || ch === '[') depth += 1;
+    else if (ch === '}' || ch === ']') {
+      depth -= 1;
+      if (depth < 0) return undefined;
+      if (depth === 0) {
+        const eol = source.indexOf('\n', at);
+        if (source.slice(at + 1, eol < 0 ? source.length : eol).trim() !== '') return undefined;
+        try {
+          const value: unknown = JSON.parse(source.slice(0, at + 1));
+          return value !== null && typeof value === 'object' && !Array.isArray(value) ? at + 1 : undefined;
+        } catch {
+          return undefined;
+        }
+      }
     }
-  if (close < 0) return 0;
+  }
+  return undefined;
+}
+
+/** JSON front matter: an object whose `{` opens the file; every string value. */
+function jsonFrontMatter(ctx: Ctx, lines: Line[]): number {
+  const end = jsonObjectEnd(ctx.source.slice((lines[0] as Line).start));
+  if (end === undefined) return 0;
   const from = (lines[0] as Line).start;
-  const to = (lines[close] as Line).start + 1;
+  const to = from + end;
+  const close = lines.findIndex((l) => l.start <= to - 1 && to - 1 <= l.start + l.text.length);
   const text = ctx.source.slice(from, to);
   // A scanner over the object: a stack of containers, each an object (with the key read last) or an array (with its index).
   const stack: Array<{ kind: 'object' | 'array'; key?: string; index: number; wantKey: boolean }> = [];
@@ -736,6 +784,7 @@ export function cutWithCells(source: string): { cut: CutResult; cells: Map<numbe
     mode: 'sentence',
     htmlDepth: 0,
     depth: 0,
+    notes: new Set([...source.matchAll(/^ {0,3}\[\^([^\]\s]+)\]:/gm)].map((m) => m[1] as string)),
   };
   const lines = toLines(source, bom);
   const skip = frontMatter(ctx, lines);

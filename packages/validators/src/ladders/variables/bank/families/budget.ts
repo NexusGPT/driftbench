@@ -1,8 +1,9 @@
+import { check, none } from '../../../../failure';
 import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
 import { groupsOf, indexRow, logWeight, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
-import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
+import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
 import { must, show, stableStringify } from '../util';
 
 /** Spaces with skewed shares whose unbudgeted plan has dozens of rows. */
@@ -18,17 +19,21 @@ const rowKey = (r: Plan['rows'][number]) => stableStringify({ id: r.id, kind: r.
 function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void {
   const want = full.rows.slice(0, Math.min(b, full.rows.length)).map(rowKey);
   const got = budgeted.rows.map(rowKey);
-  must(
-    got.length === want.length,
-    () =>
-      `${label}: budget ${b} gives ${got.length} rows, expected ${want.length} (the plan without a budget has ${full.rows.length})`,
-  );
+  check(got.length === want.length, () => ({
+    rule: 'a budget keeps a prefix of the plan, counting the seeds',
+    // The answer is the budget itself only while the budget is not above the plan.
+    echoes: b <= full.rows.length ? ['budget'] : [],
+    input: { label, budget: b },
+    got: { rows: got.length, uncutPlan: full.rows.length },
+    expected: { rows: want.length },
+  }));
   for (let i = 0; i < want.length; i += 1) {
-    must(
-      got[i] === want[i],
-      () =>
-        `${label}: with budget ${b}, row ${i} is ${got[i]?.slice(0, 120)}; the plan without a budget has ${want[i]?.slice(0, 120)} there`,
-    );
+    check(got[i] === want[i], () => ({
+      rule: 'a budget keeps a prefix of the plan without a budget',
+      input: { label, budget: b, row: i },
+      got: { row: got[i]?.slice(0, 120) },
+      expected: { row: want[i]?.slice(0, 120) },
+    }));
   }
 }
 
@@ -43,11 +48,17 @@ function ordered(logs: readonly number[], label: string): void {
     const prev = logs[i - 1] as number;
     const cur = logs[i] as number;
     const bad = RARE_ROWS_CUT === 'last' ? cur < prev - 1e-9 : cur > prev + 1e-9;
-    must(
-      !bad,
-      () =>
-        `${label}: new row ${i} has log weight ${cur.toFixed(4)}, new row ${i - 1} has ${prev.toFixed(4)}; the new rows should run ${RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first'}`,
-    );
+    check(!bad, () => ({
+      rule: 'the new rows run in the order of their log weights that the page names',
+      input: label,
+      got: {
+        row: i,
+        logWeight: Number(cur.toFixed(4)),
+        previousRow: i - 1,
+        previousLogWeight: Number(prev.toFixed(4)),
+      },
+      expected: RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first',
+    }));
   }
 }
 
@@ -71,11 +82,13 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       });
     const full = run();
     const total = full.rows.length;
-    must(
-      total >= seeds.length + 6,
-      () => `the plan without a budget has only ${total} rows; the item needs a larger plan`,
-    );
-    const label = `${variant} (plan of ${total} rows, ${seeds.length} seeds)`;
+    check(total >= seeds.length + 6, () => ({
+      rule: 'the plan without a budget has only {} rows; the item needs a larger plan',
+      got: { details: [total] },
+      expected: none('observation'),
+    }));
+    // The label names the case. The length of the uncut plan is the product's own output and is shown in `got`.
+    const label = variant;
     switch (variant) {
       case 'middle':
         samePrefix(full, run(Math.floor(total / 2)), Math.floor(total / 2), label);
@@ -105,31 +118,42 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       case 'every-budget-length':
         for (let b = 0; b <= total + 2; b += 1) {
           const got = run(b).rows.length;
-          must(
-            got === Math.min(b, total),
-            () => `${label}: budget ${b} gives ${got} rows, expected ${Math.min(b, total)}`,
-          );
+          check(got === Math.min(b, total), () => ({
+            rule: 'a budget gives as many rows as the budget, or the whole plan',
+            echoes: b <= total ? ['budget'] : [],
+            input: { label, budget: b },
+            got: { rows: got, uncutPlan: total },
+            expected: { rows: Math.min(b, total) },
+          }));
         }
         break;
       case 'seeds-plus-budget-length':
         for (let b = seeds.length; b <= total + 2; b += 1) {
           const plan = run(b);
-          must(
-            plan.rows.length === Math.min(b, total),
-            () => `${label}: budget ${b} gives ${plan.rows.length} rows, expected ${Math.min(b, total)}`,
-          );
-          must(
+          check(plan.rows.length === Math.min(b, total), () => ({
+            rule: 'a budget gives as many rows as the budget, or the whole plan',
+            echoes: b <= total ? ['budget'] : [],
+            input: { label, budget: b },
+            got: { rows: plan.rows.length, uncutPlan: total },
+            expected: { rows: Math.min(b, total) },
+          }));
+          check(
             plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'),
-            () => `${label}: with budget ${b} the seeds do not lead the plan`,
+            () => ({
+              rule: '{}: with budget {} the seeds do not lead the plan',
+              got: { details: [label, b] },
+              expected: none('observation'),
+            }),
           );
         }
         break;
       default: {
         const empty = planOf(ctx, st, { seed: ctx.seed, budget: 0 });
-        must(
-          empty.rows.length === 0,
-          () => `a budget of 0 with no seeds gives ${empty.rows.length} rows, expected none`,
-        );
+        check(empty.rows.length === 0, () => ({
+          rule: 'a budget of N with no seeds gives an empty plan',
+          got: { rows: empty.rows.length },
+          expected: none('observation'),
+        }));
       }
     }
   },
@@ -154,7 +178,11 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const base: PlanOptions = { seed: ctx.seed, ...(seeds.length ? { seeds } : {}) };
     const full = planOf(ctx, st, base);
     const facts = checkPlan(space, oracle, full, { seeds });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    check(facts.problems.length === 0, () => ({
+      rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
+      got: { problems: facts.problems },
+      expected: facts.hidden,
+    }));
     const total = full.rows.length;
     ordered(freshLogs(space, full, seeds.length), `${total} rows`);
     if (variant.startsWith('cut-')) {
@@ -167,26 +195,29 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       const cut = planOf(ctx, st, { ...base, budget });
       const kept = freshLogs(space, cut, seeds.length);
       const dropped = full.rows.slice(budget).map((r) => logWeight(space, indexRow(space, r.values)));
-      must(
-        kept.length > 0 && dropped.length > 0,
-        () => `budget ${budget} of ${total} rows keeps ${kept.length} and drops ${dropped.length} new rows`,
-      );
+      check(kept.length > 0 && dropped.length > 0, () => ({
+        rule: 'budget {} of {} rows keeps {} and drops {} new rows',
+        got: { details: [budget, total, kept.length, dropped.length] },
+        expected: none('observation'),
+      }));
       if (RARE_ROWS_CUT === 'last') {
         const keptMax = Math.max(...kept);
         const droppedMin = Math.min(...dropped);
-        must(
-          droppedMin >= keptMax - 1e-9,
-          () =>
-            `budget ${budget} dropped a new row of log weight ${droppedMin.toFixed(4)} while it kept one of ${keptMax.toFixed(4)}: the rare rows should be cut last`,
-        );
+        check(droppedMin >= keptMax - 1e-9, () => ({
+          rule: 'a budget cuts the new rows in the order of their weights that the page names',
+          input: { budget },
+          got: { droppedLogWeight: Number(droppedMin.toFixed(4)), keptLogWeight: Number(keptMax.toFixed(4)) },
+          expected: 'the rare rows are cut last',
+        }));
       } else {
         const keptMin = Math.min(...kept);
         const droppedMax = Math.max(...dropped);
-        must(
-          droppedMax <= keptMin + 1e-9,
-          () =>
-            `budget ${budget} dropped a new row of log weight ${droppedMax.toFixed(4)} while it kept one of ${keptMin.toFixed(4)}: the rare rows should be cut first`,
-        );
+        check(droppedMax <= keptMin + 1e-9, () => ({
+          rule: 'a budget cuts the new rows in the order of their weights that the page names',
+          input: { budget },
+          got: { droppedLogWeight: Number(droppedMax.toFixed(4)), keptLogWeight: Number(keptMin.toFixed(4)) },
+          expected: 'the rare rows are cut first',
+        }));
       }
     }
   },
@@ -196,19 +227,23 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const bad: unknown =
       variant === 'negative' ? -1 : variant === 'nan' ? Number.NaN : variant === 'fraction' ? 1.5 : '10';
     const error = planError(ctx, toStore(space), { seed: ctx.seed, budget: bad as number });
-    must(
-      !!error,
-      () => `plan accepted the budget ${show(bad)}; it should throw a RangeError that names the budget`,
-    );
+    check(!!error, () => ({
+      rule: 'plan throws for a budget the page refuses',
+      input: { budget: show(bad) },
+      got: 'no error',
+      expected: { error: 'RangeError naming the budget' },
+    }));
     const e = error as Error;
-    must(
-      e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'),
-      () => `plan threw ${e.name}: ${e.message}; expected a RangeError`,
-    );
-    must(
-      e.message.toLowerCase().includes('budget'),
-      () => `the error "${e.message}" does not name the budget`,
-    );
+    check(e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'), () => ({
+      rule: 'the error of a refused budget is a RangeError',
+      got: { name: e.name, message: e.message },
+      expected: none('observation'),
+    }));
+    check(e.message.toLowerCase().includes('budget'), () => ({
+      rule: 'the error "{}" does not name the budget',
+      got: { details: [e.message] },
+      expected: none('observation'),
+    }));
   },
 
   'budget.log-space-weights': (variant, ctx) => {
@@ -218,10 +253,13 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     for (const v of space.vars) v.weights = [share, 1 - share];
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), plan, { noCoverage: true });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     ordered(freshLogs(space, plan, 0), `${n} variables with shares ${share}`);
     const distinct = new Set(freshLogs(space, plan, 0).map((x) => x.toFixed(3))).size;
-    must(distinct >= 2, 'the generator should give rows of different weights');
+    check(distinct >= 2, () => ({
+      rule: 'the generator should give rows of different weights',
+      expected: none('observation'),
+    }));
   },
 
   'budget.weights-from-store': (variant, ctx) => {
@@ -231,10 +269,10 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     });
     ordered(freshLogs(space, plan, 0), `weights from ${variant}`);
     const logs = freshLogs(space, plan, 0);
-    must(
-      new Set(logs.map((x) => x.toFixed(6))).size > 1,
-      'the generator should give rows of different weights',
-    );
+    check(new Set(logs.map((x) => x.toFixed(6))).size > 1, () => ({
+      rule: 'the generator should give rows of different weights',
+      expected: none('observation'),
+    }));
   },
 
   'budget.uniform-without-weights': (variant, ctx) => {
@@ -250,18 +288,21 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const st = store(space);
     const full = planOf(ctx, st, { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), full);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     const total = full.rows.length;
     const b = Math.max(1, Math.floor(total / 2));
     samePrefix(full, planOf(ctx, st, { seed: ctx.seed, budget: b }), b, variant);
     if (variant === 'no-weights') {
       const w0 = full.rows[0]?.logWeight as number;
-      must(
+      check(
         full.rows.every(
           (r) => typeof r.logWeight === 'number' && Math.abs(r.logWeight - w0) <= LOG_TOLERANCE,
         ),
-        () =>
-          `no variable has weights but the rows report different log weights: ${show(full.rows.slice(0, 4).map((r) => r.logWeight))}`,
+        () => ({
+          rule: 'no variable has weights but the rows report different log weights: {}',
+          got: { details: [show(full.rows.slice(0, 4).map((r) => r.logWeight))] },
+          expected: none('observation'),
+        }),
       );
     } else {
       ordered(freshLogs(space, full, 0), 'partial weights (a variable without weights counts as uniform)');
@@ -277,20 +318,22 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         : randomSpace(rng, { vars: 6, minArity: 2, maxArity: 4, shared: 3, rules: [3], weights: true });
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), plan);
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    planIsSound(facts);
     let previous = Number.POSITIVE_INFINITY;
     for (const [i, r] of plan.rows.entries()) {
       const want = logWeight(space, indexRow(space, r.values));
-      must(
-        typeof r.logWeight === 'number' && Math.abs(r.logWeight - want) <= LOG_TOLERANCE,
-        () =>
-          `row ${i} reports logWeight ${show(r.logWeight)}; the sum of the logs of its value shares is ${want}`,
-      );
-      must(
-        (r.logWeight as number) <= previous + LOG_TOLERANCE,
-        () =>
-          `row ${i} reports logWeight ${show(r.logWeight)} after ${previous}: the reported weights should not rise along the plan`,
-      );
+      check(typeof r.logWeight === 'number' && Math.abs(r.logWeight - want) <= LOG_TOLERANCE, () => ({
+        rule: 'logWeight is the sum of the logs of the shares of the values of the row',
+        input: { row: i },
+        got: { logWeight: r.logWeight },
+        expected: want,
+      }));
+      check((r.logWeight as number) <= previous + LOG_TOLERANCE, () => ({
+        rule: 'the reported weights do not rise along the plan',
+        input: { row: i },
+        got: { logWeight: r.logWeight, previous },
+        expected: none('observation'),
+      }));
       previous = r.logWeight as number;
     }
     void groupsOf;
