@@ -30,7 +30,10 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `ignore` | Globs skipped by default | the former `DEFAULT_IGNORE` |
 | `ignoreFiles` | Ignore files honoured when present | none |
 
-`registerRuntimeProfile(profile)` adds a runtime; `runtimeProfile(name)` returns it. A runtime's reader
+`registerRuntimeProfile(profile)` adds a runtime; `runtimeProfile(name)` returns it. It refuses a profile whose
+`coverageRoots` names a root `roots` does not hold: it throws a `RuntimeProfileError` whose `errors` carry the code
+`unknown-coverage-root` and the path `coverageRoots[<i>]` (`profileErrors(profile)` lists them without throwing), so
+a misspelt root never makes coverage count nothing. `coverageFolders(profile)` gives the folders the names stand for. A runtime's reader
 registers beside it with `registerEstateReader(name, factory)` (package `@agent-nexus/driftbench-estate`).
 Adding a runtime is a profile (data) plus, when its layout differs in shape, a reader: no reader or copier
 changes. Where a standing file, a skill, a helper or a setting lies is its part type's, not a field of the

@@ -116,7 +116,7 @@ A run with any unknown file is never reported as clean, whatever its checks foun
 A scan says what it covered. A profile names the roots whose every file counts (`coverageRoots`; for Claude Code, the `.claude` folder). Each file under one of them is:
 
 * **covered** when a part type locates it, or when a reference or an import of the estate reaches it and the reader reads it as prose (a data file the prose names stays unknown);
-* **skipped**, by its path, with the code of why: `estate-config` for `driftbench.estate.yaml`, `too-large` for a file over 1 MB, `ignored` for a file an ignore glob left out;
+* **skipped**, by its path, with the code of why: `estate-config` for `driftbench.estate.yaml`, `too-large` for a file over 1 MB, `ignored` for what an ignore glob left out, `home-not-mapped` for a file the prose names under the home folder (`~/…`, `$HOME/…`);
 * **unknown** otherwise: no type says what it is, so no check can have looked at it.
 
 A file beside those roots counts only when a type locates it or a reference reaches it: the source code of a project is no file of the agent.
@@ -131,16 +131,23 @@ coverage:
     - .claude/checks/judges/tone.request.json
   skipped:
     - { what: .claude/driftbench.estate.yaml, reason: estate-config }
-    - { what: .claude/node_modules/pkg/index.js, reason: ignored }
+    - { what: .claude/node_modules, reason: ignored, files: 412 }
+    - { what: .claude/notes/debug.log, reason: ignored }
 ```
+
+An ignored folder is listed once, with the number of files it holds (`files`): the shortest folder an ignore glob matches, so a `node_modules` of thousands of files is one entry. A file an ignore glob matches alone is listed by its path, with no count.
+
+The scan never reads the home folder of the machine it runs on, so it reads the same files on every machine: a home path goes to `skipped` as written, with `home-not-mapped`. In single quotes a path is literal; in double quotes a variable expands but `~` stays literal, so `"~/notes.md"` names a folder called `~` in the estate.
 
 `estate lint` reads the estate again and prints, after its findings:
 
 * `not-run` and the codes of the checks that had no input to read (a check that read nothing is never a pass);
 * `unknown` and the number of files no type covers, with the first five;
-* on its last line, the findings, or `Not run: no check had an input.`, or `Not clean: N files no part type covers, which no check read.`, or `Clean.` only when every file is covered and some check ran. The lint's `summary` field gives the same verdict as a code: `findings`, `none-ran`, `unknown-files` or `clean`.
+* on its last line, the findings, or `Not run: no check had an input.`, or `Not clean: N files no part type covers, which no check read; M checks did not run.` (each reason that holds), or `Clean.` only when no finding is left, every file is covered and every check ran. The lint's `summary` field gives the same verdict as a code: `findings`, `none-ran`, `unknown-files`, `checks-not-run` or `clean`.
 
-Unknown files are coverage, not findings: the exit code is that of the findings. A type you declare makes its files covered; it changes no kind the map gives a file.
+The lint exits 0 only on `Clean.`; an unknown file or a check that did not run exits 1, as a finding does. Unknown files stay coverage, not findings: they add no finding to the list. A type you declare makes its files covered; it changes no kind the map gives a file.
+
+An estate with nothing for a check to read is never clean. A folder that holds only `CLAUDE.md`, scanned with `--no-model`, has no guard, no registry and no rule, so five checks do not run (`UNENFORCED`, `UNANCHORED_GUARD`, `MISSING_SCRIPT`, `REGISTRY_ROW`, `REGISTRY_GUARD`), and the lint ends on `Not clean: 5 checks did not run.`
 
 ## Writing your own types
 

@@ -16,7 +16,8 @@ import { PlantedEstate, type ScanOutcome } from './planted';
  * check with an input ran (the reference checks read the prose parts). An estate with no file at all runs no
  * check, and a lint is clean only when every check ran: a lint with a check that did not run is never clean.
  *
- * Kept out: a file an ignore glob keeps out is skipped by its path.
+ * Kept out: a file an ignore glob keeps out alone is skipped by its path, a folder it keeps out is one entry with
+ * its file count, and a path behind the home folder is never read (`home-not-mapped`).
  *
  * The oracle reads the map's `coverage` and the lint's `outcomes` and `summary`, which are structured fields and
  * codes, never a printed line. A build without one of them fails the item with the field named.
@@ -36,7 +37,7 @@ type Expected = {
   /** The files the map must list as unknown, exactly. */
   unknown: string[];
   /** Entries the map must list as skipped. */
-  skipped?: Array<{ what: string; reason: string }>;
+  skipped?: Array<{ what: string; reason: string; files?: number }>;
   /** The lint summary code, when the item fixes it. A lint with an unknown file is never `clean`, whatever. */
   summary?: string;
   /** The checks that must not have run for want of an input, exactly. */
@@ -209,12 +210,37 @@ const CASES: Case[] = [
   {
     key: 'skipped-ignored-file',
     tier: 2,
-    title: 'a file an ignore glob keeps out is skipped by its path, never unknown, and reads nothing',
+    title: 'a file an ignore glob keeps out alone is skipped by its path, never unknown',
     cause: 'unknown',
     plant: (b) => {
-      const file = `${ROOT}/node_modules/${name(b, 'package')}/index.js`;
-      b.estate.raw(file, 'module.exports = 1;\n', b.owner);
+      // `*.log` is a default ignore glob that matches the file, not a folder above it.
+      const file = `${ROOT}/notes/${name(b, 'run')}.log`;
+      b.estate.raw(file, 'a log line\n', b.owner);
       return { unknown: [], skipped: [{ what: file, reason: 'ignored' }] };
+    },
+  },
+  {
+    key: 'skipped-ignored-folder',
+    tier: 3,
+    title:
+      'a folder an ignore glob keeps out is skipped once, with the number of its files, never file by file',
+    cause: 'unknown',
+    plant: (b) => {
+      const folder = `${ROOT}/hooks/lib/node_modules`;
+      for (const file of ['a/index.js', 'b/index.js', `b/${name(b, 'util')}.js`])
+        b.estate.raw(`${folder}/${file}`, 'module.exports = 1;\n', b.owner);
+      return { unknown: [], skipped: [{ what: folder, reason: 'ignored', files: 3 }] };
+    },
+  },
+  {
+    key: 'skipped-home-path',
+    tier: 3,
+    title: 'a path the standing file names behind the home folder is never read: skipped, home-not-mapped',
+    cause: 'unknown',
+    plant: (b) => {
+      const path = `~/notes/${name(b, 'notes')}.md`;
+      b.standing.push('', `Read \`${path}\` before a reply.`);
+      return { unknown: [], skipped: [{ what: path, reason: 'home-not-mapped' }] };
     },
   },
   {
@@ -563,10 +589,17 @@ function compare(scan: ScanOutcome, expected: Expected): ItemResult {
   else if (JSON.stringify(unknown) !== JSON.stringify(expected.unknown))
     problems.push(`coverage.unknown is ${JSON.stringify(unknown)}, not ${JSON.stringify(expected.unknown)}`);
   const skipped = Array.isArray(coverage?.skipped)
-    ? (coverage.skipped as Array<{ what?: unknown; reason?: unknown }>)
+    ? (coverage.skipped as Array<{ what?: unknown; reason?: unknown; files?: unknown }>)
     : undefined;
   for (const want of expected.skipped ?? []) {
-    if (!skipped?.some((entry) => entry.what === want.what && entry.reason === want.reason))
+    if (
+      !skipped?.some(
+        (entry) =>
+          entry.what === want.what &&
+          entry.reason === want.reason &&
+          (want.files === undefined ? entry.files === undefined : entry.files === want.files),
+      )
+    )
       problems.push(`coverage.skipped holds no ${want.reason} entry for ${want.what}`);
   }
   if (typeof lint.summary !== 'string') problems.push('the lint has no summary code');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
+import { ClaudeCodeReader, lintEstate, renderEstateMap, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
 
 /**
@@ -27,7 +27,8 @@ describe('what a read keeps out on purpose', () => {
       reader: new ClaudeCodeReader(),
       now: NOW,
     });
-    const entry = { what: '.claude/node_modules/pkg/index.js', reason: 'ignored' };
+    // node_modules is ignored as a folder: it is one entry, with the number of its files.
+    const entry = { what: '.claude/node_modules', reason: 'ignored', files: 1 };
     expect(withIgnored.map.coverage?.skipped).toContainEqual(entry);
     const before = lintEstate(plain.map, plain.raw);
     const after = lintEstate(withIgnored.map, withIgnored.raw);
@@ -39,6 +40,51 @@ describe('what a read keeps out on purpose', () => {
     expect(after.outcomes.map((outcome) => outcome.coverage.read)).toEqual(
       before.outcomes.map((outcome) => outcome.coverage.read),
     );
+  });
+
+  it('lists a file an ignore glob matches alone by its path, and a folder of ignored files once with its count', async () => {
+    const raw = await new ClaudeCodeReader().read(
+      await estate({
+        'CLAUDE.md': '# Rules\n\nKeep replies short.\n',
+        '.claude/notes/debug.log': 'a log line\n',
+        '.claude/hooks/lib/node_modules/a/index.js': '1\n',
+        '.claude/hooks/lib/node_modules/b/index.js': '2\n',
+        '.claude/hooks/lib/node_modules/b/util.js': '3\n',
+      }),
+    );
+    expect(raw.coverage?.skipped.filter((entry) => entry.reason === 'ignored')).toEqual([
+      { what: '.claude/notes/debug.log', reason: 'ignored' },
+      { what: '.claude/hooks/lib/node_modules', reason: 'ignored', files: 3 },
+    ]);
+  });
+
+  it('keeps the map and the lint small when an ignored folder holds 10,000 files', async () => {
+    const files: Record<string, string> = { 'CLAUDE.md': '# Rules\n\nKeep replies short.\n' };
+    for (let index = 0; index < 10_000; index++) files[`.claude/hooks/lib/node_modules/f${index}.js`] = '1\n';
+    const { map, raw } = await scanEstate({
+      root: await estate(files),
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+    });
+    expect(map.coverage?.skipped).toContainEqual({
+      what: '.claude/hooks/lib/node_modules',
+      reason: 'ignored',
+      files: 10_000,
+    });
+    // One entry for the folder: the map stays a few kilobytes and every check carries one entry, not 10,000.
+    expect(renderEstateMap(map).length).toBeLessThan(10_000);
+    expect(JSON.stringify(lintEstate(map, raw).outcomes).length).toBeLessThan(20_000);
+  }, 120_000);
+
+  it('never reads a path the prose names behind the home folder, and lists it as skipped: home-not-mapped', async () => {
+    // A guard script behind the home folder is the guard checks' (the MISSING_SCRIPT exemption, #1522).
+    const raw = await new ClaudeCodeReader().read(
+      await estate({ 'CLAUDE.md': '# Rules\n\nRead `~/notes/policy.md` before a reply.\n' }),
+    );
+    expect(raw.coverage?.skipped.filter((skip) => skip.reason === 'home-not-mapped')).toEqual([
+      { what: '~/notes/policy.md', reason: 'home-not-mapped' },
+    ]);
+    expect(raw.files.map((file) => file.path)).toEqual(['CLAUDE.md']);
   });
 
   it('keeps a file the prose names but the reader does not read as prose unknown', async () => {

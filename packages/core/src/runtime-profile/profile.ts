@@ -105,6 +105,46 @@ export function loadsByItself(name: string, types: TypeSet): (path: string) => b
   };
 }
 
+/** Why a runtime profile is refused when it is registered, as a code a reader branches on. */
+export const PROFILE_ERROR_CODES = ['unknown-coverage-root'] as const;
+export type ProfileErrorCode = (typeof PROFILE_ERROR_CODES)[number];
+export type ProfileError = { code: ProfileErrorCode; path: string; message: string };
+
+/** A profile refused at registration, with every fault. */
+export class RuntimeProfileError extends Error {
+  readonly errors: readonly ProfileError[];
+  constructor(name: string, errors: readonly ProfileError[]) {
+    super(`the runtime profile ${name} is refused: ${errors.map((error) => error.message).join('; ')}`);
+    this.name = 'RuntimeProfileError';
+    this.errors = errors;
+  }
+}
+
+/**
+ * The faults of a profile: a coverage root that names no root of the profile would turn the count of unknown files
+ * off with no signal, so it is refused.
+ */
+export function profileErrors(profile: RuntimeProfile): ProfileError[] {
+  return profile.coverageRoots.flatMap((name, index) =>
+    profile.roots[name] === undefined
+      ? [
+          {
+            code: 'unknown-coverage-root' as const,
+            path: `coverageRoots[${index}]`,
+            message: `coverage root ${name} is no root of the profile; the roots are ${Object.keys(profile.roots).join(', ')}`,
+          },
+        ]
+      : [],
+  );
+}
+
+/** The folders, relative to the estate root, whose every file counts for coverage. */
+export function coverageFolders(profile: RuntimeProfile): string[] {
+  const errors = profileErrors(profile);
+  if (errors.length > 0) throw new RuntimeProfileError(profile.name, errors);
+  return profile.coverageRoots.map((name) => profile.roots[name] as string);
+}
+
 /** The files of the settings sources that are static, in order. */
 export function staticSettingsFiles(profile: RuntimeProfile): string[] {
   return profile.settings.flatMap((source) => (source.kind === 'static' ? [...source.files] : []));
@@ -123,10 +163,15 @@ export function variablePrefix(names: readonly string[], options: { balanced?: b
 
 const PROFILES = new Map<string, RuntimeProfile>();
 
-/** Registers a profile under its name; a second profile of the same name is refused. */
+/**
+ * Registers a profile under its name. A second profile of the same name is refused, and so is a profile with a
+ * fault (`profileErrors`), with a `RuntimeProfileError` that holds every fault's code.
+ */
 export function registerRuntimeProfile(profile: RuntimeProfile): void {
   if (PROFILES.has(profile.name))
     throw new Error(`a runtime profile named ${profile.name} is already registered`);
+  const errors = profileErrors(profile);
+  if (errors.length > 0) throw new RuntimeProfileError(profile.name, errors);
   PROFILES.set(profile.name, profile);
 }
 

@@ -56,17 +56,48 @@ describe('EstateFS', () => {
     expect(plain.rules.map((rule) => rule.pattern)).toEqual([...CLAUDE_CODE_PROFILE.ignore]);
   });
 
-  it('expands the profile variables, mapping home to --home', () => {
+  it('expands the profile variables, mapping home to the mapped home folder', () => {
     const folders = { root: '/estate', home: '/fake-home' };
-    expect(expandVariables('$CLAUDE_PROJECT_DIR/.claude/x.py', CLAUDE_CODE_PROFILE, folders)).toBe(
-      '.claude/x.py',
-    );
-    expect(expandVariables('${CLAUDE_PLUGIN_ROOT}/y.sh', CLAUDE_CODE_PROFILE, folders)).toBe('y.sh');
-    expect(expandVariables('$HOME/.claude/skills', CLAUDE_CODE_PROFILE, folders)).toBe(
-      '/fake-home/.claude/skills',
-    );
-    expect(expandVariables('~/notes.md', CLAUDE_CODE_PROFILE, folders)).toBe('/fake-home/notes.md');
-    expect(expandVariables('docs/a.md', CLAUDE_CODE_PROFILE, folders)).toBe('docs/a.md');
+    expect(expandVariables('$CLAUDE_PROJECT_DIR/.claude/x.py', CLAUDE_CODE_PROFILE, folders)).toEqual({
+      path: '.claude/x.py',
+    });
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: a shell variable, not a template
+    expect(expandVariables('${CLAUDE_PLUGIN_ROOT}/y.sh', CLAUDE_CODE_PROFILE, folders)).toEqual({
+      path: 'y.sh',
+    });
+    expect(expandVariables('$HOME/.claude/skills', CLAUDE_CODE_PROFILE, folders)).toEqual({
+      path: '/fake-home/.claude/skills',
+    });
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: a shell variable, not a template
+    expect(expandVariables('${HOME}/a.md', CLAUDE_CODE_PROFILE, folders)).toEqual({
+      path: '/fake-home/a.md',
+    });
+    expect(expandVariables('~/notes.md', CLAUDE_CODE_PROFILE, folders)).toEqual({
+      path: '/fake-home/notes.md',
+    });
+    expect(expandVariables('~', CLAUDE_CODE_PROFILE, folders)).toEqual({ path: '/fake-home' });
+    expect(expandVariables('docs/a.md', CLAUDE_CODE_PROFILE, folders)).toEqual({ path: 'docs/a.md' });
+  });
+
+  it('never reads a home path when no home folder is mapped, whatever the machine holds', () => {
+    const folders = { root: '/estate' };
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: a shell variable, not a template
+    for (const path of ['~/notes.md', '~', '$HOME/notes.md', '${HOME}/notes.md', '"$HOME/notes.md"'])
+      expect(expandVariables(path, CLAUDE_CODE_PROFILE, folders), path).toEqual({
+        notRead: 'home-not-mapped',
+      });
+  });
+
+  it('keeps a quoted tilde as written, and a single-quoted variable too', () => {
+    const mapped = { root: '/estate', home: '/fake-home' };
+    expect(expandVariables("'~/notes.md'", CLAUDE_CODE_PROFILE, mapped)).toEqual({ path: '~/notes.md' });
+    expect(expandVariables('"~/notes.md"', CLAUDE_CODE_PROFILE, mapped)).toEqual({ path: '~/notes.md' });
+    expect(expandVariables("'$HOME/notes.md'", CLAUDE_CODE_PROFILE, mapped)).toEqual({
+      path: '$HOME/notes.md',
+    });
+    expect(expandVariables('"$HOME/notes.md"', CLAUDE_CODE_PROFILE, mapped)).toEqual({
+      path: '/fake-home/notes.md',
+    });
   });
 
   it('stores paths relative to the root, and none for a path outside it', () => {
