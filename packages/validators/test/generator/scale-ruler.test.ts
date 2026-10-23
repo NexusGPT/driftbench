@@ -100,6 +100,24 @@ describe('the scale time never becomes easier than with the first sample alone',
     });
   }
 
+  // codex probe 39969203478: the decision uses the exact samples, never samples rounded to a tenth
+  for (const draw of [
+    { raw: 60_000, samples: [249.96, 250, 250, 250, 250], old: 60_010, rounded: 60_000 },
+    { raw: 24_015, samples: [100.06, 100.06, 100.06, 100.06, 100.06], old: 60_001, rounded: 59_978 },
+  ]) {
+    it(`keeps the failure of ${draw.old} ms normalised on the samples ${draw.samples.join(', ')} (rounded to a tenth it would be ${draw.rounded})`, async () => {
+      const report = await measure(draw.samples, draw.raw);
+      expect(report.error).toBeUndefined();
+      expect(report.calibrationRunsMs).toEqual(draw.samples);
+      expect(report.calibrationMs).toBe(draw.samples[0]);
+      expect(report.normalisedMs).toBe(draw.old);
+      const child = state.events.find((event) => event.kind === 'child');
+      expect(Number(child?.env?.DRIFTBENCH_SCALE_CALIBRATION_MS)).toBe(draw.samples[0]);
+      const verdict = await timeVerdict(report);
+      expect(verdict.pass, verdict.detail).toBe(false);
+    });
+  }
+
   it('on 300 random sequences, never lowers the normalised time and never flips a failure to a pass', async () => {
     let seed = 424_242;
     const next = () => {
@@ -108,8 +126,9 @@ describe('the scale time never becomes easier than with the first sample alone',
     };
     let lowered = 0;
     for (let trial = 0; trial < 300; trial += 1) {
-      const samples = Array.from({ length: 5 }, () => Math.round((60 + next() * 500) * 10) / 10);
-      const raw = Math.round(20_000 + next() * 100_000);
+      // samples with decimals, as the calibration process prints them, and a raw time with decimals
+      const samples = Array.from({ length: 5 }, () => 60 + next() * 500);
+      const raw = 20_000 + next() * 100_000;
       const report = await measure(samples, raw);
       const old = normalisedMs(raw, samples[0] as number);
       expect(report.normalisedMs, `trial ${trial}: ${samples.join(', ')} raw ${raw}`).toBeGreaterThanOrEqual(

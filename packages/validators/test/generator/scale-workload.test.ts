@@ -164,12 +164,14 @@ describe('calibrationOf', () => {
     expect(calibrationOf([240, 250])).toBe(240);
   });
 
-  it('works in tenths of a millisecond and is NaN for no sample', () => {
-    expect(calibrationOf([250.04, 250.06, 250.2])).toBe(250);
+  it('keeps the exact value of a sample, rounds nothing, and is NaN for no sample', () => {
+    expect(calibrationOf([250.04, 250.06, 250.2])).toBe(250.04);
+    expect(calibrationOf([249.96, 250, 250, 250, 250])).toBe(249.96);
+    expect(calibrationOf([100.06, 100.06, 100.06, 100.06, 100.06])).toBe(100.06);
     expect(calibrationOf([])).toBeNaN();
   });
 
-  it('never exceeds the first sample, nor falls under the lowest one', () => {
+  it('never exceeds the first sample, nor falls under the lowest one, on fractional samples', () => {
     let state = 12_345;
     const next = () => {
       state = (Math.imul(state, 1103515245) + 12345) >>> 0;
@@ -178,29 +180,44 @@ describe('calibrationOf', () => {
     for (let trial = 0; trial < 2_000; trial += 1) {
       const samples = Array.from({ length: 1 + Math.floor(next() * 7) }, () => 40 + next() * 700);
       const ruler = calibrationOf(samples);
-      expect(ruler, `trial ${trial}`).toBeLessThanOrEqual(Math.round((samples[0] as number) * 10) / 10);
-      expect(ruler, `trial ${trial}`).toBeGreaterThanOrEqual(
-        Math.round(Math.min(...samples) * 10) / 10 - 0.1,
-      );
+      expect(ruler, `trial ${trial}`).toBeLessThanOrEqual(samples[0] as number);
+      expect(ruler, `trial ${trial}`).toBeGreaterThanOrEqual(Math.min(...samples));
     }
   });
 
-  it('gives a normalised time at least that of the first sample alone, on any sequence and any raw time', () => {
+  it('gives a normalised time at least that of the exact first sample, on fractional samples and raw times', () => {
     let state = 987_654;
     const next = () => {
       state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
       return state / 4294967296;
     };
-    for (let trial = 0; trial < 5_000; trial += 1) {
-      const samples = Array.from({ length: 5 }, () => 20 + next() * 1_000);
-      const raw = Math.round(10_000 + next() * 200_000);
-      const old = normalisedMs(raw, Math.round((samples[0] as number) * 10) / 10);
+    for (let trial = 0; trial < 20_000; trial += 1) {
+      // samples and raw times with decimals, some of them within a hundredth of each other
+      const base = 20 + next() * 1_000;
+      const samples = Array.from({ length: 5 }, () =>
+        next() < 0.4 ? base + (next() - 0.5) * 0.1 : 20 + next() * 1_000,
+      );
+      const raw = 10_000 + next() * 200_000;
+      const old = normalisedMs(raw, samples[0] as number);
       const now = normalisedMs(raw, calibrationOf(samples));
-      expect(
-        now,
-        `trial ${trial}: ${samples.map((value) => value.toFixed(1)).join(', ')}`,
-      ).toBeGreaterThanOrEqual(old);
+      expect(now, `trial ${trial}: ${samples.join(', ')} raw ${raw}`).toBeGreaterThanOrEqual(old);
     }
+  });
+
+  it('keeps the failure of 60,010 ms normalised when the first sample is 249.96 (a sample of 250 is not the sample)', () => {
+    // codex probe 39969203478, case 1: rounding 249.96 to 250.0 turned 60,010 (a failure) into 60,000 (a pass)
+    const samples = [249.96, 250, 250, 250, 250];
+    expect(normalisedMs(60_000, samples[0] as number)).toBe(60_010);
+    expect(normalisedMs(60_000, calibrationOf(samples))).toBe(60_010);
+    expect(normalisedMs(60_000, 250)).toBe(60_000);
+  });
+
+  it('keeps the failure of 60,001 ms normalised when the first sample is 100.06 (rounded, 100.1 gives 59,978)', () => {
+    // codex probe 39969203478, case 2
+    const samples = [100.06, 100.06, 100.06, 100.06, 100.06];
+    expect(normalisedMs(24_015, samples[0] as number)).toBe(60_001);
+    expect(normalisedMs(24_015, calibrationOf(samples))).toBe(60_001);
+    expect(normalisedMs(24_015, 100.1)).toBe(59_978);
   });
 
   it('fixes the sequences a median alone made easier', () => {
