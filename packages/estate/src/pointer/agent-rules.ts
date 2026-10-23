@@ -57,6 +57,7 @@ export const AGENT_RULES_SET = `labels:
         description: A clause of the unit, as it stands, that a user could say as a complete request which makes the reader do what the unit orders or refuse what it forbids. Give it only when the unit holds such a clause.
       - name: forbidden-material
         description: Inside a unit that forbids a kind of call, the command, file or name the forbidden call holds, as the unit writes it, with no quote marks and no word that forbids it. Give it only when the unit names one such thing and it is the whole of what the unit forbids.
+        inside: ask-text
       - name: required-material
         description: Inside a unit that tells the reader to put something in one place, the folder or file it must go to, as the unit writes it, with no quote marks. Give it only when the unit names one such place and it is the whole of where the unit sends things.
       - name: retry

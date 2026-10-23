@@ -529,6 +529,9 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
         : [];
     return items.length > 0 ? [body, ...items.map((item) => `${item}: done.`)].join('\n') : body;
   };
+  /** A failure reply: the same shape the reply rule in force fixes, so one JSON object when json_only is in force. */
+  const failure = (message) =>
+    intent.shapes?.includes('json_only') ? JSON.stringify({ status: 'error', message }) : message;
   /** The closing reply: the act the atoms set off declare, else what the run did decides. */
   const close = (note, padTo = 0) => {
     const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
@@ -575,7 +578,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   // then the run stops on the error.
   if (unit) load(unit);
   if (steps.error) {
-    text(perItem(steps.error));
+    text(perItem(failure(steps.error)));
     hooks('Stop', undefined, { stop_hook_active: false });
     return { records: out, blocked: true, error: steps.error };
   }
@@ -687,7 +690,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     // A read the map declares missing (`exists: false`) answers file-not-found and the run goes on, as an agent's does.
     if (action.missing && result?.error) continue;
     if (!result || result.error) {
-      text(perItem('An action could not complete; I stopped before continuing.'), declared?.id ?? 'report');
+      text(
+        perItem(failure('An action could not complete; I stopped before continuing.')),
+        declared?.id ?? 'report',
+      );
       hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }

@@ -21,6 +21,11 @@ export const SpanKind = z.strictObject({
   polarity: z.literal(true).optional(),
   /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
   within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
+  /**
+   * A span of this kind may lie inside a span of the named kind, where two spans would otherwise clash, and stands on
+   * its own when there is none. Unlike `within`, a span of the named kind is not required.
+   */
+  inside: z.string().regex(LABEL_NAME, { error: 'inside names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
@@ -260,6 +265,12 @@ function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: str
 
 /** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
 function nestingProblem(set: LabelSet): string | undefined {
+  const declared = new Set((set.spans ?? []).map((kind) => kind.name));
+  for (const kind of set.spans ?? []) {
+    if (kind.inside === kind.name) return `the span kind ${kind.name} is inside itself`;
+    if (kind.inside !== undefined && !declared.has(kind.inside))
+      return `the span kind ${kind.name} is inside ${kind.inside}, which the set does not declare`;
+  }
   const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
   for (const [name, parent] of parents) {
     if (parent === undefined) continue;
@@ -770,6 +781,9 @@ function checkExtras(
       // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
       // any other span a span may not overlap: of two that clash, the later one is dropped.
       const kept = counted.map(() => true);
+      // A span of a kind declared `inside` another may lie wholly inside a span of that kind.
+      const lies = (inner: (typeof counted)[number], outer: (typeof counted)[number]) =>
+        kinds.get(inner.kind)?.inside === outer.kind && outer.from <= inner.from && inner.to <= outer.to;
       for (const [index, span] of counted.entries()) {
         const outer = kinds.get(span.kind)?.within;
         if (
@@ -788,7 +802,9 @@ function checkExtras(
               span.from < o.to &&
               o.from < span.to &&
               !ancestor(kinds, span.kind, o.kind) &&
-              !ancestor(kinds, o.kind, span.kind),
+              !ancestor(kinds, o.kind, span.kind) &&
+              !lies(span, o) &&
+              !lies(o, span),
           );
         if (clash) {
           kept[index] = false;

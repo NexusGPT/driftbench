@@ -1183,3 +1183,59 @@ describe('the require case of the shipped set', () => {
     expect(tidy?.fields?.unitCases).toBeUndefined();
   });
 });
+
+describe('a forbidden material inside the ask of the same prohibition', () => {
+  const FILES = { 'CLAUDE.md': ['# Harbour office', '', 'Never run `erase-all`.', ''].join('\n') };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const ASK = { kind: 'ask-text', text: 'run `erase-all`' };
+  const MATERIAL = { kind: 'forbidden-material', text: 'erase-all' };
+  const LINKS = [
+    { kind: 'forbid-tool', to: 'Bash' },
+    { kind: 'forbid-input', to: 'command' },
+  ];
+
+  for (const [order, spans] of [
+    ['ask first', [ASK, MATERIAL]],
+    ['material first', [MATERIAL, ASK]],
+  ] as const) {
+    it(`keeps both spans, ${order}: the ask and the forbid case`, async () => {
+      const { result } = await scan(
+        { 'CLAUDE.md': [{ units: '2', label: 'prohibition', spans: [...spans], links: LINKS }] },
+        { sets },
+        FILES,
+      );
+      const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+      expect(result.pointer?.dropped ?? []).toEqual([]);
+      expect(atom?.fields?.ask).toMatchObject({ text: 'run `erase-all`' });
+      expect(atom?.fields?.unitCases).toEqual([{ effect: 'forbid', tool: 'Bash', material: 'erase-all' }]);
+      expect(atom?.evidence).toEqual(
+        expect.arrayContaining([
+          { type: 'tool_not_called', label: 'Bash', input: { command: { contains: 'erase-all' } } },
+        ]),
+      );
+    });
+  }
+
+  it('still drops a span that overlaps another without lying inside it', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'prohibition',
+            spans: [
+              { kind: 'ask-text', text: 'Never run' },
+              { kind: 'forbidden-material', text: 'run `erase-all`' },
+            ],
+            links: LINKS,
+          },
+        ],
+      },
+      { sets },
+      FILES,
+    );
+    const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+    expect(atom?.fields?.unitCases).toBeUndefined();
+  });
+});
