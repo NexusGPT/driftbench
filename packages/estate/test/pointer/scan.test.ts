@@ -1308,6 +1308,27 @@ describe('an even split of the runs between the generic rule and a specific labe
     ]);
   });
 
+  it('lists every unit it leaves unlabeled with a structured kind, no majority, and the count of each label', async () => {
+    const result = await pointerScan(
+      input(runs(['rule', 'prohibition', 'rule', 'prohibition']), new Cassette(), {
+        sets: load(TIED),
+      }),
+    );
+    const first = result.ledger.entries.filter((entry) => entry.index === 0);
+    expect(first.map((entry) => entry.labels['agent-rules']?.label)).toEqual([undefined, undefined]);
+    // Every unit that ends unlabeled is in the unstable report: this one by a tie of two labels of one kind.
+    const listed = new Map(result.unstable.map((item) => [item.unit, item.kinds]));
+    for (const entry of first) {
+      const kinds = listed.get(entry.id);
+      expect(kinds, entry.id).toBeDefined();
+      expect(kinds?.['no majority']).toBeGreaterThanOrEqual(4);
+      expect(kinds?.rule).toBeGreaterThanOrEqual(2);
+      expect(kinds?.prohibition).toBeGreaterThanOrEqual(2);
+    }
+    const unlabeled = result.unlabeledUnits.map((item) => item.unit).sort();
+    expect([...listed.keys()].sort()).toEqual(unlabeled);
+  });
+
   it('leaves a tie between two specific labels unlabeled', async () => {
     expect(await firstLabel(['gate', 'hazard-compaction', 'gate', 'hazard-compaction'])).toEqual([
       undefined,
