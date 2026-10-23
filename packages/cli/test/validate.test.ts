@@ -582,7 +582,12 @@ describe('driftbench validate through main', () => {
     const floor = floorOf(floors, 'stats', ladderVersion(stats));
     expect(floor).toBeGreaterThan(0);
     const report = await statsSlice();
-    const tops = { stats: { top: stats.levels.length, version: ladderVersion(stats) } };
+    const tops = Object.fromEntries(
+      Object.entries(registeredLadders()).map(([name, ladder]) => [
+        name,
+        { top: ladder.levels.length, version: ladderVersion(ladder) },
+      ]),
+    );
     const at = checkFloors([{ ...report, level: floor }], floors, tops);
     expect(at.checks).toEqual([{ component: 'stats', level: floor, floor, holds: true }]);
     expect(at.problems).toEqual([]);
