@@ -28,10 +28,7 @@ import { LOG_TOLERANCE } from './budget';
 const warningCodes = (plan: Plan): string[] => (plan.warnings ?? []).map((w) => w.code);
 
 function needWarning(plan: Plan, code: string, why: string): void {
-  check(warningCodes(plan).includes(code), () => ({
-    rule: 'the plan has no warning {} ({}); its warnings are {}',
-    got: { details: [code, why, show(warningCodes(plan))] }, expected: none('observation')
-  }));
+  check(warningCodes(plan).includes(code), () => ({ rule: 'the plan carries the warning the situation calls for', input: { situation: why }, got: { warnings: show(warningCodes(plan)) }, expected: { warning: code } }));
 }
 
 function midSpace(ctx: ItemContext, forbidden = false): Space {

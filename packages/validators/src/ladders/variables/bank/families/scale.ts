@@ -84,10 +84,7 @@ function verify(
     got: { rows: rows.length },
     expected: { atMost: cap },
   }));
-  check(run.ms <= limits.budgetMs, () => ({
-    rule: '{}: planning took {} ms of processor time, over {} ms',
-    got: { details: [label, Math.round(run.ms), limits.budgetMs] }, expected: none('observation')
-  }));
+  check(run.ms <= limits.budgetMs, () => ({ rule: 'planning stays within the processor time of the page', input: { label }, got: { ms: Math.round(run.ms) }, expected: { atMost: limits.budgetMs } }));
 }
 
 const axesGroup = (space: Space): SpaceGroup => ({
@@ -252,10 +249,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       rule: '{} refusals for findable spans: {}',
       got: { details: [store.refused.length, show(store.refused.slice(0, 2))] }, expected: none('observation')
     }));
-    check(store.variables.length === spans, () => ({
-      rule: '{} spans with distinct nouns give {} variables',
-      got: { details: [spans, store.variables.length] }, expected: none('observation')
-    }));
+    check(store.variables.length === spans, () => ({ rule: 'spans with distinct nouns give one variable each', got: { variables: store.variables.length }, expected: { variables: spans } }));
     check(
       store.variables.every((v) => v.values.length === 3),
       () => ({ rule: 'a variable does not hold three values', expected: none('observation') }),
@@ -273,10 +267,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       }));
     }
     const budget = spans <= 200 ? 5000 : spans <= 2000 ? 10_000 : 30_000;
-    check(ms <= budget, () => ({
-      rule: 'reading {} spans in {} files of 100 KB took {} ms of processor time, over {} ms',
-      got: { details: [spans, filesCount, Math.round(ms), budget] }, expected: none('observation')
-    }));
+    check(ms <= budget, () => ({ rule: 'reading many spans stays within the processor time of the page', input: { spans, files: filesCount }, got: { ms: Math.round(ms) }, expected: { atMost: budget } }));
   },
 
   'scale.conversations': (variant, ctx) => {
@@ -291,10 +282,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     );
     checkCounts(store, base, counts, observed);
     const budget = n <= 10_000 ? 2000 : 5000;
-    check(ms <= budget, () => ({
-      rule: 'counting {} sessions took {} ms of processor time, over {} ms',
-      got: { details: [n, Math.round(ms), budget] }, expected: none('observation')
-    }));
+    check(ms <= budget, () => ({ rule: 'counting many sessions stays within the processor time of the page', input: { sessions: n }, got: { ms: Math.round(ms) }, expected: { atMost: budget } }));
   },
 
   'scale.counter-big-plan': (variant, ctx) => {
@@ -323,10 +311,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       rule: "covered {}, the bank's scan of the 30 rows gives {}",
       got: { details: [show(result.covered), covered] }, expected: none('observation')
     }));
-    check(ms <= 20_000, () => ({
-      rule: 'counting the coverage of 30 rows over {} binary variables at strength {} took {} ms of processor time, over 20000 ms',
-      got: { details: [n, t, Math.round(ms)] }, expected: none('observation')
-    }));
+    check(ms <= 20_000, () => ({ rule: 'counting the coverage of rows over binary variables stays fast', input: { variables: n, strength: t }, got: { ms: Math.round(ms) }, expected: { atMost: 20000 } }));
   },
 
   'scale.big-arity-axis': (_variant, ctx) => {

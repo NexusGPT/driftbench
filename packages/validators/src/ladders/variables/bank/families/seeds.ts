@@ -171,19 +171,13 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       got: { details: [describeSpace(space), seeds.length, idle] }, expected: none('observation')
     }));
     if (variant.startsWith('full-seeds')) {
-      check(facts.fresh.length === 0, () => ({
-        rule: 'the {} seeds already cover every required tuple but the plan adds {} new rows',
-        got: { details: [seeds.length, facts.fresh.length] }, expected: none('observation')
-      }));
+      check(facts.fresh.length === 0, () => ({ rule: 'seeds that already cover every required tuple leave no new row', input: { seeds: seeds.length }, got: { newRows: facts.fresh.length }, expected: { newRows: 0 } }));
     } else if (
       ['half-covered', 'mostly-covered', 'thirty-percent-covered', 'ninety-percent-covered'].includes(variant)
     ) {
       const without = planOf(ctx, toStore(space), { seed: ctx.seed });
       const fewer = without.rows.length;
-      check(facts.fresh.length < fewer, () => ({
-        rule: 'with seeds holding most tuples the plan adds {} new rows; without seeds it adds {}',
-        got: { details: [facts.fresh.length, fewer] }, expected: none('observation')
-      }));
+      check(facts.fresh.length < fewer, () => ({ rule: 'seeds holding many tuples shorten the plan', got: { newRows: facts.fresh.length }, expected: { fewerThan: fewer } }));
     }
   },
 
@@ -350,10 +344,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       got: { problems: facts.problems },
       expected: facts.hidden,
     }));
-    check(ms <= 8000, () => ({
-      rule: 'planning with {} seeds took {} ms of processor time, over 8000 ms',
-      got: { details: [count, Math.round(ms)] }, expected: none('observation')
-    }));
+    check(ms <= 8000, () => ({ rule: 'planning with many seeds stays fast', input: { seeds: count }, got: { ms: Math.round(ms) }, expected: { atMost: 8000 } }));
   },
 
   'seeds.pure-copy': (variant, ctx) => {

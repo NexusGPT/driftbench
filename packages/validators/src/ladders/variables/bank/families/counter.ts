@@ -421,10 +421,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
       rule: 'the generator must build a count beyond 2^53', expected: none('observation')
     }));
-    check(typeof result.allowed === 'bigint', () => ({
-      rule: 'the count is {}, beyond 2^53, but allowed is the {} {}; return a bigint',
-      got: { details: [want, typeof result.allowed, show(result.allowed)] }, expected: none('observation')
-    }));
+    check(typeof result.allowed === 'bigint', () => ({ rule: 'a count beyond 2^53 is returned as a bigint', got: { type: typeof result.allowed, value: show(result.allowed) }, expected: { type: 'bigint', value: String(want) } }));
     check(result.allowed === want, () => ({
       rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
       got: { allowed: String(result.allowed) },
@@ -554,9 +551,6 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       got: { allowed: show(result.allowed) },
       expected: { allowed: String(want) },
     }));
-    check(ms <= 50, () => ({
-      rule: 'counting the tuples of {} binary variables at strength 3 took {} ms of processor time, over 50 ms; use a formula, not an enumeration',
-      got: { details: [n, Math.round(ms)] }, expected: none('observation')
-    }));
+    check(ms <= 50, () => ({ rule: 'counting the tuples of binary variables at strength 3 stays fast, which an enumeration does not', input: { variables: n }, got: { ms: Math.round(ms) }, expected: { atMost: 50 } }));
   },
 };

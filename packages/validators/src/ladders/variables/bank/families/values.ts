@@ -136,10 +136,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
             : 'the température moyenne';
     const { span, store } = oneNumeric(ctx, noun, '');
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-    check(VARIABLE_ID.test(v.id), () => ({
-      rule: 'the variable for "{}" has the id {}, which does not match {}',
-      got: { details: [noun, show(v.id), VARIABLE_ID] }, expected: none('observation')
-    }));
+    check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page', input: { noun }, got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
   },
 
   'values.ids.value-grammar': (variant, ctx) => {
@@ -166,10 +163,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
           rule: 'the owner value {} is not on {}: {}',
           got: { details: [show(o.value), variable.id, show(variable.values.map((x) => x.id))] }, expected: none('observation')
         }));
-        check(VALUE_ID.test((value as StoreValue).id), () => ({
-          rule: 'the owner value {} got the id {}, which does not match {}',
-          got: { details: [show(o.value), show((value as StoreValue).id), VALUE_ID] }, expected: none('observation')
-        }));
+        check(VALUE_ID.test((value as StoreValue).id), () => ({ rule: 'a value id follows the id grammar of the page', input: { value: show(o.value) }, got: { id: show((value as StoreValue).id) }, expected: { grammar: String(VALUE_ID) } }));
       }
     } else {
       const ids =
@@ -188,10 +182,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         got: { details: [ids.length, show(store.refused)] }, expected: none('observation')
       }));
       for (const [given, stored] of (found as NonNullable<typeof found>).ids) {
-        check(VALUE_ID.test(stored), () => ({
-          rule: 'the value {} got the id {}, which does not match {}',
-          got: { details: [show(given, 40), show(stored, 40), VALUE_ID] }, expected: none('observation')
-        }));
+        check(VALUE_ID.test(stored), () => ({ rule: 'a value id follows the id grammar of the page', input: { value: show(given, 40) }, got: { id: show(stored, 40) }, expected: { grammar: String(VALUE_ID) } }));
       }
     }
   },
@@ -238,10 +229,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         got: { details: [show(vars.map((v) => v.id))] }, expected: none('observation')
       }));
       for (const v of vars)
-        check(VARIABLE_ID.test(v.id), () => ({
-          rule: 'the variable id {} does not match {}',
-          got: { details: [show(v.id), VARIABLE_ID] }, expected: none('observation')
-        }));
+        check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page', got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
     } else {
       const ids =
         variant === 'three-way' ? ['very high', 'very-high', 'very_high'] : ['very high', 'very-high'];
@@ -360,10 +348,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     if (variant === 'proto-like-noun') {
       const { span, store } = oneNumeric(ctx, 'the __proto__ depth', '');
       const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-      check(VARIABLE_ID.test(v.id), () => ({
-        rule: 'the variable for the noun "__proto__" has the id {}, which does not match {}',
-        got: { details: [show(v.id), VARIABLE_ID] }, expected: none('observation')
-      }));
+      check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page, whatever the noun', input: { noun: '__proto__' }, got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
     } else {
       const field =
         variant === 'constructor-variable'
@@ -438,10 +423,7 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     check(new Set(variable.values.map((x) => x.id)).size === variable.values.length, () => ({
       rule: 'two values share an id', expected: none('observation')
     }));
-    check(ms <= 3000, () => ({
-      rule: 'adding {} values took {} ms of processor time, over 3000 ms',
-      got: { details: [n, Math.round(ms)] }, expected: none('observation')
-    }));
+    check(ms <= 3000, () => ({ rule: 'adding many values stays fast', input: { values: n }, got: { ms: Math.round(ms) }, expected: { atMost: 3000 } }));
   },
 
   'values.unapproved-not-planned': (variant, ctx) => {

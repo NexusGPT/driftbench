@@ -169,10 +169,7 @@ export function checkCounts(store: StoreDoc, base: Base, counts: number[][], obs
       const prov = convOf(value as StoreValue);
       const planted = (counts[i] as number[])[k] as number;
       if (prov.length === 0) {
-        check(planted === 0, () => ({
-          rule: 'value {} of {} was seen in {} sessions but carries no conversations provenance',
-          got: { details: [id, v.id, planted] }, expected: none('observation')
-        }));
+        check(planted === 0, () => ({ rule: 'a value seen in conversations carries conversations provenance', input: { value: id, variable: v.id }, got: { provenance: 'none' }, expected: { seenIn: planted } }));
         return;
       }
       check(prov.length === 1, () => ({
@@ -182,16 +179,10 @@ export function checkCounts(store: StoreDoc, base: Base, counts: number[][], obs
         expected: { entries: 1 },
       }));
       const p = prov[0] as Extract<Provenance, { kind: 'conversations' }>;
-      check(p.count === planted && p.total === observed[i], () => ({
-        rule: 'value {} of {}: conversations provenance says count {} of {}, the sessions give {} of {}',
-        got: { details: [id, v.id, p.count, p.total, planted, observed[i]] }, expected: none('observation')
-      }));
+      check(p.count === planted && p.total === observed[i], () => ({ rule: 'conversations provenance counts the sessions that show the value', input: { value: id, variable: v.id }, got: { count: p.count, total: p.total }, expected: { count: planted, total: observed[i] } }));
       total += p.count;
     });
-    check(total === observed[i], () => ({
-      rule: 'the seen counts of {} add up to {}, the sessions observing it number {}',
-      got: { details: [v.id, total, observed[i]] }, expected: none('observation')
-    }));
+    check(total === observed[i], () => ({ rule: 'the seen counts of a variable add up to the sessions that observe it', input: { variable: v.id }, got: { sum: total }, expected: { sessions: observed[i] } }));
   });
 }
 
@@ -601,10 +592,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const variable = variableOf(store, bv.variable.id) as StoreVariable;
     check(!!variable, () => ({ rule: 'variable {} is gone', got: { details: [bv.variable.id] }, expected: none('observation') }));
     const added = valueById(variable, novel);
-    check(!!added, () => ({
-      rule: 'the value {} was seen in {} of {} sessions but {} holds only {}',
-      got: { details: [novel, seenNovel, n, variable.id, show(variable.values.map((v) => v.id))] }, expected: none('observation')
-    }));
+    check(!!added, () => ({ rule: 'a value new in the conversations is in the store', input: { value: novel, variable: variable.id }, got: { values: show(variable.values.map((v) => v.id)) }, expected: { seenIn: seenNovel, of: n } }));
     const prov = convOf(added as StoreValue);
     check(prov.length === 1 && prov[0]?.count === seenNovel && prov[0]?.total === n, () => ({
       rule: 'a new value from conversations carries how often it was seen',
@@ -801,10 +789,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     for (const e of entries) {
       const value = valueById(variable, e.value);
       check(!!value, () => ({ rule: 'value {} is gone', got: { details: [e.value] }, expected: none('observation') }));
-      check(value?.weight === e.weight, () => ({
-        rule: 'value {} has weight {}, the owner declared {}',
-        got: { details: [e.value, show(value?.weight), e.weight] }, expected: none('observation')
-      }));
+      check(value?.weight === e.weight, () => ({ rule: 'an owner weight is stored as declared', input: { value: e.value }, got: { weight: show(value?.weight) }, expected: { weight: e.weight } }));
       const prov = provOfKind(value as StoreValue, 'owner').filter(
         (p) => p.words === e.words && p.date === OWNER_DATE,
       );

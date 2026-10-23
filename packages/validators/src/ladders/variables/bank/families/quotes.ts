@@ -656,13 +656,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const { value: store, ms } = cpuMs(() => build(ctx, { estate }));
     for (const v of values.slice(0, 5)) mustKeep(store, v.quote, v.id, variant);
     const kept = store.variables.reduce((n, v) => n + v.values.length, 0);
-    check(kept === values.length, () => ({
-      rule: '{} of {} findable values are in the store',
-      got: { details: [kept, values.length] }, expected: none('observation')
-    }));
-    check(ms <= 3000, () => ({
-      rule: 'verifying {} quote(s) in a {} KB file took {} ms of processor time, over 3000 ms',
-      got: { details: [values.length, Math.round(file.length / 1000), Math.round(ms)] }, expected: none('observation')
-    }));
+    check(kept === values.length, () => ({ rule: 'every findable value is in the store', got: { kept }, expected: { values: values.length } }));
+    check(ms <= 3000, () => ({ rule: 'verifying quotes in a large file stays fast', input: { quotes: values.length, kb: Math.round(file.length / 1000) }, got: { ms: Math.round(ms) }, expected: { atMost: 3000 } }));
   },
 };

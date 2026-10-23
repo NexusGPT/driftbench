@@ -279,10 +279,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
       );
       return;
     }
-    check((plan as Plan).rows.length === 0, () => ({
-      rule: 'the space has no valid row but the plan holds {} rows, for example {}',
-      got: { details: [(plan as Plan).rows.length, show((plan as Plan).rows[0]?.values)] }, expected: none('observation')
-    }));
+    check((plan as Plan).rows.length === 0, () => ({ rule: 'a space with no valid row gets an empty plan', got: { rows: (plan as Plan).rows.length, first: show((plan as Plan).rows[0]?.values) }, expected: { rows: 0 } }));
   },
 
   'impossible.tight-chain': (variant, ctx) => {
@@ -291,10 +288,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const valid = oracle.validRows().length;
     check(valid >= 2, () => ({ rule: 'the generator must build a space with valid rows', expected: none('observation') }));
     const facts = planAndCheck(ctx, space);
-    check(facts.fresh.length <= 4 * valid + 8, () => ({
-      rule: 'the plan holds {} rows for a space with {} valid rows',
-      got: { details: [facts.fresh.length, valid] }, expected: none('observation')
-    }));
+    check(facts.fresh.length <= 4 * valid + 8, () => ({ rule: 'the plan stays within the row bound of the page for the valid rows of the space', input: { validRows: valid }, got: { rows: facts.fresh.length }, expected: { atMost: 4 * valid + 8 } }));
   },
 
   'impossible.with-seeds': (variant, ctx) => {
