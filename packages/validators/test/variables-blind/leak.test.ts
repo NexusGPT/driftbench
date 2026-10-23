@@ -70,7 +70,7 @@ describe('the failure messages of the blind bank repeat no expected value', () =
               const wanted =
                 error instanceof ItemFailure ? wantedInMessage(error, ref, wrongTokens, item.id) : [];
               if (wanted.length > 0)
-                crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
+                crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')} in: ${error.message.slice(0, 260)}`);
             }
           }
         }
