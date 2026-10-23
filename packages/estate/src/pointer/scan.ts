@@ -163,7 +163,9 @@ export type LabelerUsage = {
  * labeler does not vote and is exempt. Such a unit is unlabeled. A decided unit whose runs drew a span kind that no
  * clause holds for more than half of the runs that gave its label is listed too, as a span vote: `kinds` is
  * `{ 'span vote': runs, '<kind> <from>-<to>': count, ... }` with the offsets of each clause drawn and the runs that
- * drew it. That unit keeps its label and no span of that kind.
+ * drew it. That unit keeps its label and no span of that kind. Every row of a unit that is not decided carries the
+ * reason (`undecided`): the ledger keeps no record of it and the next scan asks it again, so a spend that recurs says
+ * why. A unit not decided that no other row lists has one row per labeler asked, `kinds: { 'runs heard': count }`.
  */
 export type Unstable = {
   unit: string;
@@ -171,6 +173,7 @@ export type Unstable = {
   set: string;
   labeler: string;
   kinds: Record<string, number>;
+  undecided?: UndecidedReason;
 };
 
 /** A unit whose label's atom needs span kinds (`kinds`) no run located in the unit, and whether the ask filled them. */
@@ -1922,6 +1925,23 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             set: set.set,
             ...('undecided' in heard ? { undecided: heard.undecided } : {}),
           });
+          if ('undecided' in heard) {
+            // A unit that is not decided is asked again by every scan until its vote is complete: each of its rows
+            // says why, and a unit no row lists yet gets one per labeler asked.
+            if (unstable.length === listedBefore) {
+              for (const [at, runs] of byMember.entries()) {
+                if (!askedOf.has(`${file.path}\0${set.set}\0${at}`)) continue;
+                unstable.push({
+                  unit: entry.id,
+                  path: file.path,
+                  set: set.set,
+                  labeler: labelling.members[at]?.id ?? '',
+                  kinds: { 'runs heard': heardRuns(runs, index).filter((run) => run.has(index)).length },
+                });
+              }
+            }
+            for (const row of unstable.slice(listedBefore)) row.undecided = heard.undecided;
+          }
           const flip =
             'votes' in heard
               ? recordUnlabeled(entry, set.set, {

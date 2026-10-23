@@ -516,8 +516,14 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
     const kinds = Object.entries(entry.kinds)
       .map(([kind, count]) => `${kind} ${count}`)
       .join(', ');
-    // A span vote leaves its unit labelled, with no span of the kind no clause held the majority for.
-    const outcome = 'span vote' in entry.kinds ? 'no span of that kind kept' : 'left unlabeled';
+    // A span vote leaves its unit labelled, with no span of the kind no clause held the majority for. A unit that is
+    // not decided names its reason code: the next scan asks it again.
+    const outcome =
+      'span vote' in entry.kinds
+        ? 'no span of that kind kept'
+        : entry.undecided
+          ? `left unlabeled, not decided (${entry.undecided}): the next scan asks it again`
+          : 'left unlabeled';
     lines.push(
       `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; ${outcome}`,
     );

@@ -192,7 +192,7 @@ const asList = (cells: readonly string[]) => `${cells.map((cell) => `- ${cell}`)
 async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): Promise<RegistryRolePass> {
   const parsed = parseLabelSets(REGISTRY_ROLES_SET);
   if (!parsed.ok) throw new Error(`the shipped registry-roles set does not load: ${parsed.message}`);
-  const { onPlan: _onPlan, previous: _previous, ...rest } = pointer;
+  const { onPlan, previous: _previous, ...rest } = pointer;
   const roles: RegistryRoles = { tables: [], offStates: [] };
   const pass: RegistryRolePass = { roles, windows: 0, calls: 0, recorded: 0, usage: [], failed: [] };
   const ask = async (path: string, cells: readonly string[]) => {
@@ -202,6 +202,11 @@ async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): P
       sets: parsed.sets,
       atoms: [],
       files: [{ path, text: asList(cells) }],
+      // As for the document roles: the plan of this pass is shown only to a caller that asked for the plan alone, and
+      // a plan alone goes on from the cassette when it answers every request.
+      ...(pointer.planOnly
+        ? { label: 'registry roles', planUnlessCached: true, ...(onPlan ? { onPlan } : {}) }
+        : {}),
     });
     pass.windows += done.windows;
     pass.calls += done.calls;
@@ -212,23 +217,29 @@ async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): P
       .filter((unit) => unit.set.set === REGISTRY_ROLES_SET_NAME)
       .map((unit) => ({ index: unit.index, label: unit.label }));
   };
-  // One question for each table, its header cells in column order: the answer for a unit is the role of the
-  // column at that position, whatever the cell says.
-  for (const table of registryCellsToLabel(read).tables) {
-    const answers = await ask(`registry-roles/${table.headerLine}/${table.file}.md`, table.headers);
-    const columns: Array<RegistryRole | null> = table.headers.map(() => null);
-    for (const { index, label } of answers) {
-      const role = REGISTRY_ROLE_LABELS[label];
-      if (role !== undefined && index >= 0 && index < columns.length) columns[index] = role;
+  try {
+    // One question for each table, its header cells in column order: the answer for a unit is the role of the
+    // column at that position, whatever the cell says.
+    for (const table of registryCellsToLabel(read).tables) {
+      const answers = await ask(`registry-roles/${table.headerLine}/${table.file}.md`, table.headers);
+      const columns: Array<RegistryRole | null> = table.headers.map(() => null);
+      for (const { index, label } of answers) {
+        const role = REGISTRY_ROLE_LABELS[label];
+        if (role !== undefined && index >= 0 && index < columns.length) columns[index] = role;
+      }
+      roles.tables.push({ file: table.file, index: table.index, roles: columns });
     }
-    roles.tables.push({ file: table.file, index: table.index, roles: columns });
-  }
-  applyRegistryRoles(read, roles);
-  const states = registryCellsToLabel(read).states;
-  for (const { index, label } of await ask('registry-roles/states.md', states)) {
-    const cell = states[index];
-    if (label === STATE_OFF_LABEL && cell !== undefined && !roles.offStates.includes(cell))
-      roles.offStates.push(cell);
+    applyRegistryRoles(read, roles);
+    const states = registryCellsToLabel(read).states;
+    for (const { index, label } of await ask('registry-roles/states.md', states)) {
+      const cell = states[index];
+      if (label === STATE_OFF_LABEL && cell !== undefined && !roles.offStates.includes(cell))
+        roles.offStates.push(cell);
+    }
+  } catch (cause) {
+    // Sizing the run: a question the cassette does not answer is not asked, so the roles it would record are left out,
+    // and the next pass is sized without them.
+    if (!(cause instanceof PointerPlanOnly && pointer.planOnly)) throw cause;
   }
   applyRegistryRoles(read, roles);
   return pass;
