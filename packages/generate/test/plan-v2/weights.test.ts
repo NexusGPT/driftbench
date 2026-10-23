@@ -67,7 +67,7 @@ describe('the traffic weight of a row', () => {
     { name: 'an approved value of weight 0 and an unapproved one of weight 5', approved: 0, unapproved: 5 },
     { name: 'an approved value and an unapproved one, both of weight 0', approved: 0, unapproved: 0 },
     { name: 'an approved value of weight 5 and an unapproved one of weight 0', approved: 5, unapproved: 0 },
-  ])('gives the outcome of the loader for $name: one set of values through both doors', ({ approved, unapproved }) => {
+  ])('refuses as the loader does for $name: one set of values', ({ approved, unapproved }) => {
     const store = makeStore([
       {
         id: 'tide',
