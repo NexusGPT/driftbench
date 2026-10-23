@@ -10,7 +10,8 @@
 // The key is read from ~/.nexus-secrets/anthropic-driftbench.key and is never printed. Each distinct span is labelled
 // once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
 // (the collector writes the spans folded, and the adapter folds a clause before it looks the label up). The cost is computed from the token
-// counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
+// counts every response reports, at the rates given on the command line. A request is sent only if its worst case stays
+// strictly below both caps, and the run stops if a response bills more than was reserved for it (see the cap guard below).
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -126,6 +127,8 @@ const valid = (l) => {
 
 const report = {
   requests: 0,
+  countRequests: 0,
+  overBilled: [],
   subjectRequests: 0,
   truncations: 0,
   subjectTruncations: 0,
@@ -137,6 +140,84 @@ let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
 
+// The most a request can add to the spend, known before it is sent: the exact input tokens of its body, counted on the
+// provider's free count_tokens endpoint, plus a reserve on top of that count, plus the whole of its max_tokens priced as
+// output. No formula over the bytes is safe: a 32,978-byte JSON body counted 30,920 tokens, and a body of combining
+// marks counted 9,952 tokens for 8,978 bytes, above one token per byte. The reserve is 1% of the counted input tokens or
+// 16 tokens, whichever is larger. A request is sent only if that worst case keeps the spend strictly below both caps
+// (landing on a cap is refused), and a request whose tokens cannot be counted is not sent at all. After the response,
+// the billed usage is read: if it is more than was reserved, the run stops and says so. The real usage the response
+// reports is what is summed.
+const RESERVE_DIVISOR = 100;
+const RESERVE_FLOOR_TOKENS = 16;
+const reserveOf = (counted) => Math.max(Math.ceil(counted / RESERVE_DIVISOR), RESERVE_FLOOR_TOKENS);
+
+async function countInputTokens(body) {
+  const { max_tokens: _maxTokens, ...countable } = body;
+  report.countRequests += 1;
+  const res = await fetch('https://api.anthropic.com/v1/messages/count_tokens', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify(countable),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok)
+    throw new Error(`count_tokens answered ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 200)}`);
+  if (!Number.isInteger(json.input_tokens) || json.input_tokens < 0)
+    throw new Error('count_tokens returned no input token count');
+  return json.input_tokens;
+}
+
+/** Refuses a request whose worst case would reach a cap; returns what was reserved for it, for the check after the response. */
+async function refuseIfItCouldCross(body, what) {
+  let counted;
+  try {
+    counted = await countInputTokens(body);
+  } catch (error) {
+    const why = error instanceof Error ? error.message : String(error);
+    console.error(
+      `stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`,
+    );
+    throw new Error(`stopped before sending ${what}: its input tokens could not be counted`);
+  }
+  const reservedInput = counted + reserveOf(counted);
+  const worst = (reservedInput * rateIn + body.max_tokens * rateOut) / 1e6;
+  if (!(spentBefore + spent() + worst < totalCap && spent() + worst < cap)) {
+    console.error(
+      `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)} (${counted} input tokens counted, ${reservedInput} reserved); this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
+    );
+    throw new Error(`stopped before sending ${what}: its worst case would reach or cross a cap`);
+  }
+  return { reservedInput, reservedOutput: body.max_tokens };
+}
+
+/** Adds the billed usage of a response to the spend, then stops the run if it is more than was reserved or cannot be read. */
+function settle(usage, reserved, what) {
+  const readable = Number.isFinite(usage?.input_tokens) && Number.isFinite(usage?.output_tokens);
+  if (!readable) {
+    report.overBilled.push({ what, reason: 'no usage in the response' });
+    console.error(`stopped after ${what}: the response carried no usage, so what it billed is unknown`);
+    throw new Error(`stopped after ${what}: its billed usage could not be read`);
+  }
+  const billedInput =
+    usage.input_tokens + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0);
+  tokensIn += billedInput;
+  tokensOut += usage.output_tokens;
+  if (billedInput > reserved.reservedInput || usage.output_tokens > reserved.reservedOutput) {
+    report.overBilled.push({
+      what,
+      reservedInput: reserved.reservedInput,
+      billedInput,
+      reservedOutput: reserved.reservedOutput,
+      billedOutput: usage.output_tokens,
+    });
+    console.error(
+      `stopped after ${what}: it billed ${billedInput} input and ${usage.output_tokens} output tokens, more than the ${reserved.reservedInput} input and ${reserved.reservedOutput} output tokens reserved before sending`,
+    );
+    throw new Error(`stopped after ${what}: billed usage exceeded what was reserved`);
+  }
+}
+
 async function ask(batch) {
   const body = {
     model: MODEL,
@@ -146,6 +227,7 @@ async function ask(batch) {
       { role: 'user', content: subjectsBlock() + batch.map((text, i) => `${i + 1}. ${text}`).join('\n') },
     ],
   };
+  const reserved = await refuseIfItCouldCross(body, 'a batch of spans');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -158,8 +240,7 @@ async function ask(batch) {
     );
   report.requests += 1;
   if (json.stop_reason === 'max_tokens') report.truncations += 1;
-  tokensIn += json.usage?.input_tokens ?? 0;
-  tokensOut += json.usage?.output_tokens ?? 0;
+  settle(json.usage, reserved, 'a batch of spans');
   const text = (json.content ?? []).map((c) => c.text ?? '').join('');
   const open = text.indexOf('[');
   const close = text.lastIndexOf(']');
@@ -176,40 +257,39 @@ const SUBJECT_CHOICE = SUBJECT_CHOICE_SYSTEM;
 async function chooseSubject(clause, candidates) {
   if (candidates.length === 0) return 'new';
   const result = await requestSubjectChoice(candidates, async (previousFailure) => {
-    if (spentBefore + spent() > totalCap || spent() > cap)
-      throw new Error('stopped before a cap, before a subject choice');
+    const body = {
+      model: MODEL,
+      max_tokens: subjectChoiceMaxTokens(candidates),
+      system: SUBJECT_CHOICE,
+      messages: [
+        {
+          role: 'user',
+          content: JSON.stringify({
+            clause,
+            candidates,
+            ...(previousFailure === undefined
+              ? {}
+              : {
+                  retry: {
+                    previousFailure,
+                    instruction: 'Return only one complete JSON string: a candidate id or "new".',
+                  },
+                }),
+          }),
+        },
+      ],
+    };
+    const reserved = await refuseIfItCouldCross(body, 'a subject choice');
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: subjectChoiceMaxTokens(candidates),
-        system: SUBJECT_CHOICE,
-        messages: [
-          {
-            role: 'user',
-            content: JSON.stringify({
-              clause,
-              candidates,
-              ...(previousFailure === undefined
-                ? {}
-                : {
-                    retry: {
-                      previousFailure,
-                      instruction: 'Return only one complete JSON string: a candidate id or "new".',
-                    },
-                  }),
-            }),
-          },
-        ],
-      }),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     report.requests += 1;
     report.subjectRequests += 1;
     if (!res.ok) throw new Error(`subject choice request failed: ${res.status}`);
-    tokensIn += json.usage?.input_tokens ?? 0;
-    tokensOut += json.usage?.output_tokens ?? 0;
+    settle(json.usage, reserved, 'a subject choice');
     if (json.stop_reason === 'max_tokens') {
       report.truncations += 1;
       report.subjectTruncations += 1;
@@ -232,7 +312,7 @@ const rows = new Map();
 let bad = 0;
 try {
   for (let i = 0; i < texts.length; i += BATCH) {
-    if (spentBefore + spent() > totalCap || spent() > cap) {
+    if (spentBefore + spent() >= totalCap || spent() >= cap) {
       console.error(
         `stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`,
       );
