@@ -140,6 +140,22 @@ describe('driftbench radius', () => {
     expect(none.code).toBe(2);
   });
 
+  it('tells a user who passes an estate diff where the change manifest comes from', async () => {
+    const map = 'examples/estates/fixture/approved.yaml';
+    const written = join(dir, 'diff.json');
+    const made = await cli(['estate', 'diff', map, map, '--out', written]);
+    expect(made.code).toBe(0);
+    const run = await cli(['radius', GATED, '--change', written]);
+    expect(run.code).toBe(2);
+    expect(run.err).toContain('estate diff --change-out');
+    expect(run.err).toContain('--old-ledger');
+    // A malformed manifest that is no estate diff gets no such line.
+    await writeFile(join(dir, 'bad.yaml'), 'from: v1\nchanges:\n  - kind: stage\n    stage: recap\n');
+    const bad = await cli(['radius', GATED, '--change', join(dir, 'bad.yaml')]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).not.toContain('estate diff');
+  });
+
   it('refuses to narrow an empty manifest between two different versions', async () => {
     await writeFile(join(dir, 'empty.yaml'), 'from: v1\nto: v2\nchanges: []\n');
     const run = await cli(['radius', GATED, '--change', join(dir, 'empty.yaml')]);
