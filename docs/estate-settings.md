@@ -159,8 +159,8 @@ driftbench estate scan estate --pointer --cassette estate/module-cassette.jsonl 
 ```text
 Pointer settings from driftbench.estate.yaml: labeler, ledger.
   Pointer reader: system 2 module:never-lines never-lines.
-  Requests: 95 answered, 95 sent, 95 recorded.
-  Units since the last ledger: new 20, unchanged 135, changed 1.
+  Requests: 150 answered, 150 sent, 150 recorded.
+  Units since the last ledger: new 20, unchanged 137, changed 1.
 The ledger estate/driftbench.ledger.json is not written: pass --update to write it.
 ```
 
