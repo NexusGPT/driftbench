@@ -126,6 +126,7 @@ const valid = (l) => {
 
 const report = {
   requests: 0,
+  countRequests: 0,
   subjectRequests: 0,
   truncations: 0,
   subjectTruncations: 0,
@@ -137,19 +138,40 @@ let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
 
-// The most a request can add to the spend, known before it is sent: its input priced at one token per UTF-8 byte of
-// the body plus the whole of its max_tokens priced as output. A token never covers less than one byte of the text, so the
-// bytes bound the input tokens from above; one token per two bytes was tried and errs low on JSON bodies (a 32,978-byte
-// request counted 30,920 input tokens on the provider's free count_tokens endpoint). A request whose worst case would
-// cross a cap is refused before it is sent, so the spend can stop under the cap and not just after it. The real usage the
-// response reports is what is summed.
-const INPUT_TOKENS_PER_BYTE = 1;
-function refuseIfItCouldCross(body, what) {
-  const bytes = Buffer.byteLength(JSON.stringify(body), 'utf8');
-  const worst = (bytes * INPUT_TOKENS_PER_BYTE * rateIn + body.max_tokens * rateOut) / 1e6;
+// The most a request can add to the spend, known before it is sent: the exact input tokens of its body, counted on the
+// provider's free count_tokens endpoint, plus the whole of its max_tokens priced as output. No formula over the bytes is
+// safe: a 32,978-byte JSON body counted 30,920 tokens, and a body of combining marks counted 9,952 tokens for 8,978
+// bytes, above one token per byte. A request whose worst case would cross a cap is refused before it is sent, so the
+// spend can stop under the cap and not just after it; a request whose tokens cannot be counted is not sent at all.
+// The real usage the response reports is what is summed.
+async function countInputTokens(body) {
+  const { max_tokens: _maxTokens, ...countable } = body;
+  report.countRequests += 1;
+  const res = await fetch('https://api.anthropic.com/v1/messages/count_tokens', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify(countable),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`count_tokens answered ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 200)}`);
+  if (!Number.isInteger(json.input_tokens) || json.input_tokens < 0)
+    throw new Error('count_tokens returned no input token count');
+  return json.input_tokens;
+}
+
+async function refuseIfItCouldCross(body, what) {
+  let inputTokens;
+  try {
+    inputTokens = await countInputTokens(body);
+  } catch (error) {
+    const why = error instanceof Error ? error.message : String(error);
+    console.error(`stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`);
+    throw new Error(`stopped before sending ${what}: its input tokens could not be counted`);
+  }
+  const worst = (inputTokens * rateIn + body.max_tokens * rateOut) / 1e6;
   if (spentBefore + spent() + worst > totalCap || spent() + worst > cap) {
     console.error(
-      `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)}; this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
+      `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)} (${inputTokens} input tokens); this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
     );
     throw new Error(`stopped before sending ${what}: its worst case would cross a cap`);
   }
@@ -164,7 +186,7 @@ async function ask(batch) {
       { role: 'user', content: subjectsBlock() + batch.map((text, i) => `${i + 1}. ${text}`).join('\n') },
     ],
   };
-  refuseIfItCouldCross(body, 'a batch of spans');
+  await refuseIfItCouldCross(body, 'a batch of spans');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -217,7 +239,7 @@ async function chooseSubject(clause, candidates) {
         },
       ],
     };
-    refuseIfItCouldCross(body, 'a subject choice');
+    await refuseIfItCouldCross(body, 'a subject choice');
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },

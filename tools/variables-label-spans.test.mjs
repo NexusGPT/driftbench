@@ -27,7 +27,8 @@ it('the labeller sends opaque choices from known recordings and keeps numeric fi
       join(folder, 'mock.mjs'),
       `import { appendFileSync } from 'node:fs';
 const fresh = ${JSON.stringify(fresh)};
-globalThis.fetch = async (_url, options) => {
+globalThis.fetch = async (url, options) => {
+  if (String(url).endsWith('/count_tokens')) return { ok: true, json: async () => ({ input_tokens: 10 }) };
   const body = JSON.parse(options.body);
   let text;
   if (body.messages[0].content.startsWith('{')) {
@@ -78,145 +79,126 @@ globalThis.fetch = async (_url, options) => {
   }
 }, 30_000);
 
-it('a request that could cross the cap is refused before it is sent', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'driftbench-label-cap-'));
-  try {
-    mkdirSync(join(folder, '.nexus-secrets'));
-    writeFileSync(join(folder, '.nexus-secrets/anthropic-driftbench.key'), 'fictional-offline-key');
-    mkdirSync(join(folder, 'spans'));
-    // Many known labels of one kind and unit: the subject choice of the fresh clause carries all of them as candidates,
-    // so that request has a large prompt.
-    const known = Array.from({ length: 3000 }, (_, i) => ({
-      text: `the quantity number ${i} is at most ${i + 1} euros`,
-      label: {
-        kind: 'numeric',
-        subject: `quantity number ${String(i).padStart(4, '0')}`,
-        limit: i + 1,
-        comparison: 'le',
-        unit: 'euros',
-      },
-    }));
-    const fresh = {
-      text: 'the refund amount is over 252 euros',
-      label: { kind: 'numeric', subject: 'refund amount', limit: 252, comparison: 'gt', unit: 'euros' },
-    };
-    writeFileSync(join(folder, 'known.jsonl'), known.map((row) => `${JSON.stringify(row)}\n`).join(''));
-    writeFileSync(join(folder, 'spans/spans.jsonl'), `${JSON.stringify({ text: fresh.text })}\n`);
-    writeFileSync(
-      join(folder, 'mock.mjs'),
-      `import { appendFileSync } from 'node:fs';
+// The cap guard (tools/variables-label-spans.mjs, refuseIfItCouldCross): before a request is sent, the exact body is
+// counted on the provider's count_tokens endpoint and priced with all of max_tokens as output. The tests serve that
+// endpoint from a mock, so they stay offline.
+function mockModule(folder, fresh, config) {
+  return `import { appendFileSync } from 'node:fs';
 const fresh = ${JSON.stringify(fresh)};
-globalThis.fetch = async (_url, options) => {
+const config = ${JSON.stringify(config)};
+const log = (line) => appendFileSync(${JSON.stringify(join(folder, 'requests.log'))}, line + '\\n');
+globalThis.fetch = async (url, options) => {
   const body = JSON.parse(options.body);
-  const isChoice = body.messages[0].content.startsWith('{');
-  appendFileSync(${JSON.stringify(join(folder, 'requests.log'))}, (isChoice ? 'choice' : 'label') + '\\n');
-  const text = isChoice ? JSON.stringify('new') : JSON.stringify([fresh.label]);
-  // The usage a real model would report for this prompt: about one token in four bytes.
-  const input_tokens = Math.ceil(options.body.length / 4);
-  return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens, output_tokens: 10 } }) };
-};`,
-    );
-    const cap = 0.04;
-    const result = spawnSync(
-      process.execPath,
-      [
-        '--import',
-        'tsx',
-        '--import',
-        join(folder, 'mock.mjs'),
-        join(root, 'tools/variables-label-spans.mjs'),
-        ...[
-          '--sha',
-          'fictional-recording',
-          '--spans',
-          join(folder, 'spans'),
-          '--out',
-          join(folder, 'out.jsonl'),
-        ],
-        ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
-        ...['--cap', String(cap), '--total-cap', String(cap)],
-      ],
-      { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
-    );
-    // The batch request is small and goes out; the subject choice is large, and its worst case crosses the cap.
-    expect(readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n')).toEqual(['label']);
-    expect(result.status).not.toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
-    const report = JSON.parse(readFileSync(join(folder, 'out.jsonl.report.json'), 'utf8'));
-    expect(report.usd).toBeLessThanOrEqual(cap);
-  } finally {
-    rmSync(folder, { recursive: true, force: true });
+  const bytes = Buffer.byteLength(options.body, 'utf8');
+  if (String(url).endsWith('/count_tokens')) {
+    log('count');
+    if (config.countFails) return { ok: false, status: 500, json: async () => ({ error: { message: 'down' } }) };
+    return { ok: true, json: async () => ({ input_tokens: Math.ceil(bytes * config.perByte) }) };
   }
-}, 30_000);
+  const isChoice = body.messages[0].content.startsWith('{');
+  log((isChoice ? 'choice' : 'label') + ' ' + bytes + ' ' + body.max_tokens);
+  const text = isChoice ? JSON.stringify('new') : JSON.stringify([fresh.label]);
+  return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens: Math.ceil(bytes * config.perByte), output_tokens: 10 } }) };
+};`;
+}
 
-it('a request is priced at one token per byte: a body that tokenizes near one token per byte cannot cross the cap', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'driftbench-label-cap-bytes-'));
-  try {
-    mkdirSync(join(folder, '.nexus-secrets'));
-    writeFileSync(join(folder, '.nexus-secrets/anthropic-driftbench.key'), 'fictional-offline-key');
-    mkdirSync(join(folder, 'spans'));
-    const known = Array.from({ length: 2000 }, (_, i) => ({
-      text: `the quantity number ${i} is at most ${i + 1} euros`,
-      label: {
-        kind: 'numeric',
-        subject: `quantity number ${String(i).padStart(4, '0')}`,
-        limit: i + 1,
-        comparison: 'le',
-        unit: 'euros',
-      },
-    }));
-    const fresh = {
-      text: 'the refund amount is over 252 euros',
-      label: { kind: 'numeric', subject: 'refund amount', limit: 252, comparison: 'gt', unit: 'euros' },
-    };
-    writeFileSync(join(folder, 'known.jsonl'), known.map((row) => `${JSON.stringify(row)}\n`).join(''));
-    writeFileSync(join(folder, 'spans/spans.jsonl'), `${JSON.stringify({ text: fresh.text })}\n`);
-    // The provider's own count for a JSON request body was 30,920 input tokens for 32,978 bytes: about 0.94 tokens per
-    // byte (the reviewer's measurement on the free count_tokens endpoint). The mock reports that usage.
-    writeFileSync(
-      join(folder, 'mock.mjs'),
-      `import { appendFileSync } from 'node:fs';
-const fresh = ${JSON.stringify(fresh)};
-globalThis.fetch = async (_url, options) => {
-  const body = JSON.parse(options.body);
-  const isChoice = body.messages[0].content.startsWith('{');
-  appendFileSync(${JSON.stringify(join(folder, 'requests.log'))}, (isChoice ? 'choice' : 'label') + '\\n');
-  const text = isChoice ? JSON.stringify('new') : JSON.stringify([fresh.label]);
-  const input_tokens = Math.ceil(Buffer.byteLength(options.body, 'utf8') * (30920 / 32978));
-  return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens, output_tokens: 10 } }) };
-};`,
-    );
-    // The subject-choice body is between 150,000 and 270,000 bytes (2,000 candidates). At one token per two bytes its
-    // worst case is under 0.14 USD, so the old estimate lets it out; the provider-like count (0.94 token per byte) is over
-    // 0.14, so it crosses; at one token per byte the worst case is over 0.14, so it is refused. The cap sits between.
-    const cap = 0.14;
-    const result = spawnSync(
+function capCase(mark, config) {
+  const folder = mkdtempSync(join(tmpdir(), 'driftbench-label-cap-'));
+  mkdirSync(join(folder, '.nexus-secrets'));
+  writeFileSync(join(folder, '.nexus-secrets/anthropic-driftbench.key'), 'fictional-offline-key');
+  mkdirSync(join(folder, 'spans'));
+  // Many known labels of one kind and unit: the subject choice of the fresh clause carries all of them as candidates,
+  // so that request has a large prompt. `mark` is appended to each subject (combining marks tokenize badly).
+  const known = Array.from({ length: 2000 }, (_, i) => ({
+    text: `the quantity number ${i} is at most ${i + 1} euros`,
+    label: {
+      kind: 'numeric',
+      subject: `quantity number ${String(i).padStart(4, '0')}${mark}`,
+      limit: i + 1,
+      comparison: 'le',
+      unit: 'euros',
+    },
+  }));
+  const fresh = {
+    text: 'the refund amount is over 252 euros',
+    label: { kind: 'numeric', subject: 'refund amount', limit: 252, comparison: 'gt', unit: 'euros' },
+  };
+  writeFileSync(join(folder, 'known.jsonl'), known.map((row) => `${JSON.stringify(row)}\n`).join(''));
+  writeFileSync(join(folder, 'spans/spans.jsonl'), `${JSON.stringify({ text: fresh.text })}\n`);
+  writeFileSync(join(folder, 'mock.mjs'), mockModule(folder, fresh, config));
+  const run = (cap) =>
+    spawnSync(
       process.execPath,
       [
-        '--import',
-        'tsx',
-        '--import',
-        join(folder, 'mock.mjs'),
+        ...['--import', 'tsx', '--import', join(folder, 'mock.mjs')],
         join(root, 'tools/variables-label-spans.mjs'),
-        ...[
-          '--sha',
-          'fictional-recording',
-          '--spans',
-          join(folder, 'spans'),
-          '--out',
-          join(folder, 'out.jsonl'),
-        ],
+        ...['--sha', 'fictional-recording', '--spans', join(folder, 'spans'), '--out', join(folder, 'out.jsonl')],
         ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
         ...['--cap', String(cap), '--total-cap', String(cap)],
       ],
       { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
     );
-    expect(readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n')).toEqual(['label']);
+  const log = () => readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n');
+  return { folder, run, log, cleanup: () => rmSync(folder, { recursive: true, force: true }) };
+}
+
+/** The size of the subject-choice request, read from an unlimited run: its bytes and its max_tokens. */
+function choiceSize(c) {
+  const first = c.run(100);
+  expect(first.status, first.stderr).toBe(0);
+  const line = c.log().find((l) => l.startsWith('choice '));
+  const [, bytes, maxTokens] = line.split(' ').map(Number);
+  rmSync(join(c.folder, 'requests.log'));
+  return { bytes, maxTokens };
+}
+const priced = (tokens, maxTokens) => (tokens * 1 + maxTokens * 5) / 1e6;
+
+it('a body that counts above one token per byte (combining marks) cannot cross the cap', () => {
+  // The reviewer's measurement: a labeller body with combining marks (U+0344) was 8,978 UTF-8 bytes and 9,952 input tokens.
+  const c = capCase('\u0344', { perByte: 9952 / 8978 });
+  try {
+    const { bytes, maxTokens } = choiceSize(c);
+    // The cap sits just above what one token per byte would price and under what the provider counts.
+    const cap = priced(bytes * 1.03, maxTokens);
+    const result = c.run(cap);
+    expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
-    const report = JSON.parse(readFileSync(join(folder, 'out.jsonl.report.json'), 'utf8'));
-    expect(report.usd).toBeLessThanOrEqual(cap);
+    expect(JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')).usd).toBeLessThanOrEqual(cap);
   } finally {
-    rmSync(folder, { recursive: true, force: true });
+    c.cleanup();
   }
-}, 30_000);
+}, 60_000);
+
+it('a JSON body is priced by its count: refused just under its cost, sent just over it', () => {
+  // The first measurement: a 32,978-byte JSON request counted 30,920 input tokens.
+  const c = capCase('', { perByte: 30_920 / 32_978 });
+  try {
+    const { bytes, maxTokens } = choiceSize(c);
+    const cost = priced(bytes * (30_920 / 32_978), maxTokens);
+    const refused = c.run(cost * 0.98);
+    expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
+    expect(refused.status).not.toBe(0);
+    expect(`${refused.stdout}${refused.stderr}`).toMatch(/before sending/);
+    rmSync(join(c.folder, 'requests.log'));
+    // One token per byte would refuse this cap too; the count does not, because the request really fits.
+    const sent = c.run(cost * 1.02);
+    expect(sent.status, sent.stderr).toBe(0);
+    expect(c.log().filter((l) => l.startsWith('choice'))).toHaveLength(1);
+  } finally {
+    c.cleanup();
+  }
+}, 60_000);
+
+it('a request whose tokens cannot be counted is not sent', () => {
+  const c = capCase('', { countFails: true, perByte: 1 });
+  try {
+    const result = c.run(100);
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toMatch(/could not be counted/);
+    expect(c.log().filter((l) => l !== 'count')).toEqual([]);
+  } finally {
+    c.cleanup();
+  }
+}, 60_000);
+
