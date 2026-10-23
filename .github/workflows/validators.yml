@@ -42,7 +42,11 @@ jobs:
   ladders-leg:
     # One leg is one validator on one seed, or one slice of levels of a long ladder. `--check-floor` caps a leg at
     # the floor of its validator and exits 1 below it. A validator without a floor walks to its first failing
-    # level, as a single run does, so each slice of the generator ladder computes its own levels.
+    # level, as a single run does, so each slice of the generator ladder computes its own levels. The slices tile a
+    # ladder from level 1 through its floor: a level above the floor is not computed with `--check-floor`, so a slice
+    # that starts above the floor is not a leg (raise the floor past the last slice and the join stops on "computed in
+    # no slice"; add the slices then). The levels above the floor are computed by `ladders-tail` (levels 20 to 23, with
+    # no `--check-floor`) and by the measurement runs.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -175,14 +179,6 @@ jobs:
             name: generator seed 1 levels 7 to 11
             component: generator
             flags: --seed 1 --levels 7..11
-          - id: generator-s1-12-17
-            name: generator seed 1 levels 12 to 17
-            component: generator
-            flags: --seed 1 --levels 12..17
-          - id: generator-s1-18-19
-            name: generator seed 1 levels 18 to 19
-            component: generator
-            flags: --seed 1 --levels 18..19
           - id: generator-s2-1-6
             name: generator seed 2 levels 1 to 6
             component: generator
@@ -191,14 +187,6 @@ jobs:
             name: generator seed 2 levels 7 to 11
             component: generator
             flags: --seed 2 --levels 7..11
-          - id: generator-s2-12-17
-            name: generator seed 2 levels 12 to 17
-            component: generator
-            flags: --seed 2 --levels 12..17
-          - id: generator-s2-18-19
-            name: generator seed 2 levels 18 to 19
-            component: generator
-            flags: --seed 2 --levels 18..19
           - id: generator-s3-1-6
             name: generator seed 3 levels 1 to 6
             component: generator
@@ -207,14 +195,6 @@ jobs:
             name: generator seed 3 levels 7 to 11
             component: generator
             flags: --seed 3 --levels 7..11
-          - id: generator-s3-12-17
-            name: generator seed 3 levels 12 to 17
-            component: generator
-            flags: --seed 3 --levels 12..17
-          - id: generator-s3-18-19
-            name: generator seed 3 levels 18 to 19
-            component: generator
-            flags: --seed 3 --levels 18..19
           - id: generator-hidden-1-6
             name: generator seed hidden levels 1 to 6
             component: generator
@@ -223,14 +203,6 @@ jobs:
             name: generator seed hidden levels 7 to 11
             component: generator
             flags: --hidden --hidden-only --levels 7..11
-          - id: generator-hidden-12-17
-            name: generator seed hidden levels 12 to 17
-            component: generator
-            flags: --hidden --hidden-only --levels 12..17
-          - id: generator-hidden-18-19
-            name: generator seed hidden levels 18 to 19
-            component: generator
-            flags: --hidden --hidden-only --levels 18..19
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       # The estate legs fetch the whole history: maintain.fixture.git-versions reads the fixture at its pinned commit.

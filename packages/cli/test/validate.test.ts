@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   checkFloors,
+  defineLadder,
   FLOORS_FILE,
   floorOf,
   type LadderReport,
@@ -347,6 +348,77 @@ function expectedFloorsLine(root: string): string {
   });
   return `Floors (${FLOORS_FILE}): ${shown.length ? shown.join(', ') : 'none'}.`;
 }
+
+describe('the levels a CLI run computes reach the ladder', () => {
+  /** A ladder of four levels whose levels record the range of levels the run computes. */
+  function recording() {
+    const seen: Array<{ from: number; to: number } | undefined> = [];
+    const level = (id: string) => ({
+      id,
+      name: id,
+      metric: 'kept / planted',
+      threshold: 1,
+      compute: ({ levels }: { levels?: { from: number; to: number } }) => {
+        seen.push(levels);
+        return { value: 1, items: [] };
+      },
+    });
+    const ladder = defineLadder({ component: 'planted', levels: ['a', 'b', 'c', 'd'].map(level) });
+    return { ladder, seen };
+  }
+
+  const run = async (options: Parameters<typeof validateCommand>[1], floors?: Record<string, number>) => {
+    const { ladder, seen } = recording();
+    const root = await temp();
+    if (floors) {
+      await mkdir(join(root, 'validators'));
+      await writeFile(
+        join(root, 'validators/floors.json'),
+        `${JSON.stringify({ version: 1, floors }, null, 2)}\n`,
+      );
+    }
+    const { io } = capture(root);
+    const code = await validateCommand('planted', options, io, {
+      ladders: () => ({ planted: ladder }),
+      root,
+      readHead: () => 'abcdef0123456789abcdef0123456789abcdef01',
+    });
+    return { code, seen };
+  };
+
+  it('gives a slice its levels, and --items or --all-levels with a slice still only those', async () => {
+    expect((await run({ seed: '1', levels: '2..3' })).seen).toEqual([
+      { from: 2, to: 3 },
+      { from: 2, to: 3 },
+    ]);
+    expect((await run({ seed: '1', levels: '2..3', items: true, allLevels: true })).seen).toEqual([
+      { from: 2, to: 3 },
+      { from: 2, to: 3 },
+    ]);
+  });
+
+  it('gives a whole run every level, also with --items and --all-levels', async () => {
+    const whole = { from: 1, to: 4 };
+    expect((await run({ seed: '1' })).seen).toEqual([whole, whole, whole, whole]);
+    expect((await run({ seed: '1', items: true, allLevels: true })).seen).toEqual([
+      whole,
+      whole,
+      whole,
+      whole,
+    ]);
+  });
+
+  it('stops a --check-floor run at its floor, and a slice at the lower of its end and it', async () => {
+    expect((await run({ seed: '1', checkFloor: true }, { planted: 2 })).seen).toEqual([
+      { from: 1, to: 2 },
+      { from: 1, to: 2 },
+    ]);
+    expect((await run({ seed: '1', checkFloor: true, levels: '2..4' }, { planted: 3 })).seen).toEqual([
+      { from: 2, to: 3 },
+      { from: 2, to: 3 },
+    ]);
+  });
+});
 
 describe('driftbench validate floors', () => {
   it('prints the committed floors and reproduces each documented floor example', async () => {
