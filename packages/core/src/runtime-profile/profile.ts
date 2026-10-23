@@ -125,8 +125,9 @@ export class RuntimeProfileError extends Error {
  * off with no signal, so it is refused.
  */
 export function profileErrors(profile: RuntimeProfile): ProfileError[] {
+  // Only the profile's own roots resolve: a name every object inherits (`toString`) is no root.
   return profile.coverageRoots.flatMap((name, index) =>
-    profile.roots[name] === undefined
+    !Object.hasOwn(profile.roots, name) || typeof profile.roots[name] !== 'string'
       ? [
           {
             code: 'unknown-coverage-root' as const,

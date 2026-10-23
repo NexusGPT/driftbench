@@ -121,6 +121,15 @@ describe('the Claude Code profile as data', () => {
       'unknown-coverage-root',
     ]);
     expect(() => coverageFolders(typo)).toThrow(RuntimeProfileError);
+    // A name every object inherits is no root either: only the profile's own roots resolve.
+    for (const inherited of ['toString', 'constructor', '__proto__']) {
+      const named = { ...profile, name: `inherited-${inherited}`, coverageRoots: [inherited] };
+      expect(
+        profileErrors(named).map((error) => error.code),
+        inherited,
+      ).toEqual(['unknown-coverage-root']);
+      expect(() => coverageFolders(named), inherited).toThrow(RuntimeProfileError);
+    }
     // A reader's own source root resolves: a profile that names it is registered.
     const source = { ...profile, name: 'source-runtime', roots: { source: '.' }, coverageRoots: ['source'] };
     expect(profileErrors(source)).toEqual([]);
