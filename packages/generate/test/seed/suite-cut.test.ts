@@ -221,6 +221,18 @@ describe('the tails of a suite, cut with the whole suite in view', () => {
     expect(drafts[0]?.blocks.length).toBeGreaterThanOrEqual((length ?? 0) - 1);
   });
 
+  it('drops a whole walk whose every block another walk holds, and keeps the one with the lowest id', () => {
+    const { prepared, path } = setup();
+    const drafts = [
+      walk(prepared, 'gen-twise-001', path, 4, { same: true }),
+      walk(prepared, 'gen-twise-002', path, 4, { same: true }),
+      walk(prepared, 'gen-twise-003', path, 4, { same: true }),
+    ];
+    cutSuite(prepared, drafts, 3);
+    expect(drafts.map((draft) => Boolean(draft.dropped))).toEqual([false, true, true]);
+    expect(drafts[0]?.blocks.length).toBeGreaterThan(1);
+  });
+
   it('keeps the first twin pair of a path whole', () => {
     const prepared = twoChannels();
     const path = prepared.relations.paths[0];
@@ -266,6 +278,7 @@ describe('the tails of a suite, cut with the whole suite in view', () => {
           of: 2,
           relation: 'same observed outcome',
         };
+        draft.variesAt = differAt;
         if (variant === 2) {
           const block = draft.blocks[differAt];
           if (block?.stimulus.kind !== 'phrase') throw new Error('the block says no phrase');

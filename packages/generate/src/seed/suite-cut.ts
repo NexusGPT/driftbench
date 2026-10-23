@@ -206,10 +206,22 @@ export class SuiteCut {
     for (const unit of units)
       unit.sort((a, b) => (a.metamorphic?.variant ?? 0) - (b.metamorphic?.variant ?? 0));
     const changed = new Set<SpecDraft>();
+    // Repeats of whole walks first, the highest id first, so the walk with the lowest id is the one that stays; then
+    // the tails, in id order, until none can be cut. Each pass changes what the others hold: round again until
+    // neither changes anything.
     let progress = true;
     while (progress) {
       progress = false;
-      for (const unit of units) if (this.cutUnit(unit, changed)) progress = true;
+      for (const unit of [...units].reverse()) if (this.dropUnit(unit, changed)) progress = true;
+      let cutting = true;
+      while (cutting) {
+        cutting = false;
+        for (const unit of units)
+          if (this.cutUnit(unit, changed)) {
+            cutting = true;
+            progress = true;
+          }
+      }
     }
     this.repoint(ordered);
     return [...changed];
@@ -301,17 +313,6 @@ export class SuiteCut {
     const deepest = states[states.length - 1] as Shape[];
     if (chosen !== deepest) stop('ends-takeback', (deepest[0] as Shape).spec.blocks.length);
     let did = false;
-    const solo = unit.length === 1 ? (unit[0] as SpecDraft) : undefined;
-    if (solo && (chosen[0] as Shape).spec.blocks.length === 1 && this.droppable(chosen[0] as Shape)) {
-      const before = solo.blocks;
-      for (const block of before)
-        solo.cutKeys = { ...solo.cutKeys, [block.id]: keys[before.indexOf(block)] as string };
-      solo.dropped = { duplicate_of: { spec: '', block: '' } };
-      this.current.delete(solo.id);
-      this.holdings.delete(solo.id);
-      changed.add(solo);
-      return true;
-    }
     unit.forEach((draft, index) => {
       const shape = chosen[index] as Shape;
       const before = draft.blocks;
@@ -342,6 +343,40 @@ export class SuiteCut {
       this.apply(shape.spec, next, 1);
       this.allocation.countDraft(draft, 1);
     });
+    return did;
+  }
+
+  /**
+   * A walk whose every block, tuple, message, probe, declaration and context another walk holds is a repeat of a
+   * whole spec. The variants of a family that say different things are not repeats of each other; the twins of a
+   * context family (the same words in another channel or persona) are, one at a time, while another walk holds what
+   * the twin was written for.
+   */
+  private dropUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
+    const lead = unit[0] as SpecDraft;
+    if (lead.variesAt !== undefined || this.pins.has(lead.id)) return false;
+    let did = false;
+    for (const draft of [...unit].reverse()) {
+      if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) continue;
+      const shape = this.shapeOf(draft);
+      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) continue;
+      const held = this.holdings.get(draft.id) as Holdings;
+      this.apply(shape.spec, held, -1);
+      this.allocation.countDraft(draft, -1);
+      if (held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held)) {
+        held.keys.forEach((key, at) => {
+          draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
+        });
+        draft.dropped = { duplicate_of: { spec: '', block: '' } };
+        this.current.delete(draft.id);
+        this.holdings.delete(draft.id);
+        changed.add(draft);
+        did = true;
+      } else {
+        this.apply(shape.spec, held, 1);
+        this.allocation.countDraft(draft, 1);
+      }
+    }
     return did;
   }
 
@@ -404,10 +439,8 @@ export class SuiteCut {
     return new Set(words).size === shapes.length;
   }
 
-  /** A walk cut to one block is a repeat of a whole spec when everything it says and places is held by another. */
-  private droppable(shape: Shape): boolean {
-    const held = this.holdingsOf(shape.spec);
-    if (!this.keys.has(held.keys[0] as string)) return false;
+  /** A walk is a repeat of a whole spec when everything it says and places is held by another. */
+  private droppable(shape: Shape, held: Holdings): boolean {
     if (!this.contexts.has(held.context)) return false;
     for (const text of held.texts) if (!this.said.has(text)) return false;
     for (const probe of held.probes) if (!this.probed.has(probe)) return false;
