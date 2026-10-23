@@ -44,7 +44,8 @@ For example, `**/*.py#$.nodes[*]` selects node declarations from a normalized Py
 types. Literal prompts become prose. An explicitly declared agent becomes a helper declaration.
 Tools, graph nodes, graphs and interrupts have no honest existing map kind. Each declaration gets
 its own human-readable `ReadNote` naming its kind, name, line and `no map kind for <declared type>`.
-No production code parses these messages. Structured `coverage.skipped` records arrive with the
+Mixed Python source files retain the `other` file kind rather than becoming whole-file instructions
+or helpers. No production code parses the note messages. Structured `coverage.skipped` records arrive with the
 shared map-from-model step; the reader adds no coverage field or second model.
 
 Graph nodes, normal and conditional edges, ToolNode tool bindings, agent references and interrupts
@@ -67,7 +68,8 @@ runtime working directory and is left unresolved. Unmapped or missing prompt fil
 
 This is a bounded syntax reader, not a Python interpreter or an interprocedural execution analysis.
 Dynamic node names, dynamically selected edge targets, tool factories, interpolated prompt text,
-malformed delimiters and unsupported reference forms receive unresolved reasons. Static declarations
+malformed delimiters, wildcard imports, lambdas, comprehensions and unsupported reference forms
+receive unresolved reasons. Static declarations
 remain inspectable without executing their surrounding code.
 
 Every input text file remains in the inventory so an unclassified file can be reported as unknown.
