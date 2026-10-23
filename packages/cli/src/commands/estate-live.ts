@@ -132,6 +132,10 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     )
     .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
     .option(
+      '--no-exec',
+      'with a stand-in: run no command of the estate (no guard, no script); use it on an estate you do not trust',
+    )
+    .option(
       '--progress <file>',
       'append one JSON line per finished spec to this file as each finishes, so a stopped batch keeps them',
     )
@@ -161,6 +165,9 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
 
 export const DEFAULT_RUNTIME_COMMAND = 'claude';
 
+/** The variable `--no-exec` sets: a stand-in that sees it `1` runs no command of the estate. */
+export const NO_EXEC_VARIABLE = 'DRIFTBENCH_NO_EXEC';
+
 export type EstateRunOptions = {
   estate: string;
   /** A run-order file: one spec path per line, relative to the file's folder. */
@@ -176,6 +183,8 @@ export type EstateRunOptions = {
   lockDeny?: string[];
   timeout?: string;
   allowBilled?: boolean;
+  /** False with --no-exec: the stand-in runs no command of the estate. */
+  exec?: boolean;
   /** A file that gets one JSON line per finished spec, appended as each spec finishes. */
   progress?: string;
   model?: string;
@@ -268,6 +277,13 @@ export async function estateRunCommand(
   if (!standIn && !options.allowBilled) {
     io.err(
       `${command} is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.\n`,
+    );
+    return 2;
+  }
+  // A real runtime runs the estate's guards whatever the flags say, so only a stand-in can honour --no-exec.
+  if (options.exec === false && !standIn) {
+    io.err(
+      `--no-exec needs a stand-in command: ${command} is the real runtime, which runs the estate's guards. Use a stand-in, or run the estate where it is safe to execute it.\n`,
     );
     return 2;
   }
@@ -368,6 +384,7 @@ export async function estateRunCommand(
     }
     env[pair.slice(0, at)] = pair.slice(at + 1);
   }
+  if (options.exec === false) env[NO_EXEC_VARIABLE] = '1';
   for (const name of options.passEnv ?? []) {
     const value = process.env[name];
     if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);

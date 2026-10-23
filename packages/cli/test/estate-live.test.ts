@@ -531,6 +531,64 @@ describe('driftbench estate run', () => {
   });
 });
 
+describe('estate run --no-exec', () => {
+  /** A copy of the fixture whose Stop hook writes a marker file: a hook the stand-in runs leaves the marker. */
+  async function markedCopy(): Promise<{ copy: string; marker: string }> {
+    const dir = await folder();
+    const copy = join(dir, 'estate');
+    const marker = join(dir, 'ran-the-hook');
+    await cp(join(FIXTURE, 'CLAUDE.md'), join(copy, 'CLAUDE.md'));
+    await cp(join(FIXTURE, '.claude'), join(copy, '.claude'), { recursive: true });
+    const settingsPath = join(copy, '.claude/settings.json');
+    const settings = JSON.parse(await readFile(settingsPath, 'utf8'));
+    settings.hooks.Stop = [{ hooks: [{ type: 'command', command: `touch ${marker}` }] }];
+    await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+    return { copy, marker };
+  }
+  const direct = async (copy: string, ...extra: string[]) =>
+    run([
+      'estate',
+      'run',
+      join(LIVE, PROOF.route_positive ?? ''),
+      '--estate',
+      copy,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--store',
+      join(await folder(), 'runs.db'),
+      '--json',
+      ...extra,
+    ]);
+  const exists = (path: string) =>
+    stat(path).then(
+      () => true,
+      () => false,
+    );
+
+  it('runs the hooks of the estate on a stand-in by default', async () => {
+    const { copy, marker } = await markedCopy();
+    const result = await direct(copy);
+    expect(result.err).toBe('');
+    expect(await exists(marker)).toBe(true);
+  });
+
+  it('runs no command of the estate with --no-exec', async () => {
+    const { copy, marker } = await markedCopy();
+    const result = await direct(copy, '--no-exec');
+    expect(result.err).toBe('');
+    expect(await exists(marker)).toBe(false);
+  });
+
+  it('refuses --no-exec for a command that is not a stand-in', async () => {
+    const { copy } = await markedCopy();
+    const result = await direct(copy, '--no-exec', '--command', '/bin/echo', '--allow-billed');
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('--no-exec needs a stand-in');
+  });
+});
+
 describe('many specs in one estate run', () => {
   it('reads a run-order file, from its own folder, with comments, and runs the same as the list', async () => {
     const dir = await folder();
