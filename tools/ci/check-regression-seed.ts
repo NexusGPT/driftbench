@@ -1,13 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { ladderVersion, readFloors, registeredLadders } from '../../packages/validators/src/index';
 import {
   checkRegressionReport,
-  ladderVersion,
-  readFloors,
   readRegressionSeeds,
-  registeredLadders,
   regressionThrough,
-} from '../../packages/validators/src/index';
+} from '../../packages/validators/src/regression';
 
 // Usage:
 //   node --import tsx tools/ci/check-regression-seed.ts level <id>

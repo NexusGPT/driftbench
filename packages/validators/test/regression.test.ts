@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -177,4 +178,52 @@ describe('readRegressionSeeds', () => {
     expect(() => read(file([{ ...entry, through: 99 }]))).toThrow(/asks through level 99/);
     expect(read(file([entry]))).toEqual([entry]);
   });
+});
+
+describe('the CI tool tools/ci/check-regression-seed.ts, run as the job runs it', () => {
+  const tool = join(ROOT, 'tools/ci/check-regression-seed.ts');
+  const run = (...args: string[]) =>
+    spawnSync(process.execPath, ['--import', 'tsx', tool, ...args], { cwd: ROOT, encoding: 'utf8' });
+  const folders: string[] = [];
+  afterEach(() => {
+    for (const folder of folders.splice(0)) rmSync(folder, { recursive: true, force: true });
+  });
+  const reportFile = (report: unknown) => {
+    const folder = mkdtempSync(join(tmpdir(), 'regression-tool-'));
+    folders.push(folder);
+    const path = join(folder, 'report.json');
+    writeFileSync(path, JSON.stringify(report));
+    return path;
+  };
+
+  it('loads and prints the last level of an entry: at least the level of its defect, and the floor of its validator', () => {
+    const result = run('level', 'generator-732170008');
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(Number(result.stdout.trim())).toBeGreaterThanOrEqual(2);
+  }, 120_000);
+
+  it('exits 1 on a report where a level of the entry fails, and 0 on one where every level passes', () => {
+    const through = Number(run('level', 'generator-732170008').stdout.trim());
+    const rows = (failAt?: number) =>
+      Array.from({ length: through }, (_, index) => ({ level: index + 1, pass: index + 1 !== failAt }));
+    const bad = run(
+      'check',
+      'generator-732170008',
+      reportFile({ component: 'generator', seeds: [{ seed: 732170008, rows: rows(2) }] }),
+    );
+    expect(bad.status).toBe(1);
+    expect(bad.stderr).toContain('level 2');
+    const good = run(
+      'check',
+      'generator-732170008',
+      reportFile({ component: 'generator', seeds: [{ seed: 732170008, rows: rows() }] }),
+    );
+    expect(good.status).toBe(0);
+    expect(good.stdout).toContain(`levels 1 to ${through} pass`);
+  }, 120_000);
+
+  it('exits 2 for an entry that is not on the list', () => {
+    expect(run('level', 'generator-1').status).toBe(2);
+  }, 120_000);
 });
