@@ -1,4 +1,5 @@
 import { basename, posix } from 'node:path';
+import { CLAUDE_CODE_PROFILE, variablePrefix } from '@agent-nexus/driftbench-core';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
@@ -7,6 +8,11 @@ import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import { ignoredReference, pathReference } from './reference-role';
 import { blankFences, type Located, linesOf, provenanceHash, readFrontmatter, slug } from './text';
+
+/** The main standing file of the runtime, whose scope the map names `standing`. */
+const PRIMARY = CLAUDE_CODE_PROFILE.standing.primary;
+/** A named path behind the project variable (`$CLAUDE_PROJECT_DIR/`, braces balanced) is root-relative. */
+const PROJECT_ANCHOR = variablePrefix(CLAUDE_CODE_PROFILE.pathVariables.project, { balanced: true });
 
 /**
  * The code half of the scan: every atom whose source has structure. Skills, helpers, guards, permissions,
@@ -112,7 +118,7 @@ export class AtomBuilder {
     if (!file) return slug(path, 8);
     switch (file.kind) {
       case 'standing':
-        return path === 'CLAUDE.md' || path.endsWith('/CLAUDE.md') ? 'standing' : slug(path, 8);
+        return path === PRIMARY || path.endsWith(`/${PRIMARY}`) ? 'standing' : slug(path, 8);
       case 'memory':
         return `memory-${slug(basename(path).replace(/\.md$/, ''), 4)}`;
       case 'skill':
@@ -657,7 +663,7 @@ export function pathMentions(line: string): NamedReference[] {
     let path = spelling
       .replace(/\\/g, '/')
       .replace(/^@/, '')
-      .replace(/^\$(?:\{CLAUDE_PROJECT_DIR\}|CLAUDE_PROJECT_DIR)\//, '')
+      .replace(PROJECT_ANCHOR, '')
       .replace(/[#?].*$/, '')
       .replace(/:\d+(?::\d+)?$/, '');
     if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
@@ -742,7 +748,7 @@ export function resolveNamed(
   ].map((candidate) => posix.normalize(candidate));
   const hit = candidates.find((candidate) => files.has(candidate) || skipped.has(candidate));
   if (hit !== undefined) return hit;
-  if (clean.startsWith('.claude/')) return posix.normalize(clean);
+  if (clean.startsWith(`${CLAUDE_CODE_PROFILE.layout.root}/`)) return posix.normalize(clean);
   return candidates[0] as string;
 }
 

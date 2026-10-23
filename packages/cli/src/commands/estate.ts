@@ -1,6 +1,6 @@
 import { readFile, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
-import type { TokenPrices } from '@agent-nexus/driftbench-core';
+import { noneRan, type TokenPrices } from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -489,7 +489,11 @@ export async function estateLintCommand(
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
   lines.push(
-    result.failed ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.` : 'Clean.',
+    result.failed
+      ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`
+      : noneRan(result.outcomes)
+        ? 'Not run: no check had an input.'
+        : 'Clean.',
     '',
   );
   io.out(lines.join('\n'));
