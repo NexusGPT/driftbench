@@ -46,6 +46,7 @@
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
     "@agent-nexus/driftbench-stats": "workspace:*",
+    "@agent-nexus/driftbench-report": "workspace:*",
     "@agent-nexus/driftbench-checks": "workspace:*",
     "@agent-nexus/driftbench-adapters": "workspace:*",
     "@agent-nexus/driftbench-generate": "workspace:*",

@@ -108,6 +108,11 @@ export type IsolateOptions = {
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
    */
   reads?: string[];
+  /**
+   * How long the relay waits for each run it killed at close before it names the run in a `FrameError` (default
+   * 5000 ms). A test sets 0 to take that path; the validator never sets it.
+   */
+  reapMs?: number;
 };
 
 export type Frame<T> = {
@@ -310,7 +315,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
     worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
       execArgv: [],
-      workerData: { port: port2, signal, plans, setup },
+      workerData: { port: port2, signal, plans, setup, reapMs: options.reapMs ?? 5000 },
       transferList: [port2],
       stderr: false,
     }),
@@ -326,9 +331,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (closed) return;
     closed = true;
     settle();
+    let unreaped: string[] | undefined;
     try {
       relay.port.postMessage({ close: true });
-      wait(relay, 10_000, 'close');
+      unreaped = (wait(relay, 10_000, 'close') as { unreaped?: string[] }).unreaped;
     } catch {
       // the runs are ended by terminate below
     }
@@ -339,6 +345,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
+    // A run the relay killed and that did not end within 5 s may stay in the process table: never silent.
+    if (unreaped)
+      throw new FrameError(
+        `the frame closed, but run ${unreaped.join(', ')} did not end within ${(options.reapMs ?? 5000) / 1000} s of its kill: it may stay as a defunct process of this process`,
+      );
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{ ready?: boolean; error?: string; dead?: string }>;
