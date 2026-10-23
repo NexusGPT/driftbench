@@ -1,18 +1,29 @@
 {
   "version": 2,
   "ladderVersion": {
+    "generator": 3,
     "judges": 2,
     "map": 2,
+    "pointer": 2,
     "stats": 4,
     "system": 5
   },
   "floors": {
+    "generator": 8,
     "judges": 20,
     "map": 8,
+    "pointer": 3,
     "stats": 3,
     "system": 9
   },
   "evidence": {
+    "generator": {
+      "level": 8,
+      "seeds": ["1", "2", "3", "hidden"],
+      "hiddenSeed": 727268607,
+      "head": "2b49fabf9dc746775957d201582d57f86f6b7b1a",
+      "ladderVersion": 3
+    },
     "judges": {
       "level": 20,
       "seeds": ["1", "2", "3", "hidden"],
@@ -47,6 +58,35 @@
       ],
       "hiddenSeed": 856524023,
       "head": "32fe42b7ee3092f194d4538cdd81bcbac74060e8",
+      "ladderVersion": 2
+    },
+    "pointer": {
+      "level": 3,
+      "seeds": [
+        "1",
+        "2",
+        "hidden",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
+      "hiddenSeed": 869288185,
+      "head": "6f5bd0b9ae0e77534b0a35be1b2e2e1ee0ce1f34",
       "ladderVersion": 2
     },
     "stats": {

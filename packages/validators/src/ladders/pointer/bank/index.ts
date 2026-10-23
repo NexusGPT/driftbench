@@ -6,6 +6,7 @@ import { blindLevels } from './blind';
 import { adversarialRuns } from './families/adversarial';
 import { cuttingRuns } from './families/cutting';
 import { cuttingCapabilityRuns } from './families/cutting-capabilities';
+import { goldenRuns } from './families/golden';
 import { groupingRuns } from './families/grouping';
 import { idsRuns } from './families/ids';
 import { labelsRuns } from './families/labels';
@@ -24,6 +25,7 @@ import { fail, levelOf, type PointerItem, type Run } from './types';
 const RUNNERS: Record<string, Record<string, Run>> = {
   adversarial: adversarialRuns,
   cutting: { ...cuttingRuns, ...cuttingCapabilityRuns },
+  golden: goldenRuns,
   grouping: groupingRuns,
   ids: idsRuns,
   labels: labelsRuns,
