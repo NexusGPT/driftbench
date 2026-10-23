@@ -178,7 +178,7 @@ const «timeTo» = Date.prototype.setTime;
 function «identityState»() {
   const «byId» = new «MapIt»();
   const «registry» = new «RegistryIt»((«id») => «applyIt»(«mDelete», «byId», [«id»]));
-  return { ids: new «WeakMapIt»(), byId: «byId», registry: «registry», next: -1 };
+  return { ids: new «WeakMapIt»(), byId: «byId», registry: «registry» };
 }
 function «remember»(«state», «o», «id») {
   «applyIt»(«wmSet», «state».ids, [«o», «id»]);
@@ -393,15 +393,19 @@ function «applyRefs»(«root», «refs», «state») {
   return «root»;
 }
 // The ids of the objects a result's encoding met at a path ([path, object]): a known object keeps its id, a new one
-// gets the next id of the run.
-function «resultRefs»(«pairs», «state») {
+// gets an id of the run drawn from the number of the call («seq», the same in every run) and its place among the new
+// objects of that call. So a call that one run answers otherwise moves no id of a later call: each call is compared
+// on its own (astra-frame-cost's run of the variables bank: one quotes() answer that differed shifted a counter, and
+// every later call of the child differed, 801 items).
+function «resultRefs»(«pairs», «state», «seq») {
   const «out» = [];
+  let «fresh» = 0;
   for (let «i» = 0; «i» < «pairs».length; «i» += 1) {
     const «o» = «pairs»[«i»][1];
     let «id» = «applyIt»(«wmGet», «state».ids, [«o»]);
     if («id» === undefined) {
-      «id» = «state».next;
-      «state».next -= 1;
+      «fresh» += 1;
+      «id» = -(«seq» * 16777216 + «fresh»);
       «remember»(«state», «o», «id»);
     }
     «out»[«out».length] = [«pairs»[«i»][0], «id»];
@@ -1110,7 +1114,7 @@ if («setup».command) {
         «carried» = «collectOff»();
         «setVisitor»(undefined);
       }
-      const «rrefs» = «resultRefs»(«carried».pairs, «identity»);
+      const «rrefs» = «resultRefs»(«carried».pairs, «identity», «request».id);
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «shares» = «identityCount»(«argSet», «outs»);
@@ -1282,7 +1286,7 @@ export function plainBatchEntry(
     `    let ${name('carried')};`,
     `    ${name('collectOn')}();`,
     `    try { ${answer} = { ret: ${name('encode')}(${name('result')}) }; } finally { ${name('carried')} = ${name('collectOff')}(); ${name('setVisitor')}(undefined); }`,
-    `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')});`,
+    `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')}, ${each}.seq);`,
     `    if (${name('rrefs')}.length > 0) ${answer}.rrefs = ${name('rrefs')};`,
     `    if (${name('carried')}.uncarried) ${answer}.uncarried = ${name('carried')}.uncarried;`,
     `    if (${name('identity')}.refused) ${answer}.unsent = ${name('identity')}.refused;`,

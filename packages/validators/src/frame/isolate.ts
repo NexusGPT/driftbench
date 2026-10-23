@@ -23,6 +23,7 @@ import {
   checkMark,
   confine,
   markPath,
+  realOf,
   type SealDescriptor,
   sealOnce,
   setMark,
@@ -790,13 +791,16 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       ? join(plan.driverDir, drawnFolder(options.seed, `scratch:${tag}:${plan.run}`))
       : undefined;
     if (scratch) mkdirSync(scratch, { recursive: true });
+    // The temporary folder is given by its real path: the permission model checks a write on the path it is given,
+    // and on macOS the system temporary folder is reached through a link (/var to /private/var).
+    const tmp = scratch ? realOf(scratch) : undefined;
     const env =
       options.env || scratch || options.unset
         ? withoutNames(
             {
               ...(plan.env ?? (process.env as Record<string, string>)),
               ...(options.env ?? {}),
-              ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+              ...(tmp ? { TMPDIR: tmp, TMP: tmp, TEMP: tmp } : {}),
             },
             options.unset,
           )
@@ -1175,7 +1179,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       try {
         appendFileSync(
           plain.calls,
-          `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
+          `${JSON.stringify({ seq: calls, call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
         );
       } catch (error) {
         if (existsSync(plain.calls)) truncateSync(plain.calls, size);
