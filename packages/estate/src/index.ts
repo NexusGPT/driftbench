@@ -1,22 +1,4 @@
 export {
-  BESIDE_LAYOUT_LINKS,
-  byExactName,
-  comparableName,
-  dedupeByRealPath,
-  expandVariables,
-  type IgnoreStack,
-  ignoreStack,
-  LAYOUT_LINKS,
-  LEGACY_CASE_INSENSITIVE_NAMES,
-  type LinkPolicy,
-  leavesRoot,
-  listFolder,
-  realOf,
-  rootRelative,
-  sameName,
-  type VariableFolders,
-} from './fs/estate-fs';
-export {
   analyzeGraph,
   buildGraph,
   citationsByFile,
