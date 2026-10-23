@@ -495,7 +495,9 @@ function legsOf(workflow: ReturnType<typeof parse>, job: string): Leg[] {
 
 /** The legs of one validator on one seed, in level order. */
 function legsFor(legs: Leg[], component: string, seed: string): Leg[] {
-  return legs.filter((leg) => leg.component === component && leg.seed === seed).sort((a, b) => a.from - b.from);
+  return legs
+    .filter((leg) => leg.component === component && leg.seed === seed)
+    .sort((a, b) => a.from - b.from);
 }
 
 /** The legs tile level 1 up to a level of at least `through`, without a gap or an overlap, and not past `top`. */
@@ -540,14 +542,20 @@ function assertFullLegs(legs: Leg[], components: string[], seeds: string[]) {
     expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
   for (const component of components) {
     const top = topOf(component);
-    for (const seed of seeds) expectTiles(legsFor(legs, component, seed), `${component} seed ${seed}`, top, top);
+    for (const seed of seeds)
+      expectTiles(legsFor(legs, component, seed), `${component} seed ${seed}`, top, top);
   }
 }
 
 /** Guard 3, the tail legs: levels 20 to 23 of the generator, one leg per level and seed, each pinned by its name. */
 function assertTailLegs(legs: Leg[], seeds: string[]) {
   const expected = seeds.flatMap((seed) =>
-    [20, 21, 22, 23].map((level) => ({ id: `generator-${seed}-level-${level}`, seed, from: level, to: level })),
+    [20, 21, 22, 23].map((level) => ({
+      id: `generator-${seed}-level-${level}`,
+      seed,
+      from: level,
+      to: level,
+    })),
   );
   expect(
     legs.map(({ id, seed, from, to }) => ({ id, seed, from, to })).sort((a, b) => a.id.localeCompare(b.id)),
@@ -629,8 +637,15 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   expect(new Set(everyLeg.map((leg) => leg.id)).size, 'leg ids are unique').toBe(everyLeg.length);
   for (const leg of floorJob)
     expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
-  assertFloorLegs(floorJob.filter((leg) => leg.component === 'generator'), seeds);
-  assertFullLegs(floorJob.filter((leg) => leg.component !== 'generator'), components.filter((c) => c !== 'generator'), seeds);
+  assertFloorLegs(
+    floorJob.filter((leg) => leg.component === 'generator'),
+    seeds,
+  );
+  assertFullLegs(
+    floorJob.filter((leg) => leg.component !== 'generator'),
+    components.filter((c) => c !== 'generator'),
+    seeds,
+  );
   assertTailLegs(legsOf(workflow, 'ladders-tail'), seeds);
   assertFullLegs(legsOf(workflow, 'system-leg'), ['system'], seeds);
   // the tail legs (one level of one generator seed each) start with the others: they wait for no leg, because the
@@ -1203,10 +1218,20 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
     expect(() => assertTrainValidators(noTop), 'the system leg of level 11').toThrow();
     const ghostSystem = structuredClone(workflow);
     entries(ghostSystem, 'system-leg').push({ id: 'ghost-system-s1', flags: '--seed 1', component: 'ghost' });
-    expect(() => assertTrainValidators(ghostSystem), 'a leg of an unknown validator in the system job').toThrow();
+    expect(
+      () => assertTrainValidators(ghostSystem),
+      'a leg of an unknown validator in the system job',
+    ).toThrow();
     const otherSystem = structuredClone(workflow);
-    entries(otherSystem, 'system-leg').push({ id: 'estate-system-s1', flags: '--seed 1', component: 'estate' });
-    expect(() => assertTrainValidators(otherSystem), 'a leg of another validator in the system job').toThrow();
+    entries(otherSystem, 'system-leg').push({
+      id: 'estate-system-s1',
+      flags: '--seed 1',
+      component: 'estate',
+    });
+    expect(
+      () => assertTrainValidators(otherSystem),
+      'a leg of another validator in the system job',
+    ).toThrow();
   }, 120_000);
   it('rejects a job that joins the legs without waiting for all of them, or that lets a red leg through', () => {
     for (const [id, dropped] of [
