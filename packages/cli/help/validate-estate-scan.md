@@ -47,8 +47,8 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--home <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--home <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 ```
@@ -66,6 +66,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
 | `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; no home folder is read without it; a project skill wins a name clash |
+| `--home <folder>` | none | the folder that stands for your home folder: a guard path written from `~/`, `$HOME/` or `${HOME}/` is found under it when the folder is inside the estate; without it such a path stays outside the estate and its script is not looked for |
 | `--force` | off | replace an existing map; the approvals in it are lost |
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
@@ -203,6 +204,7 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, as the scan did; repeat it |
 | `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
+| `--home <folder>` | none | the home folder, as the scan was given it |
 
 `estate approve`:
 
@@ -289,6 +291,10 @@ was refused; 2 nothing written.
 | `AMBIGUOUS_REFERENCE` | a bare file name fits several files, none in the naming file's own folder |
 | `UNENFORCED` | rules no guard enforces: reported as a count, never failing alone |
 | `EXTERNAL` | paths named outside the estate: information only |
+| `PERMISSION_UNKNOWN_SKILL` | a `Skill(...)` permission rule names a skill the estate does not hold |
+| `PERMISSION_READ_BYPASS` | a `Read`, `Edit` or `Write` deny, and an allowed shell rule with free arguments that goes around it |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions` and an allow rule lets any value through |
+| `PERMISSION_UNKNOWN_HELPER` | an `Agent(...)` permission rule names a helper the estate does not declare; information only, since the runtime has helpers of its own |
 
 A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_ATOM`, `MAP_UNKNOWN_ATOM`,
 `MAP_HASH`, `MAP_QUOTE_DRIFT`, `MAP_UNKNOWN_KIND` or `SCHEMA_*`.
@@ -398,3 +404,7 @@ file, so its map reports no orphan.
 | `MAP_HASH` or `MAP_QUOTE_DRIFT` | the map or the estate was edited after the scan | scan again into a new file |
 | `error: required option '--to <file>' not specified` (exit 2) | `estate map` without `--to` | name the space map file |
 | `UNREACHABLE` on a helper you use | the helper is reached only through its own description | name it from the standing instructions, a routing table or a skill body |
+| `PERMISSION_UNKNOWN_SKILL` on a `Skill(...)` rule | the rule names a skill that has no folder in the estate; the user-level skill layer counts only with `--user-skills` | fix the name, remove the rule, or pass `--user-skills` |
+| `PERMISSION_UNKNOWN_HELPER` (information) | an `Agent(...)` rule names a helper the estate does not declare; the runtime has helpers of its own | none needed for a runtime helper; else fix the name |
+| `PERMISSION_READ_BYPASS` | a Read, Edit or Write deny sits beside an allowed shell rule with free arguments, so a shell command reaches the path | give the shell rules exact arguments, or deny the path to the shell too |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions` and an allow rule lets any value through | use a default mode that asks, or narrow the allow rules |

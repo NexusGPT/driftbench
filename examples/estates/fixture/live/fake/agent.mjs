@@ -260,6 +260,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const estate = readEstate(cwd);
   // The atoms the ask sets off, and what they define; a unit whose file the copy lacks is not loaded.
   const dispatch = loadDispatch(env);
+  // `estate run --no-exec` sets this: the stand-in runs no command of the estate (no hook, no script).
+  const noExec = env.DRIFTBENCH_NO_EXEC === '1';
   const setOffBy = dispatch ? setOff(dispatch, ask) : { atoms: [], named: [] };
   const intent = dispatch
     ? intentsOf(dispatch, setOffBy.atoms, cwd)
@@ -324,6 +326,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           hook_name: name,
           hook_event: event,
         });
+        // No execution: the hook starts and never answers, so it counts as a guard that gave no verdict.
+        if (noExec) continue;
         // The runtime hands a hook the path of the session's transcript, which holds the calls made so far.
         const transcript = join(
           tmpdir(),
@@ -498,6 +502,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       'Bash',
       { command: provoked.command, description: 'Run the named command' },
       () => {
+        if (noExec) return { content: 'not run', ran: false };
         const ran = spawnSync('/bin/sh', ['-c', provoked.command], {
           cwd,
           encoding: 'utf8',
@@ -568,6 +573,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
         .map((token) => (existsSync(join(cwd, action.folder, token)) ? join(action.folder, token) : token))
         .join(' ');
       result = call('Bash', { command, description: 'Run the named command' }, () => {
+        if (noExec) return { content: 'not run', error: false };
         const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
         return {
           content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,

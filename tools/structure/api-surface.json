@@ -1204,6 +1204,7 @@
       "locateNamed": "value",
       "locateQuote": "value",
       "mapHash": "value",
+      "mapHome": "value",
       "measureInvariants": "value",
       "mutateEstate": "value",
       "namedPaths": "value",

@@ -199,6 +199,7 @@ export {
   loadEstateRecording,
   locateNamed,
   locateQuote,
+  mapHome,
   measureInvariants,
   type NamedTarget,
   namedPaths,
