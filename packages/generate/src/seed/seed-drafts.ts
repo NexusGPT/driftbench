@@ -144,9 +144,36 @@ export function scenarioDraft(
     // A metamorphic family keeps its draws: its variants must differ in the one value the family varies.
     context.usage ??= new Map();
     const usage = seeder === 'metamorphic' ? undefined : context.usage;
+    // A class the walk says at a stage is one pair: the context must allow the two together, not each alone.
+    const together: Pick[][] = [];
+    const deviationAxis = prepared.deviation;
+    const stageAxis = prepared.stage;
+    const classAt = (classId: string, stage: string | undefined) => {
+      const picked =
+        deviationAxis === undefined
+          ? undefined
+          : prepared.space.dimensions[deviationAxis]?.index.get(classId);
+      const where =
+        stageAxis === undefined || stage === undefined
+          ? undefined
+          : prepared.space.dimensions[stageAxis]?.index.get(stage);
+      if (picked !== undefined && where !== undefined)
+        together.push([
+          [deviationAxis as number, picked],
+          [stageAxis as number, where],
+        ]);
+    };
+    const arrival = (index: number) =>
+      [...built.blocks.slice(0, index)].reverse().find((block) => block.stage !== undefined)?.stage ??
+      path.stages[0];
+    for (const perturbation of built.perturbations ?? [])
+      classAt(perturbation.class, arrival(perturbation.inject_at ?? 0));
+    built.blocks.forEach((block, index) => {
+      if (block.injection) classAt(block.injection, arrival(index));
+    });
     const cell = [
       ...built.cell,
-      ...contextAxes(prepared, built.cell, rng, [...reached, ...(options.said ?? [])], usage),
+      ...contextAxes(prepared, built.cell, rng, [...reached, ...(options.said ?? [])], usage, together),
     ];
     if (usage) {
       for (const [dimension, value] of cell) {
@@ -282,6 +309,7 @@ export function contextAxes(
   rng: Rng,
   reached: readonly Pick[] = [],
   usage?: ReadonlyMap<number, ReadonlyMap<number, number>>,
+  together: readonly (readonly Pick[])[] = [],
 ): Pick[] {
   // One value per dimension is fixed; a second value of the same dimension (a spec covering two flows)
   // must stay allowed with the draw, like a stage the spec reaches.
@@ -321,10 +349,21 @@ export function contextAxes(
       if (!prepared.feasibility.allowed([...(otherBases[index] as Pick[]), ...candidate, entry]))
         return false;
     }
+    for (const group of together) {
+      const rest = base.filter(([at]) => !group.some(([held]) => held === at));
+      if (!prepared.feasibility.allowed([...rest, ...candidate, ...group])) return false;
+    }
     return true;
   };
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const full = prepared.feasibility.complete(base, rng);
+  // The first draw is the plain one, so a spec with no pair to hold keeps its draws; after a refusal, each pair in turn
+  // is part of what the draw completes, so a context that holds it is found when one exists.
+  for (let attempt = 0; attempt < 5 + 2 * together.length; attempt += 1) {
+    const group =
+      attempt === 0 || together.length === 0 ? [] : (together[(attempt - 1) % together.length] ?? []);
+    const full = prepared.feasibility.complete(
+      group.length === 0 ? base : [...base.filter(([at]) => !group.some(([held]) => held === at)), ...group],
+      rng,
+    );
     if (!full) return [];
     const picks: Pick[] = axes.map((index) => [index, full[index] ?? 0]);
     if (!fits(picks)) continue;
