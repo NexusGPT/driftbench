@@ -1606,21 +1606,25 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           // label with more than half of the runs heard: it is listed as `no majority`, with the count of each label.
           if (unstable.length === listedBefore && !spanDropped) {
             for (const [at, runs] of byMember.entries()) {
-              const counts: Record<string, number> = {};
+              // A Map: a label may be named like a property of every object (constructor).
+              const counts = new Map<string, number>();
               let heard = 0;
               for (const run of heardRuns(runs, index)) {
                 const opinion = run.get(index);
                 if (!opinion) continue;
                 heard++;
-                counts[opinion.label] = (counts[opinion.label] ?? 0) + 1;
+                counts.set(opinion.label, (counts.get(opinion.label) ?? 0) + 1);
               }
-              if (heard === 0) continue;
+              // No usable answer at all (a unit every run left out, or an answer that failed) is listed too.
               unstable.push({
                 unit: entry.id,
                 path: file.path,
                 set: set.set,
                 labeler: labelling.members[at]?.id ?? '',
-                kinds: { 'no majority': heard, ...counts },
+                kinds:
+                  heard === 0
+                    ? { 'no usable answer': 0 }
+                    : Object.fromEntries([['no majority', heard], ...counts]),
               });
             }
           }
