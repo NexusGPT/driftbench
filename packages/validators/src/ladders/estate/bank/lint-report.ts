@@ -4,7 +4,7 @@ import { join, relative, resolve, sep } from 'node:path';
 import {
   type LintFinding,
   type ProseInventory,
-  proseInventoryLines,
+  proseListing,
   resolveMapRoot,
   summariseLint,
 } from '@agent-nexus/driftbench-estate';
@@ -56,8 +56,10 @@ function totalsRule(limit: number): string[] {
         if ((entry?.total ?? 0) !== want) problems.push(`${code}: total ${entry?.total ?? 0}, not ${want}`);
         if (listed.length !== Math.min(want, limit))
           problems.push(`${code} ${want}: listed ${listed.length}`);
-        if ((entry?.hidden ?? 0) !== Math.max(0, want - limit))
-          problems.push(`${code} ${want}: hidden count wrong`);
+        if ((entry?.shown ?? 0) !== listed.length)
+          problems.push(`${code} ${want}: the shown count is not the list`);
+        if ((entry?.omitted ?? 0) !== Math.max(0, want - limit))
+          problems.push(`${code} ${want}: omitted count wrong`);
         // Metamorphic: what is listed is the start of the full list, in its order.
         const full = all.shown.filter((finding) => finding.code === code);
         if (full.length !== want) problems.push(`${code} ${want}: the full report lists ${full.length}`);
@@ -150,21 +152,27 @@ export const REPORT_CASES: ReportCase[] = [
   {
     key: 'prose-list-limit',
     tier: 2,
-    title: 'a list of unanswered prose chunks as bounded when a limit is given and complete when none is',
+    title:
+      'a list of unanswered prose chunks as a listing that carries shown, total and omitted, bounded when a limit is given and complete when none is',
     judge: async () => {
       const problems: string[] = [];
-      for (const count of [1, 10, 11, 50, 400]) {
+      for (const count of [0, 1, 10, 11, 50, 400]) {
         const inventory = chunkInventory(count);
-        const cut = proseInventoryLines(inventory, false, { limit: 10 });
-        const all = proseInventoryLines(inventory, false);
-        const listed = (lines: string[]) => lines.filter((line) => /^ {4}part-\d+/.test(line)).length;
-        if (listed(all) !== count) problems.push(`${count} chunks: the full list holds ${listed(all)}`);
-        if (listed(cut) !== Math.min(count, 10))
-          problems.push(`${count} chunks: the cut list holds ${listed(cut)}`);
-        const more = cut.find((line) => /more/.test(line));
-        if (count > 10 && !more?.includes(String(count - 10)))
-          problems.push(`${count} chunks: the rest is not counted`);
-        if (count <= 10 && more !== undefined) problems.push(`${count} chunks: a short list was cut`);
+        const cut = proseListing(inventory, { limit: 10 });
+        const all = proseListing(inventory);
+        const want = Math.min(count, 10);
+        if (all.total !== count || all.shown.length !== count || all.omitted !== 0)
+          problems.push(
+            `${count} chunks: the full listing is ${all.shown.length} of ${all.total}, ${all.omitted} omitted`,
+          );
+        if (cut.total !== count) problems.push(`${count} chunks: the total is ${cut.total}`);
+        if (cut.shown.length !== want)
+          problems.push(`${count} chunks: ${cut.shown.length} shown, not ${want}`);
+        if (cut.omitted !== count - want)
+          problems.push(`${count} chunks: ${cut.omitted} omitted, not ${count - want}`);
+        // Metamorphic: what is shown is the start of the full list, in its order.
+        if (cut.shown.some((chunk, index) => chunk.id !== all.shown[index]?.id))
+          problems.push(`${count} chunks: the cut listing is not the start of the full one`);
       }
       return verdict(problems);
     },

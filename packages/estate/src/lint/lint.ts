@@ -1,3 +1,4 @@
+import { cutList } from '../cut';
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
@@ -65,7 +66,7 @@ export type LintSummary = {
   /** The findings to list, in their order: at most `limit` of each code. */
   shown: LintFinding[];
   /** Per code that has findings, in the order the codes first appear. */
-  totals: Array<{ code: LintCode; total: number; hidden: number }>;
+  totals: Array<{ code: LintCode; total: number; shown: number; omitted: number }>;
 };
 
 /**
@@ -76,19 +77,23 @@ export function summariseLint(
   findings: readonly LintFinding[],
   options: { limit?: number } = {},
 ): LintSummary {
-  const seen = new Map<LintCode, number>();
-  const shown: LintFinding[] = [];
-  for (const finding of findings) {
-    const count = (seen.get(finding.code) ?? 0) + 1;
-    seen.set(finding.code, count);
-    if (options.limit === undefined || count <= options.limit) shown.push(finding);
-  }
+  const byCode = new Map<LintCode, LintFinding[]>();
+  for (const finding of findings) byCode.set(finding.code, [...(byCode.get(finding.code) ?? []), finding]);
+  const cuts = new Map([...byCode].map(([code, list]) => [code, cutList(list, options.limit)] as const));
+  // The findings keep their order across codes: a finding is shown when it is among the first of its code.
+  const taken = new Map<LintCode, number>();
+  const shown = findings.filter((finding) => {
+    const count = (taken.get(finding.code) ?? 0) + 1;
+    taken.set(finding.code, count);
+    return count <= (cuts.get(finding.code)?.shown.length ?? 0);
+  });
   return {
     shown,
-    totals: [...seen].map(([code, total]) => ({
+    totals: [...cuts].map(([code, cut]) => ({
       code,
-      total,
-      hidden: options.limit === undefined ? 0 : Math.max(0, total - options.limit),
+      total: cut.total,
+      shown: cut.shown.length,
+      omitted: cut.omitted,
     })),
   };
 }

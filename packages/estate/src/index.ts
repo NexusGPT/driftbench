@@ -1,3 +1,4 @@
+export { type CutList, cutList } from './cut';
 export {
   analyzeGraph,
   buildGraph,
@@ -220,6 +221,7 @@ export {
   plain,
   proseInventory,
   proseInventoryLines,
+  proseListing,
   proseRequest,
   provenanceHash,
   quoteAtSpan,

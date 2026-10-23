@@ -215,27 +215,27 @@ export async function cli(argv: string[], cwd: string): Promise<{ code: number; 
   return { code, ...output };
 }
 
-/** The findings a lint printed, by code, counting each listed line and the items a cut list left out. */
-export function findingCounts(out: string): Record<string, number> {
-  const counts: Record<string, number> = {};
-  const skip = new Set(['UNENFORCED', 'EXTERNAL']);
-  for (const line of out.split('\n')) {
-    const more = /^ {2}([A-Z_]+) {2,}\.\.\. (\d+) more of (\d+)/.exec(line);
-    if (more) {
-      counts[more[1] as string] = Number(more[3]);
-      continue;
-    }
-    const found = /^ {2}([A-Z_]+) {2,}\S/.exec(line);
-    const code = found?.[1];
-    if (!code || skip.has(code)) continue;
-    counts[code] = (counts[code] ?? 0) + 1;
-  }
-  return counts;
+/** What `estate lint --json` prints: the findings shown and, per code, the total, the number shown and the number omitted. */
+export type LintData = {
+  failed: boolean;
+  findings: Array<{ code: string; subject: string; message: string }>;
+  totals: Array<{ code: string; total: number; shown: number; omitted: number }>;
+};
+
+export function lintData(out: string): LintData {
+  return JSON.parse(out) as LintData;
 }
 
-/** The number of lines a lint listed for a code, not counting the line that stands for the rest. */
-export function listedLines(out: string, code: string): number {
-  return out.split('\n').filter((line) => new RegExp(`^ {2}${code} {2,}(?!\\.\\.\\.)\\S`).test(line)).length;
+/** The true total of every code a lint reported. */
+export function findingCounts(out: string): Record<string, number> {
+  return Object.fromEntries(lintData(out).totals.map((entry) => [entry.code, entry.total]));
+}
+
+/** The subjects of the findings a lint listed for a code, in order. */
+export function listedSubjects(out: string, code: string): string[] {
+  return lintData(out)
+    .findings.filter((finding) => finding.code === code)
+    .map((finding) => finding.subject);
 }
 
 /** The atoms of a written map. */

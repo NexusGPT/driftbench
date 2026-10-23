@@ -48,7 +48,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 
 ```
 driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--json]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 ```
@@ -205,6 +205,7 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `--ignore <glob>` | none | skip the paths this glob matches, as the scan did; repeat it |
 | `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
 | `--verbose` | off | list every finding; by default each code lists its first 10, then its total |
+| `--json` | off | print the findings and their totals as JSON: `findings` (the ones listed), `totals` (per code `total`, `shown`, `omitted`), `failed`, and the counts of the information codes |
 
 `estate approve`:
 

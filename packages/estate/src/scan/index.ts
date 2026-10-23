@@ -57,6 +57,7 @@ export {
   parseProseAnswer,
   proseInventory,
   proseInventoryLines,
+  proseListing,
   proseRequest,
   runChunk,
 } from './prose';

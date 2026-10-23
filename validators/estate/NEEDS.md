@@ -26,7 +26,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | blind.lint | 46 | reader | docs/estate.md section 2, "Checking the estate: `estate lint`" |
 | blind.edges | 25 | reader | docs/estate.md section 2, "Relations: the estate graph" |
 | estate.determinism | 25 | reader | docs/estate.md section 5, "The same map, plan, bank and seed give the same specs" and "The same holds on every Node version the package supports (22 and later), in any time zone and locale"; section 1, atom ids and hashes from file, span and quote |
-| lint.defect | 24 | lint | docs/estate.md section 2, `estate lint` |
+| lint.defect | 27 | lint | docs/estate.md section 2, `estate lint` |
 | lint.clean | 22 | lint | docs/estate.md section 2, `estate lint` (no finding on a clean estate) |
 | plan.contract | 25 | plan | docs/estate.md section 4, the contract table |
 | plan.pairs | 20 | plan | docs/estate.md section 4, "Pairwise: a covering array of strength t" |

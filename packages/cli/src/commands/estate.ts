@@ -183,10 +183,20 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
     .option(VERBOSE_FLAG, VERBOSE_HELP)
+    .option(
+      '--json',
+      'print the findings and their totals as JSON: per code the total, the number shown and the number omitted',
+    )
     .action(
       async (
         path: string,
-        options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean },
+        options: {
+          ceiling?: string;
+          ignore?: string[];
+          userSkills?: string;
+          verbose?: boolean;
+          json?: boolean;
+        },
       ) => {
         setExit(await estateLintCommand(path, options, io));
       },
@@ -474,7 +484,7 @@ function scanReport(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
   io: Io,
 ): Promise<number> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -515,16 +525,35 @@ export async function estateLintCommand(
     return 2;
   }
   const result = lintEstate(loaded.map, raw, { ceiling });
-  const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
   const found = result.findings.filter((finding) => !INFORMATION.has(finding.code));
   const limit = limitOf(options.verbose);
   const summary = summariseLint(found, limit === undefined ? {} : { limit });
+  if (options.json) {
+    // The cut is data: the findings shown, and per code the total, the number shown and the number omitted.
+    io.out(
+      `${JSON.stringify(
+        {
+          map: show(file, io),
+          root: show(root, io),
+          atoms: loaded.map.atoms.length,
+          failed: result.failed,
+          findings: summary.shown,
+          totals: summary.totals,
+          information: { UNENFORCED: result.counts.UNENFORCED, EXTERNAL: result.counts.EXTERNAL },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return result.failed ? 1 : 0;
+  }
+  const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
   const width = Math.max(0, ...found.map((finding) => finding.code.length));
   for (const finding of summary.shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
-  const cut = summary.totals.filter((entry) => entry.hidden > 0);
+  const cut = summary.totals.filter((entry) => entry.omitted > 0);
   if (cut.length > 0) {
     for (const entry of cut)
-      lines.push(`  ${entry.code.padEnd(width)}  ${moreLine(entry.hidden)} of ${entry.total}`);
+      lines.push(`  ${entry.code.padEnd(width)}  ${moreLine(entry.omitted)} of ${entry.total}`);
     lines.push(
       `  Totals: ${summary.totals.map((entry) => `${entry.code} ${entry.total}`).join(', ')}. Lists stop after the first ${LIST_LIMIT} of a code: add --verbose to list every one.`,
     );

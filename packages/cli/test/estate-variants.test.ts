@@ -7,7 +7,8 @@ import {
   copyTo,
   countByKind,
   findingCounts,
-  listedLines,
+  lintData,
+  listedSubjects,
   type Rendered,
   render,
   type Variant,
@@ -38,7 +39,7 @@ async function scanVariant(variant: Variant, options: { verbose?: boolean } = {}
     ['estate', 'scan', rendered.root, '--no-model', '--out', join(rendered.top, 'map.yaml')],
     rendered.top,
   );
-  const lintArgs = ['estate', 'lint', 'map.yaml'];
+  const lintArgs = ['estate', 'lint', 'map.yaml', '--json'];
   if (options.verbose !== false) lintArgs.push('--verbose');
   const lint = await cli(lintArgs, rendered.top);
   return { scan, lint, rendered };
@@ -49,7 +50,7 @@ describe('metamorphic: moving the root does not alter the findings', () => {
 
   async function profile(rendered: Rendered, root = rendered.root, cwd = rendered.top, name = 'map.yaml') {
     const scan = await cli(['estate', 'scan', root, '--no-model', '--out', join(cwd, name)], cwd);
-    const lint = await cli(['estate', 'lint', name, '--verbose'], cwd);
+    const lint = await cli(['estate', 'lint', name, '--verbose', '--json'], cwd);
     const atoms = await atomsOf(join(cwd, name));
     return { scan, lint, kinds: countByKind(atoms), counts: findingCounts(lint.out) };
   }
@@ -83,13 +84,13 @@ describe('R4: a map and its estate', () => {
       ['estate', 'scan', rendered.root, '--no-model', '--out', join(rendered.top, 'out', 'map.yaml')],
       rendered.top,
     );
-    const home = await cli(['estate', 'lint', 'out/map.yaml', '--verbose'], rendered.top);
+    const home = await cli(['estate', 'lint', 'out/map.yaml', '--verbose', '--json'], rendered.top);
     // Together: the map and the estate move under another folder, keeping their relation.
     const moved = join(rendered.top, 'moved');
     await mkdir(moved, { recursive: true });
     await copyTo(join(rendered.top, 'out'), join(moved, 'out'));
     await copyTo(rendered.root, join(moved, rendered.root.slice(rendered.top.length + 1)));
-    const together = await cli(['estate', 'lint', 'out/map.yaml', '--verbose'], moved);
+    const together = await cli(['estate', 'lint', 'out/map.yaml', '--verbose', '--json'], moved);
     expect(findingCounts(together.out)).toEqual(findingCounts(home.out));
     // The map alone: somewhere its recorded root names nothing.
     const alone = join(rendered.top, 'lonely');
@@ -106,12 +107,12 @@ describe('R4: a map and its estate', () => {
     const out = join(rendered.top, 'maps', 'map.yaml');
     await cli(['estate', 'scan', rendered.root, '--no-model', '--out', out], rendered.top);
     const relative = findingCounts(
-      (await cli(['estate', 'lint', 'maps/map.yaml', '--verbose'], rendered.top)).out,
+      (await cli(['estate', 'lint', 'maps/map.yaml', '--verbose', '--json'], rendered.top)).out,
     );
     const text = await readFile(out, 'utf8');
     await writeFile(out, text.replace(/^root: .*$/m, `root: ${rendered.root}`));
     const absolute = findingCounts(
-      (await cli(['estate', 'lint', 'maps/map.yaml', '--verbose'], rendered.top)).out,
+      (await cli(['estate', 'lint', 'maps/map.yaml', '--verbose', '--json'], rendered.top)).out,
     );
     expect(absolute).toEqual(relative);
   });
@@ -178,19 +179,18 @@ describe('R5: a long report states the true total and lists a bounded part', () 
         seed: SEED + strays,
       };
       const run = await scanVariant(variant, { verbose: false });
-      const everything = await cli(['estate', 'lint', 'map.yaml', '--verbose'], run.rendered.top);
-      // The true total is stated, whatever is listed.
-      expect(findingCounts(run.lint?.out ?? '').ORPHAN ?? 0).toBe(strays);
-      expect(listedLines(everything.out, 'ORPHAN')).toBe(strays);
+      const everything = await cli(['estate', 'lint', 'map.yaml', '--verbose', '--json'], run.rendered.top);
+      // The true total is stated, whatever is listed; the cut is data: total = shown + omitted.
+      const cut = lintData(run.lint?.out ?? '').totals.find((entry) => entry.code === 'ORPHAN');
+      expect(cut?.total ?? 0).toBe(strays);
+      expect((cut?.shown ?? 0) + (cut?.omitted ?? 0)).toBe(strays);
+      expect(listedSubjects(everything.out, 'ORPHAN')).toHaveLength(strays);
       if (strays >= 60) {
-        expect(listedLines(run.lint?.out ?? '', 'ORPHAN')).toBeLessThan(strays / 2);
-        expect((run.lint?.out ?? '').split('\n').length).toBeLessThan(60);
+        const listed = listedSubjects(run.lint?.out ?? '', 'ORPHAN');
+        expect(listed).toHaveLength(cut?.shown ?? -1);
+        expect(listed.length).toBeLessThan(strays / 2);
         // What is listed is the start of the full list, in the same order.
-        const listed = (run.lint?.out ?? '')
-          .split('\n')
-          .filter((line) => /^ {2}ORPHAN {2}\S/.test(line) && !line.includes('...'));
-        const full = everything.out.split('\n').filter((line) => /^ {2}ORPHAN {2}\S/.test(line));
-        expect(full.slice(0, listed.length)).toEqual(listed);
+        expect(listedSubjects(everything.out, 'ORPHAN').slice(0, listed.length)).toEqual(listed);
         // The scan report is bounded too.
         expect(run.scan.out.split('\n').length).toBeLessThan(80);
       }

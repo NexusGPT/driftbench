@@ -52,6 +52,22 @@ describe('driftbench estate lint on a long list of findings', () => {
     expect(verbose.out).not.toContain('Totals:');
   });
 
+  it('carries the cut as data with --json: per code the total, the number shown and the number omitted', async () => {
+    const top = await scanned(25);
+    const short = JSON.parse((await run(['estate', 'lint', 'map.yaml', '--json'], top)).out);
+    const orphan = short.totals.find((entry: { code: string }) => entry.code === 'ORPHAN');
+    expect(orphan).toEqual({ code: 'ORPHAN', total: 25, shown: 10, omitted: 15 });
+    expect(short.findings.filter((finding: { code: string }) => finding.code === 'ORPHAN')).toHaveLength(10);
+    const verbose = JSON.parse((await run(['estate', 'lint', 'map.yaml', '--json', '--verbose'], top)).out);
+    expect(verbose.totals.find((entry: { code: string }) => entry.code === 'ORPHAN')).toEqual({
+      code: 'ORPHAN',
+      total: 25,
+      shown: 25,
+      omitted: 0,
+    });
+    expect(verbose.failed).toBe(true);
+  });
+
   it('prints a short list as before', async () => {
     const top = await scanned(3);
     const lint = await run(['estate', 'lint', 'map.yaml'], top);
