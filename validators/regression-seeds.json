@@ -8,7 +8,7 @@
       "through": 2,
       "fixedBy": "#1464",
       "defect": "A hidden seed of the generator: level 2 failed with the five diff.feasible.* items (graph, boundary, deviation, metamorphic, cover), blocks placed in cells that no position of the hidden map carries.",
-      "evidence": "Run 39957240185 (branch scratch/regression-probe): on release/next 1bad2ee0f with this change, level 2 fails with those five items; with PR 1464 at a8fc7e432 merged in, levels 1 and 2 pass."
+      "evidence": "Tag evidence/regression-732170008 (commit e2a0c651fc472535468fb64654d185e2101a1623), CI run 39957704806: the generator on seed 732170008 through level 8 (the floor). On release/next 1bad2ee0f with the regression change, only level 2 fails, with the five items; with PR 1464 (a8fc7e432) merged in, levels 1 to 8 pass. Tag evidence/regression-732170008-level2 (commit a7b474359e0e522c3ef9b874183dc37a94f5235d), CI run 39957240185: the same through level 2, the same result."
     }
   ]
 }
