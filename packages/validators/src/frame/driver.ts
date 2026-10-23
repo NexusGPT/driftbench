@@ -145,6 +145,152 @@ const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key�
 // The objects the codec meets, for the identity watch: decode names each object it makes, encode each object it
 // writes, so the watch counts exactly the objects that cross, accessors read by the codec included (review of PR 1403,
 // codex run 39875360028: a cached array behind a getter was not counted).
+// Identity across the boundary (review of PR 1403, codex runs 39875360028 and 39875900785). Every object that crosses
+// has an id: the caller's objects carry the caller's ids, the objects a run makes get ids of the run (negative), the
+// same in every run that makes the same calls. An argument object the run has seen before is the run's same object,
+// changed in place to the caller's content, so a cache keyed by an object sees it again; a result object the caller
+// has seen before comes back to the caller as its own object. The references are taken before the product loads.
+const «applyIt» = Reflect.apply;
+const «WeakMapIt» = WeakMap;
+const «WeakRefIt» = WeakRef;
+const «RegistryIt» = FinalizationRegistry;
+const «MapIt» = Map;
+const «SetIt» = Set;
+const «DateIt» = Date;
+const «isArrayIt» = Array.isArray;
+const «protoOfIt» = Reflect.getPrototypeOf;
+const «objectProto» = Object.prototype;
+const «hasOwnIt» = Object.hasOwn;
+const «wmGet» = WeakMap.prototype.get;
+const «wmSet» = WeakMap.prototype.set;
+const «derefIt» = WeakRef.prototype.deref;
+const «registerIt» = FinalizationRegistry.prototype.register;
+const «mGet» = Map.prototype.get;
+const «mSet» = Map.prototype.set;
+const «mDelete» = Map.prototype.delete;
+const «mClear» = Map.prototype.clear;
+const «mEach» = Map.prototype.forEach;
+const «sAdd» = Set.prototype.add;
+const «sClear» = Set.prototype.clear;
+const «sEach» = Set.prototype.forEach;
+const «timeOf» = Date.prototype.getTime;
+const «timeTo» = Date.prototype.setTime;
+function «identityState»() {
+  const «byId» = new «MapIt»();
+  const «registry» = new «RegistryIt»((«id») => «applyIt»(«mDelete», «byId», [«id»]));
+  return { ids: new «WeakMapIt»(), byId: «byId», registry: «registry», next: -1 };
+}
+function «remember»(«state», «o», «id») {
+  «applyIt»(«wmSet», «state».ids, [«o», «id»]);
+  «applyIt»(«mSet», «state».byId, [«id», new «WeakRefIt»(«o»)]);
+  «applyIt»(«registerIt», «state».registry, [«o», «id»]);
+}
+function «knownAs»(«state», «id») {
+  const «ref» = «applyIt»(«mGet», «state».byId, [«id»]);
+  return «ref» === undefined ? undefined : «applyIt»(«derefIt», «ref», []);
+}
+const «isPlainIt» = («o») => {
+  const «p» = «protoOfIt»(«o»);
+  return «p» === «objectProto» || «p» === null;
+};
+// Changes the run's existing object in place to the content of the one the caller sent; false when they differ in
+// kind or the existing one cannot be changed.
+function «refill»(«existing», «node») {
+  if («isFrozenIt»(«existing»)) return false;
+  if («isArrayIt»(«existing») && «isArrayIt»(«node»)) {
+    for (let «i» = 0; «i» < «node».length; «i» += 1) «existing»[«i»] = «node»[«i»];
+    «existing».length = «node».length;
+    return true;
+  }
+  if («existing» instanceof «MapIt» && «node» instanceof «MapIt») {
+    «applyIt»(«mClear», «existing», []);
+    «applyIt»(«mEach», «node», [(«v», «k») => «applyIt»(«mSet», «existing», [«k», «v»])]);
+    return true;
+  }
+  if («existing» instanceof «SetIt» && «node» instanceof «SetIt») {
+    «applyIt»(«sClear», «existing», []);
+    «applyIt»(«sEach», «node», [(«v») => «applyIt»(«sAdd», «existing», [«v»])]);
+    return true;
+  }
+  if («existing» instanceof «DateIt» && «node» instanceof «DateIt») {
+    «applyIt»(«timeTo», «existing», [«applyIt»(«timeOf», «node», [])]);
+    return true;
+  }
+  if («isPlainIt»(«existing») && «isPlainIt»(«node») && !«isArrayIt»(«existing») && !«isArrayIt»(«node»)) {
+    const «old» = «keysOf»(«existing»);
+    for (let «i» = 0; «i» < «old».length; «i» += 1) if (!«hasOwnIt»(«node», «old»[«i»])) delete «existing»[«old»[«i»]];
+    const «fresh» = «keysOf»(«node»);
+    for (let «i» = 0; «i» < «fresh».length; «i» += 1) «existing»[«fresh»[«i»]] = «node»[«fresh»[«i»]];
+    return true;
+  }
+  return false;
+}
+// The arguments as the run decoded them: each object at a path of «refs» ([path, id], shortest paths first) becomes
+// the run's object of that id when it has one, else is remembered under it.
+function «applyRefs»(«root», «refs», «state») {
+  if (!«refs») return «root»;
+  for (let «r» = 0; «r» < «refs».length; «r» += 1) {
+    const «path» = «refs»[«r»][0];
+    const «id» = «refs»[«r»][1];
+    let «parent» = «root»;
+    for (let «p» = 0; «p» < «path».length - 1 && «parent» !== null && typeof «parent» === 'object'; «p» += 1) {
+      const «step» = «descOf»(«parent», «path»[«p»]);
+      «parent» = «step» && 'value' in «step» ? «step».value : undefined;
+    }
+    if («parent» === null || typeof «parent» !== 'object') continue;
+    const «key» = «path»[«path».length - 1];
+    const «here» = «descOf»(«parent», «key»);
+    const «node» = «here» && 'value' in «here» ? «here».value : undefined;
+    if («node» === null || typeof «node» !== 'object') continue;
+    const «existing» = «knownAs»(«state», «id»);
+    if («existing» !== undefined && «existing» !== «node» && «refill»(«existing», «node»)) «parent»[«key»] = «existing»;
+    else «remember»(«state», «node», «id»);
+  }
+  return «root»;
+}
+// The ids of the objects a result's encoding met at a path ([path, object]): a known object keeps its id, a new one
+// gets the next id of the run.
+function «resultRefs»(«pairs», «state») {
+  const «out» = [];
+  for (let «i» = 0; «i» < «pairs».length; «i» += 1) {
+    const «o» = «pairs»[«i»][1];
+    let «id» = «applyIt»(«wmGet», «state».ids, [«o»]);
+    if («id» === undefined) {
+      «id» = «state».next;
+      «state».next -= 1;
+      «remember»(«state», «o», «id»);
+    }
+    «out»[«out».length] = [«pairs»[«i»][0], «id»];
+  }
+  return «out»;
+}
+// While a result is encoded: the objects met at a path through arrays and plain objects, and the first part of the
+// result the codec cannot carry (an accessor, a symbol or hidden key, a property of a Map, a Set or a Date, an object
+// of a class), which a copy would hide from the caller.
+let «collected»;
+let «trail» = [];
+let «inContainer» = 0;
+let «uncarried»;
+function «collectOn»() {
+  «collected» = [];
+  «trail» = [];
+  «inContainer» = 0;
+  «uncarried» = undefined;
+}
+function «collectOff»() {
+  const «got» = { pairs: «collected», uncarried: «uncarried» };
+  «collected» = undefined;
+  return «got»;
+}
+const «encodeAt» = («v», «seen», «key») => {
+  if («collected» === undefined || «v» === null || typeof «v» !== 'object') return «encode»(«v», «seen»);
+  «trail»[«trail».length] = «key»;
+  try {
+    return «encode»(«v», «seen»);
+  } finally {
+    «trail».length -= 1;
+  }
+};
 let «visitor»;
 function «setVisitor»(«next») {
   «visitor» = «next»;
@@ -166,17 +312,38 @@ function «encode»(«value», «seen» = new WeakSet()) {
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
   if («visitor») «visitor»(«value»);
+  if («collected» !== undefined && «inContainer» === 0) {
+    const «at» = [];
+    for (let «t» = 0; «t» < «trail».length; «t» += 1) «at»[«t»] = «trail»[«t»];
+    «collected»[«collected».length] = [«at», «value»];
+  }
+  const «container» = «value» instanceof Map || «value» instanceof Set || «value» instanceof Date;
+  if («collected» !== undefined && «container» && «uncarried» === undefined && «keysOf»(«value»).length > 0)
+    «uncarried» = 'a property of a Map, a Set or a Date';
+  if («container») «inContainer» += 1;
   try {
     if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
     if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
     if («value» instanceof Error) return { $err: { name: «value».name, message: «value».message } };
-    if (Array.isArray(«value»)) return «value».map((«v») => «encode»(«v», «seen»));
+    if (Array.isArray(«value»)) return «value».map((«v», «i») => «encodeAt»(«v», «seen», «i»));
     if («value» instanceof Date) return { $date: «value».toISOString() };
     if (ArrayBuffer.isView(«value»)) return { $bytes: [...new Uint8Array(«value».buffer, «value».byteOffset, «value».byteLength)] };
     const «proto» = Object.getPrototypeOf(«value»);
-    if («proto» !== Object.prototype && «proto» !== null) return { $opaque: («proto» && «proto».constructor && «proto».constructor.name) || 'object' };
-    return Object.fromEntries(Object.entries(«value»).map(([«k», «v»]) => [«esc»(«k»), «encode»(«v», «seen»)]));
+    if («proto» !== Object.prototype && «proto» !== null) {
+      if («collected» !== undefined && «uncarried» === undefined) «uncarried» = 'an object of a class';
+      return { $opaque: («proto» && «proto».constructor && «proto».constructor.name) || 'object' };
+    }
+    if («collected» !== undefined && «uncarried» === undefined) {
+      const «ks» = «keysOf»(«value»);
+      for (let «i» = 0; «i» < «ks».length && «uncarried» === undefined; «i» += 1) {
+        const «d» = «descOf»(«value», «ks»[«i»]);
+        if (typeof «ks»[«i»] !== 'string' || !«d».enumerable) «uncarried» = 'a symbol or hidden property';
+        else if (!('value' in «d»)) «uncarried» = 'an accessor property';
+      }
+    }
+    return Object.fromEntries(Object.entries(«value»).map(([«k», «v»]) => [«esc»(«k»), «encodeAt»(«v», «seen», «k»)]));
   } finally {
+    if («container») «inContainer» -= 1;
     «seen».delete(«value»);
   }
 }
@@ -707,6 +874,7 @@ if («setup».command) {
   // the objects of a result that are also objects of the call's arguments, or of a result returned before while the
   // same watch is on. A copy of the answer hides both from the caller, who would see them in a call of its own
   // process. Only the counts cross; the walk uses the references captured before the product loads.
+  const «identity» = «identityState»();
   let «identityEpoch»;
   let «returned» = new «SeenSet»();
   // Opens the watch of one call: returns the set of the argument objects decoding made (pass it to decode's visitor).
@@ -774,7 +942,7 @@ if («setup».command) {
       } finally {
         «setVisitor»(undefined);
       }
-      const «decoded» = «markAll»(«decodedArgs», «request».marks);
+      const «decoded» = «markAll»(«applyRefs»(«decodedArgs», «request».refs, «identity»), «request».marks);
       const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
       «argsRef» = «args»;
       if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
@@ -792,11 +960,15 @@ if («setup».command) {
         «outs»[«outs».length] = «o»;
       });
       let «ret»;
+      let «carried»;
+      «collectOn»();
       try {
         «ret» = «encode»(«result»);
       } finally {
+        «carried» = «collectOff»();
         «setVisitor»(undefined);
       }
+      const «rrefs» = «resultRefs»(«carried».pairs, «identity»);
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «shares» = «identityCount»(«argSet», «outs»);
@@ -822,7 +994,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...(«rrefs».length > 0 ? { rrefs: «rrefs» } : {}), ...(«carried».uncarried ? { uncarried: «carried».uncarried } : {}), ...«after», ...«altered»() });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
@@ -878,9 +1050,14 @@ export function plainCodec(
   markAll: string;
   ambientOn: string;
   setVisitor: string;
+  identityState: string;
+  applyRefs: string;
+  resultRefs: string;
+  collectOn: string;
+  collectOff: string;
 } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('markAll')}, ${name('ambientOn')}, ${name('setVisitor')} };\n`;
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('markAll')}, ${name('ambientOn')}, ${name('setVisitor')}, ${name('identityState')}, ${name('applyRefs')}, ${name('resultRefs')}, ${name('collectOn')}, ${name('collectOff')} };\n`;
   return {
     source,
     encode: name('encode'),
@@ -890,6 +1067,11 @@ export function plainCodec(
     markAll: name('markAll'),
     ambientOn: name('ambientOn'),
     setVisitor: name('setVisitor'),
+    identityState: name('identityState'),
+    applyRefs: name('applyRefs'),
+    resultRefs: name('resultRefs'),
+    collectOn: name('collectOn'),
+    collectOff: name('collectOff'),
   };
 }
 
@@ -910,6 +1092,11 @@ export function plainBatchEntry(
     markAll: string;
     ambientOn: string;
     setVisitor: string;
+    identityState: string;
+    applyRefs: string;
+    resultRefs: string;
+    collectOn: string;
+    collectOff: string;
   },
 ): string {
   const name = namer(seed, `plain:${tag}`);
@@ -920,11 +1107,12 @@ export function plainBatchEntry(
   const error = name('error');
   return [
     // The codec first: it takes the functions it freezes with before the product module runs.
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.markAll} as ${name('markAll')}, ${codec.ambientOn} as ${name('ambientOn')}, ${codec.setVisitor} as ${name('setVisitor')} } from ${JSON.stringify(paths.codec)};`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.markAll} as ${name('markAll')}, ${codec.ambientOn} as ${name('ambientOn')}, ${codec.setVisitor} as ${name('setVisitor')}, ${codec.identityState} as ${name('identityState')}, ${codec.applyRefs} as ${name('applyRefs')}, ${codec.resultRefs} as ${name('resultRefs')}, ${codec.collectOn} as ${name('collectOn')}, ${codec.collectOff} as ${name('collectOff')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
     // The identity watch, as in the confined runs: run C counts the same shared objects.
+    `const ${name('identity')} = ${name('identityState')}();`,
     `let ${name('epoch')};`,
     `let ${name('returned')} = new WeakSet();`,
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
@@ -938,7 +1126,7 @@ export function plainBatchEntry(
     `    const ${name('argSet')} = new WeakSet();`,
     `    ${name('setVisitor')}(${name('watched')} ? (${name('o')}) => ${name('argSet')}.add(${name('o')}) : undefined);`,
     `    let ${name('given')};`,
-    `    try { ${name('given')} = ${name('markAll')}(${name('decode')}(${each}.args), ${each}.marks); } finally { ${name('setVisitor')}(undefined); }`,
+    `    try { ${name('given')} = ${name('markAll')}(${name('applyRefs')}(${name('decode')}(${each}.args), ${each}.refs, ${name('identity')}), ${each}.marks); } finally { ${name('setVisitor')}(undefined); }`,
     `    const ${name('off')} = ${name('ambientOn')}(${each}.ambient);`,
     `    let ${name('result')};`,
     `    try {`,
@@ -948,7 +1136,12 @@ export function plainBatchEntry(
     `    }`,
     `    const ${name('outs')} = [];`,
     `    ${name('setVisitor')}(${name('watched')} ? (${name('o')}) => { ${name('outs')}[${name('outs')}.length] = ${name('o')}; } : undefined);`,
-    `    try { ${answer} = { ret: ${name('encode')}(${name('result')}) }; } finally { ${name('setVisitor')}(undefined); }`,
+    `    let ${name('carried')};`,
+    `    ${name('collectOn')}();`,
+    `    try { ${answer} = { ret: ${name('encode')}(${name('result')}) }; } finally { ${name('carried')} = ${name('collectOff')}(); ${name('setVisitor')}(undefined); }`,
+    `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')});`,
+    `    if (${name('rrefs')}.length > 0) ${answer}.rrefs = ${name('rrefs')};`,
+    `    if (${name('carried')}.uncarried) ${answer}.uncarried = ${name('carried')}.uncarried;`,
     `    if (${name('watched')}) {`,
     `      let ${name('withArgs')} = 0;`,
     `      let ${name('withEarlier')} = 0;`,
@@ -1027,7 +1220,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}) });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}), ...(message.refs ? { refs: message.refs } : {}) });
   const sentAt = Date.now();
   const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ answers });

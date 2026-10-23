@@ -486,8 +486,13 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
  * sealed, 'x' not extensible. The runs give each decoded object the state its caller's object has (driver.ts,
  * `markAll`). Every path to an object is listed, so an object reached twice is marked at both copies.
  */
-function marksOf(args: readonly unknown[]): Array<[Array<string | number>, 'f' | 's' | 'x']> | undefined {
-  const out: Array<[Array<string | number>, 'f' | 's' | 'x']> = [];
+type Path = Array<string | number>;
+function marksOf(
+  args: readonly unknown[],
+  idOf: (value: object) => number,
+): { marks?: Array<[Path, 'f' | 's' | 'x']>; refs?: Array<[Path, number]> } {
+  const out: Array<[Path, 'f' | 's' | 'x']> = [];
+  const refs: Array<[Path, number]> = [];
   const path: Array<string | number> = [];
   const ancestors: object[] = [];
   let visited = 0;
@@ -503,6 +508,8 @@ function marksOf(args: readonly unknown[]): Array<[Array<string | number>, 'f' |
           ? 'x'
           : undefined;
     if (state) out.push([[...path], state]);
+    // Every path to an object, with the object's id: the run gives each the same object (driver.ts, applyRefs).
+    refs.push([[...path], idOf(value)]);
     ancestors.push(value);
     const visit = (key: string | number, child: unknown) => {
       if (child === null || typeof child !== 'object') return;
@@ -521,7 +528,62 @@ function marksOf(args: readonly unknown[]): Array<[Array<string | number>, 'f' |
     walk(arg);
     path.pop();
   });
-  return out.length > 0 ? out : undefined;
+  refs.sort((x, y) => x[0].length - y[0].length);
+  return { ...(out.length > 0 ? { marks: out } : {}), ...(refs.length > 0 ? { refs } : {}) };
+}
+
+/**
+ * The ids of the objects that cross the boundary on the caller's side (review of PR 1403, codex runs 39875360028 and
+ * 39875900785). The caller's objects get positive ids when they are sent; the objects a run makes come with the
+ * run's ids (negative). A result object of a known id is the caller's own object, kept as the caller holds it; a new
+ * one is remembered under its id. So the caller sees the sharing a call in its own process would show: a result that
+ * holds an argument, two results that are one object, an argument a cache keyed by the object sees again.
+ */
+function callerIdentity(): { idOf(value: object): number; adopt(value: unknown, refs?: Array<[Path, number]>): unknown } {
+  const ids = new WeakMap<object, number>();
+  const byId = new Map<number, WeakRef<object>>();
+  const registry = new FinalizationRegistry<number>((id) => byId.delete(id));
+  let next = 1;
+  const remember = (value: object, id: number) => {
+    ids.set(value, id);
+    byId.set(id, new WeakRef(value));
+    registry.register(value, id);
+  };
+  return {
+    idOf(value) {
+      let id = ids.get(value);
+      if (id === undefined) {
+        id = next;
+        next += 1;
+        remember(value, id);
+      }
+      return id;
+    },
+    adopt(value, refs) {
+      if (!refs) return value;
+      let root = value;
+      const replaced: Path[] = [];
+      const under = (path: Path, prefix: Path) =>
+        prefix.length <= path.length && prefix.every((key, at) => path[at] === key);
+      for (const [path, id] of [...refs].sort((x, y) => x[0].length - y[0].length)) {
+        if (replaced.some((prefix) => under(path, prefix))) continue;
+        let parent: unknown = undefined;
+        let node: unknown = root;
+        for (const key of path) {
+          parent = node;
+          node = node !== null && typeof node === 'object' ? (node as Record<string | number, unknown>)[key] : undefined;
+        }
+        if (node === null || typeof node !== 'object') continue;
+        const known = byId.get(id)?.deref();
+        if (known !== undefined && known !== node) {
+          if (path.length === 0) root = known;
+          else (parent as Record<string | number, unknown>)[path[path.length - 1] as string | number] = known;
+          replaced.push(path);
+        } else if (known === undefined) remember(node, id);
+      }
+      return root;
+    },
+  };
 }
 
 /** An environment without the named variables. */
@@ -726,7 +788,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const byName = new Map<string, { calls: number; ms: number; slow: number }>();
   const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
-  type Recorded = { call: string; entry: Entry; shared: string; expected: string; head: string; at: number };
+  type Recorded = {
+    call: string;
+    entry: Entry;
+    shared: string;
+    ids: string;
+    expected: string;
+    head: string;
+    at: number;
+  };
   const recorded: Recorded[] = [];
   let compared = 0;
   /**
@@ -745,6 +815,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if (!('dead' in c)) held.entry.plain = c;
       if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      } else if (!('dead' in c) && JSON.stringify((c as { rrefs?: unknown }).rrefs ?? null) !== held.ids) {
+        const message = `${held.head}, the objects of the result are shared otherwise in ${describeRun('C')}`;
         found.push({ at: held.at, message });
         first ??= message;
         taint ??= message;
@@ -768,6 +843,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   let strict = false;
   let ambient: Ambient | undefined;
+  const identities = callerIdentity();
   let identity: number | undefined;
   let identityEpochs = 0;
   const shared: Array<{ at: number; message: string }> = [];
@@ -776,7 +852,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    const marks = marksOf(args);
+    const { marks, refs } = marksOf(args, identities.idOf);
     relay.port.postMessage({
       call: name,
       args: sent,
@@ -784,6 +860,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       ...(marks ? { marks } : {}),
       ...(ambient ? { ambient } : {}),
       ...(identity !== undefined ? { identity } : {}),
+      ...(refs ? { refs } : {}),
     });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
@@ -854,6 +931,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       written: _written,
       altered: _altered,
       shared: sharedCounts,
+      rrefs: resultIds,
+      uncarried,
       argsAfter,
       cannot,
       ...answer
@@ -863,6 +942,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       written?: boolean;
       altered?: string;
       shared?: [number, number];
+      rrefs?: Array<[Path, number]>;
+      uncarried?: string;
       argsAfter?: Json;
       cannot?: boolean;
     };
@@ -878,6 +959,25 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         found.push({ at: tape.length, message });
         first ??= message;
       }
+    }
+    // Every run must give its results the same ids: a product that shares objects only in some runs answers by how
+    // it is run. A result the codec cannot carry would hide what the caller's own call shows: the call fails.
+    const idsText = (outcome: Outcome | { dead: string }) =>
+      JSON.stringify((outcome as { rrefs?: unknown }).rrefs ?? null);
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (!('dead' in other) && idsText(other) !== idsText(a)) {
+        const message = `${name}(): the objects of the result are shared otherwise in ${describeRun(plan as TwinPlan)} than in ${describeRun(plans[0] as TwinPlan)}`;
+        found.push({ at: tape.length, message });
+        first ??= message;
+      }
+    }
+    if (uncarried) {
+      const message = `${name}() returned ${uncarried} (${describeRun(plans[0] as TwinPlan)}): the frame cannot carry it to the caller, whose own call would see it`;
+      found.push({ at: tape.length, message });
+      first ??= message;
     }
     if (sharedCounts)
       shared.push({
@@ -924,12 +1024,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
       appendFileSync(
         plain.calls,
-        `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}) })}\n`,
+        `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
       );
       recorded.push({
         call: name,
         entry,
         shared: JSON.stringify(sharedCounts ?? null),
+        ids: JSON.stringify(resultIds ?? null),
         expected: keptOf(a, options.keep?.[name]),
         head,
         at: tape.length - 1,
@@ -937,7 +1038,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if ('throws' in a) throw decode(a.throws);
     const t2 = performance.now();
-    const value = decode(a.ret, revive);
+    const value = identities.adopt(decode(a.ret, revive), (a as { rrefs?: Array<[Path, number]> }).rrefs);
     spent.decodeMs += performance.now() - t2;
     return value;
   };
