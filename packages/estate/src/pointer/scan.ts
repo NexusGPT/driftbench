@@ -2,7 +2,7 @@ import { ModelError } from '@agent-nexus/driftbench-generate';
 import { namedPaths } from '../scan/code';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type Cut, cut, type Unit } from './cut';
+import { type Cut, CutError, cut, isPlainTextPath, type Unit } from './cut';
 import {
   isTooLarge,
   type Labeler,
@@ -35,6 +35,7 @@ import {
   unitKey,
 } from './ledger';
 import type { Labelling } from './stack';
+import { askedLabels } from './yesno';
 
 /**
  * The pointer scan: cut each prose file into units, follow the units through the ledger, send the windows
@@ -495,6 +496,12 @@ const slipReason = (slip: Slip): string =>
 const RETRYABLE = (cause: unknown): boolean =>
   cause instanceof LabelerError || (cause instanceof ModelError && cause.code !== 'config');
 
+/** True when every label of the set asks for a target, a span or a link, which a probability cannot give. */
+const setNeedsSystem2 = (set: LabelSet): boolean =>
+  set.labels.every(
+    (label) => label.target === 'required' || label.spans !== undefined || label.links !== undefined,
+  );
+
 /** A failure that stops the run: nothing the next window does can fix it. */
 const FATAL = (cause: unknown): boolean =>
   cause instanceof CassetteMiss || cause instanceof LabelerConfigError;
@@ -571,7 +578,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const estateKey = input.estateKey ?? 'estate';
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
-  const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  const cuts = new Map(
+    files.map((file) => {
+      try {
+        return [file.path, cut(file.text, { plain: isPlainTextPath(file.path) })];
+      } catch (cause) {
+        if (cause instanceof CutError) throw cause.at(file.path);
+        throw cause;
+      }
+    }),
+  );
   // The units the code already reads (a skill's description): no label is asked of them; the labeler sees them as read.
   const readUnits = new Map<string, Set<number>>();
   for (const file of files) {
@@ -696,6 +712,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
+        // In a stack, a yes or no labeler is not asked about a set whose every label needs a target, a clause or a
+        // link: it has no question to put, and the other labeler decides alone.
+        if (labelling.members.length > 1 && member.cls === 'system1' && setNeedsSystem2(set)) continue;
         for (const whole of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!whole.units.some((unit) => want.has(unit.index))) continue;
           const window = askedAbout(whole, want, readUnits.get(file.path) ?? new Set());
@@ -924,10 +943,56 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
   }
 
-  const settled = await runPool(
-    tasks.map((task) => () => resolve(task, task.window)),
-    input.jobs ?? 1,
-  );
+  // A stack asks system 1 first. A unit system 1 decides alone, in a set with no label only system 2 can give,
+  // is not asked of system 2 (it could not change the decision), and a window whose needed units are all such
+  // units is not sent to system 2. Every other window goes, as before.
+  const jobs = input.jobs ?? 1;
+  const cascade = labelling.members.length === 2 && labelling.members[0]?.cls === 'system1';
+  type Settled = Awaited<ReturnType<typeof runPool<TaskResult>>>;
+  let settled: Settled;
+  if (!cascade) {
+    settled = await runPool(
+      tasks.map((task) => () => resolve(task, task.window)),
+      jobs,
+    );
+  } else {
+    settled = new Array(tasks.length).fill(undefined) as Settled;
+    const earlyAt = tasks.flatMap((task, at) => (task.memberAt === 0 ? [at] : []));
+    const early = await runPool(
+      earlyAt.map((at) => () => resolve(tasks[at] as Task, (tasks[at] as Task).window)),
+      jobs,
+    );
+    for (const [place, at] of earlyAt.entries()) settled[at] = early[place];
+    for (const outcome of early) if (outcome && !outcome.ok) throw outcome.error;
+    const alone = new Set<string>();
+    for (const [place, at] of earlyAt.entries()) {
+      const task = tasks[at] as Task;
+      const outcome = early[place];
+      if (!outcome?.ok || askedLabels(task.set, true).length < task.set.labels.length) continue;
+      for (const leaf of outcome.value.leaves) {
+        const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
+        for (const [index, opinion] of read.byUnit) {
+          if (labelling.decide([opinion, undefined], task.set) !== undefined)
+            alone.add(`${task.file}\0${task.set.set}\0${index}`);
+        }
+      }
+    }
+    const lateAt = tasks.flatMap((task, at) => (task.memberAt === 0 ? [] : [at]));
+    const sent = lateAt.filter((at) => {
+      const task = tasks[at] as Task;
+      const want = needed.get(`${task.file}\0${task.set.set}`);
+      return task.window.units.some(
+        (unit) => want?.has(unit.index) && !alone.has(`${task.file}\0${task.set.set}\0${unit.index}`),
+      );
+    });
+    const late = await runPool(
+      sent.map((at) => () => resolve(tasks[at] as Task, (tasks[at] as Task).window)),
+      jobs,
+    );
+    for (const [place, at] of sent.entries()) settled[at] = late[place];
+    for (const at of lateAt)
+      if (!sent.includes(at)) settled[at] = { ok: true, value: { leaves: [], failures: [] } };
+  }
   for (const outcome of settled) if (outcome && !outcome.ok) throw outcome.error;
 
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.

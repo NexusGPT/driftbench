@@ -25,10 +25,11 @@ import {
   SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   singleLabelling,
+  stackedLabelling,
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { BAKERY, type Call, load, plantedDense, windowOf } from './support';
+import { BAKERY, type Call, load, plantedDense, plantedYesNo, windowOf } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -159,6 +160,25 @@ describe('the pointer scan', () => {
     expect(second.labelled.map((item) => [item.id, item.label])).toEqual(
       first.labelled.map((item) => [item.id, item.label]),
     );
+  });
+
+  it('shows a plain text file to the labeler one line at a time where a line is a title, and a markdown file whole', async () => {
+    const text = 'ROPES\nNever coil a rope that another skipper holds, note a.\n';
+    const seen: Record<string, string[]> = {};
+    const labeler = plantedDense((window, set) => {
+      seen[window.path] = window.units.map((unit) => unit.text);
+      return byLength(window, set);
+    });
+    await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [
+          { path: 'ropes.txt', text },
+          { path: 'ropes.md', text },
+        ],
+      }),
+    );
+    expect(seen['ropes.txt']).toEqual(['ROPES', 'Never coil a rope that another skipper holds, note a.']);
+    expect(seen['ropes.md']).toEqual([text.trim()]);
   });
 
   it('keeps a label of the ledger without asking again', async () => {
@@ -1990,5 +2010,48 @@ describe('the path of a window and the layout of its request', () => {
     expect(lines[1]).toMatch(/^DESCRIPTION /);
     expect(lines[2]).toBe('LABELS order | remark | none');
     expect(lines.find((line) => line.startsWith('WINDOW '))).toBe('WINDOW emails.md#1  path: Emails');
+  });
+});
+
+describe('a stack asks system 2 only about the windows system 1 does not decide', () => {
+  const run = async (system1: Record<string, number>, sets = SETS) => {
+    const one: string[] = [];
+    const two: string[] = [];
+    const first = plantedYesNo(() => system1, one);
+    const second = plantedDense((window, set) => byLength(window, set), two);
+    const result = await pointerScan(
+      input(second, new Cassette(), {
+        sets: load(sets),
+        labelling: stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1 }),
+      }),
+    );
+    return { result, one, two };
+  };
+
+  it('leaves system 2 out of the windows whose units system 1 is sure are none', async () => {
+    const { result, one, two } = await run({ order: 0.02, remark: 0.02, curt: 0.02, long: 0.02 });
+    expect(one.length).toBeGreaterThan(0);
+    expect(two).toEqual([]);
+    expect(result.labelled).toEqual([]);
+    expect(result.unlabeled).toBe(0);
+  });
+
+  it('asks system 2 about every window when system 1 is not sure', async () => {
+    const { two } = await run({ order: 0.5, remark: 0.5, curt: 0.5, long: 0.5 });
+    expect(two.length).toBeGreaterThan(0);
+  });
+
+  it('asks system 2 when the set holds a label only system 2 can give, even where system 1 says none', async () => {
+    const withTarget = `${SETS}  - set: ties
+    description: Units that point at another.
+    labels:
+      - name: plain
+        description: A unit that stands alone.
+      - name: gate
+        description: A unit that waits for another.
+        target: required
+`;
+    const { two } = await run({ order: 0.02, remark: 0.02, curt: 0.02, long: 0.02, plain: 0.02 }, withTarget);
+    expect(two.some((entry) => entry.endsWith(':ties'))).toBe(true);
   });
 });

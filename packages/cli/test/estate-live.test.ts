@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, link, mkdtemp, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -292,6 +293,86 @@ describe('driftbench estate run', () => {
     expect(guarded?.blocks[0]?.observed.runtime?.skills?.map((skill) => skill.name)).toEqual([
       'invoice-reconcile',
     ]);
+  });
+
+  /** The `live` record of the raw part of an observed block. */
+  const liveOf = (raw: unknown): { stateLibrary?: unknown } | undefined =>
+    (raw as { live?: { stateLibrary?: unknown } } | undefined)?.live;
+
+  /** The record the run is expected to carry for a library: the digest the test computes from the files. */
+  const digestOf = (file: string, path: string) => {
+    const sha = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
+    const text = readFileSync(file);
+    const named = (JSON.parse(text.toString('utf8')) as { prefixes: Record<string, string> }).prefixes;
+    const prefixes: Record<string, { file: string; sha256: string }> = {};
+    let joined = `library ${sha(text)}\n`;
+    for (const name of Object.keys(named).sort()) {
+      const entry = {
+        file: named[name] ?? '',
+        sha256: sha(readFileSync(join(dirname(file), named[name] ?? ''))),
+      };
+      prefixes[name] = entry;
+      joined += `prefix ${name} ${entry.file} ${entry.sha256}\n`;
+    }
+    return { path, fileSha256: sha(text), sha256: sha(joined), prefixes };
+  };
+
+  /** The `stateLibrary` record of the first block of the first run of a store. */
+  async function recordOf(result: Awaited<ReturnType<typeof estateRun>>): Promise<unknown> {
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    return liveOf(stored?.blocks[0]?.observed.raw)?.stateLibrary;
+  }
+
+  it('records the state library of a run: a path inside the working folder is relative, with its digest', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(FIXTURE, [spec]);
+    expect(result.code).toBe(0);
+    const recorded = await recordOf(result);
+    expect(recorded).toEqual(digestOf(STATES, relative(ROOT, STATES).split(sep).join('/')));
+    expect(JSON.stringify(recorded)).not.toContain(ROOT);
+    // A run with no library names none.
+    const bare = join(await folder(), 'bare.db');
+    const without = await run([
+      'estate',
+      'run',
+      spec,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--set-env',
+      `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+      '--store',
+      bare,
+      '--json',
+    ]);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const other = await openStore(bare);
+    const [plain] = await other.listRuns({ campaignId: (JSON.parse(without.out) as RunJson).campaignId });
+    await other.close();
+    expect(liveOf(plain?.blocks[0]?.observed.raw)).not.toHaveProperty('stateLibrary');
+  });
+
+  it('records the absolute path of a library outside the working folder, and the digest of its prefix files', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const copy = join(await folder(), 'states');
+    await cp(dirname(STATES), copy, { recursive: true });
+    const library = join(copy, 'library.json');
+    const first = await recordOf(await estateRun(FIXTURE, [spec], '--states', library));
+    expect(first).toEqual(digestOf(library, library));
+    // A prefix file changes, the library file does not: the recorded digest changes.
+    const prefix = join(copy, 'prefixes', 'long.jsonl');
+    await writeFile(prefix, `${readFileSync(prefix, 'utf8')}\n`);
+    const second = (await recordOf(await estateRun(FIXTURE, [spec], '--states', library))) as {
+      sha256: string;
+    };
+    expect(second).toEqual(digestOf(library, library));
+    expect(second.sha256).not.toBe((first as { sha256: string }).sha256);
   });
 
   it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
@@ -867,6 +948,36 @@ describe('driftbench estate run --from', () => {
     return calls.take();
   }
 
+  it('carries a failure as a failure: status, reasons and evidence stay what the old store holds', async () => {
+    const specs = proofSpecs();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest());
+    expect(next.err).toBe('');
+    expect(await readFile(old.store)).toEqual(before);
+    const lines = (next.json as CarryJson).runs;
+    const carried = lines.filter((line) => line.carried === true && !line.pass);
+    expect(carried.length).toBeGreaterThan(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const oldStore = openStore(old.store);
+    const newStore = openStore(next.store);
+    const oldRuns = await oldStore.listRuns();
+    const newRuns = await newStore.listRuns();
+    await oldStore.close();
+    await newStore.close();
+    for (const line of carried) {
+      const was = oldRuns.find((entry) => entry.specId === line.spec);
+      const now = newRuns.find((entry) => entry.specId === line.spec);
+      expect(was, line.spec).toBeDefined();
+      expect(now, line.spec).toBeDefined();
+      expect(now?.status).toBe(was?.status);
+      expect(line.failing.length).toBeGreaterThan(0);
+      expect(line.failing).toEqual(old.json.runs.find((entry) => entry.spec === line.spec)?.failing);
+      expect(JSON.stringify(now?.blocks)).toBe(JSON.stringify(was?.blocks));
+    }
+  });
+
   it('reruns the specs of the radius and carries the result of every other spec from the old store', async () => {
     const specs = proofSpecs();
     const calls = await counter();
@@ -1004,6 +1115,118 @@ describe('driftbench estate run --from', () => {
         'current execution context differs or cannot be proved',
       );
     });
+
+    it('gives the same value another stamp in another store, and the same stamp through --from', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const stampsOf = async (path: string) => {
+        const store = await openStore(path);
+        const runs = await store.listRuns();
+        const salt = await store.metaGet('estate.salt');
+        await store.close();
+        return { salt, stamps: new Set(runs.map((entry) => entry.provenance?.adapter.cacheIdentityHash)) };
+      };
+      const one = await firstRun(calls, specs, '--pass-env', NAME);
+      const two = await firstRun(calls, specs, '--pass-env', NAME);
+      const first = await stampsOf(one.store);
+      const second = await stampsOf(two.store);
+      expect(first.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).not.toBe(first.salt);
+      expect(first.stamps.size).toBe(1);
+      expect(second.stamps.size).toBe(1);
+      expect([...second.stamps][0]).not.toBe([...first.stamps][0]);
+      // Carry copies the salt, so the new store's digests are the old store's and the result is carried.
+      const change = await manifest();
+      const carried = await secondRun(calls, one.store, specs, '--change', change, '--pass-env', NAME);
+      expect((carried.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      expect((await stampsOf(carried.store)).salt).toBe(first.salt);
+    });
+
+    it('carries nothing from a store whose meta table holds no salt row, and runs fresh without error', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const { DatabaseSync } = await import('node:sqlite');
+      const raw = new DatabaseSync(old.store);
+      raw.exec("DELETE FROM meta WHERE key = 'estate.salt'");
+      raw.close();
+      const change = await manifest();
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect(next.err).toBe('');
+      const json = next.json as CarryJson;
+      expect(json.runs.length).toBeGreaterThan(0);
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    });
+
+    it('never prints the store salt: not in stdout, stderr, the progress file, the run records or any other file', async () => {
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const progress = join(await folder(), 'progress.jsonl');
+      const json = await firstRun(calls, small(), '--pass-env', NAME, '--progress', progress);
+      // The same run in text mode: the summary a person reads goes to stdout, not as JSON.
+      const textStore = join(await folder(), 'text.db');
+      const text = await run([
+        'estate',
+        'run',
+        ...small(),
+        '--estate',
+        FIXTURE,
+        '--runtime',
+        'claude-code',
+        '--command',
+        FAKE,
+        '--set-env',
+        `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+        '--store',
+        textStore,
+        '--states',
+        STATES,
+        '--map',
+        MAP,
+        '--agent-version',
+        'v1',
+        '--pass-env',
+        NAME,
+        ...calls.env,
+      ]);
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const store = openStore(json.store);
+      const salt = await store.metaGet('estate.salt');
+      const runs = await store.listRuns();
+      const campaigns = await store.listCampaigns();
+      await store.close();
+      const second = openStore(textStore);
+      const textSalt = await second.metaGet('estate.salt');
+      await second.close();
+      expect(salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(textSalt).toMatch(/^[0-9a-f]{32}$/);
+      expect(text.out).toContain('estate.journey.03');
+      const seen = [
+        ['stdout', JSON.stringify(json.json)],
+        ['stderr', json.err],
+        ['text stdout', text.out],
+        ['text stderr', text.err],
+        ['progress file', await readFile(progress, 'utf8')],
+        ['run records', JSON.stringify(runs)],
+        ['campaign records', JSON.stringify(campaigns)],
+      ] as const;
+      for (const [where, content] of seen) {
+        expect(content, where).not.toContain(salt as string);
+        expect(content, where).not.toContain(textSalt as string);
+      }
+      // Every other file the run left next to the store (the store itself holds the salt by design).
+      const dir = dirname(json.store);
+      for (const name of await readdir(dir)) {
+        if (name.startsWith('runs.db')) continue;
+        const path = join(dir, name);
+        if ((await stat(path)).isFile())
+          expect(await readFile(path, 'latin1'), name).not.toContain(salt as string);
+      }
+    }, 120_000);
 
     it('keeps the value out of the store', async () => {
       const calls = await counter();
