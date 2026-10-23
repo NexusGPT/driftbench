@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
@@ -45,6 +45,38 @@ const CALL_MS = 300_000;
 
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
+}
+
+/** Seeded names are only prefixes: each live frame owns the files it writes and removes. */
+function ownFolder(prefix: string): string {
+  mkdirSync(dirname(prefix), { recursive: true });
+  return mkdtempSync(prefix);
+}
+
+/** Keep the drawn traits, but move every path of a twin into its own atomically allocated folder. */
+function ownPlan(plan: TwinPlan): TwinPlan {
+  const driverDir = ownFolder(plan.driverDir);
+  const move = (path: string) => join(driverDir, relative(plan.driverDir, path));
+  const home = plan.home ? move(plan.home) : undefined;
+  return {
+    ...plan,
+    driverDir,
+    ...(plan.cwd ? { cwd: move(plan.cwd) } : {}),
+    ...(home
+      ? { home, env: { ...plan.env, HOME: home, ...(plan.env?.USERPROFILE ? { USERPROFILE: home } : {}) } }
+      : {}),
+  };
+}
+
+/** Publish complete bytes, and remove only this writer's unpublished temporary file on failure. */
+function writeAtomic(file: string, bytes: string): void {
+  const temporary = `${file}.${randomBytes(16).toString('hex')}.tmp`;
+  try {
+    writeFileSync(temporary, bytes, { flag: 'wx' });
+    renameSync(temporary, file);
+  } finally {
+    rmSync(temporary, { force: true });
+  }
 }
 
 /** What the validator keeps of an answer before the two runs are compared, by export name. */
@@ -143,11 +175,10 @@ function openPlain(seed: number, tag: string): PlainRun {
   let folder = '';
   while (folder.length < 6 + Math.floor(rng() * 8))
     folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
-  const dir = join(projectCache(), folder);
-  mkdirSync(dir, { recursive: true });
+  const dir = ownFolder(join(projectCache(), folder));
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
-  writeFileSync(codecPath, codec.source);
+  writeAtomic(codecPath, codec.source);
   return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
 }
 
@@ -159,8 +190,8 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
   const entry = join(plain.dir, `${stem}.mts`);
   const args = join(plain.dir, `${stem}.json`);
   const out = join(plain.dir, `${stem}.out.json`);
-  writeFileSync(args, JSON.stringify(sent));
-  writeFileSync(
+  writeAtomic(args, JSON.stringify(sent));
+  writeAtomic(
     entry,
     plainEntry(
       seed,
@@ -211,7 +242,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const module = resolve(options.module);
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
-  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
+  const sealFolder = ownFolder(join(projectCache(), drawnFolder(options.seed, `seal:${tag}`)));
   const {
     file: sealed,
     inputs,
@@ -257,7 +288,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     first ??= message;
     setMark(mark, message);
   };
-  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
+  const plans = twinPlans(options.seed, tag, projectCache()).map((drawn) => {
+    const plan = ownPlan(drawn);
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
       { reads: [dirname(sealed), ...(options.reads ?? [])] },
@@ -266,7 +298,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // Run D reaches the product through a wrapper module of the run's own folder.
     const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
     const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
-    writeFileSync(file, wrapper.source);
+    writeAtomic(file, wrapper.source);
     return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
@@ -411,7 +443,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const tag = options.tag ?? script;
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
-  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
+  const sealFolder = ownFolder(join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`)));
   const {
     file: sealed,
     inputs,
@@ -424,12 +456,13 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const watch = new TreeWatch([tree, ...workspace, ...inputs, ...influences.files], influences.packages);
   watch.watchResolution(tree);
   for (const folder of influences.packages) watch.watchResolution(folder);
-  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
-    confine(
+  const plans = twinPlans(options.seed, tag, projectCache()).map((drawn) => {
+    const plan = ownPlan(drawn);
+    return confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
       { reads: [dirname(sealed)], writes: [join(plan.driverDir, 'w')] },
-    ),
-  );
+    );
+  });
   const token = randomBytes(16).toString('hex');
   const plainRun = openPlain(options.seed, `${tag}:command`);
   const plainDir = plainRun.dir;
@@ -444,7 +477,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         const target = resolve(work, path);
         if (!target.startsWith(work)) throw new FrameError(`the file ${path} is outside the working folder`);
         mkdirSync(dirname(target), { recursive: true });
-        writeFileSync(target, text);
+        writeAtomic(target, text);
       }
       let ran: ReturnType<typeof spawnSync>;
       if (plan === 'C') {
@@ -462,7 +495,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         );
       } else {
         const driver = join(plan.driverDir, plan.driverFile);
-        writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
+        writeAtomic(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
         const setup = {
           token,
           args,
