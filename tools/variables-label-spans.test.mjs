@@ -139,6 +139,7 @@ function capCase(mark, config) {
   writeFileSync(join(folder, 'known.jsonl'), known.map((row) => `${JSON.stringify(row)}\n`).join(''));
   writeFileSync(join(folder, 'spans/spans.jsonl'), `${JSON.stringify({ text: fresh.text })}\n`);
   writeFileSync(join(folder, 'mock.mjs'), mockModule(folder, fresh, config));
+  const rateOut = config.rateOut ?? 5;
   const run = (cap) =>
     spawnSync(
       process.execPath,
@@ -153,7 +154,7 @@ function capCase(mark, config) {
           '--out',
           join(folder, 'out.jsonl'),
         ],
-        ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
+        ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', String(rateOut)],
         ...['--cap', String(cap), '--total-cap', String(cap)],
       ],
       { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
@@ -164,6 +165,7 @@ function capCase(mark, config) {
     run,
     log,
     perByte: config.perByte,
+    rateOut,
     cleanup: () => rmSync(folder, { recursive: true, force: true }),
   };
 }
@@ -175,10 +177,10 @@ function choiceSize(c) {
   const lines = c.log();
   const [, bytes, maxTokens, choiceCount] = lines.find((l) => l.startsWith('choice ')).split(' ').map(Number);
   const [, labelBytes, labelMax, labelCount] = lines.find((l) => l.startsWith('label ')).split(' ').map(Number);
-  // What the batch request before the choice already spent: its usage is priced at 1 and 5 USD per million tokens, 10 tokens out.
-  const labelSpend = (labelCount * 1 + 10 * 5) / 1e6;
+  // What the batch request before the choice already spent: its usage is priced at 1 USD per million tokens in, 10 tokens out.
+  const labelSpend = (labelCount * 1 + 10 * c.rateOut) / 1e6;
   rmSync(join(c.folder, 'requests.log'));
-  return { bytes, maxTokens, choiceCount, labelBytes, labelMax, labelCount, labelSpend };
+  return { bytes, maxTokens, choiceCount, labelBytes, labelMax, labelCount, labelSpend, rateOut: c.rateOut };
 }
 /** The tool's reserve on top of a count: 1% of it or 16 tokens, whichever is larger. */
 const reserve = (counted) => Math.max(Math.ceil(counted / 100), 16);
@@ -193,7 +195,8 @@ it('a body that counts above one token per byte (combining marks) cannot cross t
     // The cap sits just above what one token per byte would price and under what the provider counts.
     const cap = labelSpend + priced(bytes * 1.03, maxTokens);
     const result = c.run(cap);
-    expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
+    expect(sent(c, 'label')).toHaveLength(1);
+    expect(sent(c, 'choice')).toEqual([]);
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
     expect(JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')).usd).toBeLessThanOrEqual(
@@ -211,14 +214,15 @@ it('a JSON body is priced by its count: refused just under its cost, sent just o
     const { choiceCount, maxTokens, labelSpend } = choiceSize(c);
     const cost = labelSpend + priced(choiceCount + reserve(choiceCount), maxTokens);
     const refused = c.run(cost * 0.98);
-    expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
+    expect(sent(c, 'label')).toHaveLength(1);
+    expect(sent(c, 'choice')).toEqual([]);
     expect(refused.status).not.toBe(0);
     expect(`${refused.stdout}${refused.stderr}`).toMatch(/before sending/);
     rmSync(join(c.folder, 'requests.log'));
     // One token per byte would refuse this cap too; the count does not, because the request really fits.
     const sent = c.run(cost * 1.02);
     expect(sent.status, sent.stderr).toBe(0);
-    expect(c.log().filter((l) => l.startsWith('choice'))).toHaveLength(1);
+    expect(sent(c, 'choice')).toHaveLength(1);
   } finally {
     c.cleanup();
   }
@@ -267,6 +271,7 @@ it('the reserve on top of the count is 1% of it, or 16 tokens when that is more'
     const { choiceCount, maxTokens, labelCount } = choiceSize(big);
     const counted = (labelCount * 1 + 10 * 5 + choiceCount * 1 + maxTokens * 5) / 1e6;
     const refused = big.run(counted + (choiceCount * 0.005) / 1e6);
+    expect(sent(big, 'label')).toHaveLength(1);
     expect(sent(big, 'choice')).toEqual([]);
     expect(refused.status).not.toBe(0);
     rmSync(join(big.folder, 'requests.log'));
@@ -276,14 +281,16 @@ it('the reserve on top of the count is 1% of it, or 16 tokens when that is more'
   } finally {
     big.cleanup();
   }
-  // 16 tokens: a count of about a hundred tokens would reserve 2, so the floor of 16 applies. Eight tokens above the
-  // counted cost refuses; twenty-four above sends.
-  const small = capCase('', { perByte: 0.001 });
+  // 16 tokens: a count of about two hundred tokens would reserve 3, so the floor of 16 applies. Output is priced at a
+  // hundredth of the input rate, so the choice, not the batch request before it, is the costlier request. Eight tokens
+  // above the counted cost refuses; twenty-four above sends.
+  const small = capCase('', { perByte: 0.001, rateOut: 0.01 });
   try {
-    const { choiceCount, maxTokens, labelCount } = choiceSize(small);
+    const { choiceCount, maxTokens, labelCount, rateOut } = choiceSize(small);
     expect(Math.ceil(choiceCount / 100)).toBeLessThan(16);
-    const counted = (labelCount * 1 + 10 * 5 + choiceCount * 1 + maxTokens * 5) / 1e6;
+    const counted = (labelCount * 1 + 10 * rateOut + choiceCount * 1 + maxTokens * rateOut) / 1e6;
     const refused = small.run(counted + 8e-6);
+    expect(sent(small, 'label')).toHaveLength(1);
     expect(sent(small, 'choice')).toEqual([]);
     expect(refused.status).not.toBe(0);
     rmSync(join(small.folder, 'requests.log'));
@@ -343,6 +350,7 @@ it('a response that bills more than was reserved stops the run', () => {
   const longer = run({ outputOverMax: true });
   try {
     expect(longer.result.status).not.toBe(0);
+    expect(sent(longer.c, 'label')).toHaveLength(1);
     expect(sent(longer.c, 'choice')).toEqual([]);
     expect(longer.report().overBilled[0].billedOutput).toBe(labelMax + 1);
   } finally {
@@ -352,6 +360,7 @@ it('a response that bills more than was reserved stops the run', () => {
   const unread = run({ noUsage: true });
   try {
     expect(unread.result.status).not.toBe(0);
+    expect(sent(unread.c, 'label')).toHaveLength(1);
     expect(sent(unread.c, 'choice')).toEqual([]);
     expect(`${unread.result.stdout}${unread.result.stderr}`).toMatch(/carried no usage/);
   } finally {
