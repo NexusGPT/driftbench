@@ -87,17 +87,17 @@ scripts:
 
 ```console
 $ driftbench estate scan est1 --no-model --out m1.yaml
-Wrote m1.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote m1.yaml: 59 atoms (59 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
   Ignored: none.
 $ echo 'ignore: [.claude/steps.json]' >> est1/driftbench.estate.yaml
 $ driftbench estate scan est1 --no-model --out m2.yaml
-Wrote m2.yaml: 42 atoms (42 read by code and approved, 0 split from prose by the model and waiting for approval), 30 edges.
+Wrote m2.yaml: 54 atoms (54 read by code and approved, 0 split from prose by the model and waiting for approval), 37 edges.
   Ignored: 1 file no runtime loads.
 ```
 
 **How to read it.**
 
-- Ignoring `.claude/steps.json` removes 5 atoms and 4 edges. The file lists the steps of a process, and nothing in the estate names it.
+- Ignoring `.claude/steps.json` removes 5 atoms and 4 edges. The file lists the steps of a process, and the standing instructions name it.
 - `Ignored: 1 file no runtime loads.` confirms the key worked. Read this line each time you change `ignore`.
 - The map keeps the ignored paths in its own `ignore:` list. Later commands that read the map, such as `radius ledger`, then skip the same files.
 

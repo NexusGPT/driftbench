@@ -91,25 +91,47 @@ describe("a script's name in passing", () => {
 });
 
 describe('a file named in a change note', () => {
+  const NOTE = {
+    'CLAUDE.md': '# Estate\n',
+    '.claude/skills/pricing/SKILL.md': skill('pricing', [
+      'Quote prices from the price list.',
+      '',
+      '## Changelog',
+      '',
+      '- v3 removed `references/old-pricing.md`.',
+      '- `references/draft.txt` was deleted in March.',
+      '- Dropped `notes/scratch.md` (merged into the main list).',
+      '- `references/v1.md` was renamed to `references/current.md`.',
+    ]),
+    '.claude/skills/pricing/references/current.md': '# Current\n',
+  };
+  const referencePaths = (map: Awaited<ReturnType<typeof scan>>) =>
+    map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path);
+
   it('is no reference when the note reports it removed, deleted, dropped or renamed away', async () => {
-    const map = await scan({
-      'CLAUDE.md': '# Estate\n',
-      '.claude/skills/pricing/SKILL.md': skill('pricing', [
-        'Quote prices from the price list.',
-        '',
-        '## Changelog',
-        '',
-        '- v3 removed `references/old-pricing.md`.',
-        '- `references/draft.txt` was deleted in March.',
-        '- Dropped `notes/scratch.md` (merged into the main list).',
-        '- `references/v1.md` was renamed to `references/current.md`.',
-      ]),
-      '.claude/skills/pricing/references/current.md': '# Current\n',
-    });
-    const paths = map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path);
-    expect(paths).toEqual([]);
-    // No heading word makes a changelog section: whether a note names a file to read is the labeler's answer, and
-    // with no labeler here the notes build nothing.
+    // Whether a note names a file to read is the model's answer: here it reads the notes and finds none.
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', []),
+      answer('.claude/skills/pricing/SKILL.md', []),
+      answer('.claude/skills/pricing/references/current.md', []),
+    ]);
+    const map = await scan(NOTE, port);
+    expect(referencePaths(map)).toEqual([]);
+    // No heading word makes a changelog section.
+    expect(
+      map.documents?.find((document) => document.path.endsWith('pricing/SKILL.md'))?.sections,
+    ).toBeUndefined();
+  });
+
+  it('is named by code when no model reads the note, since code reads the syntax of a path and no verb', async () => {
+    const map = await scan(NOTE);
+    expect(referencePaths(map)).toEqual([
+      '.claude/skills/pricing/references/old-pricing.md',
+      '.claude/skills/pricing/references/draft.txt',
+      '.claude/skills/pricing/notes/scratch.md',
+      '.claude/skills/pricing/references/v1.md',
+      '.claude/skills/pricing/references/current.md',
+    ]);
     expect(
       map.documents?.find((document) => document.path.endsWith('pricing/SKILL.md'))?.sections,
     ).toBeUndefined();

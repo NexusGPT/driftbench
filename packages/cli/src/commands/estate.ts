@@ -388,7 +388,11 @@ function scanReport(
   if (result.pointer) {
     lines.push(...prose, ...pointerLines(result, describe, prices));
   } else if (result.chunks.length === 0)
-    lines.push('  No model call: structured atoms only (--no-model).', ...prose);
+    lines.push(
+      '  No model call: structured atoms only (--no-model).',
+      '  References: read by code from the code spans, links, quoted names and `@` imports of the prose.',
+      ...prose,
+    );
   else {
     lines.push(...prose);
     const calls = result.calls;
@@ -488,8 +492,17 @@ export async function estateLintCommand(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
+  if (result.referenceChecksOff) {
+    lines.push(
+      '  Note: reference and orphan checks are off. This map was scanned before code read references with no model; ORPHAN and MISSING_REFERENCE are not reported. Scan the estate again.',
+    );
+  }
   lines.push(
-    result.failed ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.` : 'Clean.',
+    result.failed
+      ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`
+      : result.referenceChecksOff
+        ? 'Clean, with the reference and orphan checks off.'
+        : 'Clean.',
     '',
   );
   io.out(lines.join('\n'));

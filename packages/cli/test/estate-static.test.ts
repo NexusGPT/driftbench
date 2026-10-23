@@ -43,11 +43,13 @@ describe('driftbench estate static', () => {
     expect(by['estate.invariant.invariant.registry.the-check-registry-lists-every-guard']).toBe(false);
   });
 
-  it('counts the files the prose of a given map names: the one orphan is the planted one', async () => {
+  it('counts the files the prose of a given map names, beside the paths code reads: the one orphan is the planted one', async () => {
     const test = join(STATIC, 'invariant/estate.invariant.invariant.standing.no-file-of-the-estate-is.json');
     const alone = await run(['estate', 'static', test, '--estate', FIXTURE, '--json']);
     const unnamed = JSON.parse(alone.out) as { results: Array<{ detail: string }> };
-    expect(unnamed.results[0]?.detail).toContain('matching-rules.md');
+    // Code alone names the files the prose writes as paths, so the one file nothing writes is the orphan.
+    expect(unnamed.results[0]?.detail).not.toContain('matching-rules.md');
+    expect(unnamed.results[0]?.detail).toContain('old-tolerances.md');
     const mapped = await run([
       'estate',
       'static',
