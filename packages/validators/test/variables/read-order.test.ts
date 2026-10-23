@@ -115,21 +115,32 @@ describe('the diagnostics of a failing item read nothing of the product', () => 
               const isPrefix = off.length <= on.length && off.every((line, i) => line === on[i]);
               if (isPrefix) continue;
               // A product that reads differently from one call to the next (a mutant that orders equal calls differently)
-              // cannot be compared with itself: run the same mode again and skip the item if it differs from itself.
-              diagnostics.build = true;
-              const again: Reads = { log: [] };
-              try {
-                await item.check({
-                  seed,
-                  impl: recorded(impl as never, again) as never,
-                  root: ROOT,
-                  id: item.id,
-                  rng: itemRng(seed, item.id),
-                });
-              } catch {
-                // the failure is the point
+              // cannot be compared with itself. A real fault is deterministic: every pair of runs, with and without the
+              // diagnostics, breaks the prefix. Run more pairs, and report the item only if none of them is a prefix.
+              const run = async (build: boolean): Promise<string[]> => {
+                diagnostics.build = build;
+                const again: Reads = { log: [] };
+                try {
+                  await item.check({
+                    seed,
+                    impl: recorded(impl as never, again) as never,
+                    root: ROOT,
+                    id: item.id,
+                    rng: itemRng(seed, item.id),
+                  });
+                } catch {
+                  // the failure is the point
+                }
+                return again.log;
+              };
+              let everyPairBreaks = true;
+              for (let k = 0; k < 6 && everyPairBreaks; k += 1) {
+                const withDiagnostics = await run(true);
+                const without = await run(false);
+                if (without.length <= withDiagnostics.length && without.every((line, n) => line === withDiagnostics[n]))
+                  everyPairBreaks = false;
               }
-              if (again.log.join('\n') === on.join('\n')) differing.push(`${mutant.name}|${seed}|${item.id}`);
+              if (everyPairBreaks) differing.push(`${mutant.name}|${seed}|${item.id}`);
             }
           }
         } finally {
