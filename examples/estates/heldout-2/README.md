@@ -14,3 +14,7 @@ A second held-out estate for the numeric-limit producer: a fictional bicycle rep
 Fictional data only.
 
 A table of numbers is a number table even when a pointer names one of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its own request. This estate was written before that convention: three rows of two tables (Tyre or tube 40 pounds, City bike 50 pounds, Electric bike 300 pounds) are outside both table lists, so they count as unreachable under the old convention. The truth file is not edited.
+
+## Mixed tables
+
+A table of numbers is a number table even when a pointer names one of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its own request. This estate was written before that convention: three rows of two tables (Tyre or tube 40 pounds, City bike 50 pounds, Electric bike 300 pounds) are outside both table lists, so they count as unreachable under the old convention. The truth file is not edited.
