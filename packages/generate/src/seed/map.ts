@@ -82,6 +82,29 @@ export function phraseKey(dimension: string, value: string): string {
   return `${dimension}=${value}`;
 }
 
+/**
+ * A behaviour a flow lists belongs to that flow: it never occurs in a flow that does not list it. With the constraints
+ * that keep a behaviour off a channel, a flow whose behaviours are all kept off a channel has no allowed cell on it.
+ */
+function flowOwnership(map: SpaceMap, inventory: Inventory | undefined): SpaceMap['constraints'] {
+  const behaviour = map.dimensions.find((dimension) => dimension.id === 'behaviour');
+  const flow = map.dimensions.find((dimension) => dimension.id === 'flow');
+  if (!inventory || !behaviour || !flow || inventory.flows.length === 0) return [];
+  const known = new Set(map.constraints.map((constraint) => JSON.stringify(constraint.forbid)));
+  const out: SpaceMap['constraints'] = [];
+  for (const entry of inventory.behaviours) {
+    const owners = inventory.flows.filter((candidate) => (candidate.behaviours ?? []).includes(entry.id));
+    if (owners.length === 0 || !behaviour.values.some((value) => value.id === entry.id)) continue;
+    for (const other of inventory.flows) {
+      if (owners.includes(other) || !flow.values.some((value) => value.id === other.id)) continue;
+      const forbid = { behaviour: entry.id, flow: other.id };
+      if (known.has(JSON.stringify(forbid))) continue;
+      out.push({ forbid, reason: `${entry.id} belongs to the flows that list it, not to ${other.id}` });
+    }
+  }
+  return out;
+}
+
 /** Prepares an approved proposal: approved entries only, whatever flags the file holds. */
 export function prepareMap(
   proposal: Proposal,
@@ -116,6 +139,7 @@ export function prepareMap(
     constraints: [
       ...whole.constraints,
       ...axisMap.constraints.filter((constraint) => !written.has(JSON.stringify(constraint.forbid))),
+      ...flowOwnership(whole, extras.inventory),
     ],
   };
   const space = compileSpace(map);

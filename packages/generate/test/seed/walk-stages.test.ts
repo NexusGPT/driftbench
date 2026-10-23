@@ -36,7 +36,7 @@ describe('the stages a walk reaches', () => {
         { preferred: [path], others: [] },
       );
       expect('draft' in built).toBe(false);
-      expect('draft' in built ? '' : built.reasons.join('; ')).toContain('forbid the stage');
+      expect('draft' in built ? '' : built.reasons.join('; ')).toContain('constraints');
     } finally {
       await rm(root, { recursive: true, force: true });
     }
