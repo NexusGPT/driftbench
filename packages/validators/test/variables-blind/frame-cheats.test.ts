@@ -126,6 +126,8 @@ describe('the processor time of a call counts the work the product moves into a 
   it('the same 7 s in a child process fails it too: a confined run starts no process', async () => {
     const got = await outcomes(join(CHEATS, 'child-cpu.ts'), ids, { FIXTURE_IN_CHILD: '1' });
     expect(got.map((each) => each.pass)).toEqual([false]);
-    expect(got[0]?.detail).toContain('Access to this API has been restricted');
+    // The refused spawn is named by its code: an error crosses the frame with its code (release/next 2b2a34b6c), which
+    // comes first in the answer the detail quotes, so the message may be cut before its end.
+    expect(got[0]?.detail).toContain('ERR_ACCESS_DENIED');
   });
 });
