@@ -6,6 +6,11 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `$HOME/x` and `${HOME}/x` are anchored guard paths, like `~/x`: `estate lint` no longer reports them as `UNANCHORED_GUARD`, and the reader gives the three forms one spelling. `estate scan` and `estate lint` take `--home <folder>`: a home path is read as the path under that folder when it is inside the estate, so the script is found there instead of reported missing. Lint items `scan.dispatcher.home-variable` and `scan.dispatcher.home-braced-quoted` fail on the earlier reader.
+* `estate run --no-exec` runs a stand-in without executing any command of the estate (guards and scripts); a guard starts and never answers. A command that is not a stand-in refuses it (exit 2). The help of `estate run` now says that a stand-in runs the estate's guard commands.
+* `estate lint` checks the permission rules of the settings: `PERMISSION_UNKNOWN_SKILL` (a `Skill(...)` rule naming no skill of the estate), `PERMISSION_READ_BYPASS` (a Read, Edit or Write deny beside an allowed shell rule with free arguments), `PERMISSION_BYPASS_MODE` (`bypassPermissions` with an allow rule that lets any value through) and, as information, `PERMISSION_UNKNOWN_HELPER`. The checks read the structured rules and values only.
+* `radius --change` given the file `estate diff --out` wrote now says that a change manifest comes from `estate diff --change-out` with `--old-ledger` and `--new-ledger`.
+
 * Helper tokens are priced. `cost.helperModel` is the model the helper messages of a Claude Code session name, `cost.helperUsd` the dollars for the helper tokens at that model's price (the agent's model when none is named), and `cost.usd` the total with the agent's own dollars. A budgeted run refuses a helper model that has no price.
 * The run report lists the helper calls of a block under their own heading (`helperCalls` in the run detail), `estate stats` counts a reference a helper read as reached, and the `permission` check covers a helper's calls by default (`actor: main | helper | any` narrows it), because a Claude Code subagent inherits the permission rules of the main conversation.
 
