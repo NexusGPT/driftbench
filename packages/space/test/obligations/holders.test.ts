@@ -232,8 +232,8 @@ describe('the rulings are data: changing one changes the answer', () => {
     expect(sorted(soleHolders(suite, DECLARED, without('perturb')).blocks)).toEqual([]);
   });
 
-  it('counts a copy on an undeclared channel as a twin once the axis no longer needs a declared value', () => {
-    const copy = spec('b', [block('b0')], { ...same, channel: 'sms' });
+  it('counts a copy with no channel as a twin once the axis no longer needs a declared value', () => {
+    const copy = spec('b', [block('b0')], { ...same, channel: '' });
     const suite = [spec('a', [block('a0')], same), copy];
     expect(sorted(soleHolders(suite, DECLARED).specs)).toEqual([]);
     const held = soleHolders(suite, DECLARED, twinsOf(['channel', 'persona'], false));
