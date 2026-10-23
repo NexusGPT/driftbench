@@ -13790,6 +13790,33 @@
       "cause": "estate lint reports the orphan, unreachable and missing-reference findings and exits 1."
     },
     {
+      "id": "claim/cli/estate/scan-plan-only",
+      "family": "claim-cli",
+      "tier": 2,
+      "level": 10,
+      "source": "contract",
+      "component": "packages/cli/src/commands/estate.ts",
+      "cause": "estate scan --plan-only sizes the pointer run without a key, a request or a file."
+    },
+    {
+      "id": "claim/cli/estate/scan-replay-miss-total",
+      "family": "claim-cli",
+      "tier": 2,
+      "level": 10,
+      "source": "contract",
+      "component": "packages/cli/src/commands/estate.ts",
+      "cause": "a replay that misses reports the total of missing requests and the characters to record."
+    },
+    {
+      "id": "claim/cli/estate/build-reports-lint",
+      "family": "claim-cli",
+      "tier": 3,
+      "level": 10,
+      "source": "contract",
+      "component": "packages/cli/src/commands/estate-build.ts",
+      "cause": "estate build reports the lint of the estate it built and never says Done on a non-zero exit."
+    },
+    {
       "id": "claim/cli/replay/documented",
       "family": "claim-cli",
       "tier": 2,
