@@ -21,9 +21,10 @@ function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void 
   const got = budgeted.rows.map(rowKey);
   check(got.length === want.length, () => ({
     rule: 'a budget keeps a prefix of the plan, counting the seeds',
-    echoes: ['budget'],
+    // The answer is the budget itself only while the budget is not above the plan.
+    echoes: b <= full.rows.length ? ['budget'] : [],
     input: { label, budget: b },
-    got: { rows: got.length },
+    got: { rows: got.length, uncutPlan: full.rows.length },
     expected: { rows: want.length },
   }));
   for (let i = 0; i < want.length; i += 1) {
@@ -86,7 +87,8 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       got: { details: [total] },
       expected: none('observation'),
     }));
-    const label = `${variant} (plan of ${total} rows, ${seeds.length} seeds)`;
+    // The label names the case. The length of the uncut plan is the product's own output and is shown in `got`.
+    const label = variant;
     switch (variant) {
       case 'middle':
         samePrefix(full, run(Math.floor(total / 2)), Math.floor(total / 2), label);
@@ -118,9 +120,9 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           const got = run(b).rows.length;
           check(got === Math.min(b, total), () => ({
             rule: 'a budget gives as many rows as the budget, or the whole plan',
-            echoes: ['budget', 'plan'],
-            input: { label, budget: b, plan: total },
-            got: { rows: got },
+            echoes: b <= total ? ['budget'] : [],
+            input: { label, budget: b },
+            got: { rows: got, uncutPlan: total },
             expected: { rows: Math.min(b, total) },
           }));
         }
@@ -130,9 +132,9 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
           const plan = run(b);
           check(plan.rows.length === Math.min(b, total), () => ({
             rule: 'a budget gives as many rows as the budget, or the whole plan',
-            echoes: ['budget', 'plan'],
-            input: { label, budget: b, plan: total },
-            got: { rows: plan.rows.length },
+            echoes: b <= total ? ['budget'] : [],
+            input: { label, budget: b },
+            got: { rows: plan.rows.length, uncutPlan: total },
             expected: { rows: Math.min(b, total) },
           }));
           check(

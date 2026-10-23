@@ -341,10 +341,10 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const [lo0, hi0] = callInterval(ctx, 0, total);
     check(lo0 === 0 && Number.isFinite(hi0) && Math.abs(hi0 / (z2 / total) - 1) <= 1e-9, () => ({
       rule: 'the interval of no success in a huge total starts at N and ends at z squared over n',
-      echoes: ['count'],
       input: { count: 0, total: `2^${exponent}` },
       got: [lo0, hi0],
-      expected: [0, z2 / total],
+      // The lower bound 0 is the same number as the count; only the upper bound is a wanted value.
+      expected: [z2 / total],
     }));
     const [loAll, hiAll] = callInterval(ctx, total, total);
     check(hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1, () => ({
