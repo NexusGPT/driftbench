@@ -1,6 +1,8 @@
 import {
+  type Actor,
   type Check,
   type CheckContext,
+  callsIn,
   isZero,
   machineVerdict,
   type Verdict,
@@ -13,7 +15,9 @@ const NAME = 'forbidden';
  * Tools that must not run. A tool is forbidden in a block when `rules.forbidden_tools` lists it, when
  * `rules.max_calls` caps it at 0, or when the block expects it 0 times; one verdict per tool names every
  * reason. `rules.max_calls` above 0 caps the calls across the run: the history and this block together.
- * A block fails the cap only when its own calls go past it, so one excess is reported once.
+ * A block fails the cap only when its own calls go past it, so one excess is reported once. A forbidden tool is
+ * forbidden to the agent and to the helpers it hands work to (`actor` on the expectation narrows it); a cap above 0
+ * counts the agent's own calls.
  */
 export const forbidden: Check = {
   name: NAME,
@@ -23,7 +27,7 @@ export const forbidden: Check = {
     const calls = ctx.observed.toolCalls;
 
     for (const [label, reasons] of forbiddenTools(ctx)) {
-      const own = calls.filter((call) => call.label === label);
+      const own = callsIn(ctx.observed, scopeOf(ctx, label)).filter((call) => call.label === label);
       const why = reasons.join('; ');
       if (own.length === 0) {
         verdicts.push(machineVerdict(NAME, label, 'pass', `${label} not called (${why})`));
@@ -55,6 +59,22 @@ export const forbidden: Check = {
     return verdicts;
   },
 };
+
+/**
+ * Whose calls make a tool's use a failure. Every reason adds its scope: `rules.forbidden_tools` and a cap of 0 name
+ * no actor (the agent and its helpers), a zero-count expectation names its `actor` or none. Several reasons for one
+ * tool are summed: the agent's scope and a helper's scope together are both.
+ */
+function scopeOf(ctx: CheckContext, label: string): Actor {
+  const scopes = new Set<Actor>();
+  if (ctx.spec.rules?.forbidden_tools?.includes(label) || ctx.spec.rules?.max_calls?.[label] === 0)
+    scopes.add('any');
+  for (const tool of ctx.expect.tools ?? [])
+    if (tool.label === label && isZero(tool.count)) scopes.add(tool.actor ?? 'any');
+  return scopes.has('any') || (scopes.has('main') && scopes.has('helper'))
+    ? 'any'
+    : (scopes.values().next().value ?? 'any');
+}
 
 /** Each forbidden tool with the reasons it is forbidden in this block. */
 function forbiddenTools(ctx: CheckContext): Map<string, string[]> {

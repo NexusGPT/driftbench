@@ -3,7 +3,7 @@
 //
 //   node tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
 //     --usd-per-mtok-in <rate> --usd-per-mtok-out <rate> [--cap <usd, default 2>] [--total-file <file>] [--total-cap <usd, default 8>]
-//     [--known <cassette file>]
+//     [--known <cassette file>] [--batch <spans per request, default 12>]
 //
 // The key is read from ~/.nexus-secrets/anthropic-driftbench.key and is never printed. Each distinct span is labelled
 // once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
@@ -15,7 +15,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const MODEL = 'claude-haiku-5-5';
-const BATCH = 12;
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((pairs, token, i, all) => {
@@ -30,6 +29,7 @@ const need = (name) => {
   }
   return args[name];
 };
+const BATCH = Number(args.batch ?? 12);
 const sha = need('sha');
 const spansDir = need('spans');
 const outFile = need('out');

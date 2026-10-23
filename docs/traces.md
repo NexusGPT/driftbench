@@ -58,9 +58,9 @@ Personal data is redacted by default with the [intake](generating.md) privacy ru
 
 Exit 0 when the drafts are written, 2 on a usage or input error or an existing draft without `--force` (nothing is written). `import approve` exits 0 after listing or approving, 1 when a file is not an imported draft, 2 when the path is missing.
 
-Real output, on the current-conventions fixture:
+Real output, on the current-conventions fixture, run from the root of the clone:
 
-```
+```console
 $ driftbench import traces packages/adapters/test/traces/fixtures/otel-semconv.json --from otel --out drafts
 Read 1 trace from 1 file (otel): 2 turns.
 Wrote 1 draft spec to drafts, none approved: 2 blocks, no expect yet.
@@ -68,7 +68,7 @@ Wrote 1 draft spec to drafts, none approved: 2 blocks, no expect yet.
 Next: write each block's expect from the agent spec, then driftbench import approve drafts --all.
 ```
 
-An excerpt of the draft, the tool output folded onto one line:
+An excerpt of the draft:
 
 ```text
 blocks:
@@ -85,7 +85,11 @@ blocks:
               label: coverage.check
               input:
                 address: "[ADDRESS_1], Acmeville"
-              output: { found: true, address_id: addr-102, fiber_mbps: 300, five_g: true }
+              output:
+                found: true
+                address_id: addr-102
+                fiber_mbps: 300
+                five_g: true
       origin: recorded
 ```
 

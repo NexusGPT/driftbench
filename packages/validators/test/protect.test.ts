@@ -1,8 +1,16 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
-import { PROTECTED_PATHS, protectedChanges, registeredLadders } from '../src/index';
+import {
+  floorOf,
+  ladderVersion,
+  PROTECTED_PATHS,
+  protectedChanges,
+  readFloors,
+  registeredLadders,
+} from '../src/index';
 
 const WORKFLOW = new URL('../../../.github/workflows/validators.yml', import.meta.url);
 
@@ -132,6 +140,7 @@ const CI_HEAVY = [
   'viewer-journey',
   'guard',
   'timing',
+  'guide-install',
 ];
 /**
  * The jobs of the validators workflow, each with the id a dispatch lists to run it: the legs and the job that
@@ -484,33 +493,75 @@ function legsOf(workflow: ReturnType<typeof parse>, job: string): Leg[] {
   });
 }
 
-/**
- * Every registered validator on every seed is computed on every level, once: the legs of a seed are one run of the
- * whole ladder or slices that tile it from level 1 to its top without a gap or an overlap.
- */
-function assertTiled(legs: Leg[], components: string[], seeds: string[]) {
-  const ladders = registeredLadders();
-  expect(new Set(legs.map((leg) => leg.id)).size, 'leg ids are unique').toBe(legs.length);
-  for (const component of components) {
-    const top = ladders[component]?.levels.length ?? 0;
-    expect(top, component).toBeGreaterThan(0);
-    for (const seed of seeds) {
-      const mine = legs
-        .filter((leg) => leg.component === component && leg.seed === seed)
-        .sort((a, b) => a.from - b.from);
-      let next = 1;
-      for (const leg of mine) {
-        expect(leg.from, `${component} seed ${seed}: a gap or an overlap before level ${leg.from}`).toBe(
-          next,
-        );
-        next = leg.to + 1;
-      }
-      expect(next, `${component} seed ${seed} stops short of level ${top}`).toBe(top + 1);
-    }
+/** The legs of one validator on one seed, in level order. */
+function legsFor(legs: Leg[], component: string, seed: string): Leg[] {
+  return legs
+    .filter((leg) => leg.component === component && leg.seed === seed)
+    .sort((a, b) => a.from - b.from);
+}
+
+/** The legs tile level 1 up to a level of at least `through`, without a gap or an overlap, and not past `top`. */
+function expectTiles(mine: Leg[], label: string, through: number, top: number) {
+  let next = 1;
+  for (const leg of mine) {
+    expect(leg.from, `${label}: a gap or an overlap before level ${leg.from}`).toBe(next);
+    next = leg.to + 1;
   }
-  const known = new Set(components);
+  expect(next - 1, `${label} stops short of level ${through}`).toBeGreaterThanOrEqual(through);
+  expect(next - 1, `${label} runs past level ${top}`).toBeLessThanOrEqual(top);
+}
+
+function topOf(component: string): number {
+  const top = registeredLadders()[component]?.levels.length ?? 0;
+  expect(top, component).toBeGreaterThan(0);
+  return top;
+}
+
+/**
+ * Guard 1, the floor legs. The generator's floor legs run with `--check-floor`, which computes only through the
+ * floor, so they tile level 1 through the floor of the registered ladder version (a slice above it would be an empty
+ * run). The levels above are the tail legs (guard 3).
+ */
+function assertFloorLegs(legs: Leg[], seeds: string[]) {
+  const ladder = registeredLadders().generator;
+  const top = topOf('generator');
+  const floors = readFloors(fileURLToPath(new URL('../../../', import.meta.url)));
+  const floor = ladder ? floorOf(floors, 'generator', ladderVersion(ladder)) : 0;
+  expect(floor, 'the generator has a floor').toBeGreaterThan(0);
+  for (const seed of seeds)
+    expectTiles(legsFor(legs, 'generator', seed), `generator seed ${seed}`, Math.min(floor, top), top);
+}
+
+/**
+ * Guard 2, every full-ladder leg. A validator that runs its whole ladder in CI (the system legs, and every validator
+ * of the floor job but the generator) is computed on every level of its ladder, once, to its top.
+ */
+function assertFullLegs(legs: Leg[], components: string[], seeds: string[]) {
+  // a leg of another validator, or of none, is no leg of this job
   for (const leg of legs)
-    expect(known.has(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+    expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+  for (const component of components) {
+    const top = topOf(component);
+    for (const seed of seeds)
+      expectTiles(legsFor(legs, component, seed), `${component} seed ${seed}`, top, top);
+  }
+}
+
+/** Guard 3, the tail legs: levels 20 to 23 of the generator, one leg per level and seed, each pinned by its name. */
+function assertTailLegs(legs: Leg[], seeds: string[]) {
+  const expected = seeds.flatMap((seed) =>
+    [20, 21, 22, 23].map((level) => ({
+      id: `generator-${seed}-level-${level}`,
+      seed,
+      from: level,
+      to: level,
+    })),
+  );
+  expect(
+    legs.map(({ id, seed, from, to }) => ({ id, seed, from, to })).sort((a, b) => a.id.localeCompare(b.id)),
+    'the tail legs: levels 20 to 23 of the generator on every seed, one each',
+  ).toEqual(expected.sort((a, b) => a.id.localeCompare(b.id)));
+  for (const leg of legs) expect(leg.component, leg.id).toBe('generator');
 }
 
 /** The gate step of a job that joins legs: it fails unless every job it waits for succeeded. */
@@ -581,14 +632,28 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   // every validator, every seed (1 to 3 and the hidden one), every level: the legs tile each ladder
   const components = Object.keys(registeredLadders());
   const seeds = ['1', '2', '3', 'hidden'];
-  assertTiled([...legsOf(workflow, 'ladders-leg'), ...legsOf(workflow, 'ladders-tail')], components, seeds);
-  assertTiled(legsOf(workflow, 'system-leg'), ['system'], seeds);
-  // a leg of the ladders job caps at the floor of its validator; a system leg runs every level
-  expect(stepRuns('ladders-leg').join('\n')).toContain('validate "$COMPONENT" $FLAGS --check-floor --json');
-  expect(stepRuns('system-leg').join('\n')).not.toContain('--check-floor');
+  const floorJob = legsOf(workflow, 'ladders-leg');
+  const everyLeg = [...floorJob, ...legsOf(workflow, 'ladders-tail'), ...legsOf(workflow, 'system-leg')];
+  expect(new Set(everyLeg.map((leg) => leg.id)).size, 'leg ids are unique').toBe(everyLeg.length);
+  for (const leg of floorJob)
+    expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+  assertFloorLegs(
+    floorJob.filter((leg) => leg.component === 'generator'),
+    seeds,
+  );
+  assertFullLegs(
+    floorJob.filter((leg) => leg.component !== 'generator'),
+    components.filter((c) => c !== 'generator'),
+    seeds,
+  );
+  assertTailLegs(legsOf(workflow, 'ladders-tail'), seeds);
+  assertFullLegs(legsOf(workflow, 'system-leg'), ['system'], seeds);
   // the tail legs (one level of one generator seed each) start with the others: they wait for no leg, because the
   // join drops every level above the first failing one, as a single run that stopped there would
   expect(workflow.jobs['ladders-tail'].needs).toBeUndefined();
+  // a leg of the ladders job caps at the floor of its validator; a system leg runs every level
+  expect(stepRuns('ladders-leg').join('\n')).toContain('validate "$COMPONENT" $FLAGS --check-floor --json');
+  expect(stepRuns('system-leg').join('\n')).not.toContain('--check-floor');
   // every leg uploads its report after a failure too, under the name its join downloads
   for (const [job, prefix] of [
     ['ladders-leg', 'ladders-'],
@@ -716,6 +781,15 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
     0,
   ],
+  // the guide-install job is a heavy job a dispatch can list
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
+    0,
+  ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
   ['workflow_dispatch', '', 'main', 'build,python,bench', OK, 1],
   ['workflow_dispatch', '', 'train-lookalike', 'build', OK, 1],
@@ -779,6 +853,22 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'train/9a',
     'build',
     'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,failure',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'guide-install',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,cancelled',
     1,
   ],
 ];
@@ -1081,9 +1171,67 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
     const stray = structuredClone(workflow);
     entries(stray, 'ladders-leg').push({ id: 'ghost-s1', flags: '--seed 1', component: 'ghost' });
     expect(() => assertTrainValidators(stray)).toThrow();
+    // guard 3, the tail legs, pinned by name: the last one gone (the hidden seed's level 23), any other one gone, or one
+    // of them aimed at another level
     const noTail = structuredClone(workflow);
     entries(noTail, 'ladders-tail').pop();
     expect(() => assertTrainValidators(noTail)).toThrow();
+    const noHiddenTop = structuredClone(workflow);
+    const tail = entries(noHiddenTop, 'ladders-tail');
+    tail.splice(
+      tail.findIndex((entry) => entry.id === 'generator-hidden-level-23'),
+      1,
+    );
+    expect(() => assertTrainValidators(noHiddenTop), 'the tail leg of the hidden seed, level 23').toThrow();
+    const noTail21 = structuredClone(workflow);
+    const tail21 = entries(noTail21, 'ladders-tail');
+    tail21.splice(
+      tail21.findIndex((entry) => entry.id === 'generator-2-level-21'),
+      1,
+    );
+    expect(() => assertTrainValidators(noTail21), 'the tail leg of seed 2, level 21').toThrow();
+    const moved = structuredClone(workflow);
+    (entries(moved, 'ladders-tail')[0] as { flags: string }).flags = '--seed 1 --levels 19..19';
+    expect(() => assertTrainValidators(moved), 'a tail leg aimed at level 19').toThrow();
+    // guard 1, the floor legs: a slice through the floor lost (generator seed 1, levels 7 to 11, holds the floor level 8)
+    const noSlice = structuredClone(workflow);
+    const slices = entries(noSlice, 'ladders-leg');
+    slices.splice(
+      slices.findIndex((entry) => entry.id === 'generator-s1-7-11'),
+      1,
+    );
+    expect(() => assertTrainValidators(noSlice), 'a floor slice lost').toThrow();
+    const pastTop = structuredClone(workflow);
+    entries(pastTop, 'ladders-leg').push({
+      id: 'generator-s1-30-40',
+      component: 'generator',
+      flags: '--seed 1 --levels 30..40',
+    });
+    expect(() => assertTrainValidators(pastTop), 'a floor leg past the top').toThrow();
+    // guard 2, the full-ladder legs: system's seed 1 leg of its top level (11) is dropped
+    const noTop = structuredClone(workflow);
+    const systemLegs = entries(noTop, 'system-leg');
+    systemLegs.splice(
+      systemLegs.findIndex((entry) => entry.id === 'system-s1-11-11'),
+      1,
+    );
+    expect(() => assertTrainValidators(noTop), 'the system leg of level 11').toThrow();
+    const ghostSystem = structuredClone(workflow);
+    entries(ghostSystem, 'system-leg').push({ id: 'ghost-system-s1', flags: '--seed 1', component: 'ghost' });
+    expect(
+      () => assertTrainValidators(ghostSystem),
+      'a leg of an unknown validator in the system job',
+    ).toThrow();
+    const otherSystem = structuredClone(workflow);
+    entries(otherSystem, 'system-leg').push({
+      id: 'estate-system-s1',
+      flags: '--seed 1',
+      component: 'estate',
+    });
+    expect(
+      () => assertTrainValidators(otherSystem),
+      'a leg of another validator in the system job',
+    ).toThrow();
   }, 120_000);
   it('rejects a job that joins the legs without waiting for all of them, or that lets a red leg through', () => {
     for (const [id, dropped] of [
@@ -1263,6 +1411,47 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
   });
 });
 
+describe('the stats ladder on Node 22 and Node 24', () => {
+  const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
+  type Entry = { id: string; component: string; node?: number; flags?: string };
+  const legs: Entry[] = workflow.jobs['ladders-leg'].strategy.matrix.include;
+  const stats = legs.filter((entry) => entry.component === 'stats');
+  const runs = (job: string): string[] =>
+    (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
+  const nodeOf = (job: string): string =>
+    (workflow.jobs[job].steps as { uses?: string; with?: { 'node-version'?: string | number } }[]).find(
+      (step) => step.uses?.startsWith('actions/setup-node@'),
+    )?.with?.['node-version'] as string;
+
+  it('gates the stats legs on Node 22 and every other leg on Node 24', () => {
+    expect(stats.map((entry) => entry.id)).toEqual(['stats-s1', 'stats-s2', 'stats-s3', 'stats-hidden']);
+    for (const entry of legs) expect(entry.node, entry.id).toBe(entry.component === 'stats' ? 22 : undefined);
+    expect(nodeOf('ladders-leg')).toBe('${{ matrix.node || 24 }}');
+  });
+
+  it('keeps the gate a plain floor check: a Node 22 failure fails the leg and the join', () => {
+    const run = runs('ladders-leg').join('\n');
+    expect(run).toContain('--check-floor');
+    expect(run).not.toContain('engine-label');
+    expect(workflow.jobs.ladders.needs).toEqual(['ladders-leg', 'ladders-tail', 'ladders-handover']);
+    expect(runs('ladders').join('\n')).not.toContain('engine-label');
+  });
+
+  it('runs the stats ladder on Node 24 too, reported and labelled, outside the gate', () => {
+    const job = workflow.jobs['stats-node24'];
+    expect(job, 'a job that runs the stats ladder on Node 24').toBeDefined();
+    expect(nodeOf('stats-node24')).toBe(24);
+    expect(job.if).toBe(workflow.jobs['ladders-leg'].if);
+    expect(runs('stats-node24').join('\n')).toContain('validate stats');
+    expect(runs('stats-node24').join('\n')).toContain('tools/stats/engine-label.mjs');
+    expect(runs('stats-node24').join('\n')).toContain('24');
+    for (const [id, other] of Object.entries<{ needs?: string | string[] }>(workflow.jobs))
+      expect([other.needs ?? []].flat(), `${id} does not wait for the Node 24 report`).not.toContain(
+        'stats-node24',
+      );
+  });
+});
+
 describe('merge train enforcement', () => {
   const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
@@ -1273,7 +1462,7 @@ describe('merge train enforcement', () => {
   it('runs the timing tests in the timing job only, and lets a dispatch list that job', () => {
     assertTimingGuard(workflow);
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
-    expect(command).toContain(',guard,timing,fast,');
+    expect(command).toContain(',guard,timing,guide-install,fast,');
   });
   it('rejects a timing job that skips the timing tests, a pool that runs them, and a dispatch list without the job', () => {
     const skipping = structuredClone(workflow);
@@ -1289,7 +1478,8 @@ describe('merge train enforcement', () => {
     delete buildRunsThem.jobs.build.env;
     expect(() => assertTimingGuard(buildRunsThem)).toThrow();
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
-    expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+    const without = command.replace(',guard,timing,guide-install,fast,', ',guard,timing,fast,');
+    expect(() => assertGate(without)).toThrow();
   });
   it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
     assertCheckoutRetry(workflow);

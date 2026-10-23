@@ -17,7 +17,7 @@ export const SCHEMA_VERSION = 3;
 export const TABLES_BY_VERSION: Readonly<Record<number, readonly string[]>> = {
   1: ['specs', 'campaigns', 'runs', 'blocks', 'cache', 'units'],
   2: ['blobs', 'versions'],
-  3: ['spec_objects'],
+  3: ['spec_objects', 'meta'],
 };
 
 /**
@@ -27,6 +27,9 @@ export const TABLES_BY_VERSION: Readonly<Record<number, readonly string[]>> = {
  *
  * Runs are keyed by campaign and run id: a run id is a cell id, which leaves the campaign out, so the
  * same cell run in two campaigns gives two rows.
+ *
+ * `meta` holds small facts about the store itself, one text value per key (a table added to schema 3 without a new
+ * version number: an older driftbench ignores it).
  *
  * `blobs` and `versions` are the registry of datasets and prompts (schema 2): each file once by its
  * SHA-256, and one row per immutable version, its record in `json`.
@@ -96,6 +99,11 @@ CREATE TABLE IF NOT EXISTS cache (
   observed_json TEXT NOT NULL,
   created_at TEXT NOT NULL,
   expires_at TEXT
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS blobs (

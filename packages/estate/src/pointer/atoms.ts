@@ -155,6 +155,20 @@ function titleOf(text: string): string {
   return flat.length <= TITLE_CHARACTERS ? flat : `${flat.slice(0, TITLE_CHARACTERS - 1).trimEnd()}…`;
 }
 
+/** The kinds of atom a limit may land on. */
+const LIMIT_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate']);
+
+/** The limits a unit's numeric links state: the number, how a quantity is compared with it, and what it counts. */
+function limitsOf(item: LabelledUnit): Array<{ limit: number; comparison: string; unit?: string }> {
+  return (item.links ?? []).flatMap((link) =>
+    link.to !== 'none' &&
+    typeof link.value === 'number' &&
+    item.set.links?.find((kind) => kind.name === link.kind)?.number
+      ? [{ limit: link.value, comparison: link.to, ...(link.unit === undefined ? {} : { unit: link.unit }) }]
+      : [],
+  );
+}
+
 export function pointerAtoms(
   labelled: readonly LabelledUnit[],
   texts: ReadonlyMap<string, string>,
@@ -166,11 +180,30 @@ export function pointerAtoms(
   const duplicates: string[] = [];
   const conditions = new Map<string, LabelledUnit[]>();
   for (const item of labelled) {
-    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
-    const key = `${item.set.set}:${item.target.id}`;
-    conditions.set(key, [...(conditions.get(key) ?? []), item]);
+    // A condition scopes its target; any unit scopes the units it lists. All of them are scopes of that unit.
+    const isCondition = item.set.labels.find((label) => label.name === item.label)?.condition === true;
+    const scoped = [...(isCondition && item.target ? [item.target] : []), ...(item.scopes ?? [])];
+    for (const each of scoped) {
+      if (each.id === item.id) continue;
+      const key = `${item.set.set}:${each.id}`;
+      const held = conditions.get(key) ?? [];
+      if (!held.includes(item)) conditions.set(key, [...held, item]);
+    }
+  }
+  // A bound unit (a condition label with numeric links) gives its limits to the atoms of the unit it points at, in
+  // whichever set that unit is labelled: a set of limits can sit beside the set of rules. So does a unit that carries
+  // numeric links and builds no atom: its limits go to the atoms of that same unit.
+  const boundFor = new Map<string, LabelledUnit[]>();
+  for (const item of labelled) {
+    if (limitsOf(item).length === 0) continue;
+    const label = item.set.labels.find((candidate) => candidate.name === item.label);
+    // A bound unit points at the unit it limits; a unit with no target and no atom of its own states its own limit.
+    const holder = label?.condition ? item.target?.id : label?.atom ? undefined : item.id;
+    if (holder === undefined) continue;
+    boundFor.set(holder, [...(boundFor.get(holder) ?? []), item]);
   }
   const attached = new Set<string>();
+  const annotations: Array<{ path: string; unit: string; fields: Record<string, unknown> }> = [];
   for (const item of labelled) {
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
@@ -217,8 +250,13 @@ export function pointerAtoms(
     // A link names an atom of the estate (one the scan does not hold is dropped with its reason), or a value of
     // a closed list the set declares.
     const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
+    // A link of a numeric kind is a limit of the unit: the number, how a quantity is compared with it, and what it
+    // counts. The atoms of the unit take them in `fields.condition`, which the variable feed reads and nothing else.
+    const bound = boundFor.get(item.id) ?? [];
+    const limits = [...limitsOf(item), ...bound.flatMap(limitsOf)];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
+      if (item.set.links?.find((kind) => kind.name === link.kind)?.number) continue;
       if (item.set.links?.find((kind) => kind.name === link.kind)?.values) {
         labelLinks.push({ kind: link.kind, value: link.to });
         continue;
@@ -249,7 +287,11 @@ export function pointerAtoms(
     const allNamed = namedPaths(holder).filter((path) => !imported(path));
     const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
-    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
+    const templateFor = (
+      namedPath: string | undefined,
+      chosen?: (typeof labelLinks)[number],
+      each?: { kind: string; from: number; to: number },
+    ): Template => ({
       link: (kind, property) => {
         const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
@@ -261,7 +303,13 @@ export function pointerAtoms(
         return typeof field === 'string' ? field : undefined;
       },
       span: (kind) => {
-        const span = labelSpans.find((entry) => entry.kind === kind);
+        // Under `spanEach` the span of the gate's own kind is this gate's; any other kind is the first of the answer.
+        const span =
+          each !== undefined && kind === each.kind
+            ? labelSpans.find(
+                (entry) => entry.kind === kind && entry.from === each.from && entry.to === each.to,
+              )
+            : labelSpans.find((entry) => entry.kind === kind);
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       spans: (kind) =>
@@ -288,12 +336,73 @@ export function pointerAtoms(
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
+    if (label?.paths) {
+      // Each place the unit names a file counts, so two gates that read one file still make two.
+      const own = pathMentions(item.unit.text).length;
+      const { min = 0, max = Number.POSITIVE_INFINITY } = label.paths;
+      if (own < min || own > max) {
+        refusals.push(
+          `${where}: the unit names ${own} files and the label ${item.label} takes ${min} to ${max}`,
+        );
+        continue;
+      }
+    }
+    // The gates of a `spanEach` mapping: the label lists the act span and the file span of each gate, in the same
+    // order. The gate's file is the one its file span names; a gate whose file span is missing or names no file is
+    // refused.
+    const gatesOf = new Map<string, Array<{ kind: string; from: number; to: number; path: string }>>();
+    const eachGate = (kind: string, fileKind: string | undefined, label: string) => {
+      const known = gatesOf.get(kind);
+      if (known) return known;
+      const listed = labelSpans.filter((entry) => entry.kind === kind || entry.kind === fileKind);
+      if (!listed.some((entry) => entry.kind === kind))
+        refusals.push(
+          `${where}: the label ${label} takes a ${kind} span for each gate and the answer gave none`,
+        );
+      const found: Array<{ kind: string; from: number; to: number; path: string }> = [];
+      // The labeler lists a gate as its act span and, right after it, its file span. A gate whose next listed span is
+      // another act has no file span of its own: it is refused alone and no other gate moves.
+      let gate = 0;
+      for (const [index, act] of listed.entries()) {
+        if (act.kind !== kind) continue;
+        gate += 1;
+        const next = listed[index + 1];
+        const file = next?.kind === fileKind ? next : undefined;
+        // The file span binds a mention only when it holds the mention's whole path token: the token's own offsets
+        // (a link's destination, not its title) lie inside the span. Nothing is searched.
+        const given =
+          file === undefined
+            ? undefined
+            : pathMentions(item.unit.text).find(
+                (mention) =>
+                  !imported(mention.path) &&
+                  mention.tokenStart + item.unit.start - start >= file.from &&
+                  mention.tokenEnd + item.unit.start - start <= file.to,
+              )?.path;
+        if (given === undefined) {
+          refusals.push(
+            `${where}: the gate ${gate} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
+          );
+          continue;
+        }
+        found.push({ kind, from: act.from, to: act.to, path: given });
+      }
+      gatesOf.set(kind, found);
+      return found;
+    };
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
-      const paths =
-        (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
-          ? allNamed
-          : [readable];
+      // A mapping with `spanEach` builds one atom for each span of that kind the label gives, the span of one gate. The
+      // gate's file is the one the unit names inside that span, and the engine binds nothing by position: a span that
+      // holds no file is refused.
+      const gates =
+        mapping.spanEach === undefined ? undefined : eachGate(mapping.spanEach, mapping.spanFile, item.label);
+      const paths: Array<string | undefined> =
+        gates !== undefined
+          ? gates.map((gate) => gate.path)
+          : (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
+            ? allNamed
+            : [readable];
       // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
       // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
       const kinds = new Set([...JSON.stringify(mapping).matchAll(/\$\{?link\.([\w-]+)/g)].map((m) => m[1]));
@@ -304,9 +413,11 @@ export function pointerAtoms(
         repeated === undefined
           ? [undefined]
           : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
-      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
-      for (const [namedPath, chosen] of pairs) {
-        const template = templateFor(namedPath, chosen);
+      const pairs = paths.flatMap((path, index) =>
+        choices.map((link) => [path, link, gates?.[index]] as const),
+      );
+      for (const [namedPath, chosen, gate] of pairs) {
+        const template = templateFor(namedPath, chosen, gate);
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
@@ -314,6 +425,23 @@ export function pointerAtoms(
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
           );
           continue;
+        }
+        if (label?.annotate) {
+          // An annotation builds nothing: its fields go to the atoms other labels built for this unit.
+          const added = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+          if (added !== UNRESOLVED && Object.keys(added as Record<string, unknown>).length > 0)
+            annotations.push({ path: item.path, unit: item.id, fields: added as Record<string, unknown> });
+          kept = true;
+          continue;
+        }
+        // A limit belongs to an instruction or a gate (a rule, a prohibition or a check). Any other kind of atom
+        // takes none: the limits are dropped, and the refusal names the units that gave them.
+        const placed = LIMIT_KINDS.has(mapping.kind) ? limits : [];
+        if (limits.length > 0 && placed.length === 0) {
+          const givers = [item, ...bound].filter((unit) => limitsOf(unit).length > 0).map((unit) => unit.id);
+          refusals.push(
+            `${where}: the ${mapping.kind} atom takes no limit; dropped the limits of unit ${givers.join(', ')}`,
+          );
         }
         const same = builder.atoms.find(
           (other) =>
@@ -420,10 +548,13 @@ export function pointerAtoms(
               ...(mappedFields as Record<string, unknown>),
               extraction: 'pointer',
               unit: item.id,
+              ...(item.unit.path.length > 0 ? { section: item.unit.path } : {}),
               labelSet: item.set.set,
               label: item.label,
               labeler,
-              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+              ...(conditionIds.length > 0 || placed.length > 0
+                ? { condition: [...conditionIds, ...placed] }
+                : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
               ...(labelSpans.length > 0 ? { labelSpans } : {}),
               ...(ownLinks.length > 0 ? { labelLinks: ownLinks } : {}),
@@ -432,11 +563,23 @@ export function pointerAtoms(
         );
       }
     }
-    if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+    if (kept) {
+      // One key for each condition and target: a unit may scope several targets, and a bound unit of another set
+      // limits the atoms of the unit it points at.
+      for (const condition of [...conditional, ...bound])
+        attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
+    }
   }
-  for (const items of conditions.values()) {
+  for (const note of annotations) {
+    for (const atom of accepted) {
+      if (atom.fields?.unit !== note.unit || atom.provenance.file !== note.path) continue;
+      atom.fields = { ...note.fields, ...atom.fields };
+    }
+  }
+  for (const [key, items] of conditions) {
+    const targetId = key.slice(key.indexOf(':') + 1);
     for (const condition of items) {
-      if (attached.has(`${condition.set.set}:${condition.id}`)) continue;
+      if (attached.has(`${condition.set.set}:${condition.id}>${targetId}`)) continue;
       refusals.push(
         `${condition.path} unit ${condition.id} (${condition.label}): the condition points at a unit that holds no atom`,
       );

@@ -1,14 +1,45 @@
 import { execFile } from 'node:child_process';
+import { accessSync, constants } from 'node:fs';
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { promisify } from 'node:util';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it as vitestIt } from 'vitest';
 
 const harness = await import(
   new URL('../../../examples/northwind-campaign/plugin.mjs', import.meta.url).href
 );
 const exec = promisify(execFile);
+
+/** The first executable of that name on the PATH, or undefined. */
+function onPath(name: string): string | undefined {
+  for (const folder of (process.env.PATH ?? '').split(delimiter)) {
+    if (folder === '') continue;
+    try {
+      accessSync(join(folder, name), constants.X_OK);
+      return join(folder, name);
+    } catch {
+      // Not in this folder.
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The commands of these tests name `python` and `python3`. A machine may have only one of them (a stock Mac has
+ * only `python3`), so the PATH the commands run with gets the missing name as a link to the interpreter found:
+ * `python3` first, then `python`. With neither, the tests are skipped.
+ */
+const interpreter = onPath('python3') ?? onPath('python');
+const shim = interpreter ? await mkdtemp(join(tmpdir(), 'northwind-python-')) : undefined;
+if (interpreter && shim) {
+  for (const name of ['python', 'python3']) if (!onPath(name)) await symlink(interpreter, join(shim, name));
+}
+const commandPath = [shim, process.env.PATH].filter(Boolean).join(delimiter);
+const it = interpreter ? vitestIt : vitestIt.skip;
+if (!interpreter) vitestIt.skip('skipped: neither python3 nor python is on the PATH', () => {});
+
+// The shim folder is removed with the other temporary folders of the file, when the file ends.
 const temporary: string[] = [];
 afterEach(async () => {
   for (const path of temporary.splice(0)) await rm(path, { recursive: true, force: true });
@@ -60,7 +91,7 @@ async function exercise(command: string, read: 'before' | 'after' | 'none' | 'hi
     send: async () => {
       await exec('/bin/sh', ['-c', command], {
         cwd: root,
-        env: { PATH: process.env.PATH, NORTHWIND_RECONCILE_LOG: join(root, log) },
+        env: { PATH: commandPath, NORTHWIND_RECONCILE_LOG: join(root, log) },
       }).catch((error: { code?: unknown }) => {
         if (typeof error.code !== 'number') throw error;
       });
@@ -151,7 +182,7 @@ it('exits before reconciliation if its fixed execution log cannot be written', a
   await mkdir(join(root, log), { recursive: true });
   const result = await exec('/bin/sh', ['-c', 'python scripts/reconcile.py invoice.json order.json'], {
     cwd: root,
-    env: { PATH: process.env.PATH },
+    env: { PATH: commandPath },
   }).then(
     (output) => ({ code: 0, stdout: output.stdout, stderr: output.stderr }),
     (error: { code: number; stdout: string; stderr: string }) => error,

@@ -94,8 +94,45 @@ function admitsShortCycle(units: readonly FixtureUnit[]): boolean {
   return false;
 }
 
+/**
+ * The digits of the fictional serial and of the readings must not route. A shortcut that reads a digit run of the text
+ * (the first, the second, the last, a digit sum, a count) and picks the route by that number modulo the label count,
+ * at any phase, must stay clear of the lowest tier's bar. The bar is 0.9; the margin below it keeps a lucky draw
+ * from standing in for a signal: 20 distinct readings repeated to 40 units hand a coin flip about 1 chance in 10000
+ * of reaching 36 of 40.
+ */
+function admitsDigitShortcut(units: readonly FixtureUnit[]): boolean {
+  const needed = Math.ceil((units.length * 85) / 100);
+  const features: ((text: string) => number)[] = [
+    (text) => Number(text.match(/\d+/)?.[0] ?? 1),
+    (text) => Number(text.match(/\d+/g)?.[1] ?? 1),
+    (text) => Number((text.match(/\d+/g) ?? []).at(-1) ?? 1),
+    (text) => Number(text.match(/\d+/)?.[0].at(-1) ?? 1),
+    (text) => Number(text.match(/\d/)?.[0] ?? 1),
+    (text) => [...text.matchAll(/\d/g)].reduce((sum, digit) => sum + Number(digit[0]), 0),
+    (text) => (text.match(/\d+/g) ?? []).length,
+    (text) => text.length,
+  ];
+  for (const feature of features) {
+    const values = units.map((unit) => feature(unit.request.text));
+    const phases = new Set(units.map((unit) => unit.request.labelSet.labels.length));
+    const span = [...phases].reduce((a, b) => Math.max(a, b), 1);
+    for (let shift = 0; shift < span; shift += 1) {
+      let correct = 0;
+      for (let i = 0; i < units.length; i += 1) {
+        const unit = units[i] as FixtureUnit;
+        const labels = unit.request.labelSet.labels;
+        if (labels[((values[i] as number) + shift) % labels.length]?.name === unit.gold) correct += 1;
+        if (correct >= needed) return true;
+        if (correct + units.length - i - 1 < needed) break;
+      }
+    }
+  }
+  return false;
+}
+
 function drawLabellerFixture(item: FixtureSpec, seed: number, attempt: number): LabellerFixture {
-  if (attempt >= 128) throw new Error('labeller fixture exhausted 128 deterministic short-cycle redraws');
+  if (attempt >= 128) throw new Error('labeller fixture exhausted 128 deterministic shortcut redraws');
   let state = (seed ^ (item.variant * 1777) ^ (item.tier * 8121) ^ Math.imul(attempt, 0x9e3779b9)) >>> 0;
   const random = () => {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
@@ -291,7 +328,8 @@ function drawLabellerFixture(item: FixtureSpec, seed: number, attempt: number): 
   }
   // Reject the ordering, never a candidate answer or a semantic specification. Each redraw retains
   // the same base category counts, skew, tier and transforms, while rebuilding its seeded fictional units.
-  if (admitsShortCycle(units)) return drawLabellerFixture(item, seed, attempt + 1);
+  if (admitsShortCycle(units) || admitsDigitShortcut(units))
+    return drawLabellerFixture(item, seed, attempt + 1);
   let keyProbe: LabellerFixture['keyProbe'];
   if (item.family === 'cache-key' || item.family === 'label-set-change') {
     const before = units[0]?.request as LabellerRequest;
