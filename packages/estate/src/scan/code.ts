@@ -544,6 +544,11 @@ export type NamedReference = {
 /** The notations a path is written in. */
 export type MentionSyntax = 'code-span' | 'link' | 'quoted' | 'wiki' | 'angle' | 'bold' | 'loose';
 
+/** The character ranges of the code spans of a line, from a CommonMark parse: text a document shows and does not use. */
+export function codeSpanRanges(line: string): Array<[number, number]> {
+  return markdownTokens(line).codes.map((code) => [code.start, code.end]);
+}
+
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
   return pathMentions(line).map(({ path }) => path);

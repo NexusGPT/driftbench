@@ -12,5 +12,6 @@ export {
   type ReferenceOutcome,
   referenceGraph,
 } from './graph';
+export { IMPORT_EXTRACTOR, type ImportMention, importMentions } from './import-extractor';
 export { PATH_EXTRACTOR } from './path-extractor';
 export { DEFAULT_RULES, referenceRulesOf, typeOfFile } from './rules';

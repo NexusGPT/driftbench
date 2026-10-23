@@ -470,6 +470,51 @@ const DEFECTS: Case[] = [
       return [{ code: 'ORPHAN', subject: old }];
     },
   },
+  {
+    key: 'no-model-missing-import',
+    tier: 2,
+    title: 'a standing import of a file that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('@rules/absent.md');
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-inline-missing-import',
+    tier: 2,
+    title: 'an import written inside a sentence, of a file that does not exist, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('For the details see @rules/absent.md before you start.');
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
+    key: 'no-model-outside-import',
+    tier: 2,
+    title: 'a standing import of a file in the home folder, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push('@~/notes/personal.md');
+      return [{ code: 'EXTERNAL' }];
+    },
+  },
+  {
+    key: 'no-model-import-from-importer-folder',
+    tier: 3,
+    title: 'an import read from the folder of the file that holds it, whose file stands at the root only',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.estate.file(`${ROOT}/CLAUDE.md`, b.owner).lines_(['# More', '', '@rules/shared.md']);
+      b.estate.file('rules/shared.md', b.owner).lines_(['# Shared', '', '- Keep replies short.']);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
 ];
 
 const CLEAN: Case[] = [
@@ -785,6 +830,31 @@ const CLEAN: Case[] = [
       ]);
       b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
       b.estate.raw(skillFile(name, 'references/checklist.md'), '# Checklist\n', b.owner);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-inline-import',
+    tier: 2,
+    title: 'an import written inside a sentence, whose file exists, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push(`For the details see @${ROOT}/rules/shared.md before you start.`);
+      b.estate.file(`${ROOT}/rules/shared.md`, b.owner).lines_(['# Shared', '', '- Keep replies short.']);
+      return [];
+    },
+  },
+  {
+    key: 'no-model-chained-import',
+    tier: 3,
+    title: 'a standing import of a file that imports another, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a');
+      b.standing.push(`@${ROOT}/rules/first.md`);
+      b.estate.file(`${ROOT}/rules/first.md`, b.owner).lines_(['# First', '', '@second.md']);
+      b.estate.file(`${ROOT}/rules/second.md`, b.owner).lines_(['# Second', '', '- Keep replies short.']);
       return [];
     },
   },
