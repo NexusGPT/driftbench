@@ -257,7 +257,7 @@
   "packages/cli/test/token-prices.test.ts": 220,
   "packages/cli/test/validate-floor-cap.test.ts": 60,
   "packages/cli/test/validate-floor-directory.test.ts": 61,
-  "packages/cli/test/validate.test.ts": 286105,
+  "packages/cli/test/validate.test.ts": 1500000,
   "packages/cli/test/view-anchor.test.ts": 1207,
   "packages/cli/test/view-scale.test.ts": 586,
   "packages/cli/test/view-security.test.ts": 9526,

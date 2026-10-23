@@ -21,6 +21,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   type ArtifactRef,
+  callsIn,
   canonicalJson,
   copyHistory,
   type ExecutionRecord,
@@ -526,7 +527,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       if (!block) throw new AgentFailure('the turn mapped to no block');
       const { diff: workspaceDiff, runtimeWrites } = agentDiff(
         fullDiff,
-        block.observed.toolCalls,
+        callsIn(block.observed, 'any'),
         cwd,
         options.estateFiles ?? DEFAULT_ESTATE_FILES,
       );
@@ -555,7 +556,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
               ...(op.op === 'compact' && op.preTokens !== undefined ? { preTokens: op.preTokens } : {}),
             }))
         : [];
-      const findings = outsideWrites(block.observed.toolCalls, cwd);
+      const findings = outsideWrites(callsIn(block.observed, 'any'), cwd);
       if (findings.length > 0) {
         const runtime = block.observed.runtime ?? {};
         block.observed.runtime = {

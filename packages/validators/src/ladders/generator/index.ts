@@ -16,9 +16,11 @@ export { acmeItems, acmeRun } from './acme';
 
 /**
  * The ladder version of the generator bank (docs/validators.md section 12.5: a floor holds per version). Version 2
- * adds the planner v2 family: strength 3 on the rules, seed rows, traffic order and budget cuts.
+ * adds the planner v2 family: strength 3 on the rules, seed rows, traffic order and budget cuts. Version 3 adds
+ * planner items in the same 'planner' level: strength (row cap, non-extendable tuples, constraints of one and three
+ * values, approval), seeds, traffic order and budget edges.
  */
-export const GENERATOR_LADDER_VERSION = 2;
+export const GENERATOR_LADDER_VERSION = 3;
 export {
   BANK_COMPONENTS,
   BANK_LEVELS,
