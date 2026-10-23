@@ -1429,13 +1429,13 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [judge flags] [run check flags] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--no-exec] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [judge flags] [run check flags] [--json]
 driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
 driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
-`estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
+`estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. A stand-in runs the estate's guard commands and scripts through `/bin/sh`; `--no-exec` sets the execution policy `none`, so the shipped stand-in runs none of them, and refuses (exit 2) a command that is not a stand-in. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
 
 The options that shape the run of the runtime:
 
