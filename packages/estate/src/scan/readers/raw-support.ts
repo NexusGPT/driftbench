@@ -67,7 +67,7 @@ export function sourceCoverage(
 ): ModelCoverage {
   const roots = profile.coverageRoots.map((name) => {
     const folder = profile.roots[name];
-    if (folder === undefined) throw new CoverageRootError(name);
+    if (!Object.hasOwn(profile.roots, name) || folder === undefined) throw new CoverageRootError(name);
     return folder;
   });
   const config = new Set(profile.configFiles);

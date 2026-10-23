@@ -74,8 +74,10 @@ to reopen. `snapshotRoots` names the other explicitly mapped, filtered source sn
 
 A link is followed only inside those snapshots. A link back to an original, unfiltered folder is
 skipped. Cycles, broken links, inaccessible entries, files over 1 MiB, binary files and invalid UTF-8
-each receive a skipped entry with a reason. Empty and unclassified text files remain in the inventory
-so the common model can report unknown coverage. No implicit home configuration is read.
+each receive a skipped entry with a reason. The canonical `RawEstate.coverage` counts files covered by
+types or reached references, lists untyped files under the source as unknown, and retains skipped reasons.
+Its profile declares `roots.source: '.'` and `coverageRoots: ['source']`. An unresolved coverage root
+refuses the read with code `unknown-coverage-root`. No implicit home configuration is read.
 
 The fictional fixture is under `packages/estate/test/fixtures/readers/agents-folder/`. Its Python
 script throws if executed; the reader only reads its bytes. Generated cases check every declared

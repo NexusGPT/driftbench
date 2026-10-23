@@ -18,11 +18,13 @@ const profile = readerProfile('fictional-runtime', types, {});
 const files = (...paths: string[]) => paths.map((path) => ({ path, text: 'Fictional content.\n' }));
 
 describe('source coverage follows coverageOf', () => {
-  it('refuses an unresolved root name with a structured code even for an empty source', () => {
-    expect(() =>
-      sourceCoverage({ ...profile, coverageRoots: ['missing'] }, { files: [], skipped: [] }),
-    ).toThrowError(expect.objectContaining({ code: 'unknown-coverage-root', root: 'missing' }));
-  });
+  for (const root of ['missing', 'toString']) {
+    it(`refuses unresolved root ${root} with a structured code even for an empty source`, () => {
+      expect(() =>
+        sourceCoverage({ ...profile, coverageRoots: ['source', root] }, { files: [], skipped: [] }),
+      ).toThrowError(expect.objectContaining({ code: 'unknown-coverage-root', root }));
+    });
+  }
 
   it('counts reached files and retains configuration, size, ignore and unread reasons', () => {
     const inventory = {
