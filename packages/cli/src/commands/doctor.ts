@@ -5,6 +5,7 @@ import {
   diagnoseSetup,
   parseSetupText,
   type ResolvedSetupSource,
+  runtimeProfile,
   type SetupDocument,
   type TypesOptions,
 } from '@agent-nexus/driftbench-core';
@@ -18,7 +19,11 @@ export type DoctorOptions = { setup?: string; write?: string; check?: boolean; j
 /** Each reader owns its built-ins. Host profiles are never substituted for another source's reader. */
 function typesForReader(id: string): TypesOptions | undefined {
   const reader = readerFor(id) as (EstateReader & { readonly setupTypes?: TypesOptions }) | undefined;
-  return reader?.setupTypes;
+  if (!reader) return undefined;
+  if (reader.setupTypes) return reader.setupTypes;
+  // The frozen legacy reader exposes its own profile through the profile registry.
+  const profile = runtimeProfile(id);
+  return profile ? { runtime: id, roots: profile.roots, base: profile.types, shapes: profile.shapes, folder: '.' } : undefined;
 }
 
 /** Programmatic doctor entry: all detection goes through readerFor, with policy enforced by core. */

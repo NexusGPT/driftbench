@@ -132,7 +132,7 @@ function sourceTypes(setup: SetupDocument, resolver?: SetupTypeResolver): { ok: 
   const errors: SetupIssue[] = [];
   for (const [index, source] of setup.sources.entries()) {
     const profile = runtimeProfile(source.reader);
-    const options = resolver?.(source.reader) ?? (profile ? profileOptions(profile) : { runtime: source.reader, roots: { project: '.', source: '.' }, folder: '.' });
+    const options = resolver?.(source.reader) ?? (!resolver && profile ? profileOptions(profile) : { runtime: source.reader, roots: { project: '.', source: '.' }, folder: '.' });
     const declarations = { ...(source.kind === 'project' ? setup.types ?? {} : {}), ...source.types };
     const result = parseTypes({ version: 1, types: declarations }, { ...options, source: `driftbench.setup.yaml#sources.${index}` });
     if (result.ok) types[source.id] = result.set;
