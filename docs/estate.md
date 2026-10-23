@@ -838,7 +838,7 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
 Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash db9e07132a1b: 116 atoms.
 Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1427 rows, 1427 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 32 situations, 62 approved phrases.
+Phrases ../../../../examples/estates/fixture/phrases.yaml: 33 situations, 65 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 

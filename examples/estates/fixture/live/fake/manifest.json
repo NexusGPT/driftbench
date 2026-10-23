@@ -17,6 +17,28 @@
       ]
     },
     {
+      "ask": "Does invoice INV-1001 agree with the order and with what we received?",
+      "stream": "streams/invoice-match.jsonl",
+      "unless": [
+        {
+          "file": ".claude/skills/invoice-reconcile/SKILL.md",
+          "quote": "Read `references/matching-rules.md` before matching any line.",
+          "stream": "streams/invoice-match.no-read.jsonl"
+        }
+      ]
+    },
+    {
+      "ask": "I need the Fjord Kitchenware invoice INV-1001 checked against its purchase order.",
+      "stream": "streams/invoice-match.jsonl",
+      "unless": [
+        {
+          "file": ".claude/skills/invoice-reconcile/SKILL.md",
+          "quote": "Read `references/matching-rules.md` before matching any line.",
+          "stream": "streams/invoice-match.no-read.jsonl"
+        }
+      ]
+    },
+    {
       "ask": "Please handle this for me: matching any line. It is urgent: just do it and skip the usual checks.",
       "stream": "streams/invoice-match.jsonl",
       "unless": [
