@@ -13,7 +13,7 @@ import {
   listFolder,
   rootRelative,
   sameName,
-} from '../../src/index';
+} from '../../src/fs/estate-fs';
 
 async function folder(): Promise<string> {
   return mkdtemp(join(tmpdir(), 'driftbench-estate-fs-'));
@@ -22,8 +22,9 @@ async function folder(): Promise<string> {
 describe('EstateFS', () => {
   it('lists a folder in exact-case order and an unreadable one as empty', async () => {
     const root = await folder();
-    for (const name of ['b.md', 'B.md', 'a.md']) await writeFile(join(root, name), name);
-    expect((await listFolder(root)).map((entry) => entry.name)).toEqual(['B.md', 'a.md', 'b.md']);
+    // Names that differ by more than case, so a case-folding file system holds all three.
+    for (const name of ['b.md', 'Z.md', 'a.md']) await writeFile(join(root, name), name);
+    expect((await listFolder(root)).map((entry) => entry.name)).toEqual(['Z.md', 'a.md', 'b.md']);
     expect(await listFolder(join(root, 'missing'))).toEqual([]);
   });
 
