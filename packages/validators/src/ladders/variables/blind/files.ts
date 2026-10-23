@@ -124,7 +124,7 @@ export function defect(ctx: ItemContext, apply: (base: Base) => void): Base {
 
 export function validateOk(ctx: ItemContext, value: unknown, label = 'the store'): ValidateResult {
   const r = callValidate(ctx, value);
-  check(r.ok, () => ({ rule: 'a store the page calls valid is accepted', input: { store: label }, got: { errors: show((r as { errors?: FileIssue[] }).errors, 240) }, expected: none('accepted') }));
+  check(r.ok, () => ({ rule: 'a store the page calls valid is accepted', input: { store: label }, got: { errors: show((r as { errors?: FileIssue[] }).errors, 240) }, expected: none('observation') }));
   return r;
 }
 
