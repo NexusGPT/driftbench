@@ -160,7 +160,7 @@ describe('the stem post-pass', () => {
       {
         "saved": 292,
         "specs": 434,
-        "stems": 96,
+        "stems": 97,
       }
     `);
   }, 120_000);

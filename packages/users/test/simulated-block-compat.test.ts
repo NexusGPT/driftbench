@@ -110,7 +110,7 @@ describe('when.simulated_user is invisible to specs that do not use it', () => {
     // 732 when #1062 regenerated the acme specs (18 files left, 17 arrived), and to 728 when #1104 regenerated 167
     // example specs (20 files left, 16 arrived), and to 727 when the reducer read an injection as its class (one acme
     // cover spec fewer); every file of the comparable set must still load with the same hash and keys.
-    expect(comparable.length).toBe(727);
+    expect(comparable.length).toBe(728);
     expect(moved).toEqual([]);
   });
 });

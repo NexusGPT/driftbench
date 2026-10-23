@@ -1,7 +1,7 @@
 {
   "generator": "driftbench generate",
   "stems": {
-    "stems": 96,
+    "stems": 97,
     "specs": 188,
     "saved": 292
   },
@@ -66,8 +66,8 @@
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 165,
-        "pielou": 0.953948292084,
+        "hill_q0": 164,
+        "pielou": 0.954441253601,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -97,7 +97,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 203,
-        "pielou": 0.928598680022,
+        "pielou": 0.927994989187,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -8842,13 +8842,13 @@
       "chao_coverage": 0.9942258320868325,
       "chao1": 804.4400475008537,
       "hill_q0": 708,
-      "hill_q1": 309.721033508663,
-      "hill_q2": 191.5578165104361,
-      "pielou": 0.874014607749,
+      "hill_q1": 309.739796393565,
+      "hill_q2": 191.53152404178115,
+      "pielou": 0.874023838779,
       "t3_share": 0.7677165354330708,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 283.9635026332814,
+      "effective_sample_size": 284.1016842234886,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,
