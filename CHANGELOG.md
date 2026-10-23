@@ -7,6 +7,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 ## [Unreleased]
 
 * Helper tokens are priced. `cost.helperModel` is the model the helper messages of a Claude Code session name, `cost.helperUsd` the dollars for the helper tokens at that model's price (the agent's model when none is named), and `cost.usd` the total with the agent's own dollars. A budgeted run refuses a helper model that has no price.
+* The run report lists the helper calls of a block under their own heading (`helperCalls` in the run detail), `estate stats` counts a reference a helper read as reached, and the `permission` check covers a helper's calls by default (`actor: main | helper | any` narrows it), because a Claude Code subagent inherits the permission rules of the main conversation.
 
 * The Claude Code session adapter maps the tool calls of a helper's own conversation (the sidechain records of a saved transcript, the `parent_tool_use_id` records of a headless stream) to `observed.helperCalls`: each call has `actor: helper` and a `parentCallId` that names the Agent call that began the helper, and the helper's tokens are `cost.helperInputTokens` and `cost.helperOutputTokens`. Safety checks (`forbidden_tools`, a count of 0, `no_delete_under`, `safety`, tool policy) now see a helper's `rm`, edit or forbidden tool; every other check reads the agent's own calls as before. `actor: main | helper | any` on an `expect.tools` entry or a `some_call` entry sets whose calls it reads. `@agent-nexus/driftbench-core` exports `Actor` and `callsIn`.
 

@@ -200,6 +200,38 @@ describe('hazard_recovery: the agent recovers from the event of its row', () => 
   });
 });
 
+describe('permission: a helper inherits the permission rules of the agent', () => {
+  const helperPush = {
+    id: 'h-1',
+    label: 'Bash',
+    input: { command: 'git push --force origin x' },
+    actor: 'helper',
+    parentCallId: 'agent-1',
+  } as const;
+
+  it('deny: a call the rule covers fails whoever made it, and actor main narrows it', async () => {
+    const rule = { effect: 'deny', rule: 'Bash(git push --force:*)' };
+    const seen = ctx('ok', [bash('ls')], { helperCalls: [helperPush] });
+    expect((await verdicts(permission, seen, rule))[0]?.outcome).toBe('fail');
+    expect((await verdicts(permission, seen, { ...rule, actor: 'main' }))[0]?.outcome).toBe('pass');
+  });
+
+  it('allow: a helper call the runtime refused for permission fails the rule', async () => {
+    const refused = { ...helperPush, error: 'permission denied' };
+    const seen = ctx('ok', [bash('ls')], { helperCalls: [refused] });
+    expect(
+      (await verdicts(permission, seen, { effect: 'allow', rule: 'Bash(git push:*)' }))[0]?.outcome,
+    ).toBe('fail');
+  });
+
+  it('allow: a block whose only covered call is a helper call is no longer inconclusive', async () => {
+    const seen = ctx('ok', [bash('ls')], { helperCalls: [helperPush] });
+    expect(
+      (await verdicts(permission, seen, { effect: 'allow', rule: 'Bash(git push:*)' }))[0]?.outcome,
+    ).toBe('pass');
+  });
+});
+
 describe('permission: what a permission rule allows or denies', () => {
   it('deny: no call the rule covers, attempted or not', async () => {
     const rule = { effect: 'deny', rule: 'Bash(git push --force:*)' };
