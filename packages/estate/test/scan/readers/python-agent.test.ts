@@ -190,8 +190,7 @@ describe('Python RawEstate projection', () => {
   ]) {
     it(`red regression: never emits file bytes as the result of ${call}`, async () => {
       const root = await fixture({
-        'agent.py':
-          `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
+        'agent.py': `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
         'policy.md': 'Fictional mixed Case.\n',
       });
       const raw = await new pythonReader.PythonAgentReader().read(root);
