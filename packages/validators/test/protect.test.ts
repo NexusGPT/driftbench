@@ -9,9 +9,9 @@ import {
   PROTECTED_PATHS,
   protectedChanges,
   readFloors,
-  readRegressionSeeds,
   registeredLadders,
 } from '../src/index';
+import { readRegressionSeeds } from '../src/regression';
 
 const WORKFLOW = new URL('../../../.github/workflows/validators.yml', import.meta.url);
 

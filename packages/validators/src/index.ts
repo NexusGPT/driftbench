@@ -151,15 +151,6 @@ export {
   PROTECTED_PATHS,
   protectedChanges,
 } from './protect';
-export {
-  checkRegressionReport,
-  REGRESSION_FILE,
-  RegressionFileSchema,
-  RegressionSeed,
-  readRegressionSeeds,
-  regressionId,
-  regressionThrough,
-} from './regression';
 export { findRoot } from './root';
 export {
   FALLBACK_HIDDEN_SEED,

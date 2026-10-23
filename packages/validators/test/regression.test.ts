@@ -4,18 +4,20 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  checkRegressionReport,
   emptyFloors,
   type FloorsFile,
   floorOf,
   ladderVersion,
+  readFloors,
+  registeredLadders,
+} from '../src/index';
+import {
+  checkRegressionReport,
   REGRESSION_FILE,
   type RegressionSeed,
-  readFloors,
   readRegressionSeeds,
-  registeredLadders,
   regressionThrough,
-} from '../src/index';
+} from '../src/regression';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const TOPS = Object.fromEntries(
