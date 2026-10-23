@@ -186,9 +186,14 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
     .option(HOME_FLAG, HOME_HELP)
-    .action(async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string; home?: string }) => {
-      setExit(await estateLintCommand(path, options, io));
-    });
+    .action(
+      async (
+        path: string,
+        options: { ceiling?: string; ignore?: string[]; userSkills?: string; home?: string },
+      ) => {
+        setExit(await estateLintCommand(path, options, io));
+      },
+    );
 
   estate
     .command('approve')
