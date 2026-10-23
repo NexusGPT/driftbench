@@ -25,12 +25,20 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  noCountGuard: false,
+  noSeedIdCheck: false,
   noBoundaryRules: false,
   noWhenRules: false,
   naiveHugeTotals: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
+  if (!mutation.noCountGuard) {
+    if (!Number.isInteger(count) || !Number.isInteger(total) || total < 1 || count < 0 || count > total)
+      throw new RangeError(
+        `weightInterval needs whole numbers with 0 <= count <= total and total >= 1, got ${count} of ${total}`,
+      );
+  }
   const p = count / total;
   const d = 1 + (Z * Z) / total;
   const centre = (p + (Z * Z) / (2 * total)) / d;
@@ -354,9 +362,21 @@ export function plan(store: StoreDoc, options: PlanOptions): Plan {
       f.every(([v, x]) => cells.some(([cv, cx]) => cv === v && cx === x));
     if (s.forbids.some(held))
       warn('seed_forbidden', `the seed ${i + 1} holds a combination the store forbids`);
-    seedRows.push({ id: `seed.${i + 1}`, kind: 'seed', values, logWeight: weightOf(s, cells) });
+    seedRows.push({
+      id: `seed.${options.seedIds?.[i] ?? i + 1}`,
+      kind: 'seed',
+      values,
+      logWeight: weightOf(s, cells),
+    });
     seedCells.push(cells);
   });
+  if (!mutation.noSeedIdCheck) {
+    const seen = new Set<string>();
+    for (const row of seedRows) {
+      if (seen.has(row.id)) throw new Error(`two seed rows have the id ${row.id}`);
+      seen.add(row.id);
+    }
+  }
   const budgetFor = (): number =>
     budget === undefined ? Number.POSITIVE_INFINITY : Math.max(0, budget - seedRows.length);
   if (s.ids.length === 0) {
