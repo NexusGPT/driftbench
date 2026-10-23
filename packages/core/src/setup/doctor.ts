@@ -148,10 +148,14 @@ async function inventory(
     .sort((a, b) => b.root.length - a.root.length);
   const project = sources.find((entry) => entry.kind === 'project');
   const projectRoot = mapped.find((entry) => entry.id === project?.id)?.root;
-  const policyPaths = (path: string) => projectRoot && inside(projectRoot, join(canonical, path))
-    ? [path, slash(relative(projectRoot, join(canonical, path)))] : [path];
-  const excluded = (patterns: string[], path: string) => policyPaths(path).some((value) => patterns.some((pattern) => matches(pattern, value)));
-  const included = (path: string) => policyPaths(path).some((value) => setup.scope.include.some((pattern) => matches(pattern, value)));
+  const policyPaths = (path: string) =>
+    projectRoot && inside(projectRoot, join(canonical, path))
+      ? [path, slash(relative(projectRoot, join(canonical, path)))]
+      : [path];
+  const excluded = (patterns: string[], path: string) =>
+    policyPaths(path).some((value) => patterns.some((pattern) => matches(pattern, value)));
+  const included = (path: string) =>
+    policyPaths(path).some((value) => setup.scope.include.some((pattern) => matches(pattern, value)));
   const ignorePatterns = [...(profile?.ignore ?? ['.git', 'node_modules'])];
   for (const path of profile?.configFiles ?? []) {
     const absolute = join(source.root, path);
