@@ -46,6 +46,11 @@ export function wantedInMessage(
   const own =
     error instanceof ItemFailure ? `${text(error.fields.input)} ${itemId}` : itemId;
   const ownTokens = new Set(own.match(TOKEN) ?? []);
+  // A small count that the item measured on the wrong product's answer (rows, entries) is the product's own, even when
+  // the correct product has the same number somewhere: only a number of more than three digits, a code or an
+  // identifier is a value the item could not have measured on the wrong answer.
+  if (error instanceof ItemFailure)
+    for (const t of text(error.fields.got).match(TOKEN) ?? []) if (/^\d{1,3}$/.test(t)) ownTokens.add(t);
   const inMessage = new Set(message.match(TOKEN) ?? []);
   return [...reference].filter(
     (t) => !wrong.has(t) && valueLike(t) && inMessage.has(t) && !ownTokens.has(t),

@@ -64,7 +64,7 @@ export class ItemFailure extends Error {
   constructor(fields: FailureFields) {
     super(renderFailure(fields));
     if (!('expected' in fields))
-      throw new TypeError(`failure "${fields.rule}" declares no expected value: name it, or say none(reason)`);
+      throw new TypeError(`failure "${(fields as FailureFields).rule}" declares no expected value: name it, or say none(reason)`);
     this.name = 'ItemFailure';
     this.fields = fields;
   }

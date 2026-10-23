@@ -46,7 +46,7 @@ describe('the failure of an item, in fields', () => {
   });
 
   it('check throws an ItemFailure only when the condition fails, and the report counts structured and other failures', () => {
-    expect(() => check(true, { rule: 'r' })).not.toThrow();
+    expect(() => check(true, { rule: 'r', expected: none('x') })).not.toThrow();
     let thrown: unknown;
     try {
       check(false, () => ({ rule: 'r', got: 5, expected: 7 }));
@@ -136,7 +136,7 @@ describe('the switch that builds diagnostics', () => {
     let built = 0;
     const factory = () => {
       built += 1;
-      return { rule: 'r' };
+      return { rule: 'r', expected: none('x') };
     };
     expect(() => check(false, factory)).toThrow(ItemFailure);
     expect(built).toBe(1);
