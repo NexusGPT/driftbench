@@ -88,6 +88,8 @@ export {
   compileGlob,
   type FieldRead,
   type FieldReadError,
+  type FilePlace,
+  folderHolding,
   type GlobError,
   type GlobResult,
   type JsonPathError,
@@ -102,6 +104,8 @@ export {
   type Locator,
   type LocatorError,
   loadedText,
+  locateFile,
+  locateInside,
   type ModelCoverage,
   matchGlob,
   type Part,
@@ -113,6 +117,7 @@ export {
   parseReferenceRule,
   parseTypes,
   parseTypesText,
+  pathWithin,
   type ReferenceRule,
   referenceRuleText,
   selectJson,
@@ -496,7 +501,9 @@ export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
+  CLAUDE_CODE_MAP_KINDS,
   CLAUDE_CODE_PROFILE,
+  CLAUDE_CODE_TYPES,
   type LayoutProfile,
   type PathVariables,
   type RoutingRule,

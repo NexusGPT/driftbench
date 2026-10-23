@@ -17,6 +17,7 @@ import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
+import { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
 import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
@@ -135,6 +136,8 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /** How the reader classifies a file and finds the files beside the layout it reads. */
+  classifier?: FileClassifier;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -160,6 +163,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly classifier: FileClassifier;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -169,6 +173,7 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    this.classifier = options.classifier ?? LEGACY_CLASSIFIER;
   }
 
   /**
@@ -225,7 +230,7 @@ export class ClaudeCodeReader implements EstateReader {
     const paths = [
       ...(await present(root, PROFILE.standing.rootFiles, notes)),
       ...(await walk(root, LAYOUT, notes, ignored)),
-      ...(await nestedStanding(root, '', notes, ignored)),
+      ...(await nestedStanding(root, '', notes, ignored, this.classifier)),
     ];
     const files: EstateFile[] = [];
     const loaded = await readBatch(paths, async (path) => ({
@@ -239,7 +244,7 @@ export class ClaudeCodeReader implements EstateReader {
       if (text.trim() === '') {
         notes.push({ file: path, message: 'empty file: nothing to read' });
         files.push({ path, text, kind: 'other' });
-      } else files.push({ path, text, ...classify(path, text) });
+      } else files.push({ path, text, ...this.classifier.classify(path, text) });
     }
 
     for (const file of files)
@@ -479,6 +484,7 @@ async function nestedStanding(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
+  classifier: FileClassifier,
   ancestors: Set<string> = new Set(),
   canonical?: string,
   found: string[] = [],
@@ -505,11 +511,12 @@ async function nestedStanding(
           path,
           notes,
           ignored,
+          classifier,
           ancestors,
           entry.isSymbolicLink() ? undefined : join(real, entry.name),
           found,
         );
-      } else if (PROFILE.standing.nestedName.test(entry.name) && (entry.isFile() || linked?.isFile())) {
+      } else if (classifier.besideLayout(path) && (entry.isFile() || linked?.isFile())) {
         const info = linked ?? (await stat(join(root, path)));
         if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
         else found.push(path);
@@ -884,6 +891,22 @@ async function walk(
     ancestors.delete(real);
   }
 }
+
+/** The classification the reader always made, from the profile's fixed places and names. */
+const LEGACY_CLASSIFIER: FileClassifier = {
+  classify,
+  besideLayout: (path) => PROFILE.standing.nestedName.test(basename(path)),
+};
+
+/** The structures this reader can test a file for, by the shape names of the profile's types. */
+export const READER_SHAPES: ShapeTests = {
+  'step-list': (text, path) => isStepList(text, path),
+  catalogue: (text) => catalogueEntries(text) !== undefined,
+  'check-table': (text, path) => structuredRegistry(text, path),
+};
+
+/** The classification by the profile's part types, which must give the same kind as the legacy one. */
+export const PROFILE_CLASSIFIER: FileClassifier = profileClassifier(PROFILE, READER_SHAPES);
 
 function classify(path: string, text: string): { kind: FileKind; owner?: string } {
   if (STANDING.has(path) || PROFILE.standing.nestedName.test(basename(path))) return { kind: 'standing' };

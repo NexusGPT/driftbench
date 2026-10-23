@@ -2,6 +2,7 @@ import { CLAUDE_CODE_PROFILE } from './claude-code';
 import { registerRuntimeProfile } from './profile';
 
 export { CLAUDE_CODE_PROFILE } from './claude-code';
+export { CLAUDE_CODE_MAP_KINDS, CLAUDE_CODE_TYPES } from './claude-code-types';
 export {
   type LayoutProfile,
   type PathVariables,

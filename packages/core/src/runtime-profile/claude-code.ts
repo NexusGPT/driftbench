@@ -1,4 +1,22 @@
+import { parseTypes, type TypeSet } from '../estate-model/part-type';
+import { CLAUDE_CODE_MAP_KINDS, CLAUDE_CODE_TYPES } from './claude-code-types';
 import type { RuntimeProfile } from './profile';
+
+const ROOTS = { project: '.', layout: '.claude' } as const;
+const SHAPES = ['step-list', 'catalogue', 'check-table'] as const;
+
+/** The built-in types, validated by the same loader as a user's types document. */
+function builtInTypes(): TypeSet {
+  const parsed = parseTypes(CLAUDE_CODE_TYPES, {
+    runtime: 'claude-code',
+    roots: ROOTS,
+    source: 'profile:claude-code',
+    shapes: SHAPES,
+  });
+  if (!parsed.ok)
+    throw new Error(`the claude-code profile's types do not load: ${JSON.stringify(parsed.errors)}`);
+  return parsed.set;
+}
 
 /** The file name Claude Code loads as standing instructions wherever it lies. */
 const STANDING_NAME = /^CLAUDE(?:\.local)?\.md$/;
@@ -11,6 +29,10 @@ const STANDING_NAME = /^CLAUDE(?:\.local)?\.md$/;
  */
 export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
   name: 'claude-code',
+  roots: ROOTS,
+  types: builtInTypes(),
+  mapKinds: CLAUDE_CODE_MAP_KINDS,
+  shapes: SHAPES,
   layout: {
     root: '.claude',
     memory: 'memory',

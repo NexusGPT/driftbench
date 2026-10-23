@@ -1,3 +1,5 @@
+import type { TypeSet } from '../estate-model/part-type';
+
 /**
  * A runtime profile: what an agent runtime loads from an estate, and how. The estate scanner, the mutant
  * copier and the adapters read the layout from a profile instead of assuming one; adding a runtime is a new
@@ -60,6 +62,17 @@ export type PathVariables = {
 export type RuntimeProfile = {
   /** The name the CLI and an estate map give the runtime. */
   name: string;
+  /** The roots its part types are relative to, by name, each a folder relative to the estate root. */
+  roots: Readonly<Record<string, string>>;
+  /** Its built-in part types, in the order a file is classified in (docs/estate-model.md). */
+  types: TypeSet;
+  /**
+   * The kind today's estate map gives a file of each type, by type name. A file takes the kind of the first
+   * mapped type, in the order of `types`, that locates it; a file no mapped type locates is `other`.
+   */
+  mapKinds: Readonly<Record<string, string>>;
+  /** The structures its reader can test a file for, which a type's `shape` names. */
+  shapes: readonly string[];
   layout: LayoutProfile;
   standing: StandingProfile;
   /** Where settings come from; the first static source is what the reader classifies as settings. */
