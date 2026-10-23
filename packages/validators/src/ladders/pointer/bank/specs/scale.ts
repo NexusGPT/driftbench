@@ -175,7 +175,7 @@ export const scale: FamilySpec = {
       4,
       'A window of more than 10,000 units is labelled by one range, in time',
       'One file of about 470,000 characters of short sentences in two parts under top-level headings (about 18,000 units, two windows); the labeller answers each window with one range over all its units.',
-      'Two windows, the first over 10,000 units; one call per window; every planted unit comes back once as a live entry with its planted label (no unit missing, none extra); no failed window; the scan under 5 s (measured 0.9 s on the CI runner, issue 1376).',
+      'Two windows, the first over 10,000 units; one call per window; every live entry has the container of its planted unit, its quote is the source slice at its own span byte for byte, that span lies inside the unit with the same content, its label is the planted one, and every planted unit, headings included, is named by exactly one entry; no failed window; the scan under 5 s (measured 0.9 s on the CI runner, issue 1376).',
       'labeler:range-within-window',
       { seedFree: true },
     ),
