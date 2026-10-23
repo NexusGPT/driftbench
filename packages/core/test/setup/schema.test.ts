@@ -162,7 +162,6 @@ it('keeps built-ins empty when the reader resolver has no metadata, even for a n
   if (result.ok) expect(result.types.project?.types).toEqual([]);
 });
 
-
 it('accepts an own source type named constructor beside an empty project shorthand', () => {
   const declaration = { locate: 'constructors/*.md', aspects: ['instructs'], loaded: 'always' };
   const setup = {
@@ -173,6 +172,10 @@ it('accepts an own source type named constructor beside an empty project shortha
   const result = parse(setup);
   expect(result.ok).toBe(true);
   if (result.ok)
-    expect(result.types.project?.types.find((type) => type.name === 'constructor')?.locate.map((locator) => locator.written)).toEqual(['constructors/*.md']);
+    expect(
+      result.types.project?.types
+        .find((type) => type.name === 'constructor')
+        ?.locate.map((locator) => locator.written),
+    ).toEqual(['constructors/*.md']);
   expect(parse({ ...setup, types: { constructor: declaration } }).ok).toBe(false);
 });
