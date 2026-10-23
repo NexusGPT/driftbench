@@ -74,7 +74,7 @@ export type ScaleReport = {
 /**
  * The hidden specification grown to `SCALE_BASE_BEHAVIOURS * factor` behaviours, each with a phrase, spread over the
  * flows. The seed still decides the rest of its structure (stages, paths, data, phrases), which moves the time of a
- * run by up to about 40 percent between seeds (four seeds, ten runs each: means 89, 90, 106 and 127 s).
+ * run by up to about 60 percent between seeds (six seeds, ten runs each: means 79 to 127 s).
  */
 export function scaledSpec(seed: number, factor: number): HiddenSpec {
   const spec = hiddenSpec(seed);

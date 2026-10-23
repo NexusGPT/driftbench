@@ -2541,7 +2541,7 @@ function scaleItems(): BankItem[] {
           : '';
       return [
         r.normalisedMs <= r.budgetMs / 2,
-        `two runs took ${r.ms} ms of CPU time (raw)${r.behaviours === undefined ? '' : ` on ${r.behaviours} behaviours, the same workload for every seed`}, the calibration took ${r.calibrationMs} ms${spread} against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms. The rest of the structure of the seed (stages, phrases, data) still moves this time by up to about 40 percent between seeds, and the class of the runner by about 5 percent`,
+        `two runs took ${r.ms} ms of CPU time (raw)${r.behaviours === undefined ? '' : ` on ${r.behaviours} behaviours, the same workload for every seed`}, the calibration took ${r.calibrationMs} ms${spread} against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms. The rest of the structure of the seed (stages, phrases, data) still moves this time by up to about 60 percent between seeds, and the class of the runner by about 5 percent`,
       ];
     });
     add('valid', 3, C.assemble, (r) => [

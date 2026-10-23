@@ -131,7 +131,7 @@ describe('scale.100x.time on a runner of any speed', () => {
     expect(verdict.detail).toContain(
       '(the lower of the first and the median of 5 taken before the run, from 240 to 281 ms)',
     );
-    expect(verdict.detail).toContain('by up to about 40 percent between seeds');
+    expect(verdict.detail).toContain('by up to about 60 percent between seeds');
   });
 
   it('prints no median for a report without a list of calibrations', async () => {
