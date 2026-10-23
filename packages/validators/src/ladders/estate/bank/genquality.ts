@@ -407,7 +407,7 @@ export function taskFamily(): Family {
         // The check must have asks to judge; an empty suite proves nothing.
         if (coded.length === 0) return { pass: false, detail: 'no complete spec has a code-written ask' };
         const bad = coded.filter((spec) => {
-          const recorded = (spec.spec.metadata?.estate as { askBuild?: unknown }).askBuild;
+          const recorded = (spec.spec.metadata?.estate as { askBuild?: unknown } | undefined)?.askBuild;
           const builds = Array.isArray(recorded) ? recorded : [recorded];
           return builds.some((build) =>
             (((build ?? {}) as { spans?: Array<{ atom?: unknown }> }).spans ?? []).some((span) =>
