@@ -44,7 +44,13 @@ export function viewOf(store: VariableStore, options: ViewOptions = {}): View {
     if (kept.length === 0) continue;
     const weighed = kept.every((value) => value.weight !== undefined);
     const total = weighed ? kept.reduce((sum, value) => sum + (value.weight ?? 0), 0) : 0;
-    const uniform = !weighed || total <= 0;
+    // The loader refuses a variable whose values all weigh 0 (VARIABLES_WEIGHT_ZERO); so does the planner.
+    if (weighed && total <= 0)
+      throw Object.assign(
+        new RangeError(`VARIABLES_WEIGHT_ZERO: every value of "${variable.id}" weighs 0`),
+        { code: 'VARIABLES_WEIGHT_ZERO' },
+      );
+    const uniform = !weighed;
     variables.push({
       id: variable.id,
       role: variable.role,

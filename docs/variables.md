@@ -80,7 +80,7 @@ Three rules of the space map hold for the axes of a store, and a detail is exemp
 | `provenance` | no | where the value comes from |
 | `polarity`, `when`, `unless`, `limit`, `within`, `priority` | no | what a rule states, as a map proposal writes it: whether the agent must or must not act (`polarity`), the cell the rule applies in (`when`), the cell it does not hold in (`unless`), the most times it may happen in a conversation (`limit`), the minutes it has to happen in (`within`), and `first` when it comes first when rules collide (`priority`) |
 
-A weight is relative: `0.6`, `0.15` and `0.25` mean the same as `60`, `15` and `25`. Give a weight to every value of a variable or to none (`VARIABLES_WEIGHT_INCOMPLETE`), and not all zero (`VARIABLES_WEIGHT_ZERO`). Without weights every value of a variable weighs the same. A weight stands on the provenance of its value: the counts of conversations, or the owner's words.
+A weight is relative: `0.6`, `0.15` and `0.25` mean the same as `60`, `15` and `25`. Give a weight to every value of a variable or to none (`VARIABLES_WEIGHT_INCOMPLETE`), and not all zero (`VARIABLES_WEIGHT_ZERO`). `planV2` refuses a store whose approved values of one variable all weigh 0 with the same code: a `RangeError` whose `code` is `VARIABLES_WEIGHT_ZERO`. Without weights every value of a variable weighs the same. A weight stands on the provenance of its value: the counts of conversations, or the owner's words.
 
 ## Boundaries
 
