@@ -1,15 +1,6 @@
 import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
-import {
-  callCoverage,
-  callInterval,
-  makeStore,
-  names,
-  need,
-  planError,
-  type Stem,
-  valueIds,
-} from '../kit';
+import { callCoverage, callInterval, makeStore, names, need, planError, type Stem, valueIds } from '../kit';
 
 /**
  * Items added after the audit of round 2 (validators/variables/audit.md): one for each planted bug the bank did not
