@@ -79,6 +79,27 @@ describe('the cutter on footnotes, alerts, directives, math and TOML or JSON fro
     ]);
   });
 
+  it('reads a directive label as one unit, its attributes as no unit, and a longer fence as the outer one', () => {
+    expect(
+      units(':::note[Check first]\nHang the lamp.\n:::\n').map((u) => [u.text, u.path.join('/')]),
+    ).toEqual([
+      ['Check first', 'note'],
+      ['Hang the lamp.', 'note'],
+    ]);
+    expect(units(':::tip{#id .wide}\nHang the lamp.\n:::\n').map((u) => [u.text, u.path.join('/')])).toEqual([
+      ['Hang the lamp.', 'tip'],
+    ]);
+    expect(
+      units('::::outer[Mind the gap]{.x}\n:::inner\nHang the lamp.\n:::\n::::\n').map((u) => [
+        u.text,
+        u.path.join('/'),
+      ]),
+    ).toEqual([
+      ['Mind the gap', 'outer'],
+      ['Hang the lamp.', 'outer/inner'],
+    ]);
+  });
+
   it('cuts a display math block as one opaque unit and leaves a price in prose alone', () => {
     const found = units('$$\nx = 1. y = 2.\n$$\n\nIt costs $5. It lasts $6.\n');
     expect(found[0]).toMatchObject({ container: 'opaque', text: '$$\nx = 1. y = 2.\n$$' });

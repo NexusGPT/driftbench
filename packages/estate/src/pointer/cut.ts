@@ -721,7 +721,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     // The sole context boundary. All parser nodes (containers and leaves alike) enter here; block handlers only
     // consume the resulting context. Reparsed HTML enters through the same root descent with that context intact.
     const descend = (node: Node, parent: Context) => {
-      if ((node as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) return;
+      if ((node as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) {
+        // The label is prose, one unit like a heading's text, under the path of its directive.
+        const kids = node.children ?? [];
+        const first = kids[0]?.position?.start.offset;
+        const last = kids.at(-1)?.position?.end.offset;
+        if (first !== undefined && last !== undefined) emit('sentence', first, last, parent);
+        return;
+      }
       let context = parent;
       switch (node.type) {
         case 'footnoteDefinition':
