@@ -138,6 +138,7 @@ const «protoOf» = Reflect.getPrototypeOf;
 const «isArray» = Array.isArray;
 const «isView» = ArrayBuffer.isView;
 const «stringify» = JSON.stringify;
+const «sliceText» = String.prototype.slice;
 const «same» = Object.is;
 const «hashStart» = «createHash»;
 const «hashProto» = «protoOf»(«hashStart»('sha256'));
@@ -462,7 +463,7 @@ const «fingerprint» = («root») => {
 // differ, with both values; equal data means the change is in what the answer does not carry.
 const «shortJson» = («value») => {
   const «text» = «stringify»(«value»);
-  return «text» === undefined ? 'undefined' : «text».length > 80 ? «text».slice(0, 80) + '...' : «text»;
+  return «text» === undefined ? 'undefined' : «text».length > 80 ? «call»(«sliceText», «text», [0, 80]) + '...' : «text»;
 };
 const «firstDiff» = («was», «now», «path») => {
   if («was» === «now») return undefined;
@@ -474,7 +475,8 @@ const «firstDiff» = («was», «now», «path») => {
     for (let «i» = 0; «i» < «more».length; «i» += 1) if (!«hasOwn»(«was», «more»[«i»])) «keys»[«keys».length] = «more»[«i»];
     for (let «i» = 0; «i» < «keys».length; «i» += 1) {
       const «key» = «keys»[«i»];
-      const «step» = «isArray»(«was») ? «path» + '[' + String(«key») + ']' : «path» + '.' + String(«key»);
+      // The keys of an encoded answer are strings: an object crosses with its string keys only.
+      const «step» = «isArray»(«was») ? «path» + '[' + «key» + ']' : «path» + '.' + «key»;
       if (!«hasOwn»(«now», «key»)) return «step» + ' was ' + «shortJson»(«was»[«key»]) + ', now absent';
       if (!«hasOwn»(«was», «key»)) return «step» + ' was absent, now ' + «shortJson»(«now»[«key»]);
       const «inner» = «firstDiff»(«was»[«key»], «now»[«key»], «step»);
