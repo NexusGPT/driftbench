@@ -421,7 +421,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
       rule: 'the generator must build a count beyond 2^53', expected: none('observation')
     }));
-    check(typeof result.allowed === 'bigint', () => ({ rule: 'a count beyond 2^53 is returned as a bigint', got: { type: typeof result.allowed, value: show(result.allowed) }, expected: { type: 'bigint', value: String(want) } }));
+    check(typeof result.allowed === 'bigint', () => ({ rule: 'a count beyond 2^53 is returned as a bigint', got: { type: typeof result.allowed, value: show(result.allowed) }, expected: { value: String(want) } }));
     check(result.allowed === want, () => ({
       rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
       got: { allowed: String(result.allowed) },
