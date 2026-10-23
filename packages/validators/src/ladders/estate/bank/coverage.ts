@@ -42,7 +42,15 @@ type Expected = {
   ran?: string[];
 };
 
-type Build = { estate: PlantedEstate; seed: number; owner: string; bare: boolean; guarded: string[] };
+type Build = {
+  estate: PlantedEstate;
+  seed: number;
+  owner: string;
+  bare: boolean;
+  guarded: string[];
+  /** More lines of the standing file. */
+  standing: string[];
+};
 type Case = {
   key: string;
   tier: Tier;
@@ -265,6 +273,35 @@ const CASES: Case[] = [
     },
   },
   {
+    key: 'covered-by-reference',
+    tier: 3,
+    title:
+      'a document under the runtime folder that the standing file names is covered though no type locates it; its unnamed twin is unknown',
+    cause: 'covered',
+    plant: (b) => {
+      const named = `${ROOT}/docs/${name(b, 'named')}.md`;
+      const unnamed = `${ROOT}/docs/${name(b, 'unnamed')}.md`;
+      for (const file of [named, unnamed])
+        b.estate.raw(file, '# Policy\n\nNever delete a record.\n', b.owner);
+      b.standing.push('', `Before a change, read \`${named}\`.`);
+      return { unknown: [unnamed] };
+    },
+  },
+  {
+    key: 'covered-by-import',
+    tier: 3,
+    title:
+      'a document under the runtime folder that the standing file imports with @ is covered though no type locates it; its unimported twin is unknown',
+    cause: 'covered',
+    plant: (b) => {
+      const imported = `${ROOT}/docs/${name(b, 'imported')}.md`;
+      const unnamed = `${ROOT}/docs/${name(b, 'unimported')}.md`;
+      for (const file of [imported, unnamed]) b.estate.raw(file, '# Rules\n\nKeep replies short.\n', b.owner);
+      b.standing.push('', `@${imported}`);
+      return { unknown: [unnamed] };
+    },
+  },
+  {
     key: 'covered-beside-root',
     tier: 2,
     title: 'files beside the runtime folder that no type locates are no file of the agent: never unknown',
@@ -436,12 +473,19 @@ const CASES: Case[] = [
 
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
   const estate = new PlantedEstate();
-  const build: Build = { estate, seed, owner: `${family}.${item.key}`, bare: false, guarded: [] };
+  const build: Build = {
+    estate,
+    seed,
+    owner: `${family}.${item.key}`,
+    bare: false,
+    guarded: [],
+    standing: [],
+  };
   const expected = item.plant(build);
   if (!build.bare) {
     estate
       .file(STANDING, 'base')
-      .lines_(['# Planted estate', '', 'Everything here is invented for testing.']);
+      .lines_(['# Planted estate', '', 'Everything here is invented for testing.', ...build.standing]);
     // A guard named with `!` runs from the anchor with no registry row; the others get a row each.
     const guards = build.guarded.map((entry, index) => {
       const script = entry.replace(/^!/, '');
