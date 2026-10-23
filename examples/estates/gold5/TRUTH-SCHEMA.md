@@ -1,0 +1,147 @@
+# The truth file of a gold estate
+
+Each gold estate (`examples/estates/gold-a`, `gold-b`, `gold-c`) has one `truth.yaml` beside its prose files.
+It holds what the gold labels (`gold5.json`) do not: the numbers the prose states, the scope of a condition,
+the requests that make a rule apply, and the rules whose deletion must change a test.
+
+The author of a truth file reads the prose files of the estate and `gold5.json` (for unit ids and text). The
+author does not read the harness code and does not run a labeller. Every entry names a unit by its gold id
+(`id` in `gold5.json`, ten lowercase letters or digits). Nothing is keyed by a word or a pattern of the prose.
+Fictional data only: the prose is invented, and so is every ask.
+
+```yaml
+version: 1
+estate: A                        # A, B or C, as in gold5.json
+gold5Sha256: 1c7c7afde32a4e0647b6ad9000007a575f9bb89b3130e53329da7df748149ed6
+
+# 1. Numeric limits. One entry for each unit that states a number a test can cross.
+limits:
+  - unit: ab12cd34ef             # the unit that states the number
+    limit: 5                     # the number, as a finite number
+    comparison: le               # lt, le, gt or ge: how the quantity compares with the limit
+                                 # for the condition to hold ("within five days" is le)
+    role: constraint             # constraint: the comparison is the compliant range of the act;
+                                 # trigger: the comparison is the range where the rule applies
+    unit_of: working days        # optional: what the number counts
+    governs: ab12cd34ef          # the gold id of the rule the limit belongs to (may be the same unit)
+
+# 2. Scope. A condition unit only says when another unit applies and orders nothing by itself.
+scopes:
+  - unit: cd34ef56ab             # the condition unit
+    target: ef56ab78cd           # the rule, prohibition or gate unit it scopes (a later unit of the file)
+
+# 3. Planted rules. 8 to 12 rules per estate. A rule is planted when a request exists that only this
+#    rule makes the agent answer in a given way, so deleting its line must change that answer.
+#    Use rules, prohibitions and gates that agree in gold5 (label rule, prohibition or gate).
+planted_rules:
+  - unit: ef56ab78cd             # the gold id of the rule unit
+    ask: "My bill shows the same charge twice."   # one request a user would type, 3 to 25 words
+    reply_act: report            # answer, clarify, refuse, report, draft or acknowledge:
+                                 # what the reply does when the rule applies
+    near_miss: "How much does the large plan cost?"   # a request just outside the rule's trigger
+                                 # (the rule must not apply to it)
+
+# 4. Plan. What the plan of the estate must and must not hold.
+plan:
+  cover:                         # units whose atoms must be named by at least one plan row
+    - ef56ab78cd
+  exclude:                       # units that must not be named by any plan row
+    - 12ab34cd56
+  same_row:                      # groups of units that apply in the same situation: one plan row
+    - [ef56ab78cd, 78cd90ef12]   # must name all of them (use this for 2 to 4 units; 0 to 6 groups) (use this for 2 to 4 units; 0 to 6 groups)
+
+# 5. Referred numbers. A unit whose number stands in another unit or a range of units it points at
+#    (a table above, the sentence before).
+refers_to:
+  - unit: 90ef12ab34             # the unit that points
+    to: 78cd90ef12               # the unit it takes its number from, or a range:
+  - unit: 34cd56ef78
+    to: { from: ab12cd34ef, to: cd34ef56ab }   # a run of one file, in file order, both ends included
+
+# 6. Number tables. Each table whose cells state numbers, that no instruction points at and that holds no
+#    truth limit, as the range of its cells, header cells included.
+number_table:
+  - { from: 12ab34cd56, to: 56ef78ab90 }
+```
+
+## Rules for the author
+
+* Every `unit` and `target` and `governs` must be a gold id of the same estate. A wrong id fails the test
+  that loads the file, and the test names the entry.
+* `limits`: only units that state a number as a limit, a count, a size or a duration a test could cross.
+  A number inside an example or a description that orders nothing is not a limit. State the comparison from
+  the sentence, not from a guess about the test.
+* `planted_rules`: the unit must carry a gold label of `rule`, `prohibition` or `gate` with `agreed: true`,
+  and must sit in a file other than the standing file of the estate (`A-standing-instructions.md`,
+  `B-standing-instructions.md`, `C-main-prompt-with-channel-tabs.md`): the harness loads every other file as a
+  skill, and a rule is tested through the skill that carries it.
+  The `ask` must be a request, not a copy of the rule. `near_miss` is optional but wanted for at least half
+  of the entries.
+* `plan.cover` and `plan.exclude`: `cover` takes units with an agreed label of `rule`, `prohibition` or
+  `gate`. `exclude` takes units with an agreed label of `example`, `description` or `none`. Give 10 to 30
+  entries in each.
+* `scopes`: the harness labels the condition unit `condition` for the chain, whatever its gold label, and
+  points it at the target. Choose pairs where the condition unit and the target are in one section.
+* Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
+* `refers_to`: only a unit that points at the place its number stands, not a unit that states its own number.
+  A range runs over units of one file in file order. A unit never refers to itself, and an entry is given
+  once.
+* `number_table`: a table whose cells state numbers, that no instruction points at and that holds no truth
+  limit. Every unit of the range is a table cell, and two number tables share no cell. A table that an
+  instruction points at, or whose cells are instructions, is not listed.
+* Two table fields, two meanings. `number_table` (this file) is a table of numbers with no truth limit.
+  `limits_table` (the heldout truth files) is a table whose rows carry truth limits. A table is never both.
+* Convention for new truth files (mixed tables). A table of numbers is a number table even when a pointer names one
+  of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its
+  own request. A table is listed in `number_table` (no truth limit on its rows) or `limits_table` (its rows carry
+  truth limits), whether or not a `refers_to` entry names one of its rows. The producer is given every such table
+  with no word on which rows hold a limit. heldout-1 and heldout-2 were written before this convention: in heldout-2
+  three rows of two tables (a pointed-at row and its sibling rows) are outside both lists, so they get no request
+  and count as unreachable under the old convention.
+* An empty list is allowed only for `scopes`, `plan.same_row`, `limits`, `refers_to` and `number_table` when
+  the estate has none. `refers_to` and `number_table` may be left out; they read as empty.
+
+## Normal form of a limit
+
+Two readings can state one fact. A prohibition forbids an act in a range: "Do not draw a chart for fewer than four
+numbers" is the trigger `lt 4` (the rule applies when the quantity is less than four) and also the constraint `ge 4`
+(the act is compliant when the quantity is at least four). The compliant range of the act is the complement of the range
+where the prohibition applies.
+
+The scorer compares limits in this normal form: when the governing unit is a prohibition (its gold label), a
+`trigger` is converted into the `constraint` with the negated comparison (`lt` and `ge`, `le` and `gt`). Nothing else is
+converted. For a rule that is not a prohibition, a trigger and a constraint state different facts and stay apart, and so do
+readings with another number or another comparison. The truth files may therefore write either form on a prohibition.
+The conversion is in `packages/estate/test/gold/normal-form.ts`, with tests that non-equivalent readings still differ.
+
+## History of the limits in the truth files
+
+Four states, in order. Counts are limits per estate (A, B, C), read from the files at each commit.
+
+1. `a0be37546`: the first truth files, written from the prose by a lane that had not read the harness or run a producer. 55 limits (A 20, B 13, C 22), without a `role`.
+2. `c0359aee7`: before any recording of the producer, the entries whose governing unit carries no agreed rule, prohibition or gate were removed (the schema already required `governs` to name one), and two entries were pointed at their rule. 38 limits (A 16, B 8, C 14). The reason for each removed unit is in `TRUTH-NOTES.md`, section "Revision: limit entries with no governing rule"; most are decided by the label of the governing unit, a few by the lane's reading of the rule. This is the 38-limit truth, the one that was not built from the producer's output.
+3. `d2e842d3c`, `4ef73174f`, `d6fca1583`: extended from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role` (46 constraints, 10 triggers). 18 limits were added, all units the producer had returned as extras: 17 after the first per-atom recording (run 39744125508), and B `lwci7tropa` after a later one (run 39750113618). The truth lane judged them from a list of unit ids without the model's answers; the list held only units the model had returned.
+
+4. This change: a blind re-check of the 18 added limits removed one, A `5fnrtqa4dt`. 55 limits (A 24, B 12, C 19), 45 constraints and 10 triggers. B `lwci7tropa` was rejected by a first judge that read partial dumps and accepted by a second judge that read complete dumps, so it stays.
+
+The blind re-check judged a mixed sample of 36 units without the model's answers or the truth values: the 18 added limits, 9 positive controls taken from the original truth and 9 decoys. The first judge (partial dumps) confirmed 9 of 9 controls, 0 of 7 judged decoys (2 were missing from its dumps) and 16 of 18 added limits. The second judge (complete dumps from `gold5.json`) confirmed 9 of 9 controls, 0 of 9 decoys and 17 of 18 added limits. `5fnrtqa4dt` is removed.
+
+An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 55-limit truth, the 38-limit figure first (see `docs/variables.md`).
+
+## Known candidate gaps, not in the published truths
+
+Six `refers_to` entries point at a place that holds a number, but the published truths (the 38 truth of
+c0359aee7 and the 55 truth of 4ef73174f) carry no limit there. They stay out of those truths. A truth version
+that adds them comes only from a separate blind truth PR with its own review.
+
+| Estate | Referring unit | Place referred to |
+|---|---|---|
+| A | fko2ua5tpt | hykpyrtlha |
+| C | uehscl2a2r | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | n5imuntsdk | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | 652yfeeguc | the cancellation table, nybgf6kfin to gueog6lykm |
+| C | a3dchta7kr | the urgency table, p77uihinyk to 27jkqliewi |
+| C | k6g63ac7qe | the urgency table, p77uihinyk to 27jkqliewi |
+
+A scorer that reads these places finds numbers that the published truths do not count: a producer that returns
+them there is scored as returning extras.
