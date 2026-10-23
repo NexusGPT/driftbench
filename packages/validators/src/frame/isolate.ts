@@ -961,7 +961,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       const held = recorded[index] as Recorded;
       const c = answers[index] as Outcome | { dead: string };
       if (!('dead' in c)) held.entry.plain = withoutIds(c);
-      if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
+      // Run C gives the ids of a call's new objects as the twins do, up to the span (driver.ts, resultRefs); a call
+      // that makes more there is named, since its ids would run into the next call's (review of PR 1403).
+      const span = 'dead' in c ? undefined : (c as { overflow?: number }).overflow;
+      if (span !== undefined) {
+        const message = `${held.head}, ${describeRun('C')} returned ${span} new objects or more in one call: the frame gives the new objects of one call that many ids, so it cannot tell them from the next call's`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      } else if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
         found.push({ at: held.at, message });
         first ??= message;
