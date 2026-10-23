@@ -34,8 +34,8 @@ export type NoExpected = { readonly none: NoneCode };
 /**
  * A closed set of reasons. 'observation': the failure describes what the product did and the item wants no value from
  * it. 'generator': the bank's own generator built something it should not have, which is a bug of the bank. A site
- * that wants a value names it in `expected`; a new `none` site is listed on purpose in
- * `validators/variables/none-sites.json` (the test `none-sites.test.ts` fails on an unlisted one).
+ * that wants a value names it in `expected`; a new `none` site is listed on purpose in the list file of its bank
+ * (`validators/variables/none-sites-first.json`, `none-sites-blind.json`), and the test of that bank fails on an unlisted one.
  */
 export function none(code: NoneCode): NoExpected {
   return { none: code };
@@ -47,7 +47,11 @@ export const forced = { at: -1, count: 0, trace: false, first: new Map<string, n
 /** The file, line and column of the code that called `check`. Read only while a test traces the checks. */
 function callerOfCheck(): string {
   const frame = new Error().stack?.split('\n')[3] ?? '';
-  return frame.replace(/^\s*at\s+/, '').replace(/^.*\(/, '').replace(/\)$/, '').replace(/^.*?(packages\/validators\/)/, '$1');
+  return frame
+    .replace(/^\s*at\s+/, '')
+    .replace(/^.*\(/, '')
+    .replace(/\)$/, '')
+    .replace(/^.*?(packages\/validators\/)/, '$1');
 }
 
 export const isNoExpected = (value: unknown): value is NoExpected =>
