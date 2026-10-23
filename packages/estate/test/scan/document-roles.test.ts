@@ -309,8 +309,7 @@ describe('a role never hides a defect that a live owner makes', () => {
   it('keeps the scripts of an unrouted live skill findings even inside a folder whose name implies a role', async () => {
     const root = await estate({
       ...live,
-      '.claude/skills/beta/SKILL.md':
-        '---\nname: beta\ndescription: Unrouted.\n---\n# Beta\nNothing routes here.\n',
+      '.claude/skills/beta/SKILL.md': '---\nname: beta\n---\n# Beta\nNothing routes here.\n',
       '.claude/skills/beta/scripts/run.py': 'print("run")\n',
       '.claude/skills/beta/scripts/examples/sample.py': 'print("sample")\n',
       '.claude/skills/beta/scripts/fixtures/input.py': 'print("input")\n',

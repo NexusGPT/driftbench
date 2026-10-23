@@ -85,29 +85,50 @@ function skill(
   suffix: string,
   body: BodyLine[] = [],
   route = true,
+  /** False writes the skill with no description line: the runtime has no description to route by. */
+  described = true,
 ): { name: string; path: string } {
   const names = namesFor(build.seed, `${build.owner}-${suffix}`);
+  const id = `${build.owner}:${suffix}`;
   const path = plantSkill(
     build.estate,
     build.owner,
     names.skill,
     `${capital(names.title)} for the team.`,
     body,
-    {
-      id: `${build.owner}:${suffix}`,
-    },
+    described
+      ? { id }
+      : {
+          id,
+          frontmatter: [
+            { text: '---' },
+            {
+              text: `name: ${names.skill}`,
+              atoms: [{ hid: `${id}:skill`, kind: 'skill', key: names.skill }],
+            },
+            { text: 'allowed-tools: Read, Edit, Bash' },
+            { text: '---' },
+          ],
+        },
   );
   if (route) build.rows.push({ ask: names.title, target: names.skill });
   return { name: names.skill, path };
 }
 
-function helper(build: Build, suffix: string, route = true, body: string[] = []): string {
+function helper(
+  build: Build,
+  suffix: string,
+  route = true,
+  body: string[] = [],
+  /** False writes the helper with no description line: the runtime has no description to route by. */
+  described = true,
+): string {
   const name = namesFor(build.seed, `${build.owner}-${suffix}`).skill;
   const writer = build.estate.file(helperFile(name), build.owner);
   writer.lines_([
     '---',
     `name: ${name}`,
-    `description: Checks one record at a time for the ${suffix} team.`,
+    ...(described ? [`description: Checks one record at a time for the ${suffix} team.`] : []),
     'tools: Read',
     '---',
     '',
@@ -310,21 +331,42 @@ const DEFECTS: Case[] = [
   {
     key: 'unreachable-helper',
     tier: 1,
-    title: 'a helper nothing routes to or dispatches',
+    title: 'a helper with no description that nothing routes to or dispatches',
+    plant: (b) => {
+      skill(b, 'a');
+      const name = helper(b, 'h', false, [], false);
+      return [{ code: 'UNREACHABLE', subject: helperFile(name) }];
+    },
+  },
+  {
+    key: 'helper-reached-by-description',
+    tier: 1,
+    title:
+      'a helper with a description that nothing routes to or dispatches as information, never unreachable',
     plant: (b) => {
       skill(b, 'a');
       const name = helper(b, 'h', false);
-      return [{ code: 'UNREACHABLE', subject: helperFile(name) }];
+      return [{ code: 'REACHED_BY_DESCRIPTION', subject: helperFile(name) }];
     },
   },
   {
     key: 'unreachable-skill',
     tier: 1,
-    title: 'a skill reached only by its description',
+    title: 'a skill with no description and no route',
+    plant: (b) => {
+      skill(b, 'a');
+      const { path } = skill(b, 'b', [], false, false);
+      return [{ code: 'UNREACHABLE', subject: path }];
+    },
+  },
+  {
+    key: 'skill-reached-by-description',
+    tier: 1,
+    title: 'a skill reached only by its description as information, never unreachable',
     plant: (b) => {
       skill(b, 'a');
       const { path } = skill(b, 'b', [], false);
-      return [{ code: 'UNREACHABLE', subject: path }];
+      return [{ code: 'REACHED_BY_DESCRIPTION', subject: path }];
     },
   },
   {
@@ -422,15 +464,26 @@ const DEFECTS: Case[] = [
   {
     key: 'chain-unreachable',
     tier: 2,
-    title: 'a helper dispatched only by an unreachable skill',
+    title: 'a helper with no description dispatched only by an unreachable skill with no description',
     plant: (b) => {
       skill(b, 'a');
-      const name = helper(b, 'h', false);
-      const { path } = skill(b, 'b', [dispatch(name)], false);
+      const name = helper(b, 'h', false, [], false);
+      const { path } = skill(b, 'b', [dispatch(name)], false, false);
       return [
         { code: 'UNREACHABLE', subject: path },
         { code: 'UNREACHABLE', subject: helperFile(name) },
       ];
+    },
+  },
+  {
+    key: 'chain-reached-by-description',
+    tier: 2,
+    title: 'a helper dispatched by a skill reached by its description as one piece of information',
+    plant: (b) => {
+      skill(b, 'a');
+      const name = helper(b, 'h', false, [], false);
+      const { path } = skill(b, 'b', [dispatch(name)], false);
+      return [{ code: 'REACHED_BY_DESCRIPTION', subject: path }];
     },
   },
 ];

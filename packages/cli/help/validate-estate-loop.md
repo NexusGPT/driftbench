@@ -147,7 +147,7 @@ The first lines of each output (each command has the whole of its output in its 
 ```text
 Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
 map.yaml: estate at examples/estates/fixture, 127 atoms.
-7 findings.
+6 findings.
 Approved 79 atoms in map.yaml; 47 were already approved.
 Wrote plan.yaml: 1076 rows (386 from the contract, 10 journeys, 680 pairwise), all proposed. Summary in plan.summary.json.
 Approved 1060 rows in plan.yaml; 0 were already approved.

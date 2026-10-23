@@ -1,4 +1,4 @@
-export { analyzeGraph, type GraphAnalysis, targetOf } from './analyze';
+export { analyzeGraph, type GraphAnalysis, routesByDescription, targetOf } from './analyze';
 export {
   buildGraph,
   declaredLabels,
