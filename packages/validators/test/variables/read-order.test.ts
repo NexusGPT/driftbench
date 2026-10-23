@@ -113,7 +113,23 @@ describe('the diagnostics of a failing item read nothing of the product', () => 
               const on = logs[0] as string[];
               const off = logs[1] as string[];
               const isPrefix = off.length <= on.length && off.every((line, i) => line === on[i]);
-              if (!isPrefix) differing.push(`${mutant.name}|${seed}|${item.id}`);
+              if (isPrefix) continue;
+              // A product that reads differently from one call to the next (a mutant that orders equal calls differently)
+              // cannot be compared with itself: run the same mode again and skip the item if it differs from itself.
+              diagnostics.build = true;
+              const again: Reads = { log: [] };
+              try {
+                await item.check({
+                  seed,
+                  impl: recorded(impl as never, again) as never,
+                  root: ROOT,
+                  id: item.id,
+                  rng: itemRng(seed, item.id),
+                });
+              } catch {
+                // the failure is the point
+              }
+              if (again.log.join('\n') === on.join('\n')) differing.push(`${mutant.name}|${seed}|${item.id}`);
             }
           }
         } finally {
