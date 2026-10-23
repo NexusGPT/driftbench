@@ -167,3 +167,23 @@ describe('doctor declared policies and deployments', () => {
     expect((await inspectSetup(root, denied)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')?.allowed).toBe(false);
   });
 });
+
+it('does not claim structured shapes from globs, and covers only selected structured entries', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Instructions\n',
+    '.claude/plain.json': '{"colour":"blue"}',
+    '.mcp.json': '{"mcpServers":{"fictional":{"command":"fictional-server"}}}',
+  });
+  const result = await inspectSetup(root);
+  expect(result.coverage.unknown).toContain('project:.claude/plain.json');
+  expect(result.coverage.unknown).not.toContain('project:.mcp.json');
+});
+
+it('drafts a linked source without guessing its reader', async () => {
+  const root = await estate({ 'CLAUDE.md': '# Instructions\n', 'shared/SKILL.md': '# Shared\n' });
+  await mkdir(join(root, '.claude'));
+  await symlink('../shared', join(root, '.claude/shared'));
+  const result = await inspectSetup(root);
+  expect(result.draft.sources).toContainEqual(expect.objectContaining({ path: 'shared', kind: 'directory', reader: 'unknown', bindings: [{ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' }] }));
+  expect(result.coverage.skipped).toContainEqual({ what: 'linked-1', reason: 'reader unavailable' });
+});
