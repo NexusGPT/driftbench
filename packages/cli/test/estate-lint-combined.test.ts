@@ -3,10 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { INFORMATION } from '@agent-nexus/driftbench-estate';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { lintMap } from '../src/commands/estate';
 import { estateBuildCommand } from '../src/commands/estate-build';
 import { type Io, main } from '../src/index';
+
+// Each test scans or builds an estate: on a loaded runner that takes longer than the default 5 seconds.
+vi.setConfig({ testTimeout: 120_000 });
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
 

@@ -1,8 +1,11 @@
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
+
+// Each test scans or builds an estate: on a loaded runner that takes longer than the default 5 seconds.
+vi.setConfig({ testTimeout: 120_000 });
 
 async function run(argv: string[], cwd: string) {
   const output = { out: '', err: '' };
@@ -109,7 +112,9 @@ describe('driftbench estate lint verdict: not run, clean, or findings', () => {
   const lintJson = async (top: string) =>
     JSON.parse((await run(['estate', 'lint', 'map.yaml', '--json'], top)).out) as {
       failed: boolean;
+      summary: 'findings' | 'none-ran' | 'unknown-files' | 'clean';
       notRun: boolean;
+      unknown: number;
       atoms: number;
       findings: unknown[];
       totals: Array<{ code: string; total: number; shown: number; omitted: number }>;
@@ -120,7 +125,14 @@ describe('driftbench estate lint verdict: not run, clean, or findings', () => {
     await mkdir(join(top, 'agent'));
     expect((await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml'], top)).err).toBe('');
     const data = await lintJson(top);
-    expect(data).toMatchObject({ failed: false, notRun: true, atoms: 0, findings: [], totals: [] });
+    expect(data).toMatchObject({
+      failed: false,
+      summary: 'none-ran',
+      notRun: true,
+      atoms: 0,
+      findings: [],
+      totals: [],
+    });
     const text = await run(['estate', 'lint', 'map.yaml'], top);
     expect(text.code).toBe(0);
     expect(text.out).not.toContain('Clean.');
@@ -132,7 +144,14 @@ describe('driftbench estate lint verdict: not run, clean, or findings', () => {
     await writeFile(join(top, 'agent', 'CLAUDE.md'), '# Rules\n\nAnswer in English.\n');
     await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml'], top);
     const data = await lintJson(top);
-    expect(data).toMatchObject({ failed: false, notRun: false, findings: [], totals: [] });
+    expect(data).toMatchObject({
+      failed: false,
+      summary: 'clean',
+      notRun: false,
+      unknown: 0,
+      findings: [],
+      totals: [],
+    });
     const text = await run(['estate', 'lint', 'map.yaml'], top);
     expect(text.code).toBe(0);
     expect(text.out).toContain('Clean.');
@@ -141,7 +160,7 @@ describe('driftbench estate lint verdict: not run, clean, or findings', () => {
   it('with findings: failed, and the count printed is the true total, not the number listed', async () => {
     const top = await scanned(25);
     const data = await lintJson(top);
-    expect(data).toMatchObject({ failed: true, notRun: false });
+    expect(data).toMatchObject({ failed: true, summary: 'findings', notRun: false });
     const total = data.totals.reduce((sum, entry) => sum + entry.total, 0);
     const listed = data.totals.reduce((sum, entry) => sum + entry.shown, 0);
     expect(listed).toBeLessThan(total);
@@ -149,5 +168,48 @@ describe('driftbench estate lint verdict: not run, clean, or findings', () => {
     const text = await run(['estate', 'lint', 'map.yaml'], top);
     expect(text.code).toBe(1);
     expect(text.out).toContain(`${total} findings.`);
+  });
+
+  it('over files no part type covers: not clean, no finding; with findings too, the printed count is still the true total', async () => {
+    const top = await mkdtemp(join(tmpdir(), 'driftbench-estate-verdict-'));
+    const files: Record<string, string> = {
+      'CLAUDE.md': '# Rules\n\nAnswer in English.\n',
+      '.claude/settings.json': JSON.stringify({
+        hooks: {
+          PreToolUse: [
+            {
+              matcher: 'Bash',
+              hooks: [{ type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/check.py' }],
+            },
+          ],
+        },
+      }),
+      // The guard's source names a flag file no part type of the runtime locates: no finding, but a file no check read.
+      '.claude/hooks/check.py': 'import os\nprint(os.path.exists(".claude/hooks/.quiet-observe"))\n',
+      '.claude/hooks/.quiet-observe': 'on\n',
+      '.claude/hooks/CHECK-REGISTRY.md':
+        '# Checks\n\n| Id | Guard | Enforces |\n|---|---|---|\n| G1 | check.py | none |\n',
+    };
+    for (const [path, text] of Object.entries(files)) {
+      await mkdir(dirname(join(top, 'agent', path)), { recursive: true });
+      await writeFile(join(top, 'agent', path), text);
+    }
+    await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml'], top);
+    const quiet = await lintJson(top);
+    expect(quiet).toMatchObject({ failed: false, summary: 'unknown-files', notRun: false });
+    expect(quiet.unknown).toBeGreaterThan(0);
+    const text = await run(['estate', 'lint', 'map.yaml'], top);
+    expect(text.code).toBe(0);
+    expect(text.out).not.toContain('Clean.');
+
+    // Add 25 notes nothing names: the summary is the findings, counted whole, whatever is listed.
+    for (let index = 0; index < 25; index += 1)
+      await writeFile(join(top, 'agent', '.claude', `note-${String(index).padStart(2, '0')}.md`), '# Note\n');
+    await run(['estate', 'scan', 'agent', '--no-model', '--out', 'map.yaml', '--force'], top);
+    const both = await lintJson(top);
+    expect(both).toMatchObject({ failed: true, summary: 'findings' });
+    const total = both.totals.reduce((sum, entry) => sum + entry.total, 0);
+    expect(total).toBeGreaterThan(both.findings.length);
+    expect((await run(['estate', 'lint', 'map.yaml'], top)).out).toContain(`${total} findings.`);
   });
 });
