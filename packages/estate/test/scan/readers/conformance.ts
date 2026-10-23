@@ -15,4 +15,3 @@ export type LinkPlant = {
   fromType?: string;
   toType?: string;
 };
-

@@ -1,5 +1,5 @@
 import { posix } from 'node:path';
-import { locateFile, typeNamed, type TypesDocument } from '@agent-nexus/driftbench-core';
+import { locateFile, type TypesDocument, typeNamed } from '@agent-nexus/driftbench-core';
 import { profileClassifier } from '../profile-classify';
 import type { EstateReader, RawEstate } from '../reader';
 import { locateQuote, readFrontmatter } from '../text';
@@ -163,7 +163,10 @@ export class AgentsFolderReader implements EstateReader {
           typeof fields.description === 'string' ? locateQuote(file.text, fields.description) : undefined;
         const description =
           descriptionAt && typeof fields.description === 'string'
-            ? { value: fields.description, at: { file: file.path, quote: fields.description, ...descriptionAt } }
+            ? {
+                value: fields.description,
+                at: { file: file.path, quote: fields.description, ...descriptionAt },
+              }
             : undefined;
         if (file.kind === 'skill') {
           raw.skills.push({

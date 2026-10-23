@@ -47,10 +47,7 @@ function code(cause: unknown): string {
  * including empty and unclassified files, for the common model's coverage pass. Every unread entry is accounted
  * for. A per-ancestry cycle check permits two different links to the same folder without losing either path.
  */
-export async function readSourceFiles(
-  root: string,
-  options: SourceReaderOptions = {},
-): Promise<SourceFiles> {
+export async function readSourceFiles(root: string, options: SourceReaderOptions = {}): Promise<SourceFiles> {
   const result: SourceFiles = { files: [], skipped: [] };
   const skip = (what: string, reason: string) => result.skipped.push({ what, reason });
   const roots: string[] = [];

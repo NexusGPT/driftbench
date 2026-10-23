@@ -52,7 +52,9 @@ describe('agents-folder RawEstate', () => {
     script: 'guard_script',
   };
   it('plants all declared type, aspect and link selector data for the shared projection step', () => {
-    expect(Object.keys(AGENTS_PART_PLANTS).sort()).toEqual(Object.keys(agentsReader.AGENTS_FOLDER_TYPES.types).sort());
+    expect(Object.keys(AGENTS_PART_PLANTS).sort()).toEqual(
+      Object.keys(agentsReader.AGENTS_FOLDER_TYPES.types).sort(),
+    );
     expect(Object.keys(AGENTS_LINK_PLANTS).sort()).toEqual(
       [...new Set(agentsReader.AGENTS_FOLDER_LINK_SELECTORS.map((selector) => selector.kind))].sort(),
     );
@@ -198,9 +200,15 @@ describe('shared agents source contract', () => {
     expect(AGENTS_FOLDER_SETUP_TYPES.roots).toEqual({ source: '.' });
     expect(Object.isFrozen(AGENTS_FOLDER_SETUP_TYPES)).toBe(true);
     expect(Object.isFrozen(AGENTS_FOLDER_SETUP_TYPES.base?.types)).toBe(true);
-    const extended = parseTypes({ version: 1, types: {
-      'review-skill': { extends: 'skill', aspects: ['informs'] },
-    } }, AGENTS_FOLDER_SETUP_TYPES);
+    const extended = parseTypes(
+      {
+        version: 1,
+        types: {
+          'review-skill': { extends: 'skill', aspects: ['informs'] },
+        },
+      },
+      AGENTS_FOLDER_SETUP_TYPES,
+    );
     expect(extended.ok).toBe(true);
     if (!extended.ok) throw new Error(JSON.stringify(extended.errors));
     const custom = extended.set.types.find((type) => type.name === 'review-skill');
@@ -221,10 +229,14 @@ describe('shared agents source contract', () => {
     for (const type of parsed.set.types) {
       expect(type.aspects, type.name).toEqual(CASES[type.name as keyof typeof CASES].aspects);
       const planted = CASES[type.name as keyof typeof CASES];
-      const positive = type.folder === undefined
-        ? locateInside(type, planted.yes.split('/').slice(2).join('/')) : locateFile(type, planted.yes);
-      const negative = type.folder === undefined
-        ? locateInside(type, planted.no.split('/').slice(2).join('/')) : locateFile(type, planted.no);
+      const positive =
+        type.folder === undefined
+          ? locateInside(type, planted.yes.split('/').slice(2).join('/'))
+          : locateFile(type, planted.yes);
+      const negative =
+        type.folder === undefined
+          ? locateInside(type, planted.no.split('/').slice(2).join('/'))
+          : locateFile(type, planted.no);
       expect(positive, `${type.name}: positive locator`).toBeDefined();
       expect(negative, `${type.name}: negative locator`).toBeUndefined();
     }

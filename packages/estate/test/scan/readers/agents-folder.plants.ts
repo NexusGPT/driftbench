@@ -20,8 +20,14 @@ export const AGENTS_PART_PLANTS: Readonly<Record<string, PartPlant>> = {
     aspects: ['instructs'],
   },
   'skill-reference': {
-    positive: { 'skills/reconcile/SKILL.md': skill, 'skills/reconcile/references/format.md': 'Fictional format.\n' },
-    negative: { 'skills/reconcile/SKILL.md': skill, 'skills/reconcile/examples/format.md': 'Fictional format.\n' },
+    positive: {
+      'skills/reconcile/SKILL.md': skill,
+      'skills/reconcile/references/format.md': 'Fictional format.\n',
+    },
+    negative: {
+      'skills/reconcile/SKILL.md': skill,
+      'skills/reconcile/examples/format.md': 'Fictional format.\n',
+    },
     name: 'format',
     aspects: ['informs'],
   },
