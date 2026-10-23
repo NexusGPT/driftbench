@@ -112,7 +112,14 @@ const valid = (l) => {
   if (!word(l.subject)) return false;
   if (l.unit !== undefined && !word(l.unit)) return false;
   if (l.kind === 'numeric') return num(l.limit) && NUMERIC.has(l.comparison);
-  if (l.kind === 'range') return num(l.low) && num(l.high) && l.low < l.high;
+  if (l.kind === 'range')
+    return (
+      num(l.low) &&
+      num(l.high) &&
+      l.low < l.high &&
+      typeof l.lowInclusive === 'boolean' &&
+      typeof l.highInclusive === 'boolean'
+    );
   if (l.kind === 'member') return Array.isArray(l.members) && l.members.length > 0 && l.members.every(word);
   return l.kind === 'boolean';
 };
