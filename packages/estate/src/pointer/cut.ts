@@ -58,10 +58,21 @@ const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 function mask(text: string): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
+  // An email address is one word: the dots inside it are no stops (tried only where a run of its characters starts,
+  // so a long run without an @ is read once). An ellipsis in square brackets marks an omission.
+  // An ellipsis that opens a sentence after a stop reads as the capital of that sentence. Any other three dots,
+  // spaced or not, or the ellipsis character, never end a sentence: a fourth dot after them is the full stop.
   return text
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
+    .replace(/(?<![\p{L}\p{N}._%+-])[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
+    .replace(/\[(?:\.\.\.|…)\]/g, letters)
+    .replace(
+      /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
+      (_match, lead: string, dots: string) => lead + 'X'.repeat(dots.length),
+    )
+    .replace(/\.(?: ?\.){2}|…/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
@@ -78,7 +89,8 @@ function mask(text: string): string {
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
 function shouldMerge(before: string, after: string): boolean {
-  const head = before.trimEnd();
+  // Directional and other format marks (U+202A around a stop in right-to-left text) are not part of the shape.
+  const head = before.replace(/\p{Cf}/gu, '').trimEnd();
   // A short capitalised word or a single-letter abbreviation before the stop: "Dr.", "e.g.", "A."
   if (/(?:^|[\s(])(\p{Lu}\p{Ll}{0,2}|\p{L}|\p{L}\.\p{L})\.$/u.test(head)) return true;
   if (/\d\.$/.test(head) && /^\d/.test(after.trimStart())) return true;
