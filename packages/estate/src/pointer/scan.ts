@@ -91,16 +91,18 @@ export class PointerPlanOnly extends Error {
 /**
  * Why a unit that ended unlabeled is not decided, so the ledger keeps no record of it and the next scan asks it again:
  * a window failed in its file and set; answers asked for to settle the vote are missing (a replayed cassette holds
- * none, or the window was halved); a run, or a re-ask, came back out of step and was left out of the vote, so a
- * planned voice is missing; a run's entry for the unit was refused by the check inside an answer it accepted, so that
- * run is no vote and no span-missing re-ask filled its place; no run named the unit. Only a complete vote is a
- * decision.
+ * none, or the window was halved; the span-missing re-ask of a label that needs a span included); a run, or a re-ask,
+ * came back out of step and was left out of the vote, so a planned voice is missing; a run's entry for the unit was
+ * refused by the check inside an answer it accepted, so that run is no vote and no span-missing re-ask filled its
+ * place; the label the vote gave needs a span that no run and no span-missing re-ask located in the unit; no run named
+ * the unit. Only a complete vote is a decision.
  */
 export type UndecidedReason =
   | 'window_failed'
   | 'answers_missing'
   | 'out_of_step'
   | 'entry_refused'
+  | 'span_missing'
   | 'no_run_named';
 
 /** What one labeler of the run is asked: its windows, how many the cassette already answers, what is left to send. */
@@ -1752,6 +1754,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   // the span only when it gives the unit the same label with a span of that kind the check located in the unit by
   // offsets: code never writes a span. The decision is taken here only to find those units; its counts are not kept.
   const fills = new Map<string, SpanAnswer[]>();
+  // The units whose span-missing re-ask came back with an answer, by unit id and set.
+  const spanAnswered = new Set<string>();
   const spanless: Spanless[] = [];
   const asks = new Map<
     string,
@@ -1799,10 +1803,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) continue;
     }
     const answered = await resolve(again, task.window);
-    failedWindows.push(...answered.failures);
+    // A failed re-ask is a missing answer like any other: the file and set are unsettled.
+    failedIn(task, answered.failures);
     const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
     if (!leaf) continue;
     windows++;
+    for (const note of notes) spanAnswered.add(`${unitId(task.file, note.index)}\0${task.set.set}`);
     // Only the spans this answer gives are read; its notes on spans and links were reported with the runs it repeats.
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, context);
     reasked.push(
@@ -1967,12 +1973,19 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           }
           unlabeled++;
           const heard = votesOf(file.path, set, index);
-          unlabeledUnits.push({
-            unit: entry.id,
-            set: set.set,
-            ...('undecided' in heard ? { undecided: heard.undecided } : {}),
-          });
-          if ('undecided' in heard) {
+          // A label left out only for want of its span is no decision either: the span-missing re-ask has no answer
+          // (the cassette lacks it, or the window was halved: answers_missing), or it answered and located no span in
+          // the unit (span_missing). A failed re-ask left the file and set unsettled (window_failed), above.
+          const undecided: UndecidedReason | undefined =
+            'undecided' in heard
+              ? heard.undecided
+              : spanDropped
+                ? spanAnswered.has(`${entry.id}\0${set.set}`)
+                  ? 'span_missing'
+                  : 'answers_missing'
+                : undefined;
+          unlabeledUnits.push({ unit: entry.id, set: set.set, ...(undecided ? { undecided } : {}) });
+          if (undecided) {
             // A unit that is not decided is asked again by every scan until its vote is complete: each of its rows
             // says why, and a unit no row lists yet gets one per labeler asked.
             if (unstable.length === listedBefore) {
@@ -1987,10 +2000,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
                 });
               }
             }
-            for (const row of unstable.slice(listedBefore)) row.undecided = heard.undecided;
+            for (const row of unstable.slice(listedBefore)) row.undecided = undecided;
           }
           const flip =
-            'votes' in heard
+            !undecided && 'votes' in heard
               ? recordUnlabeled(entry, set.set, {
                   setHash: hashes.get(set.set) as string,
                   labeler: labelling.hash,
