@@ -263,7 +263,9 @@ The source operation vocabulary is extracted by AST into
 order verbs and command regex branches yield observation witnesses by code. The
 regex grammar is finite; unsupported syntax is an explicit derivation gap. The
 fixture records its source hash, and `operation-vocabulary.test.ts` compares it
-with a fresh extraction of the product source.
+with a fresh extraction of the product source. Regenerate it with `writeOperationVocabulary`
+(`packages/validators/test/estate/operation-vocabulary.ts`), then run `biome format --write` on the
+fixture: `pnpm lint` checks its format, and the parsed content does not change.
 
 ## Evaluator operator table: not in this revision
 
