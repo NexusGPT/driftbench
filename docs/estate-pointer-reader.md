@@ -256,7 +256,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit the labelers left unlabeled is kept unlabeled by the ledger with its votes (see the ledger below), so an unchanged unit is not asked again; `unlabeled` counts it, and `keptUnlabeled` counts those the ledger kept. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 
@@ -289,9 +289,28 @@ Entry:
 }
 ```
 
+The ledger is `version: 2`. An entry whose unit no label won in some set also carries `unlabeled`, keyed by set name:
+
+```json
+"unlabeled": {
+  "agent-rules": {
+    "setHash": "c9e0…",
+    "labeler": "7cc9…",
+    "votes": [
+      { "labeler": "jev", "runs": [{ "label": "none", "probabilities": { "none": 0.4, "description": 0.35 }, "source": "3fa1…" }] },
+      { "labeler": "anthropic", "runs": [{ "label": "rule", "source": "9fe0…" }, { "label": "prohibition", "source": "e1b1…" }, null] }
+    ]
+  }
+}
+```
+
 `quote` is the unit as the file holds it, `source.slice(hint.start, hint.end)`, and `prefix` and `suffix` are the 24 characters of the file on each side, so `prefix + quote + suffix` occurs in the file. The ladder compares units with white space collapsed.
 
 `lineage` lists what the scans that changed the ledger decided for the unit, oldest first, the last eight kept. A unit that is new starts it with `new`. A scan that finds the unit as it was adds nothing, so rescanning unchanged files writes the same bytes. `scan` counts the versions of the ledger, not the runs. The scan result also lists the event of every id of that run, `eventsById`.
+
+`unlabeled` is the decision "no label" kept the way a label is kept. `setHash` and `labeler` name the set and the labelers that decided; `votes` lists, per labeler in stack order, the runs that were heard on the unit, in run order: the label, the probabilities of a system 1 run, the target and scopes (unit ids), and the first 12 characters of the cassette key of the answer. A run that gave no opinion for the unit is `null`. A labeler that was not asked about the set has no runs. A rescan carries the record while the unit's fingerprint and its context fingerprint are unchanged, as it carries a label, and does not ask the unit again; a changed unit or context drops the record and the unit is asked again. A label that comes later ends the record. The ledger holds no record when a window failed in that file and set, when a labeler that was asked was not heard on the unit (every run slipped out of step), or when no run named the unit: such a unit is asked again, as a unit never decided. An entry with no record has no `unlabeled` field.
+
+A ledger of version 1 kept no such record. `parseLedger` reads it as version 2 with none, so the units that were unlabeled are asked again by the next scan, which records them; `scan --update` writes version 2. Until then `scan --ledger-check` names a file that holds such a unit.
 
 `twinOf` marks identical boilerplate in another file so duplicates are not confused with moves: a live unit whose text equals the text of a live unit in an earlier file names the first such unit; the first of a text, and a text that repeats only inside one file, have `null`.
 

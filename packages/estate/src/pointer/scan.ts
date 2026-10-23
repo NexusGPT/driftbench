@@ -26,8 +26,11 @@ import {
   type LabelFlip,
   type Ledger,
   type LedgerEntry,
+  type LedgerUnlabeled,
+  type LedgerVote,
   nextLedger,
   recordLabel,
+  recordUnlabeled,
   unitKey,
 } from './ledger';
 import type { Labelling } from './stack';
@@ -139,10 +142,12 @@ export type PointerResult = {
   /** Of those, the units one labeler of a stack decided alone because the other gave no opinion. */
   fellBack: number;
   calls: number;
-  /** Units no accepted answer named. */
+  /** Units that hold no label after the run: those no accepted answer named, and those the ledger keeps unlabeled. */
   unlabeled: number;
   /** The same units, by ledger id and set. */
   unlabeledUnits: Array<{ unit: string; set: string }>;
+  /** Of the unlabeled units, those whose decision the ledger kept: the unit is unchanged, so it was not asked again. */
+  keptUnlabeled: number;
   /** Units that had a label other than none and no longer have one. */
   flips: LabelFlip[];
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
@@ -388,6 +393,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const needed = new Map<string, Set<number>>();
   let units = 0;
   let carried = 0;
+  // The units the ledger keeps unlabeled for the current set and labelers: decided once, never asked again.
+  const keptUnlabeled: Array<{ unit: string; set: string }> = [];
   for (const file of files) {
     const fileCut = cuts.get(file.path) as Cut;
     for (const set of input.sets) {
@@ -395,8 +402,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const [index, unit] of fileCut.units.entries()) {
         if (unit.container === 'opaque') continue;
         units++;
-        const found = entries.get(unitId(file.path, index))?.labels[set.set];
+        const entry = entries.get(unitId(file.path, index));
+        const found = entry?.labels[set.set];
+        const gap = entry?.unlabeled?.[set.set];
         if (found && found.setHash === hashes.get(set.set) && found.labeler === labelling.hash) carried++;
+        else if (entry && gap && gap.setHash === hashes.get(set.set) && gap.labeler === labelling.hash)
+          keptUnlabeled.push({ unit: entry.id, set: set.set });
         else want.add(index);
       }
       needed.set(`${file.path}\0${set.set}`, want);
@@ -704,6 +715,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const refusals: string[] = [];
   const dropped: string[] = [];
   const failedWindows: FailedWindow[] = [];
+  // The files and sets a window failed in: a unit there may be unlabeled only because a request did not come back, so
+  // the ledger does not keep it unlabeled and the next scan asks again.
+  const unsettled = new Set<string>();
+  const failedIn = (task: Task, failures: readonly FailedWindow[]) => {
+    failedWindows.push(...failures);
+    if (failures.length > 0) unsettled.add(`${task.file}\0${task.set.set}`);
+  };
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -742,7 +760,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   for (const [at, task] of tasks.entries()) {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
-    failedWindows.push(...outcome.value.failures);
+    failedIn(task, outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -779,7 +797,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, window)))) break;
       }
       const answered = await resolve(again, window);
-      failedWindows.push(...answered.failures);
+      failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -966,7 +984,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!cassette.entries.has(requestKey(wire, readableFor(again, task.window)))) break;
       }
       const answered = await resolve(again, task.window);
-      failedWindows.push(...answered.failures);
+      failedIn(task, answered.failures);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -989,6 +1007,49 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   let unlabeled = 0;
   const unlabeledUnits: Array<{ unit: string; set: string }> = [];
+  // The members that were asked about a file and set: a member that was not asked has nothing to hear.
+  const askedOf = new Set(tasks.map((task) => `${task.file}\0${task.set.set}\0${task.memberAt}`));
+  /** What one run said about a unit, with the units it points at named by id. */
+  const voteOf = (file: string, opinion: Opinion): LedgerVote => {
+    const idOf = (at: number): string[] => {
+      const id = next.ids.get(unitKey(file, at));
+      return id === undefined ? [] : [id];
+    };
+    const scopes = (opinion.scopes ?? []).flatMap(idOf);
+    const target = opinion.target === undefined ? [] : idOf(opinion.target);
+    return {
+      label: opinion.label,
+      ...(opinion.probabilities ? { probabilities: opinion.probabilities } : {}),
+      ...(target[0] ? { target: target[0] } : {}),
+      ...(scopes.length > 0 ? { scopes } : {}),
+      ...(opinion.source ? { source: opinion.source } : {}),
+    };
+  };
+  /**
+   * What each labeler heard on a unit no label won, or undefined when the ledger must not keep the unit unlabeled: a
+   * window failed in its file and set, a labeler that was asked was not heard on it (its runs slipped), or nobody named
+   * it. The unit is then asked again, as a unit that was never decided.
+   */
+  const votesOf = (file: string, set: LabelSet, index: number): LedgerUnlabeled['votes'] | undefined => {
+    if (unsettled.has(`${file}\0${set.set}`)) return undefined;
+    const byMember = opinionsOf(file, set);
+    const votes: LedgerUnlabeled['votes'] = [];
+    let named = false;
+    for (const [at, member] of labelling.members.entries()) {
+      if (!askedOf.has(`${file}\0${set.set}\0${at}`)) {
+        votes.push({ labeler: member.id, runs: [] });
+        continue;
+      }
+      const heard = heardOn(byMember[at] ?? [], index);
+      if (heard === undefined) return undefined;
+      if (heard.some((opinion) => opinion !== undefined)) named = true;
+      votes.push({
+        labeler: member.id,
+        runs: heard.map((opinion) => (opinion === undefined ? null : voteOf(file, opinion))),
+      });
+    }
+    return named ? votes : undefined;
+  };
   const flips: LabelFlip[] = [];
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
@@ -1009,7 +1070,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!decision) {
           unlabeled++;
           unlabeledUnits.push({ unit: entry.id, set: set.set });
-          const flip = recordLabel(entry, set.set, undefined);
+          const votes = votesOf(file.path, set, index);
+          const flip = votes
+            ? recordUnlabeled(entry, set.set, {
+                setHash: hashes.get(set.set) as string,
+                labeler: labelling.hash,
+                votes,
+              })
+            : recordLabel(entry, set.set, undefined);
           if (flip) flips.push(flip);
           continue;
         }
@@ -1100,8 +1168,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     decidedBy,
     fellBack,
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
-    unlabeled,
-    unlabeledUnits,
+    unlabeled: unlabeled + keptUnlabeled.length,
+    unlabeledUnits: [...keptUnlabeled, ...unlabeledUnits],
+    keptUnlabeled: keptUnlabeled.length,
     flips,
     split,
     spanSplit,
