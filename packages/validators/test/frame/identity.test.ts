@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type Frame, isolate } from '../../src/frame';
+import { type Frame, FrameError, isolate } from '../../src/frame';
 import type * as identity from './fixtures/identity';
 
 /**
@@ -82,6 +82,14 @@ describe('object identity under the frame', () => {
     const mark = frame.position();
     for (let n = 0; n < 3; n += 1) frame.product.rowsOf([{ a: 'x' }]);
     expect(frame.divergenceSince(mark)).toBeUndefined();
+  });
+
+  it('fails by name a call that makes as many new objects as one call has ids', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 7, plain: false, idSpan: 4 });
+    open.push(frame as Frame<unknown>);
+    expect(frame.product.manyObjects(2)).toHaveLength(2);
+    expect(() => frame.product.manyObjects(5)).toThrow(FrameError);
+    expect(() => frame.product.manyObjects(5)).toThrow(/4 new objects or more in one call/);
   });
 
   // The known limit, pinned: a product that changes an object it returned, between calls, while the caller keeps it.

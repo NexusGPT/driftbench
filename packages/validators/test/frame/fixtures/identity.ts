@@ -63,3 +63,6 @@ export const byEnvironment = () =>
   Object.keys(process.env).length > 10
     ? { errors: [{ code: 'x' }] }
     : { errors: [] as Array<{ code: string }> };
+
+/** A result of `n` new objects. */
+export const manyObjects = (n: number) => Array.from({ length: n }, (_, at) => ({ at }));
