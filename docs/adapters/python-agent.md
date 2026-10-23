@@ -45,8 +45,8 @@ types. Literal prompts become prose. An explicitly declared agent becomes a help
 Tools, graph nodes, graphs and interrupts have no honest existing map kind. Each declaration gets
 its own human-readable `ReadNote` naming its kind, name, line and `no map kind for <declared type>`.
 Mixed Python source files retain the `other` file kind rather than becoming whole-file instructions
-or helpers. No production code parses the note messages. Structured `coverage.skipped` records arrive with the
-shared map-from-model step; the reader adds no coverage field or second model.
+or helpers. No production code parses the note messages. Structured records for skipped declarations arrive
+with the shared map-from-model step. File coverage uses the canonical `RawEstate.coverage` contract.
 
 Graph nodes, normal and conditional edges, ToolNode tool bindings, agent references and interrupts
 remain available as reader-local static selector data. Their six declared core link kinds have
@@ -75,7 +75,10 @@ malformed delimiters, wildcard imports, lambdas, comprehensions and unsupported 
 receive unresolved reasons. Static declarations
 remain inspectable without executing their surrounding code.
 
-Every input text file remains in the inventory so an unclassified file can be reported as unknown.
+Every input text file remains in the inventory. `RawEstate.coverage` counts files covered by types or
+reached prompt references and lists untyped files under the source as unknown. The profile declares
+`roots.source: '.'` and `coverageRoots: ['source']`; an unresolved root refuses the read with code
+`unknown-coverage-root`.
 Broken links, link cycles, inaccessible files, files over 1 MiB, binary content, invalid UTF-8 and
 links outside declared filtered snapshots are skipped with reasons. A missing root receives an
 unreadable-source note.
