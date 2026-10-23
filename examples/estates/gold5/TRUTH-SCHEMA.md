@@ -91,6 +91,13 @@ number_table:
   instruction points at, or whose cells are instructions, is not listed.
 * Two table fields, two meanings. `number_table` (this file) is a table of numbers with no truth limit.
   `limits_table` (the heldout truth files) is a table whose rows carry truth limits. A table is never both.
+* Convention for new truth files (mixed tables). A table of numbers is a number table even when a pointer names one
+  of its rows. The pointed-at row gets the REFERRED block of the pointing instruction, and the table still gets its
+  own request. A table is listed in `number_table` (no truth limit on its rows) or `limits_table` (its rows carry
+  truth limits), whether or not a `refers_to` entry names one of its rows. The producer is given every such table
+  with no word on which rows hold a limit. heldout-1 and heldout-2 were written before this convention: in heldout-2
+  three rows of two tables (a pointed-at row and its sibling rows) are outside both lists, so they get no request
+  and count as unreachable under the old convention.
 * An empty list is allowed only for `scopes`, `plan.same_row`, `limits`, `refers_to` and `number_table` when
   the estate has none. `refers_to` and `number_table` may be left out; they read as empty.
 
