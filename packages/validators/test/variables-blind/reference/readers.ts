@@ -36,7 +36,15 @@ export function slug(raw: string): string {
 function parseCondition(condition: { text: string; label?: unknown }): SpanMeaning | undefined {
   // A label put on the span by the validator (a reader's reading, recorded) decides, as the page says; else the declared meaning.
   const label = condition.label as
-    | { kind?: string; subject?: string; limit?: number; comparison?: 'lt' | 'le' | 'gt' | 'ge' }
+    | {
+        kind?: string;
+        subject?: string;
+        limit?: number;
+        comparison?: 'lt' | 'le' | 'gt' | 'ge';
+        low?: number;
+        high?: number;
+        members?: unknown;
+      }
     | undefined;
   if (label?.kind === 'numeric' && typeof label.subject === 'string' && typeof label.limit === 'number')
     return {
@@ -46,6 +54,22 @@ function parseCondition(condition: { text: string; label?: unknown }): SpanMeani
       cmp: label.comparison ?? 'gt',
       flavour: 'cmp',
     };
+  if (
+    label?.kind === 'range' &&
+    typeof label.subject === 'string' &&
+    typeof label.low === 'number' &&
+    typeof label.high === 'number'
+  )
+    return { kind: 'range', subject: label.subject, lo: label.low, hi: label.high };
+  if (
+    label?.kind === 'member' &&
+    typeof label.subject === 'string' &&
+    Array.isArray(label.members) &&
+    label.members.every((m) => typeof m === 'string')
+  )
+    return { kind: 'member', subject: label.subject, list: label.members as string[] };
+  if (label?.kind === 'boolean' && typeof label.subject === 'string')
+    return { kind: 'boolean', subject: label.subject, word: 'holds' };
   return meaningOf(condition.text);
 }
 
