@@ -13,6 +13,7 @@ import {
   type Seeder,
   type SpecDraft,
 } from '../seed/assemble';
+import { ContinuedProbes } from '../seed/continued-probe';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
 import { TerminalSubsumption } from '../seed/minimal';
@@ -154,13 +155,16 @@ function writeSuite(
   };
   const balance = new DeviationBalance(prepared);
   const terminal = new TerminalPerturbations(prepared);
+  const continued = new ContinuedProbes(prepared);
   // The phrases the complete specs say so far: the phrase seeder adds only those no complete spec says yet.
   const saidPhrases = new Set<string>();
   const render = (draft: SpecDraft): Spec | undefined => {
     context.minimal?.reduce(draft);
-    context.allocation?.observeDraft(draft);
     const seeder = draft.seeder;
     drafted[seeder] += 1;
+    // A walk reduced to a repeat of a whole spec is not written (see TerminalSubsumption.dropsWhole).
+    if (draft.dropped) return;
+    context.allocation?.observeDraft(draft);
     const rendered = renderDraft(prepared, draft, run);
     const loaded = checkSpec(rendered.spec, rendered.id);
     if (!loaded.ok) {
@@ -207,6 +211,7 @@ function writeSuite(
     if (complete) {
       balance.observe(loaded.spec);
       terminal.observe(loaded.spec);
+      continued.observe(loaded.spec);
       for (const block of loaded.spec.blocks) {
         if ('user' in block.when) saidPhrases.add(block.when.user);
         else if ('injection' in block.when && block.when.injection.user !== undefined)
@@ -255,6 +260,7 @@ function writeSuite(
     context.minimal?.observeSpec(loaded.spec);
     balance.observe(loaded.spec);
     terminal.observe(loaded.spec);
+    continued.observe(loaded.spec);
     coverage.add(loaded.spec, 'task', true);
     write(
       `${COMPLETE_DIR}/task/${id}.yaml`,
@@ -306,6 +312,8 @@ function writeSuite(
   for (const draft of balance.topUps(context, written())) render(draft);
   // A class whose recovery moves the conversation elsewhere, as the eager API declares it: one walk cut for it.
   for (const draft of terminal.drafts(context)) render(draft);
+  // A class whose probes all end their walk, as the eager API probes it: one probe the flow goes on after.
+  for (const draft of continued.drafts(context)) render(draft);
   // Allocation, as the eager API runs it: walks for rare stages and behaviours, alternating with class probes.
   for (const draft of context.allocation.rounds(context, written, balance)) render(draft);
   const held = new Set(
