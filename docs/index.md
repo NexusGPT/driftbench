@@ -6,6 +6,17 @@ driftbench evaluates AI agents block by block. A block is one exchange with a co
 
 Every page says what exists today and what is not built yet, with the phase that delivers it when one is assigned.
 
+## Start here
+
+* [The guide](guide/index.md): learn driftbench by doing. [Quickstart](guide/quickstart.md) tests a small agent with no key. [A walkthrough on your own agent](guide/walkthrough.md) goes from your agent's files to tests, runs one, changes a rule and reruns only what it affects. Eight more parts cover writing, generating, running, judging, reading the numbers, diagnosing, rerunning less and proving the evaluator.
+* [Recipes](recipes.md): evaluate your own agent, add a judge, gate a pull request.
+* [Innovations](innovations.md): the ten ideas that lead, then six more, each with its measured impact, its sources, its limits and the files to copy.
+* [How it works](how-it-works.md): the loop of generating tests, running the agent, judging each block, measuring, fixing and rerunning the blast radius.
+* [What it does](features.md): every feature, grouped, with the capability matrix.
+* [The command line](cli-tour.md): a tour of the commands with a runnable example each.
+* [Adapters and extension points](extending.md): how to reach your agent, and how to add a check, a judge, a criterion, a file reader or a store.
+* [Benchmarks](public-benchmarks.md): the public judge benchmarks, the hard cases, the cost of a judgement and how to rebuild the sealed sets.
+
 ## Concepts
 
 * [Block](concepts/block.md): the unit of evaluation, the four runtime concepts (tools, skills, guards, stages), one conversation spec and one task spec.
@@ -111,7 +122,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 * `driftbench spec validate`, `driftbench spec lint`, and `driftbench spec coverage` with the behaviour inventory it reads. See [CLI](reference/cli.md).
 * The runner in modes T, F and P, with the scripted, perturbing and simulated drivers and the adaptive attacker, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
 * Drift and recovery: the five drift classes, the ledger check, the stage classifier, the compounding index, and the recovery metrics of every perturbed run. See [drift](concepts/drift.md) and [recovery](concepts/recovery.md).
-* The 23 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
+* The 37 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
 * Judges in `@agent-nexus/driftbench-judges`: the judge clients, the council and its cascade, cassettes, calibration on fixture pairs and hand labels, and `driftbench judge`. See [judges](concepts/judges.md).
 * The function, http, nexus and process adapters, the OpenAI Agents, Anthropic, Google and LangGraph adapters, the CrewAI, Vercel AI SDK, Pydantic AI and LiteLLM adapters, their contract suite, and the local and docker sandboxes. See [adapters](adapters/index.md).
 * One retry policy for every model call, set in the spec target or on the command line, with every retry recorded. See [retries](retries.md).

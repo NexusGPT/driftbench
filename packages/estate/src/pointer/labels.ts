@@ -21,6 +21,11 @@ export const SpanKind = z.strictObject({
   polarity: z.literal(true).optional(),
   /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
   within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
+  /**
+   * A span of this kind may lie inside a span of the named kind, where two spans would otherwise clash, and stands on
+   * its own when there is none. Unlike `within`, a span of the named kind is not required.
+   */
+  inside: z.string().regex(LABEL_NAME, { error: 'inside names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
@@ -74,6 +79,13 @@ const AtomBase = z.strictObject({
     .optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
+  /**
+   * One atom for each span of this kind, in the order the label lists them. The label also lists, in the same order,
+   * the span of the file of each gate (`spanFile`): the nth span of one kind goes with the nth span of the other (each kind in the order the spans stand), and
+   * nothing is bound by where a span or a path stands in the unit. A gate with no file span is refused.
+   */
+  spanEach: z.string().min(1).optional(),
+  spanFile: z.string().min(1).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
   whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
@@ -92,6 +104,19 @@ export const Label = z.strictObject({
   description: z.string().min(1),
   examples: z.array(z.string().min(1)).max(3).optional(),
   target: z.literal('required').optional(),
+  /**
+   * A unit with this label builds no atom of its own: the `fields` of its mapping are filled from its spans and links
+   * and added to the atoms that labels of other sets built for the same unit (a key the atom already holds stays).
+   */
+  annotate: z.literal(true).optional(),
+  /**
+   * How many files the unit itself may name (by path notation: a slash, an extension, a link): `min` and `max`. A
+   * unit outside the range is refused with its reason and builds nothing, so a label made for a unit that names no
+   * file (its file is in the next unit), or for a unit that names several, is not taken for a unit that does not fit.
+   */
+  paths: z
+    .strictObject({ min: z.number().int().min(0).optional(), max: z.number().int().min(0).optional() })
+    .optional(),
   /** A unit with this label states when its target unit applies: it becomes the situation of the target's atom. */
   condition: z.literal(true).optional(),
   /** The span kinds a unit with this label may carry. */
@@ -240,6 +265,12 @@ function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: str
 
 /** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
 function nestingProblem(set: LabelSet): string | undefined {
+  const declared = new Set((set.spans ?? []).map((kind) => kind.name));
+  for (const kind of set.spans ?? []) {
+    if (kind.inside === kind.name) return `the span kind ${kind.name} is inside itself`;
+    if (kind.inside !== undefined && !declared.has(kind.inside))
+      return `the span kind ${kind.name} is inside ${kind.inside}, which the set does not declare`;
+  }
   const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
   for (const [name, parent] of parents) {
     if (parent === undefined) continue;
@@ -558,16 +589,47 @@ export function anchorUnits(
  */
 export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
   return entries.map((entry) => {
-    if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
-    const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
-    if (!unit) return entry;
+    if (!entry.spans) return entry;
+    // The words of a span never reach a cassette. An entry that cannot carry spans (a range, or a unit the window
+    // does not hold) keeps none of them: the span stays as an offset pair no unit holds, and the check of the answer
+    // drops it with its reason.
+    const unit = /^\d+$/.test(entry.units.trim())
+      ? window.units.find((candidate) => candidate.n === Number(entry.units))
+      : undefined;
+    if (!unit)
+      return {
+        ...entry,
+        spans: entry.spans.map((span) => {
+          if (span === null || typeof span !== 'object' || !('text' in span)) return span;
+          const { text: _text, ...rest } = span;
+          return { ...rest, from: -1, to: -1, unlocated: 'the entry is not one unit of the window' };
+        }),
+      };
+    const shown = flatten(unit.text).text;
+    // A text the unit holds N times and the entry lists N times (two gates that read one file) is located one
+    // occurrence for each listing, in the order listed. Fewer listings than occurrences stay ambiguous.
+    const listed = new Map<string, number>();
+    for (const span of entry.spans)
+      if (span !== null && typeof span === 'object' && 'text' in span && typeof span.text === 'string')
+        listed.set(span.text.toLowerCase(), (listed.get(span.text.toLowerCase()) ?? 0) + 1);
+    const taken = new Map<string, number>();
     return {
       ...entry,
       spans: entry.spans.map((span) => {
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(flatten(unit.text).text, text);
+        const key = text.toLowerCase();
+        const lower = shown.toLowerCase();
+        const occurrences = key === '' || lower.length !== shown.length ? 0 : lower.split(key).length - 1;
+        if (occurrences > 1 && occurrences === listed.get(key)) {
+          const nth = taken.get(key) ?? 0;
+          taken.set(key, nth + 1);
+          let from = -1;
+          for (let seen = 0; seen <= nth; seen++) from = lower.indexOf(key, from + 1);
+          return { ...rest, from, to: from + key.length };
+        }
+        const found = locateSpanText(shown, text);
         return 'reason' in found
           ? { ...rest, from: -1, to: -1, unlocated: found.reason }
           : { ...rest, ...found };
@@ -670,6 +732,9 @@ function checkExtras(
       // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
       // any other span a span may not overlap: of two that clash, the later one is dropped.
       const kept = counted.map(() => true);
+      // A span of a kind declared `inside` another may lie wholly inside a span of that kind.
+      const lies = (inner: (typeof counted)[number], outer: (typeof counted)[number]) =>
+        kinds.get(inner.kind)?.inside === outer.kind && outer.from <= inner.from && inner.to <= outer.to;
       for (const [index, span] of counted.entries()) {
         const outer = kinds.get(span.kind)?.within;
         if (
@@ -688,7 +753,9 @@ function checkExtras(
               span.from < o.to &&
               o.from < span.to &&
               !ancestor(kinds, span.kind, o.kind) &&
-              !ancestor(kinds, o.kind, span.kind),
+              !ancestor(kinds, o.kind, span.kind) &&
+              !lies(span, o) &&
+              !lies(o, span),
           );
         if (clash) {
           kept[index] = false;
@@ -696,7 +763,11 @@ function checkExtras(
         }
       }
       const spans = seen.filter((_, index) => kept[index]);
-      if (spans.length > 0) out.spans = spans.sort((a, b) => a.from - b.from || b.to - a.to);
+      // A label whose atom pairs each gate's act span with its file span (`spanFile`) keeps the spans in the order the
+      // labeler listed them: the file span that follows an act span is that gate's own. Any other label is sorted.
+      if (spans.length > 0)
+        out.spans =
+          label?.atom?.spanFile !== undefined ? spans : spans.sort((a, b) => a.from - b.from || b.to - a.to);
     }
   }
   if (entry.links !== undefined) {
