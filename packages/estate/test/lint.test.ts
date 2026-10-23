@@ -12,8 +12,9 @@ import {
 } from './support';
 
 describe('estate lint', () => {
-  it('finds every defect planted in the fixture, and nothing else, whatever a labeller says', async () => {
-    // Planted labels: what the lint does with the files, the routes and the registry is the thing under test.
+  it('finds every defect planted in the fixture, and nothing else', async () => {
+    // Planted labels: what the lint does with the files, the routes and the registry is the thing under test,
+    // whatever a labeller says. The unenforced rules are counted on the recorded labels below.
     const { map, raw } = await scanPlantedFixture();
     const result = lintEstate(map, raw);
     const found = result.findings.filter((finding) => finding.code !== 'UNENFORCED');
@@ -26,11 +27,8 @@ describe('estate lint', () => {
       ['REGISTRY_GUARD', 'G6'],
     ]);
     expect(result.failed).toBe(true);
-  });
-
-  it('counts the rules no guard enforces in the recorded labels', async () => {
-    const { map, raw } = await scanFixture();
-    expect(lintEstate(map, raw).counts.UNENFORCED).toBe(44);
+    const recorded = await scanFixture();
+    expect(lintEstate(recorded.map, recorded.raw).counts.UNENFORCED).toBe(44);
   });
 
   it('reports an oversize set of standing instructions against the ceiling', async () => {

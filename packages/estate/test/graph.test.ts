@@ -322,8 +322,9 @@ describe('the fixture graph', () => {
     );
   });
 
-  it('finds the orphan, the unreachable helper and the missing file, whatever a labeller says', async () => {
-    // Planted labels: what the graph does with the files and routes is the thing under test.
+  it('finds the orphan, the unreachable helper and the unenforced rules', async () => {
+    // Planted labels: what the graph does with the files and routes is the thing under test, whatever a labeller
+    // says. The rules and the unenforced ones are counted on the recorded labels below.
     const { map, raw } = await scanPlantedFixture();
     const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
     expect(analysis.orphans).toEqual(['.claude/skills/invoice-reconcile/references/old-tolerances.md']);
@@ -334,14 +335,13 @@ describe('the fixture graph', () => {
     expect(analysis.missingScripts).toEqual([]);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
-  });
-
-  it('counts the rules and the unenforced rules of the recorded labels', async () => {
-    const { map, raw } = await scanFixture();
-    const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
-    const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
+    const recorded = await scanFixture();
+    const counted = analyzeGraph(recorded.map.atoms, recorded.map.edges, recorded.raw.files);
+    const rules = recorded.map.atoms.filter((atom) =>
+      ['instruction', 'gate', 'register'].includes(atom.kind),
+    );
     expect(rules).toHaveLength(51);
-    expect(analysis.unenforced).toHaveLength(44);
+    expect(counted.unenforced).toHaveLength(44);
   });
 });
 

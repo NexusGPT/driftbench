@@ -53,7 +53,7 @@ describe('driftbench estate static', () => {
     expect(by['estate.invariant.invariant.registry.the-check-registry-lists-every-guard']).toBe(false);
   });
 
-  it('counts the files the prose of a given map names: the planted orphan is one of the two left', async () => {
+  it('counts the files the prose of a given map names: the one orphan is the planted one', async () => {
     const test = join(STATIC, 'invariant/estate.invariant.invariant.standing.no-file-of-the-estate-is.json');
     const alone = await run(['estate', 'static', test, '--estate', FIXTURE, '--json']);
     const unnamed = JSON.parse(alone.out) as { results: Array<{ detail: string }> };
