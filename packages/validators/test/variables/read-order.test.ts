@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { variablesImpl } from '../../src/ladders/variables/adapter';
 import { variablesBank } from '../../src/ladders/variables/bank/index';
 import { itemRng } from '../../src/ladders/variables/bank/util';
+import { diagnostics } from '../../src/failure';
+import { MUTANTS } from '../variables-blind/mutants';
 import { type Reads, readsHash, recorded } from '../read-order';
 import { referenceImpl } from '../variables-blind/reference/index';
 
@@ -62,5 +64,62 @@ describe('the read sequence of every passing item is that of the base branch', (
     expect(changed).toEqual([]);
     expect(missing).toEqual([]);
     expect(Object.keys(snapshot).length).toBeGreaterThan(0);
+  }, 3_000_000);
+});
+
+/**
+ * The runtime enforcement of lazy diagnostics. Each item runs against each planted mutant of the reference, once with
+ * the diagnostics of a failing check built and once without; the product must be read the same way both times. A
+ * diagnostic that reads the product (a getter, a length, a nested field) adds reads to the first run only, however
+ * its factory is written.
+ */
+describe('the diagnostics of a failing item read nothing of the product', () => {
+  it('reads are the same with the diagnostics built and without, for every mutant', async () => {
+    const items = variablesBank().filter((i) => i.family !== 'scale');
+    const differing: string[] = [];
+    let failing = 0;
+    try {
+      for (const mutant of MUTANTS) {
+        const { impl, reset } = mutant.make(referenceImpl);
+        try {
+          const list = mutant.only
+            ? items.filter((i) => mutant.only?.some((part) => i.id.endsWith(part)))
+            : items.filter((i) => mutant.families.includes(i.family));
+          for (const seed of SEEDS) {
+            for (const item of list) {
+              const logs: string[][] = [];
+              let pass = true;
+              for (const build of [true, false]) {
+                diagnostics.build = build;
+                const reads: Reads = { log: [] };
+                try {
+                  const r = await item.check({
+                    seed,
+                    impl: recorded(impl as never, reads) as never,
+                    root: ROOT,
+                    id: item.id,
+                    rng: itemRng(seed, item.id),
+                  });
+                  pass = pass && r.pass;
+                } catch {
+                  pass = false;
+                }
+                logs.push(reads.log);
+              }
+              if (pass) continue;
+              failing += 1;
+              if ((logs[0] as string[]).join('\n') !== (logs[1] as string[]).join('\n'))
+                differing.push(`${mutant.name}|${seed}|${item.id}`);
+            }
+          }
+        } finally {
+          reset?.();
+        }
+      }
+    } finally {
+      diagnostics.build = true;
+    }
+    expect(failing).toBeGreaterThan(0);
+    expect(differing).toEqual([]);
   }, 3_000_000);
 });

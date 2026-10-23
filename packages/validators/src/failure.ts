@@ -54,9 +54,18 @@ export class ItemFailure extends Error {
   }
 }
 
+/**
+ * Whether the diagnostics of a lazy `check` are built. A test turns it off to run an item twice, with and without its
+ * diagnostics, and compares what each run read of the product: a diagnostic that reads the product is then found by
+ * what it reads, not by how its code is written (docs/validators.md 12.11).
+ */
+export const diagnostics = { build: true };
+
 /** Fails the item with these fields unless the condition holds. */
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
-  if (!condition) throw new ItemFailure(typeof fields === 'function' ? fields() : fields);
+  if (condition) return;
+  if (typeof fields !== 'function') throw new ItemFailure(fields);
+  throw new ItemFailure(diagnostics.build ? fields() : { rule: '(diagnostics not built)' });
 }
 
 /** The strings and numbers of a value, as the tokens a message could repeat. */
