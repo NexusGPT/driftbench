@@ -145,7 +145,8 @@ export type TypesOptions = {
 };
 
 const NAME = /^[a-z][a-z0-9-]*$/;
-const ENTRY = /^[^/\\]+$/;
+/** A plain file name: no folder separator, and never `.` or `..`, which would leave the part's folder. */
+const ENTRY = /^(?!\.\.?$)[^/\\]+$/;
 
 /** Parses a types document written as YAML or JSON (JSON is YAML too). */
 export function parseTypesText(text: string, options: TypesOptions): TypesResult {

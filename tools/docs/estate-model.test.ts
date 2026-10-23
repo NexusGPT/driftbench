@@ -42,8 +42,14 @@ describe('the estate model page', () => {
     });
   });
 
-  it('lists every code the loader refuses with', async () => {
+  it('lists every code the loader refuses with in the refusal table, and no other', async () => {
     const text = await readFile(join(DOCS, 'estate-model.md'), 'utf8');
-    expect(TYPES_ERROR_CODES.filter((code) => !text.includes(`\`${code}\``))).toEqual([]);
+    // The table of the section "What the loader refuses": the codes of each row's first cell.
+    const section = text.slice(text.indexOf('### What the loader refuses'));
+    const rows = section.split('\n').filter((line) => /^\| `/.test(line));
+    const listed = rows.flatMap((row) =>
+      [...(row.split(' | ')[0] ?? '').matchAll(/`([a-z-]+)`/g)].map((match) => match[1]),
+    );
+    expect([...listed].sort()).toEqual([...TYPES_ERROR_CODES].sort());
   });
 });

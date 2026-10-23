@@ -255,6 +255,10 @@ describe('types documents', () => {
     expect(refused({ a: { ...minimal, locate: 'x/*/', entry: 'a/SKILL.md' } })).toEqual([
       ['types.a.entry', 'entry-name', undefined],
     ]);
+    for (const entry of ['..', '.'])
+      expect(refused({ a: { ...minimal, locate: 'x/*/', entry } }), entry).toEqual([
+        ['types.a.entry', 'entry-name', undefined],
+      ]);
     expect(refused({ a: { ...minimal, runtime: 'Not A Name' } })).toEqual([
       ['types.a.runtime', 'runtime-name', undefined],
     ]);
