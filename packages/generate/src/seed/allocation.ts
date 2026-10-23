@@ -349,10 +349,11 @@ export class Allocation {
     written: () => number,
     classes: Pick<DeviationBalance, 'topUps'>,
   ): Generator<SpecDraft> {
-    // The allocation adds at most as many specs as the seeders wrote, so a map whose strata cannot be
-    // balanced cheaply is cut, not grown without end.
+    // The allocation adds at most three times as many specs as the seeders wrote, so a map whose strata cannot be
+    // balanced cheaply is cut, not grown without end. (Twice was too few for a map whose class probes also fill the
+    // stages: the rounds ended with the class counts at 74 and 259, a ratio of 3.5.)
     const limit = context.max;
-    context.max = Math.min(limit, 2 * written());
+    context.max = Math.min(limit, 4 * written());
     try {
       while (this.imbalance() > 0) {
         const before = written();

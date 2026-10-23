@@ -203,7 +203,7 @@ describe('approved stage allocation', () => {
     expect(first.blocks.every((block) => block.stimulus.kind !== 'placeholder')).toBe(true);
   });
 
-  it('adds at most as many specs as the seeders wrote, and restores the cap', () => {
+  it('adds at most three times as many specs as the seeders wrote, and restores the cap', () => {
     const prepared = fixture();
     const balance = new Allocation(prepared);
     balance.observe(Array.from({ length: 600 }, () => ({ stage: 'address' })));
@@ -216,7 +216,7 @@ describe('approved stage allocation', () => {
       written += 1;
     }
     expect(drafts.length).toBeGreaterThan(0);
-    expect(drafts.length).toBeLessThanOrEqual(10);
+    expect(drafts.length).toBeLessThanOrEqual(30);
     expect(context.max).toBe(Number.POSITIVE_INFINITY);
   });
 
