@@ -69,6 +69,18 @@ export {
   type SpaceMapResult,
   validateSpaceMap,
 } from './load';
+export {
+  type DeclaredAxes,
+  isDeclared,
+  type ObligationBlock,
+  type ObligationKind,
+  type ObligationSpec,
+  RULINGS,
+  type Rulings,
+  rulingsHash,
+  type SoleHolders,
+  soleHolders,
+} from './obligations';
 export { type PlacementEvent, placeSpec, type SpecPlacement, type UnknownValue } from './place';
 export {
   DimensionKind,

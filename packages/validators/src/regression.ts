@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import { type FloorsFile, floorOf } from './floors';
 
-/** The list of seeds that exposed a real defect (docs/validators.md, section 12.5, "Regression seeds"). */
+/** The list of seeds that exposed a real defect (docs/validators.md, section 12.12, "Regression seeds"). */
 export const REGRESSION_FILE = 'validators/regression-seeds.json';
 
 const COMPONENT = /^[a-z][a-z0-9-]*$/;
