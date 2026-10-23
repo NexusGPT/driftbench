@@ -42,7 +42,7 @@ const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i);
 
 function planStore(ctx: ItemContext, store: ReturnType<typeof toStore>, seed: number): Plan {
   const { plan, error } = tryPlan(ctx, store, { seed });
-  must(!error, () => `plan threw ${error?.name}: ${error?.message}`);
+  check(!error, () => ({ rule: 'plan threw {}: {}', got: { details: [error?.name, error?.message] } }));
   return plan as Plan;
 }
 
@@ -103,7 +103,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
       forbidAmong(space, rng, [0, 1, 2, 3], 2);
     }
     const facts = planAndCheck(ctx, space, { noCoverage: true });
-    must(facts.fresh.length >= 1, 'the plan has no new row');
+    check(facts.fresh.length >= 1, () => ({ rule: 'the plan has no new row' }));
   },
 
   'impossible.required-tuples-skip-pairs': (variant, ctx) => {
@@ -146,10 +146,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planB = planStore(ctx, b, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planA);
     planIsSound(facts);
-    must(
-      stableStringify(planA) === stableStringify(planB),
-      'declaring the pairs the other way round changed the plan: an impossible pair is unordered',
-    );
+    check(stableStringify(planA) === stableStringify(planB), () => ({ rule: 'declaring the pairs the other way round changed the plan: an impossible pair is unordered' }));
   },
 
   'impossible.duplicates-count-once': (variant, ctx) => {
@@ -165,10 +162,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planMany = planStore(ctx, many, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planOnce);
     planIsSound(facts);
-    must(
-      stableStringify(planOnce) === stableStringify(planMany),
-      'declaring a pair more than once changed the plan: repeated pairs count once',
-    );
+    check(stableStringify(planOnce) === stableStringify(planMany), () => ({ rule: 'declaring a pair more than once changed the plan: repeated pairs count once' }));
   },
 
   'impossible.same-variable-pair': (variant, ctx) => {
@@ -193,10 +187,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     const planB = planStore(ctx, without, ctx.seed);
     const facts = checkPlan(space, new SpaceOracle(space), planA);
     planIsSound(facts);
-    must(
-      stableStringify(planA) === stableStringify(planB),
-      'a pair of two values of one variable changed the plan',
-    );
+    check(stableStringify(planA) === stableStringify(planB), () => ({ rule: 'a pair of two values of one variable changed the plan' }));
   },
 
   'impossible.unknown-reference': (variant, ctx) => {
@@ -224,11 +215,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
       store,
       bad.variable === 'nosuchvariable' ? 'nosuchvariable' : 'nosuchvalue',
     );
-    must(named.length >= 1, () => `the refusal list ${show(store.refused)} does not name ${show(bad)}`);
-    must(
-      named.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''),
-      () => `a refusal has no reason: ${show(named)}`,
-    );
+    check(named.length >= 1, () => ({ rule: 'the refusal list {} does not name {}', got: { details: [show(store.refused), show(bad)] } }));
+    check(named.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''), () => ({ rule: 'a refusal has no reason: {}', got: { details: [show(named)] } }));
   },
 
   'impossible.forced-out-value': (variant, ctx) => {
@@ -262,36 +250,25 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
       forbid(space, 0, 1, 2, 1);
     }
     const oracle = new SpaceOracle(space);
-    must(oracle.validRows().length === 0, 'the generator must build a space with no valid row');
+    check(oracle.validRows().length === 0, () => ({ rule: 'the generator must build a space with no valid row' }));
     // Removing the contradiction must recover a useful covering plan.
     planAndCheck(ctx, { ...space, forbidden: [], universal: true });
     const { plan, error } = tryPlan(ctx, toStore(space), { seed: ctx.seed });
     if (error) {
       const names = space.vars.map((v) => v.id);
-      must(
-        names.some((n) => error.message.includes(n)),
-        () =>
-          `plan threw ${error.name}: ${show(error.message)}, which names none of the variables ${show(names)}`,
-      );
+      check(names.some((n) => error.message.includes(n)), () => ({ rule: 'plan threw {}: {}, which names none of the variables {}', got: { details: [error.name, show(error.message), show(names)] } }));
       return;
     }
-    must(
-      (plan as Plan).rows.length === 0,
-      () =>
-        `the space has no valid row but the plan holds ${(plan as Plan).rows.length} rows, for example ${show((plan as Plan).rows[0]?.values)}`,
-    );
+    check((plan as Plan).rows.length === 0, () => ({ rule: 'the space has no valid row but the plan holds {} rows, for example {}', got: { details: [(plan as Plan).rows.length, show((plan as Plan).rows[0]?.values)] } }));
   },
 
   'impossible.tight-chain': (variant, ctx) => {
     const space = tightSpace(variant);
     const oracle = new SpaceOracle(space);
     const valid = oracle.validRows().length;
-    must(valid >= 2, 'the generator must build a space with valid rows');
+    check(valid >= 2, () => ({ rule: 'the generator must build a space with valid rows' }));
     const facts = planAndCheck(ctx, space);
-    must(
-      facts.fresh.length <= 4 * valid + 8,
-      () => `the plan holds ${facts.fresh.length} rows for a space with ${valid} valid rows`,
-    );
+    check(facts.fresh.length <= 4 * valid + 8, () => ({ rule: 'the plan holds {} rows for a space with {} valid rows', got: { details: [facts.fresh.length, valid] } }));
   },
 
   'impossible.with-seeds': (variant, ctx) => {
@@ -323,7 +300,7 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
           );
         }
       }
-      must(seeds.length >= 2, 'the generator found no valid row next to a forbidden pair');
+      check(seeds.length >= 2, () => ({ rule: 'the generator found no valid row next to a forbidden pair' }));
     }
     planAndCheck(ctx, space, { seeds });
   },

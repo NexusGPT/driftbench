@@ -141,10 +141,7 @@ const CHILD = fileURLToPath(new URL('../plan-child.ts', import.meta.url));
 
 /** Runs plan or buildStore in a new process with the given environment and returns its JSON output. */
 function inChild(ctx: ItemContext, input: unknown, env: Record<string, string>): string {
-  must(
-    ctx.implModule !== undefined,
-    'the implementation was not loaded from a module, so a second process cannot load it',
-  );
+  check(ctx.implModule !== undefined, () => ({ rule: 'the implementation was not loaded from a module, so a second process cannot load it' }));
   const dir = mkdtempSync(join(tmpdir(), 'variables-bank-'));
   try {
     const file = join(dir, 'input.json');
@@ -156,11 +153,7 @@ function inChild(ctx: ItemContext, input: unknown, env: Record<string, string>):
       maxBuffer: 256 * 1024 * 1024,
       timeout: 100_000,
     });
-    must(
-      got.status === 0,
-      () =>
-        `the second process exited ${got.status}: ${String(got.stderr).trim().split('\n').slice(-3).join(' / ')}`,
-    );
+    check(got.status === 0, () => ({ rule: 'the second process exited {}: {}', got: { details: [got.status, String(got.stderr).trim().split('\n').slice(-3).join(' / ')] } }));
     return String(got.stdout);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -177,11 +170,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const first = planJson(planFresh(ctx, c, extra));
     tick();
     const second = planJson(planFresh(ctx, c, extra));
-    must(
-      first === second,
-      () =>
-        `two plans with the same store, options and seed differ: ${show(first, 120)} then ${show(second, 120)}`,
-    );
+    check(first === second, () => ({ rule: 'two plans with the same store, options and seed differ: {} then {}', got: { details: [show(first, 120), show(second, 120)] } }));
   },
 
   'determinism.interleaved-calls': (variant, ctx) => {
@@ -194,11 +183,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       planFresh(ctx, a, { budget: 3 });
     }
     const third = planJson(planFresh(ctx, a));
-    must(
-      first === third,
-      () =>
-        `a plan changed after another plan was made in between: ${show(first, 120)} then ${show(third, 120)}`,
-    );
+    check(first === third, () => ({ rule: 'a plan changed after another plan was made in between: {} then {}', got: { details: [show(first, 120), show(third, 120)] } }));
   },
 
   'determinism.across-processes': (variant, ctx) => {
@@ -250,11 +235,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const options: PlanOptions = { seed: ctx.seed };
     const here = planJson(planFresh(ctx, { space, store, options }));
     const there = inChild(ctx, { kind: 'plan', store, options }, env);
-    must(
-      here === there,
-      () =>
-        `the plan in a second process (${show(env)}) differs: ${show(here, 100)} then ${show(there, 100)}`,
-    );
+    check(here === there, () => ({ rule: 'the plan in a second process ({}) differs: {} then {}', got: { details: [show(env), show(here, 100), show(there, 100)] } }));
   },
 
   'determinism.no-ambient-randomness': (variant, ctx) => {
@@ -270,11 +251,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
             : [[patchMathRandom, patchClock(1_700_000_000_000), patchCrypto]];
     for (const set of patches) {
       const got = withPatches(set, () => planJson(planFresh(ctx, c)));
-      must(
-        got === normal,
-        () =>
-          `the plan changed when the ambient ${variant.replace(/-/g, ' ')}: ${show(normal, 100)} then ${show(got, 100)}`,
-      );
+      check(got === normal, () => ({ rule: 'the plan changed when the ambient {}: {} then {}', got: { details: [variant.replace(/-/g, ' '), show(normal, 100), show(got, 100)] } }));
     }
   },
 
@@ -290,11 +267,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
         seeds: (c.options.seeds ?? []).map((s) => reverseKeys(clone(s))),
       });
     }
-    must(
-      stableStringify(other) === normal,
-      () =>
-        `reversing the key order of the ${variant.replace('-', ' ')} changed the plan: ${show(normal, 100)} then ${show(stableStringify(other), 100)}`,
-    );
+    check(stableStringify(other) === normal, () => ({ rule: 'reversing the key order of the {} changed the plan: {} then {}', got: { details: [variant.replace('-', ' '), show(normal, 100), show(stableStringify(other), 100)] } }));
   },
 
   'determinism.json-round-trip': (variant, ctx) => {
@@ -304,7 +277,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const store = clone(c.store);
       planOf(ctx, store, clone(c.options));
       const v = store.variables[0];
-      must(!!v, 'the generator built no variable');
+      check(!!v, () => ({ rule: 'the generator built no variable' }));
       (v as NonNullable<typeof v>).values.push({
         id: 'extra',
         provenance: [{ kind: 'owner', words: 'added in place', date: OWNER_DATE }],
@@ -321,11 +294,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       options.budget = 11;
       const reused = planJson(planOf(ctx, clone(c.store), options));
       const fresh = planJson(planOf(ctx, clone(c.store), { ...clone(c.options), budget: 11 }));
-      must(
-        reused === fresh,
-        () =>
-          `options edited in place and used again give another plan than a copy of them (${show(reused, 80)} then ${show(fresh, 80)})`,
-      );
+      check(reused === fresh, () => ({ rule: 'options edited in place and used again give another plan than a copy of them ({} then {})', got: { details: [show(reused, 80), show(fresh, 80)] } }));
     }
   },
 
@@ -337,11 +306,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     if (variant === 'frozen-seeds') deepFreeze(options.seeds);
     const frozenOptions = variant === 'frozen-options' ? deepFreeze(options) : options;
     const got = planJson(planOf(ctx, store, frozenOptions));
-    must(
-      got === normal,
-      () =>
-        `the plan from frozen inputs differs from the plan from plain inputs: ${show(got, 100)} then ${show(normal, 100)}`,
-    );
+    check(got === normal, () => ({ rule: 'the plan from frozen inputs differs from the plan from plain inputs: {} then {}', got: { details: [show(got, 100), show(normal, 100)] } }));
   },
 
   'determinism.store-bytes': (variant, ctx) => {
@@ -351,22 +316,15 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const a = text(sources);
       tick();
       const b = text(sources);
-      must(a === b, () => `two builds of the same sources differ: ${show(a, 100)} then ${show(b, 100)}`);
+      check(a === b, () => ({ rule: 'two builds of the same sources differ: {} then {}', got: { details: [show(a, 100), show(b, 100)] } }));
     } else if (variant === 'other-key-order') {
       const a = stableStringify(build(ctx, clone(sources)));
       const b = stableStringify(build(ctx, reverseKeys(clone(sources))));
-      must(
-        a === b,
-        () =>
-          `reversing the key order of the sources changed the store: ${show(a, 100)} then ${show(b, 100)}`,
-      );
+      check(a === b, () => ({ rule: 'reversing the key order of the sources changed the store: {} then {}', got: { details: [show(a, 100), show(b, 100)] } }));
     } else {
       const here = text(sources);
       const there = inChild(ctx, { kind: 'build', sources }, {});
-      must(
-        here === there,
-        () => `the store built in a second process differs: ${show(here, 100)} then ${show(there, 100)}`,
-      );
+      check(here === there, () => ({ rule: 'the store built in a second process differs: {} then {}', got: { details: [show(here, 100), show(there, 100)] } }));
     }
   },
 };

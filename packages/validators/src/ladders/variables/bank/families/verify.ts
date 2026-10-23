@@ -1,3 +1,4 @@
+import { check } from '../../../../failure';
 import type { FileProvenance, FileStore, FileVariable } from '../../interface';
 import { type FileCase, type FileCaseBuilder, fictionalStore, runFileCases, scenes, word } from '../files';
 import type { StemRun } from '../item';
@@ -139,7 +140,7 @@ function place(store: FileStore, scene: number, entry: FileProvenance, shift = 0
     }
     default: {
       const constraint = store.constraints?.[0];
-      must(!!constraint, 'the fictional store has a constraint');
+      check(!!constraint, () => ({ rule: 'the fictional store has a constraint' }));
       const target = constraint as { provenance?: FileProvenance[] };
       target.provenance = [...(target.provenance ?? []), entry];
       return `constraints.0.provenance.${target.provenance.length - 1}`;
@@ -152,7 +153,7 @@ function listAt(store: FileStore, entryPath: string): FileProvenance[] {
   const parts = entryPath.split('.').slice(0, -1);
   let node: unknown = store;
   for (const part of parts) node = (node as Record<string, unknown>)[part];
-  must(Array.isArray(node), () => `the bank cannot find the provenance list of ${entryPath}`);
+  check(Array.isArray(node), () => ({ rule: 'the bank cannot find the provenance list of {}', got: { details: [entryPath] } }));
   return node as FileProvenance[];
 }
 
@@ -216,11 +217,7 @@ function request({ rng, index, relation, how, form }: Spec): Built {
   const lines = rng.chance(0.5) ? [...before, inFile, decoy, ...after] : [...before, decoy, inFile, ...after];
   const file = `# Fictional file ${word(rng, 5)}\n\n${lines.join('\n')}\n`;
   const expected = relation.holds;
-  must(
-    found(file, quote) === expected,
-    () =>
-      `the bank's ${expected ? 'findable' : 'wrong'} quote is ${expected ? 'not findable' : 'findable'} (${how}): this is a bug in the bank`,
-  );
+  check(found(file, quote) === expected, () => ({ rule: 'the bank\'s {} quote is {} ({}): this is a bug in the bank', got: { details: [expected ? 'findable' : 'wrong', expected ? 'not findable' : 'findable', how] } }));
   return { store, path, at, file, quote };
 }
 

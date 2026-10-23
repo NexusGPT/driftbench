@@ -69,16 +69,9 @@ export function checkThree(store: StoreDoc, text: string, t: number, opts: Opts 
     got: { boundarySample: s2, samples: show(sorted) },
     expected: { threshold: t },
   }));
-  must(
-    s1 < t && t < s3,
-    () => `the samples ${show(sorted)} of "${text}" are not below, at and above the threshold ${t}`,
-  );
+  check(s1 < t && t < s3, () => ({ rule: 'the samples {} of "{}" are not below, at and above the threshold {}', got: { details: [show(sorted), text, t] } }));
   if (opts.requireInteger ?? Number.isInteger(t)) {
-    must(
-      sorted.every(Number.isInteger),
-      () =>
-        `the threshold of "${text}" is the integer ${t} but the samples ${show(sorted)} are not all integers`,
-    );
+    check(sorted.every(Number.isInteger), () => ({ rule: 'the threshold of "{}" is the integer {} but the samples {} are not all integers', got: { details: [text, t, show(sorted)] } }));
   }
   check(citing(store, text).length === 3, () => ({
     rule: 'each value of a numeric condition cites the span',
@@ -93,12 +86,9 @@ export function checkThree(store: StoreDoc, text: string, t: number, opts: Opts 
 /** The boundary entry of the variable (docs/variables.md "Boundaries"): limit, comparison and the three values. */
 function checkBoundary(v: StoreVariable, text: string, t: number, cls: 'gt' | 'ge' | 'lt' | 'le'): void {
   const list = v.boundaries ?? [];
-  must(
-    list.length >= 1,
-    () => `"${text}" names a limit of ${t} but the variable ${v.id} carries no boundaries entry`,
-  );
+  check(list.length >= 1, () => ({ rule: '"{}" names a limit of {} but the variable {} carries no boundaries entry', got: { details: [text, t, v.id] } }));
   const b = list.find((x) => x.limit === t);
-  must(!!b, () => `no boundaries entry of ${v.id} has the limit ${t}: ${show(list)}`);
+  check(!!b, () => ({ rule: 'no boundaries entry of {} has the limit {}: {}', got: { details: [v.id, t, show(list)] } }));
   const e = b as NonNullable<typeof b>;
   check(e.comparison === cls, () => ({
     rule: 'the boundaries entry of a condition names its comparison',
@@ -108,10 +98,7 @@ function checkBoundary(v: StoreVariable, text: string, t: number, cls: 'gt' | 'g
   }));
   const sampleOf = (id: string) => v.values.find((x) => x.id === id)?.sample as number | undefined;
   const [h, f, g] = [sampleOf(e.holds), sampleOf(e.fails), sampleOf(e.edge)];
-  must(
-    typeof h === 'number' && typeof f === 'number' && typeof g === 'number',
-    () => `the boundaries entry of ${v.id} names ids that are not values with a number sample: ${show(e)}`,
-  );
+  check(typeof h === 'number' && typeof f === 'number' && typeof g === 'number', () => ({ rule: 'the boundaries entry of {} names ids that are not values with a number sample: {}', got: { details: [v.id, show(e)] } }));
   check(g === t, () => ({
     rule: 'the edge value of a condition has the limit as sample',
     input: { span: text },
@@ -120,14 +107,8 @@ function checkBoundary(v: StoreVariable, text: string, t: number, cls: 'gt' | 'g
   }));
   const holdsOk = (x: number) =>
     cls === 'gt' ? x > t : cls === 'ge' ? x >= t : cls === 'lt' ? x < t : x <= t;
-  must(
-    holdsOk(h as number),
-    () => `the holds value of "${text}" has the sample ${h}, where the condition (${cls} ${t}) does not hold`,
-  );
-  must(
-    !holdsOk(f as number),
-    () => `the fails value of "${text}" has the sample ${f}, where the condition (${cls} ${t}) holds`,
-  );
+  check(holdsOk(h as number), () => ({ rule: 'the holds value of "{}" has the sample {}, where the condition ({} {}) does not hold', got: { details: [text, h, cls, t] } }));
+  check(!holdsOk(f as number), () => ({ rule: 'the fails value of "{}" has the sample {}, where the condition ({} {}) holds', got: { details: [text, f, cls, t] } }));
   check(new Set([e.holds, e.fails, e.edge]).size === 3, () => ({
     rule: 'holds, fails and edge of a boundaries entry are three distinct values',
     input: { span: text },
@@ -195,7 +176,7 @@ function rangeCase(ctx: ItemContext, text: string, a: number, b: number): void {
     [`one sample above ${b}`, s.some((x) => x > b)],
   ];
   const missing = need.filter(([, ok]) => !ok).map(([what]) => what);
-  must(missing.length === 0, () => `"${text}" gives samples ${show(s)}, missing ${missing.join(', ')}`);
+  check(missing.length === 0, () => ({ rule: '"{}" gives samples {}, missing {}', got: { details: [text, show(s), missing.join(', ')] } }));
   check(v.values.length <= 8, () => ({
     rule: 'a condition gives a bounded number of values',
     input: { span: text },
@@ -358,10 +339,7 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
     );
     for (const s of spans) {
       const same = exactlyOne(variablesCiting(store, s.text), `variables whose values cite "${s.text}"`);
-      must(
-        same === v,
-        () => `"${s.text}" and "${spans[0]?.text}" name one quantity but sit in different variables`,
-      );
+      check(same === v, () => ({ rule: '"{}" and "{}" name one quantity but sit in different variables', got: { details: [s.text, spans[0]?.text] } }));
       const cited = citing(store, s.text)
         .map((c) => c.value.sample as number)
         .sort((a, b) => a - b);
@@ -383,10 +361,7 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
       void c;
     }
     const samples = v.values.map((x) => x.sample);
-    must(
-      new Set(samples).size === samples.length,
-      () => `the merged variable holds duplicate samples ${show(samples)}`,
-    );
+    check(new Set(samples).size === samples.length, () => ({ rule: 'the merged variable holds duplicate samples {}', got: { details: [show(samples)] } }));
   },
 
   'boundaries.integer-samples': (variant, ctx) => {
@@ -418,10 +393,7 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
     const v = checkThree(store, span.text, t);
     for (const value of v.values) {
       const quotes = (value.provenance ?? []).filter((p) => p.kind === 'quote');
-      must(
-        quotes.length >= 1,
-        () => `the value ${value.id} has no quote provenance: ${show(value.provenance)}`,
-      );
+      check(quotes.length >= 1, () => ({ rule: 'the value {} has no quote provenance: {}', got: { details: [value.id, show(value.provenance)] } }));
       for (const p of quotes) {
         if (p.kind !== 'quote') continue;
         check(p.path === 'CLAUDE.md', () => ({
@@ -431,10 +403,7 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
           expected: { path: 'CLAUDE.md' },
         }));
         if (variant === 'quote-findable')
-          must(
-            file.includes(p.quote),
-            () => `the quote ${show(p.quote, 80)} of ${value.id} is not in CLAUDE.md`,
-          );
+          check(file.includes(p.quote), () => ({ rule: 'the quote {} of {} is not in CLAUDE.md', got: { details: [show(p.quote, 80), value.id] } }));
       }
     }
   },
