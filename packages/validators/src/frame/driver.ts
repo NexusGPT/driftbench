@@ -667,6 +667,7 @@ const «scan» = («root», «prior») => {
     if (!«isExt»(«value»)) «putOther»('X0' + («isFrozenIt»(«value») ? 1 : 0) + («isSealedIt»(«value») ? 1 : 0) + ';');
     // The kind of the object, and its content.
     let «kind» = 0;
+    let «indices» = 0;
     let «entries»;
     if («isMapKind»(«value»)) «entries» = «call»(«mapEntries», «value», []);
     let «values»;
@@ -719,7 +720,8 @@ const «scan» = («root», «prior») => {
           // items are millions of numbers, and a scan of them runs before and after every call.
           const «length» = «value».length;
           «put»('A' + «length» + '[');
-          const «run» = new «floatArray»(4096);
+          // A short array cannot fill a 4096-number chunk. Keep its exact bytes without allocating 32 KiB per row.
+          const «run» = new «floatArray»(«length» < 4096 ? «length» : 4096);
           let «runLength» = 0;
           const «flushRun» = () => {
             if («runLength» === 0) return;
@@ -730,6 +732,7 @@ const «scan» = («root», «prior») => {
           };
           for (let «i» = 0; «i» < «length»; «i» += 1) {
             const «cell» = «describe»(«value», «i»);
+            if («cell» !== undefined) «indices» += 1;
             if («cell» === undefined) {
               «flushRun»();
               «put»('h;');
@@ -769,7 +772,11 @@ const «scan» = («root», «prior») => {
     const «keys» = «ownKeys»(«value»);
     const «plain» = «kind» === 0;
     if («plain») «put»('O{');
-    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+    // Array own keys start with the present indices in numeric order. Their descriptors and values were all
+    // scanned above; start at the remaining keys, still checking every extra property and the length descriptor.
+    // Proxies were refused before this walk. Check the current boundary too: a tampered intrinsic getter can
+    // change the array while its numeric runs are hashed. If the saved prefix now includes an extra key, rescan it.
+    for (let «i» = «kind» === 1 && «indices» > 0 && «indices» <= «keys».length && «isIndex»(«keys»[«indices» - 1]) ? «indices» : 0; «i» < «keys».length; «i» += 1) {
       const «key» = «keys»[«i»];
       if («kind» === 1 && «key» === 'length') continue;
       if ((«kind» === 1 || «kind» === 2) && «isIndex»(«key»)) continue;
