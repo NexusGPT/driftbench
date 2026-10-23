@@ -78,3 +78,13 @@ export {
   type VariablesFromSourcesOptions,
   variablesFromSources,
 } from './sources';
+export {
+  applySubjects,
+  canonicalSubjects,
+  type LabelledClause,
+  prefixOf,
+  shareSubjects,
+  soundMap,
+  subjectsOf,
+  unitsBySubject,
+} from './subjects';
