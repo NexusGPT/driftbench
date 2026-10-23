@@ -251,7 +251,7 @@ What it does not prove:
 
 - A validator checks the property its items test. It says nothing about a property no item tests.
 - The ladders contain no model. They do not measure how accurate a real judge is. Calibration against hand labels does that (previous part).
-- Some ladders have no floor yet, such as the generator and the estate. No pass rate is quoted for a suite until it passes an independent audit (source: `docs/comparison/methods.md`).
+- Some ladders have no floor yet, such as the estate. No pass rate is quoted for a suite until it passes an independent audit (source: `docs/comparison/methods.md`).
 - A statistics floor of 3 of 8 says that levels 1 to 3 hold. It does not say that the levels above do.
 - A planted fault stands for a kind of mistake. A real agent can fail in a way no fault in the set plants.
 
