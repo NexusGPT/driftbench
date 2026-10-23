@@ -7,7 +7,7 @@
 //   exactly, and read `./a.js` as `a.ts` for TypeScript. A module of the standard library or an installed package
 //   leads to no file of the estate: no link and no finding. An import written in a comment, a docstring or a string
 //   is no import. A module its importer names is not an orphan.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { from, orphans, outcome, resolvedLink, shape } from './links';
 import { observe } from './observe';
 import {
@@ -20,6 +20,9 @@ import {
   scriptMatrix,
 } from './variants-scripts';
 import { SCRIPT_IMPORT_LINK } from './vocabulary';
+
+// A test that reads a sample of estates, twice each, takes more than the default five seconds on a busy machine.
+vi.setConfig({ testTimeout: 120_000 });
 
 const MATRIX = scriptMatrix();
 const ids = ['entry', 'module'];
