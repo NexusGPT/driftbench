@@ -163,6 +163,9 @@ async function inventory(
     if (
       !real ||
       !inside(canonical, real) ||
+      excluded(setup.privacy.exclude, slash(relative(canonical, real))) ||
+      excluded(setup.scope.exclude, slash(relative(canonical, real))) ||
+      !included(slash(relative(canonical, real))) ||
       excluded(setup.privacy.exclude, path) ||
       excluded(setup.scope.exclude, path) ||
       !included(path) ||
@@ -170,7 +173,7 @@ async function inventory(
     )
       continue;
     try {
-      const value: unknown = parseYaml(await readFile(absolute, 'utf8'), { uniqueKeys: true });
+      const value: unknown = parseYaml(await readFile(real, 'utf8'), { uniqueKeys: true });
       if (
         value &&
         typeof value === 'object' &&
