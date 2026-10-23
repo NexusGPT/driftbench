@@ -1084,6 +1084,19 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['two seed rows with one id raise an Error that names the id', ['two-seed-rows-with-one-id-are-refused']],
     ['a seed row keeps the id it carries', ['distinct-seed-ids-are-kept']],
   ]),
+  'hardening.interval': table([
+    ['weightInterval refuses a count above its total with a RangeError', ['count-above-total-is-refused']],
+    [
+      'weightInterval refuses a negative count and a total below 1 with a RangeError',
+      ['negative-count-and-empty-total-are-refused'],
+    ],
+  ]),
+  'hardening.coverage': table([
+    [
+      'coverage counts every tuple a constraint nobody approved would exclude as allowed',
+      ['unapproved-forbid-excludes-nothing'],
+    ],
+  ]),
   'sources.labelled-condition': table([
     [
       'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',

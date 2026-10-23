@@ -3,6 +3,7 @@ import { AUDIT_STEMS } from './families/audit';
 import { BOUNDARIES_STEMS } from './families/boundaries';
 import { BUDGET_STEMS } from './families/budget';
 import { COUNTER_STEMS } from './families/counter';
+import { HARDENING_STEMS } from './families/hardening';
 import { IMPOSSIBLE_STEMS } from './families/impossible';
 import { PROPERTY_STEMS } from './families/property';
 import { QUOTES_STEMS } from './families/quotes';
@@ -39,6 +40,7 @@ export const BLIND_STEMS: readonly Stem[] = [
   ...SCALE_STEMS,
   ...AUDIT_STEMS,
   ...PROPERTY_STEMS,
+  ...HARDENING_STEMS,
   ...SEEDIDS_STEMS,
 ];
 
