@@ -630,12 +630,8 @@ describe('driftbench validate through main', () => {
     const stats = registeredLadders().stats;
     if (!stats) throw new Error('the statistics ladder is not registered');
     const { io, output } = capture(ROOT);
-    const code = await validateCommand(
-      'stats',
-      { brief: true, fresh: true },
-      io,
-      { ladders: () => ({ stats: { ...stats, levels: stats.levels.slice(0, 2) } }), root: ROOT },
-    );
+    const deps = { ladders: () => ({ stats: { ...stats, levels: stats.levels.slice(0, 2) } }), root: ROOT };
+    const code = await validateCommand('stats', { brief: true, fresh: true }, io, deps);
     expect(code).toBe(0);
     expect(output.out).toContain('# Brief: validator stats (fresh)');
     expect(output.out).toContain(
