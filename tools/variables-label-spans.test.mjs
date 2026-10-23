@@ -220,8 +220,8 @@ it('a JSON body is priced by its count: refused just under its cost, sent just o
     expect(`${refused.stdout}${refused.stderr}`).toMatch(/before sending/);
     rmSync(join(c.folder, 'requests.log'));
     // One token per byte would refuse this cap too; the count does not, because the request really fits.
-    const sent = c.run(cost * 1.02);
-    expect(sent.status, sent.stderr).toBe(0);
+    const goes = c.run(cost * 1.02);
+    expect(goes.status, goes.stderr).toBe(0);
     expect(sent(c, 'choice')).toHaveLength(1);
   } finally {
     c.cleanup();
