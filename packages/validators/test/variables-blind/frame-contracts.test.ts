@@ -39,6 +39,22 @@ const MODES: Record<string, string[]> = {
   'aliased-unconfined': ofStem('values.fresh-objects'),
   'aliased-getter': ofStem('values.fresh-objects'),
   'framed-env': ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'],
+  // Codex's sweep (run 39875900785): object identity the caller sees in its own process. Plan rows that are the
+  // caller's seed objects; one cached plan; a typed array, and an array held by a Map's own property, shared by every
+  // store.
+  'seed-row-alias': ofStem('seeds.pure-copy'),
+  'plan-cache': bank.filter((item) => item.id.endsWith('.two-plans-share-no-object')).map((item) => item.id),
+  'view-alias': ['values.fresh-objects.two-builds-independent'],
+  'map-own-alias': ['values.fresh-objects.two-builds-independent'],
+  // A plan cached by the identity of its store or options object: the same object, edited in place, must be read
+  // again (the store edited in place and planned again; codex's class 3).
+  'identity-cache': [
+    'determinism.json-round-trip.store',
+    'determinism.json-round-trip.options',
+    ...bank
+      .filter((item) => item.id.endsWith('.a-reused-store-edited-in-place-is-read-again'))
+      .map((item) => item.id),
+  ],
   // sonnet-review-c-2: a global name added during a call; the same name added at load is the product's own setting.
   'call-global': ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'],
 };
@@ -59,6 +75,10 @@ function product(mode: string): string {
     `import { variablesImpl as base } from ${JSON.stringify(ADAPTER)};
 const mode = ${JSON.stringify(mode)};
 const cache = new Map();
+const byStore = new WeakMap();
+const byOptions = new WeakMap();
+const sharedView = new Uint8Array([17]);
+const sharedOwn = [17];
 if (mode === 'load-global') globalThis.zzLoadName = 1;
 export const variablesImpl = {
   ...base,
@@ -71,10 +91,32 @@ export const variablesImpl = {
       options.seed = options.seed;
       if (options.seeds?.length) options.seeds[0] = options.seeds[0];
     }
-    return base.plan(store, options);
+    if (mode === 'plan-cache') {
+      const key = JSON.stringify([store, options]);
+      if (!cache.has(key)) cache.set(key, base.plan(store, options));
+      return cache.get(key);
+    }
+    if (mode === 'identity-cache') {
+      const hit = byStore.get(store) ?? byOptions.get(options);
+      if (hit) return hit;
+      const made = base.plan(store, options);
+      byStore.set(store, made);
+      byOptions.set(options, made);
+      return made;
+    }
+    const made = base.plan(store, options);
+    if (mode === 'seed-row-alias')
+      for (let i = 0; i < (options.seeds?.length ?? 0); i += 1) made.rows[i].values = options.seeds[i];
+    return made;
   },
   buildStore(sources) {
     if (mode === 'frozen-build') sources.estate = sources.estate;
+    if (mode === 'view-alias') return { ...base.buildStore(sources), extra: sharedView };
+    if (mode === 'map-own-alias') {
+      const extra = new Map();
+      extra.shared = sharedOwn;
+      return { ...base.buildStore(sources), extra };
+    }
     const key = JSON.stringify(sources);
     if (mode === 'aliased-getter') {
       const store = base.buildStore(sources);
