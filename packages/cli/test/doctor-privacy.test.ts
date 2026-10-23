@@ -15,15 +15,23 @@ it('never reads an unmapped home declared through a config-file symlink alias', 
   const home = await mkdtemp(join(tmpdir(), 'driftbench-unmapped-home-'));
   const skills = join(home, '.claude/skills');
   await mkdir(join(skills, 'secret'), { recursive: true });
-  await writeFile(join(skills, 'secret/SKILL.md'), '---\nname: secret\ndescription: Fictional private skill.\n---\nPrivate fictional content.\n');
+  await writeFile(
+    join(skills, 'secret/SKILL.md'),
+    '---\nname: secret\ndescription: Fictional private skill.\n---\nPrivate fictional content.\n',
+  );
   await writeFile(join(root, 'CLAUDE.md'), '# Fictional instructions\n');
   await writeFile(join(root, 'config.data'), `userSkills: ${skills}\n`);
   await symlink('config.data', join(root, 'driftbench.estate.yaml'));
   vi.mocked(readFile).mockClear();
   const result = await inspectSetup(root);
   expect(vi.mocked(readFile).mock.calls.some(([path]) => String(path).startsWith(home))).toBe(false);
-  expect(result.sources.flatMap((source) => source.files).some((file) => file.path.startsWith('~/.claude/skills'))).toBe(false);
-  expect(result.coverage.skipped).toContainEqual({ what: 'project:driftbench.estate.yaml#userSkills', reason: 'home not mapped' });
+  expect(
+    result.sources.flatMap((source) => source.files).some((file) => file.path.startsWith('~/.claude/skills')),
+  ).toBe(false);
+  expect(result.coverage.skipped).toContainEqual({
+    what: 'project:driftbench.estate.yaml#userSkills',
+    reason: 'home not mapped',
+  });
 });
 
 it('never inventories a copy destination that escapes its declared root through a parent symlink', async () => {
@@ -35,21 +43,39 @@ it('never inventories a copy destination that escapes its declared root through 
   await writeFile(join(outside, 'copy/private.data'), 'fictional private content');
   await symlink(outside, join(root, 'escape'));
   const setup: SetupDocument = {
-    version: 1, runtime: 'claude-code',
+    version: 1,
+    runtime: 'claude-code',
     sources: [
       { id: 'project', path: '.', kind: 'project', reader: 'claude-code' },
-      { id: 'shared', path: 'shared', kind: 'directory', reader: 'unknown', bindings: [
-        { runtime: 'claude-code', deployedRoot: 'project', deployedPath: 'escape/copy', method: 'copy' },
-      ] },
+      {
+        id: 'shared',
+        path: 'shared',
+        kind: 'directory',
+        reader: 'unknown',
+        bindings: [
+          { runtime: 'claude-code', deployedRoot: 'project', deployedPath: 'escape/copy', method: 'copy' },
+        ],
+      },
     ],
-    roles: {}, scope: { include: ['**'], exclude: [] },
-    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    roles: {},
+    scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] },
+    budget: { usd: 0, modelCalls: 0 },
     privacy: { model: 'deny', exports: 'metadata', exclude: [] },
   };
   vi.mocked(readFile).mockClear();
   const result = await diagnoseSetup(root, async () => ({ runtime: 'claude-code', files: [] }), setup);
-  expect(vi.mocked(readFile).mock.calls.some(([path]) => String(path).startsWith(outside) || String(path).startsWith(join(root, 'escape')))).toBe(false);
-  expect(result.coverage.skipped).toContainEqual({ what: 'shared:escape/copy', reason: 'unmapped deployment' });
+  expect(
+    vi
+      .mocked(readFile)
+      .mock.calls.some(
+        ([path]) => String(path).startsWith(outside) || String(path).startsWith(join(root, 'escape')),
+      ),
+  ).toBe(false);
+  expect(result.coverage.skipped).toContainEqual({
+    what: 'shared:escape/copy',
+    reason: 'unmapped deployment',
+  });
 });
 
 it('compares an explicitly mapped copy and detects changed copied content', async () => {
@@ -59,15 +85,24 @@ it('compares an explicitly mapped copy and detects changed copied content', asyn
   await writeFile(join(root, 'shared/public.data'), 'fictional public content');
   await writeFile(join(root, 'copied/public.data'), 'fictional public content');
   const setup: SetupDocument = {
-    version: 1, runtime: 'claude-code',
+    version: 1,
+    runtime: 'claude-code',
     sources: [
       { id: 'project', path: '.', kind: 'project', reader: 'claude-code' },
-      { id: 'shared', path: 'shared', kind: 'directory', reader: 'unknown', bindings: [
-        { runtime: 'claude-code', deployedRoot: 'project', deployedPath: 'copied', method: 'copy' },
-      ] },
+      {
+        id: 'shared',
+        path: 'shared',
+        kind: 'directory',
+        reader: 'unknown',
+        bindings: [
+          { runtime: 'claude-code', deployedRoot: 'project', deployedPath: 'copied', method: 'copy' },
+        ],
+      },
     ],
-    roles: {}, scope: { include: ['**'], exclude: [] },
-    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    roles: {},
+    scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] },
+    budget: { usd: 0, modelCalls: 0 },
     privacy: { model: 'deny', exports: 'metadata', exclude: [] },
   };
   const read = async () => ({ runtime: 'claude-code', files: [] });

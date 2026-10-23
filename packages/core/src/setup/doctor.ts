@@ -351,7 +351,12 @@ async function snapshotReads(
           if (value && typeof value === 'object' && !Array.isArray(value) && 'userSkills' in value) {
             const { userSkills: _userSkills, ...safe } = value;
             await writeFile(canonical, stringify(safe));
-            skipped.push({ what: `${source.id}:${path}#userSkills`, reason: setup.sources.some((entry) => entry.kind === 'home') ? 'home read through mapped source' : 'home not mapped' });
+            skipped.push({
+              what: `${source.id}:${path}#userSkills`,
+              reason: setup.sources.some((entry) => entry.kind === 'home')
+                ? 'home read through mapped source'
+                : 'home not mapped',
+            });
           }
         } catch {
           // Invalid configuration cannot authorise a home read; its reader reports the parse limitation.
@@ -370,7 +375,10 @@ async function snapshotReads(
 
 type DeploymentCheck = { source: string; path: string; agrees: boolean; reason?: string };
 
-async function snapshotFingerprints(root: string, temporary: string): Promise<Array<{ path: string; sha256: string }> | undefined> {
+async function snapshotFingerprints(
+  root: string,
+  temporary: string,
+): Promise<Array<{ path: string; sha256: string }> | undefined> {
   const files: Array<{ path: string; sha256: string }> = [];
   const walk = async (path: string, relativePath: string, ancestors: Set<string>): Promise<boolean> => {
     const canonical = await realpath(path).catch(() => undefined);
@@ -383,36 +391,61 @@ async function snapshotFingerprints(root: string, temporary: string): Promise<Ar
     if (!info.isDirectory() || ancestors.has(canonical)) return false;
     const next = new Set([...ancestors, canonical]);
     for (const entry of await readdir(canonical, { withFileTypes: true })) {
-      if (!(await walk(join(canonical, entry.name), relativePath ? `${relativePath}/${entry.name}` : entry.name, next))) return false;
+      if (
+        !(await walk(
+          join(canonical, entry.name),
+          relativePath ? `${relativePath}/${entry.name}` : entry.name,
+          next,
+        ))
+      )
+        return false;
     }
     return true;
   };
-  return await walk(root, '', new Set()) ? files.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0) : undefined;
+  return (await walk(root, '', new Set()))
+    ? files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+    : undefined;
 }
 
-async function checkDeployments(sources: ResolvedSetupSource[], roots: Record<string, string>, temporary: string): Promise<DeploymentCheck[]> {
-  const mapped = (await Promise.all(sources.map((source) => realpath(source.root).catch(() => undefined)))).filter((root): root is string => root !== undefined);
+async function checkDeployments(
+  sources: ResolvedSetupSource[],
+  roots: Record<string, string>,
+  temporary: string,
+): Promise<DeploymentCheck[]> {
+  const mapped = (
+    await Promise.all(sources.map((source) => realpath(source.root).catch(() => undefined)))
+  ).filter((root): root is string => root !== undefined);
   const checks: DeploymentCheck[] = [];
-  for (const source of sources) for (const target of source.bindings) {
-    const path = resolve(target.root, target.deployedPath);
-    const canonical = await realpath(path).catch(() => undefined);
-    const check: DeploymentCheck = { source: source.id, path: target.deployedPath, agrees: false };
-    checks.push(check);
-    if (canonical && !mapped.some((root) => inside(root, canonical))) { check.reason = 'unmapped deployment'; continue; }
-    const info = await lstat(path).catch(() => undefined);
-    const expected = await realpath(source.root).catch(() => undefined);
-    if (target.method === 'link') { check.agrees = !!info?.isSymbolicLink() && canonical !== undefined && canonical === expected; continue; }
-    if (!info?.isDirectory() || info.isSymbolicLink() || !canonical) continue;
-    const deployedSource = sources.find((entry) => entry.root === target.root);
-    if (!deployedSource) { check.reason = 'unmapped deployment'; continue; }
-    const deployedSnapshot = join(roots[deployedSource.id] as string, target.deployedPath);
-    const [from, to] = await Promise.all([
-      snapshotFingerprints(roots[source.id] as string, temporary),
-      snapshotFingerprints(deployedSnapshot, temporary),
-    ]);
-    check.agrees = from !== undefined && to !== undefined && JSON.stringify(from) === JSON.stringify(to);
-    if (!from || !to) check.reason = 'deployment unavailable in filtered snapshot';
-  }
+  for (const source of sources)
+    for (const target of source.bindings) {
+      const path = resolve(target.root, target.deployedPath);
+      const canonical = await realpath(path).catch(() => undefined);
+      const check: DeploymentCheck = { source: source.id, path: target.deployedPath, agrees: false };
+      checks.push(check);
+      if (canonical && !mapped.some((root) => inside(root, canonical))) {
+        check.reason = 'unmapped deployment';
+        continue;
+      }
+      const info = await lstat(path).catch(() => undefined);
+      const expected = await realpath(source.root).catch(() => undefined);
+      if (target.method === 'link') {
+        check.agrees = !!info?.isSymbolicLink() && canonical !== undefined && canonical === expected;
+        continue;
+      }
+      if (!info?.isDirectory() || info.isSymbolicLink() || !canonical) continue;
+      const deployedSource = sources.find((entry) => entry.root === target.root);
+      if (!deployedSource) {
+        check.reason = 'unmapped deployment';
+        continue;
+      }
+      const deployedSnapshot = join(roots[deployedSource.id] as string, target.deployedPath);
+      const [from, to] = await Promise.all([
+        snapshotFingerprints(roots[source.id] as string, temporary),
+        snapshotFingerprints(deployedSnapshot, temporary),
+      ]);
+      check.agrees = from !== undefined && to !== undefined && JSON.stringify(from) === JSON.stringify(to);
+      if (!from || !to) check.reason = 'deployment unavailable in filtered snapshot';
+    }
   return checks;
 }
 
@@ -578,9 +611,16 @@ export async function diagnoseSetup(
     for (const source of sources) inventories.push(await inventory(source, draft, setupFile, [], sources));
   }
   let deploymentChecks: DeploymentCheck[] = [];
-  const reads = await snapshotReads(sources, inventories, draft, read, result.coverage.skipped, async (roots, temporary) => {
-    deploymentChecks = await checkDeployments(sources, roots, temporary);
-  });
+  const reads = await snapshotReads(
+    sources,
+    inventories,
+    draft,
+    read,
+    result.coverage.skipped,
+    async (roots, temporary) => {
+      deploymentChecks = await checkDeployments(sources, roots, temporary);
+    },
+  );
   for (const [index, source] of sources.entries()) {
     const disk = inventories[index] as Disk;
     manifest.push(
@@ -667,20 +707,21 @@ export async function diagnoseSetup(
         ? 'fail'
         : 'pass';
   result.drift = driftOf(declared?.drift, manifest);
-  for (const check of deploymentChecks) if (!check.agrees) {
-    result.coverage.skipped.push({ what: `${check.source}:${check.path}`, reason: check.reason ?? 'deployment disagrees with setup' });
-    if (declared?.drift) {
-      result.drift.status = 'fail';
-      result.drift.changes.push({ source: check.source, path: check.path, kind: 'changed' });
+  for (const check of deploymentChecks)
+    if (!check.agrees) {
+      result.coverage.skipped.push({
+        what: `${check.source}:${check.path}`,
+        reason: check.reason ?? 'deployment disagrees with setup',
+      });
+      if (declared?.drift) {
+        result.drift.status = 'fail';
+        result.drift.changes.push({ source: check.source, path: check.path, kind: 'changed' });
+      }
     }
-  }
 
   if (declared?.drift && result.coverage.skipped.some((entry) => entry.reason === 'source unavailable'))
     result.drift.status = 'fail';
-  if (
-    result.coverage.status === 'pass' &&
-    deploymentChecks.some((check) => !check.agrees)
-  )
+  if (result.coverage.status === 'pass' && deploymentChecks.some((check) => !check.agrees))
     result.coverage.status = 'fail';
   result.draft = { ...draft, drift: { files: manifest } };
   const price = draft.budget.pricing;
