@@ -27,7 +27,11 @@ export async function hold(role) {
   try { fs.writeFileSync(join(signals, role + '.ready'), 'ready'); } catch { return role; }
   const until = Date.now() + 20000;
   while (!fs.existsSync(join(signals, role + '.release')) && Date.now() < until) {
-    if (role === 'b' && fs.existsSync(join(signals, 'poke'))) fs.writeFileSync(join(signals, 'alive'), 'yes');
+    if (role === 'b' && fs.existsSync(join(signals, 'poke'))) {
+      // Publish a complete acknowledgement: existence must never expose a truncated write.
+      fs.writeFileSync(join(signals, 'alive.tmp'), 'yes');
+      fs.renameSync(join(signals, 'alive.tmp'), join(signals, 'alive'));
+    }
     await new Promise(resolve => setTimeout(resolve, 20));
   }
   return role;
