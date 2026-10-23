@@ -33,9 +33,7 @@ function install(name: string, base: string): string {
   return dir;
 }
 function privateRoot(tag: string, withTsconfig: boolean): string {
-  const dir = realpathSync(
-    mkdtempSync(join(repo, 'packages', 'validators', 'test', 'frame', `zz-inv-${tag}-`)),
-  );
+  const dir = realpathSync(mkdtempSync(join(repo, 'node_modules', '.cache', `zz-inv-${tag}-`)));
   roots.push(dir);
   writeFileSync(join(dir, 'pnpm-workspace.yaml'), 'packages: []\n');
   if (withTsconfig) writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"target":"es2022"}}');

@@ -30,5 +30,5 @@ Findings planted on purpose, so the lint has something to find:
 - `reply-length.py` has no row in the check registry, and the registry's row G6 names a guard that does not
   exist.
 
-The scan of this estate, with the recorded answers in `answers.yaml`, is `map.yaml`; the approved map is
+The scan of this estate, which replays the recording in `cassette.jsonl`, is `map.yaml`; the approved map is
 `approved.yaml` and its space map is `space.yaml`.

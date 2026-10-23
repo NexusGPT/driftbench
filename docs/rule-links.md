@@ -36,11 +36,11 @@ The lines that matter:
 
 ```
 Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
-  Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
+  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
 ```
 
-Code cut 11 prose files into 136 units. A labeler pointed at 133 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
+Code cut 11 prose files into 136 units. A labeler pointed at 134 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
 
 ```
 {
@@ -69,12 +69,12 @@ driftbench estate plan approve plan.yaml --all
 ## 2. Blocks that carry the rule
 
 ```
-driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
+driftbench estate generate --map approved.yaml --plan plan.yaml --out generated --states northwind/live/states/library.json
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1275 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1455 files to generated.
+Asks of the complete specs: 0 approved phrases, 1278 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1458 files to generated.
 ```
 
 The command exits 1 while some specs stay incomplete; its gap list names what each one needs. Every block it writes carries its links in `metadata.links`. This is the head of the spec that tests the sentence above:
@@ -154,19 +154,36 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+1251 specs, 1254 blocks.
+Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
+  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1251 blocks, which rerun. The other 1235 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1254 blocks, which rerun. The other 1238 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,235 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,238 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+
+`estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
+
+```
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store before.db --map approved.yaml --agent-version db9e07132a1b
+# edit the sentence of step 3 and write change.yaml, then:
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store after.db --agent-version working --from before.db --change change.yaml
+```
+
+```
+Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+16 of 1251 cells in the radius. 16 cells run fresh, 1235 carried from estate-run-501322d100b5 in before.db.
+...
+16 specs run live on a stand-in and 1235 carried: 211 pass, 1040 fail (232 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-e48f7cf49eaf.
+```
+
+Sixteen specs run and 1,235 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
 
 ## 5. Prove a link by deleting its rule
 
@@ -222,7 +239,7 @@ The command exits 0 when the blocks that flip are exactly the linked blocks, and
 ## Limits
 
 * The asks of the blocks written in step 2 come from code, not from approved phrases, and most of those blocks carry a judged criterion. A judged criterion has no verdict without a configured judge, so step 5 runs the 15 specs of the committed suite that name a gate, which machine checks decide.
-* A model labeler is not exact. In the scan above, 3 of 136 units have no label and the runs of one labeler disagreed on 1 unit. A unit without a label is not an atom, so no block links to it.
+* A model labeler is not exact. In the scan above, 2 of 136 units have no label and the runs of one labeler disagreed on 2 units. A unit without a label is not an atom, so no block links to it.
 * A `unit` change, the change of a unit that holds no atom, keeps the radius the whole suite and prints an advisory selection. The edit above hit a unit with an atom, so it became a `prompt` change and selected 16 blocks.
 * Measured on one suite, the Acme stand-in, with one agent model: on 274 mutants of the prompt, the selection of the ledger path with the rerun marks missed a flipped block on 0 of 274 (Wilson 95% upper bound 1.38%, mean selection ratio 0.513). Without the marks it missed 9 of 274 (6.12%). The result does not say that the procedure holds on another suite. Source: `research/ledger-h7/RESULT-ledger.md`.
 * The proof is as good as the runs behind it. The stand-in follows the rules of the estate in its folder, so a flip shows that the specs test the rule, not how a real agent behaves.

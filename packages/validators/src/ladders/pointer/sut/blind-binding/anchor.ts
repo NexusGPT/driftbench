@@ -35,7 +35,7 @@ function filesOf(pointer: Obj, units: Obj[]) {
  * `reanchor`: the old units become the ledger of the scan before (their own ids kept), the new units the scan
  * after. A merge also counts the tombstone of the second old unit as deleted; that count belongs to the merge. The reader fixes its ladder values (`LADDER`), so `settings` is not applied. The event of each selected
  * id is the one event kind the reader counted for the pair of scans; two kinds at once name no single event and
- * the call says so. The reader lists no candidates of an ambiguous match, so that call is unsupported.
+ * the call says so. An ambiguous match reports the pointer the scan before held and the candidates the reader lists.
  */
 export async function reanchorOp(input: Obj): Promise<unknown> {
   const pointer = await pointerExports();
@@ -81,8 +81,20 @@ export async function reanchorOp(input: Obj): Promise<unknown> {
       targetTexts: entryOf(id)?.status === 'live' ? [entryOf(id)?.quote] : [],
     }));
   }
-  if (event === 'ambiguous')
-    throw new Unsupported('reanchor', 'the reader keeps the id on the first match and lists no candidates');
+  if (event === 'ambiguous') {
+    // The pointer kept is the one the scan before held; the reader lists every place the text now stands.
+    return selected.map((id) => {
+      const origin = renamed.entries.find((entry: Obj) => entry.id === id);
+      return {
+        id,
+        path: origin?.path,
+        quote: origin?.quote,
+        status: entryOf(id)?.status,
+        lineage: [{ event }],
+        candidates: next.candidates[id] ?? [],
+      };
+    });
+  }
   return selected.map((id) => {
     const entry = entryOf(id);
     return {
