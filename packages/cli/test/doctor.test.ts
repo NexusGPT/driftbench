@@ -102,3 +102,49 @@ describe('doctor reads through the runtime registry without executing', () => {
     expect(await doctorCommand('.', { write: 'driftbench.setup.yaml' }, io)).toBe(2);
   });
 });
+
+describe('doctor declared policies and deployments', () => {
+  it('checks a declared link target and drafts its binding with evidence', async () => {
+    const root = await estate({ 'CLAUDE.md': '# Instructions\n', 'shared/SKILL.md': '---\nname: shared\n---\nInstructions.\n' });
+    await mkdir(join(root, '.claude'));
+    await symlink('../shared', join(root, '.claude/shared'));
+    const detected = await inspectSetup(root);
+    const declared = { ...detected.draft, sources: [
+      detected.draft.sources[0]!,
+      { id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code' },
+    ] };
+    const result = await inspectSetup(root, declared);
+    expect(result.draft.sources[1]?.bindings).toContainEqual({ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' });
+    expect(result.detections).toContainEqual(expect.objectContaining({ confidence: 1, field: 'sources.shared.bindings' }));
+    expect(declared.sources[1]).not.toHaveProperty('bindings');
+  });
+
+  it('blocks a changed deployment target even when the target folders contain no files', async () => {
+    const root = await estate({ 'CLAUDE.md': '# Instructions\n' });
+    await mkdir(join(root, 'shared'));
+    await mkdir(join(root, 'different'));
+    await mkdir(join(root, '.claude'));
+    await symlink('../shared', join(root, '.claude/shared'));
+    const initial = await inspectSetup(root);
+    const setup = { ...initial.draft, sources: [initial.draft.sources[0]!, {
+      id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code',
+      bindings: [{ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' as const }],
+    }] };
+    expect((await inspectSetup(root, setup)).drift.status).toBe('pass');
+    await unlink(join(root, '.claude/shared'));
+    await symlink('../different', join(root, '.claude/shared'));
+    expect((await inspectSetup(root, setup)).drift.status).toBe('fail');
+  });
+
+  it('prices only declared rates and blocks model advice under privacy or budget limits', async () => {
+    const root = await estate({ 'CLAUDE.md': '# Instructions\n' });
+    const initial = await inspectSetup(root);
+    const setup = { ...initial.draft, privacy: { ...initial.draft.privacy, model: 'allow' as const }, budget: {
+      usd: 1, modelCalls: 2, pricing: { inputUsdPerMillion: 2, outputUsdPerMillion: 4, inputTokensPerCall: 1000, outputTokensPerCall: 500 },
+    } };
+    const result = await inspectSetup(root, setup);
+    expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({ usd: 0.008, allowed: true });
+    setup.privacy.model = 'deny' as 'allow';
+    expect((await inspectSetup(root, setup)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')?.allowed).toBe(false);
+  });
+});
