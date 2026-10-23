@@ -565,16 +565,13 @@ describe('driftbench validate through main', () => {
     );
     const top = registeredLadders().stats?.levels.length;
     expect(result.out).toContain(`Level of the run: ${result.code} of ${top}, the minimum over 1 seed.`);
-    // The whole stats ladder on one seed behind the frame takes 6 to 9 minutes on a CI runner (GitHub runs 39881420053
-    // and 39892114663: 577 to 1,485 s per two seeds), over the 600,000 ms this test had (pr affected shard 2/8 of PR 1432).
-  }, 1_800_000);
+  }, 600_000);
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
   // workflow also runs `validate all --seeds 1..3 --hidden --check-floor`, which checks the floors file as a whole.
   it.for(Object.keys(registeredLadders()))(
     'holds the committed floor of the %s ladder',
-    // A floor of 8 makes the stats run compute every level (6 to 9 minutes behind the frame, up to three attempts).
-    { timeout: 1_800_000 },
+    { timeout: 600_000 },
     async (component, context) => {
       // A loaded machine can push one timed item of a ladder over its budget, and a ladder keeps the results of the
       // items it ran. So a run below the floor is run again on a ladder of its own, up to three runs in all, and the
