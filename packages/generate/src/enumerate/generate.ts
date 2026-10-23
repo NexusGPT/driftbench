@@ -99,6 +99,12 @@ export type GenerateOptions = {
    * after the cap, on the specs actually written, so no walk loses an end only a dropped spec said.
    */
   reduceEnds?: boolean;
+  /**
+   * Cut the tails of the walks once more with the whole suite in view (default true; seed/suite-cut.ts): the cut at
+   * write time sees only the walks written before each one. It runs on the eager writer, not under `specCap`, not in
+   * budget mode and not on the streaming writer, which holds one spec at a time; the report says so in `settle`.
+   */
+  settle?: boolean;
   /** The map path as the specs and the report record it (relative to the output folder). */
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
@@ -143,6 +149,11 @@ export type GenerateReport = {
   generator: 'driftbench generate';
   /** The stem post-pass, when it ran: stems written, specs that start from one, blocks written once. */
   stems?: { stems: number; specs: number; saved: number };
+  /**
+   * The whole-suite tail cut: whether it ran, and how many complete specs were written without it though their ends
+   * were cut at write time (the streaming writer, budget mode, `specCap`, `settle: false`).
+   */
+  settle: { run: boolean; unsettled: number };
   map: {
     path: string;
     agent: string;
@@ -493,10 +504,12 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   renderSeeder('cover', phraseDrafts(prepared, context, said, 0, unsaid));
   addUnsaid(gaps, unsaid, (gap) => ({ ...gap, blocks: 0, specs: [] }));
   // The tails of the walks, cut once more with the whole suite in view: the first pass saw only the walks written
-  // before each one (seed/suite-cut.ts). With `early`, the allocation is not a reason to keep a block: the rounds
-  // below top the strata up afterwards.
+  // before each one (seed/suite-cut.ts). Once before the rounds that top the strata up, where the allocation is not a
+  // reason to keep a block, and once after them, where it is.
+  const settles =
+    options.settle !== false && reduceEnds && options.specCap === undefined && options.budget === undefined;
   const settle = (ignoreAllocation: boolean): void => {
-    if (context.minimal && reduceEnds && options.specCap === undefined) {
+    if (settles && context.minimal) {
       const witnesses = (draft: SpecDraft) => JSON.stringify([draft.reducedEnds, draft.reducedMiddle]);
       const before = new Map([...draftOf].map(([id, draft]) => [id, witnesses(draft)]));
       const items = complete.map((spec) => {
@@ -558,9 +571,14 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
           .filter(([id]) => renderedAs.get(id) === seeder)
           .reduce((sum, [, draft]) => sum + (draft.reducedEnds?.duplicates.length ?? 0), 0);
       }
+      // The cut at write time goes on from the settled suite, not from the longer walks it counted before.
+      const fresh = new TerminalSubsumption(prepared, run, t, allocation);
+      fresh.dropsSpecs = context.minimal.dropsSpecs;
+      for (const spec of complete) fresh.observeSpec(spec);
+      context.minimal = fresh;
     }
   };
-  if (process.env.SETTLE_EARLY !== undefined) settle(true);
+  settle(true);
   // Deviation balance: after coverage, classes probed less than a third as often as the most probed class get
   // more approved probes, so one class is not tested many times while another barely is.
   const balance = new DeviationBalance(prepared);
@@ -699,6 +717,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const report: GenerateReport = {
     generator: 'driftbench generate',
     ...(stems ? { stems } : {}),
+    settle: {
+      run: settles,
+      unsettled: reduceEnds && !settles ? totals.reduce((sum, entry) => sum + entry.complete, 0) : 0,
+    },
     map: {
       path: options.mapPath,
       agent: prepared.agent,

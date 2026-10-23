@@ -1,5 +1,14 @@
 import { type PerturbationSpec, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
-import { addEventCodes, placeSpec } from '@agent-nexus/driftbench-space';
+import {
+  addEventCodes,
+  NONE,
+  type ObligationSpec,
+  obligationSpecOf,
+  placeSpec,
+  type StageBook,
+  SuiteIndex,
+  stageBookOf,
+} from '@agent-nexus/driftbench-space';
 import { Allocation } from './allocation';
 import type { SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
@@ -8,18 +17,15 @@ import { failsAtEnd, type TerminalSubsumption } from './minimal';
 /** A spec of the suite and, when a draft made it, the draft: only a draft can be cut. */
 export type SuiteItem = { spec: Spec; draft?: SpecDraft };
 
-/** What one spec holds for the suite: the things another spec's cut may rely on it for. */
+/** What one spec holds for the suite that the shared index does not carry: what a cut of another spec may rely on. */
 type Holdings = {
-  /** The key of every block, by position. */
+  /** The local (strict) key of every block, by position. */
   keys: string[];
   /** The id of every block, by position. */
   ids: string[];
   texts: Set<string>;
   codes: Array<Set<number>>;
   pairs: Set<string>;
-  probes: Set<string>;
-  /** `path|class` of every perturbation the spec declares. */
-  perturbs: Set<string>;
   /** `path|channel and persona` the spec is written for. */
   context: string;
   row?: string;
@@ -29,51 +35,67 @@ type Holdings = {
 /** One shape a walk can take: the blocks and declarations it keeps, and the spec they make. */
 type Shape = { blocks: SpecDraft['blocks']; perturbations: PerturbationSpec[] | undefined; spec: Spec };
 
+export type SuiteCutOptions = {
+  /** The allocation is not a reason to keep a block: the rounds that follow top the strata up. */
+  ignoreAllocation?: boolean;
+};
+
 /**
  * The tails of a suite, cut with the whole suite in view. The first pass (`TerminalSubsumption.reduce`) cuts a
  * walk as it is written, so it sees only the walks written before it: a block that a later, longer walk passes
  * through stays at the end of the earlier one. This pass looks at every walk with every other walk as it now
  * stands, in the order of their ids, and cuts the tail of a walk whenever the first pass would have cut it had the
- * others been written first. It checks what the first pass checks, each against the suite without the walk being
- * cut: the block is the same test as a block another walk says, every message and tuple and ordered pair of moves
- * and class probe the tail holds is held by another walk, the stages and classes stay no further from balance, the
- * recoveries still build, and the walk does not end on the block another walk ends on. Where the first pass keeps a
- * block because a declared perturbation reaches it, this pass cuts it with its declaration when another walk of the
- * path declares the same class (the declaration is then held elsewhere). A metamorphic family is cut as one unit,
- * and only where its variants still differ in what they say. A walk cut to one block that another walk says, with
- * every message, tuple and context held elsewhere, is dropped. It never cuts the pair of twins a path keeps per
- * context axis, a walk with an end state, or a task. It goes on until no walk can be cut.
+ * others been written first.
+ *
+ * What the suite owes is the shared ruling (`RULINGS`, `SuiteIndex.lostBy` in packages/space): a class probed once per
+ * path, a declared perturbation once per path and class (a declaration goes with its block when another walk of the
+ * path declares the class), a metamorphic family cut as one unit, one pair of twins per path and context axis, one
+ * walk ending on a given test, a walk dropped only once cut to one block. What the ruling does not carry stays here
+ * and is checked beside it: the block is the same test as a block another walk says (the local key, stricter than the
+ * shared one), every message, tuple and ordered pair of moves it holds is held by another walk, a t-wise row, the
+ * stages and classes stay no further from balance, the recoveries still build and the walk does not end on a tool
+ * failure or a restated request. It never touches the pair of twins the invariance items read, a walk with an end
+ * state, or a task. It goes on until no walk can be cut.
  *
  * The result is a function of the set of walks, not of the order they were written in: the walks are visited in the
  * order of their ids, and each cut is checked against the walks as they stand at that moment.
  */
 export class SuiteCut {
+  private readonly index: SuiteIndex;
+  private readonly book: StageBook;
   private readonly keys = new Map<string, Map<string, string>>();
-  private readonly ends = new Map<string, Set<string>>();
   private readonly said = new Map<string, number>();
   private readonly held: Uint32Array[];
   private readonly pairs = new Map<string, number>();
-  private readonly probed = new Map<string, number>();
-  private readonly perturbed = new Map<string, number>();
   private readonly contexts = new Map<string, number>();
   private readonly rows = new Map<string, number>();
   private readonly allocation: Allocation;
   private readonly holdings = new Map<string, Holdings>();
   private readonly current = new Map<string, Spec>();
+  private readonly prepared: PreparedMap;
   private pins = new Set<string>();
   private readonly securedAxes = new Map<string, Set<string>>();
-  private readonly prepared: PreparedMap;
   /** Called with the walk, its length and the reason when the cut of a tail stops. For diagnosis and tests. */
   onStop?: (id: string, length: number, reason: string) => void;
 
   constructor(
     prepared: PreparedMap,
     private readonly minimal: TerminalSubsumption,
-    private readonly options: { ignoreAllocation?: boolean } = {},
+    private readonly options: SuiteCutOptions = {},
   ) {
     this.prepared = prepared;
     this.held = minimal.projections.map((projection) => new Uint32Array(projection.size));
     this.allocation = new Allocation(prepared);
+    const values = (kind: string, prefix: string): Set<string> =>
+      new Set(
+        prepared.space.dimensions
+          .filter((dimension) => dimension.kind === kind)
+          .flatMap((dimension) => dimension.values.map((value) => value.id))
+          .filter((id) => id !== NONE)
+          .map((id) => `${prefix}${id}`),
+      );
+    this.index = new SuiteIndex({ channels: values('channel', ''), personas: values('persona', 'persona:') });
+    this.book = new Map();
   }
 
   private pathOf(spec: Spec): string {
@@ -98,12 +120,6 @@ export class SuiteCut {
       texts: new Set(spec.blocks.flatMap((block) => m.textsOf(block))),
       codes,
       pairs: new Set(m.pairsOf(spec)),
-      probes: new Set(
-        spec.blocks.flatMap((block) =>
-          'injection' in block.when ? [`${path}|${block.when.injection.class}`] : [],
-        ),
-      ),
-      perturbs: new Set((spec.perturbations ?? []).map((entry) => `${path}|${entry.class}`)),
       context: `${path}|${m.contextOf(spec)}`,
       ...(generated?.seeder === 'twise' ? { row: m.twiseRow(spec) } : {}),
       ...(generated?.metamorphic?.family === undefined ? {} : { family: generated.metamorphic.family }),
@@ -116,6 +132,7 @@ export class SuiteCut {
     else map.delete(key);
   }
 
+  /** Puts a spec into the local counts (delta 1) or takes it out (delta -1). The shared index is moved by the caller. */
   private apply(spec: Spec, held: Holdings, delta: 1 | -1): void {
     held.keys.forEach((key, index) => {
       const holders = this.keys.get(key) ?? new Map<string, string>();
@@ -127,24 +144,19 @@ export class SuiteCut {
         if (holders.size === 0) this.keys.delete(key);
       }
     });
-    const end = held.keys.at(-1);
-    if (end !== undefined) {
-      const enders = this.ends.get(end) ?? new Set<string>();
-      if (delta === 1) enders.add(spec.id);
-      else enders.delete(spec.id);
-      if (enders.size === 0) this.ends.delete(end);
-      else this.ends.set(end, enders);
-    }
     for (const text of held.texts) this.count(this.said, text, delta);
     held.codes.forEach((codes, index) => {
       const marks = this.held[index];
       if (marks) for (const code of codes) marks[code] = (marks[code] ?? 0) + delta;
     });
     for (const pair of held.pairs) this.count(this.pairs, pair, delta);
-    for (const probe of held.probes) this.count(this.probed, probe, delta);
-    for (const perturb of held.perturbs) this.count(this.perturbed, perturb, delta);
     this.count(this.contexts, held.context, delta);
     if (held.row !== undefined) this.count(this.rows, held.row, delta);
+  }
+
+  private shared(spec: Spec, broken?: readonly string[]): ObligationSpec {
+    const one = obligationSpecOf(spec, this.book);
+    return broken !== undefined && broken.length > 0 ? { ...one, broken } : one;
   }
 
   /**
@@ -169,29 +181,28 @@ export class SuiteCut {
           .sort(([a], [b]) => (a < b ? -1 : 1)),
       );
     };
+    // The variants of a metamorphic family are the contrast the invariance items read: their pair is the one a path keeps
+    // on an axis, before any other copy of the walk.
+    const first = [...items].sort((a, b) => {
+      const family = (item: SuiteItem) => (item.draft?.metamorphic === undefined ? 1 : 0);
+      return family(a) - family(b) || (a.spec.id < b.spec.id ? -1 : a.spec.id > b.spec.id ? 1 : 0);
+    });
     for (const strict of [true, false]) {
       const walks = new Map<string, Array<{ id: string; context: [unknown, unknown] }>>();
-      const secured = new Map<string, Set<string>>();
-      for (const { spec } of items) {
+      for (const { spec } of first) {
         const path = this.pathOf(spec);
         const key = strict ? `${m.walkKey(spec)}|${valuesOf(spec)}` : m.walkKey(spec);
         const context = JSON.parse(m.contextOf(spec)) as [unknown, unknown];
         const earlier = walks.get(key) ?? [];
-        const done = secured.get(`${path}`) ?? new Set<string>();
         for (const axis of ['channel', 'persona'] as const) {
           const at = axis === 'channel' ? 0 : 1;
           const twin = earlier.find((other) => !same(other.context[at], context[at]));
-          const marked = this.securedAxes.get(path)?.has(axis) === true;
-          if (!twin || done.has(axis) || marked) continue;
-          done.add(axis);
-          pinned.add(spec.id);
-          pinned.add(twin.id);
-        }
-        secured.set(path, done);
-        for (const axis of done) {
+          if (!twin || this.securedAxes.get(path)?.has(axis) === true) continue;
           const set = this.securedAxes.get(path) ?? new Set<string>();
           set.add(axis);
           this.securedAxes.set(path, set);
+          pinned.add(spec.id);
+          pinned.add(twin.id);
         }
         earlier.push({ id: spec.id, context });
         walks.set(key, earlier);
@@ -207,11 +218,14 @@ export class SuiteCut {
    */
   reduce(items: readonly SuiteItem[]): SpecDraft[] {
     const ordered = [...items].sort((a, b) => (a.spec.id < b.spec.id ? -1 : a.spec.id > b.spec.id ? 1 : 0));
+    const stages = stageBookOf(ordered.map((item) => item.spec));
+    for (const [key, value] of stages) this.book.set(key, value);
     for (const { spec, draft } of ordered) {
       this.current.set(spec.id, spec);
       const held = this.holdingsOf(spec);
       this.holdings.set(spec.id, held);
       this.apply(spec, held, 1);
+      this.index.add(this.shared(spec));
       if (draft) this.allocation.countDraft(draft, 1);
       else this.allocation.observeSpec(spec);
     }
@@ -234,8 +248,8 @@ export class SuiteCut {
     for (const unit of units)
       unit.sort((a, b) => (a.metamorphic?.variant ?? 0) - (b.metamorphic?.variant ?? 0));
     const changed = new Set<SpecDraft>();
-    // Repeats of whole walks first, the highest id first, so the walk with the lowest id is the one that stays; then
-    // the tails, in id order, until none can be cut. Each pass changes what the others hold: round again until
+    // Repeats of whole walks first, then the tails, until none can be cut; the highest id first in both, so the walk
+    // with the lowest id is the one that stays whole (the lowest id keeps the end, as the ruling says). Each pass changes what the others hold: round again until
     // neither changes anything.
     let progress = true;
     while (progress) {
@@ -244,7 +258,7 @@ export class SuiteCut {
       let cutting = true;
       while (cutting) {
         cutting = false;
-        for (const unit of units)
+        for (const unit of [...units].reverse())
           if (this.cutUnit(unit, changed)) {
             cutting = true;
             progress = true;
@@ -253,10 +267,6 @@ export class SuiteCut {
     }
     this.repoint(ordered);
     return [...changed];
-  }
-
-  private otherEnds(key: string): boolean {
-    return (this.ends.get(key)?.size ?? 0) > 0;
   }
 
   private shapeOf(draft: SpecDraft): Shape {
@@ -271,10 +281,10 @@ export class SuiteCut {
   private cutUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
     const lead = unit[0] as SpecDraft;
     if (unit.some((draft) => draft.dropped !== undefined || !this.current.has(draft.id))) return false;
-    const start = unit.map((draft) => this.shapeOf(draft));
-    const first = start[0] as Shape;
     // A family is cut only when every variant of it is in the suite.
     if (lead.metamorphic !== undefined && unit.length !== lead.metamorphic.of) return false;
+    const start = unit.map((draft) => this.shapeOf(draft));
+    const first = start[0] as Shape;
     if (
       unit.some((draft) => this.pins.has(draft.id)) ||
       start.some(
@@ -285,14 +295,15 @@ export class SuiteCut {
       )
     )
       return false;
-    const path = this.pathOf(first.spec);
     const keys = (this.holdings.get(lead.id) as Holdings).keys;
     for (const draft of unit) {
       this.apply(this.current.get(draft.id) as Spec, this.holdings.get(draft.id) as Holdings, -1);
       this.allocation.countDraft(draft, -1);
     }
     const stop = (reason: string, length: number) => this.onStop?.(lead.id, length, reason);
-    const states: Shape[][] = [start];
+    // A state is a shape of every member; `ends` says it ends on a test another walk already ends on (the lowest id
+    // keeps it), so the cut may go deeper but may not stop there.
+    const states: Array<{ shapes: Shape[]; ends: boolean }> = [{ shapes: start, ends: false }];
     let shapes = start;
     while ((shapes[0] as Shape).spec.blocks.length > 1) {
       const length = (shapes[0] as Shape).spec.blocks.length;
@@ -305,44 +316,29 @@ export class SuiteCut {
         stop('family-varies', length);
         break;
       }
-      if ((shapes[0] as Shape).spec.blocks[last - 1]?.id?.endsWith('-restated')) {
-        stop('restated', length);
-        break;
-      }
-      const next = this.shorten(shapes, last, path, (reason) => stop(reason, length));
+      const next = this.shorten(unit, shapes, last, (reason) => stop(reason, length));
       if (!next) break;
       const currents = shapes.map((shape) => ({ blocks: shape.blocks, perturbations: shape.perturbations }));
       if (
         !this.options.ignoreAllocation &&
-        this.allocation.imbalanceWithAll(next) > this.allocation.imbalanceWithAll(currents)
+        this.allocation.imbalanceWithAll(next.shapes) > this.allocation.imbalanceWithAll(currents)
       ) {
         stop('allocation', length);
         break;
       }
-      if (!this.obligationsHold(lead.seeder, (shapes[0] as Shape).spec, (next[0] as Shape).spec)) {
-        stop('obligations', length);
-        break;
-      }
-      if (unit.length > 1 && !this.stillDiffer(next, last)) {
+      if (unit.length > 1 && lead.variesAt !== undefined && !this.stillDiffer(next.shapes, last)) {
         stop('family-degenerate', length);
         break;
       }
-      states.push(next);
-      shapes = next;
+      states.push({ shapes: next.shapes, ends: next.ends });
+      shapes = next.shapes;
     }
-    const settled = [...states]
-      .reverse()
-      .find(
-        (state) =>
-          (state[0] as Shape).spec.blocks.length === 1 ||
-          !this.otherEnds(keys[(state[0] as Shape).spec.blocks.length - 1] as string),
-      );
-    const chosen = settled ?? (states[0] as Shape[]);
-    const deepest = states[states.length - 1] as Shape[];
-    if (chosen !== deepest) stop('ends-takeback', (deepest[0] as Shape).spec.blocks.length);
+    const chosen = [...states].reverse().find((state) => !state.ends) as (typeof states)[number];
+    const deepest = states[states.length - 1] as (typeof states)[number];
+    if (chosen !== deepest) stop('ends-takeback', (deepest.shapes[0] as Shape).spec.blocks.length);
     let did = false;
     unit.forEach((draft, index) => {
-      const shape = chosen[index] as Shape;
+      const shape = chosen.shapes[index] as Shape;
       const before = draft.blocks;
       const cut = before.slice(shape.blocks.length);
       const declared = (draft.perturbations?.length ?? 0) !== (shape.perturbations?.length ?? 0);
@@ -369,79 +365,82 @@ export class SuiteCut {
       const next = this.holdingsOf(shape.spec);
       this.holdings.set(draft.id, next);
       this.apply(shape.spec, next, 1);
+      this.index.add(this.shared(shape.spec));
       this.allocation.countDraft(draft, 1);
     });
     return did;
   }
 
   /**
-   * A walk whose every block, tuple, message, probe, declaration and context another walk holds is a repeat of a
-   * whole spec. The variants of a family that say different things are not repeats of each other; the twins of a
-   * context family (the same words in another channel or persona) are, one at a time, while another walk holds what
-   * the twin was written for.
+   * A walk whose every block, tuple, message and context another walk holds, and which the shared ruling lets go, is
+   * a repeat of a whole spec. The ruling lets a spec go only once it is cut to one block. A metamorphic variant is
+   * never dropped alone: a family is two variants at least.
    */
   private dropUnit(unit: SpecDraft[], changed: Set<SpecDraft>): boolean {
     const lead = unit[0] as SpecDraft;
-    const family = lead.metamorphic !== undefined;
-    // The variants of a family that say different things are the contrast. A family that does not vary is a set of
-    // context twins (the same words in another channel or persona): its last variants go while another variant of
-    // the family stays and holds what they said, as the second pair of a path and axis is a repeat of the first.
-    if (family && (lead.variesAt !== undefined || unit.length !== lead.metamorphic?.of)) return false;
-    let did = false;
-    let left = unit.filter((draft) => draft.dropped === undefined && this.current.has(draft.id)).length;
-    for (const draft of [...unit].reverse()) {
-      if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) continue;
-      if (family && left <= 1) break;
-      const shape = this.shapeOf(draft);
-      if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) continue;
-      const held = this.holdings.get(draft.id) as Holdings;
-      this.apply(shape.spec, held, -1);
-      this.allocation.countDraft(draft, -1);
-      if (held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held)) {
-        held.keys.forEach((key, at) => {
-          draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
-        });
-        draft.dropped = { duplicate_of: { spec: '', block: '' } };
-        this.current.delete(draft.id);
-        this.holdings.delete(draft.id);
-        changed.add(draft);
-        left -= 1;
-        did = true;
-      } else {
-        this.apply(shape.spec, held, 1);
-        this.allocation.countDraft(draft, 1);
-      }
+    // A family is at least two variants: its variants stay, or all of them go.
+    if (lead.metamorphic !== undefined) return false;
+    const draft = lead;
+    if (draft.dropped !== undefined || !this.current.has(draft.id) || this.pins.has(draft.id)) return false;
+    const shape = this.shapeOf(draft);
+    if (shape.spec.kind !== 'conversation' || shape.spec.end_state !== undefined) return false;
+    if (shape.spec.blocks.length !== 1) return false;
+    const held = this.holdings.get(draft.id) as Holdings;
+    this.apply(shape.spec, held, -1);
+    this.allocation.countDraft(draft, -1);
+    const verdict = this.index.lostBy([{ spec: draft.id }]);
+    if (verdict.ok && held.keys.every((key) => this.keys.has(key)) && this.droppable(shape, held)) {
+      held.keys.forEach((key, at) => {
+        draft.cutKeys = { ...draft.cutKeys, [draft.blocks[at]?.id ?? '']: key };
+      });
+      draft.dropped = { duplicate_of: { spec: '', block: '' } };
+      this.current.delete(draft.id);
+      this.holdings.delete(draft.id);
+      this.index.remove(draft.id);
+      changed.add(draft);
+      return true;
     }
-    return did;
+    this.apply(shape.spec, held, 1);
+    this.allocation.countDraft(draft, 1);
+    return false;
   }
 
   /**
    * The unit with the last block cut off every member, or undefined when the suite owes something that block holds.
-   * A declaration a perturbation makes at or after the block goes with it, when another walk of the path declares
-   * the same class.
+   * A declaration a perturbation makes at or after the block goes with it; the ruling lets it go when another walk
+   * of the path declares the same class.
    */
   private shorten(
+    unit: SpecDraft[],
     shapes: Shape[],
     last: number,
-    path: string,
     stop: (reason: string) => void,
-  ): Shape[] | undefined {
+  ): { shapes: Shape[]; ends: boolean } | undefined {
     const m = this.minimal;
     const next: Shape[] = [];
-    for (const shape of shapes) {
-      const declared = (shape.spec.perturbations ?? []).filter((entry) => entry.inject_at >= last);
-      for (const entry of declared) {
-        if (!this.perturbed.has(`${path}|${entry.class}`)) {
-          stop('perturbation');
-          return undefined;
-        }
-      }
+    const changes: Array<{ spec: string; after: ObligationSpec }> = [];
+    for (const [at, shape] of shapes.entries()) {
+      const id = (unit[at] as SpecDraft).id;
       const kept = (shape.spec.perturbations ?? []).filter((entry) => entry.inject_at < last);
       const cut = m.cut(shape.spec, last);
       const { perturbations: _gone, ...bare } = cut;
       const parsed = validateSpec(kept.length > 0 ? { ...bare, perturbations: kept } : bare);
-      if (!parsed.ok || !m.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) {
-        stop('recovery-or-end');
+      if (!parsed.ok) {
+        stop('invalid');
+        return undefined;
+      }
+      const broken: string[] = [];
+      if (failsAtEnd(parsed.spec)) broken.push('toolFailureLast');
+      if (parsed.spec.blocks[last - 1]?.id?.endsWith('-restated')) broken.push('restatedLast');
+      if (!m.recoveriesHold(parsed.spec)) broken.push('driverBuildable');
+      if (broken.length > 0) {
+        stop(
+          broken[0] === 'driverBuildable'
+            ? 'recovery-or-end'
+            : broken[0] === 'restatedLast'
+              ? 'restated'
+              : 'recovery-or-end',
+        );
         return undefined;
       }
       if (!m.textsOf(shape.spec.blocks[last]).every((text) => this.said.has(text))) {
@@ -456,14 +455,28 @@ export class SuiteCut {
         stop('pairs');
         return undefined;
       }
+      if (!this.rowHolds((unit[at] as SpecDraft).seeder, shape.spec, parsed.spec)) {
+        stop('obligations');
+        return undefined;
+      }
       next.push({
         blocks: shape.blocks.slice(0, last),
         perturbations:
           kept.length > 0 ? shape.perturbations?.filter((entry) => entry.inject_at < last) : undefined,
         spec: parsed.spec,
       });
+      changes.push({ spec: id, after: this.shared(parsed.spec) });
     }
-    return next;
+    const verdict = this.index.lostBy(changes);
+    const conflicts = verdict.refused.filter((entry) => entry.startsWith('oneWalkPerEnd:'));
+    const other = verdict.refused.filter((entry) => !entry.startsWith('oneWalkPerEnd:'));
+    if (verdict.lost.length > 0 || other.length > 0) {
+      stop(verdict.lost.length > 0 ? `lost:${verdict.lost[0]?.split('|')[0]}` : `refused:${other[0]}`);
+      return undefined;
+    }
+    // A cut that leaves a walk ending on a test another walk ends on (the lowest id keeps it) may go deeper, not stop
+    // there. The walk the cut makes the second to end is cut in its turn, when its id comes.
+    return { shapes: next, ends: conflicts.length > 0 || verdict.takeBack.length > 0 };
   }
 
   /** The variants of a family still say different things in the blocks they keep. */
@@ -478,8 +491,6 @@ export class SuiteCut {
   private droppable(shape: Shape, held: Holdings): boolean {
     if (!this.contexts.has(held.context)) return false;
     for (const text of held.texts) if (!this.said.has(text)) return false;
-    for (const probe of held.probes) if (!this.probed.has(probe)) return false;
-    for (const perturb of held.perturbs) if (!this.perturbed.has(perturb)) return false;
     if (held.row !== undefined && !this.rows.has(held.row)) return false;
     for (const pair of held.pairs) if (!this.pairs.has(pair)) return false;
     if (!held.codes.every((codes, index) => [...codes].every((code) => (this.held[index]?.[code] ?? 0) > 0)))
@@ -512,18 +523,10 @@ export class SuiteCut {
     return this.minimal.pairsOf(before).every((pair) => kept.has(pair) || this.pairs.has(pair));
   }
 
-  private obligationsHold(seeder: string | undefined, before: Spec, after: Spec): boolean {
-    const m = this.minimal;
-    const path = this.pathOf(before);
-    const probes = (spec: Spec) =>
-      new Set(
-        spec.blocks.flatMap((block) =>
-          'injection' in block.when ? [`${path}|${block.when.injection.class}`] : [],
-        ),
-      );
-    const kept = probes(after);
-    for (const probe of probes(before)) if (!kept.has(probe) && !this.probed.has(probe)) return false;
+  /** A t-wise spec stands for its row (its cell and the class of its first injected block): the items read t-wise specs alone. */
+  private rowHolds(seeder: string | undefined, before: Spec, after: Spec): boolean {
     if (seeder !== 'twise') return true;
+    const m = this.minimal;
     return m.twiseRow(before) === m.twiseRow(after) || this.rows.has(m.twiseRow(before));
   }
 

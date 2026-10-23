@@ -86,7 +86,10 @@ const cutSuite = (prepared: Prepared, drafts: SpecDraft[], order: number) => {
     drafts.map((draft) => ({ draft, spec: specOf(prepared, draft) })),
     order,
   );
-  return new SuiteCut(prepared, new TerminalSubsumption(prepared, run, 2)).reduce(items);
+  // The tails of these small suites are judged on what the suite owes; the balance of the strata has its own test.
+  return new SuiteCut(prepared, new TerminalSubsumption(prepared, run, 2), { ignoreAllocation: true }).reduce(
+    items,
+  );
 };
 
 describe('the tails of a suite, cut with the whole suite in view', () => {
@@ -152,7 +155,7 @@ describe('the tails of a suite, cut with the whole suite in view', () => {
         .map((draft) => [draft.id, new Set(draft.blocks.map((block) => block.id))]),
     );
     for (const draft of drafts) {
-      for (const entry of draft.reducedEnds?.duplicates ?? [])
+      for (const entry of draft.dropped ? [] : (draft.reducedEnds?.duplicates ?? []))
         expect(kept.get(entry.duplicate_of.spec)?.has(entry.duplicate_of.block)).toBe(true);
       if (draft.dropped)
         expect(kept.get(draft.dropped.duplicate_of.spec)?.has(draft.dropped.duplicate_of.block)).toBe(true);
@@ -295,7 +298,7 @@ describe('the tails of a suite, cut with the whole suite in view', () => {
     it('is cut as one unit when its variants still differ in what they keep', () => {
       const { prepared, path } = setup();
       const variants = family(prepared, path, 3, 0);
-      const long = walk(prepared, 'gen-twise-001', path, 3);
+      const long = walk(prepared, 'gen-boundary-001', path, 3);
       const drafts = [long, ...variants];
       cutSuite(prepared, drafts, 0);
       expect(variants[0]?.blocks.length).toBe(variants[1]?.blocks.length);
@@ -306,7 +309,7 @@ describe('the tails of a suite, cut with the whole suite in view', () => {
     it('keeps the block where its variants differ', () => {
       const { prepared, path } = setup();
       const variants = family(prepared, path, 3, 2);
-      const long = walk(prepared, 'gen-twise-001', path, 3);
+      const long = walk(prepared, 'gen-boundary-001', path, 3);
       cutSuite(prepared, [long, ...variants], 0);
       expect(variants[0]?.blocks).toHaveLength(3);
       expect(variants[1]?.blocks).toHaveLength(3);
