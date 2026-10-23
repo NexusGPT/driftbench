@@ -492,10 +492,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       const expectedLength = Math.min(limit, missing.length);
       check(keys.length === expectedLength, () => ({
         rule: 'with a limit, coverage lists the uncovered tuples up to the limit',
-        echoes: ['limit'],
-        input: { space: k + 1, uncovered: missing.length, limit },
+        // The answer is the limit itself only while the limit is not above the number of missing tuples.
+        echoes: limit <= missing.length ? ['limit'] : [],
+        input: { space: k + 1, limit },
         got: { listed: keys.length },
-        expected: { listed: expectedLength },
+        expected: { listed: expectedLength, missing: missing.length },
       }));
       check(new Set(keys).size === keys.length, () => ({
         rule: 'space {}: the uncovered list repeats a tuple',

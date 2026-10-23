@@ -61,7 +61,8 @@ function prefixHolds(ctx: ItemContext, store: StoreDoc, budget: number, seeds: R
   const keep = Math.max(budget, seeds.length);
   check(cut.rows.length === Math.min(keep, full.rows.length), () => ({
     rule: 'a budget keeps the seeds and cuts the plan to the budget',
-    echoes: ['budget'],
+    // The answer is the budget itself only while it is between the seed count and the plan length.
+    echoes: keep === budget && budget <= full.rows.length ? ['budget'] : [],
     input: { budget },
     got: { rows: cut.rows.length },
     expected: { rows: Math.min(keep, full.rows.length) },
