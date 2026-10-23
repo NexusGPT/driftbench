@@ -186,31 +186,14 @@ function trimSpan(source: string, from: number, to: number): [number, number] {
   return [start, end];
 }
 
-/**
- * The segments, each also cut after a stop that has no space before a capitalised word (`world.Today`): a word in
- * lower case or a number, the stop, then a capital and a lower-case letter. Addresses and code are masked by then.
- */
-function unspacedStops(segments: Iterable<{ index: number; segment: string }>): Array<[number, number]> {
-  const out: Array<[number, number]> = [];
-  for (const segment of segments) {
-    let start = segment.index;
-    const end = start + segment.segment.length;
-    for (const stop of segment.segment.matchAll(/[\p{Ll}\p{N}][.!?]['"”’)\]]*(?=\p{Lu}\p{Ll})/gu)) {
-      const cut = segment.index + (stop.index ?? 0) + stop[0].length;
-      out.push([start, cut]);
-      start = cut;
-    }
-    out.push([start, end]);
-  }
-  return out;
-}
-
 /** The sentence spans of `source[from, to)`, merged when unsure: a wrong merge costs granularity, a wrong split a wrong quote. */
 export function sentenceSpans(source: string, from: number, to: number): Array<[number, number]> {
   const masked = mask(source.slice(from, to));
   const spans: Array<[number, number]> = [];
   let current: [number, number] | undefined;
-  for (const [start, end] of unspacedStops(SEGMENTER.segment(masked))) {
+  for (const segment of SEGMENTER.segment(masked)) {
+    const start = segment.index;
+    const end = start + segment.segment.length;
     if (masked.slice(start, end).trim() === '') continue;
     if (current && shouldMerge(masked.slice(current[0], current[1]), masked.slice(start, end))) {
       current[1] = end;

@@ -207,14 +207,14 @@ describe('sentence spans', () => {
       'I was not really . . . I did not mean it.',
     ]);
     // EN 48: a fourth dot is the full stop.
-    expect(split('The list stops here . . . . Next sentence.')).toEqual([
+    expect(split('The list stops here . . . . Then it moves on.')).toEqual([
       'The list stops here . . . .',
-      'Next sentence.',
+      'Then it moves on.',
     ]);
     // HY 2: three unspaced dots before a capital continue the sentence.
     expect(split('It rained...Then it stopped.')).toEqual(['It rained...Then it stopped.']);
     // EN 49: four unspaced dots end it.
-    expect(split('I never meant that.... She left.')).toEqual(['I never meant that....', 'She left.']);
+    expect(split('We never planned it.... She left.')).toEqual(['We never planned it....', 'She left.']);
   });
 
   it('starts a sentence at an ellipsis that follows a full stop (NL 2)', () => {
@@ -224,16 +224,22 @@ describe('sentence spans', () => {
     ]);
   });
 
-  it('ends a sentence at a stop with no space before the next capitalised word (EN 52)', () => {
-    expect(split('Hello world.Today is Tuesday.Mr. Vale bought 1,000.That is a lot.')).toEqual([
-      'Hello world.',
-      'Today is Tuesday.',
-      'Mr. Vale bought 1,000.',
-      'That is a lot.',
-    ]);
+  it('keeps a stop with no space before a capital inside the word: code names and paths stay whole', () => {
+    // Merge when unsure (docs/estate-pointer-reader.md): `world.Today` stays one unit too (EN 52 is excluded).
+    expect(split('Call Console.WriteLine to print.')).toEqual(['Call Console.WriteLine to print.']);
+    expect(split('See System.Out for output.')).toEqual(['See System.Out for output.']);
+    expect(split('Open example.com/Foo.Bar in a browser.')).toEqual(['Open example.com/Foo.Bar in a browser.']);
+    expect(split('Save config.Json first.')).toEqual(['Save config.Json first.']);
     expect(split('Write to ana.Lowe@example.com. I read it.')).toEqual([
       'Write to ana.Lowe@example.com.',
       'I read it.',
+    ]);
+  });
+
+  it('keeps a sentence that starts with a digit behind the previous one (NL 1)', () => {
+    // The segmenter returns no boundary before a number followed by a lower-case word (UAX #29 SB8).
+    expect(split('The hall emptied fast. 40 chairs were left behind.')).toEqual([
+      'The hall emptied fast. 40 chairs were left behind.',
     ]);
   });
 
