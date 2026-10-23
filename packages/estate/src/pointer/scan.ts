@@ -1524,6 +1524,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const unitVote = decideUnit(file.path, set, byMember, index);
         const close = unitVote.close;
         let decision = unitVote.decision;
+        const listedBefore = unstable.length;
+        let spanDropped = false;
         for (const [at, runs] of byMember.entries()) {
           // Keep insufficient evidence visible after all re-asks, without changing another member's decision.
           // A failed answer has no opinion even if it was not marked as slipped.
@@ -1553,6 +1555,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             kinds: needs,
             filled: fill !== undefined,
           });
+          spanDropped = fill === undefined;
           decision = fill
             ? {
                 ...decision,
@@ -1561,6 +1564,28 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
             : undefined;
         }
         if (!decision) {
+          // Every unit that ends unlabeled is in the report. One that no close pair or short count explains has no
+          // label with more than half of the runs heard: it is listed as `no majority`, with the count of each label.
+          if (unstable.length === listedBefore && !spanDropped) {
+            for (const [at, runs] of byMember.entries()) {
+              const counts: Record<string, number> = {};
+              let heard = 0;
+              for (const run of heardRuns(runs, index)) {
+                const opinion = run.get(index);
+                if (!opinion) continue;
+                heard++;
+                counts[opinion.label] = (counts[opinion.label] ?? 0) + 1;
+              }
+              if (heard === 0) continue;
+              unstable.push({
+                unit: entry.id,
+                path: file.path,
+                set: set.set,
+                labeler: labelling.members[at]?.id ?? '',
+                kinds: { 'no majority': heard, ...counts },
+              });
+            }
+          }
           unlabeled++;
           unlabeledUnits.push({ unit: entry.id, set: set.set });
           const flip = recordLabel(entry, set.set, undefined);
