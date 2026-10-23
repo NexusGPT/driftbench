@@ -136,7 +136,12 @@ export const VALUES_RUNS: Record<string, StemRun> = {
             : 'the température moyenne';
     const { span, store } = oneNumeric(ctx, noun, '');
     const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-    check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page', input: { noun }, got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
+    check(VARIABLE_ID.test(v.id), () => ({
+      rule: 'a variable id follows the id grammar of the page',
+      input: { noun },
+      got: { id: show(v.id) },
+      expected: { grammar: String(VARIABLE_ID) },
+    }));
   },
 
   'values.ids.value-grammar': (variant, ctx) => {
@@ -161,9 +166,15 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         );
         check(!!value, () => ({
           rule: 'the owner value {} is not on {}: {}',
-          got: { details: [show(o.value), variable.id, show(variable.values.map((x) => x.id))] }, expected: none('observation')
+          got: { details: [show(o.value), variable.id, show(variable.values.map((x) => x.id))] },
+          expected: none('observation'),
         }));
-        check(VALUE_ID.test((value as StoreValue).id), () => ({ rule: 'a value id follows the id grammar of the page', input: { value: show(o.value) }, got: { id: show((value as StoreValue).id) }, expected: { grammar: String(VALUE_ID) } }));
+        check(VALUE_ID.test((value as StoreValue).id), () => ({
+          rule: 'a value id follows the id grammar of the page',
+          input: { value: show(o.value) },
+          got: { id: show((value as StoreValue).id) },
+          expected: { grammar: String(VALUE_ID) },
+        }));
       }
     } else {
       const ids =
@@ -179,10 +190,16 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       const found = locateTool(store, t.spec);
       check(!!found, () => ({
         rule: 'the {} values with odd ids are not all in one variable: {}',
-        got: { details: [ids.length, show(store.refused)] }, expected: none('observation')
+        got: { details: [ids.length, show(store.refused)] },
+        expected: none('observation'),
       }));
       for (const [given, stored] of (found as NonNullable<typeof found>).ids) {
-        check(VALUE_ID.test(stored), () => ({ rule: 'a value id follows the id grammar of the page', input: { value: show(given, 40) }, got: { id: show(stored, 40) }, expected: { grammar: String(VALUE_ID) } }));
+        check(VALUE_ID.test(stored), () => ({
+          rule: 'a value id follows the id grammar of the page',
+          input: { value: show(given, 40) },
+          got: { id: show(stored, 40) },
+          expected: { grammar: String(VALUE_ID) },
+        }));
       }
     }
   },
@@ -199,7 +216,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     const b = stableStringify(idsOf(second));
     check(a === b, () => ({
       rule: 'the ids changed between two builds of the same sources: {} then {}',
-      got: { details: [show(JSON.parse(a), 140), show(JSON.parse(b), 140)] }, expected: none('observation')
+      got: { details: [show(JSON.parse(a), 140), show(JSON.parse(b), 140)] },
+      expected: none('observation'),
     }));
   },
 
@@ -226,10 +244,15 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       );
       check(new Set(vars.map((v) => v.id)).size === vars.length, () => ({
         rule: 'different quantities got the same variable id: {}',
-        got: { details: [show(vars.map((v) => v.id))] }, expected: none('observation')
+        got: { details: [show(vars.map((v) => v.id))] },
+        expected: none('observation'),
       }));
       for (const v of vars)
-        check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page', got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
+        check(VARIABLE_ID.test(v.id), () => ({
+          rule: 'a variable id follows the id grammar of the page',
+          got: { id: show(v.id) },
+          expected: { grammar: String(VARIABLE_ID) },
+        }));
     } else {
       const ids =
         variant === 'three-way' ? ['very high', 'very-high', 'very_high'] : ['very high', 'very-high'];
@@ -242,12 +265,14 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       const found = locateTool(store, t.spec);
       check(!!found && found.ids.size === ids.length, () => ({
         rule: 'the {} values {} are not all in one variable of the store',
-        got: { details: [ids.length, show(ids)] }, expected: none('observation')
+        got: { details: [ids.length, show(ids)] },
+        expected: none('observation'),
       }));
       const stored = [...(found as NonNullable<typeof found>).ids.values()];
       check(new Set(stored).size === ids.length, () => ({
         rule: 'values {} got ids {}: two of them share an id',
-        got: { details: [show(ids), show(stored)] }, expected: none('observation')
+        got: { details: [show(ids), show(stored)] },
+        expected: none('observation'),
       }));
       check((found as NonNullable<typeof found>).variable.values.length === ids.length, () => ({
         rule: 'a variable holds the values its sources list',
@@ -271,7 +296,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     for (const a of adds)
       check(!!valueById(variable, a.value), () => ({
         rule: 'the owner value {} is not on {}: {}',
-        got: { details: [a.value, variable.id, show(variable.values.map((x) => x.id))] }, expected: none('observation')
+        got: { details: [a.value, variable.id, show(variable.values.map((x) => x.id))] },
+        expected: none('observation'),
       }));
     check(variable.values.length === A.ids.length + adds.length, () => ({
       rule: 'values added by the owner join the values of the variable',
@@ -285,14 +311,16 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         const after = valueById(variable, id);
         check(deepEqual(before, after), () => ({
           rule: 'the old value {} changed: {} became {}',
-          got: { details: [id, show(before), show(after)] }, expected: none('observation')
+          got: { details: [id, show(before), show(after)] },
+          expected: none('observation'),
         }));
       }
       const otherBefore = variableOf(base.store, B.variable.id);
       const otherAfter = variableOf(store, B.variable.id);
       check(deepEqual(otherBefore, otherAfter), () => ({
         rule: 'another variable changed when the owner added to {}',
-        got: { details: [A.variable.id] }, expected: none('observation')
+        got: { details: [A.variable.id] },
+        expected: none('observation'),
       }));
     }
     if (variant === 'order-kept') {
@@ -300,7 +328,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       const order = variable.values.map((x) => x.id).filter((id) => oldOrder.includes(id));
       check(deepEqual(order, oldOrder), () => ({
         rule: 'the old values changed order: {} became {}',
-        got: { details: [show(oldOrder), show(order)] }, expected: none('observation')
+        got: { details: [show(oldOrder), show(order)] },
+        expected: none('observation'),
       }));
     }
   },
@@ -329,7 +358,11 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     for (const p of before.provenance ?? []) {
       check(
         (value.provenance ?? []).some((q) => deepEqual(q, p)),
-        () => ({ rule: 'the value {} lost its earlier provenance {}', got: { details: [id, show(p)] }, expected: none('observation') }),
+        () => ({
+          rule: 'the value {} lost its earlier provenance {}',
+          got: { details: [id, show(p)] },
+          expected: none('observation'),
+        }),
       );
     }
     for (const w of words) {
@@ -337,7 +370,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       check(hit.length === 1, () => ({
         rule: "a value carries one owner provenance with the owner's words",
         input: { value: id, words: show(w) },
-        got: { found: hit.length }, expected: none('observation')
+        got: { found: hit.length },
+        expected: none('observation'),
       }));
     }
   },
@@ -348,7 +382,12 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     if (variant === 'proto-like-noun') {
       const { span, store } = oneNumeric(ctx, 'the __proto__ depth', '');
       const v = exactlyOne(variablesCiting(store, span.text), `variables whose values cite "${span.text}"`);
-      check(VARIABLE_ID.test(v.id), () => ({ rule: 'a variable id follows the id grammar of the page, whatever the noun', input: { noun: '__proto__' }, got: { id: show(v.id) }, expected: { grammar: String(VARIABLE_ID) } }));
+      check(VARIABLE_ID.test(v.id), () => ({
+        rule: 'a variable id follows the id grammar of the page, whatever the noun',
+        input: { noun: '__proto__' },
+        got: { id: show(v.id) },
+        expected: { grammar: String(VARIABLE_ID) },
+      }));
     } else {
       const field =
         variant === 'constructor-variable'
@@ -368,7 +407,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       const found = locateTool(store0, t.spec);
       check(!!found, () => ({
         rule: 'the tool field {} with values {} is not in the store: {}',
-        got: { details: [field, show(ids), show(store0.refused)] }, expected: none('observation')
+        got: { details: [field, show(ids), show(store0.refused)] },
+        expected: none('observation'),
       }));
       const { variable, ids: map } = found as NonNullable<typeof found>;
       const base: Base = {
@@ -385,13 +425,15 @@ export const VALUES_RUNS: Record<string, StemRun> = {
           for (const p of convOf(x))
             check(Number.isInteger(p.count) && Number.isInteger(p.total), () => ({
               rule: 'value {} has non-integer counts {}',
-              got: { details: [x.id, show(p)] }, expected: none('observation')
+              got: { details: [x.id, show(p)] },
+              expected: none('observation'),
             }));
     }
     const after = Object.getOwnPropertyNames(Object.prototype).sort();
     check(deepEqual(before, after), () => ({
       rule: 'Object.prototype gained properties: {}',
-      got: { details: [show(after.filter((k) => !before.includes(k)))] }, expected: none('observation')
+      got: { details: [show(after.filter((k) => !before.includes(k)))] },
+      expected: none('observation'),
     }));
     check(
       ({} as Record<string, unknown>).count === undefined &&
@@ -421,9 +463,15 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       expected: { values: A.ids.length + n },
     }));
     check(new Set(variable.values.map((x) => x.id)).size === variable.values.length, () => ({
-      rule: 'two values share an id', expected: none('observation')
+      rule: 'two values share an id',
+      expected: none('observation'),
     }));
-    check(ms <= 3000, () => ({ rule: 'adding many values stays fast', input: { values: n }, got: { ms: Math.round(ms) }, expected: { atMost: 3000 } }));
+    check(ms <= 3000, () => ({
+      rule: 'adding many values stays fast',
+      input: { values: n },
+      got: { ms: Math.round(ms) },
+      expected: { atMost: 3000 },
+    }));
   },
 
   'values.unapproved-not-planned': (variant, ctx) => {
@@ -488,7 +536,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, new SpaceOracle(space), plan);
     check(facts.problems.length === 0, () => ({
       rule: 'a proposed (unapproved) {} reached the plan: {}',
-      got: { details: [variant === 'proposed-variable' ? 'variable' : 'value', facts.problems.join('; ')] }, expected: none('observation')
+      got: { details: [variant === 'proposed-variable' ? 'variable' : 'value', facts.problems.join('; ')] },
+      expected: none('observation'),
     }));
   },
 
@@ -501,7 +550,8 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     const shared = [...reachableObjects(a)].filter((o) => input.has(o));
     check(shared.length === 0, () => ({
       rule: 'the store shares {} object(s) with its input: {}',
-      got: { details: [shared.length, show(shared[0], 100)] }, expected: none('observation')
+      got: { details: [shared.length, show(shared[0], 100)] },
+      expected: none('observation'),
     }));
     if (variant === 'two-builds-independent') {
       const b = build(ctx, sources);
@@ -509,16 +559,19 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       const both = [...reachableObjects(a)].filter((o) => bObjects.has(o));
       check(both.length === 0, () => ({
         rule: 'two builds of the same sources share {} object(s)',
-        got: { details: [both.length] }, expected: none('observation')
+        got: { details: [both.length] },
+        expected: none('observation'),
       }));
     }
     scribble(a);
     check(stableStringify(sources) === snapshot, () => ({
-      rule: 'writing to the store changed the sources it was built from', expected: none('observation')
+      rule: 'writing to the store changed the sources it was built from',
+      expected: none('observation'),
     }));
     const again = build(ctx, sources);
     check(stableStringify(canonicalStore(again)) === aCanon, () => ({
-      rule: 'writing to an earlier store changed a later build of the same sources', expected: none('observation')
+      rule: 'writing to an earlier store changed a later build of the same sources',
+      expected: none('observation'),
     }));
   },
 
@@ -533,6 +586,9 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     const frozen = deepFreeze(JSON.parse(JSON.stringify(part)) as Sources);
     const snapshot = stableStringify(part);
     build(ctx, frozen);
-    check(stableStringify(frozen) === snapshot, () => ({ rule: 'the input changed', expected: none('observation') }));
+    check(stableStringify(frozen) === snapshot, () => ({
+      rule: 'the input changed',
+      expected: none('observation'),
+    }));
   },
 };
