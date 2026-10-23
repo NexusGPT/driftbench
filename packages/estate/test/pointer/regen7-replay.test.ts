@@ -10,7 +10,6 @@ import {
   pointerScan,
   type Recorded,
   readSpansOf,
-  setHash,
   singleLabelling,
 } from '../../src/pointer';
 
@@ -22,10 +21,14 @@ import {
  * The requests of this branch differ from the recorded ones (the anchors), so the answers are served by window and run,
  * in the order the scan asks, not by request key.
  */
-const ESTATES = new URL('../../../../examples/estates/', import.meta.url);
 const FIXTURES = new URL('./fixtures/regen7/', import.meta.url);
+/** The estate files as the regen7 record read them, copied from 2f1d0f8b7: the answers belong to these texts. */
+const ESTATES = new URL('./fixtures/regen7/files/', import.meta.url);
 
 type Entry = { readable: Record<string, string>; answer: Recorded };
+
+/** The set hash of the agent-rules set the regen7 record asked with. */
+const REGEN7_SET = 'a730a6628e5840db';
 
 const shipped = parseLabelSets(AGENT_RULES_SET);
 const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
@@ -33,13 +36,13 @@ const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
 /** A system 2 labeler that answers each window's n-th ask with the n-th recorded run of the shipped set. */
 async function recorded(estate: string): Promise<Labeler> {
   const text = await readFile(new URL(`${estate}.cassette.jsonl`, FIXTURES), 'utf8');
-  const hash = setHash(sets[0] as (typeof sets)[number]);
   const runs = new Map<string, Map<number, Recorded>>();
   for (const line of text.split('\n')) {
     if (line.trim() === '') continue;
     const entry = JSON.parse(line) as Entry;
-    // The cassette holds the answers of two set versions; the scan of this branch asks with the shipped one.
-    if (entry.readable.setHash !== hash) continue;
+    // The cassette holds the answers of two set versions; regen7 asked with the later one (its ledger labels the
+    // window units with it). This branch's set text differs again, so the answers are read by window and run.
+    if (entry.readable.setHash !== REGEN7_SET) continue;
     const window = entry.readable.window as string;
     const byRun = runs.get(window) ?? new Map<number, Recorded>();
     byRun.set(Number(entry.readable.run), entry.answer);
@@ -92,16 +95,12 @@ async function replay(estate: string, paths: string[]) {
 }
 
 describe('the recorded regen7 answers, replayed on this branch', () => {
-  it('fixture: R3, R14 and the MEMORY unit keep their gates; the weekly-report gate with no act span is reported', async () => {
+  it('fixture: R14 and the MEMORY unit keep their gates, R3 is no rule, and the weekly-report gate with no act span is reported', async () => {
     const weekly = '.claude/skills/weekly-report/SKILL.md';
     const { result, labelOf, idOf } = await replay('fixture', ['CLAUDE.md', weekly]);
-    // R3 reads gate-same 3, rule 2 over the first five runs: close. It ends gate-same, or unlabeled and listed as
-    // unstable when the recorded re-asks do not separate it; never the rule a bare majority once gave.
-    const r3 = idOf('CLAUDE.md', 'Read a file before you edit it');
-    const r3Label = labelOf('CLAUDE.md', 'Read a file before you edit it');
-    expect(r3Label).not.toBe('rule');
-    if (r3Label === undefined) expect(result.unstable.map((entry) => entry.unit)).toContain(r3);
-    else expect(r3Label).toBe('gate-same');
+    // R3: three of its first five recorded runs quote clauses that are not in their units, so the runs left to vote
+    // decide nothing. It is never the rule a bare majority of the recorded runs once gave.
+    expect(labelOf('CLAUDE.md', 'Read a file before you edit it')).not.toBe('rule');
     expect(labelOf('CLAUDE.md', 'Do not commit to git until you have read')).toBe('gate-command');
     expect(labelOf('CLAUDE.md', 'at the start of every session')).toBe('gate');
     // Five runs say gate and none places the act in the unit (three give none, two the next unit's words). It is not
