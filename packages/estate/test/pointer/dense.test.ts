@@ -14,6 +14,7 @@ import {
   parseDenseAnswer,
   SPAN_RULE,
   TARGET_RULE,
+  type Window,
 } from '../../src/pointer';
 import { BAKERY, type Call, fakeFetch, load, windowOf } from './support';
 
@@ -132,6 +133,29 @@ describe('reading a dense answer', () => {
       [1, { label: 'none' }],
     ]);
     expect(opinions.refusals).toEqual([]);
+  });
+
+  it('reads a scope by its number when a line the window shows comes before the units', () => {
+    // A skill's front matter is read by code: its lines keep their numbers, so the units start at 2.
+    const window: Window = {
+      ...windowOf(3),
+      units: windowOf(3).units.map((unit) => ({ ...unit, n: unit.n + 1 })),
+      display: [{ n: 1, mode: 'read', text: 'description: counter notes' }],
+    };
+    const opinions = denseOpinions(
+      {
+        labels: [
+          { units: '2', label: 'greeting', scopes: [4] },
+          { units: '3-4', label: 'none' },
+        ],
+        returnedModel: 'm',
+        stopReason: 'end_turn',
+        usage: { input: 0, output: 0 },
+      },
+      BAKE,
+      window,
+    );
+    expect(opinions.byUnit.get(0)).toEqual({ label: 'greeting', scopes: [2] });
   });
 });
 
