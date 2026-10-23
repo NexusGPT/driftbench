@@ -53,8 +53,8 @@ independent positive and negative fixture plants. They are not emitted as legacy
 the shared model projection lands, these declarations can acquire their honest kinds through it.
 
 Literal prompt strings are decoded, including triple-quoted text. A decoded prompt with escapes
-that cannot be quoted at its actual source passage is noted as skipped in this phase. An arbitrary string constant is
-not a prompt unless it is used in a recognized prompt position. An interpolated prompt is unresolved
+that cannot be quoted at its actual source passage is noted as skipped in this phase. An arbitrary
+string constant is not a prompt unless it is used in a recognized prompt position. An interpolated prompt is unresolved
 unless its final text can be established statically; the reader does not substitute environment or
 runtime values.
 
@@ -72,7 +72,8 @@ remain inspectable without executing their surrounding code.
 
 Every input text file remains in the inventory so an unclassified file can be reported as unknown.
 Broken links, link cycles, inaccessible files, files over 1 MiB, binary content, invalid UTF-8 and
-links outside declared filtered snapshots are skipped with reasons. A missing root receives an unreadable-source note; no empty successful inventory is fabricated.
+links outside declared filtered snapshots are skipped with reasons. A missing root receives an
+unreadable-source note.
 
 The fictional fixture is under `packages/estate/test/fixtures/readers/python-agent/`. It throws on
 import or execution. Tests plant positive and negative cases for declared syntax and aspects,
