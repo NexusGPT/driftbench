@@ -51,7 +51,7 @@ export type LedgerEntry = {
   /** The id of the unit with the same text in an earlier file of the estate (identical boilerplate), else null. */
   twinOf: string | null;
   /** A table cell's row key, column header and table; absent on other units and on an entry written before cells were kept. */
-  cell?: { row: string; column: string; table: number };
+  cell?: { row: string; column: string; table: number; header?: true };
 };
 
 export type Ledger = { version: 1; cutDigests: Record<string, string>; entries: LedgerEntry[] };
@@ -295,25 +295,26 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   // its row key and its column header and no other old cell of the file has them, whatever the text of either cell
   // (short or long, unique or repeated, changed or not). A new cell claimed here is no longer there for the text steps.
   {
-    const place = (row: string, column: string, path: string) => `${path}\0${row}\0${column}`;
+    const place = (cell: NonNullable<LedgerEntry['cell']>, path: string) =>
+      `${path}\0${cell.header ? 'H' : 'B'}\0${cell.row}\0${cell.column}`;
     const holders = new Map<string, Fresh[]>();
     for (const item of fresh) {
       const cell = item.unit.cell;
-      if (!cell?.column) continue;
-      const key = place(cell.row, cell.column, item.path);
+      if (cell === undefined) continue;
+      const key = place(cell, item.path);
       holders.set(key, [...(holders.get(key) ?? []), item]);
     }
     const claimed = new Map<string, number>();
     for (const entry of old) {
       const cell = entry.cell;
-      if (!cell?.column) continue;
-      const key = place(cell.row, cell.column, entry.path);
+      if (cell === undefined) continue;
+      const key = place(cell, entry.path);
       claimed.set(key, (claimed.get(key) ?? 0) + 1);
     }
     for (const entry of old) {
       const cell = entry.cell;
-      if (!cell?.column) continue;
-      const key = place(cell.row, cell.column, entry.path);
+      if (cell === undefined) continue;
+      const key = place(cell, entry.path);
       const found = holders.get(key) ?? [];
       const only = found[0];
       if (found.length !== 1 || !only || claimed.get(key) !== 1) continue;

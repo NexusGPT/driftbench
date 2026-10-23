@@ -38,7 +38,7 @@ export type Unit = {
    * header cell above it (its column header), and the place of the table in the file. The ledger follows a short or
    * repeated cell by its row key and column header.
    */
-  cell?: { row: string; column: string; table: number };
+  cell?: { row: string; column: string; table: number; header?: true };
 };
 
 export type Cut = { units: Unit[]; digest: string };
@@ -548,7 +548,15 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
             const cells = row.children ?? [];
             const rowKey = rowAt === 0 ? '' : cellText(cells[0] as Node);
             cells.forEach((cell, column) => {
-              visit(cell, { ...context, cell: { row: rowKey, column: header[column] ?? '', table: tables } });
+              visit(cell, {
+                ...context,
+                cell: {
+                  row: rowKey,
+                  column: header[column] ?? '',
+                  table: tables,
+                  ...(rowAt === 0 ? { header: true as const } : {}),
+                },
+              });
             });
           });
           return;
