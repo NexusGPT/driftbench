@@ -19,7 +19,7 @@ const text = (value: unknown): string => {
 
 function lengthsIn(value: unknown, sink: Set<string>, depth = 0): void {
   if (depth > 3 || typeof value !== 'object' || value === null) return;
-  if (Array.isArray(value)) for (let i = 0; i <= value.length; i += 1) sink.add(String(i));
+  if (Array.isArray(value)) sink.add(String(value.length));
   for (const v of Object.values(value as Record<string, unknown>)) lengthsIn(v, sink, depth + 1);
 }
 
@@ -36,7 +36,7 @@ export function tapped<I extends Record<string, unknown>>(impl: I, sink: Set<str
             const result = (fn as (...a: unknown[]) => unknown)(...args);
             if (!(result instanceof Promise)) {
               for (const t of text(result).match(TOKEN) ?? []) sink.add(t);
-              // A position or a count of the product's own collections (rows, entries, errors) is the product's: an item may print it.
+              // The exact length of the product's own collections (rows, entries, errors) is the product's: an item may print it.
               lengthsIn(result, sink);
             }
             return result;

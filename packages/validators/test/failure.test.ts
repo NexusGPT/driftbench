@@ -46,7 +46,7 @@ describe('the failure of an item, in fields', () => {
   });
 
   it('check throws an ItemFailure only when the condition fails, and the report counts structured and other failures', () => {
-    expect(() => check(true, { rule: 'r', expected: none('x') })).not.toThrow();
+    expect(() => check(true, { rule: 'r', expected: none('observation') })).not.toThrow();
     let thrown: unknown;
     try {
       check(false, () => ({ rule: 'r', got: 5, expected: 7 }));
@@ -136,7 +136,7 @@ describe('the switch that builds diagnostics', () => {
     let built = 0;
     const factory = () => {
       built += 1;
-      return { rule: 'r', expected: none('x') };
+      return { rule: 'r', expected: none('observation') };
     };
     expect(() => check(false, factory)).toThrow(ItemFailure);
     expect(built).toBe(1);
@@ -163,7 +163,7 @@ describe('a failure declares what it wants', () => {
     const f = new ItemFailure({
       rule: 'the product did something',
       got: { n: 7 },
-      expected: none('an observation'),
+      expected: none('observation'),
     });
     expect(leaksOf(f)).toEqual([]);
   });
@@ -174,7 +174,7 @@ describe('the reference-versus-wrong scan', () => {
     const f = new ItemFailure({
       rule: 'a count is exact',
       got: { details: [88000, 'VARIABLES_QUOTE_NOT_FOUND'] },
-      expected: none('x'),
+      expected: none('observation'),
     });
     const reference = new Set(['VARIABLES_QUOTE_NOT_FOUND', '88000', 'ok']);
     const wrong = new Set(['ok']);
@@ -185,9 +185,9 @@ describe('the reference-versus-wrong scan', () => {
   });
 
   it('lets a token through when the wrong product printed it too', () => {
-    const f = new ItemFailure({ rule: 'r', got: { rows: 12 }, expected: none('x') });
+    const f = new ItemFailure({ rule: 'r', got: { rows: 12 }, expected: none('observation') });
     expect(wantedInMessage(f, new Set(['12']), new Set(['12']), 'i')).toEqual([]);
-    const given = new ItemFailure({ rule: 'r', input: { limit: 12 }, expected: none('x') });
+    const given = new ItemFailure({ rule: 'r', input: { limit: 12 }, expected: none('observation') });
     expect(wantedInMessage(given, new Set(['12']), new Set(), 'i')).toEqual([]);
   });
 });
