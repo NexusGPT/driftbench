@@ -150,4 +150,3 @@ describe('the switch that builds diagnostics', () => {
     }
   });
 });
-

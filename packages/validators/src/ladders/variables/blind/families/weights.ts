@@ -89,7 +89,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         1,
         (ctx) => {
           const [lo, hi] = callInterval(ctx, 50, 100);
-          check(lo > 0.3 && hi < 0.7, () => ({ rule: '[{}, {}] for 50 of 100; a constant [0, 1] is not this interval', got: { details: [lo, hi] } }));
+          check(lo > 0.3 && hi < 0.7, () => ({
+            rule: '[{}, {}] for 50 of 100; a constant [0, 1] is not this interval',
+            got: { details: [lo, hi] },
+          }));
         },
       ],
       [
@@ -104,7 +107,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             [17, 40],
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
-            check(lo >= 0 && hi <= 1 && lo <= hi, () => ({ rule: '[{}, {}] for {} of {} is not an ordered interval inside [0, 1]', got: { details: [lo, hi, c, n] } }));
+            check(lo >= 0 && hi <= 1 && lo <= hi, () => ({
+              rule: '[{}, {}] for {} of {} is not an ordered interval inside [0, 1]',
+              got: { details: [lo, hi, c, n] },
+            }));
           }
         },
       ],
@@ -119,7 +125,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             [13, 90],
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
-            check(lo <= c / n && c / n <= hi, () => ({ rule: '[{}, {}] lacks the observed share {}', got: { details: [lo, hi, c / n] } }));
+            check(lo <= c / n && c / n <= hi, () => ({
+              rule: '[{}, {}] lacks the observed share {}',
+              got: { details: [lo, hi, c / n] },
+            }));
           }
         },
       ],
@@ -134,7 +143,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
             const [lo2, hi2] = callInterval(ctx, n - c, n);
-            check(Math.abs(lo - (1 - hi2)) <= 1e-9 && Math.abs(hi - (1 - lo2)) <= 1e-9, () => ({ rule: 'the interval of {} of {} is not the mirror of {} of {}', got: { details: [c, n, n - c, n] } }));
+            check(Math.abs(lo - (1 - hi2)) <= 1e-9 && Math.abs(hi - (1 - lo2)) <= 1e-9, () => ({
+              rule: 'the interval of {} of {} is not the mirror of {} of {}',
+              got: { details: [c, n, n - c, n] },
+            }));
           }
         },
       ],
@@ -146,7 +158,9 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             const [lo, hi] = callInterval(ctx, c, n);
             return hi - lo;
           };
-          check(width(5, 10) > width(50, 100) && width(50, 100) > width(500, 1000), () => ({ rule: 'the interval does not narrow when the same share is seen in more sessions' }));
+          check(width(5, 10) > width(50, 100) && width(50, 100) > width(500, 1000), () => ({
+            rule: 'the interval does not narrow when the same share is seen in more sessions',
+          }));
         },
       ],
       [
@@ -155,7 +169,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         (ctx) => {
           const [lo] = callInterval(ctx, 0, 25);
           const [, hi] = callInterval(ctx, 25, 25);
-          check(Math.abs(lo) <= 1e-12 && Math.abs(hi - 1) <= 1e-12, () => ({ rule: 'lower of 0 of 25 is {}, upper of 25 of 25 is {}', got: { details: [lo, hi] } }));
+          check(Math.abs(lo) <= 1e-12 && Math.abs(hi - 1) <= 1e-12, () => ({
+            rule: 'lower of 0 of 25 is {}, upper of 25 of 25 is {}',
+            got: { details: [lo, hi] },
+          }));
         },
       ],
       [
@@ -167,7 +184,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (let n = 1; n <= 300; n += 1) {
             for (const c of [0, n]) {
               const [lo, hi] = callInterval(ctx, c, n);
-              check(lo >= 0 && hi <= 1, () => ({ rule: '[{}, {}] for {} of {} leaves [0, 1]', got: { details: [lo, hi, c, n] } }));
+              check(lo >= 0 && hi <= 1, () => ({
+                rule: '[{}, {}] for {} of {} leaves [0, 1]',
+                got: { details: [lo, hi, c, n] },
+              }));
             }
           }
         },
@@ -187,7 +207,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             if (lo <= p && p <= hi) hit += 1;
           }
           const cover = hit / trials;
-          check(cover >= 0.92 && cover <= 0.985, () => ({ rule: 'the interval holds the true share in {} of {} draws; a 95 percent interval does so about 95 percent of the time', got: { details: [cover, trials] } }));
+          check(cover >= 0.92 && cover <= 0.985, () => ({
+            rule: 'the interval holds the true share in {} of {} draws; a 95 percent interval does so about 95 percent of the time',
+            got: { details: [cover, trials] },
+          }));
         },
       ],
     ],
@@ -330,8 +353,14 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             number,
             number,
           ];
-          check(typeof a === 'number' && typeof b === 'number' && typeof c === 'number', () => ({ rule: 'weights {}; an observed variable has a weight on every value', got: { details: [show([a, b, c])] } }));
-          check(Math.abs(a / b - 2) < 1e-9 && Math.abs(b / c - 3) < 1e-9, () => ({ rule: 'weights {}, {}, {} are not in the ratio of the counts 6, 3, 1', got: { details: [a, b, c] } }));
+          check(typeof a === 'number' && typeof b === 'number' && typeof c === 'number', () => ({
+            rule: 'weights {}; an observed variable has a weight on every value',
+            got: { details: [show([a, b, c])] },
+          }));
+          check(Math.abs(a / b - 2) < 1e-9 && Math.abs(b / c - 3) < 1e-9, () => ({
+            rule: 'weights {}, {}, {} are not in the ratio of the counts 6, 3, 1',
+            got: { details: [a, b, c] },
+          }));
         },
       ],
       [
@@ -349,7 +378,13 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             ),
           });
           const v = store.variables.find((x) => x.id === other);
-          check(v?.values.every((x) => x.weight === undefined), () => ({ rule: 'the unobserved variable got weights {}', got: { details: [show(v?.values.map((x) => x.weight))] } }));
+          check(
+            v?.values.every((x) => x.weight === undefined),
+            () => ({
+              rule: 'the unobserved variable got weights {}',
+              got: { details: [show(v?.values.map((x) => x.weight))] },
+            }),
+          );
         },
       ],
       [
@@ -358,8 +393,13 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         (ctx) => {
           const d = discover(ctx, TOOLS());
           const store = d.build({ conversations: [] });
-          check(store.variables.every((v) => v.values.every((x) => x.weight === undefined)), () => ({ rule: 'empty conversation input added weights' }));
-          check(JSON.stringify(store) === JSON.stringify(d.store), () => ({ rule: 'empty conversation input changed the store' }));
+          check(
+            store.variables.every((v) => v.values.every((x) => x.weight === undefined)),
+            () => ({ rule: 'empty conversation input added weights' }),
+          );
+          check(JSON.stringify(store) === JSON.stringify(d.store), () => ({
+            rule: 'empty conversation input changed the store',
+          }));
         },
       ],
       [
@@ -384,7 +424,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             .find((v) => v.id === id)
             ?.values.find((x) => x.id === lex('alpha'))
             ?.provenance?.find((p) => p.kind === 'conversations');
-          check(entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4, () => ({ rule: 'provenance {}; 3 of the 4 sessions that show the variable, not of 10', got: { details: [show(entry)] } }));
+          check(entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4, () => ({
+            rule: 'provenance {}; 3 of the 4 sessions that show the variable, not of 10',
+            got: { details: [show(entry)] },
+          }));
         },
       ],
       [
@@ -403,12 +446,18 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             ),
           });
           const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === lex('newcomer'));
-          check(!!v && v.approved === false, () => ({ rule: 'newcomer is {}; a value seen but unknown is an unapproved proposal', got: { details: [show(v)] } }));
+          check(!!v && v.approved === false, () => ({
+            rule: 'newcomer is {}; a value seen but unknown is an unapproved proposal',
+            got: { details: [show(v)] },
+          }));
           const [a, n] = [weightOf(store, id, lex('alpha')), weightOf(store, id, lex('newcomer'))] as [
             number,
             number,
           ];
-          check(typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9, () => ({ rule: 'weights {} and {} are not in the ratio of the counts 5 and 2', got: { details: [a, n] } }));
+          check(typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9, () => ({
+            rule: 'weights {} and {} are not in the ratio of the counts 5 and 2',
+            got: { details: [a, n] },
+          }));
         },
       ],
       [
@@ -427,9 +476,16 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             owner: { weights: [w(lex('alpha'), 60), w(lex('beta'), 30), w(lex('gamma'), 10)] },
           });
-          check(weightOf(store, id, lex('alpha')) === 60 &&
+          check(
+            weightOf(store, id, lex('alpha')) === 60 &&
               weightOf(store, id, lex('beta')) === 30 &&
-              weightOf(store, id, lex('gamma')) === 10, () => ({ rule: 'owner weights are stored as declared', got: { weights: [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) }, expected: { weights: [60, 30, 10] } }));
+              weightOf(store, id, lex('gamma')) === 10,
+            () => ({
+              rule: 'owner weights are stored as declared',
+              got: { weights: [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) },
+              expected: { weights: [60, 30, 10] },
+            }),
+          );
         },
       ],
       [
@@ -445,9 +501,14 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
               ],
             },
           });
-          check(weightOf(store, id, lex('alpha')) === undefined, () => ({ rule: 'a negative owner weight entered the store' }));
-          check(store.refused.length >= 1 &&
-              store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what), () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(weightOf(store, id, lex('alpha')) === undefined, () => ({
+            rule: 'a negative owner weight entered the store',
+          }));
+          check(
+            store.refused.length >= 1 &&
+              store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
+            () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }),
+          );
         },
       ],
       [
@@ -464,8 +525,14 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
                 ],
               },
             });
-            check(weightOf(store, id, lex('beta')) === undefined, () => ({ rule: 'the owner weight {} entered the store', got: { details: [weight] } }));
-            check(store.refused.length >= 1, () => ({ rule: 'no refusal for the owner weight {}', got: { details: [weight] } }));
+            check(weightOf(store, id, lex('beta')) === undefined, () => ({
+              rule: 'the owner weight {} entered the store',
+              got: { details: [weight] },
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for the owner weight {}',
+              got: { details: [weight] },
+            }));
           }
         },
       ],
@@ -482,7 +549,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
               ],
             },
           });
-          check(!store.variables.find((v) => v.id === id)?.values.some((x) => x.id === 'no_such_value'), () => ({ rule: 'a weight for a missing value created the value' }));
+          check(
+            !store.variables.find((v) => v.id === id)?.values.some((x) => x.id === 'no_such_value'),
+            () => ({ rule: 'a weight for a missing value created the value' }),
+          );
           check(store.refused.length >= 1, () => ({ rule: 'no refusal for a weight on a missing value' }));
         },
       ],

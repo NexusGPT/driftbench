@@ -1,5 +1,5 @@
-import { check } from '../../../../failure';
 import { createHash } from 'node:crypto';
+import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Rng } from '../../bank/util';
 import type { FileProvenance, FileStore } from '../../interface';
@@ -58,9 +58,17 @@ function oneError(
   path: string,
 ): void {
   const r = callQuotes(ctx, store, files);
-  check(r.errors.length === 1, () => ({ rule: 'the quote check reports exactly one error', got: { errors: r.errors.length, list: show(r.errors, 240) }, expected: { code, path } }));
+  check(r.errors.length === 1, () => ({
+    rule: 'the quote check reports exactly one error',
+    got: { errors: r.errors.length, list: show(r.errors, 240) },
+    expected: { code, path },
+  }));
   const e = r.errors[0] as { code: string; path: string };
-  check(e.code === code && e.path === path, () => ({ rule: 'the error carries the code and the path of the defect', got: { code: e.code, path: e.path }, expected: { code, path } }));
+  check(e.code === code && e.path === path, () => ({
+    rule: 'the error carries the code and the path of the defect',
+    got: { code: e.code, path: e.path },
+    expected: { code, path },
+  }));
 }
 
 const foundAt =
@@ -238,10 +246,17 @@ export const QUOTES_STEMS: readonly Stem[] = [
           ];
           const r = callQuotes(ctx, store, { [PATH]: FILE });
           const paths = r.errors.map((e) => e.path).sort();
-          check(r.errors.length === 2 &&
+          check(
+            r.errors.length === 2 &&
               r.errors.every((e) => e.code === 'VARIABLES_SOURCE_UNREADABLE') &&
               paths[0] === 'variables.2.values.0.provenance.0.path' &&
-              paths[1] === 'variables.2.values.1.provenance.0.path', () => ({ rule: 'a missing file is reported once for each value that quotes from it', got: { errors: show(r.errors, 300) }, expected: { code: 'VARIABLES_SOURCE_UNREADABLE', count: 2 } }));
+              paths[1] === 'variables.2.values.1.provenance.0.path',
+            () => ({
+              rule: 'a missing file is reported once for each value that quotes from it',
+              got: { errors: show(r.errors, 300) },
+              expected: { code: 'VARIABLES_SOURCE_UNREADABLE', count: 2 },
+            }),
+          );
         },
       ],
       [
@@ -254,11 +269,14 @@ export const QUOTES_STEMS: readonly Stem[] = [
           ];
           const r = callQuotes(ctx, store, { [PATH]: FILE });
           const codes = r.errors.map((e) => `${e.code} at ${e.path}`).sort();
-          check(JSON.stringify(codes) ===
+          check(
+            JSON.stringify(codes) ===
               JSON.stringify([
                 'VARIABLES_QUOTE_NOT_FOUND at variables.2.values.1.provenance.0.quote',
                 'VARIABLES_SOURCE_UNREADABLE at variables.2.values.0.provenance.0.path',
-              ]), () => ({ rule: 'errors {}', got: { details: [show(codes, 300)] } }));
+              ]),
+            () => ({ rule: 'errors {}', got: { details: [show(codes, 300)] } }),
+          );
         },
       ],
       [
@@ -600,9 +618,16 @@ export const QUOTES_STEMS: readonly Stem[] = [
             estate: estateWith(READER_FILE, { alpha: Q1, beta: Q2, gamma: Q3 }),
           });
           const v = varOf(store, ['alpha', 'beta', 'gamma']);
-          check(store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
           const q = v.values.find((x) => x.id === 'beta')?.provenance?.find((p) => p.kind === 'quote');
-          check(q?.kind === 'quote' && q.quote === Q2 && q.path === PATH, () => ({ rule: 'a value keeps the quote and the path it was read from', got: { provenance: show(q) }, expected: { quote: Q2, path: PATH } }));
+          check(q?.kind === 'quote' && q.quote === Q2 && q.path === PATH, () => ({
+            rule: 'a value keeps the quote and the path it was read from',
+            got: { provenance: show(q) },
+            expected: { quote: Q2, path: PATH },
+          }));
         },
       ],
       [
@@ -616,8 +641,14 @@ export const QUOTES_STEMS: readonly Stem[] = [
               gamma: Q3,
             }),
           });
-          check(kept(store, 'alpha') && kept(store, 'gamma') && !kept(store, 'beta'), () => ({ rule: 'values kept: {}', got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] } }));
-          check(store.refused.length === 1 && store.refused[0]?.what.includes('beta'), () => ({ rule: 'refused {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'alpha') && kept(store, 'gamma') && !kept(store, 'beta'), () => ({
+            rule: 'values kept: {}',
+            got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+          }));
+          check(store.refused.length === 1 && store.refused[0]?.what.includes('beta'), () => ({
+            rule: 'refused {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
       [
@@ -626,7 +657,9 @@ export const QUOTES_STEMS: readonly Stem[] = [
         (ctx) => {
           const estate = estateWith(READER_FILE, { alpha: Q1, beta: Q2 }, 'agent/not_supplied.md');
           const store = callBuild(ctx, { estate });
-          check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({ rule: 'values with a quote from a file that was not supplied entered the store' }));
+          check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({
+            rule: 'values with a quote from a file that was not supplied entered the store',
+          }));
           check(store.refused.length >= 1, () => ({ rule: 'no refusal for a missing file' }));
         },
       ],
@@ -639,7 +672,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(store.refused.length >= 1, () => ({ rule: 'no refusal' }));
           for (const r of store.refused)
-            check(r.reason.length >= 8 && r.reason !== 'beta' && r.reason !== r.what, () => ({ rule: 'refusal {}; the reason is at least eight characters and not the identifier', got: { details: [show(r)] } }));
+            check(r.reason.length >= 8 && r.reason !== 'beta' && r.reason !== r.what, () => ({
+              rule: 'refusal {}; the reason is at least eight characters and not the identifier',
+              got: { details: [show(r)] },
+            }));
         },
       ],
       [
@@ -649,9 +685,18 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(READER_FILE, { alpha: Q1, beta: 'Not here one.', gamma: 'Not here two.' }),
           });
-          check(store.refused.length === 2, () => ({ rule: '{} refusals for two rejected values', got: { details: [store.refused.length] } }));
-          check(store.refused.some((r) => r.what.includes('beta')) &&
-              store.refused.some((r) => r.what.includes('gamma')), () => ({ rule: 'refusals {} do not name beta and gamma', got: { details: [show(store.refused)] } }));
+          check(store.refused.length === 2, () => ({
+            rule: '{} refusals for two rejected values',
+            got: { details: [store.refused.length] },
+          }));
+          check(
+            store.refused.some((r) => r.what.includes('beta')) &&
+              store.refused.some((r) => r.what.includes('gamma')),
+            () => ({
+              rule: 'refusals {} do not name beta and gamma',
+              got: { details: [show(store.refused)] },
+            }),
+          );
         },
       ],
       [
@@ -661,8 +706,14 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(READER_FILE, { alpha: 'Not here one.', beta: 'Not here two.' }),
           });
-          check(store.variables.length === 0, () => ({ rule: '{} variables although every value was refused', got: { details: [store.variables.length] } }));
-          check(store.refused.length === 2, () => ({ rule: '{} refusals for two rejected values', got: { details: [store.refused.length] } }));
+          check(store.variables.length === 0, () => ({
+            rule: '{} variables although every value was refused',
+            got: { details: [store.variables.length] },
+          }));
+          check(store.refused.length === 2, () => ({
+            rule: '{} refusals for two rejected values',
+            got: { details: [store.refused.length] },
+          }));
         },
       ],
       [
@@ -682,7 +733,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
             .flatMap((v) => v.values)
             .find((x) => x.id === 'beta')
             ?.provenance?.find((p) => p.kind === 'quote');
-          check(q?.kind === 'quote' && q.quote === odd && q.path === PATH, () => ({ rule: 'provenance {}; the original quote and path stay unchanged', got: { details: [show(q)] } }));
+          check(q?.kind === 'quote' && q.quote === odd && q.path === PATH, () => ({
+            rule: 'provenance {}; the original quote and path stay unchanged',
+            got: { details: [show(q)] },
+          }));
         },
       ],
       [
@@ -695,7 +749,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
               { beta: Q2, alpha: 'Route the case to alpha when it is damaged.' },
             ),
           });
-          check(kept(store, 'beta') && store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'beta') && store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
       [
@@ -709,7 +766,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
               alpha: 'Route the case to alpha.',
             }),
           });
-          check(kept(store, 'beta') && store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'beta') && store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
       [
@@ -722,7 +782,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
               alpha: 'Route the case to alpha.',
             }),
           });
-          check(kept(store, 'beta') && store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'beta') && store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
       [
@@ -735,7 +798,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
               alpha: 'Route the case to alpha.',
             }),
           });
-          check(kept(store, 'beta') && store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'beta') && store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
       [
@@ -745,7 +811,12 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(READER_FILE, { alpha: Q1, beta: Q2.toUpperCase() }),
           });
-          check(kept(store, 'alpha') && !kept(store, 'beta') && store.refused.length === 1, () => ({ rule: 'kept {}, refused {}', got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)] } }));
+          check(kept(store, 'alpha') && !kept(store, 'beta') && store.refused.length === 1, () => ({
+            rule: 'kept {}, refused {}',
+            got: {
+              details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)],
+            },
+          }));
         },
       ],
       [
@@ -755,7 +826,12 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(READER_FILE, { alpha: Q1, beta: Q2.replace('beta', 'beta,') }),
           });
-          check(kept(store, 'alpha') && !kept(store, 'beta') && store.refused.length === 1, () => ({ rule: 'kept {}, refused {}', got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)] } }));
+          check(kept(store, 'alpha') && !kept(store, 'beta') && store.refused.length === 1, () => ({
+            rule: 'kept {}, refused {}',
+            got: {
+              details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)],
+            },
+          }));
         },
       ],
       [
@@ -784,8 +860,13 @@ export const QUOTES_STEMS: readonly Stem[] = [
             ],
           };
           const store = callBuild(ctx, { estate });
-          check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({ rule: 'a value was kept because its quote sits in a file other than the one it names' }));
-          check(store.refused.length === 2, () => ({ rule: '{} refusals for two values quoted from the wrong file', got: { details: [store.refused.length] } }));
+          check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({
+            rule: 'a value was kept because its quote sits in a file other than the one it names',
+          }));
+          check(store.refused.length === 2, () => ({
+            rule: '{} refusals for two values quoted from the wrong file',
+            got: { details: [store.refused.length] },
+          }));
         },
       ],
       [
@@ -798,11 +879,23 @@ export const QUOTES_STEMS: readonly Stem[] = [
             rules: [{ id: 'rule.delay', source: PATH, conditions: [{ text }], tools: [] }],
           };
           const store = callBuild(ctx, { estate });
-          check(store.variables.length === 0, () => ({ rule: '{} variables from a span that is not in its file', got: { details: [store.variables.length] } }));
-          check(store.refused.length >= 1 &&
-              store.refused.some((r) => r.what.includes(text) || r.what.includes('rule.delay')), () => ({ rule: 'refused {}; a refused condition names its span or its rule', got: { details: [show(store.refused)] } }));
+          check(store.variables.length === 0, () => ({
+            rule: '{} variables from a span that is not in its file',
+            got: { details: [store.variables.length] },
+          }));
+          check(
+            store.refused.length >= 1 &&
+              store.refused.some((r) => r.what.includes(text) || r.what.includes('rule.delay')),
+            () => ({
+              rule: 'refused {}; a refused condition names its span or its rule',
+              got: { details: [show(store.refused)] },
+            }),
+          );
           for (const r of store.refused)
-            check(r.reason.length >= 8, () => ({ rule: 'refusal reason {} is under eight characters', got: { details: [show(r.reason)] } }));
+            check(r.reason.length >= 8, () => ({
+              rule: 'refusal reason {} is under eight characters',
+              got: { details: [show(r.reason)] },
+            }));
         },
       ],
       [
@@ -812,7 +905,10 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(`${READER_FILE}\n${READER_FILE}`, { alpha: Q1, beta: Q2 }),
           });
-          check(kept(store, 'alpha') && kept(store, 'beta') && store.refused.length === 0, () => ({ rule: 'refusals {}', got: { details: [show(store.refused)] } }));
+          check(kept(store, 'alpha') && kept(store, 'beta') && store.refused.length === 0, () => ({
+            rule: 'refusals {}',
+            got: { details: [show(store.refused)] },
+          }));
         },
       ],
     ],

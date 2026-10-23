@@ -2,7 +2,25 @@ import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { FileProvenance, FileStore, FileValue, FileVariable, VariablesImpl } from '../../interface';
 import { type Base, baseFile, defect, validateIssue, validateOk, variableOf } from '../files';
-import { assertCovered, assertRowsSound, type BlindFamily, callBuild, callCoverage, callInterval, callPlan, callQuotes, callValidate, jsonEqual, makeStore, names, newRows, type Stem, show, spaceOf, valueIds } from '../kit';
+import {
+  assertCovered,
+  assertRowsSound,
+  type BlindFamily,
+  callBuild,
+  callCoverage,
+  callInterval,
+  callPlan,
+  callQuotes,
+  callValidate,
+  jsonEqual,
+  makeStore,
+  names,
+  newRows,
+  type Stem,
+  show,
+  spaceOf,
+  valueIds,
+} from '../kit';
 
 /**
  * Items added after the first audit of the variables bank (four seats failed it on the same head). They close
@@ -231,7 +249,9 @@ const SAME_VARIABLE_STEM: Stem = {
           return store;
         };
         const plain = callPlan(ctx, make([]), { seed: ctx.seed });
-        check(!plain.rows.some((r) => r.values[b] === 'b0' && r.values[c] === 'c1'), () => ({ rule: 'a row holds the pair b0, c1 that the store forbids' }));
+        check(!plain.rows.some((r) => r.values[b] === 'b0' && r.values[c] === 'c1'), () => ({
+          rule: 'a row holds the pair b0, c1 that the store forbids',
+        }));
         for (const words of PAIR_WORDINGS) {
           const store = make(
             [
@@ -241,7 +261,10 @@ const SAME_VARIABLE_STEM: Stem = {
             words,
           );
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(jsonEqual(plan.rows, plain.rows), () => ({ rule: 'two pairs of two values of {}, worded "{}", changed the plan; a row holds one value of a variable, so they exclude nothing', got: { details: [a, words] } }));
+          check(jsonEqual(plan.rows, plain.rows), () => ({
+            rule: 'two pairs of two values of {}, worded "{}", changed the plan; a row holds one value of a variable, so they exclude nothing',
+            got: { details: [a, words] },
+          }));
           assertCovered(spaceOf(store), plan, []);
         }
       },
@@ -264,9 +287,18 @@ const SAME_VARIABLE_STEM: Stem = {
         assertRowsSound(space, plan, []);
         assertCovered(space, plan, []);
         const fresh = newRows(plan);
-        check(!fresh.some((r) => r.values[a] === 'q'), () => ({ rule: 'a row holds {}=q, a value the one-entry constraint forbids', got: { details: [a] } }));
+        check(!fresh.some((r) => r.values[a] === 'q'), () => ({
+          rule: 'a row holds {}=q, a value the one-entry constraint forbids',
+          got: { details: [a] },
+        }));
         for (const value of ['p', 'r'])
-          check(fresh.some((r) => r.values[a] === value), () => ({ rule: 'no row holds {}={}; a pair of two values of one variable excludes neither', got: { details: [a, value] } }));
+          check(
+            fresh.some((r) => r.values[a] === value),
+            () => ({
+              rule: 'no row holds {}={}; a pair of two values of one variable excludes neither',
+              got: { details: [a, value] },
+            }),
+          );
       },
     ],
   ],
@@ -305,7 +337,10 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const r = callQuotes(ctx, storeAbsentConstraints(ctx, 'When the parcel is late', false), {
           [NOTES]: NOTES_TEXT,
         });
-        check(r.errors.length === 0, () => ({ rule: 'a quote the file holds was reported: {}', got: { details: [show(r.errors, 240)] } }));
+        check(r.errors.length === 0, () => ({
+          rule: 'a quote the file holds was reported: {}',
+          got: { details: [show(r.errors, 240)] },
+        }));
       },
     ],
     [
@@ -313,9 +348,16 @@ const NO_CONSTRAINTS_STEM: Stem = {
       2,
       (ctx) => {
         const r = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, false), { [NOTES]: NOTES_TEXT });
-        check(r.errors.length === 1 &&
+        check(
+          r.errors.length === 1 &&
             r.errors[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND' &&
-            r.errors[0]?.path === QUOTE_PATH, () => ({ rule: 'a false quote is reported once', got: { errors: show(r.errors, 240) }, expected: { code: 'VARIABLES_QUOTE_NOT_FOUND', path: QUOTE_PATH } }));
+            r.errors[0]?.path === QUOTE_PATH,
+          () => ({
+            rule: 'a false quote is reported once',
+            got: { errors: show(r.errors, 240) },
+            expected: { code: 'VARIABLES_QUOTE_NOT_FOUND', path: QUOTE_PATH },
+          }),
+        );
       },
     ],
     [
@@ -325,7 +367,10 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const files = { [NOTES]: NOTES_TEXT };
         const absent = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, false), files);
         const empty = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, true), files);
-        check(absent.errors.length > 0 && jsonEqual(absent.errors, empty.errors), () => ({ rule: 'a store with no constraints list gives {}; with an empty list {}', got: { details: [show(absent.errors, 200), show(empty.errors, 200)] } }));
+        check(absent.errors.length > 0 && jsonEqual(absent.errors, empty.errors), () => ({
+          rule: 'a store with no constraints list gives {}; with an empty list {}',
+          got: { details: [show(absent.errors, 200), show(empty.errors, 200)] },
+        }));
       },
     ],
   ],

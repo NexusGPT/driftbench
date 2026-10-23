@@ -122,7 +122,10 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             variableOf(store, 2).boundaries = [{ holds: OVER, fails: UNDER, edge: EDGE, limit: 2 }];
           });
           const errors = validateIssueAt(ctx, b.store, 'variables.2.boundaries.0');
-          check(errors.some((e) => e.code === 'SCHEMA_CUSTOM'), () => ({ rule: 'no SCHEMA_CUSTOM among {}', got: { details: [show(errors, 240)] } }));
+          check(
+            errors.some((e) => e.code === 'SCHEMA_CUSTOM'),
+            () => ({ rule: 'no SCHEMA_CUSTOM among {}', got: { details: [show(errors, 240)] } }),
+          );
         },
       ],
       [
@@ -242,7 +245,10 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             ];
           });
           const errors = validateIssueAt(ctx, b.store, 'variables.2.boundaries.0');
-          check(errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'), () => ({ rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}', got: { details: [show(errors, 240)] } }));
+          check(
+            errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'),
+            () => ({ rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}', got: { details: [show(errors, 240)] } }),
+          );
         },
       ],
       [
@@ -300,7 +306,10 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             const d = drawCondition(ctx.rng, c, 'plain', { limit });
             const r = readSpans(ctx, [numeric(d.text, d.subject, d.limit, d.cmp)]);
             const b = r.variable.boundaries?.find((x) => x.limit === limit && x.comparison === c);
-            check(!!b && new Set([b.holds, b.fails, b.edge]).size === 3, () => ({ rule: 'for {} the boundary is {}; a reader always writes a third value for the edge', got: { details: [c, show(b)] } }));
+            check(!!b && new Set([b.holds, b.fails, b.edge]).size === 3, () => ({
+              rule: 'for {} the boundary is {}; a reader always writes a third value for the edge',
+              got: { details: [c, show(b)] },
+            }));
           }
         },
       ],
@@ -313,7 +322,12 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
           const r = readSpans(ctx, [text]);
           for (const s of r.samples) {
             const q = s.value.provenance?.find((p) => p.kind === 'quote');
-            check(q?.kind === 'quote' && q.path === PATH && q.quote === text, () => ({ rule: 'a sample carries a quote provenance of its span', input: { sample: s.sample }, got: { provenance: show(s.value.provenance) }, expected: { path: PATH, quote: text } }));
+            check(q?.kind === 'quote' && q.path === PATH && q.quote === text, () => ({
+              rule: 'a sample carries a quote provenance of its span',
+              input: { sample: s.sample },
+              got: { provenance: show(s.value.provenance) },
+              expected: { path: PATH, quote: text },
+            }));
           }
         },
       ],
@@ -332,9 +346,21 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             numeric(b.text, b.subject, b.limit, b.cmp),
           ]);
           const nums = r.samples.map((s) => s.sample);
-          check(new Set(nums).size === nums.length, () => ({ rule: 'samples {} repeat a number', got: { details: [show(nums)] } }));
-          check(nums.includes(a.limit) && nums.some((n) => n < a.limit) && nums.some((n) => n > a.limit), () => ({ rule: 'samples {} lack a case below, at or above {}', got: { details: [show(nums), a.limit] } }));
-          check(r.store.variables.filter((v) => v.values.some((x) => typeof x.sample === 'number')).length === 1, () => ({ rule: 'two spans of one quantity gave more than one variable' }));
+          check(new Set(nums).size === nums.length, () => ({
+            rule: 'samples {} repeat a number',
+            got: { details: [show(nums)] },
+          }));
+          check(
+            nums.includes(a.limit) && nums.some((n) => n < a.limit) && nums.some((n) => n > a.limit),
+            () => ({
+              rule: 'samples {} lack a case below, at or above {}',
+              got: { details: [show(nums), a.limit] },
+            }),
+          );
+          check(
+            r.store.variables.filter((v) => v.values.some((x) => typeof x.sample === 'number')).length === 1,
+            () => ({ rule: 'two spans of one quantity gave more than one variable' }),
+          );
         },
       ],
       [
@@ -354,9 +380,15 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
           ]);
           const nums = r.samples.map((s) => s.sample).sort((x, y) => x - y);
           for (const limit of [a.limit, b.limit]) {
-            check(nums.some((n) => n < limit) && nums.includes(limit) && nums.some((n) => n > limit), () => ({ rule: 'samples {} lack a case below, at or above {}', got: { details: [show(nums), limit] } }));
+            check(nums.some((n) => n < limit) && nums.includes(limit) && nums.some((n) => n > limit), () => ({
+              rule: 'samples {} lack a case below, at or above {}',
+              got: { details: [show(nums), limit] },
+            }));
           }
-          check(new Set(nums).size === nums.length, () => ({ rule: 'samples {} repeat a number', got: { details: [show(nums)] } }));
+          check(new Set(nums).size === nums.length, () => ({
+            rule: 'samples {} repeat a number',
+            got: { details: [show(nums)] },
+          }));
         },
       ],
     ],

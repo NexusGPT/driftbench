@@ -28,10 +28,19 @@ export function readSpans(ctx: ItemContext, texts: string[]): Read {
     },
   });
   const variable = store.variables.find((v) => v.values.some((x) => typeof x.sample === 'number'));
-  check(!!variable, () => ({ rule: 'no variable of the store has numeric samples for {}; variables: {}; refused: {}', got: { details: [show(texts), show(
-        store.variables.map((v) => v.values.map((x) => x.sample)),
-        200,
-      ), show(store.refused, 200)] } }));
+  check(!!variable, () => ({
+    rule: 'no variable of the store has numeric samples for {}; variables: {}; refused: {}',
+    got: {
+      details: [
+        show(texts),
+        show(
+          store.variables.map((v) => v.values.map((x) => x.sample)),
+          200,
+        ),
+        show(store.refused, 200),
+      ],
+    },
+  }));
   const v = variable as StoreVariable;
   const samples = v.values
     .filter((x) => typeof x.sample === 'number')

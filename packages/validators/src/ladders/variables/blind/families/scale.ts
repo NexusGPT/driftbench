@@ -1,7 +1,22 @@
 import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Row, Sources, StoreDoc } from '../../interface';
-import { callBuild, callCoverage, callPlan, callQuotes, cpu, jsonEqual, makeStore, names, newRows, rowCap, type Stem, show, subsetsOf, valueIds } from '../kit';
+import {
+  callBuild,
+  callCoverage,
+  callPlan,
+  callQuotes,
+  cpu,
+  jsonEqual,
+  makeStore,
+  names,
+  newRows,
+  rowCap,
+  type Stem,
+  show,
+  subsetsOf,
+  valueIds,
+} from '../kit';
 import { discover, type ToolSpec } from '../scene';
 import { numeric } from '../spans';
 
@@ -12,7 +27,10 @@ const valIndex = (value: string | undefined): number => Number(String(value).sli
 
 function withinTime(label: string, ms: number, limit: number): void {
   if (process.env.BLIND_BANK_TIMES) process.stderr.write(`${label}: ${Math.round(ms)} ms of ${limit} ms\n`);
-  check(ms <= limit, () => ({ rule: '{} took {} ms of processor time; the page allows {} ms', got: { details: [label, Math.round(ms), limit] } }));
+  check(ms <= limit, () => ({
+    rule: '{} took {} ms of processor time; the page allows {} ms',
+    got: { details: [label, Math.round(ms), limit] },
+  }));
 }
 
 /** Every pair of the variables holds every combination of values in some row; names the first missing one. */
@@ -71,7 +89,10 @@ function missingTriple(rows: readonly Row[], rule: readonly string[]): string | 
 function allAssigned(rows: readonly Row[], ids: readonly string[], dom: (id: string) => string[]): void {
   for (const r of rows) {
     for (const id of ids) {
-      check(r[id] !== undefined && dom(id).includes(r[id] as string), () => ({ rule: 'a new row gives {} the value {}', got: { details: [id, show(r[id])] } }));
+      check(r[id] !== undefined && dom(id).includes(r[id] as string), () => ({
+        rule: 'a new row gives {} the value {}',
+        got: { details: [id, show(r[id])] },
+      }));
     }
   }
 }
@@ -89,8 +110,14 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
   withinTime(`planning ${ids.length} axes`, ms, limitMs);
   const fresh = newRows(plan);
   if (seedsCount > 0) {
-    check(plan.rows.slice(0, seedsCount).every((r) => r.kind === 'seed'), () => ({ rule: 'the seeds do not lead the plan' }));
-    check(plan.rows.length >= seedsCount, () => ({ rule: '{} rows for {} seeds', got: { details: [plan.rows.length, seedsCount] } }));
+    check(
+      plan.rows.slice(0, seedsCount).every((r) => r.kind === 'seed'),
+      () => ({ rule: 'the seeds do not lead the plan' }),
+    );
+    check(plan.rows.length >= seedsCount, () => ({
+      rule: '{} rows for {} seeds',
+      got: { details: [plan.rows.length, seedsCount] },
+    }));
   }
   allAssigned(
     fresh.map((r) => r.values),
@@ -109,9 +136,15 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
     for (let j = i + 1; j < ids.length; j += 1) missing += (arities[i] as number) * (arities[j] as number);
   if (seedsCount === 0) {
     const cap = rowCap(missing, widest);
-    check(fresh.length <= cap, () => ({ rule: '{} new rows for {} axes; the page allows {}', got: { details: [fresh.length, ids.length, cap] } }));
+    check(fresh.length <= cap, () => ({
+      rule: '{} new rows for {} axes; the page allows {}',
+      got: { details: [fresh.length, ids.length, cap] },
+    }));
   } else {
-    check(fresh.length === 0, () => ({ rule: '{} new rows although {} random seeds over {} axes hold every pair', got: { details: [fresh.length, seedsCount, ids.length] } }));
+    check(fresh.length === 0, () => ({
+      rule: '{} new rows although {} random seeds over {} axes hold every pair',
+      got: { details: [fresh.length, seedsCount, ids.length] },
+    }));
   }
 }
 
@@ -134,7 +167,10 @@ function rulesWorkload(ctx: ItemContext, rules: number, stride: number, limitMs:
   const distinct = new Set<string>();
   for (const rule of ruleVars) for (const t of subsetsOf(rule, 3)) distinct.add([...t].sort().join('|'));
   const cap = rowCap(distinct.size * 8, 8);
-  check(rows.length <= cap, () => ({ rule: '{} new rows for {} rules; the page allows {}', got: { details: [rows.length, rules, cap] } }));
+  check(rows.length <= cap, () => ({
+    rule: '{} new rows for {} rules; the page allows {}',
+    got: { details: [rows.length, rules, cap] },
+  }));
 }
 
 /** The estate of `count` condition spans spread over 20 files, one quantity per span. */
@@ -202,10 +238,19 @@ function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
   };
   const { value: store, ms } = cpu(() => callBuild(ctx, { estate }));
   withinTime(`reading ${count} condition spans`, ms, limitMs);
-  check(store.variables.length === count, () => ({ rule: '{} variables for {} spans of different quantities', got: { details: [store.variables.length, count] } }));
-  check(store.refused.length === 0, () => ({ rule: '{} refusals for spans that sit in their files', got: { details: [store.refused.length] } }));
+  check(store.variables.length === count, () => ({
+    rule: '{} variables for {} spans of different quantities',
+    got: { details: [store.variables.length, count] },
+  }));
+  check(store.refused.length === 0, () => ({
+    rule: '{} refusals for spans that sit in their files',
+    got: { details: [store.refused.length] },
+  }));
   const thin = store.variables.find((v) => v.values.length < 3);
-  check(!thin, () => ({ rule: 'the variable {} has {} values; a condition has three samples', got: { details: [thin?.id, thin?.values.length] } }));
+  check(!thin, () => ({
+    rule: 'the variable {} has {} values; a condition has three samples',
+    got: { details: [thin?.id, thin?.values.length] },
+  }));
 }
 
 function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): void {
@@ -223,7 +268,10 @@ function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): 
   const { value: store, ms } = cpu(() => d.build({ owner }));
   withinTime(`adding ${count} owner values`, ms, limitMs);
   const variable = store.variables.find((v) => v.id === id);
-  check(variable?.values.length === count + 2, () => ({ rule: '{} values in the variable; expected {}', got: { details: [variable?.values.length, count + 2] } }));
+  check(variable?.values.length === count + 2, () => ({
+    rule: '{} values in the variable; expected {}',
+    got: { details: [variable?.values.length, count + 2] },
+  }));
 }
 
 function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: number): void {
@@ -257,7 +305,10 @@ function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: numb
     for (let k = 0; k < 5; k += 1) {
       const value = variable?.values.find((x) => x.id === labelsOf(v)[k]);
       const entry = value?.provenance?.find((p) => p.kind === 'conversations');
-      check(entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen, () => ({ rule: '{}.{}: provenance {}; expected {} of {}', got: { details: [d.ids[v], labelsOf(v)[k], show(entry), c.by[k], c.seen] } }));
+      check(entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen, () => ({
+        rule: '{}.{}: provenance {}; expected {} of {}',
+        got: { details: [d.ids[v], labelsOf(v)[k], show(entry), c.by[k], c.seen] },
+      }));
     }
   }
 }
@@ -316,14 +367,20 @@ function quotesWorkload(
   };
   const { value, ms } = cpu(() => callQuotes(ctx, store, { 'agent/prompt.md': fill.join('') }));
   withinTime(`checking ${count} quotes in a one-megabyte file`, ms, limitMs);
-  check(value.errors.length === wrong.size, () => ({ rule: '{} errors; {} quotes are wrong', got: { details: [value.errors.length, wrong.size] } }));
+  check(value.errors.length === wrong.size, () => ({
+    rule: '{} errors; {} quotes are wrong',
+    got: { details: [value.errors.length, wrong.size] },
+  }));
   if (!exact) return;
   // Each wrong quote is named where it sits: its code and its path, not only a count of errors.
   const want = [...wrong].map(
     (i) => `VARIABLES_QUOTE_NOT_FOUND at variables.0.values.${i}.provenance.0.quote`,
   );
   const got = value.errors.map((e) => `${e.code} at ${e.path}`);
-  check(jsonEqual([...got].sort(), [...want].sort()), () => ({ rule: 'quotes reported {}; the wrong ones are {}', got: { details: [got.slice(0, 3).join('; '), want.slice(0, 3).join('; ')] } }));
+  check(jsonEqual([...got].sort(), [...want].sort()), () => ({
+    rule: 'quotes reported {}; the wrong ones are {}',
+    got: { details: [got.slice(0, 3).join('; '), want.slice(0, 3).join('; ')] },
+  }));
 }
 
 function closedForm(n: number, k: number): bigint {
@@ -337,7 +394,10 @@ function closedWorkload(ctx: ItemContext, n: number): void {
   const warm = makeStore({ vars: idsOf(12).map((id) => ({ id, values: valueIds(2), shared: true })) });
   callCoverage(ctx, warm, [], [{ variables: idsOf(12), strength: 3 }]);
   const { value, ms } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
-  check(BigInt(value.allowed) === closedForm(n, 3), () => ({ rule: 'allowed is {}; the closed form is {}', got: { details: [String(value.allowed), closedForm(n, 3)] } }));
+  check(BigInt(value.allowed) === closedForm(n, 3), () => ({
+    rule: 'allowed is {}; the closed form is {}',
+    got: { details: [String(value.allowed), closedForm(n, 3)] },
+  }));
   withinTime(`the closed-form count over ${n} binary variables`, ms, 50);
 }
 
@@ -373,9 +433,15 @@ function coverageWorkload(ctx: ItemContext, n: number, k: 2 | 3): void {
   );
   const { value, ms } = cpu(() => callCoverage(ctx, store, rows, [{ variables: ids, strength: k }]));
   withinTime(`the coverage of 30 rows over ${n} binary variables at strength ${k}`, ms, 20_000);
-  check(BigInt(value.allowed) === closedForm(n, k), () => ({ rule: 'allowed is {}; expected {}', got: { details: [String(value.allowed), closedForm(n, k)] } }));
+  check(BigInt(value.allowed) === closedForm(n, k), () => ({
+    rule: 'allowed is {}; expected {}',
+    got: { details: [String(value.allowed), closedForm(n, k)] },
+  }));
   const want = coveredByRows(rows, ids, k);
-  check(BigInt(value.covered) === BigInt(want), () => ({ rule: 'covered is {}; the rows hold {} distinct tuples', got: { details: [String(value.covered), want] } }));
+  check(BigInt(value.covered) === BigInt(want), () => ({
+    rule: 'covered is {}; the rows hold {} distinct tuples',
+    got: { details: [String(value.covered), want] },
+  }));
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -477,22 +543,36 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
   withinTime(`planning 200 variables with ${forbidCount} impossible pairs`, ms, 30_000);
   const rows = newRows(plan).map((r) => r.values);
   for (const r of rows) {
-    check(Object.keys(r).length === dense.ids.length, () => ({ rule: 'a new row does not give a value to every variable' }));
+    check(Object.keys(r).length === dense.ids.length, () => ({
+      rule: 'a new row does not give a value to every variable',
+    }));
   }
   for (const r of rows) {
     for (const [i, x, j, y] of dense.pairs) {
-      check(!(r[dense.ids[i] as string] === `v${x}` && r[dense.ids[j] as string] === `v${y}`), () => ({ rule: 'a new row holds the forbidden pair {}=v{}, {}=v{}', got: { details: [dense.ids[i], x, dense.ids[j], y] } }));
+      check(!(r[dense.ids[i] as string] === `v${x}` && r[dense.ids[j] as string] === `v${y}`), () => ({
+        rule: 'a new row holds the forbidden pair {}=v{}, {}=v{}',
+        got: { details: [dense.ids[i], x, dense.ids[j], y] },
+      }));
     }
   }
   // Every value is held by some row (all the other variables can take the free values 0 and 1).
   for (const id of dense.ids) {
     for (let x = 0; x < 4; x += 1)
-      check(rows.some((r) => r[id] === `v${x}`), () => ({ rule: 'no row holds {}=v{}, a value that a row with every other variable at 0 or 1 can hold', got: { details: [id, x] } }));
+      check(
+        rows.some((r) => r[id] === `v${x}`),
+        () => ({
+          rule: 'no row holds {}=v{}, a value that a row with every other variable at 0 or 1 can hold',
+          got: { details: [id, x] },
+        }),
+      );
   }
   // R14, factor four: M is at most every pair of the axes plus the values of the details.
   const m = ((30 * 29) / 2) * 16 + 170 * 4;
   const cap = rowCap(m, 16, 4);
-  check(rows.length <= cap, () => ({ rule: '{} new rows; the page allows {} for dense impossible pairs', got: { details: [rows.length, cap] } }));
+  check(rows.length <= cap, () => ({
+    rule: '{} new rows; the page allows {} for dense impossible pairs',
+    got: { details: [rows.length, cap] },
+  }));
   // Every pair of axes that no row holds and no constraint forbids must be impossible to extend.
   const held = new Set<string>();
   for (const r of rows) {
@@ -531,10 +611,16 @@ function independentWorkload(ctx: ItemContext, count: number): void {
   const { value: plan, ms } = cpu(() => callPlan(ctx, store, { seed: ctx.seed }));
   withinTime(`planning ${count} independent ternary variables`, ms, 10_000);
   const rows = newRows(plan);
-  check(rows.length <= 6, () => ({ rule: '{} new rows for {} independent ternary variables; six are enough', got: { details: [rows.length, count] } }));
+  check(rows.length <= 6, () => ({
+    rule: '{} new rows for {} independent ternary variables; six are enough',
+    got: { details: [rows.length, count] },
+  }));
   for (const id of ids)
     for (const x of valueIds(3))
-      check(rows.some((r) => r.values[id] === x), () => ({ rule: '{}={} is in no row', got: { details: [id, x] } }));
+      check(
+        rows.some((r) => r.values[id] === x),
+        () => ({ rule: '{}={} is in no row', got: { details: [id, x] } }),
+      );
 }
 
 function wideAxisWorkload(ctx: ItemContext): void {
@@ -554,7 +640,10 @@ function wideAxisWorkload(ctx: ItemContext): void {
   check(gap === undefined, () => ({ rule: 'no row holds {}', got: { details: [gap] } }));
   const missing = 200 * 2 * 3 + 3 * 4;
   const cap = rowCap(missing, 400);
-  check(rows.length >= 400 && rows.length <= cap, () => ({ rule: '{} new rows; at least 400 are needed and the page allows {}', got: { details: [rows.length, cap] } }));
+  check(rows.length >= 400 && rows.length <= cap, () => ({
+    rule: '{} new rows; at least 400 are needed and the page allows {}',
+    got: { details: [rows.length, cap] },
+  }));
 }
 
 export const SCALE_STEMS: readonly Stem[] = [

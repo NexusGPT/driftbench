@@ -1,7 +1,21 @@
 import { check } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { CoverageResult, Group, Row, StoreDoc } from '../../interface';
-import { allRows, callCoverage, coverageError, errorNamed, makeStore, names, type Space, type Stem, show, spaceOf, subsetsOf, tupleKey, valueIds } from '../kit';
+import {
+  allRows,
+  callCoverage,
+  coverageError,
+  errorNamed,
+  makeStore,
+  names,
+  type Space,
+  type Stem,
+  show,
+  spaceOf,
+  subsetsOf,
+  tupleKey,
+  valueIds,
+} from '../kit';
 
 /** Family counter: R6 (allowed = extendable), R8 (partial rows), R10 (errors), R12 (exact counts, bigint, uncovered list). */
 
@@ -34,7 +48,12 @@ function oracle(space: Space, rows: Row[], groups: Group[]): Oracle {
 }
 
 function same(value: number | bigint, want: number | bigint, label: string): void {
-  check(BigInt(value) === BigInt(want), () => ({ rule: 'a count is exact', input: { count: label }, got: { value: String(value) }, expected: { value: String(want) } }));
+  check(BigInt(value) === BigInt(want), () => ({
+    rule: 'a count is exact',
+    input: { count: label },
+    got: { value: String(value) },
+    expected: { value: String(want) },
+  }));
 }
 
 function expectCounts(ctx: ItemContext, store: StoreDoc, rows: Row[], groups: Group[]): CoverageResult {
@@ -377,7 +396,12 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const g: Group[] = [{ variables: allIds(s), strength: 2 }];
           const want = oracle(spaceOf(s), [], g);
           const got = callCoverage(ctx, s, [], g, { uncovered: 5 });
-          check(Array.isArray(got.uncovered) && got.uncovered.length === 5, () => ({ rule: 'with a limit, uncovered lists up to the limit', input: { limit: 5 }, got: { listed: got.uncovered?.length }, expected: { listed: 5, missing: want.uncovered.length } }));
+          check(Array.isArray(got.uncovered) && got.uncovered.length === 5, () => ({
+            rule: 'with a limit, uncovered lists up to the limit',
+            input: { limit: 5 },
+            got: { listed: got.uncovered?.length },
+            expected: { listed: 5, missing: want.uncovered.length },
+          }));
         },
       ],
       [
@@ -389,7 +413,10 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const rows = randomRows(ctx, s, 2, false);
           const want = oracle(spaceOf(s), rows, g);
           const got = callCoverage(ctx, s, rows, g, { uncovered: 1000 });
-          check(got.uncovered?.length === want.uncovered.length, () => ({ rule: 'uncovered has {} tuples; {} are missing', got: { details: [got.uncovered?.length, want.uncovered.length] } }));
+          check(got.uncovered?.length === want.uncovered.length, () => ({
+            rule: 'uncovered has {} tuples; {} are missing',
+            got: { details: [got.uncovered?.length, want.uncovered.length] },
+          }));
         },
       ],
       [
@@ -398,7 +425,10 @@ export const COUNTER_STEMS: readonly Stem[] = [
         (ctx) => {
           const s = small(ctx, [2, 3]);
           const got = callCoverage(ctx, s, [], [{ variables: allIds(s), strength: 2 }], { uncovered: 0 });
-          check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({ rule: 'uncovered is {} for limit 0', got: { details: [show(got.uncovered)] } }));
+          check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({
+            rule: 'uncovered is {} for limit 0',
+            got: { details: [show(got.uncovered)] },
+          }));
         },
       ],
       [
@@ -430,9 +460,16 @@ export const COUNTER_STEMS: readonly Stem[] = [
           for (const t of got.uncovered ?? []) {
             const vars = Object.keys(t);
             const k = tupleKey(t, vars);
-            check(missing.has(k), () => ({ rule: 'the listed tuple {} is held by a row or no valid row can hold it', got: { details: [show(t)] } }));
+            check(missing.has(k), () => ({
+              rule: 'the listed tuple {} is held by a row or no valid row can hold it',
+              got: { details: [show(t)] },
+            }));
           }
-          check((got.uncovered ?? []).length === want.uncovered.length, () => ({ rule: 'uncovered lists every missing tuple', got: { listed: got.uncovered?.length }, expected: { listed: want.uncovered.length } }));
+          check((got.uncovered ?? []).length === want.uncovered.length, () => ({
+            rule: 'uncovered lists every missing tuple',
+            got: { listed: got.uncovered?.length },
+            expected: { listed: want.uncovered.length },
+          }));
         },
       ],
       [
@@ -442,7 +479,10 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const s = small(ctx, [2, 2, 2]);
           const rows = allRows(spaceOf(s));
           const got = callCoverage(ctx, s, rows, [{ variables: allIds(s), strength: 2 }], { uncovered: 10 });
-          check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({ rule: 'uncovered is {} although the rows hold every tuple', got: { details: [show(got.uncovered)] } }));
+          check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({
+            rule: 'uncovered is {} although the rows hold every tuple',
+            got: { details: [show(got.uncovered)] },
+          }));
         },
       ],
     ],
@@ -560,7 +600,10 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, store, [a, b], [{ variables: ids, strength: k }]);
           const want = 2n * choose(n, k) - choose(50, k);
           same(got.covered, want, 'covered');
-          check(typeof got.covered === 'bigint', () => ({ rule: 'covered is a {} although {} exceeds the safe integer range', got: { details: [typeof got.covered, want] } }));
+          check(typeof got.covered === 'bigint', () => ({
+            rule: 'covered is a {} although {} exceeds the safe integer range',
+            got: { details: [typeof got.covered, want] },
+          }));
         },
       ],
     ],
@@ -575,8 +618,13 @@ function wide(_ctx: ItemContext, n: number, arity: number): StoreDoc {
 function beyond(ctx: ItemContext, n: number, arity: number, k: number): void {
   const store = wide(ctx, n, arity);
   const want = closedForm(n, k, arity);
-  check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({ rule: 'the bank built a count inside the safe range for a bigint item' }));
+  check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
+    rule: 'the bank built a count inside the safe range for a bigint item',
+  }));
   const got = callCoverage(ctx, store, [], [{ variables: allIds(store), strength: k }]);
-  check(typeof got.allowed === 'bigint', () => ({ rule: 'allowed is a {} ({}); {} exceeds the safe integer range and must be a bigint', got: { details: [typeof got.allowed, String(got.allowed), want] } }));
+  check(typeof got.allowed === 'bigint', () => ({
+    rule: 'allowed is a {} ({}); {} exceeds the safe integer range and must be a bigint',
+    got: { details: [typeof got.allowed, String(got.allowed), want] },
+  }));
   same(got.allowed, want, 'allowed');
 }

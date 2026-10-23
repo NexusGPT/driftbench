@@ -66,7 +66,10 @@ function unknownKey(at: 'top' | 'variable' | 'value') {
     });
     const objPath = at === 'top' ? '' : at === 'variable' ? 'variables.1' : 'variables.1.values.0';
     const errors = validateIssueAt(ctx, b.store, objPath);
-    check(errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'), () => ({ rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}', got: { details: [show(errors, 300)] } }));
+    check(
+      errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'),
+      () => ({ rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}', got: { details: [show(errors, 300)] } }),
+    );
   };
 }
 
@@ -506,7 +509,9 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(!plan.rows.some((r) => r.values[a] === 'maybe'), () => ({ rule: 'a row holds a value nobody approved' }));
+          check(!plan.rows.some((r) => r.values[a] === 'maybe'), () => ({
+            rule: 'a row holds a value nobody approved',
+          }));
           check(newRows(plan).length >= 2, () => ({ rule: 'no new rows for the approved values' }));
         },
       ],
@@ -522,7 +527,10 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(newRows(plan).every((r) => !(b in r.values)), () => ({ rule: 'a new row assigns a variable nobody approved' }));
+          check(
+            newRows(plan).every((r) => !(b in r.values)),
+            () => ({ rule: 'a new row assigns a variable nobody approved' }),
+          );
         },
       ],
       [
@@ -544,7 +552,10 @@ export const VALUES_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(newRows(plan).every((r) => !(b in r.values)), () => ({ rule: 'a new row assigns a variable whose every value is unapproved' }));
+          check(
+            newRows(plan).every((r) => !(b in r.values)),
+            () => ({ rule: 'a new row assigns a variable whose every value is unapproved' }),
+          );
           check(newRows(plan).length >= 2, () => ({ rule: 'the other variable is not planned' }));
         },
       ],
@@ -572,7 +583,10 @@ export const VALUES_STEMS: readonly Stem[] = [
           const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === 'delta');
           check(!!v, () => ({ rule: 'the owner value is not in the variable' }));
           const own = v?.provenance?.find((p) => p.kind === 'owner');
-          check(own?.kind === 'owner' && own.words === 'We also see delta cases.' && own.date === OWNER_DATE, () => ({ rule: 'owner provenance {}', got: { details: [show(v?.provenance)] } }));
+          check(
+            own?.kind === 'owner' && own.words === 'We also see delta cases.' && own.date === OWNER_DATE,
+            () => ({ rule: 'owner provenance {}', got: { details: [show(v?.provenance)] } }),
+          );
           check(v?.approved !== false, () => ({ rule: 'a value the owner added is not approved' }));
         },
       ],
@@ -591,9 +605,15 @@ export const VALUES_STEMS: readonly Stem[] = [
           });
           const variable = store.variables.find((x) => x.id === id);
           const same = (variable?.values ?? []).filter((x) => x.id === existing);
-          check(same.length === 1, () => ({ rule: '{} values named {}', got: { details: [same.length, existing] } }));
+          check(same.length === 1, () => ({
+            rule: '{} values named {}',
+            got: { details: [same.length, existing] },
+          }));
           const kinds = (same[0]?.provenance ?? []).map((p) => p.kind).sort();
-          check(kinds.includes('owner') && kinds.includes('quote'), () => ({ rule: 'provenance kinds {}; expected the quote and the owner', got: { details: [show(kinds)] } }));
+          check(kinds.includes('owner') && kinds.includes('quote'), () => ({
+            rule: 'provenance kinds {}; expected the quote and the owner',
+            got: { details: [show(kinds)] },
+          }));
         },
       ],
       [
@@ -608,9 +628,14 @@ export const VALUES_STEMS: readonly Stem[] = [
               ],
             },
           });
-          check(!store.variables.some((v) => v.id === 'no_such_variable'), () => ({ rule: 'a variable the owner named but the store lacks was created' }));
-          check(store.refused.length >= 1 &&
-              store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what), () => ({ rule: 'refused {}', got: { details: [show(store.refused)] } }));
+          check(!store.variables.some((v) => v.id === 'no_such_variable'), () => ({
+            rule: 'a variable the owner named but the store lacks was created',
+          }));
+          check(
+            store.refused.length >= 1 &&
+              store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
+            () => ({ rule: 'refused {}', got: { details: [show(store.refused)] } }),
+          );
         },
       ],
       [
@@ -627,7 +652,10 @@ export const VALUES_STEMS: readonly Stem[] = [
             .find((x) => x.id === id)
             ?.values.find((x) => x.id === 'friday')
             ?.provenance?.find((p) => p.kind === 'owner');
-          check(own?.kind === 'owner' && own.words === words, () => ({ rule: 'stored words {}; expected them byte for byte', got: { details: [show(own)] } }));
+          check(own?.kind === 'owner' && own.words === words, () => ({
+            rule: 'stored words {}; expected them byte for byte',
+            got: { details: [show(own)] },
+          }));
         },
       ],
       [
@@ -640,8 +668,14 @@ export const VALUES_STEMS: readonly Stem[] = [
             const store = d.build({
               owner: { values: [{ variable: id, value: 'friday', words, date: OWNER_DATE }] },
             });
-            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({ rule: 'a value with blank owner words {} entered the store', got: { details: [show(words)] } }));
-            check(store.refused.length >= 1, () => ({ rule: 'no refusal for blank owner words {}', got: { details: [show(words)] } }));
+            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({
+              rule: 'a value with blank owner words {} entered the store',
+              got: { details: [show(words)] },
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for blank owner words {}',
+              got: { details: [show(words)] },
+            }));
           }
         },
       ],
@@ -662,8 +696,14 @@ export const VALUES_STEMS: readonly Stem[] = [
             const store = d.build({
               owner: { values: [{ variable: id, value: 'friday', words: 'Seen on Fridays.', date }] },
             });
-            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({ rule: 'a value dated {} entered the store', got: { details: [date] } }));
-            check(store.refused.length >= 1, () => ({ rule: 'no refusal for the date {}', got: { details: [date] } }));
+            check(!store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'friday'), () => ({
+              rule: 'a value dated {} entered the store',
+              got: { details: [date] },
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for the date {}',
+              got: { details: [date] },
+            }));
           }
         },
       ],
@@ -678,13 +718,18 @@ export const VALUES_STEMS: readonly Stem[] = [
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2028-02-29' }],
             },
           });
-          check(store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({ rule: 'a value dated on a real leap day is kept', input: { date: '2028-02-29' } }));
+          check(
+            store.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'),
+            () => ({ rule: 'a value dated on a real leap day is kept', input: { date: '2028-02-29' } }),
+          );
           const other = d.build({
             owner: {
               values: [{ variable: id, value: 'leapday', words: 'Seen on leap days.', date: '2027-02-29' }],
             },
           });
-          check(!other.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({ rule: 'a value dated 2027-02-29, not a day, entered the store' }));
+          check(!other.variables.find((x) => x.id === id)?.values.some((x) => x.id === 'leapday'), () => ({
+            rule: 'a value dated 2027-02-29, not a day, entered the store',
+          }));
         },
       ],
     ],
@@ -704,7 +749,10 @@ export const VALUES_STEMS: readonly Stem[] = [
           const tools = toolsOf(ctx, 4);
           const first = idsOf(ctx, tools);
           const second = idsOf(ctx, [...tools].reverse());
-          check(JSON.stringify(first) === JSON.stringify([...second].reverse()), () => ({ rule: 'ids {} become {} when the sources are read in the other order', got: { details: [show(first), show([...second].reverse())] } }));
+          check(JSON.stringify(first) === JSON.stringify([...second].reverse()), () => ({
+            rule: 'ids {} become {} when the sources are read in the other order',
+            got: { details: [show(first), show([...second].reverse())] },
+          }));
         },
       ],
       [
@@ -714,7 +762,10 @@ export const VALUES_STEMS: readonly Stem[] = [
           const tools = toolsOf(ctx, 5);
           const few = idsOf(ctx, tools.slice(0, 2));
           const many = idsOf(ctx, tools);
-          check(JSON.stringify(few) === JSON.stringify(many.slice(0, 2)), () => ({ rule: 'ids {} become {} when other sources are added', got: { details: [show(few), show(many.slice(0, 2))] } }));
+          check(JSON.stringify(few) === JSON.stringify(many.slice(0, 2)), () => ({
+            rule: 'ids {} become {} when other sources are added',
+            got: { details: [show(few), show(many.slice(0, 2))] },
+          }));
         },
       ],
       [
@@ -738,8 +789,14 @@ export const VALUES_STEMS: readonly Stem[] = [
           }));
           const ids = idsOf(ctx, tools);
           for (const id of ids)
-            check(GRAMMAR.test(id), () => ({ rule: 'the id {} does not match ^[A-Za-z0-9][A-Za-z0-9._-]*$', got: { details: [show(id)] } }));
-          check(new Set(ids).size === ids.length, () => ({ rule: 'ids {} are not distinct', got: { details: [show(ids)] } }));
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the id {} does not match ^[A-Za-z0-9][A-Za-z0-9._-]*$',
+              got: { details: [show(id)] },
+            }));
+          check(new Set(ids).size === ids.length, () => ({
+            rule: 'ids {} are not distinct',
+            got: { details: [show(ids)] },
+          }));
         },
       ],
       [
@@ -753,8 +810,15 @@ export const VALUES_STEMS: readonly Stem[] = [
             values: [`on${i}`, `off${i}`],
           }));
           const ids = idsOf(ctx, tools);
-          check(new Set(ids).size === fields.length, () => ({ rule: '{} distinct ids for {} distinct fields: {}; an input was dropped or merged', got: { details: [new Set(ids).size, fields.length, show(ids)] } }));
-          for (const id of ids) check(GRAMMAR.test(id), () => ({ rule: 'the id {} breaks the grammar', got: { details: [show(id)] } }));
+          check(new Set(ids).size === fields.length, () => ({
+            rule: '{} distinct ids for {} distinct fields: {}; an input was dropped or merged',
+            got: { details: [new Set(ids).size, fields.length, show(ids)] },
+          }));
+          for (const id of ids)
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the id {} breaks the grammar',
+              got: { details: [show(id)] },
+            }));
         },
       ],
       [
@@ -769,11 +833,25 @@ export const VALUES_STEMS: readonly Stem[] = [
           }));
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
-          check(store.variables.length === fields.length, () => ({ rule: '{} variables for {} fields named like members of Object.prototype', got: { details: [store.variables.length, fields.length] } }));
-          check(store.variables.every((v) => v.values.length === 3), () => ({ rule: 'values {}', got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] } }));
-          check(new Set(store.variables.map((v) => v.id)).size === fields.length, () => ({ rule: 'two prototype-like fields share an id' }));
-          check(({} as Record<string, unknown>).polluted === undefined &&
-              Object.keys(Object.prototype).length === 0, () => ({ rule: 'Object.prototype was changed' }));
+          check(store.variables.length === fields.length, () => ({
+            rule: '{} variables for {} fields named like members of Object.prototype',
+            got: { details: [store.variables.length, fields.length] },
+          }));
+          check(
+            store.variables.every((v) => v.values.length === 3),
+            () => ({
+              rule: 'values {}',
+              got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+            }),
+          );
+          check(new Set(store.variables.map((v) => v.id)).size === fields.length, () => ({
+            rule: 'two prototype-like fields share an id',
+          }));
+          check(
+            ({} as Record<string, unknown>).polluted === undefined &&
+              Object.keys(Object.prototype).length === 0,
+            () => ({ rule: 'Object.prototype was changed' }),
+          );
           for (const t of tools) varOf(store, t.values);
         },
       ],
@@ -789,10 +867,20 @@ export const VALUES_STEMS: readonly Stem[] = [
           const { estate } = estateFor([tool]);
           const store = callBuild(ctx, { estate });
           const v = store.variables.find((x) => x.values.length === 3);
-          check(!!v, () => ({ rule: 'no variable holds the three values: {}', got: { details: [show(store.variables.map((x) => x.values.map((y) => y.id)))] } }));
+          check(!!v, () => ({
+            rule: 'no variable holds the three values: {}',
+            got: { details: [show(store.variables.map((x) => x.values.map((y) => y.id)))] },
+          }));
           const ids = (v as StoreDoc['variables'][number]).values.map((x) => x.id);
-          for (const id of ids) check(GRAMMAR.test(id), () => ({ rule: 'the value id {} breaks the grammar', got: { details: [show(id)] } }));
-          check(new Set(ids).size === 3, () => ({ rule: 'value ids {} are not distinct', got: { details: [show(ids)] } }));
+          for (const id of ids)
+            check(GRAMMAR.test(id), () => ({
+              rule: 'the value id {} breaks the grammar',
+              got: { details: [show(id)] },
+            }));
+          check(new Set(ids).size === 3, () => ({
+            rule: 'value ids {} are not distinct',
+            got: { details: [show(ids)] },
+          }));
         },
       ],
       [
@@ -805,8 +893,17 @@ export const VALUES_STEMS: readonly Stem[] = [
           ];
           const { estate } = estateFor(tools);
           const store = callBuild(ctx, { estate });
-          check(store.variables.length === 2, () => ({ rule: '{} variables for two tool fields', got: { details: [store.variables.length] } }));
-          check(store.variables.every((v) => v.values.length === 2), () => ({ rule: 'values {}', got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] } }));
+          check(store.variables.length === 2, () => ({
+            rule: '{} variables for two tool fields',
+            got: { details: [store.variables.length] },
+          }));
+          check(
+            store.variables.every((v) => v.values.length === 2),
+            () => ({
+              rule: 'values {}',
+              got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+            }),
+          );
         },
       ],
       [
@@ -821,9 +918,18 @@ export const VALUES_STEMS: readonly Stem[] = [
           });
           const a = callBuild(ctx, { estate: mk(plain) });
           const b = callBuild(ctx, { estate: mk(spaced) });
-          check(a.variables.length === 1 && b.variables.length === 1, () => ({ rule: '{} and {} variables for one condition written two ways', got: { details: [a.variables.length, b.variables.length] } }));
-          check((a.variables[0] as StoreDoc['variables'][number]).id ===
-              (b.variables[0] as StoreDoc['variables'][number]).id, () => ({ rule: 'ids {} and {} for one condition written with different white space', got: { details: [a.variables[0]?.id, b.variables[0]?.id] } }));
+          check(a.variables.length === 1 && b.variables.length === 1, () => ({
+            rule: '{} and {} variables for one condition written two ways',
+            got: { details: [a.variables.length, b.variables.length] },
+          }));
+          check(
+            (a.variables[0] as StoreDoc['variables'][number]).id ===
+              (b.variables[0] as StoreDoc['variables'][number]).id,
+            () => ({
+              rule: 'ids {} and {} for one condition written with different white space',
+              got: { details: [a.variables[0]?.id, b.variables[0]?.id] },
+            }),
+          );
         },
       ],
     ],
