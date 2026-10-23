@@ -597,7 +597,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, store, [a, b], [{ variables: ids, strength: k }]);
           const want = 2n * choose(n, k) - choose(50, k);
           same(got.covered, want, 'covered');
-          check(typeof got.covered === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.covered }, expected: { type: 'bigint', count: String(want) } }));
+          check(typeof got.covered === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.covered }, expected: { count: String(want) } }));
         },
       ],
     ],
@@ -616,6 +616,6 @@ function beyond(ctx: ItemContext, n: number, arity: number, k: number): void {
     rule: 'the bank built a count inside the safe range for a bigint item', expected: none('observation')
   }));
   const got = callCoverage(ctx, store, [], [{ variables: allIds(store), strength: k }]);
-  check(typeof got.allowed === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.allowed, value: String(got.allowed) }, expected: { type: 'bigint', count: String(want) } }));
+  check(typeof got.allowed === 'bigint', () => ({ rule: 'a count beyond the safe integer range is a bigint', got: { type: typeof got.allowed, value: String(got.allowed) }, expected: { count: String(want) } }));
   same(got.allowed, want, 'allowed');
 }
