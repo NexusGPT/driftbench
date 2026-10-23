@@ -21,7 +21,9 @@ in a sandbox holding a copy of the estate, on the workspace seed each spec carri
 alone, never the test. Each block's trace (tool calls, skill loads, guard verdicts, stages, workspace
 changes) is checked against the spec, and the run is stored. `--map` pins the copy to the map's hash and
 refuses an estate that drifted from it. `--states` plants session states and hazards (a resumed session, a
-compaction, a dead helper) from a state library.
+compaction, a dead helper) from a state library. `estate generate` writes `states/library.json` beside the specs
+with the states it can build without the estate's own content, and plans a row only for the states and events the
+library holds; a row that needs one the library lacks waits as `needs-state-operation`.
 
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
@@ -60,7 +62,7 @@ the linked blocks.
 ## Commands and every option
 
 ```
-driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
 driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
@@ -91,6 +93,12 @@ driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <
 | `--config <where>` | `host`; `isolated` for a stand-in | the runtime's config folder: `host` (where the login lives) or `isolated` |
 | `--allow-billed` | off | run a command that is not a stand-in: a billed live run |
 | `--progress <file>` | none | append one JSON line per finished spec, so a stopped batch keeps its finished runs |
+| `--agent-version <label>` | none | name the version of the estate this run measures (the `to` of a change manifest); the target becomes `claude-code:estate` with the label as its variant |
+| `--from <store>` | none | carry from an old store: a spec the radius of `--change` leaves alone keeps its stored result; needs `--change` and `--agent-version`; the old store is never written |
+| `--change <manifest>` | none | with `--from`: the change manifest of the edit (`radius ledger`, `radius auto`) |
+| `--from-campaign <id>` | the latest | with `--from`: the campaign of the old store to carry from |
+| `--max-carry <n>` | 5 | with `--from`: the most campaigns in a row a result is carried |
+| `--max-age <days>` | 7 | with `--from`: the most days since a carried result was measured |
 | `--judge <judge>` | none | judge the judged criteria with `claude:<model>`, such as `claude:haiku` (paid calls) |
 | `--judge-command <path>` | `claude` | the command the judge runs |
 | `--judge-budget <usd>` | none | stop judging once the judge spent this much; required for a billed judge |

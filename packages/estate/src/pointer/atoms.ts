@@ -99,8 +99,20 @@ function fill(value: unknown, template: Template): unknown {
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
-    const out = value.map((item) => fill(item, template));
-    return out.includes(UNRESOLVED) ? UNRESOLVED : out;
+    // An item written `{ optional: <template> }` is left out of the list when its template does not fill, where any
+    // other item that does not fill makes the whole list unresolved.
+    const out: unknown[] = [];
+    for (const item of value) {
+      const optional =
+        item !== null && typeof item === 'object' && Object.keys(item).length === 1 && 'optional' in item;
+      const filled = fill(optional ? (item as { optional: unknown }).optional : item, template);
+      if (filled === UNRESOLVED) {
+        if (optional) continue;
+        return UNRESOLVED;
+      }
+      out.push(filled);
+    }
+    return out;
   }
   if (value !== null && typeof value === 'object') {
     const entries = Object.entries(value);
@@ -122,8 +134,14 @@ function fill(value: unknown, template: Template): unknown {
       return UNRESOLVED;
     }
     const out: Record<string, unknown> = {};
-    for (const [key, item] of entries) {
-      const filled = fill(item, template);
+    for (const [written, item] of entries) {
+      // A key may hold a placeholder in `${...}`, filled as a string; a key that does not fill is as unfilled as a value.
+      const key = written.includes('${') ? fill(written, template) : written;
+      const filled = key === UNRESOLVED ? UNRESOLVED : fill(item, template);
+      if (typeof key !== 'string') {
+        if (written.endsWith('?')) continue;
+        return UNRESOLVED;
+      }
       // A key that ends in `?` is optional: it is left out, without its mark, when its value does not fill.
       if (key.endsWith('?')) {
         if (filled !== UNRESOLVED) out[key.slice(0, -1)] = filled;

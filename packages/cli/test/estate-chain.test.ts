@@ -595,6 +595,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         join(FIXTURE, 'phrases.yaml'),
         '--sessions',
         join(FIXTURE, 'sessions/index.yaml'),
+        '--states',
+        join(FIXTURE, 'live/states/library.json'),
         '--json',
       ]);
       expect(generated.err).toBe('');
@@ -660,6 +662,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
           join(FIXTURE, 'phrases.yaml'),
           '--sessions',
           join(FIXTURE, 'sessions/index.yaml'),
+          '--states',
+          join(FIXTURE, 'live/states/library.json'),
           '--json',
         ]);
         if (alone.err !== '') return [...problems, `${id} alone: ${alone.err.trim()}`];
@@ -930,6 +934,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         join(FIXTURE, 'phrases.yaml'),
         '--sessions',
         join(FIXTURE, 'sessions/index.yaml'),
+        '--states',
+        join(FIXTURE, 'live/states/library.json'),
       ]);
       expect(wrong.code).toBe(2);
       expect(wrong.err).toContain(

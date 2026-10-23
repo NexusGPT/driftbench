@@ -77,6 +77,9 @@ async function build(): Promise<FixtureSuite> {
   // The recorded sessions sit beside the map (docs/estate.md section 5): a replay row finds its session there, and
   // without them every replay row waits on `needs-recorded-session`.
   await cp(join(FIXTURE, 'sessions'), join(work, 'sessions'), { recursive: true });
+  // The state library the fixture ships, beside the map where `estate generate` looks for it: the stop and resume
+  // rows set `helpers_running`, which only a library with the estate's own helper records holds.
+  await cp(join(FIXTURE, 'live/states'), join(work, 'live/states'), { recursive: true });
   const approve = cli(['estate', 'plan', 'approve', join(work, 'plan.yaml'), '--all']);
   if (approve.code !== 0)
     throw new Error(`plan approve exited ${approve.code}: ${approve.out.slice(0, 200)}`);
