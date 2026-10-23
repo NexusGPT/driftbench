@@ -218,7 +218,10 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
   for (const [path, entries] of oldByPath) {
     const indices = newByPath.get(path);
     if (!indices) continue;
-    const pairs = matchSequences(entries.map(oldFp), indices.map((g) => newFp(news[g] as NewUnit)));
+    const pairs = matchSequences(
+      entries.map(oldFp),
+      indices.map((g) => newFp(news[g] as NewUnit)),
+    );
     for (const [i, j] of pairs) {
       const entry = entries[i] as LedgerEntry;
       assigned.set(indices[j] as number, { entry, event: 'unchanged' });

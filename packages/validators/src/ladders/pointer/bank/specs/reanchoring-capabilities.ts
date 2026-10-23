@@ -3,8 +3,8 @@ import { row, type Spec } from './types';
 /**
  * Re-anchoring items for the capabilities written into docs/estate-pointer-reader.md section 4 on 2026-10-23:
  * steps 3 and 4 read the whole estate (a unit moved to another file and edited keeps its id), and a table cell keeps
- * its id by its text when unique and long, else by its row key and column header, else gets a new id. Each fails on the shared `ItemFailure`: a message prints the edit and the fates the
- * reader gave, never the planted ones.
+ * its id by its text when unique and long, else by its row key and column header, else gets a new id. Each fails
+ * on the shared `ItemFailure`: a message prints the edit and the fates the reader gave, never the planted ones.
  */
 export const reanchoringCapabilitySpecs: Spec[] = [
   row(

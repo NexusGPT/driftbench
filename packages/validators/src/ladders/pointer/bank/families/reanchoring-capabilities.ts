@@ -279,8 +279,16 @@ export const reanchoringCapabilityRuns: Record<string, Run> = {
     return rescanShortCells(
       ctx,
       'every row key of a table rewritten, short cells repeated',
-      tableFile('notes/table.md', ['Step', 'Done'], keys.map((key, i) => [key, DONE[i] as string])),
-      tableFile('notes/table.md', ['Step', 'Done'], renamed.map((key, i) => [key, DONE[i] as string])),
+      tableFile(
+        'notes/table.md',
+        ['Step', 'Done'],
+        keys.map((key, i) => [key, DONE[i] as string]),
+      ),
+      tableFile(
+        'notes/table.md',
+        ['Step', 'Done'],
+        renamed.map((key, i) => [key, DONE[i] as string]),
+      ),
       keys,
       (ids, second) => ids.every((id) => byId(second, id)?.status !== 'live'),
       DONE.map(() => 'a new id'),
