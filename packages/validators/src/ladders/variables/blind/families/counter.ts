@@ -398,6 +398,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, s, [], g, { uncovered: 5 });
           check(Array.isArray(got.uncovered) && got.uncovered.length === 5, () => ({
             rule: 'with a limit, uncovered lists up to the limit',
+            echoes: ['limit'],
             input: { limit: 5 },
             got: { listed: got.uncovered?.length },
             expected: { listed: 5, missing: want.uncovered.length },

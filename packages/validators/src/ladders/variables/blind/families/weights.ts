@@ -25,6 +25,7 @@ const exact =
     const [wl, wh] = wilson(count, total);
     check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, () => ({
       rule: 'weightInterval returns the two-sided N percent Wilson interval of the count over the total',
+      echoes: ['count'],
       input: { count, total },
       got: [lo, hi],
       expected: [wl, wh],
