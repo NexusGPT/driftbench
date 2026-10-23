@@ -8,6 +8,7 @@ import {
   FAMILIES,
   FAMILY_LEVEL,
   LEVELS,
+  levelOf,
   STEMS,
   type StemDef,
   type Tier,
@@ -85,8 +86,10 @@ export function renderCatalogue(interfaceText: string, stems: readonly StemDef[]
       LEVELS.map((l, i) => [
         String(i + 1),
         l,
-        FAMILIES.filter((f) => FAMILY_LEVEL[f] === l).join(', '),
-        String(items.filter((it) => FAMILY_LEVEL[it.stem.family] === l).length),
+        FAMILIES.filter((f) =>
+          items.some((it) => it.stem.family === f && levelOf(it.stem.family, it.stem.component) === l),
+        ).join(', '),
+        String(items.filter((it) => levelOf(it.stem.family, it.stem.component) === l).length),
       ]),
     ),
   );
@@ -150,7 +153,7 @@ export function renderCatalogue(interfaceText: string, stems: readonly StemDef[]
       items.map((i) => [
         `\`${i.id}\``,
         i.stem.family,
-        FAMILY_LEVEL[i.stem.family],
+        levelOf(i.stem.family, i.stem.component),
         String(i.tier),
         `C${causeNo.get(causeOf(i))}`,
       ]),
