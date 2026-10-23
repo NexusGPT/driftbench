@@ -1,9 +1,9 @@
 import { constants, existsSync } from 'node:fs';
 import { copyFile, lstat, mkdir, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, dirname, join, relative } from 'node:path';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
-import { estatePath, estateSource } from '../paths';
+import { estatePath, estateSource, isSpelledOnDisk, type Listings } from '../paths';
 import { isUserLayerPath, readerFor } from '../scan/index';
 import { provenanceHash, quoteAtSpan } from '../scan/text';
 import type { Atom, EstateMap } from '../schema';
@@ -73,8 +73,12 @@ export async function copyEstate(
   const listed = reader?.listFiles ? await reader.listFiles(root) : undefined;
   const copied: string[] = [];
   const files = new Set(listed ?? []);
+  // A file is copied by the name the disk lists. A name spelled in other letters (a disk that ignores case
+  // opens `VENDORED.md` as `vendored.md`) would put a second name in the copy and rename the real file.
+  const listings: Listings = new Map();
   const collect = async (file: string, ancestors = new Set<string>()): Promise<void> => {
     const source = estateSource(root, file);
+    if (!(await isSpelledOnDisk(root, file, listings))) return;
     const info = await stat(source).catch(() => undefined);
     if (!info) return;
     if (info.isDirectory()) {
@@ -111,7 +115,7 @@ export async function copyEstate(
 
 /** Mutates the estate copy at `root` in place and returns the mutant's map. */
 export async function mutateEstate(
-  copy: { root: string; map: EstateMap },
+  copy: { root: string; map: EstateMap; source?: string },
   op: MutationOp,
 ): Promise<MutantResult> {
   const kind = 'delete' in op ? 'delete' : 'invert';
@@ -212,6 +216,9 @@ export async function mutateEstate(
   )
     .map((issue) => issue.message.split(':')[0] ?? issue.message)
     .concat(lost);
+  // A file of the copy that differs from the estate beyond the mutated span is collateral too.
+  if (copy.source !== undefined)
+    collateral.push(...(await changedBeyondSpan(copy.source, copy.root, new Set([file, ...removedFiles]))));
   return {
     atom: id,
     op: kind,
@@ -471,6 +478,39 @@ function invertClause(clause: string, sentence: boolean): string | undefined {
   if (!/^[A-Za-z]/.test(clause)) return undefined;
   const lowered = clause.charAt(0).toLowerCase() + clause.slice(1);
   return `${cap('do not')} ${lowered}`;
+}
+
+/**
+ * The files of the copy that are not the estate's: a file under a name the estate does not hold (spelled in
+ * other letters), or one whose bytes differ from the estate's. The mutated file and the files the mutation
+ * removed are the mutation's own.
+ */
+async function changedBeyondSpan(source: string, copy: string, own: ReadonlySet<string>): Promise<string[]> {
+  const found: string[] = [];
+  const listings: Listings = new Map();
+  const walk = async (at: string): Promise<void> => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if (entry.isDirectory()) {
+        await walk(full);
+        continue;
+      }
+      const name = relative(copy, full).split(sep).join('/');
+      if (own.has(name)) continue;
+      if (!(await isSpelledOnDisk(source, name, listings))) {
+        found.push(`file ${name}: not in the estate under that name`);
+        continue;
+      }
+      const [then, now] = await Promise.all([
+        readFile(join(source, name)).catch(() => undefined),
+        readFile(full),
+      ]);
+      if (then === undefined || !then.equals(now))
+        found.push(`file ${name}: changed beyond the mutated span`);
+    }
+  };
+  await walk(copy);
+  return found.sort();
 }
 
 /** Runs `work` on every item, at most `limit` at a time. */

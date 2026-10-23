@@ -11,6 +11,7 @@ import { genAsksFamily, genCompleteFamily, impactFamily, mutantFamily } from './
 import { maintainFixtureFamily } from './maintain-fixture';
 import { planContractFamily, planPairsFamily, planRelevanceFamily } from './plan';
 import { scaleFamily } from './scale';
+import { caseNameFamily } from './scan-case';
 import { gatesFamily, hazardsFamily, pathsFamily } from './scan-code';
 import { frontmatterFamily } from './scan-front';
 import { catalogueFamily, dispatcherFamily } from './scan-guards';
@@ -46,6 +47,7 @@ export const BANK_LEVELS = [
       catalogueFamily(),
       dispatcherFamily(),
       referenceProseFamily(),
+      caseNameFamily(),
       gatesFamily(),
       hazardsFamily(),
       pathsFamily(),
@@ -111,6 +113,7 @@ export { allowedTuples, planContractFamily, planPairsFamily, planRelevanceFamily
 export { PlantedEstate, truthPort } from './planted';
 export { BUDGET_FLOOR_MS, BUDGET_PER_ATOM, budgetMs, SIZES as SCALE_SIZES, scaleFamily } from './scale';
 export { scaleEstate } from './scale-estate';
+export { caseNameFamily } from './scan-case';
 export { gatesFamily, hazardsFamily, pathsFamily } from './scan-code';
 export { FRONTMATTER_FORMS, frontmatterFamily } from './scan-front';
 export { catalogueFamily, dispatcherFamily } from './scan-guards';

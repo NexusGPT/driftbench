@@ -2,7 +2,7 @@ import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { EstatePathError, estatePath } from '../paths';
+import { EstatePathError, estatePath, isSpelledOnDisk, type Listings } from '../paths';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
@@ -360,11 +360,14 @@ async function readRootReferences(
   const unitNames = new Set([...estate.skills, ...estate.subagents].map((unit) => unit.name));
   // Many lines name the same file: each path is looked up on disk once.
   const isFile = new Map<string, Promise<boolean>>();
+  // A name is a file only as the folder listing spells it: on a disk that ignores case, `VENDORED.md` would
+  // otherwise land on `vendored.md` and give one file two paths.
+  const listings: Listings = new Map();
   const fileAt = (path: string) => {
     let known = isFile.get(path);
     if (known === undefined) {
       known = localPath(root, path, estate.notes).then(async (safe) =>
-        safe === undefined
+        safe === undefined || !(await isSpelledOnDisk(root, path, listings))
           ? false
           : stat(safe).then(
               (info) => info.isFile(),
@@ -434,6 +437,7 @@ async function readRootReferences(
             if (!estate.externals?.includes(path)) estate.externals?.push(path);
             continue;
           }
+          if (!(await isSpelledOnDisk(root, path, listings))) continue;
           const info = await stat(safe).catch(() => undefined);
           if (!info?.isFile()) continue;
           if (info.size > MAX_FILE_BYTES) {

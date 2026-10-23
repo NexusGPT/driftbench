@@ -1,4 +1,4 @@
-import { lstat, readlink, realpath } from 'node:fs/promises';
+import { lstat, readdir, readlink, realpath } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 
 export class EstatePathError extends Error {}
@@ -48,4 +48,39 @@ export function estateSource(root: string, file: string): string {
   if (isAbsolute(file) || !within(base, path))
     throw new EstatePathError(`${file} is absolute or outside the estate root ${base}; refused`);
   return path;
+}
+
+/** Folder listings, by folder, kept for one pass so a name is checked against a listing once. */
+export type Listings = Map<string, Promise<ReadonlySet<string> | undefined>>;
+
+/**
+ * Whether `file` is spelled, at every step, as the folder listing of the disk spells it. The disk may be case
+ * insensitive (a Mac, a Windows folder) or not (Linux): a name is looked up against the listing, with exact
+ * case, so one file has one path on every disk and `VENDORED.md` never lands on `vendored.md`.
+ */
+export async function isSpelledOnDisk(
+  root: string,
+  file: string,
+  listings: Listings = new Map(),
+): Promise<boolean> {
+  let folder = resolve(root);
+  for (const part of file.split(/[\\/]+/)) {
+    if (part === '' || part === '.') continue;
+    if (part === '..') {
+      folder = dirname(folder);
+      continue;
+    }
+    let listing = listings.get(folder);
+    if (listing === undefined) {
+      const at = folder;
+      listing = readdir(at).then(
+        (names) => new Set(names),
+        () => undefined,
+      );
+      listings.set(folder, listing);
+    }
+    if (!(await listing)?.has(part)) return false;
+    folder = resolve(folder, part);
+  }
+  return true;
 }

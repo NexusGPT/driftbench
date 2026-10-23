@@ -12,6 +12,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | scan.catalogue | 22 | reader | docs/validators.md 12.6 (catalogue JSON). The adapter page still names only files whose name holds "registry": the docs lag the reader |
 | scan.dispatcher | 24 | reader | docs/adapters/claude-code.md, Guard row (hook command); docs/validators.md 12.6 (dispatcher commands) |
 | scan.reference-prose | 22 | reader | docs/estate.md section 1 (the model splits prose; references "the files it names"); docs/validators.md 12.6 (long references) |
+| scan.case | 5 | reader | docs/estate.md section 1, "Names that fit several files" (a name is looked up with exact case) and `estate mutate` (the copy holds the names of the disk, collateral lists any other file it changes) |
 | scan.gates | 29 | reader | docs/estate.md section 1 (gates in four fixed forms, read by code) |
 | scan.hazards | 22 | reader | docs/adapters/claude-code.md, Hazard row (passages naming a runtime hazard) |
 | scan.paths | 31 | reader | docs/estate.md section 1, Reference row (a file a skill names) |
