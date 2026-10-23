@@ -311,7 +311,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         similarity(flat(entry).quote, flat(first).quote),
         similarity(flat(entry).quote, flat(second).quote),
       );
-      if (joined > alone + 0.1 && joined >= LADDER.threshold + LADDER.joinMargin) {
+      if (joined > alone && joined >= LADDER.threshold + LADDER.joinMargin) {
         result.set(entry.id, { event: 'split', to: [first, second] });
         used.add(first);
         used.add(second);
@@ -338,8 +338,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         Math.max(
           similarity(flat(first).quote, flat(best.item).quote),
           similarity(flat(second).quote, flat(best.item).quote),
-        ) +
-          0.1
+        )
     ) {
       result.set(first.id, { event: 'merged', to: [best.item] });
       result.set(second.id, { event: 'merged', to: [best.item] });
@@ -369,7 +368,143 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
       used.add(item);
     }
   }
+
+  // Steps 3 and 4 read the whole estate: what the passes above left open is scored against the new units of every
+  // other file, with the same weights, threshold and floor, so a unit that left its file (or whose file was renamed)
+  // keeps its id when it comes back reworded, split or merged. The pool is blocked by shared trigrams: a candidate
+  // must share a fair part of its trigrams with the text it is scored against, which keeps the pass linear in the
+  // open units of a large estate. The same-file passes above are untouched, so a unit that stays in its file is
+  // decided as before.
+  const pool = new TrigramPool(openNew());
+  // Split: two neighbouring new units of another file read better together than apart as the old one.
+  for (const entry of openOld()) {
+    const text = flat(entry).quote;
+    const seen = new Set<Fresh>();
+    for (const first of pool.near(text)) {
+      if (used.has(first) || first.path === entry.path) continue;
+      const second = pool.next(first);
+      if (!second || used.has(second) || seen.has(first)) continue;
+      seen.add(first);
+      const joined = similarity(text, `${flat(first).quote} ${flat(second).quote}`);
+      const alone = Math.max(similarity(text, flat(first).quote), similarity(text, flat(second).quote));
+      if (joined > alone && joined >= LADDER.threshold + LADDER.joinMargin) {
+        result.set(entry.id, { event: 'split', to: [first, second] });
+        used.add(first);
+        used.add(second);
+        break;
+      }
+    }
+  }
+  // Merge: two neighbouring old units read better together as one new unit of another file.
+  const rest = openOld().sort((a, b) => a.path.localeCompare(b.path) || a.index - b.index);
+  for (let at = 0; at + 1 < rest.length; at++) {
+    const first = rest[at];
+    const second = rest[at + 1];
+    if (!first || !second || first.path !== second.path || result.has(first.id) || result.has(second.id))
+      continue;
+    const joined = `${flat(first).quote} ${flat(second).quote}`;
+    const best = pool
+      .near(joined)
+      .filter((item) => !used.has(item) && item.path !== first.path)
+      .map((item) => ({ item, value: similarity(joined, flat(item).quote) }))
+      .sort((a, b) => b.value - a.value)[0];
+    if (
+      best &&
+      best.value >= LADDER.threshold + LADDER.joinMargin &&
+      best.value >
+        Math.max(
+          similarity(flat(first).quote, flat(best.item).quote),
+          similarity(flat(second).quote, flat(best.item).quote),
+        )
+    ) {
+      result.set(first.id, { event: 'merged', to: [best.item] });
+      result.set(second.id, { event: 'merged', to: [best.item] });
+      used.add(best.item);
+    }
+  }
+  // The rest, scored against the units of every other file.
+  const crossPairs: Array<{ entry: LedgerEntry; item: Fresh; value: number }> = [];
+  for (const entry of openOld()) {
+    for (const item of pool.near(flat(entry).quote)) {
+      // An identical text elsewhere is step 2's: it keeps its id by the exact-text rule and its length floor.
+      if (used.has(item) || item.path === entry.path || flat(item).quote === flat(entry).quote) continue;
+      if (
+        Math.abs(flat(entry).quote.length - flat(item).quote.length) >
+        Math.max(flat(entry).quote.length, flat(item).quote.length) * 0.8
+      ) {
+        continue;
+      }
+      crossPairs.push({ entry, item, value: score(entry, item) });
+    }
+  }
+  crossPairs.sort((a, b) => b.value - a.value);
+  for (const { entry, item, value } of crossPairs) {
+    if (result.has(entry.id) || used.has(item)) continue;
+    if (value > LADDER.threshold && similarity(flat(entry).quote, flat(item).quote) > LADDER.textFloor) {
+      result.set(entry.id, { event: 'changed', to: [item] });
+      used.add(item);
+    }
+  }
   return result;
+}
+
+/** The share of the informative trigrams of a text a candidate must hold for the cross-file passes to score it. */
+const POOL_SHARE = 0.3;
+/** A trigram held by more units than this is common, and does not make a unit a candidate. */
+const POOL_POSTING = 48;
+
+/**
+ * An index of new units by their character trigrams, for the passes that look in every file: `near(text)` gives the
+ * units that share a fair part of their trigrams with `text`, in the order of the estate, never all of them.
+ */
+class TrigramPool {
+  private readonly index = new Map<string, Fresh[]>();
+  private readonly neighbours = new Map<Fresh, Fresh>();
+
+  constructor(units: readonly Fresh[]) {
+    for (const unit of units) {
+      const grams = TrigramPool.grams(flat(unit).quote);
+      for (const gram of grams) {
+        const list = this.index.get(gram);
+        if (list) list.push(unit);
+        else this.index.set(gram, [unit]);
+      }
+    }
+    const byPlace = new Map<string, Fresh>(units.map((unit) => [`${unit.path}\0${unit.index}`, unit]));
+    for (const unit of units) {
+      const next = byPlace.get(`${unit.path}\0${unit.index + 1}`);
+      if (next) this.neighbours.set(unit, next);
+    }
+  }
+
+  /** The unit that follows `unit` in its file, when that one is in the pool too. */
+  next(unit: Fresh): Fresh | undefined {
+    return this.neighbours.get(unit);
+  }
+
+  near(text: string): Fresh[] {
+    const grams = TrigramPool.grams(text);
+    const shared = new Map<Fresh, number>();
+    // Only the trigrams that few units hold tell units apart; one that most units hold (a common word) would make
+    // every pair a candidate. A trigram no unit holds still counts as informative: it is the part that changed.
+    let informative = 0;
+    for (const gram of grams) {
+      const list = this.index.get(gram) ?? [];
+      if (list.length > POOL_POSTING) continue;
+      informative++;
+      for (const unit of list) shared.set(unit, (shared.get(unit) ?? 0) + 1);
+    }
+    const out: Fresh[] = [];
+    for (const [unit, count] of shared) if (count >= Math.max(2, POOL_SHARE * informative)) out.push(unit);
+    return out;
+  }
+
+  private static grams(text: string): Set<string> {
+    const grams = new Set<string>();
+    if (text.length < 3) grams.add(text);
+    for (let at = 0; at + 3 <= text.length; at++) grams.add(text.slice(at, at + 3));
+    return grams;
+  }
 }
 
 export type NextLedger = {

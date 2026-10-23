@@ -39,8 +39,17 @@ The output folder:
 | `unit/` | unit tests: guards on event payloads, scripts on fixtures | `estate unit` (topic `validate-estate-unit`) |
 | `static/invariant/`, `static/setting/` | static tests of the files, as JSON | `estate static` (this topic) |
 | `incomplete/<mode>/<test type>/` | specs with a gap | nothing until the gap closes |
+| `states/library.json`, `states/prefixes/` | the state library the runs use, when none is named or sits beside the map | `estate run --states` |
 | `run-order.txt` | the complete specs, focus atoms first, then guards, gates, invariants | `estate run --order` |
 | `estate-generate-report.json` | the report below, as JSON | |
+
+A row whose cell sets a session state or an event is planned only if the state library of the run holds it.
+The library is `--states <file>`, else `live/states/library.json` beside the map, else the one this command writes:
+it holds the events that change the runtime (a compaction, a restart, a wave of rate limits) and the states made of a
+long neutral transcript (`long`, `after_compaction`, `after_restart`). States that need the estate's own
+transcript, tracker or helper (`resumed`, `helpers_running`, `stale_tracker`, `dead_helper`, `helper_stopped`) wait as
+`needs-state-operation` until a library that holds them is given, and the command prints `N rows need states not in
+the library: ...` on stderr.
 
 `estate static <tests...> --estate <root>` reads the estate files again, with no run of the agent: an
 invariant must still hold (the standing file under its ceiling, no orphan file, anchored guard paths, a
@@ -56,7 +65,7 @@ complete check registry), and a setting must still be declared with its value.
 ## Commands and every option
 
 ```
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--sections <registry>]... [--no-fallback] [--no-judge] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--states <file>] [--focus <file>] [--sections <registry>]... [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime claude-code] [--ceiling <characters>] [--json]
 ```
 
@@ -125,6 +134,7 @@ The gap markers:
 | `needs-negation` | a negative control whose predicate has no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
 | `needs-guard-trace` | a check that runs inside another guard's script |
+| `needs-state-operation` | a session state or an event the state library of the run has no operation for |
 | `needs-guard-timing`, `needs-guard-message-check` | the speed or the message of a guard |
 | `needs-derivable-then` | a row with no Then code can derive |
 | `needs-existing-file` | a Read of a file the estate copy does not hold |
@@ -170,7 +180,7 @@ Outcomes of the complete specs: 627 bank, 14 no-change:guard, 58 no-change:negat
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 55 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
+Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
 Complete share: 99.15%; distinct asks: 114 in 1036 complete asked tests (11.00 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 9 per-spec reason records in estate-generate-report.json (incomplete[].reasons).

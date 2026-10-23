@@ -221,3 +221,39 @@ describe('a text that matches in several places', () => {
     ]);
   });
 });
+
+describe('a unit split in two or two units joined', () => {
+  const whole =
+    'Count every compass promptly, then tighten the polished register behind the barrow overnight, and a valve from the cellar hangs together while the numbered gallery shifts beneath the crate, and seal each rake firmly.';
+  const head =
+    'Count every compass promptly, then tighten the polished register behind the barrow overnight, and a valve from the cellar hangs together while the numbered gallery shifts beneath the crate.';
+  const tail = 'Seal each rake firmly.';
+
+  it('is a split even when one piece is almost the whole unit', () => {
+    const first = scan({ 'a.md': `${whole}\n` });
+    const second = scan({ 'a.md': `${head}\n\n${tail}\n` }, first.ledger);
+    expect(second.events.split).toBe(1);
+    expect(second.events.changed).toBe(0);
+    const [id] = first.ledger.entries.map((entry) => entry.id);
+    expect(second.eventsById[id as string]).toBe('split');
+  });
+
+  it('is a merge even when one unit was almost the whole joined text', () => {
+    const first = scan({ 'a.md': `${head}\n\n${tail}\n` });
+    const second = scan({ 'a.md': `${whole}\n` }, first.ledger);
+    expect(second.events.merged).toBe(1);
+    expect(second.events.deleted).toBe(1);
+    expect(second.events.changed).toBe(0);
+  });
+
+  it('is a plain change when the neighbour adds nothing', () => {
+    const first = scan({ 'a.md': `${head}\n\nLock the gate when the yard is empty.\n` });
+    const second = scan(
+      { 'a.md': `${head.replace('crate', 'cart')}\n\nLock the gate when the yard is empty.\n` },
+      first.ledger,
+    );
+    expect(second.events.changed).toBe(1);
+    expect(second.events.split).toBe(0);
+    expect(second.events.merged).toBe(0);
+  });
+});

@@ -101,13 +101,15 @@ Parser and offsets:
 
 - Parse with `unified`, `remark-parse`, `remark-gfm` and `remark-frontmatter`. Every node carries UTF-16 start and end offsets; a unit's text is always `source.slice(start, end)`, never a node's `value` (a blockquote's value drops the `> ` markers).
 - A leading byte-order mark is stripped and its length recorded as a base offset, so every offset still points into the original file.
+- Lists and block quotes may nest 100 levels deep. A file that nests deeper is refused by the cutter with a message that names the depth and the limit, and the scan names the file, because the parser takes more than linear time on deep nesting. Fenced code does not count.
+- A paragraph or a block quote of more than 5,000 lines is read in parts, because the parser takes much more than linear time on the text of one paragraph (150,000 lines take about 2 seconds in parts and a minute in one). The block structure comes from the parser's own block passes, which do not read paragraph text and are linear. A cut falls only between two lines that the parser reads as one paragraph (for a quote, one paragraph of the quote), outside any list. A fence, a heading, a table, a front matter, a blank quote line, a nested quote and a lazy continuation line of a quote are never cut, and the heading path carries over. The parts of a quote are joined back into the one unit it is. A sentence that runs over a cut is two units. A file of 5,000 lines or fewer is read whole.
 
 Units:
 
 | Container | Rule |
 |---|---|
 | Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. |
-| List item | One unit per item and per nested item. A wrapped item is one unit. |
+| List item | One unit per item and per nested item, for the item's prose. A wrapped item is one unit. A task-list checkbox (`[ ]`, `[x]`) is a mark, not prose: it is not in the unit's quote, and its state is no pointer fact. A heading inside an item (a setext heading, for example) is a heading unit, and the item has a unit only for its prose beyond the heading. |
 | Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. |
 | Block quote | One unit per paragraph, offsets covering the text after the `>`. |
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
@@ -115,7 +117,9 @@ Units:
 | Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
 | Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
 
-Every prose character belongs to exactly one unit. Spans never overlap.
+Every prose character belongs to exactly one unit. Spans never overlap. A link reference definition (`[id]: url "title"`) is not rendered text and gives no unit, its title included. These three rules follow CommonMark and GFM.
+
+**Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
 
 **Cut digest.** The cutter hashes the ordered list of unit fingerprints into a digest and stores it. Replay recomputes the cut and compares digests. A mismatch stops with an error that names the Node and ICU versions, so a cutter that varies between environments fails loudly instead of renumbering silently. Experiment 6 decides whether `Intl.Segmenter` may stay or a deterministic splitter must ship.
 
@@ -221,6 +225,7 @@ This section states the product contract formerly described by the research `STA
 - System 2 supplies three independent runs on the same window. Below the cut, all three votes must be present, valid members of the label set, and equal. Their unanimous label is accepted even when it differs from system 1. Otherwise the unit is unsure and goes to a person. An empty or undeclared label is never accepted.
 - `requireAgreement` defaults to false. When true, every accepted unit, including an above-cut unit, must also have three valid equal system-2 votes matching its system-1 label. Accepted units are therefore a subset of the ordinary accepted set.
 - A missing or malformed system-2 run counts against unanimity. A system-1 call retries once; a second failure routes its units below the cut. Changing one unit's opinions changes only that unit's route or decision.
+- A stack asks system 1 first. In a set with no label only system 2 can give, a unit that system 1 decides alone (a sure label, or a sure `none`) is not asked of system 2, since system 2 could not change the decision; a window whose needed units are all such units is not sent to system 2. In any other set every window goes to both, as before.
 - `margin(probabilities)` is the pure measure: the likeliest option minus the second, or undefined when the probabilities are no vector (a probability outside 0 to 1, not a number, a total off by more than 0.01) or hold no `none` option. `stackMargin(probabilities)` is the margin the stack reads: the same measure, and a RangeError where the measure gives none. `stackDecision` leaves a unit with no margin to system 2. `stackDecision({probabilities, system1Label?, system2Votes, marginCut, requireAgreement?})` applies the rules above to one unit and returns `{label, by}` or nothing, from that unit's opinions only. A system 2 labeler used alone is asked `runs` times when the caller sets it (the validator arms set one).
 - Both classes can be replaced by user labelers. A system-1 replacement supplies probabilities; a system-2 replacement supplies three independent votes. These are product requirements, not behavior the validator adapter implements.
 
@@ -246,7 +251,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
+A refused answer is retried once, then recorded as a failed window, with the window, the set, the labeler and the reasons. A failed transport (a request that throws) is a failed window too: it is retried like a refused answer, listed with the reason, and none of its answers is recorded; the other windows are still asked and recorded in full. The labeler contract (`packages/estate/src/pointer/contract.ts`, case "reports a failed transport as a failed window and records nothing") checks the first part for every labeler. A clause that cannot be located is no such refusal: the run is out of step and the vote handles it. A unit missing from an accepted answer is `unlabeled`, listed with its id, and gets no atom. A unit whose label goes from a label other than `none` to `none` or to no label is listed as a flip; it stays live.
 
 ## 4. Layer A: the ledger
 
@@ -298,6 +303,8 @@ Cheapest first, on units:
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
+
+Steps 3 and 4 run in two rounds. The first scores inside the unit's own file. What it leaves open is scored against the new units of every other file, with the same weights, threshold and floor, so a unit that leaves one file and comes back reworded, split or merged in another (a renamed file included) keeps its id when it clears them. An identical text in another file is step 2's: its length floor holds. **Limit of the second round:** its candidates are found by the rare character trigrams they share with the unit. A trigram held by more than 48 units of the estate does not count, and a candidate must hold at least 30 percent of the unit's informative trigrams (and at least two). A pair that would clear the threshold and the floor but shares almost no rare trigram is not followed across files, and the unit is `deleted` there; it is still followed inside its own file. The limit keeps the round linear in the open units of a large estate.
 
 `carryOf(before, after, sets)` says, for one unit that was labelled before, which labels carry to the next scan and which sets are asked again: a label carries when the unit's fingerprint and its context fingerprint are both unchanged, and a set the unit had no label for is asked again. `recordLabel(entry, set, next)` replaces the label of one set of an entry, leaves the other sets, the id and the status alone, and returns a flip when a label other than `none` was replaced by another label, by `none` or by none. When a text matches in several places the old id stays on the first match, and `nextLedger` lists every place in `candidates`.
 

@@ -51,6 +51,7 @@ Usage: `driftbench redteam plugins [id] [--json]`,
 | `--cassette <file>` | On grade: replay the recorded answers of a judge cassette; default none. No judge call. |
 | `--judge-id <id>` | On grade with --cassette: the judge to replay; default the cassette's only judge. |
 | `--record <file>` | On grade with --judge: save every judge answer as a cassette. Parent must exist; existing files are refused. |
+| `--prices <file>` | On grade: a YAML table of USD per million tokens, to print the judge's cost; default none. |
 | `--agent-family <family>` on grade | With --judge: the target's model family; the judge must be of another family. Default `none` for Acme; otherwise required. |
 | `--json` on grade | Default false; print the spec id, target, pass and the full run as JSON. |
 | `-h, --help` | Every command: print usage without running. |

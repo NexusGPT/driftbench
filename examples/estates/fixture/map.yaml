@@ -805,6 +805,8 @@ atoms:
       tool: Edit
       effect: declared
       rule: Edit
+      rules:
+        - Edit
   - id: tool.invoice-reconcile.declared-bash
     kind: tool
     title: Declared Bash
@@ -824,6 +826,10 @@ atoms:
       tool: Bash
       effect: declared
       rule: Bash
+      rules:
+        - Bash(python3 *)
+        - Bash(./scripts/track.sh *)
+        - Bash
   - id: tool.weekly-report.declared-write
     kind: tool
     title: Declared Write
@@ -843,6 +849,8 @@ atoms:
       tool: Write
       effect: declared
       rule: Write
+      rules:
+        - Write
   - id: setting.settings.setting-model-is-opus
     kind: setting
     title: Setting model is opus
