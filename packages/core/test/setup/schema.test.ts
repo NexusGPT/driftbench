@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CLAUDE_CODE_PROFILE } from '../../src/runtime-profile/claude-code';
-import { parseSetupText } from '../../src/setup/schema';
+import { parseSetupText, resolveSetupSources } from '../../src/setup/schema';
 
 const document = {
   version: 1,
@@ -84,4 +84,9 @@ it('scopes same-named types by source and never gives .agents the host locator',
   expect(host?.folder).toBe('.claude');
   expect(shared?.folder).toBe('.');
   expect(shared?.locate.map((locator) => locator.written)).toEqual(['skills/*/']);
+  const resolved = resolveSetupSources(result.setup, '/fictional/setup/driftbench.setup.yaml', (id) => id === 'claude-code' ? {
+    runtime: id, roots: CLAUDE_CODE_PROFILE.roots, base: CLAUDE_CODE_PROFILE.types,
+  } : undefined);
+  expect(resolved[1]?.root).toBe('/fictional/setup/.agents');
+  expect(resolved[1]?.types.types.find((type) => type.name === 'skill')?.folder).toBe('.');
 });
