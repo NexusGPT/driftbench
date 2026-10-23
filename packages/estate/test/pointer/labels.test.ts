@@ -543,7 +543,11 @@ describe('spans and links in a label set', () => {
       { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
     ]);
     expect(plain).toEqual(entries[3]);
-    expect(range).toEqual(entries[4]);
+    // A range carries no spans, and the words of its spans stay out of the answer that is recorded.
+    expect(range?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the entry is not one unit of the window' },
+    ]);
+    expect(JSON.stringify(range)).not.toContain('Never edit it');
     expect(offsets).toEqual(entries[5]);
     // The drop that follows names why the words were not located, not a bad offset; the label stands.
     const dropped = checkAnswer(set, window, [absent as Labelled], context);
@@ -552,6 +556,39 @@ describe('spans and links in a label set', () => {
     expect(dropped.dropped[0]).not.toMatch(/offsets leave the unit/);
     const accepted = checkAnswer(set, window, [found as Labelled], context);
     expect(accepted.accepted.get(1)?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
+  });
+
+  it('locates a text one occurrence for each listing when the entry lists it as often as the unit holds it', () => {
+    const text = 'Read `a.md` before editing; read `a.md` before sending.';
+    const own = {
+      id: 'w',
+      path: 'w.md',
+      headingPath: [],
+      units: [{ n: 1, text, index: 0 }],
+    };
+    const [both, once] = offsetSpans(
+      [
+        {
+          units: '1',
+          label: 'rule',
+          spans: [
+            { kind: 'act', text: '`a.md`' },
+            { kind: 'act', text: '`a.md`' },
+          ],
+        },
+        { units: '1', label: 'rule', spans: [{ kind: 'act', text: '`a.md`' }] },
+      ],
+      own,
+    );
+    const first = text.indexOf('`a.md`');
+    const second = text.indexOf('`a.md`', first + 1);
+    expect(both?.spans).toEqual([
+      { kind: 'act', from: first, to: first + 6 },
+      { kind: 'act', from: second, to: second + 6 },
+    ]);
+    expect(once?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
+    ]);
   });
 
   it('refuses a span kind the set declares but the label does not list', () => {
@@ -579,5 +616,70 @@ describe('spans and links in a label set', () => {
       { units: '2', label: 'none', links: [{ kind: 'topic', to: 'none' }] },
     ]);
     expect(none.dropped[0]).toMatch(/carries no links/);
+  });
+});
+
+describe('scopes: the other units a unit applies to', () => {
+  const counter = load(TWO_SETS)[1] as LabelSet;
+  const window = {
+    id: 'w',
+    path: 'notes.md',
+    headingPath: [],
+    units: [1, 2, 3].map((n) => ({ n, text: `unit ${n}`, index: n - 1 })),
+  };
+
+  it('keeps the scopes of a label, whatever the label', () => {
+    const checked = checkAnswer(counter, window, [
+      { units: '1', label: 'remark', scopes: [2, 3] },
+      { units: '2', label: 'order', target: 3, scopes: [1] },
+    ]);
+    expect(checked.refusals).toEqual([]);
+    expect(checked.accepted.get(1)?.scopes).toEqual([2, 3]);
+    expect(checked.accepted.get(2)?.scopes).toEqual([1]);
+  });
+
+  it('refuses a scope that is no unit of the window, the unit itself, a repeat, or sits on none', () => {
+    for (const entry of [
+      { units: '1', label: 'remark', scopes: [9] },
+      { units: '1', label: 'remark', scopes: [1] },
+      { units: '1', label: 'remark', scopes: [2, 2] },
+      { units: '1', label: 'remark', scopes: ['2' as unknown as number] },
+      { units: '1', label: 'none', scopes: [2] },
+    ] satisfies Labelled[]) {
+      const checked = checkAnswer(counter, window, [entry]);
+      expect(checked.refusals, JSON.stringify(entry)).toHaveLength(1);
+      expect(checked.accepted.size, JSON.stringify(entry)).toBe(0);
+    }
+  });
+});
+
+describe('a refused label set names what is wrong with it', () => {
+  const set = (name: string, label: string, extra = '') =>
+    `labels:\n  - set: ${name}\n    description: A set.\n    labels:\n      - name: ${label}\n        description: A label.\n${extra}`;
+  const message = (text: string): string => {
+    const parsed = parseLabelSets(text);
+    if (parsed.ok) throw new Error('the set was accepted');
+    return parsed.message;
+  };
+
+  it('names the label and the set of a bad identifier', () => {
+    expect(message(set('s3', 'bad name'))).toContain('"bad name"');
+    expect(message(set('s3', 'bad name'))).toContain('"s3"');
+  });
+
+  it('names the label of a target that is not required', () => {
+    expect(message(set('s4', 'odd', '        target: optional\n'))).toContain('"odd"');
+  });
+
+  it('names the label that holds more than three examples', () => {
+    const examples = ['a', 'b', 'c', 'd'].map((e) => `          - ${e}\n`).join('');
+    expect(message(set('many', 'voice', `        examples:\n${examples}`))).toContain('"voice"');
+  });
+
+  it('accepts a set named like an object property', () => {
+    for (const name of ['__proto__', 'constructor', 'hasOwnProperty']) {
+      expect(parseLabelSets(set(name, 'rule')).ok).toBe(true);
+    }
+    expect(message(set('has space', 'rule'))).toContain('"has space"');
   });
 });

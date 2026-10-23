@@ -20,10 +20,12 @@ export type LedgerLabel = {
   /** The class that decided: system1 or system2. */
   by?: 'system1' | 'system2';
   target?: string;
+  /** The other units, by id, that the unit applies to. */
+  scopes?: string[];
   /** Clauses of the unit by offsets into its text; kept with the label, valid while the unit's text is. */
   spans?: Array<{ kind: string; from: number; to: number; polarity?: string }>;
   /** Atoms the unit points at, by kind and id. */
-  links?: Array<{ kind: string; to: string }>;
+  links?: Array<{ kind: string; to: string; value?: number; unit?: string }>;
 };
 
 export type LedgerEntry = {
@@ -36,25 +38,88 @@ export type LedgerEntry = {
   fp: string;
   /** Fingerprint of the neighbours and the headings: a change here can flip a label the unit text does not show. */
   ctxFp: string;
+  /** The unit's text as the file holds it: `source.slice(hint.start, hint.end)`. */
   quote: string;
+  /** The characters of the file before the unit and after it. */
   prefix: string;
   suffix: string;
+  /** UTF-16 offsets of the unit in its file at the last scan, byte-order mark included. */
+  hint: { start: number; end: number };
   status: 'live' | 'deleted';
+  /** Keyed by set name; a map without a prototype, so a set may bear any name. */
   labels: Record<string, LedgerLabel>;
+  /** What the scans that changed the ledger decided for the unit, oldest first, the last {@link LINEAGE_KEEP} kept. */
+  lineage: Array<{ scan: number; event: Event }>;
+  /** The id of the unit with the same text in an earlier file of the estate (identical boilerplate), else null. */
+  twinOf: string | null;
 };
 
 export type Ledger = { version: 1; cutDigests: Record<string, string>; entries: LedgerEntry[] };
 
 export type Event = 'new' | 'unchanged' | 'moved' | 'ambiguous' | 'changed' | 'split' | 'merged' | 'deleted';
 
-export type FileCut = { path: string; cut: Cut };
+/** `text` is the file as read. Without it the entries keep the squashed text of the unit and of its neighbours. */
+export type FileCut = { path: string; cut: Cut; text?: string };
+
+/** A unit whose label of a set was a label other than `none` and is now another label, `none`, or none. */
+export type LabelFlip = { unit: string; set: string; from: string; to?: string };
+
+/**
+ * Records the label a set now gives a unit, or removes it (`undefined`: no accepted answer named the unit). The unit
+ * keeps its id and its place, whatever the label; the other sets keep theirs. A label that was selected (not
+ * `none`) and is now another label, `none` or none is a flip, returned so the scan can report it.
+ */
+export function recordLabel(
+  entry: { id: string; labels: Record<string, LedgerLabel> },
+  set: string,
+  next: LedgerLabel | undefined,
+): LabelFlip | undefined {
+  const before = Object.hasOwn(entry.labels, set) ? entry.labels[set]?.label : undefined;
+  if (next === undefined) delete entry.labels[set];
+  else entry.labels[set] = next;
+  if (before === undefined || before === 'none' || before === next?.label) return undefined;
+  return { unit: entry.id, set, from: before, ...(next === undefined ? {} : { to: next.label }) };
+}
+
+/** Whether a unit keeps the labels it had: its text and its neighbours (the context) are unchanged. */
+export const keepsLabels = (
+  before: { fp: string; ctxFp: string },
+  after: { fp: string; ctxFp: string },
+): boolean => before.fp === after.fp && before.ctxFp === after.ctxFp;
+
+/**
+ * What a scan does with the labels of one unit that was labelled before: for each set it names, the label carries
+ * when the unit's fingerprint and its context fingerprint are both unchanged, and the unit is dirty (asked again)
+ * for that set otherwise. A set the unit had no label for is dirty.
+ */
+export function carryOf(
+  before: { fp: string; ctxFp: string; labels: Readonly<Record<string, string>> },
+  after: { fp: string; ctxFp: string },
+  sets: readonly string[],
+): { carried: Array<{ set: string; label: string }>; dirty: string[] } {
+  const same = keepsLabels(before, after);
+  const carried: Array<{ set: string; label: string }> = [];
+  const dirty: string[] = [];
+  for (const set of sets) {
+    const label = Object.hasOwn(before.labels, set) ? before.labels[set] : undefined;
+    if (same && label !== undefined) carried.push({ set, label });
+    else dirty.push(set);
+  }
+  return { carried, dirty };
+}
+
+/** The scans a unit's lineage remembers. */
+export const LINEAGE_KEEP = 8;
+
+/** The characters of the file kept on each side of a unit. */
+const AROUND = 24;
 
 /** The place of a unit in the estate: its file and its index in the cut. */
 export const unitKey = (path: string, index: number): string => `${path}\0${index}`;
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567';
 
-/** Ten base32 characters of the hash of (estate key, file, fingerprint, occurrence). */
+/** Ten base24 characters of the hash of (estate key, file, fingerprint, occurrence). */
 export function mintId(estateKey: string, path: string, fp: string, occurrence: number): string {
   const digest = createHash('sha256').update(`${estateKey}\0${path}\0${fp}\0${occurrence}`).digest();
   let bits = '';
@@ -78,9 +143,30 @@ type Fresh = {
   ctxFp: string;
 };
 
+/** The text a unit is compared by: white space collapsed, so a rewrap is no change. */
+type Flat = { quote: string };
+const flats = new WeakMap<object, Flat>();
+function flat(entry: { quote: string }): Flat {
+  let found = flats.get(entry);
+  if (!found) {
+    found = { quote: squash(entry.quote) };
+    flats.set(entry, found);
+  }
+  return found;
+}
+
+/** A slice that does not start or end inside a surrogate pair. */
+function slice(text: string, from: number, to: number): string {
+  let start = Math.max(0, from);
+  let end = Math.min(text.length, to);
+  if (start > 0 && /[\uDC00-\uDFFF]/.test(text[start] ?? '')) start++;
+  if (end < text.length && /[\uD800-\uDBFF]/.test(text[end - 1] ?? '')) end--;
+  return text.slice(start, Math.max(start, end));
+}
+
 function freshOf(files: readonly FileCut[]): Fresh[] {
   const out: Fresh[] = [];
-  for (const { path, cut } of files) {
+  for (const { path, cut, text } of files) {
     cut.units.forEach((unit, index) => {
       const before = cut.units[index - 1];
       const after = cut.units[index + 1];
@@ -88,9 +174,15 @@ function freshOf(files: readonly FileCut[]): Fresh[] {
         path,
         index,
         unit,
-        quote: squash(unit.text),
-        prefix: squash(before?.text ?? '').slice(-32),
-        suffix: squash(after?.text ?? '').slice(0, 32),
+        quote: unit.text,
+        prefix:
+          text === undefined
+            ? squash(before?.text ?? '').slice(-AROUND)
+            : slice(text, unit.start - AROUND, unit.start),
+        suffix:
+          text === undefined
+            ? squash(after?.text ?? '').slice(0, AROUND)
+            : slice(text, unit.end, unit.end + AROUND),
         ctxFp: sha(`${before?.fp ?? ''}\n${after?.fp ?? ''}\n${unit.path.join('>')}`).slice(0, 16),
       });
     });
@@ -118,24 +210,6 @@ function levenshtein(a: string, b: string): number {
 }
 
 const similarity = (a: string, b: string): number => 1 - levenshtein(a, b) / Math.max(a.length, b.length, 1);
-
-function wordSet(text: string): Set<string> {
-  return new Set(
-    text
-      .toLowerCase()
-      .split(/[^\p{L}\p{N}]+/u)
-      .filter((word) => word !== ''),
-  );
-}
-
-function jaccard(a: string, b: string): number {
-  const left = wordSet(a);
-  const right = wordSet(b);
-  let shared = 0;
-  for (const word of left) if (right.has(word)) shared++;
-  const union = left.size + right.size - shared;
-  return union === 0 ? 1 : shared / union;
-}
 
 /** The longest common subsequence of two fingerprint lists: the unchanged anchors. */
 function anchors(a: readonly string[], b: readonly string[]): Array<[number, number]> {
@@ -206,7 +280,7 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
         fresh.map((item) => item.unit),
         entry.fp,
       ) === 1;
-    if (entry.quote.length < LADDER.exactFloor && !unique) continue;
+    if (flat(entry).quote.length < LADDER.exactFloor && !unique) continue;
     const hits = openNew().filter((item) => item.unit.fp === entry.fp);
     if (hits.length === 1 && hits[0]) {
       result.set(entry.id, { event: 'moved', to: hits });
@@ -218,11 +292,12 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   }
 
   const score = (entry: LedgerEntry, item: Fresh): number =>
-    0.6 * similarity(entry.quote, item.quote) +
+    0.6 * similarity(flat(entry).quote, flat(item).quote) +
     0.4 *
-      (0.35 * similarity(entry.prefix, item.prefix) +
-        0.35 * similarity(entry.suffix, item.suffix) +
-        0.3 * jaccard(entry.sectionPath.join('>'), item.unit.path.join('>')));
+      ((similarity(entry.prefix, item.prefix) +
+        similarity(entry.suffix, item.suffix) +
+        (entry.sectionPath.join('>') === item.unit.path.join('>') ? 1 : 0)) /
+        3);
 
   // Split: two neighbouring new units read better together than apart as the old one.
   for (const entry of openOld()) {
@@ -233,9 +308,12 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
       const first = run[at];
       const second = run[at + 1];
       if (!first || !second || second.index !== first.index + 1) continue;
-      const joined = similarity(entry.quote, `${first.quote} ${second.quote}`);
-      const alone = Math.max(similarity(entry.quote, first.quote), similarity(entry.quote, second.quote));
-      if (joined > alone + 0.1 && joined >= LADDER.threshold + LADDER.joinMargin) {
+      const joined = similarity(flat(entry).quote, `${flat(first).quote} ${flat(second).quote}`);
+      const alone = Math.max(
+        similarity(flat(entry).quote, flat(first).quote),
+        similarity(flat(entry).quote, flat(second).quote),
+      );
+      if (joined > alone && joined >= LADDER.threshold + LADDER.joinMargin) {
         result.set(entry.id, { event: 'split', to: [first, second] });
         used.add(first);
         used.add(second);
@@ -250,16 +328,19 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
     const second = left[at + 1];
     if (!first || !second || first.path !== second.path || result.has(first.id) || result.has(second.id))
       continue;
-    const joined = `${first.quote} ${second.quote}`;
+    const joined = `${flat(first).quote} ${flat(second).quote}`;
     const best = openNew()
       .filter((item) => item.path === first.path)
-      .map((item) => ({ item, value: similarity(joined, item.quote) }))
+      .map((item) => ({ item, value: similarity(joined, flat(item).quote) }))
       .sort((a, b) => b.value - a.value)[0];
     if (
       best &&
       best.value >= LADDER.threshold + LADDER.joinMargin &&
       best.value >
-        Math.max(similarity(first.quote, best.item.quote), similarity(second.quote, best.item.quote)) + 0.1
+        Math.max(
+          similarity(flat(first).quote, flat(best.item).quote),
+          similarity(flat(second).quote, flat(best.item).quote),
+        )
     ) {
       result.set(first.id, { event: 'merged', to: [best.item] });
       result.set(second.id, { event: 'merged', to: [best.item] });
@@ -273,8 +354,8 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
     for (const item of openNew()) {
       if (item.path !== entry.path) continue;
       if (
-        Math.abs(entry.quote.length - item.quote.length) >
-        Math.max(entry.quote.length, item.quote.length) * 0.8
+        Math.abs(flat(entry).quote.length - flat(item).quote.length) >
+        Math.max(flat(entry).quote.length, flat(item).quote.length) * 0.8
       ) {
         continue;
       }
@@ -284,12 +365,148 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   pairs.sort((a, b) => b.value - a.value);
   for (const { entry, item, value } of pairs) {
     if (result.has(entry.id) || used.has(item)) continue;
-    if (value >= LADDER.threshold && similarity(entry.quote, item.quote) >= LADDER.textFloor) {
+    if (value > LADDER.threshold && similarity(flat(entry).quote, flat(item).quote) > LADDER.textFloor) {
+      result.set(entry.id, { event: 'changed', to: [item] });
+      used.add(item);
+    }
+  }
+
+  // Steps 3 and 4 read the whole estate: what the passes above left open is scored against the new units of every
+  // other file, with the same weights, threshold and floor, so a unit that left its file (or whose file was renamed)
+  // keeps its id when it comes back reworded, split or merged. The pool is blocked by shared trigrams: a candidate
+  // must share a fair part of its trigrams with the text it is scored against, which keeps the pass linear in the
+  // open units of a large estate. The same-file passes above are untouched, so a unit that stays in its file is
+  // decided as before.
+  const pool = new TrigramPool(openNew());
+  // Split: two neighbouring new units of another file read better together than apart as the old one.
+  for (const entry of openOld()) {
+    const text = flat(entry).quote;
+    const seen = new Set<Fresh>();
+    for (const first of pool.near(text)) {
+      if (used.has(first) || first.path === entry.path) continue;
+      const second = pool.next(first);
+      if (!second || used.has(second) || seen.has(first)) continue;
+      seen.add(first);
+      const joined = similarity(text, `${flat(first).quote} ${flat(second).quote}`);
+      const alone = Math.max(similarity(text, flat(first).quote), similarity(text, flat(second).quote));
+      if (joined > alone && joined >= LADDER.threshold + LADDER.joinMargin) {
+        result.set(entry.id, { event: 'split', to: [first, second] });
+        used.add(first);
+        used.add(second);
+        break;
+      }
+    }
+  }
+  // Merge: two neighbouring old units read better together as one new unit of another file.
+  const rest = openOld().sort((a, b) => a.path.localeCompare(b.path) || a.index - b.index);
+  for (let at = 0; at + 1 < rest.length; at++) {
+    const first = rest[at];
+    const second = rest[at + 1];
+    if (!first || !second || first.path !== second.path || result.has(first.id) || result.has(second.id))
+      continue;
+    const joined = `${flat(first).quote} ${flat(second).quote}`;
+    const best = pool
+      .near(joined)
+      .filter((item) => !used.has(item) && item.path !== first.path)
+      .map((item) => ({ item, value: similarity(joined, flat(item).quote) }))
+      .sort((a, b) => b.value - a.value)[0];
+    if (
+      best &&
+      best.value >= LADDER.threshold + LADDER.joinMargin &&
+      best.value >
+        Math.max(
+          similarity(flat(first).quote, flat(best.item).quote),
+          similarity(flat(second).quote, flat(best.item).quote),
+        )
+    ) {
+      result.set(first.id, { event: 'merged', to: [best.item] });
+      result.set(second.id, { event: 'merged', to: [best.item] });
+      used.add(best.item);
+    }
+  }
+  // The rest, scored against the units of every other file.
+  const crossPairs: Array<{ entry: LedgerEntry; item: Fresh; value: number }> = [];
+  for (const entry of openOld()) {
+    for (const item of pool.near(flat(entry).quote)) {
+      // An identical text elsewhere is step 2's: it keeps its id by the exact-text rule and its length floor.
+      if (used.has(item) || item.path === entry.path || flat(item).quote === flat(entry).quote) continue;
+      if (
+        Math.abs(flat(entry).quote.length - flat(item).quote.length) >
+        Math.max(flat(entry).quote.length, flat(item).quote.length) * 0.8
+      ) {
+        continue;
+      }
+      crossPairs.push({ entry, item, value: score(entry, item) });
+    }
+  }
+  crossPairs.sort((a, b) => b.value - a.value);
+  for (const { entry, item, value } of crossPairs) {
+    if (result.has(entry.id) || used.has(item)) continue;
+    if (value > LADDER.threshold && similarity(flat(entry).quote, flat(item).quote) > LADDER.textFloor) {
       result.set(entry.id, { event: 'changed', to: [item] });
       used.add(item);
     }
   }
   return result;
+}
+
+/** The share of the informative trigrams of a text a candidate must hold for the cross-file passes to score it. */
+const POOL_SHARE = 0.3;
+/** A trigram held by more units than this is common, and does not make a unit a candidate. */
+const POOL_POSTING = 48;
+
+/**
+ * An index of new units by their character trigrams, for the passes that look in every file: `near(text)` gives the
+ * units that share a fair part of their trigrams with `text`, in the order of the estate, never all of them.
+ */
+class TrigramPool {
+  private readonly index = new Map<string, Fresh[]>();
+  private readonly neighbours = new Map<Fresh, Fresh>();
+
+  constructor(units: readonly Fresh[]) {
+    for (const unit of units) {
+      const grams = TrigramPool.grams(flat(unit).quote);
+      for (const gram of grams) {
+        const list = this.index.get(gram);
+        if (list) list.push(unit);
+        else this.index.set(gram, [unit]);
+      }
+    }
+    const byPlace = new Map<string, Fresh>(units.map((unit) => [`${unit.path}\0${unit.index}`, unit]));
+    for (const unit of units) {
+      const next = byPlace.get(`${unit.path}\0${unit.index + 1}`);
+      if (next) this.neighbours.set(unit, next);
+    }
+  }
+
+  /** The unit that follows `unit` in its file, when that one is in the pool too. */
+  next(unit: Fresh): Fresh | undefined {
+    return this.neighbours.get(unit);
+  }
+
+  near(text: string): Fresh[] {
+    const grams = TrigramPool.grams(text);
+    const shared = new Map<Fresh, number>();
+    // Only the trigrams that few units hold tell units apart; one that most units hold (a common word) would make
+    // every pair a candidate. A trigram no unit holds still counts as informative: it is the part that changed.
+    let informative = 0;
+    for (const gram of grams) {
+      const list = this.index.get(gram) ?? [];
+      if (list.length > POOL_POSTING) continue;
+      informative++;
+      for (const unit of list) shared.set(unit, (shared.get(unit) ?? 0) + 1);
+    }
+    const out: Fresh[] = [];
+    for (const [unit, count] of shared) if (count >= Math.max(2, POOL_SHARE * informative)) out.push(unit);
+    return out;
+  }
+
+  private static grams(text: string): Set<string> {
+    const grams = new Set<string>();
+    if (text.length < 3) grams.add(text);
+    for (let at = 0; at + 3 <= text.length; at++) grams.add(text.slice(at, at + 3));
+    return grams;
+  }
 }
 
 export type NextLedger = {
@@ -298,7 +515,39 @@ export type NextLedger = {
   ids: Map<string, string>;
   /** Counts of what the ladder decided, for the scan report. */
   events: Record<Event, number>;
+  /** What the ladder decided for each id of this scan: the live ids, and the ids that are deleted now. */
+  eventsById: Record<string, Event>;
+  /** For each id whose text matched in several places, every place it matched: the id sits on the first. */
+  candidates: Record<string, Array<{ path: string; quote: string }>>;
 };
+
+/** A map of labels by set name that has no prototype: `__proto__` and `constructor` are names like any other. */
+export function labelMap(from?: Readonly<Record<string, LedgerLabel>>): Record<string, LedgerLabel> {
+  const map: Record<string, LedgerLabel> = Object.create(null);
+  if (from) for (const key of Object.keys(from)) map[key] = from[key] as LedgerLabel;
+  return map;
+}
+
+/** The scan after the last one the ledger remembers, from 1. */
+const scanAfter = (previous: Ledger | undefined): number =>
+  1 +
+  Math.max(
+    0,
+    ...(previous?.entries ?? []).flatMap((entry) => (entry.lineage ?? []).map((item) => item.scan)),
+  );
+
+/**
+ * The lineage after a scan: a scan that finds the unit as it was adds nothing, so that rescanning unchanged
+ * files writes the same bytes. `scan` counts the versions of the ledger, not the runs.
+ */
+const remember = (
+  lineage: LedgerEntry['lineage'] | undefined,
+  scan: number,
+  event: Event,
+): LedgerEntry['lineage'] =>
+  event === 'unchanged' && lineage !== undefined && lineage.length > 0
+    ? lineage
+    : [...(lineage ?? []), { scan, event }].slice(-LINEAGE_KEEP);
 
 /**
  * Builds the ledger for the files as they are now from the ledger of the last scan. A unit that follows an
@@ -335,6 +584,14 @@ export function nextLedger(
       byItem.set(item, { id: entry.id, event: found.event, from: entry });
     }
   }
+  const scan = scanAfter(previous);
+  const eventsById: Record<string, Event> = Object.create(null);
+  const candidates: NextLedger['candidates'] = Object.create(null);
+  for (const entry of live) {
+    const found = mapping.get(entry.id);
+    if (found?.event === 'ambiguous')
+      candidates[entry.id] = found.to.map((item) => ({ path: item.path, quote: item.unit.text }));
+  }
   const occurrences = new Map<string, number>();
   const ids = new Map<string, string>();
   const entries: LedgerEntry[] = [];
@@ -350,7 +607,7 @@ export function nextLedger(
       taken.add(id);
       carried = { id, event: 'new' };
     }
-    const keepLabels = carried.from && carried.from.fp === item.unit.fp && carried.from.ctxFp === item.ctxFp;
+    const keepLabels = carried.from && keepsLabels(carried.from, { fp: item.unit.fp, ctxFp: item.ctxFp });
     events[carried.event]++;
     ids.set(unitKey(item.path, item.index), carried.id);
     entries.push({
@@ -364,16 +621,29 @@ export function nextLedger(
       quote: item.quote,
       prefix: item.prefix,
       suffix: item.suffix,
+      hint: { start: item.unit.start, end: item.unit.end },
       status: 'live',
-      labels: keepLabels && carried.from ? carried.from.labels : {},
+      labels: labelMap(keepLabels && carried.from ? carried.from.labels : undefined),
+      lineage: remember(carried.from?.lineage, scan, carried.event),
+      twinOf: null,
     });
+    eventsById[carried.id] = carried.event;
   }
+  twins(entries);
   const kept = new Set(entries.map((entry) => entry.id));
   for (const entry of previous?.entries ?? []) {
     if (kept.has(entry.id)) continue;
-    if (entry.status === 'live') events.deleted++;
+    if (entry.status === 'live') {
+      events.deleted++;
+      eventsById[entry.id] = 'deleted';
+    }
     // The quote of a deleted unit stays, so a link to it falls back to its section.
-    entries.push({ ...entry, status: 'deleted' });
+    entries.push({
+      ...entry,
+      status: 'deleted',
+      labels: labelMap(entry.labels),
+      lineage: entry.status === 'live' ? remember(entry.lineage, scan, 'deleted') : (entry.lineage ?? []),
+    });
   }
   entries.sort(
     (a, b) =>
@@ -382,7 +652,22 @@ export function nextLedger(
       (a.status === 'live' ? a.index - b.index : a.id.localeCompare(b.id)),
   );
   const cutDigests = Object.fromEntries(files.map(({ path, cut }) => [path, cut.digest.slice(0, 16)]));
-  return { ledger: { version: 1, cutDigests, entries }, ids, events };
+  return { ledger: { version: 1, cutDigests, entries }, ids, events, eventsById, candidates };
+}
+
+/**
+ * Marks identical boilerplate: a live unit whose text is the text of a live unit in an earlier file names that
+ * unit, the first of them in file order. The first of a text, and a text that repeats only inside one file, name
+ * no twin, so a copy is not mistaken for a move.
+ */
+function twins(entries: readonly LedgerEntry[]): void {
+  const first = new Map<string, LedgerEntry>();
+  const ordered = [...entries].sort((a, b) => a.path.localeCompare(b.path) || a.index - b.index);
+  for (const entry of ordered) {
+    const found = first.get(entry.fp);
+    if (!found) first.set(entry.fp, entry);
+    else if (found.path !== entry.path) entry.twinOf = found.id;
+  }
 }
 
 /** The ledger as the file beside the estate: sorted keys, no times, so equal ledgers are equal bytes. */
@@ -392,8 +677,44 @@ export function parseLedger(text: string): Ledger | undefined {
   try {
     const value = JSON.parse(text) as Partial<Ledger>;
     if (value.version !== 1 || !Array.isArray(value.entries)) return undefined;
+    // An entry written before lineage and twins were kept reads as having neither.
+    for (const entry of value.entries) {
+      entry.labels = labelMap(entry.labels);
+      entry.lineage ??= [];
+      entry.twinOf ??= null;
+      entry.hint ??= { start: 0, end: 0 };
+    }
     return value as Ledger;
   } catch {
     return undefined;
   }
+}
+
+/** An entry without the lineage, which every scan extends: what a ledger is compared by. */
+const stable = (entry: LedgerEntry) => ({ ...entry, lineage: undefined });
+
+/**
+ * Whether the ledger a scan produced says what the committed one says. The lineage grows with every scan and is
+ * left out; a file that changed, appeared or went is named. A missing committed ledger is out of date.
+ */
+export function checkLedger(
+  previousRaw: string | undefined,
+  current: Ledger,
+): { ok: boolean; error?: string } {
+  const previous = previousRaw === undefined ? undefined : parseLedger(previousRaw);
+  if (!previous) return { ok: false, error: 'there is no committed ledger' };
+  const byPath = (ledger: Ledger): Map<string, string> => {
+    const groups = new Map<string, string[]>();
+    for (const entry of ledger.entries) {
+      groups.set(entry.path, [...(groups.get(entry.path) ?? []), canonical(stable(entry))]);
+    }
+    return new Map([...groups].map(([path, list]) => [path, list.join('\n')]));
+  };
+  const before = byPath(previous);
+  const after = byPath(current);
+  const changed = [...new Set([...before.keys(), ...after.keys()])]
+    .filter((path) => before.get(path) !== after.get(path))
+    .sort((a, b) => a.localeCompare(b));
+  if (changed.length === 0) return { ok: true };
+  return { ok: false, error: `the ledger is out of date for ${changed.join(', ')}` };
 }

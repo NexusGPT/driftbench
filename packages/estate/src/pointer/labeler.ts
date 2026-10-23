@@ -24,6 +24,8 @@ export type Opinion = {
   probabilities?: Record<string, number>;
   /** The unit, as its index in the file, at the other end of a label that asks for one. */
   target?: number;
+  /** Other units, as indexes in the file, that the unit applies to besides its target. */
+  scopes?: number[];
   /** Clauses of the unit, as offsets into its text. */
   spans?: SpanAnswer[];
   /** Atoms the unit points at. */
@@ -33,7 +35,13 @@ export type Opinion = {
 };
 
 /** The opinions of one answer, by unit index in the file, and the answers parts it refused, with the reason. */
-export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[]; dropped?: string[] };
+export type Opinions = {
+  byUnit: Map<number, Opinion>;
+  refusals: string[];
+  /** The refusals that make the whole answer invalid (a label or unit that does not exist): the answer is asked again. */
+  invalid?: string[];
+  dropped?: string[];
+};
 
 export interface Labeler {
   /** Names the labeler in the cassette key: `anthropic`, `jev`, `openai-decisions`, `http:<hash>`. */

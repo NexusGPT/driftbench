@@ -1,4 +1,12 @@
-import type { Assertion, Expect, evidence, Observed, Spec, Verdict } from '@agent-nexus/driftbench-core';
+import {
+  type Assertion,
+  callsIn,
+  type Expect,
+  type evidence,
+  type Observed,
+  type Spec,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { inputSubject, type LeafResult, replayInputValues, type ValueCheckContext } from '../checks/tools';
 import { isRecord } from '../support/values';
 import { DEFAULT_VALUE_POLICY, type ValuePolicy, type ValueServices } from '../value-check/ladder';
@@ -96,7 +104,7 @@ function factOf(
 }
 
 export type ValueFactSource = {
-  observed: Pick<Observed, 'toolCalls'>;
+  observed: Pick<Observed, 'toolCalls' | 'helperCalls'>;
   expect?: Expect;
   /** The value-check policy the block resolved; the shipped one when absent. */
   policy?: ValuePolicy;
@@ -107,7 +115,9 @@ function storedFacts(source: ValueFactSource, verdict: Pick<Verdict, 'id' | 'val
   const decisions = verdict.valueCheck ?? [];
   const subject = inputSubject(source.expect, verdict.id);
   if (decisions.length === 0 || subject === undefined) return [];
-  const calls = source.observed.toolCalls.filter((call) => call.label === subject.tool.label);
+  const calls = callsIn(source.observed, subject.tool.actor ?? 'main').filter(
+    (call) => call.label === subject.tool.label,
+  );
   return decisions.map((decision) => {
     const path = decision.path.split('.').slice(1);
     const input = calls[decision.call - 1]?.input;

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: what an evaluation is</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 350px; }
+  .head-k { left: 16px; top: 16px; }
+  .t { position: absolute; left: 16px; width: 232px; height: 64px; padding: 9px 12px; }
+  .t .q { font: 500 12px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .t .e { margin-top: 5px; font: 400 11px/1.3 var(--nx-sans); color: var(--detail); }
+  .t .e b { font: 500 9.5px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--kind); margin-right: 6px; }
+  .agent { left: 282px; top: 104px; width: 150px; height: 110px; align-content: start; padding: 10px 11px; row-gap: 5px; }
+  .agent .nx-node__kind { font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; }
+  .v { position: absolute; left: 470px; }
+  .foot { position: absolute; left: 16px; top: 276px; width: 588px; font: 400 15px/1.2 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
+  .fail { background: var(--miss-bg); color: var(--miss-ink); border: 1px solid var(--nx-line); }
+  .fail svg { width: 9px; height: 9px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 330">
+      <path class="nx-edge" d="M248 76 C 266 76, 266 150, 282 150"/>
+      <path class="nx-edge" d="M248 150 L282 159"/>
+      <path class="nx-edge" d="M248 224 C 266 224, 266 168, 282 168"/>
+      <path class="nx-edge" d="M432 150 C 450 150, 450 76, 470 76"/>
+      <path class="nx-edge" d="M432 159 L470 150"/>
+      <path class="nx-edge--new" d="M432 168 C 450 168, 450 224, 470 224"/>
+    </svg>
+    <span class="nx-kind head-k">An evaluation</span>
+    <div class="nx-ill-panel t" style="top:44px"><div class="q">"I want a refund."</div><div class="e"><b>Expect</b>Asks for the order number.</div></div>
+    <div class="nx-ill-panel t" style="top:118px"><div class="q">"It is A-1042."</div><div class="e"><b>Expect</b>Starts the refund.</div></div>
+    <div class="nx-ill-panel t" style="top:192px"><div class="q">"Refund order A-9999."</div><div class="e"><b>Expect</b>Says it cannot find the order.</div></div>
+    <div class="nx-node agent"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></span><span class="nx-node__kind">Your agent</span><span class="nx-node__title">Refund helper</span><span class="nx-node__detail">A prompt, skills and tools.</span></div>
+    <span class="nx-done v" style="top:66px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg>Pass</span>
+    <span class="nx-done v" style="top:140px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg>Pass</span>
+    <span class="nx-done v fail" style="top:214px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Fail</span>
+    <div class="foot">A list of conversations, each with the result you expect. Run it after every change.</div>
+
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 17px "Libre Caslon Display"', '400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Generator bank audit status
 
-The planner-v2 items and ladder version 2 landed in PR 959. Measurement machinery is not an independent pilot or audit under `docs/validators.md` sections 12.4 and 12.7. No seat has run on this bank here.
+The planner-v2 items and ladder version 2 landed in PR 959. Ladder version 3 (PRs 1317, 1326, 1327, 1328, with the catch items of PR 1429) has its iteration 0 in `journal.jsonl` (run 39823906794); the rows of versions 1 and 2 are in `evidence/journal-historical.jsonl`. The four seats below run on the merged version 3 and stay pending until then. Measurement machinery is not an independent pilot or audit under `docs/validators.md` sections 12.4 and 12.7. No seat has run on this bank here.
 
 | Check | Verdict | Note |
 |---|---|---|

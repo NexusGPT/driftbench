@@ -26,7 +26,11 @@ Store /path/to/driftbench.db, labels in /path/to/examples/acme/labels. Stop with
 | `--labels <dir>` | `labels` | the labels folder labels are written to |
 | `--labelled-by <name>` | `a reviewer, in driftbench view` | written as `labelled_by` in a new labels file |
 
-The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing, the port is not a number, or the port cannot be opened.
+The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing, the port is not a number, or the port cannot be opened. With a store that is not there, it prints this and exits 2:
+
+```text
+No store at <your folder>/missing.db. Give one with --store <file>.
+```
 
 ## The pages
 
@@ -63,7 +67,7 @@ One label is one block of the criterion's labels file, `<labels>/<criterion>.yam
 * The transcript holds the user turn, each tool call and its result, and the reply.
 * Labelling the same block on the same criterion again replaces its label. Every other block, and the file's `labelled_by`, stay as they were.
 
-A label saved from a run of the Acme campaign with the fault that skips the recap, as the file holds it:
+A label saved from a run of the Acme campaign with the fault that skips the recap, as the file holds it. The run id in `id` differs in your store:
 
 ```text
 criterion: checks_before_promising

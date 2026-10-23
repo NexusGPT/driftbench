@@ -5,13 +5,17 @@ import {
   closeSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   openSync,
   readFileSync,
   readSync,
+  renameSync,
   rmSync,
+  statSync,
+  truncateSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
@@ -66,6 +70,38 @@ const BATCH_MS = 1_800_000;
 
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
+}
+
+/** Seeded names are only prefixes: each live frame owns the files it writes and removes. */
+function ownFolder(prefix: string): string {
+  mkdirSync(dirname(prefix), { recursive: true });
+  return mkdtempSync(prefix);
+}
+
+/** Keep the drawn traits, but move every path of a twin into its own atomically allocated folder. */
+function ownPlan(plan: TwinPlan): TwinPlan {
+  const driverDir = ownFolder(plan.driverDir);
+  const move = (path: string) => join(driverDir, relative(plan.driverDir, path));
+  const home = plan.home ? move(plan.home) : undefined;
+  return {
+    ...plan,
+    driverDir,
+    ...(plan.cwd ? { cwd: move(plan.cwd) } : {}),
+    ...(home
+      ? { home, env: { ...plan.env, HOME: home, ...(plan.env?.USERPROFILE ? { USERPROFILE: home } : {}) } }
+      : {}),
+  };
+}
+
+/** Publish complete bytes, and remove only this writer's unpublished temporary file on failure. */
+function writeAtomic(file: string, bytes: string): void {
+  const temporary = `${file}.${randomBytes(16).toString('hex')}.tmp`;
+  try {
+    writeFileSync(temporary, bytes, { flag: 'wx' });
+    renameSync(temporary, file);
+  } finally {
+    rmSync(temporary, { force: true });
+  }
 }
 
 /** What the validator keeps of an answer before the two runs are compared, by export name. */
@@ -164,6 +200,22 @@ export type Frame<T> = {
 
 type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
 
+/**
+ * The reply of the relay to the call with this number: the relay numbers the calls from 1 in the order they arrive, and
+ * puts the number in its reply. A reply with another number is a reply to another call (one left in the queue by an
+ * earlier call that gave up, or one that is late): named with both numbers and both call names, never taken for the
+ * answer. A run that answered another request is named the same way.
+ */
+export function checkReply(reply: Record<string, unknown>, expected: number, name: string): void {
+  if (reply.id !== undefined && reply.id !== expected)
+    throw new FrameError(
+      `the relay answered call ${String(reply.id)} (${String(reply.call)}) while call ${expected} (${name}) was waiting: the frame is out of step`,
+    );
+  const answers = reply.answers as Array<Record<string, unknown>> | undefined;
+  const desync = answers?.find((each) => typeof each.desync === 'string');
+  if (desync) throw new FrameError(`${String(desync.desync)} (call ${expected}, ${name})`);
+}
+
 function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
   const waited = Atomics.wait(relay.flag, 0, 0, ms);
   const reply = receiveMessageOnPort(relay.port)?.message as Record<string, unknown> | undefined;
@@ -214,11 +266,10 @@ function openPlain(seed: number, tag: string): PlainRun {
   let folder = '';
   while (folder.length < 6 + Math.floor(rng() * 8))
     folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
-  const dir = join(projectCache(), folder);
-  mkdirSync(dir, { recursive: true });
+  const dir = ownFolder(join(projectCache(), folder));
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
-  writeFileSync(codecPath, codec.source);
+  writeAtomic(codecPath, codec.source);
   return {
     dir,
     codec: codecPath,
@@ -267,7 +318,7 @@ function plainRunAll(
   // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
   const entry = join(plain.dir, `${stem}.mts`);
   const out = join(plain.dir, `${stem}.out.jsonl`);
-  writeFileSync(
+  writeAtomic(
     entry,
     plainBatchEntry(
       seed,
@@ -284,7 +335,7 @@ function plainRunAll(
   const ran = spawnGrouped(
     process.execPath,
     [...loaderOption(module), entry],
-    runTag(seed, `${tag}:${plain.count}`),
+    runTag(seed, `${tag}:${plain.count}`, plain.dir),
     {
       cwd: findRoot(dirname(module)),
       env: plain.env,
@@ -461,7 +512,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const module = resolve(options.module);
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
-  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
+  const sealFolder = ownFolder(join(projectCache(), drawnFolder(options.seed, `seal:${tag}`)));
   const {
     file: sealed,
     inputs,
@@ -508,7 +559,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     setMark(mark, message);
     return message;
   };
-  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
+  const plans = twinPlans(options.seed, tag, projectCache()).map((drawn) => {
+    const plan = ownPlan(drawn);
     const confined = confine(
       {
         ...plan,
@@ -521,7 +573,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // Run D reaches the product through a wrapper module of the run's own folder.
     const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
     const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
-    writeFileSync(file, wrapper.source);
+    writeAtomic(file, wrapper.source);
     return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
@@ -566,9 +618,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     closed = true;
     settle();
+    let unreaped: string[] | undefined;
     try {
       relay.port.postMessage({ close: true });
-      wait(relay, 10_000, 'close');
+      unreaped = (wait(relay, 10_000, 'close') as { unreaped?: string[] }).unreaped;
     } catch {
       // the runs are ended by terminate below
     }
@@ -583,6 +636,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
     trace('close end');
+    // A run the relay killed and that did not end within 5 s may stay in the process table: never silent.
+    if (unreaped)
+      throw new FrameError(
+        `the frame closed, but run ${unreaped.join(', ')} did not end within 5 s of its kill: it may stay as a defunct process of this process`,
+      );
   };
   trace('waiting for the product to load in the three runs');
   const started = wait(relay, START_MS, 'the start of the product') as {
@@ -649,13 +707,17 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
   };
   let strict = false;
+  let calls = 0;
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
     relay.port.postMessage({ call: name, args: sent, freeze: strict });
-    const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
+    calls += 1;
+    const reply = wait(relay, CALL_MS, `${name}()`);
+    checkReply(reply, calls, name);
+    const { answers } = reply as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
@@ -771,8 +833,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       }
     }
     if (plain) {
-      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept. A write
+      // cut short leaves no part of the call in the file run C reads: the file goes back to its size before it.
+      const size = existsSync(plain.calls) ? statSync(plain.calls).size : 0;
+      try {
+        appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+      } catch (error) {
+        if (existsSync(plain.calls)) truncateSync(plain.calls, size);
+        throw error;
+      }
       recorded.push({
         call: name,
         entry,
@@ -873,7 +942,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const tag = options.tag ?? script;
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
-  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
+  const sealFolder = ownFolder(join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`)));
   const {
     file: sealed,
     inputs,
@@ -886,12 +955,13 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const watch = new TreeWatch([tree, ...workspace, ...inputs, ...influences.files], influences.packages);
   watch.watchResolution(tree);
   for (const folder of influences.packages) watch.watchResolution(folder);
-  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
-    confine(
+  const plans = twinPlans(options.seed, tag, projectCache()).map((drawn) => {
+    const plan = ownPlan(drawn);
+    return confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
       { reads: [dirname(sealed)], writes: [join(plan.driverDir, 'w')] },
-    ),
-  );
+    );
+  });
   const token = randomBytes(16).toString('hex');
   const plainRun = openPlain(options.seed, `${tag}:command`);
   const plainDir = plainRun.dir;
@@ -906,14 +976,14 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         const target = resolve(work, path);
         if (!target.startsWith(work)) throw new FrameError(`the file ${path} is outside the working folder`);
         mkdirSync(dirname(target), { recursive: true });
-        writeFileSync(target, text);
+        writeAtomic(target, text);
       }
       let ran: ReturnType<typeof spawnSync>;
       if (plan === 'C') {
         ran = spawnGrouped(
           process.execPath,
           [...loaderOption(resolve(script)), resolve(script), ...args],
-          runTag(options.seed, `${tag}:command`),
+          runTag(options.seed, `${tag}:command`, plainDir),
           {
             cwd: work,
             env: plainRun.env,
@@ -924,7 +994,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         );
       } else {
         const driver = join(plan.driverDir, plan.driverFile);
-        writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
+        writeAtomic(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
         const setup = {
           token,
           args,

@@ -292,7 +292,7 @@ describe('the estate unit runner on a guard', () => {
   });
 });
 
-describe('a catalogue check tested through its host hook', () => {
+describe('a catalogue check tested through its host guard', () => {
   it('counts a check as exercised only when the hook answers its trigger naming the check', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,

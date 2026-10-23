@@ -84,7 +84,13 @@ function «encode»(«value», «seen» = new WeakSet()) {
   try {
     if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
     if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
-    if («value» instanceof Error) return { $err: { name: «value».name, message: «value».message } };
+    if («value» instanceof Error) {
+      const «err» = { name: «value».name, message: «value».message };
+      const «klass» = [RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError].find((«c») => «value» instanceof «c»);
+      if («klass») «err».class = «klass».name;
+      if (typeof «value».code === 'string' || typeof «value».code === 'number') «err».code = «value».code;
+      return { $err: «err» };
+    }
     if (Array.isArray(«value»)) return «value».map((«v») => «encode»(«v», «seen»));
     if («value» instanceof Date) return { $date: «value».toISOString() };
     if (ArrayBuffer.isView(«value»)) return { $bytes: [...new Uint8Array(«value».buffer, «value».byteOffset, «value».byteLength)] };
@@ -107,7 +113,13 @@ function «decode»(«x») {
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
   if ('$handle' in «x») return «handles».get(«x».$handle);
   if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
-  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
+  if ('$err' in «x») {
+    const «make» = { RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.class] ?? Error;
+    const «e» = new «make»(«x».$err.message);
+    «e».name = «x».$err.name;
+    if («x».$err.code !== undefined) «e».code = «x».$err.code;
+    return «e»;
+  }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
 `;
@@ -780,21 +792,35 @@ const runs = plans.map((plan) => {
   child.on('exit', (code, sig) => {
     trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
-    for (const waiter of run.waiting.splice(0)) waiter({ dead: run.exited });
+    for (const waiter of run.waiting.splice(0)) waiter.resolve({ dead: run.exited });
   });
   createInterface({ input: child.stdout }).on('line', (line) => {
-    if (!line.startsWith(setup.token + ' ')) return;
-    const message = JSON.parse(line.slice(setup.token.length + 1));
+    // The answer starts the line, unless the product printed text without a newline just before it: then the answer
+    // follows that text, and is still the answer.
+    const at = line.indexOf(setup.token + ' ');
+    if (at < 0) return;
+    const message = JSON.parse(line.slice(at + setup.token.length + 1));
+    trace('run ' + plan.run + ' answer id ' + message.id + ': ' + line.slice(at + setup.token.length + 1, at + setup.token.length + 121));
     const waiter = run.waiting.shift();
-    if (waiter) waiter(message);
+    if (!waiter) {
+      trace('run ' + plan.run + ' sent an answer nobody waits for (id ' + message.id + ')');
+      return;
+    }
+    // An answer belongs to the request it was asked for: the twin writes the id of the request in every answer. An
+    // answer for another request is a desync of that run, named with both ids, never taken for the answer.
+    if (waiter.id !== undefined && message.id !== waiter.id) {
+      waiter.resolve({ desync: 'the run ' + plan.run + ' answered request ' + message.id + ' while request ' + waiter.id + ' was waiting' });
+      return;
+    }
+    waiter.resolve(message);
   });
   child.stdin.write(JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }) + '\n');
   return run;
 });
-const ask = (run, line) =>
+const ask = (run, line, id) =>
   new Promise((resolve) => {
     if (run.exited) return resolve({ dead: run.exited });
-    run.waiting.push(resolve);
+    run.waiting.push({ resolve, id });
     if (line !== undefined) run.child.stdin.write(line + '\n');
   });
 const ready = await Promise.all(runs.map((run) => ask(run).then((message) => { trace('run ' + run.plan.run + ' answered its start: ' + (message.ready === true ? 'ready' : 'not ready')); return message; })));
@@ -802,14 +828,22 @@ reply({ ready });
 let id = 0;
 port.on('message', async (message) => {
   if (message.close) {
-    for (const run of runs) run.child.kill();
-    reply({ closed: true });
+    // Each run is waited for before the reply: the frame ends this thread next, and a killed child no thread waits
+    // for stays defunct until the validator's process ends (astra-planner-1334: hundreds under one vitest worker).
+    // A run that has not ended 5 s after its kill is named in the reply, and the frame reports it.
+    const unreaped = [];
+    await Promise.all(runs.map((run) => run.exited !== undefined ? undefined : new Promise((done) => {
+      const timer = setTimeout(() => { unreaped.push(run.plan.run); done(); }, 5000);
+      run.child.once('exit', () => { clearTimeout(timer); done(); });
+      run.child.kill('SIGKILL');
+    })));
+    reply({ closed: true, ...(unreaped.length > 0 ? { unreaped } : {}) });
     return;
   }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
   const sentAt = Date.now();
-  const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
-  reply({ answers });
+  const answers = await Promise.all(runs.map((run) => ask(run, line, id).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
+  reply({ id, call: message.call, answers });
 });
 `;

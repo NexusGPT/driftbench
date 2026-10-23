@@ -224,7 +224,9 @@ describe('driftbench estate generate', () => {
     await copyFile(MAP, join(dir, 'approved.yaml'));
     const args = ['estate', 'generate', '--map', join(dir, 'approved.yaml'), '--plan', PLAN];
     const result = await run([...args, '--out', join(dir, 'out'), '--json']);
-    expect(result.err).toBe('');
+    // No state library beside the map: the one this command writes holds no state that needs the estate's own
+    // content, so the rows that set one wait, counted and named on stderr.
+    expect(result.err).toMatch(/^\d+ rows need states not in the library: .*session state helpers_running/);
     const report = JSON.parse(result.out);
     expect(report.phrases).toMatchObject({ path: '(none)', situations: 0 });
     expect(report.sources.asks.bank).toBe(0);
@@ -312,7 +314,7 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
       ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'coded'],
       dir,
     );
-    expect(coded.err).toBe('');
+    expect(coded.err).toMatch(/^\d+ rows need states not in the library: /);
     expect(coded.out).toContain('No phrase bank at phrases.yaml: code writes every ask from the atoms.');
     const result = await run(
       [
@@ -328,7 +330,7 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
       ],
       dir,
     );
-    expect(result.err).toBe('');
+    expect(result.err).toMatch(/^\d+ rows need states not in the library: /);
     expect(result.code).toBe(1);
     expect(result.out).toContain(
       'No phrase bank at phrases.yaml: generating with an empty one; each live row names the phrase it needs.',
@@ -346,7 +348,7 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
       ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'gen', '--force'],
       dir,
     );
-    expect(empty.err).toBe('');
+    expect(empty.err).toMatch(/^\d+ rows need states not in the library: /);
     expect(empty.code).toBe(1);
 
     const named = await run(
