@@ -535,6 +535,9 @@ function assertFloorLegs(legs: Leg[], seeds: string[]) {
  * of the floor job but the generator) is computed on every level of its ladder, once, to its top.
  */
 function assertFullLegs(legs: Leg[], components: string[], seeds: string[]) {
+  // a leg of another validator, or of none, is no leg of this job
+  for (const leg of legs)
+    expect(components.includes(leg.component), `${leg.id} is no validator of this job`).toBe(true);
   for (const component of components) {
     const top = topOf(component);
     for (const seed of seeds) expectTiles(legsFor(legs, component, seed), `${component} seed ${seed}`, top, top);
@@ -1198,6 +1201,12 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
       1,
     );
     expect(() => assertTrainValidators(noTop), 'the system leg of level 11').toThrow();
+    const ghostSystem = structuredClone(workflow);
+    entries(ghostSystem, 'system-leg').push({ id: 'ghost-system-s1', flags: '--seed 1', component: 'ghost' });
+    expect(() => assertTrainValidators(ghostSystem), 'a leg of an unknown validator in the system job').toThrow();
+    const otherSystem = structuredClone(workflow);
+    entries(otherSystem, 'system-leg').push({ id: 'estate-system-s1', flags: '--seed 1', component: 'estate' });
+    expect(() => assertTrainValidators(otherSystem), 'a leg of another validator in the system job').toThrow();
   }, 120_000);
   it('rejects a job that joins the legs without waiting for all of them, or that lets a red leg through', () => {
     for (const [id, dropped] of [
