@@ -195,6 +195,22 @@ export type Frame<T> = {
 
 type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
 
+/**
+ * The reply of the relay to the call with this number: the relay numbers the calls from 1 in the order they arrive, and
+ * puts the number in its reply. A reply with another number is a reply to another call (one left in the queue by an
+ * earlier call that gave up, or one that is late): named with both numbers and both call names, never taken for the
+ * answer. A run that answered another request is named the same way.
+ */
+export function checkReply(reply: Record<string, unknown>, expected: number, name: string): void {
+  if (reply.id !== undefined && reply.id !== expected)
+    throw new FrameError(
+      `the relay answered call ${String(reply.id)} (${String(reply.call)}) while call ${expected} (${name}) was waiting: the frame is out of step`,
+    );
+  const answers = reply.answers as Array<Record<string, unknown>> | undefined;
+  const desync = answers?.find((each) => typeof each.desync === 'string');
+  if (desync) throw new FrameError(`${String(desync.desync)} (call ${expected}, ${name})`);
+}
+
 function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
   const waited = Atomics.wait(relay.flag, 0, 0, ms);
   const reply = receiveMessageOnPort(relay.port)?.message as Record<string, unknown> | undefined;
@@ -676,13 +692,17 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
   };
   let strict = false;
+  let calls = 0;
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
     relay.port.postMessage({ call: name, args: sent, freeze: strict });
-    const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
+    calls += 1;
+    const reply = wait(relay, CALL_MS, `${name}()`);
+    checkReply(reply, calls, name);
+    const { answers } = reply as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
