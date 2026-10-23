@@ -179,7 +179,7 @@ describe('the reference-versus-wrong scan', () => {
     const reference = new Set(['VARIABLES_QUOTE_NOT_FOUND', '88000', 'ok']);
     const wrong = new Set(['ok']);
     expect(wantedInMessage(f, reference, wrong, 'item.id').sort()).toEqual([
-      '88',
+      '88000',
       'VARIABLES_QUOTE_NOT_FOUND',
     ]);
   });
