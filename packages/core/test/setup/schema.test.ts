@@ -73,8 +73,18 @@ it('scopes same-named types by source and never gives .agents the host locator',
     sources: [
       document.sources[0],
       {
-        id: 'shared', path: '.agents', kind: 'directory', reader: 'agents-folder',
-        types: { skill: { locate: 'skills/*/', entry: 'SKILL.md', aspects: ['acts', 'instructs'], loaded: 'on-demand' } },
+        id: 'shared',
+        path: '.agents',
+        kind: 'directory',
+        reader: 'agents-folder',
+        types: {
+          skill: {
+            locate: 'skills/*/',
+            entry: 'SKILL.md',
+            aspects: ['acts', 'instructs'],
+            loaded: 'on-demand',
+          },
+        },
       },
     ],
   });
@@ -85,26 +95,59 @@ it('scopes same-named types by source and never gives .agents the host locator',
   expect(host?.folder).toBe('.claude');
   expect(shared?.folder).toBe('.');
   expect(shared?.locate.map((locator) => locator.written)).toEqual(['skills/*/']);
-  const resolved = resolveSetupSources(result.setup, '/fictional/setup/driftbench.setup.yaml', (id) => id === 'claude-code' ? {
-    runtime: id, roots: CLAUDE_CODE_PROFILE.roots, base: CLAUDE_CODE_PROFILE.types,
-  } : undefined);
+  const resolved = resolveSetupSources(result.setup, '/fictional/setup/driftbench.setup.yaml', (id) =>
+    id === 'claude-code'
+      ? {
+          runtime: id,
+          roots: CLAUDE_CODE_PROFILE.roots,
+          base: CLAUDE_CODE_PROFILE.types,
+        }
+      : undefined,
+  );
   expect(resolved[1]?.root).toBe('/fictional/setup/.agents');
   expect(resolved[1]?.types.types.find((type) => type.name === 'skill')?.folder).toBe('.');
 });
 
-
 it('uses immutable reader setupTypes metadata for source-local inheritance', () => {
-  const base = parseTypes({ version: 1, types: { skill: {
-    locate: 'skills/*/', entry: 'SKILL.md', aspects: ['acts', 'instructs'], loaded: 'on-demand',
-  } } }, { runtime: 'codex', roots: { source: '.' } });
+  const base = parseTypes(
+    {
+      version: 1,
+      types: {
+        skill: {
+          locate: 'skills/*/',
+          entry: 'SKILL.md',
+          aspects: ['acts', 'instructs'],
+          loaded: 'on-demand',
+        },
+      },
+    },
+    { runtime: 'codex', roots: { source: '.' } },
+  );
   expect(base.ok).toBe(true);
   if (!base.ok) return;
-  const result = parseSetupText(JSON.stringify({ ...document, sources: [{
-    id: 'shared', path: '.agents', kind: 'directory', reader: 'agents-folder',
-    types: { extended: { extends: 'skill', fields: { description: 'frontmatter.description' } } },
-  }] }), (id) => id === 'agents-folder' ? {
-    runtime: 'codex', roots: { source: '.' }, base: base.set, folder: '.',
-  } : undefined);
+  const result = parseSetupText(
+    JSON.stringify({
+      ...document,
+      sources: [
+        {
+          id: 'shared',
+          path: '.agents',
+          kind: 'directory',
+          reader: 'agents-folder',
+          types: { extended: { extends: 'skill', fields: { description: 'frontmatter.description' } } },
+        },
+      ],
+    }),
+    (id) =>
+      id === 'agents-folder'
+        ? {
+            runtime: 'codex',
+            roots: { source: '.' },
+            base: base.set,
+            folder: '.',
+          }
+        : undefined,
+  );
   expect(result.ok).toBe(true);
   if (!result.ok) return;
   const type = result.types.shared?.types.find((entry) => entry.name === 'extended');

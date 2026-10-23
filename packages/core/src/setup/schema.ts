@@ -98,9 +98,11 @@ export const SetupDocument = z
     if (setup.types && !setup.sources.some((source) => source.kind === 'project'))
       issue(['types'], 'Top-level types require a project source.');
     for (const [index, source] of setup.sources.entries()) {
-      if (source.kind === 'project') for (const name of Object.keys(source.types ?? {})) {
-        if (setup.types?.[name]) issue(['sources', index, 'types', name], 'Type is also declared in the project shorthand.');
-      }
+      if (source.kind === 'project')
+        for (const name of Object.keys(source.types ?? {})) {
+          if (setup.types?.[name])
+            issue(['sources', index, 'types', name], 'Type is also declared in the project shorthand.');
+        }
     }
     if (setup.execute.policy === 'never' && setup.execute.commands.length > 0)
       issue(['execute', 'commands'], 'A never policy cannot allow commands.');
@@ -124,17 +126,33 @@ export type SetupResult =
 export type SetupTypeResolver = (readerId: string) => TypesOptions | undefined;
 
 function profileOptions(profile: RuntimeProfile): TypesOptions {
-  return { runtime: profile.name, roots: profile.roots, base: profile.types, shapes: profile.shapes, folder: '.' };
+  return {
+    runtime: profile.name,
+    roots: profile.roots,
+    base: profile.types,
+    shapes: profile.shapes,
+    folder: '.',
+  };
 }
 
-function sourceTypes(setup: SetupDocument, resolver?: SetupTypeResolver): { ok: true; types: Record<string, TypeSet> } | { ok: false; errors: SetupIssue[] } {
+function sourceTypes(
+  setup: SetupDocument,
+  resolver?: SetupTypeResolver,
+): { ok: true; types: Record<string, TypeSet> } | { ok: false; errors: SetupIssue[] } {
   const types: Record<string, TypeSet> = {};
   const errors: SetupIssue[] = [];
   for (const [index, source] of setup.sources.entries()) {
     const profile = runtimeProfile(source.reader);
-    const options = resolver?.(source.reader) ?? (!resolver && profile ? profileOptions(profile) : { runtime: source.reader, roots: { project: '.', source: '.' }, folder: '.' });
-    const declarations = { ...(source.kind === 'project' ? setup.types ?? {} : {}), ...source.types };
-    const result = parseTypes({ version: 1, types: declarations }, { ...options, source: `driftbench.setup.yaml#sources.${index}` });
+    const options =
+      resolver?.(source.reader) ??
+      (!resolver && profile
+        ? profileOptions(profile)
+        : { runtime: source.reader, roots: { project: '.', source: '.' }, folder: '.' });
+    const declarations = { ...(source.kind === 'project' ? (setup.types ?? {}) : {}), ...source.types };
+    const result = parseTypes(
+      { version: 1, types: declarations },
+      { ...options, source: `driftbench.setup.yaml#sources.${index}` },
+    );
     if (result.ok) types[source.id] = result.set;
     else errors.push(...result.errors.map((error) => ({ ...error, path: `sources.${index}.${error.path}` })));
   }
@@ -164,10 +182,19 @@ export function parseSetupText(text: string, selected?: RuntimeProfile | SetupTy
     };
   const setup = parsed.data;
   const profile = typeof selected === 'function' ? undefined : selected;
-  if (profile && setup.runtime !== profile.name) return {
-    ok: false, errors: [{ path: 'runtime', code: 'runtime', message: 'Setup runtime disagrees with the selected profile.' }],
-  };
-  const resolver: SetupTypeResolver | undefined = typeof selected === 'function' ? selected : profile ? (id) => id === profile.name ? profileOptions(profile) : undefined : undefined;
+  if (profile && setup.runtime !== profile.name)
+    return {
+      ok: false,
+      errors: [
+        { path: 'runtime', code: 'runtime', message: 'Setup runtime disagrees with the selected profile.' },
+      ],
+    };
+  const resolver: SetupTypeResolver | undefined =
+    typeof selected === 'function'
+      ? selected
+      : profile
+        ? (id) => (id === profile.name ? profileOptions(profile) : undefined)
+        : undefined;
   const result = sourceTypes(setup, resolver);
   return result.ok ? { ok: true, setup, types: result.types } : result;
 }
@@ -186,7 +213,10 @@ export function resolveSetupSources(
   file: string,
   options?: Readonly<Record<string, TypeSet>> | SetupTypeResolver,
 ): ResolvedSetupSource[] {
-  const parsed = typeof options === 'function' || options === undefined ? sourceTypes(setup, options) : { ok: true as const, types: options };
+  const parsed =
+    typeof options === 'function' || options === undefined
+      ? sourceTypes(setup, options)
+      : { ok: true as const, types: options };
   if (!parsed.ok) throw new Error(`Invalid source types: ${JSON.stringify(parsed.errors)}`);
   const types = parsed.types;
   const roots = new Map(setup.sources.map((source) => [source.id, resolve(dirname(file), source.path)]));

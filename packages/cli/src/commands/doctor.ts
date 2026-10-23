@@ -23,7 +23,9 @@ function typesForReader(id: string): TypesOptions | undefined {
   if (reader.setupTypes) return reader.setupTypes;
   // The frozen legacy reader exposes its own profile through the profile registry.
   const profile = runtimeProfile(id);
-  return profile ? { runtime: id, roots: profile.roots, base: profile.types, shapes: profile.shapes, folder: '.' } : undefined;
+  return profile
+    ? { runtime: id, roots: profile.roots, base: profile.types, shapes: profile.shapes, folder: '.' }
+    : undefined;
 }
 
 /** Programmatic doctor entry: all detection goes through readerFor, with policy enforced by core. */

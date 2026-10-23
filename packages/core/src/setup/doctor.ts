@@ -19,7 +19,13 @@ import { folderHolding, locateFile, locateInside, pathWithin } from '../estate-m
 import type { TypeSet } from '../estate-model/part-type';
 import { selectJson } from '../estate-model/reads';
 import { runtimeProfile, runtimeProfileNames } from '../runtime-profile';
-import { parseSetupText, type ResolvedSetupSource, resolveSetupSources, type SetupDocument, type SetupTypeResolver } from './schema';
+import {
+  parseSetupText,
+  type ResolvedSetupSource,
+  resolveSetupSources,
+  type SetupDocument,
+  type SetupTypeResolver,
+} from './schema';
 
 /** A registry reader's metadata, with no prose or secrets retained in the doctor's report. */
 export type SetupRead = {
@@ -461,20 +467,28 @@ export async function diagnoseSetup(
   const deploymentProfile = runtimeProfile(draft.runtime ?? '');
   const knownRoots = new Map(sources.map((source) => [resolve(source.root), source.id]));
   let inferred = false;
-  for (const [index, source] of sources.entries()) for (const link of inventories[index]?.links ?? []) {
-    if (!deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
-    const mapped = sources.find((entry) => entry.id === link.source);
-    if (!mapped) continue;
-    const absolute = resolve(mapped.root, link.target);
-    if (knownRoots.has(absolute) || !(await stat(absolute).catch(() => undefined))?.isDirectory()) continue;
-    let number = 1;
-    while (draft.sources.some((entry) => entry.id === `linked-${number}`)) number++;
-    const id = `linked-${number}`;
-    draft.sources.push({ id, path: slash(relative(dirname(setupFile), absolute)) || '.', kind: 'directory', reader: 'unknown' });
-    knownRoots.set(absolute, id);
-    inferred = true;
-    result.advice.push(`Choose a registered reader for inferred source ${id}; its link proves deployment, not source format.`);
-  }
+  for (const [index, source] of sources.entries())
+    for (const link of inventories[index]?.links ?? []) {
+      if (!deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
+      const mapped = sources.find((entry) => entry.id === link.source);
+      if (!mapped) continue;
+      const absolute = resolve(mapped.root, link.target);
+      if (knownRoots.has(absolute) || !(await stat(absolute).catch(() => undefined))?.isDirectory()) continue;
+      let number = 1;
+      while (draft.sources.some((entry) => entry.id === `linked-${number}`)) number++;
+      const id = `linked-${number}`;
+      draft.sources.push({
+        id,
+        path: slash(relative(dirname(setupFile), absolute)) || '.',
+        kind: 'directory',
+        reader: 'unknown',
+      });
+      knownRoots.set(absolute, id);
+      inferred = true;
+      result.advice.push(
+        `Choose a registered reader for inferred source ${id}; its link proves deployment, not source format.`,
+      );
+    }
   if (inferred) {
     parsed = parseSetupText(JSON.stringify(draft), typeResolver ?? profile);
     if (!parsed.ok) throw new Error(`Invalid inferred source types: ${JSON.stringify(parsed.errors)}`);
@@ -534,7 +548,8 @@ export async function diagnoseSetup(
       result.coverage.skipped.push({ what: `${source.id}:${path}`, reason: 'reader ignored' });
     for (const link of disk.links) {
       const targetSource = sources.find((entry) => entry.id === link.source && link.target === '');
-      if (!targetSource || !deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
+      if (!targetSource || !deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`))
+        continue;
       const binding = {
         runtime: deploymentProfile.name,
         deployedRoot: source.id,
@@ -601,12 +616,7 @@ export async function diagnoseSetup(
       }
     }
   }
-  if (
-    declared?.drift &&
-    result.coverage.skipped.some(
-      (entry) => entry.reason === 'source unavailable',
-    )
-  )
+  if (declared?.drift && result.coverage.skipped.some((entry) => entry.reason === 'source unavailable'))
     result.drift.status = 'fail';
   if (
     result.coverage.status === 'pass' &&

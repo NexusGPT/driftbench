@@ -38,8 +38,14 @@ describe('doctor reads through the runtime registry without executing', () => {
           true,
         );
         expect(result.coverage.unknown).toContain('project:unknown.data');
-        expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({ usd: null, allowed: false, reason: 'Unknown price: declare budget.pricing before approving spend.' });
-        expect(result.nextSteps.find((step) => step.action === 'Run driftbench doctor --check')).toMatchObject({ usd: 0, allowed: true });
+        expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({
+          usd: null,
+          allowed: false,
+          reason: 'Unknown price: declare budget.pricing before approving spend.',
+        });
+        expect(
+          result.nextSteps.find((step) => step.action === 'Run driftbench doctor --check'),
+        ).toMatchObject({ usd: 0, allowed: true });
       });
     }
   }
@@ -133,6 +139,7 @@ describe('doctor declared policies and deployments', () => {
     const detected = await inspectSetup(root);
     const declared = {
       ...detected.draft,
+      drift: undefined,
       sources: [
         detected.draft.sources[0]!,
         { id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code' },
