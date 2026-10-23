@@ -1,4 +1,4 @@
-import { forced, isNoExpected, ItemFailure, leaksOf } from '../src/failure';
+import { forced, ItemFailure, isNoExpected, leaksOf } from '../src/failure';
 import type { BankItem } from '../src/ladders/variables/bank/item';
 import { itemRng } from '../src/ladders/variables/bank/util';
 
