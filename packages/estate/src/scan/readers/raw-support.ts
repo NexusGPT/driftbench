@@ -85,10 +85,8 @@ export function sourceCoverage(
   for (const path of [...new Set(large.map((input) => input.what))].sort()) {
     skipped.push({ what: path, reason: 'too-large' });
   }
-  const globs = new Set([
-    ...(options.ignored ?? []),
-    ...(roots.includes('.') ? (options.pruned ?? []) : []),
-  ]);
+  const pruned = roots.includes('.') ? (options.pruned ?? []) : [];
+  const globs = new Set([...(options.ignored ?? []), ...pruned]);
   for (const glob of globs) skipped.push({ what: glob, reason: 'ignored' });
   skipped.push(...inventory.skipped.filter((input) => !input.reason.startsWith('size-limit:')));
   return { covered, unknown, skipped };
