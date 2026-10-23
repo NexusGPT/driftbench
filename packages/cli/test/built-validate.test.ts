@@ -23,7 +23,7 @@ describe('the built CLI', () => {
   beforeAll(() => buildJavaScript(ROOT, scratch), 600_000);
 
   it('runs validate on the statistics ladder: every bank child starts and reports its items', () => {
-    // Level 1 alone: a slice runs the bank items of its levels only, and the whole ladder runs per seed in the
+    // Level 1 alone: a slice runs the bank items of its levels only. The whole ladder runs per seed in the
     // validators workflow, so this test does not run the whole bank under the frame (about 600 s).
     const run = driftbench(['validate', 'stats', '--seed', '1', '--levels', '1..1', '--json']);
     expect(run.stdout).not.toMatch(/child process (died|did not start)/);

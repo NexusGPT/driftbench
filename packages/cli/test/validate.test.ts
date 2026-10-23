@@ -405,7 +405,7 @@ describe('the levels a CLI run computes reach the ladder', () => {
     ]);
   });
 
-  it('stops a --check-floor run at its floor, and a slice at the lower of its end and the floor', async () => {
+  it('stops a --check-floor run at its floor, and a slice at the lower of its end and it', async () => {
     expect((await run({ seed: '1', checkFloor: true }, { planted: 2 })).seen).toEqual([
       { from: 1, to: 2 },
       { from: 1, to: 2 },
