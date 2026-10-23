@@ -1,0 +1,46 @@
+name: regression-probe
+on:
+  push:
+    branches: [scratch/regression-probe2]
+permissions:
+  contents: read
+jobs:
+  leg:
+    name: ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { id: red-release-next, sha: '80f8b2f5192cca9002a89048d442c99b17a77c94' }
+          - { id: green-with-1464, sha: 'bb75097e22f30fd17b6580a29d8f8e5c34260e74' }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.sha }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run this seed through its level
+        shell: bash
+        env:
+          COMPONENT: generator
+          SEED: '732170008'
+          LEG: generator-732170008
+        run: |
+          mkdir -p report
+          THROUGH=$(node --import tsx tools/ci/check-regression-seed.ts level "$LEG")
+          echo "through $THROUGH"
+          pnpm -s driftbench validate "$COMPONENT" --seed "$SEED" --levels "1..$THROUGH" --json > "report/$LEG.json"
+          node --import tsx tools/ci/check-regression-seed.ts check "$LEG" "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-${{ matrix.id }}
+          path: report
+          retention-days: 7
