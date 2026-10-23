@@ -70,6 +70,7 @@ export {
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
+  type LocateMiss,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
@@ -144,6 +145,8 @@ export {
 } from './registry-roles-set';
 export {
   atomNeeds,
+  CLOSE_REASK_ATTEMPTS,
+  CLOSE_REASK_MAX,
   DEFAULT_WINDOW_UNITS,
   type FailedWindow,
   type LabelerUsage,

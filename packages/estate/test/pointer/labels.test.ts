@@ -632,8 +632,12 @@ describe('spans and links in a label set', () => {
 
   it('locates words in a text: one place, none, or several', () => {
     expect(locateSpanText('Read the log first.', 'THE LOG')).toEqual({ from: 5, to: 12 });
-    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({ reason: 'the text is not in the unit' });
+    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({
+      code: 'not-found',
+      reason: 'the text is not in the unit',
+    });
     expect(locateSpanText('the log, the log', 'the log')).toEqual({
+      code: 'ambiguous',
       reason: 'the text is found twice in the unit',
     });
   });
