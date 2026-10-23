@@ -199,6 +199,10 @@ const LINES = [
   '[[:alpha:',
   '[[:]',
   '[a',
+  '[a[:foo:]]',
+  '[[:alpha:][:foo:]]',
+  'a[',
+  'a[b',
   '\\a',
   '\\',
   'a\\',
@@ -236,6 +240,8 @@ const FIXED = [
   '#a',
   'a ',
   '[a]',
+  'a[',
+  'a[b',
 ] as const;
 
 describe.skipIf(!HAS_GIT)('each form of a line keeps the files git keeps', () => {
