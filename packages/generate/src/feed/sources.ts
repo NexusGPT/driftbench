@@ -31,6 +31,12 @@ import { shareSubjects } from './subjects';
  * What a reader wrote about a clause. Code never reads the clause: a model or a person did, and this is their
  * answer. A comparison is `lt`, `le`, `gt` or `ge` (how the quantity is compared with the limit for the condition
  * to hold) or `eq` or `ne` (equal, not equal; the file format has no such comparison, so no boundary is written).
+ * `subject` is the canonical name of the quantity, set or fact, independent of comparison wording and limits.
+ * The labeller can reconcile aliases by choosing an existing subject's opaque id (subject-choices.ts).
+ * A `member` label describes both inclusion and exclusion: `members` lists the alternatives named by the clause,
+ * including excluded alternatives. The store samples both the listed values and a value outside the list; this
+ * label describes the variable's cases, not which case makes the predicate true. A boolean labels a yes/no fact,
+ * not a whole predicate over listed alternatives. The requests in span-label-request.ts explain this distinction.
  */
 export type SpanLabel =
   | {
