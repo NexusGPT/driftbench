@@ -42,11 +42,11 @@ jobs:
   ladders-leg:
     # One leg is one validator on one seed, or one slice of levels of a long ladder. `--check-floor` caps a leg at
     # the floor of its validator and exits 1 below it. A validator without a floor walks to its first failing
-    # level, as a single run does, so each slice of the generator ladder computes its own levels. The slices of a
-    # ladder tile it from level 1 through its floor: a level above the floor is not computed with `--check-floor`,
-    # so a slice that starts above the floor is not a leg (raise the floor past the last slice and the join stops
-    # on "computed in no slice"; add the slices then). The levels above the floor are measured in the measurement
-    # runs, never here.
+    # level, as a single run does, so each slice of the generator ladder computes its own levels. The slices tile a
+    # ladder from level 1 through its floor: a level above the floor is not computed with `--check-floor`, so a slice
+    # that starts above the floor is not a leg (raise the floor past the last slice and the join stops on "computed in
+    # no slice"; add the slices then). The levels above the floor are computed by `ladders-tail` (levels 20 to 23, with
+    # no `--check-floor`) and by the measurement runs.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -316,6 +316,114 @@ jobs:
           path: report
           retention-days: 3
 
+  ladders-tail:
+    # Levels 20 to 23 of the generator cost most of an hour in one leg. Each level of each seed is a leg of its own
+    # and starts with the rest, not after the slices below it: a single run stops at its first failing level, and
+    # the join does the same, keeping only the levels up to the first failing one (a level above it is dropped).
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    name: ${{ matrix.name }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: generator-1-level-20
+            name: generator seed 1 level 20
+            component: generator
+            flags: --seed 1 --levels 20..20
+          - id: generator-1-level-21
+            name: generator seed 1 level 21
+            component: generator
+            flags: --seed 1 --levels 21..21
+          - id: generator-1-level-22
+            name: generator seed 1 level 22
+            component: generator
+            flags: --seed 1 --levels 22..22
+          - id: generator-1-level-23
+            name: generator seed 1 level 23
+            component: generator
+            flags: --seed 1 --levels 23..23
+          - id: generator-2-level-20
+            name: generator seed 2 level 20
+            component: generator
+            flags: --seed 2 --levels 20..20
+          - id: generator-2-level-21
+            name: generator seed 2 level 21
+            component: generator
+            flags: --seed 2 --levels 21..21
+          - id: generator-2-level-22
+            name: generator seed 2 level 22
+            component: generator
+            flags: --seed 2 --levels 22..22
+          - id: generator-2-level-23
+            name: generator seed 2 level 23
+            component: generator
+            flags: --seed 2 --levels 23..23
+          - id: generator-3-level-20
+            name: generator seed 3 level 20
+            component: generator
+            flags: --seed 3 --levels 20..20
+          - id: generator-3-level-21
+            name: generator seed 3 level 21
+            component: generator
+            flags: --seed 3 --levels 21..21
+          - id: generator-3-level-22
+            name: generator seed 3 level 22
+            component: generator
+            flags: --seed 3 --levels 22..22
+          - id: generator-3-level-23
+            name: generator seed 3 level 23
+            component: generator
+            flags: --seed 3 --levels 23..23
+          - id: generator-hidden-level-20
+            name: generator seed hidden level 20
+            component: generator
+            flags: --hidden --hidden-only --levels 20..20
+          - id: generator-hidden-level-21
+            name: generator seed hidden level 21
+            component: generator
+            flags: --hidden --hidden-only --levels 21..21
+          - id: generator-hidden-level-22
+            name: generator seed hidden level 22
+            component: generator
+            flags: --hidden --hidden-only --levels 22..22
+          - id: generator-hidden-level-23
+            name: generator seed hidden level 23
+            component: generator
+            flags: --hidden --hidden-only --levels 23..23
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run this level
+        shell: bash
+        env:
+          FLAGS: ${{ matrix.flags }}
+          LEG: ${{ matrix.id }}
+        run: |
+          mkdir -p report
+          pnpm -s driftbench validate generator $FLAGS --json > "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ladders-${{ matrix.id }}
+          path: report
+          retention-days: 3
+          if-no-files-found: ignore
+
   ladders-handover:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: every handover agrees with its journal
@@ -341,7 +449,7 @@ jobs:
         run: pnpm driftbench validate all --check-handover
 
   ladders:
-    needs: [ladders-leg, ladders-handover]
+    needs: [ladders-leg, ladders-tail, ladders-handover]
     if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,')))
     name: ladders and floors
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
