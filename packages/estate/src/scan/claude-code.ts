@@ -1392,9 +1392,7 @@ function runPath(segment: readonly string[]): string | undefined {
 
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
 function anchorOf(token: string): { script: string; anchored: boolean } {
-  for (const anchor of ANCHORS) {
-    if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
-  }
+  if (ANCHOR.test(token)) return { script: posix.normalize(token.replace(ANCHOR, '')), anchored: true };
   if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
   return { script: posix.normalize(token), anchored: false };
 }
