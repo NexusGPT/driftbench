@@ -33,7 +33,13 @@ export type Opinion = {
 };
 
 /** The opinions of one answer, by unit index in the file, and the answers parts it refused, with the reason. */
-export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[]; dropped?: string[] };
+export type Opinions = {
+  byUnit: Map<number, Opinion>;
+  refusals: string[];
+  /** The refusals that make the whole answer invalid (a label or unit that does not exist): the answer is asked again. */
+  invalid?: string[];
+  dropped?: string[];
+};
 
 export interface Labeler {
   /** Names the labeler in the cassette key: `anthropic`, `jev`, `openai-decisions`, `http:<hash>`. */

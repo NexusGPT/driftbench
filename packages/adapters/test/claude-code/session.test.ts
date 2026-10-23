@@ -51,6 +51,270 @@ function map(records: unknown[], more: Partial<Parameters<typeof mapSession>[0]>
   return mapSession({ transcript: lines(records), ...more });
 }
 
+describe('a helper session: the calls of the sidechain', () => {
+  const sidechain = () => [
+    user('clean the scratch folder'),
+    assistant([use('agent-1', 'Agent', { subagent_type: 'tidy', prompt: 'clear /work/demo/scratch' })], {
+      uuid: 'a1',
+    }),
+    assistant([use('h-bash', 'Bash', { command: 'rm -rf /work/demo/scratch/old' })], {
+      uuid: 'h1',
+      parentUuid: 'a1',
+      isSidechain: true,
+    }),
+    result('h-bash', 'removed', { uuid: 'h2', parentUuid: 'h1', isSidechain: true }),
+    result('agent-1', 'done'),
+    assistant([{ type: 'text', text: 'The helper tidied it.' }]),
+  ];
+
+  it('keeps the helper calls apart from the agent calls, tied to their Agent call and marked by actor', () => {
+    const { blocks, meta } = map(sidechain());
+    const observed = blocks[0]?.observed;
+    expect(observed?.toolCalls.map((call) => call.label)).toEqual(['Agent']);
+    expect(observed?.helperCalls).toHaveLength(1);
+    expect(observed?.helperCalls?.[0]).toMatchObject({
+      id: 'h-bash',
+      label: 'Bash',
+      actor: 'helper',
+      parentCallId: 'agent-1',
+      output: 'removed',
+    });
+    // The helper's words are not the agent's words.
+    expect(observed?.text).toBe('The helper tidied it.');
+    expect(meta.issues).toEqual([]);
+    expect(Observed.safeParse(observed).success).toBe(true);
+  });
+
+  it('ties a helper call to the Agent call by parent_tool_use_id when the stream gives one', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-9', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      assistant([use('h-read', 'Read', { file_path: '/work/demo/a.md' })], {
+        isSidechain: true,
+        parent_tool_use_id: 'agent-9',
+      }),
+      result('h-read', 'text', { isSidechain: true, parent_tool_use_id: 'agent-9' }),
+      result('agent-9', 'done'),
+    ]);
+    expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ actor: 'helper', parentCallId: 'agent-9' });
+  });
+
+  it('ties each call to its nearest enclosing Agent call when a helper starts a helper', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('A1', 'Agent', { subagent_type: 'outer' })], { uuid: 'a1' }),
+      assistant([use('B1', 'Agent', { subagent_type: 'inner' })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      assistant([use('c-inner', 'Bash', { command: 'ls inner' })], {
+        uuid: 'i1',
+        parentUuid: 'h1',
+        isSidechain: true,
+      }),
+      result('c-inner', 'ok', { uuid: 'i2', parentUuid: 'i1', isSidechain: true }),
+      result('B1', 'inner done', { uuid: 'h3', parentUuid: 'i2', isSidechain: true }),
+      assistant([use('c-outer', 'Bash', { command: 'ls outer' })], {
+        uuid: 'h4',
+        parentUuid: 'h3',
+        isSidechain: true,
+      }),
+      result('c-outer', 'ok', { uuid: 'h5', parentUuid: 'h4', isSidechain: true }),
+      result('A1', 'done'),
+    ]);
+    const parents = Object.fromEntries(
+      (blocks[0]?.observed.helperCalls ?? []).map((call) => [call.id, call.parentCallId]),
+    );
+    expect(parents).toEqual({ B1: 'A1', 'c-inner': 'B1', 'c-outer': 'A1' });
+  });
+
+  it('gives a helper record that names no parent the latest Agent call, and raises no issue', () => {
+    const { blocks, meta } = map([
+      user('go'),
+      assistant([use('agent-5', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      result('agent-5', 'done'),
+      base('assistant', {
+        isSidechain: true,
+        parentUuid: null,
+        message: { content: [use('s1', 'Read', { file_path: 'x' })] },
+      }),
+    ]);
+    expect(blocks[0]?.observed.helperCalls?.[0]).toMatchObject({ label: 'Read', parentCallId: 'agent-5' });
+    expect(meta.issues).toEqual([]);
+    // Visible, not silent: the records that took the latest Agent call for want of a parent are counted.
+    expect(meta.ownerlessHelperRecords).toBe(1);
+  });
+
+  it('treats parent_tool_use_id alone as a helper marker, with no isSidechain', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-3', 'Agent', { subagent_type: 'tidy' })], { uuid: 'x1' }),
+      assistant([use('h-bash', 'Bash', { command: 'rm old.txt' })], { parent_tool_use_id: 'agent-3' }),
+      result('h-bash', 'ok', { parent_tool_use_id: 'agent-3' }),
+      result('agent-3', 'done'),
+    ]);
+    const observed = blocks[0]?.observed;
+    expect(observed?.toolCalls.map((call) => call.label)).toEqual(['Agent']);
+    expect(observed?.helperCalls?.[0]).toMatchObject({ label: 'Bash', parentCallId: 'agent-3' });
+    // Its tokens are the helper's, not the agent's.
+    expect(observed?.cost).toMatchObject({ inputTokens: 10, outputTokens: 2, helperInputTokens: 10 });
+  });
+
+  it('puts what a helper edits and creates in the workspace diff, beside the agent', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([use('h-edit', 'Edit', { file_path: `${CWD}/guards/policy.md` })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      result('h-edit', 'edited', {
+        uuid: 'h2',
+        parentUuid: 'h1',
+        isSidechain: true,
+        toolUseResult: { type: 'update' },
+      }),
+      assistant([use('h-write', 'Write', { file_path: `${CWD}/notes/new.md` })], {
+        uuid: 'h3',
+        parentUuid: 'h2',
+        isSidechain: true,
+      }),
+      result('h-write', 'created', {
+        uuid: 'h4',
+        parentUuid: 'h3',
+        isSidechain: true,
+        toolUseResult: { type: 'create' },
+      }),
+      assistant([use('a-edit', 'Edit', { file_path: `${CWD}/src/main.ts` })]),
+      result('a-edit', 'edited', { toolUseResult: { type: 'update' } }),
+      result('agent-1', 'done'),
+    ]);
+    const diff = blocks[0]?.observed.workspaceDiff;
+    expect(diff?.changed.sort()).toEqual(['guards/policy.md', 'src/main.ts']);
+    expect(diff?.created).toEqual(['notes/new.md']);
+  });
+
+  it('does not put a failed helper write in the diff', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([use('h-edit', 'Edit', { file_path: `${CWD}/guards/policy.md` })], {
+        uuid: 'h1',
+        parentUuid: 'a1',
+        isSidechain: true,
+      }),
+      result('h-edit', 'denied', { uuid: 'h2', parentUuid: 'h1', isSidechain: true }, true),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.workspaceDiff).toMatchObject({ created: [], changed: [] });
+  });
+
+  it('counts the helper tokens apart from the agent tokens', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      assistant([{ type: 'text', text: 'working' }], { uuid: 'h1', parentUuid: 'a1', isSidechain: true }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost).toMatchObject({
+      inputTokens: 10,
+      outputTokens: 2,
+      helperInputTokens: 10,
+      helperOutputTokens: 2,
+    });
+  });
+
+  it('names the helper model from the sidechain records, apart from the agent', () => {
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      base('assistant', {
+        isSidechain: true,
+        uuid: 'h1',
+        parentUuid: 'a1',
+        message: {
+          id: 'hm1',
+          model: 'fictional-helper',
+          role: 'assistant',
+          content: [{ type: 'text', text: 'working' }],
+          usage: { input_tokens: 5, output_tokens: 1 },
+        },
+      }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost.helperModel).toBe('fictional-helper');
+  });
+
+  it('keeps the helper model when the message that names it carries no usage and a later record has the usage', () => {
+    const named = {
+      id: 'hm9',
+      model: 'fictional-helper',
+      role: 'assistant',
+      content: [{ type: 'text', text: 'a' }],
+    };
+    const { blocks } = map([
+      user('go'),
+      assistant([use('agent-1', 'Agent', { subagent_type: 'tidy' })], { uuid: 'a1' }),
+      base('assistant', { isSidechain: true, uuid: 'h1', parentUuid: 'a1', message: named }),
+      base('assistant', {
+        isSidechain: true,
+        uuid: 'h2',
+        parentUuid: 'h1',
+        message: { id: 'hm9', role: 'assistant', content: [], usage: { input_tokens: 7, output_tokens: 3 } },
+      }),
+      result('agent-1', 'done'),
+    ]);
+    expect(blocks[0]?.observed.cost).toMatchObject({
+      helperModel: 'fictional-helper',
+      helperInputTokens: 7,
+      helperOutputTokens: 3,
+    });
+  });
+
+  it('adds nothing to a session with no helper', () => {
+    const { blocks } = map([user('go'), assistant([{ type: 'text', text: 'hi' }])]);
+    expect(blocks[0]?.observed.helperCalls).toBeUndefined();
+    expect(blocks[0]?.observed.cost).toEqual({ inputTokens: 10, outputTokens: 2 });
+  });
+});
+
+describe('the recorded sessions are mapped as before', () => {
+  it('keeps the agent calls of every recorded session the agent calls, whatever helpers wrote beside them', async () => {
+    const { readdirSync } = await import('node:fs');
+    const files = readdirSync(SESSIONS).filter(
+      (name) => name.endsWith('.jsonl') && !name.includes('.decisions') && !name.includes('.steps'),
+    );
+    expect(files.length).toBeGreaterThan(5);
+    for (const name of files) {
+      const { readFileSync } = await import('node:fs');
+      const text = readFileSync(join(SESSIONS, name), 'utf8');
+      let agentCalls = 0;
+      for (const line of text.split('\n')) {
+        if (line.trim() === '') continue;
+        const record = JSON.parse(line) as {
+          type?: string;
+          isSidechain?: boolean;
+          message?: { content?: unknown };
+        };
+        if (
+          record.type !== 'assistant' ||
+          record.isSidechain === true ||
+          !Array.isArray(record.message?.content)
+        )
+          continue;
+        agentCalls += record.message.content.filter(
+          (part: { type?: string }) => part?.type === 'tool_use',
+        ).length;
+      }
+      const session = await readSession({ transcript: join(SESSIONS, name) });
+      const mapped = session.blocks.reduce((sum, block) => sum + block.observed.toolCalls.length, 0);
+      expect(mapped, name).toBe(agentCalls);
+    }
+  });
+});
+
 describe('parseJsonl', () => {
   it('skips blank lines and keeps a line that is not JSON with its error', () => {
     const parsed = parseJsonl('{"a":1}\n\n not json\n');

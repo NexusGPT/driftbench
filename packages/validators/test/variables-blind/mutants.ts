@@ -2374,6 +2374,21 @@ export const MUTANTS: readonly Mutant[] = [
     }),
   },
   {
+    name: 'buildStore reads the text of a condition and ignores the label it carries',
+    families: ['sources'],
+    only: ['sources.labelled-condition.the-label-decides-not-the-text'],
+    make: buildFrom((sources) => ({
+      ...sources,
+      estate: sources.estate && {
+        ...sources.estate,
+        rules: sources.estate.rules.map((rule) => ({
+          ...rule,
+          conditions: rule.conditions.map(({ text }) => ({ text })),
+        })),
+      },
+    })),
+  },
+  {
     name: 'quotes reports the right number of wrong quotes at the wrong place at scale',
     families: ['scale'],
     only: ['scale.readers.quotes-2000-reports-each-wrong-one'],

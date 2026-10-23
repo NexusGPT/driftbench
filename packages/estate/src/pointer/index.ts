@@ -1,4 +1,13 @@
+import { AGENT_RULES_SET } from './agent-rules';
+
 export { AGENT_RULES_SET } from './agent-rules';
+export { GATE_FORMS_SET, GATE_FORMS_SET_NAME, SHIPPED_LABEL_SETS } from './gate-forms-set';
+
+/**
+ * The label file the estate scan asks by default: the main set. The gate forms are a second shipped set
+ * (`SHIPPED_LABEL_SETS(AGENT_RULES_SET)` holds both); a committed cassette answers them once it is recorded.
+ */
+export const DEFAULT_LABEL_SETS: string = AGENT_RULES_SET;
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
   Cassette,
@@ -10,7 +19,18 @@ export {
   requestKey,
   type Wire,
 } from './cassette';
-export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
+export {
+  type Container,
+  type Cut,
+  CutError,
+  type CutOptions,
+  cut,
+  fingerprint,
+  isPlainTextPath,
+  MAX_NESTING,
+  sentenceSpans,
+  type Unit,
+} from './cut';
 export {
   type AnthropicLabelerOptions,
   createAnthropicLabeler,
@@ -59,19 +79,41 @@ export {
   type WindowUnit,
 } from './labels';
 export {
+  carryOf,
+  checkLedger,
   type Event,
   type FileCut,
+  keepsLabels,
   LADDER,
   type Ledger,
   type LedgerEntry,
   type LedgerLabel,
+  LINEAGE_KEEP,
+  labelMap,
   mintId,
   type NextLedger,
   nextLedger,
   parseLedger,
+  recordLabel,
   renderLedger,
   unitKey,
 } from './ledger';
+export {
+  blastRadius,
+  CLEAR_REASONS,
+  type ClearReason,
+  classifyLinks,
+  clearLink,
+  createLink,
+  impactOf,
+  type Link,
+  type LinkedLedger,
+  type LinkReview,
+  type LinkState,
+  linkCoverage,
+  verifiedSpans,
+  verifyLink,
+} from './links';
 export {
   atomsByUnit,
   EDIT_CLASSES,
@@ -88,7 +130,9 @@ export {
 } from './radius';
 export {
   DEFAULT_WINDOW_UNITS,
+  type FailedWindow,
   type LabelerUsage,
+  type LabelFlip,
   type LabelledUnit,
   type MemberPlan,
   OUT_OF_STEP_MIN,
@@ -122,8 +166,13 @@ export {
   type LabellingOptions,
   margin,
   parseLabelerSpec,
+  STACK_VOTES,
+  type StackDecision,
+  type StackRequest,
   singleLabelling,
+  stackDecision,
   stackedLabelling,
+  stackMargin,
 } from './stack';
 export {
   createHttpLabeler,
