@@ -1306,21 +1306,35 @@ const runs = plans.map((plan) => {
   child.on('exit', (code, sig) => {
     trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
-    for (const waiter of run.waiting.splice(0)) waiter({ dead: run.exited });
+    for (const waiter of run.waiting.splice(0)) waiter.resolve({ dead: run.exited });
   });
   createInterface({ input: child.stdout }).on('line', (line) => {
-    if (!line.startsWith(setup.token + ' ')) return;
-    const message = JSON.parse(line.slice(setup.token.length + 1));
+    // The answer starts the line, unless the product printed text without a newline just before it: then the answer
+    // follows that text, and is still the answer.
+    const at = line.indexOf(setup.token + ' ');
+    if (at < 0) return;
+    const message = JSON.parse(line.slice(at + setup.token.length + 1));
+    trace('run ' + plan.run + ' answer id ' + message.id + ': ' + line.slice(at + setup.token.length + 1, at + setup.token.length + 121));
     const waiter = run.waiting.shift();
-    if (waiter) waiter(message);
+    if (!waiter) {
+      trace('run ' + plan.run + ' sent an answer nobody waits for (id ' + message.id + ')');
+      return;
+    }
+    // An answer belongs to the request it was asked for: the twin writes the id of the request in every answer. An
+    // answer for another request is a desync of that run, named with both ids, never taken for the answer.
+    if (waiter.id !== undefined && message.id !== waiter.id) {
+      waiter.resolve({ desync: 'the run ' + plan.run + ' answered request ' + message.id + ' while request ' + waiter.id + ' was waiting' });
+      return;
+    }
+    waiter.resolve(message);
   });
   child.stdin.write(JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }) + '\n');
   return run;
 });
-const ask = (run, line) =>
+const ask = (run, line, id) =>
   new Promise((resolve) => {
     if (run.exited) return resolve({ dead: run.exited });
-    run.waiting.push(resolve);
+    run.waiting.push({ resolve, id });
     if (line !== undefined) run.child.stdin.write(line + '\n');
   });
 const ready = await Promise.all(runs.map((run) => ask(run).then((message) => { trace('run ' + run.plan.run + ' answered its start: ' + (message.ready === true ? 'ready' : 'not ready')); return message; })));
@@ -1335,7 +1349,7 @@ port.on('message', async (message) => {
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ...(message.marks ? { marks: message.marks } : {}), ...(message.ambient ? { ambient: message.ambient } : {}), ...(message.identity !== undefined ? { identity: message.identity } : {}), ...(message.refs ? { refs: message.refs } : {}) });
   const sentAt = Date.now();
-  const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
-  reply({ answers });
+  const answers = await Promise.all(runs.map((run) => ask(run, line, id).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
+  reply({ id, call: message.call, answers });
 });
 `;
