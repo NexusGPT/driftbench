@@ -1,9 +1,14 @@
 import { createHash } from 'node:crypto';
+import { directiveFromMarkdown } from 'mdast-util-directive';
+import { mathFromMarkdown } from 'mdast-util-math';
 import { parse, preprocess } from 'micromark';
+import { directive } from 'micromark-extension-directive';
+import { math } from 'micromark-extension-math';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
-import { unified } from 'unified';
+import { parseTOML } from 'toml-eslint-parser';
+import { type Processor, unified } from 'unified';
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**
@@ -55,10 +60,15 @@ export function fingerprint(text: string): string {
 const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 
 /** A same-length mask of the spans that must not be cut: inline code, URLs, link destinations, emphasis marks. */
-function mask(text: string): string {
+function mask(text: string, protect: ReadonlyArray<[number, number]> = []): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
-  return text
+  // A footnote reference is a closing mark of the sentence it follows: a full stop before it still ends the sentence
+  // after it, never inside it. The parser found the reference; here only its characters are hidden.
+  let hidden = text;
+  for (const [from, to] of protect)
+    hidden = hidden.slice(0, from) + ')'.repeat(Math.max(0, to - from)) + hidden.slice(to);
+  return hidden
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
@@ -149,6 +159,37 @@ function plainBlocks(source: string, from: number, to: number): Array<[number, n
   return blocks;
 }
 
+/** The offsets of the footnote references in a paragraph, by the parser's own nodes. */
+function footnoteReferences(paragraph: Node): Array<[number, number]> {
+  const found: Array<[number, number]> = [];
+  const walk = (node: Node) => {
+    if (node.type === 'footnoteReference' && node.position)
+      found.push([node.position.start.offset ?? 0, node.position.end.offset ?? 0]);
+    for (const child of node.children ?? []) walk(child);
+  };
+  walk(paragraph);
+  return found;
+}
+
+/**
+ * A GitHub alert is a block quote whose first line is `[!` TYPE `]` alone (`> [!NOTE]`, `> [!WARNING]`): the marker
+ * syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
+ * the text after the marker line starts; the marker is a mark and is in no unit.
+ */
+function alertOf(paragraph: Node, text: string, start: number): { type: string; from: number } | undefined {
+  const first = paragraph.children?.[0] as (Node & { value?: string }) | undefined;
+  if (first?.type !== 'text' || typeof first.value !== 'string') return undefined;
+  const line = first.value.split('\n')[0] ?? '';
+  const type = /^\[!([A-Z]+)\]$/.exec(line)?.[0];
+  if (!type) return undefined;
+  const lineEnd = text.indexOf('\n', start);
+  if (lineEnd === -1) return { type, from: Number.POSITIVE_INFINITY };
+  // The next line starts after its quote marker, which the parser has already removed from the node's value.
+  const rest = first.value.slice(line.length + 1).split('\n')[0] ?? '';
+  const found = rest === '' ? -1 : text.indexOf(rest, lineEnd + 1);
+  return { type, from: found === -1 ? Number.POSITIVE_INFINITY : found };
+}
+
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
 function withoutTagLines(source: string, from: number, to: number): [number, number] {
   let start = from;
@@ -175,8 +216,16 @@ function trimSpan(source: string, from: number, to: number): [number, number] {
 }
 
 /** The sentence spans of `source[from, to)`, merged when unsure: a wrong merge costs granularity, a wrong split a wrong quote. */
-export function sentenceSpans(source: string, from: number, to: number): Array<[number, number]> {
-  const masked = mask(source.slice(from, to));
+export function sentenceSpans(
+  source: string,
+  from: number,
+  to: number,
+  protect: ReadonlyArray<[number, number]> = [],
+): Array<[number, number]> {
+  const masked = mask(
+    source.slice(from, to),
+    protect.map(([start, end]) => [start - from, end - from] as [number, number]),
+  );
   const spans: Array<[number, number]> = [];
   let current: [number, number] | undefined;
   for (const segment of SEGMENTER.segment(masked)) {
@@ -199,11 +248,40 @@ type Node = {
   children?: Node[];
   position?: { start: { offset?: number }; end: { offset?: number } };
   depth?: number;
+  /** A footnote definition's label, as written; a directive's name; the value of a front matter or math node. */
+  label?: string;
+  name?: string;
+  value?: string;
 };
 
-const PROCESSOR = unified().use(remarkParse).use(remarkFrontmatter, ['yaml']).use(remarkGfm);
+/**
+ * The block syntaxes of the cutter beyond GFM, each from its maintained extension: container directives (`:::name`)
+ * and display math (`$$` lines). Only their block parts are used: the inline forms (a text directive, `$x$`) would
+ * read prose such as a price or a time as syntax.
+ */
+function remarkBlockSyntax(this: Processor) {
+  const data = this.data() as Record<string, unknown[] | undefined>;
+  (data.micromarkExtensions ??= []).push(
+    { flow: directive().flow },
+    { flow: math({ singleDollarTextMath: false }).flow },
+  );
+  (data.fromMarkdownExtensions ??= []).push(directiveFromMarkdown(), mathFromMarkdown());
+}
 
-type Context = { inList?: boolean; inQuote?: boolean };
+const PROCESSOR = unified()
+  .use(remarkParse)
+  .use(remarkFrontmatter, ['yaml', 'toml', { type: 'json', fence: { open: '{', close: '}' } }])
+  .use(remarkGfm)
+  .use(remarkBlockSyntax);
+
+type Context = {
+  inList?: boolean;
+  inQuote?: boolean;
+  /** Names that end the heading path of every unit below: a footnote label, a directive name, an alert type. */
+  extra?: string[];
+  /** The marker line of an alert is no unit: the first paragraph of the quote starts after it. */
+  skipFirstLine?: boolean;
+};
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
@@ -382,20 +460,27 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     });
   };
 
-  const frontMatter = (start: number, end: number) => {
+  /** A string value of front matter is a unit keyed by its path (`$.title`, `$.tags[1]`); `from`/`to` are in the file. */
+  const value = (from: number, to: number, key: string) => add('front_matter_value', from, to, [], key);
+
+  const frontMatter = (start: number, end: number, kind: 'yaml' | 'toml' | 'json') => {
     const block = source.slice(start, end);
-    const opening = /^---\r?\n/.exec(block)?.[0] ?? '';
-    const body = block.slice(opening.length).replace(/\r?\n---\s*$/, '');
     try {
+      if (kind === 'toml') return tomlFrontMatter(block, start);
+      // JSON is YAML's flow style: the same walk reads it. Its fences are part of the object, its strings are quoted.
+      const opening = kind === 'json' ? '' : (/^---\r?\n/.exec(block)?.[0] ?? '');
+      const body = kind === 'json' ? block : block.slice(opening.length).replace(/\r?\n---\s*$/, '');
       const document = parseDocument(body);
       const walk = (node: unknown, key: string) => {
         if (isScalar(node) && typeof node.value === 'string' && node.range) {
-          const [indicator, to] = node.range;
+          let [from, to] = node.range;
           // A block scalar's range opens at its `>` or `|` header; the value starts on the next line.
-          const block = node.type === 'BLOCK_FOLDED' || node.type === 'BLOCK_LITERAL';
-          const newline = block ? body.indexOf('\n', indicator) : -1;
-          const from = block && newline !== -1 && newline < to ? newline + 1 : indicator;
-          add('front_matter_value', start + opening.length + from, start + opening.length + to, [], key);
+          const folded = node.type === 'BLOCK_FOLDED' || node.type === 'BLOCK_LITERAL';
+          const newline = folded ? body.indexOf('\n', from) : -1;
+          if (folded && newline !== -1 && newline < to) from = newline + 1;
+          // The value of a JSON string is the text between its quotes.
+          if (kind === 'json' && node.type === 'QUOTE_DOUBLE') [from, to] = [from + 1, to - 1];
+          value(start + opening.length + from, start + opening.length + to, key);
         } else if (isMap(node)) {
           for (const pair of node.items) {
             walk(pair.value, `${key}.${String((pair.key as { value?: unknown } | null)?.value)}`);
@@ -410,6 +495,61 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     } catch {
       add('opaque', start, end, []);
     }
+  };
+
+  /** TOML front matter between `+++` lines: a real TOML parser gives the tree and the range of each string. */
+  const tomlFrontMatter = (block: string, start: number) => {
+    const opening = /^\+\+\+\r?\n/.exec(block)?.[0] ?? '';
+    const body = block.slice(opening.length).replace(/\r?\n\+\+\+\s*$/, '');
+    type TomlNode = {
+      type: string;
+      kind?: string;
+      style?: string;
+      value?: unknown;
+      range: [number, number];
+      keys?: Array<{ name?: string; value?: string }>;
+      key?: { keys: Array<{ name?: string; value?: string }> };
+      body?: TomlNode[];
+      elements?: TomlNode[];
+    };
+    const keyName = (part: { name?: string; value?: string }) => String(part.name ?? part.value ?? '');
+    const quotes: Record<string, number> = { basic: 1, literal: 1, 'multi-basic': 3, 'multi-literal': 3 };
+    const arrays = new Map<string, number>();
+    const walk = (node: TomlNode, key: string) => {
+      if (node.type === 'TOMLValue' && node.kind === 'string') {
+        let [from, to] = node.range;
+        const fence = quotes[node.style ?? 'basic'] ?? 1;
+        [from, to] = [from + fence, to - fence];
+        // A multi-line string drops the line break that follows its opening fence.
+        if (fence === 3 && /^\r?\n/.test(body.slice(from)))
+          from += body.slice(from).startsWith('\r\n') ? 2 : 1;
+        value(start + opening.length + from, start + opening.length + to, key);
+      } else if (node.type === 'TOMLArray') {
+        (node.elements ?? []).forEach((element, index) => {
+          walk(element, `${key}[${index}]`);
+        });
+      } else if (
+        node.type === 'TOMLInlineTable' ||
+        node.type === 'TOMLTable' ||
+        node.type === 'TOMLTopLevelTable'
+      ) {
+        let base = key;
+        if (node.type === 'TOMLTable' && node.key) {
+          base = `$${node.key.keys.map((part) => `.${keyName(part)}`).join('')}`;
+          if (node.kind === 'array') {
+            const index = arrays.get(base) ?? 0;
+            arrays.set(base, index + 1);
+            base = `${base}[${index}]`;
+          }
+        }
+        for (const child of node.body ?? []) walk(child, base);
+      } else if (node.type === 'TOMLKeyValue' && node.key) {
+        const inner = (node as unknown as { value: TomlNode }).value;
+        walk(inner, `${key}${node.key.keys.map((part) => `.${keyName(part)}`).join('')}`);
+      }
+    };
+    const program = parseTOML(body) as unknown as { body: TomlNode[] };
+    for (const top of program.body) walk(top, '$');
   };
 
   const markdown = (
@@ -479,7 +619,26 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       let end = node.position?.end.offset ?? 0;
       switch (node.type) {
         case 'yaml':
-          if (depth === 0 && offset === 0) frontMatter(start, end);
+        case 'toml':
+        case 'json':
+          if (depth === 0 && offset === 0) frontMatter(start, end, node.type);
+          return;
+        case 'math':
+          // A display math block is opaque, like a fence: its dots and equals signs are not sentences.
+          return add('opaque', at(start), at(end), [...here(), ...(context.extra ?? [])]);
+        case 'footnoteDefinition':
+          // The definition is cut like prose; its label ends the heading path of its units, so a labeler reads which
+          // reference it explains. The `[^label]:` marker is in no unit.
+          for (const child of node.children ?? [])
+            visit(child, { ...context, extra: [...(context.extra ?? []), `[^${node.label ?? ''}]`] });
+          return;
+        case 'containerDirective':
+          // The `:::name` and `:::` lines are in no unit; the name ends the path of the units between them. A label
+          // written in brackets after the name sits on the marker line, so it is in no unit either.
+          for (const child of node.children ?? []) {
+            if ((child as { data?: { directiveLabel?: boolean } }).data?.directiveLabel) continue;
+            visit(child, { ...context, extra: [...(context.extra ?? []), node.name ?? ''] });
+          }
           return;
         case 'heading': {
           const kids = node.children ?? [];
@@ -493,18 +652,28 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
         }
         case 'paragraph': {
           [start, end] = withoutTagLines(text, start, end);
-          if (context.inList) return add('list_item', at(start), at(end), here());
-          if (context.inQuote) return add('block_quote', at(start), at(end), here());
+          const path = [...here(), ...(context.extra ?? [])];
+          if (context.inList) return add('list_item', at(start), at(end), path);
+          if (context.inQuote) {
+            const alert = alertOf(node, text, start);
+            if (alert) {
+              // A GitHub alert: its `[!TYPE]` line is a mark, not prose; the type ends the path of the units.
+              if (alert.from >= end) return;
+              return add('block_quote', at(alert.from), at(end), [...path, alert.type]);
+            }
+            return add('block_quote', at(start), at(end), path);
+          }
+          const references = footnoteReferences(node);
           for (const [blockFrom, blockTo] of options.plain
             ? plainBlocks(text, start, end)
             : ([[start, end]] as Array<[number, number]>))
-            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo))
-              add('sentence', at(from), at(to), here());
+            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo, references))
+              add('sentence', at(from), at(to), path);
           return;
         }
         case 'code':
           // A fence is one opaque unit over all its lines: never shown to a labeler, so no label points at it.
-          return add('opaque', at(start), at(end), here());
+          return add('opaque', at(start), at(end), [...here(), ...(context.extra ?? [])]);
         case 'html': {
           // An html block that holds an html block of its own and does not shrink is cut as opaque, so the parse ends.
           if (depth >= 2) return add('opaque', at(start), at(end), here());
