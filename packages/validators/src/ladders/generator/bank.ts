@@ -84,6 +84,11 @@ export type BankItem = {
   defaultCause?: string;
   /** True for an item that reads no seed (the Acme example): it runs once per bank run, in the parent. */
   global?: boolean;
+  /**
+   * `catch`: a guard that passes on the product and counts for no hardness (docs/validators.md section 12.4); honoured
+   * only for an id pinned in validators/generator/catch.json. Absent: a hardness item.
+   */
+  role?: 'catch';
   check(data: SeedData): Promise<Verdict>;
 };
 

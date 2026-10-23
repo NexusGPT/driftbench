@@ -129,6 +129,7 @@ function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measur
         detail: verdict.detail,
         ...(cause === item.id ? {} : { cause }),
         ...(verdict.error === undefined ? {} : { error: verdict.error }),
+        ...(item.role === 'catch' ? { role: 'catch' as const } : {}),
       };
     }),
     'generator',
