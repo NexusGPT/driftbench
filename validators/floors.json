@@ -4,6 +4,7 @@
     "generator": 3,
     "judges": 2,
     "map": 2,
+    "pointer": 2,
     "stats": 4,
     "system": 5
   },
@@ -11,6 +12,7 @@
     "generator": 8,
     "judges": 20,
     "map": 8,
+    "pointer": 3,
     "stats": 3,
     "system": 9
   },
@@ -56,6 +58,35 @@
       ],
       "hiddenSeed": 856524023,
       "head": "32fe42b7ee3092f194d4538cdd81bcbac74060e8",
+      "ladderVersion": 2
+    },
+    "pointer": {
+      "level": 3,
+      "seeds": [
+        "1",
+        "2",
+        "hidden",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
+      "hiddenSeed": 869288185,
+      "head": "6f5bd0b9ae0e77534b0a35be1b2e2e1ee0ce1f34",
       "ladderVersion": 2
     },
     "stats": {
