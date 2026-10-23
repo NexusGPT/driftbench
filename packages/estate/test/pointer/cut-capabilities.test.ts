@@ -95,3 +95,59 @@ describe('the cutter on footnotes, alerts, directives, math and TOML or JSON fro
     ]);
   });
 });
+
+// Exact counterexamples from reviewer run 39879178984 (0aadf80ca).
+describe('reviewer regressions from PR #1419', () => {
+  it('an alert preserves a first content line beginning with emphasis', () => {
+    expect(units('> [!NOTE]\n> **Keep this.**\n')).toEqual([
+      { text: '**Keep this.**', path: ['[!NOTE]'], container: 'block_quote', key: undefined },
+    ]);
+  });
+  it('an alert preserves a first content line beginning with inline code', () => {
+    expect(units('> [!TIP]\n> `keep` this.\n')).toEqual([
+      { text: '`keep` this.', path: ['[!TIP]'], container: 'block_quote', key: undefined },
+    ]);
+  });
+  it('every alert paragraph has its alert type', () => {
+    expect(
+      units('> [!NOTE]\n> First paragraph.\n>\n> Second paragraph.\n').map((u) => [u.text, u.path]),
+    ).toEqual([
+      ['First paragraph.', ['[!NOTE]']],
+      ['Second paragraph.', ['[!NOTE]']],
+    ]);
+  });
+  it('a marker in the second paragraph does not turn an ordinary quote into an alert', () => {
+    expect(
+      units('> Ordinary paragraph.\n>\n> [!NOTE]\n> Later paragraph.\n').map((u) => [u.text, u.path]),
+    ).toEqual([
+      ['Ordinary paragraph.', []],
+      ['[!NOTE]\n> Later paragraph.', []],
+    ]);
+  });
+  it('TOML nested tables inherit the current array-table index', () => {
+    const input =
+      '+++\n[[servers]]\nname="alpha"\n[servers.meta]\nregion="north"\n[[servers]]\nname="beta"\n[servers.meta]\nregion="south"\n+++\n';
+    expect(units(input).map((u) => [u.text, u.key])).toEqual([
+      ['alpha', '$.servers[0].name'],
+      ['north', '$.servers[0].meta.region'],
+      ['beta', '$.servers[1].name'],
+      ['south', '$.servers[1].meta.region'],
+    ]);
+  });
+  it('a directive name ends the path of its heading and table cells too', () => {
+    expect(
+      units(':::note\n# Inner\n\n| Head |\n| --- |\n| Cell |\n:::\n').map((u) => [u.container, u.path]),
+    ).toEqual([
+      ['heading', ['note']],
+      ['table_cell', ['Inner', 'note']],
+      ['table_cell', ['Inner', 'note']],
+    ]);
+  });
+  it('a footnote label ends the path of its table cells too', () => {
+    const found = units('Body.[^n]\n\n[^n]: | Head |\n    | --- |\n    | Cell |\n');
+    expect(found.filter((u) => u.container === 'table_cell').map((u) => u.path)).toEqual([
+      ['[^n]'],
+      ['[^n]'],
+    ]);
+  });
+});

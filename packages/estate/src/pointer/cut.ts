@@ -217,18 +217,26 @@ const ALERT_TYPES: ReadonlySet<string> = new Set(
  * marker syntax of the GFM alert, which no parser of our stack reads. Returns the type, as written, with brackets, and where
  * the text after the marker line starts; the marker is a mark and is in no unit.
  */
-function alertOf(paragraph: Node, text: string, start: number): { type: string; from: number } | undefined {
-  const first = paragraph.children?.[0] as (Node & { value?: string }) | undefined;
-  if (first?.type !== 'text' || typeof first.value !== 'string') return undefined;
-  const line = first.value.split('\n')[0] ?? '';
-  const type = ALERT_TYPES.has(line) ? line : undefined;
-  if (!type) return undefined;
+function alertOf(quote: Node, text: string): { type: string; from: number } | undefined {
+  const paragraph = quote.children?.[0];
+  if (paragraph?.type !== 'paragraph') return undefined;
+  const start = paragraph.position?.start.offset ?? 0;
+  const end = paragraph.position?.end.offset ?? start;
+  // A marker later in the quote (even after an opening blank line) is ordinary quoted text.
+  if (text.lastIndexOf('\n', start) !== text.lastIndexOf('\n', quote.position?.start.offset ?? 0))
+    return undefined;
   const lineEnd = text.indexOf('\n', start);
-  if (lineEnd === -1) return { type, from: Number.POSITIVE_INFINITY };
-  // The next line starts after its quote marker, which the parser has already removed from the node's value.
-  const rest = first.value.slice(line.length + 1).split('\n')[0] ?? '';
-  const found = rest === '' ? -1 : text.indexOf(rest, lineEnd + 1);
-  return { type, from: found === -1 ? Number.POSITIVE_INFINITY : found };
+  const type = text.slice(start, lineEnd === -1 ? end : Math.min(lineEnd, end)).trimEnd();
+  if (!ALERT_TYPES.has(type)) return undefined;
+  if (lineEnd === -1 || lineEnd >= end) return { type, from: end };
+  // Parse the continuation line for its content offset. Its first inline node may be emphasis, code, a link, etc.;
+  // neither a text child's value nor a search for its prose can locate that content reliably.
+  const nextEnd = text.indexOf('\n', lineEnd + 1);
+  const line = text.slice(lineEnd + 1, nextEnd === -1 ? end : Math.min(nextEnd, end));
+  let content = PROCESSOR.parse(line) as unknown as Node;
+  while (content.children?.[0] && (content.type === 'root' || content.type === 'blockquote'))
+    content = content.children[0];
+  return { type, from: lineEnd + 1 + (content.position?.start.offset ?? 0) };
 }
 
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
@@ -322,7 +330,7 @@ type Context = {
   /** Names that end the heading path of every unit below: a footnote label, a directive name, an alert type. */
   extra?: string[];
   /** The marker line of an alert is no unit: the first paragraph of the quote starts after it. */
-  skipFirstLine?: boolean;
+  quoteFrom?: number;
 };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
@@ -551,12 +559,12 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       range: [number, number];
       keys?: Array<{ name?: string; value?: string }>;
       key?: { keys: Array<{ name?: string; value?: string }> };
+      resolvedKey?: Array<string | number>;
       body?: TomlNode[];
       elements?: TomlNode[];
     };
     const keyName = (part: { name?: string; value?: string }) => String(part.name ?? part.value ?? '');
     const quotes: Record<string, number> = { basic: 1, literal: 1, 'multi-basic': 3, 'multi-literal': 3 };
-    const arrays = new Map<string, number>();
     const walk = (node: TomlNode, key: string) => {
       if (node.type === 'TOMLValue' && node.kind === 'string') {
         let [from, to] = node.range;
@@ -576,13 +584,11 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
         node.type === 'TOMLTopLevelTable'
       ) {
         let base = key;
-        if (node.type === 'TOMLTable' && node.key) {
-          base = `$${node.key.keys.map((part) => `.${keyName(part)}`).join('')}`;
-          if (node.kind === 'array') {
-            const index = arrays.get(base) ?? 0;
-            arrays.set(base, index + 1);
-            base = `${base}[${index}]`;
-          }
+        if (node.type === 'TOMLTable') {
+          // The parser resolves both this table's array index and every active array-table ancestor.
+          base = `$${(node.resolvedKey ?? [])
+            .map((part) => (typeof part === 'number' ? `[${part}]` : `.${part}`))
+            .join('')}`;
         }
         for (const child of node.body ?? []) walk(child, base);
       } else if (node.type === 'TOMLKeyValue' && node.key) {
@@ -687,7 +693,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           const last = kids.at(-1)?.position?.end.offset ?? end;
           const title = text.slice(first, last).trim();
           while (trail.length > 0 && (trail.at(-1)?.depth ?? 0) >= (node.depth ?? 1)) trail.pop();
-          add('heading', at(start), at(end), here());
+          add('heading', at(start), at(end), [...here(), ...(context.extra ?? [])]);
           trail.push({ depth: node.depth ?? 1, title });
           return;
         }
@@ -696,12 +702,8 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           const path = [...here(), ...(context.extra ?? [])];
           if (context.inList) return add('list_item', at(start), at(end), path);
           if (context.inQuote) {
-            const alert = alertOf(node, text, start);
-            if (alert) {
-              // A GitHub alert: its `[!TYPE]` line is a mark, not prose; the type ends the path of the units.
-              if (alert.from >= end) return;
-              return add('block_quote', at(alert.from), at(end), [...path, alert.type]);
-            }
+            start = Math.max(start, context.quoteFrom ?? start);
+            if (start >= end) return;
             return add('block_quote', at(start), at(end), path);
           }
           const references = footnoteReferences(node);
@@ -725,7 +727,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           if (kids.length > 0) {
             const first = kids[0]?.position?.start.offset ?? start;
             const last = kids.at(-1)?.position?.end.offset ?? end;
-            add('table_cell', at(first), at(last), here());
+            add('table_cell', at(first), at(last), [...here(), ...(context.extra ?? [])]);
           }
           return;
         }
@@ -736,7 +738,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           return;
         }
         case 'blockquote': {
-          for (const child of node.children ?? []) visit(child, { ...context, inQuote: true });
+          const alert = alertOf(node, text);
+          for (const child of node.children ?? [])
+            visit(child, {
+              ...context,
+              inQuote: true,
+              extra: alert ? [...(context.extra ?? []), alert.type] : context.extra,
+              quoteFrom: child === node.children?.[0] ? alert?.from : undefined,
+            });
           return;
         }
         default:
