@@ -154,21 +154,34 @@ describe('the switch that builds diagnostics', () => {
 
 describe('a failure declares what it wants', () => {
   it('refuses a failure with no expected field, even when a caller forgets the type', () => {
-    expect(() => new ItemFailure({ rule: 'r', got: { n: 1 } } as never)).toThrow(/declares no expected value/);
+    expect(() => new ItemFailure({ rule: 'r', got: { n: 1 } } as never)).toThrow(
+      /declares no expected value/,
+    );
   });
 
   it('accepts none(reason) and compares nothing with it', () => {
-    const f = new ItemFailure({ rule: 'the product did something', got: { n: 7 }, expected: none('an observation') });
+    const f = new ItemFailure({
+      rule: 'the product did something',
+      got: { n: 7 },
+      expected: none('an observation'),
+    });
     expect(leaksOf(f)).toEqual([]);
   });
 });
 
 describe('the reference-versus-wrong scan', () => {
   it('finds a value the correct product returned and the message repeats', () => {
-    const f = new ItemFailure({ rule: 'a count is exact', got: { details: [88, 'VARIABLES_QUOTE_NOT_FOUND'] }, expected: none('x') });
-    const reference = new Set(['VARIABLES_QUOTE_NOT_FOUND', '88', 'ok']);
+    const f = new ItemFailure({
+      rule: 'a count is exact',
+      got: { details: [88000, 'VARIABLES_QUOTE_NOT_FOUND'] },
+      expected: none('x'),
+    });
+    const reference = new Set(['VARIABLES_QUOTE_NOT_FOUND', '88000', 'ok']);
     const wrong = new Set(['ok']);
-    expect(wantedInMessage(f, reference, wrong, 'item.id').sort()).toEqual(['88', 'VARIABLES_QUOTE_NOT_FOUND']);
+    expect(wantedInMessage(f, reference, wrong, 'item.id').sort()).toEqual([
+      '88',
+      'VARIABLES_QUOTE_NOT_FOUND',
+    ]);
   });
 
   it('lets a token through when the wrong product printed it too', () => {
@@ -178,4 +191,3 @@ describe('the reference-versus-wrong scan', () => {
     expect(wantedInMessage(given, new Set(['12']), new Set(), 'i')).toEqual([]);
   });
 });
-

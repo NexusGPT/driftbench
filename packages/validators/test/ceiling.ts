@@ -54,7 +54,10 @@ export function readCeilings(
     const m = /^origin\/(.+)$/.exec(baseRef);
     if (m) {
       try {
-        git(['fetch', '--quiet', '--depth=1', 'origin', `+refs/heads/${m[1]}:refs/remotes/origin/${m[1]}`], root);
+        git(
+          ['fetch', '--quiet', '--depth=1', 'origin', `+refs/heads/${m[1]}:refs/remotes/origin/${m[1]}`],
+          root,
+        );
       } catch {
         // the error below names the ref
       }

@@ -64,7 +64,9 @@ export class ItemFailure extends Error {
   constructor(fields: FailureFields) {
     super(renderFailure(fields));
     if (!('expected' in fields))
-      throw new TypeError(`failure "${(fields as FailureFields).rule}" declares no expected value: name it, or say none(reason)`);
+      throw new TypeError(
+        `failure "${(fields as FailureFields).rule}" declares no expected value: name it, or say none(reason)`,
+      );
     this.name = 'ItemFailure';
     this.fields = fields;
   }
@@ -81,7 +83,9 @@ export const diagnostics = { build: true };
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
   if (condition) return;
   if (typeof fields !== 'function') throw new ItemFailure(fields);
-  throw new ItemFailure(diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('diagnostics are off') });
+  throw new ItemFailure(
+    diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('diagnostics are off') },
+  );
 }
 
 /** The strings and numbers of a value, as the tokens a message could repeat. */

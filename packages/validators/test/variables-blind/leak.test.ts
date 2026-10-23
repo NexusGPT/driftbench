@@ -67,8 +67,10 @@ describe('the failure messages of the blind bank repeat no expected value', () =
                 referenceTokens.set(key, ref);
               }
               // A failure that is not an ItemFailure is counted against the ceiling; the scan reads the structured ones.
-              const wanted = error instanceof ItemFailure ? wantedInMessage(error, ref, wrongTokens, item.id) : [];
-              if (wanted.length > 0) crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
+              const wanted =
+                error instanceof ItemFailure ? wantedInMessage(error, ref, wrongTokens, item.id) : [];
+              if (wanted.length > 0)
+                crossLeaks.push(`${mutant.name}|${seed}|${item.id}: ${wanted.slice(0, 3).join(', ')}`);
             }
           }
         }
