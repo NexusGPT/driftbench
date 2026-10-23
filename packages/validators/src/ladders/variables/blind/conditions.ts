@@ -1,8 +1,8 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import type { StoreDoc, StoreValue, StoreVariable } from '../interface';
 import { type DrawOptions, drawCondition, type Form, policyFile } from './draws';
-import { callBuild, must, show } from './kit';
+import { callBuild, show } from './kit';
 import { type Cmp, numeric } from './spans';
 
 /** Reading condition spans from one file, and the checks every numeric condition must pass. */
@@ -28,14 +28,18 @@ export function readSpans(ctx: ItemContext, texts: string[]): Read {
     },
   });
   const variable = store.variables.find((v) => v.values.some((x) => typeof x.sample === 'number'));
-  must(
-    !!variable,
-    () =>
-      `no variable of the store has numeric samples for ${show(texts)}; variables: ${show(
+  check(!!variable, () => ({
+    rule: 'a numeric condition gives a variable with numeric samples',
+    input: { conditions: show(texts) },
+    got: {
+      samples: show(
         store.variables.map((v) => v.values.map((x) => x.sample)),
         200,
-      )}; refused: ${show(store.refused, 200)}`,
-  );
+      ),
+      refused: show(store.refused, 200),
+    },
+    expected: none('observation'),
+  }));
   const v = variable as StoreVariable;
   const samples = v.values
     .filter((x) => typeof x.sample === 'number')

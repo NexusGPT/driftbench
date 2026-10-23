@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { FileProvenance, FileStore, FileValue, FileVariable, VariablesImpl } from '../../interface';
 import { type Base, baseFile, defect, validateIssue, validateOk, variableOf } from '../files';
@@ -13,7 +14,6 @@ import {
   callValidate,
   jsonEqual,
   makeStore,
-  must,
   names,
   newRows,
   type Stem,
@@ -249,10 +249,10 @@ const SAME_VARIABLE_STEM: Stem = {
           return store;
         };
         const plain = callPlan(ctx, make([]), { seed: ctx.seed });
-        must(
-          !plain.rows.some((r) => r.values[b] === 'b0' && r.values[c] === 'c1'),
-          () => 'a row holds the pair b0, c1 that the store forbids',
-        );
+        check(!plain.rows.some((r) => r.values[b] === 'b0' && r.values[c] === 'c1'), () => ({
+          rule: 'a row holds the pair b0, c1 that the store forbids',
+          expected: none('observation'),
+        }));
         for (const words of PAIR_WORDINGS) {
           const store = make(
             [
@@ -262,11 +262,11 @@ const SAME_VARIABLE_STEM: Stem = {
             words,
           );
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          must(
-            jsonEqual(plan.rows, plain.rows),
-            () =>
-              `two pairs of two values of ${a}, worded "${words}", changed the plan; a row holds one value of a variable, so they exclude nothing`,
-          );
+          check(jsonEqual(plan.rows, plain.rows), () => ({
+            rule: 'two pairs of two values of {}, worded "{}", changed the plan; a row holds one value of a variable, so they exclude nothing',
+            got: { details: [a, words] },
+            expected: none('observation'),
+          }));
           assertCovered(spaceOf(store), plan, []);
         }
       },
@@ -289,14 +289,19 @@ const SAME_VARIABLE_STEM: Stem = {
         assertRowsSound(space, plan, []);
         assertCovered(space, plan, []);
         const fresh = newRows(plan);
-        must(
-          !fresh.some((r) => r.values[a] === 'q'),
-          () => `a row holds ${a}=q, a value the one-entry constraint forbids`,
-        );
+        check(!fresh.some((r) => r.values[a] === 'q'), () => ({
+          rule: 'a row holds {}=q, a value the one-entry constraint forbids',
+          got: { details: [a] },
+          expected: none('observation'),
+        }));
         for (const value of ['p', 'r'])
-          must(
+          check(
             fresh.some((r) => r.values[a] === value),
-            () => `no row holds ${a}=${value}; a pair of two values of one variable excludes neither`,
+            () => ({
+              rule: 'no row holds {}={}; a pair of two values of one variable excludes neither',
+              got: { details: [a, value] },
+              expected: none('observation'),
+            }),
           );
       },
     ],
@@ -336,7 +341,11 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const r = callQuotes(ctx, storeAbsentConstraints(ctx, 'When the parcel is late', false), {
           [NOTES]: NOTES_TEXT,
         });
-        must(r.errors.length === 0, () => `a quote the file holds was reported: ${show(r.errors, 240)}`);
+        check(r.errors.length === 0, () => ({
+          rule: 'a quote the file holds was reported: {}',
+          got: { details: [show(r.errors, 240)] },
+          expected: none('observation'),
+        }));
       },
     ],
     [
@@ -344,12 +353,15 @@ const NO_CONSTRAINTS_STEM: Stem = {
       2,
       (ctx) => {
         const r = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, false), { [NOTES]: NOTES_TEXT });
-        must(
+        check(
           r.errors.length === 1 &&
             r.errors[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND' &&
             r.errors[0]?.path === QUOTE_PATH,
-          () =>
-            `quotes reported ${show(r.errors, 240)}; expected the one VARIABLES_QUOTE_NOT_FOUND at ${QUOTE_PATH}`,
+          () => ({
+            rule: 'a false quote is reported once',
+            got: { errors: show(r.errors, 240) },
+            expected: { code: 'VARIABLES_QUOTE_NOT_FOUND', path: QUOTE_PATH },
+          }),
         );
       },
     ],
@@ -360,11 +372,11 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const files = { [NOTES]: NOTES_TEXT };
         const absent = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, false), files);
         const empty = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, true), files);
-        must(
-          absent.errors.length > 0 && jsonEqual(absent.errors, empty.errors),
-          () =>
-            `a store with no constraints list gives ${show(absent.errors, 200)}; with an empty list ${show(empty.errors, 200)}`,
-        );
+        check(absent.errors.length > 0 && jsonEqual(absent.errors, empty.errors), () => ({
+          rule: 'a store with no constraints list gives {}; with an empty list {}',
+          got: { details: [show(absent.errors, 200), show(empty.errors, 200)] },
+          expected: none('observation'),
+        }));
       },
     ],
   ],
