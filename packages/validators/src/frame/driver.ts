@@ -193,10 +193,110 @@ const «isPlainIt» = («o») => {
   const «p» = «protoOfIt»(«o»);
   return «p» === «objectProto» || «p» === null;
 };
+const «isExtensibleIt» = Object.isExtensible;
+// The entries of a Map and the members of a Set, in order, read through the references captured above.
+function «entriesOf»(«m») {
+  const «out» = [];
+  «applyIt»(«mEach», «m», [(«v», «k») => { «out»[«out».length] = [«k», «v»]; }]);
+  return «out»;
+}
+function «membersOf»(«set») {
+  const «out» = [];
+  «applyIt»(«sEach», «set», [(«v») => { «out»[«out».length] = «v»; }]);
+  return «out»;
+}
+// One step of a path: a key of an array or a plain object, or ['m', entry, 'k' | 'v'] into a Map's key or value,
+// or ['s', member] into a Set.
+function «stepInto»(«node», «seg») {
+  if («node» === null || typeof «node» !== 'object') return undefined;
+  if («isArrayIt»(«seg»)) {
+    if («seg»[0] === 'm' && «node» instanceof «MapIt») {
+      const «entry» = «entriesOf»(«node»)[«seg»[1]];
+      return «entry» === undefined ? undefined : «seg»[2] === 'k' ? «entry»[0] : «entry»[1];
+    }
+    if («seg»[0] === 's' && «node» instanceof «SetIt») return «membersOf»(«node»)[«seg»[1]];
+    return undefined;
+  }
+  const «d» = «descOf»(«node», «seg»);
+  return «d» && 'value' in «d» ? «d».value : undefined;
+}
+// Puts in place of each object a decoded object holds the object it stands for («fin»).
+function «swapChildren»(«node», «fin») {
+  if («node» instanceof «MapIt») {
+    const «all» = «entriesOf»(«node»);
+    let «changed» = false;
+    for (let «i» = 0; «i» < «all».length; «i» += 1) {
+      const «k» = «fin»(«all»[«i»][0]);
+      const «v» = «fin»(«all»[«i»][1]);
+      if («k» !== «all»[«i»][0] || «v» !== «all»[«i»][1]) «changed» = true;
+      «all»[«i»] = [«k», «v»];
+    }
+    if («changed») {
+      «applyIt»(«mClear», «node», []);
+      for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«mSet», «node», «all»[«i»]);
+    }
+    return;
+  }
+  if («node» instanceof «SetIt») {
+    const «all» = «membersOf»(«node»);
+    let «changed» = false;
+    for (let «i» = 0; «i» < «all».length; «i» += 1) {
+      const «v» = «fin»(«all»[«i»]);
+      if («v» !== «all»[«i»]) «changed» = true;
+      «all»[«i»] = «v»;
+    }
+    if («changed») {
+      «applyIt»(«sClear», «node», []);
+      for (let «i» = 0; «i» < «all».length; «i» += 1) «applyIt»(«sAdd», «node», [«all»[«i»]]);
+    }
+    return;
+  }
+  if (!«isArrayIt»(«node») && !«isPlainIt»(«node»)) return;
+  const «ks» = «keysOf»(«node»);
+  for (let «i» = 0; «i» < «ks».length; «i» += 1) {
+    const «d» = «descOf»(«node», «ks»[«i»]);
+    if (!«d» || !('value' in «d») || «d».value === null || typeof «d».value !== 'object') continue;
+    const «v» = «fin»(«d».value);
+    if («v» !== «d».value) «node»[«ks»[«i»]] = «v»;
+  }
+}
+// Whether the run's existing object already holds what the caller sent, entry for entry (an object it cannot change:
+// frozen, sealed or not extensible, the caller's own copy of which cannot have changed either).
+function «sameContent»(«existing», «node») {
+  if («isArrayIt»(«existing») !== «isArrayIt»(«node»)) return false;
+  if («existing» instanceof «MapIt» || «node» instanceof «MapIt») {
+    if (!(«existing» instanceof «MapIt») || !(«node» instanceof «MapIt»)) return false;
+    const «a» = «entriesOf»(«existing»);
+    const «b» = «entriesOf»(«node»);
+    if («a».length !== «b».length) return false;
+    for (let «i» = 0; «i» < «a».length; «i» += 1) if (!Object.is(«a»[«i»][0], «b»[«i»][0]) || !Object.is(«a»[«i»][1], «b»[«i»][1])) return false;
+    return true;
+  }
+  if («existing» instanceof «SetIt» || «node» instanceof «SetIt») {
+    if (!(«existing» instanceof «SetIt») || !(«node» instanceof «SetIt»)) return false;
+    const «a» = «membersOf»(«existing»);
+    const «b» = «membersOf»(«node»);
+    if («a».length !== «b».length) return false;
+    for (let «i» = 0; «i» < «a».length; «i» += 1) if (!Object.is(«a»[«i»], «b»[«i»])) return false;
+    return true;
+  }
+  if («existing» instanceof «DateIt» || «node» instanceof «DateIt»)
+    return «existing» instanceof «DateIt» && «node» instanceof «DateIt» && Object.is(«applyIt»(«timeOf», «existing», []), «applyIt»(«timeOf», «node», []));
+  const «a» = «keysOf»(«existing»);
+  const «b» = «keysOf»(«node»);
+  if («a».length !== «b».length) return false;
+  for (let «i» = 0; «i» < «a».length; «i» += 1) {
+    if («a»[«i»] !== «b»[«i»]) return false;
+    const «x» = «descOf»(«existing», «a»[«i»]);
+    const «y» = «descOf»(«node», «b»[«i»]);
+    if (!«x» || !«y» || !('value' in «x») || !('value' in «y») || !Object.is(«x».value, «y».value)) return false;
+  }
+  return true;
+}
 // Changes the run's existing object in place to the content of the one the caller sent; false when they differ in
-// kind or the existing one cannot be changed.
+// kind or the existing one cannot be changed (frozen, sealed or not extensible).
 function «refill»(«existing», «node») {
-  if («isFrozenIt»(«existing»)) return false;
+  if («isFrozenIt»(«existing») || !«isExtensibleIt»(«existing»)) return false;
   if («isArrayIt»(«existing») && «isArrayIt»(«node»)) {
     for (let «i» = 0; «i» < «node».length; «i» += 1) «existing»[«i»] = «node»[«i»];
     «existing».length = «node».length;
@@ -225,27 +325,40 @@ function «refill»(«existing», «node») {
   }
   return false;
 }
-// The arguments as the run decoded them: each object at a path of «refs» ([path, id], shortest paths first) becomes
-// the run's object of that id when it has one, else is remembered under it.
+// The arguments as the run decoded them: each object at a path of «refs» ([path, id]) becomes the run's object of
+// that id when it has one, else is remembered under it. The deepest objects go first, so each object holds the
+// run's objects before it is compared or copied. An object the run cannot change (frozen, sealed or not extensible)
+// is reused when it already holds what the caller sent; else the call is refused by name («state».refused), since
+// the product would see a new object where the caller's own call sees the same one.
 function «applyRefs»(«root», «refs», «state») {
+  «state».refused = undefined;
   if (!«refs») return «root»;
+  const «nodes» = [];
   for (let «r» = 0; «r» < «refs».length; «r» += 1) {
+    let «node» = «root»;
     const «path» = «refs»[«r»][0];
-    const «id» = «refs»[«r»][1];
-    let «parent» = «root»;
-    for (let «p» = 0; «p» < «path».length - 1 && «parent» !== null && typeof «parent» === 'object'; «p» += 1) {
-      const «step» = «descOf»(«parent», «path»[«p»]);
-      «parent» = «step» && 'value' in «step» ? «step».value : undefined;
-    }
-    if («parent» === null || typeof «parent» !== 'object') continue;
-    const «key» = «path»[«path».length - 1];
-    const «here» = «descOf»(«parent», «key»);
-    const «node» = «here» && 'value' in «here» ? «here».value : undefined;
-    if («node» === null || typeof «node» !== 'object') continue;
-    const «existing» = «knownAs»(«state», «id»);
-    if («existing» !== undefined && «existing» !== «node» && «refill»(«existing», «node»)) «parent»[«key»] = «existing»;
-    else «remember»(«state», «node», «id»);
+    for (let «p» = 0; «p» < «path».length && «node» !== undefined; «p» += 1) «node» = «stepInto»(«node», «path»[«p»]);
+    «nodes»[«r»] = «node» !== null && typeof «node» === 'object' ? «node» : undefined;
   }
+  const «finals» = new «WeakMapIt»();
+  const «fin» = («o») => {
+    if («o» === null || typeof «o» !== 'object') return «o»;
+    const «f» = «applyIt»(«wmGet», «finals», [«o»]);
+    return «f» === undefined ? «o» : «f»;
+  };
+  for (let «r» = «refs».length - 1; «r» >= 0; «r» -= 1) {
+    const «node» = «nodes»[«r»];
+    if («node» === undefined || «applyIt»(«wmGet», «finals», [«node»]) !== undefined) continue;
+    const «id» = «refs»[«r»][1];
+    «swapChildren»(«node», «fin»);
+    const «existing» = «knownAs»(«state», «id»);
+    let «final» = «node»;
+    if («existing» === undefined || «existing» === «node») «remember»(«state», «node», «id»);
+    else if («refill»(«existing», «node») || «sameContent»(«existing», «node»)) «final» = «existing»;
+    else «state».refused ??= 'an object it holds from an earlier call, which it cannot change (frozen, sealed or not extensible), with another content';
+    «applyIt»(«wmSet», «finals», [«node», «final»]);
+  }
+  «swapChildren»(«root», «fin»);
   return «root»;
 }
 // The ids of the objects a result's encoding met at a path ([path, object]): a known object keeps its id, a new one
@@ -264,17 +377,15 @@ function «resultRefs»(«pairs», «state») {
   }
   return «out»;
 }
-// While a result is encoded: the objects met at a path through arrays and plain objects, and the first part of the
+// While a result is encoded: the objects met at a path (through arrays, plain objects, Maps and Sets), and the first part of the
 // result the codec cannot carry (an accessor, a symbol or hidden key, a property of a Map, a Set or a Date, an object
 // of a class), which a copy would hide from the caller.
 let «collected»;
 let «trail» = [];
-let «inContainer» = 0;
 let «uncarried»;
 function «collectOn»() {
   «collected» = [];
   «trail» = [];
-  «inContainer» = 0;
   «uncarried» = undefined;
 }
 function «collectOff»() {
@@ -312,7 +423,7 @@ function «encode»(«value», «seen» = new WeakSet()) {
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
   if («visitor») «visitor»(«value»);
-  if («collected» !== undefined && «inContainer» === 0) {
+  if («collected» !== undefined) {
     const «at» = [];
     for (let «t» = 0; «t» < «trail».length; «t» += 1) «at»[«t»] = «trail»[«t»];
     «collected»[«collected».length] = [«at», «value»];
@@ -320,10 +431,9 @@ function «encode»(«value», «seen» = new WeakSet()) {
   const «container» = «value» instanceof Map || «value» instanceof Set || «value» instanceof Date;
   if («collected» !== undefined && «container» && «uncarried» === undefined && «keysOf»(«value»).length > 0)
     «uncarried» = 'a property of a Map, a Set or a Date';
-  if («container») «inContainer» += 1;
   try {
-    if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
-    if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
+    if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»], «i») => [«encodeAt»(«k», «seen», ['m', «i», 'k']), «encodeAt»(«v», «seen», ['m', «i», 'v'])]) };
+    if («value» instanceof Set) return { $set: [...«value».values()].map((«v», «i») => «encodeAt»(«v», «seen», ['s', «i»])) };
     if («value» instanceof Error) return { $err: { name: «value».name, message: «value».message } };
     if (Array.isArray(«value»)) return «value».map((«v», «i») => «encodeAt»(«v», «seen», «i»));
     if («value» instanceof Date) return { $date: «value».toISOString() };
@@ -343,7 +453,6 @@ function «encode»(«value», «seen» = new WeakSet()) {
     }
     return Object.fromEntries(Object.entries(«value»).map(([«k», «v»]) => [«esc»(«k»), «encodeAt»(«v», «seen», «k»)]));
   } finally {
-    if («container») «inContainer» -= 1;
     «seen».delete(«value»);
   }
 }
@@ -929,6 +1038,7 @@ if («setup».command) {
       if («now».data === «argsBefore».data) return {};
       return { argsAfter: «encode»(«argsRef») };
     };
+    «identity».refused = undefined;
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
@@ -943,6 +1053,7 @@ if («setup».command) {
         «setVisitor»(undefined);
       }
       const «decoded» = «markAll»(«applyRefs»(«decodedArgs», «request».refs, «identity»), «request».marks);
+      const «unsent» = «identity».refused ? { unsent: «identity».refused } : {};
       const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
       «argsRef» = «args»;
       if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
@@ -994,9 +1105,9 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...(«rrefs».length > 0 ? { rrefs: «rrefs» } : {}), ...(«carried».uncarried ? { uncarried: «carried».uncarried } : {}), ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«shares», ...(«rrefs».length > 0 ? { rrefs: «rrefs» } : {}), ...(«carried».uncarried ? { uncarried: «carried».uncarried } : {}), ...«unsent», ...«after», ...«altered»() });
     } catch («error») {
-      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
+      «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«identity».refused ? { unsent: «identity».refused } : {}), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }
   }
 }
@@ -1118,6 +1229,7 @@ export function plainBatchEntry(
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
     `  const ${each} = JSON.parse(${name('line')});`,
     `  let ${answer};`,
+    `  ${name('identity')}.refused = undefined;`,
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
@@ -1142,6 +1254,7 @@ export function plainBatchEntry(
     `    const ${name('rrefs')} = ${name('resultRefs')}(${name('carried')}.pairs, ${name('identity')});`,
     `    if (${name('rrefs')}.length > 0) ${answer}.rrefs = ${name('rrefs')};`,
     `    if (${name('carried')}.uncarried) ${answer}.uncarried = ${name('carried')}.uncarried;`,
+    `    if (${name('identity')}.refused) ${answer}.unsent = ${name('identity')}.refused;`,
     `    if (${name('watched')}) {`,
     `      let ${name('withArgs')} = 0;`,
     `      let ${name('withEarlier')} = 0;`,
@@ -1149,7 +1262,7 @@ export function plainBatchEntry(
     `      for (const ${name('o')} of ${name('outs')}) ${name('returned')}.add(${name('o')});`,
     `      if (${name('withArgs')} + ${name('withEarlier')} > 0) ${answer}.shared = [${name('withArgs')}, ${name('withEarlier')}];`,
     `    }`,
-    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))), ...(${name('identity')}.refused ? { unsent: ${name('identity')}.refused } : {}) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,
     '',

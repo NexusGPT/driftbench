@@ -486,16 +486,20 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
  * sealed, 'x' not extensible. The runs give each decoded object the state its caller's object has (driver.ts,
  * `markAll`). Every path to an object is listed, so an object reached twice is marked at both copies.
  */
-type Path = Array<string | number>;
+/** A step of a path: a key, or into a Map's key or value (['m', entry, 'k' | 'v']) or a Set's member (['s', member]). */
+type Step = string | number | ['m', number, 'k' | 'v'] | ['s', number];
+type Path = Step[];
 function marksOf(
   args: readonly unknown[],
   idOf: (value: object) => number,
 ): { marks?: Array<[Path, 'f' | 's' | 'x']>; refs?: Array<[Path, number]> } {
   const out: Array<[Path, 'f' | 's' | 'x']> = [];
   const refs: Array<[Path, number]> = [];
-  const path: Array<string | number> = [];
+  const path: Path = [];
   const ancestors: object[] = [];
   let visited = 0;
+  // Inside a Map or a Set only ids are sent: the freeze marks go by keys alone.
+  let inside = 0;
   const walk = (value: unknown) => {
     if (value === null || typeof value !== 'object' || ancestors.length > 1000 || visited > 1_000_000) return;
     if (ancestors.includes(value)) return;
@@ -507,11 +511,11 @@ function marksOf(
         : !Object.isExtensible(value)
           ? 'x'
           : undefined;
-    if (state) out.push([[...path], state]);
+    if (state && inside === 0) out.push([[...path], state]);
     // Every path to an object, with the object's id: the run gives each the same object (driver.ts, applyRefs).
     refs.push([[...path], idOf(value)]);
     ancestors.push(value);
-    const visit = (key: string | number, child: unknown) => {
+    const visit = (key: Step, child: unknown) => {
       if (child === null || typeof child !== 'object') return;
       path.push(key);
       walk(child);
@@ -519,7 +523,24 @@ function marksOf(
     };
     // A long array of numbers is read without a copy: the arguments of the scale items hold millions.
     if (Array.isArray(value)) for (let at = 0; at < value.length; at += 1) visit(at, value[at]);
-    else if (isPlain(value))
+    else if (value instanceof Map) {
+      inside += 1;
+      let at = 0;
+      for (const [key, child] of value) {
+        visit(['m', at, 'k'], key);
+        visit(['m', at, 'v'], child);
+        at += 1;
+      }
+      inside -= 1;
+    } else if (value instanceof Set) {
+      inside += 1;
+      let at = 0;
+      for (const child of value) {
+        visit(['s', at], child);
+        at += 1;
+      }
+      inside -= 1;
+    } else if (isPlain(value))
       for (const key of Object.keys(value)) visit(key, (value as Record<string, unknown>)[key]);
     ancestors.pop();
   };
@@ -530,6 +551,46 @@ function marksOf(
   });
   refs.sort((x, y) => x[0].length - y[0].length);
   return { ...(out.length > 0 ? { marks: out } : {}), ...(refs.length > 0 ? { refs } : {}) };
+}
+
+/** One step of a path into a decoded value (driver.ts, stepInto). */
+function stepInto(node: unknown, step: Step): unknown {
+  if (node === null || typeof node !== 'object') return undefined;
+  if (Array.isArray(step)) {
+    if (step[0] === 'm' && node instanceof Map) {
+      const entry = [...node.entries()][step[1]];
+      return entry === undefined ? undefined : step[2] === 'k' ? entry[0] : entry[1];
+    }
+    if (step[0] === 's' && node instanceof Set) return [...node.values()][step[1]];
+    return undefined;
+  }
+  return (node as Record<string | number, unknown>)[step];
+}
+
+/** Puts `value` at one step of `parent`, keeping the order of a Map's entries and a Set's members. */
+function putInto(parent: unknown, step: Step, value: unknown): void {
+  if (Array.isArray(step)) {
+    if (step[0] === 'm' && parent instanceof Map) {
+      const entries = [...parent.entries()];
+      const entry = entries[step[1]];
+      if (!entry) return;
+      if (step[2] === 'v') {
+        parent.set(entry[0], value);
+        return;
+      }
+      entries[step[1]] = [value, entry[1]];
+      parent.clear();
+      for (const [k, v] of entries) parent.set(k, v);
+    } else if (step[0] === 's' && parent instanceof Set) {
+      const members = [...parent.values()];
+      if (step[1] >= members.length) return;
+      members[step[1]] = value;
+      parent.clear();
+      for (const member of members) parent.add(member);
+    }
+    return;
+  }
+  (parent as Record<string | number, unknown>)[step] = value;
 }
 
 /**
@@ -566,24 +627,23 @@ function callerIdentity(): {
       if (!refs) return value;
       let root = value;
       const replaced: Path[] = [];
+      const sameStep = (x: Step, y: Step) =>
+        typeof x === 'object' || typeof y === 'object' ? JSON.stringify(x) === JSON.stringify(y) : x === y;
       const under = (path: Path, prefix: Path) =>
-        prefix.length <= path.length && prefix.every((key, at) => path[at] === key);
+        prefix.length <= path.length && prefix.every((key, at) => sameStep(path[at] as Step, key));
       for (const [path, id] of [...refs].sort((x, y) => x[0].length - y[0].length)) {
         if (replaced.some((prefix) => under(path, prefix))) continue;
         let parent: unknown = undefined;
         let node: unknown = root;
         for (const key of path) {
           parent = node;
-          node =
-            node !== null && typeof node === 'object'
-              ? (node as Record<string | number, unknown>)[key]
-              : undefined;
+          node = stepInto(node, key);
         }
         if (node === null || typeof node !== 'object') continue;
         const known = byId.get(id)?.deref();
         if (known !== undefined && known !== node) {
           if (path.length === 0) root = known;
-          else (parent as Record<string | number, unknown>)[path[path.length - 1] as string | number] = known;
+          else putInto(parent, path[path.length - 1] as Step, known);
           replaced.push(path);
         } else if (known === undefined) remember(node, id);
       }
@@ -597,10 +657,12 @@ function withoutIds(outcome: Outcome): Outcome {
   const {
     rrefs: _ids,
     uncarried: _uncarried,
+    unsent: _unsent,
     ...rest
   } = outcome as Outcome & {
     rrefs?: unknown;
     uncarried?: unknown;
+    unsent?: unknown;
   };
   return rest as Outcome;
 }
@@ -955,6 +1017,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       shared: sharedCounts,
       rrefs: resultIds,
       uncarried,
+      unsent,
       argsAfter,
       cannot,
       ...answer
@@ -966,6 +1029,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       shared?: [number, number];
       rrefs?: Array<[Path, number]>;
       uncarried?: string;
+      unsent?: string;
       argsAfter?: Json;
       cannot?: boolean;
     };
@@ -998,6 +1062,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if (uncarried) {
       const message = `${name}() returned ${uncarried} (${describeRun(plans[0] as TwinPlan)}): the frame cannot carry it to the caller, whose own call would see it`;
+      found.push({ at: tape.length, message });
+      first ??= message;
+    }
+    if (unsent) {
+      const message = `${name}() was sent ${unsent} (${describeRun(plans[0] as TwinPlan)}): the frame cannot give the product the object the caller's own call would give it`;
       found.push({ at: tape.length, message });
       first ??= message;
     }
