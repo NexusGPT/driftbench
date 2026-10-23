@@ -29,8 +29,8 @@ permissions:
 # the latest head of a train can merge. The release PR is never cancelled. A push to main and a dispatch each get a
 # group of their own, so no run on main ever cancels or replaces another.
 concurrency:
-  group: validators-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') }}
+  group: validators-${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') && !startsWith(github.head_ref, 'release/') }}
 
 # Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
 # `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
