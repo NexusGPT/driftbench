@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CutError, cut, fingerprint, MAX_NESTING, sentenceSpans } from '../../src/pointer';
+import { nestingOf } from '../../src/pointer/cut';
 
 // Every file below is invented: the shelves, the crates and the keepers exist nowhere.
 const SHELF = `---
@@ -195,6 +196,62 @@ describe('sentence spans', () => {
     ]);
   });
 
+  // The Pragmatic Segmenter's Golden Rules (MIT; validators/pointer/THIRD-PARTY.md) that a shape-only cutter answers.
+  it('reads an ellipsis by its shape: three dots never end a sentence, a stop after them does', () => {
+    // EN 47: an ellipsis in square brackets marks an omission.
+    expect(split('"Vale [...] kept the keys [...]" (Lowe 12).')).toEqual([
+      '"Vale [...] kept the keys [...]" (Lowe 12).',
+    ]);
+    // EN 50: three spaced dots before a capital continue the sentence.
+    expect(split('I was not really . . . I did not mean it.')).toEqual([
+      'I was not really . . . I did not mean it.',
+    ]);
+    // EN 48: a fourth dot is the full stop.
+    expect(split('The list stops here . . . . Then it moves on.')).toEqual([
+      'The list stops here . . . .',
+      'Then it moves on.',
+    ]);
+    // HY 2: three unspaced dots before a capital continue the sentence.
+    expect(split('It rained...Then it stopped.')).toEqual(['It rained...Then it stopped.']);
+    // EN 49: four unspaced dots end it.
+    expect(split('We never planned it.... She left.')).toEqual(['We never planned it....', 'She left.']);
+  });
+
+  it('starts a sentence at an ellipsis that follows a full stop (NL 2)', () => {
+    expect(split('The shop was full. ...and then it rained.')).toEqual([
+      'The shop was full.',
+      '...and then it rained.',
+    ]);
+  });
+
+  it('keeps a stop with no space before a capital inside the word: code names and paths stay whole', () => {
+    // The cutter merges when unsure (docs/estate-pointer-reader.md): EN 52 is excluded.
+    expect(split('Call Console.WriteLine to print.')).toEqual(['Call Console.WriteLine to print.']);
+    expect(split('See System.Out for output.')).toEqual(['See System.Out for output.']);
+    expect(split('Open example.com/Foo.Bar in a browser.')).toEqual([
+      'Open example.com/Foo.Bar in a browser.',
+    ]);
+    expect(split('Save config.Json first.')).toEqual(['Save config.Json first.']);
+    expect(split('Write to ana.Lowe@example.com. I read it.')).toEqual([
+      'Write to ana.Lowe@example.com.',
+      'I read it.',
+    ]);
+  });
+
+  it('keeps a sentence that starts with a digit behind the previous one (NL 1)', () => {
+    // The segmenter returns no boundary before a number followed by a lower-case word (UAX #29 SB8).
+    expect(split('The hall emptied fast. 40 chairs were left behind.')).toEqual([
+      'The hall emptied fast. 40 chairs were left behind.',
+    ]);
+  });
+
+  it('reads a one-letter abbreviation through directional marks around its stop (AR 2)', () => {
+    expect(split('وقال د\u202a.\u202c سامي إنه وصل. ثم غادر.')).toEqual([
+      'وقال د\u202a.\u202c سامي إنه وصل.',
+      'ثم غادر.',
+    ]);
+  });
+
   it('keeps a boundary when the next sentence starts in lower case', () => {
     expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
       'We bake rye daily.',
@@ -250,5 +307,74 @@ describe('a file that nests too deep', () => {
     const fenced = `\`\`\`\n${nested(600)}\`\`\`\n`;
     expect(cut(fenced).units).toHaveLength(1);
     expect(cut(`${' '.repeat(400)}plain text\n`).units.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the nesting of a file counts list structure, not indent width', () => {
+  const nestedBy = (width: number, levels: number) =>
+    `${Array.from({ length: levels }, (_, i) => `${' '.repeat(width * i)}- level ${i}`).join('\n')}\n`;
+
+  it('reads a list indented four spaces a level as deep as one indented two', () => {
+    expect(cut(nestedBy(4, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(2, 60)).units).toHaveLength(60);
+    expect(cut(nestedBy(4, MAX_NESTING)).units).toHaveLength(MAX_NESTING);
+  });
+
+  it('refuses a list one level over the limit, whatever its indent, with the depth in the error', () => {
+    for (const width of [1, 2, 4]) {
+      const refusal = (() => {
+        try {
+          return cut(nestedBy(width, MAX_NESTING + 1));
+        } catch (cause) {
+          return cause;
+        }
+      })();
+      expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 1 });
+    }
+  });
+
+  it('counts a sibling list as the same level and a dedented line as the end of the list', () => {
+    const flat = `${Array.from({ length: 300 }, (_, i) => `- item ${i}`).join('\n')}\n`;
+    expect(cut(flat).units).toHaveLength(300);
+    const text = `${nestedBy(2, 90)}\nA paragraph.\n\n${nestedBy(2, 90)}`;
+    expect(cut(text).units.length).toBeGreaterThan(180);
+  });
+});
+
+describe('the cost of the nesting check on a large file', () => {
+  const cpu = (run: () => void): number => {
+    const before = process.cpuUsage();
+    run();
+    const used = process.cpuUsage(before);
+    return (used.user + used.system) / 1000;
+  };
+  const rows = (count: number) => Array.from({ length: count }, (_, index) => `Row ${index}`).join('\n');
+
+  it('reads 150,000 lines to refuse a deep list at their end in well under the time the parser needs for one block', () => {
+    const deep = Array.from({ length: MAX_NESTING + 5 }, (_, at) => `${'  '.repeat(at)}- level ${at}`).join(
+      '\n',
+    );
+    const text = `${rows(150_000)}\n\n${deep}\n`;
+    let refusal: unknown;
+    const used = cpu(() => {
+      try {
+        cut(text);
+      } catch (cause) {
+        refusal = cause;
+      }
+    });
+    expect(refusal).toMatchObject({ code: 'nesting', depth: MAX_NESTING + 5 });
+    // The refusal comes before the parse; a pass that did work per line of a large file twice would show here.
+    expect(used).toBeLessThan(2_000);
+  });
+
+  it('is one pass: twice the lines cost under three times the CPU, and 150,000 lines under a second', () => {
+    const small = rows(150_000);
+    const large = rows(300_000);
+    nestingOf(small);
+    const one = cpu(() => nestingOf(small));
+    const two = cpu(() => nestingOf(large));
+    expect(one).toBeLessThan(1_000);
+    expect(two).toBeLessThan(Math.max(one, 20) * 3);
   });
 });

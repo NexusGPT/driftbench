@@ -104,7 +104,7 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .option('--states <file>', 'the state library: operations by session state and event')
     .option(
       '--set-env <pair>',
-      'a variable the runtime and its hooks receive, NAME=VALUE; repeatable (a path, a proxy, a dead URL)',
+      'a variable the runtime and its guards receive, NAME=VALUE; repeatable (a path, a proxy, a dead URL)',
       (value: string, previous: string[]) => [...previous, value],
       [] as string[],
     )

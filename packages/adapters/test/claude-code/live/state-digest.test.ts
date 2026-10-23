@@ -40,6 +40,8 @@ describe('the digest of a state library', () => {
     const b = `prefix b b.jsonl ${sha(RECORD('b-1'))}\n`;
     const expected = sha(`library ${sha(text)}\n${a}${b}`);
     expect(digest.sha256).toBe(expected);
+    // The library file alone, as `sha256sum library.json` prints it.
+    expect(digest.fileSha256).toBe(sha(text));
   });
 
   it('changes when a prefix file changes and the library file does not', async () => {

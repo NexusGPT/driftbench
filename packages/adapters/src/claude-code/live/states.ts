@@ -313,6 +313,8 @@ function lastUuid(records: readonly SessionRecord[]): string | undefined {
 
 /** What identifies the files a library was read from: one digest, and the digest of each file. */
 export type StateLibraryDigest = {
+  /** The sha-256 of the library file alone: `sha256sum` prints the same value. */
+  fileSha256: string;
   /** The sha-256 over the library file and every prefix file it names, in the order of the prefix names. */
   sha256: string;
   /** The prefix files, by prefix name: the file as the library names it and the sha-256 of its bytes. */
@@ -344,7 +346,8 @@ export async function loadStateLibraryWithDigest(
   const folder = dirname(path);
   const prefixes = new Map<string, SessionRecord[]>();
   const prefixFiles = isRecord(raw.prefixes) ? raw.prefixes : {};
-  const hash = createHash('sha256').update(`library ${sha256Of(bytes)}\n`);
+  const fileSha256 = sha256Of(bytes);
+  const hash = createHash('sha256').update(`library ${fileSha256}\n`);
   const digests: StateLibraryDigest['prefixes'] = {};
   for (const name of Object.keys(prefixFiles).sort()) {
     const file = prefixFiles[name];
@@ -366,7 +369,7 @@ export async function loadStateLibraryWithDigest(
   };
   return {
     library: { states: ops('states'), events: ops('events') },
-    digest: { sha256: hash.digest('hex'), prefixes: digests },
+    digest: { fileSha256, sha256: hash.digest('hex'), prefixes: digests },
   };
 }
 
