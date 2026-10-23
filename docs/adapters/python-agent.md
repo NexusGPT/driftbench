@@ -34,22 +34,26 @@ do not become graph declarations. Ordinary functions do not acquire instruction 
 aspects because their names sound like agent work.
 
 The Python syntax stage emits normalized records. The existing common-model JSON-path locators
-and field reads select those records into `Part` values; the reader adds no new aspect vocabulary.
+and field reads select those records. The reader adds no new aspect vocabulary; this phase returns
+`RawEstate`, while the shared Part/aspect/Link projection step is pending.
 For example, `**/*.py#$.nodes[*]` selects node declarations from a normalized Python file.
 
-## Static values and links
+## Existing map projection and the pending step
 
-Graph nodes accept a literal name and a named callable, or the callable alone with its default name.
-Normal edges accept literal endpoints. Conditional edges accept a literal mapping of route results
-to endpoints. Graph membership produces `indexes` links and declared edges produce `routes-to`
-links within their graph.
+`PythonAgentReader` exposes immutable `setupTypes` and classifies through its own source's resolved
+types. Literal prompts become prose. An explicitly declared agent becomes a helper declaration.
+Tools, graph nodes, graphs and interrupts have no honest existing map kind. Each declaration gets
+its own human-readable `ReadNote` naming its kind, name, line and `no map kind for <declared type>`.
+No production code parses these messages. Structured `coverage.skipped` records arrive with the
+shared map-from-model step; the reader adds no coverage field or second model.
 
-A `ToolNode` with a literal list of tool symbols references those tools. A node referring to an
-agent declaration delegates to that agent. A node's prompt declaration is loaded by the node;
-an interrupt guards its owning node. Links retain source lines, reader provenance and confidence.
-They describe statically declared structure, not a claim that execution reached a particular line.
+Graph nodes, normal and conditional edges, ToolNode tool bindings, agent references and interrupts
+remain available as reader-local static selector data. Their six declared core link kinds have
+independent positive and negative fixture plants. They are not emitted as legacy map links. Once
+the shared model projection lands, these declarations can acquire their honest kinds through it.
 
-Literal prompt strings are decoded, including triple-quoted text. An arbitrary string constant is
+Literal prompt strings are decoded, including triple-quoted text. A decoded prompt with escapes
+that cannot be quoted at its actual source passage is noted as skipped in this phase. An arbitrary string constant is
 not a prompt unless it is used in a recognized prompt position. An interpolated prompt is unresolved
 unless its final text can be established statically; the reader does not substitute environment or
 runtime values.
@@ -68,8 +72,7 @@ remain inspectable without executing their surrounding code.
 
 Every input text file remains in the inventory so an unclassified file can be reported as unknown.
 Broken links, link cycles, inaccessible files, files over 1 MiB, binary content, invalid UTF-8 and
-links outside declared filtered snapshots are skipped with reasons. A read over no inputs cannot
-produce a passing check outcome.
+links outside declared filtered snapshots are skipped with reasons. A missing root receives an unreadable-source note; no empty successful inventory is fabricated.
 
 The fictional fixture is under `packages/estate/test/fixtures/readers/python-agent/`. It throws on
 import or execution. Tests plant positive and negative cases for declared syntax and aspects,

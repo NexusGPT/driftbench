@@ -1,4 +1,5 @@
 import { isAbsolute, join, relative, sep } from 'node:path';
+import type { TypeSet } from '@agent-nexus/driftbench-core';
 import { readdir, readFile, realpath, stat } from '../../fs/estate-fs';
 
 /** Structural adapter for the parsed driftbench.setup.yaml sources contract. No home expansion occurs here. */
@@ -7,6 +8,7 @@ export type ReaderSource = {
   root: string;
   kind: 'project' | 'home' | 'directory';
   reader: string;
+  types?: TypeSet;
   bindings?: readonly {
     runtime: string;
     deployedRoot: string;
@@ -45,10 +47,7 @@ function code(cause: unknown): string {
  * including empty and unclassified files, for the common model's coverage pass. Every unread entry is accounted
  * for. A per-ancestry cycle check permits two different links to the same folder without losing either path.
  */
-export async function readSourceFiles(
-  root: string,
-  options: SourceReaderOptions = {},
-): Promise<SourceFiles> {
+export async function readSourceFiles(root: string, options: SourceReaderOptions = {}): Promise<SourceFiles> {
   const result: SourceFiles = { files: [], skipped: [] };
   const skip = (what: string, reason: string) => result.skipped.push({ what, reason });
   const roots: string[] = [];

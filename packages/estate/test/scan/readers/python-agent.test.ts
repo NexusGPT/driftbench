@@ -4,7 +4,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseTypes, type TypesDocument, type TypesOptions } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { scanEstate } from '../../../src/index';
 import * as pythonReader from '../../../src/scan/readers/python-agent';
+import { PYTHON_LINK_PLANTS, PYTHON_PART_PLANTS } from './python-agent.plants';
 
 type Fact = { name: string; line: number; [key: string]: unknown };
 type Facts = {
@@ -77,6 +79,112 @@ const CASES = {
   },
 } as const;
 
+async function fixture(files: Record<string, string>): Promise<string> {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-python-reader-'));
+  for (const [path, text] of Object.entries(files)) {
+    await mkdir(dirname(join(root, path)), { recursive: true });
+    await writeFile(join(root, path), text);
+  }
+  return root;
+}
+
+describe('Python RawEstate projection', () => {
+  it('plants every declared type, aspect and future core link selector', () => {
+    expect(Object.keys(PYTHON_PART_PLANTS).sort()).toEqual(
+      Object.keys(pythonReader.PYTHON_AGENT_TYPES.types).sort(),
+    );
+    expect(Object.keys(PYTHON_LINK_PLANTS).sort()).toEqual(
+      [...new Set(pythonReader.PYTHON_AGENT_LINK_SELECTORS.map((selector) => selector.kind))].sort(),
+    );
+    for (const [name, type] of Object.entries(pythonReader.PYTHON_AGENT_TYPES.types)) {
+      expect(PYTHON_PART_PLANTS[name]?.aspects).toEqual(type.aspects);
+    }
+  });
+
+  for (const [type, plant] of Object.entries(CASES)) {
+    it(`maps or explicitly skips ${type}, and rejects its negative declaration`, async () => {
+      const runtime = new pythonReader.PythonAgentReader();
+      const yes = await runtime.read(await fixture({ 'agent.py': plant.input }));
+      const no = await runtime.read(await fixture({ 'agent.py': plant.negative }));
+      if (type === 'prompt') {
+        expect(yes.prose.map((chunk) => chunk.text)).toContain('Preserve row identifiers.');
+        expect(no.prose).toEqual([]);
+      } else if (type === 'agent') {
+        expect(yes.subagents.map((agent) => agent.name)).toContain(plant.name);
+        expect(no.subagents).toEqual([]);
+      } else {
+        const message = `${plant.name} (${type}) at line `;
+        expect(yes.notes).toContainEqual({
+          file: 'agent.py',
+          message: expect.stringContaining(message),
+        });
+        expect(yes.notes.some((note) => note.message.endsWith(`no map kind for ${type}`))).toBe(true);
+        expect(no.notes.some((note) => note.message.includes(message))).toBe(false);
+        expect(yes.skills).toEqual([]);
+        expect(yes.guards).toEqual([]);
+        expect(yes.steps).toEqual([]);
+      }
+    });
+  }
+
+  it('retains one human-readable note per unsupported declaration', async () => {
+    const root = await fixture({ 'agent.py': `${CASES.node.input}flow.add_node("review", collect)\n` });
+    const raw = await new pythonReader.PythonAgentReader().read(root);
+    expect(raw.notes.filter((note) => note.message.endsWith('no map kind for node'))).toHaveLength(2);
+    expect(raw.notes.map((note) => note.message)).toContain('review (node) at line 6: no map kind for node');
+  });
+
+  it('feeds only prose and declared helpers to the existing map without model calls', async () => {
+    const root = await fixture({ 'agent.py': `${CASES.agent.input}${CASES.tool.input}${CASES.node.input}` });
+    const runtime = new pythonReader.PythonAgentReader();
+    const raw = await runtime.read(root);
+    expect(raw.prose.map((chunk) => chunk.text)).toContain('Review rows.');
+    expect(raw.subagents.map((agent) => agent.name)).toEqual(['reviewer']);
+    const { map } = await scanEstate({ root, reader: runtime });
+    expect(map.atoms.filter((atom) => atom.kind === 'subagent')).toHaveLength(1);
+    expect(map.atoms.filter((atom) => ['skill', 'stage', 'guard', 'tool'].includes(atom.kind))).toEqual([]);
+  });
+
+  it('reads module-relative prompt files only from the filtered source inventory', async () => {
+    const root = await fixture({
+      'agent.py':
+        'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=Path(__file__).with_name("policy.md").read_text())\n',
+      'policy.md': 'Preserve fictional amounts.\n',
+      'unknown.xyz': 'Fictional unknown.\n',
+    });
+    const raw = await new pythonReader.PythonAgentReader().read(root);
+    expect(raw.prose.map((chunk) => chunk.text)).toEqual(['Preserve fictional amounts.\n']);
+    expect(raw.files.find((file) => file.path === 'unknown.xyz')?.kind).toBe('other');
+  });
+
+  it('keeps findings after file moves and changes prose after a declared aspect mutation', async () => {
+    const runtime = new pythonReader.PythonAgentReader();
+    const left = await runtime.read(await fixture({ 'agent.py': CASES.prompt.input }));
+    const right = await runtime.read(await fixture({ 'nested/renamed.py': CASES.prompt.input }));
+    expect(left.prose.map((chunk) => chunk.text)).toEqual(right.prose.map((chunk) => chunk.text));
+    const base = runtime.setupTypes.base;
+    if (!base) throw new Error('missing types');
+    const types = {
+      ...base,
+      types: base.types.map((type) =>
+        type.name === 'prompt' ? { ...type, aspects: ['informs' as const] } : type,
+      ),
+    };
+    const root = await fixture({ 'agent.py': CASES.prompt.input });
+    const changed = new pythonReader.PythonAgentReader({
+      setupSource: {
+        id: 'python',
+        root,
+        reader: 'python-agent',
+        kind: 'directory',
+        types,
+        provenance: { file: 'driftbench.setup.yaml', path: 'sources[0]' },
+      },
+    });
+    expect((await changed.read(root)).prose).toEqual([]);
+  });
+});
+
 describe('static Python agent syntax contract', () => {
   it('exposes deeply immutable source-relative setup type metadata', async () => {
     const { PYTHON_AGENT_SETUP_TYPES } = await reader();
@@ -85,9 +193,15 @@ describe('static Python agent syntax contract', () => {
     expect(PYTHON_AGENT_SETUP_TYPES.roots).toEqual({ source: '.' });
     expect(Object.isFrozen(PYTHON_AGENT_SETUP_TYPES)).toBe(true);
     expect(Object.isFrozen(PYTHON_AGENT_SETUP_TYPES.base?.types)).toBe(true);
-    const extended = parseTypes({ version: 1, types: {
-      'review-prompt': { extends: 'prompt', aspects: ['informs'] },
-    } }, PYTHON_AGENT_SETUP_TYPES);
+    const extended = parseTypes(
+      {
+        version: 1,
+        types: {
+          'review-prompt': { extends: 'prompt', aspects: ['informs'] },
+        },
+      },
+      PYTHON_AGENT_SETUP_TYPES,
+    );
     expect(extended.ok).toBe(true);
     if (!extended.ok) throw new Error(JSON.stringify(extended.errors));
     const custom = extended.set.types.find((type) => type.name === 'review-prompt');
