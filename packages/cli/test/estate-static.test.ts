@@ -28,7 +28,17 @@ async function run(argv: string[]) {
 
 describe('driftbench estate static', () => {
   it('runs the committed static tests on the fixture: the planted invariant defects fail, the settings pass', async () => {
-    const result = await run(['estate', 'static', STATIC, '--estate', FIXTURE, '--json']);
+    // The registry columns come from the map: a static run with no map has no roles to read a registry by.
+    const result = await run([
+      'estate',
+      'static',
+      STATIC,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'approved.yaml'),
+      '--json',
+    ]);
     expect(result.err).toBe('');
     expect(result.code).toBe(1);
     const json = JSON.parse(result.out) as {
