@@ -27,7 +27,12 @@ const valIndex = (value: string | undefined): number => Number(String(value).sli
 
 function withinTime(label: string, ms: number, limit: number): void {
   if (process.env.BLIND_BANK_TIMES) process.stderr.write(`${label}: ${Math.round(ms)} ms of ${limit} ms\n`);
-  check(ms <= limit, () => ({ rule: 'the work stays within the processor time of the page', input: { work: label }, got: { ms: Math.round(ms) }, expected: { atMost: limit } }));
+  check(ms <= limit, () => ({
+    rule: 'the work stays within the processor time of the page',
+    input: { work: label },
+    got: { ms: Math.round(ms) },
+    expected: { atMost: limit },
+  }));
 }
 
 /** Every pair of the variables holds every combination of values in some row; names the first missing one. */
@@ -88,7 +93,8 @@ function allAssigned(rows: readonly Row[], ids: readonly string[], dom: (id: str
     for (const id of ids) {
       check(r[id] !== undefined && dom(id).includes(r[id] as string), () => ({
         rule: 'a new row gives {} the value {}',
-        got: { details: [id, show(r[id])] }, expected: none('observation')
+        got: { details: [id, show(r[id])] },
+        expected: none('observation'),
       }));
     }
   }
@@ -113,7 +119,8 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
     );
     check(plan.rows.length >= seedsCount, () => ({
       rule: '{} rows for {} seeds',
-      got: { details: [plan.rows.length, seedsCount] }, expected: none('observation')
+      got: { details: [plan.rows.length, seedsCount] },
+      expected: none('observation'),
     }));
   }
   allAssigned(
@@ -123,7 +130,11 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
   );
   const all = plan.rows.map((r) => r.values);
   const gap = missingPair(all, ids, arities);
-  check(gap === undefined, () => ({ rule: 'no row holds {}', got: { details: [gap] }, expected: none('observation') }));
+  check(gap === undefined, () => ({
+    rule: 'no row holds {}',
+    got: { details: [gap] },
+    expected: none('observation'),
+  }));
   // R14: the new rows stay under ceil(1.25 G) + 1, with G from the pairs the seeds miss.
   const widest =
     (arities.slice().sort((a, b) => b - a)[0] as number) *
@@ -133,11 +144,17 @@ function axesWorkload(ctx: ItemContext, arities: number[], limitMs: number, seed
     for (let j = i + 1; j < ids.length; j += 1) missing += (arities[i] as number) * (arities[j] as number);
   if (seedsCount === 0) {
     const cap = rowCap(missing, widest);
-    check(fresh.length <= cap, () => ({ rule: 'the plan stays within the row cap of the page for the axes', input: { axes: ids.length }, got: { newRows: fresh.length }, expected: { atMost: cap } }));
+    check(fresh.length <= cap, () => ({
+      rule: 'the plan stays within the row cap of the page for the axes',
+      input: { axes: ids.length },
+      got: { newRows: fresh.length },
+      expected: { atMost: cap },
+    }));
   } else {
     check(fresh.length === 0, () => ({
       rule: '{} new rows although {} random seeds over {} axes hold every pair',
-      got: { details: [fresh.length, seedsCount, ids.length] }, expected: none('observation')
+      got: { details: [fresh.length, seedsCount, ids.length] },
+      expected: none('observation'),
     }));
   }
 }
@@ -156,12 +173,21 @@ function rulesWorkload(ctx: ItemContext, rules: number, stride: number, limitMs:
   const rows = newRows(plan).map((r) => r.values);
   for (const rule of ruleVars) {
     const gap = missingTriple(rows, rule);
-    check(gap === undefined, () => ({ rule: 'rule {}...: {}', got: { details: [rule[0], gap] }, expected: none('observation') }));
+    check(gap === undefined, () => ({
+      rule: 'rule {}...: {}',
+      got: { details: [rule[0], gap] },
+      expected: none('observation'),
+    }));
   }
   const distinct = new Set<string>();
   for (const rule of ruleVars) for (const t of subsetsOf(rule, 3)) distinct.add([...t].sort().join('|'));
   const cap = rowCap(distinct.size * 8, 8);
-  check(rows.length <= cap, () => ({ rule: 'the plan stays within the row cap of the page for the rules', input: { rules }, got: { newRows: rows.length }, expected: { atMost: cap } }));
+  check(rows.length <= cap, () => ({
+    rule: 'the plan stays within the row cap of the page for the rules',
+    input: { rules },
+    got: { newRows: rows.length },
+    expected: { atMost: cap },
+  }));
 }
 
 /** The estate of `count` condition spans spread over 20 files, one quantity per span. */
@@ -231,16 +257,19 @@ function spansWorkload(ctx: ItemContext, count: number, limitMs: number): void {
   withinTime(`reading ${count} condition spans`, ms, limitMs);
   check(store.variables.length === count, () => ({
     rule: '{} variables for {} spans of different quantities',
-    got: { details: [store.variables.length, count] }, expected: none('observation')
+    got: { details: [store.variables.length, count] },
+    expected: none('observation'),
   }));
   check(store.refused.length === 0, () => ({
     rule: '{} refusals for spans that sit in their files',
-    got: { details: [store.refused.length] }, expected: none('observation')
+    got: { details: [store.refused.length] },
+    expected: none('observation'),
   }));
   const thin = store.variables.find((v) => v.values.length < 3);
   check(!thin, () => ({
     rule: 'the variable {} has {} values; a condition has three samples',
-    got: { details: [thin?.id, thin?.values.length] }, expected: none('observation')
+    got: { details: [thin?.id, thin?.values.length] },
+    expected: none('observation'),
   }));
 }
 
@@ -259,7 +288,11 @@ function ownerValuesWorkload(ctx: ItemContext, count: number, limitMs: number): 
   const { value: store, ms } = cpu(() => d.build({ owner }));
   withinTime(`adding ${count} owner values`, ms, limitMs);
   const variable = store.variables.find((v) => v.id === id);
-  check(variable?.values.length === count + 2, () => ({ rule: 'a variable holds the values of its spans and the two sides', got: { values: variable?.values.length }, expected: { values: count + 2 } }));
+  check(variable?.values.length === count + 2, () => ({
+    rule: 'a variable holds the values of its spans and the two sides',
+    got: { values: variable?.values.length },
+    expected: { values: count + 2 },
+  }));
 }
 
 function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: number): void {
@@ -293,7 +326,12 @@ function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: numb
     for (let k = 0; k < 5; k += 1) {
       const value = variable?.values.find((x) => x.id === labelsOf(v)[k]);
       const entry = value?.provenance?.find((p) => p.kind === 'conversations');
-      check(entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen, () => ({ rule: 'a value carries how often the sessions showed it', input: { variable: d.ids[v], value: labelsOf(v)[k] }, got: { entry: show(entry) }, expected: { count: c.by[k], total: c.seen } }));
+      check(entry?.kind === 'conversations' && entry.count === c.by[k] && entry.total === c.seen, () => ({
+        rule: 'a value carries how often the sessions showed it',
+        input: { variable: d.ids[v], value: labelsOf(v)[k] },
+        got: { entry: show(entry) },
+        expected: { count: c.by[k], total: c.seen },
+      }));
     }
   }
 }
@@ -318,7 +356,10 @@ function quotesWorkload(
     fill.push(`${filler}\n${quotes[i]}\n`);
     size += fill[i]?.length ?? 0;
   }
-  check(size > 900_000, () => ({ rule: 'the bank built a file under 900 kB', expected: none('observation') }));
+  check(size > 900_000, () => ({
+    rule: 'the bank built a file under 900 kB',
+    expected: none('observation'),
+  }));
   const wrong = new Set(
     ctx.rng.sample(
       Array.from({ length: count }, (_, i) => i),
@@ -354,7 +395,8 @@ function quotesWorkload(
   withinTime(`checking ${count} quotes in a one-megabyte file`, ms, limitMs);
   check(value.errors.length === wrong.size, () => ({
     rule: '{} errors; {} quotes are wrong',
-    got: { details: [value.errors.length, wrong.size] }, expected: none('observation')
+    got: { details: [value.errors.length, wrong.size] },
+    expected: none('observation'),
   }));
   if (!exact) return;
   // Each wrong quote is named where it sits: its code and its path, not only a count of errors.
@@ -364,7 +406,8 @@ function quotesWorkload(
   const got = value.errors.map((e) => `${e.code} at ${e.path}`);
   check(jsonEqual([...got].sort(), [...want].sort()), () => ({
     rule: 'quotes reported {}; the wrong ones are {}',
-    got: { details: [got.slice(0, 3).join('; '), want.slice(0, 3).join('; ')] }, expected: none('observation')
+    got: { details: [got.slice(0, 3).join('; '), want.slice(0, 3).join('; ')] },
+    expected: none('observation'),
   }));
 }
 
@@ -379,7 +422,12 @@ function closedWorkload(ctx: ItemContext, n: number): void {
   const warm = makeStore({ vars: idsOf(12).map((id) => ({ id, values: valueIds(2), shared: true })) });
   callCoverage(ctx, warm, [], [{ variables: idsOf(12), strength: 3 }]);
   const { value, ms } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
-  check(BigInt(value.allowed) === closedForm(n, 3), () => ({ rule: 'coverage counts the allowed tuples exactly', input: { variables: n, strength: 3 }, got: { allowed: String(value.allowed) }, expected: { allowed: String(closedForm(n, 3)) } }));
+  check(BigInt(value.allowed) === closedForm(n, 3), () => ({
+    rule: 'coverage counts the allowed tuples exactly',
+    input: { variables: n, strength: 3 },
+    got: { allowed: String(value.allowed) },
+    expected: { allowed: String(closedForm(n, 3)) },
+  }));
   withinTime(`the closed-form count over ${n} binary variables`, ms, 50);
 }
 
@@ -415,9 +463,18 @@ function coverageWorkload(ctx: ItemContext, n: number, k: 2 | 3): void {
   );
   const { value, ms } = cpu(() => callCoverage(ctx, store, rows, [{ variables: ids, strength: k }]));
   withinTime(`the coverage of 30 rows over ${n} binary variables at strength ${k}`, ms, 20_000);
-  check(BigInt(value.allowed) === closedForm(n, k), () => ({ rule: 'coverage counts the allowed tuples exactly', input: { variables: n, strength: k }, got: { allowed: String(value.allowed) }, expected: { allowed: String(closedForm(n, k)) } }));
+  check(BigInt(value.allowed) === closedForm(n, k), () => ({
+    rule: 'coverage counts the allowed tuples exactly',
+    input: { variables: n, strength: k },
+    got: { allowed: String(value.allowed) },
+    expected: { allowed: String(closedForm(n, k)) },
+  }));
   const want = coveredByRows(rows, ids, k);
-  check(BigInt(value.covered) === BigInt(want), () => ({ rule: 'coverage counts the covered tuples exactly', got: { covered: String(value.covered) }, expected: { covered: want } }));
+  check(BigInt(value.covered) === BigInt(want), () => ({
+    rule: 'coverage counts the covered tuples exactly',
+    got: { covered: String(value.covered) },
+    expected: { covered: want },
+  }));
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -520,14 +577,16 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
   const rows = newRows(plan).map((r) => r.values);
   for (const r of rows) {
     check(Object.keys(r).length === dense.ids.length, () => ({
-      rule: 'a new row does not give a value to every variable', expected: none('observation')
+      rule: 'a new row does not give a value to every variable',
+      expected: none('observation'),
     }));
   }
   for (const r of rows) {
     for (const [i, x, j, y] of dense.pairs) {
       check(!(r[dense.ids[i] as string] === `v${x}` && r[dense.ids[j] as string] === `v${y}`), () => ({
         rule: 'a new row holds the forbidden pair {}=v{}, {}=v{}',
-        got: { details: [dense.ids[i], x, dense.ids[j], y] }, expected: none('observation')
+        got: { details: [dense.ids[i], x, dense.ids[j], y] },
+        expected: none('observation'),
       }));
     }
   }
@@ -538,14 +597,19 @@ function denseWorkload(ctx: ItemContext, forbidCount: number): void {
         rows.some((r) => r[id] === `v${x}`),
         () => ({
           rule: 'no row holds {}=v{}, a value that a row with every other variable at 0 or 1 can hold',
-          got: { details: [id, x] }, expected: none('observation')
+          got: { details: [id, x] },
+          expected: none('observation'),
         }),
       );
   }
   // R14, factor four: M is at most every pair of the axes plus the values of the details.
   const m = ((30 * 29) / 2) * 16 + 170 * 4;
   const cap = rowCap(m, 16, 4);
-  check(rows.length <= cap, () => ({ rule: 'the plan stays within the row cap of the page for dense impossible pairs', got: { newRows: rows.length }, expected: { atMost: cap } }));
+  check(rows.length <= cap, () => ({
+    rule: 'the plan stays within the row cap of the page for dense impossible pairs',
+    got: { newRows: rows.length },
+    expected: { atMost: cap },
+  }));
   // Every pair of axes that no row holds and no constraint forbids must be impossible to extend.
   const held = new Set<string>();
   for (const r of rows) {
@@ -587,7 +651,8 @@ function independentWorkload(ctx: ItemContext, count: number): void {
   const rows = newRows(plan);
   check(rows.length <= 6, () => ({
     rule: '{} new rows for {} independent ternary variables; six are enough',
-    got: { details: [rows.length, count] }, expected: none('observation')
+    got: { details: [rows.length, count] },
+    expected: none('observation'),
   }));
   for (const id of ids)
     for (const x of valueIds(3))
@@ -611,10 +676,18 @@ function wideAxisWorkload(ctx: ItemContext): void {
     ids,
     arities,
   );
-  check(gap === undefined, () => ({ rule: 'no row holds {}', got: { details: [gap] }, expected: none('observation') }));
+  check(gap === undefined, () => ({
+    rule: 'no row holds {}',
+    got: { details: [gap] },
+    expected: none('observation'),
+  }));
   const missing = 200 * 2 * 3 + 3 * 4;
   const cap = rowCap(missing, 400);
-  check(rows.length >= 400 && rows.length <= cap, () => ({ rule: 'the plan for many independent variables stays between the floor and the cap of the page', got: { newRows: rows.length }, expected: { between: [400, cap] } }));
+  check(rows.length >= 400 && rows.length <= cap, () => ({
+    rule: 'the plan for many independent variables stays between the floor and the cap of the page',
+    got: { newRows: rows.length },
+    expected: { between: [400, cap] },
+  }));
 }
 
 export const SCALE_STEMS: readonly Stem[] = [

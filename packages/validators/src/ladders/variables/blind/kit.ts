@@ -103,7 +103,8 @@ export function callBuild(ctx: ItemContext, sources: Sources): StoreDoc {
   const got = attempt(() => f(sources));
   check(!got.error, () => ({
     rule: 'buildStore threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const s = got.value as StoreDoc | undefined;
   check(
@@ -114,7 +115,8 @@ export function callBuild(ctx: ItemContext, sources: Sources): StoreDoc {
       Array.isArray(s.refused),
     () => ({
       rule: 'buildStore returned {}, not a store with the arrays variables, impossible, rules and refused',
-      got: { details: [show(s, 120)] }, expected: none('observation')
+      got: { details: [show(s, 120)] },
+      expected: none('observation'),
     }),
   );
   return s;
@@ -125,12 +127,14 @@ export function callPlan(ctx: ItemContext, store: StoreDoc, options: PlanOptions
   const got = attempt(() => f(store, options));
   check(!got.error, () => ({
     rule: 'plan threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const p = got.value as Plan | undefined;
   check(!!p && Array.isArray(p.rows), () => ({
     rule: 'plan returned {}, not an object with a rows array',
-    got: { details: [show(p, 120)] }, expected: none('observation')
+    got: { details: [show(p, 120)] },
+    expected: none('observation'),
   }));
   return p;
 }
@@ -141,7 +145,8 @@ export function planError(ctx: ItemContext, store: StoreDoc, options: PlanOption
   const got = attempt(() => f(store, options));
   check(!!got.error, () => ({
     rule: 'plan returned {} instead of throwing',
-    got: { details: [show(got.value, 100)] }, expected: none('observation')
+    got: { details: [show(got.value, 100)] },
+    expected: none('observation'),
   }));
   return got.error as Error;
 }
@@ -157,12 +162,14 @@ export function callCoverage(
   const got = attempt(() => f(store, rows, groups, options));
   check(!got.error, () => ({
     rule: 'coverage threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const r = got.value as CoverageResult | undefined;
   check(!!r && r.allowed !== undefined && r.covered !== undefined, () => ({
     rule: 'coverage returned {}',
-    got: { details: [show(r, 120)] }, expected: none('observation')
+    got: { details: [show(r, 120)] },
+    expected: none('observation'),
   }));
   return r;
 }
@@ -178,7 +185,8 @@ export function coverageError(
   const got = attempt(() => f(store, rows, groups, options));
   check(!!got.error, () => ({
     rule: 'coverage returned {} instead of throwing',
-    got: { details: [show(got.value, 100)] }, expected: none('observation')
+    got: { details: [show(got.value, 100)] },
+    expected: none('observation'),
   }));
   return got.error as Error;
 }
@@ -188,12 +196,14 @@ export function callInterval(ctx: ItemContext, count: number, total: number): [n
   const got = attempt(() => f(count, total));
   check(!got.error, () => ({
     rule: 'weightInterval({}, {}) threw {}: {}',
-    got: { details: [count, total, got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [count, total, got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const v = got.value as unknown;
   check(Array.isArray(v) && v.length === 2 && v.every((x) => typeof x === 'number'), () => ({
     rule: 'weightInterval({}, {}) returned {}, expected [lower, upper]',
-    got: { details: [count, total, show(v)] }, expected: none('observation')
+    got: { details: [count, total, show(v)] },
+    expected: none('observation'),
   }));
   return v as [number, number];
 }
@@ -203,7 +213,8 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
   const got = attempt(() => f(value));
   check(!got.error, () => ({
     rule: 'validate threw {}: {}; it returns the errors',
-    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const r = got.value as ValidateResult | undefined;
   check(
@@ -212,7 +223,8 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
       ((r.ok === true && Array.isArray(r.warnings)) || (r.ok === false && Array.isArray(r.errors))),
     () => ({
       rule: 'validate returned {}, not {ok: true, store, warnings} or {ok: false, errors}',
-      got: { details: [show(r, 160)] }, expected: none('observation')
+      got: { details: [show(r, 160)] },
+      expected: none('observation'),
     }),
   );
   return r;
@@ -223,12 +235,14 @@ export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<str
   const got = attempt(() => f(store, files));
   check(!got.error, () => ({
     rule: 'quotes threw {}: {}; it returns the issues',
-    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
+    got: { details: [got.error?.name, got.error?.message] },
+    expected: none('observation'),
   }));
   const r = got.value as QuotesResult | undefined;
   check(!!r && typeof r === 'object' && Array.isArray(r.errors), () => ({
     rule: 'quotes returned {}, not {errors}',
-    got: { details: [show(r, 160)] }, expected: none('observation')
+    got: { details: [show(r, 160)] },
+    expected: none('observation'),
   }));
   return r;
 }
@@ -236,11 +250,13 @@ export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<str
 export function errorNamed(error: Error, kind: 'RangeError' | 'TypeError', what: string): void {
   check(error.name === kind, () => ({
     rule: 'threw {}: {}; expected a {}',
-    got: { details: [error.name, error.message, kind] }, expected: none('observation')
+    got: { details: [error.name, error.message, kind] },
+    expected: none('observation'),
   }));
   check(error.message.includes(what), () => ({
     rule: 'the {} says "{}"; it should name {}',
-    got: { details: [kind, error.message, what] }, expected: none('observation')
+    got: { details: [kind, error.message, what] },
+    expected: none('observation'),
   }));
 }
 
@@ -428,7 +444,8 @@ export function allRows(space: Space, limit = 400_000): Row[] {
   for (const v of space.vars) size *= (space.dom[v] as string[]).length;
   check(size <= limit, () => ({
     rule: "the item's own space is too large to enumerate: {} rows",
-    got: { details: [size] }, expected: none('observation')
+    got: { details: [size] },
+    expected: none('observation'),
   }));
   const out: Row[] = [];
   const cur: Row = {};

@@ -176,7 +176,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           for (const r of newRows(plan)) {
             check(!(r.values[a as string] === 'a1' && r.values[b as string] === 'b1'), () => ({
               rule: 'a row holds a1 with b1, which no valid row can: {}',
-              got: { details: [show(r.values)] }, expected: none('observation')
+              got: { details: [show(r.values)] },
+              expected: none('observation'),
             }));
           }
         },
@@ -207,9 +208,14 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           for (const r of newRows(plan))
             check(r.values[a as string] !== 'q', () => ({
               rule: 'row {} holds the forbidden value q',
-              got: { details: [r.id] }, expected: none('observation')
+              got: { details: [r.id] },
+              expected: none('observation'),
             }));
-          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(plan.warnings) },
+            expected: { warning: 'value_unreachable' },
+          }));
         },
       ],
       [
@@ -229,7 +235,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           for (const r of newRows(plan)) {
             check(!(r.values[a] === 'a1' && r.values[b] === 'b1' && r.values[c] === 'c1'), () => ({
               rule: 'row {} holds the forbidden triple',
-              got: { details: [r.id] }, expected: none('observation')
+              got: { details: [r.id] },
+              expected: none('observation'),
             }));
           }
         },
@@ -252,10 +259,17 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const held = (x: string, vx: string, y: string, vy: string) =>
             plan.rows.some((r) => r.values[x] === vx && r.values[y] === vy);
           check(held(a, 'a1', b, 'b1'), () => ({
-            rule: 'no row holds a1 with b1, a pair that a valid row holds when c is c0', expected: none('observation')
+            rule: 'no row holds a1 with b1, a pair that a valid row holds when c is c0',
+            expected: none('observation'),
           }));
-          check(held(a, 'a1', c, 'c1'), () => ({ rule: 'no row holds a1 with c1', expected: none('observation') }));
-          check(held(b, 'b1', c, 'c1'), () => ({ rule: 'no row holds b1 with c1', expected: none('observation') }));
+          check(held(a, 'a1', c, 'c1'), () => ({
+            rule: 'no row holds a1 with c1',
+            expected: none('observation'),
+          }));
+          check(held(b, 'b1', c, 'c1'), () => ({
+            rule: 'no row holds b1 with c1',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -269,11 +283,13 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           for (const r of newRows(plan)) {
             check(!(r.values[a] === 'v0' && r.values[b] === 'v1'), () => ({
               rule: 'row {} holds the first forbidden pair',
-              got: { details: [r.id] }, expected: none('observation')
+              got: { details: [r.id] },
+              expected: none('observation'),
             }));
             check(!(r.values[a] === 'v2' && r.values[b] === 'v2'), () => ({
               rule: 'row {} holds the second forbidden pair',
-              got: { details: [r.id] }, expected: none('observation')
+              got: { details: [r.id] },
+              expected: none('observation'),
             }));
           }
         },
@@ -290,7 +306,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const p1 = callPlan(ctx, one, { seed: ctx.seed });
           const p2 = callPlan(ctx, two, { seed: ctx.seed });
           check(jsonEqual(p1.rows, p2.rows), () => ({
-            rule: 'the same pair written in the other order gives a different plan', expected: none('observation')
+            rule: 'the same pair written in the other order gives a different plan',
+            expected: none('observation'),
           }));
         },
       ],
@@ -313,7 +330,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const p1 = callPlan(ctx, one, { seed: ctx.seed });
           const p2 = callPlan(ctx, two, { seed: ctx.seed });
           check(jsonEqual(p1.rows, p2.rows), () => ({
-            rule: 'a pair written three times gives a different plan from the pair written once', expected: none('observation')
+            rule: 'a pair written three times gives a different plan from the pair written once',
+            expected: none('observation'),
           }));
         },
       ],
@@ -328,7 +346,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const p1 = callPlan(ctx, one, { seed: ctx.seed });
           const p2 = callPlan(ctx, two, { seed: ctx.seed });
           check(jsonEqual(p1.rows, p2.rows), () => ({
-            rule: 'a pair of two values of one variable changed the plan; a row holds one value of a variable, so it excludes nothing', expected: none('observation')
+            rule: 'a pair of two values of one variable changed the plan; a row holds one value of a variable, so it excludes nothing',
+            expected: none('observation'),
           }));
           assertCovered(spaceOf(two), p2, []);
         },
@@ -361,7 +380,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           check(
             plan.rows.some((r) => r.values[a] === 'a0' && r.values[b] === 'b0'),
             () => ({
-              rule: 'the pair a0, b0 is ruled out by a constraint nobody approved; the plan must still hold it', expected: none('observation')
+              rule: 'the pair a0, b0 is ruled out by a constraint nobody approved; the plan must still hold it',
+              expected: none('observation'),
             }),
           );
         },
@@ -380,7 +400,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(!plan.rows.some((r) => r.values[a] === 'a0' && r.values[b] === 'b0'), () => ({
-            rule: 'a row holds an approved forbidden pair', expected: none('observation')
+            rule: 'a row holds an approved forbidden pair',
+            expected: none('observation'),
           }));
         },
       ],
@@ -398,7 +419,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(!plan.rows.some((r) => r.values[a] === 'a2' && r.values[b] === 'b1'), () => ({
-            rule: 'a row holds a pair with no approval flag, which counts as approved', expected: none('observation')
+            rule: 'a row holds a pair with no approval flag, which counts as approved',
+            expected: none('observation'),
           }));
         },
       ],
@@ -419,13 +441,19 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             ],
           });
           const space = spaceOf(store);
-          check(space.forbids.length === 1, () => ({ rule: 'the bank built the space wrongly', expected: none('observation') }));
+          check(space.forbids.length === 1, () => ({
+            rule: 'the bank built the space wrongly',
+            expected: none('observation'),
+          }));
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           assertRowsSound(space, plan, []);
           assertCovered(space, plan, []);
           check(
             plan.rows.some((r) => r.values[a] === 'a0' && r.values[b] === 'b0'),
-            () => ({ rule: 'a0 with b0 is a target again once its constraint is not approved', expected: none('observation') }),
+            () => ({
+              rule: 'a0 with b0 is a target again once its constraint is not approved',
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -466,15 +494,20 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             rows = (run(store, { seed: ctx.seed, seeds }) as ReturnType<typeof callPlan>).rows;
           } catch (error) {
             check((error as Error).message.length > 0, () => ({
-              rule: 'the plan threw an error with no message; it should name the conflict', expected: none('observation')
+              rule: 'the plan threw an error with no message; it should name the conflict',
+              expected: none('observation'),
             }));
             return;
           }
           check(newRows({ rows }).length === 0, () => ({
             rule: 'an unsatisfiable space gave {} new rows',
-            got: { details: [newRows({ rows }).length] }, expected: none('observation')
+            got: { details: [newRows({ rows }).length] },
+            expected: none('observation'),
           }));
-          check(rows[0]?.kind === 'seed', () => ({ rule: 'the seed row is not kept first', expected: none('observation') }));
+          check(rows[0]?.kind === 'seed', () => ({
+            rule: 'the seed row is not kept first',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -500,9 +533,14 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             forbids: [{ forbid: { [a]: 'a2' } }],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(plan.warnings) },
+            expected: { warning: 'value_unreachable' },
+          }));
           check(!plan.rows.some((r) => r.values[a] === 'a2'), () => ({
-            rule: 'a row holds the unreachable value', expected: none('observation')
+            rule: 'a row holds the unreachable value',
+            expected: none('observation'),
           }));
         },
       ],
@@ -522,7 +560,11 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             ],
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
-          check(warningCodes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(plan.warnings) }, expected: { warning: 'value_unreachable' } }));
+          check(warningCodes(plan).includes('value_unreachable'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(plan.warnings) },
+            expected: { warning: 'value_unreachable' },
+          }));
           assertRowsSound(spaceOf(store), plan, []);
         },
       ],
@@ -535,7 +577,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           store.impossible = makeStore({ vars: [], impossible: [[a, 'v0', b, 'v0']] }).impossible;
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(!warningCodes(plan).includes('value_unreachable'), () => ({
-            rule: 'a warning value_unreachable for a store where every value can be held', expected: none('observation')
+            rule: 'a warning value_unreachable for a store where every value can be held',
+            expected: none('observation'),
           }));
         },
       ],
@@ -554,10 +597,12 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(warningCodes(plan).includes('value_unreachable'), () => ({
-            rule: 'a value forbidden with the only value of another variable is reported as unreachable', expected: none('observation')
+            rule: 'a value forbidden with the only value of another variable is reported as unreachable',
+            expected: none('observation'),
           }));
           check(!plan.rows.some((r) => r.values[a] === 'a1'), () => ({
-            rule: 'no row holds the unreachable value', expected: none('observation')
+            rule: 'no row holds the unreachable value',
+            expected: none('observation'),
           }));
         },
       ],
@@ -585,14 +630,19 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const hit = store.impossible.find((p) => samePair(p, [v1, lex('alpha')], [v2, lex('north')]));
           check(!!hit, () => ({
             rule: 'the owner pair is not in the store: {}',
-            got: { details: [show(store.impossible)] }, expected: none('observation')
+            got: { details: [show(store.impossible)] },
+            expected: none('observation'),
           }));
           const own = hit?.provenance.find((p) => p.kind === 'owner');
           check(
             own?.kind === 'owner' &&
               own.words === 'Never together, says the owner.' &&
               own.date === OWNER_DATE,
-            () => ({ rule: 'owner provenance is {}', got: { details: [show(hit?.provenance)] }, expected: none('observation') }),
+            () => ({
+              rule: 'owner provenance is {}',
+              got: { details: [show(hit?.provenance)] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -613,7 +663,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const hits = store.impossible.filter((p) => samePair(p, [v1, lex('alpha')], [v2, lex('north')]));
           check(hits.length === 1, () => ({
             rule: '{} entries for one pair written in both orders',
-            got: { details: [hits.length] }, expected: none('observation')
+            got: { details: [hits.length] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -628,7 +679,8 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           const hits = store.impossible.filter((p) => samePair(p, [v1, lex('beta')], [v2, lex('south')]));
           check(hits.length === 1, () => ({
             rule: '{} entries for one pair written three times',
-            got: { details: [hits.length] }, expected: none('observation')
+            got: { details: [hits.length] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -643,15 +695,18 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           });
           check(store.impossible.length === 0, () => ({
             rule: 'a pair that names a missing variable entered the store: {}',
-            got: { details: [show(store.impossible)] }, expected: none('observation')
+            got: { details: [show(store.impossible)] },
+            expected: none('observation'),
           }));
           check(store.refused.length >= 1, () => ({
-            rule: 'the pair that names a missing variable is not in refused', expected: none('observation')
+            rule: 'the pair that names a missing variable is not in refused',
+            expected: none('observation'),
           }));
           for (const r of store.refused)
             check(r.reason.length >= 8 && r.reason !== r.what, () => ({
               rule: 'refusal reason {} is too short or equals what',
-              got: { details: [show(r.reason)] }, expected: none('observation')
+              got: { details: [show(r.reason)] },
+              expected: none('observation'),
             }));
         },
       ],
@@ -666,10 +721,12 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           });
           check(store.impossible.length === 0, () => ({
             rule: 'a pair that names a missing value entered the store: {}',
-            got: { details: [show(store.impossible)] }, expected: none('observation')
+            got: { details: [show(store.impossible)] },
+            expected: none('observation'),
           }));
           check(store.refused.length >= 1, () => ({
-            rule: 'the pair that names a missing value is not in refused', expected: none('observation')
+            rule: 'the pair that names a missing value is not in refused',
+            expected: none('observation'),
           }));
         },
       ],
@@ -693,11 +750,13 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
           );
           check(store.impossible.length === 1, () => ({
             rule: '{} pairs in the store; expected the valid one only',
-            got: { details: [store.impossible.length] }, expected: none('observation')
+            got: { details: [store.impossible.length] },
+            expected: none('observation'),
           }));
           check(store.refused.length === 1, () => ({
             rule: '{} refusals; expected one for the bad pair',
-            got: { details: [store.refused.length] }, expected: none('observation')
+            got: { details: [store.refused.length] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -711,10 +770,12 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
             owner: { impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], '   ')] },
           });
           check(store.impossible.length === 0, () => ({
-            rule: 'a pair with blank owner words entered the store', expected: none('observation')
+            rule: 'a pair with blank owner words entered the store',
+            expected: none('observation'),
           }));
           check(store.refused.length >= 1, () => ({
-            rule: 'a pair with blank owner words is not in refused', expected: none('observation')
+            rule: 'a pair with blank owner words is not in refused',
+            expected: none('observation'),
           }));
         },
       ],
@@ -729,8 +790,14 @@ export const IMPOSSIBLE_STEMS: readonly Stem[] = [
               impossible: [pairOf([v1, lex('alpha')], [v2, lex('north')], 'We know it.', '2026-02-30')],
             },
           });
-          check(store.impossible.length === 0, () => ({ rule: 'a pair dated 2026-02-30 entered the store', expected: none('observation') }));
-          check(store.refused.length >= 1, () => ({ rule: 'a pair with an unreal date is not in refused', expected: none('observation') }));
+          check(store.impossible.length === 0, () => ({
+            rule: 'a pair dated 2026-02-30 entered the store',
+            expected: none('observation'),
+          }));
+          check(store.refused.length >= 1, () => ({
+            rule: 'a pair with an unreal date is not in refused',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -762,7 +829,8 @@ function unsat(ctx: ItemContext, arities: number[], kind: 'pairs' | 'singles' | 
   }
   const store = makeStore({ vars, forbids });
   check(allRows(spaceOf(store)).length === 0, () => ({
-    rule: 'the bank built a satisfiable space for an unsatisfiable item', expected: none('observation')
+    rule: 'the bank built a satisfiable space for an unsatisfiable item',
+    expected: none('observation'),
   }));
   let plan: ReturnType<typeof callPlan> | undefined;
   const run = need(ctx, 'plan');
@@ -770,18 +838,23 @@ function unsat(ctx: ItemContext, arities: number[], kind: 'pairs' | 'singles' | 
     plan = run(store, { seed: ctx.seed }) as ReturnType<typeof callPlan>;
   } catch (error) {
     const message = (error as Error).message;
-    check(message.length > 0, () => ({ rule: 'the plan threw an error with no message', expected: none('observation') }));
+    check(message.length > 0, () => ({
+      rule: 'the plan threw an error with no message',
+      expected: none('observation'),
+    }));
     check(
       ids.some((id) => message.includes(id)),
       () => ({
         rule: 'the error "{}" names none of the variables in conflict: {}',
-        got: { details: [message, ids.join(', ')] }, expected: none('observation')
+        got: { details: [message, ids.join(', ')] },
+        expected: none('observation'),
       }),
     );
     return;
   }
   check(newRows(plan).length === 0, () => ({
     rule: 'an unsatisfiable space gave {} new rows',
-    got: { details: [newRows(plan as NonNullable<typeof plan>).length] }, expected: none('observation')
+    got: { details: [newRows(plan as NonNullable<typeof plan>).length] },
+    expected: none('observation'),
   }));
 }

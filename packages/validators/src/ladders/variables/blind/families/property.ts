@@ -59,11 +59,13 @@ function reportMatches(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): vo
   );
   check(Number(report.allowed) === allowed.size, () => ({
     rule: 'report.allowed is {}; the allowed required tuples number {}',
-    got: { details: [String(report.allowed), allowed.size] }, expected: none('observation')
+    got: { details: [String(report.allowed), allowed.size] },
+    expected: none('observation'),
   }));
   check(Number(report.covered) === covered.size, () => ({
     rule: 'report.covered is {}; the rows hold {} of them',
-    got: { details: [String(report.covered), covered.size] }, expected: none('observation')
+    got: { details: [String(report.covered), covered.size] },
+    expected: none('observation'),
   }));
 }
 
@@ -140,14 +142,16 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
     if (expected === null) {
       check(row.logWeight === null, () => ({
         rule: 'the row {} holds a zero weight and has logWeight {}',
-        got: { details: [row.id, show(row.logWeight)] }, expected: none('observation')
+        got: { details: [row.id, show(row.logWeight)] },
+        expected: none('observation'),
       }));
       sawNull = true;
       continue;
     }
     check(!sawNull, () => ({
       rule: 'the row {} has a finite weight and follows a row of zero weight',
-      got: { details: [row.id] }, expected: none('observation')
+      got: { details: [row.id] },
+      expected: none('observation'),
     }));
     check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8, () => ({
       rule: 'the logWeight of a row is the sum of the logs of its shares',
@@ -157,7 +161,8 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
     }));
     check(row.logWeight <= last + 1e-12, () => ({
       rule: 'the row {} is rarer than the row after it',
-      got: { details: [row.id] }, expected: none('observation')
+      got: { details: [row.id] },
+      expected: none('observation'),
     }));
     last = row.logWeight;
   }
@@ -199,7 +204,11 @@ export const PROPERTY_STEMS: readonly Stem[] = [
               forbids: [{ forbid: { [at(ids, 0)]: 'v2' } }],
             }),
           );
-          check(codes(plan).includes('value_unreachable'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(codes(plan)) }, expected: { warning: 'value_unreachable' } }));
+          check(codes(plan).includes('value_unreachable'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(codes(plan)) },
+            expected: { warning: 'value_unreachable' },
+          }));
         },
       ],
       [
@@ -343,7 +352,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           seeds.forEach((seed, i) => {
             check(sameRow(plan.rows[i]?.values ?? {}, seed), () => ({
               rule: 'seed {} became {}; its assignments stay as given',
-              got: { details: [i, show(plan.rows[i]?.values)] }, expected: none('observation')
+              got: { details: [i, show(plan.rows[i]?.values)] },
+              expected: none('observation'),
             }));
           });
         },
@@ -357,9 +367,14 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const plan = planOk(ctx, store, [seed]);
           check(sameRow(plan.rows[0]?.values ?? {}, seed), () => ({
             rule: 'the seed became {}; a seed with an unapproved value is kept whole',
-            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
+            got: { details: [show(plan.rows[0]?.values)] },
+            expected: none('observation'),
           }));
-          check(codes(plan).includes('seed_unapproved_value'), () => ({ rule: 'the plan carries the warning the situation calls for', got: { warnings: show(codes(plan)) }, expected: { warning: 'seed_unapproved_value' } }));
+          check(codes(plan).includes('seed_unapproved_value'), () => ({
+            rule: 'the plan carries the warning the situation calls for',
+            got: { warnings: show(codes(plan)) },
+            expected: { warning: 'seed_unapproved_value' },
+          }));
         },
       ],
       [
@@ -376,7 +391,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh === 0, () => ({
             rule: '{} new rows after seeds that hold every valid row',
-            got: { details: [fresh] }, expected: none('observation')
+            got: { details: [fresh] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -412,13 +428,15 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const full = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(full.rows.length > seeds.length + 3, () => ({
             rule: 'the uncut plan has only {} rows',
-            got: { details: [full.rows.length] }, expected: none('observation')
+            got: { details: [full.rows.length] },
+            expected: none('observation'),
           }));
           const budget = ctx.rng.int(seeds.length + 1, full.rows.length - 1);
           const cut = callPlan(ctx, store, { seed: ctx.seed, seeds, budget });
           check(jsonEqual(cut.rows, full.rows.slice(0, budget)), () => ({
             rule: 'a budget of {} did not keep the first {} rows of the uncut plan',
-            got: { details: [budget, budget] }, expected: none('observation')
+            got: { details: [budget, budget] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -435,7 +453,8 @@ export const PROPERTY_STEMS: readonly Stem[] = [
             { seed: ctx.seed },
           );
           check(jsonEqual(plain.rows, scaled.rows), () => ({
-            rule: 'multiplying every weight of one variable changed the plan', expected: none('observation')
+            rule: 'multiplying every weight of one variable changed the plan',
+            expected: none('observation'),
           }));
         },
       ],

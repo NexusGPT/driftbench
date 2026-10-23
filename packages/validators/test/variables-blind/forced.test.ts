@@ -11,7 +11,9 @@ import { referenceImpl } from './reference/index';
  * declare nothing wanted are a closed set in validators/variables/none-sites-blind.json: a new one fails here until it is
  * listed on purpose (UPDATE_NONE_SITES=1 rewrites the file).
  */
-const FILE = fileURLToPath(new URL('../../../../validators/variables/none-sites-blind.json', import.meta.url));
+const FILE = fileURLToPath(
+  new URL('../../../../validators/variables/none-sites-blind.json', import.meta.url),
+);
 
 describe('every check site of the blind bank', () => {
   it('names its wanted value outside the message, and the sites with none are the listed ones', async () => {

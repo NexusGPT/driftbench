@@ -60,7 +60,12 @@ function under60(ctx: ItemContext, arities: number[]): void {
   const { plan } = planChecked(ctx, store);
   const fresh = newRows(plan).length;
   const limit = Math.ceil(0.6 * fullProduct(arities)) - 1;
-  check(fresh <= limit, () => ({ rule: 'a rule of binary variables takes well under the full product in rows', input: { variables: arities.length }, got: { newRows: fresh }, expected: { atMost: limit } }));
+  check(fresh <= limit, () => ({
+    rule: 'a rule of binary variables takes well under the full product in rows',
+    input: { variables: arities.length },
+    got: { newRows: fresh },
+    expected: { atMost: limit },
+  }));
 }
 
 function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25): void {
@@ -73,7 +78,11 @@ function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25
   assertRowsSound(space, plan, seeds);
   assertCovered(space, plan, seeds);
   const fresh = newRows(plan).length;
-  check(fresh <= cap, () => ({ rule: 'the plan stays under the greedy row cap of the page', got: { newRows: fresh }, expected: { atMost: cap, factor, missing: missing.length, widest: widestTuple(space) } }));
+  check(fresh <= cap, () => ({
+    rule: 'the plan stays under the greedy row cap of the page',
+    got: { newRows: fresh },
+    expected: { atMost: cap, factor, missing: missing.length, widest: widestTuple(space) },
+  }));
 }
 
 function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): void {
@@ -129,7 +138,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh < 32, () => ({
             rule: '{} new rows: the whole product of 5 binary variables (32) is not required',
-            got: { details: [fresh] }, expected: none('observation')
+            got: { details: [fresh] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -209,7 +219,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
                 plan.rows.some((r) => r.values[a] === x && r.values[b] === y),
                 () => ({
                   rule: 'no row holds {}={} with {}={}, a pair of two axes',
-                  got: { details: [a, x, b, y] }, expected: none('observation')
+                  got: { details: [a, x, b, y] },
+                  expected: none('observation'),
                 }),
               );
             }
@@ -228,7 +239,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh <= 6, () => ({
             rule: '{} new rows for eight independent ternary details; six are enough (twice the arity)',
-            got: { details: [fresh] }, expected: none('observation')
+            got: { details: [fresh] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -248,7 +260,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           for (const x of valueIds(4))
             check(
               plan.rows.some((r) => r.values[ids[0] as string] === x),
-              () => ({ rule: 'the value {} of the lone axis is in no row', got: { details: [x] }, expected: none('observation') }),
+              () => ({
+                rule: 'the value {} of the lone axis is in no row',
+                got: { details: [x] },
+                expected: none('observation'),
+              }),
             );
         },
       ],
@@ -289,7 +305,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh <= 8, () => ({
             rule: '{} new rows for seven independent details of arity 4; twice the arity bounds it',
-            got: { details: [fresh] }, expected: none('observation')
+            got: { details: [fresh] },
+            expected: none('observation'),
           }));
         },
       ],
@@ -304,7 +321,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
               plan.rows.some((r) => r.values[ids[3] as string] === x),
               () => ({
                 rule: 'the value {} of the detail outside the rule is in no row',
-                got: { details: [x] }, expected: none('observation')
+                got: { details: [x] },
+                expected: none('observation'),
               }),
             );
         },
@@ -365,7 +383,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           for (const r of newRows(plan))
             check(!((ids[2] as string) in r.values), () => ({
               rule: 'row {} assigns the unapproved variable',
-              got: { details: [r.id] }, expected: none('observation')
+              got: { details: [r.id] },
+              expected: none('observation'),
             }));
         },
       ],
@@ -390,7 +409,8 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh < 128 * 0.6, () => ({
             rule: '{} new rows for a rule of seven binary variables; strength 3 needs far fewer than the 128 of the whole product',
-            got: { details: [fresh] }, expected: none('observation')
+            got: { details: [fresh] },
+            expected: none('observation'),
           }));
         },
       ],
