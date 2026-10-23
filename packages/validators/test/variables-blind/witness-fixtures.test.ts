@@ -66,7 +66,11 @@ describe('a product that answers the fixtures of the witness (cheat 5)', () => {
 /** Every string and number a witness hands to the product, by function, recorded while the reference answers. */
 async function fixtures(seed: number): Promise<Record<string, unknown>> {
   const seen: Record<string, unknown[]> = {};
-  const note = (name: string, value: unknown) => (seen[name] ??= []).push(value);
+  const note = (name: string, value: unknown) => {
+    const list = seen[name] ?? [];
+    list.push(value);
+    seen[name] = list;
+  };
   const recording: VariablesImpl = {
     ...referenceImpl,
     validate(value) {
@@ -111,7 +115,9 @@ async function fixtures(seed: number): Promise<Record<string, unknown>> {
 
 describe('what a witness hands to the product', () => {
   it('differs on every seed, function by function', async () => {
-    const bySeed = await Promise.all([1, 2, 3, 4].map(fixtures));
+    // One seed at a time: the lexicon of the running item is current for the whole process.
+    const bySeed: Array<Record<string, unknown>> = [];
+    for (const seed of [1, 2, 3, 4]) bySeed.push(await fixtures(seed));
     for (const name of Object.keys(bySeed[0] as object)) {
       const texts = bySeed.map((f) => f[name] as string);
       expect(new Set(texts).size, `the witness of ${name} hands over the same fixtures on two seeds`).toBe(texts.length);

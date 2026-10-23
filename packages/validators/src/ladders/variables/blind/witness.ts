@@ -215,7 +215,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
         const [wl, wh] = wilson(0, zeroOf);
         check(Math.abs(lo - wl) < 1e-6 && Math.abs(hi - wh) < 1e-6, () => ({
           rule: 'the witness interval of no success is the Wilson interval',
-          input: { count: 0, total: zeroOf },
+          input: { total: zeroOf },
           got: { interval: [lo, hi] },
           expected: { interval: [wl, wh] },
         }));
