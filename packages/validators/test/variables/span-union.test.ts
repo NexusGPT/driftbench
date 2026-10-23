@@ -75,8 +75,10 @@ describe('the union of the span recordings', () => {
   describe('a label whose subject shares no word with its clause', () => {
     const named = (text: string, subject: string) =>
       `${JSON.stringify({ text, label: { kind: 'numeric', subject, limit: 32, comparison: 'gt', unit: 'turns' } })}\n`;
-    const subjectOf = (out: string, text: string) =>
-      (texts(out).find((row) => row.text === text)?.label as unknown as { subject: string }).subject;
+    const subjectOf = (out: string, text: string): string | undefined => {
+      const row = texts(out).find((r) => r.text === text);
+      return row === undefined ? undefined : (row.label as unknown as { subject: string }).subject;
+    };
     const clause = 'the session exceeds 32 turns';
 
     it('gives way to an older label that names a word of the clause', () => {
