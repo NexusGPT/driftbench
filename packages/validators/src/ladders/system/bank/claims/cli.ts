@@ -2620,7 +2620,9 @@ add({
     'estate scan --pointer --plan-only counts the document-roles pass and the prose pass, and its range holds the requests of both (cli.md estate scan)',
   cause: 'the priced plan counts every pass the scan would send, the document-roles pass included.',
   async run(ctx) {
-    const { openPointer } = (await import('../../../../../../cli/src/commands/estate-pointer')) as {
+    const { openPointer } = (await import(
+      '../../../../../../cli/src/commands/estate-pointer'
+    )) as unknown as {
       openPointer: (
         options: Record<string, unknown>,
         io: unknown,
@@ -2629,7 +2631,7 @@ add({
         root: string,
       ) => Promise<{ scan: unknown; plans: PlanShape[] } | undefined>;
     };
-    const estate = (await import('../../../../../../estate/src/index')) as {
+    const estate = (await import('../../../../../../estate/src/index')) as unknown as {
       scanEstate: (input: Record<string, unknown>) => Promise<unknown>;
       readerFor: (runtime: string, options: Record<string, unknown>) => unknown;
       pointer: { PointerPlanOnly: new (...args: never[]) => Error; requestRange: (plan: PlanShape) => Range };
