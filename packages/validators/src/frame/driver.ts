@@ -138,6 +138,7 @@ const «protoOf» = Reflect.getPrototypeOf;
 const «isArray» = Array.isArray;
 const «isView» = ArrayBuffer.isView;
 const «stringify» = JSON.stringify;
+const «sliceText» = String.prototype.slice;
 const «same» = Object.is;
 const «hashStart» = «createHash»;
 const «hashProto» = «protoOf»(«hashStart»('sha256'));
@@ -146,6 +147,7 @@ const «hashDigest» = «hashProto».digest;
 const «mapEntries» = Map.prototype.entries;
 const «mapGet» = Map.prototype.get;
 const «mapSet» = Map.prototype.set;
+const «mapDelete» = Map.prototype.delete;
 const «setValues» = Set.prototype.values;
 const «mapNext» = «protoOf»(new Map().entries()).next;
 const «setNext» = «protoOf»(new Set().values()).next;
@@ -457,6 +459,57 @@ const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
   return «parts».data + «parts».other;
 };
+// What changed in a kept result, for the report (batch 44 of PR 986: a report that named only the call could not be
+// diagnosed). «was» and «now» are the encoded answers (data, as the caller receives it): the first path where they
+// differ, with both values; equal data means the change is in what the answer does not carry.
+const «shortJson» = («value») => {
+  const «text» = «stringify»(«value»);
+  return «text» === undefined ? 'undefined' : «text».length > 80 ? «call»(«sliceText», «text», [0, 80]) + '...' : «text»;
+};
+// The encoded form of a kept result for the evidence, with the handle table left as it was: an answer's encoding
+// gives each function a handle, and a handle given here only (in the confined runs, which keep results; run C keeps
+// none) would put their handle numbers out of step with run C's (review of PR 986, sonnet-review-c-2).
+const «quietEncode» = («value») => {
+  const «before» = «counter»;
+  try {
+    return «encode»(«value»);
+  } finally {
+    for (; «counter» > «before»; «counter» -= 1) «call»(«mapDelete», «handles», [«counter»]);
+  }
+};
+const «firstDiff» = («was», «now», «path») => {
+  if («was» === «now») return undefined;
+  // A function crosses as a handle, a new one on each encoding: two handles say nothing about the function itself.
+  if («was» !== null && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && «hasOwn»(«was», '$handle') && «hasOwn»(«now», '$handle'))
+    return undefined;
+  if («was» !== null && «now» !== null && typeof «was» === 'object' && typeof «now» === 'object' && «isArray»(«was») === «isArray»(«now»)) {
+    if («isArray»(«was») && «was».length !== «now».length)
+      return («path» || '(the result)') + '.length was ' + «was».length + ', now ' + «now».length;
+    const «keys» = «ownKeys»(«was»);
+    const «more» = «ownKeys»(«now»);
+    for (let «i» = 0; «i» < «more».length; «i» += 1) if (!«hasOwn»(«was», «more»[«i»])) «keys»[«keys».length] = «more»[«i»];
+    for (let «i» = 0; «i» < «keys».length; «i» += 1) {
+      const «key» = «keys»[«i»];
+      // The keys of an encoded answer are strings: an object crosses with its string keys only.
+      const «step» = «isArray»(«was») ? «path» + '[' + «key» + ']' : «path» + '.' + «key»;
+      if (!«hasOwn»(«now», «key»)) return «step» + ' was ' + «shortJson»(«was»[«key»]) + ', now absent';
+      if (!«hasOwn»(«was», «key»)) return «step» + ' was absent, now ' + «shortJson»(«now»[«key»]);
+      const «inner» = «firstDiff»(«was»[«key»], «now»[«key»], «step»);
+      if («inner» !== undefined) return «inner»;
+    }
+    return undefined;
+  }
+  return «shortJson»(«was») === «shortJson»(«now») ? undefined : («path» || '(the result)') + ' was ' + «shortJson»(«was») + ', now ' + «shortJson»(«now»);
+};
+const «whatChanged» = («each») => {
+  const «found» = «firstDiff»(«each».ret, «quietEncode»(«each».live), '');
+  if («found» !== undefined) return «found»;
+  const «live» = «each».live;
+  if («protoOf»(«live») !== «each».proto) return 'its prototype';
+  if («isExt»(«live») !== «each».ext || «isFrozenIt»(«live») !== «each».frozen || «isSealedIt»(«live») !== «each».sealed)
+    return 'its extensibility (frozen, sealed or not extensible)';
+  return 'a descriptor, a prototype or the extensibility of an object inside it, or a value its answer does not show';
+};
 const «recent» = new Array(16);
 let «stored» = 0;
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
@@ -638,28 +691,52 @@ if («setup».command) {
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
       const «moved» = [];
+      const «evidence» = [];
       let «movedCount» = 0;
       let «invalid» = false;
       if («setup».aliasing) {
         const «kept» = «stored» < 16 ? «stored» : 16;
         for (let «i» = 0; «i» < «kept»; «i» += 1) {
           const «each» = «recent»[«i»];
-          const «now» = «fingerprint»(«each».live);
-          // A change is reported by the one call after which it is seen, not again by the calls that follow.
-          if («now» !== «each».digest) { «moved»[«movedCount»] = «each».call; «movedCount» += 1; «each».digest = «now»; }
+          const «parts» = «scan»(«each».live);
+          const «now» = «parts».data + «parts».other;
+          // A change is reported by the one call after which it is seen, not again by the calls that follow, with what
+          // changed: the evidence is part of the report.
+          if («now» !== «each».digest) {
+            «moved»[«movedCount»] = «each».call;
+            «evidence»[«movedCount»] = «each».call + '() of call ' + «each».at + ', seen at call ' + «request».id + ': ' + «whatChanged»(«each»);
+            «movedCount» += 1;
+            «each».digest = «now»;
+            «each».ret = «quietEncode»(«each».live);
+            «each».proto = «protoOf»(«each».live);
+            «each».ext = «isExt»(«each».live);
+            «each».frozen = «isFrozenIt»(«each».live);
+            «each».sealed = «isSealedIt»(«each».live);
+          }
         }
         if («result» !== null && (typeof «result» === 'object' || typeof «result» === 'function')) {
           // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
           «sawInvalid» = false;
-          const «digest» = «fingerprint»(«result»);
+          const «parts» = «scan»(«result»);
+          const «digest» = «parts».data + «parts».other;
           if («sawInvalid») «invalid» = true;
           else if (typeof «result» === 'object') {
-            «recent»[«stored» % 16] = { call: «request».call, live: «result», digest: «digest» };
+            «recent»[«stored» % 16] = {
+              call: «request».call,
+              live: «result»,
+              digest: «digest»,
+              ret: «ret»,
+              at: «request».id,
+              proto: «protoOf»(«result»),
+              ext: «isExt»(«result»),
+              frozen: «isFrozenIt»(«result»),
+              sealed: «isSealedIt»(«result»),
+            };
             «stored» += 1;
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved», evidence: «evidence» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...«after», ...«altered»() });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))), ...(«argsRef» !== undefined ? «afterState»() : {}), ...«altered»() });
     }

@@ -16,6 +16,15 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
       { text: c, container: 'sentence' },
     ]);
   },
+  'footnote-reference-undefined': (ctx) => {
+    // No definition: GFM reads the reference as text, so the segmenter splits it like any bracketed text.
+    const p = prose(ctx);
+    const [a, b] = [p.next(), p.next()];
+    return plantedCut(ctx, 'a footnote reference without a definition', `${a}[^1] ${b}\n`, [
+      { text: `${a}[`, container: 'sentence' },
+      { text: `^1] ${b}`, container: 'sentence' },
+    ]);
+  },
   'footnote-definition-path': (ctx) => {
     const p = prose(ctx);
     const head = headingText(p.random);
@@ -85,6 +94,21 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
       { text: b, container: 'sentence' },
     ]);
   },
+  'front-matter-json-one-line': (ctx) => {
+    const p = prose(ctx);
+    const [v1, v2] = [phrase(p), phrase(p)];
+    const b = p.next();
+    return plantedCut(
+      ctx,
+      'JSON front matter on one line',
+      `{"title": "${v1}", "tags": ["${v2}"]}\n\n${b}\n`,
+      [
+        { text: v1, container: 'front_matter', yamlPath: ['title'] },
+        { text: v2, container: 'front_matter', yamlPath: ['tags', '0'] },
+        { text: b, container: 'sentence' },
+      ],
+    );
+  },
   'sentence-terminal-every-script': (ctx) => {
     // Invented words in each script; each full stop has the Sentence_Terminal property, the Tibetan shad has not.
     const scripts: Array<[string, string]> = [
@@ -125,6 +149,20 @@ export const cuttingCapabilityRuns: Record<string, Run> = {
       [
         { text: `# ${head}`, container: 'heading', path: [] },
         { text: a, container: 'sentence', path: [head, 'warning'] },
+      ],
+    );
+  },
+  'directive-label-attributes-nesting': (ctx) => {
+    const p = prose(ctx);
+    const label = phrase(p);
+    const a = p.next();
+    return plantedCut(
+      ctx,
+      'the label, the attributes and the nesting of container directives',
+      `::::outer[${label}]{#id .wide}\n:::inner\n${a}\n:::\n::::\n`,
+      [
+        { text: label, container: 'sentence', path: ['outer'] },
+        { text: a, container: 'sentence', path: ['outer', 'inner'] },
       ],
     );
   },

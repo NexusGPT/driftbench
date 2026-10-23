@@ -89,6 +89,6 @@ describe('every diagnostic of the variables ladder is built lazily', () => {
   it('finds the sites it is meant to find', () => {
     let calls = 0;
     for (const path of files(ROOT)) calls += secondArguments(readFileSync(path, 'utf8')).length;
-    expect(calls).toBeGreaterThan(10);
+    expect(calls).toBeGreaterThan(40);
   });
 });

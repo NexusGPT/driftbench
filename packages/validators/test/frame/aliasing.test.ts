@@ -5,6 +5,7 @@ import { type Frame, isolate } from '../../src/frame';
 import { twinDriver } from '../../src/frame/driver';
 import type * as aliasing from './fixtures/aliasing';
 import { applyWrites, plainWrites, TARGETS, WRITES, writeTarget } from './fixtures/aliasing';
+import type * as holdsFunction from './fixtures/holds-function';
 
 /**
  * Aliased results (docs/validators.md section 12.9). The frame hands the item each answer as data, so an item
@@ -16,6 +17,7 @@ import { applyWrites, plainWrites, TARGETS, WRITES, writeTarget } from './fixtur
 vi.setConfig({ testTimeout: 300_000 });
 
 const PRODUCT = fileURLToPath(new URL('./fixtures/aliasing.ts', import.meta.url));
+const HOLDS_FUNCTION = fileURLToPath(new URL('./fixtures/holds-function.ts', import.meta.url));
 type Product = typeof aliasing;
 
 const open: Frame<unknown>[] = [];
@@ -432,5 +434,73 @@ describe('the end of a frame', () => {
     expect(frame.ended).toBeTypeOf('function');
     frame.close();
     await expect(frame.ended()).resolves.toBeUndefined();
+  });
+});
+
+// Batch 44 of PR 986 (validators run 39962561437): one report named only the call, and nineteen repeats did not
+// show it again. The report now names what changed, so a change seen once can be diagnosed.
+describe('the report of a changed result names what changed', () => {
+  it.each(['shared', 'overwrite'] as const)('%s: the path, and the value before and after', (name) => {
+    const run = twoCalls(name, true);
+    expect(run.found).toContain('has changed since');
+    expect(run.found).toContain('.total was 6, now 60');
+  });
+
+  it('a result frozen afterwards: its extensibility, its values the same', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.freezesEarlier([1, 2, 3]);
+    frame.product.freezesEarlier([4]);
+    const found = frame.aliasSince(0);
+    expect(found).toContain('has changed since');
+    expect(found).toContain('its extensibility');
+  });
+});
+
+// The evidence is built without touching the frame's handle table (review of PR 986, sonnet-review-c-2, at
+// 1259c9597 and d5be76757): a result that holds a function, changed by a later call, gave a taint and a divergence
+// with run C, because building the evidence registered a handle in the confined runs only.
+describe('the evidence leaves the verdict as it was', () => {
+  it('a function-holding result changed by the next call: reported, no taint, no divergence', () => {
+    const frame = isolate<typeof holdsFunction>({
+      module: HOLDS_FUNCTION,
+      seed: 11,
+      aliasing: true,
+      plain: true,
+    });
+    open.push(frame as Frame<unknown>);
+    frame.product.holdsFunction([1, 2, 3]);
+    frame.product.holdsFunction([10, 20, 30]);
+    frame.product.holdsFunction([4]);
+    expect(frame.aliasSince(0)).toContain('.total was 6, now 60');
+    expect(frame.tainted()).toBeUndefined();
+    expect(frame.divergence()).toBeUndefined();
+  });
+});
+
+// Metamorphic: the same unchanged results, made in any order and kept in any order of the watch's ring (more calls
+// than its 16 places), never report a change. A digest that depended on where an object sits in a scan, or on the
+// results kept beside it, would report one.
+describe('unchanged results in any order', () => {
+  const calls = [
+    (p: Product, n: number) => p.pureA(n),
+    (p: Product, n: number) => p.pureB(n),
+    (p: Product, n: number) => p.pureC(n),
+    (p: Product, n: number) => p.pureD(n),
+  ];
+  const orders = [
+    [0, 1, 2, 3],
+    [3, 2, 1, 0],
+    [1, 3, 0, 2],
+    [2, 0, 3, 1],
+  ];
+  it.each(orders.map((order) => [order.join(',')]))('order %s, six rounds: no change is reported', (text) => {
+    const order = text.split(',').map(Number);
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    for (let round = 0; round < 6; round += 1)
+      for (const at of order)
+        (calls[at] as (p: Product, n: number) => unknown)(frame.product, round * 10 + at);
+    expect(frame.aliasSince(0)).toBeUndefined();
   });
 });
