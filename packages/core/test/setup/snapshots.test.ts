@@ -73,3 +73,21 @@ it('applies host privacy to a deployment alias as well as to its canonical sourc
     setup,
   );
 });
+
+it('reports an empty drift baseline against an empty source as not-run', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-empty-drift-'));
+  const setup: SetupDocument = {
+    version: 1,
+    runtime: 'claude-code',
+    sources: [{ id: 'project', path: '.', kind: 'project', reader: 'claude-code' }],
+    roles: {},
+    scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] },
+    budget: { usd: 0, modelCalls: 0 },
+    privacy: { model: 'deny', exports: 'metadata', exclude: [] },
+    drift: { files: [] },
+  };
+  const result = await diagnoseSetup(root, async () => ({ runtime: 'claude-code', files: [] }), setup);
+  expect(result.drift.status).toBe('not-run');
+  expect(result.coverage.status).toBe('not-run');
+});
