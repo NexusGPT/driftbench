@@ -33,6 +33,12 @@ export type Unit = {
   path: string[];
   /** For a front matter value: its YAML path, such as `$.description`. */
   key?: string;
+  /**
+   * For a table cell: the text of the first cell of its row (its row key, empty in the header row), the text of the
+   * header cell above it (its column header), and the place of the table in the file. The ledger follows a short or
+   * repeated cell by its row key and column header.
+   */
+  cell?: { row: string; column: string; table: number };
 };
 
 export type Cut = { units: Unit[]; digest: string };
@@ -203,7 +209,12 @@ type Node = {
 
 const PROCESSOR = unified().use(remarkParse).use(remarkFrontmatter, ['yaml']).use(remarkGfm);
 
-type Context = { inList?: boolean; inQuote?: boolean };
+type Context = {
+  inList?: boolean;
+  inQuote?: boolean;
+  /** The row key, column header and table of the cell being cut. */
+  cell?: Unit['cell'];
+};
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
@@ -367,7 +378,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
   const source = rawSource.slice(base);
   const units: Unit[] = [];
 
-  const add = (container: Container, start: number, end: number, path: string[], key?: string) => {
+  const add = (
+    container: Container,
+    start: number,
+    end: number,
+    path: string[],
+    key?: string,
+    cell?: Unit['cell'],
+  ) => {
     const [from, to] = trimSpan(source, start, end);
     if (to <= from) return;
     const text = source.slice(from, to);
@@ -379,6 +397,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       fp: fingerprint(text),
       path: [...path],
       ...(key ? { key } : {}),
+      ...(cell ? { cell } : {}),
     });
   };
 
@@ -411,6 +430,8 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       add('opaque', start, end, []);
     }
   };
+
+  let tables = 0;
 
   const markdown = (
     text: string,
@@ -510,12 +531,34 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           if (depth >= 2) return add('opaque', at(start), at(end), here());
           return htmlBlock(start, end);
         }
+        case 'table': {
+          // Each cell carries its row key (the first cell of its row; none in the header row) and its column header.
+          const cellText = (cell: Node): string => {
+            const kids = cell.children ?? [];
+            const from = kids[0]?.position?.start.offset;
+            const to = kids.at(-1)?.position?.end.offset;
+            return from === undefined || to === undefined
+              ? ''
+              : text.slice(from, to).replace(/\s+/g, ' ').trim();
+          };
+          const rows = node.children ?? [];
+          const header = (rows[0]?.children ?? []).map(cellText);
+          tables += 1;
+          rows.forEach((row, rowAt) => {
+            const cells = row.children ?? [];
+            const rowKey = rowAt === 0 ? '' : cellText(cells[0] as Node);
+            cells.forEach((cell, column) => {
+              visit(cell, { ...context, cell: { row: rowKey, column: header[column] ?? '', table: tables } });
+            });
+          });
+          return;
+        }
         case 'tableCell': {
           const kids = node.children ?? [];
           if (kids.length > 0) {
             const first = kids[0]?.position?.start.offset ?? start;
             const last = kids.at(-1)?.position?.end.offset ?? end;
-            add('table_cell', at(first), at(last), here());
+            add('table_cell', at(first), at(last), here(), undefined, context.cell);
           }
           return;
         }

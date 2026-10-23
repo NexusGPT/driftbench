@@ -110,7 +110,7 @@ Units:
 |---|---|
 | Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. |
 | List item | One unit per item and per nested item. A wrapped item is one unit. |
-| Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. |
+| Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. The unit also carries its row key (the text of the first cell of its row, empty in the header row), its column header (the text of the header cell above it) and the place of its table in the file: the ledger follows a short or repeated cell by them (section 4). |
 | Block quote | One unit per paragraph, offsets covering the text after the `>`. |
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
@@ -290,6 +290,8 @@ Entry:
 
 `twinOf` marks identical boilerplate in another file so duplicates are not confused with moves: a live unit whose text equals the text of a live unit in an earlier file names the first such unit; the first of a text, and a text that repeats only inside one file, have `null`.
 
+`cell`, on the entry of a table cell only, is `{row, column, table}`: the row key, the column header and the table's place in its file at the last scan. It is optional: a ledger written before cells were kept parses and checks as it did (`checkLedger` leaves `cell` out of its comparison), and its entries are followed by their text like any unit until the next scan writes the cells.
+
 A label is stored under its set name in a map without a prototype, so a set may be named `constructor` or `__proto__`. A set name holds letters, digits, underscores and hyphens.
 
 `checkLedger(previousRaw, current)` is what `scan --ledger-check` runs. It compares the ledger of the scan with the committed one without the lineage, and names the files that differ. A missing committed ledger is out of date.
@@ -303,6 +305,8 @@ Cheapest first, on units:
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
+
+A table cell is followed by its text only when that text is at least 12 characters (the exact-text floor) and unique in its table. Any other cell (a short one such as `Yes`, or one whose text repeats in its table) is followed by its row key and its column header: when exactly one new cell of the same file has the same row key and the same column header, and no other old cell has them, the cell keeps its id (`unchanged` at the same place, `moved` elsewhere, `changed` when its text changed). When the row key or the column header did not survive, the cell gets a new id and the old one is `deleted`. These cells take no part in the unchanged anchors, the exact-text step or the scored passes, so a row moved or a column inserted cannot hand a `Yes` to another row.
 
 Steps 3 and 4 run in two rounds. The first scores inside the unit's own file. What it leaves open is scored against the new units of every other file, with the same weights, threshold and floor, so a unit that leaves one file and comes back reworded, split or merged in another (a renamed file included) keeps its id when it clears them. An identical text in another file is step 2's: its length floor holds. **Limit of the second round:** its candidates are found by the rare character trigrams they share with the unit. A trigram held by more than 48 units of the estate does not count, and a candidate must hold at least 30 percent of the unit's informative trigrams (and at least two). A pair that would clear the threshold and the floor but shares almost no rare trigram is not followed across files, and the unit is `deleted` there; it is still followed inside its own file. The limit keeps the round linear in the open units of a large estate.
 
