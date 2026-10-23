@@ -68,8 +68,6 @@ jobs:
         run: pnpm typecheck
       - if: always()
         run: pnpm exec vitest run packages/core/test/setup packages/cli/test/doctor.test.ts --maxWorkers=2
-      - if: always()
-        run: node tools/structure/api-surface.mjs --build --write
       - name: Keep generated formatting and API manifest
         if: always()
         run: git diff -- . ':!.github/workflows/ci.yml' > /tmp/setup-generated.patch
