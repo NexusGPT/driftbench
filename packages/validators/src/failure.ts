@@ -34,8 +34,8 @@ export type NoExpected = { readonly none: NoneCode };
 /**
  * A closed set of reasons. 'observation': the failure describes what the product did and the item wants no value from
  * it. 'generator': the bank's own generator built something it should not have, which is a bug of the bank. A site
- * that wants a value names it in `expected`; a new `none` site is listed on purpose in
- * `validators/variables/none-sites.json` (the test `none-sites.test.ts` fails on an unlisted one).
+ * that wants a value names it in `expected`; a new `none` site is listed on purpose in the list file of its bank
+ * (`validators/variables/none-sites-first.json`, `none-sites-blind.json`), and the test of that bank fails on an unlisted one.
  */
 export function none(code: NoneCode): NoExpected {
   return { none: code };
