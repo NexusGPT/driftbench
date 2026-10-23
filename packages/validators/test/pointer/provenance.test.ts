@@ -52,7 +52,7 @@ describe('the second bank beside the first', () => {
     expect(bank.every((e) => e.family?.startsWith('blind-') && e.id.startsWith('blind/'))).toBe(true);
   });
 
-  it('binds the operations the reader serves and fails the others with the reason', async () => {
+  it('binds the operations the reader serves and fails a missing call with the reason', async () => {
     const level = blindLevels(async () => referenceSut())[2];
     const measure = await level?.compute({ seed: 1, hidden: false, root: '.' });
     const bank = measure?.bank ?? [];
@@ -62,7 +62,8 @@ describe('the second bank beside the first', () => {
     expect(of('blind-scale').length).toBeGreaterThan(0);
     expect(of('blind-scale').every((e) => e.pass)).toBe(true);
     expect(of('blind-links').length).toBeGreaterThan(0);
-    expect(of('blind-links').every((e) => !e.pass && /adapter gap/.test(e.detail ?? ''))).toBe(true);
+    // Layer C is built: the reader's link functions answer, so no link item fails for a missing call.
+    expect(of('blind-links').every((e) => e.pass || !/adapter gap/.test(e.detail ?? ''))).toBe(true);
   }, 120_000);
 
   it('reports the score of each label apart in the item listing', async () => {

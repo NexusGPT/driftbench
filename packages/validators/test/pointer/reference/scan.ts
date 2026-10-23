@@ -12,7 +12,16 @@ import { anchorUnits, type NewUnit } from './anchor';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
+import {
+  askModel,
+  askStack,
+  askSystem2,
+  Cassette,
+  CassetteError,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
 import { planWindows, type WindowPlan } from './window';
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
@@ -41,7 +50,10 @@ export function viewOf(raw: string): LedgerView {
   return { raw, entries: file.entries };
 }
 
-export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
+/** A planted fault or an earlier protocol of this reference, named by the tests that show the bank sees it. */
+export type ReferenceOptions = { fault?: string; protocol?: 'choice' | 'yesno' };
+
+export async function scanEstate(req: ScanRequest, options: ReferenceOptions = {}): Promise<ScanResult> {
   const warnings: string[] = [];
   const diagnostics: Diagnostic[] = [];
   let sets: ParsedSet[];
@@ -155,7 +167,12 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         arm: req.model.arm,
         transport: req.model.transport,
         cassette: new Cassette(req.cassette?.text, req.cassette?.mode ?? 'replay'),
-        threshold: req.model.threshold,
+        second: req.model.second !== undefined,
+        marginCut: req.model.marginCut,
+        passAt: req.model.passAt,
+        failAt: req.model.failAt,
+        fault: options.fault,
+        protocol: options.protocol,
         cutDigestOf: (file) => digests.get(file) ?? '',
         warnings,
         keyHeader: readKey(),
@@ -216,7 +233,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
           if (outcome.failed) {
             diagnostics.push({
-              code: 'window_failed',
+              code: 'failed-window',
               window: plan.id,
               detail: `the window ${plan.id} was refused twice: ${outcome.failed}`,
             });
@@ -417,9 +434,17 @@ async function labelWindow(
     if (model) {
       let result: Awaited<ReturnType<typeof askModel>>;
       try {
-        result = await askModel(plan, set, model);
+        result = await (model.second ? askStack : model.arm === 'haiku' ? askSystem2 : askModel)(
+          plan,
+          set,
+          model,
+        );
       } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
+        // A failed transport is a failed window, like an answer that is refused: the window is asked once more, then
+        // listed as failed, and the other windows are still asked. The message of a thrown transport error may quote
+        // the request, which holds unit text: only its name is kept.
+        reason = `the model call failed (${cause instanceof Error ? cause.name : typeof cause})`;
+        continue;
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {

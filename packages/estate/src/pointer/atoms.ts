@@ -189,6 +189,7 @@ export function pointerAtoms(
     conditions.set(key, [...(conditions.get(key) ?? []), item]);
   }
   const attached = new Set<string>();
+  const annotations: Array<{ path: string; unit: string; fields: Record<string, unknown> }> = [];
   for (const item of labelled) {
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
@@ -267,7 +268,11 @@ export function pointerAtoms(
     const allNamed = namedPaths(holder).filter((path) => !imported(path));
     const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
-    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
+    const templateFor = (
+      namedPath: string | undefined,
+      chosen?: (typeof labelLinks)[number],
+      each?: { kind: string; from: number; to: number },
+    ): Template => ({
       link: (kind, property) => {
         const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
@@ -279,7 +284,13 @@ export function pointerAtoms(
         return typeof field === 'string' ? field : undefined;
       },
       span: (kind) => {
-        const span = labelSpans.find((entry) => entry.kind === kind);
+        // Under `spanEach` the span of the gate's own kind is this gate's; any other kind is the first of the answer.
+        const span =
+          each !== undefined && kind === each.kind
+            ? labelSpans.find(
+                (entry) => entry.kind === kind && entry.from === each.from && entry.to === each.to,
+              )
+            : labelSpans.find((entry) => entry.kind === kind);
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       spans: (kind) =>
@@ -306,12 +317,73 @@ export function pointerAtoms(
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
+    if (label?.paths) {
+      // Each place the unit names a file counts, so two gates that read one file still make two.
+      const own = pathMentions(item.unit.text).length;
+      const { min = 0, max = Number.POSITIVE_INFINITY } = label.paths;
+      if (own < min || own > max) {
+        refusals.push(
+          `${where}: the unit names ${own} files and the label ${item.label} takes ${min} to ${max}`,
+        );
+        continue;
+      }
+    }
+    // The gates of a `spanEach` mapping: the label lists the act span and the file span of each gate, in the same
+    // order. The gate's file is the one its file span names; a gate whose file span is missing or names no file is
+    // refused.
+    const gatesOf = new Map<string, Array<{ kind: string; from: number; to: number; path: string }>>();
+    const eachGate = (kind: string, fileKind: string | undefined, label: string) => {
+      const known = gatesOf.get(kind);
+      if (known) return known;
+      const listed = labelSpans.filter((entry) => entry.kind === kind || entry.kind === fileKind);
+      if (!listed.some((entry) => entry.kind === kind))
+        refusals.push(
+          `${where}: the label ${label} takes a ${kind} span for each gate and the answer gave none`,
+        );
+      const found: Array<{ kind: string; from: number; to: number; path: string }> = [];
+      // The labeler lists a gate as its act span and, right after it, its file span. A gate whose next listed span is
+      // another act has no file span of its own: it is refused alone and no other gate moves.
+      let gate = 0;
+      for (const [index, act] of listed.entries()) {
+        if (act.kind !== kind) continue;
+        gate += 1;
+        const next = listed[index + 1];
+        const file = next?.kind === fileKind ? next : undefined;
+        // The file span binds a mention only when it holds the mention's whole path token: the token's own offsets
+        // (a link's destination, not its title) lie inside the span. Nothing is searched.
+        const given =
+          file === undefined
+            ? undefined
+            : pathMentions(item.unit.text).find(
+                (mention) =>
+                  !imported(mention.path) &&
+                  mention.tokenStart + item.unit.start - start >= file.from &&
+                  mention.tokenEnd + item.unit.start - start <= file.to,
+              )?.path;
+        if (given === undefined) {
+          refusals.push(
+            `${where}: the gate ${gate} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
+          );
+          continue;
+        }
+        found.push({ kind, from: act.from, to: act.to, path: given });
+      }
+      gatesOf.set(kind, found);
+      return found;
+    };
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
-      const paths =
-        (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
-          ? allNamed
-          : [readable];
+      // A mapping with `spanEach` builds one atom for each span of that kind the label gives, the span of one gate. The
+      // gate's file is the one the unit names inside that span, and the engine binds nothing by position: a span that
+      // holds no file is refused.
+      const gates =
+        mapping.spanEach === undefined ? undefined : eachGate(mapping.spanEach, mapping.spanFile, item.label);
+      const paths: Array<string | undefined> =
+        gates !== undefined
+          ? gates.map((gate) => gate.path)
+          : (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
+            ? allNamed
+            : [readable];
       // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
       // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
       const kinds = new Set([...JSON.stringify(mapping).matchAll(/\$\{?link\.([\w-]+)/g)].map((m) => m[1]));
@@ -322,15 +394,25 @@ export function pointerAtoms(
         repeated === undefined
           ? [undefined]
           : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
-      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
-      for (const [namedPath, chosen] of pairs) {
-        const template = templateFor(namedPath, chosen);
+      const pairs = paths.flatMap((path, index) =>
+        choices.map((link) => [path, link, gates?.[index]] as const),
+      );
+      for (const [namedPath, chosen, gate] of pairs) {
+        const template = templateFor(namedPath, chosen, gate);
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
           refusals.push(
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
           );
+          continue;
+        }
+        if (label?.annotate) {
+          // An annotation builds nothing: its fields go to the atoms other labels built for this unit.
+          const added = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+          if (added !== UNRESOLVED && Object.keys(added as Record<string, unknown>).length > 0)
+            annotations.push({ path: item.path, unit: item.id, fields: added as Record<string, unknown> });
+          kept = true;
           continue;
         }
         const same = builder.atoms.find(
@@ -451,6 +533,12 @@ export function pointerAtoms(
       }
     }
     if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+  }
+  for (const note of annotations) {
+    for (const atom of accepted) {
+      if (atom.fields?.unit !== note.unit || atom.provenance.file !== note.path) continue;
+      atom.fields = { ...note.fields, ...atom.fields };
+    }
   }
   for (const items of conditions.values()) {
     for (const condition of items) {
