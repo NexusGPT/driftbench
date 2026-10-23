@@ -1,4 +1,3 @@
-import * as stats from '@agent-nexus/driftbench-stats';
 import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
@@ -102,16 +101,44 @@ export function statsBank(root: string): BankItem[] {
   );
 }
 
-/** Runs one item on one seed. A throw inside the item is a failing outcome naming the error. */
+/**
+ * What the bank child gives an item run besides the package: the frame's mark of the calls so far, the first
+ * aliased result among the calls since a mark (docs/validators.md section 12.9, "Aliased results"), and the first
+ * built-in object the package changed (the same section, "Built-in objects").
+ */
+export type Watch = {
+  mark(): number;
+  aliased(since: number): string | undefined;
+  altered(since: number): string | undefined;
+  /** Switches the strict arguments of the frame on for an item that declares a purity check, and off after it. */
+  strict(on: boolean): void;
+};
+
+/**
+ * Runs one item on one seed. A throw inside the item is a failing outcome naming the error. With a watch, an item
+ * that passed fails when a confined run reports that a result it returned has changed since, or that the package
+ * changed a built-in object, whatever the item concluded: the item reads the results as data and runs in another
+ * process, so it cannot see either on its own.
+ */
 export async function runItem(
   item: BankItem,
   seed: number,
   root: string,
-  s: StatsImpl = stats,
+  s?: StatsImpl,
+  watch?: Watch,
 ): Promise<ItemOutcome> {
   const rng = itemRng(seed, item.id);
+  // The package itself only when no replacement is given (tests): never loaded by the bank child, which is given the frame.
+  const given = s ?? ((await import('@agent-nexus/driftbench-stats')) as StatsImpl);
+  const since = watch?.mark() ?? 0;
+  // An item that declares a purity check gets strict arguments from the frame; every other item gets none.
+  watch?.strict(item.purity === true);
   try {
-    const outcome = await item.check({ seed, s, root, rng });
+    const outcome = await item.check({ seed, s: given, root, rng });
+    const moved = outcome.pass ? watch?.aliased(since) : undefined;
+    if (moved) return { pass: false, detail: `the package returned a result that changed later: ${moved}` };
+    const altered = outcome.pass ? watch?.altered(since) : undefined;
+    if (altered) return { pass: false, detail: `the package changed a built-in object: ${altered}` };
     return outcome;
   } catch (cause) {
     const error = attempt(() => {
@@ -121,6 +148,8 @@ export async function runItem(
       pass: false,
       detail: `the item threw ${error?.name}: ${error?.message} (calling the statistics package from ${item.component})`,
     };
+  } finally {
+    watch?.strict(false);
   }
 }
 
