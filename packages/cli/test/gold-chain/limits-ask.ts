@@ -26,7 +26,7 @@ export const askPrices = (): { priceIn: number; priceOut: number } => ({
 
 export const askBody = (model: string, request: variables.LimitRequest): Record<string, unknown> => ({
   model,
-  max_tokens: 400,
+  max_tokens: request.maxTokens ?? 400,
   ...(model === ASK_MODEL ? { thinking: { type: 'disabled' } } : {}),
   system: request.system,
   messages: [{ role: 'user', content: request.user }],

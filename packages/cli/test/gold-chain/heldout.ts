@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { pointer, readerFor, scanEstate, variables } from '@agent-nexus/driftbench-estate';
 import { flat, GOLD_ESTATE_KEY, GOLD_SET_YAML } from '../../../estate/test/gold/gold';
 import { plantedDense } from '../../../estate/test/pointer/support';
+import { unitsInRange } from './fields';
 import { type LimitScore, type Produced, scoreLimits } from './heldout-score';
 import { loadUnitsEstate, type UnitsEstate } from './units-estate';
 
@@ -49,6 +50,8 @@ export async function runUnitsEstate(options: {
   folder: string;
   ask: variables.LimitAsk;
   estate?: UnitsEstate;
+  /** Use the planted `refers_to` and `limits_table` of the truth file. Default: yes when the file has them. */
+  planted?: boolean;
 }): Promise<UnitsRun> {
   const estate = options.estate ?? (await loadUnitsEstate(options.folder));
   const layout = layoutOf(estate.files.map((file) => file.path));
@@ -113,15 +116,46 @@ export async function runUnitsEstate(options: {
     }
     const labelled = new Set(tableId.values());
     const unmatched = estate.truth.units.map((unit) => unit.id).filter((id) => !labelled.has(id));
+    // The planted fields of the truth lane: what a labeller would say. The referred text is copied by code from the table.
+    const planted = options.planted ?? true;
+    const textOf = new Map(estate.truth.units.map((unit) => [unit.id, unit.text]));
+    const referredOf = new Map<string, string>();
+    for (const entry of estate.truth.refersTo) {
+      const parts = entry.to.flatMap((ref) =>
+        'id' in ref ? [ref.id] : unitsInRange(estate.truth.units, ref).map((unit) => unit.id),
+      );
+      referredOf.set(entry.unit, parts.map((id) => flat(textOf.get(id) ?? '')).join('\n'));
+    }
     const asked = await variables.produceLimits(scan.map, {
       texts,
       ask: options.ask,
       include: (atom) => tableId.has(atom.id),
+      ...(planted && referredOf.size > 0
+        ? { referred: (atom) => referredOf.get(tableId.get(atom.id) ?? '') }
+        : {}),
     });
+    // Every standalone table of numbers is asked, whatever the truth says of its rows.
+    const tables = planted
+      ? estate.truth.tables.map((range, at) => {
+          const cells = unitsInRange(estate.truth.units, range);
+          return {
+            id: `table-${at + 1}`,
+            header: flat(cells[0]?.text ?? ''),
+            rows: cells.slice(1).map((unit) => ({ id: unit.id, text: flat(unit.text) })),
+          };
+        })
+      : [];
+    const tabled = await variables.produceTableLimits(tables, { ask: options.ask });
+    for (const table of tables) for (const row of table.rows) labelled.add(row.id);
     const produced: Produced[] = [];
     for (const [atomId, list] of asked.limits) {
       const unit = tableId.get(atomId);
       if (unit === undefined) continue;
+      for (const found of list) {
+        produced.push({ unit, limit: found.limit, comparison: found.comparison, role: found.role });
+      }
+    }
+    for (const [unit, list] of tabled.limits) {
       for (const found of list) {
         produced.push({ unit, limit: found.limit, comparison: found.comparison, role: found.role });
       }
@@ -131,8 +165,8 @@ export async function runUnitsEstate(options: {
       produced,
       unmatched,
       outside: [...outside].map(([place, text]) => `${place}: ${text}`),
-      requests: asked.requests,
-      unreadable: asked.unreadable.length,
+      requests: asked.requests + tabled.requests,
+      unreadable: asked.unreadable.length + tabled.unreadable.length,
     };
   } finally {
     await rm(dir, { recursive: true, force: true });

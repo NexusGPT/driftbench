@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { type RefersEntry, readRefersEntries, readTableRanges, type TableRange } from './fields';
 
 /**
  * An estate that carries its own units table (examples/estates/<name>/truth.yaml) instead of gold5 ids: the prose
@@ -17,7 +18,19 @@ export type TruthLimit = {
   governs: string;
 };
 export type NonLimit = { unit: string; number: string; why: string };
-export type UnitsTruth = { estate: string; units: UnitRow[]; limits: TruthLimit[]; nonLimits: NonLimit[] };
+/** A unit that points at other units, or a range of them, for its number (the labeller's `refersTo`, planted). */
+export type TruthRefers = RefersEntry;
+/** A standalone table of numbers (the labeller's `number-table`, planted): from its header unit to its last row. */
+export type TruthTable = TableRange;
+export type UnitsTruth = {
+  estate: string;
+  units: UnitRow[];
+  limits: TruthLimit[];
+  nonLimits: NonLimit[];
+  refersTo: TruthRefers[];
+  /** Every standalone table of numbers: the producer gets the tables, with no word on which ones hold a limit. */
+  tables: TruthTable[];
+};
 export type UnitsEstate = { truth: UnitsTruth; files: Array<{ path: string; text: string }> };
 
 const COMPARISONS = new Set(['lt', 'le', 'gt', 'ge']);
@@ -92,9 +105,36 @@ export function parseUnitsTruth(text: string): UnitsTruth {
   for (const entry of nonLimits)
     if (entry.unit !== '' && !ids.has(entry.unit))
       problems.push(`${entry.where}: ${entry.unit} is not a unit`);
+  // Optional sections: absent means none. A present section is checked like the others.
+  const refersTo = readRefersEntries(raw.refers_to, problems);
+  // A table that sits in both lists is one table: asked once, by its first and last unit.
+  const seenRange = new Set<string>();
+  const tables = [
+    ...readTableRanges(raw.number_table, problems, 'number_table'),
+    ...readTableRanges(raw.limits_table, problems, 'limits_table'),
+  ].filter((range) => {
+    const key = `${range.from}>${range.to}`;
+    if (seenRange.has(key)) return false;
+    seenRange.add(key);
+    return true;
+  });
+  const order = new Map(units.map((unit, at) => [unit.id, at]));
+  for (const entry of refersTo) {
+    if (!ids.has(entry.unit)) problems.push(`refers_to: ${entry.unit} is not a unit`);
+    for (const ref of entry.to)
+      for (const id of 'id' in ref ? [ref.id] : [ref.from, ref.to])
+        if (!ids.has(id)) problems.push(`refers_to: ${id} is not a unit`);
+  }
+  for (const range of tables) {
+    for (const id of [range.from, range.to]) if (!ids.has(id)) problems.push(`tables: ${id} is not a unit`);
+    if ((order.get(range.from) ?? 0) > (order.get(range.to) ?? 0))
+      problems.push(`tables: ${range.from} comes after ${range.to}`);
+  }
   if (problems.length > 0) throw new Error(`the truth file has problems:\n${problems.join('\n')}`);
   return {
     estate: field(raw, 'the file', 'estate'),
+    refersTo,
+    tables,
     units,
     limits: limits.map(({ where: _where, ...limit }) => limit),
     nonLimits: nonLimits.map(({ where: _where, ...entry }) => entry),

@@ -24,6 +24,7 @@ import {
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
 import { askModel, askPort, askPrices, loadAsks, readKey } from './limits-ask';
+import { referredBy, refersEnabled, tablesEnabled, tablesOf } from './refers';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);
@@ -92,7 +93,31 @@ async function record(estate: EstateName, key: string) {
             ...PRICES,
           }),
       include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
+      ...(refersEnabled() && scan.pointer !== undefined
+        ? {
+            referred: referredBy({
+              estate,
+              gold,
+              truth,
+              ledger: scan.pointer.ledger.entries.filter((entry) => entry.status === 'live'),
+            }),
+          }
+        : {}),
     });
+    if (tablesEnabled() && !process.env.GOLD_ASK_DRY) {
+      const tabled = await variables.produceTableLimits(tablesOf({ estate, gold, truth, texts }), {
+        ask: askPort(estate, MODEL, cache, spent, {
+          key,
+          capIn,
+          capOut,
+          ...(capUsd === undefined ? {} : { capUsd }),
+          ...PRICES,
+        }),
+      });
+      console.log(
+        `estate ${estate}: ${tabled.requests} table requests, ${[...tabled.limits.values()].reduce((sum, list) => sum + list.length, 0)} limits returned on number tables (all extras: they hold no truth limit), ${tabled.unreadable.length} unreadable`,
+      );
+    }
     if (process.env.GOLD_ASK_DRY) {
       const both = seen.filter((user) => user.includes('PREVIOUS UNIT:') && user.includes('NEXT UNIT:'));
       console.log(

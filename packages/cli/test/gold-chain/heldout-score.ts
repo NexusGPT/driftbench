@@ -29,7 +29,7 @@ const ratio = (part: number, whole: number): number => (whole === 0 ? 0 : part /
  * whose governed unit got no request (given the units that did): they are in `missing` too, and are counted apart.
  */
 export function scoreLimits(
-  truth: UnitsTruth,
+  truth: Pick<UnitsTruth, 'limits' | 'nonLimits'>,
   produced: readonly Produced[],
   reachable?: ReadonlySet<string>,
 ): LimitScore {
