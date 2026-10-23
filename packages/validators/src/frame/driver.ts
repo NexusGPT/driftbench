@@ -142,6 +142,17 @@ let «counter» = 0;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
+// The objects the codec meets, for the identity watch: decode names each object it makes, encode each object it
+// writes, so the watch counts exactly the objects that cross, accessors read by the codec included (review of PR 1403,
+// codex run 39875360028: a cached array behind a getter was not counted).
+let «visitor»;
+function «setVisitor»(«next») {
+  «visitor» = «next»;
+}
+const «made» = («o») => {
+  if («visitor») «visitor»(«o»);
+  return «o»;
+};
 function «encode»(«value», «seen» = new WeakSet()) {
   if («value» === null) return null;
   switch (typeof «value») {
@@ -154,6 +165,7 @@ function «encode»(«value», «seen» = new WeakSet()) {
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
+  if («visitor») «visitor»(«value»);
   try {
     if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
     if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
@@ -170,18 +182,18 @@ function «encode»(«value», «seen» = new WeakSet()) {
 }
 function «decode»(«x») {
   if («x» === null || typeof «x» !== 'object') return «x»;
-  if (Array.isArray(«x»)) return «x».map(«decode»);
+  if (Array.isArray(«x»)) return «made»(«x».map((«v») => «decode»(«v»)));
   if ('$n' in «x») return «x».$n === '-0' ? -0 : Number(«x».$n);
   if ('$u' in «x») return undefined;
   if ('$big' in «x») return BigInt(«x».$big);
-  if ('$map' in «x») return new Map(«x».$map.map(([«k», «v»]) => [«decode»(«k»), «decode»(«v»)]));
-  if ('$set' in «x») return new Set(«x».$set.map(«decode»));
-  if ('$date' in «x») return new Date(«x».$date);
-  if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
+  if ('$map' in «x») return «made»(new Map(«x».$map.map(([«k», «v»]) => [«decode»(«k»), «decode»(«v»)])));
+  if ('$set' in «x») return «made»(new Set(«x».$set.map((«v») => «decode»(«v»))));
+  if ('$date' in «x») return «made»(new Date(«x».$date));
+  if ('$bytes' in «x») return «made»(Uint8Array.from(«x».$bytes));
   if ('$handle' in «x») return «handles».get(«x».$handle);
   if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
-  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
-  return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
+  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «made»(«e»); }
+  return «made»(Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)])));
 }
 `;
 
@@ -561,6 +573,13 @@ if («setup».command) {
   // prototype, extensibility, own keys in order with their labels, and their descriptors. The global object is the
   // first; its changes are named after those of the objects it holds. Every label is made before the product loads.
   const «builtins» = [];
+  // The global names known before any call: those before the product loads, and those its loading added.
+  const «knownNames» = Object.create(null);
+  const «knowNames» = () => {
+    const «present» = «ownKeys»(«globalObject»);
+    for (let «k» = 0; «k» < «present».length; «k» += 1) «knownNames»[«present»[«k»]] = true;
+  };
+  «knowNames»();
   // The path of a record: its labels from the root, by concatenation only.
   const «pathOf» = («record») =>
     «record».parent === null || «record».parent.thing === «globalObject» ? «record».label : «pathOf»(«record».parent) + «record».label;
@@ -639,6 +658,14 @@ if («setup».command) {
         if («bound» === undefined) return 'the global name ' + «was».labels[«k»] + ' (removed)';
         if (!«sameDescriptor»(«bound», «was».descs[«k»])) return 'the global name ' + «was».labels[«k»];
       }
+      // A name added during a call is a change: the names the product added while it loaded are its own setting
+      // (review of PR 1403, sonnet-review-c-2: a name added in weightInterval passed).
+      const «namesNow» = «ownKeys»(«globalObject»);
+      for (let «k» = 0; «k» < «namesNow».length; «k» += 1) {
+        const «name» = «namesNow»[«k»];
+        if (!«hasOwn»(«knownNames», «name»))
+          return 'a global name added during a call' + (typeof «name» === 'string' ? ' (' + «name» + ')' : '');
+      }
       return undefined;
     }
     const «keysNow» = «ownKeys»(«was».thing);
@@ -682,49 +709,18 @@ if («setup».command) {
   // process. Only the counts cross; the walk uses the references captured before the product loads.
   let «identityEpoch»;
   let «returned» = new «SeenSet»();
-  const «objectsOf» = («root», «into») => {
-    const «list» = [];
-    const «pending» = [«root»];
-    while («pending».length > 0 && «list».length < 1000000) {
-      const «x» = «pending».pop();
-      if («x» === null || typeof «x» !== 'object' || «isView»(«x») || «call»(«seenHas», «into», [«x»])) continue;
-      «call»(«seenAdd», «into», [«x»]);
-      «list».push(«x»);
-      if («isMapKind»(«x»)) {
-        const «entries» = «call»(«mapEntries», «x», []);
-        for (;;) {
-          const «step» = «call»(«mapNext», «entries», []);
-          if («step».done) break;
-          «pending».push(«step».value[0], «step».value[1]);
-        }
-        continue;
-      }
-      if («isSetKind»(«x»)) {
-        const «members» = «call»(«setValues», «x», []);
-        for (;;) {
-          const «step» = «call»(«setNext», «members», []);
-          if («step».done) break;
-          «pending».push(«step».value);
-        }
-        continue;
-      }
-      const «ks» = «ownKeys»(«x»);
-      for (let «k» = 0; «k» < «ks».length; «k» += 1) {
-        const «d» = «describe»(«x», «ks»[«k»]);
-        if («d» !== undefined && «hasOwn»(«d», 'value') && «d».value !== null && typeof «d».value === 'object') «pending».push(«d».value);
-      }
-    }
-    return «list»;
-  };
-  const «sharesOf» = («request», «args», «result») => {
-    if («request».identity === undefined) return {};
+  // Opens the watch of one call: returns the set of the argument objects decoding made (pass it to decode's visitor).
+  const «identityOpen» = («request») => {
+    if («request».identity === undefined) return undefined;
     if («request».identity !== «identityEpoch») {
       «identityEpoch» = «request».identity;
       «returned» = new «SeenSet»();
     }
-    const «argSet» = new «SeenSet»();
-    «objectsOf»(«args», «argSet»);
-    const «outs» = «objectsOf»(«result», new «SeenSet»());
+    return new «SeenSet»();
+  };
+  // Counts the objects the encoding of a result met that are argument objects or objects of an earlier result.
+  const «identityCount» = («argSet», «outs») => {
+    if («argSet» === undefined) return {};
     let «withArgs» = 0;
     let «withEarlier» = 0;
     for (let «o» = 0; «o» < «outs».length; «o» += 1) {
@@ -737,6 +733,7 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
+    «knowNames»();
     «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
@@ -769,7 +766,15 @@ if («setup».command) {
       // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
       // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set).
       const «strict» = «request».freeze === true;
-      const «decoded» = «markAll»(«decode»(«request».args), «request».marks);
+      const «argSet» = «identityOpen»(«request»);
+      «setVisitor»(«argSet» === undefined ? undefined : («o») => «call»(«seenAdd», «argSet», [«o»]));
+      let «decodedArgs»;
+      try {
+        «decodedArgs» = «decode»(«request».args);
+      } finally {
+        «setVisitor»(undefined);
+      }
+      const «decoded» = «markAll»(«decodedArgs», «request».marks);
       const «args» = «strict» ? «deepFreeze»(«decoded») : «decoded»;
       «argsRef» = «args»;
       if («strict» || «setup».writeBack) «argsBefore» = «scan»(«args»);
@@ -782,10 +787,19 @@ if («setup».command) {
         «ambientOff»();
       }
       const «used» = «cpuNow»(«before»);
-      const «ret» = «encode»(«result»);
+      const «outs» = [];
+      «setVisitor»(«argSet» === undefined ? undefined : («o») => {
+        «outs»[«outs».length] = «o»;
+      });
+      let «ret»;
+      try {
+        «ret» = «encode»(«result»);
+      } finally {
+        «setVisitor»(undefined);
+      }
       const «after» = «afterState»();
       const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
-      const «shares» = «sharesOf»(«request», «args», «result»);
+      const «shares» = «identityCount»(«argSet», «outs»);
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -863,9 +877,10 @@ export function plainCodec(
   deepFreeze: string;
   markAll: string;
   ambientOn: string;
+  setVisitor: string;
 } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('markAll')}, ${name('ambientOn')} };\n`;
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('markAll')}, ${name('ambientOn')}, ${name('setVisitor')} };\n`;
   return {
     source,
     encode: name('encode'),
@@ -874,6 +889,7 @@ export function plainCodec(
     deepFreeze: name('deepFreeze'),
     markAll: name('markAll'),
     ambientOn: name('ambientOn'),
+    setVisitor: name('setVisitor'),
   };
 }
 
@@ -893,6 +909,7 @@ export function plainBatchEntry(
     deepFreeze: string;
     markAll: string;
     ambientOn: string;
+    setVisitor: string;
   },
 ): string {
   const name = namer(seed, `plain:${tag}`);
@@ -903,22 +920,41 @@ export function plainBatchEntry(
   const error = name('error');
   return [
     // The codec first: it takes the functions it freezes with before the product module runs.
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.markAll} as ${name('markAll')}, ${codec.ambientOn} as ${name('ambientOn')} } from ${JSON.stringify(paths.codec)};`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.markAll} as ${name('markAll')}, ${codec.ambientOn} as ${name('ambientOn')}, ${codec.setVisitor} as ${name('setVisitor')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
+    // The identity watch, as in the confined runs: run C counts the same shared objects.
+    `let ${name('epoch')};`,
+    `let ${name('returned')} = new WeakSet();`,
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
     `  const ${each} = JSON.parse(${name('line')});`,
     `  let ${answer};`,
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    const ${name('given')} = ${name('markAll')}(${name('decode')}(${each}.args), ${each}.marks);`,
+    `    const ${name('watched')} = ${each}.identity !== undefined;`,
+    `    if (${name('watched')} && ${each}.identity !== ${name('epoch')}) { ${name('epoch')} = ${each}.identity; ${name('returned')} = new WeakSet(); }`,
+    `    const ${name('argSet')} = new WeakSet();`,
+    `    ${name('setVisitor')}(${name('watched')} ? (${name('o')}) => ${name('argSet')}.add(${name('o')}) : undefined);`,
+    `    let ${name('given')};`,
+    `    try { ${name('given')} = ${name('markAll')}(${name('decode')}(${each}.args), ${each}.marks); } finally { ${name('setVisitor')}(undefined); }`,
     `    const ${name('off')} = ${name('ambientOn')}(${each}.ambient);`,
+    `    let ${name('result')};`,
     `    try {`,
-    `      ${answer} = { ret: ${name('encode')}(await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('given')}) : ${name('given')}))) };`,
+    `      ${name('result')} = await ${fn}(...(${each}.freeze ? ${name('deepFreeze')}(${name('given')}) : ${name('given')}));`,
     `    } finally {`,
     `      ${name('off')}();`,
+    `    }`,
+    `    const ${name('outs')} = [];`,
+    `    ${name('setVisitor')}(${name('watched')} ? (${name('o')}) => { ${name('outs')}[${name('outs')}.length] = ${name('o')}; } : undefined);`,
+    `    try { ${answer} = { ret: ${name('encode')}(${name('result')}) }; } finally { ${name('setVisitor')}(undefined); }`,
+    `    if (${name('watched')}) {`,
+    `      let ${name('withArgs')} = 0;`,
+    `      let ${name('withEarlier')} = 0;`,
+    `      for (const ${name('o')} of ${name('outs')}) { if (${name('argSet')}.has(${name('o')})) ${name('withArgs')} += 1; else if (${name('returned')}.has(${name('o')})) ${name('withEarlier')} += 1; }`,
+    `      for (const ${name('o')} of ${name('outs')}) ${name('returned')}.add(${name('o')});`,
+    `      if (${name('withArgs')} + ${name('withEarlier')} > 0) ${answer}.shared = [${name('withArgs')}, ${name('withEarlier')}];`,
     `    }`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,

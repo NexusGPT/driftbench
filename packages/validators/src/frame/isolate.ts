@@ -726,7 +726,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const byName = new Map<string, { calls: number; ms: number; slow: number }>();
   const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
-  type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
+  type Recorded = { call: string; entry: Entry; shared: string; expected: string; head: string; at: number };
   const recorded: Recorded[] = [];
   let compared = 0;
   /**
@@ -745,6 +745,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if (!('dead' in c)) held.entry.plain = c;
       if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      } else if (!('dead' in c) && JSON.stringify((c as { shared?: [number, number] }).shared ?? null) !== held.shared) {
+        // Run C counts shared objects as the confined runs do (review of PR 1403, codex run 39875360028: a product
+        // that shared one cached result only where no permission model ran passed).
+        const message = `${held.head}, shared objects ${held.shared}; ${describeRun('C')} returned shared objects ${JSON.stringify((c as { shared?: [number, number] }).shared ?? null)}`;
         found.push({ at: held.at, message });
         first ??= message;
         taint ??= message;
@@ -859,6 +866,19 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       argsAfter?: Json;
       cannot?: boolean;
     };
+    // The runs must count the same shared objects: a product that shares only in some runs answers by how it is run.
+    const sharedText = (outcome: Outcome | { dead: string }) =>
+      JSON.stringify((outcome as { shared?: [number, number] }).shared ?? null);
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (!('dead' in other) && sharedText(other) !== sharedText(a)) {
+        const message = `${name}(): ${describeRun(plans[0] as TwinPlan)} returned shared objects ${sharedText(a)}, ${describeRun(plan as TwinPlan)} ${sharedText(other)}`;
+        found.push({ at: tape.length, message });
+        first ??= message;
+      }
+    }
     if (sharedCounts)
       shared.push({
         at: tape.length,
@@ -904,11 +924,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
       appendFileSync(
         plain.calls,
-        `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}) })}\n`,
+        `${JSON.stringify({ call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}) })}\n`,
       );
       recorded.push({
         call: name,
         entry,
+        shared: JSON.stringify(sharedCounts ?? null),
         expected: keptOf(a, options.keep?.[name]),
         head,
         at: tape.length - 1,
