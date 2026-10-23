@@ -148,3 +148,68 @@ globalThis.fetch = async (_url, options) => {
     rmSync(folder, { recursive: true, force: true });
   }
 }, 30_000);
+
+it('a request is priced at one token per byte: a body that tokenizes near one token per byte cannot cross the cap', () => {
+  const folder = mkdtempSync(join(tmpdir(), 'driftbench-label-cap-bytes-'));
+  try {
+    mkdirSync(join(folder, '.nexus-secrets'));
+    writeFileSync(join(folder, '.nexus-secrets/anthropic-driftbench.key'), 'fictional-offline-key');
+    mkdirSync(join(folder, 'spans'));
+    const known = Array.from({ length: 3000 }, (_, i) => ({
+      text: `the quantity number ${i} is at most ${i + 1} euros`,
+      label: {
+        kind: 'numeric',
+        subject: `quantity number ${String(i).padStart(4, '0')}`,
+        limit: i + 1,
+        comparison: 'le',
+        unit: 'euros',
+      },
+    }));
+    const fresh = {
+      text: 'the refund amount is over 252 euros',
+      label: { kind: 'numeric', subject: 'refund amount', limit: 252, comparison: 'gt', unit: 'euros' },
+    };
+    writeFileSync(join(folder, 'known.jsonl'), known.map((row) => `${JSON.stringify(row)}\n`).join(''));
+    writeFileSync(join(folder, 'spans/spans.jsonl'), `${JSON.stringify({ text: fresh.text })}\n`);
+    // The provider's own count for a JSON request body was 30,920 input tokens for 32,978 bytes: about 0.94 tokens per
+    // byte (the reviewer's measurement on the free count_tokens endpoint). The mock reports that usage.
+    writeFileSync(
+      join(folder, 'mock.mjs'),
+      `import { appendFileSync } from 'node:fs';
+const fresh = ${JSON.stringify(fresh)};
+globalThis.fetch = async (_url, options) => {
+  const body = JSON.parse(options.body);
+  const isChoice = body.messages[0].content.startsWith('{');
+  appendFileSync(${JSON.stringify(join(folder, 'requests.log'))}, (isChoice ? 'choice' : 'label') + '\\n');
+  const text = isChoice ? JSON.stringify('new') : JSON.stringify([fresh.label]);
+  const input_tokens = Math.ceil(Buffer.byteLength(options.body, 'utf8') * (30920 / 32978));
+  return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens, output_tokens: 10 } }) };
+};`,
+    );
+    // The subject-choice body is about 200,000 bytes, so at one token per byte its worst case is about 0.21 USD and the
+    // provider-like count is about 0.19. The cap sits between the old half-byte estimate (0.11) and the real cost.
+    const cap = 0.15;
+    const result = spawnSync(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        '--import',
+        join(folder, 'mock.mjs'),
+        join(root, 'tools/variables-label-spans.mjs'),
+        ...['--sha', 'fictional-recording', '--spans', join(folder, 'spans'), '--out', join(folder, 'out.jsonl')],
+        ...['--known', join(folder, 'known.jsonl'), '--usd-per-mtok-in', '1', '--usd-per-mtok-out', '5'],
+        ...['--cap', String(cap), '--total-cap', String(cap)],
+      ],
+      { cwd: root, env: { ...process.env, HOME: folder }, encoding: 'utf8', timeout: 30_000 },
+    );
+    expect(readFileSync(join(folder, 'requests.log'), 'utf8').trim().split('\n')).toEqual(['label']);
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toMatch(/before sending/);
+    const report = JSON.parse(readFileSync(join(folder, 'out.jsonl.report.json'), 'utf8'));
+    expect(report.usd).toBeLessThanOrEqual(cap);
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
+}, 30_000);
+
