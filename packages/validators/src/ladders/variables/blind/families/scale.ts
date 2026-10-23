@@ -428,7 +428,9 @@ function closedWorkload(ctx: ItemContext, n: number): void {
   const store = makeStore({ vars: idsOf(n).map((id) => ({ id, values: valueIds(2), shared: true })) });
   const warm = makeStore({ vars: idsOf(12).map((id) => ({ id, values: valueIds(2), shared: true })) });
   callCoverage(ctx, warm, [], [{ variables: idsOf(12), strength: 3 }]);
-  const { value, ms, wallMs } = cpu(() => callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]));
+  const { value, ms, wallMs } = cpu(() =>
+    callCoverage(ctx, store, [], [{ variables: idsOf(n), strength: 3 }]),
+  );
   check(BigInt(value.allowed) === closedForm(n, 3), () => ({
     rule: 'coverage counts the allowed tuples exactly',
     input: { variables: n, strength: 3 },

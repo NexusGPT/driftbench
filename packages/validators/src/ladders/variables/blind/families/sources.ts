@@ -310,14 +310,11 @@ const LABELLED_STEM: Stem = {
         const label = { kind: 'member', subject: 'the region', members };
         const store = readLabelled(ctx, [{ text: 'the region is one of north, south or east', label }]);
         const samples = samplesOf(store).filter((s): s is string => typeof s === 'string');
-        check(
-          samples.some((s) => members.includes(s)) && samples.some((s) => !members.includes(s)),
-          () => ({
-            rule: 'a membership condition with a label gets an in-list and an out-of-list sample for the members of the label',
-            got: { samples: show(samples, 160) },
-            expected: { members },
-          }),
-        );
+        check(samples.some((s) => members.includes(s)) && samples.some((s) => !members.includes(s)), () => ({
+          rule: 'a membership condition with a label gets an in-list and an out-of-list sample for the members of the label',
+          got: { samples: show(samples, 160) },
+          expected: { members },
+        }));
         check(!samples.some((s) => ['north', 'south', 'east'].includes(s)), () => ({
           rule: 'no sample takes a word of the wording when a label gives the members',
           got: { samples: show(samples, 160) },

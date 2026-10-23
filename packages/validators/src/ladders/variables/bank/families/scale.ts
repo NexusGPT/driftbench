@@ -307,9 +307,11 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const skew = [1, 1.2, 1.4, 1.6, 1.8];
     const mixes = base.vars.map(() => skew.map((x) => x / skew.reduce((a, b) => a + b, 0)));
     const { sessions, counts, observed } = draw(rng, base, n, mixes);
-    const { value: store, ms, wallMs } = cpuMs(() =>
-      build(ctx, { estate: base.estate, conversations: sessions as ConversationInput[] }),
-    );
+    const {
+      value: store,
+      ms,
+      wallMs,
+    } = cpuMs(() => build(ctx, { estate: base.estate, conversations: sessions as ConversationInput[] }));
     checkCounts(store, base, counts, observed);
     const budget = n <= 10_000 ? 2000 : 5000;
     check(ms <= budget, () => ({
@@ -337,9 +339,11 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const asRows = rows.map((r) =>
       Object.fromEntries(r.map((v, i) => [`v${String(i).padStart(3, '0')}`, `x${v}`])),
     );
-    const { value: result, ms, wallMs } = cpuMs(() =>
-      callCoverage(ctx, store, asRows, counterGroups(space, [group])),
-    );
+    const {
+      value: result,
+      ms,
+      wallMs,
+    } = cpuMs(() => callCoverage(ctx, store, asRows, counterGroups(space, [group])));
     check(toBig(result.allowed, 'allowed') === want, () => ({
       rule: 'coverage counts the allowed tuples exactly',
       got: { allowed: show(result.allowed) },
