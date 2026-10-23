@@ -173,6 +173,7 @@ export {
   SPLIT_REASK_RUNS,
   type UndecidedReason,
   type Unstable,
+  votedSpans,
   windowsOf,
 } from './scan';
 export {

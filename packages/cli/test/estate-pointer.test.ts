@@ -281,7 +281,8 @@ describe('driftbench estate scan --pointer', () => {
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
     expect(output.out).toMatch(/asked again: .* asked again as run 9 for \d+ split units/);
 
-    // The ledger keeps the unit unlabeled with what both classes heard on it: the one run of system 1, the seven of system 2.
+    // The ledger keeps the unit unlabeled with what both classes heard on it: the one run of system 1, the nine of
+    // system 2 (five runs and the four extra voices its tie was asked for).
     const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));
     expect(ledger.version).toBe(2);
     const close = ledger.entries.find((entry: { quote: string }) => entry.quote.startsWith('Close'));
@@ -295,6 +296,8 @@ describe('driftbench estate scan --pointer', () => {
       'prohibition',
       'prohibition',
       'prohibition',
+      'prohibition',
+      'rule',
       'rule',
       'rule',
       'rule',
@@ -370,6 +373,8 @@ describe('driftbench estate scan --pointer', () => {
         dropped: [],
         outOfStep: [],
         reasked: [],
+        unlabeledUnits: [],
+        keptUnlabeled: 0,
         unstable: [
           {
             unit: 'u1',

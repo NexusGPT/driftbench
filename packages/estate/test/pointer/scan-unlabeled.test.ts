@@ -1,6 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
+  CLOSE_REASK_ATTEMPTS,
   Cassette,
   type Labelled,
   type LedgerEntry,
@@ -40,10 +41,11 @@ const SET = `labels:
 const NOISY = 'Count the boats twice';
 
 /**
- * Every unit is an order, except the noisy one: its first five draws split two, two and one between three labels,
- * so no label holds three of five; every later draw says order, as a fresh draw of the same window might.
+ * Every unit is an order, except the noisy one: its seven draws (three runs, then the most voices a tie is asked for,
+ * SPLIT_REASK_MAX) split three, three and one between three labels, so no label holds more than half; every later
+ * draw says order, as a fresh draw of the same window might.
  */
-const DRAWS = ['order', 'remark', 'aside', 'order', 'remark'];
+const DRAWS = ['order', 'remark', 'aside', 'order', 'remark', 'order', 'remark'];
 
 /** A set whose order carries a span, so a run can quote clauses that are in no unit and slip out of step. */
 const SPANNED = `labels:
@@ -223,12 +225,10 @@ describe('a unit the ledger must not keep unlabeled', () => {
     expect(tied.unlabeled).toBeUndefined();
     expect(reasonOf(partial, tied)).toBe('answers_missing');
 
-    // The whole cassette, read against that ledger, decides the unit.
+    // A later scan from that ledger decides the unit. It records: a rescan asks only the units it needs, with the
+    // others shown as context, so its requests are not those of the first scan.
     const later = await pointerScan(
-      input(
-        { files, cassette: full, mode: 'replay', previous: partial.ledger },
-        singleLabelling(replayOf(labeler)),
-      ),
+      input({ files, cassette: full, previous: partial.ledger }, singleLabelling(labeler)),
     );
     expect(noisyOf(later.ledger.entries).labels.duty?.label).toBe('order');
     expect(later.keptUnlabeled).toBe(0);
@@ -292,7 +292,10 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const labeler = drawing((draw) => draws[draw] ?? 'order', {
       fail: (window) =>
         window.units.length === 3 && window.units.some(isNoisy) && ++big > 3
-          ? new ModelError('http', '400 max_tokens_exceeded', { status: 400 })
+          ? new ModelError('http', '400 max_tokens_exceeded', {
+              status: 400,
+              providerType: 'max_tokens_exceeded',
+            })
           : undefined,
     });
     const first = await pointerScan(input({ files }, singleLabelling(labeler)));
@@ -345,7 +348,10 @@ describe('a unit the ledger must not keep unlabeled', () => {
     const labeler = scripted(['order', 'slip', 'order', 'remark', 'aside'], {
       fail: (window) =>
         window.units.length === 2 && ++big > 5
-          ? new ModelError('http', '400 max_tokens_exceeded', { status: 400 })
+          ? new ModelError('http', '400 max_tokens_exceeded', {
+              status: 400,
+              providerType: 'max_tokens_exceeded',
+            })
           : undefined,
     });
     const first = await pointerScan(input(spanned, singleLabelling(labeler)));
@@ -377,15 +383,14 @@ describe('a unit the ledger must not keep unlabeled', () => {
   });
 
   it('when the extra runs asked for its tie came back out of step', async () => {
-    // Five runs split two, two and one. The two extra runs asked for the tie both slip and are left out of the vote:
-    // the tie stands on fewer voices than it was promised.
+    // Five runs split two, two and one, an instruction against no atom: a close unit, asked again up to
+    // CLOSE_REASK_ATTEMPTS times. Every extra run slips and is left out of the vote: the tie stands on fewer voices
+    // than it was promised.
+    const slips = Array<string>(CLOSE_REASK_ATTEMPTS).fill('slip');
     const first = await pointerScan(
-      input(
-        spanned,
-        singleLabelling(scripted(['order', 'remark', 'order', 'remark', 'aside', 'slip', 'slip'])),
-      ),
+      input(spanned, singleLabelling(scripted(['order', 'remark', 'order', 'remark', 'aside', ...slips]))),
     );
-    expect(first.outOfStep).toHaveLength(2);
+    expect(first.outOfStep).toHaveLength(CLOSE_REASK_ATTEMPTS);
     expect(first.unlabeled).toBe(first.ledger.entries.length);
     expect(first.ledger.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
     expect(first.unlabeledUnits.every((unit) => unit.undecided === 'out_of_step')).toBe(true);
@@ -405,7 +410,8 @@ describe('a unit the ledger must not keep unlabeled', () => {
     expect(tied.labels.duty).toBeUndefined();
     expect(tied.unlabeled).toBeUndefined();
     expect(reasonOf(first, tied)).toBe('window_failed');
-    expect(first.failedWindows.every((failure) => failure.reason.includes('bogus'))).toBe(true);
+    // The cassette keeps the refusal by its code, never the word the model chose.
+    expect(first.failedWindows.every((failure) => failure.reason.includes('label-not-in-set'))).toBe(true);
   });
 
   it('when a labeler that was asked has too few runs in step on it, so the next scan asks again', async () => {
@@ -451,7 +457,8 @@ describe('a unit the ledger must not keep unlabeled', () => {
   });
 
   it('when no run named it, so the next scan asks again', async () => {
-    const silent = drawing(() => undefined);
+    // One run: a labeler that does not vote cannot slip out of step, so a unit it leaves out is one no run named.
+    const silent = drawing(() => undefined, { runs: 1 });
     const first = await pointerScan(input({ files }, singleLabelling(silent)));
     expect(first.unlabeled).toBe(1);
     const tied = noisyOf(first.ledger.entries);
