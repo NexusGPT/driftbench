@@ -11,6 +11,8 @@ import {
   readSync,
   renameSync,
   rmSync,
+  statSync,
+  truncateSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -796,8 +798,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       }
     }
     if (plain) {
-      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
-      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept. A write
+      // cut short leaves no part of the call in the file run C reads: the file goes back to its size before it.
+      const size = existsSync(plain.calls) ? statSync(plain.calls).size : 0;
+      try {
+        appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+      } catch (error) {
+        if (existsSync(plain.calls)) truncateSync(plain.calls, size);
+        throw error;
+      }
       recorded.push({
         call: name,
         entry,
