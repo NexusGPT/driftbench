@@ -3,7 +3,8 @@ import { ItemFailure } from '../src/failure';
 /**
  * The second leak check, which does not rely on what a site declares. A correct product and a wrong one are run on the
  * same item; every token that the correct one returned and the wrong one did not is what the item wants. A failure
- * message of the wrong product may not repeat such a token unless the item itself, or the wrong product, printed it.
+ * message of the wrong product may not repeat such a token, wherever the site put it (rule, input or got), unless the
+ * wrong product returned it too or the item gave it as input.
  * Only tokens that can be a value are looked at: a number, or a code written with capitals or separators.
  */
 const TOKEN = /[A-Za-z0-9_.\-/]{2,}/g;
@@ -43,7 +44,7 @@ export function wantedInMessage(
 ): string[] {
   const message = error instanceof Error ? error.message : String(error);
   const own =
-    error instanceof ItemFailure ? `${text(error.fields.input)} ${text(error.fields.got)} ${itemId}` : itemId;
+    error instanceof ItemFailure ? `${text(error.fields.input)} ${itemId}` : itemId;
   const ownTokens = new Set(own.match(TOKEN) ?? []);
   const inMessage = new Set(message.match(TOKEN) ?? []);
   return [...reference].filter(
