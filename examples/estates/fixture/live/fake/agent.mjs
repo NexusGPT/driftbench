@@ -408,7 +408,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const close = (note, padTo = 0) => {
     const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
     // A reply rule in force that declares a shape (`replyShape`) fixes the whole reply: json_only is one JSON object.
-    let body = note ?? (intent.shapes?.includes('json_only') ? JSON.stringify({ status: act }) : sayings[act]);
+    let body =
+      note ?? (intent.shapes?.includes('json_only') ? JSON.stringify({ status: act }) : sayings[act]);
     // A guard on the length of a reply is provoked by a reply longer than its limit, made of the estate's own text.
     for (let at = 0; body.length <= padTo; at++) {
       const unitText = estate.skills[at % Math.max(1, estate.skills.length)];
