@@ -288,7 +288,13 @@ reply({ ready });
 let id = 0;
 port.on('message', async (message) => {
   if (message.close) {
-    for (const run of runs) run.child.kill();
+    // Each run is waited for before the reply: the frame ends this thread next, and a killed child no thread waits
+    // for stays defunct until the validator's process ends (astra-planner-1334: hundreds under one vitest worker).
+    await Promise.all(runs.map((run) => run.exited !== undefined ? undefined : new Promise((done) => {
+      const timer = setTimeout(done, 5000);
+      run.child.once('exit', () => { clearTimeout(timer); done(); });
+      run.child.kill('SIGKILL');
+    })));
     reply({ closed: true });
     return;
   }
