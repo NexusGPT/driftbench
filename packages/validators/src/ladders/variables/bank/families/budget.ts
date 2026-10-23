@@ -3,7 +3,7 @@ import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
 import { groupsOf, indexRow, logWeight, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
-import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
+import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
 import { must, show, stableStringify } from '../util';
 
 /** Spaces with skewed shares whose unbudgeted plan has dozens of rows. */
@@ -19,9 +19,19 @@ const rowKey = (r: Plan['rows'][number]) => stableStringify({ id: r.id, kind: r.
 function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void {
   const want = full.rows.slice(0, Math.min(b, full.rows.length)).map(rowKey);
   const got = budgeted.rows.map(rowKey);
-  check(got.length === want.length, () => ({ rule: 'a budget keeps a prefix of the plan, counting the seeds', input: { label, budget: b }, got: { rows: got.length }, expected: { rows: want.length, uncut: full.rows.length } }));
+  check(got.length === want.length, () => ({
+    rule: 'a budget keeps a prefix of the plan, counting the seeds',
+    input: { label, budget: b },
+    got: { rows: got.length },
+    expected: { rows: want.length, uncut: full.rows.length },
+  }));
   for (let i = 0; i < want.length; i += 1) {
-    check(got[i] === want[i], () => ({ rule: 'a budget keeps a prefix of the plan without a budget', input: { label, budget: b, row: i }, got: { row: got[i]?.slice(0, 120) }, expected: { row: want[i]?.slice(0, 120) } }));
+    check(got[i] === want[i], () => ({
+      rule: 'a budget keeps a prefix of the plan without a budget',
+      input: { label, budget: b, row: i },
+      got: { row: got[i]?.slice(0, 120) },
+      expected: { row: want[i]?.slice(0, 120) },
+    }));
   }
 }
 
@@ -104,13 +114,23 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       case 'every-budget-length':
         for (let b = 0; b <= total + 2; b += 1) {
           const got = run(b).rows.length;
-          check(got === Math.min(b, total), () => ({ rule: 'a budget gives as many rows as the budget, or the whole plan', input: { label, budget: b, plan: total }, got: { rows: got }, expected: { rows: Math.min(b, total) } }));
+          check(got === Math.min(b, total), () => ({
+            rule: 'a budget gives as many rows as the budget, or the whole plan',
+            input: { label, budget: b, plan: total },
+            got: { rows: got },
+            expected: { rows: Math.min(b, total) },
+          }));
         }
         break;
       case 'seeds-plus-budget-length':
         for (let b = seeds.length; b <= total + 2; b += 1) {
           const plan = run(b);
-          check(plan.rows.length === Math.min(b, total), () => ({ rule: 'a budget gives as many rows as the budget, or the whole plan', input: { label, budget: b, plan: total }, got: { rows: plan.rows.length }, expected: { rows: Math.min(b, total) } }));
+          check(plan.rows.length === Math.min(b, total), () => ({
+            rule: 'a budget gives as many rows as the budget, or the whole plan',
+            input: { label, budget: b, plan: total },
+            got: { rows: plan.rows.length },
+            expected: { rows: Math.min(b, total) },
+          }));
           must(
             plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'),
             () => `${label}: with budget ${b} the seeds do not lead the plan`,
@@ -119,7 +139,10 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         break;
       default: {
         const empty = planOf(ctx, st, { seed: ctx.seed, budget: 0 });
-        check(empty.rows.length === 0, () => ({ rule: 'a budget of 0 with no seeds gives an empty plan', got: { rows: empty.rows.length } }));
+        check(empty.rows.length === 0, () => ({
+          rule: 'a budget of 0 with no seeds gives an empty plan',
+          got: { rows: empty.rows.length },
+        }));
       }
     }
   },
@@ -192,9 +215,17 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const bad: unknown =
       variant === 'negative' ? -1 : variant === 'nan' ? Number.NaN : variant === 'fraction' ? 1.5 : '10';
     const error = planError(ctx, toStore(space), { seed: ctx.seed, budget: bad as number });
-    check(!!error, () => ({ rule: 'plan throws for a budget the page refuses', input: { budget: show(bad) }, got: 'no error', expected: { error: 'RangeError naming the budget' } }));
+    check(!!error, () => ({
+      rule: 'plan throws for a budget the page refuses',
+      input: { budget: show(bad) },
+      got: 'no error',
+      expected: { error: 'RangeError naming the budget' },
+    }));
     const e = error as Error;
-    check(e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'), () => ({ rule: 'the error of a refused budget is a RangeError', got: { name: e.name, message: e.message } }));
+    check(e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'), () => ({
+      rule: 'the error of a refused budget is a RangeError',
+      got: { name: e.name, message: e.message },
+    }));
     must(
       e.message.toLowerCase().includes('budget'),
       () => `the error "${e.message}" does not name the budget`,

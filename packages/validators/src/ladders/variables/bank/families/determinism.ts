@@ -1,9 +1,9 @@
-import { check } from '../../../../failure';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { check } from '../../../../failure';
 import type { Plan, PlanOptions, Row, Sources, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, planOf, type StemRun } from '../item';
@@ -16,7 +16,7 @@ import {
   toStore,
   withWeights,
 } from '../oracle/space';
-import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
+import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
 import { clone, deepFreeze, must, plainStringify, show, stableStringify } from '../util';
 import { fullSources } from './values';
 
@@ -311,7 +311,10 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       });
       const reused = planJson(planOf(ctx, store, clone(c.options)));
       const fresh = planJson(planOf(ctx, clone(store), clone(c.options)));
-      check(reused === fresh, () => ({ rule: 'a store edited in place and planned again gives the plan of a copy of it', got: { reused: show(reused, 80), copy: show(fresh, 80) } }));
+      check(reused === fresh, () => ({
+        rule: 'a store edited in place and planned again gives the plan of a copy of it',
+        got: { reused: show(reused, 80), copy: show(fresh, 80) },
+      }));
     } else {
       const options: PlanOptions = { ...clone(c.options), budget: 6 };
       planOf(ctx, clone(c.store), options);

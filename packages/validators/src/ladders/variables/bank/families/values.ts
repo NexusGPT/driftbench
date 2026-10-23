@@ -262,7 +262,11 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         new Set(stored).size === ids.length,
         () => `values ${show(ids)} got ids ${show(stored)}: two of them share an id`,
       );
-      check((found as NonNullable<typeof found>).variable.values.length === ids.length, () => ({ rule: 'a variable holds the values its sources list', got: { values: (found as NonNullable<typeof found>).variable.values.length }, expected: { values: ids.length } }));
+      check((found as NonNullable<typeof found>).variable.values.length === ids.length, () => ({
+        rule: 'a variable holds the values its sources list',
+        got: { values: (found as NonNullable<typeof found>).variable.values.length },
+        expected: { values: ids.length },
+      }));
     }
   },
 
@@ -283,7 +287,12 @@ export const VALUES_RUNS: Record<string, StemRun> = {
         () =>
           `the owner value ${a.value} is not on ${variable.id}: ${show(variable.values.map((x) => x.id))}`,
       );
-    check(variable.values.length === A.ids.length + adds.length, () => ({ rule: 'values added by the owner join the values of the variable', input: { variable: variable.id }, got: { values: variable.values.length }, expected: { values: A.ids.length + adds.length } }));
+    check(variable.values.length === A.ids.length + adds.length, () => ({
+      rule: 'values added by the owner join the values of the variable',
+      input: { variable: variable.id },
+      got: { values: variable.values.length },
+      expected: { values: A.ids.length + adds.length },
+    }));
     if (variant === 'others-unchanged') {
       for (const id of A.ids) {
         const before = valueById(A.variable, id);
@@ -323,7 +332,12 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       },
     });
     const variable = variableOf(store, A.variable.id) as StoreVariable;
-    check(variable.values.length === A.ids.length, () => ({ rule: 'an owner value that repeats an existing one adds no value', input: { variable: variable.id }, got: { values: variable.values.length }, expected: { values: A.ids.length } }));
+    check(variable.values.length === A.ids.length, () => ({
+      rule: 'an owner value that repeats an existing one adds no value',
+      input: { variable: variable.id },
+      got: { values: variable.values.length },
+      expected: { values: A.ids.length },
+    }));
     const value = valueById(variable, id) as StoreValue;
     const before = valueById(A.variable, id) as StoreValue;
     for (const p of before.provenance ?? []) {
@@ -334,7 +348,11 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     }
     for (const w of words) {
       const hit = (value.provenance ?? []).filter((p) => p.kind === 'owner' && p.words === w);
-      check(hit.length === 1, () => ({ rule: "a value carries one owner provenance with the owner's words", input: { value: id, words: show(w) }, got: { found: hit.length } }));
+      check(hit.length === 1, () => ({
+        rule: "a value carries one owner provenance with the owner's words",
+        input: { value: id, words: show(w) },
+        got: { found: hit.length },
+      }));
     }
   },
 
@@ -414,7 +432,12 @@ export const VALUES_RUNS: Record<string, StemRun> = {
     };
     const { value: store, ms } = cpuMs(() => build(ctx, { estate: base.estate, owner }));
     const variable = variableOf(store, A.variable.id) as StoreVariable;
-    check(variable.values.length === A.ids.length + n, () => ({ rule: 'values added by the owner join the values of the variable', input: { variable: variable.id }, got: { values: variable.values.length }, expected: { values: A.ids.length + n } }));
+    check(variable.values.length === A.ids.length + n, () => ({
+      rule: 'values added by the owner join the values of the variable',
+      input: { variable: variable.id },
+      got: { values: variable.values.length },
+      expected: { values: A.ids.length + n },
+    }));
     must(new Set(variable.values.map((x) => x.id)).size === variable.values.length, 'two values share an id');
     must(ms <= 3000, () => `adding ${n} values took ${Math.round(ms)} ms of processor time, over 3000 ms`);
   },

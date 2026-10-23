@@ -195,7 +195,11 @@ export function callInterval(ctx: ItemContext, count: number, total: number): [n
     () => `weightInterval(${count}, ${total}) threw ${got.error?.name}: ${got.error?.message}`,
   );
   const iv = got.value as unknown;
-  check(Array.isArray(iv) && iv.length === 2 && iv.every((x) => typeof x === 'number'), () => ({ rule: 'weightInterval returns a pair of numbers', input: { count, total }, got: { returned: show(iv) } }));
+  check(Array.isArray(iv) && iv.length === 2 && iv.every((x) => typeof x === 'number'), () => ({
+    rule: 'weightInterval returns a pair of numbers',
+    input: { count, total },
+    got: { returned: show(iv) },
+  }));
   return iv as [number, number];
 }
 

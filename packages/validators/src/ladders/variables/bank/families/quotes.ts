@@ -95,7 +95,12 @@ function mustKeep(store: StoreDoc, quote: string, id: string, label: string, sou
   );
   if (source !== undefined) {
     const prov = (hit?.value.provenance ?? []).find((p) => p.kind === 'quote' && p.quote === quote);
-    check(prov?.kind === 'quote' && prov.path === source, () => ({ rule: 'a value cites the path of the file it was read from', input: { label, value: id }, got: { provenance: show(prov) }, expected: { path: source } }));
+    check(prov?.kind === 'quote' && prov.path === source, () => ({
+      rule: 'a value cites the path of the file it was read from',
+      input: { label, value: id },
+      got: { provenance: show(prov) },
+      expected: { path: source },
+    }));
   }
 }
 
@@ -269,7 +274,10 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const var0 = store.variables.find((v) =>
       v.values.some((x) => (x.provenance ?? []).some((p) => p.kind === 'quote' && p.quote === good.quote)),
     );
-    check(!!var0 && var0.values.length === 1, () => ({ rule: 'a variable keeps only the values whose quote the file holds', got: { values: var0?.values.map((v) => v.id) } }));
+    check(!!var0 && var0.values.length === 1, () => ({
+      rule: 'a variable keeps only the values whose quote the file holds',
+      got: { values: var0?.values.map((v) => v.id) },
+    }));
     check(refusalsMentioning(store, bad.id).length >= 1, () => ({
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
@@ -431,7 +439,10 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
         `the store holds a variable with no value: ${show(store.variables.map((v) => [v.id, v.values.length]))}`,
     );
     if (variant === 'all-bad') {
-      check(store.variables.length === 0, () => ({ rule: 'a variable with no accepted value is not stored', got: { variables: store.variables.map((v) => v.id) } }));
+      check(store.variables.length === 0, () => ({
+        rule: 'a variable with no accepted value is not stored',
+        got: { variables: store.variables.map((v) => v.id) },
+      }));
     }
   },
 
@@ -448,14 +459,22 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     for (const i of bad) {
       const id = (values[i] as ToolValue).id;
       const named = refusalsMentioning(store, id);
-      check(named.length === 1, () => ({ rule: 'a refused value is named by one refusal', input: { value: id }, got: { refusals: named.length, list: store.refused } }));
+      check(named.length === 1, () => ({
+        rule: 'a refused value is named by one refusal',
+        input: { value: id },
+        got: { refusals: named.length, list: store.refused },
+      }));
       const r = named[0] as Refusal;
       must(
         typeof r.reason === 'string' && r.reason.trim().length > 0,
         () => `the refusal of ${id} has no reason: ${show(r)}`,
       );
       if (variant === 'reason-text') {
-        check(r.reason.trim().length >= 8 && r.reason !== r.what, () => ({ rule: 'the reason of a refusal says why', input: { value: id }, got: { reason: r.reason } }));
+        check(r.reason.trim().length >= 8 && r.reason !== r.what, () => ({
+          rule: 'the reason of a refusal says why',
+          input: { value: id },
+          got: { reason: r.reason },
+        }));
       }
     }
     for (const [i, v] of values.entries()) {
@@ -485,7 +504,10 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
         () =>
           `the value seen in conversations is not in the store: ${show(store.variables.find((x) => x.id === variable.id)?.values.map((x) => x.id))}`,
       );
-      check(refusalsMentioning(store, 'novelvalue').length === 0, () => ({ rule: 'a value seen in conversations needs no file quote', got: { refusals: store.refused } }));
+      check(refusalsMentioning(store, 'novelvalue').length === 0, () => ({
+        rule: 'a value seen in conversations needs no file quote',
+        got: { refusals: store.refused },
+      }));
     } else {
       const words =
         variant === 'owner-words-quote-shaped'
@@ -497,7 +519,10 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       });
       const v = store.variables.find((x) => x.id === variable.id)?.values.find((x) => x.id === 'ownerval');
       must(!!v, () => `the owner value is not in the store: ${show(store.refused)}`);
-      check(refusalsMentioning(store, 'ownerval').length === 0, () => ({ rule: 'an owner value needs no file quote', got: { refusals: store.refused } }));
+      check(refusalsMentioning(store, 'ownerval').length === 0, () => ({
+        rule: 'an owner value needs no file quote',
+        got: { refusals: store.refused },
+      }));
     }
   },
 

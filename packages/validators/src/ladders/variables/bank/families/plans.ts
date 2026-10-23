@@ -14,7 +14,7 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import {checkPlan, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
+import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
 import { clone, must, show, stableStringify } from '../util';
 import { LOG_TOLERANCE } from './budget';
 
@@ -138,7 +138,12 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     // What each seed row must hold: the unknown entries are gone, the unapproved and forbidden ones stay.
     const want = variant === 'unapproved-value' || variant === 'forbidden-seed' ? seeds : effective;
     kept.forEach((row, i) => {
-      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(want[i]), () => ({ rule: 'seed rows lead the plan as the page keeps them', input: { row: i }, got: { row: show(row.values, 160) }, expected: { row: show(want[i], 160) } }));
+      check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(want[i]), () => ({
+        rule: 'seed rows lead the plan as the page keeps them',
+        input: { row: i },
+        got: { row: show(row.values, 160) },
+        expected: { row: show(want[i], 160) },
+      }));
     });
     // The rest of the plan covers what the seeds do not, judged on the entries the space knows.
     const known: PlanRow[] = plan.rows.map((row) => ({

@@ -13,7 +13,14 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import {checkPlan, planAndCheck, randomSeeds, randomSpace, randomValidRow, planIsSound } from '../oracle/spaces';
+import {
+  checkPlan,
+  planAndCheck,
+  planIsSound,
+  randomSeeds,
+  randomSpace,
+  randomValidRow,
+} from '../oracle/spaces';
 import { must, type Rng, show, stableStringify } from '../util';
 import { type Base, baseStore } from './sources';
 
@@ -208,7 +215,11 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
         impossible: [{ a: good, b: bad, date: OWNER_DATE, words: 'the owner says these never meet' }],
       },
     });
-    check(store.impossible.length === 0, () => ({ rule: 'a pair that names a variable or value the store lacks is refused', input: { pair: show(bad) }, got: { kept: show(store.impossible) } }));
+    check(store.impossible.length === 0, () => ({
+      rule: 'a pair that names a variable or value the store lacks is refused',
+      input: { pair: show(bad) },
+      got: { kept: show(store.impossible) },
+    }));
     const named = refusalsMentioning(
       store,
       bad.variable === 'nosuchvariable' ? 'nosuchvariable' : 'nosuchvalue',

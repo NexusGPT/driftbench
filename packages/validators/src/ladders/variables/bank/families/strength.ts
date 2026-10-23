@@ -2,7 +2,14 @@ import { check } from '../../../../failure';
 import type { Plan } from '../../interface';
 import { type StemRun, tryPlan } from '../item';
 import { groupsOf, indexRow, makeSpace, type Space, SpaceOracle, toStore } from '../oracle/space';
-import {checkPlan, describeSpace, planAndCheck, randomSeeds, randomSpace, planIsSound } from '../oracle/spaces';
+import {
+  checkPlan,
+  describeSpace,
+  planAndCheck,
+  planIsSound,
+  randomSeeds,
+  randomSpace,
+} from '../oracle/spaces';
 import { must, show } from '../util';
 import { toBig } from './counter';
 
@@ -34,7 +41,12 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
   'strength.others-economy': (variant, ctx) => {
     const space = makeSpace(Array(variant === 'thirty-variables' ? 30 : 100).fill(5));
     const facts = planAndCheck(ctx, space);
-    check(facts.fresh.length <= 10, () => ({ rule: 'strength 1 on a variable needs about its arity in rows, not a pairwise array', input: { space: describeSpace(space) }, got: { rows: facts.fresh.length }, expected: { atMost: 10 } }));
+    check(facts.fresh.length <= 10, () => ({
+      rule: 'strength 1 on a variable needs about its arity in rows, not a pairwise array',
+      input: { space: describeSpace(space) },
+      got: { rows: facts.fresh.length },
+      expected: { atMost: 10 },
+    }));
   },
 
   'strength.axes-at-two': (variant, ctx) => {
@@ -86,7 +98,11 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     if (variant === 'two-variables') {
       const oracle = new SpaceOracle(space);
       const got = oracle.covered(facts.fresh, groupsOf(space)).size;
-      check(got >= 12 + 2, () => ({ rule: 'a rule over two variables is crossed in full', got: { requiredTuplesCovered: got }, expected: { atLeast: 14 } }));
+      check(got >= 12 + 2, () => ({
+        rule: 'a rule over two variables is crossed in full',
+        got: { requiredTuplesCovered: got },
+        expected: { atLeast: 14 },
+      }));
     }
   },
 
@@ -136,7 +152,12 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
       space = makeSpace([...Array(120).fill(2), ...Array(5).fill(6)], { rules });
     }
     const facts = planAndCheck(ctx, space, { boundFactor: BOUND });
-    check(facts.fresh.length < 100, () => ({ rule: 'strength 3 across variables is covered by fewer rows than the full product', input: { space: describeSpace(space) }, got: { rows: facts.fresh.length }, expected: { fewerThan: 100 } }));
+    check(facts.fresh.length < 100, () => ({
+      rule: 'strength 3 across variables is covered by fewer rows than the full product',
+      input: { space: describeSpace(space) },
+      got: { rows: facts.fresh.length },
+      expected: { fewerThan: 100 },
+    }));
   },
 
   'strength.row-economy': (variant, ctx) => {
@@ -151,7 +172,12 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const space = ruleSpace(arities);
     const facts = planAndCheck(ctx, space, { boundFactor: BOUND });
     const product = fullProduct(space);
-    check(facts.fresh.length < 0.6 * product, () => ({ rule: 'a covering array takes well under the full product in rows', input: { space: describeSpace(space), fullProduct: product }, got: { rows: facts.fresh.length }, expected: { fewerThan: Math.floor(0.6 * product) } }));
+    check(facts.fresh.length < 0.6 * product, () => ({
+      rule: 'a covering array takes well under the full product in rows',
+      input: { space: describeSpace(space), fullProduct: product },
+      got: { rows: facts.fresh.length },
+      expected: { fewerThan: Math.floor(0.6 * product) },
+    }));
   },
 
   'strength.rows-complete-and-valid': (variant, ctx) => {
@@ -191,8 +217,16 @@ export const STRENGTH_RUNS: Record<string, StemRun> = {
     const required = oracle.required(groups);
     const covered = oracle.covered(rows, groups, required);
     const r = report as NonNullable<Plan['report']>;
-    check(toBig(r.allowed, 'report.allowed') === BigInt(required.size), () => ({ rule: 'the report counts the allowed tuples exactly', got: { allowed: show(r.allowed) }, expected: { allowed: required.size } }));
-    check(toBig(r.covered, 'report.covered') === BigInt(covered.size), () => ({ rule: 'the report counts the covered tuples exactly', got: { covered: show(r.covered) }, expected: { covered: covered.size } }));
+    check(toBig(r.allowed, 'report.allowed') === BigInt(required.size), () => ({
+      rule: 'the report counts the allowed tuples exactly',
+      got: { allowed: show(r.allowed) },
+      expected: { allowed: required.size },
+    }));
+    check(toBig(r.covered, 'report.covered') === BigInt(covered.size), () => ({
+      rule: 'the report counts the covered tuples exactly',
+      got: { covered: show(r.covered) },
+      expected: { covered: covered.size },
+    }));
   },
 
   'strength.any-seed-integer': (variant, ctx) => {

@@ -13,12 +13,15 @@ import {
   SpaceOracle,
   toStore,
 } from '../oracle/space';
-import {checkPlan,
+import {
+  checkPlan,
   describeSpace,
   planAndCheck,
+  planIsSound,
   randomSeeds,
   randomSpace,
-  randomValidRow, planIsSound } from '../oracle/spaces';
+  randomValidRow,
+} from '../oracle/spaces';
 import { cpuMs, deepEqual, must, type Rng, show, stableStringify } from '../util';
 
 const BOUND = 1.25;
@@ -353,7 +356,10 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const facts = checkPlan(space, oracle, plan, { seeds, noCoverage: true });
     planIsSound(facts);
     seeds.forEach((s, i) => {
-      check(plan.rows[i]?.values !== s, () => ({ rule: 'a plan row is a copy of its seed, not the seed object', input: { row: i } }));
+      check(plan.rows[i]?.values !== s, () => ({
+        rule: 'a plan row is a copy of its seed, not the seed object',
+        input: { row: i },
+      }));
     });
     if (variant === 'later-mutation-safe') {
       const first = plan.rows[0]?.values as Row;

@@ -21,7 +21,11 @@ import { choose, cpuMs, must, type Rng, show } from '../util';
 /** The exact value of a count: a bigint, or a number that is a safe integer. */
 export function toBig(v: number | bigint, label: string): bigint {
   if (typeof v === 'bigint') return v;
-  check(Number.isInteger(v) && Number.isSafeInteger(v), () => ({ rule: 'a count is an exact integer; a count beyond 2^53 is a bigint', input: { label }, got: { value: show(v) } }));
+  check(Number.isInteger(v) && Number.isSafeInteger(v), () => ({
+    rule: 'a count is an exact integer; a count beyond 2^53 is a bigint',
+    input: { label },
+    got: { value: show(v) },
+  }));
   return BigInt(v);
 }
 
@@ -192,8 +196,16 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const result = callCoverage(ctx, toStore(space), [], [wholeGroup(space, t)]);
     const want = elementary(arities, Math.min(t, arities.length));
     const got = toBig(result.allowed, 'allowed');
-    check(got === want, () => ({ rule: 'coverage counts the allowed tuples exactly', input: { variables: arities.length, arities: show(arities, 90), strength: t }, got: { allowed: String(got) }, expected: { allowed: String(want) } }));
-    check(toBig(result.covered, 'covered') === 0n, () => ({ rule: 'with no row given, no tuple is covered', got: { covered: show(result.covered) } }));
+    check(got === want, () => ({
+      rule: 'coverage counts the allowed tuples exactly',
+      input: { variables: arities.length, arities: show(arities, 90), strength: t },
+      got: { allowed: String(got) },
+      expected: { allowed: String(want) },
+    }));
+    check(toBig(result.covered, 'covered') === 0n, () => ({
+      rule: 'with no row given, no tuple is covered',
+      got: { covered: show(result.covered) },
+    }));
   },
 
   'counter.constraints-matching': (variant, ctx) => {
@@ -209,7 +221,12 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const result = callCoverage(ctx, toStore(space), [], [wholeGroup(space, t)]);
     const want = matchingCount(space, spec, t);
     const got = toBig(result.allowed, 'allowed');
-    check(got === want, () => ({ rule: 'coverage counts the allowed tuples exactly beside matched impossible pairs', input: { variables: vars, matchedPairs: pairs, impossiblePairs: space.forbidden.length, strength: t }, got: { allowed: String(got) }, expected: { allowed: String(want) } }));
+    check(got === want, () => ({
+      rule: 'coverage counts the allowed tuples exactly beside matched impossible pairs',
+      input: { variables: vars, matchedPairs: pairs, impossiblePairs: space.forbidden.length, strength: t },
+      got: { allowed: String(got) },
+      expected: { allowed: String(want) },
+    }));
   },
 
   'counter.brute-force-weak-equals-strict': (variant, ctx) => {
@@ -246,7 +263,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         [g([0, 1], 2)],
         'the pair (v000=x0, v001=x1) is allowed pairwise but no value of v002 completes it',
       );
-      check(toBig(r.allowed, 'allowed') === 3n, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(r.allowed) }, expected: { allowed: 3 } }));
+      check(toBig(r.allowed, 'allowed') === 3n, () => ({
+        rule: 'coverage counts the allowed tuples exactly',
+        got: { allowed: show(r.allowed) },
+        expected: { allowed: 3 },
+      }));
       return;
     }
     if (variant === 'forced-out') {
@@ -254,7 +275,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       forbid(space, 0, 1, 1, 0);
       forbid(space, 0, 1, 1, 1);
       const r = compare(ctx, space, [], [g([0], 1), g([0, 2], 2)], 'v000=x1 has no valid row');
-      check(toBig(r.allowed, 'allowed') === 1n + 3n, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(r.allowed) }, expected: { allowed: 4 } }));
+      check(toBig(r.allowed, 'allowed') === 1n + 3n, () => ({
+        rule: 'coverage counts the allowed tuples exactly',
+        got: { allowed: show(r.allowed) },
+        expected: { allowed: 4 },
+      }));
       return;
     }
     if (variant === 'two-step') {
@@ -269,7 +294,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         [g([0], 1), g([0, 1], 2)],
         'v000=x1 is out through a chain of two pairs',
       );
-      check(toBig(r.allowed, 'allowed') === 2n, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(r.allowed) }, expected: { allowed: 2 } }));
+      check(toBig(r.allowed, 'allowed') === 2n, () => ({
+        rule: 'coverage counts the allowed tuples exactly',
+        got: { allowed: show(r.allowed) },
+        expected: { allowed: 2 },
+      }));
       return;
     }
     if (variant === 'empty-space') {
@@ -277,7 +306,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       compare(ctx, space, [[0, 0, 0]], [g([0, 1, 2], 2), g([2], 1)], 'the satisfiable control');
       forbid(space, 0, 0, 1, 0);
       const r = compare(ctx, space, [], [g([0, 1, 2], 2), g([2], 1)], 'a space with no valid row');
-      check(toBig(r.allowed, 'allowed') === 0n, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(r.allowed) }, expected: { allowed: 0 } }));
+      check(toBig(r.allowed, 'allowed') === 0n, () => ({
+        rule: 'coverage counts the allowed tuples exactly',
+        got: { allowed: show(r.allowed) },
+        expected: { allowed: 0 },
+      }));
       return;
     }
     // random cases without a universal value: every value may be in a pair
@@ -391,7 +424,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       () =>
         `the count is ${want}, beyond 2^53, but allowed is the ${typeof result.allowed} ${show(result.allowed)}; return a bigint`,
     );
-    check(result.allowed === want, () => ({ rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too', got: { allowed: String(result.allowed) }, expected: { allowed: String(want) } }));
+    check(result.allowed === want, () => ({
+      rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
+      got: { allowed: String(result.allowed) },
+      expected: { allowed: String(want) },
+    }));
   },
 
   'counter.uncovered-list': (variant, ctx) => {
@@ -447,7 +484,12 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         );
       });
       const expectedLength = Math.min(limit, missing.length);
-      check(keys.length === expectedLength, () => ({ rule: 'with a limit, coverage lists the uncovered tuples up to the limit', input: { space: k + 1, uncovered: missing.length, limit }, got: { listed: keys.length }, expected: { listed: expectedLength } }));
+      check(keys.length === expectedLength, () => ({
+        rule: 'with a limit, coverage lists the uncovered tuples up to the limit',
+        input: { space: k + 1, uncovered: missing.length, limit },
+        got: { listed: keys.length },
+        expected: { listed: expectedLength },
+      }));
       must(new Set(keys).size === keys.length, () => `space ${k + 1}: the uncovered list repeats a tuple`);
       for (const key of keys) {
         must(
@@ -477,10 +519,22 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       needle = 'v000';
     }
     const error = callCoverageError(ctx, store, [], groups);
-    check(!!error, () => ({ rule: 'coverage throws a RangeError for a group it cannot count', input: { group: show(groups[0]) }, got: 'no error', expected: { names: needle } }));
+    check(!!error, () => ({
+      rule: 'coverage throws a RangeError for a group it cannot count',
+      input: { group: show(groups[0]) },
+      got: 'no error',
+      expected: { names: needle },
+    }));
     const e = error as Error;
-    check(e.name === 'RangeError', () => ({ rule: 'the error of an invalid group is a RangeError', got: { name: e.name, message: e.message } }));
-    check(e.message.toLowerCase().includes(needle.toLowerCase()), () => ({ rule: 'the RangeError names the argument at fault', got: { message: e.message }, expected: { names: needle } }));
+    check(e.name === 'RangeError', () => ({
+      rule: 'the error of an invalid group is a RangeError',
+      got: { name: e.name, message: e.message },
+    }));
+    check(e.message.toLowerCase().includes(needle.toLowerCase()), () => ({
+      rule: 'the RangeError names the argument at fault',
+      got: { message: e.message },
+      expected: { names: needle },
+    }));
   },
 
   'counter.no-enumeration': (variant, ctx) => {
@@ -490,7 +544,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const group = wholeGroup(space, 3);
     const { value: result, ms } = cpuMs(() => callCoverage(ctx, store, [], [group]));
     const want = BigInt(choose(n, 3)) * 8n;
-    check(toBig(result.allowed, 'allowed') === want, () => ({ rule: 'coverage counts the allowed tuples exactly', got: { allowed: show(result.allowed) }, expected: { allowed: String(want) } }));
+    check(toBig(result.allowed, 'allowed') === want, () => ({
+      rule: 'coverage counts the allowed tuples exactly',
+      got: { allowed: show(result.allowed) },
+      expected: { allowed: String(want) },
+    }));
     must(
       ms <= 50,
       () =>

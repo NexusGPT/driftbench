@@ -47,12 +47,28 @@ function storeOf(ctx: ItemContext, texts: readonly string[], file?: string): Sto
 /** The three samples around t, checked; returns the variable. */
 export function checkThree(store: StoreDoc, text: string, t: number, opts: Opts = {}): StoreVariable {
   const v = exactlyOne(variablesCiting(store, text), `variables whose values cite "${text}"`);
-  check(v.values.length === 3, () => ({ rule: 'a numeric condition gives its two sides and the boundary as values', input: { span: text }, got: { values: v.values.length, samples: show(v.values.map((x) => x.sample)) } }));
+  check(v.values.length === 3, () => ({
+    rule: 'a numeric condition gives its two sides and the boundary as values',
+    input: { span: text },
+    got: { values: v.values.length, samples: show(v.values.map((x) => x.sample)) },
+  }));
   const samples = v.values.map((x) => x.sample);
-  check(samples.every((s) => typeof s === 'number' && Number.isFinite(s)), () => ({ rule: 'the samples of a numeric condition are finite numbers', input: { span: text }, got: { samples: show(samples) } }));
+  check(
+    samples.every((s) => typeof s === 'number' && Number.isFinite(s)),
+    () => ({
+      rule: 'the samples of a numeric condition are finite numbers',
+      input: { span: text },
+      got: { samples: show(samples) },
+    }),
+  );
   const sorted = [...(samples as number[])].sort((a, b) => a - b);
   const [s1, s2, s3] = sorted as [number, number, number];
-  check(s2 === t, () => ({ rule: 'the boundary sample of a numeric condition is its threshold', input: { span: text }, got: { boundarySample: s2, samples: show(sorted) }, expected: { threshold: t } }));
+  check(s2 === t, () => ({
+    rule: 'the boundary sample of a numeric condition is its threshold',
+    input: { span: text },
+    got: { boundarySample: s2, samples: show(sorted) },
+    expected: { threshold: t },
+  }));
   must(
     s1 < t && t < s3,
     () => `the samples ${show(sorted)} of "${text}" are not below, at and above the threshold ${t}`,
@@ -64,7 +80,11 @@ export function checkThree(store: StoreDoc, text: string, t: number, opts: Opts 
         `the threshold of "${text}" is the integer ${t} but the samples ${show(sorted)} are not all integers`,
     );
   }
-  check(citing(store, text).length === 3, () => ({ rule: 'each value of a numeric condition cites the span', input: { span: text }, got: { citing: citing(store, text).length } }));
+  check(citing(store, text).length === 3, () => ({
+    rule: 'each value of a numeric condition cites the span',
+    input: { span: text },
+    got: { citing: citing(store, text).length },
+  }));
   if (opts.cls === 'gt' || opts.cls === 'ge' || opts.cls === 'lt' || opts.cls === 'le')
     checkBoundary(v, text, t, opts.cls);
   return v;
@@ -80,14 +100,24 @@ function checkBoundary(v: StoreVariable, text: string, t: number, cls: 'gt' | 'g
   const b = list.find((x) => x.limit === t);
   must(!!b, () => `no boundaries entry of ${v.id} has the limit ${t}: ${show(list)}`);
   const e = b as NonNullable<typeof b>;
-  check(e.comparison === cls, () => ({ rule: 'the boundaries entry of a condition names its comparison', input: { span: text }, got: { comparison: show(e.comparison) }, expected: { comparison: cls } }));
+  check(e.comparison === cls, () => ({
+    rule: 'the boundaries entry of a condition names its comparison',
+    input: { span: text },
+    got: { comparison: show(e.comparison) },
+    expected: { comparison: cls },
+  }));
   const sampleOf = (id: string) => v.values.find((x) => x.id === id)?.sample as number | undefined;
   const [h, f, g] = [sampleOf(e.holds), sampleOf(e.fails), sampleOf(e.edge)];
   must(
     typeof h === 'number' && typeof f === 'number' && typeof g === 'number',
     () => `the boundaries entry of ${v.id} names ids that are not values with a number sample: ${show(e)}`,
   );
-  check(g === t, () => ({ rule: 'the edge value of a condition has the limit as sample', input: { span: text }, got: { sample: g }, expected: { limit: t } }));
+  check(g === t, () => ({
+    rule: 'the edge value of a condition has the limit as sample',
+    input: { span: text },
+    got: { sample: g },
+    expected: { limit: t },
+  }));
   const holdsOk = (x: number) =>
     cls === 'gt' ? x > t : cls === 'ge' ? x >= t : cls === 'lt' ? x < t : x <= t;
   must(
@@ -98,7 +128,11 @@ function checkBoundary(v: StoreVariable, text: string, t: number, cls: 'gt' | 'g
     !holdsOk(f as number),
     () => `the fails value of "${text}" has the sample ${f}, where the condition (${cls} ${t}) holds`,
   );
-  check(new Set([e.holds, e.fails, e.edge]).size === 3, () => ({ rule: 'holds, fails and edge of a boundaries entry are three distinct values', input: { span: text }, got: { values: show([e.holds, e.fails, e.edge]) } }));
+  check(new Set([e.holds, e.fails, e.edge]).size === 3, () => ({
+    rule: 'holds, fails and edge of a boundaries entry are three distinct values',
+    input: { span: text },
+    got: { values: show([e.holds, e.fails, e.edge]) },
+  }));
 }
 
 const pickQuantity = (rng: Rng, kind?: Quantity['kind']): Quantity =>
@@ -144,7 +178,14 @@ function rangeCase(ctx: ItemContext, text: string, a: number, b: number): void {
   const store = storeOf(ctx, [text]);
   const v = exactlyOne(variablesCiting(store, text), `variables whose values cite "${text}"`);
   const samples = v.values.map((x) => x.sample);
-  check(samples.every((s) => typeof s === 'number'), () => ({ rule: 'the samples of a numeric condition are numbers', input: { span: text }, got: { samples: show(samples) } }));
+  check(
+    samples.every((s) => typeof s === 'number'),
+    () => ({
+      rule: 'the samples of a numeric condition are numbers',
+      input: { span: text },
+      got: { samples: show(samples) },
+    }),
+  );
   const s = samples as number[];
   const need: Array<[string, boolean]> = [
     [`one sample below ${a}`, s.some((x) => x < a)],
@@ -155,8 +196,16 @@ function rangeCase(ctx: ItemContext, text: string, a: number, b: number): void {
   ];
   const missing = need.filter(([, ok]) => !ok).map(([what]) => what);
   must(missing.length === 0, () => `"${text}" gives samples ${show(s)}, missing ${missing.join(', ')}`);
-  check(v.values.length <= 8, () => ({ rule: 'a condition gives a bounded number of values', input: { span: text }, got: { values: v.values.length } }));
-  check(citing(store, text).length === v.values.length, () => ({ rule: 'each value of a condition cites the span', input: { span: text }, got: { citing: citing(store, text).length, values: v.values.length } }));
+  check(v.values.length <= 8, () => ({
+    rule: 'a condition gives a bounded number of values',
+    input: { span: text },
+    got: { values: v.values.length },
+  }));
+  check(citing(store, text).length === v.values.length, () => ({
+    rule: 'each value of a condition cites the span',
+    input: { span: text },
+    got: { citing: citing(store, text).length, values: v.values.length },
+  }));
 }
 
 const COMPARATOR_STEMS = Object.keys(CLASS_OF_STEM);
@@ -317,7 +366,18 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
         .map((c) => c.value.sample as number)
         .sort((a, b) => a - b);
       const [a, b, c] = cited;
-      check(cited.length >= 3 && cited.some((x) => x < s.threshold) && cited.includes(s.threshold) && cited.some((x) => x > s.threshold), () => ({ rule: 'a span is cited by values with samples below, at and above its threshold', input: { span: s.text }, got: { samples: show(cited) }, expected: { threshold: s.threshold } }));
+      check(
+        cited.length >= 3 &&
+          cited.some((x) => x < s.threshold) &&
+          cited.includes(s.threshold) &&
+          cited.some((x) => x > s.threshold),
+        () => ({
+          rule: 'a span is cited by values with samples below, at and above its threshold',
+          input: { span: s.text },
+          got: { samples: show(cited) },
+          expected: { threshold: s.threshold },
+        }),
+      );
       void a;
       void b;
       void c;
@@ -364,7 +424,12 @@ export const BOUNDARIES_RUNS: Record<string, StemRun> = {
       );
       for (const p of quotes) {
         if (p.kind !== 'quote') continue;
-        check(p.path === 'CLAUDE.md', () => ({ rule: 'a value cites the path of the file it was read from', input: { value: value.id }, got: { path: show(p.path) }, expected: { path: 'CLAUDE.md' } }));
+        check(p.path === 'CLAUDE.md', () => ({
+          rule: 'a value cites the path of the file it was read from',
+          input: { value: value.id },
+          got: { path: show(p.path) },
+          expected: { path: 'CLAUDE.md' },
+        }));
         if (variant === 'quote-findable')
           must(
             file.includes(p.quote),

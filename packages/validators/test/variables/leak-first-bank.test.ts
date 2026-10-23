@@ -60,8 +60,7 @@ describe('the failure messages of the first bank', () => {
     console.log(
       `first bank: ${failures.length} failures, ${report.structured} structured, ${report.unstructured} unstructured, ${report.leaking.length} leaking, ${bySite.size} distinct unstructured messages`,
     );
-    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1]))
-      console.log(`site ${n} x ${k}`);
+    for (const [k, n] of [...bySite].sort((a, b) => b[1] - a[1])) console.log(`site ${n} x ${k}`);
     expect(report.leaking).toEqual([]);
     const { head, base } = readCeilings(
       fileURLToPath(new URL('../../../../', import.meta.url)),
