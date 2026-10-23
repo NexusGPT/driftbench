@@ -113,7 +113,10 @@ const gateScore = (row: Pick<JournalRow, 'bankSize' | 'passing' | 'catchItems'>)
   Math.max(score(row), allScore(row));
 
 /** The rows of one executor, grouped by pilot round in the order the rounds first appear. */
-function roundsOf(rows: readonly JournalRow[], executor: Executor): Array<{ round: string | null; rows: JournalRow[] }> {
+function roundsOf(
+  rows: readonly JournalRow[],
+  executor: Executor,
+): Array<{ round: string | null; rows: JournalRow[] }> {
   const groups: Array<{ round: string | null; rows: JournalRow[] }> = [];
   for (const row of rows) {
     if (executorOf(row) !== executor) continue;
@@ -397,14 +400,15 @@ export function measureHardness(
     source,
     pilot: { round: chosen.measure.round, iterations, complete, end },
     pilots: { builder: builder.measure, blind: blind ? blind.measure : null },
-    pilotRounds: [...builderRounds.groups.map((group) => ['builder', group] as const), ...blindRounds.groups.map((group) => ['blind', group] as const)].map(
-      ([executor, group]) => ({
-        executor,
-        round: group.round,
-        iterations: pilotRowsOf(group.rows).length,
-        complete: pilotRowsOf(group.rows).length === PILOT_ITERATIONS,
-      }),
-    ),
+    pilotRounds: [
+      ...builderRounds.groups.map((group) => ['builder', group] as const),
+      ...blindRounds.groups.map((group) => ['blind', group] as const),
+    ].map(([executor, group]) => ({
+      executor,
+      round: group.round,
+      iterations: pilotRowsOf(group.rows).length,
+      complete: pilotRowsOf(group.rows).length === PILOT_ITERATIONS,
+    })),
     fixedPerIteration,
     remaining,
     forecast,

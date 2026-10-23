@@ -85,9 +85,7 @@ describe('the pilot round of a journal row', () => {
     expect('row' in appendJournal(root, 'x', journalRow(1, { executor: 'blind', pilotRound: 'r4' }))).toBe(
       true,
     );
-    expect(
-      appendJournal(root, 'x', journalRow(1, { executor: 'blind', pilotRound: 'r4' })),
-    ).toEqual({
+    expect(appendJournal(root, 'x', journalRow(1, { executor: 'blind', pilotRound: 'r4' }))).toEqual({
       refused: ['iteration must be 2, the next blind row of the journal, not 1'],
     });
     const { rows, problems } = readJournal(root, 'x');
@@ -116,7 +114,7 @@ describe('--hardness with two pilot rounds', () => {
     expect(h.remaining).toBe(200);
     expect(h.forecast).toBe(20);
     expect(h.gate.reasons.join(' | ')).not.toMatch(/fall from|holds \d+ of 10/);
-    expect(formatHardness('x', h)).toMatch(/round r4/);
+    expect(formatHardness('x', h)).toMatch(/Pilot round measured: r4, the latest complete round of the blind pilot \(rounds in the journal: .*blind r2 \(10 of 10\), blind r4 \(10 of 10\)\)/);
   });
 
   it('measures the same round when the rounds are appended in the other order of ids', () => {

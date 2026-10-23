@@ -76,7 +76,10 @@ export const JournalRowSchema = z
      */
     pilotRound: z
       .string()
-      .regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$/, 'a pilot round is a short id of letters, digits, dots, dashes and underscores')
+      .regex(
+        /^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$/,
+        'a pilot round is a short id of letters, digits, dots, dashes and underscores',
+      )
       .optional(),
     /** The catch items, counted apart: `bankSize` and `passing` hold the hardness items alone (section 12.4). */
     catchItems: z.object({ size: count, passing: count }).strict().optional(),
