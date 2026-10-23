@@ -98,20 +98,24 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
   };
 }
 
-/**
- * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
- * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
- */
+/** The calibration takes about a second on a hosted runner; a run that takes this long is stuck. */
+export const CALIBRATION_TIMEOUT_MS = 120_000;
+
 /**
  * Measures the calibration (scale-calibration.ts) in a short-lived process of its own on this machine. Its
  * result goes to the timed child through the environment, so the timed child's heap is not touched by it.
  */
-export function measureCalibration(): Promise<number | string> {
+export function measureCalibration(timeoutMs = CALIBRATION_TIMEOUT_MS): Promise<number | string> {
   const child = fileURLToPath(new URL('./scale-calibrate.ts', import.meta.url));
   return new Promise((resolve) => {
     const proc = spawn(process.execPath, ['--import', 'tsx', child], { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     let err = '';
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      proc.kill('SIGKILL');
+    }, timeoutMs);
     proc.stdout.on('data', (chunk) => {
       out += String(chunk);
     });
@@ -119,6 +123,11 @@ export function measureCalibration(): Promise<number | string> {
       err += String(chunk);
     });
     proc.on('close', (code) => {
+      clearTimeout(timer);
+      if (timedOut) {
+        resolve(`the calibration did not finish in ${timeoutMs} ms and was stopped`);
+        return;
+      }
       const value = Number(out.trim().split('\n').at(-1));
       resolve(
         Number.isFinite(value) && value > 0
@@ -129,6 +138,10 @@ export function measureCalibration(): Promise<number | string> {
   });
 }
 
+/**
+ * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
+ * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
+ */
 export async function scaleReport(
   factor: number,
   seed: number,

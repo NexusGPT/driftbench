@@ -1,3 +1,4 @@
+import { ItemFailure } from '../../../failure';
 import type {
   CoverageResult,
   FileStore,
@@ -35,7 +36,7 @@ export type ItemContext = {
   id: string;
 };
 
-export type ItemOutcome = { pass: boolean; detail: string };
+export type ItemOutcome = { pass: boolean; detail: string; failure?: ItemFailure };
 
 /** What a stem runs for one variant: it returns (optionally a short note) when the item passes. */
 export type StemRun = (variant: string, ctx: ItemContext) => undefined | string | Promise<undefined | string>;
@@ -62,6 +63,7 @@ export async function outcomeOf(run: () => ReturnType<StemRun>): Promise<ItemOut
     const note = await run();
     return ok(typeof note === 'string' ? note : 'ok');
   } catch (cause) {
+    if (cause instanceof ItemFailure) return { pass: false, detail: cause.message, failure: cause };
     if (cause instanceof Fail) return fail(cause.message);
     const error = cause instanceof Error ? cause : new Error(String(cause));
     return fail(`the item threw ${error.name}: ${error.message}`);

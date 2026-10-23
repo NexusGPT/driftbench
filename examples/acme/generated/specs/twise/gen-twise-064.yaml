@@ -90,10 +90,10 @@ rules:
     - notify_sales
   one_message_per_turn: true
 perturbations:
-  - id: p1-D1_off_topic
-    class: D1_off_topic
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: Are your stores open on Saturday?
+    user: My last bill charged me twice, can you fix it?
     expect:
       stage: needs
       stage_reported: true
@@ -101,7 +101,7 @@ perturbations:
         - label: coverage.check
           count: 0
       must:
-        - Monday to Saturday
+        - Acme Care
       lang: EN
     recovery:
       within_blocks: 0
