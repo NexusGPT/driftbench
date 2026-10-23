@@ -4,7 +4,7 @@
 id: gen-behaviour-balance-114
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-011: Path home-callback of new-home: needs > address > offer > callback > handover"
+title: "Balanced behaviour B-003: Path home-callback of new-home: needs > address > offer > callback > handover"
 channel: chat
 lang: EN
 tier: generated
@@ -13,7 +13,7 @@ tags:
   - persona:new-customer
   - data:5g-only
 covers:
-  - B-011
+  - B-003
 stages:
   - needs
   - identify
@@ -29,8 +29,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-011
-    rubric: Answer an off-topic question in one line and resume the pending step
+  - name: behaviour.B-003
+    rubric: Check coverage at the street address before offering home internet
     gating: false
     scope: conversation
   - name: flow.new-home
@@ -53,7 +53,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-011
+        - behaviour.B-003
         - flow.new-home
   - id: b2-address-to-offer
     when:
@@ -123,27 +123,6 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
-perturbations:
-  - id: p1-D9_out_of_scope
-    class: D9_out_of_scope
-    inject_at: 0
-    user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: needs
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-    recovery:
-      within_blocks: 0
-      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -157,7 +136,7 @@ metadata:
       hash: 7a022d4e1380
     path: home-callback
     cell:
-      behaviour: B-011
+      behaviour: B-003
       flow: new-home
       user_type: new-customer
       coverage_result: 5g-only
@@ -219,7 +198,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-114
         values:
-          behaviour: B-011
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
@@ -253,7 +232,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-114
         values:
-          behaviour: B-011
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
@@ -279,7 +258,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-114
         values:
-          behaviour: B-011
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only
@@ -329,7 +308,7 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-114
         values:
-          behaviour: B-011
+          behaviour: B-003
           flow: new-home
           user_type: new-customer
           coverage_result: 5g-only

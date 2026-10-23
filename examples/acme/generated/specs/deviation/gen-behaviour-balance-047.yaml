@@ -4,8 +4,8 @@
 id: gen-behaviour-balance-047
 version: 7a022d4e1380
 kind: conversation
-title: "Balanced behaviour B-004: Path home-order of new-home: needs > address > offer > details > recap > order_placed"
-channel: chat
+title: "Balanced behaviour B-005: Path home-order of new-home: needs > address > offer > details > recap > order_placed"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -13,7 +13,7 @@ tags:
   - persona:new-customer
   - data:fiber
 covers:
-  - B-004
+  - B-005
 stages:
   - needs
   - identify
@@ -29,8 +29,8 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-004
-    rubric: Offer only the home plans available at the checked address
+  - name: behaviour.B-005
+    rubric: Book a sales callback with a phone number when the customer asks or a check cannot be done
     gating: false
     scope: conversation
   - name: flow.new-home
@@ -53,7 +53,7 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-004
+        - behaviour.B-005
         - flow.new-home
   - id: b2-address-to-offer
     when:
@@ -145,27 +145,6 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
-perturbations:
-  - id: p1-D5_language_switch
-    class: D5_language_switch
-    inject_at: 0
-    user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: needs
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-    recovery:
-      within_blocks: 0
-      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -179,13 +158,13 @@ metadata:
       hash: 7a022d4e1380
     path: home-order
     cell:
-      behaviour: B-004
+      behaviour: B-005
       flow: new-home
       user_type: new-customer
       coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -249,13 +228,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-047
         values:
-          behaviour: B-004
+          behaviour: B-005
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -283,13 +262,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-047
         values:
-          behaviour: B-004
+          behaviour: B-005
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           stage_transition: address-to-offer
           stage: offer
       relation: derived_from
@@ -309,13 +288,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-047
         values:
-          behaviour: B-004
+          behaviour: B-005
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           stage_transition: offer-to-details
           stage: details
       relation: derived_from
@@ -335,13 +314,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-047
         values:
-          behaviour: B-004
+          behaviour: B-005
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           stage_transition: details-to-recap
           stage: recap
       relation: derived_from
@@ -377,13 +356,13 @@ metadata:
         kind: plan_row
         row: gen-behaviour-balance-047
         values:
-          behaviour: B-004
+          behaviour: B-005
           flow: new-home
           user_type: new-customer
           coverage_result: fiber
           plan_choice: names-one
           customer_details: name-and-email
-          channel: chat
+          channel: whatsapp
           stage_transition: recap-to-order_placed
           stage: order_placed
       relation: derived_from

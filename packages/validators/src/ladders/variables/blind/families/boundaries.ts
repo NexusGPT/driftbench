@@ -1,9 +1,10 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { FileBoundary } from '../../interface';
 import { drawnCase, PATH, readSpans } from '../conditions';
 import { drawCondition } from '../draws';
 import { defect, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
-import { must, type Stem, show } from '../kit';
+import { type Stem, show } from '../kit';
 import { numeric } from '../spans';
 
 /** Family boundaries: R1, R3 (three samples, roles), R4 (merged samples), the sides of a boundary against its comparison. */
@@ -121,9 +122,13 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             variableOf(store, 2).boundaries = [{ holds: OVER, fails: UNDER, edge: EDGE, limit: 2 }];
           });
           const errors = validateIssueAt(ctx, b.store, 'variables.2.boundaries.0');
-          must(
+          check(
             errors.some((e) => e.code === 'SCHEMA_CUSTOM'),
-            () => `no SCHEMA_CUSTOM among ${show(errors, 240)}`,
+            () => ({
+              rule: 'no SCHEMA_CUSTOM among {}',
+              got: { details: [show(errors, 240)] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -244,9 +249,13 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             ];
           });
           const errors = validateIssueAt(ctx, b.store, 'variables.2.boundaries.0');
-          must(
+          check(
             errors.some((e) => e.code === 'SCHEMA_UNRECOGNIZED_KEYS'),
-            () => `no SCHEMA_UNRECOGNIZED_KEYS among ${show(errors, 240)}`,
+            () => ({
+              rule: 'no SCHEMA_UNRECOGNIZED_KEYS among {}',
+              got: { details: [show(errors, 240)] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -305,10 +314,11 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             const d = drawCondition(ctx.rng, c, 'plain', { limit });
             const r = readSpans(ctx, [numeric(d.text, d.subject, d.limit, d.cmp)]);
             const b = r.variable.boundaries?.find((x) => x.limit === limit && x.comparison === c);
-            must(
-              !!b && new Set([b.holds, b.fails, b.edge]).size === 3,
-              () => `for ${c} the boundary is ${show(b)}; a reader always writes a third value for the edge`,
-            );
+            check(!!b && new Set([b.holds, b.fails, b.edge]).size === 3, () => ({
+              rule: 'for {} the boundary is {}; a reader always writes a third value for the edge',
+              got: { details: [c, show(b)] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -321,11 +331,12 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
           const r = readSpans(ctx, [text]);
           for (const s of r.samples) {
             const q = s.value.provenance?.find((p) => p.kind === 'quote');
-            must(
-              q?.kind === 'quote' && q.path === PATH && q.quote === text,
-              () =>
-                `sample ${s.sample} has provenance ${show(s.value.provenance)}; expected a quote of the span in ${PATH}`,
-            );
+            check(q?.kind === 'quote' && q.path === PATH && q.quote === text, () => ({
+              rule: 'a sample carries a quote provenance of its span',
+              input: { sample: s.sample },
+              got: { provenance: show(s.value.provenance) },
+              expected: { path: PATH, quote: text },
+            }));
           }
         },
       ],
@@ -344,14 +355,25 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
             numeric(b.text, b.subject, b.limit, b.cmp),
           ]);
           const nums = r.samples.map((s) => s.sample);
-          must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
-          must(
+          check(new Set(nums).size === nums.length, () => ({
+            rule: 'samples {} repeat a number',
+            got: { details: [show(nums)] },
+            expected: none('observation'),
+          }));
+          check(
             nums.includes(a.limit) && nums.some((n) => n < a.limit) && nums.some((n) => n > a.limit),
-            () => `samples ${show(nums)} lack a case below, at or above ${a.limit}`,
+            () => ({
+              rule: 'samples {} lack a case below, at or above {}',
+              got: { details: [show(nums), a.limit] },
+              expected: none('observation'),
+            }),
           );
-          must(
+          check(
             r.store.variables.filter((v) => v.values.some((x) => typeof x.sample === 'number')).length === 1,
-            () => 'two spans of one quantity gave more than one variable',
+            () => ({
+              rule: 'two spans of one quantity gave more than one variable',
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -372,12 +394,17 @@ export const BOUNDARIES_STEMS: readonly Stem[] = [
           ]);
           const nums = r.samples.map((s) => s.sample).sort((x, y) => x - y);
           for (const limit of [a.limit, b.limit]) {
-            must(
-              nums.some((n) => n < limit) && nums.includes(limit) && nums.some((n) => n > limit),
-              () => `samples ${show(nums)} lack a case below, at or above ${limit}`,
-            );
+            check(nums.some((n) => n < limit) && nums.includes(limit) && nums.some((n) => n > limit), () => ({
+              rule: 'samples {} lack a case below, at or above {}',
+              got: { details: [show(nums), limit] },
+              expected: none('observation'),
+            }));
           }
-          must(new Set(nums).size === nums.length, () => `samples ${show(nums)} repeat a number`);
+          check(new Set(nums).size === nums.length, () => ({
+            rule: 'samples {} repeat a number',
+            got: { details: [show(nums)] },
+            expected: none('observation'),
+          }));
         },
       ],
     ],

@@ -129,6 +129,6 @@ describe('a product that labels the spans itself from a table of the vocabulary'
   it('the table product fails it: it follows its own reading of the text, not the label', async () => {
     const outcome = await runItem(item(ID), 1, ROOT, tableCheat);
     expect(outcome.pass).toBe(false);
-    expect(outcome.detail).toMatch(/read the text, not the label|label gives the limit 9/);
+    expect(outcome.detail).toMatch(/reads the limit of the label, not the number in the text/);
   });
 });

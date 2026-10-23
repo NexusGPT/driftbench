@@ -11,8 +11,14 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { plan } from './shard-plan.mjs';
 
-/** Test files that read Markdown the module graph does not see: `--changed` alone cannot select their examples. */
-export const ALWAYS = ['packages/cli/test/help-topics.test.ts'];
+/**
+ * Test files that read Markdown the module graph does not see: `--changed` alone cannot select their examples.
+ * The transcript test reads the generate transcript of docs/estate.md, so a change to that page alone must run it.
+ */
+export const ALWAYS = [
+  'packages/cli/test/help-topics.test.ts',
+  'packages/generate/test/estate/docs-transcript.test.ts',
+];
 
 /** The affected test files: the listed ones and ALWAYS, once each, in a fixed order. */
 export function affectedFiles(listed) {
