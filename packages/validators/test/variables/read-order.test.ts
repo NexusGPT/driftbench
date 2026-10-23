@@ -69,9 +69,9 @@ describe('the read sequence of every passing item is that of the base branch', (
 
 /**
  * The runtime enforcement of lazy diagnostics. Each item runs against each planted mutant of the reference, once with
- * the diagnostics of a failing check built and once without; the product must be read the same way both times. A
- * diagnostic that reads the product (a getter, a length, a nested field) adds reads to the first run only, however
- * its factory is written.
+ * the diagnostics of a failing check built and once without. The run without them must be a prefix of the run with
+ * them: a diagnostic may read the product to describe the failure after the verdict, never before it. A diagnostic
+ * that reads earlier changes the sequence ahead of the verdict, however its factory is written.
  */
 describe('the diagnostics of a failing item read nothing of the product', () => {
   it('reads are the same with the diagnostics built and without, for every mutant', async () => {
@@ -108,8 +108,12 @@ describe('the diagnostics of a failing item read nothing of the product', () => 
               }
               if (pass) continue;
               failing += 1;
-              if ((logs[0] as string[]).join('\n') !== (logs[1] as string[]).join('\n'))
-                differing.push(`${mutant.name}|${seed}|${item.id}`);
+              // The diagnostics are built after the verdict is decided, so the run without them is a prefix of the run
+              // with them: they may read the product to describe the failure, never before the verdict.
+              const on = logs[0] as string[];
+              const off = logs[1] as string[];
+              const isPrefix = off.length <= on.length && off.every((line, i) => line === on[i]);
+              if (!isPrefix) differing.push(`${mutant.name}|${seed}|${item.id}`);
             }
           }
         } finally {
