@@ -41,7 +41,9 @@ describe('the catch items of the planner family', () => {
   });
 
   it('passes zero-total-weights-refused on a correct refusal in other words, seeds 1 to 3', async () => {
-    const module = fileURLToPath(new URL('./fixtures/planner-mutants/zero-weights-reworded.ts', import.meta.url));
+    const module = fileURLToPath(
+      new URL('./fixtures/planner-mutants/zero-weights-reworded.ts', import.meta.url),
+    );
     const items = catchItems(module).filter((item) => item.id === 'planner.catch.zero-total-weights-refused');
     for (const seed of [1, 2, 3]) {
       const [result] = await evaluate(items, data(seed));
