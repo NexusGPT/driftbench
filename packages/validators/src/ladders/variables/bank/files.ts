@@ -169,8 +169,16 @@ export function breaksEveryPeriod(classes: readonly string[]): boolean {
  */
 export function schedule(cases: readonly FileCase[], seed: number, key: string): FileCase[] {
   const classes = cases.map(classOf);
-  must(new Set(classes).size >= 2, () => `the item ${key} has one class of answer: nothing to schedule`);
-  must(cases.length >= 18, () => `the item ${key} makes ${cases.length} calls; at least 18 are needed`);
+  check(new Set(classes).size >= 2, () => ({
+    rule: 'the item {} has one class of answer: nothing to schedule',
+    got: { details: [key] },
+    expected: none('observation'),
+  }));
+  check(cases.length >= 18, () => ({
+    rule: 'the item {} makes {} calls; at least N are needed',
+    got: { details: [key, cases.length] },
+    expected: none('observation'),
+  }));
   for (let attempt = 0; attempt < 400; attempt += 1) {
     const rng = makeRng((Math.imul(seed >>> 0, 0x9e3779b1) ^ hashKey(`${key}:${attempt}`)) >>> 0);
     const order = rng.shuffle(cases.map((_, i) => i));
