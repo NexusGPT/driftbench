@@ -322,3 +322,19 @@ export const changesKeys = (input: { table: Map<{ n: number }, string>; bag: Set
   for (const member of input.bag) member.n += 10;
   return input.table.size;
 };
+
+let held: { total: number } | undefined;
+/** A new object on every call, and the earlier one frozen afterwards: its values stay, its extensibility changes. */
+export const freezesEarlier = (xs: readonly number[]) => {
+  const result = { total: xs.reduce((a, b) => a + b, 0) };
+  if (held) Object.freeze(held);
+  held = result;
+  return result;
+};
+
+const SHARED = Object.freeze({ unit: 'count', scale: [1, 10, 100] });
+/** Results that do not change: nested lists, and one constant object they all hold. */
+export const pureA = (n: number) => ({ meta: SHARED, values: [n, n + 1], nested: { list: [n * 2] } });
+export const pureB = (n: number) => ({ meta: SHARED, total: n * 3, tags: ['b', String(n)] });
+export const pureC = (n: number) => [{ meta: SHARED }, { at: n }, [n, -0, Number.NaN]];
+export const pureD = (n: number) => ({ inner: { meta: SHARED, deeper: { meta: SHARED, n } } });

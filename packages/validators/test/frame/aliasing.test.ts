@@ -424,3 +424,50 @@ describe('write-back keeps the identity of Map keys and Set members', () => {
     expect(member.n).toBe(110);
   });
 });
+
+// Batch 44 of PR 986 (validators run 39962561437): one report named only the call, and nineteen repeats did not
+// show it again. The report now names what changed, so a change seen once can be diagnosed.
+describe('the report of a changed result names what changed', () => {
+  it.each(['shared', 'overwrite'] as const)('%s: the path, and the value before and after', (name) => {
+    const run = twoCalls(name, true);
+    expect(run.found).toContain('has changed since');
+    expect(run.found).toContain('.total was 6, now 60');
+  });
+
+  it('a result frozen afterwards: its extensibility, its values the same', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    frame.product.freezesEarlier([1, 2, 3]);
+    frame.product.freezesEarlier([4]);
+    const found = frame.aliasSince(0);
+    expect(found).toContain('has changed since');
+    expect(found).toContain('its extensibility');
+  });
+});
+
+// Metamorphic: the same unchanged results, made in any order and kept in any order of the watch's ring (more calls
+// than its 16 places), never report a change. A digest that depended on where an object sits in a scan, or on the
+// results kept beside it, would report one.
+describe('unchanged results in any order', () => {
+  const calls = [
+    (p: Product, n: number) => p.pureA(n),
+    (p: Product, n: number) => p.pureB(n),
+    (p: Product, n: number) => p.pureC(n),
+    (p: Product, n: number) => p.pureD(n),
+  ];
+  const orders = [
+    [0, 1, 2, 3],
+    [3, 2, 1, 0],
+    [1, 3, 0, 2],
+    [2, 0, 3, 1],
+  ];
+  it.each(orders.map((order) => [order.join(',')]))('order %s, six rounds: no change is reported', (text) => {
+    const order = text.split(',').map(Number);
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, aliasing: true, plain: false });
+    open.push(frame as Frame<unknown>);
+    for (let round = 0; round < 6; round += 1)
+      for (const at of order)
+        (calls[at] as (p: Product, n: number) => unknown)(frame.product, round * 10 + at);
+    expect(frame.aliasSince(0)).toBeUndefined();
+  });
+});
