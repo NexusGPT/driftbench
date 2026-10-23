@@ -70,7 +70,8 @@ function relayOf(shifts: [number, number, number]) {
     const waited = Atomics.wait(flag, 0, 0, 30_000);
     const reply = receiveMessageOnPort(port1)?.message as Record<string, unknown> | undefined;
     Atomics.store(flag, 0, 0);
-    if (waited === 'timed-out' || reply === undefined) throw new Error('the relay did not answer within 30 s');
+    if (waited === 'timed-out' || reply === undefined)
+      throw new Error('the relay did not answer within 30 s');
     return reply;
   };
   next();
