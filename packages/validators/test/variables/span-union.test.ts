@@ -71,4 +71,52 @@ describe('the union of the span recordings', () => {
     expect(union(folder(files), dateOf).text).toBe(union(folder(files), dateOf).text);
     expect(readFileSync(join(folder(files), 'a-new.jsonl'), 'utf8')).toBe(line('x is over 5', 2));
   });
+
+  describe('a label whose subject shares no word with its clause', () => {
+    const named = (text: string, subject: string) =>
+      `${JSON.stringify({ text, label: { kind: 'numeric', subject, limit: 32, comparison: 'gt', unit: 'turns' } })}\n`;
+    const subjectOf = (out: string, text: string) =>
+      (texts(out).find((row) => row.text === text)?.label as unknown as { subject: string }).subject;
+    const clause = 'the session exceeds 32 turns';
+
+    it('gives way to an older label that names a word of the clause', () => {
+      const dir = folder({
+        'b-old.jsonl': named(clause, 'session turns'),
+        'a-new.jsonl': named(clause, 'history length'),
+      });
+      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('session turns');
+    });
+
+    it('does not give way when the newest label names a word of the clause', () => {
+      const dir = folder({
+        'b-old.jsonl': named(clause, 'history length'),
+        'a-new.jsonl': named(clause, 'session length'),
+      });
+      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('session length');
+    });
+
+    it('keeps the newest label when no recording names a word of the clause', () => {
+      const dir = folder({
+        'b-old.jsonl': named(clause, 'history length'),
+        'a-new.jsonl': named(clause, 'conversation size'),
+      });
+      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('conversation size');
+    });
+
+    it('never overrules the vocabulary', () => {
+      const dir = folder({
+        'b-old.jsonl': named(clause, 'session turns'),
+        [VOCABULARY]: named(clause, 'history length'),
+      });
+      expect(subjectOf(union(dir, dateOf).text, clause)).toBe('history length');
+    });
+
+    it('counts the texts it repaired', () => {
+      const dir = folder({
+        'b-old.jsonl': named(clause, 'session turns'),
+        'a-new.jsonl': named(clause, 'history length'),
+      });
+      expect(union(dir, dateOf).regrounded).toBe(1);
+    });
+  });
 });
