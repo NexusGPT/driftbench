@@ -137,8 +137,12 @@ function pathItems(): BankItem[] {
       }),
       item(`paths.${id}.channels`, 3, `${C.seeders}#twiseSeeder`, (generated, data) => {
         const specs = walking(generated, id);
+        // Only the channels an allowed full cell holds the path on (possible.ts): a path whose flow lists only web-only
+        // behaviours has no messaging walk to ask for.
+        const possible = pathChannels(generated.hidden, id);
         const missing = generated.hidden.channels.filter(
           (channel) =>
+            possible.includes(channel) &&
             !obligation(
               data,
               ['path', id, 'channel', channel],
