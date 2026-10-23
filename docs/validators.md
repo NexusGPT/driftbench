@@ -121,6 +121,7 @@ Feedback. Each miss prints the seed, the truth, the estimate and its interval, a
 2. The builder fixes the component the item table names, runs the same validator on the same seed, then on `--seeds 1..20`.
 3. The builder commits with the ladder output in the message. CI runs the visible seeds and the hidden seed. A run below the floor fails CI.
 4. When every seed passes a level above the floor, the floor is raised in its own commit. The floor never goes down.
+   The floor of a validator is checked on the gate seeds 1, 2, 3 and the recorded hidden seed. A seed outside the gate that sits below the floor for a named product gap is listed in that validator's GATE file with its evidence, never hidden: for the generator, seeds 5, 8 and 14 sit at level 1 because the product does not apply the behaviours' channel inventory when it picks a walk's channel (`validators/generator/GATE.md`, "Floor of ladder version 3").
 5. The validators run on every merge, so a regression is caught at the level it breaks, with items, before any human reads a diff.
 
 What the owner reads: one table per validator per merge, seven rows at most, with the level reached, the floor, and the count of named items at the first failing level.

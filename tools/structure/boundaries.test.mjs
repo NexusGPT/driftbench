@@ -34,9 +34,7 @@ const CROSSING_ALLOWLIST = {
 };
 
 // Workspace packages imported from src that the manifest does not declare. Key: "<package> -> <package>".
-const UNDECLARED_ALLOWLIST = {
-  'validators -> report': 'validators imports the report package without listing it in its manifest',
-};
+const UNDECLARED_ALLOWLIST = {};
 
 // Workspace packages a manifest declares that src never imports. Key: "<package> -> <package>".
 const UNUSED_ALLOWLIST = {};

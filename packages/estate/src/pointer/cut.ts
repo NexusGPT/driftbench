@@ -38,6 +38,12 @@ export type Unit = {
   path: string[];
   /** For a front matter value: its YAML path, such as `$.description`. */
   key?: string;
+  /**
+   * For a table cell: the text of the first cell of its row (its row key, empty in the header row), the text of the
+   * header cell above it (its column header), and the place of the table in the file. The ledger follows a short or
+   * repeated cell by its row key and column header.
+   */
+  cell?: { row: string; column: string; table: number; header?: true };
 };
 
 export type Cut = { units: Unit[]; digest: string };
@@ -63,6 +69,10 @@ const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 function mask(text: string, protect: ReadonlyArray<[number, number]> = []): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
+  // An email address is one word: the dots inside it are no stops (tried only where a run of its characters starts,
+  // so a long run without an @ is read once). An ellipsis in square brackets marks an omission.
+  // An ellipsis that opens a sentence after a stop reads as the capital of that sentence. Any other three dots,
+  // spaced or not, or the ellipsis character, never end a sentence: a fourth dot after them is the full stop.
   // A footnote reference is a closing mark of the sentence it follows: a full stop before it still ends the sentence
   // after it, never inside it. The parser found the reference; here only its characters are hidden.
   let hidden = text;
@@ -72,6 +82,13 @@ function mask(text: string, protect: ReadonlyArray<[number, number]> = []): stri
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
+    .replace(/(?<![\p{L}\p{N}._%+-])[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu, letters)
+    .replace(/\[(?:\.\.\.|…)\]/g, letters)
+    .replace(
+      /([.!?]['"”’)\]]*\s+)(\.\.\.|…)(?=\p{L})/gu,
+      (_match, lead: string, dots: string) => lead + 'X'.repeat(dots.length),
+    )
+    .replace(/\.(?: ?\.){2}|…/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
     .replace(/[\r\n]/g, ' ')
@@ -88,7 +105,8 @@ function mask(text: string, protect: ReadonlyArray<[number, number]> = []): stri
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
 function shouldMerge(before: string, after: string): boolean {
-  const head = before.trimEnd();
+  // Directional and other format marks (U+202A around a stop in right-to-left text) are not part of the shape.
+  const head = before.replace(/\p{Cf}/gu, '').trimEnd();
   // A short capitalised word or a single-letter abbreviation before the stop: "Dr.", "e.g.", "A."
   if (/(?:^|[\s(])(\p{Lu}\p{Ll}{0,2}|\p{L}|\p{L}\.\p{L})\.$/u.test(head)) return true;
   if (/\d\.$/.test(head) && /^\d/.test(after.trimStart())) return true;
@@ -331,6 +349,8 @@ type Context = {
   extra?: string[];
   /** Only this parser paragraph owns the alert marker line; all descendants inherit the type. */
   alert?: { paragraph: Node; from: number };
+  /** The row key, column header and table of the cell being cut. */
+  cell?: Unit['cell'];
 };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
@@ -507,7 +527,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
   const source = rawSource.slice(base);
   const units: Unit[] = [];
 
-  const add = (container: Container, start: number, end: number, path: string[], key?: string) => {
+  const add = (
+    container: Container,
+    start: number,
+    end: number,
+    path: string[],
+    key?: string,
+    cell?: Unit['cell'],
+  ) => {
     const [from, to] = trimSpan(source, start, end);
     if (to <= from) return;
     const text = source.slice(from, to);
@@ -519,6 +546,7 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
       fp: fingerprint(text),
       path: [...path],
       ...(key ? { key } : {}),
+      ...(cell ? { cell } : {}),
     });
   };
 
@@ -612,6 +640,8 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     for (const top of program.body) walk(top, '$');
   };
 
+  let tables = 0;
+
   const markdown = (
     text: string,
     locate: (position: number) => number,
@@ -657,7 +687,14 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
     const here = () => [...inherited, ...trail.map((entry) => entry.title)];
     // Every leaf, including the opaque/HTML branches, uses the same path construction.
     const emit = (kind: Container, from: number, to: number, context: Context) =>
-      add(kind, at(from), at(to), [...here(), ...(context.extra ?? [])]);
+      add(
+        kind,
+        at(from),
+        at(to),
+        [...here(), ...(context.extra ?? [])],
+        undefined,
+        kind === 'table_cell' ? context.cell : undefined,
+      );
 
     const htmlBlock = (node: Node, context: Context) => {
       const from = node.position?.start.offset ?? 0;
@@ -792,6 +829,36 @@ export function cut(rawSource: string, options: CutOptions = {}): Cut {
           // A nested HTML block that does not shrink is opaque, so reparsing terminates.
           if (depth >= 2) return emit('opaque', start, end, context);
           return htmlBlock(node, context);
+        case 'table': {
+          // Each cell carries its row key (the first cell of its row; none in the header row) and its column header.
+          const cellText = (cell: Node): string => {
+            const kids = cell.children ?? [];
+            const from = kids[0]?.position?.start.offset;
+            const to = kids.at(-1)?.position?.end.offset;
+            return from === undefined || to === undefined
+              ? ''
+              : text.slice(from, to).replace(/\s+/g, ' ').trim();
+          };
+          const rows = node.children ?? [];
+          const header = (rows[0]?.children ?? []).map(cellText);
+          tables += 1;
+          rows.forEach((row, rowAt) => {
+            const cells = row.children ?? [];
+            const rowKey = rowAt === 0 ? '' : cellText(cells[0] as Node);
+            cells.forEach((cell, column) => {
+              descend(cell, {
+                ...context,
+                cell: {
+                  row: rowKey,
+                  column: header[column] ?? '',
+                  table: tables,
+                  ...(rowAt === 0 ? { header: true as const } : {}),
+                },
+              });
+            });
+          });
+          return;
+        }
         case 'tableCell': {
           const kids = node.children ?? [];
           if (kids.length > 0) {

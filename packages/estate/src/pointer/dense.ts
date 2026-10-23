@@ -38,6 +38,17 @@ export const SPAN_RULE =
   'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
   'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
 
+/** Added after SPAN_RULE only for a set that declares a numeric link kind, so no other request changes (cassette keys hold). */
+export const NUMBER_RULE =
+  'A link kind marked NUMERIC is written {"kind", "to", "value", "unit"?}: to is one of the comparisons listed under it, value is the number as a JSON number, unit says what it counts when the unit says so. Several such links may stand on one entry.';
+
+/** The system text of a set: spans and links add their rule, a numeric link kind adds its own. */
+export function systemFor(set: LabelSet): string {
+  if (!set.spans && !set.links) return DENSE_SYSTEM;
+  const numeric = set.links?.some((kind) => kind.number) ? ` ${NUMBER_RULE}` : '';
+  return `${DENSE_SYSTEM} ${SPAN_RULE}${numeric}`;
+}
+
 /** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
 function spanLines(set: LabelSet, context: LabelContext): string[] {
   const lines: string[] = [];
@@ -54,6 +65,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
     lines.push('LINK KINDS:');
     for (const kind of set.links) {
       lines.push(`- ${kind.name}: ${kind.description}`);
+      if (kind.number) lines.push(`    NUMERIC; "to" is one of: ${(kind.values ?? []).join(', ')}`);
       for (const candidate of context.candidates?.[kind.name] ?? [])
         lines.push(`    ${candidate.id}  ${candidate.label}`);
     }
@@ -182,6 +194,10 @@ export function denseLabels(value: unknown): Labelled[] {
       units: String(entry.units),
       label: entry.label,
       ...(target === undefined || target === null ? {} : { target: target as number }),
+      // Scopes are kept as answered, like a target: the check refuses a malformed list.
+      ...(!Array.isArray(entry.scopes) || entry.scopes.length === 0
+        ? {}
+        : { scopes: entry.scopes as number[] }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
       ...(!Array.isArray(entry.spans) || entry.spans.length === 0
         ? {}
@@ -192,6 +208,14 @@ export function denseLabels(value: unknown): Labelled[] {
     });
   }
   return out;
+}
+
+/** The indexes in the file of the units a list of window numbers names. */
+function scopeIndexes(numbers: readonly number[], window: Window): number[] {
+  return numbers.flatMap((n) => {
+    const unit = window.units[n - 1];
+    return unit ? [unit.index] : [];
+  });
 }
 
 /** The opinions of a dense answer: one label per unit it named, a target as the index of the unit in the file. */
@@ -210,6 +234,7 @@ export function denseOpinions(
     byUnit.set(unit.index, {
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
+      ...(accepted?.scopes ? { scopes: scopeIndexes(accepted.scopes, window) } : {}),
       ...(accepted?.spans ? { spans: accepted.spans } : {}),
       ...(accepted?.links ? { links: accepted.links } : {}),
     });
@@ -268,7 +293,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        system: systemFor(set),
         messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),

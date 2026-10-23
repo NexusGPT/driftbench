@@ -13,6 +13,7 @@ tags:
   - mode:live
   - kind:gate
   - kind:skill
+  - kind:instruction
 target:
   adapter: claude-code
 given:
@@ -76,6 +77,8 @@ metadata:
     atoms:
       - gate.weekly-report.read-templates-report-md-before-writing
       - skill.weekly-report.skill-weekly-report
+      - instruction.weekly-report.count-only-what-the-ledger-and
+      - instruction.weekly-report.save-the-report-as-reports-year
     planRow: ordered_pair.gate.weekly-report.read-templates-report-md-before-writing
     cell:
       atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
@@ -105,6 +108,24 @@ metadata:
         kind: rule
         rule: skill.weekly-report.skill-weekly-report
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.count-only-what-the-ledger-and
+        ledger: wrl4c7wlvb
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: db9e07132a1b
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.save-the-report-as-reports-year
+        ledger: 4u2gwiyt2j
+      relation: exercises
       status: declared
       created_by: generator
       at_version: db9e07132a1b
