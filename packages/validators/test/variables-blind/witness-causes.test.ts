@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { itemRng } from '../../src/ladders/variables/bank/util';
-import { expand } from '../../src/ladders/variables/blind/kit';
 import { BLIND_STEMS, blindBank } from '../../src/ladders/variables/blind/index';
+import { expand } from '../../src/ladders/variables/blind/kit';
 import { runCounting, runWitness, WITNESSES } from '../../src/ladders/variables/blind/witness';
 import { variablesImpl as empty } from '../variables/constant-empty';
 
@@ -19,7 +19,9 @@ import { variablesImpl as empty } from '../variables/constant-empty';
  */
 
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
-const CHANGES = fileURLToPath(new URL('../../../../validators/variables/cause-changes.json', import.meta.url));
+const CHANGES = fileURLToPath(
+  new URL('../../../../validators/variables/cause-changes.json', import.meta.url),
+);
 const light = expand(BLIND_STEMS).filter((item) => item.family !== 'scale');
 const bank = new Map(blindBank().map((item) => [item.id, item]));
 const witnessCauses = new Set(Object.values(WITNESSES).flatMap((list) => list.map((w) => w.cause)));

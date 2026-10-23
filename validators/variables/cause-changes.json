@@ -148,5 +148,606 @@
       "oldCode": "C30",
       "newCode": "C142"
     }
-  ]
+  ],
+  "witnessOnly": {
+    "from": "7e3ec68a0c35f27dba7637185c5628449e39e5b7",
+    "reason": "An item whose own check the constant empty implementation passes, and that only the paired witness (blind/witness.ts) fails, has the cause of the first witness check that fails it. The old cause restated the permissive behaviour the empty function already has (r4 cause review, validators/variables/audit.md).",
+    "changes": [
+      {
+        "id": "blind.boundaries.file.sides.decimal-limit",
+        "old": "a decimal limit is accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.ge-edge-is-a-third-value",
+        "old": "an inclusive greater comparison accepts a third value for the edge",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.ge-edge-is-the-holds-value",
+        "old": "an inclusive greater comparison accepts an edge that is the holds value",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.gt-edge-is-a-third-value",
+        "old": "a strict greater comparison accepts a third value for the edge",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.gt-edge-is-the-fails-value",
+        "old": "a strict greater comparison accepts an edge that is the fails value",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.le-edge-is-a-third-value",
+        "old": "an inclusive lesser comparison accepts a third value for the edge",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.le-edge-is-the-holds-value",
+        "old": "an inclusive lesser comparison accepts an edge that is the holds value",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.lt-edge-is-a-third-value",
+        "old": "a strict lesser comparison accepts a third value for the edge",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.lt-edge-is-the-fails-value",
+        "old": "a strict lesser comparison accepts an edge that is the fails value",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.negative-limit",
+        "old": "a negative limit is accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.no-limit-the-edge-is-a-third-value",
+        "old": "a boundary with no limit accepts a third value for its edge",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.no-limit-the-edge-is-the-holds-value",
+        "old": "a boundary with no limit accepts its edge on the holds side",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.two-boundaries-on-one-variable",
+        "old": "a variable may carry several boundaries",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.boundaries.file.sides.zero-limit",
+        "old": "a limit of zero is accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.budget.cut.budget-above-the-plan",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.budget-equal-to-the-plan",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.budget-half-of-the-plan",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.budget-one",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.budget-one-below-the-plan",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.budget-three",
+        "old": "a budget keeps a prefix of the uncut plan",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.same-budget-same-bytes",
+        "old": "the same budget gives the same bytes",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.cut.zero-budget-without-seeds",
+        "old": "a budget of zero without seeds gives no row",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.ties.any-plan-seed-gives-a-sound-ordered-plan",
+        "old": "any plan seed gives a sound plan ordered by weight",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.ties.equal-weights-stable-order",
+        "old": "rows of equal weight keep an order fixed by the seed",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.log-weight-is-the-sum-of-log-shares",
+        "old": "the log weight of a row is the sum of the logs of its shares",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.log-weight-is-written-to-nine-places",
+        "old": "the log weight is written to nine places",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.new-rows-run-most-common-first",
+        "old": "new rows run from the most common to the rarest",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.unapproved-values-leave-the-denominator",
+        "old": "values nobody approved leave the denominator of a share",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.uniform-shares-when-a-variable-has-no-weights",
+        "old": "a variable with no weights has uniform shares",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.unweighted-variable-beside-a-weighted-one",
+        "old": "an unweighted variable has uniform shares beside a weighted one",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.budget.traffic-order.weights-are-relative",
+        "old": "weights are relative, so a scale changes no share",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.counter.uncovered.limit-zero-lists-none",
+        "old": "the uncovered list holds the smaller of the limit and the missing count",
+        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+      },
+      {
+        "id": "blind.counter.uncovered.listed-tuples-are-distinct",
+        "old": "the uncovered tuples are distinct",
+        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+      },
+      {
+        "id": "blind.counter.uncovered.nothing-missing-lists-nothing",
+        "old": "nothing missing lists nothing",
+        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+      },
+      {
+        "id": "blind.diff.order.scaling-the-weights-of-a-variable-changes-nothing",
+        "old": "weights are relative, so scaling the weights of one variable changes no share",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.diff.seeds.seeds-that-cover-everything-leave-no-new-rows",
+        "old": "seeds that hold every valid row of a constrained space leave no new row",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.approval.approved-constraint-counts",
+        "old": "an approved constraint counts",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.approval.constraint-without-a-flag-counts",
+        "old": "a constraint with no flag counts as approved",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.sizes.duplicate-pair-changes-nothing",
+        "old": "a pair written again changes nothing",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.sizes.reversed-pair-is-the-same-pair",
+        "old": "a pair written in the other order is the same pair",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.unreachable-value.no-warning-when-every-value-can-be-held",
+        "old": "a store where every value can be held raises no warning",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.unsatisfiable.every-pair-of-two-binary-variables",
+        "old": "a space with no valid row gives no new row or a named error",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.unsatisfiable.every-value-of-one-variable",
+        "old": "a space with no valid row gives no new row or a named error",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.impossible.unsatisfiable.three-variables-with-a-cyclic-conflict",
+        "old": "a space with no valid row gives no new row or a named error",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.quotes.check.conversation-and-owner-evidence-need-no-file",
+        "old": "conversation and owner evidence need no file",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.check.found-in-every-place-a-quote-can-sit",
+        "old": "the quote check reads every place a quote can sit",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.check.ledger-id-does-not-change-the-check",
+        "old": "the ledger id plays no part in the quote check",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.check.quote-is-found",
+        "old": "the quote check finds a quote that sits in its file",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.check.quote-of-a-thousand-characters",
+        "old": "a quote of 1,000 characters is found in its file",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.check.the-same-quote-twice-is-fine",
+        "old": "the quote check finds a quote that sits in its file",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.composed-accents-in-the-file-decomposed-in-the-quote",
+        "old": "composed and decomposed accents fold to one form",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.decomposed-accents-in-the-file-composed-in-the-quote",
+        "old": "composed and decomposed accents fold to one form",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.markdown-backslash-before-an-asterisk",
+        "old": "the markdown backslash before a punctuation mark folds away",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.markdown-backslash-before-an-underscore",
+        "old": "the markdown backslash before a punctuation mark folds away",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.soft-hyphen-prints-nothing",
+        "old": "the soft hyphen folds away",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.typographic-double-quotes-in-the-file",
+        "old": "typographic double quotation marks fold to straight ones",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.typographic-quotes-in-the-quote",
+        "old": "typographic double quotation marks fold to straight ones",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.typographic-single-quotes-in-the-file",
+        "old": "typographic single quotation marks fold to straight ones",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.white-space-runs-in-the-file",
+        "old": "runs of white space fold to one before the quote is compared",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.white-space-runs-in-the-quote",
+        "old": "runs of white space fold to one before the quote is compared",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.zero-width-characters-in-the-file",
+        "old": "characters that print nothing fold away",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.folding.zero-width-characters-in-the-quote",
+        "old": "characters that print nothing fold away",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.no-constraints.true-quote-is-found",
+        "old": "the quote check finds a quote in a store file that has no constraints list",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.structure.lines-and-hash-match",
+        "old": "a lines entry hashes the named lines joined by a line feed",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.structure.pointer-and-hash-match",
+        "old": "a structure entry resolves its JSON pointer and compares the hash",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.structure.reformatted-file-and-another-key-order-keep-the-hash",
+        "old": "the hash of a structure entry is taken over the canonical JSON of the value",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.structure.the-empty-pointer-is-the-whole-file",
+        "old": "the empty pointer names the whole file",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.quotes.structure.windows-line-breaks-read-the-same",
+        "old": "a Windows line break reads as a line feed",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.reach.build-store.mapped",
+        "old": "the adapter maps buildStore to a function of the product",
+        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+      },
+      {
+        "id": "blind.reach.coverage.mapped",
+        "old": "the adapter maps coverage to a function of the product",
+        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+      },
+      {
+        "id": "blind.reach.plan.mapped",
+        "old": "the adapter maps plan to a function of the product",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.reach.quotes.mapped",
+        "old": "the adapter maps quotes to a function of the product",
+        "new": "quotes reports a quote that the file it names does not hold"
+      },
+      {
+        "id": "blind.reach.validate.mapped",
+        "old": "the adapter maps validate to a function of the product",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.reach.weight-interval.mapped",
+        "old": "the adapter maps weightInterval to a function of the product",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      },
+      {
+        "id": "blind.seeds.credit.each-new-row-covers-a-tuple-the-seeds-miss",
+        "old": "each new row holds a tuple the seeds miss",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.credit.every-full-row-as-a-seed",
+        "old": "seeds that hold every tuple leave no new row",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.credit.seeds-that-cover-everything-leave-no-new-row",
+        "old": "seeds that hold every tuple leave no new row",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.determinism.key-order-of-a-seed-does-not-matter",
+        "old": "the order of the keys of a seed changes nothing",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.determinism.key-order-of-the-store-does-not-matter",
+        "old": "the order of the keys of the store changes nothing",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.determinism.same-options-same-bytes",
+        "old": "equal inputs give equal bytes",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.determinism.the-plan-does-not-change-its-inputs",
+        "old": "the plan does not change its inputs",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.leading.absent-and-empty-seeds-are-equal",
+        "old": "absent and empty seeds are the same",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.leading.frozen-inputs-are-accepted",
+        "old": "frozen inputs are accepted",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.leading.new-rows-repeat-no-seed",
+        "old": "a new row never repeats a seed",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.leading.rows-have-distinct-nonempty-ids",
+        "old": "rows have distinct non-empty ids",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.seeds.warnings.regular-seeds-raise-no-warning",
+        "old": "regular seeds raise no warning",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.sources.file.advice.a-sourced-entry-gets-no-advice",
+        "old": "an entry that names its source gets no advice",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.a-valid-entry-of-each-kind",
+        "old": "the loader accepts a well formed entry of every provenance kind",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.conversation-count-equal-to-total",
+        "old": "a conversations count may equal its total",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.conversation-count-zero",
+        "old": "a conversations count may be zero",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.owner-date-on-a-leap-day",
+        "old": "a day on 29 February of a leap year is a real day",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.owner-words-of-exactly-a-thousand-characters",
+        "old": "owner words of exactly 1,000 characters are valid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.file.provenance-shape.quote-of-exactly-a-thousand-characters",
+        "old": "a quote of exactly 1,000 characters is valid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.sources.merge.a-rule-with-nothing-to-read-adds-no-variable",
+        "old": "a rule with no condition and no tool adds no variable",
+        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+      },
+      {
+        "id": "blind.sources.provenance.every-estate-value-names-a-quote",
+        "old": "every estate value keeps a quote entry with its path",
+        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+      },
+      {
+        "id": "blind.values.file.ambiguous-value.a-detail-may-repeat-the-id-of-an-axis-of-another-kind",
+        "old": "a detail may repeat the value id of an axis of another kind",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.ambiguous-value.ids-shared-with-a-stage-or-channel-axis-are-fine",
+        "old": "a value id shared with a stage, channel or deviation axis is not an ambiguous value",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.ambiguous-value.none-in-axes-of-two-kinds-is-fine",
+        "old": "the value none may sit in axes of different kinds",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.ids.ids-with-dots-underscores-hyphens-and-digits-are-fine",
+        "old": "ids with digits, dots, underscores and hyphens inside are accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.a-constraint-on-a-detail-does-not-empty-the-grid",
+        "old": "a constraint on a detail does not count toward the grid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.a-deviation-detail-may-hold-any-value",
+        "old": "a deviation detail is exempt from the deviation rule",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.all-twelve-deviation-classes-and-none",
+        "old": "a deviation axis may hold none and all twelve classes",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.constraints-that-leave-one-cell-are-fine",
+        "old": "constraints that leave one cell of the axes are accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.fitted-prior-with-a-source-is-fine",
+        "old": "a fitted prior with a source is accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.none-in-two-axes-is-fine",
+        "old": "the value none may sit in several axes",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.same-value-in-an-axis-and-a-detail-is-fine",
+        "old": "a value id may sit in an axis and a detail",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.second-channel-as-a-detail-is-fine",
+        "old": "a second channel that is a detail is allowed",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.file.references.when-naming-known-values-is-fine",
+        "old": "a when on known values is accepted",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.values.plan.approval.unapproved-variable-is-never-planned",
+        "old": "the plan leaves out a variable nobody approved",
+        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+      },
+      {
+        "id": "blind.weights.file.complete-weights-in-two-variables",
+        "old": "complete weights in several variables are valid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.weights.file.fraction-weights-are-valid",
+        "old": "weights on any scale are valid when every value has one",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.weights.file.no-weights-are-valid",
+        "old": "a store with no weights is valid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.weights.file.one-zero-among-others-is-valid",
+        "old": "one weight of zero among others is valid",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.weights.file.percent-weights-are-valid",
+        "old": "weights on any scale are valid when every value has one",
+        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+      },
+      {
+        "id": "blind.weights.interval.contains-the-observed-share",
+        "old": "the interval contains the observed share",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      },
+      {
+        "id": "blind.weights.interval.inside-zero-one-and-ordered",
+        "old": "the interval is ordered and inside zero and one",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      },
+      {
+        "id": "blind.weights.interval.is-mirrored-for-the-complement",
+        "old": "the interval of the complement is the mirror of the interval",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      },
+      {
+        "id": "blind.weights.interval.stays-inside-zero-one-despite-rounding",
+        "old": "the interval is clamped to zero and one, so rounding noise never leaves them",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      },
+      {
+        "id": "blind.weights.interval.zero-count-starts-at-zero-and-full-count-ends-at-one",
+        "old": "a zero count starts the interval at zero and a full count ends it at one",
+        "new": "weightInterval returns the Wilson score interval of a count and a total"
+      }
+    ]
+  }
 }

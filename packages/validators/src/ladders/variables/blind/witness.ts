@@ -16,6 +16,7 @@ import {
   valueIds,
 } from './kit';
 import { discover, type ToolSpec } from './scene';
+import { WITNESS_CAUSE } from './witness-causes';
 
 /**
  * The paired witness of an item (docs/validators.md 12.1, the constant empty implementation scores nothing).
@@ -48,7 +49,7 @@ const witnessFiles = { 'w/file.md': `Intro.\n${sentence}\nOutro.` };
 export const WITNESSES: Record<Name, readonly Witness[]> = {
   validate: [
     {
-      cause: 'validate refuses a store in which two values of one variable share an id, at the second value',
+      cause: WITNESS_CAUSE.validateDuplicateId,
       run(ctx) {
         const good = baseFile(ctx);
         validateOk(ctx, good.store, 'the witness store');
@@ -58,7 +59,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
       },
     },
     {
-      cause: 'validate refuses a store that has no agent',
+      cause: WITNESS_CAUSE.validateNoAgent,
       run(ctx) {
         const bare = baseFile(ctx);
         delete (bare.store as Partial<typeof bare.store>).agent;
@@ -68,7 +69,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
   ],
   quotes: [
     {
-      cause: 'quotes reports a quote that the file it names does not hold',
+      cause: WITNESS_CAUSE.quotesAbsent,
       run(ctx) {
         check(callQuotes(ctx, witnessQuote(ctx, sentence), witnessFiles).errors.length === 0, () => ({
           rule: 'the witness quote in its file was reported',
@@ -86,7 +87,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
       },
     },
     {
-      cause: 'quotes reports a quote whose file cannot be read',
+      cause: WITNESS_CAUSE.quotesUnreadable,
       run(ctx) {
         const gone = callQuotes(ctx, witnessQuote(ctx, sentence), {}).errors;
         check(gone.length === 1 && gone[0]?.code === 'VARIABLES_SOURCE_UNREADABLE', () => ({
@@ -98,7 +99,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
   ],
   plan: [
     {
-      cause: 'plan holds every required pair of three binary axes in rows that avoid the impossible pair',
+      cause: WITNESS_CAUSE.plan,
       run(ctx) {
         const ids = names(ctx.rng, 3);
         const store = makeStore({
@@ -118,7 +119,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
   ],
   coverage: [
     {
-      cause: 'coverage counts the allowed tuples of a group, and the ones the rows hold, exactly',
+      cause: WITNESS_CAUSE.coverage,
       run(ctx) {
         const ids = names(ctx.rng, 3);
         const store = makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })) });
@@ -141,7 +142,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
   ],
   weightInterval: [
     {
-      cause: 'weightInterval returns the Wilson score interval of a count and a total',
+      cause: WITNESS_CAUSE.weightInterval,
       run(ctx) {
         const [lo, hi] = callInterval(ctx, 0, 10);
         check(Math.abs(lo) < 1e-9 && Math.abs(hi - 0.2775) < 1e-3, () => ({
@@ -160,7 +161,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
   ],
   buildStore: [
     {
-      cause: 'buildStore builds one variable, with a value for each quote, from the values of a tool field',
+      cause: WITNESS_CAUSE.buildStore,
       run(ctx) {
         const tool: ToolSpec = { tool: 'witness_tool', field: 'queue', values: ['alpha', 'beta'] };
         const d = discover(ctx, [tool]);
