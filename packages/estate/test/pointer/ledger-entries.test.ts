@@ -4,10 +4,13 @@ import {
   checkLedger,
   cut,
   type Ledger,
+  type LedgerUnlabeled,
   nextLedger,
   parseLedger,
   recordLabel,
+  recordUnlabeled,
   renderLedger,
+  unlabeledMap,
 } from '../../src/pointer';
 
 // Invented files: a depot with crates and keepers.
@@ -291,5 +294,118 @@ describe('a unit split in two or two units joined', () => {
     expect(second.events.changed).toBe(1);
     expect(second.events.split).toBe(0);
     expect(second.events.merged).toBe(0);
+  });
+});
+
+describe('the units the labelers left unlabeled', () => {
+  const gap = (): LedgerUnlabeled => ({
+    setHash: 'h',
+    labeler: 'l',
+    votes: [
+      {
+        labeler: 'planted',
+        runs: [{ label: 'order', source: 'k1' }, { label: 'remark', source: 'k2' }, null],
+      },
+    ],
+  });
+  const label = (name: string) => ({ label: name, setHash: 'h', labeler: 'l', source: 'none' });
+  /** The ledger of the depot with one unit unlabeled in the set `duty`, and that unit. */
+  const withGap = () => {
+    const first = scan({ 'depot.md': depot() });
+    const unit = first.ledger.entries.find((entry) => entry.quote.includes('Name the keeper'));
+    if (!unit) throw new Error('the unit is not in the ledger');
+    unit.unlabeled = unlabeledMap({ duty: gap() });
+    return { first, unit };
+  };
+
+  it('records a unit as unlabeled in a set, in the place of its label, and ends the record when a label comes', () => {
+    const entry: Parameters<typeof recordUnlabeled>[0] = {
+      id: 'u1',
+      labels: { a: label('rule'), b: label('note') },
+    };
+    expect(recordUnlabeled(entry, 'a', gap())).toEqual({ unit: 'u1', set: 'a', from: 'rule' });
+    expect(Object.keys(entry.labels)).toEqual(['b']);
+    expect(entry.unlabeled?.a).toEqual(gap());
+    // A unit that was unlabeled and is unlabeled again is no flip.
+    expect(recordUnlabeled(entry, 'a', gap())).toBeUndefined();
+    expect(recordLabel(entry, 'a', label('rule'))).toBeUndefined();
+    expect(entry.unlabeled).toBeUndefined();
+    expect(entry.labels.a?.label).toBe('rule');
+  });
+
+  it('forgets the record of a set when no answer named the unit', () => {
+    const entry: Parameters<typeof recordUnlabeled>[0] = { id: 'u1', labels: {} };
+    recordUnlabeled(entry, 'a', gap());
+    recordUnlabeled(entry, 'b', gap());
+    expect(recordLabel(entry, 'a', undefined)).toBeUndefined();
+    expect(Object.keys(entry.unlabeled ?? {})).toEqual(['b']);
+  });
+
+  it('keeps the record while the unit and its neighbours are unchanged, and asks again when either changes', () => {
+    const { first, unit } = withGap();
+    const same = scan({ 'depot.md': depot() }, first.ledger);
+    const kept = same.ledger.entries.find((entry) => entry.id === unit.id);
+    expect(kept?.unlabeled).toEqual({ duty: gap() });
+    expect(renderLedger(scan({ 'depot.md': depot() }, same.ledger).ledger)).toBe(renderLedger(same.ledger));
+    // The unit itself is reworded.
+    const reworded = scan(
+      { 'depot.md': depot().replace('Name the keeper', 'Name the keepers') },
+      first.ledger,
+    );
+    const reread = reworded.ledger.entries.find((entry) => entry.id === unit.id);
+    expect(reread?.status).toBe('live');
+    expect(reread?.unlabeled).toBeUndefined();
+    // The unit after it changes: the context of the unit is another.
+    const beside = scan({ 'depot.md': depot().replace('Lock the gate', 'Lock the main gate') }, first.ledger);
+    const moved = beside.ledger.entries.find((entry) => entry.id === unit.id);
+    expect(moved?.status).toBe('live');
+    expect(moved?.unlabeled).toBeUndefined();
+  });
+
+  it('writes no field for a unit that holds none', () => {
+    const { first, unit } = withGap();
+    const others = first.ledger.entries.filter((entry) => entry !== unit);
+    expect(others.length).toBeGreaterThan(0);
+    expect(others.every((entry) => !('unlabeled' in entry))).toBe(true);
+    expect(renderLedger(first.ledger).match(/"unlabeled"/g)).toHaveLength(1);
+  });
+
+  it('is written and read back byte for byte, with the votes', () => {
+    const { first } = withGap();
+    const text = renderLedger(first.ledger);
+    expect(JSON.parse(text).version).toBe(2);
+    const round = parseLedger(text);
+    expect(round && renderLedger(round)).toBe(text);
+    expect(round?.entries.find((entry) => entry.unlabeled)?.unlabeled?.duty?.votes).toEqual(gap().votes);
+  });
+
+  it('reads a ledger of version 1 as one without records, and writes it as version 2', () => {
+    const first = scan({ 'depot.md': depot() });
+    const old = JSON.stringify({ ...first.ledger, version: 1 });
+    const read = parseLedger(old);
+    expect(read?.version).toBe(2);
+    expect(read?.entries.every((entry) => entry.unlabeled === undefined)).toBe(true);
+    expect(read && renderLedger(read)).toBe(renderLedger(first.ledger));
+    // A rescan of the same files from it writes what a ledger of version 2 holds, and the check agrees.
+    const again = scan({ 'depot.md': depot() }, read);
+    expect(checkLedger(old, again.ledger)).toEqual({ ok: true });
+  });
+
+  it('is what makes a ledger of version 1 out of date once a unit is unlabeled', () => {
+    const { first } = withGap();
+    const old = JSON.stringify({
+      ...first.ledger,
+      version: 1,
+      entries: first.ledger.entries.map(({ unlabeled: _gone, ...entry }) => entry),
+    });
+    const verdict = checkLedger(old, first.ledger);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain('depot.md');
+  });
+
+  it('refuses a version it does not know', () => {
+    const first = scan({ 'depot.md': depot() });
+    expect(parseLedger(JSON.stringify({ ...first.ledger, version: 3 }))).toBeUndefined();
+    expect(parseLedger(JSON.stringify({ ...first.ledger, version: 0 }))).toBeUndefined();
   });
 });
