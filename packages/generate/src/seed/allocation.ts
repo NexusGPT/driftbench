@@ -28,6 +28,10 @@ function deficit(counts: Iterable<number>): number {
  * No stage, deviation class or behaviour is placed fewer than a third as often as the most placed value of
  * its stratum. The allocation is generation-local: it reads only the suite written so far.
  */
+/** The most rounds of allocation top-ups, and the most rounds in a row that may reach no new low of the imbalance. */
+export const MAX_ROUNDS = 40;
+export const MAX_STALLED = 8;
+
 export class Allocation {
   private stageSerial = 0;
   private behaviourSerial = 0;
@@ -349,20 +353,25 @@ export class Allocation {
     written: () => number,
     classes: Pick<DeviationBalance, 'topUps'>,
   ): Generator<SpecDraft> {
-    // The allocation adds at most as many specs as the seeders wrote, so a map whose strata cannot be
-    // balanced cheaply is cut, not grown without end.
-    const limit = context.max;
-    context.max = Math.min(limit, 2 * written());
-    try {
-      while (this.imbalance() > 0) {
-        const before = written();
-        yield* this.stageTopUps(context, before);
-        yield* classes.topUps(context, written());
-        yield* this.behaviourTopUps(context, written());
-        if (written() === before) break;
+    // A fill can undo another (a probe for a class crosses stages), so the rounds go on until nothing is left to
+    // balance. They stop when a round writes nothing, or when MAX_STALLED rounds in a row reach no new low of the
+    // imbalance, or after MAX_ROUNDS rounds: a map whose strata cannot be balanced is cut, not grown without end.
+    let best = this.imbalance();
+    let stalled = 0;
+    for (let round = 0; round < MAX_ROUNDS && this.imbalance() > 0; round += 1) {
+      const before = written();
+      yield* this.stageTopUps(context, before);
+      yield* classes.topUps(context, written());
+      yield* this.behaviourTopUps(context, written());
+      if (written() === before) break;
+      const now = this.imbalance();
+      if (now < best) {
+        best = now;
+        stalled = 0;
+      } else {
+        stalled += 1;
+        if (stalled >= MAX_STALLED) break;
       }
-    } finally {
-      context.max = limit;
     }
   }
 }

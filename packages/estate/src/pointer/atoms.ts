@@ -173,6 +173,20 @@ function titleOf(text: string): string {
   return flat.length <= TITLE_CHARACTERS ? flat : `${flat.slice(0, TITLE_CHARACTERS - 1).trimEnd()}…`;
 }
 
+/** The kinds of atom a limit may land on. */
+const LIMIT_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate']);
+
+/** The limits a unit's numeric links state: the number, how a quantity is compared with it, and what it counts. */
+function limitsOf(item: LabelledUnit): Array<{ limit: number; comparison: string; unit?: string }> {
+  return (item.links ?? []).flatMap((link) =>
+    link.to !== 'none' &&
+    typeof link.value === 'number' &&
+    item.set.links?.find((kind) => kind.name === link.kind)?.number
+      ? [{ limit: link.value, comparison: link.to, ...(link.unit === undefined ? {} : { unit: link.unit }) }]
+      : [],
+  );
+}
+
 export function pointerAtoms(
   labelled: readonly LabelledUnit[],
   texts: ReadonlyMap<string, string>,
@@ -184,9 +198,27 @@ export function pointerAtoms(
   const duplicates: string[] = [];
   const conditions = new Map<string, LabelledUnit[]>();
   for (const item of labelled) {
-    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
-    const key = `${item.set.set}:${item.target.id}`;
-    conditions.set(key, [...(conditions.get(key) ?? []), item]);
+    // A condition scopes its target; any unit scopes the units it lists. All of them are scopes of that unit.
+    const isCondition = item.set.labels.find((label) => label.name === item.label)?.condition === true;
+    const scoped = [...(isCondition && item.target ? [item.target] : []), ...(item.scopes ?? [])];
+    for (const each of scoped) {
+      if (each.id === item.id) continue;
+      const key = `${item.set.set}:${each.id}`;
+      const held = conditions.get(key) ?? [];
+      if (!held.includes(item)) conditions.set(key, [...held, item]);
+    }
+  }
+  // A bound unit (a condition label with numeric links) gives its limits to the atoms of the unit it points at, in
+  // whichever set that unit is labelled: a set of limits can sit beside the set of rules. So does a unit that carries
+  // numeric links and builds no atom: its limits go to the atoms of that same unit.
+  const boundFor = new Map<string, LabelledUnit[]>();
+  for (const item of labelled) {
+    if (limitsOf(item).length === 0) continue;
+    const label = item.set.labels.find((candidate) => candidate.name === item.label);
+    // A bound unit points at the unit it limits; a unit with no target and no atom of its own states its own limit.
+    const holder = label?.condition ? item.target?.id : label?.atom ? undefined : item.id;
+    if (holder === undefined) continue;
+    boundFor.set(holder, [...(boundFor.get(holder) ?? []), item]);
   }
   const attached = new Set<string>();
   const annotations: Array<{ path: string; unit: string; fields: Record<string, unknown> }> = [];
@@ -236,8 +268,13 @@ export function pointerAtoms(
     // A link names an atom of the estate (one the scan does not hold is dropped with its reason), or a value of
     // a closed list the set declares.
     const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
+    // A link of a numeric kind is a limit of the unit: the number, how a quantity is compared with it, and what it
+    // counts. The atoms of the unit take them in `fields.condition`, which the variable feed reads and nothing else.
+    const bound = boundFor.get(item.id) ?? [];
+    const limits = [...limitsOf(item), ...bound.flatMap(limitsOf)];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
+      if (item.set.links?.find((kind) => kind.name === link.kind)?.number) continue;
       if (item.set.links?.find((kind) => kind.name === link.kind)?.values) {
         labelLinks.push({ kind: link.kind, value: link.to });
         continue;
@@ -415,6 +452,15 @@ export function pointerAtoms(
           kept = true;
           continue;
         }
+        // A limit belongs to an instruction or a gate (a rule, a prohibition or a check). Any other kind of atom
+        // takes none: the limits are dropped, and the refusal names the units that gave them.
+        const placed = LIMIT_KINDS.has(mapping.kind) ? limits : [];
+        if (limits.length > 0 && placed.length === 0) {
+          const givers = [item, ...bound].filter((unit) => limitsOf(unit).length > 0).map((unit) => unit.id);
+          refusals.push(
+            `${where}: the ${mapping.kind} atom takes no limit; dropped the limits of unit ${givers.join(', ')}`,
+          );
+        }
         const same = builder.atoms.find(
           (other) =>
             other.kind === mapping.kind &&
@@ -521,10 +567,13 @@ export function pointerAtoms(
               ...(mappedFields as Record<string, unknown>),
               extraction: 'pointer',
               unit: item.id,
+              ...(item.unit.path.length > 0 ? { section: item.unit.path } : {}),
               labelSet: item.set.set,
               label: item.label,
               labeler,
-              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+              ...(conditionIds.length > 0 || placed.length > 0
+                ? { condition: [...conditionIds, ...placed] }
+                : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
               ...(labelSpans.length > 0 ? { labelSpans } : {}),
               ...(ownLinks.length > 0 ? { labelLinks: ownLinks } : {}),
@@ -533,7 +582,12 @@ export function pointerAtoms(
         );
       }
     }
-    if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+    if (kept) {
+      // One key for each condition and target: a unit may scope several targets, and a bound unit of another set
+      // limits the atoms of the unit it points at.
+      for (const condition of [...conditional, ...bound])
+        attached.add(`${condition.set.set}:${condition.id}>${item.id}`);
+    }
   }
   for (const note of annotations) {
     for (const atom of accepted) {
@@ -541,9 +595,10 @@ export function pointerAtoms(
       atom.fields = { ...note.fields, ...atom.fields };
     }
   }
-  for (const items of conditions.values()) {
+  for (const [key, items] of conditions) {
+    const targetId = key.slice(key.indexOf(':') + 1);
     for (const condition of items) {
-      if (attached.has(`${condition.set.set}:${condition.id}`)) continue;
+      if (attached.has(`${condition.set.set}:${condition.id}>${targetId}`)) continue;
       refusals.push(
         `${condition.path} unit ${condition.id} (${condition.label}): the condition points at a unit that holds no atom`,
       );

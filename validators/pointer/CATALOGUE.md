@@ -2,15 +2,16 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **420 items**, 11 families, 257 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **487 items**, 12 families, 320 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
 | Family | Level | Items | T1 | T2 | T3 | T4 | T5 |
 |---|---|---|---|---|---|---|---|
-| cutting | cut | 66 | 9 | 27 | 25 | 4 | 1 |
+| cutting | cut | 78 | 9 | 35 | 29 | 4 | 1 |
+| golden | cut | 46 | 0 | 23 | 23 | 0 | 0 |
 | ids | ids | 41 | 11 | 20 | 9 | 1 | 0 |
-| re-anchoring | anchor | 53 | 5 | 12 | 22 | 10 | 4 |
+| re-anchoring | anchor | 62 | 5 | 13 | 29 | 11 | 4 |
 | grouping | labels | 24 | 5 | 12 | 6 | 1 | 0 |
 | labels | labels | 70 | 4 | 34 | 31 | 1 | 0 |
 | replay | replay | 42 | 3 | 8 | 22 | 9 | 0 |
@@ -19,7 +20,7 @@ Bank: **420 items**, 11 families, 257 distinct causes, 9 levels. This file is ge
 | radius | links | 23 | 4 | 6 | 9 | 3 | 1 |
 | scale | scale | 25 | 1 | 1 | 5 | 14 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **420** | **47** | **138** | **167** | **54** | **14** |
+| **all** | | **487** | **47** | **170** | **201** | **55** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +34,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 18 |
+| maintainer-added | 85 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -43,7 +44,7 @@ Ordered by the cost of diagnosing a failure. Each level is a sub-bank with thres
 
 | # | Level | Families | What |
 |---|---|---|---|
-| 1 | `cut` cutting | cutting | layer A turns files into units |
+| 1 | `cut` cutting | cutting, golden | layer A turns files into units |
 | 2 | `ids` ids and ledger | ids | fingerprints, ids, the canonical sidecar |
 | 3 | `anchor` re-anchoring | re-anchoring | old units find their new selves |
 | 4 | `labels` labels and atoms | grouping, labels | windows, answers, carry-forward, ports, atoms |
@@ -172,6 +173,71 @@ Level `cut`, default component `cutter`, default needs cut. The cutter turns a f
 | `cutting.digest-reorder` | maintainer-repaired | 2 | Swap two paragraphs. | The digests differ (the digest hashes the ordered list). | `cutter:cut-digest-ordered` | cutter | cut |
 | `cutting.digest-cosmetic` | maintainer-repaired | 3 | Rewrap, CRLF and bullet swap on one document. | The digests are equal. | `cutter:cut-digest-cosmetic-stable` | cutter | cut |
 | `cutting.cut-pure` | maintainer-repaired | 2 | Cut A, cut B, cut A again. | Both cuts of A deep-equal. | `cutter:no-state-between-files` | cutter | cut |
+| `cutting.footnote-reference-after-stop` | maintainer-added | 2 | A sentence, `[^1]` right after its full stop, a second sentence; then the definition `[^1]: ` and a sentence. | Exact cut: the first sentence with its reference, the second sentence, the definition sentence without its marker. | `cutter:footnote-reference-in-sentence` | cutter | cut |
+| `cutting.footnote-definition-path` | maintainer-added | 3 | A heading, a sentence, then a definition `[^n1]: ` with one sentence. | The definition sentence has the heading path of the file followed by its label. | `cutter:footnote-definition-path` | cutter | cut |
+| `cutting.footnote-definition-paragraphs` | maintainer-added | 3 | A sentence with `[^2]`, then a definition of two paragraphs (the second indented four spaces). | Exact cut: one sentence unit per paragraph sentence, the marker in no unit. | `cutter:footnote-definition-prose` | cutter | cut |
+| `cutting.alert-marker-not-prose` | maintainer-added | 2 | `> [!WARNING]` and one quoted sentence. | Exact cut: one block quote unit, the sentence alone. | `cutter:alert-marker-not-prose` | cutter | cut |
+| `cutting.alert-type-path` | maintainer-added | 3 | A heading, then `> [!NOTE]` and one quoted sentence. | The quote unit has the heading path of the file followed by the alert type. | `cutter:alert-type-path` | cutter | cut |
+| `cutting.front-matter-toml` | maintainer-added | 2 | Front matter between `+++` lines: a title, an array of two tags, a table with a name; then one sentence. | Exact cut: four front matter units with their paths, then the sentence. | `cutter:toml-front-matter` | cutter | cut |
+| `cutting.front-matter-json` | maintainer-added | 2 | A JSON object opening the file: a title, an array with one tag, an object with a name; then one sentence. | Exact cut: three front matter units with their paths, then the sentence. | `cutter:json-front-matter` | cutter | cut |
+| `cutting.sentence-terminal-every-script` | maintainer-added | 2 | Two sentences each in Mongolian, Syriac, N’Ko and Balinese script, ended by their full stops; two Tibetan phrases ended by the shad. (seed-free) | Two units per script with the property; one unit for the Tibetan paragraph (the shad has no Sentence_Terminal property). | `cutter:sentence-terminal-property` | cutter | cut |
+| `cutting.thai-no-dictionary` | maintainer-added | 2 | Two Thai clauses separated by a space, then a third on the next line (a soft wrap). (seed-free) | One unit. | `cutter:uax29-no-dictionary` | cutter | cut |
+| `cutting.directive-marker-not-prose` | maintainer-added | 2 | `:::note`, one sentence, `:::`. | Exact cut: the sentence alone. | `cutter:directive-marker-not-prose` | cutter | cut |
+| `cutting.directive-name-path` | maintainer-added | 3 | A heading, then `:::warning`, one sentence, `:::`. | The sentence has the heading path of the file followed by the directive name. | `cutter:directive-name-path` | cutter | cut |
+| `cutting.math-block-opaque` | maintainer-added | 2 | `$$`, a line with full stops, `$$`; then one sentence. | Exact cut: one opaque unit over the block, then the sentence. | `cutter:math-block-opaque` | cutter | cut |
+
+## golden
+
+Level `cut`, default component `cutter`, default needs cut. The sentence-boundary edge cases of the Pragmatic Segmenter Golden Rules that a shape-only cutter can answer, in 14 languages.
+
+| id | provenance | tier | generator | oracle | cause | component | needs |
+|---|---|---|---|---|---|---|---|
+| `golden.gr-en-4` | maintainer-added | 2 | The README input of EN 4 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-4` | cutter | cut |
+| `golden.gr-en-5` | maintainer-added | 2 | The README input of EN 5 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-5` | cutter | cut |
+| `golden.gr-en-6` | maintainer-added | 2 | The README input of EN 6 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-6` | cutter | cut |
+| `golden.gr-en-7` | maintainer-added | 2 | The README input of EN 7 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-7` | cutter | cut |
+| `golden.gr-en-8` | maintainer-added | 2 | The README input of EN 8 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-8` | cutter | cut |
+| `golden.gr-en-11` | maintainer-added | 2 | The README input of EN 11 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-11` | cutter | cut |
+| `golden.gr-en-12` | maintainer-added | 2 | The README input of EN 12 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-12` | cutter | cut |
+| `golden.gr-en-13` | maintainer-added | 2 | The README input of EN 13 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-13` | cutter | cut |
+| `golden.gr-en-16` | maintainer-added | 2 | The README input of EN 16 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-16` | cutter | cut |
+| `golden.gr-en-17` | maintainer-added | 2 | The README input of EN 17 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-17` | cutter | cut |
+| `golden.gr-en-20` | maintainer-added | 2 | The README input of EN 20 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-20` | cutter | cut |
+| `golden.gr-en-21` | maintainer-added | 2 | The README input of EN 21 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-21` | cutter | cut |
+| `golden.gr-en-22` | maintainer-added | 2 | The README input of EN 22 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-22` | cutter | cut |
+| `golden.gr-en-24` | maintainer-added | 2 | The README input of EN 24 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-24` | cutter | cut |
+| `golden.gr-en-25` | maintainer-added | 2 | The README input of EN 25 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-25` | cutter | cut |
+| `golden.gr-en-26` | maintainer-added | 2 | The README input of EN 26 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-26` | cutter | cut |
+| `golden.gr-en-27-30` | maintainer-added | 2 | The README input of EN 27, EN 28, EN 29, EN 30 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2, 2, 2, 2 per input), plus the seeded sentence. | `cutter:gr-en-27-30` | cutter | cut |
+| `golden.gr-en-43` | maintainer-added | 2 | The README input of EN 43 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-43` | cutter | cut |
+| `golden.gr-en-46` | maintainer-added | 2 | The README input of EN 46 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-46` | cutter | cut |
+| `golden.gr-en-47` | maintainer-added | 2 | The README input of EN 47 as one markdown paragraph, and the same sentences before a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-47` | cutter | cut |
+| `golden.gr-en-48` | maintainer-added | 2 | The README input of EN 48 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-48` | cutter | cut |
+| `golden.gr-en-49` | maintainer-added | 2 | The README input of EN 49 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-en-49` | cutter | cut |
+| `golden.gr-en-50` | maintainer-added | 2 | The README input of EN 50 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-en-50` | cutter | cut |
+| `golden.gr-de-1` | maintainer-added | 3 | The README input of DE 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-de-1` | cutter | cut |
+| `golden.gr-ja-2` | maintainer-added | 3 | The README input of JA 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-ja-2` | cutter | cut |
+| `golden.gr-ja-3` | maintainer-added | 3 | The README input of JA 3 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-ja-3` | cutter | cut |
+| `golden.gr-ja-4` | maintainer-added | 3 | The README input of JA 4 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-ja-4` | cutter | cut |
+| `golden.gr-ar-2` | maintainer-added | 3 | The README input of AR 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-ar-2` | cutter | cut |
+| `golden.gr-ar-3` | maintainer-added | 3 | The README input of AR 3 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-ar-3` | cutter | cut |
+| `golden.gr-it-1` | maintainer-added | 3 | The README input of IT 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-it-1` | cutter | cut |
+| `golden.gr-it-2` | maintainer-added | 3 | The README input of IT 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-it-2` | cutter | cut |
+| `golden.gr-it-3` | maintainer-added | 3 | The README input of IT 3 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-it-3` | cutter | cut |
+| `golden.gr-ru-1` | maintainer-added | 3 | The README input of RU 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-ru-1` | cutter | cut |
+| `golden.gr-ru-2` | maintainer-added | 3 | The README input of RU 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-ru-2` | cutter | cut |
+| `golden.gr-ru-3` | maintainer-added | 3 | The README input of RU 3 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-ru-3` | cutter | cut |
+| `golden.gr-es-1` | maintainer-added | 3 | The README input of ES 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-es-1` | cutter | cut |
+| `golden.gr-es-2` | maintainer-added | 3 | The README input of ES 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-es-2` | cutter | cut |
+| `golden.gr-es-4` | maintainer-added | 3 | The README input of ES 4 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (3 per input), plus the seeded sentence. | `cutter:gr-es-4` | cutter | cut |
+| `golden.gr-es-5` | maintainer-added | 3 | The README input of ES 5 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-es-5` | cutter | cut |
+| `golden.gr-hi-1` | maintainer-added | 3 | The README input of HI 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-hi-1` | cutter | cut |
+| `golden.gr-hy-2` | maintainer-added | 3 | The README input of HY 2 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (1 per input), plus the seeded sentence. | `cutter:gr-hy-2` | cutter | cut |
+| `golden.gr-my-1` | maintainer-added | 3 | The README input of MY 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-my-1` | cutter | cut |
+| `golden.gr-am-1` | maintainer-added | 3 | The README input of AM 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (3 per input), plus the seeded sentence. | `cutter:gr-am-1` | cutter | cut |
+| `golden.gr-fa-1` | maintainer-added | 3 | The README input of FA 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (3 per input), plus the seeded sentence. | `cutter:gr-fa-1` | cutter | cut |
+| `golden.gr-ur-1` | maintainer-added | 3 | The README input of UR 1 as one markdown paragraph, and the same sentences after a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (3 per input), plus the seeded sentence. | `cutter:gr-ur-1` | cutter | cut |
+| `golden.gr-nl-2` | maintainer-added | 3 | The README input of NL 2 as one markdown paragraph, and the same sentences before a seeded prose sentence. | Exact cut: the README's expected sentences as units, in order (2 per input), plus the seeded sentence. | `cutter:gr-nl-2` | cutter | cut |
 
 ## ids
 
@@ -280,6 +346,15 @@ Level `anchor`, default component `anchor`, default needs scan. An old unit must
 | `re-anchoring.script-mixed-20` | maintainer-repaired | 5 | Segment script of 20 edits (all kinds including merge) among 100 kept units, same constraint. | Same oracle. | `anchor:mixed-edit-script` | anchor | scan |
 | `re-anchoring.script-multi-file` | maintainer-repaired | 5 | 10 files and about 165 units; 15 edits including three moves to another file. | Same oracle, with the path of each moved unit. | `anchor:multi-file-anchoring` | anchor | scan |
 | `re-anchoring.no-wrong-anchors-fuzz` | maintainer-repaired | 5 | 100 seeded random edit pairs (keep, reword, rewrite, delete, copy, reverse, insert) on documents of 8 units. | For every carried id the new quote is exact old text or has normalised similarity at least 0.3 to the old quote; ids unique; every new unit has exactly one live entry. | `anchor:no-wrong-anchor-invariant` | anchor | scan |
+| `re-anchoring.cross-file-move-reword` | maintainer-added | 3 | Two files of 8 long units; one unit leaves file A for file B with a few words replaced (text similarity 0.75 to 0.95). | The old id lives in file B on the new text, with the event `changed`. | `anchor:cross-file-pairwise` | anchor | scan |
+| `re-anchoring.cross-file-move-split` | maintainer-added | 4 | Two files; one unit `A, and b.` leaves file A and comes back in file B as the sentences `A.` and `B.`. | The old id lives in file B on one of the two parts, with the event `split`. | `anchor:cross-file-split` | anchor | scan |
+| `re-anchoring.renamed-file-reword` | maintainer-added | 3 | Two files; file A is renamed and one of its units reworded (text similarity 0.75 to 0.95). | The old id lives under the new path on the new text, with the event `changed`. | `anchor:cross-file-pairwise` | anchor | scan |
+| `re-anchoring.table-row-moved` | maintainer-added | 2 | A table of 4 rows of long cells; the first row moves to the end. | Every cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-column-reordered` | maintainer-added | 3 | A table of 3 rows by 3 columns of long cells; the last column moves to the front. | Every cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-column-inserted` | maintainer-added | 3 | A table of 3 rows by 2 columns of long cells; a new column is inserted between them. | Every old cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-cell-text-follows` | maintainer-added | 3 | A table of 4 rows, short row keys and long cells; the rows move and the long column is renamed. | Every long cell keeps its id on its own text, though its row key and column header no longer match. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-cell-key-follows` | maintainer-added | 3 | 4 rows, long row keys, a `Done` column of `Yes` and `No`; the rows reverse and a column is inserted. | Each `Done` cell keeps its id in the row of its row key, under `Done`. | `anchor:table-cell-by-key` | anchor | scan |
+| `re-anchoring.table-cell-new-id` | maintainer-added | 3 | The same table; every row key is rewritten, the `Done` column is unchanged. | No old `Done` id is live: each `Done` cell has a new id. | `anchor:table-cell-new-id` | anchor | scan |
 
 ## grouping
 
