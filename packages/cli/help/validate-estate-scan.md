@@ -404,3 +404,7 @@ file, so its map reports no orphan.
 | `MAP_HASH` or `MAP_QUOTE_DRIFT` | the map or the estate was edited after the scan | scan again into a new file |
 | `error: required option '--to <file>' not specified` (exit 2) | `estate map` without `--to` | name the space map file |
 | `UNREACHABLE` on a helper you use | the helper is reached only through its own description | name it from the standing instructions, a routing table or a skill body |
+| `PERMISSION_UNKNOWN_SKILL` on a `Skill(...)` rule | the rule names a skill that has no folder in the estate; the user-level skill layer counts only with `--user-skills` | fix the name, remove the rule, or pass `--user-skills` |
+| `PERMISSION_UNKNOWN_HELPER` (information) | an `Agent(...)` rule names a helper the estate does not declare; the runtime has helpers of its own | none needed for a runtime helper; else fix the name |
+| `PERMISSION_READ_BYPASS` | a Read, Edit or Write deny sits beside an allowed shell rule with free arguments, so a shell command reaches the path | give the shell rules exact arguments, or deny the path to the shell too |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions` and an allow rule lets any value through | use a default mode that asks, or narrow the allow rules |
