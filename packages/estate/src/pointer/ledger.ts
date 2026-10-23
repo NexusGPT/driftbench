@@ -291,30 +291,26 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
     (item) => flat(item).quote.length,
   );
   const barred = new Set<LedgerEntry>(oldKeyed);
-  // Step 0: a keyed cell keeps its id when exactly one new cell of its file has its row key and column header, and no
-  // other old keyed cell has them: whatever the new cell's text, long or short, unique or repeated. A new cell whose
-  // text is the text of an old long unique cell is that cell's by text and is left to it.
+  // Step 0, for every table cell, before any other step: a cell keeps its id when exactly one new cell of its file has
+  // its row key and its column header and no other old cell of the file has them, whatever the text of either cell
+  // (short or long, unique or repeated, changed or not). A new cell claimed here is no longer there for the text steps.
   {
     const place = (row: string, column: string, path: string) => `${path}\0${row}\0${column}`;
-    const byText = new Set(
-      old.filter((entry) => entry.cell && !oldKeyed.has(entry)).map((entry) => `${entry.path}\0${entry.fp}`),
-    );
     const holders = new Map<string, Fresh[]>();
     for (const item of fresh) {
       const cell = item.unit.cell;
-      if (!cell?.column || byText.has(`${item.path}\0${item.unit.fp}`)) continue;
+      if (!cell?.column) continue;
       const key = place(cell.row, cell.column, item.path);
       holders.set(key, [...(holders.get(key) ?? []), item]);
     }
     const claimed = new Map<string, number>();
-    for (const entry of oldKeyed) {
+    for (const entry of old) {
       const cell = entry.cell;
-      if (cell?.column) {
-        const key = place(cell.row, cell.column, entry.path);
-        claimed.set(key, (claimed.get(key) ?? 0) + 1);
-      }
+      if (!cell?.column) continue;
+      const key = place(cell.row, cell.column, entry.path);
+      claimed.set(key, (claimed.get(key) ?? 0) + 1);
     }
-    for (const entry of oldKeyed) {
+    for (const entry of old) {
       const cell = entry.cell;
       if (!cell?.column) continue;
       const key = place(cell.row, cell.column, entry.path);
@@ -322,6 +318,14 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
       const only = found[0];
       if (found.length !== 1 || !only || claimed.get(key) !== 1) continue;
       const same = only.unit.fp === entry.fp;
+      // A cell that follows by its text (long, unique in its table) follows by its key only while its text is still
+      // that text's kin: a cell rewritten into an unrelated text is a new unit, as anywhere else (the ladder's text floor).
+      if (
+        !same &&
+        !oldKeyed.has(entry) &&
+        similarity(flat(entry).quote, flat(only).quote) <= LADDER.textFloor
+      )
+        continue;
       result.set(entry.id, {
         event: same ? (only.index === entry.index ? 'unchanged' : 'moved') : 'changed',
         to: [only],
@@ -331,8 +335,8 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   }
   const paths = [...new Set(old.map((entry) => entry.path))];
   for (const path of paths) {
-    const before = old.filter((entry) => entry.path === path && !barred.has(entry));
-    const after = fresh.filter((item) => item.path === path && !freshKeyed.has(item));
+    const before = old.filter((entry) => entry.path === path && !barred.has(entry) && !result.has(entry.id));
+    const after = fresh.filter((item) => item.path === path && !freshKeyed.has(item) && !used.has(item));
     for (const [i, j] of anchors(
       before.map((entry) => entry.fp),
       after.map((item) => item.unit.fp),
