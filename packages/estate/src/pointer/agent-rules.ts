@@ -60,10 +60,13 @@ export const AGENT_RULES_SET = `labels:
         inside: ask-text
       - name: retry
         description: The clause of the unit that orders the reader to try the failed request again. Give it only when the unit has one.
+        inside: ask-text
       - name: reread-self
         description: The clause of the unit that orders the reader to read again the file the unit itself is in ("this file"), as opposed to a file it names. Give it only when the unit has one.
+        inside: ask-text
       - name: reread-other
         description: The words of a thing the unit orders the reader to read again that is neither the file the unit is in nor a file it names in a code span or a link, such as a note, a log or a ticket. One span for each such thing. Give it only when the unit has one.
+        inside: ask-text
     links:
       - name: act-tool
         description: The tool the reader uses for the act in the governed-action span, not the tool the read uses. Looking up a file is Read, changing a file is Edit or Write, running a command is Bash, handing work to a helper is Agent. Always one of the listed values, the one the act most likely uses, even when the unit names no tool.
