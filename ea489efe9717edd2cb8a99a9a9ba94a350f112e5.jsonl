@@ -24395,3 +24395,4 @@
 {"text":"the wait time is under 618 minutes","label":{"kind":"numeric","subject":"wait time","limit":618,"comparison":"lt","unit":"minutes"}}
 {"text":"the 注文 score is at least 279","label":{"kind":"numeric","subject":"注文 score","limit":279,"comparison":"ge"}}
 {"text":"the 請求 score is under 471","label":{"kind":"numeric","subject":"請求 score","limit":471,"comparison":"lt"}}
+{"text":"the queue does not exceed 19 tickets","label":{"kind":"numeric","subject":"Queue length","limit":19,"comparison":"le","unit":"tickets"}}
