@@ -4,7 +4,7 @@ import {
   type CheckOutcome,
   runCheck,
 } from '@agent-nexus/driftbench-core';
-import { analyzeGraph } from '../graph/analyze';
+import { analyzeGraph, routingOf } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
 import { codeNames, runtimeProduct } from '../scan/code-names';
@@ -19,6 +19,8 @@ import type { Atom, EstateMap } from '../schema';
  *
  *   ORPHAN              a file nothing names
  *   UNREACHABLE         a file the standing instructions never lead to (orphans are listed apart)
+ *   REACHED_BY_DESCRIPTION a skill or helper the standing instructions do not name, whose description is its
+ *                       route: the runtime routes by description, so it is reachable (information)
  *   UNENFORCED          an instruction, gate or register atom no guard enforces: trusted, a finding of its own
  *   OVERSIZE            the standing instructions are over the ceiling
  *   UNANCHORED_GUARD    a guard command finds its script from the working folder, not an anchor
@@ -38,6 +40,7 @@ import type { Atom, EstateMap } from '../schema';
 export const LINT_CODES = [
   'ORPHAN',
   'UNREACHABLE',
+  'REACHED_BY_DESCRIPTION',
   'UNENFORCED',
   'OVERSIZE',
   'UNANCHORED_GUARD',
@@ -53,7 +56,12 @@ export const LINT_CODES = [
 export type LintCode = (typeof LINT_CODES)[number];
 
 /** Codes reported as information: counted and listed, never failing the lint. */
-export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERNAL', 'UNRESOLVED_REFERENCE']);
+export const INFORMATION: ReadonlySet<LintCode> = new Set([
+  'UNENFORCED',
+  'EXTERNAL',
+  'UNRESOLVED_REFERENCE',
+  'REACHED_BY_DESCRIPTION',
+]);
 
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
@@ -91,7 +99,14 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({ code: 'QUOTE_DRIFT', subject: drift.path, message: drift.message });
   }
 
-  const analysis = analyzeGraph(atoms, map.edges, raw.files, navigationNames(raw), codeNames(raw).links);
+  const analysis = analyzeGraph(
+    atoms,
+    map.edges,
+    raw.files,
+    navigationNames(raw),
+    codeNames(raw).links,
+    routingOf(raw),
+  );
   // Findings look atoms up by id: the first atom of each id, as a search from the start would find it.
   const byId = new Map<string, Atom>();
   for (const atom of atoms) if (!byId.has(atom.id)) byId.set(atom.id, atom);
@@ -111,6 +126,13 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       code: 'UNREACHABLE',
       subject: path,
       message: `${path}: no route, reference or dispatch from the standing instructions leads here`,
+    });
+  }
+  for (const path of analysis.describedFiles) {
+    findings.push({
+      code: 'REACHED_BY_DESCRIPTION',
+      subject: path,
+      message: `${path}: the standing instructions do not name it; the runtime routes to it by its description`,
     });
   }
   for (const id of analysis.missingReferences) {
@@ -205,9 +227,15 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const counts = Object.fromEntries(LINT_CODES.map((code) => [code, 0])) as Record<LintCode, number>;
   for (const finding of findings) counts[finding.code]++;
   const references = atoms.filter((atom) => atom.kind === 'reference').length;
+  // The routes a unit's description gives: read when the runtime's profile routes by description, else skipped.
+  const byDescription = routingOf(raw).includes('description');
+  const describedRoutes = atoms.filter(
+    (atom) => atom.kind === 'route' && atom.fields?.via === 'description',
+  ).length;
   const read: Record<LintCode, number> = {
     ORPHAN: raw.files.length,
     UNREACHABLE: raw.files.length,
+    REACHED_BY_DESCRIPTION: byDescription ? describedRoutes : 0,
     UNENFORCED: atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length,
     OVERSIZE: standingFiles(raw).length,
     UNANCHORED_GUARD: raw.guards.length,
@@ -227,6 +255,16 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
+      ...(check.id === 'REACHED_BY_DESCRIPTION' && !byDescription && describedRoutes > 0
+        ? {
+            skipped: [
+              {
+                what: `${describedRoutes} routes given by a description`,
+                reason: 'runtime-does-not-route-by-description',
+              },
+            ],
+          }
+        : {}),
       findings: findings.filter((finding) => finding.code === check.id),
     })),
   );

@@ -20,7 +20,7 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `standing.importPrefix` | The prefix of a standing line that imports a file | `@` |
 | `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
-| `routing` | How a skill is reached: `route-table`, `description`, `name` | all three |
+| `routing` | How a skill is reached: `route-table`, `description`, `name`. The graph reads `description`: with it, a skill or helper that has a description is reachable, and the lint reports one the standing instructions do not name as `REACHED_BY_DESCRIPTION` (information). The other two rules do not change what is reachable yet | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
 | `loadsItself(path)` | True for a file the runtime loads with no visible read | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |

@@ -204,7 +204,8 @@ export function standingFree(estate: PlantedEstate): FileWriter {
 export function freeSkill(
   estate: PlantedEstate,
   name: string,
-  description: string,
+  /** Undefined writes no description line: the runtime has nothing to route the skill by. */
+  description: string | undefined,
   body: readonly Body[],
   options: { folder?: string; extraFront?: readonly string[] } = {},
 ): { path: string; lines: number[]; nameLine: number; descriptionLine: number } {
@@ -212,7 +213,7 @@ export function freeSkill(
   const writer = estate.file(path, BASE);
   writer.line('---');
   const nameLine = writer.line(`name: ${name}`);
-  const descriptionLine = writer.line(`description: ${description}`);
+  const descriptionLine = description === undefined ? 0 : writer.line(`description: ${description}`);
   writer.line('allowed-tools: Read, Edit, Bash');
   for (const extra of options.extraFront ?? []) writer.line(extra);
   writer.line('---');
@@ -228,10 +229,19 @@ export function freeHelper(
   estate: PlantedEstate,
   name: string,
   body: readonly Body[],
+  /** False writes no description line: the runtime has nothing to route the helper by. */
+  described = true,
 ): { path: string; lines: number[] } {
   const path = helperFile(name);
   const writer = estate.file(path, BASE);
-  writer.lines_(['---', `name: ${name}`, 'description: Checks harbour records.', 'tools: Read', '---', '']);
+  writer.lines_([
+    '---',
+    `name: ${name}`,
+    ...(described ? ['description: Checks harbour records.'] : []),
+    'tools: Read',
+    '---',
+    '',
+  ]);
   const lines = writeBody(estate, writer, body);
   return { path, lines };
 }
