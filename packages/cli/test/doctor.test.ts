@@ -123,17 +123,30 @@ describe('doctor reads through the runtime registry without executing', () => {
 
 describe('doctor declared policies and deployments', () => {
   it('checks a declared link target and drafts its binding with evidence', async () => {
-    const root = await estate({ 'CLAUDE.md': '# Instructions\n', 'shared/SKILL.md': '---\nname: shared\n---\nInstructions.\n' });
+    const root = await estate({
+      'CLAUDE.md': '# Instructions\n',
+      'shared/SKILL.md': '---\nname: shared\n---\nInstructions.\n',
+    });
     await mkdir(join(root, '.claude'));
     await symlink('../shared', join(root, '.claude/shared'));
     const detected = await inspectSetup(root);
-    const declared = { ...detected.draft, sources: [
-      detected.draft.sources[0]!,
-      { id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code' },
-    ] };
+    const declared = {
+      ...detected.draft,
+      sources: [
+        detected.draft.sources[0]!,
+        { id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code' },
+      ],
+    };
     const result = await inspectSetup(root, declared);
-    expect(result.draft.sources[1]?.bindings).toContainEqual({ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' });
-    expect(result.detections).toContainEqual(expect.objectContaining({ confidence: 1, field: 'sources.shared.bindings' }));
+    expect(result.draft.sources[1]?.bindings).toContainEqual({
+      runtime: 'claude-code',
+      deployedRoot: 'project',
+      deployedPath: '.claude/shared',
+      method: 'link',
+    });
+    expect(result.detections).toContainEqual(
+      expect.objectContaining({ confidence: 1, field: 'sources.shared.bindings' }),
+    );
     expect(declared.sources[1]).not.toHaveProperty('bindings');
   });
 
@@ -144,10 +157,26 @@ describe('doctor declared policies and deployments', () => {
     await mkdir(join(root, '.claude'));
     await symlink('../shared', join(root, '.claude/shared'));
     const initial = await inspectSetup(root);
-    const setup = { ...initial.draft, sources: [initial.draft.sources[0]!, {
-      id: 'shared', path: 'shared', kind: 'directory' as const, reader: 'claude-code',
-      bindings: [{ runtime: 'claude-code', deployedRoot: 'project', deployedPath: '.claude/shared', method: 'link' as const }],
-    }] };
+    const setup = {
+      ...initial.draft,
+      sources: [
+        initial.draft.sources[0]!,
+        {
+          id: 'shared',
+          path: 'shared',
+          kind: 'directory' as const,
+          reader: 'claude-code',
+          bindings: [
+            {
+              runtime: 'claude-code',
+              deployedRoot: 'project',
+              deployedPath: '.claude/shared',
+              method: 'link' as const,
+            },
+          ],
+        },
+      ],
+    };
     const accepted = (await inspectSetup(root, setup)).draft;
     expect((await inspectSetup(root, accepted)).drift.status).toBe('pass');
     await unlink(join(root, '.claude/shared'));
@@ -158,13 +187,30 @@ describe('doctor declared policies and deployments', () => {
   it('prices only declared rates and blocks model advice under privacy or budget limits', async () => {
     const root = await estate({ 'CLAUDE.md': '# Instructions\n' });
     const initial = await inspectSetup(root);
-    const setup = { ...initial.draft, privacy: { ...initial.draft.privacy, model: 'allow' as const }, budget: {
-      usd: 1, modelCalls: 2, pricing: { inputUsdPerMillion: 2, outputUsdPerMillion: 4, inputTokensPerCall: 1000, outputTokensPerCall: 500 },
-    } };
+    const setup = {
+      ...initial.draft,
+      privacy: { ...initial.draft.privacy, model: 'allow' as const },
+      budget: {
+        usd: 1,
+        modelCalls: 2,
+        pricing: {
+          inputUsdPerMillion: 2,
+          outputUsdPerMillion: 4,
+          inputTokensPerCall: 1000,
+          outputTokensPerCall: 500,
+        },
+      },
+    };
     const result = await inspectSetup(root, setup);
-    expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({ usd: 0.008, allowed: true });
+    expect(result.nextSteps.find((step) => step.action === 'Model-assisted evaluation')).toMatchObject({
+      usd: 0.008,
+      allowed: true,
+    });
     const denied = { ...setup, privacy: { ...setup.privacy, model: 'deny' as const } };
-    expect((await inspectSetup(root, denied)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')?.allowed).toBe(false);
+    expect(
+      (await inspectSetup(root, denied)).nextSteps.find((step) => step.action === 'Model-assisted evaluation')
+        ?.allowed,
+    ).toBe(false);
   });
 });
 

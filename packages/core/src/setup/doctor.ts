@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml, stringify } from 'yaml';
 import { compileGlob, matchGlob } from '../estate-model/glob';
-import { folderHolding, locateFile, locateInside } from '../estate-model/locate';
+import { folderHolding, locateFile, locateInside, pathWithin } from '../estate-model/locate';
+import { selectJson } from '../estate-model/reads';
 import type { TypeSet } from '../estate-model/part-type';
 import { runtimeProfile, runtimeProfileNames } from '../runtime-profile';
 import { parseSetupText, resolveSetupSources, type ResolvedSetupSource, type SetupDocument } from './schema';
@@ -176,14 +177,29 @@ async function snapshotReads(sources: ResolvedSetupSource[], disks: Disk[], setu
 }
 
 /** Whether declared locators cover a file. Contained types apply only inside their declared parent folders. */
-function covered(types: TypeSet, path: string): boolean {
-  return types.types.some((type) => {
-    if (locateFile(type, path)) return true;
-    return types.types.some((parent) => parent.contains.includes(type.name) && (() => {
-      const place = folderHolding(parent, path);
-      return place !== undefined && locateInside(type, place.inner) !== undefined;
-    })());
-  });
+async function covered(types: TypeSet, file: DiskFile, kind: string | undefined, mapKinds: Readonly<Record<string, string>>): Promise<boolean> {
+  let structured: unknown;
+  let parsed = false;
+  for (const type of types.types) {
+    // A shape is a reader capability. A glob alone cannot claim an arbitrary JSON file has that shape.
+    if (type.shape && (kind === undefined || kind === 'other' || mapKinds[type.name] !== kind)) continue;
+    if (locateFile(type, file.path)) return true;
+    const relative = type.folder === undefined ? undefined : pathWithin(type.folder, file.path);
+    if (relative !== undefined) for (const locator of type.locate) {
+      if (!locator.entries || !matchGlob(locator.glob, relative)) continue;
+      if (!parsed) {
+        parsed = true;
+        try { structured = parseYaml(await readFile(file.absolute, 'utf8'), { uniqueKeys: true }); } catch { structured = undefined; }
+      }
+      if (selectJson(structured, locator.entries).length > 0) return true;
+    }
+    for (const parent of types.types) {
+      if (!parent.contains.includes(type.name)) continue;
+      const place = folderHolding(parent, file.path);
+      if (place && locateInside(type, place.inner)) return true;
+    }
+  }
+  return false;
 }
 
 function driftOf(before: SetupDocument['drift'], files: NonNullable<SetupDocument['drift']>['files']): DoctorResult['drift'] {
@@ -258,7 +274,7 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
     result.coverage.read += readPaths.size;
     for (const file of disk.files) {
       const what = `${source.id}:${file.path}`;
-      const known = covered(parsed.types, file.path);
+      const known = await covered(parsed.types, file, raw?.files.find((entry) => entry.path === file.path)?.kind, profile?.mapKinds ?? {});
       if (known) result.coverage.covered++;
       else result.coverage.unknown.push(what);
       if (known && !readPaths.has(file.path)) result.coverage.skipped.push({ what, reason: 'type covered; reader did not read' });

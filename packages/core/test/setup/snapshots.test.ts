@@ -1,5 +1,4 @@
-import { mkdir, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises';
-import { symlink } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
@@ -14,24 +13,31 @@ it('supplies all filtered snapshot roots; cross-source links never resolve to or
   await writeFile(join(root, 'shared/secret.txt'), 'private fictional text');
   await symlink('../shared', join(root, '.claude/shared'));
   const setup: SetupDocument = {
-    version: 1, runtime: 'claude-code',
+    version: 1,
+    runtime: 'claude-code',
     sources: [
       { id: 'project', path: '.', kind: 'project', reader: 'claude-code' },
       { id: 'shared', path: 'shared', kind: 'directory', reader: 'agents-folder' },
     ],
-    roles: {}, scope: { include: ['**'], exclude: [] },
-    execute: { policy: 'never', commands: [] }, budget: { usd: 0, modelCalls: 0 },
+    roles: {},
+    scope: { include: ['**'], exclude: [] },
+    execute: { policy: 'never', commands: [] },
+    budget: { usd: 0, modelCalls: 0 },
     privacy: { model: 'deny', exports: 'metadata', exclude: ['**/secret.txt'] },
   };
   const visited: string[] = [];
-  await diagnoseSetup(root, async (_id, snapshot, source, roots) => {
-    visited.push(source.id);
-    expect(Object.keys(roots).sort()).toEqual(['project', 'shared']);
-    expect(snapshot).not.toBe(source.root);
-    expect(await realpath(join(roots.project!, '.claude/shared'))).toBe(await realpath(roots.shared!));
-    expect(await readFile(join(roots.shared!, 'public.txt'), 'utf8')).toBe('fictional');
-    await expect(readFile(join(roots.shared!, 'secret.txt'))).rejects.toMatchObject({ code: 'ENOENT' });
-    return { runtime: 'claude-code', files: [] };
-  }, setup);
+  await diagnoseSetup(
+    root,
+    async (_id, snapshot, source, roots) => {
+      visited.push(source.id);
+      expect(Object.keys(roots).sort()).toEqual(['project', 'shared']);
+      expect(snapshot).not.toBe(source.root);
+      expect(await realpath(join(roots.project!, '.claude/shared'))).toBe(await realpath(roots.shared!));
+      expect(await readFile(join(roots.shared!, 'public.txt'), 'utf8')).toBe('fictional');
+      await expect(readFile(join(roots.shared!, 'secret.txt'))).rejects.toMatchObject({ code: 'ENOENT' });
+      return { runtime: 'claude-code', files: [] };
+    },
+    setup,
+  );
   expect(visited).toEqual(['project', 'shared']);
 });

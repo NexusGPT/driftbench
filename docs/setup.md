@@ -133,3 +133,12 @@ guard. The baseline is a reviewable declaration, not a signature against deliber
 
 Read [the doctor help topic](../packages/cli/help/core-setup-doctor.md) for every flag. Runtime profile
 semantics are documented in [estate runtime profiles](estate-runtime-profiles.md).
+
+## Detection boundary during the scanner migration
+
+The current reader registry can dispatch a declared id but cannot enumerate readers or ask each reader for
+its own detection confidence. Doctor uses the registered runtime profiles for host detection. An inferred
+linked directory therefore keeps `reader: unknown`, together with the link evidence and incomplete
+coverage, until its owner declares the reader. There is no reader-name guessing list. After the scanner
+freeze, the scan-to-model step will add enumeration and reader-declared detection; doctor will use that
+contract for richer detection.
