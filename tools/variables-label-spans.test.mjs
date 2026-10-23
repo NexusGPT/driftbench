@@ -79,26 +79,39 @@ globalThis.fetch = async (url, options) => {
   }
 }, 30_000);
 
-// The cap guard (tools/variables-label-spans.mjs, refuseIfItCouldCross): before a request is sent, the exact body is
-// counted on the provider's count_tokens endpoint and priced with all of max_tokens as output. The tests serve that
-// endpoint from a mock, so they stay offline.
+// The cap guard (tools/variables-label-spans.mjs, refuseIfItCouldCross and settle): before a request is sent, the exact
+// body is counted on the provider's count_tokens endpoint and priced with a reserve (1% of the count or 16 tokens,
+// whichever is larger) and all of max_tokens as output; the request is sent only if that stays strictly below the cap.
+// After the response, billed usage above the reservation stops the run. The tests serve both endpoints from a mock, so
+// they stay offline. The mock bills exactly what it counts, plus what a case adds (billedAddLabel, outputOverMax,
+// noUsage), for the batch request only.
 function mockModule(folder, fresh, config) {
   return `import { appendFileSync } from 'node:fs';
 const fresh = ${JSON.stringify(fresh)};
 const config = ${JSON.stringify(config)};
 const log = (line) => appendFileSync(${JSON.stringify(join(folder, 'requests.log'))}, line + '\\n');
+// What the provider counts for a body: its input tokens do not depend on max_tokens.
+const tokensOf = (body) => {
+  const { max_tokens: _maxTokens, ...rest } = body;
+  return Math.ceil(Buffer.byteLength(JSON.stringify(rest), 'utf8') * config.perByte);
+};
 globalThis.fetch = async (url, options) => {
   const body = JSON.parse(options.body);
   const bytes = Buffer.byteLength(options.body, 'utf8');
+  const counted = tokensOf(body);
   if (String(url).endsWith('/count_tokens')) {
-    log('count');
+    log('count ' + counted);
     if (config.countFails) return { ok: false, status: 500, json: async () => ({ error: { message: 'down' } }) };
-    return { ok: true, json: async () => ({ input_tokens: Math.ceil(bytes * config.perByte) }) };
+    return { ok: true, json: async () => ({ input_tokens: counted }) };
   }
   const isChoice = body.messages[0].content.startsWith('{');
-  log((isChoice ? 'choice' : 'label') + ' ' + bytes + ' ' + body.max_tokens);
+  log((isChoice ? 'choice' : 'label') + ' ' + bytes + ' ' + body.max_tokens + ' ' + counted);
   const text = isChoice ? JSON.stringify('new') : JSON.stringify([fresh.label]);
-  return { ok: true, json: async () => ({ content: [{ text }], usage: { input_tokens: Math.ceil(bytes * config.perByte), output_tokens: 10 } }) };
+  const usage = config.noUsage && !isChoice ? undefined : {
+    input_tokens: counted + (isChoice ? 0 : (config.billedAddLabel ?? 0)),
+    output_tokens: !isChoice && config.outputOverMax ? body.max_tokens + 1 : 10,
+  };
+  return { ok: true, json: async () => ({ content: [{ text }], usage }) };
 };`;
 }
 
@@ -155,22 +168,21 @@ function capCase(mark, config) {
   };
 }
 
-/** The size of the subject-choice request, read from an unlimited run: its bytes and its max_tokens. */
+/** What an unlimited run sent: for each request its bytes, its max_tokens and the tokens the mock counted for it. */
 function choiceSize(c) {
   const first = c.run(100);
   expect(first.status, first.stderr).toBe(0);
-  const line = c.log().find((l) => l.startsWith('choice '));
-  const [, bytes, maxTokens] = line.split(' ').map(Number);
-  // What the batch request before it already spent: its usage is priced at 1 and 5 USD per million tokens, 10 tokens out.
-  const [, labelBytes] = c
-    .log()
-    .find((l) => l.startsWith('label '))
-    .split(' ')
-    .map(Number);
-  const labelSpend = (Math.ceil(labelBytes * c.perByte) * 1 + 10 * 5) / 1e6;
+  const lines = c.log();
+  const [, bytes, maxTokens, choiceCount] = lines.find((l) => l.startsWith('choice ')).split(' ').map(Number);
+  const [, labelBytes, labelMax, labelCount] = lines.find((l) => l.startsWith('label ')).split(' ').map(Number);
+  // What the batch request before the choice already spent: its usage is priced at 1 and 5 USD per million tokens, 10 tokens out.
+  const labelSpend = (labelCount * 1 + 10 * 5) / 1e6;
   rmSync(join(c.folder, 'requests.log'));
-  return { bytes, maxTokens, labelSpend };
+  return { bytes, maxTokens, choiceCount, labelBytes, labelMax, labelCount, labelSpend };
 }
+/** The tool's reserve on top of a count: 1% of it or 16 tokens, whichever is larger. */
+const reserve = (counted) => Math.max(Math.ceil(counted / 100), 16);
+const sent = (c, kind) => c.log().filter((l) => l.startsWith(`${kind} `));
 const priced = (tokens, maxTokens) => (tokens * 1 + maxTokens * 5) / 1e6;
 
 it('a body that counts above one token per byte (combining marks) cannot cross the cap', () => {
@@ -196,8 +208,8 @@ it('a JSON body is priced by its count: refused just under its cost, sent just o
   // The first measurement: a 32,978-byte JSON request counted 30,920 input tokens.
   const c = capCase('', { perByte: 30_920 / 32_978 });
   try {
-    const { bytes, maxTokens, labelSpend } = choiceSize(c);
-    const cost = labelSpend + priced(bytes * (30_920 / 32_978), maxTokens);
+    const { choiceCount, maxTokens, labelSpend } = choiceSize(c);
+    const cost = labelSpend + priced(choiceCount + reserve(choiceCount), maxTokens);
     const refused = c.run(cost * 0.98);
     expect(c.log().filter((l) => l.startsWith('choice'))).toEqual([]);
     expect(refused.status).not.toBe(0);
@@ -218,8 +230,131 @@ it('a request whose tokens cannot be counted is not sent', () => {
     const result = c.run(100);
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toMatch(/could not be counted/);
-    expect(c.log().filter((l) => l !== 'count')).toEqual([]);
+    expect(c.log().filter((l) => !l.startsWith('count'))).toEqual([]);
   } finally {
     c.cleanup();
   }
 }, 60_000);
+
+it('a request whose worst case lands exactly on the cap is refused', () => {
+  // One token per byte makes the arithmetic exact: the cap is the spend after the batch request plus the worst case of
+  // the choice, computed in the tool's own order, so the sum is the same double the tool compares.
+  const c = capCase('', { perByte: 1 });
+  try {
+    const { choiceCount, maxTokens, labelCount } = choiceSize(c);
+    const spentNow = (labelCount * 1 + 10 * 5) / 1e6;
+    const worst = ((choiceCount + reserve(choiceCount)) * 1 + maxTokens * 5) / 1e6;
+    const onTheCap = c.run(spentNow + worst);
+    expect(sent(c, 'label')).toHaveLength(1);
+    expect(sent(c, 'choice')).toEqual([]);
+    expect(onTheCap.status).not.toBe(0);
+    expect(`${onTheCap.stdout}${onTheCap.stderr}`).toMatch(/before sending a subject choice.*reach or cross a cap/s);
+    rmSync(join(c.folder, 'requests.log'));
+    // The same request with room beyond the cap goes out.
+    const above = c.run(spentNow + worst + 1e-6);
+    expect(above.status, above.stderr).toBe(0);
+    expect(sent(c, 'choice')).toHaveLength(1);
+  } finally {
+    c.cleanup();
+  }
+}, 60_000);
+
+it('the reserve on top of the count is 1% of it, or 16 tokens when that is more', () => {
+  // 1%: a count of about 100,000 tokens reserves about 1,000. A cap half a percent above the counted cost refuses; one
+  // and a half percent above sends.
+  const big = capCase('', { perByte: 1 });
+  try {
+    const { choiceCount, maxTokens, labelCount } = choiceSize(big);
+    const counted = (labelCount * 1 + 10 * 5 + choiceCount * 1 + maxTokens * 5) / 1e6;
+    const refused = big.run(counted + (choiceCount * 0.005) / 1e6);
+    expect(sent(big, 'choice')).toEqual([]);
+    expect(refused.status).not.toBe(0);
+    rmSync(join(big.folder, 'requests.log'));
+    const ok = big.run(counted + (choiceCount * 0.015) / 1e6);
+    expect(ok.status, ok.stderr).toBe(0);
+    expect(sent(big, 'choice')).toHaveLength(1);
+  } finally {
+    big.cleanup();
+  }
+  // 16 tokens: a count of about a hundred tokens would reserve 2, so the floor of 16 applies. Eight tokens above the
+  // counted cost refuses; twenty-four above sends.
+  const small = capCase('', { perByte: 0.001 });
+  try {
+    const { choiceCount, maxTokens, labelCount } = choiceSize(small);
+    expect(Math.ceil(choiceCount / 100)).toBeLessThan(16);
+    const counted = (labelCount * 1 + 10 * 5 + choiceCount * 1 + maxTokens * 5) / 1e6;
+    const refused = small.run(counted + 8e-6);
+    expect(sent(small, 'choice')).toEqual([]);
+    expect(refused.status).not.toBe(0);
+    rmSync(join(small.folder, 'requests.log'));
+    const ok = small.run(counted + 24e-6);
+    expect(ok.status, ok.stderr).toBe(0);
+    expect(sent(small, 'choice')).toHaveLength(1);
+  } finally {
+    small.cleanup();
+  }
+}, 120_000);
+
+it('a response that bills more than was reserved stops the run', () => {
+  const sizes = capCase('', { perByte: 1 });
+  let labelCount;
+  let labelMax;
+  try {
+    ({ labelCount, labelMax } = choiceSize(sizes));
+  } finally {
+    sizes.cleanup();
+  }
+  const extra = reserve(labelCount);
+  const run = (config) => {
+    const c = capCase('', { perByte: 1, ...config });
+    const result = c.run(100);
+    return { c, result, report: () => JSON.parse(readFileSync(join(c.folder, 'out.jsonl.report.json'), 'utf8')) };
+  };
+  // Billed exactly the reserve above the count is what was reserved: the run goes on.
+  const within = run({ billedAddLabel: extra });
+  try {
+    expect(within.result.status, within.result.stderr).toBe(0);
+    expect(sent(within.c, 'choice')).toHaveLength(1);
+  } finally {
+    within.c.cleanup();
+  }
+  // One token more is over: the run stops before the next request, keeps the billed spend, and says what happened.
+  const over = run({ billedAddLabel: extra + 1 });
+  try {
+    expect(over.result.status).not.toBe(0);
+    expect(sent(over.c, 'label')).toHaveLength(1);
+    expect(sent(over.c, 'choice')).toEqual([]);
+    expect(`${over.result.stdout}${over.result.stderr}`).toMatch(/stopped after a batch of spans.*more than the/s);
+    const report = over.report();
+    expect(report.overBilled).toEqual([
+      {
+        what: 'a batch of spans',
+        reservedInput: labelCount + extra,
+        billedInput: labelCount + extra + 1,
+        reservedOutput: labelMax,
+        billedOutput: 10,
+      },
+    ]);
+    expect(report.tokensIn).toBe(labelCount + extra + 1);
+  } finally {
+    over.c.cleanup();
+  }
+  // More output than max_tokens is over too.
+  const longer = run({ outputOverMax: true });
+  try {
+    expect(longer.result.status).not.toBe(0);
+    expect(sent(longer.c, 'choice')).toEqual([]);
+    expect(longer.report().overBilled[0].billedOutput).toBe(labelMax + 1);
+  } finally {
+    longer.c.cleanup();
+  }
+  // A response with no usage cannot be priced: the run stops.
+  const unread = run({ noUsage: true });
+  try {
+    expect(unread.result.status).not.toBe(0);
+    expect(sent(unread.c, 'choice')).toEqual([]);
+    expect(`${unread.result.stdout}${unread.result.stderr}`).toMatch(/carried no usage/);
+  } finally {
+    unread.c.cleanup();
+  }
+}, 120_000);
