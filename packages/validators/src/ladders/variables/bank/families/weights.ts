@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ConversationInput, StoreDoc, StoreValue, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, callInterval, type StemRun } from '../item';
@@ -20,19 +21,29 @@ import { type Base, baseStore, draw, evenMix } from './sources';
 function after(store: StoreDoc, base: Base, index = 0): { variable: StoreVariable; values: StoreValue[] } {
   const bv = base.vars[index] as Base['vars'][number];
   const variable = variableOf(store, bv.variable.id);
-  must(!!variable, () => `variable ${bv.variable.id} is gone from the store built with the sessions`);
+  check(!!variable, () => ({
+    rule: 'a variable the sessions name is in the store built with them',
+    input: { variable: bv.variable.id },
+    expected: none('observation'),
+  }));
   const values = bv.ids.map((id) => valueById(variable as StoreVariable, id));
   for (const [k, v] of values.entries()) {
-    must(!!v, () => `value ${bv.ids[k]} of ${bv.variable.id} is gone from the store built with the sessions`);
+    check(!!v, () => ({
+      rule: 'a value the sessions name is in the store built with them',
+      input: { variable: bv.variable.id, value: bv.ids[k] },
+      expected: none('observation'),
+    }));
   }
   return { variable: variable as StoreVariable, values: values as StoreValue[] };
 }
 
 function weightOf(value: StoreValue, label: string): number {
-  must(
-    typeof value.weight === 'number',
-    () => `${label} carries the weight ${show(value.weight)}, expected a number`,
-  );
+  check(typeof value.weight === 'number', () => ({
+    rule: 'a value of an observed variable carries a numeric weight',
+    input: { label },
+    got: { weight: value.weight },
+    expected: none('observation'),
+  }));
   return value.weight as number;
 }
 
@@ -67,17 +78,23 @@ function drawn(
 function shareOf(variable: StoreVariable, value: StoreValue, label: string): number {
   let total = 0;
   for (const v of variable.values) total += weightOf(v, `value ${v.id} of ${variable.id}`);
-  must(total > 0, () => `the weights of ${variable.id} are all 0`);
+  check(total > 0, () => ({
+    rule: 'the weights of a variable are not all N',
+    input: { variable: variable.id },
+    expected: none('observation'),
+  }));
   return weightOf(value, label) / total;
 }
 
 /** The conversations entry of a value, or fails naming the value. */
 function countsOf(value: StoreValue, label: string): { count: number; total: number } {
   const p = (value.provenance ?? []).find((x) => x.kind === 'conversations');
-  must(
-    !!p && p.kind === 'conversations',
-    () => `${label} has no conversations provenance: ${show(value.provenance)}`,
-  );
+  check(!!p && p.kind === 'conversations', () => ({
+    rule: 'a value seen in conversations carries conversations provenance',
+    input: { label },
+    got: { provenance: value.provenance },
+    expected: none('observation'),
+  }));
   const c = p as Extract<NonNullable<StoreValue['provenance']>[number], { kind: 'conversations' }>;
   return { count: c.count, total: c.total };
 }
@@ -123,11 +140,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         const of = observed[i] as number;
         const share = shareOf(variable, value, `value ${bv.ids[k]} of ${bv.variable.id}`);
         const tol = 1 / (of + 2) + 1e-9;
-        must(
-          Math.abs(share - seen / of) <= tol,
-          () =>
-            `value ${bv.ids[k]} of ${bv.variable.id}: its share of the variable's weight is ${share}, expected about ${seen / of} (seen ${seen} of ${of})`,
-        );
+        check(Math.abs(share - seen / of) <= tol, () => ({
+          rule: "the share of a value in the variable's weight is about the share seen in the sessions",
+          input: { value: bv.ids[k], variable: bv.variable.id, seen, of },
+          got: { share },
+          expected: { about: seen / of },
+        }));
       });
     });
   },
@@ -150,10 +168,13 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     }
     const store = build(ctx, { estate: base.estate, conversations: rows });
     const variable = variableOf(store, bv.variable.id) as StoreVariable;
-    must(
+    check(
       variable.values.every((v) => typeof v.weight === 'number'),
-      () =>
-        `a variable weighs some of its values and not all: ${show(variable.values.map((v) => [v.id, v.weight]))}`,
+      () => ({
+        rule: 'a variable weighs all of its values or none',
+        got: { weights: variable.values.map((v) => [v.id, v.weight]) },
+        expected: none('observation'),
+      }),
     );
     let total = 0;
     let shares = 0;
@@ -161,16 +182,26 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       total += weightOf(value, `value ${value.id} of ${variable.id}`);
       shares += shareOf(variable, value, `value ${value.id} of ${variable.id}`);
     }
-    must(total > 0, () => `every weight of ${variable.id} is 0`);
-    must(Math.abs(shares - 1) <= 1e-9, () => `the shares of ${variable.id} add up to ${shares}, expected 1`);
+    check(total > 0, () => ({
+      rule: 'not every weight of a variable is N',
+      input: { variable: variable.id },
+      expected: none('observation'),
+    }));
+    check(Math.abs(shares - 1) <= 1e-9, () => ({
+      rule: 'the shares of a variable add up to one',
+      input: { variable: variable.id },
+      got: { shares },
+      expected: none('observation'),
+    }));
     for (const value of variable.values) {
       const { count, total: of } = countsOf(value, `value ${value.id} of ${variable.id}`);
       const share = shareOf(variable, value, value.id);
-      must(
-        Math.abs(share - count / of) <= 1 / (of + 2) + 1e-9,
-        () =>
-          `value ${value.id} of ${variable.id}: share ${share} does not agree with its conversations count ${count} of ${of}`,
-      );
+      check(Math.abs(share - count / of) <= 1 / (of + 2) + 1e-9, () => ({
+        rule: 'the share of a value agrees with its conversations count',
+        input: { value: value.id, variable: variable.id, count, of },
+        got: { share },
+        expected: none('observation'),
+      }));
     }
   },
 
@@ -179,10 +210,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     // including for the one-session variants where broad uncertainty is legitimate.
     for (const count of [25, 75]) {
       const [lo, hi] = callInterval(ctx, count, 100);
-      must(
-        lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100),
-        () => `weightInterval(${count}, 100) must contain its estimate with a useful width`,
-      );
+      check(lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100), () => ({
+        rule: 'weightInterval contains its estimate with a useful width',
+        input: { count, total: 100 },
+        got: [lo, hi],
+        expected: none('observation'),
+      }));
     }
     const cases: Array<[number, number]> =
       variant === 'one-session'
@@ -206,14 +239,19 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     for (const [count, total] of cases) {
       const [lo, hi] = callInterval(ctx, count, total);
       const p = count / total;
-      must(
+      check(
         Number.isFinite(lo) &&
           Number.isFinite(hi) &&
           lo >= 0 &&
           hi <= 1 &&
           lo <= p + 1e-12 &&
           p <= hi + 1e-12,
-        () => `weightInterval(${count}, ${total}) = [${lo}, ${hi}] does not hold ${p} inside 0 to 1`,
+        () => ({
+          rule: 'weightInterval is an interval inside N to N that holds its estimate',
+          input: { count, total },
+          got: [lo, hi],
+          expected: none('observation'),
+        }),
       );
     }
   },
@@ -228,7 +266,7 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const picks = drawCategorical(rng, n, mix);
       const count = picks.filter((k) => k === 0).length;
       const [lo, hi] = callInterval(ctx, count, n);
-      must(
+      check(
         Number.isFinite(lo) &&
           Number.isFinite(hi) &&
           lo >= 0 &&
@@ -236,16 +274,22 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
           lo <= count / n + 1e-12 &&
           hi >= count / n - 1e-12 &&
           hi - lo <= 1.5 * wilsonWidth(count, n),
-        () => `weightInterval(${count}, ${n}) must contain its estimate with a useful width`,
+        () => ({
+          rule: 'weightInterval contains its estimate with a useful width',
+          input: { count, total: n },
+          got: [lo, hi],
+          expected: none('observation'),
+        }),
       );
       if (lo <= p && p <= hi) inside += 1;
     }
     const need = coverageThreshold(reps, p, n);
-    must(
-      inside >= need,
-      () =>
-        `the 95 percent interval held the true share ${p} in ${inside} of ${reps} replicates of ${n} sessions; a correct interval holds it in at least ${need} (the Wilson interval holds it with chance ${wilsonCoverage(p, n).toFixed(3)})`,
-    );
+    check(inside >= need, () => ({
+      rule: 'a N percent interval holds the true share in enough replicates',
+      input: { share: p, replicates: reps, sessions: n },
+      got: { held: inside },
+      expected: { atLeast: need, wilsonChance: wilsonCoverage(p, n) },
+    }));
   },
 
   'weights.interval-width': (variant, ctx) => {
@@ -258,20 +302,22 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const a = run(60, 0.3);
       const b = run(600, 0.3);
       const ratio = a.width / b.width;
-      must(
-        ratio >= 2.2 && ratio <= 4.5,
-        () =>
-          `ten times the sessions should narrow the interval by a factor between 2.2 and 4.5; got ${a.width} at 60 and ${b.width} at 600 (factor ${ratio.toFixed(2)})`,
-      );
+      check(ratio >= 2.2 && ratio <= 4.5, () => ({
+        rule: 'ten times the sessions narrow the interval by the factor the page implies',
+        input: { sessions: [60, 600] },
+        got: { widths: [a.width, b.width], factor: Number(ratio.toFixed(2)) },
+        expected: { between: [2.2, 4.5] },
+      }));
       return;
     }
     const [n, p] = variant === 'n100' ? [100, 0.5] : variant === 'n1000' ? [1000, 0.1] : [30, 0.2];
     const { width, wilson: ref } = run(n, p);
-    must(
-      width >= 0.6 * ref && width <= 1.5 * ref,
-      () =>
-        `the interval at ${Math.round(p * n)} of ${n} is ${width.toFixed(4)} wide; expected between ${(0.6 * ref).toFixed(4)} and ${(1.5 * ref).toFixed(4)} (the Wilson width is ${ref.toFixed(4)})`,
-    );
+    check(width >= 0.6 * ref && width <= 1.5 * ref, () => ({
+      rule: 'the interval has the width of a N percent Wilson interval',
+      input: { count: Math.round(p * n), total: n },
+      got: { width: Number(width.toFixed(4)) },
+      expected: { between: [0.6 * ref, 1.5 * ref], wilsonWidth: ref },
+    }));
   },
 
   'weights.interval-level': (variant, ctx) => {
@@ -280,11 +326,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const [wl, wh] = wilson(c, n, Z95);
     const half = (hi - lo) / 2;
     const ref = (wh - wl) / 2;
-    must(
-      Math.abs(half - ref) <= 0.15 * ref,
-      () =>
-        `the half-width at ${c} of ${n} is ${half.toFixed(5)}; a 95 percent interval has ${ref.toFixed(5)} (within 15 percent)`,
-    );
+    check(Math.abs(half - ref) <= 0.15 * ref, () => ({
+      rule: 'the half-width of the interval is that of a N percent interval',
+      input: { count: c, total: n },
+      got: { halfWidth: Number(half.toFixed(5)) },
+      expected: { halfWidth: ref, within: 0.15 },
+    }));
   },
 
   'weights.interval-huge-counts': (variant, ctx) => {
@@ -292,26 +339,34 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const total = 2 ** exponent;
     const z2 = Z95 * Z95;
     const [lo0, hi0] = callInterval(ctx, 0, total);
-    must(
-      lo0 === 0 && Number.isFinite(hi0) && Math.abs(hi0 / (z2 / total) - 1) <= 1e-9,
-      () => `weightInterval(0, 2^${exponent}) = [${lo0}, ${hi0}], expected [0, ${z2 / total}] (z^2 / n)`,
-    );
+    check(lo0 === 0 && Number.isFinite(hi0) && Math.abs(hi0 / (z2 / total) - 1) <= 1e-9, () => ({
+      rule: 'the interval of no success in a huge total starts at N and ends at z squared over n',
+      input: { count: 0, total: `2^${exponent}` },
+      got: [lo0, hi0],
+      // The lower bound 0 is the same number as the count; only the upper bound is a wanted value.
+      expected: [z2 / total],
+    }));
     const [loAll, hiAll] = callInterval(ctx, total, total);
-    must(
-      hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1,
-      () =>
-        `weightInterval(2^${exponent}, 2^${exponent}) = [${loAll}, ${hiAll}], expected an upper bound of 1 and a lower bound just below 1`,
-    );
+    check(hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1, () => ({
+      rule: 'the interval of every success in a huge total ends at N and starts just below it',
+      input: { count: `2^${exponent}`, total: `2^${exponent}` },
+      got: [loAll, hiAll],
+      expected: none('observation'),
+    }));
     const [loOne, hiOne] = callInterval(ctx, 1, total);
-    must(
+    check(
       Number.isFinite(loOne) &&
         Number.isFinite(hiOne) &&
         loOne >= 0 &&
         loOne <= 1 / total &&
         hiOne >= 1 / total &&
         hiOne > loOne,
-      () =>
-        `weightInterval(1, 2^${exponent}) = [${loOne}, ${hiOne}] does not hold 1 / n with a width above 0`,
+      () => ({
+        rule: 'the interval of one success in a huge total holds N over n with a width above N',
+        input: { count: 1, total: `2^${exponent}` },
+        got: [loOne, hiOne],
+        expected: none('observation'),
+      }),
     );
   },
 
@@ -328,21 +383,25 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const unseen = values[m - 1] as StoreValue;
     const label = `the unseen value ${unseen.id}`;
     const share = shareOf(variable, unseen, label);
-    must(
-      share >= 0 && share <= 1 / (n + 2) + 1e-9,
-      () => `${label} was seen in 0 of ${n} sessions but has the share ${share}`,
-    );
+    check(share >= 0 && share <= 1 / (n + 2) + 1e-9, () => ({
+      rule: '{} was seen in N of {} sessions but has the share {}',
+      got: { details: [label, n, share] },
+      expected: none('observation'),
+    }));
     const { count, total } = countsOf(unseen, label);
-    must(
-      count === 0 && total === n,
-      () => `${label} should carry the counts 0 of ${n}, it carries ${count} of ${total}`,
-    );
+    check(count === 0 && total === n, () => ({
+      rule: 'a value seen in no session carries the counts N of its sessions',
+      input: { label },
+      got: { count, total, sessions: n },
+      expected: none('observation'),
+    }));
     const [lo, hi] = callInterval(ctx, count, total);
-    must(
-      lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1,
-      () =>
-        `weightInterval(0, ${n}) = [${lo}, ${hi}], expected a lower bound of 0 and an upper bound above 0`,
-    );
+    check(lo >= 0 && lo <= 1e-9 && hi > 0 && hi <= 1, () => ({
+      rule: 'the interval of no success has a lower bound of N and an upper bound above N',
+      input: { count: 0, total: n },
+      got: [lo, hi],
+      expected: none('observation'),
+    }));
   },
 
   'weights.all-sessions-one-value': (variant, ctx) => {
@@ -353,17 +412,20 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const v = values[0] as StoreValue;
     const label = `the value seen in all ${n} sessions`;
     const share = shareOf(variable, v, label);
-    must(
-      share >= 1 - 1 / (n + 2) - 1e-9 && share <= 1 + 1e-9,
-      () => `${label} has the share ${share}, expected about 1`,
-    );
+    check(share >= 1 - 1 / (n + 2) - 1e-9 && share <= 1 + 1e-9, () => ({
+      rule: 'the only value of a variable holds about all of its weight',
+      input: { label },
+      got: { share },
+      expected: none('observation'),
+    }));
     const { count, total } = countsOf(v, label);
     const [lo, hi] = callInterval(ctx, count, total);
-    must(
-      hi >= 1 - 1e-12 && lo < 1 && lo >= 0,
-      () =>
-        `weightInterval(${count}, ${total}) = [${lo}, ${hi}], expected an upper bound of 1 and a lower bound below 1`,
-    );
+    check(hi >= 1 - 1e-12 && lo < 1 && lo >= 0, () => ({
+      rule: 'the interval of every success has an upper bound of N and a lower bound below N',
+      input: { count, total },
+      got: [lo, hi],
+      expected: none('observation'),
+    }));
   },
 
   'weights.no-observation': (variant, ctx) => {
@@ -396,10 +458,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       for (const value of variable.values) {
         const label = `value ${value.id} of ${variable.id}`;
         if (value.weight !== undefined) {
-          must(
-            Number.isFinite(value.weight) && value.weight >= 0,
-            () => `${label} has the weight ${show(value.weight)}`,
-          );
+          check(Number.isFinite(value.weight) && value.weight >= 0, () => ({
+            rule: 'a stored weight is a finite number from N',
+            input: { label },
+            got: { weight: value.weight },
+            expected: none('observation'),
+          }));
         }
       }
     }
@@ -408,27 +472,32 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const v = variableOf(store, other.variable.id) as StoreVariable;
       const weights = v.values.map((x) => x.weight);
       const some = weights.filter((w) => w !== undefined);
-      must(
-        some.length === 0 || (some.length === weights.length && new Set(some).size === 1),
-        () =>
-          `${v.id} was observed in no session; its weights should be absent or all equal, they are ${show(weights)}`,
-      );
+      check(some.length === 0 || (some.length === weights.length && new Set(some).size === 1), () => ({
+        rule: 'a variable observed in no session has weights that are absent or all equal',
+        input: { variable: v.id },
+        got: { weights },
+        expected: none('observation'),
+      }));
     }
     if (variant === 'owner-only') {
       const variable = variableOf(store, bv.variable.id) as StoreVariable;
       bv.ids.forEach((id, k) => {
         const v = valueById(variable, id) as StoreValue;
-        must(
-          v.weight === ownerWeights[k],
-          () => `the owner weight ${ownerWeights[k]} of ${id} was stored as ${show(v.weight)}`,
-        );
+        check(v.weight === ownerWeights[k], () => ({
+          rule: 'an owner weight is stored as declared',
+          input: { value: id, weight: ownerWeights[k] },
+          got: { stored: v.weight },
+          expected: none('observation'),
+        }));
       });
     }
     const [lo, hi] = callInterval(ctx, 0, 1);
-    must(
-      Number.isFinite(lo) && Number.isFinite(hi) && lo >= 0 && hi <= 1 && hi > lo,
-      () => `weightInterval(0, 1) = [${lo}, ${hi}], expected a finite interval with width inside 0 to 1`,
-    );
+    check(Number.isFinite(lo) && Number.isFinite(hi) && lo >= 0 && hi <= 1 && hi > lo, () => ({
+      rule: 'the interval of one session is finite, inside N to N, with a width above N',
+      input: { count: 0, total: 1 },
+      got: [lo, hi],
+      expected: none('observation'),
+    }));
   },
 
   'weights.recovered-mix': (variant, ctx) => {
@@ -466,11 +535,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
         ),
       );
     const need = Math.floor(expected - 0.03 * total - 5.5 * sd);
-    must(
-      inside >= need,
-      () =>
-        `the recovered weights fell inside the 95 percent band of the planted mix in ${inside} of ${total} cases; an unbiased recovery has about ${Math.round(expected)} and must have at least ${need}`,
-    );
+    check(inside >= need, () => ({
+      rule: 'recovered weights fall inside the N percent band of the planted mix often enough',
+      input: { cases: total },
+      got: { inside },
+      expected: { atLeast: need, about: Math.round(expected) },
+    }));
   },
 
   'weights.owner-kept-exactly': (variant, ctx) => {
@@ -499,10 +569,12 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const variable = variableOf(store, bv.variable.id) as StoreVariable;
     bv.ids.forEach((id, k) => {
       const v = valueById(variable, id) as StoreValue;
-      must(
-        v.weight === weights[k],
-        () => `the owner weight ${weights[k]} of ${id} was stored as ${show(v.weight)}`,
-      );
+      check(v.weight === weights[k], () => ({
+        rule: 'an owner weight is stored as declared',
+        input: { value: id, weight: weights[k] },
+        got: { stored: v.weight },
+        expected: none('observation'),
+      }));
     });
   },
 
@@ -535,14 +607,21 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       },
     });
     const v = valueById(variableOf(store, bv.variable.id) as StoreVariable, id) as StoreValue;
-    must(
-      v.weight === undefined,
-      () => `the invalid owner weight ${show(bad)} was stored as ${show(v.weight)}`,
-    );
+    check(v.weight === undefined, () => ({
+      rule: 'an invalid owner weight is not stored',
+      input: { weight: bad },
+      got: { stored: v.weight },
+      expected: none('observation'),
+    }));
     const named = refusalsMentioning(store, id);
-    must(
+    check(
       named.length >= 1 && named.every((r) => typeof r.reason === 'string' && r.reason.trim() !== ''),
-      () => `the refusal list ${show(store.refused)} does not name ${id} with a reason`,
+      () => ({
+        rule: 'a refused weight is named in the refusal list with a reason',
+        input: { id },
+        got: { refusals: store.refused },
+        expected: none('observation'),
+      }),
     );
   },
 };

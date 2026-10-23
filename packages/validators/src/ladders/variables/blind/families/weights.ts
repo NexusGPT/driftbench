@@ -1,8 +1,9 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Row } from '../../interface';
 import { baseFile, defect, validateIssue, validateIssueAt, validateOk, variableOf } from '../files';
-import { callInterval, must, type Stem, show } from '../kit';
+import { callInterval, type Stem, show } from '../kit';
+import { lex } from '../lexicon';
 import { conversationsOf, discover, OWNER_DATE, type ToolSpec } from '../scene';
 
 /** Family weights: R5 (counts and owner weights), R9 (relative), R13 (Wilson interval), Values and Limits (the loader). */
@@ -23,16 +24,18 @@ const exact =
     const [lo, hi] = callInterval(ctx, count, total);
     const [wl, wh] = wilson(count, total);
     check(Math.abs(lo - wl) <= 1e-9 && Math.abs(hi - wh) <= 1e-9, () => ({
-      rule: 'weightInterval returns the two-sided 95 percent Wilson interval of the count over the total',
+      rule: 'weightInterval returns the two-sided N percent Wilson interval of the count over the total',
       input: { count, total },
       got: [lo, hi],
-      expected: [wl, wh],
+      // A bound that is the same number as the count or the total (0 for no success, 1 for all of one) says nothing the
+      // input does not already say, so it is not listed as hidden; no item excuses it through a declaration.
+      expected: [wl, wh].filter((bound) => bound !== count && bound !== total),
     }));
   };
 
 const TOOLS = (): ToolSpec[] => [
-  { tool: 'router_tool', field: 'queue', values: ['alpha', 'beta', 'gamma'] },
-  { tool: 'mailer_tool', field: 'tone', values: ['warm', 'brisk'] },
+  { tool: lex('router_tool'), field: lex('queue'), values: [lex('alpha'), lex('beta'), lex('gamma')] },
+  { tool: lex('mailer_tool'), field: lex('tone'), values: [lex('warm'), lex('brisk')] },
 ];
 
 function sessions(variable: string, plan: Array<[string, number]>, extra = 0): Row[] {
@@ -88,10 +91,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         1,
         (ctx) => {
           const [lo, hi] = callInterval(ctx, 50, 100);
-          must(
-            lo > 0.3 && hi < 0.7,
-            () => `[${lo}, ${hi}] for 50 of 100; a constant [0, 1] is not this interval`,
-          );
+          check(lo > 0.3 && hi < 0.7, () => ({
+            rule: '[{}, {}] for N of N; a constant [N, N] is not this interval',
+            got: { details: [lo, hi] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -106,10 +110,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             [17, 40],
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
-            must(
-              lo >= 0 && hi <= 1 && lo <= hi,
-              () => `[${lo}, ${hi}] for ${c} of ${n} is not an ordered interval inside [0, 1]`,
-            );
+            check(lo >= 0 && hi <= 1 && lo <= hi, () => ({
+              rule: '[{}, {}] for {} of {} is not an ordered interval inside [N, N]',
+              got: { details: [lo, hi, c, n] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -124,7 +129,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             [13, 90],
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
-            must(lo <= c / n && c / n <= hi, () => `[${lo}, ${hi}] lacks the observed share ${c / n}`);
+            check(lo <= c / n && c / n <= hi, () => ({
+              rule: '[{}, {}] lacks the observed share {}',
+              got: { details: [lo, hi, c / n] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -139,10 +148,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           ] as const) {
             const [lo, hi] = callInterval(ctx, c, n);
             const [lo2, hi2] = callInterval(ctx, n - c, n);
-            must(
-              Math.abs(lo - (1 - hi2)) <= 1e-9 && Math.abs(hi - (1 - lo2)) <= 1e-9,
-              () => `the interval of ${c} of ${n} is not the mirror of ${n - c} of ${n}`,
-            );
+            check(Math.abs(lo - (1 - hi2)) <= 1e-9 && Math.abs(hi - (1 - lo2)) <= 1e-9, () => ({
+              rule: 'the interval of {} of {} is not the mirror of {} of {}',
+              got: { details: [c, n, n - c, n] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -154,10 +164,10 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             const [lo, hi] = callInterval(ctx, c, n);
             return hi - lo;
           };
-          must(
-            width(5, 10) > width(50, 100) && width(50, 100) > width(500, 1000),
-            () => 'the interval does not narrow when the same share is seen in more sessions',
-          );
+          check(width(5, 10) > width(50, 100) && width(50, 100) > width(500, 1000), () => ({
+            rule: 'the interval does not narrow when the same share is seen in more sessions',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -166,10 +176,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         (ctx) => {
           const [lo] = callInterval(ctx, 0, 25);
           const [, hi] = callInterval(ctx, 25, 25);
-          must(
-            Math.abs(lo) <= 1e-12 && Math.abs(hi - 1) <= 1e-12,
-            () => `lower of 0 of 25 is ${lo}, upper of 25 of 25 is ${hi}`,
-          );
+          check(Math.abs(lo) <= 1e-12 && Math.abs(hi - 1) <= 1e-12, () => ({
+            rule: 'lower of N of N is {}, upper of N of N is {}',
+            got: { details: [lo, hi] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -181,7 +192,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (let n = 1; n <= 300; n += 1) {
             for (const c of [0, n]) {
               const [lo, hi] = callInterval(ctx, c, n);
-              must(lo >= 0 && hi <= 1, () => `[${lo}, ${hi}] for ${c} of ${n} leaves [0, 1]`);
+              check(lo >= 0 && hi <= 1, () => ({
+                rule: '[{}, {}] for {} of {} leaves [N, N]',
+                got: { details: [lo, hi, c, n] },
+                expected: none('observation'),
+              }));
             }
           }
         },
@@ -201,11 +216,11 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             if (lo <= p && p <= hi) hit += 1;
           }
           const cover = hit / trials;
-          must(
-            cover >= 0.92 && cover <= 0.985,
-            () =>
-              `the interval holds the true share in ${cover} of ${trials} draws; a 95 percent interval does so about 95 percent of the time`,
-          );
+          check(cover >= 0.92 && cover <= 0.985, () => ({
+            rule: 'the interval holds the true share in {} of {} draws; a N percent interval does so about N percent of the time',
+            got: { details: [cover, trials] },
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -337,25 +352,27 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 6],
-                ['beta', 3],
-                ['gamma', 1],
+                [lex('alpha'), 6],
+                [lex('beta'), 3],
+                [lex('gamma'), 1],
               ]),
             ),
           });
-          const [a, b, c] = ['alpha', 'beta', 'gamma'].map((v) => weightOf(store, id, v)) as [
+          const [a, b, c] = [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) as [
             number,
             number,
             number,
           ];
-          must(
-            typeof a === 'number' && typeof b === 'number' && typeof c === 'number',
-            () => `weights ${show([a, b, c])}; an observed variable has a weight on every value`,
-          );
-          must(
-            Math.abs(a / b - 2) < 1e-9 && Math.abs(b / c - 3) < 1e-9,
-            () => `weights ${a}, ${b}, ${c} are not in the ratio of the counts 6, 3, 1`,
-          );
+          check(typeof a === 'number' && typeof b === 'number' && typeof c === 'number', () => ({
+            rule: 'weights {}; an observed variable has a weight on every value',
+            got: { details: [show([a, b, c])] },
+            expected: none('observation'),
+          }));
+          check(Math.abs(a / b - 2) < 1e-9 && Math.abs(b / c - 3) < 1e-9, () => ({
+            rule: 'weights {}, {}, {} are not in the ratio of the counts N, N, N',
+            got: { details: [a, b, c] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -367,15 +384,19 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 4],
-                ['beta', 4],
+                [lex('alpha'), 4],
+                [lex('beta'), 4],
               ]),
             ),
           });
           const v = store.variables.find((x) => x.id === other);
-          must(
+          check(
             v?.values.every((x) => x.weight === undefined),
-            () => `the unobserved variable got weights ${show(v?.values.map((x) => x.weight))}`,
+            () => ({
+              rule: 'the unobserved variable got weights {}',
+              got: { details: [show(v?.values.map((x) => x.weight))] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -385,14 +406,14 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
         (ctx) => {
           const d = discover(ctx, TOOLS());
           const store = d.build({ conversations: [] });
-          must(
+          check(
             store.variables.every((v) => v.values.every((x) => x.weight === undefined)),
-            () => 'empty conversation input added weights',
+            () => ({ rule: 'empty conversation input added weights', expected: none('observation') }),
           );
-          must(
-            JSON.stringify(store) === JSON.stringify(d.store),
-            () => 'empty conversation input changed the store',
-          );
+          check(JSON.stringify(store) === JSON.stringify(d.store), () => ({
+            rule: 'empty conversation input changed the store',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -406,8 +427,8 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
               sessions(
                 id,
                 [
-                  ['alpha', 3],
-                  ['beta', 1],
+                  [lex('alpha'), 3],
+                  [lex('beta'), 1],
                 ],
                 6,
               ),
@@ -415,12 +436,13 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           });
           const entry = store.variables
             .find((v) => v.id === id)
-            ?.values.find((x) => x.id === 'alpha')
+            ?.values.find((x) => x.id === lex('alpha'))
             ?.provenance?.find((p) => p.kind === 'conversations');
-          must(
-            entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4,
-            () => `provenance ${show(entry)}; 3 of the 4 sessions that show the variable, not of 10`,
-          );
+          check(entry?.kind === 'conversations' && entry.count === 3 && entry.total === 4, () => ({
+            rule: 'provenance counts only the sessions that show the variable',
+            got: { entry: show(entry) },
+            expected: { count: 3, total: 4, notOf: 10 },
+          }));
         },
       ],
       [
@@ -432,22 +454,27 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const store = d.build({
             conversations: conversationsOf(
               sessions(id, [
-                ['alpha', 5],
-                ['beta', 3],
-                ['newcomer', 2],
+                [lex('alpha'), 5],
+                [lex('beta'), 3],
+                [lex('newcomer'), 2],
               ]),
             ),
           });
-          const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === 'newcomer');
-          must(
-            !!v && v.approved === false,
-            () => `newcomer is ${show(v)}; a value seen but unknown is an unapproved proposal`,
-          );
-          const [a, n] = [weightOf(store, id, 'alpha'), weightOf(store, id, 'newcomer')] as [number, number];
-          must(
-            typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9,
-            () => `weights ${a} and ${n} are not in the ratio of the counts 5 and 2`,
-          );
+          const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === lex('newcomer'));
+          check(!!v && v.approved === false, () => ({
+            rule: 'newcomer is {}; a value seen but unknown is an unapproved proposal',
+            got: { details: [show(v)] },
+            expected: none('observation'),
+          }));
+          const [a, n] = [weightOf(store, id, lex('alpha')), weightOf(store, id, lex('newcomer'))] as [
+            number,
+            number,
+          ];
+          check(typeof a === 'number' && typeof n === 'number' && Math.abs(a / n - 2.5) < 1e-9, () => ({
+            rule: 'weights {} and {} are not in the ratio of the counts N and N',
+            got: { details: [a, n] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -463,13 +490,18 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
             words: `Traffic is mostly ${value}.`,
             date: OWNER_DATE,
           });
-          const store = d.build({ owner: { weights: [w('alpha', 60), w('beta', 30), w('gamma', 10)] } });
-          must(
-            weightOf(store, id, 'alpha') === 60 &&
-              weightOf(store, id, 'beta') === 30 &&
-              weightOf(store, id, 'gamma') === 10,
-            () =>
-              `stored weights ${show(['alpha', 'beta', 'gamma'].map((v) => weightOf(store, id, v)))}; expected 60, 30, 10 as declared`,
+          const store = d.build({
+            owner: { weights: [w(lex('alpha'), 60), w(lex('beta'), 30), w(lex('gamma'), 10)] },
+          });
+          check(
+            weightOf(store, id, lex('alpha')) === 60 &&
+              weightOf(store, id, lex('beta')) === 30 &&
+              weightOf(store, id, lex('gamma')) === 10,
+            () => ({
+              rule: 'owner weights are stored as declared',
+              got: { weights: [lex('alpha'), lex('beta'), lex('gamma')].map((v) => weightOf(store, id, v)) },
+              expected: { weights: [60, 30, 10] },
+            }),
           );
         },
       ],
@@ -481,14 +513,23 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           const id = d.ids[0] as string;
           const store = d.build({
             owner: {
-              weights: [{ variable: id, value: 'alpha', weight: -2, words: 'Minus two.', date: OWNER_DATE }],
+              weights: [
+                { variable: id, value: lex('alpha'), weight: -2, words: 'Minus two.', date: OWNER_DATE },
+              ],
             },
           });
-          must(weightOf(store, id, 'alpha') === undefined, () => 'a negative owner weight entered the store');
-          must(
+          check(weightOf(store, id, lex('alpha')) === undefined, () => ({
+            rule: 'a negative owner weight entered the store',
+            expected: none('observation'),
+          }));
+          check(
             store.refused.length >= 1 &&
               store.refused.every((r) => r.reason.length >= 8 && r.reason !== r.what),
-            () => `refusals ${show(store.refused)}`,
+            () => ({
+              rule: 'refusals {}',
+              got: { details: [show(store.refused)] },
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -501,14 +542,21 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
           for (const weight of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
             const store = d.build({
               owner: {
-                weights: [{ variable: id, value: 'beta', weight, words: 'Not a number.', date: OWNER_DATE }],
+                weights: [
+                  { variable: id, value: lex('beta'), weight, words: 'Not a number.', date: OWNER_DATE },
+                ],
               },
             });
-            must(
-              weightOf(store, id, 'beta') === undefined,
-              () => `the owner weight ${weight} entered the store`,
-            );
-            must(store.refused.length >= 1, () => `no refusal for the owner weight ${weight}`);
+            check(weightOf(store, id, lex('beta')) === undefined, () => ({
+              rule: 'the owner weight {} entered the store',
+              got: { details: [weight] },
+              expected: none('observation'),
+            }));
+            check(store.refused.length >= 1, () => ({
+              rule: 'no refusal for the owner weight {}',
+              got: { details: [weight] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -525,11 +573,14 @@ export const WEIGHTS_STEMS: readonly Stem[] = [
               ],
             },
           });
-          must(
+          check(
             !store.variables.find((v) => v.id === id)?.values.some((x) => x.id === 'no_such_value'),
-            () => 'a weight for a missing value created the value',
+            () => ({ rule: 'a weight for a missing value created the value', expected: none('observation') }),
           );
-          must(store.refused.length >= 1, () => 'no refusal for a weight on a missing value');
+          check(store.refused.length >= 1, () => ({
+            rule: 'no refusal for a weight on a missing value',
+            expected: none('observation'),
+          }));
         },
       ],
     ],

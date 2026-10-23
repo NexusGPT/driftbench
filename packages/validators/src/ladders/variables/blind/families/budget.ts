@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import {
@@ -10,7 +11,6 @@ import {
   jsonEqual,
   logWeightOf,
   makeStore,
-  must,
   names,
   newRows,
   planError,
@@ -46,11 +46,12 @@ function order(plan: Plan): number[] {
 function descending(plan: Plan): void {
   const w = order(plan);
   for (let i = 1; i < w.length; i += 1) {
-    must(
-      (w[i] as number) <= (w[i - 1] as number),
-      () =>
-        `new row ${i} (logWeight ${String(w[i])}) outweighs new row ${i - 1} (${String(w[i - 1])}): the rows must run from the most common to the rarest`,
-    );
+    check((w[i] as number) <= (w[i - 1] as number), () => ({
+      rule: 'new rows run from the most common to the rarest',
+      input: { row: i, previous: i - 1 },
+      got: { logWeights: [String(w[i]), String(w[i - 1])] },
+      expected: { order: 'not increasing' },
+    }));
   }
 }
 
@@ -58,14 +59,19 @@ function prefixHolds(ctx: ItemContext, store: StoreDoc, budget: number, seeds: R
   const full = callPlan(ctx, store, { seed: ctx.seed, seeds });
   const cut = callPlan(ctx, store, { seed: ctx.seed, seeds, budget });
   const keep = Math.max(budget, seeds.length);
-  must(
-    cut.rows.length === Math.min(keep, full.rows.length),
-    () => `${cut.rows.length} rows with budget ${budget}; expected ${Math.min(keep, full.rows.length)}`,
-  );
-  must(
-    jsonEqual(cut.rows, full.rows.slice(0, cut.rows.length)),
-    () => `the plan with budget ${budget} is not a prefix of the uncut plan`,
-  );
+  check(cut.rows.length === Math.min(keep, full.rows.length), () => ({
+    rule: 'a budget keeps the seeds and cuts the plan to the budget',
+    // The answer is the budget itself only while it is between the seed count and the plan length.
+    echoes: keep === budget && budget <= full.rows.length ? ['budget'] : [],
+    input: { budget },
+    got: { rows: cut.rows.length },
+    expected: { rows: Math.min(keep, full.rows.length) },
+  }));
+  check(jsonEqual(cut.rows, full.rows.slice(0, cut.rows.length)), () => ({
+    rule: 'the plan with budget {} is not a prefix of the uncut plan',
+    got: { details: [budget] },
+    expected: none('observation'),
+  }));
 }
 
 const badBudget =
@@ -104,10 +110,12 @@ export const BUDGET_STEMS: readonly Stem[] = [
           assertRowsSound(space, plan, []);
           for (const r of newRows(plan)) {
             const want = logWeightOf(space, r.values) as number;
-            must(
-              r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8,
-              () => `row ${r.id} has logWeight ${String(r.logWeight)}; the sum of the log shares is ${want}`,
-            );
+            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({
+              rule: 'the logWeight of a row is the sum of the logs of its shares',
+              input: { row: r.id },
+              got: { logWeight: String(r.logWeight) },
+              expected: { logWeight: want },
+            }));
           }
         },
       ],
@@ -121,10 +129,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
             [1, 1, 1],
           ]);
           for (const r of callPlan(ctx, store, { seed: ctx.seed }).rows) {
-            must(
-              r.logWeight === null || r.logWeight === Number(r.logWeight.toFixed(9)),
-              () => `logWeight ${String(r.logWeight)} of ${r.id} has more than nine places`,
-            );
+            check(r.logWeight === null || r.logWeight === Number(r.logWeight.toFixed(9)), () => ({
+              rule: 'logWeight {} of {} has more than nine places',
+              got: { details: [String(r.logWeight), r.id] },
+              expected: none('observation'),
+            }));
           }
         },
       ],
@@ -135,11 +144,12 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const { store } = weighted(ctx, [null, null]);
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           for (const r of newRows(plan)) {
-            must(
-              r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(1 / 3)) <= 1e-8,
-              () =>
-                `row ${r.id} has logWeight ${String(r.logWeight)}; two uniform ternary shares give ${2 * Math.log(1 / 3)}`,
-            );
+            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(1 / 3)) <= 1e-8, () => ({
+              rule: 'two uniform ternary shares give their logWeight',
+              input: { row: r.id },
+              got: { logWeight: String(r.logWeight) },
+              expected: { logWeight: 2 * Math.log(1 / 3) },
+            }));
           }
         },
       ],
@@ -155,10 +165,10 @@ export const BUDGET_STEMS: readonly Stem[] = [
           for (const v of big.variables) for (const x of v.values) x.weight = (x.weight as number) * 100;
           const a = callPlan(ctx, small.store, { seed: ctx.seed });
           const b = callPlan(ctx, big, { seed: ctx.seed });
-          must(
-            jsonEqual(a.rows, b.rows),
-            () => 'weights 0.6, 0.15, 0.25 and 60, 15, 25 gave different plans',
-          );
+          check(jsonEqual(a.rows, b.rows), () => ({
+            rule: 'weights N, N, N and N, N, N gave different plans',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -171,25 +181,28 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ]);
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           const zero = newRows(plan).filter((r) => r.values[ids[0] as string] === 'v2');
-          must(
-            zero.length >= 1,
-            () => 'no row holds the value of weight 0, but it is still a value of the store',
-          );
+          check(zero.length >= 1, () => ({
+            rule: 'no row holds the value of weight N, but it is still a value of the store',
+            expected: none('observation'),
+          }));
           for (const r of zero)
-            must(
-              r.logWeight === null,
-              () =>
-                `row ${r.id} holds a weight 0 value and has logWeight ${String(r.logWeight)}; expected null`,
-            );
+            check(r.logWeight === null, () => ({
+              rule: 'row {} holds a weight N value and has logWeight {}; expected null',
+              got: { details: [r.id, String(r.logWeight)] },
+              expected: none('observation'),
+            }));
           descending(plan);
           const lastZero = newRows(plan)
             .map((r) => r.logWeight === null)
             .lastIndexOf(false);
-          must(
+          check(
             newRows(plan)
               .slice(lastZero + 1)
               .every((r) => r.logWeight === null),
-            () => 'a row of weight 0 comes before a row of positive weight',
+            () => ({
+              rule: 'a row of weight N comes before a row of positive weight',
+              expected: none('observation'),
+            }),
           );
         },
       ],
@@ -220,11 +233,12 @@ export const BUDGET_STEMS: readonly Stem[] = [
             ],
           });
           for (const r of newRows(callPlan(ctx, store, { seed: ctx.seed }))) {
-            must(
-              r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(0.5)) <= 1e-8,
-              () =>
-                `row ${r.id} has logWeight ${String(r.logWeight)}; both shares are 1/2, so ${2 * Math.log(0.5)}`,
-            );
+            check(r.logWeight !== null && Math.abs(r.logWeight - 2 * Math.log(0.5)) <= 1e-8, () => ({
+              rule: 'two shares of one half give their logWeight',
+              input: { row: r.id },
+              got: { logWeight: String(r.logWeight) },
+              expected: { logWeight: 2 * Math.log(0.5) },
+            }));
           }
         },
       ],
@@ -236,10 +250,12 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           for (const r of newRows(plan)) {
             const want = Math.log(r.values[ids[0] as string] === 'v0' ? 0.8 : 0.1) + Math.log(1 / 3);
-            must(
-              r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8,
-              () => `row ${r.id}: logWeight ${String(r.logWeight)}, expected ${want}`,
-            );
+            check(r.logWeight !== null && Math.abs(r.logWeight - want) <= 1e-8, () => ({
+              rule: 'the logWeight of a row is the sum of the logs of its shares',
+              input: { row: r.id },
+              got: { logWeight: String(r.logWeight) },
+              expected: { logWeight: want },
+            }));
           }
         },
       ],
@@ -261,17 +277,17 @@ export const BUDGET_STEMS: readonly Stem[] = [
           });
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           for (const r of newRows(plan))
-            must(
-              r.logWeight !== null && Number.isFinite(r.logWeight),
-              () =>
-                `row ${r.id} has logWeight ${String(r.logWeight)}; products of shares must be compared in log space`,
-            );
+            check(r.logWeight !== null && Number.isFinite(r.logWeight), () => ({
+              rule: 'row {} has logWeight {}; products of shares must be compared in log space',
+              got: { details: [r.id, String(r.logWeight)] },
+              expected: none('observation'),
+            }));
           descending(plan);
           const w = order(plan);
-          must(
-            new Set(w).size > 1,
-            () => 'every row has the same logWeight although the values differ in weight a thousand-fold',
-          );
+          check(new Set(w).size > 1, () => ({
+            rule: 'every row has the same logWeight although the values differ in weight a thousand-fold',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -286,10 +302,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: [seed] });
           const want = Math.log(3 / 4) + Math.log(1 / 5);
           const lw = plan.rows[0]?.logWeight;
-          must(
-            typeof lw === 'number' && Math.abs(lw - want) <= 1e-8,
-            () => `the seed row has logWeight ${String(lw)}; expected ${want}`,
-          );
+          check(typeof lw === 'number' && Math.abs(lw - want) <= 1e-8, () => ({
+            rule: 'the logWeight of a seed row is the sum of the logs of its shares',
+            got: { logWeight: String(lw) },
+            expected: { logWeight: want },
+          }));
         },
       ],
       [
@@ -302,10 +319,10 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ]);
           const seed: Row = { [ids[0] as string]: 'v1', [ids[1] as string]: 'v1' };
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: [seed] });
-          must(
-            plan.rows[0]?.kind === 'seed',
-            () => 'the rarest possible row is a seed and must still come first',
-          );
+          check(plan.rows[0]?.kind === 'seed', () => ({
+            rule: 'the rarest possible row is a seed and must still come first',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -377,10 +394,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ];
           prefixHolds(ctx, store, 5, seeds);
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 5 });
-          must(
-            plan.rows.length === 5 && plan.rows.slice(0, 2).every((r) => r.kind === 'seed'),
-            () => `${plan.rows.length} rows with 2 seeds and budget 5`,
-          );
+          check(plan.rows.length === 5 && plan.rows.slice(0, 2).every((r) => r.kind === 'seed'), () => ({
+            rule: '{} rows with N seeds and budget N',
+            got: { details: [plan.rows.length] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -396,11 +414,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
             [ids[1] as string]: `v${k % 2}`,
           }));
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 2 });
-          must(
-            plan.rows.length === 4 && plan.rows.every((r) => r.kind === 'seed'),
-            () =>
-              `${plan.rows.length} rows with 4 seeds and budget 2; the seeds stay and no new row joins them`,
-          );
+          check(plan.rows.length === 4 && plan.rows.every((r) => r.kind === 'seed'), () => ({
+            rule: '{} rows with N seeds and budget N; the seeds stay and no new row joins them',
+            got: { details: [plan.rows.length] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -416,7 +434,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
             { [ids[0] as string]: 'v1', [ids[1] as string]: 'v1' },
           ];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 2 });
-          must(plan.rows.length === 2, () => `${plan.rows.length} rows with 2 seeds and budget 2`);
+          check(plan.rows.length === 2, () => ({
+            rule: '{} rows with N seeds and budget N',
+            got: { details: [plan.rows.length] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -428,7 +450,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
             [4, 4, 2],
           ]);
           const plan = callPlan(ctx, store, { seed: ctx.seed, budget: 0 });
-          must(plan.rows.length === 0, () => `${plan.rows.length} rows with budget 0 and no seeds`);
+          check(plan.rows.length === 0, () => ({
+            rule: '{} rows with budget N and no seeds',
+            got: { details: [plan.rows.length] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -441,10 +467,11 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ]);
           const seeds: Row[] = [{ [ids[0] as string]: 'v2', [ids[1] as string]: 'v1' }];
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 0 });
-          must(
-            plan.rows.length === 1 && plan.rows[0]?.kind === 'seed',
-            () => `${plan.rows.length} rows with one seed and budget 0`,
-          );
+          check(plan.rows.length === 1 && plan.rows[0]?.kind === 'seed', () => ({
+            rule: '{} rows with one seed and budget N',
+            got: { details: [plan.rows.length] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -461,11 +488,14 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const cut = callPlan(ctx, store, { seed: ctx.seed, budget });
           const kept = order(cut);
           const dropped = order(full).slice(kept.length);
-          must(dropped.length > 0, () => 'the item expects a cut to drop at least one row');
-          must(
-            Math.max(...dropped) <= Math.min(...kept),
-            () => 'a dropped row is more common than a kept row: the cut must remove the rarest rows first',
-          );
+          check(dropped.length > 0, () => ({
+            rule: 'the item expects a cut to drop at least one row',
+            expected: none('observation'),
+          }));
+          check(Math.max(...dropped) <= Math.min(...kept), () => ({
+            rule: 'a dropped row is more common than a kept row: the cut must remove the rarest rows first',
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -479,7 +509,10 @@ export const BUDGET_STEMS: readonly Stem[] = [
           ]);
           const space = spaceOf(store);
           const cut = callPlan(ctx, store, { seed: ctx.seed, budget: 3 });
-          must(!!cut.report, () => 'a cut plan has no coverage report');
+          check(!!cut.report, () => ({
+            rule: 'a cut plan has no coverage report',
+            expected: none('observation'),
+          }));
           const groups = requiredGroups(space);
           const allowed = allowedTuples(space, groups, allRows(space));
           const { covered } = coveredTuples(
@@ -489,15 +522,16 @@ export const BUDGET_STEMS: readonly Stem[] = [
             space,
           );
           const report = cut.report as NonNullable<Plan['report']>;
-          must(
-            Number(report.allowed) === allowed.size,
-            () => `report.allowed ${String(report.allowed)} against ${allowed.size}`,
-          );
-          must(
-            Number(report.covered) === covered.size && covered.size < allowed.size,
-            () =>
-              `report.covered ${String(report.covered)}; the three kept rows hold ${covered.size} of ${allowed.size}`,
-          );
+          check(Number(report.allowed) === allowed.size, () => ({
+            rule: 'the report of a cut plan counts the allowed tuples',
+            got: { allowed: String(report.allowed) },
+            expected: { allowed: allowed.size },
+          }));
+          check(Number(report.covered) === covered.size && covered.size < allowed.size, () => ({
+            rule: 'the report of a cut plan counts the tuples the kept rows hold',
+            got: { covered: String(report.covered) },
+            expected: { covered: covered.size, allowed: allowed.size },
+          }));
         },
       ],
       [
@@ -512,7 +546,10 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const opts: PlanOptions = { seed: ctx.seed, budget: 4 };
           const first = JSON.stringify(callPlan(ctx, store, opts));
           const second = JSON.stringify(callPlan(ctx, store, opts));
-          must(first === second, () => 'the same budget gave different bytes');
+          check(first === second, () => ({
+            rule: 'the same budget gave different bytes',
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -561,7 +598,10 @@ export const BUDGET_STEMS: readonly Stem[] = [
           const { store } = weighted(ctx, [null, null, null]);
           const a = callPlan(ctx, store, { seed: ctx.seed });
           const b = callPlan(ctx, store, { seed: ctx.seed });
-          must(jsonEqual(a.rows, b.rows), () => 'rows of equal weight changed order between two equal calls');
+          check(jsonEqual(a.rows, b.rows), () => ({
+            rule: 'rows of equal weight changed order between two equal calls',
+            expected: none('observation'),
+          }));
         },
       ],
       [
