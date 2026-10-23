@@ -19,9 +19,49 @@ export type FailureFields = {
   input?: unknown;
   /** What the product returned or did. For a count item, the product's number. */
   got?: unknown;
-  /** The wanted value. Never rendered. */
-  expected?: unknown;
+  /**
+   * The wanted value. Never rendered. Every failure declares it: a site that wants a value names it here, and a site
+   * that only observes what the product did says so with `none(reason)`. A wanted value cannot go unnamed, so the leak
+   * check always has something to compare the message with (docs/validators.md 12.11).
+   */
+  expected: unknown;
+  /**
+   * The names of the `input` fields whose value the wanted answer simply is (5 rows for a budget of 5: `echoes: ['budget']`).
+   * Only a wanted number equal to one of those input values may be shown in the message; any other number that happens
+   * to equal something in the input is still read as a wanted value.
+   */
+  echoes?: readonly string[];
 };
+
+/** The marker of a failure that has no wanted value to hide: it observes what the product did. */
+export type NoneCode = 'observation' | 'generator';
+export type NoExpected = { readonly none: NoneCode };
+
+/**
+ * A closed set of reasons. 'observation': the failure describes what the product did and the item wants no value from
+ * it. 'generator': the bank's own generator built something it should not have, which is a bug of the bank. A site
+ * that wants a value names it in `expected`; a new `none` site is listed on purpose in the list file of its bank
+ * (`validators/variables/none-sites-first.json`, `none-sites-blind.json`), and the test of that bank fails on an unlisted one.
+ */
+export function none(code: NoneCode): NoExpected {
+  return { none: code };
+}
+
+/** Every `check` is counted, so a test can force the k-th one to fail and render its diagnostic. */
+export const forced = { at: -1, count: 0, trace: false, first: new Map<string, number>() };
+
+/** The file, line and column of the code that called `check`. Read only while a test traces the checks. */
+function callerOfCheck(): string {
+  const frame = new Error().stack?.split('\n')[3] ?? '';
+  return frame
+    .replace(/^\s*at\s+/, '')
+    .replace(/^.*\(/, '')
+    .replace(/\)$/, '')
+    .replace(/^.*?(packages\/validators\/)/, '$1');
+}
+
+export const isNoExpected = (value: unknown): value is NoExpected =>
+  typeof value === 'object' && value !== null && 'none' in value && Object.keys(value).length === 1;
 
 /** A value as a message prints it: short, with non-finite numbers and bigint named. */
 export function showValue(value: unknown, limit = 200): string {
@@ -49,14 +89,35 @@ export class ItemFailure extends Error {
   readonly fields: FailureFields;
   constructor(fields: FailureFields) {
     super(renderFailure(fields));
+    if (!('expected' in fields))
+      throw new TypeError(
+        `failure "${(fields as FailureFields).rule}" declares no expected value: name it, or say none(reason)`,
+      );
     this.name = 'ItemFailure';
     this.fields = fields;
   }
 }
 
+/**
+ * Whether the diagnostics of a lazy `check` are built. A test turns it off to run an item twice, with and without its
+ * diagnostics, and compares what each run read of the product: a diagnostic that reads the product is then found by
+ * what it reads, not by how its code is written (docs/validators.md 12.11).
+ */
+export const diagnostics = { build: true };
+
 /** Fails the item with these fields unless the condition holds. */
 export function check(condition: unknown, fields: FailureFields | (() => FailureFields)): asserts condition {
-  if (!condition) throw new ItemFailure(typeof fields === 'function' ? fields() : fields);
+  forced.count += 1;
+  // Only the first calls are traced: a source site inside a loop is reached early, and a scale item calls check millions of times.
+  if (forced.trace && forced.count <= 2000) {
+    const site = callerOfCheck();
+    if (!forced.first.has(site)) forced.first.set(site, forced.count);
+  }
+  if (condition && forced.at !== forced.count) return;
+  if (typeof fields !== 'function') throw new ItemFailure(fields);
+  throw new ItemFailure(
+    diagnostics.build ? fields() : { rule: '(diagnostics not built)', expected: none('observation') },
+  );
 }
 
 /** The strings and numbers of a value, as the tokens a message could repeat. */
@@ -107,7 +168,7 @@ export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
   const out: string[] = [];
   if (failure.message !== renderFailure(fields)) out.push('(the message is not the rendering of its fields)');
-  if (fields.expected === undefined) return out;
+  if (fields.expected === undefined || isNoExpected(fields.expected)) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.
   const own = [showValue(fields.input, 4000), showValue(fields.got, 4000), fields.item ?? ''].map(normal);
