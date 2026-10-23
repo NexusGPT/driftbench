@@ -582,6 +582,7 @@
       "MutatorMissError": "value",
       "MutatorOp": "type",
       "MutatorRequest": "type",
+      "NUMBER_RULE": "value",
       "NoParams": "value",
       "NotRun": "value",
       "OBSERVED_FIELDS": "value",
