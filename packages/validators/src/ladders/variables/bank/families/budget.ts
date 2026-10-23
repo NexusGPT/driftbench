@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
@@ -43,11 +44,17 @@ function ordered(logs: readonly number[], label: string): void {
     const prev = logs[i - 1] as number;
     const cur = logs[i] as number;
     const bad = RARE_ROWS_CUT === 'last' ? cur < prev - 1e-9 : cur > prev + 1e-9;
-    must(
-      !bad,
-      () =>
-        `${label}: new row ${i} has log weight ${cur.toFixed(4)}, new row ${i - 1} has ${prev.toFixed(4)}; the new rows should run ${RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first'}`,
-    );
+    check(!bad, () => ({
+      rule: 'the new rows run in the order of their log weights that the page names',
+      input: label,
+      got: {
+        row: i,
+        logWeight: Number(cur.toFixed(4)),
+        previousRow: i - 1,
+        previousLogWeight: Number(prev.toFixed(4)),
+      },
+      expected: RARE_ROWS_CUT === 'last' ? 'rarest first' : 'most common first',
+    }));
   }
 }
 
@@ -154,7 +161,11 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const base: PlanOptions = { seed: ctx.seed, ...(seeds.length ? { seeds } : {}) };
     const full = planOf(ctx, st, base);
     const facts = checkPlan(space, oracle, full, { seeds });
-    must(facts.problems.length === 0, () => facts.problems.join('; '));
+    check(facts.problems.length === 0, () => ({
+      rule: 'the plan is sound and covers every allowed required tuple within the row bound of the page',
+      got: { problems: facts.problems },
+      expected: facts.hidden,
+    }));
     const total = full.rows.length;
     ordered(freshLogs(space, full, seeds.length), `${total} rows`);
     if (variant.startsWith('cut-')) {
@@ -174,19 +185,21 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       if (RARE_ROWS_CUT === 'last') {
         const keptMax = Math.max(...kept);
         const droppedMin = Math.min(...dropped);
-        must(
-          droppedMin >= keptMax - 1e-9,
-          () =>
-            `budget ${budget} dropped a new row of log weight ${droppedMin.toFixed(4)} while it kept one of ${keptMax.toFixed(4)}: the rare rows should be cut last`,
-        );
+        check(droppedMin >= keptMax - 1e-9, () => ({
+          rule: 'a budget cuts the new rows in the order of their weights that the page names',
+          input: { budget },
+          got: { droppedLogWeight: Number(droppedMin.toFixed(4)), keptLogWeight: Number(keptMax.toFixed(4)) },
+          expected: 'the rare rows are cut last',
+        }));
       } else {
         const keptMin = Math.min(...kept);
         const droppedMax = Math.max(...dropped);
-        must(
-          droppedMax <= keptMin + 1e-9,
-          () =>
-            `budget ${budget} dropped a new row of log weight ${droppedMax.toFixed(4)} while it kept one of ${keptMin.toFixed(4)}: the rare rows should be cut first`,
-        );
+        check(droppedMax <= keptMin + 1e-9, () => ({
+          rule: 'a budget cuts the new rows in the order of their weights that the page names',
+          input: { budget },
+          got: { droppedLogWeight: Number(droppedMax.toFixed(4)), keptLogWeight: Number(keptMin.toFixed(4)) },
+          expected: 'the rare rows are cut first',
+        }));
       }
     }
   },
@@ -281,16 +294,18 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     let previous = Number.POSITIVE_INFINITY;
     for (const [i, r] of plan.rows.entries()) {
       const want = logWeight(space, indexRow(space, r.values));
-      must(
-        typeof r.logWeight === 'number' && Math.abs(r.logWeight - want) <= LOG_TOLERANCE,
-        () =>
-          `row ${i} reports logWeight ${show(r.logWeight)}; the sum of the logs of its value shares is ${want}`,
-      );
-      must(
-        (r.logWeight as number) <= previous + LOG_TOLERANCE,
-        () =>
-          `row ${i} reports logWeight ${show(r.logWeight)} after ${previous}: the reported weights should not rise along the plan`,
-      );
+      check(typeof r.logWeight === 'number' && Math.abs(r.logWeight - want) <= LOG_TOLERANCE, () => ({
+        rule: 'logWeight is the sum of the logs of the shares of the values of the row',
+        input: { row: i },
+        got: { logWeight: r.logWeight },
+        expected: want,
+      }));
+      check((r.logWeight as number) <= previous + LOG_TOLERANCE, () => ({
+        rule: 'the reported weights do not rise along the plan',
+        input: { row: i },
+        got: { logWeight: r.logWeight, previous },
+        expected: none('observation'),
+      }));
       previous = r.logWeight as number;
     }
     void groupsOf;
