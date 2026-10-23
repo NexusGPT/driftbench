@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { Plan, PlanOptions, Row, Sources, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, planOf, type StemRun } from '../item';
@@ -142,7 +142,7 @@ const CHILD = fileURLToPath(new URL('../plan-child.ts', import.meta.url));
 /** Runs plan or buildStore in a new process with the given environment and returns its JSON output. */
 function inChild(ctx: ItemContext, input: unknown, env: Record<string, string>): string {
   check(ctx.implModule !== undefined, () => ({
-    rule: 'the implementation was not loaded from a module, so a second process cannot load it',
+    rule: 'the implementation was not loaded from a module, so a second process cannot load it', expected: none('observation')
   }));
   const dir = mkdtempSync(join(tmpdir(), 'variables-bank-'));
   try {
@@ -157,7 +157,7 @@ function inChild(ctx: ItemContext, input: unknown, env: Record<string, string>):
     });
     check(got.status === 0, () => ({
       rule: 'the second process exited {}: {}',
-      got: { details: [got.status, String(got.stderr).trim().split('\n').slice(-3).join(' / ')] },
+      got: { details: [got.status, String(got.stderr).trim().split('\n').slice(-3).join(' / ')] }, expected: none('observation')
     }));
     return String(got.stdout);
   } finally {
@@ -177,7 +177,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const second = planJson(planFresh(ctx, c, extra));
     check(first === second, () => ({
       rule: 'two plans with the same store, options and seed differ: {} then {}',
-      got: { details: [show(first, 120), show(second, 120)] },
+      got: { details: [show(first, 120), show(second, 120)] }, expected: none('observation')
     }));
   },
 
@@ -193,7 +193,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const third = planJson(planFresh(ctx, a));
     check(first === third, () => ({
       rule: 'a plan changed after another plan was made in between: {} then {}',
-      got: { details: [show(first, 120), show(third, 120)] },
+      got: { details: [show(first, 120), show(third, 120)] }, expected: none('observation')
     }));
   },
 
@@ -248,7 +248,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const there = inChild(ctx, { kind: 'plan', store, options }, env);
     check(here === there, () => ({
       rule: 'the plan in a second process ({}) differs: {} then {}',
-      got: { details: [show(env), show(here, 100), show(there, 100)] },
+      got: { details: [show(env), show(here, 100), show(there, 100)] }, expected: none('observation')
     }));
   },
 
@@ -267,7 +267,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const got = withPatches(set, () => planJson(planFresh(ctx, c)));
       check(got === normal, () => ({
         rule: 'the plan changed when the ambient {}: {} then {}',
-        got: { details: [variant.replace(/-/g, ' '), show(normal, 100), show(got, 100)] },
+        got: { details: [variant.replace(/-/g, ' '), show(normal, 100), show(got, 100)] }, expected: none('observation')
       }));
     }
   },
@@ -286,7 +286,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     }
     check(stableStringify(other) === normal, () => ({
       rule: 'reversing the key order of the {} changed the plan: {} then {}',
-      got: { details: [variant.replace('-', ' '), show(normal, 100), show(stableStringify(other), 100)] },
+      got: { details: [variant.replace('-', ' '), show(normal, 100), show(stableStringify(other), 100)] }, expected: none('observation')
     }));
   },
 
@@ -297,7 +297,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const store = clone(c.store);
       planOf(ctx, store, clone(c.options));
       const v = store.variables[0];
-      check(!!v, () => ({ rule: 'the generator built no variable' }));
+      check(!!v, () => ({ rule: 'the generator built no variable', expected: none('observation') }));
       (v as NonNullable<typeof v>).values.push({
         id: 'extra',
         provenance: [{ kind: 'owner', words: 'added in place', date: OWNER_DATE }],
@@ -306,7 +306,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const fresh = planJson(planOf(ctx, clone(store), clone(c.options)));
       check(reused === fresh, () => ({
         rule: 'a store edited in place and planned again gives the plan of a copy of it',
-        got: { reused: show(reused, 80), copy: show(fresh, 80) },
+        got: { reused: show(reused, 80), copy: show(fresh, 80) }, expected: none('observation')
       }));
     } else {
       const options: PlanOptions = { ...clone(c.options), budget: 6 };
@@ -316,7 +316,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const fresh = planJson(planOf(ctx, clone(c.store), { ...clone(c.options), budget: 11 }));
       check(reused === fresh, () => ({
         rule: 'options edited in place and used again give another plan than a copy of them ({} then {})',
-        got: { details: [show(reused, 80), show(fresh, 80)] },
+        got: { details: [show(reused, 80), show(fresh, 80)] }, expected: none('observation')
       }));
     }
   },
@@ -331,7 +331,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     const got = planJson(planOf(ctx, store, frozenOptions));
     check(got === normal, () => ({
       rule: 'the plan from frozen inputs differs from the plan from plain inputs: {} then {}',
-      got: { details: [show(got, 100), show(normal, 100)] },
+      got: { details: [show(got, 100), show(normal, 100)] }, expected: none('observation')
     }));
   },
 
@@ -344,21 +344,21 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       const b = text(sources);
       check(a === b, () => ({
         rule: 'two builds of the same sources differ: {} then {}',
-        got: { details: [show(a, 100), show(b, 100)] },
+        got: { details: [show(a, 100), show(b, 100)] }, expected: none('observation')
       }));
     } else if (variant === 'other-key-order') {
       const a = stableStringify(build(ctx, clone(sources)));
       const b = stableStringify(build(ctx, reverseKeys(clone(sources))));
       check(a === b, () => ({
         rule: 'reversing the key order of the sources changed the store: {} then {}',
-        got: { details: [show(a, 100), show(b, 100)] },
+        got: { details: [show(a, 100), show(b, 100)] }, expected: none('observation')
       }));
     } else {
       const here = text(sources);
       const there = inChild(ctx, { kind: 'build', sources }, {});
       check(here === there, () => ({
         rule: 'the store built in a second process differs: {} then {}',
-        got: { details: [show(here, 100), show(there, 100)] },
+        got: { details: [show(here, 100), show(there, 100)] }, expected: none('observation')
       }));
     }
   },

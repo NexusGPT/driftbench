@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { EstateInput, Refusal, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { build, type ItemContext, type StemRun } from '../item';
@@ -77,12 +77,14 @@ function mustRefuse(store: StoreDoc, quote: string, id: string, label: string): 
     rule: 'a value whose quote the file does not hold is refused',
     input: { label, id, quote },
     got: { kept: true },
+    expected: none('observation'),
   }));
   const named = refusalsMentioning(store, id);
   check(named.length >= 1, () => ({
     rule: 'a refused value is named in the refusal list',
     input: { label, id },
     got: { refusals: store.refused },
+    expected: none('observation'),
   }));
 }
 
@@ -90,7 +92,7 @@ function mustKeep(store: StoreDoc, quote: string, id: string, label: string, sou
   const hit = valueByQuote(store, quote);
   check(!!hit, () => ({
     rule: '{}: the value {} with the findable quote {} is not in the store (refused: {})',
-    got: { details: [label, id, show(quote, 80), show(store.refused)] },
+    got: { details: [label, id, show(quote, 80), show(store.refused)] }, expected: none('observation')
   }));
   if (source !== undefined) {
     const prov = (hit?.value.provenance ?? []).find((p) => p.kind === 'quote' && p.quote === quote);
@@ -188,7 +190,7 @@ function normalizationControls(ctx: ItemContext): void {
     mustKeep(store, quote, 'normalized', label, 'TOOLS.md');
     check(store.refused.length === 0, () => ({
       rule: '{}: a normalized findable quote was refused',
-      got: { details: [label] },
+      got: { details: [label] }, expected: none('observation')
     }));
   }
 }
@@ -223,7 +225,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     for (const v of values) mustKeep(store, v.quote, v.id, variant, 'TOOLS.md');
     check(store.refused.length === 0, () => ({
       rule: 'every quote is findable but the store refuses {}',
-      got: { details: [show(store.refused)] },
+      got: { details: [show(store.refused)] }, expected: none('observation')
     }));
   },
 
@@ -242,7 +244,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     };
     const files: Record<string, string> = { 'TOOLS.md': t.file, 'other.md': `Elsewhere: ${bad.quote}.\n` };
     check(!t.file.includes(bad.quote), () => ({
-      rule: 'the generator must leave the bad quote out of the tools file',
+      rule: 'the generator must leave the bad quote out of the tools file', expected: none('observation')
     }));
     const store = build(ctx, { estate: toolEstate(files, [tool('account', 'TOOLS.md', [good, bad])]) });
     mustKeep(store, good.quote, good.id, variant);
@@ -270,7 +272,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const good = t.values[0] as ToolValue;
     const bad: ToolValue = { id: 'emptyvalue', quote: variant === 'empty' ? '' : '  \t ' };
     const file = `${t.file}Spacing sample:  \t  end\n`;
-    check(file.includes(bad.quote), () => ({ rule: 'the generator must put the blank quote in the file' }));
+    check(file.includes(bad.quote), () => ({ rule: 'the generator must put the blank quote in the file', expected: none('observation') }));
     const store = build(ctx, {
       estate: toolEstate({ 'TOOLS.md': file }, [tool('account', 'TOOLS.md', [good, bad])]),
     });
@@ -280,12 +282,13 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     );
     check(!!var0 && var0.values.length === 1, () => ({
       rule: 'a variable keeps only the values whose quote the file holds',
-      got: { values: var0?.values.map((v) => v.id) },
+      got: { values: var0?.values.map((v) => v.id) }, expected: none('observation')
     }));
     check(refusalsMentioning(store, bad.id).length >= 1, () => ({
       rule: 'a refused value is named in the refusal list',
       input: { id: bad.id },
       got: { refusals: store.refused },
+      expected: none('observation'),
     }));
   },
 
@@ -315,7 +318,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       const c = (lines[2] as string).split(' ').slice(0, 4).join(' ');
       mutated = `${a} ${c}`;
       check(!t.file.includes(mutated), () => ({
-        rule: 'the generator must leave the joined quote out of the file',
+        rule: 'the generator must leave the joined quote out of the file', expected: none('observation')
       }));
     } else {
       mutated = mutate(rng, base.quote, t.file, variant);
@@ -337,7 +340,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const quote = [a, b, c].join(eol);
     lines.splice(2, 0, quote);
     const file = `# Tools${eol}${eol}${lines.join(eol)}${eol}`;
-    check(file.includes(quote), () => ({ rule: 'the generator must put the multi-line quote in the file' }));
+    check(file.includes(quote), () => ({ rule: 'the generator must put the multi-line quote in the file', expected: none('observation') }));
     const store = build(ctx, {
       estate: toolEstate({ 'TOOLS.md': file }, [tool('account', 'TOOLS.md', [{ id: 'payable', quote }])]),
     });
@@ -381,9 +384,9 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       lines.push(`- ledger.post ${good}.`);
       const file = `${TOOLS_HEAD}${lines.join('\n')}\n`;
       check(!file.includes(quote), () => ({
-        rule: 'the generator must leave the pattern text out of the file',
+        rule: 'the generator must leave the pattern text out of the file', expected: none('observation')
       }));
-      check(new RegExp(quote).test(file), () => ({ rule: 'the lookalike must match the file as a pattern' }));
+      check(new RegExp(quote).test(file), () => ({ rule: 'the lookalike must match the file as a pattern', expected: none('observation') }));
       const store = build(ctx, {
         estate: toolEstate({ 'TOOLS.md': file }, [
           tool('account', 'TOOLS.md', [
@@ -445,13 +448,13 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       store.variables.every((v) => v.values.length > 0),
       () => ({
         rule: 'the store holds a variable with no value: {}',
-        got: { details: [show(store.variables.map((v) => [v.id, v.values.length]))] },
+        got: { details: [show(store.variables.map((v) => [v.id, v.values.length]))] }, expected: none('observation')
       }),
     );
     if (variant === 'all-bad') {
       check(store.variables.length === 0, () => ({
         rule: 'a variable with no accepted value is not stored',
-        got: { variables: store.variables.map((v) => v.id) },
+        got: { variables: store.variables.map((v) => v.id) }, expected: none('observation')
       }));
     }
   },
@@ -472,18 +475,18 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       check(named.length === 1, () => ({
         rule: 'a refused value is named by one refusal',
         input: { value: id },
-        got: { refusals: named.length, list: store.refused },
+        got: { refusals: named.length, list: store.refused }, expected: none('observation')
       }));
       const r = named[0] as Refusal;
       check(typeof r.reason === 'string' && r.reason.trim().length > 0, () => ({
         rule: 'the refusal of {} has no reason: {}',
-        got: { details: [id, show(r)] },
+        got: { details: [id, show(r)] }, expected: none('observation')
       }));
       if (variant === 'reason-text') {
         check(r.reason.trim().length >= 8 && r.reason !== r.what, () => ({
           rule: 'the reason of a refusal says why',
           input: { value: id },
-          got: { reason: r.reason },
+          got: { reason: r.reason }, expected: none('observation')
         }));
       }
     }
@@ -492,7 +495,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
         const named = refusalsMentioning(store, v.id);
         check(named.length === 0, () => ({
           rule: 'the findable value {} is named by a refusal: {}',
-          got: { details: [v.id, show(named)] },
+          got: { details: [v.id, show(named)] }, expected: none('observation')
         }));
       }
     }
@@ -504,7 +507,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const estate = toolEstate({ 'TOOLS.md': t.file }, [tool('account', 'TOOLS.md', t.values)]);
     const base = build(ctx, { estate });
     const first = valueByQuote(base, (t.values[0] as ToolValue).quote);
-    check(!!first, () => ({ rule: 'the base store lacks the first value' }));
+    check(!!first, () => ({ rule: 'the base store lacks the first value', expected: none('observation') }));
     const variable = (first as NonNullable<typeof first>).variable;
     if (variant === 'conversation-value') {
       const store = build(ctx, {
@@ -514,11 +517,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       const v = store.variables.find((x) => x.id === variable.id)?.values.find((x) => x.id === 'novelvalue');
       check(!!v, () => ({
         rule: 'the value seen in conversations is not in the store: {}',
-        got: { details: [show(store.variables.find((x) => x.id === variable.id)?.values.map((x) => x.id))] },
+        got: { details: [show(store.variables.find((x) => x.id === variable.id)?.values.map((x) => x.id))] }, expected: none('observation')
       }));
       check(refusalsMentioning(store, 'novelvalue').length === 0, () => ({
         rule: 'a value seen in conversations needs no file quote',
-        got: { refusals: store.refused },
+        got: { refusals: store.refused }, expected: none('observation')
       }));
     } else {
       const words =
@@ -532,11 +535,11 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       const v = store.variables.find((x) => x.id === variable.id)?.values.find((x) => x.id === 'ownerval');
       check(!!v, () => ({
         rule: 'the owner value is not in the store: {}',
-        got: { details: [show(store.refused)] },
+        got: { details: [show(store.refused)] }, expected: none('observation')
       }));
       check(refusalsMentioning(store, 'ownerval').length === 0, () => ({
         rule: 'an owner value needs no file quote',
-        got: { refusals: store.refused },
+        got: { refusals: store.refused }, expected: none('observation')
       }));
     }
   },
@@ -551,7 +554,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const other = basicSpan(rng, rng.pick(QUANTITIES.filter((x) => x.noun !== q.noun)), rng.int(10, 900));
     if (variant === 'edited-wording') {
       const swapped = real.text.replace(/ is (over|at least|under|at most) /, ' tops ');
-      check(swapped !== real.text, () => ({ rule: 'the generator could not edit the wording' }));
+      check(swapped !== real.text, () => ({ rule: 'the generator could not edit the wording', expected: none('observation') }));
       files = { [source]: fileOf(rng, [ruleSentence(swapped, rng), ruleSentence(other.text, rng)], 4) };
     } else if (variant === 'wrong-file') {
       files = {
@@ -563,19 +566,20 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       files = { [source]: fileOf(rng, [ruleSentence(real.text, rng), ruleSentence(other.text, rng)], 4) };
     }
     check(!files[source]?.includes(span), () => ({
-      rule: 'the generator must leave the span out of its file',
+      rule: 'the generator must leave the span out of its file', expected: none('observation')
     }));
     const rules: RuleSpec[] = [{ id: 'R1', source, conditions: [span, other.text], tools: [] }];
     const store = build(ctx, { estate: estateOf(files, rules) });
     const hit = variablesCiting(store, span, source);
     check(hit.length === 0, () => ({
       rule: 'the span {} is not in {} but variable {} cites it',
-      got: { details: [show(span, 80), source, hit[0]?.id] },
+      got: { details: [show(span, 80), source, hit[0]?.id] }, expected: none('observation')
     }));
     check(refusalsMentioning(store, span, 'R1').length >= 1, () => ({
       rule: 'a refused clause is named in the refusal list',
       input: { span },
       got: { refusals: store.refused },
+      expected: none('observation'),
     }));
     const good = variablesCiting(store, other.text);
     check(good.length === 1, () => ({
@@ -604,7 +608,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
       lines.splice(2, 0, `- ledger.post ${core}.`);
       file = `${TOOLS_HEAD}${lines.join('\n')}\n`;
     }
-    check(file.includes(quote), () => ({ rule: 'the generator must put the quote in the file' }));
+    check(file.includes(quote), () => ({ rule: 'the generator must put the quote in the file', expected: none('observation') }));
     const store = build(ctx, {
       estate: toolEstate({ 'TOOLS.md': file }, [tool('account', 'TOOLS.md', [{ id: 'payable', quote }])]),
     });
@@ -652,13 +656,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
     const { value: store, ms } = cpuMs(() => build(ctx, { estate }));
     for (const v of values.slice(0, 5)) mustKeep(store, v.quote, v.id, variant);
     const kept = store.variables.reduce((n, v) => n + v.values.length, 0);
-    check(kept === values.length, () => ({
-      rule: '{} of {} findable values are in the store',
-      got: { details: [kept, values.length] },
-    }));
-    check(ms <= 3000, () => ({
-      rule: 'verifying {} quote(s) in a {} KB file took {} ms of processor time, over 3000 ms',
-      got: { details: [values.length, Math.round(file.length / 1000), Math.round(ms)] },
-    }));
+    check(kept === values.length, () => ({ rule: 'every findable value is in the store', got: { kept }, expected: { values: values.length } }));
+    check(ms <= 3000, () => ({ rule: 'verifying quotes in a large file stays fast', input: { quotes: values.length, kb: Math.round(file.length / 1000) }, got: { ms: Math.round(ms) }, expected: { atMost: 3000 } }));
   },
 };

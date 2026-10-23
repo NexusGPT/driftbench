@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import type { EstateInput, Row, Sources, StoreDoc, StoreVariable } from '../interface';
 import { callBuild, show } from './kit';
@@ -70,7 +70,7 @@ export function varOf(store: StoreDoc, values: readonly string[]): StoreVariable
           200,
         ),
       ],
-    },
+    }, expected: none('observation')
   }));
   return hit as StoreVariable;
 }

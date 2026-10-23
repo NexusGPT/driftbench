@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { Row } from '../../interface';
 import { planOf, type StemRun } from '../item';
 import {
@@ -168,22 +168,16 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const idle = idleRow(oracle, groups, seedIdx, facts.fresh);
     check(idle < 0, () => ({
       rule: '{} with {} seeds: new row {} holds no required tuple that the seeds miss',
-      got: { details: [describeSpace(space), seeds.length, idle] },
+      got: { details: [describeSpace(space), seeds.length, idle] }, expected: none('observation')
     }));
     if (variant.startsWith('full-seeds')) {
-      check(facts.fresh.length === 0, () => ({
-        rule: 'the {} seeds already cover every required tuple but the plan adds {} new rows',
-        got: { details: [seeds.length, facts.fresh.length] },
-      }));
+      check(facts.fresh.length === 0, () => ({ rule: 'seeds that already cover every required tuple leave no new row', input: { seeds: seeds.length }, got: { newRows: facts.fresh.length }, expected: { newRows: 0 } }));
     } else if (
       ['half-covered', 'mostly-covered', 'thirty-percent-covered', 'ninety-percent-covered'].includes(variant)
     ) {
       const without = planOf(ctx, toStore(space), { seed: ctx.seed });
       const fewer = without.rows.length;
-      check(facts.fresh.length < fewer, () => ({
-        rule: 'with seeds holding most tuples the plan adds {} new rows; without seeds it adds {}',
-        got: { details: [facts.fresh.length, fewer] },
-      }));
+      check(facts.fresh.length < fewer, () => ({ rule: 'seeds holding many tuples shorten the plan', got: { newRows: facts.fresh.length }, expected: { fewerThan: fewer } }));
     }
   },
 
@@ -216,7 +210,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     );
     check(idle < 0, () => ({
       rule: 'new row {} holds no required tuple that the (partial) seeds miss',
-      got: { details: [idle] },
+      got: { details: [idle] }, expected: none('observation')
     }));
   },
 
@@ -231,7 +225,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       variant === 'empty-array' ? { seed: ctx.seed, seeds: [] } : { seed: ctx.seed, seeds: undefined },
     );
     check(stableStringify(plain) === stableStringify(other), () => ({
-      rule: 'an empty or absent seed list changed the plan',
+      rule: 'an empty or absent seed list changed the plan', expected: none('observation')
     }));
     const facts = checkPlan(space, new SpaceOracle(space), plain);
     planIsSound(facts);
@@ -271,7 +265,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const groups = groupsOf(space);
     const facts = planAndCheck(ctx, space, { seeds, boundFactor: BOUND });
     check(facts.fresh.length >= 1, () => ({
-      rule: 'the seeds miss some tuples but the plan adds no new row',
+      rule: 'the seeds miss some tuples but the plan adds no new row', expected: none('observation')
     }));
     const idle = idleRow(
       oracle,
@@ -281,12 +275,12 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     );
     check(idle < 0, () => ({
       rule: 'new row {} holds no required tuple that the seeds miss',
-      got: { details: [idle] },
+      got: { details: [idle] }, expected: none('observation')
     }));
     if (variant === 'values-missing') {
       check(
         facts.fresh.every((r) => r[3] === 3),
-        () => ({ rule: 'every new row should hold the one value the seeds never show' }),
+        () => ({ rule: 'every new row should hold the one value the seeds never show', expected: none('observation') }),
       );
     }
   },
@@ -301,10 +295,10 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const seeds = randomSeeds(space, oracle, rng, variant === 'many' ? 180 : 3);
     const facts = planAndCheck(ctx, space, { seeds, noCoverage: true });
     const ids = facts.plan.rows.map((r) => r.id);
-    check(new Set(ids).size === ids.length, () => ({ rule: 'two plan rows share an id' }));
+    check(new Set(ids).size === ids.length, () => ({ rule: 'two plan rows share an id', expected: none('observation') }));
     check(
       ids.every((id) => typeof id === 'string' && id !== ''),
-      () => ({ rule: 'a plan row has an empty id' }),
+      () => ({ rule: 'a plan row has an empty id', expected: none('observation') }),
     );
   },
 
@@ -317,7 +311,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       for (const r of facts.plan.rows.slice(1)) {
         check(!seen.has(stableStringify(r.values)), () => ({
           rule: 'a new row repeats a seed: {}',
-          got: { details: [show(r.values)] },
+          got: { details: [show(r.values)] }, expected: none('observation')
         }));
         seen.add(stableStringify(r.values));
       }
@@ -327,7 +321,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       const keys = facts.plan.rows.map((r) => stableStringify(r.values));
       check(new Set(keys).size === keys.length, () => ({
         rule: 'two new rows are equal: {}',
-        got: { details: [show(facts.plan.rows.map((r) => r.values))] },
+        got: { details: [show(facts.plan.rows.map((r) => r.values))] }, expected: none('observation')
       }));
     }
   },
@@ -350,10 +344,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       got: { problems: facts.problems },
       expected: facts.hidden,
     }));
-    check(ms <= 8000, () => ({
-      rule: 'planning with {} seeds took {} ms of processor time, over 8000 ms',
-      got: { details: [count, Math.round(ms)] },
-    }));
+    check(ms <= 8000, () => ({ rule: 'planning with many seeds stays fast', input: { seeds: count }, got: { ms: Math.round(ms) }, expected: { atMost: 8000 } }));
   },
 
   'seeds.pure-copy': (variant, ctx) => {
@@ -368,7 +359,7 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     seeds.forEach((s, i) => {
       check(plan.rows[i]?.values !== s, () => ({
         rule: 'a plan row is a copy of its seed, not the seed object',
-        input: { row: i },
+        input: { row: i }, expected: none('observation')
       }));
     });
     if (variant === 'later-mutation-safe') {
@@ -376,12 +367,12 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
       const key = Object.keys(first)[0] as string;
       first[key] = 'changed-by-the-caller';
       check(deepEqual(seeds[0], given[0]), () => ({
-        rule: 'writing to a plan row changed the seed object of the caller',
+        rule: 'writing to a plan row changed the seed object of the caller', expected: none('observation')
       }));
       const copy = JSON.parse(JSON.stringify(plan.rows[1]?.values));
       (seeds[1] as Row)[Object.keys(seeds[1] as Row)[0] as string] = 'changed-by-the-caller';
       check(deepEqual(plan.rows[1]?.values, copy), () => ({
-        rule: 'writing to a seed object after planning changed the plan row',
+        rule: 'writing to a seed object after planning changed the plan row', expected: none('observation')
       }));
     }
   },

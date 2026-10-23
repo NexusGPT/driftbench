@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Rng } from '../../bank/util';
 import type { FileProvenance, FileStore } from '../../interface';
@@ -47,7 +47,7 @@ const quote = (text: string, path = PATH): FileProvenance => ({ kind: 'quote', p
 
 function noErrors(ctx: ItemContext, store: FileStore, files: Record<string, string>, label: string): void {
   const r = callQuotes(ctx, store, files);
-  check(r.errors.length === 0, () => ({ rule: '{}: {}', got: { details: [label, show(r.errors, 240)] } }));
+  check(r.errors.length === 0, () => ({ rule: '{}: {}', got: { details: [label, show(r.errors, 240)] }, expected: none('observation') }));
 }
 
 function oneError(
@@ -275,7 +275,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
                 'VARIABLES_QUOTE_NOT_FOUND at variables.2.values.1.provenance.0.quote',
                 'VARIABLES_SOURCE_UNREADABLE at variables.2.values.0.provenance.0.path',
               ]),
-            () => ({ rule: 'errors {}', got: { details: [show(codes, 300)] } }),
+            () => ({ rule: 'errors {}', got: { details: [show(codes, 300)] }, expected: none('observation') }),
           );
         },
       ],
@@ -620,7 +620,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const v = varOf(store, ['alpha', 'beta', 'gamma']);
           check(store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
           const q = v.values.find((x) => x.id === 'beta')?.provenance?.find((p) => p.kind === 'quote');
           check(q?.kind === 'quote' && q.quote === Q2 && q.path === PATH, () => ({
@@ -643,11 +643,11 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'alpha') && kept(store, 'gamma') && !kept(store, 'beta'), () => ({
             rule: 'values kept: {}',
-            got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] },
+            got: { details: [show(store.variables.map((v) => v.values.map((x) => x.id)))] }, expected: none('observation')
           }));
           check(store.refused.length === 1 && store.refused[0]?.what.includes('beta'), () => ({
             rule: 'refused {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],
@@ -658,9 +658,9 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const estate = estateWith(READER_FILE, { alpha: Q1, beta: Q2 }, 'agent/not_supplied.md');
           const store = callBuild(ctx, { estate });
           check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({
-            rule: 'values with a quote from a file that was not supplied entered the store',
+            rule: 'values with a quote from a file that was not supplied entered the store', expected: none('observation')
           }));
-          check(store.refused.length >= 1, () => ({ rule: 'no refusal for a missing file' }));
+          check(store.refused.length >= 1, () => ({ rule: 'no refusal for a missing file', expected: none('observation') }));
         },
       ],
       [
@@ -670,11 +670,11 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, {
             estate: estateWith(READER_FILE, { alpha: Q1, beta: 'A sentence that is nowhere.' }),
           });
-          check(store.refused.length >= 1, () => ({ rule: 'no refusal' }));
+          check(store.refused.length >= 1, () => ({ rule: 'no refusal', expected: none('observation') }));
           for (const r of store.refused)
             check(r.reason.length >= 8 && r.reason !== 'beta' && r.reason !== r.what, () => ({
               rule: 'refusal {}; the reason is at least eight characters and not the identifier',
-              got: { details: [show(r)] },
+              got: { details: [show(r)] }, expected: none('observation')
             }));
         },
       ],
@@ -687,14 +687,14 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(store.refused.length === 2, () => ({
             rule: '{} refusals for two rejected values',
-            got: { details: [store.refused.length] },
+            got: { details: [store.refused.length] }, expected: none('observation')
           }));
           check(
             store.refused.some((r) => r.what.includes('beta')) &&
               store.refused.some((r) => r.what.includes('gamma')),
             () => ({
               rule: 'refusals {} do not name beta and gamma',
-              got: { details: [show(store.refused)] },
+              got: { details: [show(store.refused)] }, expected: none('observation')
             }),
           );
         },
@@ -708,11 +708,11 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(store.variables.length === 0, () => ({
             rule: '{} variables although every value was refused',
-            got: { details: [store.variables.length] },
+            got: { details: [store.variables.length] }, expected: none('observation')
           }));
           check(store.refused.length === 2, () => ({
             rule: '{} refusals for two rejected values',
-            got: { details: [store.refused.length] },
+            got: { details: [store.refused.length] }, expected: none('observation')
           }));
         },
       ],
@@ -735,7 +735,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
             ?.provenance?.find((p) => p.kind === 'quote');
           check(q?.kind === 'quote' && q.quote === odd && q.path === PATH, () => ({
             rule: 'provenance {}; the original quote and path stay unchanged',
-            got: { details: [show(q)] },
+            got: { details: [show(q)] }, expected: none('observation')
           }));
         },
       ],
@@ -751,7 +751,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'beta') && store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],
@@ -768,7 +768,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'beta') && store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],
@@ -784,7 +784,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'beta') && store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],
@@ -800,7 +800,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'beta') && store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],
@@ -815,7 +815,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
             rule: 'kept {}, refused {}',
             got: {
               details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)],
-            },
+            }, expected: none('observation')
           }));
         },
       ],
@@ -830,7 +830,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
             rule: 'kept {}, refused {}',
             got: {
               details: [show(store.variables.map((v) => v.values.map((x) => x.id))), show(store.refused)],
-            },
+            }, expected: none('observation')
           }));
         },
       ],
@@ -861,11 +861,11 @@ export const QUOTES_STEMS: readonly Stem[] = [
           };
           const store = callBuild(ctx, { estate });
           check(!kept(store, 'alpha') && !kept(store, 'beta'), () => ({
-            rule: 'a value was kept because its quote sits in a file other than the one it names',
+            rule: 'a value was kept because its quote sits in a file other than the one it names', expected: none('observation')
           }));
           check(store.refused.length === 2, () => ({
             rule: '{} refusals for two values quoted from the wrong file',
-            got: { details: [store.refused.length] },
+            got: { details: [store.refused.length] }, expected: none('observation')
           }));
         },
       ],
@@ -881,20 +881,20 @@ export const QUOTES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, { estate });
           check(store.variables.length === 0, () => ({
             rule: '{} variables from a span that is not in its file',
-            got: { details: [store.variables.length] },
+            got: { details: [store.variables.length] }, expected: none('observation')
           }));
           check(
             store.refused.length >= 1 &&
               store.refused.some((r) => r.what.includes(text) || r.what.includes('rule.delay')),
             () => ({
               rule: 'refused {}; a refused condition names its span or its rule',
-              got: { details: [show(store.refused)] },
+              got: { details: [show(store.refused)] }, expected: none('observation')
             }),
           );
           for (const r of store.refused)
             check(r.reason.length >= 8, () => ({
               rule: 'refusal reason {} is under eight characters',
-              got: { details: [show(r.reason)] },
+              got: { details: [show(r.reason)] }, expected: none('observation')
             }));
         },
       ],
@@ -907,7 +907,7 @@ export const QUOTES_STEMS: readonly Stem[] = [
           });
           check(kept(store, 'alpha') && kept(store, 'beta') && store.refused.length === 0, () => ({
             rule: 'refusals {}',
-            got: { details: [show(store.refused)] },
+            got: { details: [show(store.refused)] }, expected: none('observation')
           }));
         },
       ],

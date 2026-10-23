@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import type { StoreDoc, StoreValue, StoreVariable } from '../interface';
 import { type DrawOptions, drawCondition, type Form, policyFile } from './draws';
@@ -39,7 +39,7 @@ export function readSpans(ctx: ItemContext, texts: string[]): Read {
         ),
         show(store.refused, 200),
       ],
-    },
+    }, expected: none('observation')
   }));
   const v = variable as StoreVariable;
   const samples = v.values

@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import { clone, deepFreeze } from '../../bank/util';
 import type { Plan, Row, StoreDoc } from '../../interface';
@@ -53,7 +53,7 @@ function creditReduces(ctx: ItemContext, fraction: number | 'all-but-one'): void
   const n0 = newRows(bare).length;
   check(n0 >= 4, () => ({
     rule: 'the unseeded plan has only {} rows; the item needs more to compare',
-    got: { details: [n0] },
+    got: { details: [n0] }, expected: none('observation')
   }));
   const take = fraction === 'all-but-one' ? n0 - 1 : Math.max(1, Math.floor(n0 * fraction));
   const seeds = newRows(bare)
@@ -65,7 +65,7 @@ function creditReduces(ctx: ItemContext, fraction: number | 'all-but-one'): void
   const n1 = newRows(plan).length;
   check(n1 < n0, () => ({
     rule: '{} new rows with {} seeds against {} without: seed credit did not reduce the new rows',
-    got: { details: [n1, take, n0] },
+    got: { details: [n1, take, n0] }, expected: none('observation')
   }));
 }
 
@@ -92,14 +92,14 @@ export const SEEDS_STEMS: readonly Stem[] = [
               () => ({
                 rule: 'a seed row keeps the seed as given',
                 input: { row: i },
-                got: { row: show(r, 140) },
+                got: { row: show(r, 140) }, expected: none('observation')
               }),
             );
           }
           for (const r of plan.rows.slice(3))
             check(r.kind === 'new', () => ({
               rule: 'row {} after the seeds has kind {}',
-              got: { details: [r.id, r.kind] },
+              got: { details: [r.id, r.kind] }, expected: none('observation')
             }));
         },
       ],
@@ -115,11 +115,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(sameRow(plan.rows[0]?.values ?? {}, seeds[0] as Row), () => ({
             rule: 'seed 0 became {}; its assignments stay as given',
-            got: { details: [show(plan.rows[0]?.values)] },
+            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
           check(sameRow(plan.rows[1]?.values ?? {}, seeds[1] as Row), () => ({
             rule: 'seed 1 became {}',
-            got: { details: [show(plan.rows[1]?.values)] },
+            got: { details: [show(plan.rows[1]?.values)] }, expected: none('observation')
           }));
         },
       ],
@@ -134,15 +134,15 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           (plan.rows[0] as Plan['rows'][number]).values[ids[0] as string] = 'changed after planning';
           check(seeds[0]?.[ids[0] as string] === 'v0', () => ({
-            rule: 'changing a plan row changed the seed the caller passed in',
+            rule: 'changing a plan row changed the seed the caller passed in', expected: none('observation')
           }));
           const before = JSON.stringify(plan.rows.slice(1));
           (seeds[0] as Row)[ids[1] as string] = 'changed by the caller';
           check(JSON.stringify(plan.rows.slice(1)) === before, () => ({
-            rule: 'changing the caller seed changed the plan',
+            rule: 'changing the caller seed changed the plan', expected: none('observation')
           }));
           check(plan.rows[0]?.values[ids[1] as string] === 'v0', () => ({
-            rule: 'changing the caller seed changed the seed row in the plan',
+            rule: 'changing the caller seed changed the seed row in the plan', expected: none('observation')
           }));
         },
       ],
@@ -167,11 +167,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const ids = plan.rows.map((r) => r.id);
           check(
             ids.every((id) => typeof id === 'string' && id.length > 0),
-            () => ({ rule: 'empty or non-string id in {}', got: { details: [show(ids)] } }),
+            () => ({ rule: 'empty or non-string id in {}', got: { details: [show(ids)] }, expected: none('observation') }),
           );
           check(new Set(ids).size === ids.length, () => ({
             rule: 'repeated ids in {}',
-            got: { details: [show(ids)] },
+            got: { details: [show(ids)] }, expected: none('observation')
           }));
         },
       ],
@@ -182,7 +182,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const { store } = axes(ctx, 4, 3);
           const a = callPlan(ctx, store, { seed: ctx.seed });
           const b = callPlan(ctx, store, { seed: ctx.seed, seeds: [] });
-          check(jsonEqual(a, b), () => ({ rule: 'a plan with seeds: [] differs from a plan with no seeds' }));
+          check(jsonEqual(a, b), () => ({ rule: 'a plan with seeds: [] differs from a plan with no seeds', expected: none('observation') }));
         },
       ],
       [
@@ -193,9 +193,9 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const one = randomSeeds(ctx, store, 1)[0] as Row;
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: [{ ...one }, { ...one }] });
           check(plan.rows[0]?.kind === 'seed' && plan.rows[1]?.kind === 'seed', () => ({
-            rule: 'two equal seeds are not both kept as seeds',
+            rule: 'two equal seeds are not both kept as seeds', expected: none('observation')
           }));
-          check(plan.rows[0]?.id !== plan.rows[1]?.id, () => ({ rule: 'two equal seeds share an id' }));
+          check(plan.rows[0]?.id !== plan.rows[1]?.id, () => ({ rule: 'two equal seeds share an id', expected: none('observation') }));
         },
       ],
       [
@@ -235,7 +235,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(newRows(plan).length === 0, () => ({
             rule: '{} new rows although the seeds hold every pair',
-            got: { details: [newRows(plan).length] },
+            got: { details: [newRows(plan).length] }, expected: none('observation')
           }));
         },
       ],
@@ -248,7 +248,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(newRows(plan).length === 0, () => ({
             rule: '{} new rows although every possible row is a seed',
-            got: { details: [newRows(plan).length] },
+            got: { details: [newRows(plan).length] }, expected: none('observation')
           }));
         },
       ],
@@ -270,11 +270,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(newRows(plan).length === 0, () => ({
             rule: '{} new rows although the partial seeds hold every pair',
-            got: { details: [newRows(plan).length] },
+            got: { details: [newRows(plan).length] }, expected: none('observation')
           }));
           check(plan.rows.length === seeds.length, () => ({
             rule: '{} rows for {} seeds',
-            got: { details: [plan.rows.length, seeds.length] },
+            got: { details: [plan.rows.length, seeds.length] }, expected: none('observation')
           }));
         },
       ],
@@ -291,7 +291,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           assertCovered(space, plan, seeds);
           check(newRows(plan).length >= 4, () => ({
             rule: '{} new rows; four are the least that hold the pairs a one-entry seed leaves open',
-            got: { details: [newRows(plan).length] },
+            got: { details: [newRows(plan).length] }, expected: none('observation')
           }));
         },
       ],
@@ -313,7 +313,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
               [...own].some((k) => !bySeeds.has(k)),
               () => ({
                 rule: 'the new row {} covers nothing the seeds do not already hold',
-                got: { details: [r.id] },
+                got: { details: [r.id] }, expected: none('observation')
               }),
             );
           }
@@ -359,11 +359,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(sameRow(plan.rows[0]?.values ?? {}, { [ids[0] as string]: 'v0' }), () => ({
             rule: 'the seed row is {}; the unknown variable goes, the rest stays',
-            got: { details: [show(plan.rows[0]?.values)] },
+            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
           check(warn(plan).includes('seed_unknown_value'), () => ({
             rule: 'warnings {} lack seed_unknown_value',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -376,11 +376,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(sameRow(plan.rows[0]?.values ?? {}, { [ids[1] as string]: 'v1' }), () => ({
             rule: 'the seed row is {}',
-            got: { details: [show(plan.rows[0]?.values)] },
+            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
           check(warn(plan).includes('seed_unknown_value'), () => ({
             rule: 'warnings {} lack seed_unknown_value',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -403,11 +403,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(sameRow(plan.rows[0]?.values ?? {}, seeds[0] as Row), () => ({
             rule: 'the seed row is {}; it is kept whole, unapproved entry included',
-            got: { details: [show(plan.rows[0]?.values)] },
+            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
           check(warn(plan).includes('seed_unapproved_value'), () => ({
             rule: 'warnings {} lack seed_unapproved_value',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -424,16 +424,16 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(
             sameRow(plan.rows[0]?.values ?? {}, seeds[0] as Row) && plan.rows[0]?.kind === 'seed',
-            () => ({ rule: 'the forbidden seed became {}', got: { details: [show(plan.rows[0])] } }),
+            () => ({ rule: 'the forbidden seed became {}', got: { details: [show(plan.rows[0])] }, expected: none('observation') }),
           );
           check(warn(plan).includes('seed_forbidden'), () => ({
             rule: 'warnings {} lack seed_forbidden',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
           for (const r of newRows(plan))
             check(!(r.values[ids[0] as string] === 'v0' && r.values[ids[1] as string] === 'v0'), () => ({
               rule: 'new row {} holds the forbidden pair',
-              got: { details: [r.id] },
+              got: { details: [r.id] }, expected: none('observation')
             }));
         },
       ],
@@ -449,11 +449,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(plan.rows.length === 2 && plan.rows.every((r) => r.kind === 'seed'), () => ({
             rule: 'rows {}; expected the two seeds alone',
-            got: { details: [show(plan.rows, 200)] },
+            got: { details: [show(plan.rows, 200)] }, expected: none('observation')
           }));
           check(warn(plan).includes('no_variables'), () => ({
             rule: 'warnings {} lack no_variables',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -466,11 +466,11 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(plan.rows.length === 0, () => ({
             rule: '{} rows from a store where nothing is approved',
-            got: { details: [plan.rows.length] },
+            got: { details: [plan.rows.length] }, expected: none('observation')
           }));
           check(warn(plan).includes('no_variables'), () => ({
             rule: 'warnings {} lack no_variables',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -481,7 +481,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const { store, ids } = axes(ctx, 2, 2);
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: [{ [ids[0] as string]: 'zzz' }] });
           check((plan.warnings ?? []).length >= 1, () => ({
-            rule: 'no warning for a seed with an unknown value',
+            rule: 'no warning for a seed with an unknown value', expected: none('observation')
           }));
           for (const w of plan.warnings ?? []) {
             check(
@@ -489,7 +489,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
                 w.code.length > 0 &&
                 typeof w.message === 'string' &&
                 w.message.length > 0,
-              () => ({ rule: 'warning {} is not {code, message}', got: { details: [show(w)] } }),
+              () => ({ rule: 'warning {} is not {code, message}', got: { details: [show(w)] }, expected: none('observation') }),
             );
           }
         },
@@ -502,7 +502,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const plan = callPlan(ctx, store, { seed: ctx.seed, seeds: randomSeeds(ctx, store, 3) });
           check((plan.warnings ?? []).length === 0, () => ({
             rule: 'warnings {} for regular seeds',
-            got: { details: [show(plan.warnings)] },
+            got: { details: [show(plan.warnings)] }, expected: none('observation')
           }));
         },
       ],
@@ -525,7 +525,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, store, { seed: ctx.seed, seeds, budget: 12 });
           const b = callPlan(ctx, clone(store), { seed: ctx.seed, seeds: clone(seeds), budget: 12 });
           check(JSON.stringify(a) === JSON.stringify(b), () => ({
-            rule: 'the same store, seeds and options gave different bytes',
+            rule: 'the same store, seeds and options gave different bytes', expected: none('observation')
           }));
         },
       ],
@@ -537,7 +537,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, store, { seed: 0 });
           const b = callPlan(ctx, store, { seed: 0 });
           check(JSON.stringify(a) === JSON.stringify(b) && a.rows.length > 0, () => ({
-            rule: 'seed 0 gave an empty or unstable plan',
+            rule: 'seed 0 gave an empty or unstable plan', expected: none('observation')
           }));
         },
       ],
@@ -551,7 +551,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
             const b = callPlan(ctx, store, { seed });
             check(JSON.stringify(a) === JSON.stringify(b) && a.rows.length > 0, () => ({
               rule: 'seed {} gave an empty or unstable plan',
-              got: { details: [seed] },
+              got: { details: [seed] }, expected: none('observation')
             }));
           }
         },
@@ -564,7 +564,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, store, { seed: 2 ** 53 - 1 });
           const b = callPlan(ctx, store, { seed: 2 ** 53 - 1 });
           check(JSON.stringify(a) === JSON.stringify(b) && a.rows.length > 0, () => ({
-            rule: 'the largest safe integer seed gave an empty or unstable plan',
+            rule: 'the largest safe integer seed gave an empty or unstable plan', expected: none('observation')
           }));
         },
       ],
@@ -587,7 +587,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
               a.rows.map((r) => r.values),
               b.rows.map((r) => r.values),
             ),
-            () => ({ rule: 'writing the keys of the store in another order changed the rows' }),
+            () => ({ rule: 'writing the keys of the store in another order changed the rows', expected: none('observation') }),
           );
         },
       ],
@@ -601,7 +601,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const a = callPlan(ctx, store, { seed: ctx.seed, seeds: [forward] });
           const b = callPlan(ctx, store, { seed: ctx.seed, seeds: [backward] });
           check(jsonEqual(a.rows.slice(1), b.rows.slice(1)), () => ({
-            rule: 'the order of the keys of a seed changed the new rows',
+            rule: 'the order of the keys of a seed changed the new rows', expected: none('observation')
           }));
         },
       ],
@@ -616,9 +616,9 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const options = { seed: ctx.seed, seeds, budget: 20 };
           const optionsBefore = JSON.stringify(options);
           callPlan(ctx, store, options);
-          check(JSON.stringify(store) === storeBefore, () => ({ rule: 'the plan changed the store' }));
-          check(JSON.stringify(seeds) === seedsBefore, () => ({ rule: 'the plan changed the seeds' }));
-          check(JSON.stringify(options) === optionsBefore, () => ({ rule: 'the plan changed the options' }));
+          check(JSON.stringify(store) === storeBefore, () => ({ rule: 'the plan changed the store', expected: none('observation') }));
+          check(JSON.stringify(seeds) === seedsBefore, () => ({ rule: 'the plan changed the seeds', expected: none('observation') }));
+          check(JSON.stringify(options) === optionsBefore, () => ({ rule: 'the plan changed the options', expected: none('observation') }));
         },
       ],
       [
@@ -630,7 +630,7 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const b = callPlan(ctx, store, { seed: ctx.seed });
           (a.rows[0] as Plan['rows'][number]).values.touched = 'yes';
           check(!('touched' in (b.rows[0] as Plan['rows'][number]).values), () => ({
-            rule: 'a change to one plan showed in the next plan',
+            rule: 'a change to one plan showed in the next plan', expected: none('observation')
           }));
         },
       ],
@@ -641,14 +641,14 @@ export const SEEDS_STEMS: readonly Stem[] = [
           const { store, ids } = axes(ctx, 3, 2);
           const before = callPlan(ctx, store, { seed: ctx.seed });
           check(!before.rows.some((r) => r.values[ids[0] as string] === 'extra_value'), () => ({
-            rule: 'the value was in the store before it was added',
+            rule: 'the value was in the store before it was added', expected: none('observation')
           }));
           (store.variables[0] as StoreDoc['variables'][number]).values.push({ id: 'extra_value' });
           const second = callPlan(ctx, store, { seed: ctx.seed });
           check(
             second.rows.some((r) => r.values[ids[0] as string] === 'extra_value'),
             () => ({
-              rule: 'the same store object, edited in place, gave a plan without the new value: an object cache returned a stale plan',
+              rule: 'the same store object, edited in place, gave a plan without the new value: an object cache returned a stale plan', expected: none('observation')
             }),
           );
         },

@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { FileIssue, FileStore, FileVariable } from '../interface';
 import { OWNER_DATE } from './constants';
 import { callQuotes, callValidate, type ItemContext } from './item';
@@ -171,11 +171,11 @@ export function schedule(cases: readonly FileCase[], seed: number, key: string):
   const classes = cases.map(classOf);
   check(new Set(classes).size >= 2, () => ({
     rule: 'the item {} has one class of answer: nothing to schedule',
-    got: { details: [key] },
+    got: { details: [key] }, expected: none('observation')
   }));
   check(cases.length >= 18, () => ({
     rule: 'the item {} makes {} calls; at least 18 are needed',
-    got: { details: [key, cases.length] },
+    got: { details: [key, cases.length] }, expected: none('observation')
   }));
   for (let attempt = 0; attempt < 400; attempt += 1) {
     const rng = makeRng((Math.imul(seed >>> 0, 0x9e3779b1) ^ hashKey(`${key}:${attempt}`)) >>> 0);
@@ -217,6 +217,7 @@ function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
         rule: 'validate accepts a store the page accepts',
         input: at,
         got: { refusedWith: issueText('errors' in result ? result.errors : []) },
+        expected: none('observation'),
       }));
       return;
     }

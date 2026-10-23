@@ -1,4 +1,4 @@
-import { check, ItemFailure } from '../../../failure';
+import { check, ItemFailure, none } from '../../../failure';
 import type {
   CoverageResult,
   FileStore,
@@ -75,7 +75,7 @@ const MISSING =
 
 function provided<K extends keyof VariablesImpl>(ctx: ItemContext, name: K): VariablesImpl[K] {
   const fn = ctx.impl[name];
-  check(typeof fn === 'function', () => ({ rule: `${name} ${MISSING}` }));
+  check(typeof fn === 'function', () => ({ rule: `${name} ${MISSING}`, expected: none('observation') }));
   return fn as VariablesImpl[K];
 }
 
@@ -96,23 +96,25 @@ export function build(ctx: ItemContext, sources: Sources): StoreDoc {
   const got = attempt(() => fn(sources));
   check(!got.error, () => ({
     rule: 'buildStore threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] },
+    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
   }));
   check(isStore(got.value), () => ({
     rule: 'buildStore returned {}, not a store with the arrays variables, impossible, rules and refused',
-    got: { details: [show(got.value, 120)] },
+    got: { details: [show(got.value, 120)] }, expected: none('observation')
   }));
   const store = got.value as StoreDoc;
   const problems = formatProblems(store);
   check(problems.length === 0, () => ({
     rule: 'buildStore returns a store whose fields follow the shared format (docs/variables.md)',
     got: { problems },
+    expected: none('observation'),
   }));
   for (const variable of store.variables) {
     for (const value of variable.values) {
       check(Array.isArray(value.provenance) && value.provenance.length > 0, () => ({
         rule: 'every value a source reader produces names its provenance (docs/variables.md R1)',
         got: { variable: variable.id, value: value.id, provenance: value.provenance },
+        expected: none('observation'),
       }));
     }
   }
@@ -130,12 +132,12 @@ export function planOf(ctx: ItemContext, store: StoreDoc, options: PlanOptions):
   const got = attempt(() => fn(store, options));
   check(!got.error, () => ({
     rule: 'plan threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] },
+    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
   }));
   const plan = got.value as Plan | undefined;
   check(!!plan && Array.isArray(plan.rows), () => ({
     rule: 'plan returned {}, not an object with a rows array',
-    got: { details: [show(plan, 120)] },
+    got: { details: [show(plan, 120)] }, expected: none('observation')
   }));
   return plan as Plan;
 }
@@ -157,12 +159,12 @@ export function callCoverage(
   const got = attempt(() => fn(store, rows, groups, options));
   check(!got.error, () => ({
     rule: 'coverage threw {}: {}',
-    got: { details: [got.error?.name, got.error?.message] },
+    got: { details: [got.error?.name, got.error?.message] }, expected: none('observation')
   }));
   const result = got.value as CoverageResult | undefined;
   check(!!result && result.allowed !== undefined && result.covered !== undefined, () => ({
     rule: 'coverage returned {}, not an object with allowed and covered',
-    got: { details: [show(result, 120)] },
+    got: { details: [show(result, 120)] }, expected: none('observation')
   }));
   return result as CoverageResult;
 }
@@ -189,7 +191,7 @@ export function tryPlan(
   const plan = got.value as Plan | undefined;
   check(!!plan && Array.isArray(plan.rows), () => ({
     rule: 'plan returned {}, not an object with a rows array',
-    got: { details: [show(plan, 120)] },
+    got: { details: [show(plan, 120)] }, expected: none('observation')
   }));
   return { plan: plan as Plan };
 }
@@ -200,13 +202,13 @@ export function callInterval(ctx: ItemContext, count: number, total: number): [n
   const got = attempt(() => fn(count, total));
   check(!got.error, () => ({
     rule: 'weightInterval({}, {}) threw {}: {}',
-    got: { details: [count, total, got.error?.name, got.error?.message] },
+    got: { details: [count, total, got.error?.name, got.error?.message] }, expected: none('observation')
   }));
   const iv = got.value as unknown;
   check(Array.isArray(iv) && iv.length === 2 && iv.every((x) => typeof x === 'number'), () => ({
     rule: 'weightInterval returns a pair of numbers',
     input: { count, total },
-    got: { returned: show(iv) },
+    got: { returned: show(iv) }, expected: none('observation')
   }));
   return iv as [number, number];
 }
@@ -218,6 +220,7 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
   check(!got.error, () => ({
     rule: 'validate returns its errors and does not throw',
     got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
   }));
   const result = got.value as ValidateResult | undefined;
   check(
@@ -227,7 +230,7 @@ export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
         (result.ok === false && Array.isArray(result.errors))),
     () => ({
       rule: 'validate returned {}, not {ok: true, store, warnings} or {ok: false, errors}',
-      got: { details: [show(result, 160)] },
+      got: { details: [show(result, 160)] }, expected: none('observation')
     }),
   );
   return result as ValidateResult;
@@ -240,11 +243,12 @@ export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<str
   check(!got.error, () => ({
     rule: 'quotes returns its issues and does not throw',
     got: { threw: `${got.error?.name}: ${got.error?.message}` },
+    expected: none('observation'),
   }));
   const result = got.value as QuotesResult | undefined;
   check(!!result && typeof result === 'object' && Array.isArray(result.errors), () => ({
     rule: 'quotes returned {}, not {errors: [...]}',
-    got: { details: [show(result, 160)] },
+    got: { details: [show(result, 160)] }, expected: none('observation')
   }));
   return result as QuotesResult;
 }

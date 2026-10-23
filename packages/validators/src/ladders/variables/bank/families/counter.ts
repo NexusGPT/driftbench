@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { CoverageResult, Group, Row } from '../../interface';
 import { callCoverage, callCoverageError, type ItemContext, type StemRun } from '../item';
 import {
@@ -24,7 +24,7 @@ export function toBig(v: number | bigint, label: string): bigint {
   check(Number.isInteger(v) && Number.isSafeInteger(v), () => ({
     rule: 'a count is an exact integer; a count beyond 2^53 is a bigint',
     input: { label },
-    got: { value: show(v) },
+    got: { value: show(v) }, expected: none('observation')
   }));
   return BigInt(v);
 }
@@ -204,7 +204,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     }));
     check(toBig(result.covered, 'covered') === 0n, () => ({
       rule: 'with no row given, no tuple is covered',
-      got: { covered: show(result.covered) },
+      got: { covered: show(result.covered) }, expected: none('observation')
     }));
   },
 
@@ -419,12 +419,9 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const result = callCoverage(ctx, toStore(space), [], [wholeGroup(space, t)]);
     const want = elementary(arities, t);
     check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
-      rule: 'the generator must build a count beyond 2^53',
+      rule: 'the generator must build a count beyond 2^53', expected: none('observation')
     }));
-    check(typeof result.allowed === 'bigint', () => ({
-      rule: 'the count is {}, beyond 2^53, but allowed is the {} {}; return a bigint',
-      got: { details: [want, typeof result.allowed, show(result.allowed)] },
-    }));
+    check(typeof result.allowed === 'bigint', () => ({ rule: 'a count beyond 2^53 is returned as a bigint', got: { type: typeof result.allowed, value: show(result.allowed) }, expected: { type: 'bigint', value: String(want) } }));
     check(result.allowed === want, () => ({
       rule: 'coverage counts the allowed tuples exactly, beyond 2^53 too',
       got: { allowed: String(result.allowed) },
@@ -472,6 +469,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         rule: 'coverage returns the list of uncovered tuples it was asked for',
         input: { uncoveredLimit: limit },
         got: { returned: list },
+        expected: none('observation'),
       }));
       const keys = (list as Row[]).map((tuple) => {
         const entries = Object.entries(tuple).map(([variable, value]) => {
@@ -493,12 +491,12 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       }));
       check(new Set(keys).size === keys.length, () => ({
         rule: 'space {}: the uncovered list repeats a tuple',
-        got: { details: [k + 1] },
+        got: { details: [k + 1] }, expected: none('observation')
       }));
       for (const key of keys) {
         check(required.has(key) && !covered.has(key), () => ({
           rule: 'space {}: the listed tuple {} is not an allowed uncovered tuple',
-          got: { details: [k + 1, key] },
+          got: { details: [k + 1, key] }, expected: none('observation')
         }));
       }
     }
@@ -532,7 +530,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     const e = error as Error;
     check(e.name === 'RangeError', () => ({
       rule: 'the error of an invalid group is a RangeError',
-      got: { name: e.name, message: e.message },
+      got: { name: e.name, message: e.message }, expected: none('observation')
     }));
     check(e.message.toLowerCase().includes(needle.toLowerCase()), () => ({
       rule: 'the RangeError names the argument at fault',
@@ -553,9 +551,6 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
       got: { allowed: show(result.allowed) },
       expected: { allowed: String(want) },
     }));
-    check(ms <= 50, () => ({
-      rule: 'counting the tuples of {} binary variables at strength 3 took {} ms of processor time, over 50 ms; use a formula, not an enumeration',
-      got: { details: [n, Math.round(ms)] },
-    }));
+    check(ms <= 50, () => ({ rule: 'counting the tuples of binary variables at strength 3 stays fast, which an enumeration does not', input: { variables: n }, got: { ms: Math.round(ms) }, expected: { atMost: 50 } }));
   },
 };

@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { Plan, PlanRow, Row, StoreDoc, StoreVariable } from '../../interface';
 import { OWNER_DATE } from '../constants';
 import { type ItemContext, planOf, type StemRun } from '../item';
@@ -28,10 +28,7 @@ import { LOG_TOLERANCE } from './budget';
 const warningCodes = (plan: Plan): string[] => (plan.warnings ?? []).map((w) => w.code);
 
 function needWarning(plan: Plan, code: string, why: string): void {
-  check(warningCodes(plan).includes(code), () => ({
-    rule: 'the plan has no warning {} ({}); its warnings are {}',
-    got: { details: [code, why, show(warningCodes(plan))] },
-  }));
+  check(warningCodes(plan).includes(code), () => ({ rule: 'the plan carries the warning the situation calls for', input: { situation: why }, got: { warnings: show(warningCodes(plan)) }, expected: { warning: code } }));
 }
 
 function midSpace(ctx: ItemContext, forbidden = false): Space {
@@ -62,7 +59,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
     plan.rows.forEach((row, i) => {
       check(row.kind === 'seed' && stableStringify(row.values) === stableStringify(seeds[i]), () => ({
         rule: 'row {} is not seed {} as given: {}',
-        got: { details: [i, i, show(row, 140)] },
+        got: { details: [i, i, show(row, 140)] }, expected: none('observation')
       }));
     });
   },
@@ -83,7 +80,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           ),
         () => ({
           rule: 'when nothing is approved the plan is the seeds alone, kept whole: {} rows',
-          got: { details: [show(plan.rows.length)] },
+          got: { details: [show(plan.rows.length)] }, expected: none('observation')
         }),
       );
       needWarning(plan, 'no_variables', 'nothing in the store is approved');
@@ -196,7 +193,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
         for (const value of variable.values) if (value.weight !== undefined) value.weight *= 100;
       const other = planOf(ctx, scaled, { seed: ctx.seed });
       check(other.rows.length === plan.rows.length, () => ({
-        rule: 'scaling every weight by 100 changed the number of rows',
+        rule: 'scaling every weight by 100 changed the number of rows', expected: none('observation')
       }));
       plan.rows.forEach((row, i) => {
         const twin = other.rows[i] as PlanRow;
@@ -208,7 +205,7 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           Math.abs(row.logWeight - twin.logWeight) <= LOG_TOLERANCE;
         check(same, () => ({
           rule: 'weights are relative, yet scaling them by 100 changed row {}: {} then {}',
-          got: { details: [i, show(row), show(twin)] },
+          got: { details: [i, show(row), show(twin)] }, expected: none('observation')
         }));
       });
       return;
@@ -222,12 +219,14 @@ export const PLAN_RUNS: Record<string, StemRun> = {
           rule: 'a row that holds a value of weight 0 reports a null logWeight',
           input: { row: i },
           got: { logWeight: row.logWeight },
+          expected: none('observation'),
         }));
         seenNull = true;
       } else {
         check(!seenNull, () => ({
           rule: 'every row of finite weight comes before every row of weight 0',
           input: { row: i },
+          expected: none('observation'),
         }));
         check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - want) <= LOG_TOLERANCE, () => ({
           rule: 'logWeight is the sum of the logs of the shares of the values of the row',
@@ -238,11 +237,11 @@ export const PLAN_RUNS: Record<string, StemRun> = {
       }
     }
     check(seenNull, () => ({
-      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered',
+      rule: 'the plan has no row with a value of weight 0; the value still needs its tuples covered', expected: none('observation')
     }));
     const text = JSON.stringify(plan.rows.map((r) => r.logWeight));
     check(!/Infinity|NaN/.test(text), () => ({
-      rule: 'a logWeight of minus infinity must be written as null',
+      rule: 'a logWeight of minus infinity must be written as null', expected: none('observation')
     }));
   },
 

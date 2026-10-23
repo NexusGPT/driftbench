@@ -1,4 +1,4 @@
-import { check } from '../../../failure';
+import { check, none } from '../../../failure';
 import type { ItemContext } from '../bank/item';
 import { clone } from '../bank/util';
 import type {
@@ -126,7 +126,7 @@ export function validateOk(ctx: ItemContext, value: unknown, label = 'the store'
   const r = callValidate(ctx, value);
   check(r.ok, () => ({
     rule: '{} is valid by the page and was refused: {}',
-    got: { details: [label, show((r as { errors?: FileIssue[] }).errors, 240)] },
+    got: { details: [label, show((r as { errors?: FileIssue[] }).errors, 240)] }, expected: none('observation')
   }));
   return r;
 }

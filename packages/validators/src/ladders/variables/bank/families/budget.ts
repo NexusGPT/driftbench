@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { Plan, PlanOptions, Row, StoreDoc } from '../../interface';
 import { RARE_ROWS_CUT } from '../constants';
 import { type ItemContext, planError, planOf, type StemRun } from '../item';
@@ -82,7 +82,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const total = full.rows.length;
     check(total >= seeds.length + 6, () => ({
       rule: 'the plan without a budget has only {} rows; the item needs a larger plan',
-      got: { details: [total] },
+      got: { details: [total] }, expected: none('observation')
     }));
     const label = `${variant} (plan of ${total} rows, ${seeds.length} seeds)`;
     switch (variant) {
@@ -135,7 +135,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
             plan.rows.slice(0, seeds.length).every((r) => r.kind === 'seed'),
             () => ({
               rule: '{}: with budget {} the seeds do not lead the plan',
-              got: { details: [label, b] },
+              got: { details: [label, b] }, expected: none('observation')
             }),
           );
         }
@@ -144,7 +144,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         const empty = planOf(ctx, st, { seed: ctx.seed, budget: 0 });
         check(empty.rows.length === 0, () => ({
           rule: 'a budget of 0 with no seeds gives an empty plan',
-          got: { rows: empty.rows.length },
+          got: { rows: empty.rows.length }, expected: none('observation')
         }));
       }
     }
@@ -189,7 +189,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
       const dropped = full.rows.slice(budget).map((r) => logWeight(space, indexRow(space, r.values)));
       check(kept.length > 0 && dropped.length > 0, () => ({
         rule: 'budget {} of {} rows keeps {} and drops {} new rows',
-        got: { details: [budget, total, kept.length, dropped.length] },
+        got: { details: [budget, total, kept.length, dropped.length] }, expected: none('observation')
       }));
       if (RARE_ROWS_CUT === 'last') {
         const keptMax = Math.max(...kept);
@@ -227,11 +227,11 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const e = error as Error;
     check(e.name === 'RangeError' || (variant === 'string' && e.name === 'TypeError'), () => ({
       rule: 'the error of a refused budget is a RangeError',
-      got: { name: e.name, message: e.message },
+      got: { name: e.name, message: e.message }, expected: none('observation')
     }));
     check(e.message.toLowerCase().includes('budget'), () => ({
       rule: 'the error "{}" does not name the budget',
-      got: { details: [e.message] },
+      got: { details: [e.message] }, expected: none('observation')
     }));
   },
 
@@ -245,7 +245,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     planIsSound(facts);
     ordered(freshLogs(space, plan, 0), `${n} variables with shares ${share}`);
     const distinct = new Set(freshLogs(space, plan, 0).map((x) => x.toFixed(3))).size;
-    check(distinct >= 2, () => ({ rule: 'the generator should give rows of different weights' }));
+    check(distinct >= 2, () => ({ rule: 'the generator should give rows of different weights', expected: none('observation') }));
   },
 
   'budget.weights-from-store': (variant, ctx) => {
@@ -256,7 +256,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     ordered(freshLogs(space, plan, 0), `weights from ${variant}`);
     const logs = freshLogs(space, plan, 0);
     check(new Set(logs.map((x) => x.toFixed(6))).size > 1, () => ({
-      rule: 'the generator should give rows of different weights',
+      rule: 'the generator should give rows of different weights', expected: none('observation')
     }));
   },
 
@@ -285,7 +285,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         ),
         () => ({
           rule: 'no variable has weights but the rows report different log weights: {}',
-          got: { details: [show(full.rows.slice(0, 4).map((r) => r.logWeight))] },
+          got: { details: [show(full.rows.slice(0, 4).map((r) => r.logWeight))] }, expected: none('observation')
         }),
       );
     } else {
@@ -316,6 +316,7 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         rule: 'the reported weights do not rise along the plan',
         input: { row: i },
         got: { logWeight: r.logWeight, previous },
+        expected: none('observation'),
       }));
       previous = r.logWeight as number;
     }

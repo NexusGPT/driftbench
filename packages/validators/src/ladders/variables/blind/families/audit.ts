@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { FileProvenance, FileStore, FileValue, FileVariable, VariablesImpl } from '../../interface';
 import { type Base, baseFile, defect, validateIssue, validateOk, variableOf } from '../files';
@@ -250,7 +250,7 @@ const SAME_VARIABLE_STEM: Stem = {
         };
         const plain = callPlan(ctx, make([]), { seed: ctx.seed });
         check(!plain.rows.some((r) => r.values[b] === 'b0' && r.values[c] === 'c1'), () => ({
-          rule: 'a row holds the pair b0, c1 that the store forbids',
+          rule: 'a row holds the pair b0, c1 that the store forbids', expected: none('observation')
         }));
         for (const words of PAIR_WORDINGS) {
           const store = make(
@@ -263,7 +263,7 @@ const SAME_VARIABLE_STEM: Stem = {
           const plan = callPlan(ctx, store, { seed: ctx.seed });
           check(jsonEqual(plan.rows, plain.rows), () => ({
             rule: 'two pairs of two values of {}, worded "{}", changed the plan; a row holds one value of a variable, so they exclude nothing',
-            got: { details: [a, words] },
+            got: { details: [a, words] }, expected: none('observation')
           }));
           assertCovered(spaceOf(store), plan, []);
         }
@@ -289,14 +289,14 @@ const SAME_VARIABLE_STEM: Stem = {
         const fresh = newRows(plan);
         check(!fresh.some((r) => r.values[a] === 'q'), () => ({
           rule: 'a row holds {}=q, a value the one-entry constraint forbids',
-          got: { details: [a] },
+          got: { details: [a] }, expected: none('observation')
         }));
         for (const value of ['p', 'r'])
           check(
             fresh.some((r) => r.values[a] === value),
             () => ({
               rule: 'no row holds {}={}; a pair of two values of one variable excludes neither',
-              got: { details: [a, value] },
+              got: { details: [a, value] }, expected: none('observation')
             }),
           );
       },
@@ -339,7 +339,7 @@ const NO_CONSTRAINTS_STEM: Stem = {
         });
         check(r.errors.length === 0, () => ({
           rule: 'a quote the file holds was reported: {}',
-          got: { details: [show(r.errors, 240)] },
+          got: { details: [show(r.errors, 240)] }, expected: none('observation')
         }));
       },
     ],
@@ -369,7 +369,7 @@ const NO_CONSTRAINTS_STEM: Stem = {
         const empty = callQuotes(ctx, storeAbsentConstraints(ctx, FALSE_QUOTE, true), files);
         check(absent.errors.length > 0 && jsonEqual(absent.errors, empty.errors), () => ({
           rule: 'a store with no constraints list gives {}; with an empty list {}',
-          got: { details: [show(absent.errors, 200), show(empty.errors, 200)] },
+          got: { details: [show(absent.errors, 200), show(empty.errors, 200)] }, expected: none('observation')
         }));
       },
     ],

@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import { clone } from '../../bank/util';
 import type { FileProvenance, Row } from '../../interface';
@@ -54,7 +54,7 @@ const refusedBelow =
     const errors = validateIssueAt(ctx, withEntry(ctx, entry), ENTRY);
     check(
       errors.some((e) => e.code === code),
-      () => ({ rule: 'no {} among {}', got: { details: [code, show(errors, 240)] } }),
+      () => ({ rule: 'no {} among {}', got: { details: [code, show(errors, 240)] }, expected: none('observation') }),
     );
   };
 
@@ -88,7 +88,7 @@ const rangeCase =
     const nums = r.samples.map((s) => s.sample).sort((a, b) => a - b);
     check(new Set(nums).size === nums.length, () => ({
       rule: 'samples {} repeat a number',
-      got: { details: [show(nums)] },
+      got: { details: [show(nums)] }, expected: none('observation')
     }));
     check(
       nums.some((n) => n < d.lo) &&
@@ -98,7 +98,7 @@ const rangeCase =
         nums.some((n) => n > d.hi),
       () => ({
         rule: 'samples {} lack one of: below {}, at {}, strictly inside, at {}, above {}',
-        got: { details: [show(nums), d.lo, d.lo, d.hi, d.hi] },
+        got: { details: [show(nums), d.lo, d.lo, d.hi, d.hi] }, expected: none('observation')
       }),
     );
   };
@@ -115,18 +115,18 @@ const choiceCase =
       },
     });
     const v = store.variables.find((x) => x.values.some((y) => typeof y.sample === 'string'));
-    check(!!v, () => ({ rule: 'no variable with string samples for {}', got: { details: [show(d.text)] } }));
+    check(!!v, () => ({ rule: 'no variable with string samples for {}', got: { details: [show(d.text)] }, expected: none('observation') }));
     const samples = (v?.values ?? []).map((y) => String(y.sample));
     check(
       samples.some((s) => d.list.includes(s)),
-      () => ({ rule: 'samples {} lack a member of {}', got: { details: [show(samples), show(d.list)] } }),
+      () => ({ rule: 'samples {} lack a member of {}', got: { details: [show(samples), show(d.list)] }, expected: none('observation') }),
     );
     check(
       samples.some((s) => !d.list.includes(s)),
-      () => ({ rule: 'samples {} lack a value outside {}', got: { details: [show(samples), show(d.list)] } }),
+      () => ({ rule: 'samples {} lack a value outside {}', got: { details: [show(samples), show(d.list)] }, expected: none('observation') }),
     );
     check((v?.boundaries ?? []).length === 0, () => ({
-      rule: 'a membership condition has no numeric boundary',
+      rule: 'a membership condition has no numeric boundary', expected: none('observation')
     }));
   };
 
@@ -194,11 +194,11 @@ const LABELLED_STEM: Stem = {
         const hit = read.find((samples) => [8, 9, 10].every((n) => samples.includes(n)));
         check(hit !== undefined, () => ({
           rule: 'a condition with a label reads the limit of the label, not the number in the text',
-          got: { read: show(read, 160) },
+          got: { read: show(read, 160) }, expected: none('observation')
         }));
         check(!read.some((samples) => samples.includes(5)), () => ({
           rule: 'no variable takes the number in the text as its limit when a label gives the limit',
-          got: { read: show(read, 160) },
+          got: { read: show(read, 160) }, expected: none('observation')
         }));
       },
     ],
@@ -293,7 +293,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
             ),
             () => ({
               rule: 'no SCHEMA_TOO_SMALL or SCHEMA_CUSTOM at {}.quote among {}',
-              got: { details: [ENTRY, show(errors, 240)] },
+              got: { details: [ENTRY, show(errors, 240)] }, expected: none('observation')
             }),
           );
         },
@@ -373,7 +373,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const b = baseFile(ctx);
           const r = validateOk(ctx, b.store);
           check(r.ok && r.warnings.length > 0, () => ({
-            rule: 'no advice for a store whose entries name no source',
+            rule: 'no advice for a store whose entries name no source', expected: none('observation')
           }));
         },
       ],
@@ -385,7 +385,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const r = callValidate(ctx, b.store);
           check(r.ok, () => ({
             rule: 'the base store was refused: {}',
-            got: { details: [show(errorsOf(r), 200)] },
+            got: { details: [show(errorsOf(r), 200)] }, expected: none('observation')
           }));
           const paths = (r.ok ? r.warnings : [])
             .filter((w) => w.code === 'VARIABLES_UNSOURCED')
@@ -404,7 +404,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
               paths.includes('variables.0.values.0'),
             () => ({
               rule: 'paths {} lack a value, a boundary or a constraint',
-              got: { details: [show(paths, 300)] },
+              got: { details: [show(paths, 300)] }, expected: none('observation')
             }),
           );
         },
@@ -415,10 +415,10 @@ export const SOURCES_STEMS: readonly Stem[] = [
         (ctx) => {
           const store = withEntry(ctx, quoteEntry());
           const r = callValidate(ctx, store);
-          check(r.ok, () => ({ rule: 'refused: {}', got: { details: [show(errorsOf(r), 200)] } }));
+          check(r.ok, () => ({ rule: 'refused: {}', got: { details: [show(errorsOf(r), 200)] }, expected: none('observation') }));
           const paths = (r.ok ? r.warnings : []).map((w) => w.path);
           check(!paths.includes('variables.2.values.0'), () => ({
-            rule: 'advice for a value that names its source',
+            rule: 'advice for a value that names its source', expected: none('observation')
           }));
         },
       ],
@@ -488,13 +488,13 @@ export const SOURCES_STEMS: readonly Stem[] = [
               nums.some((n) => n > d.limit),
             () => ({
               rule: 'samples {}; an equality keeps a case below, at and above its limit',
-              got: { details: [show(nums)] },
+              got: { details: [show(nums)] }, expected: none('observation')
             }),
           );
           for (const b of r.variable.boundaries ?? [])
             check(b.comparison === undefined || ['lt', 'le', 'gt', 'ge'].includes(b.comparison), () => ({
               rule: 'boundary comparison {} is not one of lt, le, gt, ge',
-              got: { details: [show(b.comparison)] },
+              got: { details: [show(b.comparison)] }, expected: none('observation')
             }));
         },
       ],
@@ -514,13 +514,13 @@ export const SOURCES_STEMS: readonly Stem[] = [
               nums.some((n) => n > d.limit),
             () => ({
               rule: 'samples {}; an inequality keeps a case below, at and above its limit',
-              got: { details: [show(nums)] },
+              got: { details: [show(nums)] }, expected: none('observation')
             }),
           );
           for (const b of r.variable.boundaries ?? [])
             check(b.comparison === undefined || ['lt', 'le', 'gt', 'ge'].includes(b.comparison), () => ({
               rule: 'boundary comparison {} is not one of lt, le, gt, ge',
-              got: { details: [show(b.comparison)] },
+              got: { details: [show(b.comparison)] }, expected: none('observation')
             }));
         },
       ],
@@ -559,11 +559,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           check(flags.length === 1, () => ({
             rule: '{} true-or-false variables for a fact and its negation; they name one fact, so one',
-            got: { details: [flags.length] },
+            got: { details: [flags.length] }, expected: none('observation')
           }));
           check(flags[0]?.values.length === 2, () => ({
             rule: '{} values; true and false',
-            got: { details: [flags[0]?.values.length] },
+            got: { details: [flags[0]?.values.length] }, expected: none('observation')
           }));
         },
       ],
@@ -591,14 +591,14 @@ export const SOURCES_STEMS: readonly Stem[] = [
                   200,
                 ),
               ],
-            },
+            }, expected: none('observation')
           }));
           check(v?.values.length === 2, () => ({
             rule: '{} values for a boolean condition; two',
-            got: { details: [v?.values.length] },
+            got: { details: [v?.values.length] }, expected: none('observation')
           }));
           check((v?.boundaries ?? []).length === 0, () => ({
-            rule: 'a boolean condition has no numeric boundary',
+            rule: 'a boolean condition has no numeric boundary', expected: none('observation')
           }));
         },
       ],
@@ -624,25 +624,25 @@ export const SOURCES_STEMS: readonly Stem[] = [
                   200,
                 ),
               ],
-            },
+            }, expected: none('observation')
           }));
           const samples = (v?.values ?? []).map((y) => String(y.sample));
           check(
             samples.some((s) => d.list.includes(s)),
             () => ({
               rule: 'samples {} lack a member of the list {}',
-              got: { details: [show(samples), show(d.list)] },
+              got: { details: [show(samples), show(d.list)] }, expected: none('observation')
             }),
           );
           check(
             samples.some((s) => !d.list.includes(s)),
             () => ({
               rule: 'samples {} lack a value outside the list {}',
-              got: { details: [show(samples), show(d.list)] },
+              got: { details: [show(samples), show(d.list)] }, expected: none('observation')
             }),
           );
           check((v?.boundaries ?? []).length === 0, () => ({
-            rule: 'a membership condition has no numeric boundary',
+            rule: 'a membership condition has no numeric boundary', expected: none('observation')
           }));
         },
       ],
@@ -680,7 +680,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           );
           check(withSamples.length === 2, () => ({
             rule: '{} variables for a delay and a refund; two quantities stay two variables',
-            got: { details: [withSamples.length] },
+            got: { details: [withSamples.length] }, expected: none('observation')
           }));
         },
       ],
@@ -719,12 +719,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, { estate });
           check(store.variables.length === 1, () => ({
             rule: '{} variables for one tool field named in two rules',
-            got: { details: [store.variables.length] },
+            got: { details: [store.variables.length] }, expected: none('observation')
           }));
           const ids = (store.variables[0]?.values ?? []).map((x) => x.id).sort();
           check(
             JSON.stringify(ids) === JSON.stringify([lex('alpha'), lex('beta'), lex('gamma')].sort()),
-            () => ({ rule: 'values {}; the union of both rules, each once', got: { details: [show(ids)] } }),
+            () => ({ rule: 'values {}; the union of both rules, each once', got: { details: [show(ids)] }, expected: none('observation') }),
           );
         },
       ],
@@ -740,7 +740,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const store = callBuild(ctx, { estate });
           check(store.variables.length === 2, () => ({
             rule: '{} variables for two tools with a field of the same name',
-            got: { details: [store.variables.length] },
+            got: { details: [store.variables.length] }, expected: none('observation')
           }));
         },
       ],
@@ -779,17 +779,17 @@ export const SOURCES_STEMS: readonly Stem[] = [
           };
           const store = callBuild(ctx, { estate });
           const rule = store.rules.find((r) => r.id === 'rule.main');
-          check(!!rule, () => ({ rule: 'rules {} lack rule.main', got: { details: [show(store.rules)] } }));
+          check(!!rule, () => ({ rule: 'rules {} lack rule.main', got: { details: [show(store.rules)] }, expected: none('observation') }));
           check(new Set(rule?.variables).size === 3 && rule?.variables.length === 3, () => ({
             rule: 'rule variables {}; the rule names two conditions and one tool field',
-            got: { details: [show(rule?.variables)] },
+            got: { details: [show(rule?.variables)] }, expected: none('observation')
           }));
           for (const id of rule?.variables ?? [])
             check(
               store.variables.some((v) => v.id === id),
               () => ({
                 rule: 'the rule names {}, which is no variable of the store',
-                got: { details: [id] },
+                got: { details: [id] }, expected: none('observation')
               }),
             );
         },
@@ -852,7 +852,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
               JSON.stringify(one.variables) === JSON.stringify(two.variables),
             () => ({
               rule: 'rules {}; both rules name the one variable',
-              got: { details: [show(store.rules)] },
+              got: { details: [show(store.rules)] }, expected: none('observation')
             }),
           );
         },
@@ -869,7 +869,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           });
           check(store.variables.length === 0, () => ({
             rule: '{} variables from a rule with no condition and no tool',
-            got: { details: [store.variables.length] },
+            got: { details: [store.variables.length] }, expected: none('observation')
           }));
         },
       ],
@@ -894,7 +894,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
               const q = x.provenance?.find((p) => p.kind === 'quote');
               check(q?.kind === 'quote' && q.path === 'agent/prompt.md' && q.quote.length > 0, () => ({
                 rule: 'value {} has provenance {}',
-                got: { details: [x.id, show(x.provenance)] },
+                got: { details: [x.id, show(x.provenance)] }, expected: none('observation')
               }));
             }
         },
@@ -922,7 +922,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const kinds = (alpha?.provenance ?? []).map((p) => p.kind).sort();
           check(JSON.stringify(kinds) === JSON.stringify(['conversations', 'owner', 'quote']), () => ({
             rule: 'provenance kinds {}; one entry for each of the three sources',
-            got: { details: [show(kinds)] },
+            got: { details: [show(kinds)] }, expected: none('observation')
           }));
         },
       ],
@@ -943,7 +943,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
             ?.provenance?.find((p) => p.kind === 'quote');
           check(JSON.stringify(before) === JSON.stringify(after) && !!after, () => ({
             rule: 'quote entry {} became {}',
-            got: { details: [show(before), show(after)] },
+            got: { details: [show(before), show(after)] }, expected: none('observation')
           }));
         },
       ],
@@ -1004,12 +1004,12 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const v = store.variables.find((x) => x.id === id)?.values.find((x) => x.id === 'stranger');
           check(!!v && v.approved === false, () => ({
             rule: 'stranger is {}; a value seen and unknown is an unapproved proposal',
-            got: { details: [show(v)] },
+            got: { details: [show(v)] }, expected: none('observation')
           }));
           const e = v?.provenance?.find((p) => p.kind === 'conversations');
           check(e?.kind === 'conversations' && e.count === 4 && e.total === 10, () => ({
             rule: 'stranger provenance {}',
-            got: { details: [show(e)] },
+            got: { details: [show(e)] }, expected: none('observation')
           }));
         },
       ],
@@ -1022,19 +1022,19 @@ export const SOURCES_STEMS: readonly Stem[] = [
             conversations: conversationsOf([{ ghost_variable: 'x' }, { ghost_variable: 'y' }]),
           });
           check(!store.variables.some((v) => v.id === 'ghost_variable'), () => ({
-            rule: 'a variable seen only in conversations was created',
+            rule: 'a variable seen only in conversations was created', expected: none('observation')
           }));
           check(
             store.refused.length >= 1 && store.refused.some((r) => r.what.includes('ghost_variable')),
             () => ({
               rule: 'refused {} does not name ghost_variable',
-              got: { details: [show(store.refused)] },
+              got: { details: [show(store.refused)] }, expected: none('observation')
             }),
           );
           for (const r of store.refused)
             check(r.reason.length >= 8 && r.reason !== r.what, () => ({
               rule: 'reason {}',
-              got: { details: [show(r.reason)] },
+              got: { details: [show(r.reason)] }, expected: none('observation')
             }));
         },
       ],
@@ -1055,11 +1055,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
           for (const h of hashes(store, id))
             check(/^[0-9a-f]{64}$/.test(h), () => ({
               rule: 'set_hash {} is not 64 lowercase hexadecimal characters',
-              got: { details: [show(h)] },
+              got: { details: [show(h)] }, expected: none('observation')
             }));
           check(hashes(store, id).length === 3, () => ({
             rule: '{} conversation entries for three values',
-            got: { details: [hashes(store, id).length] },
+            got: { details: [hashes(store, id).length] }, expected: none('observation')
           }));
         },
       ],
@@ -1079,7 +1079,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const a = d.build({ conversations: rows });
           const b = d.build({ conversations: [...rows].reverse() });
           check(JSON.stringify(hashes(a, id)) === JSON.stringify(hashes(b, id)), () => ({
-            rule: 'the hash of the set changed when the sessions came in another order',
+            rule: 'the hash of the set changed when the sessions came in another order', expected: none('observation')
           }));
         },
       ],
@@ -1100,7 +1100,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const a = d.build({ conversations: rows });
           const b = d.build({ conversations: changed });
           check(JSON.stringify(hashes(a, id)) !== JSON.stringify(hashes(b, id)), () => ({
-            rule: 'the hash of the set did not change when one session changed',
+            rule: 'the hash of the set did not change when one session changed', expected: none('observation')
           }));
         },
       ],
@@ -1124,7 +1124,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const dump = JSON.stringify(store);
           check(
             !dump.includes('private-session') && !dump.includes('PRIVATE_LINE') && !dump.includes('555-0100'),
-            () => ({ rule: 'conversation text or identifiers reached the store' }),
+            () => ({ rule: 'conversation text or identifiers reached the store', expected: none('observation') }),
           );
         },
       ],
@@ -1135,7 +1135,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const d = discover(ctx, TOOLS());
           const store = d.build({ conversations: [] });
           check(JSON.stringify(store) === JSON.stringify(d.store), () => ({
-            rule: 'an empty conversation list changed the store',
+            rule: 'an empty conversation list changed the store', expected: none('observation')
           }));
         },
       ],
@@ -1156,7 +1156,7 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const before = d.store.variables.find((v) => v.id === other);
           const after = store.variables.find((v) => v.id === other);
           check(JSON.stringify(before) === JSON.stringify(after), () => ({
-            rule: 'a variable no conversation showed changed',
+            rule: 'a variable no conversation showed changed', expected: none('observation')
           }));
         },
       ],
@@ -1177,11 +1177,11 @@ export const SOURCES_STEMS: readonly Stem[] = [
           const eb = convOf(store, b, lex('warm'));
           check(ea?.kind === 'conversations' && ea.count === 2 && ea.total === 3, () => ({
             rule: 'alpha: {}; expected 2 of 3',
-            got: { details: [show(ea)] },
+            got: { details: [show(ea)] }, expected: none('observation')
           }));
           check(eb?.kind === 'conversations' && eb.count === 2 && eb.total === 3, () => ({
             rule: 'warm: {}; expected 2 of 3',
-            got: { details: [show(eb)] },
+            got: { details: [show(eb)] }, expected: none('observation')
           }));
         },
       ],
@@ -1225,21 +1225,21 @@ export const SOURCES_STEMS: readonly Stem[] = [
             },
           });
           check(!!varOf(store, [lex('warm'), lex('brisk'), lex('curt')]), () => ({
-            rule: 'the owner value is not in the variable',
+            rule: 'the owner value is not in the variable', expected: none('observation')
           }));
           check(store.impossible.length === 1, () => ({
             rule: '{} impossible pairs; the owner gave one',
-            got: { details: [store.impossible.length] },
+            got: { details: [store.impossible.length] }, expected: none('observation')
           }));
           check(convOf(store, a, lex('alpha'))?.kind === 'conversations', () => ({
-            rule: 'the conversation counts are gone',
+            rule: 'the conversation counts are gone', expected: none('observation')
           }));
           const weightOf = (value: string): number | undefined =>
             store.variables.find((v) => v.id === b)?.values.find((x) => x.id === value)?.weight;
           const w = [lex('warm'), lex('brisk'), lex('curt')].map(weightOf);
           check(JSON.stringify(w) === JSON.stringify([3, 1, 1]), () => ({
             rule: 'owner weights {}',
-            got: { details: [show(w)] },
+            got: { details: [show(w)] }, expected: none('observation')
           }));
         },
       ],

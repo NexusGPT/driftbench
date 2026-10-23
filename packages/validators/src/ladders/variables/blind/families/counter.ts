@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { CoverageResult, Group, Row, StoreDoc } from '../../interface';
 import {
@@ -415,7 +415,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, s, rows, g, { uncovered: 1000 });
           check(got.uncovered?.length === want.uncovered.length, () => ({
             rule: 'uncovered has {} tuples; {} are missing',
-            got: { details: [got.uncovered?.length, want.uncovered.length] },
+            got: { details: [got.uncovered?.length, want.uncovered.length] }, expected: none('observation')
           }));
         },
       ],
@@ -427,7 +427,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, s, [], [{ variables: allIds(s), strength: 2 }], { uncovered: 0 });
           check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({
             rule: 'uncovered is {} for limit 0',
-            got: { details: [show(got.uncovered)] },
+            got: { details: [show(got.uncovered)] }, expected: none('observation')
           }));
         },
       ],
@@ -443,7 +443,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           ];
           const got = callCoverage(ctx, s, [], g, { uncovered: 1000 });
           const keys = (got.uncovered ?? []).map((t) => JSON.stringify(Object.entries(t).sort()));
-          check(new Set(keys).size === keys.length, () => ({ rule: 'the uncovered list repeats a tuple' }));
+          check(new Set(keys).size === keys.length, () => ({ rule: 'the uncovered list repeats a tuple', expected: none('observation') }));
         },
       ],
       [
@@ -462,7 +462,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
             const k = tupleKey(t, vars);
             check(missing.has(k), () => ({
               rule: 'the listed tuple {} is held by a row or no valid row can hold it',
-              got: { details: [show(t)] },
+              got: { details: [show(t)] }, expected: none('observation')
             }));
           }
           check((got.uncovered ?? []).length === want.uncovered.length, () => ({
@@ -481,7 +481,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           const got = callCoverage(ctx, s, rows, [{ variables: allIds(s), strength: 2 }], { uncovered: 10 });
           check(Array.isArray(got.uncovered) && got.uncovered.length === 0, () => ({
             rule: 'uncovered is {} although the rows hold every tuple',
-            got: { details: [show(got.uncovered)] },
+            got: { details: [show(got.uncovered)] }, expected: none('observation')
           }));
         },
       ],
@@ -602,7 +602,7 @@ export const COUNTER_STEMS: readonly Stem[] = [
           same(got.covered, want, 'covered');
           check(typeof got.covered === 'bigint', () => ({
             rule: 'covered is a {} although {} exceeds the safe integer range',
-            got: { details: [typeof got.covered, want] },
+            got: { details: [typeof got.covered, want] }, expected: none('observation')
           }));
         },
       ],
@@ -619,12 +619,12 @@ function beyond(ctx: ItemContext, n: number, arity: number, k: number): void {
   const store = wide(ctx, n, arity);
   const want = closedForm(n, k, arity);
   check(want > BigInt(Number.MAX_SAFE_INTEGER), () => ({
-    rule: 'the bank built a count inside the safe range for a bigint item',
+    rule: 'the bank built a count inside the safe range for a bigint item', expected: none('observation')
   }));
   const got = callCoverage(ctx, store, [], [{ variables: allIds(store), strength: k }]);
   check(typeof got.allowed === 'bigint', () => ({
     rule: 'allowed is a {} ({}); {} exceeds the safe integer range and must be a bigint',
-    got: { details: [typeof got.allowed, String(got.allowed), want] },
+    got: { details: [typeof got.allowed, String(got.allowed), want] }, expected: none('observation')
   }));
   same(got.allowed, want, 'allowed');
 }

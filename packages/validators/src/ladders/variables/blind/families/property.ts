@@ -1,4 +1,4 @@
-import { check } from '../../../../failure';
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Plan, Row, StoreDoc } from '../../interface';
 import {
@@ -49,7 +49,7 @@ function reportMatches(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): vo
   const groups = requiredGroups(space);
   const allowed = allowedTuples(space, groups, allRows(space));
   const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
-  check(!!plan.report, () => ({ rule: 'the plan has no coverage report' }));
+  check(!!plan.report, () => ({ rule: 'the plan has no coverage report', expected: none('observation') }));
   const report = plan.report as NonNullable<Plan['report']>;
   const { covered } = coveredTuples(
     groups,
@@ -59,11 +59,11 @@ function reportMatches(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): vo
   );
   check(Number(report.allowed) === allowed.size, () => ({
     rule: 'report.allowed is {}; the allowed required tuples number {}',
-    got: { details: [String(report.allowed), allowed.size] },
+    got: { details: [String(report.allowed), allowed.size] }, expected: none('observation')
   }));
   check(Number(report.covered) === covered.size, () => ({
     rule: 'report.covered is {}; the rows hold {} of them',
-    got: { details: [String(report.covered), covered.size] },
+    got: { details: [String(report.covered), covered.size] }, expected: none('observation')
   }));
 }
 
@@ -140,14 +140,14 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
     if (expected === null) {
       check(row.logWeight === null, () => ({
         rule: 'the row {} holds a zero weight and has logWeight {}',
-        got: { details: [row.id, show(row.logWeight)] },
+        got: { details: [row.id, show(row.logWeight)] }, expected: none('observation')
       }));
       sawNull = true;
       continue;
     }
     check(!sawNull, () => ({
       rule: 'the row {} has a finite weight and follows a row of zero weight',
-      got: { details: [row.id] },
+      got: { details: [row.id] }, expected: none('observation')
     }));
     check(typeof row.logWeight === 'number' && Math.abs(row.logWeight - expected) < 1e-8, () => ({
       rule: 'the logWeight of a row is the sum of the logs of its shares',
@@ -157,7 +157,7 @@ function checkOrder(store: StoreDoc, plan: Plan): void {
     }));
     check(row.logWeight <= last + 1e-12, () => ({
       rule: 'the row {} is rarer than the row after it',
-      got: { details: [row.id] },
+      got: { details: [row.id] }, expected: none('observation')
     }));
     last = row.logWeight;
   }
@@ -201,7 +201,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           );
           check(codes(plan).includes('value_unreachable'), () => ({
             rule: 'a value no valid row can hold gave the warnings {}',
-            got: { details: [show(codes(plan))] },
+            got: { details: [show(codes(plan))] }, expected: none('observation')
           }));
         },
       ],
@@ -346,7 +346,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           seeds.forEach((seed, i) => {
             check(sameRow(plan.rows[i]?.values ?? {}, seed), () => ({
               rule: 'seed {} became {}; its assignments stay as given',
-              got: { details: [i, show(plan.rows[i]?.values)] },
+              got: { details: [i, show(plan.rows[i]?.values)] }, expected: none('observation')
             }));
           });
         },
@@ -360,11 +360,11 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const plan = planOk(ctx, store, [seed]);
           check(sameRow(plan.rows[0]?.values ?? {}, seed), () => ({
             rule: 'the seed became {}; a seed with an unapproved value is kept whole',
-            got: { details: [show(plan.rows[0]?.values)] },
+            got: { details: [show(plan.rows[0]?.values)] }, expected: none('observation')
           }));
           check(codes(plan).includes('seed_unapproved_value'), () => ({
             rule: 'the warnings {} lack seed_unapproved_value',
-            got: { details: [show(codes(plan))] },
+            got: { details: [show(codes(plan))] }, expected: none('observation')
           }));
         },
       ],
@@ -382,7 +382,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const fresh = newRows(plan).length;
           check(fresh === 0, () => ({
             rule: '{} new rows after seeds that hold every valid row',
-            got: { details: [fresh] },
+            got: { details: [fresh] }, expected: none('observation')
           }));
         },
       ],
@@ -418,13 +418,13 @@ export const PROPERTY_STEMS: readonly Stem[] = [
           const full = callPlan(ctx, store, { seed: ctx.seed, seeds });
           check(full.rows.length > seeds.length + 3, () => ({
             rule: 'the uncut plan has only {} rows',
-            got: { details: [full.rows.length] },
+            got: { details: [full.rows.length] }, expected: none('observation')
           }));
           const budget = ctx.rng.int(seeds.length + 1, full.rows.length - 1);
           const cut = callPlan(ctx, store, { seed: ctx.seed, seeds, budget });
           check(jsonEqual(cut.rows, full.rows.slice(0, budget)), () => ({
             rule: 'a budget of {} did not keep the first {} rows of the uncut plan',
-            got: { details: [budget, budget] },
+            got: { details: [budget, budget] }, expected: none('observation')
           }));
         },
       ],
@@ -441,7 +441,7 @@ export const PROPERTY_STEMS: readonly Stem[] = [
             { seed: ctx.seed },
           );
           check(jsonEqual(plain.rows, scaled.rows), () => ({
-            rule: 'multiplying every weight of one variable changed the plan',
+            rule: 'multiplying every weight of one variable changed the plan', expected: none('observation')
           }));
         },
       ],
