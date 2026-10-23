@@ -23,8 +23,8 @@ export async function inspectSetup(
 ): Promise<DoctorResult> {
   return diagnoseSetup(
     root,
-    async (id, folder, source) => {
-      const options: EstateReaderOptions & { setupSource?: ResolvedSetupSource } = { setupSource: source };
+    async (id, folder, source, snapshotRoots) => {
+      const options: EstateReaderOptions & { setupSource?: ResolvedSetupSource; snapshotRoots?: Record<string, string> } = { setupSource: source, snapshotRoots };
       return readerFor(id, options)?.read(folder);
     },
     setup,

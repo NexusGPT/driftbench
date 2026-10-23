@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { lstat, mkdir, mkdtemp, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, readdir, readFile, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml, stringify } from 'yaml';
@@ -17,7 +17,7 @@ export type SetupRead = {
   ignored?: { paths: string[] };
 };
 /** Dependency inversion: core owns policy, the CLI dispatches through the estate readerFor registry. */
-export type SetupReader = (id: string, root: string, source: ResolvedSetupSource) => Promise<SetupRead | undefined>;
+export type SetupReader = (id: string, root: string, source: ResolvedSetupSource, snapshotRoots: Record<string, string>) => Promise<SetupRead | undefined>;
 export type DoctorDetection = {
   field: string; value: string; confidence: number;
   evidence: Array<{ source: string; file: string; reader: string; reason: string }>;
@@ -32,7 +32,8 @@ export type DoctorResult = {
   advice: string[];
 };
 type DiskFile = { path: string; absolute: string; sha256: string };
-type Link = { path: string; target: string };
+type Link = { path: string; target: string; source: string };
+type Disk = { files: DiskFile[]; links: Link[] };
 const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 const inside = (root: string, file: string) => { const path = relative(root, file); return path === '' || (!path.startsWith(`..${sep}`) && path !== '..' && !path.startsWith(sep)); };
 const slash = (path: string) => path.split(sep).join('/');
@@ -47,7 +48,20 @@ function matches(pattern: string, path: string): boolean {
 
 /** Profile ignore rules may be basename globs. Setup scope and privacy globs are always root-relative. */
 function ignored(path: string, patterns: readonly string[]): boolean {
-  return patterns.some((pattern) => matches(pattern, path) || (!pattern.includes('/') && path.split('/').some((name) => matches(pattern, name))));
+  return patterns.some((pattern) => {
+    const anchored = pattern.startsWith('/');
+    const body = pattern.replace(/^\/+/, '').replace(/\/+$/, '');
+    let expression = '';
+    for (let index = 0; index < body.length; index++) {
+      const char = body[index] ?? '';
+      if (body.startsWith('**/', index)) { expression += '(?:[^/]+/)*'; index += 2; }
+      else if (body.startsWith('**', index)) { expression += '.*'; index++; }
+      else if (char === '*') expression += '[^/]*';
+      else if (char === '?') expression += '[^/]';
+      else expression += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    }
+    return new RegExp(`${anchored ? '^' : '(?:^|/)'}${expression}(?:/|$)`).test(path);
+  });
 }
 
 function defaults(runtime: string | null): SetupDocument {
@@ -60,12 +74,26 @@ function defaults(runtime: string | null): SetupDocument {
 }
 
 /** Walk only explicitly mapped roots. Never follow links outside one, and never use process HOME. */
-async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setupFile: string, skipped: DoctorResult['coverage']['skipped']): Promise<{ files: DiskFile[]; links: Link[] }> {
+async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setupFile: string, skipped: DoctorResult['coverage']['skipped'], sources: ResolvedSetupSource[] = [source]): Promise<Disk> {
   const files: DiskFile[] = [];
   const links: Link[] = [];
   const profile = runtimeProfile(setup.runtime ?? source.reader);
   const canonical = await realpath(source.root).catch(() => undefined);
-  if (!canonical) { skipped.push({ what: source.id, reason: 'source unavailable' }); return { files, links }; }
+  if (!canonical || !(await stat(source.root)).isDirectory()) { skipped.push({ what: source.id, reason: 'source unavailable' }); return { files, links }; }
+  const mapped = (await Promise.all(sources.map(async (entry) => ({ id: entry.id, root: await realpath(entry.root).catch(() => undefined) })))).filter((entry): entry is {id: string; root: string} => entry.root !== undefined).sort((a, b) => b.root.length - a.root.length);
+  const ignorePatterns = [...(profile?.ignore ?? ['.git', 'node_modules'])];
+  for (const path of profile?.configFiles ?? []) {
+    const absolute = join(source.root, path);
+    const real = await realpath(absolute).catch(() => undefined);
+    if (!real || !inside(canonical, real) || setup.privacy.exclude.some((pattern) => matches(pattern, path))) continue;
+    try {
+      const value: unknown = parseYaml(await readFile(absolute, 'utf8'), { uniqueKeys: true });
+      if (value && typeof value === 'object' && 'ignore' in value && Array.isArray(value.ignore) && value.ignore.every((entry) => typeof entry === 'string')) ignorePatterns.push(...value.ignore);
+      break;
+    } catch {
+      // Invalid settings are reported by the reader, never converted into policy.
+    }
+  }
   const walk = async (folder: string, prefix: string, ancestors: Set<string>): Promise<void> => {
     const real = await realpath(folder);
     if (ancestors.has(real)) { skipped.push({ what: `${source.id}:${prefix}`, reason: 'symlink cycle' }); return; }
@@ -78,16 +106,15 @@ async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setu
       let reason: string | undefined;
       if (setup.privacy.exclude.some((pattern) => matches(pattern, path))) reason = 'privacy';
       else if (setup.scope.exclude.some((pattern) => matches(pattern, path))) reason = 'scope';
-      else if (ignored(path, profile?.ignore ?? ['.git', 'node_modules'])) reason = 'ignored';
+      else if (ignored(path, ignorePatterns)) reason = 'ignored';
       if (reason) { skipped.push({ what, reason }); continue; }
-      let info: { isDirectory(): boolean; isFile(): boolean } = entry;
+      const info = entry;
       if (entry.isSymbolicLink()) {
         const target = await realpath(absolute).catch(() => undefined);
-        if (!target || !inside(canonical, target)) { skipped.push({ what, reason: 'unmapped symlink' }); continue; }
-        links.push({ path, target: slash(relative(canonical, target)) });
-        const targetInfo = await stat(absolute);
-        // Both Dirent and Stats expose the file/directory tests used below.
-        info = targetInfo;
+        const mapping = target && mapped.find((entry) => inside(entry.root, target));
+        if (!target || !mapping) { skipped.push({ what, reason: 'unmapped symlink' }); continue; }
+        links.push({ path, target: slash(relative(mapping.root, target)), source: mapping.id });
+        continue;
       }
       if (info.isDirectory()) await walk(absolute, path, next);
       else if (info.isFile()) {
@@ -103,33 +130,48 @@ async function inventory(source: ResolvedSetupSource, setup: SetupDocument, setu
   return { files: files.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0), links };
 }
 
-/** Read a filtered snapshot, so even readers with legacy home fallbacks cannot cross declared boundaries. */
-async function snapshotRead(source: ResolvedSetupSource, files: DiskFile[], setup: SetupDocument, read: SetupReader, skipped: DoctorResult['coverage']['skipped']): Promise<SetupRead | undefined> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-doctor-'));
+/** Build every mapped snapshot before dispatch, so cross-source links resolve only inside filtered roots. */
+async function snapshotReads(sources: ResolvedSetupSource[], disks: Disk[], setup: SetupDocument, read: SetupReader, skipped: DoctorResult['coverage']['skipped']): Promise<Array<SetupRead | undefined>> {
+  const temporary = await mkdtemp(join(tmpdir(), 'driftbench-doctor-'));
+  const snapshotRoots = Object.fromEntries(sources.map((source) => [source.id, join(temporary, source.id)]));
   try {
-    const profile = runtimeProfile(setup.runtime ?? source.reader);
-    for (const file of files) {
-      const destination = join(root, file.path);
-      await mkdir(dirname(destination), { recursive: true });
-      let bytes: Uint8Array | string = await readFile(file.absolute);
-      if (profile?.configFiles.includes(file.path)) {
-        try {
-          const value: unknown = parseYaml(Buffer.from(bytes).toString('utf8'), { uniqueKeys: true });
-          if (value && typeof value === 'object' && !Array.isArray(value) && 'userSkills' in value) {
-            // Each home source is read independently. Never let a legacy config resolve a second home.
-            const { userSkills: _userSkills, ...safe } = value;
-            bytes = stringify(safe);
-            skipped.push({ what: `${source.id}:${file.path}#userSkills`, reason: setup.sources.some((entry) => entry.kind === 'home') ? 'home read through mapped source' : 'home not mapped' });
+    for (const [index, source] of sources.entries()) {
+      const root = snapshotRoots[source.id] as string;
+      await mkdir(root, { recursive: true });
+      const profile = runtimeProfile(setup.runtime ?? source.reader);
+      for (const file of disks[index]?.files ?? []) {
+        const destination = join(root, file.path);
+        await mkdir(dirname(destination), { recursive: true });
+        let bytes: Uint8Array | string = await readFile(file.absolute);
+        if (profile?.configFiles.includes(file.path)) {
+          try {
+            const value: unknown = parseYaml(Buffer.from(bytes).toString('utf8'), { uniqueKeys: true });
+            if (value && typeof value === 'object' && !Array.isArray(value) && 'userSkills' in value) {
+              const { userSkills: _userSkills, ...safe } = value;
+              bytes = stringify(safe);
+              skipped.push({ what: `${source.id}:${file.path}#userSkills`, reason: setup.sources.some((entry) => entry.kind === 'home') ? 'home read through mapped source' : 'home not mapped' });
+            }
+          } catch {
+            // Invalid configuration cannot yield a structured home mapping; the reader reports its parse error.
           }
-        } catch {
-          // An invalid config is still the reader's responsibility, and cannot yield a parsed home path.
         }
+        await writeFile(destination, bytes);
       }
-      await writeFile(destination, bytes);
     }
-    return await read(source.reader, root, source);
+    for (const [index, source] of sources.entries()) {
+      for (const link of disks[index]?.links ?? []) {
+        const targetRoot = snapshotRoots[link.source];
+        if (!targetRoot) continue;
+        const destination = join(snapshotRoots[source.id] as string, link.path);
+        await mkdir(dirname(destination), { recursive: true });
+        await symlink(join(targetRoot, link.target), destination);
+      }
+    }
+    const results: Array<SetupRead | undefined> = [];
+    for (const source of sources) results.push(await read(source.reader, snapshotRoots[source.id] as string, source, snapshotRoots));
+    return results;
   } finally {
-    await rm(root, { recursive: true, force: true });
+    await rm(temporary, { recursive: true, force: true });
   }
 }
 
@@ -177,7 +219,7 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
       const source = resolveSetupSources(candidate, setupFile, parsed.types)[0];
       if (!source) continue;
       const disk = await inventory(source, candidate, setupFile, []);
-      const raw = await snapshotRead(source, disk.files, candidate, read, []);
+      const raw = (await snapshotReads([source], [disk], candidate, read, []))[0];
       const evidence = raw?.files.filter((file) => file.kind !== 'other').map((file) => ({ source: source.id, file: file.path, reader: name, reason: `reader classified ${file.kind}` })) ?? [];
       if (evidence.length) candidates.push({ runtime: name, evidence });
     }
@@ -196,17 +238,20 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
   if (draft.runtime && !profile) result.advice.push(`No runtime profile registered for ${draft.runtime}.`);
   const sources = resolveSetupSources(draft, setupFile, parsed.types);
   const manifest: NonNullable<SetupDocument['drift']>['files'] = [];
+  const inventories: Disk[] = [];
+  for (const source of sources) inventories.push(await inventory(source, draft, setupFile, result.coverage.skipped, sources));
+  const reads = await snapshotReads(sources, inventories, draft, read, result.coverage.skipped);
   const disks = new Map<string, DiskFile[]>();
-  for (const source of sources) {
-    const disk = await inventory(source, draft, setupFile, result.coverage.skipped);
+  for (const [index, source] of sources.entries()) {
+    const disk = inventories[index] as Disk;
     disks.set(source.id, disk.files);
     manifest.push(...disk.files.map((file) => {
       const link = disk.links.find((entry) => entry.path === file.path);
-      return { source: source.id, path: file.path, sha256: link ? hash(Buffer.from(`link:${link.target}\0${file.sha256}`)) : file.sha256 };
+      return { source: source.id, path: file.path, sha256: link ? hash(Buffer.from(`link:${link.source}:${link.target}\0${file.sha256}`)) : file.sha256 };
     }));
     for (const link of disk.links) if (!disk.files.some((file) => file.path === link.path))
-      manifest.push({ source: source.id, path: link.path, sha256: hash(Buffer.from(`link:${link.target}`)) });
-    const raw = await snapshotRead(source, disk.files, draft, read, result.coverage.skipped);
+      manifest.push({ source: source.id, path: link.path, sha256: hash(Buffer.from(`link:${link.source}:${link.target}`)) });
+    const raw = reads[index];
     result.sources.push({ id: source.id, reader: source.reader, files: raw?.files.map(({ path, kind }) => ({ path, kind })) ?? [] });
     if (!raw) result.coverage.skipped.push({ what: source.id, reason: 'reader unavailable' });
     const readPaths = new Set(raw?.files.map((file) => file.path) ?? []);
@@ -221,9 +266,24 @@ export async function diagnoseSetup(root: string, read: SetupReader, declared?: 
     for (const note of raw?.notes ?? []) result.coverage.skipped.push({ what: `${source.id}:${note.file}`, reason: 'reader limitation' });
     for (const path of raw?.ignored?.paths ?? []) result.coverage.skipped.push({ what: `${source.id}:${path}`, reason: 'reader ignored' });
     for (const link of disk.links) {
-      const targetSource = sources.find((entry) => resolve(entry.root) === resolve(source.root, link.target));
+      let targetSource = sources.find((entry) => entry.id === link.source && link.target === '');
       const deploymentProfile = runtimeProfile(draft.runtime ?? '');
-      if (!targetSource || !deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
+      if (!deploymentProfile || !link.path.startsWith(`${deploymentProfile.layout.root}/`)) continue;
+      if (!targetSource) {
+        const mapped = sources.find((entry) => entry.id === link.source);
+        if (!mapped) continue;
+        const absolute = resolve(mapped.root, link.target);
+        if (!(await stat(absolute).catch(() => undefined))?.isDirectory()) continue;
+        // A verified link declares deployment intent, but cannot prove which unregistered reader to use.
+        let number = 1;
+        while (draft.sources.some((entry) => entry.id === `linked-${number}`)) number++;
+        const inferred = { id: `linked-${number}`, path: slash(relative(dirname(setupFile), absolute)) || '.', kind: 'directory' as const, reader: 'unknown' };
+        draft.sources.push(inferred);
+        targetSource = { ...inferred, root: absolute, types: parsed.types, bindings: [], provenance: { file: setupFile, path: `sources.${draft.sources.length - 1}` } };
+        result.sources.push({ id: inferred.id, reader: inferred.reader, files: [] });
+        result.coverage.skipped.push({ what: inferred.id, reason: 'reader unavailable' });
+        result.advice.push(`Choose a registered reader for inferred source ${inferred.id}; its link proves deployment, not source format.`);
+      }
       const binding = { runtime: deploymentProfile.name, deployedRoot: source.id, deployedPath: link.path, method: 'link' as const };
       const target = draft.sources.find((entry) => entry.id === targetSource.id);
       if (target && !(target.bindings ?? []).some((entry) => JSON.stringify(entry) === JSON.stringify(binding))) target.bindings = [...(target.bindings ?? []), binding];

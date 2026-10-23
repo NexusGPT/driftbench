@@ -89,8 +89,10 @@ part types, and setup-file provenance.
       method: link
 ```
 
-Doctor reports link evidence only for symlinks whose target stays inside the mapped source. When a link
-points at another declared source, its binding is drafted with confidence 1. Copy intent must be declared;
+Doctor reports link evidence only for symlinks whose target stays inside a declared source. When a link
+points at another declared source, its binding is drafted with confidence 1. A directory deployment without
+a separate source mapping gets an inferred source with reader `unknown`; choose its registered reader
+before evaluating it. Copy intent must be declared;
 equal bytes are insufficient evidence. Escaping links are skipped. Doctor never reads an implicit home
 from the legacy estate configuration: it records `home not mapped`. Explicit home sources are read
 separately. A reader that is not installed is skipped and coverage cannot be clean.
@@ -100,7 +102,9 @@ separately. A reader that is not installed is skipped and coverage cannot be cle
 `scope.include`, `scope.exclude`, and `privacy.exclude` use the estate model's root-relative glob grammar.
 Directory matches include their descendants. Privacy exclusions take precedence over scope. Runtime
 profile ignores still apply. Doctor reads a temporary filtered snapshot so runtime readers cannot load
-excluded files or follow a legacy home configuration. Snapshots are removed after inspection.
+excluded files or follow a legacy home configuration. All declared sources have filtered snapshots before any reader starts. Readers receive `snapshotRoots`
+by source id; cross-source links resolve there. Original roots are provenance, never read authorization.
+Snapshots are removed after inspection.
 
 `execute.policy: never` requires an empty `commands` list. `allow` declares specific commands; doctor
 still executes none. `privacy.model: deny` blocks model-assisted next steps. `privacy.exports` declares
@@ -120,7 +124,8 @@ payment authorization or an execution engine.
 files no type covers. `skipped` lists every excluded input and reader limitation. Zero reader inputs means
 `not-run`. Any unknown or substantive skip makes coverage incomplete; doctor never prints Clean.
 
-`drift.files` holds `{ source, path, sha256 }` for each in-scope file, including unknown files. The setup file
+`drift.files` holds `{ source, path, sha256 }` for each in-scope file, including unknown files. Symlink
+entries also fingerprint their mapped targets, so an empty link or a same-content target change is drift. The setup file
 itself and ignored/private paths are excluded. `--check` needs this saved baseline and never rewrites it.
 Review changes and write a fresh draft at a new path to deliberately accept a new baseline. Removed,
 changed and added files are reported separately. A missing source that removes baseline files fails the
