@@ -1614,8 +1614,9 @@ describe('a run out of step with the units of its window', () => {
   };
 
   it('asks a window again after a slipped run, and the re-ask in step takes its place', async () => {
-    // Heard without the re-ask: order 2, remark 2, a tie with no label. Run 6 says order: three of five.
-    const { labeler } = scripted(['order', 'slip', 'remark', 'remark', 'order', 'order']);
+    // Heard without the re-ask: order 2, remark 1, none 1, no label above half. Run 6 says order: three of five, and
+    // order is two runs ahead of any other kind, so no more voices are asked.
+    const { labeler } = scripted(['order', 'slip', 'remark', 'none', 'order', 'order']);
     const cassette = new Cassette();
     const result = await pointerScan(input(labeler, cassette, { sets: load(SPANNED) }));
     const files = result.windows / 6;
