@@ -26,14 +26,18 @@ export type Audit = {
 
 export function leaksOutsideGot(failure: ItemFailure): string[] {
   // The rule and the input are read as one text, with the product's own output left out of the allowed tokens: a wanted
-  // value written into either is a leak, whatever the product returned. One exception, because it is not a leak: a
-  // number that the item itself gave as input (a budget of 5, a limit of 5) may be the wanted value too, when the answer
-  // is that very number (5 rows for a budget of 5); the builder passed it.
-  const { rule, input, expected, item } = failure.fields;
-  const inputNumbers = new Set(JSON.stringify(input ?? null).match(/-?\d+(?:\.\d+)?/g) ?? []);
+  // value written into either is a leak, whatever the product returned. The one exception is declared by the site: when
+  // the wanted answer IS a value the item passed (5 rows for a budget of 5), the site names that input field in `echoes`
+  // and that number may be shown. A number equal to some other part of the input is still a leak.
+  const { rule, input, expected, item, echoes } = failure.fields;
+  const echoed = new Set<string>();
+  for (const key of echoes ?? []) {
+    const value = (input as Record<string, unknown> | undefined)?.[key];
+    for (const n of JSON.stringify(value ?? null).match(/-?\d+(?:\.\d+)?/g) ?? []) echoed.add(n);
+  }
   const text = `${rule}${input === undefined ? '' : ` ${JSON.stringify(input)}`}`;
   return leaksOf(new ItemFailure({ rule: text, expected, ...(item === undefined ? {} : { item }) })).filter(
-    (atom) => !(/^-?\d+(?:\.\d+)?$/.test(atom) && inputNumbers.has(atom)),
+    (atom) => !(/^-?\d+(?:\.\d+)?$/.test(atom) && echoed.has(atom)),
   );
 }
 

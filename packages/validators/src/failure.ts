@@ -25,6 +25,12 @@ export type FailureFields = {
    * check always has something to compare the message with (docs/validators.md 12.11).
    */
   expected: unknown;
+  /**
+   * The names of the `input` fields whose value the wanted answer simply is (5 rows for a budget of 5: `echoes: ['budget']`).
+   * Only a wanted number equal to one of those input values may be shown in the message; any other number that happens
+   * to equal something in the input is still read as a wanted value.
+   */
+  echoes?: readonly string[];
 };
 
 /** The marker of a failure that has no wanted value to hide: it observes what the product did. */
