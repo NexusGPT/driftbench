@@ -43,6 +43,40 @@ export const CALIBRATION_REFERENCE_MS = 250;
 /** The most credit a slow calibration earns: the normalised time is never below the raw time over this. */
 export const CALIBRATION_MAX_CREDIT = 1.5;
 
+/**
+ * Calibrations measured per scale run, each in a process of its own, all of them before the timed child starts. One
+ * measurement is the noisy part of a scale verdict (a standard deviation of 3.6 percent inside one VM, against 0.9
+ * percent for the raw CPU time of the product). Never after the run: a ruler must not be moved by what it measures,
+ * and a product that leaves a busy process behind would slow the later samples and lower its own normalised time.
+ */
+export const CALIBRATION_COUNT = 5;
+
+/** The median of a list of numbers; the mean of the two middle ones for an even count. NaN for an empty list. */
+export function medianOf(values: readonly number[]): number {
+  if (values.length === 0) return Number.NaN;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1
+    ? (sorted[middle] as number)
+    : ((sorted[middle - 1] as number) + (sorted[middle] as number)) / 2;
+}
+
+/**
+ * The calibration of a run, from the samples taken before the product started, in the order taken: the lower of the
+ * first sample and the median of all of them, on the exact values the calibration process printed: nothing is rounded
+ * here, because a sample rounded to a tenth can sit above the first sample (249.96 becomes 250.0, 100.06 becomes 100.1)
+ * and turn a failure into a pass. Only a text that shows a value rounds it. It is never above the first sample, and
+ * the normalised time falls as the calibration rises, so on any sequence of samples the normalised time is at least
+ * what the first sample alone gives: a noise fix that lets a product pass what it failed is not one. The median
+ * pulls a first sample that ran on a busy moment down to the typical one, so the verdict follows the typical
+ * moment more often than the first sample does. With one sample it is that sample.
+ */
+export function calibrationOf(samples: readonly number[]): number {
+  const first = samples[0];
+  if (first === undefined) return Number.NaN;
+  return Math.min(first, medianOf(samples));
+}
+
 /** The environment variable through which the parent hands the calibration to the timed child. */
 export const CALIBRATION_ENV = 'DRIFTBENCH_SCALE_CALIBRATION_MS';
 

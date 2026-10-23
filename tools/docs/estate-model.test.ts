@@ -1,6 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseTypes, parseTypesText, TYPES_ERROR_CODES, typeNamed } from '@agent-nexus/driftbench-core';
+import {
+  CLAUDE_CODE_PROFILE,
+  parseTypes,
+  parseTypesText,
+  TYPES_ERROR_CODES,
+  typeNamed,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { DOCS } from './check-links';
 
@@ -51,5 +57,33 @@ describe('the estate model page', () => {
       [...(row.split(' | ')[0] ?? '').matchAll(/`([a-z-]+)`/g)].map((match) => match[1]),
     );
     expect([...listed].sort()).toEqual([...TYPES_ERROR_CODES].sort());
+  });
+
+  it('shows on the Claude Code page a types document that loads against the profile, from .claude/', async () => {
+    const text = await readFile(join(DOCS, 'adapters', 'claude-code.md'), 'utf8');
+    const fences = typesFences(text);
+    expect(fences).toHaveLength(1);
+    const loaded = parseTypesText(fences[0] as string, {
+      runtime: CLAUDE_CODE_PROFILE.name,
+      roots: CLAUDE_CODE_PROFILE.roots,
+      base: CLAUDE_CODE_PROFILE.types,
+      folder: '.claude',
+      source: 'docs/adapters/claude-code.md',
+    });
+    expect(loaded.ok ? [] : loaded.errors).toEqual([]);
+    if (!loaded.ok) return;
+    expect(typeNamed(loaded.set, 'judge-request')?.extends).toBe('hook');
+    expect(typeNamed(loaded.set, 'judge-request')?.folder).toBe('.claude');
+    expect(typeNamed(loaded.set, 'observe-flag')?.scope).toEqual({
+      type: 'hook',
+      by: 'name',
+      link: 'configures',
+    });
+  });
+
+  it('lists every built-in type of the Claude Code profile in the table of its page', async () => {
+    const text = await readFile(join(DOCS, 'adapters', 'claude-code.md'), 'utf8');
+    const rows = CLAUDE_CODE_PROFILE.types.types.map((type) => type.name);
+    expect(rows.filter((name) => !text.includes(`| \`${name}\` |`))).toEqual([]);
   });
 });

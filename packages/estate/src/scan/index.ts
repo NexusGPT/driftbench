@@ -42,6 +42,7 @@ export {
   scanAtoms,
   standingFiles,
 } from './invariants';
+export { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
 export {
   acceptProse,
   type ChunkRun,

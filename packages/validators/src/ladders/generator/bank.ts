@@ -2533,10 +2533,19 @@ function scaleItems(): BankItem[] {
         },
       });
     // The budget is for the reference machine: the raw CPU time is scaled by the calibration of this machine.
-    add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
-      r.normalisedMs <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms of CPU time (raw), the calibration took ${r.calibrationMs} ms against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms`,
-    ]);
+    add('time', factor === 10 ? 4 : 5, C.generate, (r) => {
+      // the verdict compares exact values; only this text rounds, to a hundredth of a millisecond
+      const shown = (value: number): number => Math.round(value * 100) / 100;
+      const runs = r.calibrationRunsMs ?? [];
+      const spread =
+        runs.length > 1
+          ? ` (the lower of the first and the median of ${runs.length} taken before the run, from ${shown(Math.min(...runs))} to ${shown(Math.max(...runs))} ms)`
+          : '';
+      return [
+        r.normalisedMs <= r.budgetMs / 2,
+        `two runs took ${r.ms} ms of CPU time (raw)${r.behaviours === undefined ? '' : ` on ${r.behaviours} behaviours, the same workload for every seed`}, the calibration took ${shown(r.calibrationMs)} ms${spread} against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised${r.creditCapped ? ' (the credit for a slow runner is capped)' : ''}; the budget is ${r.budgetMs / 2} ms. The rest of the structure of the seed (stages, phrases, data) still moves this time by up to about 60 percent between seeds, and the class of the runner by about 5 percent`,
+      ];
+    });
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,
       `${r.invalid} invalid, ${r.lint} linted`,
