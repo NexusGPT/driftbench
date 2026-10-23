@@ -80,71 +80,50 @@ describe('the diagnostics of a failing item read nothing of the product', () => 
     let failing = 0;
     try {
       for (const mutant of MUTANTS) {
-        const { impl, reset } = mutant.make(referenceImpl);
-        try {
-          const list = mutant.only
-            ? items.filter((i) => mutant.only?.some((part) => i.id.endsWith(part)))
-            : items.filter((i) => mutant.families.includes(i.family));
-          for (const seed of SEEDS) {
-            for (const item of list) {
-              const logs: string[][] = [];
-              let pass = true;
-              for (const build of [true, false]) {
-                diagnostics.build = build;
-                const reads: Reads = { log: [] };
-                try {
-                  const r = await item.check({
-                    seed,
-                    impl: recorded(impl as never, reads) as never,
-                    root: ROOT,
-                    id: item.id,
-                    rng: itemRng(seed, item.id),
-                  });
-                  pass = pass && r.pass;
-                } catch {
-                  pass = false;
-                }
-                logs.push(reads.log);
-              }
-              if (pass) continue;
-              failing += 1;
-              // The diagnostics are built after the verdict is decided, so the run without them is a prefix of the run
-              // with them: they may read the product to describe the failure, never before the verdict.
-              const on = logs[0] as string[];
-              const off = logs[1] as string[];
-              const isPrefix = off.length <= on.length && off.every((line, i) => line === on[i]);
-              if (isPrefix) continue;
-              // A product that reads differently from one call to the next (a mutant that orders equal calls differently)
-              // cannot be compared with itself. A real fault is deterministic: every pair of runs, with and without the
-              // diagnostics, breaks the prefix. Run more pairs, and report the item only if none of them is a prefix.
-              const run = async (build: boolean): Promise<string[]> => {
-                diagnostics.build = build;
-                const again: Reads = { log: [] };
-                try {
-                  await item.check({
-                    seed,
-                    impl: recorded(impl as never, again) as never,
-                    root: ROOT,
-                    id: item.id,
-                    rng: itemRng(seed, item.id),
-                  });
-                } catch {
-                  // the failure is the point
-                }
-                return again.log;
-              };
-              let everyPairBreaks = true;
-              for (let k = 0; k < 6 && everyPairBreaks; k += 1) {
-                const withDiagnostics = await run(true);
-                const without = await run(false);
-                if (without.length <= withDiagnostics.length && without.every((line, n) => line === withDiagnostics[n]))
-                  everyPairBreaks = false;
-              }
-              if (everyPairBreaks) differing.push(`${mutant.name}|${seed}|${item.id}`);
-            }
+        const list = mutant.only
+          ? items.filter((i) => mutant.only?.some((part) => i.id.endsWith(part)))
+          : items.filter((i) => mutant.families.includes(i.family));
+        // Each run gets a product of its own, so a mutant that keeps state between calls starts every run alike.
+        const run = async (item: (typeof items)[number], seed: number, build: boolean) => {
+          const { impl, reset } = mutant.make(referenceImpl);
+          diagnostics.build = build;
+          const reads: Reads = { log: [] };
+          let pass = true;
+          try {
+            const r = await item.check({
+              seed,
+              impl: recorded(impl as never, reads) as never,
+              root: ROOT,
+              id: item.id,
+              rng: itemRng(seed, item.id),
+            });
+            pass = r.pass;
+          } catch {
+            pass = false;
+          } finally {
+            reset?.();
           }
-        } finally {
-          reset?.();
+          return { log: reads.log, pass };
+        };
+        const prefix = (without: string[], withDiagnostics: string[]): boolean =>
+          without.length <= withDiagnostics.length && without.every((line, n) => line === withDiagnostics[n]);
+        for (const seed of SEEDS) {
+          for (const item of list) {
+            const on = await run(item, seed, true);
+            if (on.pass) continue;
+            failing += 1;
+            const off = await run(item, seed, false);
+            // The diagnostics are built after the verdict is decided, so the run without them is a prefix of the run with
+            // them: they may read the product to describe the failure, never before the verdict. A product that reads
+            // differently from one call to the next is compared again, and reported only if no pair of runs is a prefix.
+            let broken = !prefix(off.log, on.log);
+            for (let k = 0; k < 4 && broken; k += 1) {
+              const a = await run(item, seed, true);
+              const b = await run(item, seed, false);
+              if (prefix(b.log, a.log)) broken = false;
+            }
+            if (broken) differing.push(`${mutant.name}|${seed}|${item.id}`);
+          }
         }
       }
     } finally {
