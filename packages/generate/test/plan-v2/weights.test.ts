@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { planV2, renderPlanV2 } from '../../src/plan-v2';
+import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { makeStore, type VariableSpec } from './helpers';
 
 describe('the traffic weight of a row', () => {
@@ -60,6 +61,36 @@ describe('the traffic weight of a row', () => {
     // rule through both doors (docs/variables.md, Values).
     for (const value of store.variables[0]?.values ?? []) value.weight = 0;
     expect(() => planV2(store)).toThrow(expect.objectContaining({ code: 'VARIABLES_WEIGHT_ZERO' }));
+  });
+
+  it.each([
+    { name: 'an approved value of weight 0 and an unapproved one of weight 5', approved: 0, unapproved: 5 },
+    { name: 'an approved value and an unapproved one, both of weight 0', approved: 0, unapproved: 0 },
+    { name: 'an approved value of weight 5 and an unapproved one of weight 0', approved: 5, unapproved: 0 },
+  ])('gives the outcome of the loader for $name: one set of values through both doors', ({ approved, unapproved }) => {
+    const store = makeStore([
+      {
+        id: 'tide',
+        values: [
+          { id: 'ebb', weight: 1 },
+          { id: 'flood', weight: 1, approved: false },
+        ],
+      },
+    ]);
+    const [ebb, flood] = store.variables[0]?.values ?? [];
+    if (!ebb || !flood) throw new Error('the store lost its values');
+    ebb.weight = approved;
+    flood.weight = unapproved;
+    const loaded = validateVariableStore(store);
+    const loaderCodes = loaded.ok ? [] : loaded.errors.map((issue) => issue.code);
+    let plannerCode: unknown;
+    try {
+      planV2(store);
+    } catch (error) {
+      plannerCode = (error as { code?: unknown }).code ?? 'other';
+    }
+    expect(loaderCodes.filter((code) => code !== 'VARIABLES_WEIGHT_ZERO')).toEqual([]);
+    expect(plannerCode).toBe(loaded.ok ? undefined : 'VARIABLES_WEIGHT_ZERO');
   });
 
   it('takes the shares among the approved values only', () => {
