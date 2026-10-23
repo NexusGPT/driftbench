@@ -4,11 +4,16 @@ import { dirname, join } from 'node:path';
 import {
   type EstateMap,
   inspectRoot,
+  type LintFinding,
   layoutIsEmpty,
   lintEstate,
+  type ProseInventory,
+  proseInventoryLines,
   readerFor,
+  resolveMapRoot,
   type ScanEstateResult,
   scanEstate,
+  summariseLint,
 } from '@agent-nexus/driftbench-estate';
 import { GUARDS_DIR, REGISTRY_MD, ROOT, RUNTIME, SETTINGS, STANDING } from '../layout';
 import type { ItemResult, Tier } from './frame';
@@ -187,5 +192,84 @@ export const ROOT_CASES: RootCase[] = [
             : []),
         ]);
       }),
+  },
+  {
+    key: 'moved-map-root',
+    tier: 1,
+    title: 'a map moved away from its estate as refused with the folder looked at and a fix',
+    judge: () =>
+      inFolder({ 'agent/CLAUDE.md': STANDING_TEXT }, async (root, top) => {
+        const mapFile = join(top, 'maps', 'map.yaml');
+        const there = await resolveMapRoot(mapFile, { root: '../estate/agent' });
+        const gone = await resolveMapRoot(mapFile, { root: '../agent' });
+        return verdict([
+          ...(there.ok && there.root === join(root, 'agent') ? [] : ['the recorded root was not found']),
+          ...(!gone.ok && gone.root === join(top, 'agent') && gone.recorded === '../agent' && gone.fix !== ''
+            ? []
+            : [`a root that is not there was not refused with its facts: ${JSON.stringify(gone)}`]),
+        ]);
+      }),
+  },
+  {
+    key: 'finding-totals',
+    tier: 2,
+    title: 'a report of many findings of one code as its total and its first few',
+    judge: async () => {
+      const finding = (code: LintFinding['code'], index: number): LintFinding => ({
+        code,
+        subject: `${code}-${index}`,
+        message: `${code} ${index}`,
+      });
+      const findings = [
+        ...Array.from({ length: 25 }, (_, index) => finding('ORPHAN', index)),
+        ...Array.from({ length: 3 }, (_, index) => finding('MISSING_REFERENCE', index)),
+      ];
+      const cut = summariseLint(findings, { limit: 10 });
+      const all = summariseLint(findings);
+      const orphan = cut.totals.find((entry) => entry.code === 'ORPHAN');
+      const missing = cut.totals.find((entry) => entry.code === 'MISSING_REFERENCE');
+      return verdict([
+        ...(cut.shown.length === 13 ? [] : [`the cut report lists ${cut.shown.length} findings, not 13`]),
+        ...(orphan?.total === 25 && orphan.hidden === 15 ? [] : ['the 25 orphans were not totalled and cut']),
+        ...(missing?.total === 3 && missing.hidden === 0
+          ? []
+          : ['3 findings were cut though under the limit']),
+        ...(all.shown.length === 28 && all.totals.every((entry) => entry.hidden === 0)
+          ? []
+          : ['the full report cut findings']),
+      ]);
+    },
+  },
+  {
+    key: 'prose-list-limit',
+    tier: 2,
+    title: 'a list of unanswered prose chunks as cut after the first few',
+    judge: async () => {
+      const inventory: ProseInventory = {
+        chunks: Array.from({ length: 30 }, (_, index) => ({
+          id: `skill-${index}.md`,
+          file: `skill-${index}.md`,
+          source: 'skill' as const,
+          startLine: 1,
+          endLine: 3,
+          characters: 100,
+        })),
+        characters: 3000,
+        bySource: {
+          standing: { chunks: 0, characters: 0 },
+          memory: { chunks: 0, characters: 0 },
+          skill: { chunks: 30, characters: 3000 },
+          reference: { chunks: 0, characters: 0 },
+          subagent: { chunks: 0, characters: 0 },
+          other: { chunks: 0, characters: 0 },
+        },
+      };
+      const cut = proseInventoryLines(inventory, false, { limit: 10 });
+      const all = proseInventoryLines(inventory, false);
+      return verdict([
+        ...(cut.length <= 14 ? [] : [`the cut list has ${cut.length} lines for 30 chunks`]),
+        ...(all.length >= 32 ? [] : [`the full list has ${all.length} lines, not every chunk`]),
+      ]);
+    },
   },
 ];
