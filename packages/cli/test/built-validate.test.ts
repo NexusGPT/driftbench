@@ -23,7 +23,9 @@ describe('the built CLI', () => {
   beforeAll(() => buildJavaScript(ROOT, scratch), 600_000);
 
   it('runs validate on the statistics ladder: every bank child starts and reports its items', () => {
-    const run = driftbench(['validate', 'stats', '--seed', '1', '--json']);
+    // Levels 1 and 2 start the bank's children and read their items; the whole ladder runs in the validators
+    // workflow legs (as for the stats tests of validate.test.ts, PR 1451). Under the frame a whole seed outgrows 600 s.
+    const run = driftbench(['validate', 'stats', '--seed', '1', '--levels', '1..2', '--json']);
     expect(run.stdout).not.toMatch(/child process (died|did not start)/);
     const report = JSON.parse(run.stdout) as Report;
     expect(report.component).toBe('stats');
