@@ -14,7 +14,7 @@ import {
 } from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
 import { DocumentRole } from '../schema';
-import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
+import { chunkLines, fileNames, guardName, isExternal, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
 import { type FileClassifier, profileClassifier, type ShapeTests } from './profile-classify';
@@ -414,6 +414,21 @@ async function readRootReferences(
           !local.startsWith('/') &&
           (await fileAt(local));
         if (localPlaceholder) files.set(local, { path: local, text: '', kind: 'other' });
+        // A path written from the root of the estate, from a part that lies in a folder, is looked for there on disk
+        // too (after the naming file's own folder, which `locateNamed` tries first): a file outside the layout is
+        // read only when something names it, so the disk is the only place to find it.
+        const rooted = posix.normalize(name.replace(/^\.\//, ''));
+        const rootPlaceholder =
+          name.includes('/') &&
+          rooted !== local &&
+          !files.has(rooted) &&
+          !skipped.has(rooted) &&
+          rooted !== '..' &&
+          !rooted.startsWith('../') &&
+          !rooted.startsWith('/') &&
+          !isExternal(rooted, imported ? [] : (estate.externals ?? [])) &&
+          (await fileAt(rooted));
+        if (rootPlaceholder) files.set(rooted, { path: rooted, text: '', kind: 'other' });
         const placeholder = !name.includes('/') && !files.has(name);
         if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
         const target = locateNamed(name, chunk.file, files, {
@@ -424,6 +439,7 @@ async function readRootReferences(
           ...(!imported && estate.externals ? { externals: estate.externals } : {}),
         });
         if (placeholder) files.delete(name);
+        if (rootPlaceholder) files.delete(rooted);
         if (localPlaceholder) files.delete(local);
         const path = posix.normalize(target.path);
         if (

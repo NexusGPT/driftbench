@@ -222,7 +222,7 @@ export class PlantedEstate {
   }
 
   /** Writes, scans with the recorded answers, lints; the folder is removed after. */
-  async scan(): Promise<ScanOutcome> {
+  async scan(options: { noModel?: boolean } = {}): Promise<ScanOutcome> {
     const top = await mkdtemp(join(tmpdir(), 'driftbench-estate-bank-'));
     const root = join(top, 'estate');
     try {
@@ -284,7 +284,7 @@ export class PlantedEstate {
       const result = await scanEstate({
         root,
         reader,
-        pointer: truth,
+        ...(options.noModel ? {} : { pointer: truth }),
         now: () => new Date('2026-10-11T00:00:00.000Z'),
       });
       const scanMs = Date.now() - started;

@@ -46,15 +46,16 @@ describe('the static runner', () => {
     expect(results.find((result) => result.id === 'registry')?.detail).toContain('G6');
   });
 
-  it('counts the files the atoms of a given map name, which code cannot read again from the prose', async () => {
+  it('counts the files the atoms of a given map name, beside the paths code reads from the prose', async () => {
     const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
     if (!loaded.ok) throw new Error('invalid map');
     const [alone] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
     });
-    // Code alone names no file by a sentence: the references the prose gave are unseen, so the files are unnamed.
-    expect(alone?.detail).toContain('matching-rules.md');
+    // Code alone names the files the prose writes as paths, so only the file nothing writes is an orphan.
+    expect(alone?.detail).not.toContain('matching-rules.md');
+    expect(alone?.detail).toContain('old-tolerances.md');
     const [mapped] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),

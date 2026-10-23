@@ -272,17 +272,17 @@ Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs
 
 ```console
 $ driftbench estate scan examples/estates/fixture --no-model --out estate-map.yaml
-Wrote estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote estate-map.yaml: 59 atoms (59 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
 $ driftbench estate lint estate-map.yaml   # exit 1
-estate-map.yaml: estate at examples/estates/fixture, 47 atoms.
-  ORPHAN            .claude/steps.json: nothing in the estate names this file
-19 findings.
+estate-map.yaml: estate at examples/estates/fixture, 59 atoms.
+  ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
+18 findings.
 ```
 
 **How to read it.**
 
 - An **orphan** is a file that nothing names. An **unreachable** file is one that the standing instructions never lead to.
-- The fixture holds 19 findings planted on purpose, so the lint has something to find.
+- The fixture holds 18 findings planted on purpose, so the lint has something to find.
 - The other estate commands (`build`, `plan`, `generate`, `run`, `unit`) are in the [CLI reference](../reference/cli.md). Settings are on the [estate settings page](estate-settings.md).
 
 **If it goes wrong.**

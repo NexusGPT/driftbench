@@ -70,12 +70,19 @@ export type LintResult = {
   /** True when a finding outside INFORMATION was found. */
   failed: boolean;
   counts: Record<LintCode, number>;
+  /**
+   * True when the map records no reader of the references (no model, no pointer reader, no code reader: a map
+   * scanned with no model before code read them): it cannot judge them, so ORPHAN and MISSING_REFERENCE are not
+   * reported for it.
+   */
+  referenceChecksOff: boolean;
 };
 
 export type LintOptions = { ceiling?: number };
 
 export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions = {}): LintResult {
   raw = normativeEstate(raw);
+  const referenceChecksOff = map.producedBy === undefined && map.referenceReader === undefined;
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const atoms = map.atoms.filter((atom) => {
     if (ignoredReference(raw, atom.provenance.file)) return false;
@@ -95,7 +102,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   // Findings look atoms up by id: the first atom of each id, as a search from the start would find it.
   const byId = new Map<string, Atom>();
   for (const atom of atoms) if (!byId.has(atom.id)) byId.set(atom.id, atom);
-  for (const path of analysis.orphans) {
+  for (const path of referenceChecksOff ? [] : analysis.orphans) {
     const file = files.get(path);
     if (file && unloadedByDesign(raw, file)) continue;
     findings.push({
@@ -113,7 +120,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       message: `${path}: no route, reference or dispatch from the standing instructions leads here`,
     });
   }
-  for (const id of analysis.missingReferences) {
+  for (const id of referenceChecksOff ? [] : analysis.missingReferences) {
     const atom = byId.get(id);
     const path = String(atom?.fields?.path ?? '');
     if (atom?.fields?.ignored === true || ignoredReference(raw, path) || placeholderPath(path)) continue;
@@ -224,11 +231,24 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const available = new Set<CheckCapability>(['model-map']);
   if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
   if (raw.guards.length > 0) available.add('guards');
+  // A map that records no reader of the references cannot judge them: those two checks did not run.
+  const unjudged = (code: string) =>
+    referenceChecksOff && (code === 'ORPHAN' || code === 'MISSING_REFERENCE');
   const outcomes = LINT_CHECKS.map((check) =>
-    runCheck(check, available, () => ({
-      read: read[check.id as LintCode],
-      findings: findings.filter((finding) => finding.code === check.id),
-    })),
+    runCheck(check, available, () =>
+      unjudged(check.id)
+        ? { read: 0, skipped: [{ what: 'map', reason: 'no-reference-reader' }], findings: [] }
+        : {
+            read: read[check.id as LintCode],
+            findings: findings.filter((finding) => finding.code === check.id),
+          },
+    ),
   );
-  return { findings, outcomes, failed: findings.some((finding) => !INFORMATION.has(finding.code)), counts };
+  return {
+    findings,
+    outcomes,
+    failed: findings.some((finding) => !INFORMATION.has(finding.code)),
+    counts,
+    referenceChecksOff,
+  };
 }

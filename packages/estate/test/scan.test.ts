@@ -189,15 +189,18 @@ describe('code atoms', () => {
       stage: 5,
       script: 2,
       invariant: 4,
+      reference: 12,
     });
     // Without a model or a pointer reader no prose atom exists: every atom is read by code and approved. The
-    // seven routes are the descriptions of the skills and helpers; the routing table of CLAUDE.md gives none.
+    // seven routes are the descriptions of the skills and helpers; the routing table of CLAUDE.md gives none. The
+    // twelve references are the paths the prose writes, which code reads by their syntax.
     expect(result.map.atoms.every((atom) => atom.producedBy === 'code' && atom.approved)).toBe(true);
     expect(result.map.atoms.some((atom) => atom.kind === 'instruction' || atom.kind === 'register')).toBe(
       false,
     );
     expect(result.calls).toBe(0);
     expect(result.map.producedBy).toBeUndefined();
+    expect(result.map.referenceReader).toBe('code');
   });
 
   it('resolves a named file from its skill folder or from the root, and marks one that does not exist', async () => {
