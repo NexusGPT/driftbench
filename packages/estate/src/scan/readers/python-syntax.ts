@@ -109,7 +109,7 @@ function tokenize(text: string): { statements: Statement[]; error?: { line: numb
       });
       continue;
     }
-    const name = /^[A-Za-z_][A-Za-z_0-9]*/.exec(text.slice(index));
+    const name = /^[\p{ID_Start}_][\p{ID_Continue}_]*/u.exec(text.slice(index));
     const token = name?.[0] ?? char;
     if (PAIRS[token]) delimiters.push(PAIRS[token] as string);
     else if ([')', ']', '}'].includes(token) && delimiters.pop() !== token) {
@@ -147,7 +147,9 @@ function dotted(tokens: readonly Token[]): string | undefined {
   return tokens.map((token) => token.text).join('');
 }
 
-type Call = { callee: string; args: Token[][]; keywords: Map<string, Token[]>; line: number };
+type Call = {
+  callee: string; args: Token[][]; keywords: Map<string, Token[]>; line: number; open: number; end: number;
+};
 function calls(tokens: readonly Token[]): Call[] {
   const out: Call[] = [];
   for (let index = 0; index < tokens.length; index++) {
@@ -168,7 +170,7 @@ function calls(tokens: readonly Token[]): Call[] {
       if (group[1]?.text === '=' && group[0]) keywords.set(group[0].text, group.slice(2));
       else args.push(group);
     }
-    out.push({ callee, args, keywords, line: tokens[start]?.line ?? 1 });
+    out.push({ callee, args, keywords, line: tokens[start]?.line ?? 1, open: index, end });
   }
   return out;
 }
@@ -200,12 +202,11 @@ function promptFile(tokens: readonly Token[] | undefined, scope: Scope): string 
   if (path?.args.length !== 1 || dotted(path.args[0] ?? []) !== '__file__') return undefined;
   const method = tokens.findIndex((token, index) => token.text === 'read_text' && tokens[index - 1]?.text === '.');
   if (method < 0) return undefined;
-  const firstCall = tokens.findIndex((token) => token.text === '(');
-  const close = firstCall + 2;
-  if (tokens[close]?.text !== ')') return undefined;
+  const close = path.end;
   const remainder = tokens.slice(close + 1, method - 1);
   if (remainder[0]?.text === '.' && remainder[1]?.text === 'with_name') {
-    return literal(remainder.slice(3, -1), scope);
+    const end = remainder.findIndex((token, index) => index > 2 && token.text === ')');
+    return literal(remainder.slice(3, end), scope);
   }
   if (remainder[0]?.text !== '.' || remainder[1]?.text !== 'parent') return undefined;
   const pieces = remainder.slice(2).filter((token) => token.text !== ')');
@@ -257,6 +258,7 @@ export function pythonAgentFacts(text: string): PythonFacts {
     indent: -1, name: '', imports: new Map(), constants: new Map(), graphs: new Map(), decorators: [],
   }];
   const lines = text.split('\n');
+  const functions = new Map<string, string>();
   for (const [position, statement] of parsed.statements.entries()) {
     while (scopes.length > 1 && statement.indent <= (scopes.at(-1)?.indent ?? -1)) scopes.pop();
     const scope = scopes.at(-1) as Scope;
@@ -271,6 +273,7 @@ export function pythonAgentFacts(text: string): PythonFacts {
       scope.constants.delete(name);
       const next = parsed.statements.slice(position + 1).find((item) => item.indent <= statement.indent);
       const body = lines.slice(statement.line - 1, next ? next.line - 1 : lines.length).join('\n');
+      if (tokens[definition]?.text === 'def') functions.set(scope.name ? `${scope.name}/${name}` : name, body);
       const decorators = scope.decorators.splice(0);
       const tool = decorators.find((decorator) => {
         const call = calls(decorator)[0];
@@ -280,7 +283,8 @@ export function pythonAgentFacts(text: string): PythonFacts {
         const call = calls(tool)[0];
         const firstBody = parsed.statements[position + 1];
         facts.tools.push({
-          name: literal(call?.args[0], scope) ?? name, symbol: name, line: statement.line, body,
+          name: literal(call?.args[0], scope) ?? name, symbol: name, owner: scope.name,
+          line: statement.line, body,
           description: firstBody && firstBody.indent > statement.indent
             ? firstBody.tokens[0]?.string : undefined,
         });
@@ -321,7 +325,7 @@ export function pythonAgentFacts(text: string): PythonFacts {
         addPrompt(assigned ?? `${scope.name}/message@${call.line}`, call.keywords.get('content') ?? call.args[0], call.line);
       } else if (AGENT.has(resolved)) {
         const name = assigned ?? `${scope.name}/agent@${call.line}`;
-        facts.agents.push({ name, line: call.line });
+        facts.agents.push({ name, owner: scope.name, line: call.line });
         const prompt = call.keywords.get('system_prompt') ?? call.keywords.get('prompt');
         if (prompt) addPrompt(`${name}/prompt`, prompt, call.line);
       } else if (resolved === 'langgraph.types.interrupt') {
@@ -341,7 +345,7 @@ export function pythonAgentFacts(text: string): PythonFacts {
             ?? (call.args.length === 1 ? callable : undefined);
           if (!name || !callable) facts.unresolved.push({ line: call.line, reason: 'dynamic-node' });
           else {
-            facts.nodes.push({ name, graph, callable: resolveName(callable, scope), line: call.line });
+            facts.nodes.push({ name, graph, callable: resolveName(callable, scope), scope: scope.name, line: call.line });
             if (toolNode) {
               const tools = toolNode.keywords.get('tools') ?? toolNode.args[0];
               if (tools?.[0]?.text !== '[') facts.unresolved.push({ line: call.line, reason: 'dynamic-tools' });
@@ -382,6 +386,12 @@ export function pythonAgentFacts(text: string): PythonFacts {
         scope.graphs.delete(assigned);
       }
     }
+  }
+  for (const node of facts.nodes) {
+    const callable = typeof node.callable === 'string' ? node.callable : '';
+    const scoped = node.scope ? `${node.scope}/${callable}` : callable;
+    const body = functions.get(scoped) ?? functions.get(callable);
+    if (body !== undefined) node.body = body;
   }
   return facts;
 }

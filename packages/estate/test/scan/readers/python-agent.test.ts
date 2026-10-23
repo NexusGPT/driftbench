@@ -140,6 +140,57 @@ describe('static Python agent syntax contract', () => {
     expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-edge-target' }));
   });
 
+  it('reads literal conditional route maps without executing the router', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      `${CASES.node.input}flow.add_conditional_edges("collect", choose, {True: "review", False: "collect"})\n`,
+    );
+    expect(facts.edges.map(({ from, to }) => [from, to])).toEqual([
+      ['collect', 'review'],
+      ['collect', 'collect'],
+    ]);
+  });
+
+  for (const expression of [
+    '(Path(__file__).parent / "prompts/policy.md").read_text()',
+    'Path(__file__).with_name("policy.md").read_text()',
+  ]) {
+    it(`locates the module-relative prompt file in ${expression}`, async () => {
+      const { pythonAgentFacts } = await reader();
+      const facts = pythonAgentFacts(
+        `from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=${expression})\n`,
+      );
+      expect(facts.prompts).toContainEqual(
+        expect.objectContaining({
+          name: 'policy',
+          file: expression.includes('/ "prompts') ? 'prompts/policy.md' : 'policy.md',
+          relativeTo: 'module',
+        }),
+      );
+      expect(facts.unresolved).toEqual([]);
+    });
+  }
+
+  it('does not guess the working directory of a relative prompt-file read', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      'from pathlib import Path\nfrom langchain_core.messages import SystemMessage\npolicy = SystemMessage(content=Path("policy.md").read_text())\n',
+    );
+    expect(facts.prompts).toEqual([]);
+    expect(facts.unresolved).toContainEqual(expect.objectContaining({ reason: 'dynamic-prompt' }));
+  });
+
+  it('resolves a ToolNode literal tool list as syntax, with no tool execution', async () => {
+    const { pythonAgentFacts } = await reader();
+    const facts = pythonAgentFacts(
+      `from langgraph.prebuilt import ToolNode\n${CASES.tool.input}${PREAMBLE}flow = StateGraph(dict)\nflow.add_node("tools", ToolNode([lookup]))\n`,
+    ) as Facts & { toolBindings: Array<{ node: string; graph: string; tool: string; line: number }> };
+    expect(facts.nodes.map((fact) => fact.name)).toContain('tools');
+    expect(facts.toolBindings).toContainEqual(
+      expect.objectContaining({ node: 'tools', graph: 'flow', tool: 'lookup' }),
+    );
+  });
+
   it('decodes a literal prompt rather than retaining its Python quoting', async () => {
     const { pythonAgentFacts } = await reader();
     const facts = pythonAgentFacts(

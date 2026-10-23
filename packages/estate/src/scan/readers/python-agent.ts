@@ -16,12 +16,12 @@ export const PYTHON_AGENT_TYPES: TypesDocument = {
     },
     node: {
       root: 'source', locate: '**/*.py#$.nodes[*]',
-      fields: { name: '$.name', graph: '$.graph', callable: '$.callable' },
+      fields: { name: '$.name', graph: '$.graph', callable: '$.callable', body: '$.body', scope: '$.scope' },
       aspects: ['executes'], loaded: 'by-reference',
     },
     tool: {
       root: 'source', locate: '**/*.py#$.tools[*]',
-      fields: { name: '$.name', description: '$.description', body: '$.body' },
+      fields: { name: '$.name', symbol: '$.symbol', description: '$.description', body: '$.body', owner: '$.owner' },
       aspects: ['acts', 'executes', 'instructs'], loaded: 'on-demand',
     },
     prompt: {
@@ -31,7 +31,7 @@ export const PYTHON_AGENT_TYPES: TypesDocument = {
     },
     agent: {
       root: 'source', locate: '**/*.py#$.agents[*]',
-      fields: { name: '$.name' }, aspects: ['delegates', 'executes'], loaded: 'by-reference',
+      fields: { name: '$.name', owner: '$.owner' }, aspects: ['delegates', 'executes'], loaded: 'by-reference',
     },
     guard: {
       root: 'source', locate: '**/*.py#$.guards[*]',
