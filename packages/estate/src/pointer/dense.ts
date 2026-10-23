@@ -217,8 +217,9 @@ export function denseLabels(value: unknown): Labelled[] {
 
 /** The indexes in the file of the units a list of window numbers names. */
 function scopeIndexes(numbers: readonly number[], window: Window): number[] {
+  // By number, as a target is read: a window's shown lines share the numbering, so a unit is not at place n - 1.
   return numbers.flatMap((n) => {
-    const unit = window.units[n - 1];
+    const unit = window.units.find((other) => other.n === n);
     return unit ? [unit.index] : [];
   });
 }
