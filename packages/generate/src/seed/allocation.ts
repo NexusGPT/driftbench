@@ -29,13 +29,14 @@ function deficit(counts: Iterable<number>): number {
  * its stratum. The allocation is generation-local: it reads only the suite written so far.
  */
 /**
- * The most rounds of allocation top-ups, and how far the rounds may grow the suite without reaching a new low of the
- * imbalance: the specs they add since the lowest imbalance may not exceed `MAX_GROWTH` times the specs the suite
- * held when it was there. A map whose strata cannot be balanced (a class that every added walk probes more often than
- * the class that falls behind) only rises, and each round is hundreds of specs for nothing; a map that does balance
- * reaches a new low within a few rounds, or loses a few specs a round while it plateaus.
+ * The most rounds of allocation top-ups, and two ways to stop early, whichever comes first: `MAX_STALLED` rounds in a
+ * row that reach no new low of the imbalance, or rounds since the lowest imbalance that have added more specs than the
+ * suite held there (`MAX_GROWTH` times). A map whose strata cannot be balanced (a class that every added walk probes
+ * more often than the class that falls behind) only rises, and each round is hundreds of specs for nothing; the growth
+ * bound ends it after one round past the doubling, where the stall count alone takes 8 rounds of 700 specs.
  */
 export const MAX_ROUNDS = 40;
+export const MAX_STALLED = 8;
 export const MAX_GROWTH = 1;
 
 export class Allocation {
@@ -360,11 +361,12 @@ export class Allocation {
     classes: Pick<DeviationBalance, 'topUps'>,
   ): Generator<SpecDraft> {
     // A fill can undo another (a probe for a class crosses stages), so the rounds go on until nothing is left to
-    // balance. They stop when a round writes nothing, after MAX_ROUNDS rounds, or when the rounds since the lowest
-    // imbalance have added more specs than the suite held there (MAX_GROWTH): a map whose strata cannot be balanced is
-    // cut, not grown without end.
+    // balance. They stop when a round writes nothing, after MAX_ROUNDS rounds, after MAX_STALLED rounds in a row without a
+    // new low, or when the rounds since the lowest imbalance have added more specs than the suite held there
+    // (MAX_GROWTH), whichever comes first: a map whose strata cannot be balanced is cut, not grown without end.
     let best = this.imbalance();
     let heldAtBest = written();
+    let stalled = 0;
     for (let round = 0; round < MAX_ROUNDS && this.imbalance() > 0; round += 1) {
       const before = written();
       yield* this.stageTopUps(context, before);
@@ -375,7 +377,11 @@ export class Allocation {
       if (now < best) {
         best = now;
         heldAtBest = written();
-      } else if (written() - heldAtBest > MAX_GROWTH * heldAtBest) break;
+        stalled = 0;
+      } else {
+        stalled += 1;
+        if (stalled >= MAX_STALLED || written() - heldAtBest > MAX_GROWTH * heldAtBest) break;
+      }
     }
   }
 }

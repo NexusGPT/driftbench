@@ -6,7 +6,7 @@ import { placeSpec } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { generateSuite } from '../../src/enumerate/generate';
 import { generateSuiteToDisk } from '../../src/enumerate/stream';
-import { Allocation, MAX_GROWTH, MAX_ROUNDS } from '../../src/seed/allocation';
+import { Allocation, MAX_ROUNDS } from '../../src/seed/allocation';
 import { DeviationBalance } from '../../src/seed/deviation-balance';
 import { rngFor } from '../../src/seed/random';
 import { buildScenario } from '../../src/seed/scenario';
@@ -228,6 +228,8 @@ describe('approved stage allocation', () => {
   });
 
   it('stops the rounds once they have added more specs than the suite had at its lowest imbalance', () => {
+    // The bound is written here, not imported: a rollback of the source must fail this test, not its import.
+    const GROWTH_BOUND = 1;
     // Every walk the class probes add is another probe of the most probed class: the class that falls behind can
     // never catch up, the imbalance only rises, and each round is a few hundred specs for nothing.
     const prepared = fixture();
@@ -262,7 +264,7 @@ describe('approved stage allocation', () => {
     }
     expect(balance.imbalance()).toBeGreaterThan(before);
     // One round of 100 may cross the bound; none goes past it.
-    expect(written - start).toBeLessThanOrEqual(start * MAX_GROWTH + 100);
+    expect(written - start).toBeLessThanOrEqual(start * GROWTH_BOUND + 100);
   });
 
   it('moves a drawn recovery to a rarer arrival with the same wording, and adds one per class there', () => {
