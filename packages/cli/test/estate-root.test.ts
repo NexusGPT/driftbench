@@ -41,7 +41,8 @@ describe('driftbench estate scan on a root with no layout', () => {
     expect(scan.out).toContain('holds no CLAUDE.md, no .claude/ folder and no settings.json');
     expect(scan.out).toContain('0 atoms');
     const lint = await run(['estate', 'lint', 'map.yaml'], top);
-    expect(lint.code).toBe(1);
+    // The merged lint contract: a map with no atom ran no check, exits 0 and is never called clean.
+    expect(lint.code).toBe(0);
     expect(lint.out).toContain('Not run: no check had an input.');
     expect(lint.out).not.toContain('Clean.');
   });
