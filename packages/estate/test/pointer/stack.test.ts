@@ -469,6 +469,47 @@ describe('a stack in a scan', () => {
     expect(renderLedger(replay.ledger)).toBe(renderLedger(result.ledger));
   });
 
+  it('replays a window system 2 was never asked: the replay checks a window when it asks it, not when it plans it', async () => {
+    // System 1 is sure about every unit, so no window goes to system 2 and the cassette holds no answer of it.
+    const sure = (unit: { text: string }): Record<string, number> =>
+      unit.text.startsWith('The tide') ? { order: 0.1, remark: 0.9 } : { order: 0.95, remark: 0.02 };
+    const labelling = (calls: boolean) =>
+      stackedLabelling(
+        { ...plantedYesNo(sure), ...(calls ? {} : { call: undefined }) },
+        {
+          ...plantedDense(
+            (window) => window.units.map((unit) => ({ units: String(unit.n), label: 'order' })),
+            [],
+            { id: 'planted-d' },
+          ),
+          ...(calls ? {} : { call: undefined }),
+        },
+        { passAt: 0.6, failAt: 0.2 },
+      );
+    const cassette = new Cassette();
+    const recorded = await pointerScan({
+      files,
+      sets: load(setsText),
+      labelling: labelling(true),
+      cassette,
+      mode: 'record',
+    });
+    expect(recorded.usage.map((entry) => [entry.cls, entry.calls])).toEqual([
+      ['system1', 1],
+      ['system2', 0],
+    ]);
+    // The plan still counts the system 2 window, as the plan of a recording does; the replay does not need it.
+    const replay = await pointerScan({
+      files,
+      sets: load(setsText),
+      labelling: labelling(false),
+      cassette: Cassette.parse(cassette.render()),
+      mode: 'replay',
+    });
+    expect(replay.calls).toBe(0);
+    expect(renderLedger(replay.ledger)).toBe(renderLedger(recorded.ledger));
+  });
+
   it('gives the same ledger with one request in flight and with four', async () => {
     const serial = await run(1);
     const parallel = await run(4);
