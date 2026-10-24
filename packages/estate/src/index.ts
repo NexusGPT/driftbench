@@ -236,6 +236,7 @@ export {
   type Read,
   type ReadNote,
   type RegistryRow,
+  RenderedSettingsConflict,
   RUNTIMES,
   readerFor,
   readFrontmatter,
