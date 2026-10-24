@@ -2,8 +2,10 @@ import {
   type CheckCapability,
   type CheckDeclaration,
   type CheckOutcome,
+  noneRan,
   runCheck,
 } from '@agent-nexus/driftbench-core';
+import { cutList } from '../cut';
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
@@ -63,6 +65,13 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
   requires: code === 'QUOTE_DRIFT' ? ['model-map'] : [],
 }));
 
+/**
+ * The verdict of a lint, as a code: a finding outside INFORMATION (`findings`); no check had an input
+ * (`none-ran`); no finding, but files under the root no part type covers, which no check read (`unknown-files`);
+ * else `clean`. A lint is clean only when every file is covered and some check ran.
+ */
+export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'clean';
+
 export type LintResult = {
   findings: LintFinding[];
   /** One outcome per code, in LINT_CODES order: a check that read no input is `not-run`, never a pass. */
@@ -70,9 +79,49 @@ export type LintResult = {
   /** True when a finding outside INFORMATION was found. */
   failed: boolean;
   counts: Record<LintCode, number>;
+  /** Files under the estate root no part type covers, from the read: no check looked at them. */
+  unknown: string[];
+  summary: LintSummary;
 };
 
 export type LintOptions = { ceiling?: number };
+
+/** The findings a report lists, and how many each code has in all. */
+export type FindingsCut = {
+  /** The findings to list, in their order: at most `limit` of each code. */
+  shown: LintFinding[];
+  /** Per code that has findings, in the order the codes first appear. */
+  totals: Array<{ code: LintCode; total: number; shown: number; omitted: number }>;
+};
+
+/**
+ * Cuts a long list of findings for a report: the first `limit` of each code are shown and the rest are only
+ * counted, so one code with a thousand findings cannot bury the others. Without a limit every finding is shown.
+ */
+export function summariseLint(
+  findings: readonly LintFinding[],
+  options: { limit?: number } = {},
+): FindingsCut {
+  const byCode = new Map<LintCode, LintFinding[]>();
+  for (const finding of findings) byCode.set(finding.code, [...(byCode.get(finding.code) ?? []), finding]);
+  const cuts = new Map([...byCode].map(([code, list]) => [code, cutList(list, options.limit)] as const));
+  // The findings keep their order across codes: a finding is shown when it is among the first of its code.
+  const taken = new Map<LintCode, number>();
+  const shown = findings.filter((finding) => {
+    const count = (taken.get(finding.code) ?? 0) + 1;
+    taken.set(finding.code, count);
+    return count <= (cuts.get(finding.code)?.shown.length ?? 0);
+  });
+  return {
+    shown,
+    totals: [...cuts].map(([code, cut]) => ({
+      code,
+      total: cut.total,
+      shown: cut.shown.length,
+      omitted: cut.omitted,
+    })),
+  };
+}
 
 export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions = {}): LintResult {
   raw = normativeEstate(raw);
@@ -224,11 +273,21 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const available = new Set<CheckCapability>(['model-map']);
   if (raw.files.some((file) => file.kind === 'settings')) available.add('settings');
   if (raw.guards.length > 0) available.add('guards');
+  const unknown = [...(raw.coverage?.unknown ?? [])];
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
+      unknown,
       findings: findings.filter((finding) => finding.code === check.id),
     })),
   );
-  return { findings, outcomes, failed: findings.some((finding) => !INFORMATION.has(finding.code)), counts };
+  const failed = findings.some((finding) => !INFORMATION.has(finding.code));
+  const summary: LintSummary = failed
+    ? 'findings'
+    : noneRan(outcomes)
+      ? 'none-ran'
+      : unknown.length > 0
+        ? 'unknown-files'
+        : 'clean';
+  return { findings, outcomes, failed, counts, unknown, summary };
 }

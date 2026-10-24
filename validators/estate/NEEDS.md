@@ -26,8 +26,9 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | blind.lint | 46 | reader | docs/estate.md section 2, "Checking the estate: `estate lint`" |
 | blind.edges | 25 | reader | docs/estate.md section 2, "Relations: the estate graph" |
 | estate.determinism | 25 | reader | docs/estate.md section 5, "The same map, plan, bank and seed give the same specs" and "The same holds on every Node version the package supports (22 and later), in any time zone and locale"; section 1, atom ids and hashes from file, span and quote |
-| lint.defect | 24 | lint | docs/estate.md section 2, `estate lint` |
+| lint.defect | 27 | lint | docs/estate.md section 2, `estate lint` |
 | lint.clean | 22 | lint | docs/estate.md section 2, `estate lint` (no finding on a clean estate) |
+| lint.coverage | 26 | lint | docs/estate-model.md, "Coverage and unknown files" (the files no part type covers listed in the map, never a clean lint while one is, the configuration and large files skipped, declared types covering their files, a document the standing file names or imports covered while its unnamed twin is unknown) and "Outcomes" (a check that read nothing is not-run, never a pass) |
 | plan.contract | 25 | plan | docs/estate.md section 4, the contract table |
 | plan.pairs | 20 | plan | docs/estate.md section 4, "Pairwise: a covering array of strength t" |
 | plan.relevance | 20 | plan | docs/estate.md section 4, pairwise rows "under the constraint list" |
@@ -39,7 +40,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | unit.runner | 41 | generation | docs/estate.md section 6, "Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone", and "Guard messages and timing"; the command written in docs/estate.md section 6 and docs/reference/cli.md |
 | estate.stats | 37 | generation | docs/estate.md section 7, "Not built yet: coverage lines per atom kind" (tested over atoms, enforced over atoms), reach, decay and `drift.guards` with its finding note; the command written in docs/estate.md section 7, "The coverage command: `estate stats`", and docs/reference/cli.md |
 | mutant.agent | 44 | agent mutants | docs/estate.md section 6, estate mutants (adequacy: a deleted atom fails a test) |
-| kill.fake | 31 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
+| kill.fake | 30 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
 | maintain.impact | 33 | maintenance | docs/estate.md section 8, `estate diff` and `estate impact` |
 | maintain.fixture | 20 | maintenance | docs/estate.md section 8, `estate impact` on real versions of the fixture |
 | scale | 20 | scale | docs/validators.md 12.6 (estates of 5000 atoms). No product page sets a time budget; the bench run timed the Cue estate (5,964 atoms) |

@@ -1,4 +1,5 @@
 import { defineLadder, type Ladder } from '../../ladder';
+import { canaryItems, voidReason } from './bank/canary';
 import {
   type BankItem,
   type BankRun,
@@ -106,13 +107,17 @@ export function variablesLadder(options: VariablesLadderOptions = {}): Ladder {
     if (!pending) {
       pending = (async () => {
         const items = variablesBank().filter(options.filter ?? (() => true));
+        // The canary pair runs beside the bank and counts in no level (bank/canary.ts).
+        const ran = [...items, ...canaryItems()];
         let run: BankRun;
         if (inProcess) {
           const loaded = options.impl ? { impl: options.impl, module: options.implModule } : await loadImpl();
-          run = await runInProcess(items, seed, root, loaded.impl, loaded.module);
+          run = await runInProcess(ran, seed, root, loaded.impl, loaded.module);
         } else {
-          run = await runIsolated(items, seed, root);
+          run = await runIsolated(ran, seed, root);
         }
+        const reason = voidReason(run, seed);
+        if (reason) run = new Map(items.map((item) => [item.id, { pass: false, detail: reason }]));
         return { items, run };
       })();
       runs.set(key, pending);

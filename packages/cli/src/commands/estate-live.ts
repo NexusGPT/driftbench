@@ -32,6 +32,7 @@ import {
   quoteDrift,
   readerFor,
   renderEstateMap,
+  resolveMapRoot,
 } from '@agent-nexus/driftbench-estate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { openStore, type SqliteStore } from '@agent-nexus/driftbench-store';
@@ -62,6 +63,7 @@ import {
   planEstateCarry,
 } from './estate-carry';
 import { mapCacheOptions } from './map-cache';
+import { rootRefusal } from './map-root';
 import { replayChecks } from './replay';
 
 export { isStandIn, STAND_IN_MARKER };
@@ -783,7 +785,12 @@ export async function estateMutateCommand(
     return 2;
   }
   const map = loaded.map;
-  const root = resolve(dirname(mapPath), map.root);
+  const located = await resolveMapRoot(mapPath, map);
+  if (!located.ok) {
+    io.err(rootRefusal(mapPath, located, io));
+    return 2;
+  }
+  const root = located.root;
   const drift = await driftOf(root, map);
   if (drift.length > 0) {
     io.err(`The estate at ${root} no longer matches the map; scan it again first:\n`);
