@@ -121,3 +121,41 @@ describe('a file the runtime reads by name is that file only in the letters it n
     for (const key of refs) expect(obs.isRead(key)).toBe(false);
   });
 });
+
+describe('a mutation refuses a file the copy holds in other letters', () => {
+  it('rejects an atom whose file is spelled otherwise than the copy spells it', async () => {
+    const { copyEstate, mutateEstate, ClaudeCodeReader, scanEstate } = await import('../../src/index');
+    const { NOW, structurePointer } = await import('../support');
+    const placed = place(specOf(3, 0));
+    const root = await write(placed.files);
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
+    const to = await write({});
+    await copyEstate(root, to, map);
+    const atom = map.atoms.find(
+      (candidate) => candidate.kind === 'route' && candidate.provenance.file.endsWith('SKILL.md'),
+    );
+    expect(atom).toBeDefined();
+    const shifted = {
+      ...map,
+      atoms: map.atoms.map((candidate) =>
+        candidate.id === atom?.id
+          ? {
+              ...candidate,
+              provenance: {
+                ...candidate.provenance,
+                file: candidate.provenance.file.replace('SKILL.md', 'skill.md'),
+              },
+            }
+          : candidate,
+      ),
+    };
+    await expect(
+      mutateEstate({ root: to, map: shifted, source: root }, { delete: atom?.id ?? '' }),
+    ).rejects.toThrow(/not in the estate copy/);
+  });
+});
