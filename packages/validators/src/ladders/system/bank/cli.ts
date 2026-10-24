@@ -344,7 +344,9 @@ const exitCases: Case[] = [
     component: VALIDATE,
     title: 'validate exits with the level its run reached, as its --json report says',
     run: async (_s, root) => {
-      const result = await cli(['validate', 'stats', '--seed', '1', '--json'], root);
+      // A whole run, so its exit is its level: the judges ladder, whose whole seed takes seconds (a whole statistics
+      // seed runs its bank under the frame for minutes, PR 986, batch 51d).
+      const result = await cli(['validate', 'judges', '--seed', '1', '--json'], root);
       const level = json(result.out)?.level;
       return expectAll([
         [typeof level === 'number' && result.code === level, `exit ${result.code}, reported level ${level}`],
@@ -718,7 +720,8 @@ jsonCase(
   2,
   VALIDATE,
   'validate --hidden --json prints component, level, top, seeds and hiddenSeed',
-  () => ['validate', 'stats', '--seed', '2', '--hidden', '--json'],
+  // Level 1 only: the claim is the report's fields (PR 986, batch 51d: a whole statistics seed runs for minutes).
+  () => ['validate', 'stats', '--seed', '2', '--hidden', '--levels', '1..1', '--json'],
   (doc) =>
     expectAll([
       [

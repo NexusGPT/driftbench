@@ -2449,6 +2449,42 @@ export const MUTANTS: readonly Mutant[] = [
       },
     })),
   },
+  // The label of one kind of span ignored, or its comparison read from the wording: a product that follows the label for
+  // the one kind the first item tries and reads its own table for the others (cheats 8 and 9 of the r4 audit).
+  ...(
+    [
+      ['range', 'the-label-decides-a-range'],
+      ['member', 'the-label-decides-a-membership'],
+      ['boolean', 'the-label-decides-a-boolean-subject'],
+    ] as const
+  ).map(
+    ([kind, key]): Mutant => ({
+      name: `buildStore ignores the label of a ${kind} span and reads its text`,
+      families: ['sources'],
+      only: [`sources.labelled-condition.${key}`],
+      make: buildFrom((sources) => {
+        for (const rule of sources.estate?.rules ?? [])
+          for (const condition of rule.conditions) {
+            const label = (condition as { label?: { kind?: string } }).label;
+            if (label?.kind === kind) delete (condition as { label?: unknown }).label;
+          }
+        return sources;
+      }),
+    }),
+  ),
+  {
+    name: 'buildStore reads the comparison of a numeric span from its wording and not from its label',
+    families: ['sources'],
+    only: ['sources.labelled-condition.the-label-comparison-decides-not-the-wording'],
+    make: buildFrom((sources) => {
+      for (const rule of sources.estate?.rules ?? [])
+        for (const condition of rule.conditions) {
+          const label = (condition as { label?: { kind?: string; comparison?: string } }).label;
+          if (label?.kind === 'numeric') label.comparison = 'gt';
+        }
+      return sources;
+    }),
+  },
   {
     name: 'quotes reports the right number of wrong quotes at the wrong place at scale',
     families: ['scale'],

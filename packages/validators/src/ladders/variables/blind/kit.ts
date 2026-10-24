@@ -641,9 +641,9 @@ export function widestTuple(space: Space): number {
 }
 
 /**
- * Processor time of a call (user and system, ms): a busy machine does not fail an item. When the implementation runs
- * in the frame's processes, the time is theirs (bank/util.ts, `useProductClock`).
+ * Processor time of a call (user and system, ms, of this process and of the processes it started and waited for): a busy
+ * machine does not fail an item and work done in a child is not hidden; with the wall-clock time of the call, which bounds
+ * a child that waits (docs/variables.md R15). When the implementation runs in the frame's processes, the processor time
+ * is theirs (bank/util.ts, `useProductClock`).
  */
-export function cpu<T>(run: () => T): { value: T; ms: number } {
-  return cpuMs(run);
-}
+export const cpu = cpuMs;

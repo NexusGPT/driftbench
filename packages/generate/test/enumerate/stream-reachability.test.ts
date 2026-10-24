@@ -10,7 +10,7 @@ import { zedProposal } from './support';
 
 async function parity(prepared: PreparedMap, seed: number, outputDir: string) {
   const options = { mapPath: 'map.yaml', seed };
-  const eager = generateSuite(prepared, options);
+  const eager = generateSuite(prepared, { ...options, settle: false });
   const disk = generateSuiteToDisk(prepared, { ...options, outputDir });
   const report = JSON.parse(await readFile(disk.reportPath, 'utf8'));
   expect(eager.report.coverage.reachability?.excluded.length).toBeGreaterThan(0);

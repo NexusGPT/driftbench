@@ -323,6 +323,8 @@ export type LadderReport = {
   level: number;
   top: number;
   seeds: SeedRun[];
+  /** Set on a slice (`--levels a..b`): only these levels were measured, so `level` holds only inside them. */
+  levels?: { from: number; to: number };
 };
 
 /** Runs a ladder on every seed in order. The level of the report is the minimum level over its seeds. */
