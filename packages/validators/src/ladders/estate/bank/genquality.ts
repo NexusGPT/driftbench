@@ -577,18 +577,8 @@ export function coverageFamily(): Family {
               detail: `${unchecked.length} of ${absent.length} references to a missing file have no complete spec that checks the attempted Read with some_call, such as ${unchecked[0]?.id}`,
             };
         }
-        // A route read from a description has no request in an owner's voice, so no ask is written from it; its specs
-        // wait for an approved phrase and the report says so under `needs-askable-act` (docs/estate.md section 5).
-        // Such a route is not short while it is disclosed as waiting; one the report does not name still is.
-        const asking = new Set(
-          (suite.report.gaps ?? []).find((entry) => entry.marker === 'needs-askable-act')?.atoms ?? [],
-        );
         const short = atoms
           .filter((atom) => !absent.includes(atom))
-          .filter(
-            (atom) =>
-              !(kind === 'route' && isDescriptionVoice(atom as unknown as MapAtom) && asking.has(atom.id)),
-          )
           .map(
             (atom) =>
               [

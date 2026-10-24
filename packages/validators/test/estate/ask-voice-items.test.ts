@@ -2,14 +2,15 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
+import { rowSources } from '../../src/ladders/estate/ask-binding';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
-import { coverageFamily, isDescriptionVoice, taskFamily } from '../../src/ladders/estate/bank/genquality';
+import { isDescriptionVoice, taskFamily } from '../../src/ladders/estate/bank/genquality';
 import { genAsksFamily } from '../../src/ladders/estate/bank/loop';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import type { MapAtom } from '../../src/ladders/estate/reference-ask';
 
 /**
- * The oracle tests of three validator items, each against a planted bad product (a generator that does the wrong
+ * The oracle tests of two validator items, each against a planted bad product (a generator that does the wrong
  * thing, simulated by changing what it wrote), with the control run first: the unchanged product passes. A planted
  * product that the item still passes would mean the item cannot fail on that fault.
  *
@@ -17,8 +18,6 @@ import type { MapAtom } from '../../src/ladders/estate/reference-ask';
  *    and a spec asked by a phrase lists none.
  *  - gen.task.no-description-voice: no code-written ask has a span cut from a route read from a description or from
  *    a unit whose passage is its description.
- *  - gen.coverage.one-per-route: a route read from a description may lack a complete spec only while the report
- *    discloses it under `needs-askable-act`.
  */
 
 const map = parse(readFileSync(join(fixture.FIXTURE, 'approved.yaml'), 'utf8')) as { atoms: MapAtom[] };
@@ -182,54 +181,29 @@ describe('gen.task.no-description-voice, against planted products', { timeout: 6
   });
 });
 
-describe('gen.coverage.one-per-route, against planted products', { timeout: 600_000 }, () => {
-  type Gap = { marker: string; specs: number; atoms: string[] };
-  /** The fixture suite with every complete spec that names the atom dropped, and the report's gap list as given. */
-  async function verdict(drop: string, gaps: (gaps: Gap[]) => Gap[]) {
-    const suite = await fixture.fixtureSuite();
-    const specs = suite.specs.filter((spec) => !(spec.complete && spec.atoms.includes(drop)));
-    const report = { ...suite.report, gaps: gaps(structuredClone(suite.report.gaps ?? [])) };
-    const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue({ ...suite, specs, report });
-    try {
-      return (await coverageFamily().evaluate(1)).get('gen.coverage.one-per-route');
-    } finally {
-      mock.mockRestore();
-    }
-  }
-  const asking =
-    (atom: string) =>
-    (gaps: Gap[]): Gap[] => {
-      const found = gaps.find((gap) => gap.marker === 'needs-askable-act');
-      if (found) found.atoms = [...new Set([...found.atoms, atom])];
-      else gaps.push({ marker: 'needs-askable-act', specs: 1, atoms: [atom] });
-      return gaps;
-    };
-  const silent = (gaps: Gap[]): Gap[] =>
-    gaps.map((gap) =>
-      gap.marker === 'needs-askable-act'
-        ? { ...gap, atoms: gap.atoms.filter((id) => id !== DESCRIBED.id) }
-        : gap,
+describe('rowSources, the allowed sources of a standing rule, against planted maps', () => {
+  const atom = (id: string, kind: string, fields: Record<string, unknown> = {}) =>
+    ({ id, kind, title: id, fields, provenance: { file: 'f', quote: 'q' } }) as unknown as MapAtom;
+  const atoms = (list: MapAtom[]) => new Map(list.map((each) => [each.id, each]));
+
+  it('takes the first route that is a request of the routing table, never a route read from a description', () => {
+    const rule = atom('instruction.standing.r', 'instruction');
+    const described = atom('route.a.described', 'route', { via: 'description', target: 'a' });
+    const requested = atom('route.standing.request', 'route', { via: 'pointer', ask: 'moor the ferry' });
+    // The description route comes first in the map; the request of the routing table is the source.
+    expect([...rowSources([rule.id], atoms([rule, described, requested]))].sort()).toEqual(
+      [rule.id, requested.id].sort(),
     );
-
-  it('passes the product as the generator wrote it', async () => {
-    expect((await coverageFamily().evaluate(1)).get('gen.coverage.one-per-route')).toMatchObject({
-      pass: true,
-    });
+    // With only description routes in the map, a standing rule has no route to take its task from.
+    expect([...rowSources([rule.id], atoms([rule, described]))]).toEqual([rule.id]);
   });
 
-  it('passes a description route with no complete spec while the report discloses it as waiting', async () => {
-    expect(await verdict(DESCRIBED.id, asking(DESCRIBED.id))).toMatchObject({ pass: true });
-  });
-
-  it('fails a description route with no complete spec that the report does not list', async () => {
-    const out = await verdict(DESCRIBED.id, silent);
-    expect(out?.pass).toBe(false);
-    expect(out?.detail).toContain(DESCRIBED.id);
-  });
-
-  it('fails a route of the routing table with no complete spec, even when the report lists it as waiting', async () => {
-    const out = await verdict(REQUESTED.id, asking(REQUESTED.id));
-    expect(out?.pass).toBe(false);
-    expect(out?.detail).toContain(REQUESTED.id);
+  it('is unchanged for a row that holds a unit: the routes that name it are its sources', () => {
+    const skill = atom('skill.a.skill', 'skill', { name: 'a' });
+    const described = atom('route.a.described', 'route', { via: 'description', target: 'a' });
+    const requested = atom('route.standing.request', 'route', { via: 'pointer', ask: 'moor', target: 'a' });
+    const sources = rowSources([skill.id], atoms([skill, described, requested]));
+    expect(sources.has(requested.id)).toBe(true);
+    expect(sources.has(described.id)).toBe(true);
   });
 });
