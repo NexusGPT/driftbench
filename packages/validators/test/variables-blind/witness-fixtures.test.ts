@@ -158,3 +158,43 @@ describe('what a witness hands to the product', () => {
     }
   }, 120_000);
 });
+
+/**
+ * Review of #1545 (codex-review-stats): the witness of weightInterval had its zero-success lower bound read as `|lo - wilson| <
+ * 1e-6`, where it was `|lo| < 1e-9`. A product that returns 1e-7 for no success passed the witness at the new tolerance, and
+ * with it the existing five-of-ten item, whose own check only asks for a share near a half. The lower end of the Wilson interval
+ * of no success is zero, so the exact test stays beside the tighter upper end.
+ */
+describe('a weightInterval that is off by 1e-7 at no success', () => {
+  const lenientAtZero: Partial<VariablesImpl> = {
+    ...referenceImpl,
+    weightInterval(count, total) {
+      const [lo, hi] = referenceImpl.weightInterval(count, total);
+      return count === 0 ? [lo + 1e-7, hi] : [lo, hi];
+    },
+  };
+  const FIVE = 'blind.weights.interval.five-of-ten';
+
+  it('fails the witness of weightInterval, and the correct reference passes it', async () => {
+    const ctx = (impl: Partial<VariablesImpl>) => ({
+      seed: 1,
+      impl,
+      root: ROOT,
+      id: 'zz.lower',
+      rng: itemRng(1, 'zz.lower'),
+    });
+    expect((await runWitness(ctx(referenceImpl), 'weightInterval'))?.outcome.detail).toBeUndefined();
+    expect((await runWitness(ctx(lenientAtZero), 'weightInterval'))?.outcome.pass).toBe(false);
+  });
+
+  it('fails the five-of-ten item, whose own check passes it; the reference passes the item', async () => {
+    const item = light.find((entry) => entry.id === FIVE);
+    if (!item) throw new Error(FIVE);
+    const run = (impl: Partial<VariablesImpl>) =>
+      item.check({ seed: 2, impl, root: ROOT, id: item.id, rng: itemRng(2, item.id) });
+    expect((await run(referenceImpl)).pass).toBe(true);
+    const outcome = await run(lenientAtZero);
+    expect(outcome.pass).toBe(false);
+    expect(outcome.detail).toMatch(/passed the item and then failed its witness/);
+  });
+});
