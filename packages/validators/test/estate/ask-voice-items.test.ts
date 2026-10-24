@@ -121,7 +121,7 @@ describe('gen.task.no-description-voice, against planted products', { timeout: 6
         (spec) =>
           spec.complete &&
           (spec.spec.metadata?.estate as Estate | undefined)?.ask === 'code' &&
-          Array.isArray((spec.spec.metadata?.estate as Estate).askBuild),
+          Array.isArray((spec.spec.metadata?.estate as Estate | undefined)?.askBuild),
       );
       if (!target) throw new Error('no complete code-asked spec in the fixture suite');
       edit(target.spec as unknown as Loaded);
