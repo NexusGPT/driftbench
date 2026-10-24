@@ -82,6 +82,9 @@ metadata:
       deviation: D11_pii_leak
       estate_hazard: compaction_mid_task
       atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

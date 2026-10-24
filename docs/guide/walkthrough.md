@@ -144,7 +144,7 @@ driftbench estate build northwind, into build
 2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
 3. Map and plan: the plan holds 1427 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
 4. Approve the plan: approved all 1427 tests, as --yes says.
-5. Write the tests: 1427 tests written. 1286 are complete and 141 still wait for something (the report lists what).
+5. Write the tests: 1427 tests written. 1207 are complete and 220 still wait for something (the report lists what).
 ```
 
 **What you get.** The folder `build`, and a count of tests:
@@ -152,7 +152,7 @@ driftbench estate build northwind, into build
 ```text
 1. Read the estate: 116 atoms, 69 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
 3. Map and plan: the plan holds 1427 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-5. Write the tests: 1427 tests written. 1286 are complete and 141 still wait for something (the report lists what).
+5. Write the tests: 1427 tests written. 1207 are complete and 220 still wait for something (the report lists what).
 ```
 
 Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1427 tests. 1286 are complete. The other 141 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
@@ -312,11 +312,11 @@ The agent must load the `weekly-report` skill, delete no file, and obey the rule
 
 ```console
 $ find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort | head -5
-build/generated/specs/live/dispatch/estate.dispatch.subagent.inbox-triager.helper-inbox-triager.yaml
 build/generated/specs/live/dispatch/estate.dispatch.subagent.ledger-auditor.helper-ledger-auditor.yaml
 build/generated/specs/live/dispatch/estate.dispatch.subagent.route-planner.helper-route-planner.yaml
 build/generated/specs/live/dispatch/estate.pairwise.0019.yaml
 build/generated/specs/live/dispatch/estate.pairwise.0083.yaml
+build/generated/specs/live/dispatch/estate.pairwise.0089.yaml
 ```
 
 The folders under `live` group the tests by kind. The folder `obligation` holds the tests of one rule each, named after the rule. Pick one and give its path to `estate run`.
@@ -403,12 +403,12 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 
 ```text
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1251 specs, 1254 blocks.
-Mode F, free-running: 17 of 1254 blocks in the radius (17 direct, 0 forward), 1237 out. 17 of 1251 cells.
-  A cell reruns whole: 17 of 1254 blocks sent, 98.6% saved; 1234 of 1251 cells left to carry.
+1173 specs, 1175 blocks.
+Mode F, free-running: 17 of 1175 blocks in the radius (17 direct, 0 forward), 1158 out. 17 of 1173 cells.
+  A cell reruns whole: 17 of 1175 blocks sent, 98.6% saved; 1156 of 1173 cells left to carry.
 ```
 
-Of 1254 blocks, 17 can be reached by that sentence. The other 1237 are not run, which saves 98.6%. The 1251 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1427 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1251 files hold 1254 blocks in all. The 17 files in the radius hold one block each, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1175 blocks, 17 can be reached by that sentence. The other 1158 are not run, which saves 98.6%. The 1173 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1427 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1251 files hold 1254 blocks in all. The 17 files in the radius hold one block each, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
@@ -434,8 +434,8 @@ Read each row as one test file: its name, how many of its blocks are in the radi
 $ driftbench estate run --order base.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --agent-version v2 --from before.db --change change.yaml --states northwind/live/states/library.json   # exit 1
 Blast radius of v1 to v2 (manifest 6c3bc0d86690): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 17 of 25 cells in the radius. 17 cells run fresh, 8 carried from estate-run-<id> in before.db.
-✗ estate.dispatch.subagent.inbox-triager.helper-inbox-triager  (carried)
-    failing: block 0: subagents.inbox-triager
+✗ estate.dispatch.subagent.ledger-auditor.helper-ledger-auditor  (carried)
+    failing: block 0: subagents.ledger-auditor
 ✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 17 specs run live on a stand-in and 8 carried: 0 pass, 25 fail (1 undecided: only inconclusive checks). Cost 0.0000 USD over 17 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-<id>.

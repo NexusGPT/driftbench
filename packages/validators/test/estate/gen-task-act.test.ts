@@ -245,8 +245,18 @@ describe('the fake reads no frames or shapes, and gen.task gets no easier', { ti
     };
     const target = suite.specs.find((one) => {
       const atom = actOf(one);
-      const declared = (atom?.fields as { ask?: unknown } | undefined)?.ask !== undefined;
-      return one.complete && one.testType === 'obligation' && declared && !!atom?.situation;
+      const ask = (atom?.fields as { ask?: unknown } | undefined)?.ask;
+      const declared = ask !== undefined;
+      // The planted text must differ from the declared act: an atom whose situation is its own request cell would
+      // plant the act itself, and nothing is dropped.
+      const asked = typeof ask === 'string' ? ask : (ask as { text?: unknown } | undefined)?.text;
+      return (
+        one.complete &&
+        one.testType === 'obligation' &&
+        declared &&
+        !!atom?.situation &&
+        atom.situation !== asked
+      );
     });
     if (!target) throw new Error('no complete obligation spec asked from a declared act');
     const atom = actOf(target) as MapAtom;

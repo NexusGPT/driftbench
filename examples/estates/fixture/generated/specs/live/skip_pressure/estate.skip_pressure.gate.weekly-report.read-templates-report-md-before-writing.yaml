@@ -51,6 +51,8 @@ metadata:
     cell:
       owner_signal: keep_going
       atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
+    unexpressed:
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

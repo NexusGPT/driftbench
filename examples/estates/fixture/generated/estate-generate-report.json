@@ -15,8 +15,8 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 32,
-    "phrases": 62,
+    "situations": 33,
+    "phrases": 65,
     "workspaces": 5
   },
   "sessions": {
@@ -42,22 +42,34 @@
     "judge": true
   },
   "summary": {
-    "specs": 1420,
-    "blocks": 1415,
-    "complete": 1414,
-    "incomplete": 6,
-    "judged": 777
+    "specs": 1418,
+    "blocks": 1413,
+    "complete": 1411,
+    "incomplete": 7,
+    "judged": 778
   },
   "incomplete": [
     {
-      "spec": "estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
-      "path": "incomplete/live/twin/estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml",
-      "row": "twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "spec": "estate.route_near_miss.route.inbox-triager.an-ask-that-fits-inbox-triager",
+      "path": "incomplete/live/route_near_miss/estate.route_near_miss.route.inbox-triager.an-ask-that-fits-inbox-triager.yaml",
+      "row": "route_near_miss.route.inbox-triager.an-ask-that-fits-inbox-triager",
       "reasons": [
         {
           "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.look-for-the-same-invoice-number",
-          "detail": "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
+          "atom": "route.inbox-triager.an-ask-that-fits-inbox-triager",
+          "detail": "no task in the atom's words (route.inbox-triager.an-ask-that-fits-inbox-triager (fields)): its atoms declare no act text a user asks with"
+        }
+      ]
+    },
+    {
+      "spec": "estate.misroute.route.inbox-triager.an-ask-that-fits-inbox-triager",
+      "path": "incomplete/live/misroute/estate.misroute.route.inbox-triager.an-ask-that-fits-inbox-triager.yaml",
+      "row": "misroute.route.inbox-triager.an-ask-that-fits-inbox-triager",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "route.inbox-triager.an-ask-that-fits-inbox-triager",
+          "detail": "no task in the atom's words (route.inbox-triager.an-ask-that-fits-inbox-triager (fields)): its atoms declare no act text a user asks with"
         }
       ]
     },
@@ -123,8 +135,20 @@
     }
   ],
   "equivalence": {
-    "collapsed": 7,
+    "collapsed": 9,
     "groups": [
+      {
+        "spec": "estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1",
+        "count": 2,
+        "atoms": [
+          "route.invoice-reconcile.an-ask-that-fits-invoice-reconcile",
+          "skill.invoice-reconcile.skill-invoice-reconcile"
+        ],
+        "rows": [
+          "route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1",
+          "route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.3"
+        ]
+      },
       {
         "spec": "estate.route_positive.route.supplier-email.an-ask-that-fits-supplier-email.1",
         "count": 2,
@@ -135,6 +159,18 @@
         "rows": [
           "route_positive.route.supplier-email.an-ask-that-fits-supplier-email.1",
           "route_positive.route.supplier-email.an-ask-that-fits-supplier-email.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.inbox-triager.an-ask-that-fits-inbox-triager.1",
+        "count": 2,
+        "atoms": [
+          "route.inbox-triager.an-ask-that-fits-inbox-triager",
+          "subagent.inbox-triager.helper-inbox-triager"
+        ],
+        "rows": [
+          "route_positive.route.inbox-triager.an-ask-that-fits-inbox-triager.1",
+          "route_positive.route.inbox-triager.an-ask-that-fits-inbox-triager.3"
         ]
       },
       {
@@ -206,10 +242,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.995774647887324,
-    "askedTests": 1406,
-    "distinctAsks": 111,
-    "distinctAsksPer100": 7.894736842105263
+    "completeShare": 0.9950634696755994,
+    "askedTests": 1403,
+    "distinctAsks": 95,
+    "distinctAsksPer100": 6.771204561653599
   },
   "unit": {
     "tests": 29,
@@ -226,20 +262,20 @@
   },
   "sources": {
     "asks": {
-      "bank": 419,
-      "code": 981,
+      "bank": 432,
+      "code": 965,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 924,
+      "bank": 954,
       "no-change:guard": 26,
-      "no-change:negative": 44,
-      "no-change:read-only": 72,
+      "no-change:negative": 43,
+      "no-change:read-only": 40,
       "no-delete": 340,
       "static": 8
     },
-    "judged": 496
+    "judged": 497
   },
   "focus": null,
   "perTestType": {
@@ -258,8 +294,8 @@
     "twin": {
       "rows": 31,
       "specs": 31,
-      "complete": 30,
-      "incomplete": 1
+      "complete": 31,
+      "incomplete": 0
     },
     "ordered_pair": {
       "rows": 84,
@@ -275,21 +311,21 @@
     },
     "route_positive": {
       "rows": 260,
-      "specs": 253,
-      "complete": 253,
+      "specs": 251,
+      "complete": 251,
       "incomplete": 0
     },
     "route_near_miss": {
       "rows": 13,
       "specs": 13,
-      "complete": 13,
-      "incomplete": 0
+      "complete": 12,
+      "incomplete": 1
     },
     "misroute": {
       "rows": 13,
       "specs": 13,
-      "complete": 13,
-      "incomplete": 0
+      "complete": 12,
+      "incomplete": 1
     },
     "read_when": {
       "rows": 11,
@@ -427,19 +463,19 @@
     },
     "live": {
       "rows": 1384,
-      "specs": 1377,
-      "complete": 1373,
-      "incomplete": 4
+      "specs": 1375,
+      "complete": 1370,
+      "incomplete": 5
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 6,
+      "specs": 7,
       "atoms": [
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "instruction.ledger-auditor.look-for-the-same-invoice-number",
+        "route.inbox-triager.an-ask-that-fits-inbox-triager",
         "stage.steps.stage-do-make-the-change",
         "stage.steps.stage-plan-restate-the-ask-and",
         "stage.steps.stage-report-tell-the-user-what"
@@ -447,10 +483,10 @@
       "details": [
         "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task",
         "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act",
+        "no task in the atom's words (route.inbox-triager.an-ask-that-fits-inbox-triager (fields)): its atoms declare no act text a user asks with",
         "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with",
         "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with",
-        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with",
-        "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
+        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
       ]
     }
   ],

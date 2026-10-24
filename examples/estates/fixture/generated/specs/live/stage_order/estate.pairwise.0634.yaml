@@ -93,6 +93,9 @@ metadata:
       deviation: D3_contradiction
       estate_hazard: no_hazard
       atoms.stage: stage.steps.stage-do-make-the-change
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

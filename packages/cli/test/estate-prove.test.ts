@@ -176,6 +176,8 @@ describe('estate prove on the planted agent', () => {
       const text = readFileSync(file, 'utf8');
       const id = basename(file, '.yaml');
       const links = text.includes(`rule: ${ROUTE}\n`);
+      // A misroute row fails on the stand-in on the original too (it routes by what the ask names): it proves nothing.
+      if (id.startsWith('estate.misroute.')) continue;
       if (!links && !CONTROLS.includes(id)) continue;
       if (links) linked.push(id);
       await writeFile(path(id), text);

@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. the total difference is above 50.00 EUR. Thanks."
+      user: Could you reconcile an invoice against a purchase order? the total difference is above 50.00 EUR. Thanks.
     expect:
       skills:
         - name: invoice-reconcile
@@ -60,17 +60,17 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (situation)
+    askFrom: route.standing.an-ask-to-reconcile-an-invoice (request)
     askBuild:
       - ask: Could you {act}?[ {situation}.] Thanks.
-        act: "handle this for me: {span}"
+        act: "{span}"
         situation: "{span}"
         spans:
           - slot: act
-            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
-            field: situation
+            atom: route.standing.an-ask-to-reconcile-an-invoice
+            field: fields.ask
             from: 0
-            to: 143
+            to: 45
           - slot: situation
             atom: instruction.invoice-reconcile.when-the-total-difference-is-above
             field: situation

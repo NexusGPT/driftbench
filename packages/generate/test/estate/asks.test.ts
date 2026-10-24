@@ -161,7 +161,7 @@ describe('the act comes from the declared source, never from reading its words',
     );
   });
 
-  it('a skill or helper asks with a request routed to it, else its passage when that is its description', () => {
+  it('a skill or helper asks with a request routed to it; its own description is never its work', () => {
     const route = atom('route.standing.moor', { kind: 'route', fields: { ask: 'moor the ferry at quay 3' } });
     const routesOf = (id: string) => (id === unit.id ? [route] : []);
     expect(
@@ -174,11 +174,27 @@ describe('the act comes from the declared source, never from reading its words',
       fields: { name: 'dock', description: 'Plans berths for visiting vessels.' },
       provenance: { file: '.claude/skills/dock/SKILL.md', quote: 'Plans berths for visiting vessels.' },
     });
-    const out = codeAsk('trigger', [own], []);
-    expect(checked(out, [own])).toBe('Please handle this for me: Plans berths for visiting vessels.');
-    expect(out.build?.spans).toEqual([
-      { slot: 'act', atom: own.id, field: 'provenance.quote', from: 0, to: 34 },
-    ]);
+    // A description that is the whole passage is still the unit's own words about itself, not an owner's ask.
+    expect(codeAsk('trigger', [own], []).text).toBeUndefined();
+    expect(codeAsk('trigger', [own], []).refused).toMatch(/no task/);
+  });
+
+  it('a route read from a description has no request: the structured field decides, whatever the text says', () => {
+    for (const situation of [
+      'Plans berths for visiting vessels.',
+      'Use when the user asks for a berth.',
+      'Liegeplätze für Schiffe planen.',
+    ]) {
+      const described = atom('route.dock.description', {
+        kind: 'route',
+        fields: { via: 'description', target: 'dock', targetKind: 'skill' },
+        situation,
+      });
+      expect(codeAsk('trigger', [described], []).text, situation).toBeUndefined();
+      // The same text on a route that is not read from a description is handed over as before.
+      const other = atom('route.dock.other', { kind: 'route', fields: { target: 'dock' }, situation });
+      expect(codeAsk('trigger', [other], []).text, situation).toBe(`Please handle this for me: ${situation}`);
+    }
   });
 
   it('the same structure in another language gives the same template: no word is read', () => {
@@ -210,7 +226,7 @@ describe('the act comes from the declared source, never from reading its words',
     expect(codeAsk('trigger', [titled], []).refused).toMatch(/no task/);
   });
 
-  it('a rule with no act of its own takes the work of its unit, else of the first route', () => {
+  it('a rule with no act of its own takes the request routed to its unit, else (a standing rule) the first route', () => {
     const rule = atom('instruction.harbour.r', {
       situation: 'The user gives no vessel name',
       provenance: { quote: 'x', file: '.claude/skills/harbour/SKILL.md' },
@@ -220,9 +236,18 @@ describe('the act comes from the declared source, never from reading its words',
       fields: { ask: 'read the tide table for a port' },
     });
     const estate = [tides, unit, rule];
-    const out = codeAsk('trigger', [rule], [], false, undefined, undefined, { estate });
-    expect(checked(out, estate)).toBe(
-      'Please read the tide table for a port. The user gives no vessel name.',
+    // A rule a unit carries holds over that unit's work only: with no request routed to the unit, the row waits and
+    // the request of another unit's route is never borrowed.
+    expect(codeAsk('trigger', [rule], [], false, undefined, undefined, { estate }).refused).toMatch(
+      /no task/,
+    );
+    const moor = atom('route.harbour.moor', { kind: 'route', fields: { ask: 'moor the ferry at quay 3' } });
+    const routed = codeAsk('trigger', [rule], [], false, undefined, undefined, {
+      estate: [...estate, moor],
+      routesOf: (id) => (id === unit.id ? [moor] : []),
+    });
+    expect(checked(routed, [...estate, moor])).toBe(
+      'Please moor the ferry at quay 3. The user gives no vessel name.',
     );
     const standing = atom('instruction.standing.greet', { provenance: { quote: 'x', file: 'CLAUDE.md' } });
     expect(checked(codeAsk('trigger', [standing], [], false, undefined, undefined, { estate }), estate)).toBe(

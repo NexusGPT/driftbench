@@ -34,7 +34,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. the total difference is above 50.00 EUR."
+      user: Please reconcile an invoice against a purchase order. the total difference is above 50.00 EUR.
     expect:
       skills:
         - name: invoice-reconcile
@@ -65,6 +65,9 @@ metadata:
       deviation: D5_language_switch
       estate_hazard: stale_tracker
       atoms.instruction: instruction.invoice-reconcile.when-the-total-difference-is-above
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -75,17 +78,17 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (situation)
+    askFrom: route.standing.an-ask-to-reconcile-an-invoice (request)
     askBuild:
       - ask: Please {act}.[ {situation}.]
-        act: "handle this for me: {span}"
+        act: "{span}"
         situation: "{span}"
         spans:
           - slot: act
-            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
-            field: situation
+            atom: route.standing.an-ask-to-reconcile-an-invoice
+            field: fields.ask
             from: 0
-            to: 143
+            to: 45
           - slot: situation
             atom: instruction.invoice-reconcile.when-the-total-difference-is-above
             field: situation

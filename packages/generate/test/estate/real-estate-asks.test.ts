@@ -23,7 +23,7 @@ const unit = (name: string, description: string, kind = 'skill', file?: string):
   });
 
 describe('the unit that owns an atom supplies the task when the atom has none', () => {
-  it('takes the request that routes to the unit before its description', () => {
+  it('takes the request that routes to the unit, never its description', () => {
     const owner = unit('stock', 'Holds the cycle count sheets of the warehouse.');
     const rule = atom('reference.stock.sizes', { fields: { readWhen: '`refs/sizes.md`: size classes' } });
     const route = atom('route.standing.count', {
@@ -34,10 +34,9 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     expect(codeAsk('trigger', [rule, owner], [], false, undefined, undefined, { routesOf }).text).toBe(
       'Please Plan the quarterly stock count for aisle three.',
     );
-    // With no route, the description is handed over as written.
-    expect(codeAsk('trigger', [rule, owner], []).text).toBe(
-      'Please handle this for me: Holds the cycle count sheets of the warehouse.',
-    );
+    // With no route, the description is not the work: it is written about the unit, not asked by an owner.
+    expect(codeAsk('trigger', [rule, owner], []).text).toBeUndefined();
+    expect(codeAsk('trigger', [rule, owner], []).refused).toMatch(/no task/);
     expect(actOf([rule, owner], undefined, routesOf).source).toBe('route.standing.count (request)');
   });
 
@@ -116,12 +115,15 @@ describe('a reference to a navigation document is a read test like any other', (
     mode: 'live',
     status: 'approved',
   };
+  const request = atom('route.stock.request', {
+    fields: { ask: 'Count stock in the aisles', target: 'stock' },
+  });
   const run = (documents?: Array<{ path: string; role: string }>) => {
     const map = {
       runtime: 'claude-code',
       hash: 'nav',
-      atoms: [owner, sample],
-      edges: [],
+      atoms: [owner, sample, request],
+      edges: [{ from: request.id, to: owner.id, kind: 'route' }],
       ...(documents ? { documents } : {}),
     };
     return generateEstateSuite(
@@ -151,7 +153,7 @@ describe('a reference to a navigation document is a read test like any other', (
       const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
       if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
       expect(parsed.spec.blocks[0]?.when).toEqual({
-        user: 'Please handle this for me: Counts stock in the aisles.',
+        user: 'Please Count stock in the aisles.',
       });
     }
   });

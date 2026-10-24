@@ -374,17 +374,64 @@ export async function unsetAsks(
   return out;
 }
 
+/**
+ * Whether the atom a span of a construction record is cut from is the unit's own description: a route read from a
+ * description (`fields.via`), or a skill or helper whose passage is its description. Read from the map's structure.
+ */
+export function isDescriptionVoice(atom: MapAtom | undefined): boolean {
+  if (!atom) return false;
+  const fields = (atom.fields ?? {}) as { via?: unknown; description?: unknown };
+  if (atom.kind === 'route') return fields.via === 'description';
+  return (
+    (atom.kind === 'skill' || atom.kind === 'subagent') &&
+    typeof fields.description === 'string' &&
+    (atom as unknown as { provenance?: { quote?: unknown } }).provenance?.quote === fields.description
+  );
+}
+
 export function taskFamily(): Family {
-  return seedFreeFamily(
-    'gen.task',
-    4,
-    GENERATE,
-    TEST_TYPES.map((type) => ({
+  return seedFreeFamily('gen.task', 4, GENERATE, [
+    {
+      key: 'no-description-voice',
+      tier: 2 as Tier,
+      title: 'no code-written ask is cut from a unit description, a route read from one or the unit itself',
+      cause: 'a description is written to the router about the unit; an owner asks with a routed request',
+      async judge(suite) {
+        const map = await loadEstateMap(suite.map);
+        if (!map.ok) return { pass: false, detail: 'the map does not load' };
+        const byId = new Map((map.map.atoms as unknown as MapAtom[]).map((atom) => [atom.id, atom]));
+        const coded = suite.specs.filter(
+          (spec) =>
+            spec.complete && (spec.spec.metadata?.estate as { ask?: unknown } | undefined)?.ask === 'code',
+        );
+        // The check must have asks to judge; an empty suite proves nothing.
+        if (coded.length === 0) return { pass: false, detail: 'no complete spec has a code-written ask' };
+        const bad = coded.filter((spec) => {
+          const recorded = (spec.spec.metadata?.estate as { askBuild?: unknown } | undefined)?.askBuild;
+          const builds = Array.isArray(recorded) ? recorded : [recorded];
+          return builds.some((build) =>
+            (((build ?? {}) as { spans?: Array<{ atom?: unknown }> }).spans ?? []).some((span) =>
+              isDescriptionVoice(typeof span.atom === 'string' ? byId.get(span.atom) : undefined),
+            ),
+          );
+        });
+        return bad.length === 0
+          ? { pass: true, detail: `holds (${coded.length})` }
+          : {
+              pass: false,
+              detail: `${bad.length} of ${coded.length} code-written asks are cut from a description: ${bad
+                .slice(0, LISTED)
+                .map((spec) => `${spec.id} ("${firstAsk(spec)}")`)
+                .join('; ')}${bad.length > LISTED ? `; and ${bad.length - LISTED} more` : ''}`,
+            };
+      },
+    },
+    ...TEST_TYPES.map((type) => ({
       key: type,
       tier: 2 as Tier,
       title: `the first ask of every complete ${type} spec asks, exactly, for the act the spec carries`,
       cause: 'ask for the act of the row, in a text the fake sets off for that act and no other',
-      async judge(suite) {
+      async judge(suite: FixtureSuite) {
         const specs = ofType(suite, type);
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
         const map = await loadEstateMap(suite.map);
@@ -409,7 +456,7 @@ export function taskFamily(): Family {
             };
       },
     })),
-  );
+  ]);
 }
 
 export function readsFamily(): Family {

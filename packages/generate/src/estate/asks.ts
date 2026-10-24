@@ -443,10 +443,13 @@ function situationOf(atom: EstateAtom): Situation | undefined {
 }
 
 /**
- * A route's request: its request cell, in the user's words, as the act; else its situation (a unit's description
- * that says when it loads), handed over as it stands.
+ * A route's request: its request cell, in the user's words, as the act; else its situation, handed over as it
+ * stands. A route read from a unit's description (`fields.via` is `description`) has no request in an owner's
+ * voice: the description is written to the router, about the unit, and an ask cut from it reads as a third
+ * person speaking, so no act is made of it.
  */
 function routeAct(route: EstateAtom): Act | undefined {
+  if (route.fields?.via === 'description') return undefined;
   const cell = cutOf(route, 'fields.ask');
   const act = cell
     ? spanAct(ACT_ROWS.span, cell, `${route.id} (request)`)
@@ -455,18 +458,15 @@ function routeAct(route: EstateAtom): Act | undefined {
 }
 
 /**
- * A skill's or helper's work: a request that routes to it, else its passage when the passage is its description
- * and nothing else, handed over whole.
+ * A skill's or helper's work: a request that routes to it. The unit's own description is never the work: it is
+ * written about the unit, not asked by an owner (see `routeAct`).
  */
 function unitAct(unit: EstateAtom, routesOf: (id: string) => readonly EstateAtom[]): Act | undefined {
   for (const route of routesOf(unit.id)) {
     const act = routeAct(route);
     if (act) return act;
   }
-  const description = unit.fields?.description;
-  if (typeof description !== 'string' || unit.provenance?.quote !== description) return undefined;
-  const act = spanAct(ACT_ROWS.handle, wholeOf(unit, 'provenance.quote'), `${unit.id} (description)`);
-  return act && askable(act.text) === undefined ? act : undefined;
+  return undefined;
 }
 
 /** The act a tool rule covers: "Bash(git status)" gives "run git status in the shell here". */
@@ -564,8 +564,8 @@ const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'registe
  *   to go on with the task after it happened;
  * - a rule with a request clause: that clause, a prohibition's being the act it forbids; a gate: its governed
  *   action; a route: its request;
- * - else the work of a skill or helper of the row (a request that routes to it, else its description), the work
- *   of the unit that carries the rule, else the request of the first route of the estate, since a standing rule
+ * - else the work of a skill or helper of the row (a request that routes to it), the work
+ *   of the unit that carries the rule, else (for a rule no unit carries) the request of the first route of the estate, since a standing rule
  *   holds over any work. A gate holds over the act it names only.
  *
  * The situation is the rule's own, for a rule or a register.
@@ -619,8 +619,10 @@ export function actOf(
     const owner = owningUnit(estate, head);
     const act = owner ? unitAct(owner, routesOf) : undefined;
     if (act) return result(withSituation(act));
-    // A gate holds over the act it names: with none and no unit that carries it, no route is its work.
-    if (head.kind !== 'gate') {
+    // A gate holds over the act it names: with none and no unit that carries it, no route is its work. A rule a
+    // unit carries holds over that unit's work only: with no request routed to the unit, the row waits, and the
+    // request of another unit's route is never borrowed.
+    if (head.kind !== 'gate' && !owner) {
       for (const route of estate) {
         if (route.kind !== 'route') continue;
         const work = routeAct(route);

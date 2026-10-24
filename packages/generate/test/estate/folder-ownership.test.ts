@@ -14,7 +14,26 @@ const unit = (name: string, description: string): EstateAtom => ({
   evidence: [{ type: 'skill_loaded', name }],
 });
 const hub = unit('catalogue', 'Prepare the annual catalogue.');
-const shipping = unit('shipping', 'Track delayed parcels for the dispatch centre.');
+const shipping = unit('shipping', 'Tracks delayed parcels for the dispatch centre.');
+/** The request an owner types to reach a unit: the only thing the unit's task is made of. */
+const requestFor = (owner: EstateAtom, ask: string): EstateAtom => ({
+  id: `route.${owner.fields?.name}`,
+  kind: 'route',
+  title: ask,
+  approved: true,
+  fields: { ask, target: owner.fields?.name },
+  evidence: [],
+});
+const requests = (atoms: EstateAtom[]): EstateAtom[] => [
+  ...atoms,
+  ...atoms
+    .filter((each) => each.kind === 'skill' && each.id !== hub.id)
+    .map((each) => requestFor(each, ask(each))),
+];
+const ask = (owner: EstateAtom): string =>
+  owner.id === shipping.id
+    ? 'Track delayed parcels for the dispatch centre'
+    : String(owner.fields?.description).replace(/\.$/, '');
 const reference = (
   id: string,
   path = 'skills/shipping/references/carriers.md',
@@ -28,14 +47,27 @@ const reference = (
   provenance: { file: hub.provenance?.file, quote },
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { equals: path } } }],
 });
-function run(atoms: EstateAtom[], rows: EstatePlanRow[], situations: PhraseBank['situations'] = []) {
+function run(
+  owned: EstateAtom[],
+  rows: EstatePlanRow[],
+  situations: PhraseBank['situations'] = [],
+  routed = true,
+) {
+  const atoms = routed ? requests(owned) : owned;
+  const routeEdges = atoms
+    .filter((atom) => atom.kind === 'route')
+    .map((route) => ({
+      from: route.id,
+      to: atoms.find((each) => each.kind === 'skill' && each.fields?.name === route.fields?.target)?.id ?? '',
+      kind: 'route',
+    }));
   const edges = atoms
     .filter((atom) => atom.kind === 'reference')
     .flatMap((atom) => [
       { from: hub.id, to: atom.id, kind: 'reference' },
       { from: shipping.id, to: atom.id, kind: 'reference' },
     ]);
-  const map = { runtime: 'claude-code', hash: 'dispatch', atoms, edges };
+  const map = { runtime: 'claude-code', hash: 'dispatch', atoms, edges: [...edges, ...routeEdges] };
   return generateEstateSuite(
     {
       map,
@@ -73,7 +105,7 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
   // The shipping skill owns the reference by folder, so it supplies the task; it does not join the row.
   expect(suite.specs[0]?.atoms).toEqual([ref.id]);
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
+    user: 'Please Track delayed parcels for the dispatch centre.',
   });
   // The rule is written in the catalogue's file: the shipping skill supplies the task, but its load is not required.
   expect(parsed.spec.blocks[0]?.expect?.skills).toBeUndefined();
@@ -92,7 +124,7 @@ it('a shared reference takes the task of the unit that cites it directly, never 
   const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
+    user: 'Please Track delayed parcels for the dispatch centre.',
   });
   // Written in the unit's own file, the same reference does require the unit.
   expect(parsed.spec.blocks[0]?.expect?.skills).toEqual([{ name: 'shipping', count: { min: 1 } }]);
@@ -106,7 +138,8 @@ it('a shared reference cited from no unit borrows no linked task and hides no ga
   };
   const first = standing('reference.shared-one');
   const second = standing('reference.shared-two');
-  const suite = run([hub, shipping, first, second], [row(first.id), row(second.id)]);
+  // No request is routed to any unit, so no task is there to borrow: the rows wait.
+  const suite = run([hub, shipping, first, second], [row(first.id), row(second.id)], [], false);
   expect(suite.report.summary.complete).toBe(0);
   expect(suite.report.incomplete).toHaveLength(2);
   expect(suite.report.equivalence.collapsed).toBe(0);
@@ -143,7 +176,7 @@ it('preserves folder ownership across hundreds of deliberately flattened citatio
     const when = parsed.spec.blocks[0]?.when;
     if (when && 'user' in when) asks.add(when.user);
   }
-  // The task is each owner's description, as written: one ask per owning unit.
+  // The task is the request routed to each owner: one ask per owning unit.
   expect(asks.size).toBe(24);
   expect([...asks].some((ask) => ask.includes('annual catalogue'))).toBe(false);
   for (const record of suite.specs) {
@@ -181,7 +214,7 @@ it('rejects an approved phrase belonging to a different skill despite an explici
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
+    user: 'Please Track delayed parcels for the dispatch centre.',
   });
 });
 

@@ -9,7 +9,7 @@ vi.setConfig({ testTimeout: 600_000 });
 it('runs a code-written ask on the fake with the grammar generated from the map', async () => {
   const suite = await fixtureSuite();
   const ids = [
-    'estate.misroute.route.inbox-triager.an-ask-that-fits-inbox-triager',
+    'estate.pairwise.0018',
     'estate.obligation.instruction.inbox-triager.a-message-that-fits-none-goes',
   ];
   const specs = ids.map((id) => suite.specs.find((spec) => spec.id === id));

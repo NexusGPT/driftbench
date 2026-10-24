@@ -34,7 +34,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day. Read the open orders and the van table."
+      user: Please plan the delivery routes for tomorrow. Read the open orders and the van table.
     expect:
       subagents:
         - name: route-planner
@@ -65,6 +65,9 @@ metadata:
       deviation: D5_language_switch
       estate_hazard: rate_wave
       atoms.instruction: instruction.route-planner.read-the-open-orders-and-the
+    unexpressed:
+      - ask_shape
+      - owner_signal
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -75,17 +78,17 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askFrom: route.standing.an-ask-to-plan-the-delivery (request)
     askBuild:
       - ask: Please {act}.[ {situation}.]
-        act: "handle this for me: {span}"
+        act: "{span}"
         situation: "{span}"
         spans:
           - slot: act
-            atom: route.route-planner.an-ask-that-fits-route-planner
-            field: situation
+            atom: route.standing.an-ask-to-plan-the-delivery
+            field: fields.ask
             from: 0
-            to: 130
+            to: 37
           - slot: situation
             atom: instruction.route-planner.read-the-open-orders-and-the
             field: situation

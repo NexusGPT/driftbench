@@ -685,7 +685,7 @@ Absence is not automatically inverted in an outside-trigger control. Being outsi
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, the guard's declared verdict count 0 (a guard with no declared verdict may stop the act or only warn, so each verdict by which a guard acts, `deny`, `block`, `warn` and `nudge`, counts 0), tool count 0, required words moved to `must_not`. A guard run that allows the neutral act remains allowed.
-* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
+* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. A spec whose ask was written by code claims no more than that text says: the axes of its cell that only the words of an ask can carry (`ask_shape`, `owner_signal`) are listed under `unexpressed`, and a spec asked by an approved phrase lists none. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
 * Every block carries its links in `metadata.links`, written by the block writer that `driftbench generate` also uses: a `rule` link for each atom of the row (with `ledger`, the ledger id of its unit, when the pointer reader built the atom; relation `verifies`, or `exercises` for a negative control, which checks that the rule does not act outside its trigger, so deleting the rule cannot flip it), a `plan_row` link with the row id and its cell, and for the first block of a replay spec a `source_turn` link to the session and its first block. Each link is `declared` by the `generator` at the spec's version; the links stay out of the spec hash. The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
 * What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches; a Read of a path and an Agent dispatch of a named helper go to the references and subagents checks instead.
 
@@ -724,8 +724,12 @@ A reference uses the action in its read-when clause. An actionable rule situatio
 unit's broad description. The ask leaves the prerequisite and expected skill for the agent to discover.
 
 An atom that gives no task of its own takes the purpose of the unit that owns it, never a default of the
-estate. The purpose is the unit's description, then the requests of the routing rows that load the unit.
-A description is read in the third person: the first word is the verb when an object follows it, so
+estate. The purpose is a request routed to the unit: the request cell of a routing row that loads it. A unit's own
+description is never its purpose, and a route read from a description (`fields.via` is `description`) gives no
+request: a description is written to the runtime's router, about the unit, so an ask cut from it reads as a third
+person speaking. A unit reached by its description alone waits for an approved phrase, and the report says so under
+`needs-askable-act`. The rest of this section describes how a request is cut when a row's text is a sentence
+(a table cell, a list line, a read-when clause), and holds for any such text. A sentence is read in the third person: the first word is the verb when an object follows it, so
 "Handles customer complaints and logs the outcome" asks to handle customer complaints and log the outcome,
 for a verb the built-in list does not hold. A verb that states what a unit holds ("Holds", "Provides"), a
 noun followed by a function word ("Rules for ...") and a description that gives only a condition are no task:
@@ -833,19 +837,19 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
 Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash db9e07132a1b: 116 atoms.
 Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1427 rows, 1427 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 32 situations, 62 approved phrases.
+Phrases ../../../../examples/estates/fixture/phrases.yaml: 33 situations, 65 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 
 Test type           rows  specs  complete  incomplete
 obligation           435    435       435           0
 outside_trigger       31     31        31           0
-twin                  31     31        30           1
+twin                  31     31        31           0
 ordered_pair          84     84        84           0
 skip_pressure          6      6         6           0
-route_positive       260    253       253           0
-route_near_miss       13     13        13           0
-misroute              13     13        13           0
+route_positive       260    251       251           0
+route_near_miss       13     13        12           1
+misroute              13     13        12           1
 read_when             11     11        11           0
 script_fixture         2      2         2           0
 dispatch              42     42        42           0
@@ -866,20 +870,20 @@ hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1420      1414           6
+total                      1418      1411           7
 
-Asks of the complete specs: 419 approved phrases, 981 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 924 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 340 no-delete, 8 static.
+Asks of the complete specs: 432 approved phrases, 965 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 497 complete specs.
+Outcomes of the complete specs: 954 bank, 26 no-change:guard, 43 no-change:negative, 40 no-change:read-only, 340 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
 Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
-Complete share: 99.58%; distinct asks: 111 in 1406 complete asked tests (7.89 per 100).
-Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Complete share: 99.51%; distinct asks: 95 in 1403 complete asked tests (6.77 per 100).
+Equivalent tests: 9 duplicates grouped; representative specs retain every atom and source plan row with the class count.
+Missing pieces: 7 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          6 specs
+  needs-askable-act          7 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
 Wrote 1451 files to _captures/docs3/estate/generated.
 ```
@@ -997,7 +1001,7 @@ Code writes an ask only from these templates, and picks the template by where it
 | fixed | `What kinds of things can you help me with? One sentence, and please change nothing.` | an outside control | |
 | fixed | `The helper stopped halfway. Pick its task up where it stopped and finish it.` | a resume block | |
 | act | `{span}` | a route's request cell, or a rule's request clause (a prohibition's is the act it forbids) | |
-| act | `handle this for me: {span}` | a gate's governed action (its whole trigger), or the description a route of a skill or helper holds as its situation | |
+| act | `handle this for me: {span}` | a gate's governed action (its whole trigger), or the situation of a route that was not read from a description | |
 | act | `run {span} in the shell here` | a permission rule on a shell command | Bash |
 | act | `use the {span} tool on the files here` | a permission rule on a whole tool | the named tool |
 | act | `use the {span} tool on a file under {span}` | a permission rule on a tool and a path | the named tool |
@@ -1114,7 +1118,7 @@ Limits of replay today:
 
 ### The state library of a live run
 
-`estate build` and `estate generate` need no state library from you. With no `--states` and no `live/states/library.json` beside the map, they write `states/library.json` and `states/prefixes/long.jsonl` beside the specs, and plan the live rows from it. The library holds the session states `long`, `after_compaction` and `after_restart`, and the events `compaction_mid_task`, `process_restart` and `rate_wave`. The test `packages/cli/test/estate-build-generated-states.test.ts` builds the Northwind estate this way and checks the file, the printed counts and the planned states. With the recording of the fixture (`estate build <copy of the fixture> --out build --pointer --cassette cassette.jsonl --yes`, which replays the cassette and calls no model), the build writes 1427 tests, 782 of them complete, and 569 rows wait for `resumed`, `helpers_running`, `stale_tracker` or `dead_helper`, which need the estate's own transcript, tracker or helper.
+`estate build` and `estate generate` need no state library from you. With no `--states` and no `live/states/library.json` beside the map, they write `states/library.json` and `states/prefixes/long.jsonl` beside the specs, and plan the live rows from it. The library holds the session states `long`, `after_compaction` and `after_restart`, and the events `compaction_mid_task`, `process_restart` and `rate_wave`. The test `packages/cli/test/estate-build-generated-states.test.ts` builds the Northwind estate this way and checks the file, the printed counts and the planned states. With the recording of the fixture (`estate build <copy of the fixture> --out build --pointer --cassette cassette.jsonl --yes`, which replays the cassette and calls no model), the build writes 1427 tests, 737 of them complete, and 569 rows wait for `resumed`, `helpers_running`, `stale_tracker` or `dead_helper`, which need the estate's own transcript, tracker or helper.
 
 Recorded run, 2026-10-22, with an API key. The run used the build above and three live tests of its generated folder, one for each session state, run by `claude` on `claude-haiku-5-5` with `--states build/generated/states/library.json`. It cost 0.0055 USD, under a cap of 0.10 USD. It is not run by the tests, because it is billed. The campaign id changes at every run. The two failures are tests whose guard did not fire, since the agent asked which command to run instead of running one.
 

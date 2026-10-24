@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day."
+      user: "No need to do anything: just tell me in one sentence what it would mean to plan the delivery routes for tomorrow."
     expect:
       subagents:
         - name: route-planner
@@ -40,6 +40,8 @@ metadata:
     cell:
       ask_shape: ambiguous
       atoms.route: route.route-planner.an-ask-that-fits-route-planner
+    unexpressed:
+      - ask_shape
     seeder: estate
     seed: 1
     mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
@@ -50,16 +52,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askFrom: route.standing.an-ask-to-plan-the-delivery (request)
     askBuild:
       - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
-        act: "handle this for me: {span}"
+        act: "{span}"
         spans:
           - slot: act
-            atom: route.route-planner.an-ask-that-fits-route-planner
-            field: situation
+            atom: route.standing.an-ask-to-plan-the-delivery
+            field: fields.ask
             from: 0
-            to: 130
+            to: 37
     outcome: no-change:negative
   links:
     - block: ask
