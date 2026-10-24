@@ -850,16 +850,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         // A recovery that moves is said only where the walk was cut for it, after its last turn.
         if (after !== undefined && after !== stage && index !== cutAt) continue;
         if (cutAt !== undefined && index !== cutAt) continue;
-        if (after !== undefined && after !== stage) {
-          const stagePick =
-            prepared.stage === undefined ? undefined : dimensions[prepared.stage]?.index.get(stage);
-          const picks: Pick[] = [...cell];
-          if (prepared.stage !== undefined && stagePick !== undefined)
-            picks.push([prepared.stage, stagePick]);
-          const classPick = dimensions[prepared.deviation]?.index.get(classId);
-          if (classPick !== undefined) picks.push([prepared.deviation, classPick]);
-          if (!prepared.feasibility.allowed(picks)) continue;
-        }
+        // The class and the stage it is said at must be allowed with the cell, whether its recovery moves or stays.
+        const stagePick =
+          prepared.stage === undefined ? undefined : dimensions[prepared.stage]?.index.get(stage);
+        const picks: Pick[] = [...cell];
+        if (prepared.stage !== undefined && stagePick !== undefined) picks.push([prepared.stage, stagePick]);
+        const classPick = dimensions[prepared.deviation]?.index.get(classId);
+        if (classPick !== undefined) picks.push([prepared.deviation, classPick]);
+        if (!prepared.feasibility.allowed(picks)) continue;
         const said = { ...slots };
         const phrase = choosePhrase(deviationKey, classId, contextOf(stage), said);
         if (!phrase) continue;

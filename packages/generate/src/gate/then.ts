@@ -1,5 +1,4 @@
 import {
-  type BlockSpec,
   blockCell,
   canonicalJson,
   deviationOf,
@@ -12,6 +11,7 @@ import {
   type ThenField,
   thenFields,
 } from '@agent-nexus/driftbench-core';
+import { machineSignature } from '@agent-nexus/driftbench-space';
 import type { GateOptions, StageVerdict } from './types';
 
 // The Then fields, the block's cell and its deviation class are read by core's blast radius too: they
@@ -93,18 +93,9 @@ export function observedStage(spec: Spec, index: number, wording: GateOptions['w
   };
 }
 
-/** The machine part of a block's Then, as text: equal signatures mean the same machine expectations. */
-export function machineSignature(spec: Spec, index: number): string {
-  const block: BlockSpec | undefined = spec.blocks[index];
-  const { criteria: _criteria, ledger_add: _ledger, ...machine } = block?.expect ?? {};
-  const rules = spec.rules ? { ...spec.rules } : undefined;
-  const last = index === spec.blocks.length - 1;
-  return canonicalJson({
-    expect: machine,
-    ...(rules ? { rules } : {}),
-    ...(last && spec.end_state !== undefined ? { end_state: spec.end_state } : {}),
-  });
-}
+// The machine part of a block's Then as text is defined once, in `packages/space/src/obligations/keys.ts`: the
+// validator that judges a suite calls the same function.
+export { machineSignature };
 
 /** True when the machine Then expects nothing. */
 export function emptySignature(signature: string): boolean {

@@ -1,18 +1,27 @@
 #!/usr/bin/env node
 // Labels the condition spans a span-collector run found and writes the cassette the variables measure replays.
 //
-//   node tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
+//   node --import tsx tools/variables-label-spans.mjs --sha <commit> --spans <dir of variables-spans-N artifacts> --out <file>
 //     --usd-per-mtok-in <rate> --usd-per-mtok-out <rate> [--cap <usd, default 2>] [--total-file <file>] [--total-cap <usd, default 8>]
 //     [--known <cassette file>] [--batch <spans per request, default 12>]
+// Writes <out>.report.json with usage, truncations and subject-choice failures, including on failure. A subject
+// answer outside its schema gets one retry; a second failure aborts without writing a partial cassette.
 //
 // The key is read from ~/.nexus-secrets/anthropic-driftbench.key and is never printed. Each distinct span is labelled
 // once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
 // (the collector writes the spans folded, and the adapter folds a clause before it looks the label up). The cost is computed from the token
-// counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
+// counts every response reports, at the rates given on the command line. A request is sent only if its worst case stays
+// strictly below both caps, and the run stops if a response bills more than was reserved for it (see the cap guard below).
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SUBJECT_CHOICE_SYSTEM, spanLabelSystem } from '../packages/generate/src/feed/span-label-request.ts';
+import {
+  requestSubjectChoice,
+  subjectChoiceMaxTokens,
+} from '../packages/generate/src/feed/subject-choice-answer.ts';
+import { createSubjectReconciler } from '../packages/generate/src/feed/subject-choices.ts';
 
 const MODEL = 'claude-haiku-5-5';
 
@@ -61,12 +70,17 @@ console.log(`commit ${sha}: ${texts.length} distinct spans`);
 // The subjects already used in this estate: those of the cassette `--known` names, then those of the labels written so
 // far. A batch is shown them, so two clauses that name one quantity in different words get one subject.
 const subjects = new Set();
+const knownLabels = [];
 const noteSubjects = (label) => {
   if (label && typeof label.subject === 'string' && label.subject.trim() !== '') subjects.add(label.subject);
 };
 if (knownFile && existsSync(knownFile)) {
   for (const line of readFileSync(knownFile, 'utf8').split('\n')) {
-    if (line.trim() !== '') noteSubjects(JSON.parse(line).label);
+    if (line.trim() !== '') {
+      const label = JSON.parse(line).label;
+      knownLabels.push(label);
+      noteSubjects(label);
+    }
   }
 }
 const MAX_SUBJECTS = 300;
@@ -88,20 +102,7 @@ const definition = (() => {
   return lines[at];
 })();
 
-const SYSTEM = [
-  'You read short clauses copied from a company rule file. For each clause, say what condition it states.',
-  'Answer with a JSON array, one object per clause, in the order given, and nothing else.',
-  `The definition of a variable, as the store states it: ${definition}`,
-  'A clause that states no condition under this definition is none.',
-  'Each object is one of:',
-  '{"kind":"numeric","subject":<what is measured, a short noun phrase>,"limit":<number>,"comparison":"lt"|"le"|"gt"|"ge"|"eq"|"ne","unit":<optional unit>}',
-  '{"kind":"range","subject":<noun phrase>,"low":<number>,"high":<number>,"unit":<optional>}',
-  '{"kind":"member","subject":<noun phrase>,"members":[<the listed members>]}',
-  '{"kind":"boolean","subject":<noun phrase>}  (a fact that is true or false of the case, such as a valve being open or a badge being laminated; a clause that states the fact, or its negation, is boolean)',
-  '{"kind":"none"}  (the clause states no condition on a quantity, a set or a yes/no fact)',
-  'Name the quantity a clause is about with the same words every time. When a list of subjects already used is given, reuse one of them exactly, character for character, only when the clause itself names that same quantity in its own words; otherwise write the subject the clause names. Never take a listed subject because it is listed.',
-  'Write numbers as digits. "at most" is le, "fewer than" is lt, "more than" is gt, "at least" is ge.',
-].join('\n');
+const SYSTEM = spanLabelSystem(definition);
 
 const NUMERIC = new Set(['lt', 'le', 'gt', 'ge', 'eq', 'ne']);
 const num = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -112,14 +113,121 @@ const valid = (l) => {
   if (!word(l.subject)) return false;
   if (l.unit !== undefined && !word(l.unit)) return false;
   if (l.kind === 'numeric') return num(l.limit) && NUMERIC.has(l.comparison);
-  if (l.kind === 'range') return num(l.low) && num(l.high) && l.low < l.high;
+  if (l.kind === 'range')
+    return (
+      num(l.low) &&
+      num(l.high) &&
+      l.low < l.high &&
+      typeof l.lowInclusive === 'boolean' &&
+      typeof l.highInclusive === 'boolean'
+    );
   if (l.kind === 'member') return Array.isArray(l.members) && l.members.length > 0 && l.members.every(word);
   return l.kind === 'boolean';
 };
 
+const report = {
+  requests: 0,
+  countRequests: 0,
+  // A request that was not sent, with the code that says why: `count-unavailable` (the provider gave no input token count)
+  // or `worst-case-reaches-a-cap`. The summary counts them in `refusedRequests`, so a refusal is never a silent zero.
+  refused: [],
+  overBilled: [],
+  subjectRequests: 0,
+  truncations: 0,
+  subjectTruncations: 0,
+  malformedSubjectAnswers: 0,
+  invalidSubjectChoices: 0,
+  subjectFailures: [],
+};
 let tokensIn = 0;
 let tokensOut = 0;
 const spent = () => (tokensIn * rateIn + tokensOut * rateOut) / 1e6;
+
+// The most a request can add to the spend, known before it is sent: the exact input tokens of its body, counted on the
+// provider's free count_tokens endpoint, plus a reserve on top of that count, plus the whole of its max_tokens priced as
+// output. No formula over the bytes is safe: a 32,978-byte JSON body counted 30,920 tokens, and a body of combining
+// marks counted 9,952 tokens for 8,978 bytes, above one token per byte. The reserve is 1% of the counted input tokens or
+// 16 tokens, whichever is larger. A request is sent only if that worst case keeps the spend strictly below both caps
+// (landing on a cap is refused), and a request whose tokens cannot be counted is not sent at all. After the response,
+// the billed usage is read: if it is more than was reserved, the run stops and says so. The real usage the response
+// reports is what is summed.
+const RESERVE_DIVISOR = 100;
+const RESERVE_FLOOR_TOKENS = 16;
+const reserveOf = (counted) => Math.max(Math.ceil(counted / RESERVE_DIVISOR), RESERVE_FLOOR_TOKENS);
+
+async function countInputTokens(body) {
+  const { max_tokens: _maxTokens, ...countable } = body;
+  report.countRequests += 1;
+  const res = await fetch('https://api.anthropic.com/v1/messages/count_tokens', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify(countable),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok)
+    throw new Error(`count_tokens answered ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 200)}`);
+  if (!Number.isInteger(json.input_tokens) || json.input_tokens < 0)
+    throw new Error('count_tokens returned no input token count');
+  return json.input_tokens;
+}
+
+/** Refuses a request whose worst case would reach a cap; returns what was reserved for it, for the check after the response. */
+async function refuseIfItCouldCross(body, what) {
+  let counted;
+  try {
+    counted = await countInputTokens(body);
+  } catch (error) {
+    const why = error instanceof Error ? error.message : String(error);
+    console.error(
+      `stopped before sending ${what}: its input tokens could not be counted (${why}); a request is never sent unpriced`,
+    );
+    report.refused.push({ code: 'count-unavailable', what, reason: why.slice(0, 200) });
+    throw new Error(`stopped before sending ${what}: its input tokens could not be counted`);
+  }
+  const reservedInput = counted + reserveOf(counted);
+  const worst = (reservedInput * rateIn + body.max_tokens * rateOut) / 1e6;
+  if (!(spentBefore + spent() + worst < totalCap && spent() + worst < cap)) {
+    console.error(
+      `stopped before sending ${what}: it could cost up to USD ${worst.toFixed(4)} (${counted} input tokens counted, ${reservedInput} reserved); this commit USD ${spent().toFixed(4)} of ${cap}, lane total USD ${(spentBefore + spent()).toFixed(4)} of ${totalCap}`,
+    );
+    report.refused.push({
+      code: 'worst-case-reaches-a-cap',
+      what,
+      countedInputTokens: counted,
+      reservedInputTokens: reservedInput,
+      maxOutputTokens: body.max_tokens,
+    });
+    throw new Error(`stopped before sending ${what}: its worst case would reach or cross a cap`);
+  }
+  return { reservedInput, reservedOutput: body.max_tokens };
+}
+
+/** Adds the billed usage of a response to the spend, then stops the run if it is more than was reserved or cannot be read. */
+function settle(usage, reserved, what) {
+  const readable = Number.isFinite(usage?.input_tokens) && Number.isFinite(usage?.output_tokens);
+  if (!readable) {
+    report.overBilled.push({ what, reason: 'no usage in the response' });
+    console.error(`stopped after ${what}: the response carried no usage, so what it billed is unknown`);
+    throw new Error(`stopped after ${what}: its billed usage could not be read`);
+  }
+  const billedInput =
+    usage.input_tokens + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0);
+  tokensIn += billedInput;
+  tokensOut += usage.output_tokens;
+  if (billedInput > reserved.reservedInput || usage.output_tokens > reserved.reservedOutput) {
+    report.overBilled.push({
+      what,
+      reservedInput: reserved.reservedInput,
+      billedInput,
+      reservedOutput: reserved.reservedOutput,
+      billedOutput: usage.output_tokens,
+    });
+    console.error(
+      `stopped after ${what}: it billed ${billedInput} input and ${usage.output_tokens} output tokens, more than the ${reserved.reservedInput} input and ${reserved.reservedOutput} output tokens reserved before sending`,
+    );
+    throw new Error(`stopped after ${what}: billed usage exceeded what was reserved`);
+  }
+}
 
 async function ask(batch) {
   const body = {
@@ -130,6 +238,7 @@ async function ask(batch) {
       { role: 'user', content: subjectsBlock() + batch.map((text, i) => `${i + 1}. ${text}`).join('\n') },
     ],
   };
+  const reserved = await refuseIfItCouldCross(body, 'a batch of spans');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -140,8 +249,9 @@ async function ask(batch) {
     throw new Error(
       `labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`,
     );
-  tokensIn += json.usage?.input_tokens ?? 0;
-  tokensOut += json.usage?.output_tokens ?? 0;
+  report.requests += 1;
+  if (json.stop_reason === 'max_tokens') report.truncations += 1;
+  settle(json.usage, reserved, 'a batch of spans');
   const text = (json.content ?? []).map((c) => c.text ?? '').join('');
   const open = text.indexOf('[');
   const close = text.lastIndexOf(']');
@@ -153,41 +263,126 @@ async function ask(batch) {
   }
 }
 
-const rows = new Map();
-let bad = 0;
-for (let i = 0; i < texts.length; i += BATCH) {
-  if (spentBefore + spent() > totalCap || spent() > cap) {
-    console.error(
-      `stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`,
-    );
-    process.exit(3);
-  }
-  const batch = texts.slice(i, i + BATCH);
-  const answers = await ask(batch);
-  // One retry for the clauses that came back unusable.
-  const retry = batch.filter((_, j) => !valid(answers[j]));
-  if (retry.length > 0) {
-    const second = await ask(retry);
-    retry.forEach((text, k) => {
-      const at = batch.indexOf(text);
-      answers[at] = second[k];
+const reconcileSubjects = createSubjectReconciler(knownLabels);
+const SUBJECT_CHOICE = SUBJECT_CHOICE_SYSTEM;
+async function chooseSubject(clause, candidates) {
+  if (candidates.length === 0) return 'new';
+  const result = await requestSubjectChoice(candidates, async (previousFailure) => {
+    const body = {
+      model: MODEL,
+      max_tokens: subjectChoiceMaxTokens(candidates),
+      system: SUBJECT_CHOICE,
+      messages: [
+        {
+          role: 'user',
+          content: JSON.stringify({
+            clause,
+            candidates,
+            ...(previousFailure === undefined
+              ? {}
+              : {
+                  retry: {
+                    previousFailure,
+                    instruction: 'Return only one complete JSON string: a candidate id or "new".',
+                  },
+                }),
+          }),
+        },
+      ],
+    };
+    const reserved = await refuseIfItCouldCross(body, 'a subject choice');
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(body),
     });
-  }
-  batch.forEach((text, j) => {
-    if (valid(answers[j])) {
-      rows.set(text, answers[j]);
-      noteSubjects(answers[j]);
-    } else {
-      bad += 1;
-      rows.set(text, { kind: 'none' });
+    const json = await res.json();
+    report.requests += 1;
+    report.subjectRequests += 1;
+    if (!res.ok) throw new Error(`subject choice request failed: ${res.status}`);
+    settle(json.usage, reserved, 'a subject choice');
+    if (json.stop_reason === 'max_tokens') {
+      report.truncations += 1;
+      report.subjectTruncations += 1;
     }
+    return {
+      text: (json.content ?? []).map((part) => part.text ?? '').join(''),
+      stopReason: json.stop_reason,
+    };
   });
+  report.malformedSubjectAnswers += result.errors.filter((code) => code === 'malformed').length;
+  report.invalidSubjectChoices += result.errors.filter((code) => code === 'invalid-choice').length;
+  if (!result.ok) {
+    report.subjectFailures.push({ code: result.code, text: clause.text, attempts: result.errors });
+    throw new Error('subject choice failed after one retry; see the run report');
+  }
+  return result.choice;
 }
 
-writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
-const total = spentBefore + spent();
-if (totalFile) writeFileSync(totalFile, `${total}\n`);
-console.log(`labelled ${rows.size} spans (${bad} unusable answers recorded as none)`);
-console.log(
-  `tokens in ${tokensIn}, out ${tokensOut}; this commit USD ${spent().toFixed(4)}, lane total USD ${total.toFixed(4)}`,
-);
+const rows = new Map();
+let bad = 0;
+try {
+  for (let i = 0; i < texts.length; i += BATCH) {
+    if (spentBefore + spent() >= totalCap || spent() >= cap) {
+      console.error(
+        `stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`,
+      );
+      throw new Error('labeller spend cap reached');
+    }
+    const batch = texts.slice(i, i + BATCH);
+    const answers = await ask(batch);
+    // One retry for the clauses that came back unusable.
+    const retry = batch.filter((_, j) => !valid(answers[j]));
+    if (retry.length > 0) {
+      const second = await ask(retry);
+      retry.forEach((text, k) => {
+        const at = batch.indexOf(text);
+        answers[at] = second[k];
+      });
+    }
+    const labelled = batch.map((text, j) => {
+      if (valid(answers[j])) {
+        return { text, label: answers[j] };
+      }
+      bad += 1;
+      return { text, label: { kind: 'none' } };
+    });
+    for (const { text, label } of await reconcileSubjects(labelled, chooseSubject)) {
+      rows.set(text, label);
+      noteSubjects(label);
+    }
+  }
+
+  writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text, label })).join('\n')}\n`);
+} catch (error) {
+  report.error = error instanceof Error ? error.message : String(error);
+  console.error(report.error);
+  process.exitCode = 1;
+} finally {
+  const total = spentBefore + spent();
+  if (totalFile) writeFileSync(totalFile, `${total}\n`);
+  const summary = {
+    ...report,
+    sha,
+    model: MODEL,
+    status: process.exitCode ? 'failed' : 'complete',
+    labelled: process.exitCode ? 0 : rows.size,
+    subjectFailureCount: report.subjectFailures.length,
+    refusedRequests: report.refused.length,
+    unusableAnswers: bad,
+    tokensIn,
+    tokensOut,
+    usd: spent(),
+    inputUsdPerMillion: rateIn,
+    outputUsdPerMillion: rateOut,
+    totalUsd: total,
+    cap,
+    totalCap,
+  };
+  writeFileSync(`${outFile}.report.json`, `${JSON.stringify(summary, null, 2)}\n`);
+  console.log(`labelled ${summary.labelled} spans (${bad} unusable answers recorded as none)`);
+  console.log(
+    `tokens in ${tokensIn}, out ${tokensOut}; this commit USD ${spent().toFixed(4)}, lane total USD ${total.toFixed(4)}`,
+  );
+  console.log(`truncations ${report.truncations}; failed subject choices ${report.subjectFailures.length}`);
+}

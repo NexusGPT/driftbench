@@ -287,6 +287,12 @@ export const EstateMap = z.strictObject({
     .describe(
       'true when the scan read a user-level skill layer; lint then needs the folder to read it again',
     ),
+  settings: z
+    .literal(true)
+    .optional()
+    .describe(
+      'true when the scan read a rendered copy of the settings handed over beside the estate; lint then needs the file to read it again',
+    ),
   followedLinks: z
     .array(z.string().min(1))
     .optional()

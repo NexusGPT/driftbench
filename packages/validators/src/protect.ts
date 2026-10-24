@@ -16,6 +16,7 @@ export const PROTECTED_PATHS = [
   'packages/validators/fixtures/',
   'packages/validators/test/',
   'validators/floors.json',
+  'validators/regression-seeds.json',
   'validators/EXECUTOR.md',
   'validators/*/catch.json',
   'examples/acme/faults/',

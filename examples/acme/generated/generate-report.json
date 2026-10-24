@@ -2,8 +2,12 @@
   "generator": "driftbench generate",
   "stems": {
     "stems": 103,
-    "specs": 196,
-    "saved": 296
+    "specs": 197,
+    "saved": 313
+  },
+  "settle": {
+    "run": true,
+    "unsettled": 0
   },
   "map": {
     "path": "../map/approved.yaml",
@@ -21,9 +25,9 @@
     "max": null
   },
   "summary": {
-    "specs": 483,
-    "blocks": 1832,
-    "complete": 408,
+    "specs": 488,
+    "blocks": 1877,
+    "complete": 413,
     "incomplete": 75
   },
   "seeders": {
@@ -44,45 +48,45 @@
     },
     "twise": {
       "specs": 156,
-      "blocks": 790,
-      "cut_blocks": 2,
+      "blocks": 789,
+      "cut_blocks": 3,
       "complete": 153,
       "needs_phrase": 0,
       "needs_then": 3,
       "cut": false,
       "measures": {
         "hill_q0": 648,
-        "pielou": 0.882628603745,
+        "pielou": 0.882423667661,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
     },
     "boundary": {
-      "specs": 85,
-      "blocks": 176,
-      "cut_blocks": 7,
-      "complete": 13,
+      "specs": 82,
+      "blocks": 173,
+      "cut_blocks": 4,
+      "complete": 10,
       "needs_phrase": 72,
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 151,
-        "pielou": 0.955945511091,
+        "hill_q0": 137,
+        "pielou": 0.954610524092,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
     },
     "deviation": {
-      "specs": 110,
-      "blocks": 511,
-      "cut_blocks": 7,
-      "complete": 110,
+      "specs": 118,
+      "blocks": 560,
+      "cut_blocks": 5,
+      "complete": 118,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 415,
-        "pielou": 0.886967781205,
+        "hill_q0": 438,
+        "pielou": 0.885314478664,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -97,7 +101,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 203,
-        "pielou": 0.928598680022,
+        "pielou": 0.927994989187,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -4085,7 +4089,7 @@
     "actual": [
       {
         "t": 2,
-        "specs": 408,
+        "specs": 413,
         "allowed": 708,
         "covered": 708,
         "share": 1,
@@ -4093,10 +4097,10 @@
       },
       {
         "t": 3,
-        "specs": 408,
+        "specs": 413,
         "allowed": 4064,
-        "covered": 3119,
-        "share": 0.7674704724409449,
+        "covered": 3118,
+        "share": 0.7672244094488189,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -4145,11 +4149,6 @@
           },
           {
             "behaviour": "B-002",
-            "deviation": "D9_out_of_scope",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-002",
             "deviation": "D11_pii_leak",
             "channel": "chat"
           },
@@ -4175,11 +4174,6 @@
           },
           {
             "behaviour": "B-003",
-            "deviation": "D5_language_switch",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-003",
             "deviation": "D6_instruction_in_data",
             "channel": "whatsapp"
           },
@@ -4196,6 +4190,11 @@
           {
             "behaviour": "B-003",
             "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
             "channel": "whatsapp"
           },
           {
@@ -4415,6 +4414,11 @@
           },
           {
             "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
             "deviation": "D11_pii_leak",
             "channel": "chat"
           },
@@ -4460,11 +4464,6 @@
           },
           {
             "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "channel": "whatsapp"
-          },
-          {
-            "behaviour": "B-010",
             "deviation": "D2_goal_shift",
             "channel": "chat"
           },
@@ -4476,6 +4475,11 @@
           {
             "behaviour": "B-010",
             "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
             "channel": "chat"
           },
           {
@@ -4535,11 +4539,6 @@
           },
           {
             "behaviour": "B-011",
-            "deviation": "D9_out_of_scope",
-            "channel": "chat"
-          },
-          {
-            "behaviour": "B-011",
             "deviation": "D11_pii_leak",
             "channel": "chat"
           },
@@ -4557,6 +4556,11 @@
             "behaviour": "B-012",
             "deviation": "D4_loose_confirmation",
             "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
           },
           {
             "behaviour": "B-012",
@@ -4682,11 +4686,6 @@
             "behaviour": "B-001",
             "deviation": "D7_silence_or_burst",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D9_out_of_scope",
-            "stage": "needs"
           },
           {
             "behaviour": "B-001",
@@ -4946,11 +4945,6 @@
           {
             "behaviour": "B-003",
             "deviation": "D5_language_switch",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
             "stage": "offer"
           },
           {
@@ -5086,6 +5080,11 @@
           {
             "behaviour": "B-003",
             "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
             "stage": "address"
           },
           {
@@ -5830,1190 +5829,1195 @@
           },
           {
             "behaviour": "B-006",
-            "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D9_out_of_scope",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D9_out_of_scope",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D11_pii_leak",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D12_prompt_extraction",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D1_off_topic",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D1_off_topic",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D5_language_switch",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D5_language_switch",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D5_language_switch",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D5_language_switch",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D8_tool_failure",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D10_return",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D10_return",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D7_silence_or_burst",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D9_out_of_scope",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D9_out_of_scope",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D11_pii_leak",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D1_off_topic",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D6_instruction_in_data",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D8_tool_failure",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D10_return",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D10_return",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D10_return",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D7_silence_or_burst",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D9_out_of_scope",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "port_number"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D5_language_switch",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D8_tool_failure",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D8_tool_failure",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D10_return",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D7_silence_or_burst",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D9_out_of_scope",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D5_language_switch",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D8_tool_failure",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D10_return",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D7_silence_or_burst",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D9_out_of_scope",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D11_pii_leak",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D12_prompt_extraction",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D1_off_topic",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D5_language_switch",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "handover"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D6_instruction_in_data",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D8_tool_failure",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D8_tool_failure",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D10_return",
-            "stage": "address"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D10_return",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D10_return",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "details"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "recap"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "order_placed"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "callback"
-          },
-          {
-            "behaviour": "B-011",
-            "deviation": "D7_silence_or_burst",
-            "stage": "closing"
-          },
-          {
-            "behaviour": "B-011",
             "deviation": "D9_out_of_scope",
             "stage": "needs"
           },
           {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
             "behaviour": "B-011",
             "deviation": "D9_out_of_scope",
             "stage": "offer"
@@ -7201,11 +7205,6 @@
           {
             "behaviour": "B-012",
             "deviation": "D9_out_of_scope",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D9_out_of_scope",
             "stage": "offer"
           },
           {
@@ -7295,6 +7294,11 @@
           },
           {
             "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
             "deviation": "D11_pii_leak",
             "user_type": "new-customer"
           },
@@ -7370,6 +7374,11 @@
           },
           {
             "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
             "deviation": "D8_tool_failure",
             "user_type": "existing-customer"
           },
@@ -7416,16 +7425,6 @@
           {
             "behaviour": "B-003",
             "deviation": "D5_language_switch",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "deviation": "D5_language_switch",
             "coverage_result": "no-service"
           },
           {
@@ -7536,7 +7535,7 @@
           {
             "behaviour": "B-004",
             "deviation": "D1_off_topic",
-            "coverage_result": "5g-only"
+            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-004",
@@ -7547,11 +7546,6 @@
             "behaviour": "B-004",
             "deviation": "D4_loose_confirmation",
             "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "deviation": "D5_language_switch",
-            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-004",
@@ -7651,11 +7645,21 @@
           {
             "behaviour": "B-005",
             "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
             "coverage_result": "not-in-map"
           },
           {
             "behaviour": "B-005",
             "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
             "coverage_result": "5g-only"
           },
           {
@@ -7781,11 +7785,6 @@
           {
             "behaviour": "B-008",
             "deviation": "D5_language_switch",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
             "coverage_result": "fiber"
           },
           {
@@ -7866,11 +7865,6 @@
           {
             "behaviour": "B-009",
             "deviation": "D6_instruction_in_data",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
             "coverage_result": "5g-only"
           },
           {
@@ -7921,11 +7915,6 @@
           {
             "behaviour": "B-009",
             "deviation": "D12_prompt_extraction",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D1_off_topic",
             "coverage_result": "fiber"
           },
           {
@@ -7947,6 +7936,11 @@
             "behaviour": "B-010",
             "deviation": "D5_language_switch",
             "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-010",
@@ -8105,11 +8099,6 @@
           },
           {
             "behaviour": "B-011",
-            "deviation": "D9_out_of_scope",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-011",
             "deviation": "D11_pii_leak",
             "coverage_result": "fiber"
           },
@@ -8134,14 +8123,19 @@
             "coverage_result": "not-in-map"
           },
           {
-            "behaviour": "B-002",
-            "channel": "chat",
+            "behaviour": "B-003",
+            "channel": "whatsapp",
             "stage": "needs"
           },
           {
             "behaviour": "B-004",
             "channel": "chat",
             "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "whatsapp",
+            "stage": "needs"
           },
           {
             "behaviour": "B-004",
@@ -8152,11 +8146,6 @@
             "behaviour": "B-005",
             "channel": "whatsapp",
             "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs",
-            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-003",
@@ -8202,6 +8191,26 @@
             "behaviour": "B-010",
             "stage": "needs",
             "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-011",
@@ -8830,30 +8839,30 @@
     "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 408,
+      "specs": 413,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 483,
+      "specs": 488,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.006055363321799308,
-      "chao_coverage": 0.9939450291249355,
-      "chao1": 801.4268151428068,
+      "discovery": 0.005864110515928954,
+      "chao_coverage": 0.9941362455691316,
+      "chao1": 804.5659833259494,
       "hill_q0": 708,
-      "hill_q1": 310.962156448482,
-      "hill_q2": 193.01792317173383,
-      "pielou": 0.874624018031,
-      "t3_share": 0.7674704724409449,
+      "hill_q1": 309.081633957033,
+      "hill_q2": 191.37212186038425,
+      "pielou": 0.873699699031,
+      "t3_share": 0.7672244094488189,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 280.79635011701544,
+      "effective_sample_size": 283.37134403181386,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

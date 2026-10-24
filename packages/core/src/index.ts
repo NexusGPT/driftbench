@@ -512,6 +512,7 @@ export {
   type RoutingRule,
   type RuntimeProfile,
   registerRuntimeProfile,
+  renderedSettingsFile,
   runtimeProfile,
   runtimeProfileNames,
   type SettingsSource,
@@ -648,6 +649,20 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export {
+  type DoctorDetection,
+  type DoctorResult,
+  diagnoseSetup,
+  parseSetupText,
+  type ResolvedSetupSource,
+  resolveSetupSources,
+  SetupDocument,
+  type SetupIssue,
+  type SetupRead,
+  type SetupReader,
+  type SetupResult,
+  SetupSource,
+} from './setup';
 export { stringifyBlockYaml } from './spec/block-yaml';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';

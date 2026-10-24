@@ -1,14 +1,17 @@
+import { check, none } from '../../../failure';
 import type { FileIssue, FileStore, FileVariable } from '../interface';
 import { OWNER_DATE } from './constants';
 import { callQuotes, callValidate, type ItemContext } from './item';
-import { clone, makeRng, must, type Rng, show, subRng } from './util';
+import { clone, hashString, makeRng, type Rng, subRng } from './util';
 
 /**
  * The cases of the file-format stems: a call of `validate` or `quotes` on a fictional store file, and the answer
  * the page requires. A stem asks the same question in many scenes (each scene its own store, words and layout),
  * and every item runs its calls in a seeded order that no periodic pattern of answers fits. That is what
  * keeps an implementation from passing by the position of a call or by a hash of the request: it has to read the
- * store and the files.
+ * store and the files. Nothing in a request carries the position of its case in the item (the agent suffix is drawn from a
+ * permutation of the seed), and an item runs every call before it fails once, naming neither a call nor the direction of the
+ * answer it wanted: a failure that did either would tell a search which answer to change.
  */
 
 /** What the page requires of one call. */
@@ -127,11 +130,17 @@ export function scenes(
   const out: FileCase[] = [];
   for (let scene = 0; scene < count; scene += 1)
     out.push(...make(subRng(ctx.rng, `${label}:${scene}`), scene));
-  // Every request is a store of its own: no two requests of an item share an agent, so the agent names no scene.
+  // Every request is a store of its own: no two requests of an item share an agent, so the agent names no scene. The
+  // number an agent ends with is drawn from a permutation of this item's own stream, not the position of the request in
+  // this list: a table of answers recorded by that number on other seeds meets other requests on this one. The
+  // permutation reads no draw of the item, so the scenes above are the same words as before.
+  const suffix = makeRng(
+    (Math.imul(ctx.seed >>> 0, 0x9e3779b1) ^ hashString(`${ctx.id}:${label}:agent-suffix`)) >>> 0,
+  ).shuffle(out.map((_, i) => i));
   out.forEach((c, i) => {
     const store = c.store as { agent?: unknown } | null;
     if (store && typeof store === 'object' && typeof store.agent === 'string')
-      store.agent = `${store.agent}_${i}`;
+      store.agent = `${store.agent}_${suffix[i]}`;
   });
   return out;
 }
@@ -168,8 +177,16 @@ export function breaksEveryPeriod(classes: readonly string[]): boolean {
  */
 export function schedule(cases: readonly FileCase[], seed: number, key: string): FileCase[] {
   const classes = cases.map(classOf);
-  must(new Set(classes).size >= 2, () => `the item ${key} has one class of answer: nothing to schedule`);
-  must(cases.length >= 18, () => `the item ${key} makes ${cases.length} calls; at least 18 are needed`);
+  check(new Set(classes).size >= 2, () => ({
+    rule: 'the item {} has one class of answer: nothing to schedule',
+    got: { details: [key] },
+    expected: none('observation'),
+  }));
+  check(cases.length >= 18, () => ({
+    rule: 'the item {} makes {} calls; at least N are needed',
+    got: { details: [key, cases.length] },
+    expected: none('observation'),
+  }));
   for (let attempt = 0; attempt < 400; attempt += 1) {
     const rng = makeRng((Math.imul(seed >>> 0, 0x9e3779b1) ^ hashKey(`${key}:${attempt}`)) >>> 0);
     const order = rng.shuffle(cases.map((_, i) => i));
@@ -194,56 +211,44 @@ function pathOk(actual: string, wanted: readonly string[]): boolean {
   return wanted.includes(actual);
 }
 
-function issueText(issues: readonly FileIssue[]): string {
-  return show(
-    issues.map((i) => `${i.code} at ${i.path}`),
-    220,
-  );
-}
-
-function checkOne(ctx: ItemContext, c: FileCase, index: number): void {
-  const at = `call ${index + 1}`;
+/**
+ * Whether a call got the answer the page requires. An implementation that throws, or returns a reply of no known shape,
+ * fails the item at once with the reason it gave: that failure names no wanted answer.
+ */
+function rightAnswer(ctx: ItemContext, c: FileCase): boolean {
   if (c.op === 'validate') {
     const result = callValidate(ctx, structuredClone(c.store));
-    if (c.want.kind === 'accept') {
-      must(
-        result.ok,
-        () => `${at}: validate refused a valid store: ${issueText('errors' in result ? result.errors : [])}`,
-      );
-      return;
-    }
+    if (c.want.kind === 'accept') return result.ok;
     const want = c.want as Extract<Want, { kind: 'reject' }>;
-    must(
-      !result.ok,
-      () => `${at}: validate accepted a store the page refuses (${want.code} at ${want.paths[0]})`,
-    );
-    const errors = result.ok ? [] : result.errors;
-    const hit = errors.some(
+    if (result.ok) return false;
+    return result.errors.some(
       (e) =>
         (want.codeFamily ? e.code.startsWith(want.code) : e.code === want.code) && pathOk(e.path, want.paths),
     );
-    must(
-      hit,
-      () =>
-        `${at}: validate refused the store with ${issueText(errors)}; the page requires ${want.code} at ${want.paths.join(' or ')}`,
-    );
-    return;
   }
   const result = callQuotes(ctx, clone(c.store), { ...c.files });
   const want = c.want as Extract<Want, { kind: 'issues' }>;
   const key = (i: FileIssue) => `${i.code} at ${i.path}`;
   const got = result.errors.map(key).sort();
   const need = want.issues.map(key).sort();
-  must(
-    got.length === need.length && got.every((g, i) => g === need[i]),
-    () => `${at}: quotes reported ${show(got, 240)}; the page requires ${show(need, 240)}`,
-  );
+  return got.length === need.length && got.every((g, i) => g === need[i]);
 }
 
-/** Runs the calls of an item in their certified order; the first wrong answer fails the item. */
+/**
+ * Runs the calls of an item in their certified order, every one of them, and fails the item once if any answer is wrong.
+ * The failure names no call and no direction of the wanted answer (docs/validators.md 12.11): the position of the first
+ * wrong call, or whether the page wanted a refusal, is what a search through the failures needs to find the answers.
+ */
 export function runFileCases(ctx: ItemContext, cases: readonly FileCase[], key: string): string {
   const order = schedule(cases, ctx.seed, key);
-  for (const [i, c] of order.entries()) checkOne(ctx, c, i);
+  let wrong = 0;
+  for (const c of order) if (!rightAnswer(ctx, c)) wrong += 1;
+  check(wrong === 0, () => ({
+    rule: 'every call of the item gets the answer the page requires',
+    input: { calls: order.length },
+    got: 'one or more of the answers differ from the page',
+    expected: { answers: order.map(classOf) },
+  }));
   return `${order.length} calls`;
 }
 

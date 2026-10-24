@@ -1,0 +1,4 @@
+name: check
+event: before-write
+script: scripts/check.py
+target: skills/reconcile/SKILL.md
