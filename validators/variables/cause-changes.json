@@ -226,292 +226,292 @@
       {
         "id": "blind.budget.cut.budget-above-the-plan",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.budget-equal-to-the-plan",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.budget-half-of-the-plan",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.budget-one",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.budget-one-below-the-plan",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.budget-three",
         "old": "a budget keeps a prefix of the uncut plan",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.same-budget-same-bytes",
         "old": "the same budget gives the same bytes",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.cut.zero-budget-without-seeds",
         "old": "a budget of zero without seeds gives no row",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.ties.any-plan-seed-gives-a-sound-ordered-plan",
         "old": "any plan seed gives a sound plan ordered by weight",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.ties.equal-weights-stable-order",
         "old": "rows of equal weight keep an order fixed by the seed",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.log-weight-is-the-sum-of-log-shares",
         "old": "the log weight of a row is the sum of the logs of its shares",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.log-weight-is-written-to-nine-places",
         "old": "the log weight is written to nine places",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.new-rows-run-most-common-first",
         "old": "new rows run from the most common to the rarest",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.unapproved-values-leave-the-denominator",
         "old": "values nobody approved leave the denominator of a share",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.uniform-shares-when-a-variable-has-no-weights",
         "old": "a variable with no weights has uniform shares",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.unweighted-variable-beside-a-weighted-one",
         "old": "an unweighted variable has uniform shares beside a weighted one",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.budget.traffic-order.weights-are-relative",
         "old": "weights are relative, so a scale changes no share",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.counter.uncovered.limit-zero-lists-none",
         "old": "the uncovered list holds the smaller of the limit and the missing count",
-        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+        "new": "coverage counts the distinct allowed pairs and the pairs the rows hold"
       },
       {
         "id": "blind.counter.uncovered.listed-tuples-are-distinct",
         "old": "the uncovered tuples are distinct",
-        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+        "new": "coverage counts the distinct allowed pairs and the pairs the rows hold"
       },
       {
         "id": "blind.counter.uncovered.nothing-missing-lists-nothing",
         "old": "nothing missing lists nothing",
-        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+        "new": "coverage counts the distinct allowed pairs and the pairs the rows hold"
       },
       {
         "id": "blind.diff.order.scaling-the-weights-of-a-variable-changes-nothing",
         "old": "weights are relative, so scaling the weights of one variable changes no share",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.diff.seeds.seeds-that-cover-everything-leave-no-new-rows",
         "old": "seeds that hold every valid row of a constrained space leave no new row",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.approval.approved-constraint-counts",
         "old": "an approved constraint counts",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.approval.constraint-without-a-flag-counts",
         "old": "a constraint with no flag counts as approved",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.sizes.duplicate-pair-changes-nothing",
         "old": "a pair written again changes nothing",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.sizes.reversed-pair-is-the-same-pair",
         "old": "a pair written in the other order is the same pair",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.unreachable-value.no-warning-when-every-value-can-be-held",
         "old": "a store where every value can be held raises no warning",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.unsatisfiable.every-pair-of-two-binary-variables",
         "old": "a space with no valid row gives no new row or a named error",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.unsatisfiable.every-value-of-one-variable",
         "old": "a space with no valid row gives no new row or a named error",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.impossible.unsatisfiable.three-variables-with-a-cyclic-conflict",
         "old": "a space with no valid row gives no new row or a named error",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.quotes.check.conversation-and-owner-evidence-need-no-file",
         "old": "conversation and owner evidence need no file",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.check.found-in-every-place-a-quote-can-sit",
         "old": "the quote check reads every place a quote can sit",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.check.ledger-id-does-not-change-the-check",
         "old": "the ledger id plays no part in the quote check",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.check.quote-is-found",
         "old": "the quote check finds a quote that sits in its file",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.check.quote-of-a-thousand-characters",
         "old": "a quote of 1,000 characters is found in its file",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.check.the-same-quote-twice-is-fine",
         "old": "the quote check finds a quote that sits in its file",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.composed-accents-in-the-file-decomposed-in-the-quote",
         "old": "composed and decomposed accents fold to one form",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.decomposed-accents-in-the-file-composed-in-the-quote",
         "old": "composed and decomposed accents fold to one form",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.markdown-backslash-before-an-asterisk",
         "old": "the markdown backslash before a punctuation mark folds away",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.markdown-backslash-before-an-underscore",
         "old": "the markdown backslash before a punctuation mark folds away",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.soft-hyphen-prints-nothing",
         "old": "the soft hyphen folds away",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.typographic-double-quotes-in-the-file",
         "old": "typographic double quotation marks fold to straight ones",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.typographic-quotes-in-the-quote",
         "old": "typographic double quotation marks fold to straight ones",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.typographic-single-quotes-in-the-file",
         "old": "typographic single quotation marks fold to straight ones",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.white-space-runs-in-the-file",
         "old": "runs of white space fold to one before the quote is compared",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.white-space-runs-in-the-quote",
         "old": "runs of white space fold to one before the quote is compared",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.zero-width-characters-in-the-file",
         "old": "characters that print nothing fold away",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.folding.zero-width-characters-in-the-quote",
         "old": "characters that print nothing fold away",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.no-constraints.true-quote-is-found",
         "old": "the quote check finds a quote in a store file that has no constraints list",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.structure.lines-and-hash-match",
         "old": "a lines entry hashes the named lines joined by a line feed",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.structure.pointer-and-hash-match",
         "old": "a structure entry resolves its JSON pointer and compares the hash",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.structure.reformatted-file-and-another-key-order-keep-the-hash",
         "old": "the hash of a structure entry is taken over the canonical JSON of the value",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.structure.the-empty-pointer-is-the-whole-file",
         "old": "the empty pointer names the whole file",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.quotes.structure.windows-line-breaks-read-the-same",
         "old": "a Windows line break reads as a line feed",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.reach.build-store.mapped",
         "old": "the adapter maps buildStore to a function of the product",
-        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+        "new": "tool evidence input fields become variables with one value per listed value"
       },
       {
         "id": "blind.reach.coverage.mapped",
         "old": "the adapter maps coverage to a function of the product",
-        "new": "coverage counts the allowed tuples of a group, and the ones the rows hold, exactly"
+        "new": "coverage counts the distinct allowed pairs and the pairs the rows hold"
       },
       {
         "id": "blind.reach.plan.mapped",
         "old": "the adapter maps plan to a function of the product",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.reach.quotes.mapped",
         "old": "the adapter maps quotes to a function of the product",
-        "new": "quotes reports a quote that the file it names does not hold"
+        "new": "the quote check reports a quote missing from its file at the quote path"
       },
       {
         "id": "blind.reach.validate.mapped",
@@ -526,62 +526,62 @@
       {
         "id": "blind.seeds.credit.each-new-row-covers-a-tuple-the-seeds-miss",
         "old": "each new row holds a tuple the seeds miss",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.credit.every-full-row-as-a-seed",
         "old": "seeds that hold every tuple leave no new row",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.credit.seeds-that-cover-everything-leave-no-new-row",
         "old": "seeds that hold every tuple leave no new row",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.determinism.key-order-of-a-seed-does-not-matter",
         "old": "the order of the keys of a seed changes nothing",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.determinism.key-order-of-the-store-does-not-matter",
         "old": "the order of the keys of the store changes nothing",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.determinism.same-options-same-bytes",
         "old": "equal inputs give equal bytes",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.determinism.the-plan-does-not-change-its-inputs",
         "old": "the plan does not change its inputs",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.leading.absent-and-empty-seeds-are-equal",
         "old": "absent and empty seeds are the same",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.leading.frozen-inputs-are-accepted",
         "old": "frozen inputs are accepted",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.leading.new-rows-repeat-no-seed",
         "old": "a new row never repeats a seed",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.leading.rows-have-distinct-nonempty-ids",
         "old": "rows have distinct non-empty ids",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.seeds.warnings.regular-seeds-raise-no-warning",
         "old": "regular seeds raise no warning",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.sources.file.advice.a-sourced-entry-gets-no-advice",
@@ -621,12 +621,12 @@
       {
         "id": "blind.sources.merge.a-rule-with-nothing-to-read-adds-no-variable",
         "old": "a rule with no condition and no tool adds no variable",
-        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+        "new": "tool evidence input fields become variables with one value per listed value"
       },
       {
         "id": "blind.sources.provenance.every-estate-value-names-a-quote",
         "old": "every estate value keeps a quote entry with its path",
-        "new": "buildStore builds one variable, with a value for each quote, from the values of a tool field"
+        "new": "tool evidence input fields become variables with one value per listed value"
       },
       {
         "id": "blind.values.file.ambiguous-value.a-detail-may-repeat-the-id-of-an-axis-of-another-kind",
@@ -696,7 +696,7 @@
       {
         "id": "blind.values.plan.approval.unapproved-variable-is-never-planned",
         "old": "the plan leaves out a variable nobody approved",
-        "new": "plan holds every required pair of three binary axes in rows that avoid the impossible pair"
+        "new": "many forbidden pairs are kept out of the rows and every allowed tuple is still covered"
       },
       {
         "id": "blind.weights.file.complete-weights-in-two-variables",
