@@ -314,8 +314,19 @@ export const EstateMap = z.strictObject({
       skipped: z
         .array(
           z.strictObject({
-            what: z.string().min(1).describe('A path, or the ignore glob that skipped paths.'),
-            reason: z.string().min(1).describe('Why: estate-config, too-large or ignored.'),
+            what: z
+              .string()
+              .min(1)
+              .describe(
+                'A path the scan left out: a file, a folder left out whole, or the ignore glob that pruned a folder of a root counted whole.',
+              ),
+            reason: z.string().min(1).describe('Why: estate-config, too-large, ignored or home-not-mapped.'),
+            files: z
+              .number()
+              .int()
+              .min(1)
+              .optional()
+              .describe('For a folder left out whole: how many files it held.'),
           }),
         )
         .describe('What the scan left out on purpose.'),

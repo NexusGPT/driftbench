@@ -15,8 +15,11 @@ export const CHECK_CAPABILITIES: readonly CheckCapability[] = [
   'execution',
 ];
 
-/** One input a check left out, and the code of why. */
-export type SkippedInput = { what: string; reason: string };
+/**
+ * One input a check left out, and the code of why. A folder left out whole is one entry, with the number of files
+ * it held (`files`), never one entry per file.
+ */
+export type SkippedInput = { what: string; reason: string; files?: number };
 
 export type CheckCoverage = {
   /** How many inputs the check read. */
