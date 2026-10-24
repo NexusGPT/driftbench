@@ -1,6 +1,6 @@
-import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { loadEstateMap, Plan, readerFor } from '@agent-nexus/driftbench-estate';
+import { loadEstateMap, Plan, readerFor, resolveMapRoot } from '@agent-nexus/driftbench-estate';
 import {
   defaultStateLibrary,
   ESTATE_COMPLETE_DIR,
@@ -26,6 +26,7 @@ import { exists } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
+import { rootRefusal } from './map-root';
 import { readBlockSections, SECTIONS_OPTION } from './sections-option';
 
 export type EstateGenerateOptions = {
@@ -180,19 +181,21 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     sessionsPath === undefined ? undefined : await readYaml(sessionsPath, SessionIndex, 'session index', io);
   if (!plan || !bank || (sessionsPath !== undefined && !sessions)) return 2;
 
-  // The files of the estate as a run copies them: a read is expected only of one of them. Without the
-  // estate folder (the map moved), the files the map knows. A folder that holds none of the files the
-  // atoms were read from is not the estate: the map was copied away from it.
+  // The files of the estate as a run copies them: a read is expected only of one of them. A root that is not
+  // a folder is refused with a fix. A folder that holds none of the files the atoms were read from is not the
+  // estate: the map was copied away from it, and the files the map knows stand in.
   let files: string[] | undefined;
-  const root = resolve(dirname(mapPath), loaded.map.root);
+  const located = await resolveMapRoot(mapPath, loaded.map);
+  if (!located.ok) {
+    io.err(rootRefusal(mapPath, located, io));
+    return 2;
+  }
+  const root = located.root;
   const lister = readerFor(loaded.map.runtime, {
     ignore: loaded.map.ignore ?? [],
     ...(loaded.map.registryRoles ? { registryRoles: loaded.map.registryRoles } : {}),
   });
-  const listed =
-    lister?.listFiles && (await stat(root).catch(() => undefined))?.isDirectory()
-      ? await lister.listFiles(root)
-      : undefined;
+  const listed = lister?.listFiles ? await lister.listFiles(root) : undefined;
   const sources = new Set(loaded.map.atoms.map((atom) => atom.provenance.file));
   if (listed?.some((file) => sources.has(file))) {
     files = listed;

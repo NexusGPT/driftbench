@@ -141,8 +141,9 @@ function atomsOf(value: unknown, into = new Set<string>(), depth = 0): Set<strin
 const TOKEN = /[A-Za-z0-9_.\-/]+/g;
 
 /**
- * What of the expected value a message repeats. Two checks, both on fields:
+ * What of the expected value a message repeats. Three checks, all on fields:
  * - the message must be exactly the rendering of item, rule, input and got, so nothing was added to it by hand;
+ * - it may not name the position of a call (`call 7`);
  * - no token of the expected value that is at least three characters long (two with a digit), and no number of any length by value, unless it is in the input, the got or the item id,
  *   may appear as a token of the message.
  */
@@ -168,6 +169,9 @@ export function leaksOf(failure: ItemFailure): string[] {
   const { fields } = failure;
   const out: string[] = [];
   if (failure.message !== renderFailure(fields)) out.push('(the message is not the rendering of its fields)');
+  // A message that names the position of a call ("call 7") tells a search through the failures which answer to change
+  // next, whatever the item wants: the check does not depend on `expected`.
+  if (/\bcall\s*#?\d+\b/i.test(failure.message)) out.push('(the message names the position of a call)');
   if (fields.expected === undefined || isNoExpected(fields.expected)) return out;
   // The rule is not allowed text: a rule that names the wanted value is a leak. The item id is allowed, it names
   // the item and not the answer.

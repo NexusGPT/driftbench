@@ -6,6 +6,10 @@ import {
   type ObligationSpec,
   type SoleHolders,
   soleHolders,
+  type TwinKind,
+  twinAxes,
+  twinGroup,
+  twinKind,
   twinPairs,
 } from './holders';
 import { type ObligationKind, RULINGS, type Rulings, type ValidityRule } from './rulings';
@@ -35,13 +39,23 @@ export type CutVerdict = {
 export type TestBlockRef = { spec: string; block: string; index: number };
 
 type FamilyKind = Extract<ObligationKind, { id: 'family' }>;
-type TwinKind = Extract<ObligationKind, { id: 'twin' }>;
 type DropWhole = Extract<ValidityRule, { id: 'dropWhole' }>;
 
 /** The validity rules whose breach the caller reports: they need the spec itself and the users package. */
 const REPORTED = new Set(['toolFailureLast', 'restatedLast', 'driverBuildable']);
 
 const byId = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
+/** True when a change leaves everything the twin relation reads as it was: the path, the walk, the channel, the persona. */
+function sameTwin(before: ObligationSpec, after: ObligationSpec, declared: DeclaredAxes): boolean {
+  return (
+    isDeclared(before, declared) === isDeclared(after, declared) &&
+    before.path === after.path &&
+    before.walk === after.walk &&
+    before.channel === after.channel &&
+    before.persona === after.persona
+  );
+}
 
 /** The same-test key a spec of more than one block ends on. */
 function endOf(one: ObligationSpec | undefined): string | undefined {
@@ -69,8 +83,12 @@ export class SuiteIndex {
   private readonly held = new Map<string, Held[]>();
   /** The specs that hold each key. */
   private readonly holdersOf = new Map<string, Set<string>>();
-  /** The specs a map declares, by path: the ones twin pairs are made of. */
-  private readonly heads = new Map<string, Map<string, ObligationSpec>>();
+  /** The twin ruling, when the rulings have one. */
+  private readonly twin: TwinKind | undefined;
+  /** The specs a map declares, by path and walk: twins are of one walk, so a pair is found inside one of these. */
+  private readonly walks = new Map<string, Map<string, ObligationSpec>>();
+  /** The twin pairs the suite holds, by `<path>|<axis>`. */
+  private readonly pairs = new Map<string, number>();
   /** The metamorphic variants in range of each walk, `family|path|walk`. */
   private readonly groups = new Map<string, Set<string>>();
   private readonly groupOf = new Map<string, string>();
@@ -82,6 +100,7 @@ export class SuiteIndex {
   constructor(declared: DeclaredAxes, rulings: Rulings = RULINGS) {
     this.declared = declared;
     this.rulings = rulings;
+    this.twin = twinKind(rulings);
   }
 
   get size(): number {
@@ -103,11 +122,7 @@ export class SuiteIndex {
     const held = heldKeys(one, this.declared, this.rulings);
     this.held.set(one.spec, held);
     for (const entry of held) link(this.holdersOf, entry.key, one.spec);
-    if (isDeclared(one, this.declared)) {
-      const here = this.heads.get(one.path) ?? new Map<string, ObligationSpec>();
-      here.set(one.spec, one);
-      this.heads.set(one.path, here);
-    }
+    if (isDeclared(one, this.declared)) this.join(one);
     if (held.some((entry) => entry.kind.id === 'family')) {
       const group = `family|${one.path}|${one.walk}`;
       this.groupOf.set(one.spec, group);
@@ -130,9 +145,7 @@ export class SuiteIndex {
     this.specs.delete(id);
     for (const entry of this.held.get(id) ?? []) unlink(this.holdersOf, entry.key, id);
     this.held.delete(id);
-    const here = this.heads.get(one.path);
-    here?.delete(id);
-    if (here?.size === 0) this.heads.delete(one.path);
+    if (isDeclared(one, this.declared)) this.leave(one);
     const group = this.groupOf.get(id);
     if (group !== undefined) {
       unlink(this.groups, group, id);
@@ -259,34 +272,73 @@ export class SuiteIndex {
     return lost;
   }
 
-  /** The twin obligations of a path and axis that the change set would leave with no pair. */
+  /**
+   * The twin obligations of a path and axis that the change set would leave with no pair. Only the walks a changed
+   * spec leaves or joins are searched, and a spec whose path, walk, channel and persona stay as they were is not.
+   */
   private twinsLost(changed: ReadonlyMap<string, SuiteChange>): string[] {
-    const twin = this.rulings.obligations.find((kind): kind is TwinKind => kind.id === 'twin');
-    if (twin === undefined) return [];
-    const paths = new Set<string>();
+    if (this.twin === undefined) return [];
+    const moved = new Set<string>();
+    const touched = new Set<string>();
     for (const [id, change] of changed) {
       const before = this.specs.get(id);
-      if (before !== undefined && isDeclared(before, this.declared)) paths.add(before.path);
-      if (change.after !== undefined && isDeclared(change.after, this.declared)) paths.add(change.after.path);
+      const after = change.after;
+      if (before !== undefined && after !== undefined && sameTwin(before, after, this.declared)) continue;
+      moved.add(id);
+      if (before !== undefined && isDeclared(before, this.declared)) touched.add(twinGroup(before));
+      if (after !== undefined && isDeclared(after, this.declared)) touched.add(twinGroup(after));
+    }
+    const delta = new Map<string, number>();
+    for (const walk of touched) {
+      const now = [...(this.walks.get(walk)?.values() ?? [])];
+      const next = now.filter((one) => !moved.has(one.spec));
+      for (const id of moved) {
+        const after = changed.get(id)?.after;
+        if (after === undefined || !isDeclared(after, this.declared)) continue;
+        if (twinGroup(after) === walk) next.push(after);
+      }
+      for (const [key, list] of twinPairs(now, this.declared, this.rulings)) {
+        delta.set(key, (delta.get(key) ?? 0) - list.length);
+      }
+      for (const [key, list] of twinPairs(next, this.declared, this.rulings)) {
+        delta.set(key, (delta.get(key) ?? 0) + list.length);
+      }
     }
     const lost: string[] = [];
-    for (const path of paths) {
-      const now = [...(this.heads.get(path)?.values() ?? [])];
-      const next = now.filter((one) => !changed.has(one.spec));
-      for (const change of changed.values()) {
-        const after = change.after;
-        if (after !== undefined && after.path === path && isDeclared(after, this.declared)) next.push(after);
-      }
-      const was = twinPairs(now, this.declared, this.rulings);
-      const will = twinPairs(next, this.declared, this.rulings);
-      for (const axis of twin.axes) {
-        const key = `${path}|${axis}`;
-        const pairsBefore = was.get(key)?.length ?? 0;
-        const pairsAfter = will.get(key)?.length ?? 0;
-        if (pairsBefore > 0 && pairsAfter === 0) lost.push(`twin|${key}`);
-      }
+    for (const [key, change] of delta) {
+      const held = this.pairs.get(key) ?? 0;
+      if (held > 0 && held + change === 0) lost.push(`twin|${key}`);
     }
-    return lost;
+    return lost.sort();
+  }
+
+  /** A declared spec joins the walk it writes, and pairs with the twins already there. */
+  private join(one: ObligationSpec): void {
+    const key = twinGroup(one);
+    const here = this.walks.get(key) ?? new Map<string, ObligationSpec>();
+    for (const other of here.values()) this.count(one, other, 1);
+    here.set(one.spec, one);
+    this.walks.set(key, here);
+  }
+
+  /** A declared spec leaves its walk, and the pairs it made go with it. */
+  private leave(one: ObligationSpec): void {
+    const key = twinGroup(one);
+    const here = this.walks.get(key);
+    if (here === undefined) return;
+    here.delete(one.spec);
+    for (const other of here.values()) this.count(one, other, -1);
+    if (here.size === 0) this.walks.delete(key);
+  }
+
+  private count(one: ObligationSpec, other: ObligationSpec, step: number): void {
+    if (this.twin === undefined) return;
+    for (const axis of twinAxes(one, other, this.declared, this.twin)) {
+      const key = `${one.path}|${axis}`;
+      const held = (this.pairs.get(key) ?? 0) + step;
+      if (held === 0) this.pairs.delete(key);
+      else this.pairs.set(key, held);
+    }
   }
 
   /** The validity rules that a dropped spec or a changed shape breaks on its own. */

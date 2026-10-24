@@ -287,7 +287,7 @@ estate-map.yaml: estate at examples/estates/fixture, 47 atoms.
 
 **If it goes wrong.**
 
-- `Cannot find the estate folder <folder>.` with exit 2: the folder does not exist. Check the path.
+- `Cannot find the estate folder <folder> that <map> names (root: <root>).` with exit 2, and a `Fix:` line: the root the map records names no folder from where the map is. Scan again from the folder where the map lives, or set `root:` in the map to the estate folder, written relative to the map file.
 
 ## 8. Radius: rerun only what a change can affect
 
