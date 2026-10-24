@@ -705,3 +705,25 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
+
+  frame-cost-profile:
+    name: frame cost profile
+    if: github.event_name == 'workflow_dispatch' && inputs.jobs == 'frame-cost-profile'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Profile whole stats seed at the unoptimized base
+        run: pnpm exec vitest run packages/cli/test/validate.test.ts -t "prints the stats brief" 2>&1 | tee frame-profile.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frame-profile
+          path: frame-profile.log

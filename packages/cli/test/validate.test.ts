@@ -738,7 +738,7 @@ describe('driftbench validate through main', () => {
   }, 60_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
-    const result = await run(['validate', 'stats', '--brief', '--fresh', '--levels', '1..1']);
+    const result = await run(['validate', 'stats', '--brief', '--fresh']);
     expect(result.code).toBe(0);
     expect(result.out).toContain('# Brief: validator stats (fresh)');
     expect(result.out).toContain(

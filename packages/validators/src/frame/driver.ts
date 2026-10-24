@@ -45,6 +45,9 @@ function fill(template: string, name: (key: string) => string): string {
 
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
+const «profileNow» = performance.now.bind(performance);
+const «profileTimes» = {};
+const «profiled» = («label», «fn») => (...«args») => { const «startTime» = «profileNow»(); try { return «fn»(...«args»); } finally { «profileTimes»[«label»] = («profileTimes»[«label»] || 0) + «profileNow»() - «startTime»; } };
 const «open» = '$';
 // Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
 // inputs"): a write to an argument, a permanent one or one put back before the call returns, throws in the product.
@@ -54,22 +57,23 @@ const «keysOf» = Reflect.ownKeys;
 const «descOf» = Reflect.getOwnPropertyDescriptor;
 const «isFrozenIt» = Object.isFrozen;
 const «isViewIt» = ArrayBuffer.isView;
-function «deepFreeze»(«x») {
+function «deepFreezeCore»(«x») {
   if («x» === null || typeof «x» !== 'object' || «isFrozenIt»(«x»)) return «x»;
   if («isViewIt»(«x»)) return «x»;
   «freezeIt»(«x»);
   const «ks» = «keysOf»(«x»);
   for (let «i» = 0; «i» < «ks».length; «i» += 1) {
     const «d» = «descOf»(«x», «ks»[«i»]);
-    if («d» && 'value' in «d») «deepFreeze»(«d».value);
+    if («d» && 'value' in «d») «deepFreezeCore»(«d».value);
   }
   return «x»;
 }
+const «deepFreeze» = «profiled»('deepFreeze', «deepFreezeCore»);
 let «counter» = 0;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
-function «encode»(«value», «seen» = new WeakSet()) {
+function «encodeCore»(«value», «seen» = new WeakSet()) {
   if («value» === null) return null;
   switch (typeof «value») {
     case 'string': case 'boolean': return «value»;
@@ -82,8 +86,8 @@ function «encode»(«value», «seen» = new WeakSet()) {
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
   try {
-    if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encode»(«k», «seen»), «encode»(«v», «seen»)]) };
-    if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encode»(«v», «seen»)) };
+    if («value» instanceof Map) return { $map: [...«value».entries()].map(([«k», «v»]) => [«encodeCore»(«k», «seen»), «encodeCore»(«v», «seen»)]) };
+    if («value» instanceof Set) return { $set: [...«value».values()].map((«v») => «encodeCore»(«v», «seen»)) };
     if («value» instanceof Error) {
       const «err» = { name: «value».name, message: «value».message };
       const «klass» = [RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError].find((«c») => «value» instanceof «c»);
@@ -91,23 +95,24 @@ function «encode»(«value», «seen» = new WeakSet()) {
       if (typeof «value».code === 'string' || typeof «value».code === 'number') «err».code = «value».code;
       return { $err: «err» };
     }
-    if (Array.isArray(«value»)) return «value».map((«v») => «encode»(«v», «seen»));
+    if (Array.isArray(«value»)) return «value».map((«v») => «encodeCore»(«v», «seen»));
     if («value» instanceof Date) return { $date: «value».toISOString() };
     if (ArrayBuffer.isView(«value»)) return { $bytes: [...new Uint8Array(«value».buffer, «value».byteOffset, «value».byteLength)] };
     const «proto» = Object.getPrototypeOf(«value»);
     if («proto» !== Object.prototype && «proto» !== null) return { $opaque: («proto» && «proto».constructor && «proto».constructor.name) || 'object' };
-    return Object.fromEntries(Object.entries(«value»).map(([«k», «v»]) => [«esc»(«k»), «encode»(«v», «seen»)]));
+    return Object.fromEntries(Object.entries(«value»).map(([«k», «v»]) => [«esc»(«k»), «encodeCore»(«v», «seen»)]));
   } finally {
     «seen».delete(«value»);
   }
 }
-function «decode»(«x») {
+const «encode» = «profiled»('encode', «encodeCore»);
+function «decodeCore»(«x») {
   if («x» === null || typeof «x» !== 'object') return «x»;
   if (Array.isArray(«x»)) return «x».map(«decode»);
   if ('$n' in «x») return «x».$n === '-0' ? -0 : Number(«x».$n);
   if ('$u' in «x») return undefined;
   if ('$big' in «x») return BigInt(«x».$big);
-  if ('$map' in «x») return new Map(«x».$map.map(([«k», «v»]) => [«decode»(«k»), «decode»(«v»)]));
+  if ('$map' in «x») return new Map(«x».$map.map(([«k», «v»]) => [«decodeCore»(«k»), «decodeCore»(«v»)]));
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
@@ -120,8 +125,9 @@ function «decode»(«x») {
     if («x».$err.code !== undefined) «e».code = «x».$err.code;
     return «e»;
   }
-  return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
+  return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decodeCore»(«v»)]));
 }
+const «decode» = «profiled»('decode', «decodeCore»);
 `;
 
 const TWIN = String.raw`
@@ -229,7 +235,7 @@ if («setup».uptimeShift > 0) {
 // property of a container, a descriptor flag, the prototype, extensibility). A change in the OTHER digest is a change
 // the frame cannot reproduce.
 let «sawInvalid» = false;
-const «scan» = («root», «prior») => {
+const «scanCore» = («root», «prior») => {
   // The objects met in this scan, by the order they were first met, up to a cap (the arguments of the scale items hold
   // millions of rows, and a map of them costs more than the scan).
   const «known» = new Map();
@@ -455,6 +461,7 @@ const «scan» = («root», «prior») => {
   «otherFlush»();
   return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']), known: «known» };
 };
+const «scan» = «profiled»('scan', «scanCore»);
 const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
   return «parts».data + «parts».other;
@@ -632,7 +639,7 @@ if («setup».command) {
     return undefined;
   };
   // The first built-in object the product changed since it was recorded, by its path, or undefined.
-  const «builtinChange» = () => {
+  const «builtinChangeCore» = () => {
     for (let «r» = 1; «r» < «builtins».length; «r» += 1) {
       const «change» = «changeOf»(«builtins»[«r»]);
       if («change» !== undefined) return «change»;
@@ -641,6 +648,7 @@ if («setup».command) {
   };
   // The change reported with each answer: every call after the change reports it, as every later call in the
   // caller's process would run with it.
+  const «builtinChange» = «profiled»('builtins', «builtinChangeCore»);
   const «altered» = () => {
     const «change» = «builtinChange»();
     return «change» === undefined ? {} : { altered: «change» };
@@ -654,6 +662,7 @@ if («setup».command) {
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
+    if («request».id % 1000 === 0) process.stderr.write('FRAME_PROFILE ' + «setup».tag + ' call=' + «request».id + ' ' + «stringify»(«profileTimes») + '\n');
     const «handle» = «request».call.startsWith('#');
     const «fn» = «handle»
       ? «handles».get(Number(«request».call.slice(1)))
@@ -865,7 +874,7 @@ const runs = plans.map((plan) => {
   });
   const run = { plan, child, waiting: [], stderr: '', exited: undefined };
   trace('spawned run ' + plan.run);
-  child.stderr.on('data', (chunk) => { run.stderr = (run.stderr + chunk).slice(-4000); });
+  child.stderr.on('data', (chunk) => { process.stderr.write(chunk); run.stderr = (run.stderr + chunk).slice(-4000); });
   child.on('exit', (code, sig) => {
     trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
