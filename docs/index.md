@@ -86,6 +86,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [anthropic](adapters/anthropic.md): an agent loop on the Anthropic Messages API.
 * [google](adapters/google.md): an agent on the Gemini API, through `@google/genai`.
 * [langgraph](adapters/langgraph.md): a LangGraph graph.
+* [Static Python agent sources](adapters/python-agent.md): read declared prompts and helpers without executing Python.
 * [crewai](adapters/crewai.md): a CrewAI crew, in a Python process or deployed on CrewAI AMP.
 * [vercel-ai](adapters/vercel-ai.md): an agent run by the Vercel AI SDK's `generateText`.
 * [pydantic-ai](adapters/pydantic-ai.md): a Pydantic AI agent in a Python process.
