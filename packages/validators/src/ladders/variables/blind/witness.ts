@@ -220,12 +220,13 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
       run(ctx) {
         const zeroOf = ctx.rng.int(8, 40);
         const [lo, hi] = callInterval(ctx, 0, zeroOf);
-        const [wl, wh] = wilson(0, zeroOf);
-        check(Math.abs(lo - wl) < 1e-6 && Math.abs(hi - wh) < 1e-6, () => ({
+        const [, wh] = wilson(0, zeroOf);
+        // The lower end of the interval of no success is zero, to 1e-9 as it always was; the upper end is the Wilson bound.
+        check(Math.abs(lo) < 1e-9 && Math.abs(hi - wh) < 1e-6, () => ({
           rule: 'the witness interval of no success is the Wilson interval',
           input: { total: zeroOf },
           got: { interval: [lo, hi] },
-          expected: { interval: [wl, wh] },
+          expected: { interval: [0, wh] },
         }));
         const total = ctx.rng.int(40, 400);
         const count = ctx.rng.int(Math.ceil(total * 0.2), Math.floor(total * 0.8));
