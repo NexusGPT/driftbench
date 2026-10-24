@@ -661,6 +661,38 @@ function markdownTokens(line: string): {
       codes.push({ start: from, end: to, tokenStart, tokenEnd: tokenStart + text.length, text });
       return;
     }
+    if (node.type === 'image' && line[from] === '!') {
+      // `![alt](destination "title")`: the destination is a path by its syntax, as a link's is; the description is not.
+      const head = /^!\[(?:\\.|[^\]\\])*\]\([ \t]*(<(?:\\.|[^<>\\\n])*>|[^\s()]+)/.exec(line.slice(from, to));
+      if (head?.[1]) {
+        const angle = head[1].startsWith('<');
+        links.push({
+          start: from,
+          end: to,
+          tokenStart: from + head[0].length - head[1].length + (angle ? 1 : 0),
+          tokenEnd: from + head[0].length - (angle ? 1 : 0),
+          text: (node as unknown as { url: string }).url,
+        });
+      }
+      return;
+    }
+    if (node.type === 'definition' && line[from] === '[') {
+      // `[label]: destination "title"`: the destination, bare or in angle brackets (which may hold spaces).
+      const head = /^\[(?:\\.|[^\]\\])*\]:[ \t]*(<(?:\\.|[^<>\\\n])*>|\S+)/.exec(line.slice(from, to));
+      if (head?.[1]) {
+        const angle = head[1].startsWith('<');
+        const tokenStart = from + head[0].length - head[1].length + (angle ? 1 : 0);
+        const tokenEnd = from + head[0].length - (angle ? 1 : 0);
+        links.push({
+          start: from,
+          end: to,
+          tokenStart,
+          tokenEnd,
+          text: (node as unknown as { url: string }).url,
+        });
+      }
+      return;
+    }
     if (node.type === 'link' && line[from] === '[') {
       const children = node.children ?? [];
       let i = children[children.length - 1]?.position?.end.offset ?? from + 1;
@@ -747,13 +779,14 @@ export function pathMentions(line: string, mentionOptions: PathMentionOptions = 
       .replace(/[#?].*$/, '')
       .replace(/:\d+(?::\d+)?$/, '');
     if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
-    // A token with no file extension is a path only by its syntax: a link destination, or a delimited token that
-    // holds a folder separator. It holds no space (a space with no extension is a phrase), is not a folder
-    // (a closing slash) and is not a dot segment.
+    // A token with no file extension is a path only by its syntax: a link destination (a definition's too), or a
+    // delimited token that holds a folder separator. It holds no space unless it is a link destination, which an
+    // angle bracket delimits (a space with no extension is otherwise a phrase), is not a folder (a closing slash)
+    // and is not a dot segment.
     const structural =
       mentionOptions.extensionless === true &&
       path !== '' &&
-      !/\s/.test(path) &&
+      (options.syntax === 'link' || !/\s/.test(path)) &&
       !path.endsWith('/') &&
       !/^\.{1,2}$/.test(path) &&
       (options.syntax === 'link' || path.includes('/'));
@@ -1032,6 +1065,7 @@ export function navigationNames(raw: RawEstate): Set<string> {
  * chunk, so the lines are kept per chunk and source; a caller reads them and never changes them.
  */
 const MASKED_PROSE = new WeakMap<EstateFile, string[]>();
+const BODY_LINES = new WeakMap<EstateFile, string[]>();
 const CHUNK_LINES = new WeakMap<
   ProseChunk,
   { source: EstateFile | undefined; lines: Array<{ line: number; text: string; quote: string }> }
@@ -1047,25 +1081,39 @@ export function chunkLines(
   return lines;
 }
 
+/** The lines of a file with its frontmatter blanked, line numbers kept. Fenced blocks and comments are left in. */
+export function bodyLines(source: EstateFile): string[] {
+  let lines = BODY_LINES.get(source);
+  if (!lines) {
+    const body = ['skill', 'skill_file', 'subagent'].includes(source.kind)
+      ? readFrontmatter(source.text).bodyLine
+      : 1;
+    lines = source.text.split('\n').map((line, index) => (index < body - 1 ? '' : line));
+    BODY_LINES.set(source, lines);
+  }
+  return lines;
+}
+
+/** The lines of a file with its frontmatter, fenced blocks and HTML comments blanked, line numbers kept. */
+export function maskedFileLines(source: EstateFile): string[] {
+  let lines = MASKED_PROSE.get(source);
+  if (!lines) {
+    lines = blankFences(bodyLines(source).join('\n')).split('\n');
+    MASKED_PROSE.set(source, lines);
+  }
+  return lines;
+}
+
 function maskedChunkLines(
   chunk: ProseChunk,
   source?: EstateFile,
 ): Array<{ line: number; text: string; quote: string }> {
   let masked: string;
-  if (source) {
-    let lines = MASKED_PROSE.get(source);
-    if (!lines) {
-      const body = ['skill', 'skill_file', 'subagent'].includes(source.kind)
-        ? readFrontmatter(source.text).bodyLine
-        : 1;
-      const original = source.text.split('\n');
-      lines = blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')).split(
-        '\n',
-      );
-      MASKED_PROSE.set(source, lines);
-    }
-    masked = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n');
-  } else masked = blankFences(chunk.text);
+  if (source)
+    masked = maskedFileLines(source)
+      .slice(chunk.startLine - 1, chunk.endLine)
+      .join('\n');
+  else masked = blankFences(chunk.text);
   // The quote is the line as written in the file: masking never edits it.
   const original = source
     ? source.text.split('\n').slice(chunk.startLine - 1, chunk.endLine)
