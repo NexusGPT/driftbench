@@ -13,6 +13,7 @@ export {
   ESTATE_CONFIG,
   ignoreRule,
   registryCellsToLabel,
+  RenderedSettingsConflict,
   scriptOf,
   splitList,
 } from './claude-code';
@@ -115,6 +116,8 @@ export type EstateReaderOptions = {
   userSkills?: string;
   /** The registry-roles labels of the pointer reader, which the Claude Code reader uses to read a check registry. */
   registryRoles?: RegistryRolesInput;
+  /** A rendered copy of the settings, for an estate that does not store its settings file (the profile says where it stands). */
+  settings?: string;
 };
 
 const READERS = new Map<string, (options: EstateReaderOptions) => EstateReader>([

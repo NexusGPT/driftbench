@@ -7,6 +7,7 @@ import {
   type PartType,
   parseTypes,
   pathWithin,
+  renderedSettingsFile,
   type SkippedInput,
   type TypeSet,
   variablePrefix,
@@ -79,6 +80,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 
 /** The runtime profile this reader reads by: its layout, its part types, the variables. */
 const PROFILE = CLAUDE_CODE_PROFILE;
+/** The place a rendered copy of the settings stands in, when the profile takes one. */
+const RENDERED_SETTINGS = renderedSettingsFile(PROFILE);
 const LAYOUT = PROFILE.layout.root;
 /** The types the profile maps to a kind of the map, by that kind, in the profile's order. */
 const typesOfKind = (kind: string): PartType[] =>
@@ -168,7 +171,26 @@ export type ClaudeCodeReaderOptions = {
    * Without them a markdown registry table gives no row: no header word is read.
    */
   registryRoles?: RegistryRolesInput;
+  /**
+   * A rendered copy of the settings, for an estate whose install step writes them: the copy is read as the
+   * settings file of the place the profile gives it, when the estate holds no file there.
+   */
+  settings?: string;
 };
+
+/**
+ * The estate stores a file in the place a rendered copy of the settings was handed over for: two sources for one
+ * place. The reader refuses; the caller decides which one the scan is about.
+ */
+export class RenderedSettingsConflict extends Error {
+  readonly code = 'rendered-settings-conflict';
+  constructor(readonly place: string) {
+    super(
+      `the estate holds its own ${place}: scan it as it is, or scan a copy of the estate without that file`,
+    );
+    this.name = 'RenderedSettingsConflict';
+  }
+}
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
 
@@ -197,6 +219,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly userSkills: string | undefined;
   private readonly classifier: FileClassifier;
   private readonly registryRoles: RegistryRolesInput;
+  private readonly settings: string | undefined;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -208,6 +231,13 @@ export class ClaudeCodeReader implements EstateReader {
     this.userSkills = options.userSkills;
     this.classifier = options.classifier ?? PROFILE_CLASSIFIER;
     this.registryRoles = options.registryRoles ?? NO_REGISTRY_ROLES;
+    if (options.settings !== undefined) {
+      if (options.settings.trim() === '')
+        throw new RangeError('settings must name a file: an empty value names no rendered copy');
+      if (RENDERED_SETTINGS === undefined)
+        throw new RangeError(`the ${PROFILE.name} profile takes no rendered copy of the settings`);
+    }
+    this.settings = options.settings;
   }
 
   /**
@@ -224,7 +254,7 @@ export class ClaudeCodeReader implements EstateReader {
     const raw = await this.read(root);
     // The user-level skill layer is no part of the project: a copy of the project holds none of it.
     const rootReferences = [
-      ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
+      ...raw.files.filter((file) => file.layer !== 'user' && !file.rendered).map((file) => file.path),
       ...raw.notes
         .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
         .map((note) => note.file),
@@ -291,6 +321,21 @@ export class ClaudeCodeReader implements EstateReader {
         notes.push({ file: path, message: 'empty file: nothing to read' });
         files.push({ path, text, kind: 'other' });
       } else files.push({ path, text, ...this.classifier.classify(path, text) });
+    }
+    if (this.settings !== undefined && RENDERED_SETTINGS !== undefined) {
+      if (files.some((file) => file.path === RENDERED_SETTINGS))
+        throw new RenderedSettingsConflict(RENDERED_SETTINGS);
+      const text = (await readFile(this.settings, 'utf8')).replace(/^\uFEFF/, '');
+      if (text.trim() === '') {
+        notes.push({ file: RENDERED_SETTINGS, message: 'empty file: nothing to read' });
+        files.push({ path: RENDERED_SETTINGS, text, kind: 'other', rendered: true });
+      } else
+        files.push({
+          path: RENDERED_SETTINGS,
+          text,
+          ...this.classifier.classify(RENDERED_SETTINGS, text),
+          rendered: true,
+        });
     }
 
     for (const file of files)

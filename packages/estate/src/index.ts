@@ -244,6 +244,7 @@ export {
   type ReadNote,
   type RegistryRow,
   type RegistryTable,
+  RenderedSettingsConflict,
   RUNTIMES,
   readerFor,
   readFrontmatter,

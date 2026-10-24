@@ -2,6 +2,7 @@ import { check, ItemFailure, none } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import type { Row, VariablesImpl } from '../interface';
+import { wilson } from './families/weights';
 import { baseFile, copy, validateIssue, validateOk, variableOf } from './files';
 import {
   assertCovered,
@@ -15,6 +16,7 @@ import {
   spaceOf,
   valueIds,
 } from './kit';
+import { lex } from './lexicon';
 import { discover, type ToolSpec } from './scene';
 import { WITNESS_CAUSE } from './witness-causes';
 
@@ -36,24 +38,91 @@ type Name = keyof VariablesImpl;
  */
 export type Witness = { cause: string; run: (ctx: ItemContext) => void };
 
-const sentence = 'The witness sentence sits in its file.';
+/**
+ * The strings and the numbers a witness hands to the product are drawn from the item's own stream, as the items do
+ * (r4 cheater audit, cheat 5): a fixed store, a fixed quote and a fixed path let an empty implementation that answered them
+ * score every item that only the witness fails, on every seed. The shapes stay the same; the words and the numbers do not.
+ */
+
+/** The base store of the witness, with its agent, titles, value ids and reason drawn instead of the fixed ones. */
+function witnessFile(ctx: ItemContext) {
+  const base = baseFile(ctx);
+  const { store } = base;
+  const [agent, ...fresh] = names(ctx.rng, 60);
+  store.agent = `${agent}_desk`;
+  store.version = String(ctx.rng.int(1, 99));
+  const word = () => fresh.shift() as string;
+  const renamed = new Map<string, Map<string, string>>();
+  for (const variable of store.variables) {
+    variable.title = `${word()} ${word()}`;
+    // Deviation values are the classes the page names: they keep their ids.
+    if (variable.kind === 'deviation') continue;
+    const ids = new Map<string, string>();
+    for (const value of variable.values) {
+      const id = word();
+      ids.set(value.id, id);
+      value.id = id;
+      value.title = `Value ${word()}`;
+    }
+    renamed.set(variable.id, ids);
+    for (const boundary of variable.boundaries ?? []) {
+      boundary.holds = ids.get(boundary.holds) as string;
+      boundary.fails = ids.get(boundary.fails) as string;
+      boundary.edge = ids.get(boundary.edge) as string;
+    }
+  }
+  for (const constraint of store.constraints ?? []) {
+    for (const [variable, value] of Object.entries(constraint.forbid))
+      constraint.forbid[variable] = renamed.get(variable)?.get(value) ?? value;
+    constraint.reason = `Not offered: ${word()} ${word()}.`;
+  }
+  return base;
+}
+
+/** The quote and the file of the quotes witness, drawn once per witness. */
+type QuoteFixture = { path: string; sentence: string; absent: string; files: Record<string, string> };
+const quoteFixtures = new WeakMap<ItemContext, QuoteFixture>();
+function quoteFixture(ctx: ItemContext): QuoteFixture {
+  let fixture = quoteFixtures.get(ctx);
+  if (!fixture) {
+    const w = names(ctx.rng, 12);
+    const path = `${w[0]}/${w[1]}.md`;
+    const sentence = `The ${w[2]} ${w[3]} sits in its ${w[4]}.`;
+    fixture = {
+      path,
+      sentence,
+      absent: `A ${w[5]} ${w[6]} the file does not hold.`,
+      files: { [path]: `${w[7]}.\n${sentence}\n${w[8]}.` },
+    };
+    quoteFixtures.set(ctx, fixture);
+  }
+  return fixture;
+}
 const witnessQuote = (ctx: ItemContext, quote: string) => {
-  const { store } = baseFile(ctx);
+  const { store } = witnessFile(ctx);
   (variableOf(store, 2).values[0] as { provenance?: unknown[] }).provenance = [
-    { kind: 'quote', path: 'w/file.md', quote },
+    { kind: 'quote', path: quoteFixture(ctx).path, quote },
   ];
   return store;
 };
-const witnessFiles = { 'w/file.md': `Intro.\n${sentence}\nOutro.` };
+
+const binary = (ctx: ItemContext) => {
+  const ids = names(ctx.rng, ctx.rng.int(3, 5));
+  return {
+    ids,
+    store: (impossible: Array<[string, string, string, string]> = []) =>
+      makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })), impossible }),
+  };
+};
 
 export const WITNESSES: Record<Name, readonly Witness[]> = {
   validate: [
     {
       cause: WITNESS_CAUSE.validateDuplicateId,
       run(ctx) {
-        const good = baseFile(ctx);
+        const good = witnessFile(ctx);
         validateOk(ctx, good.store, 'the witness store');
-        const twice = baseFile(ctx);
+        const twice = witnessFile(ctx);
         variableOf(twice.store, 0).values[1] = copy(variableOf(twice.store, 0).values[0]) as never;
         validateIssue(ctx, twice.store, 'VARIABLES_DUPLICATE', 'variables.0.values.1.id');
       },
@@ -61,7 +130,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.validateNoAgent,
       run(ctx) {
-        const bare = baseFile(ctx);
+        const bare = witnessFile(ctx);
         delete (bare.store as Partial<typeof bare.store>).agent;
         validateIssue(ctx, bare.store, 'SCHEMA_INVALID_TYPE', 'agent');
       },
@@ -71,15 +140,15 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.quotesAbsent,
       run(ctx) {
-        check(callQuotes(ctx, witnessQuote(ctx, sentence), witnessFiles).errors.length === 0, () => ({
-          rule: 'the witness quote in its file was reported',
-          expected: none('observation'),
-        }));
-        const missing = callQuotes(
-          ctx,
-          witnessQuote(ctx, 'A sentence the file does not hold.'),
-          witnessFiles,
-        ).errors;
+        const fixture = quoteFixture(ctx);
+        check(
+          callQuotes(ctx, witnessQuote(ctx, fixture.sentence), fixture.files).errors.length === 0,
+          () => ({
+            rule: 'the witness quote in its file was reported',
+            expected: none('observation'),
+          }),
+        );
+        const missing = callQuotes(ctx, witnessQuote(ctx, fixture.absent), fixture.files).errors;
         check(missing.length === 1 && missing[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND', () => ({
           rule: 'the witness quote missing from its file was not reported',
           expected: none('observation'),
@@ -89,7 +158,7 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.quotesUnreadable,
       run(ctx) {
-        const gone = callQuotes(ctx, witnessQuote(ctx, sentence), {}).errors;
+        const gone = callQuotes(ctx, witnessQuote(ctx, quoteFixture(ctx).sentence), {}).errors;
         check(gone.length === 1 && gone[0]?.code === 'VARIABLES_SOURCE_UNREADABLE', () => ({
           rule: 'the witness quote with no file was not reported',
           expected: none('observation'),
@@ -101,17 +170,20 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.plan,
       run(ctx) {
-        const ids = names(ctx.rng, 3);
-        const store = makeStore({
-          vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })),
-          impossible: [[ids[0] as string, 'v0', ids[1] as string, 'v0']],
-        });
+        const { ids, store: build } = binary(ctx);
+        const [i, j] = ctx.rng.sample(
+          ids.map((_, k) => k),
+          2,
+        ) as [number, number];
+        const store = build([
+          [ids[i] as string, `v${ctx.rng.int(0, 1)}`, ids[j] as string, `v${ctx.rng.int(0, 1)}`],
+        ]);
         const plan = callPlan(ctx, store, { seed: ctx.seed });
         const space = spaceOf(store);
         assertRowsSound(space, plan, []);
         assertCovered(space, plan);
-        check(plan.rows.length >= 3, () => ({
-          rule: 'the witness plan has fewer than three rows for three binary axes',
+        check(plan.rows.length >= ids.length, () => ({
+          rule: 'the witness plan has fewer rows than binary axes',
           expected: none('observation'),
         }));
       },
@@ -121,21 +193,23 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.coverage,
       run(ctx) {
-        const ids = names(ctx.rng, 3);
-        const store = makeStore({ vars: ids.map((id) => ({ id, values: valueIds(2), shared: true })) });
+        const { ids, store: build } = binary(ctx);
+        const store = build();
         const group = [{ variables: ids, strength: 2 }];
+        // Every pair of axes has four combinations, and one row holds one of them for each pair.
+        const pairs = BigInt((ids.length * (ids.length - 1)) / 2);
         const none = callCoverage(ctx, store, [], group);
-        check(BigInt(none.allowed) === 12n && BigInt(none.covered) === 0n, () => ({
+        check(BigInt(none.allowed) === 4n * pairs && BigInt(none.covered) === 0n, () => ({
           rule: 'the witness counts are exact',
           got: { allowed: String(none.allowed), covered: String(none.covered) },
-          expected: { allowed: 12, covered: 0 },
+          expected: { allowed: String(4n * pairs), covered: 0 },
         }));
-        const row: Row = Object.fromEntries(ids.map((id) => [id, 'v0']));
+        const row: Row = Object.fromEntries(ids.map((id) => [id, `v${ctx.rng.int(0, 1)}`]));
         const one = callCoverage(ctx, store, [row], group);
-        check(BigInt(one.covered) === 3n, () => ({
+        check(BigInt(one.covered) === pairs, () => ({
           rule: 'the witness row holds the pairs it should',
           got: { covered: String(one.covered) },
-          expected: { covered: 3 },
+          expected: { covered: String(pairs) },
         }));
       },
     },
@@ -144,17 +218,25 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.weightInterval,
       run(ctx) {
-        const [lo, hi] = callInterval(ctx, 0, 10);
-        check(Math.abs(lo) < 1e-9 && Math.abs(hi - 0.2775) < 1e-3, () => ({
-          rule: 'the witness interval of N of N is [{}, {}]',
-          got: { details: [lo, hi] },
-          expected: none('observation'),
+        const zeroOf = ctx.rng.int(8, 40);
+        const [lo, hi] = callInterval(ctx, 0, zeroOf);
+        const [, wh] = wilson(0, zeroOf);
+        // The lower end of the interval of no success is zero, to 1e-9 as it always was; the upper end is the Wilson bound.
+        check(Math.abs(lo) < 1e-9 && Math.abs(hi - wh) < 1e-6, () => ({
+          rule: 'the witness interval of no success is the Wilson interval',
+          input: { total: zeroOf },
+          got: { interval: [lo, hi] },
+          expected: { interval: [0, wh] },
         }));
-        const [a, b] = callInterval(ctx, 50, 100);
-        check(a > 0.39 && a < 0.41 && b > 0.59 && b < 0.61, () => ({
-          rule: 'the witness interval of N of N is [{}, {}]',
-          got: { details: [a, b] },
-          expected: none('observation'),
+        const total = ctx.rng.int(40, 400);
+        const count = ctx.rng.int(Math.ceil(total * 0.2), Math.floor(total * 0.8));
+        const [a, b] = callInterval(ctx, count, total);
+        const [xl, xh] = wilson(count, total);
+        check(Math.abs(a - xl) < 1e-6 && Math.abs(b - xh) < 1e-6, () => ({
+          rule: 'the witness interval of a share between a fifth and four fifths is the Wilson interval',
+          input: { count, total },
+          got: { interval: [a, b] },
+          expected: { interval: [xl, xh] },
         }));
       },
     },
@@ -163,7 +245,11 @@ export const WITNESSES: Record<Name, readonly Witness[]> = {
     {
       cause: WITNESS_CAUSE.buildStore,
       run(ctx) {
-        const tool: ToolSpec = { tool: 'witness_tool', field: 'queue', values: ['alpha', 'beta'] };
+        const tool: ToolSpec = {
+          tool: lex('witness_tool'),
+          field: lex('queue'),
+          values: [lex('alpha'), lex('beta')],
+        };
         const d = discover(ctx, [tool]);
         const variable = d.store.variables.find((v) => v.id === d.ids[0]);
         check(variable?.values.length === 2, () => ({

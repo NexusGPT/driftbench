@@ -314,6 +314,12 @@ export const EstateMap = z.strictObject({
     })
     .optional()
     .describe('The recorded roles of the registry-table columns; later code-only reads use them again'),
+  settings: z
+    .literal(true)
+    .optional()
+    .describe(
+      'true when the scan read a rendered copy of the settings handed over beside the estate; lint then needs the file to read it again',
+    ),
   followedLinks: z
     .array(z.string().min(1))
     .optional()
