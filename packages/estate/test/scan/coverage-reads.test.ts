@@ -79,10 +79,26 @@ describe('what a read keeps out on purpose', () => {
   it('never reads a path the prose names behind the home folder, and lists it as skipped: home-not-mapped', async () => {
     // A guard script behind the home folder is the guard checks' (the MISSING_SCRIPT exemption, #1522).
     const raw = await new ClaudeCodeReader().read(
-      await estate({ 'CLAUDE.md': '# Rules\n\nRead `~/notes/policy.md` before a reply.\n' }),
+      await estate({
+        'CLAUDE.md': [
+          '# Rules',
+          '',
+          'Read `~/notes/policy.md` before a reply.',
+          "Read '~/notes/quoted.md' too.",
+          '@~/notes/tone.md',
+          '@$HOME/notes/style.md',
+          // Prose names no path behind a variable: this line is neither read nor listed.
+          'Read $HOME/notes/variable.md too.',
+          '',
+        ].join('\n'),
+      }),
     );
+    // Quotes in prose are punctuation, not a shell's: a quoted tilde in prose is a home path all the same.
     expect(raw.coverage?.skipped.filter((skip) => skip.reason === 'home-not-mapped')).toEqual([
+      { what: '$HOME/notes/style.md', reason: 'home-not-mapped' },
       { what: '~/notes/policy.md', reason: 'home-not-mapped' },
+      { what: '~/notes/quoted.md', reason: 'home-not-mapped' },
+      { what: '~/notes/tone.md', reason: 'home-not-mapped' },
     ]);
     expect(raw.files.map((file) => file.path)).toEqual(['CLAUDE.md']);
   });
