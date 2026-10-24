@@ -147,6 +147,8 @@ export {
   pointerScan,
   REASK_LIMIT,
   SPLIT_REASK_RUNS,
+  type SpanVote,
+  votedSpans,
   windowsOf,
 } from './scan';
 export {

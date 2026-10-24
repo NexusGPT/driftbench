@@ -481,7 +481,7 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
   const lines = [
     `  Pointer reader: ${describe}.`,
-    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
+    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and a span stands when more than half of the runs drew it` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
   const spend = newSpend();
@@ -504,6 +504,12 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
+  for (const vote of done.spanVotes) {
+    const drawn = vote.counts.map((entry) => `${entry.from}-${entry.to} ${entry.count}`).join(', ');
+    lines.push(
+      `    span vote: ${vote.path} unit ${vote.unit} (${vote.set}, ${vote.labeler}): ${vote.kind} drawn ${drawn} of ${vote.runs} runs; no majority, no span kept`,
+    );
+  }
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
   return lines;
