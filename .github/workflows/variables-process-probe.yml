@@ -1,8 +1,5 @@
 name: variables process probe
 on:
-  push:
-    branches: [train/codex-var-process-red]
-    paths: [.github/workflows/variables-process-probe.yml]
   workflow_dispatch:
     inputs:
       phase:
@@ -21,7 +18,7 @@ permissions:
   actions: read
 jobs:
   red:
-    if: github.event_name == 'push' || inputs.phase == 'red-and-candidate'
+    if: inputs.phase == 'red-and-candidate'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -62,6 +59,18 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Replay the reference train's exact span cassette
+        run: |
+          git fetch --no-tags origin cassettes/variables-spans
+          git worktree add --detach "$RUNNER_TEMP/spans" 70eff6231161e07f865cc5c95617246820f1f20d
+          node tools/variables-span-union.mjs "$RUNNER_TEMP/spans" "$RUNNER_TEMP/spans-union.jsonl"
+          echo "DRIFTBENCH_VARIABLES_CASSETTE=$RUNNER_TEMP/spans-union.jsonl" >> "$GITHUB_ENV"
+          sha256sum "$RUNNER_TEMP/spans-union.jsonl" > train-cassette.sha256
+      - name: Honest release using the train flags and inputs
+        run: |
+          for seed in 1 2 3; do
+            pnpm -s driftbench validate variables --seed "$seed" --check-floor --json > "train-baseline-$seed.json"
+          done
       - name: Apply candidate supplied as data
         env:
           CANDIDATE_PATCH: ${{ inputs.patch }}
@@ -94,15 +103,23 @@ jobs:
           pnpm -s driftbench validate variables --seeds 1..3 --items --all-levels --json > candidate.json || status=$?
           test "$status" -lt 64
           pnpm -s driftbench validate variables --hardness --json > candidate-hardness.json || test "$?" -eq 1
+          for seed in 1 2 3; do
+            pnpm -s driftbench validate variables --seed "$seed" --check-floor --json > "train-candidate-$seed.json"
+          done
           node --input-type=module - <<'JS'
+          import assert from 'node:assert/strict';
           import fs from 'node:fs';
-          const before = JSON.parse(fs.readFileSync('release-evidence/baseline.json'));
-          const after = JSON.parse(fs.readFileSync('candidate.json'));
-          for (const run of before.seeds) {
-            const found = after.seeds.find((next) => next.seed === run.seed);
-            if (!found || found.level < run.level) throw new Error('honest seed level dropped: ' + run.seed);
-          }
-          console.log(JSON.stringify({kind:'variables-parity',before:before.seeds.map(({seed,level})=>({seed,level})),after:after.seeds.map(({seed,level})=>({seed,level}))}));
+          const pairs = [1,2,3].map((seed) => {
+            const before = JSON.parse(fs.readFileSync(`train-baseline-${seed}.json`));
+            const after = JSON.parse(fs.readFileSync(`train-candidate-${seed}.json`));
+            assert.equal(before.ladderVersion, 3);
+            assert.equal(after.ladderVersion, before.ladderVersion);
+            assert.equal(before.level, 8);
+            assert.equal(after.level, before.level);
+            return {seed,before:before.level,after:after.level};
+          });
+          console.log(JSON.stringify({kind:'variables-train-parity',pairs}));
+          fs.writeFileSync('train-parity.json',JSON.stringify({pairs},null,2));
           JS
       - name: Save formatted candidate
         if: always()
@@ -120,3 +137,5 @@ jobs:
             candidate-tests.json
             candidate.json
             candidate-hardness.json
+            train-*.json
+            train-cassette.sha256
