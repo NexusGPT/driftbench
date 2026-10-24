@@ -487,6 +487,22 @@ const DEFECTS: Case[] = [
     },
   },
   {
+    key: 'no-model-missing-after-list-fence',
+    tier: 3,
+    title: 'a missing file named after a fenced block that a list item opens, read with no model',
+    noModel: true,
+    plant: (b) => {
+      skill(b, 'a', [
+        { text: '- ```text' },
+        { text: '  Read `references/example.md` first.' },
+        { text: '  ```' },
+        { text: '' },
+        { text: 'Then read `references/absent.md`.' },
+      ]);
+      return [{ code: 'MISSING_REFERENCE' }];
+    },
+  },
+  {
     key: 'no-model-missing-angle-destination',
     tier: 2,
     title:

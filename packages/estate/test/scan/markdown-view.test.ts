@@ -115,3 +115,69 @@ describe('scanImports', () => {
     expect(scanImports('@"quoted.md" and @', '@')).toEqual([]);
   });
 });
+
+describe('fenced blocks and comments are taken from the parse', () => {
+  it('blanks a fenced block opened on a list item line, an ordered item line, in a quote and in a nested item', () => {
+    expect(view('- ```text', '  `notes/a.md`', '  ```', 'after `notes/b.md`').lines).toEqual([
+      '',
+      '',
+      '',
+      'after `notes/b.md`',
+    ]);
+    expect(view('1. ~~~md', '   `notes/a.md`', '   ~~~', 'after').lines).toEqual(['', '', '', 'after']);
+    expect(view('> ```text', '> `notes/a.md`', '> ```', '', 'after').lines).toEqual([
+      '',
+      '',
+      '',
+      '',
+      'after',
+    ]);
+    expect(view('- outer', '  - ```text', '    `notes/a.md`', '    ```', 'after').lines.slice(1)).toEqual([
+      '',
+      '',
+      '',
+      'after',
+    ]);
+  });
+
+  it('keeps the text after a block whose closing fence is indented as its list item is', () => {
+    expect(view('- ```text', '  example', '  ```', '', 'after @x.md').imports('@')).toEqual([
+      { written: 'x.md', line: 5 },
+    ]);
+  });
+
+  it('blanks an HTML comment of one line, of several, mid-sentence and in a list item, and keeps the rest', () => {
+    expect(view('Before <!-- hidden `a.md` --> after `b.md`').lines[0]?.replace(/\s+/g, ' ')).toBe(
+      'Before after `b.md`',
+    );
+    expect(view('<!--', 'hidden `a.md`', '-->', 'kept `b.md`').lines.map((line) => line.trim())).toEqual([
+      '',
+      '',
+      '',
+      'kept `b.md`',
+    ]);
+    expect(view('- item <!-- hidden `a.md` --> kept `b.md`').lines[0]?.replace(/\s+/g, ' ')).toBe(
+      '- item kept `b.md`',
+    );
+    expect(view('<!-- one --> kept <!-- two --> `b.md`').lines[0]?.replace(/\s+/g, ' ')).toBe(' kept `b.md`');
+  });
+
+  it('keeps a comment shown in code: a code span holds it as text', () => {
+    expect(view('Write `<!-- x -->` literally.').lines).toEqual(['Write `<!-- x -->` literally.']);
+  });
+
+  it('reads an import in emphasis and in strong emphasis, and none in an image description', () => {
+    expect(
+      view('**@a.md** and _@b.md_')
+        .imports('@')
+        .map((found) => found.written),
+    ).toEqual(['a.md', 'b.md']);
+    expect(view('![see @c.md here](p.png)').imports('@')).toEqual([]);
+  });
+
+  it('ends a fenced block at the end of its list item: an unindented line is outside it, and a fence after it opens another', () => {
+    // CommonMark: `example` is not indented as the item is, so the item (and the block) ended before it.
+    expect(view('- ```text', 'example', '  ```', '', 'after @x.md').imports('@')).toEqual([]);
+    expect(view('- ```text', 'example `notes/a.md`', 'after').lines[1]).toBe('example `notes/a.md`');
+  });
+});

@@ -1,17 +1,19 @@
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
-import { maskedFileLines } from './code';
+import { bodyLines } from './code';
 import type { EstateFile, ProseChunk } from './reader';
-import { blankFences, linesOf } from './text';
+import { linesOf } from './text';
 
 /**
  * A document read as CommonMark reads it, once, for the readers that must not mistake a construct for text.
  * The line readers of the scan see one line at a time, so a code span that runs over two lines, an indented code
  * block, a definition and an image description look like prose to them. The view answers by the parse:
  *
- * - `lines`: the lines a path reader looks at: every line of an indented code block is blank, and a code span over
- *   several lines is one span on its first line (its other lines are blank); the line numbers stay. A path in a
- *   code block is an example, not a path.
+ * - `lines`: the lines a path reader looks at: every line of a code block is blank, fenced (whatever opens it: the
+ *   start of a line, a list item, a quote) or indented; so is every HTML comment; and a code span over several lines
+ *   is one span on its first line (its other lines are blank). The line numbers stay. A path in a code block is an
+ *   example, not a path. The document is taken as it stands, frontmatter apart: the parse decides where a block
+ *   begins and ends, so no line pattern can mistake a closing fence for an opening one.
  * - `texts`: the runs of text a person reads: text outside code, a definition, an image description and HTML. A link
  *   label is read; its destination is not text. An import (`@path`) is looked for here and nowhere else.
  */
@@ -46,6 +48,40 @@ function longestRun(text: string): number {
   return longest;
 }
 
+/**
+ * Blanks the HTML comments of an HTML node, with spaces, line numbers kept. A comment runs from `<!--` to the next
+ * `-->`, or to the end of the node when it never closes. The node's value has lost the prefixes of its containers (a
+ * quote's marker, a list item's indent), so each comment is found again in the line it stands on.
+ */
+function blankComments(lines: string[], value: string, start: { line: number; column: number }): void {
+  let open = false;
+  const count = value.split('\n').length;
+  for (let index = 0; index < count; index += 1) {
+    const at = start.line - 1 + index;
+    let line = lines[at];
+    if (line === undefined) break;
+    let cursor = index === 0 ? start.column - 1 : 0;
+    for (;;) {
+      let from = cursor;
+      if (!open) {
+        const opener = line.indexOf('<!--', cursor);
+        if (opener < 0) break;
+        open = true;
+        from = opener;
+        cursor = opener + 4;
+      }
+      const closer: number = line.indexOf('-->', cursor);
+      const stop: number = closer < 0 ? line.length : closer + 3;
+      line = line.slice(0, from) + ' '.repeat(stop - from) + line.slice(stop);
+      // An unclosed comment goes on in the next line of the node.
+      if (closer < 0) break;
+      open = false;
+      cursor = stop;
+    }
+    lines[at] = line;
+  }
+}
+
 export function markdownView(text: string): MarkdownView {
   const lines = text.split('\n');
   const texts: TextRun[] = [];
@@ -54,6 +90,10 @@ export function markdownView(text: string): MarkdownView {
     const end = node.position?.end;
     if (node.type === 'code' && start && end) {
       for (let at = start.line; at <= end.line; at += 1) lines[at - 1] = '';
+      return;
+    }
+    if (node.type === 'html' && start && end && node.value) {
+      blankComments(lines, node.value, start);
       return;
     }
     if (node.type === 'inlineCode' && start && end) {
@@ -134,11 +174,11 @@ export function scanImports(value: string, prefix: string): Array<{ written: str
 const FILE_VIEWS = new WeakMap<EstateFile, MarkdownView>();
 const CHUNK_VIEWS = new WeakMap<ProseChunk, MarkdownView>();
 
-/** The view of a file as the scan reads it: frontmatter, fenced blocks and HTML comments already blanked. */
+/** The view of a file as the scan reads it: its frontmatter blanked, the rest as it stands. */
 export function fileView(source: EstateFile): MarkdownView {
   let view = FILE_VIEWS.get(source);
   if (!view) {
-    view = markdownView(maskedFileLines(source).join('\n'));
+    view = markdownView(bodyLines(source).join('\n'));
     FILE_VIEWS.set(source, view);
   }
   return view;
@@ -147,7 +187,7 @@ export function fileView(source: EstateFile): MarkdownView {
 function chunkView(chunk: ProseChunk): MarkdownView {
   let view = CHUNK_VIEWS.get(chunk);
   if (!view) {
-    view = markdownView(blankFences(chunk.text));
+    view = markdownView(chunk.text);
     CHUNK_VIEWS.set(chunk, view);
   }
   return view;

@@ -38,6 +38,56 @@ const IMPORT_CONTEXTS: Context[] = [
   },
   { key: 'a table row', document: (m) => [`| case | ${m} |`], reads: true },
   { key: 'a lazy line after a paragraph', document: (m) => ['paragraph', `    lazy ${m}`], reads: true },
+  { key: 'strong emphasis around the import', document: (m) => [`**${m}**`], reads: true },
+  { key: 'emphasis around the import', document: (m) => [`_${m}_`], reads: true },
+  {
+    key: 'text after a fenced block opened on a list item line',
+    document: (m) => ['- ```text', '  example', '  ```', '', `Then ${m} stays read.`],
+    reads: true,
+  },
+  {
+    key: 'text after a fenced block opened on an ordered item line',
+    document: (m) => ['1. ~~~md', '   example', '   ~~~', '', `Then ${m} stays read.`],
+    reads: true,
+  },
+  {
+    key: 'text after a fenced block opened in a quote',
+    document: (m) => ['> ```text', '> example', '> ```', '', `Then ${m} stays read.`],
+    reads: true,
+  },
+  {
+    key: 'a line that starts with a comment, an HTML block',
+    document: (m) => [`<!-- hidden --> ${m}`],
+    reads: false,
+  },
+  {
+    key: 'text after a comment in a sentence',
+    document: (m) => [`Before <!-- hidden --> then ${m}`],
+    reads: true,
+  },
+  {
+    key: 'a fenced block opened on a list item line',
+    document: (m) => ['- ```text', `  ${m}`, '  ```'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened on an ordered item line',
+    document: (m) => ['1. ~~~md', `   ${m}`, '   ~~~'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened in a quote',
+    document: (m) => ['> ```text', `> ${m}`, '> ```'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened in a nested list item',
+    document: (m) => ['- outer', '  - ```text', `    ${m}`, '    ```'],
+    reads: false,
+  },
+  { key: 'a comment over several lines', document: (m) => ['<!--', m, '-->'], reads: false },
+  { key: 'a comment in a sentence', document: (m) => [`Before <!-- ${m} --> after`], reads: false },
+  { key: 'a comment in a list item', document: (m) => [`- item <!-- ${m} -->`], reads: false },
   { key: 'a code span', document: (m) => [`Write \`${m}\` as text.`], reads: false },
   { key: 'a double-backtick code span', document: (m) => [`Write \`\`${m}\`\` as text.`], reads: false },
   {
@@ -87,6 +137,49 @@ const PATH_CONTEXTS: Context[] = [
     reads: true,
   },
   { key: 'a lazy line after a paragraph', document: (p) => ['paragraph', `    lazy \`${p}\``], reads: true },
+  {
+    key: 'text after a fenced block opened on a list item line',
+    document: (p) => ['- ```text', '  example', '  ```', '', `Then read \`${p}\`.`],
+    reads: true,
+  },
+  {
+    key: 'text after a fenced block opened on an ordered item line',
+    document: (p) => ['1. ~~~md', '   example', '   ~~~', '', `Then read \`${p}\`.`],
+    reads: true,
+  },
+  {
+    key: 'text after a fenced block opened in a quote',
+    document: (p) => ['> ```text', '> example', '> ```', '', `Then read \`${p}\`.`],
+    reads: true,
+  },
+  {
+    key: 'text after a comment on the same line',
+    document: (p) => [`<!-- hidden --> read \`${p}\``],
+    reads: true,
+  },
+  {
+    key: 'a fenced block opened on a list item line',
+    document: (p) => ['- ```text', `  Read \`${p}\``, '  ```'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened on an ordered item line',
+    document: (p) => ['1. ~~~md', `   Read \`${p}\``, '   ~~~'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened in a quote',
+    document: (p) => ['> ```text', `> Read \`${p}\``, '> ```'],
+    reads: false,
+  },
+  {
+    key: 'a fenced block opened in a nested list item',
+    document: (p) => ['- outer', '  - ```text', `    Read \`${p}\``, '    ```'],
+    reads: false,
+  },
+  { key: 'an image description', document: (p) => [`![see ${p} here](picture.png)`], reads: false },
+  { key: 'a comment over several lines', document: (p) => ['<!--', `Read \`${p}\``, '-->'], reads: false },
+  { key: 'a comment in a sentence', document: (p) => [`Before <!-- read \`${p}\` --> after`], reads: false },
   {
     key: 'a code span over two lines, holding the path as a word',
     document: (p) => ['A `span of words', `${p} more words\` end.`],

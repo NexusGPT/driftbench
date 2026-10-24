@@ -1065,6 +1065,7 @@ export function navigationNames(raw: RawEstate): Set<string> {
  * chunk, so the lines are kept per chunk and source; a caller reads them and never changes them.
  */
 const MASKED_PROSE = new WeakMap<EstateFile, string[]>();
+const BODY_LINES = new WeakMap<EstateFile, string[]>();
 const CHUNK_LINES = new WeakMap<
   ProseChunk,
   { source: EstateFile | undefined; lines: Array<{ line: number; text: string; quote: string }> }
@@ -1080,15 +1081,24 @@ export function chunkLines(
   return lines;
 }
 
-/** The lines of a file with its frontmatter, fenced blocks and HTML comments blanked, line numbers kept. */
-export function maskedFileLines(source: EstateFile): string[] {
-  let lines = MASKED_PROSE.get(source);
+/** The lines of a file with its frontmatter blanked, line numbers kept. Fenced blocks and comments are left in. */
+export function bodyLines(source: EstateFile): string[] {
+  let lines = BODY_LINES.get(source);
   if (!lines) {
     const body = ['skill', 'skill_file', 'subagent'].includes(source.kind)
       ? readFrontmatter(source.text).bodyLine
       : 1;
-    const original = source.text.split('\n');
-    lines = blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')).split('\n');
+    lines = source.text.split('\n').map((line, index) => (index < body - 1 ? '' : line));
+    BODY_LINES.set(source, lines);
+  }
+  return lines;
+}
+
+/** The lines of a file with its frontmatter, fenced blocks and HTML comments blanked, line numbers kept. */
+export function maskedFileLines(source: EstateFile): string[] {
+  let lines = MASKED_PROSE.get(source);
+  if (!lines) {
+    lines = blankFences(bodyLines(source).join('\n')).split('\n');
     MASKED_PROSE.set(source, lines);
   }
   return lines;

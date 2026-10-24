@@ -327,6 +327,10 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   ],
   [/^lint\.clean\.no-model-fenced-example$/, 'close a fenced block as CommonMark does'],
   [
+    /^lint\.defect\.no-model-missing-after-list-fence$/,
+    'take a fenced block from the parse of the document, whatever opens it',
+  ],
+  [
     /^lint\.(defect|clean)\.no-model-(path-in-|missing-(definition|angle))/,
     'read a document as CommonMark reads it, not line by line',
   ],
