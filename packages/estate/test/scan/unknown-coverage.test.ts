@@ -117,16 +117,17 @@ describe('unknown counting', () => {
     for (const outcome of result.outcomes) expect(outcome.coverage.unknown, outcome.check).toEqual(UNKNOWN);
   });
 
-  it('is clean once a type covers every file, and names the checks with no input as not run', async () => {
+  it('has no unknown file once a type covers every file, and is not clean while a check did not run', async () => {
     const root = await estate({ ...FILES, '.claude/driftbench.estate.yaml': TYPES });
     const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     const result = lintEstate(map, raw);
     expect(result.unknown).toEqual([]);
-    expect(result.summary).toBe('clean');
+    // With no model no rule is read, so the rule check had no input: a lint is clean only when every check ran.
+    expect(result.summary).toBe('checks-not-run');
     expect(
       result.outcomes
         .filter((outcome) => outcome.status === 'not-run')
         .map((outcome) => [outcome.check, outcome.notRun]),
-    ).toContainEqual(['MISSING_REFERENCE', 'no-input']);
+    ).toEqual([['UNENFORCED', 'no-input']]);
   });
 });

@@ -515,6 +515,7 @@
       "FlowCoverage": "type",
       "FlowId": "value",
       "GATE_LIMIT": "value",
+      "GLOB_LIMITS": "value",
       "GUARD_INTERVENTIONS": "value",
       "GateCheck": "type",
       "GateViolation": "type",

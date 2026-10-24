@@ -29,12 +29,17 @@ describe('driftbench estate lint over no input', () => {
     expect(lint.out).not.toContain('Clean.');
   });
 
-  it('still prints Clean for an estate whose checks read files and found nothing', async () => {
+  it('is not clean when the checks that ran found nothing but others had no input, and names them', async () => {
     const root = await mkdtemp(join(tmpdir(), 'driftbench-lint-clean-'));
     await writeFile(join(root, 'CLAUDE.md'), '# Rules\n\nAnswer in English.\n');
     await run(['estate', 'scan', '.', '--no-model', '--out', 'map.yaml'], root);
     const lint = await run(['estate', 'lint', 'map.yaml'], root);
-    expect(lint.out).toContain('Clean.');
-    expect(lint.out).not.toContain('Not run');
+    // No guard, no registry and, with no model, no rule: those checks read nothing, so they did not run.
+    expect(lint.out).toContain(
+      '  not-run     UNENFORCED, UNANCHORED_GUARD, MISSING_SCRIPT, REGISTRY_ROW, REGISTRY_GUARD: no input to read.',
+    );
+    expect(lint.out).toContain('Not clean: 5 checks did not run.');
+    expect(lint.out).not.toContain('Clean.');
+    expect(lint.code).toBe(1);
   });
 });

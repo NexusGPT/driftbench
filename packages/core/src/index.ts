@@ -91,6 +91,7 @@ export {
   type FieldReadError,
   type FilePlace,
   folderHolding,
+  GLOB_LIMITS,
   type GlobError,
   type GlobResult,
   type JsonPathError,
