@@ -28,6 +28,7 @@ The settings file, `driftbench.estate.yaml`. Every key is optional.
 | `externals` | `estate scan` | folders outside the estate a path may name | `externals: [docs/]` |
 | `aliases` | `estate scan` | an alias and the folder it stands for | `aliases: { REF: .claude/skills/x/references }` |
 | `documents` | `estate scan` | a glob and the role of the documents it matches; it wins over the recorded label and over structure | `documents: { 'archive/**': archive, 'forms/*.md': template }` |
+| `types` | `estate scan`, `estate lint` | part types beside the runtime's own, in version 1 of the [types schema](estate-model.md); their globs are relative to this file's folder. A type covers its files, so they are not unknown; a document with a fault is refused whole, with a note | `types: { judge-request: { locate: checks/judges/*.request.json, aspects: [guards, informs], loaded: on-event } }` |
 | `scripts` | `estate unit` | the fixtures of each script the unit runner runs | `scripts: { .claude/guards/check.py: [{ args: [--dry-run], expect: { exitCode: 0 } }] }` |
 | `labels` | `estate scan --pointer` | the label sets: a file, or the sets inline | `labels: labels.yaml` |
 | `labeler` | `estate scan --pointer` | one labeler per class, `<class>:<client>`, never a model; without it, the default stack of both classes | `labeler: [system1:openai-decisions, system2:anthropic]` |
