@@ -148,7 +148,7 @@ driftbench estate build northwind, into build
 2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
 3. Map and plan: the plan holds 1417 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
 4. Approve the plan: approved all 1417 tests, as --yes says.
-5. Write the tests: 1417 tests written. 1270 are complete and 147 still wait for something (the report lists what).
+5. Write the tests: 1417 tests written. 1288 are complete and 129 still wait for something (the report lists what).
 ```
 
 **What you get.** The folder `build`, and a count of tests:
@@ -156,10 +156,10 @@ driftbench estate build northwind, into build
 ```text
 1. Read the estate: 116 atoms, 69 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
 3. Map and plan: the plan holds 1417 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
-5. Write the tests: 1417 tests written. 1270 are complete and 147 still wait for something (the report lists what).
+5. Write the tests: 1417 tests written. 1288 are complete and 129 still wait for something (the report lists what).
 ```
 
-Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1417 tests. 1270 are complete. The other 147 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
+Read it like this: the map holds 116 atoms. The **plan** is the list of situations to test. It is chosen so that every pair of situations meets at least once. A pair is a kind of question with a kind of session, say. The plan holds 1417 tests. 1288 are complete. The other 129 still wait for something, such as an answer to give or a recorded session. The report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
 
 **If it goes wrong.**
 
@@ -416,12 +416,12 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 
 ```text
 Blast radius of v1 to v2 (manifest 2a29f1ca4a6d): prompt:instruction.inbox-triager.never-answer-a-message-yourself-write.
-1235 specs, 1238 blocks.
-Mode F, free-running: 16 of 1238 blocks in the radius (16 direct, 0 forward), 1222 out. 16 of 1235 cells.
-  A cell reruns whole: 16 of 1238 blocks sent, 98.7% saved; 1219 of 1235 cells left to carry.
+1253 specs, 1256 blocks.
+Mode F, free-running: 16 of 1256 blocks in the radius (16 direct, 0 forward), 1240 out. 16 of 1253 cells.
+  A cell reruns whole: 16 of 1256 blocks sent, 98.7% saved; 1237 of 1253 cells left to carry.
 ```
 
-Of 1238 blocks, 16 can be reached by that sentence. The other 1222 are not run, which saves 98.7%. The 1235 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1417 tests also holds 35 static and unit tests that need no agent. It holds 147 incomplete tests that wait for something. Most live test files hold one block: 1235 files hold 1238 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1256 blocks, 16 can be reached by that sentence. The other 1240 are not run, which saves 98.7%. The 1253 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1417 tests also holds 35 static and unit tests that need no agent. It holds 129 incomplete tests that wait for something. Most live test files hold one block: 1253 files hold 1256 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:

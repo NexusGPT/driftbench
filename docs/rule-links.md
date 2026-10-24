@@ -36,8 +36,8 @@ The lines that matter:
 
 ```
 Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
-  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled (2 of them not decided: a vote lacked answers, and the next scan asks again); the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and a span stands when more than half of the runs drew it; 69 atoms; 30 notes (spans or links) were dropped, listed below.
-  Requests: 91 answered, 0 sent, 0 recorded.
+  Units: 138 in 11 files; 0 kept from the ledger, 215 labelled by this run (13 by system 1, 202 by system 2, 110 of them because the other labeler gave no opinion), 5 unlabeled (2 of them not decided: a vote lacked answers, and the next scan asks again); the runs of one labeler disagreed on 4 units; the runs drew the spans of 54 units differently, and a span stands when more than half of the runs drew it; 69 atoms; 39 notes (spans or links) were dropped, listed below.
+  Requests: 167 answered, 0 sent, 0 recorded.
 ```
 
 Code cut 11 prose files into 138 units. A labeler pointed at 134 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the inbox triager agent states (five of its fields):
@@ -73,7 +73,7 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated 
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1262 written by code, 0 recorded sessions, 8 with no ask.
+Asks of the complete specs: 0 approved phrases, 1280 written by code, 0 recorded sessions, 8 with no ask.
 Wrote 1448 files to generated.
 ```
 
@@ -154,19 +154,19 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of 708456f152fd to working (manifest cb088a5f76ff): prompt:instruction.inbox-triager.never-answer-a-message-yourself-write.
-1235 specs, 1238 blocks.
-Mode F, free-running: 16 of 1238 blocks in the radius (16 direct, 0 forward), 1222 out. 16 of 1235 cells.
-  A cell reruns whole: 16 of 1238 blocks sent, 98.7% saved; 1219 of 1235 cells left to carry.
+1253 specs, 1256 blocks.
+Mode F, free-running: 16 of 1256 blocks in the radius (16 direct, 0 forward), 1240 out. 16 of 1253 cells.
+  A cell reruns whole: 16 of 1256 blocks sent, 98.7% saved; 1237 of 1253 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind agent sentence, Never answer a message yourself: write nothing to outbox/, with its ledger id nmsqgwccyc and its text hash changing from a868 to ce50. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0035, 0092, 0162, 0230, 0300 and 11 more, 16 of 1238 blocks, which rerun. The other 1222 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind agent sentence, Never answer a message yourself: write nothing to outbox/, with its ledger id nmsqgwccyc and its text hash changing from a868 to ce50. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0035, 0092, 0162, 0230, 0300 and 11 more, 16 of 1256 blocks, which rerun. The other 1240 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,222 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,240 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 `estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
 
@@ -180,12 +180,12 @@ The output below is the run of the full suite on the stand-in. The one line per 
 
 ```
 Blast radius of 708456f152fd to working (manifest cb088a5f76ff): prompt:instruction.inbox-triager.never-answer-a-message-yourself-write.
-16 of 1235 cells in the radius. 16 cells run fresh, 1219 carried from estate-run-c9a9ad82068d in before.db.
+16 of 1253 cells in the radius. 16 cells run fresh, 1237 carried from estate-run-77991892bb64 in before.db.
 ...
-16 specs run live on a stand-in and 1219 carried: 251 pass, 984 fail (172 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-683f5451ce59.
+16 specs run live on a stand-in and 1237 carried: 221 pass, 1032 fail (202 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-ea3cf65b96ad.
 ```
 
-Sixteen specs run and 1,219 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
+Sixteen specs run and 1,237 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
 
 ## 5. Prove a link by deleting its rule
 

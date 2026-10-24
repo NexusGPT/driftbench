@@ -842,7 +842,7 @@ Seed 1; custom checks the runner registers: absence, grounded_values, guard_fini
 Test type           rows  specs  complete  incomplete
 obligation           435    435       435           0
 outside_trigger       31     31        31           0
-twin                  31     31        30           1
+twin                  31     31        31           0
 ordered_pair         112    112       112           0
 skip_pressure          8      8         8           0
 route_positive       260    253       253           0
@@ -853,7 +853,7 @@ script_fixture         2      2         2           0
 dispatch              42     42        42           0
 contract_alone         3      3         3           0
 stop_resume            3      3         3           0
-guard_positive        84     84        84           0
+guard_positive        84     84        73          11
 guard_negative         6      6         4           2
 guard_hostile          6      6         6           0
 guard_speed            6      6         6           0
@@ -868,20 +868,20 @@ hazard_recovery        2      2         2           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1410      1404           6
+total                      1410      1394          16
 
-Asks of the complete specs: 399 approved phrases, 991 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 361 complete specs.
-Outcomes of the complete specs: 899 bank, 26 no-change:guard, 44 no-change:negative, 56 no-change:read-only, 371 no-delete, 8 static.
+Asks of the complete specs: 401 approved phrases, 979 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 437 complete specs.
+Outcomes of the complete specs: 902 bank, 26 no-change:guard, 44 no-change:negative, 56 no-change:read-only, 358 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
 Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
-Complete share: 99.57%; distinct asks: 113 in 1396 complete asked tests (8.09 per 100).
+Complete share: 98.87%; distinct asks: 108 in 1386 complete asked tests (7.79 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Missing pieces: 16 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          6 specs
+  needs-askable-act          16 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
 Wrote 1441 files to _captures/docs3/estate/generated.
 ```
