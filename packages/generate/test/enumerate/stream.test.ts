@@ -12,7 +12,8 @@ describe('generation to disk', () => {
     try {
       const map = zedPrepared();
       const options = { mapPath: 'map.yaml', seed: 5, t: 2 };
-      const eager = generate.generateSuite(map, options);
+      // The writer to disk holds one spec at a time and does not settle the tails (the report says so).
+      const eager = generate.generateSuite(map, { ...options, settle: false });
       const disk = await generate.generateSuiteToDisk(map, { ...options, outputDir: directory });
       expect(disk.summary).toEqual(eager.report.summary);
       expect(disk.fileCount).toBe(eager.files.length);
@@ -39,7 +40,7 @@ describe('generation to disk', () => {
     const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-paths-'));
     try {
       const options = { mapPath: 'approved.yaml', seed: 2, t: 2, max: 2 };
-      const eager = generate.generateSuite(loaded.prepared, options);
+      const eager = generate.generateSuite(loaded.prepared, { ...options, settle: false });
       expect(eager.complete.length).toBeGreaterThan(0);
       const disk = generate.generateSuiteToDisk(loaded.prepared, { ...options, outputDir: directory });
       expect(disk.summary).toEqual(eager.report.summary);

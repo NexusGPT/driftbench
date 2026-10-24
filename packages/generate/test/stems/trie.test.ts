@@ -91,7 +91,7 @@ describe('the stem finder', () => {
     expect({ blocks: all.rows.length, all: all.saved, withoutEndState: safe.saved }).toMatchInlineSnapshot(`
       {
         "all": 109,
-        "blocks": 1740,
+        "blocks": 1734,
         "withoutEndState": 4,
       }
     `);

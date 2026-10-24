@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T11:48:48.568Z
+readAt: 2026-10-23T15:45:06.741Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -3488,8 +3488,14 @@ edges:
   - { from: subagent.route-planner.helper-route-planner, to: skill.shipment-tracker.skill-shipment-tracker, kind: allows }
   - { from: subagent.route-planner.helper-route-planner, to: tool.invoice-reconcile.declared-bash, kind: allows }
   - { from: subagent.route-planner.helper-route-planner, to: tool.settings.allow-read, kind: allows }
+coverage:
+  covered: 26
+  unknown: []
+  skipped:
+    - what: driftbench.estate.yaml
+      reason: estate-config
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-11T00:00:00.000Z
+  at: 2026-10-23T15:45:06.741Z
 hash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
