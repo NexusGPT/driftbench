@@ -19,11 +19,15 @@ import {
   proseEstimateLine,
   proseInventory,
   proseInventoryLines,
+  type RawEstate,
+  RenderedSettingsConflict,
   RUNTIMES,
   readerFor,
   renderEstateMap,
+  resolveMapRoot,
   type ScanEstateResult,
   scanEstate,
+  summariseLint,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import {
@@ -42,6 +46,7 @@ import { registerEstateBuildCommand } from './estate-build';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
+import { LIST_LIMIT, limitOf, listLine, moreLine } from './estate-output';
 import { registerEstatePlanCommands } from './estate-plan';
 import { type EstatePointerOptions, openPointer, planLines, pointerLines } from './estate-pointer';
 import { registerEstateProveCommand } from './estate-prove';
@@ -49,12 +54,15 @@ import { registerEstateStaticCommand } from './estate-static';
 import { registerEstateStatsCommand } from './estate-stats';
 import { registerEstateUnitCommand } from './estate-unit';
 import { mapCacheOptions } from './map-cache';
+import { rootRefusal } from './map-root';
 
 export type EstateScanOptions = EstatePointerOptions & {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
   ignore?: string[];
   /** The folder of the user-level skill layer. Without it (or the configuration's `userSkills:`) none is read. */
   userSkills?: string;
+  /** A rendered copy of the settings, for an estate whose install step writes them. */
+  settings?: string;
   runtime?: string;
   out?: string;
   replay?: string;
@@ -63,6 +71,8 @@ export type EstateScanOptions = EstatePointerOptions & {
   provider?: string;
   force?: boolean;
   ceiling?: string;
+  /** List every item; by default long lists stop after the first few and say how many are left. */
+  verbose?: boolean;
 };
 
 /** The folder `--user-skills` names: relative to where the command was typed, `~` left for the reader to expand. */
@@ -76,6 +86,28 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   io.err('error: --user-skills needs a folder, not an empty value\n');
   return false;
 }
+
+/** The path a `--settings` value names, or false with the error written when it is empty or not a file. */
+async function settingsGiven(value: string | undefined, io: Io): Promise<string | undefined | false> {
+  if (value === undefined) return undefined;
+  if (value.trim() === '') {
+    io.err('error: --settings needs a file, not an empty value\n');
+    return false;
+  }
+  const file = resolve(io.cwd, value);
+  if (!(await exists(file))) {
+    io.err(`Cannot find the settings file ${show(file, io)}.\n`);
+    return false;
+  }
+  return file;
+}
+
+const SETTINGS_FLAG = '--settings <file>';
+const SETTINGS_HELP =
+  'read this rendered copy of the settings, for an estate whose install step writes them and so does not store them; refused when the estate stores a file of that place';
+
+const VERBOSE_FLAG = '--verbose';
+const VERBOSE_HELP = `list every item; by default a long list stops after the first ${LIST_LIMIT} and says how many are left`;
 
 const USER_SKILLS_FLAG = '--user-skills <folder>';
 const USER_SKILLS_HELP =
@@ -113,6 +145,8 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
+    .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .option(
       '--pointer',
@@ -177,9 +211,27 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
-    .action(async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string }) => {
-      setExit(await estateLintCommand(path, options, io));
-    });
+    .option(SETTINGS_FLAG, SETTINGS_HELP)
+    .option(VERBOSE_FLAG, VERBOSE_HELP)
+    .option(
+      '--json',
+      'print the findings and their totals as JSON: per code the total, the number shown and the number omitted',
+    )
+    .action(
+      async (
+        path: string,
+        options: {
+          ceiling?: string;
+          ignore?: string[];
+          userSkills?: string;
+          settings?: string;
+          verbose?: boolean;
+          json?: boolean;
+        },
+      ) => {
+        setExit(await estateLintCommand(path, options, io));
+      },
+    );
 
   estate
     .command('approve')
@@ -233,9 +285,12 @@ export async function estateScanCommand(
   }
   const runtime = options.runtime ?? 'claude-code';
   if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return 2;
   const reader = readerFor(runtime, {
     ignore: options.ignore ?? [],
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
@@ -344,10 +399,14 @@ export async function estateScanCommand(
       io.err(`${cause.message}\n`);
       return 2;
     }
+    if (cause instanceof RenderedSettingsConflict) {
+      io.err(`error: --settings: ${cause.message}\n`);
+      return 2;
+    }
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
-  io.out(scanReport(result, out, io, handle?.describe, prices));
+  io.out(scanReport(result, out, io, handle?.describe, prices, limitOf(options.verbose)));
   deps.onScan?.(result, prices);
   const closing = handle ? await handle.finish(result) : 0;
   if (closing === 2) return 2;
@@ -378,6 +437,7 @@ function scanReport(
   io: Io,
   describe = '',
   prices?: TokenPrices,
+  limit?: number,
 ): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
@@ -394,7 +454,13 @@ function scanReport(
       `    ${kind.padEnd(width)}  ${String(atoms.length).padStart(3)}${model > 0 ? `  (${model} by the model)` : ''}`,
     );
   }
-  const prose = proseInventoryLines(proseInventory(result.raw), result.chunks.length > 0 || !!result.pointer);
+  const prose = proseInventoryLines(
+    proseInventory(result.raw),
+    result.chunks.length > 0 || !!result.pointer,
+    {
+      ...(limit !== undefined ? { limit } : {}),
+    },
+  );
   if (result.pointer) {
     lines.push(...prose, ...pointerLines(result, describe, prices));
   } else if (result.chunks.length === 0)
@@ -423,6 +489,20 @@ function scanReport(
   for (const note of result.raw.notes.filter((note) => note.message.startsWith('Ambiguous routing table')))
     lines.push(`  ${note.file}: ${note.message}`);
   lines.push(...ignoredLines(result));
+  if (!result.raw.files.some((file) => file.kind === 'settings')) {
+    const guards = result.raw.guards.length;
+    if (guards > 0) {
+      lines.push(
+        `  Settings: none read; ${guards} ${plural(guards, 'guard was', 'guards were')} read from other sources.`,
+        '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
+      );
+    } else {
+      lines.push(
+        '  Settings: none read, so no guard was read and the checks that compare the registry with the guards do not run.',
+        '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
+      );
+    }
+  }
   const layer = result.raw.userLayer;
   if (layer && layer.read.length + layer.shadowed.length > 0) {
     lines.push(
@@ -435,11 +515,22 @@ function scanReport(
       `  External: ${external.length} named ${plural(external.length, 'path', 'paths')} outside the estate (information, not a finding).`,
     );
   }
-  lines.push(listLine('Orphans', analysis.orphans));
-  lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles));
+  lines.push(listLine('Orphans', analysis.orphans, limit));
+  lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles, limit));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
   lines.push(`  Unenforced: ${analysis.unenforced.length} of ${rules} rules have no guard.`);
-  for (const id of analysis.unenforced) lines.push(`    ${id}`);
+  for (const id of limit === undefined ? analysis.unenforced : analysis.unenforced.slice(0, limit))
+    lines.push(`    ${id}`);
+  if (limit !== undefined && analysis.unenforced.length > limit)
+    lines.push(`    ${moreLine(analysis.unenforced.length - limit)}`);
+  const unanswered = result.chunks.length === 0 && !result.pointer ? result.raw.prose.length : 0;
+  if (
+    limit !== undefined &&
+    [analysis.orphans.length, analysis.unreachableFiles.length, analysis.unenforced.length, unanswered].some(
+      (count) => count > limit,
+    )
+  )
+    lines.push('  Lists stop after the first items: add --verbose to list every one.');
   lines.push(
     `Next: driftbench estate lint ${show(out, io)}; driftbench estate approve ${show(out, io)} --kind instruction`,
     '',
@@ -455,7 +546,14 @@ export type LintRun =
 /** Reads a map and the estate it names, and lints them. The command prints it; `estate build` reads its counts. */
 export async function lintMap(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string },
+  options: {
+    ceiling?: string;
+    ignore?: string[];
+    userSkills?: string;
+    settings?: string;
+    verbose?: boolean;
+    json?: boolean;
+  },
   io: Io,
 ): Promise<LintRun> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -473,21 +571,38 @@ export async function lintMap(
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
   if (!(await userSkillsGiven(options.userSkills, io))) return { ok: false, code: 2 };
+  const settings = await settingsGiven(options.settings, io);
+  if (settings === false) return { ok: false, code: 2 };
+  if (loaded.map.settings === true && settings === undefined) {
+    io.err(
+      'The map was scanned with a rendered copy of the settings: pass --settings <file> so lint reads it again.\n',
+    );
+    return { ok: false, code: 2 };
+  }
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
     return { ok: false, code: 2 };
   }
-  const root = resolve(dirname(file), loaded.map.root);
-  if (!(await isFolder(root))) {
-    io.err(`Cannot find the estate folder ${show(root, io)} the map names.\n`);
+  const located = await resolveMapRoot(file, loaded.map);
+  if (!located.ok) {
+    io.err(rootRefusal(file, located, io));
     return { ok: false, code: 2 };
   }
-  const raw = await reader.read(root);
+  const root = located.root;
+  let raw: RawEstate;
+  try {
+    raw = await reader.read(root);
+  } catch (cause) {
+    if (!(cause instanceof RenderedSettingsConflict)) throw cause;
+    io.err(`error: --settings: ${cause.message}\n`);
+    return { ok: false, code: 2 };
+  }
   if (loaded.map.userSkills === true && raw.userLayer === undefined) {
     io.err(
       'The map was scanned with a user-level skill layer: pass --user-skills <folder> (or set userSkills in the estate configuration) so lint reads it again.\n',
@@ -506,16 +621,57 @@ export async function lintMap(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
   io: Io,
 ): Promise<number> {
   const run = await lintMap(path, options, io);
   if (!run.ok) return run.code;
   const { file, root, result } = run;
+  const found = result.findings.filter((finding) => !INFORMATION.has(finding.code));
+  const limit = limitOf(options.verbose);
+  const summary = summariseLint(found, limit === undefined ? {} : { limit });
+  if (options.json) {
+    // The cut is data: the findings shown, and per code the total, the number shown and the number omitted.
+    io.out(
+      `${JSON.stringify(
+        {
+          map: show(file, io),
+          root: show(root, io),
+          atoms: run.atoms,
+          failed: result.failed,
+          summary: result.summary,
+          notRun: result.summary === 'none-ran',
+          unknown: result.unknown.length,
+          findings: summary.shown,
+          totals: summary.totals,
+          // What each check covered: it ran or did not, how many inputs it read, how many it left out, what it lacked.
+          checks: result.outcomes.map((outcome) => ({
+            check: outcome.check,
+            status: outcome.status,
+            ...(outcome.notRun ? { notRun: outcome.notRun } : {}),
+            read: outcome.coverage.read,
+            skipped: outcome.coverage.skipped.length,
+            missing: outcome.coverage.missing,
+          })),
+          information: { UNENFORCED: result.counts.UNENFORCED, EXTERNAL: result.counts.EXTERNAL },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return result.failed ? 1 : 0;
+  }
   const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${run.atoms} atoms.`];
-  const shown = result.findings.filter((finding) => !INFORMATION.has(finding.code));
-  const width = Math.max(0, ...shown.map((finding) => finding.code.length));
-  for (const finding of shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
+  const width = Math.max(0, ...found.map((finding) => finding.code.length));
+  for (const finding of summary.shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
+  const cut = summary.totals.filter((entry) => entry.omitted > 0);
+  if (cut.length > 0) {
+    for (const entry of cut)
+      lines.push(`  ${entry.code.padEnd(width)}  ${moreLine(entry.omitted)} of ${entry.total}`);
+    lines.push(
+      `  Totals: ${summary.totals.map((entry) => `${entry.code} ${entry.total}`).join(', ')}. Lists stop after the first ${LIST_LIMIT} of a code: add --verbose to list every one.`,
+    );
+  }
   lines.push(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
@@ -540,7 +696,7 @@ export async function estateLintCommand(
   const unknown = result.unknown.length;
   lines.push(
     {
-      findings: `${shown.length} ${plural(shown.length, 'finding', 'findings')}.`,
+      findings: `${found.length} ${plural(found.length, 'finding', 'findings')}.`,
       'none-ran': 'Not run: no check had an input.',
       'unknown-files': `Not clean: ${unknown} ${plural(unknown, 'file', 'files')} no part type covers, which no check read.`,
       clean: 'Clean.',
@@ -661,10 +817,6 @@ export async function estateMapCommand(
     ].join('\n'),
   );
   return 0;
-}
-
-function listLine(title: string, items: readonly string[]): string {
-  return items.length === 0 ? `  ${title}: none.` : `  ${title}: ${items.join(', ')}.`;
 }
 
 function parseCeiling(value: string | undefined, io: Io): number | undefined {

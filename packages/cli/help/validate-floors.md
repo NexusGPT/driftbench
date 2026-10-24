@@ -27,10 +27,10 @@ Two commands use the floors:
 The floors at the time of writing, from `validate floors` at the repository root:
 
 ```text
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
+Floors (validators/floors.json): generator = 8 (ladder version 3), judges = 20 (ladder version 2), map = 8 (ladder version 2), pointer = 3 (ladder version 2), stats = 8 (ladder version 4), system = 9 (ladder version 5).
 ```
 
-`estate` and `generator` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
+`estate` and `variables` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
 registered judges ladder, and is enforced. The earlier floor of 7 belonged to ladder version 1; the file
 keeps it under `history.judges`, and it is not enforced. A run prints a line such as
 `The floor 7 belongs to ladder version 1; version 2 has no floor yet.` only when the file holds a floor for an

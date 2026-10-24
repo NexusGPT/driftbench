@@ -1,6 +1,6 @@
 ---
 title: Live estate runs and estate mutants
-summary: Run generated estate specs live through the runtime in a sandboxed copy of the estate, safely on a stand-in, and prove the tests can fail with estate mutants.
+summary: Run generated estate specs live through the runtime in a sandboxed copy of the estate, on a stand-in that costs nothing (and, with `--no-exec`, executes nothing of the estate), and prove the tests can fail with estate mutants.
 commands:
   - estate run
   - estate mutate
@@ -24,6 +24,14 @@ refuses an estate that drifted from it. `--states` plants session states and haz
 compaction, a dead helper) from a state library. `estate generate` writes `states/library.json` beside the specs
 with the states it can build without the estate's own content, and plans a row only for the states and events the
 library holds; a row that needs one the library lacks waits as `needs-state-operation`.
+
+A stand-in costs nothing but is not inert. It runs the estate's own guard commands and scripts through `/bin/sh`, in
+the sandbox copy, with your user rights. Run an estate you do not trust with `--no-exec`: the shipped stand-in then
+starts no command of the estate (no hook, no call it makes itself, no script step, no recorded program), and the run
+says in a note that it was told so. A hook starts and gets no answer; the run does not change what a check makes of a
+guard that gave no answer. Only a stand-in that carries the line `@driftbench-execution-policy` in its first lines
+keeps the policy; any other command, and a real runtime, which runs the estate's guards whatever the flags say, is
+refused (exit 2). No variable given with `--set-env` or `--pass-env` can undo the policy.
 
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
@@ -51,7 +59,7 @@ the linked blocks.
 
 ## When to use it
 
-* `estate run` with a stand-in: to check the runner, the specs and the checks with no cost.
+* `estate run` with a stand-in: to check the runner, the specs and the checks with no cost. The stand-in runs the guard commands of the estate; add `--no-exec` for an estate you do not trust.
 * `estate run` with the real runtime and `--allow-billed`: to test the agent itself. Size the run first: specs
   times repeats times the cost of one block; cap it with `--max-budget-usd` and `--max-turns`.
 * `estate mutate`: after generating a suite, to measure whether its tests catch the loss or the inversion of
@@ -62,7 +70,7 @@ the linked blocks.
 ## Commands and every option
 
 ```
-driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--no-exec] [--progress <file>] [--agent-version <label>] [--from <old store> --change <manifest> [--from-campaign <id>] [--max-carry <n>] [--max-age <days>]] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
 driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
@@ -92,6 +100,7 @@ driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <
 | `--trust-estate` | off | allow the tools the estate's settings allow, and Skill, as a trusted folder would |
 | `--config <where>` | `host`; `isolated` for a stand-in | the runtime's config folder: `host` (where the login lives) or `isolated` |
 | `--allow-billed` | off | run a command that is not a stand-in: a billed live run |
+| `--no-exec` | off | with a stand-in: run no command of the estate (no guard, no script). The run passes the stand-in the execution policy `none` (`DRIFTBENCH_EXECUTION=none`) and notes it. Exit 2 for a command that is not a stand-in that carries `@driftbench-execution-policy` |
 | `--progress <file>` | none | append one JSON line per finished spec, so a stopped batch keeps its finished runs |
 | `--agent-version <label>` | none | name the version of the estate this run measures (the `to` of a change manifest); the target becomes `claude-code:estate` with the label as its variant |
 | `--from <store>` | none | carry from an old store: a spec the radius of `--change` leaves alone keeps its stored result; needs `--change` and `--agent-version`; the old store is never written |

@@ -38,6 +38,8 @@ type Expected = {
   summary?: string;
   /** The checks that must not have run for want of an input, exactly. */
   notRun?: string[];
+  /** The checks that must not have run for want of a capability the run lacked, exactly. */
+  lacking?: string[];
   /** Checks that must have run. */
   ran?: string[];
 };
@@ -419,10 +421,9 @@ const CASES: Case[] = [
           'AMBIGUOUS_REFERENCE',
           'EXTERNAL',
           'MISSING_SCRIPT',
-          'REGISTRY_ROW',
-          'REGISTRY_GUARD',
           'QUOTE_DRIFT',
         ],
+        lacking: ['REGISTRY_ROW', 'REGISTRY_GUARD'],
       };
     },
   },
@@ -442,9 +443,8 @@ const CASES: Case[] = [
         'AMBIGUOUS_REFERENCE',
         'EXTERNAL',
         'MISSING_SCRIPT',
-        'REGISTRY_ROW',
-        'REGISTRY_GUARD',
       ],
+      lacking: ['REGISTRY_ROW', 'REGISTRY_GUARD'],
     }),
   },
   {
@@ -541,7 +541,7 @@ function compare(scan: ScanOutcome, expected: Expected): ItemResult {
     if (expected.summary !== undefined && lint.summary !== expected.summary)
       problems.push(`the lint summary is ${lint.summary}, not ${expected.summary}`);
   }
-  if (expected.notRun || expected.ran) {
+  if (expected.notRun || expected.ran || expected.lacking) {
     if (!Array.isArray(lint.outcomes)) problems.push('the lint has no outcomes');
     else {
       const notRun = lint.outcomes
@@ -550,6 +550,13 @@ function compare(scan: ScanOutcome, expected: Expected): ItemResult {
       if (expected.notRun && JSON.stringify(notRun) !== JSON.stringify(expected.notRun))
         problems.push(
           `the checks not run for want of input are ${JSON.stringify(notRun)}, not ${JSON.stringify(expected.notRun)}`,
+        );
+      const lacking = lint.outcomes
+        .filter((outcome) => outcome.status === 'not-run' && outcome.notRun === 'missing-capability')
+        .map((outcome) => String(outcome.check));
+      if (expected.lacking && JSON.stringify(lacking) !== JSON.stringify(expected.lacking))
+        problems.push(
+          `the checks not run for want of a capability are ${JSON.stringify(lacking)}, not ${JSON.stringify(expected.lacking)}`,
         );
       for (const check of expected.ran ?? []) {
         const outcome = lint.outcomes.find((candidate) => candidate.check === check);
