@@ -332,6 +332,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
       recordedRoles.offStates.length > 0)
       ? { registryRoles: recordedRoles }
       : {}),
+    ...(raw.coverage ? { coverage: raw.coverage } : {}),
     ...(input.pointer
       ? {
           producedBy: {

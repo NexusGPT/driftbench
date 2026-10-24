@@ -22,6 +22,8 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [EdgeKind](#edgekind)
 * [EstateMap registryRoles](#estatemap-registryroles)
 * [EstateMap registryRoles tables](#estatemap-registryroles-tables)
+* [EstateMap coverage](#estatemap-coverage)
+* [EstateMap coverage skipped](#estatemap-coverage-skipped)
 * [EstateMap producedBy](#estatemap-producedby)
 * [Plan](#plan)
 * [PlanRow](#planrow)
@@ -56,6 +58,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `userSkills` | `true` | no |  | true when the scan read a user-level skill layer; lint then needs the folder to read it again |
 | `registryRoles` | [EstateMap registryRoles](#estatemap-registryroles) | no |  | The recorded roles of the registry-table columns; later code-only reads use them again |
 | `followedLinks` | list of strings, each not empty | no |  | Links, relative to the estate root, that the scan read through to a real path outside the root |
+| `coverage` | [EstateMap coverage](#estatemap-coverage) | no |  | What the scan covered among the files under the root. Lint never calls an estate clean while a file is unknown. |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
 
@@ -346,6 +349,23 @@ The recorded roles of the registry-table columns; later code-only reads use them
 | `file` | string, not empty | yes |  | The file that holds the registry table |
 | `index` | integer, at least 0 | yes |  | The place of the table among the tables of its file, from 0 |
 | `roles` | list of one of `id`, `guard`, `enforces`, `watches`, `event`, `verdict`, `state`, `description` or `null` | yes |  | The role of each column of the table in order, null for a column of free text |
+
+## EstateMap coverage
+
+What the scan covered among the files under the root. Lint never calls an estate clean while a file is unknown.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `covered` | integer, at least 0 | yes |  | Files under the estate root a part type covers or a reference of the estate reached. |
+| `unknown` | list of strings, each not empty | yes |  | Files under the estate root no part type covers, root-relative and sorted: no check read them. |
+| `skipped` | list of [EstateMap coverage skipped](#estatemap-coverage-skipped) | yes |  | What the scan left out on purpose. |
+
+## EstateMap coverage skipped
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `what` | string, not empty | yes |  | A path, or the ignore glob that skipped paths. |
+| `reason` | string, not empty | yes |  | Why: estate-config, too-large or ignored. |
 
 ## EstateMap producedBy
 
