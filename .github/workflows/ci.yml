@@ -705,3 +705,64 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
+
+  frame-cost-checks:
+    name: frame cost checks
+    if: github.event_name == 'workflow_dispatch' && contains(inputs.jobs, 'frame-cost-checks')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec biome check packages/validators/src/frame/driver.ts packages/validators/test/frame/scan-cost.test.ts packages/validators/test/frame/fixtures/scan-cost.ts --diagnostic-level=error
+      - name: Every frame test and stats frame cheat test, unchanged timeouts
+        run: pnpm exec vitest run packages/validators/test/frame packages/validators/test/stats/frame- --maxWorkers=2 2>&1 | tee frame-checks.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frame-checks
+          path: frame-checks.log
+
+  frame-cost-timing:
+    name: paired full stats seed timing
+    if: github.event_name == 'workflow_dispatch' && contains(inputs.jobs, 'frame-cost-timing')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Three paired samples on the same runner, unchanged test timeout
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 origin 7e3ec68a0c35f27dba7637185c5628449e39e5b7
+          for sample in 1 2 3; do
+            for rev in 7e3ec68a0c35f27dba7637185c5628449e39e5b7 HEAD; do
+              git checkout -q "$rev" -- packages
+              python3 - <<'SCRIPT'
+          from pathlib import Path
+          p=Path('packages/cli/test/validate.test.ts')
+          p.write_text(p.read_text().replace("'--brief', '--fresh', '--levels', '1..1'", "'--brief', '--fresh'"))
+          SCRIPT
+              echo "SAMPLE $sample REV $rev"
+              pnpm exec vitest run packages/cli/test/validate.test.ts -t "prints the stats brief" --reporter=json --outputFile="timing-$sample-$rev.json" > "timing-$sample-$rev.log" 2>&1
+              cat "timing-$sample-$rev.log"
+              node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync(process.argv[1])); const t=r.testResults.flatMap(x=>x.assertionResults).find(x=>x.fullName.includes("prints the stats brief")); console.log("TIMING",process.argv[2],process.argv[3],t.duration,t.status);' "timing-$sample-$rev.json" "$sample" "$rev"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frame-cost-timing
+          path: timing-*
