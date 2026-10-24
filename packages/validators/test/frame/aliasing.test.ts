@@ -427,6 +427,16 @@ describe('write-back keeps the identity of Map keys and Set members', () => {
   });
 });
 
+describe('the end of a frame', () => {
+  it('lets a caller wait until the relay worker has ended, so the process can exit without it', async () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    frame.product.readsOnly({ deep: { list: [1] } });
+    expect(frame.ended).toBeTypeOf('function');
+    frame.close();
+    await expect(frame.ended()).resolves.toBeUndefined();
+  });
+});
+
 // Batch 44 of PR 986 (validators run 39962561437): one report named only the call, and nineteen repeats did not
 // show it again. The report now names what changed, so a change seen once can be diagnosed.
 describe('the report of a changed result names what changed', () => {

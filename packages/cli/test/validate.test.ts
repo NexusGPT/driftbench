@@ -738,13 +738,19 @@ describe('driftbench validate through main', () => {
   }, 60_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
-    const result = await run(['validate', 'stats', '--brief', '--fresh', '--levels', '1..1']);
-    expect(result.code).toBe(0);
-    expect(result.out).toContain('# Brief: validator stats (fresh)');
-    expect(result.out).toContain(
+    // The brief embeds the report of a run. The whole ladder runs per seed in the validators workflow, so this test
+    // embeds the report of levels 1 and 2 of the registered stats ladder: the instruction file is the real one.
+    const stats = registeredLadders().stats;
+    if (!stats) throw new Error('the statistics ladder is not registered');
+    const { io, output } = capture(ROOT);
+    const deps = { ladders: () => ({ stats: { ...stats, levels: stats.levels.slice(0, 2) } }), root: ROOT };
+    const code = await validateCommand('stats', { brief: true, fresh: true }, io, deps);
+    expect(code).toBe(0);
+    expect(output.out).toContain('# Brief: validator stats (fresh)');
+    expect(output.out).toContain(
       'You drive one validator to 100 percent. The validator is `driftbench validate stats`.',
     );
-    expect(result.out).toContain('validators/stats/HANDOVER.md');
+    expect(output.out).toContain('validators/stats/HANDOVER.md');
   }, 600_000);
 
   it('parses floors --raise <component> <level> and refuses a level below the committed floor', async () => {
