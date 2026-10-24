@@ -9,6 +9,7 @@ import {
   pathWithin,
   renderedSettingsFile,
   type SkippedInput,
+  staticSettingsFiles,
   type TypeSet,
   variablePrefix,
 } from '@agent-nexus/driftbench-core';
@@ -154,6 +155,40 @@ export const DEFAULT_IGNORE: readonly string[] = PROFILE.ignore;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
 export const ESTATE_CONFIG = 'driftbench.estate.yaml';
+
+/** What a runtime root holds, as the owner would name it: the standing files, the layout folder, the settings. */
+export type RootLayout = {
+  runtime: string;
+  /** The standing instruction files found at the root. */
+  standing: string[];
+  /** The layout folders found at the root. */
+  folders: string[];
+  /** The settings files found. */
+  settings: string[];
+};
+
+/** True when the root holds no standing file, no layout folder and no settings: a scan of it reads nothing. */
+export function layoutIsEmpty(layout: RootLayout): boolean {
+  return layout.standing.length === 0 && layout.folders.length === 0 && layout.settings.length === 0;
+}
+
+/** Looks at the root without reading the estate: which of the files the claude-code reader starts from exist. */
+export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
+  const found = async (paths: readonly string[], folder: boolean): Promise<string[]> => {
+    const out: string[] = [];
+    for (const path of paths) {
+      const info = await stat(join(root, path)).catch(() => undefined);
+      if (info && (folder ? info.isDirectory() : info.isFile())) out.push(path);
+    }
+    return out;
+  };
+  return {
+    runtime: 'claude-code',
+    standing: await found(['CLAUDE.md', 'CLAUDE.local.md'], false),
+    folders: await found(['.claude'], true),
+    settings: await found(staticSettingsFiles(PROFILE), false),
+  };
+}
 
 export type ClaudeCodeReaderOptions = {
   /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
