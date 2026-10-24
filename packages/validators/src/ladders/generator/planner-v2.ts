@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import type { PlanSeedRow, PlanV2 } from '@agent-nexus/driftbench-generate';
 import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
-import { type Frame, isolate, type IsolateOptions, neutralName, rngOf } from '../../frame';
+import { type Frame, type IsolateOptions, isolate, neutralName, rngOf } from '../../frame';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 
 /**
