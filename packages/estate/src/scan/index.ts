@@ -10,6 +10,7 @@ export {
   DEFAULT_IGNORE,
   ESTATE_CONFIG,
   ignoreRule,
+  RenderedSettingsConflict,
   scriptOf,
   splitList,
 } from './claude-code';
@@ -60,6 +61,7 @@ export {
   parseProseAnswer,
   proseInventory,
   proseInventoryLines,
+  proseListing,
   proseRequest,
   runChunk,
 } from './prose';
@@ -105,7 +107,14 @@ export {
 export const RUNTIMES = ['claude-code'] as const;
 
 /** The options every estate reader takes. */
-export type EstateReaderOptions = { ignore?: readonly string[]; userSkills?: string };
+export type EstateReaderOptions = {
+  ignore?: readonly string[];
+  userSkills?: string;
+  /** The folder that stands for the user's home folder: a guard script written from it is looked for there. */
+  home?: string;
+  /** A rendered copy of the settings, for an estate that does not store its settings file (the profile says where it stands). */
+  settings?: string;
+};
 
 const READERS = new Map<string, (options: EstateReaderOptions) => EstateReader>([
   ['claude-code', (options) => new ClaudeCodeReader(options)],

@@ -247,15 +247,15 @@ $ driftbench generate --map acme/map/approved.yaml --out generated --t 2 --seed 
 Seed 1, t = 2.
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     790       153           3
-boundary         85     176        13          72
-deviation       120     562       120           0
+twise           156     789       153           3
+boundary         82     173        10          72
+deviation       118     560       118           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 694 files to generated.
+Wrote 689 files to generated.
 ```
 
 **How to read it.**

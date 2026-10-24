@@ -1,7 +1,17 @@
 import { ANCHOR, GUARDS_DIR, helperFile, MEMORY, ROOT, STANDING, skillFile } from '../layout';
-import { anchored, type BodyLine, type GuardLine, namesFor, plantSkill, writeSettings } from './common';
+import {
+  anchored,
+  type BodyLine,
+  type ExtraPermissions,
+  type GuardLine,
+  namesFor,
+  plantSkill,
+  writeSettings,
+} from './common';
 import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
+import { REPORT_CASES } from './lint-report';
+import { SETTINGS_CASES } from './lint-settings';
 import { type Planted, PlantedEstate, type ScanOutcome } from './planted';
 
 /**
@@ -73,12 +83,21 @@ type Build = {
   rules: BodyLine[];
   /** Raw lines added to the standing file after the rules. */
   standing: string[];
+  /** More permission rules for the settings, beside the base ones. */
+  permissions: ExtraPermissions;
   /** The standing lines that name a reference, so the planted-truth labeller answers them as one. */
   refs: Set<string>;
   /** Counts the reference atoms an item plants, for their hidden ids. */
   counted: number;
 };
-type Case = { key: string; tier: Tier; title: string; plant(build: Build): Expected[] };
+type Case = {
+  key: string;
+  tier: Tier;
+  title: string;
+  plant(build: Build): Expected[];
+  /** An item that judges a rule of the report by itself, not a planted defect. */
+  judge?(): Promise<ItemResult>;
+};
 
 function skill(
   build: Build,
@@ -420,6 +439,59 @@ const DEFECTS: Case[] = [
     },
   },
   {
+    key: 'permission-unknown-skill',
+    tier: 1,
+    title: 'a permission rule naming a skill the estate does not hold',
+    plant: (b) => {
+      skill(b, 'a');
+      const ghost = namesFor(b.seed, `${b.owner}-ghost`).skill;
+      b.permissions = { allow: [`Skill(${ghost})`] };
+      return [{ code: 'PERMISSION_UNKNOWN_SKILL', subject: `Skill(${ghost})` }];
+    },
+  },
+  {
+    key: 'permission-unknown-skill-prefix',
+    tier: 2,
+    title: 'a prefix permission rule naming a skill the estate does not hold',
+    plant: (b) => {
+      skill(b, 'a');
+      const ghost = namesFor(b.seed, `${b.owner}-ghost`).skill;
+      b.permissions = { allow: [`Skill(${ghost} *)`] };
+      return [{ code: 'PERMISSION_UNKNOWN_SKILL', subject: `Skill(${ghost} *)` }];
+    },
+  },
+  {
+    key: 'permission-unknown-helper',
+    tier: 2,
+    title: 'a permission rule naming a helper the estate does not declare',
+    plant: (b) => {
+      skill(b, 'a');
+      const ghost = namesFor(b.seed, `${b.owner}-ghost`).skill;
+      b.permissions = { allow: [`Agent(${ghost})`] };
+      return [{ code: 'PERMISSION_UNKNOWN_HELPER', subject: `Agent(${ghost})` }];
+    },
+  },
+  {
+    key: 'permission-read-bypass',
+    tier: 2,
+    title: 'a Read deny that an allowed shell rule goes around',
+    plant: (b) => {
+      skill(b, 'a');
+      b.permissions = { deny: ['Read(./private/**)'] };
+      return [{ code: 'PERMISSION_READ_BYPASS', subject: 'Read(./private/**)' }];
+    },
+  },
+  {
+    key: 'permission-bypass-mode',
+    tier: 2,
+    title: 'the bypass mode together with allow rules that let any value through',
+    plant: (b) => {
+      skill(b, 'a');
+      b.permissions = { defaultMode: 'bypassPermissions' };
+      return [{ code: 'PERMISSION_BYPASS_MODE', subject: 'permissions.defaultMode' }];
+    },
+  },
+  {
     key: 'chain-unreachable',
     tier: 2,
     title: 'a helper dispatched only by an unreachable skill',
@@ -433,9 +505,22 @@ const DEFECTS: Case[] = [
       ];
     },
   },
+  ...REPORT_CASES.map((item): Case => ({ ...item, plant: () => [] })),
+  ...SETTINGS_CASES.map((item): Case => ({ ...item, plant: () => [] })),
 ];
 
 const CLEAN: Case[] = [
+  {
+    key: 'permission-rules-naming-held-targets',
+    tier: 2,
+    title: 'permission rules that name a skill and a helper the estate holds',
+    plant: (b) => {
+      const { name } = skill(b, 'a');
+      const helperName = helper(b, 'h');
+      b.permissions = { allow: [`Skill(${name})`, `Skill(${name} *)`, `Agent(${helperName})`] };
+      return [];
+    },
+  },
   {
     key: 'minimal',
     tier: 1,
@@ -737,6 +822,7 @@ const CLEAN: Case[] = [
 ];
 
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
+  if (item.judge) return item.judge();
   const estate = new PlantedEstate();
   const owner = `${family}.${item.key}`;
   const build: Build = {
@@ -747,6 +833,7 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
     guards: [],
     rules: [],
     standing: [],
+    permissions: {},
     refs: new Set(),
     counted: 0,
   };
@@ -770,7 +857,7 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
         estate.hint({ kind: 'subagent', file: helperFile(row.target), line: 1, key: row.target });
     }
   }
-  writeSettings(estate, build.guards);
+  writeSettings(estate, build.guards, build.permissions);
   const scan = await estate.scan();
   return compare(scan, expected);
 }

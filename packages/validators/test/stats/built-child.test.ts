@@ -70,6 +70,30 @@ function build(name = 'compiled', mutation?: { file: string; change: (source: st
   return dir;
 }
 
+/**
+ * A clean bank child ends by exit 0, or by its own SIGKILL after it wrote its last line, `{"closed":true,"selfEnd":true}`,
+ * with every result line before it: the child ends itself that way so that the native teardown of Node.js 24 cannot
+ * hold it (docs/validators.md section 12.9). Any other signal, a SIGKILL with no marker (an outside kill, the OOM
+ * killer), a marker with a result missing, or output after the marker is not a clean end.
+ */
+function endedClean(
+  result: { status: number | null; signal?: string | null; stdout: unknown },
+  expectedItems = 0,
+): boolean {
+  if (result.status === 0) return true;
+  if (result.status !== null || result.signal !== 'SIGKILL') return false;
+  const lines = String(result.stdout)
+    .split('\n')
+    .filter((line) => line.trim() !== '');
+  // The last line on stdout is the self-end marker, and every result line is present before it.
+  if (lines[lines.length - 1] !== '{"closed":true,"selfEnd":true}') return false;
+  const before = lines.slice(0, -1).map((line) => JSON.parse(line) as { start?: number; done?: number });
+  return (
+    before.filter((line) => line.start !== undefined).length === expectedItems &&
+    before.filter((line) => line.done !== undefined).length === expectedItems
+  );
+}
+
 function run(
   attack: Attack,
   throughCli = false,
@@ -178,7 +202,8 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
     for (const attack of ['clean', 'file', 'process'] as const) {
       const result = run(attack, throughCli);
       const output = String(result.stdout) + String(result.stderr);
-      expect(result.status, output).toBe(attack === 'clean' ? 0 : 1);
+      if (attack === 'clean') expect(endedClean(result), output).toBe(true);
+      else expect(result.status, output).toBe(1);
       if (attack !== 'clean') {
         // The planted read is refused: by the confined run of the frame, or by the trap of the child.
         expect(output).toContain(
@@ -198,7 +223,7 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
   });
 
   it('detects the old public-entry route mutant on the same compiled package', () => {
-    expect(run('clean', false, built, true).status).toBe(0);
+    expect(endedClean(run('clean', false, built, true))).toBe(true);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, built, true);
       // The old route violates the protected-child contract: it completes the planted operation.
@@ -229,7 +254,7 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
     },
   ])('detects the compiled $name mutant', ({ name, file, change, held }) => {
     const mutant = build(name, { file, change });
-    expect(run('clean', false, mutant).status).toBe(0);
+    expect(endedClean(run('clean', false, mutant))).toBe(true);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, mutant);
       // A mutant that loads the target in the child runs the planted operation there, whatever the frame then does.
@@ -237,5 +262,40 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
       if (held) expect(String(result.stdout) + String(result.stderr)).not.toContain('PRETRAP_');
       else expect(String(result.stdout)).toContain('PRETRAP_');
     }
+  });
+});
+
+describe('what counts as a clean end of the compiled bank child', () => {
+  const item = (id: string) =>
+    `{"start":0,"id":"${id}"}\n{"done":0,"id":"${id}","pass":true,"detail":"ok","ms":1}\n`;
+  const SELF_END = '{"closed":true,"selfEnd":true}\n';
+
+  it('takes exit 0', () => {
+    expect(endedClean({ status: 0, stdout: SELF_END })).toBe(true);
+  });
+
+  it('takes its own SIGKILL after the self-end marker, every result before it', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') + SELF_END }, 1)).toBe(true);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END }, 0)).toBe(true);
+  });
+
+  it('refuses a SIGKILL with no self-end marker (an outside kill, the OOM killer), even after a closed line', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') + '{"closed":true}\n' }, 1)).toBe(
+      false,
+    );
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: item('a') }, 1)).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: '' }, 0)).toBe(false);
+  });
+
+  it('refuses the self-end marker when a result is missing before it', () => {
+    expect(
+      endedClean({ status: null, signal: 'SIGKILL', stdout: '{"start":0,"id":"a"}\n' + SELF_END }, 1),
+    ).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END }, 1)).toBe(false);
+  });
+
+  it('refuses the marker followed by more output, and any other signal', () => {
+    expect(endedClean({ status: null, signal: 'SIGKILL', stdout: SELF_END + item('a') }, 1)).toBe(false);
+    expect(endedClean({ status: null, signal: 'SIGTERM', stdout: item('a') + SELF_END }, 1)).toBe(false);
   });
 });

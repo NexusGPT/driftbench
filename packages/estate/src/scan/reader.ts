@@ -1,3 +1,4 @@
+import type { ModelCoverage } from '@agent-nexus/driftbench-core';
 import type { DocumentInfo } from '../schema';
 import type { Located } from './text';
 
@@ -37,6 +38,11 @@ export type EstateFile = {
   owner?: string;
   document?: DocumentInfo;
   layer?: 'user';
+  /**
+   * True for a file the reader was handed outside the estate, in the place of a file the estate does not hold
+   * (a rendered copy of the settings): a copy of the estate holds none.
+   */
+  rendered?: true;
 };
 
 /** Whether a path of the map is a file of the user-level skill layer. */
@@ -200,6 +206,18 @@ export type RawEstate = {
    * name. Absent when the reader was given no user skill folder.
    */
   userLayer?: { read: string[]; shadowed: string[] };
+  /**
+   * The home folder the read was told stands for the user's home. Absent when none was given: a path written from
+   * the home folder is then skipped, never read from the machine. `folder` is where it lies in the estate (relative
+   * to the root, '' for the root itself), absent when it lies outside; `present` lists the scripts of the guards,
+   * written from the home folder (`~/x`), that the folder holds. No path of the machine is kept.
+   */
+  home?: { folder?: string; present: string[] };
+  /**
+   * What the estate's configuration declares about the programs a shell permission rule allows (`programs:`),
+   * by program name. A program declared to open no file does not reach around a deny on a file tool.
+   */
+  programs?: Record<string, { opensFiles: boolean }>;
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;
@@ -214,6 +232,11 @@ export type RawEstate = {
    * one that starts with `~/` or `/`, is external when the estate does not hold it.
    */
   externals?: string[];
+  /**
+   * What the read covered among the files under the root: how many a part type covers or a reference reached,
+   * the files no type covers (unknown), and what was left out on purpose with the code of why.
+   */
+  coverage?: ModelCoverage;
 };
 
 export interface EstateReader {

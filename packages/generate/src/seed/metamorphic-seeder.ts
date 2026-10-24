@@ -101,7 +101,7 @@ function metamorphicOnPaths(
       families += 1;
       values.push(key);
       const family = `gen-metamorphic-${pad(families)}`;
-      members.forEach((phrase, variant) => {
+      const variants = members.map((phrase, variant): SpecDraft => {
         const id = `${family}-${variant + 1}`;
         const title = `Metamorphic ${key}, phrasing ${variant + 1} of ${members.length}`;
         const built =
@@ -123,15 +123,23 @@ function metamorphicOnPaths(
           of: members.length,
           relation: 'same observed outcome',
         };
-        if ('draft' in built) {
-          output.push({ ...built.draft, metamorphic });
-          return;
-        }
+        if ('draft' in built) return { ...built.draft, metamorphic };
         const old = carrierDraft(prepared, { ...context }, family, 'metamorphic', '', [target], {
           stimulus: { kind: 'phrase', phrase },
         });
-        output.push(withReasons({ ...old, id, title, metamorphic }, built.reasons));
+        return withReasons({ ...old, id, title, metamorphic }, built.reasons);
       });
+      // The block where the variants differ is the family: a cut that takes it leaves variants that say the same.
+      const said = (draft: SpecDraft, at: number) => {
+        const stimulus = draft.blocks[at]?.stimulus;
+        return stimulus?.kind === 'phrase' ? stimulus.phrase.text : undefined;
+      };
+      const length = Math.max(...variants.map((draft) => draft.blocks.length));
+      const varies = Array.from({ length }, (_, at) => at).find((at) =>
+        variants.some((draft) => said(draft, at) !== said(variants[0] as SpecDraft, at)),
+      );
+      for (const draft of variants)
+        output.push(varies === undefined ? draft : { ...draft, variesAt: varies });
     }
   }
   // Context families, CheckList's invariance over the context axes: one path walked with the same data

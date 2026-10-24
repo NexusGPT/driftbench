@@ -10,6 +10,7 @@ import { delimiter, dirname, join } from 'node:path';
 import { type Frame, isolate } from '../../../frame';
 import { implModulePath } from '../impl';
 import type { Sources, VariablesImpl } from '../interface';
+import { canaryItems } from './canary';
 import { runItem, variablesBank } from './index';
 import { useProductAmbient, useProductClock } from './util';
 
@@ -100,7 +101,7 @@ async function main(args: readonly string[], report: (line: object) => void): Pr
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
   const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
-  const byId = new Map(variablesBank().map((item) => [item.id, item]));
+  const byId = new Map([...variablesBank(), ...canaryItems()].map((item) => [item.id, item]));
   const items = ids.map((id) => {
     const item = byId.get(id);
     if (!item) throw new Error(`no bank item ${id}`);

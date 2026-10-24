@@ -47,7 +47,9 @@ The Claude Code profile ships its part types as data (`CLAUDE_CODE_TYPES`, `pack
 
 A file of another runtime (`AGENTS.md`, `.codex/agents/`) is covered by its type, and Claude Code does not read it as its own instructions.
 
-Your own types go in a types document. Declared from `.claude/` (a user type's globs are relative to the folder of the file that declares it), this one makes a part of every judge request file and of every observe flag beside the hooks:
+Coverage counts every file under `.claude` (the profile's `coverageRoots` is `layout`): a file there that no type above locates, and that no reference of the estate reaches, is unknown, listed in the map and by `estate lint` until a type covers it ([coverage and unknown files](../estate-model.md#coverage-and-unknown-files)). A judge request file a hook script loads, or an observe flag beside the hooks, is such a file.
+
+Your own types go in a types document. This one, written in `.claude/driftbench.estate.yaml` without its `version` line (the `types:` key is read as version 1, with globs relative to `.claude`), makes a part of every judge request file and of every observe flag beside the hooks:
 
 ```yaml types
 version: 1
@@ -65,7 +67,7 @@ types:
     loaded: always
 ```
 
-`observe-flag` links `.claude/hooks/.fs-guard-observe` to the hook script `.claude/hooks/fs-guard.py`: the last `*` of each glob captures `fs-guard`, and `scope` joins the two by that name.
+`observe-flag` covers `.claude/hooks/.fs-guard-observe`, and its `scope` names the hook script `.claude/hooks/fs-guard.py` it configures: the last `*` of each glob captures `fs-guard`, and `scope` joins the two by that name (a link the map will hold once links are read).
 
 ## A recorded session
 

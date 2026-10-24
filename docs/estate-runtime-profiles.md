@@ -16,13 +16,15 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `types` | Its built-in part types, in the order a file is classified in ([the estate model](estate-model.md)) | `CLAUDE_CODE_TYPES`, listed on the [Claude Code page](adapters/claude-code.md#part-types) |
 | `mapKinds` | The kind the estate map gives a file of each type; a file no mapped type locates is `other` | `CLAUDE_CODE_MAP_KINDS` |
 | `shapes` | The structures its reader can test a file for, which a type's `shape` names | `step-list`, `catalogue`, `check-table` |
+| `coverageRoots` | The roots whose every file counts for coverage: one no type covers is unknown ([coverage and unknown files](estate-model.md#coverage-and-unknown-files)) | `layout` |
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
-| `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
+| `settings` | `static` files, or one `rendered` file the user names with `--settings`; a rendered copy is read as the settings file of the place `file` gives, and is refused when the estate stores a file of that place | static `.claude/settings.json`, `.claude/settings.local.json`; rendered, in the place of `.claude/settings.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
 | `routing` | How a skill is reached: `route-table`, `description`, `name` | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
+| `policy` | The permission model: for each tool a rule can name, what it does as aspects (`acts`, `executes`, `instructs`, `delegates`) and the type of the part its argument names; and the setting that holds the default mode with the modes in which no allow rule decides anything. A runtime without one has no policy checks | `Read`, `Edit`, `Write` act; `Bash` acts and executes; `Skill` names a `skill`; `Agent` and `Task` name a `subagent`; `bypassPermissions` |
 | `loadsItself(path)` | True for a file the runtime loads with no visible read: one a type of the runtime locates whose parts load `always` and `instructs` (`loadsByItself`) | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |
 | `configFiles` | Where `driftbench.estate.yaml` may live | the root, then `.claude/` |

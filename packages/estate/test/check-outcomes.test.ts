@@ -8,9 +8,26 @@ describe('lint and invariant outcomes with coverage', () => {
     const raw = await new ClaudeCodeReader().read(root);
     const result = lintEstate({ ...(await scanFixture()).map, atoms: [], edges: [] }, raw);
     expect(result.failed).toBe(false);
+    // A policy check requires the settings, which an empty estate lacks: it did not run for that reason.
+    const needsSettings = new Set([
+      'PERMISSION_UNKNOWN_SKILL',
+      'PERMISSION_UNKNOWN_HELPER',
+      'PERMISSION_READ_BYPASS',
+      'PERMISSION_BYPASS_MODE',
+    ]);
+    // Every check did not run. The registry checks say why by what the run lacked (a guard).
+    const wiring = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
     expect(result.outcomes.map((outcome) => [outcome.check, outcome.status, outcome.notRun])).toEqual(
-      result.outcomes.map((outcome) => [outcome.check, 'not-run', 'no-input']),
+      result.outcomes.map((outcome) => [
+        outcome.check,
+        'not-run',
+        wiring.has(outcome.check) || needsSettings.has(outcome.check) ? 'missing-capability' : 'no-input',
+      ]),
     );
+    for (const outcome of result.outcomes)
+      expect(outcome.coverage.missing).toEqual(
+        wiring.has(outcome.check) ? ['guards'] : needsSettings.has(outcome.check) ? ['settings'] : [],
+      );
   });
 
   it('fails the checks the fixture plants defects for, and reports what each read', async () => {

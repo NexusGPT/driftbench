@@ -65,6 +65,16 @@ export type LoadTime = (typeof LOAD_TIMES)[number];
 /** A load time, with the event for `on-event` when the type names one. */
 export type Loaded = { when: LoadTime; event?: string };
 
+/** The confidence of a link or finding read from structure: the top of the range. */
+export const PROVEN_CONFIDENCE = 1;
+
+/**
+ * The confidence of a link or finding a reader inferred from an assumption (for example a wildcard rule whose
+ * program is unknown). The model fixes only that it is below PROVEN_CONFIDENCE; a reader compares with
+ * PROVEN_CONFIDENCE and never reads this number's size.
+ */
+export const INFERRED_CONFIDENCE = 0.5;
+
 /** How a link was found: the reader that found it, the file and line it read it from. */
 export type LinkProvenance = { reader: string; file: string; line?: number };
 

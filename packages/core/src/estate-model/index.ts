@@ -1,5 +1,12 @@
 export { type CompiledGlob, compileGlob, type GlobError, type GlobResult, matchGlob } from './glob';
-export { type FilePlace, folderHolding, locateFile, locateInside, pathWithin } from './locate';
+export {
+  coveringType,
+  type FilePlace,
+  folderHolding,
+  locateFile,
+  locateInside,
+  pathWithin,
+} from './locate';
 export type { ModelCoverage, Part } from './part';
 export {
   type PartType,
@@ -36,6 +43,7 @@ export {
 export {
   ASPECTS,
   type Aspect,
+  INFERRED_CONFIDENCE,
   LINK_KINDS,
   type Link,
   type LinkKind,
@@ -43,4 +51,5 @@ export {
   LOAD_TIMES,
   type Loaded,
   type LoadTime,
+  PROVEN_CONFIDENCE,
 } from './vocabulary';
