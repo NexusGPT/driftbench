@@ -242,7 +242,7 @@ export async function validateCommand(
     }
     if (options.brief)
       return briefCommand(
-        reports[0] as LadderReport,
+        slice ? { ...(reports[0] as LadderReport), levels: slice } : (reports[0] as LadderReport),
         hidden,
         floors,
         Boolean(options.fresh),
