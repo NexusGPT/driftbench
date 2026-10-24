@@ -12,8 +12,8 @@ export {
   DEFAULT_IGNORE,
   ESTATE_CONFIG,
   ignoreRule,
-  registryCellsToLabel,
   RenderedSettingsConflict,
+  registryCellsToLabel,
   scriptOf,
   splitList,
 } from './claude-code';

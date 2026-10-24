@@ -474,10 +474,13 @@ export class ClaudeCodeReader implements EstateReader {
         ),
       );
       for (const script of from) {
-        const found = await stat(expandVariables(script, PROFILE, { root, home: homeAt })).then(
-          (info) => info.isFile(),
-          () => false,
-        );
+        const expanded = expandVariables(script, PROFILE, { root, home: homeAt });
+        const found =
+          'path' in expanded &&
+          (await stat(expanded.path).then(
+            (info) => info.isFile(),
+            () => false,
+          ));
         if (found) estate.home.present.push(script);
       }
     }
