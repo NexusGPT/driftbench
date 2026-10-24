@@ -304,7 +304,8 @@ describe('driftbench validate legs and --reports', () => {
       { levels: '0..2' },
       { levels: 'x' },
       { levels: '1..4' },
-      { levels: '1..2', brief: true },
+      { levels: '1..2', journal: 'row.json' },
+      { levels: '1..2', checkHandover: true },
       { levels: '1..2', hardness: true },
       { levels: '1..2', reports: folder },
     ]) {
@@ -538,6 +539,38 @@ describe('driftbench validate loop files', () => {
     const stale = capture(root);
     expect(await validateCommand('planted', { checkHandover: true }, stale.io, d)).toBe(1);
     expect(stale.output.err).toContain('the level table says 1=3, hidden=1');
+  });
+
+  it('a sliced --brief says it is partial and claims no level or floor verdict the slice did not measure', async () => {
+    const d = await legDeps([1], { planted: 2 });
+    const root = d.root as string;
+    await writeFile(join(root, 'validators/EXECUTOR.md'), '# Executor instruction\n\nDrive <component> to 100 percent.\n');
+    const brief = async (levels: string) => {
+      const { io, output } = capture(root);
+      expect(await validateCommand('planted', { brief: true, seed: '1', levels }, io, d)).toBe(0);
+      return output.out;
+    };
+    // Lower edge: the slice starts above level 1, which it did not measure. Seed 1 fails level 2, so its level is 1;
+    // a brief of levels 3..3 alone must not claim level 3 or hold the floor.
+    const above = await brief('3..3');
+    expect(above).toContain('# Brief: validator planted (partial: levels 3 to 3)');
+    expect(above).toContain('`driftbench validate planted --brief --levels 3..3`');
+    expect(above).toContain('Level per seed: 1 = not known (levels 3 to 3 only)');
+    expect(above).toContain('Level of the run: not known: levels 1 to 2 were not measured.');
+    expect(above).toContain('Floor: 2. Not known: levels 1 to 2 were not measured.');
+    expect(above).not.toContain('Level of the run: 3');
+    expect(above).not.toContain('At or above the floor.');
+    // Upper edge: the slice starts at level 1 and ends before the first failing level, so the level is a lower bound.
+    const short = await brief('1..1');
+    expect(short).toContain('Level per seed: 1 = at least 1');
+    expect(short).toContain('Level of the run: at least 1 of 3; levels above 1 were not measured.');
+    expect(short).toContain('Floor: 2. Not known: the slice ends at level 1.');
+    expect(short).not.toContain('BELOW THE FLOOR.');
+    // A slice from level 1 that reaches the failing level measures the level exactly.
+    const whole = await brief('1..2');
+    expect(whole).toContain('Level per seed: 1 = 1');
+    expect(whole).toContain('Level of the run: 1 of 3');
+    expect(whole).toContain('Floor: 2. BELOW THE FLOOR.');
   });
 
   it('--brief prints EXECUTOR.md with the live state; --fresh leaves out the hypotheses', async () => {
