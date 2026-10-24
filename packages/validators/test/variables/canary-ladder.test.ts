@@ -37,13 +37,19 @@ const isVoid = (m: Measure): boolean =>
   (m.bank ?? []).every((entry) => !entry.pass && /void: /.test(entry.detail ?? ''));
 
 describe('the canary pair', () => {
-  it('voids the run of a product that rewrites the verdicts its child prints', async () => {
+  // The child's verdicts travel on their own channel (fd 3), so a hook on standard output cannot reach them: the
+  // cheat fails by construction. The run scores as the empty implementation under it does, with no item passing.
+  it('gives no pass to a product that rewrites the verdicts its child prints', async () => {
     const before = process.env[IMPL_ENV];
     process.env[IMPL_ENV] = fileURLToPath(new URL('./stdout-flip-impl.ts', import.meta.url));
     try {
       const measure = await storeCore({ filter: (item) => FEW.has(item.id) });
       expect(measure.value).toBe(0);
-      expect(isVoid(measure), 'every item says the run is void').toBe(true);
+      expect((measure.bank ?? []).length).toBeGreaterThan(0);
+      expect(
+        (measure.bank ?? []).filter((entry) => entry.pass).map((entry) => entry.id),
+        'no item passes',
+      ).toEqual([]);
     } finally {
       if (before === undefined) delete process.env[IMPL_ENV];
       else process.env[IMPL_ENV] = before;
