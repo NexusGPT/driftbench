@@ -645,7 +645,14 @@ export async function lintMap(
  */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string; home?: string; verbose?: boolean; json?: boolean },
+  options: {
+    ceiling?: string;
+    ignore?: string[];
+    userSkills?: string;
+    home?: string;
+    verbose?: boolean;
+    json?: boolean;
+  },
   io: Io,
 ): Promise<number> {
   const run = await lintMap(path, options, io);
