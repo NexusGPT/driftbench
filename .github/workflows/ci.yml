@@ -766,3 +766,24 @@ jobs:
         with:
           name: frame-cost-timing
           path: timing-*
+
+  frame-watch-probe:
+    name: builtin watch descriptor comparison
+    if: github.event_name == 'workflow_dispatch' && inputs.jobs == 'frame-watch-probe'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Individual descriptors
+        run: pnpm exec vitest run packages/validators/test/frame/watch-cost-probe.test.ts
+      - name: Bulk descriptors
+        run: |
+          python3 packages/validators/test/frame/watch-cost-bulk-probe.py
+          pnpm exec vitest run packages/validators/test/frame/watch-cost-probe.test.ts
