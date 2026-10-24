@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 /**
  * Small tools every item uses: a seeded generator, stable serialisation, deep freeze and equality, processor
  * time, and the failure type an item throws to say what went wrong.
@@ -147,12 +149,47 @@ export function show(value: unknown, limit = 200): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
-/** Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. */
-export function cpuMs<T>(run: () => T): { value: T; ms: number } {
+/** Clock ticks a second in the process table of Linux (`/proc/<pid>/stat`). */
+const TICKS_PER_SECOND = 100;
+
+/**
+ * The processor time, in milliseconds, that the processes this one started and waited for have used (user and system),
+ * summed over its life. The kernel keeps it on Linux, in the fields `cutime` and `cstime`; elsewhere it is 0 and only the
+ * wall clock bounds a call that works in a child.
+ */
+export function childrenCpuMs(): number {
+  if (process.platform !== 'linux') return 0;
+  try {
+    const stat = readFileSync('/proc/self/stat', 'utf8');
+    // The command name sits in parentheses and may hold spaces: the fields after it start at the state, field 3.
+    const rest = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
+    const ticks = Number(rest[13]) + Number(rest[14]);
+    return Number.isFinite(ticks) ? (ticks * 1000) / TICKS_PER_SECOND : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** How far the wall clock of a call may run past its processor-time limit (docs/variables.md R15), and the least it may take. */
+export const WALL_FACTOR = 3;
+export const WALL_FLOOR_MS = 2000;
+export const wallLimitMs = (limitMs: number): number => Math.max(limitMs * WALL_FACTOR, WALL_FLOOR_MS);
+
+export type Timed<T> = { value: T; ms: number; wallMs: number };
+
+/**
+ * Processor time of a call in milliseconds (user and system, of this process and of the processes it started and waited
+ * for), so a busy machine does not fail an item and work done in a child is not hidden; and the wall-clock time of the
+ * call, which bounds a child that waits.
+ */
+export function cpuMs<T>(run: () => T): Timed<T> {
   const start = process.cpuUsage();
+  const children = childrenCpuMs();
+  const began = performance.now();
   const value = run();
+  const wallMs = performance.now() - began;
   const used = process.cpuUsage(start);
-  return { value, ms: (used.user + used.system) / 1000 };
+  return { value, ms: (used.user + used.system) / 1000 + (childrenCpuMs() - children), wallMs };
 }
 
 /** Runs a call and returns its value, or the error it threw. */

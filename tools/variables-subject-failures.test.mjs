@@ -25,7 +25,9 @@ import { syncBuiltinESMExports } from 'node:module';
 os.homedir = () => ${JSON.stringify(folder)};
 syncBuiltinESMExports();
 let choices = 0;
-globalThis.fetch = async (_url, options) => {
+globalThis.fetch = async (url, options) => {
+  // The labeller counts the tokens of a request on the provider's endpoint before it sends the request.
+  if (String(url).endsWith('/count_tokens')) return { ok: true, json: async () => ({ input_tokens: 10 }) };
   const body = JSON.parse(options.body);
   let text = JSON.stringify([${JSON.stringify(label)}]);
   let stop_reason = 'end_turn';

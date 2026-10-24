@@ -69,6 +69,30 @@ describe('the failure of an item, in fields', () => {
     expect(report.leaking.map((l) => l.item)).toEqual(['c']);
   });
 
+  it('catches a message that names the position of a call: a search reads the first wrong call out of it', () => {
+    const position = new ItemFailure({
+      rule: 'every call gets the answer the page requires',
+      input: 'call 7',
+      got: 'one or more answers differ',
+      expected: { answers: ['accept', 'found'] },
+    });
+    expect(leaksOf(position)).toEqual(['(the message names the position of a call)']);
+    const bare = new ItemFailure({
+      rule: 'every call gets the answer the page requires',
+      input: { calls: 24 },
+      got: 'one or more answers differ',
+      expected: { answers: ['accept', 'found'] },
+    });
+    expect(leaksOf(bare)).toEqual([]);
+    // A failure that wants nothing is read for the position too.
+    const observed = new ItemFailure({ rule: 'a rule', input: 'call 3', expected: none('observation') });
+    expect(leaksOf(observed)).toEqual(['(the message names the position of a call)']);
+    const report = leakReport([{ item: 'x', error: position }]);
+    expect(report.leaking).toEqual([
+      { item: 'x', rule: position.fields.rule, atoms: ['(the message names the position of a call)'] },
+    ]);
+  });
+
   it('reads the leaves of the expected value, not its keys, and a sentence as one atom', () => {
     const f = new ItemFailure({
       rule: 'the plan holds every tuple',

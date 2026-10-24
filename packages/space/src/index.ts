@@ -70,21 +70,32 @@ export {
   validateSpaceMap,
 } from './load';
 export {
+  addToStageBook,
+  answersOf,
   type CutVerdict,
   type DeclaredAxes,
+  declaredStageBefore,
   isDeclared,
+  machineSignature,
   type ObligationBlock,
   type ObligationKind,
   type ObligationSpec,
+  obligationSpecOf,
   RULINGS,
   type Rulings,
   rulingsHash,
   type SoleHolders,
+  type StageBook,
   type SuiteChange,
   SuiteIndex,
   soleHolders,
+  specWords,
+  stageBookOf,
+  startStageOf,
   type TestBlockRef,
+  testKeyOf,
   type ValidityRule,
+  walkOf,
 } from './obligations';
 export { type PlacementEvent, placeSpec, type SpecPlacement, type UnknownValue } from './place';
 export {

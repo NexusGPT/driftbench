@@ -3,6 +3,7 @@
  * from a start index, with one JSON line before and after each item.
  */
 import { loadImpl } from '../impl';
+import { canaryItems } from './canary';
 import { runItem, variablesBank } from './index';
 
 async function main(args: readonly string[]): Promise<void> {
@@ -12,7 +13,7 @@ async function main(args: readonly string[]): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
   const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
-  const byId = new Map(variablesBank().map((item) => [item.id, item]));
+  const byId = new Map([...variablesBank(), ...canaryItems()].map((item) => [item.id, item]));
   const items = ids.map((id) => {
     const item = byId.get(id);
     if (!item) throw new Error(`no bank item ${id}`);

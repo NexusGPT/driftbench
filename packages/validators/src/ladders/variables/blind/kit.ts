@@ -2,7 +2,7 @@ import { check, none } from '../../../failure';
 import type { BankItem, ItemContext } from '../bank/item';
 import { outcomeOf } from '../bank/item';
 import { type Family, levelOf, type Tier } from '../bank/manifest/types';
-import { attempt, Fail, must, type Rng, show } from '../bank/util';
+import { attempt, cpuMs, Fail, must, type Rng, show } from '../bank/util';
 import type {
   CoverageResult,
   FileStore,
@@ -640,10 +640,9 @@ export function widestTuple(space: Space): number {
   return widest;
 }
 
-/** Processor time of a call (user and system, ms): a busy machine does not fail an item. */
-export function cpu<T>(run: () => T): { value: T; ms: number } {
-  const start = process.cpuUsage();
-  const value = run();
-  const used = process.cpuUsage(start);
-  return { value, ms: (used.user + used.system) / 1000 };
-}
+/**
+ * Processor time of a call (user and system, ms, of this process and of the processes it started and waited for): a busy
+ * machine does not fail an item and work done in a child is not hidden; with the wall-clock time of the call, which bounds
+ * a child that waits (docs/variables.md R15).
+ */
+export const cpu = cpuMs;
