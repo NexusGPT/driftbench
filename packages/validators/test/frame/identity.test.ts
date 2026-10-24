@@ -92,6 +92,15 @@ describe('object identity under the frame', () => {
     expect(() => frame.product.manyObjects(5)).toThrow(/4 new objects or more in one call/);
   });
 
+  it("names run C's span overflow as the frame's finding, before the difference in its answer", () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 7, idSpan: 4 });
+    open.push(frame as Frame<unknown>);
+    expect(frame.product.manyOnlyUnconfined()).toHaveLength(1);
+    const taint = frame.tainted();
+    expect(taint).toContain('run C');
+    expect(taint).toMatch(/returned 4 new objects or more in one call/);
+  });
+
   // The known limit, pinned: a product that changes an object it returned, between calls, while the caller keeps it.
   // In the caller's own process both hold one object and the caller sees the change; through the frame the caller's
   // object is the caller's copy, kept as the caller holds it.

@@ -118,6 +118,17 @@ describe('a product cannot write its own verdict', () => {
   });
 });
 
+// A taint of the frame fails its seed closed: no item of it counts as a pass, whatever the confined runs answered.
+// Run C's span overflow (test/frame/identity.test.ts) is such a taint, as is any answer of run C that differs.
+describe('a frame whose run C answered otherwise fails its seed closed', () => {
+  it('fails items the confined runs passed, and counts none of them', async () => {
+    const ids = ['blind.weights.interval.five-of-ten', 'blind.weights.interval.three-of-seven'];
+    const got = await outcomes(join(CHEATS, 'runc-differs.ts'), ids);
+    expect(got.map((each) => each.pass)).toEqual([false, false]);
+    for (const each of got) expect(each.detail).toContain(`so no item of seed ${SEED} counts`);
+  });
+});
+
 describe('the processor time of a call counts the work the product moves into a child process', () => {
   const ids = ['blind.scale.readers.owner-values-2000'];
 
