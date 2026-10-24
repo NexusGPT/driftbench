@@ -348,8 +348,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     ...policy.reads,
   };
   // A policy check over settings that hold nothing of its kind read the settings and found nothing: it ran.
-  if (available.has('settings'))
-    for (const code of PERMISSION_CODES) read[code] = Math.max(1, read[code]);
+  if (available.has('settings')) for (const code of PERMISSION_CODES) read[code] = Math.max(1, read[code]);
   const unknown = [...(raw.coverage?.unknown ?? [])];
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
@@ -364,18 +363,20 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     })),
   );
   const failed = kept.some((finding) => !INFORMATION.has(finding.code));
+  // A check the run lacks a capability for, and a policy check with nothing to police, are named, not failed.
+  const lacksInput = outcomes.some(
+    (outcome) =>
+      outcome.status === 'not-run' &&
+      outcome.notRun !== 'missing-capability' &&
+      !outcome.check.startsWith('PERMISSION_'),
+  );
   const summary: LintSummary = failed
     ? 'findings'
     : noneRan(outcomes)
       ? 'none-ran'
       : unknown.length > 0
         ? 'unknown-files'
-        : outcomes.some(
-            (outcome) =>
-              outcome.status === 'not-run' &&
-              outcome.notRun !== 'missing-capability' &&
-              !outcome.check.startsWith('PERMISSION_'),
-          )
+        : lacksInput
           ? 'checks-not-run'
           : 'clean';
   return { findings: kept, outcomes, failed, counts, unknown, summary };
