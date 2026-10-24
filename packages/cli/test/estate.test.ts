@@ -74,16 +74,24 @@ describe('driftbench estate scan', () => {
       'Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.',
     );
     expect(result.out).toMatch(/instruction\s+31 {2}\(31 by the model\)/);
-    expect(result.out).toContain('refused: .claude/skills/supplier-email/SKILL.md#1');
+    expect(result.out).toContain(
+      'refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate needs a span, a link or a code span that the unit does not give',
+    );
     // A run whose quotes are not in their unit is left out of the vote, and the scan says so.
-    expect(result.out).toContain('out of step: CLAUDE.md#1 run 2 of anthropic');
+    expect(result.out).toContain(
+      'out of step: CLAUDE.md#1 run 9 of anthropic (asked again for a split): 9 of 21 quoted clauses are not in their unit',
+    );
     expect(result.out).toContain(
       // The recorded document roles make the currency table a fixture, the old tolerances an archive, the
       // carrier table a history and the weekly-report template a template: none goes to the model.
-      'Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).',
+      'Prose: 11 chunks, 6576 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
-    expect(result.out).toContain('Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.');
+    // CLAUDE.md unit 40 ("Every task follows the step list in `.claude/steps.json`") has 13 recorded runs: none 10,
+    // rule 3. It makes no reference atom, so the steps file is an orphan beside the planted one.
+    expect(result.out).toContain(
+      'Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/steps.json.',
+    );
     expect(result.out).toContain(
       'Unreachable from the standing instructions: .claude/agents/inbox-triager.md.',
     );
@@ -101,7 +109,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.code).toBe(0);
     expect(result.out).toContain('No model call: structured atoms only (--no-model).');
-    expect(result.out).toContain('Unanswered prose chunks (no model call): 15, 6961 characters.');
+    expect(result.out).toContain('Unanswered prose chunks (no model call): 15, 7125 characters.');
     expect(result.out).toContain(
       '    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters\n',
     );
@@ -112,7 +120,7 @@ describe('driftbench estate scan', () => {
     expect(lint.code).toBe(1);
     // A scan with no model reads the structure only: the files that prose names stay unnamed, and the routes of
     // the routing table are not read.
-    expect(lint.out).toContain('19 findings.');
+    expect(lint.out).toContain('17 findings.');
   });
 
   it('exits 1 and lists the refusal when an answer quotes text that is not in the file', async () => {
@@ -261,7 +269,10 @@ describe('driftbench estate lint, approve and map', () => {
 
     const lint = await run(['estate', 'lint', 'map.yaml'], root);
     expect(lint.code).toBe(1);
+    // The planted defects are found whatever a labeller says (lint.test.ts). The second ORPHAN is the steps file, whose
+    // sentence the recorded runs did not read as a reference (none 10, rule 3).
     expect(lint.out.match(/^ {2}[A-Z_]+/gm)?.map((code) => code.trim())).toEqual([
+      'ORPHAN',
       'ORPHAN',
       'UNREACHABLE',
       'MISSING_REFERENCE',
@@ -280,9 +291,9 @@ describe('driftbench estate lint, approve and map', () => {
       ['estate', 'approve', 'map.yaml', '--kind', 'register', '--to', 'registers.yaml'],
       root,
     );
-    expect(kind.out).toBe('Approved 14 atoms in registers.yaml; 0 were already approved.\n');
+    expect(kind.out).toBe('Approved 12 atoms in registers.yaml; 0 were already approved.\n');
     const all = await run(['estate', 'approve', 'registers.yaml', '--all', '--to', 'approved.yaml'], root);
-    expect(all.out).toBe('Approved 55 atoms in approved.yaml; 61 were already approved.\n');
+    expect(all.out).toBe('Approved 57 atoms in approved.yaml; 59 were already approved.\n');
     expect((await run(['estate', 'approve', 'map.yaml', '--kind', 'rule'], root)).code).toBe(1);
     expect((await run(['estate', 'approve', 'map.yaml', '--all', '--kind', 'gate'], root)).code).toBe(2);
     expect(

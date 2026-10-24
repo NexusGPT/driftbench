@@ -1338,6 +1338,48 @@ describe('an even split of the runs between the generic rule and a specific labe
     expect([...listed.keys()].sort()).toEqual(unlabeled);
   });
 
+  it('counts a label named constructor as a number, not as a property of every object', async () => {
+    const CTOR = `labels:
+  - set: agent-rules
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: rule
+        description: A unit that tells the skipper to do something.
+        atom: { kind: instruction, polarity: obligation }
+      - name: constructor
+        description: A unit that forbids.
+        atom: { kind: instruction, polarity: prohibition }
+`;
+    const result = await pointerScan(
+      input(runs(['rule', 'constructor', 'rule', 'constructor']), new Cassette(), { sets: load(CTOR) }),
+    );
+    const first = result.ledger.entries.find((entry) => entry.index === 0);
+    const kinds = result.unstable.find((item) => item.unit === first?.id)?.kinds;
+    expect(kinds).toBeDefined();
+    expect(typeof kinds?.constructor).toBe('number');
+    expect(kinds?.constructor).toBeGreaterThanOrEqual(2);
+    expect(kinds?.rule).toBeGreaterThanOrEqual(2);
+  });
+
+  it('lists a unit no run gave a usable answer for, with the reason, not nowhere', async () => {
+    // One run per window, and its answer leaves the first unit out: the unit stays unlabeled with no opinion at all.
+    const labeler = plantedDense(
+      (window) =>
+        window.units.filter((unit) => unit.n !== 1).map((unit) => ({ units: String(unit.n), label: 'rule' })),
+      [],
+      { runs: 1 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(TIED) }));
+    const unlabeled = result.unlabeledUnits.map((item) => item.unit).sort();
+    expect(unlabeled.length).toBeGreaterThan(0);
+    const listed = new Map(result.unstable.map((item) => [item.unit, item.kinds]));
+    for (const unit of unlabeled) expect(listed.get(unit), unit).toEqual({ 'no usable answer': 0 });
+    // Each unit lands in one place: the report holds no unit twice for the same labeler.
+    expect(result.unstable.length).toBe(
+      new Set(result.unstable.map((item) => `${item.unit}\0${item.labeler}`)).size,
+    );
+  });
+
   it('leaves a tie between two specific labels unlabeled', async () => {
     expect(await firstLabel(['gate', 'hazard-compaction', 'gate', 'hazard-compaction'])).toEqual([
       undefined,

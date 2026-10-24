@@ -38,7 +38,7 @@ export async function estate(files: Record<string, string>): Promise<string> {
  * come from the cassette. No network and no key.
  */
 export async function replayPointer(root: string, ledger?: string): Promise<PointerScanOptions> {
-  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = pointer.parseLabelSets(pointer.DEFAULT_LABEL_SETS);
   if (!sets.ok) throw new Error(sets.message);
   const specs = pointer.DEFAULT_LABELER_SPECS.map((text) => {
     const spec = pointer.parseLabelerSpec(text);
@@ -102,7 +102,10 @@ export type PlantedGate = {
  * The same planted labeller, with units it calls a gate: for the tests of what the plan does with a gate, where the
  * sentence that makes the gate is not the thing under test.
  */
-export function structurePointer(gates: readonly PlantedGate[] = []): PointerScanOptions {
+export function structurePointer(
+  gates: readonly PlantedGate[] = [],
+  planted: { routes?: boolean; notReferences?: readonly string[] } = {},
+): PointerScanOptions {
   const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
   if (!sets.ok) throw new Error(sets.message);
   const labeler: pointer.Labeler = {
@@ -130,7 +133,28 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
         };
       }
       return {
-        labels: window.units.map((unit) => {
+        labels: window.units.map((unit, index) => {
+          // A request cell of a routing table, for the planted routes: the cell after it names the skill or the
+          // helper, so the unit is the request and the next unit is its target.
+          const next = window.units[index + 1];
+          const loads = planted.routes && next ? /^`([\w-]+)`$/.exec(next.text.trim())?.[1] : undefined;
+          const dispatches =
+            planted.routes && next ? /^the `([\w-]+)` agent$/.exec(next.text.trim())?.[1] : undefined;
+          if (loads || dispatches) {
+            const skill = loads !== undefined;
+            const name = (loads ?? dispatches) as string;
+            return {
+              units: String(unit.n),
+              label: skill ? 'route-skill' : 'route-helper',
+              target: next?.n,
+              links: [
+                {
+                  kind: skill ? 'route-skill' : 'route-helper',
+                  to: skill ? `skill.${name}.skill-${name}` : `subagent.${name}.helper-${name}`,
+                },
+              ],
+            };
+          }
           const gate = gates.find((entry) => unit.text.includes(entry.contains));
           const from = gate ? unit.text.indexOf(gate.act) : -1;
           if (gate && from >= 0) {
@@ -148,6 +172,7 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
             // read: a labeller that reads the sentence gives it no reference either.
             label:
               namedPaths(unit.text).length > 0 &&
+              !(planted.notReferences ?? []).some((text) => unit.text.includes(text)) &&
               !/^@\S+$/.test(unit.text.trim()) &&
               !/^[\w.-]+$/.test(unit.text.trim())
                 ? 'reference'
@@ -166,6 +191,21 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
     cassette: new pointer.Cassette(),
     mode: 'record',
   };
+}
+
+/**
+ * The fixture estate scanned with planted labels: a unit is a reference when it names a path (the one that forbids
+ * pasting `.env` names no file to read), and the request cell of the routing table is a route to the skill or the
+ * helper its next cell names. No rule, gate or register is labelled. For the tests of what the graph, the lint and
+ * the static runner do with the planted defects of the fixture, which hold whatever a recorded labeller says.
+ */
+export async function scanPlantedFixture() {
+  return scanEstate({
+    root: FIXTURE,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer([], { routes: true, notReferences: ['`.env`'] }),
+  });
 }
 
 /**

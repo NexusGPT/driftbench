@@ -1,3 +1,4 @@
+import { pointer } from '@agent-nexus/driftbench-estate';
 import { ROOT, STANDING, skillFile } from '../layout';
 import { type BodyLine, namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, itemsOf, type Tier } from './frame';
@@ -9,12 +10,14 @@ import { PlantedEstate as Estate } from './planted';
  * agent reads them when the skill tells it to, so they bind as much as the body does. The oracle: each rule of
  * a named reference is an atom on its line; a reference no line names gives none; a reference named twice
  * gives its atoms once; code reads a reference's own gates, hazards and references; a long reference reaches
- * the splitter in chunks of at most 40,000 characters, and its rules are still found.
+ * the splitter in windows of at most the product's declared cap (`pointer.WINDOW_CHARS`), and its rules are still
+ * found.
  */
 
 const COMPONENT = 'packages/estate/src/scan/claude-code.ts';
 const FAMILY = 'scan.reference-prose';
-export const MAX_CHUNK = 40_000;
+/** The most characters of unit text one request holds: the cap the pointer reader declares, read and never restated. */
+export const MAX_CHUNK = pointer.WINDOW_CHARS;
 
 /** Every request the scan sent for the file, in any set, is at most `MAX_CHUNK` characters, and there is one. */
 export function chunkCapCheck(path: string): Check {
@@ -115,13 +118,15 @@ const SHAPES: Shape[] = [
   {
     key: 'huge-chunked',
     tier: 5,
-    title: 'a reference of 250,000 characters, sent in chunks of at most 40,000',
+    title: 'a reference over the window cap, sent in windows of at most the cap',
     file: 'references/notes.md',
     write: (w, c) => {
       w.line('# Notes');
-      for (const tag of ['a', 'b', 'c', 'd', 'e']) {
+      // Past the cap by at least one 50,000-character block, whatever the cap is.
+      const blocks = Math.floor(MAX_CHUNK / 50_000) + 2;
+      for (let index = 0; index < blocks; index += 1) {
         fill(w, 50_000);
-        plantRule(w, c, tag);
+        plantRule(w, c, String.fromCharCode(97 + index));
       }
     },
     checks: (_c, path) => [chunkCapCheck(path)],

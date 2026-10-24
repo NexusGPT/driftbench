@@ -245,6 +245,17 @@ situations:
     phrases:
       - { text: 'Audit ledger/2026-W41.csv for double payments and unapplied credit notes. Answer with one JSON object.', lang: en, approved: true }
 
+  - id: ledger-auditor-missing-brief
+    title: The ledger auditor is briefed with an invoice number and no order number
+    use: trigger
+    atoms:
+      - subagent.ledger-auditor.helper-ledger-auditor
+      - instruction.ledger-auditor.when-either-is-missing-answer-with
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Audit invoice INV-1001 for double payments. I do not have the order number.', lang: en, approved: true }
+
   - id: route-planning
     title: Plan tomorrow's delivery routes
     use: trigger

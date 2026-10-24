@@ -48,12 +48,13 @@ describe('the committed reader-cases outputs', () => {
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
     ).toEqual([
-      // CLAUDE.md line 21 ("A carrier claim and the month close follow their steps in `.claude/processes.json`")
-      // is labelled description by the recorded runs, so it names no reference and the steps file is an orphan.
+      // CLAUDE.md unit 20 ("Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`") has 11
+      // recorded runs: description 5, reference 4, none 2. It makes no reference atom, so the alias table is an orphan.
+      ['ORPHAN', '.claude/ALIASES.md'],
+      // CLAUDE.md unit 17 ("A carrier claim and the month close follow their steps in `.claude/processes.json`")
+      // has 11 recorded runs: reference 5, description 4, none 2. It makes no reference atom, so the steps file is
+      // an orphan.
       ['ORPHAN', '.claude/processes.json'],
-      // The unit "Open the claim with the wording in `REF/notes.md`" is left unlabeled (the runs split four
-      // ways), so the alias case names no reference. supplier-languages.md is now named by SKILL.md line 10.
-      ['ORPHAN', '.claude/skills/parcel-claims/references/notes.md'],
     ]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,

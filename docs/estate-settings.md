@@ -107,13 +107,13 @@ documents:
 ```
 
 ```sh
-driftbench estate scan estate --pointer --cassette estate/settings-cassette.jsonl --update --out map.yaml
+driftbench estate scan estate --pointer --cassette estate/settings-cassette.jsonl --update --out map.yaml # exit 1
 ```
 
 ```text
 Pointer settings from driftbench.estate.yaml: labels, threshold, ledger.
-  Requests: 91 answered, 0 sent, 0 recorded.
-  Units since the last ledger: new 136.
+  Requests: 85 answered, 0 sent, 0 recorded.
+  Units since the last ledger: new 138.
 ```
 
 Edit one rule, then ask what the edit reruns. The ledger the settings file names is the baseline.
@@ -127,7 +127,7 @@ driftbench radius ledger map.yaml --out change.yaml
 ```
 
 ```text
-Units: 133 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+Units: 135 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
   1 unit reruns, 2 advisory only; 1 change.
 Wrote change.yaml.
 ```
@@ -141,7 +141,10 @@ export default {
   label(request) {
     const labels = request.window.units.map((unit) => ({
       units: String(unit.n),
-      label: /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text) ? 'prohibition' : 'none',
+      label:
+        request.set.name === 'agent-rules' && /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text)
+          ? 'prohibition'
+          : 'none',
     }));
     return { labels };
   },
@@ -160,8 +163,8 @@ driftbench estate scan estate --pointer --cassette estate/module-cassette.jsonl 
 ```text
 Pointer settings from driftbench.estate.yaml: labeler, ledger.
   Pointer reader: system 2 module:never-lines never-lines.
-  Requests: 95 answered, 95 sent, 95 recorded.
-  Units since the last ledger: new 20, unchanged 135, changed 1.
+  Requests: 150 answered, 150 sent, 150 recorded.
+  Units since the last ledger: new 20, unchanged 137, changed 1.
 The ledger estate/driftbench.ledger.json is not written: pass --update to write it.
 ```
 

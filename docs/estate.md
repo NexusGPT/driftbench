@@ -524,34 +524,34 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1427 rows (350 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1316 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1417 rows (340 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1307 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 2190099824640 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
     instruction    95
-    gate           13
+    gate           18
     route          65
-    skill         117
-    reference      11
+    skill         110
+    reference      10
     script          2
-    subagent       72
+    subagent       75
     guard          30
     tool           12
     setting         4
     stage           9
-    register       98
-    hazard          1
+    register       84
+    hazard          2
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
     obligation        435
     outside_trigger    31
     twin               31
-    ordered_pair       84
-    skip_pressure       6
+    ordered_pair      112
+    skip_pressure       8
     route_positive    260
     route_near_miss    13
     misroute           13
-    read_when          11
+    read_when          10
     script_fixture      2
     dispatch           42
     contract_alone      3
@@ -566,13 +566,13 @@ Wrote _captures/docs3/estate/plan.yaml: 1427 rows (350 from the contract, 10 jou
     stage_order        69
     stage_skip          4
     stage_anytime       1
-    register_sample   280
-    hazard_recovery     1
+    register_sample   240
+    hazard_recovery     2
     invariant           4
     setting             4
     journey            10
   Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1316 of 1316.
+  Cells with no approved phrase: 1307 of 1307.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -597,7 +597,7 @@ Next: driftbench estate plan approve _captures/docs3/estate/plan.yaml --all, or 
 
 The written plan and summary are byte for byte the committed `examples/estates/fixture/plan.yaml` and `plan.summary.json`. How to read the counts:
 
-* "Mandatory rows per kind" counts contract rows, a row once for each kind it names: the skill line (111) holds its routes, instructions, references and scripts. "Rows per test type" counts every row, journeys and pairwise included.
+* "Mandatory rows per kind" counts contract rows, a row once for each kind it names: the skill line (110) holds its routes, instructions, references and scripts. "Rows per test type" counts every row, journeys and pairwise included.
 * The console prints a summary, never a line per item: each list (the edges with no journey, the rows adjusted to the space map, the notes) shows its first 10 lines, then one line that counts the rest and names `<plan>.summary.json`, which holds every one under `uncoveredEdges`, `adjusted` and `notes`. A list of 10 or fewer prints whole. A real estate with thousands of unreached edges prints under 100 lines.
 * A cell is a distinct pair of atoms and situation values over the rows. The plan reads no phrase bank, so every cell counts as a cell with no approved phrase.
 * `spaceHash` in the plan is the content hash of the space map used, derived from the map or given with `--space`.
@@ -607,12 +607,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1427 rows, 1427 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1417 rows, 1417 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
-$ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
+$ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.never-answer-a-message-yourself-write --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1423 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1416 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
@@ -833,9 +833,9 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash db9e07132a1b: 116 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1427 rows, 1427 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 32 situations, 62 approved phrases.
+Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash 708456f152fd: 116 atoms.
+Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1417 rows, 1417 approved, 0 waiting, 0 struck.
+Phrases ../../../../examples/estates/fixture/phrases.yaml: 36 situations, 69 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 
@@ -843,12 +843,12 @@ Test type           rows  specs  complete  incomplete
 obligation           435    435       435           0
 outside_trigger       31     31        31           0
 twin                  31     31        30           1
-ordered_pair          84     84        84           0
-skip_pressure          6      6         6           0
+ordered_pair         112    112       112           0
+skip_pressure          8      8         8           0
 route_positive       260    253       253           0
 route_near_miss       13     13        13           0
 misroute              13     13        13           0
-read_when             11     11        11           0
+read_when             10     10        10           0
 script_fixture         2      2         2           0
 dispatch              42     42        42           0
 contract_alone         3      3         3           0
@@ -863,27 +863,27 @@ tool_denied            3      3         3           0
 stage_order           69     69        69           0
 stage_skip             4      4         1           3
 stage_anytime          1      1         1           0
-register_sample      280    280       280           0
-hazard_recovery        1      1         1           0
+register_sample      240    240       240           0
+hazard_recovery        2      2         2           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1420      1414           6
+total                      1410      1404           6
 
-Asks of the complete specs: 419 approved phrases, 981 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 924 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 340 no-delete, 8 static.
+Asks of the complete specs: 399 approved phrases, 991 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 361 complete specs.
+Outcomes of the complete specs: 899 bank, 26 no-change:guard, 44 no-change:negative, 56 no-change:read-only, 371 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
 Catalogue checks: 0 tested through their host guard, 0 need a trigger, 0 need a host guard.
-Complete share: 99.58%; distinct asks: 111 in 1406 complete asked tests (7.89 per 100).
+Complete share: 99.57%; distinct asks: 113 in 1396 complete asked tests (8.09 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
   needs-askable-act          6 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1451 files to _captures/docs3/estate/generated.
+Wrote 1441 files to _captures/docs3/estate/generated.
 ```
 
 It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the last line of the output):

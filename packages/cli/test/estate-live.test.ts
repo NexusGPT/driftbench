@@ -648,10 +648,26 @@ const HOLIDAY = join(
   LIVE,
   'obligation/estate.obligation.instruction.route-planner.never-plan-a-delivery-on-a.yaml',
 );
-const OTHER = join(
-  LIVE,
-  specNaming('obligation', 'instruction.weekly-report.count-only-what-the-ledger-and'),
-);
+// The second spec is chosen by property, not by name: the first judged obligation spec (by file name) that expects a
+// skill and that the fake fails on a machine check, so it is failed and not undecided when no judge is given.
+let otherSpec: Promise<string> | undefined;
+function secondSpec(): Promise<string> {
+  otherSpec ??= (async () => {
+    const dir = join(LIVE, 'obligation');
+    const names = readdirSync(dir)
+      .filter((name) => name.endsWith('.yaml'))
+      .sort()
+      .filter((name) => readFileSync(join(dir, name), 'utf8').includes('\n      skills:\n'));
+    for (const name of names) {
+      const path = join(dir, name);
+      const ran = await estateRun(FIXTURE, [path]);
+      const first = (ran.json as JudgedJson | undefined)?.runs[0];
+      if (first && !first.pass && first.judged.length > 0) return path;
+    }
+    throw new Error('no judged obligation spec that expects a skill fails on the fake');
+  })();
+  return otherSpec;
+}
 
 type JudgedJson = Omit<RunJson, 'runs'> & {
   judge: string;
@@ -665,7 +681,7 @@ describe('judged criteria in estate run', () => {
   it('asks the judge for each judged criterion, adds its cost to the run, and fails a criterion it fails', async () => {
     const result = await estateRun(
       FIXTURE,
-      [HOLIDAY, OTHER],
+      [HOLIDAY, await secondSpec()],
       '--judge',
       'claude:haiku',
       '--judge-command',
@@ -674,7 +690,10 @@ describe('judged criteria in estate run', () => {
     expect(result.err).toBe('');
     const json = result.json as JudgedJson;
     expect(json.judge).toBe('claude:haiku');
-    const [holiday, other] = json.runs;
+    const holiday = json.runs.find((run) =>
+      run.judged.some((each) => each.criterion.includes('route-planner')),
+    );
+    const other = json.runs.find((run) => run !== holiday);
     expect(holiday?.judged).toEqual([
       { criterion: 'instruction.route-planner.never-plan-a-delivery-on-a', outcome: 'fail' },
     ]);
@@ -691,7 +710,7 @@ describe('judged criteria in estate run', () => {
   }, 120_000);
 
   it('without a judge, a judged criterion is inconclusive and the spec cannot pass', async () => {
-    const result = await estateRun(FIXTURE, [OTHER]);
+    const result = await estateRun(FIXTURE, [await secondSpec()]);
     const json = result.json as JudgedJson;
     expect(json.judge).toBe('none');
     expect(json.judgeCostUsd).toBe(0);
@@ -704,13 +723,13 @@ describe('judged criteria in estate run', () => {
   }, 120_000);
 
   it('refuses a billed judge with no budget, and a judge that is not claude:<model>', async () => {
-    const billed = await estateRun(FIXTURE, [OTHER], '--judge', 'claude:haiku');
+    const billed = await estateRun(FIXTURE, [await secondSpec()], '--judge', 'claude:haiku');
     expect(billed.code).toBe(2);
     expect(billed.err).toContain('--judge-budget');
-    const other = await estateRun(FIXTURE, [OTHER], '--judge', 'gpt:4');
+    const other = await estateRun(FIXTURE, [await secondSpec()], '--judge', 'gpt:4');
     expect(other.code).toBe(2);
     expect(other.err).toContain('claude:<model>');
-    const stray = await estateRun(FIXTURE, [OTHER], '--judge-budget', '1');
+    const stray = await estateRun(FIXTURE, [await secondSpec()], '--judge-budget', '1');
     expect(stray.code).toBe(2);
   }, 60_000);
 });

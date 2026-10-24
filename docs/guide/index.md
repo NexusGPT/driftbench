@@ -99,8 +99,8 @@ Each word is explained again where it first appears. This list is for looking on
 | Atom | One thing your files tell the agent to do or to use, kept with a quote of its line. | "Never run `git push --force`." |
 | Map | The list of all atoms of an estate. | `build/map.yaml`. |
 | Plan | The list of situations to test, chosen so that every pair of situations meets once. | `build/plan.yaml`. |
-| Ledger id | An id of a sentence of your prompt that stays the same when you edit the sentence. | `wrl4c7wlvb`. |
-| Blast radius | The tests that an edit can change. | 17 of 1254 blocks. |
+| Ledger id | An id of a sentence of your prompt that stays the same when you edit the sentence. | `nmsqgwccyc`. |
+| Blast radius | The tests that an edit can change. | 16 of 1238 blocks. |
 | Interval | The range a rate could really lie in, given how many tests you ran. | 50% with an interval of 23% to 77%. |
 | Adapter | The piece that connects driftbench to your agent. | A function, a web address, a command. |
 | Stage | A step of the conversation that your agent goes through, named in the spec. | `address`, then `offer`, then `recap`. |
@@ -113,5 +113,5 @@ Each word is explained again where it first appears. This list is for looking on
 | Stand-in | A script that plays recorded answers in place of the agent. It costs nothing. | `northwind/live/fake/claude.mjs`. |
 | Labeler | A model that reads your prose and says which sentences are rules. | `system2:anthropic`. |
 | Seeder | A method that writes one family of tests from a map. | `twise`, which covers every pair of values. |
-| Cell | One test file run once. | 17 of 1251 cells. |
+| Cell | One test file run once. | 16 of 1235 cells. |
 | Mode F | The agent runs the whole conversation on its own replies. | `Mode F, free-running`. |

@@ -28,7 +28,17 @@ async function run(argv: string[]) {
 
 describe('driftbench estate static', () => {
   it('runs the committed static tests on the fixture: the planted invariant defects fail, the settings pass', async () => {
-    const result = await run(['estate', 'static', STATIC, '--estate', FIXTURE, '--json']);
+    // The registry columns come from the map: a static run with no map has no roles to read a registry by.
+    const result = await run([
+      'estate',
+      'static',
+      STATIC,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'approved.yaml'),
+      '--json',
+    ]);
     expect(result.err).toBe('');
     expect(result.code).toBe(1);
     const json = JSON.parse(result.out) as {
@@ -61,7 +71,9 @@ describe('driftbench estate static', () => {
     expect(mapped.code).toBe(1);
     const named = JSON.parse(mapped.out) as { results: Array<{ detail: string }> };
     expect(named.results[0]?.detail).toContain(
-      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
+      // The second orphan is the steps file: its sentence has 13 recorded runs, none 10 and rule 3, so no reference atom
+      // names it.
+      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md",".claude/steps.json"]}',
     );
     const bad = await run([
       'estate',

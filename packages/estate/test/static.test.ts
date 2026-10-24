@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, loadEstateMap, runStaticTests } from '../src/index';
-import { FIXTURE, HAND_ROLES } from './support';
+import { ClaudeCodeReader, runStaticTests } from '../src/index';
+import { FIXTURE, HAND_ROLES, scanPlantedFixture } from './support';
 
 function test(id: string, check: StaticTest['check']): StaticTest {
   return {
@@ -51,8 +51,9 @@ describe('the static runner', () => {
   });
 
   it('counts the files the atoms of a given map name, which code cannot read again from the prose', async () => {
-    const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
-    if (!loaded.ok) throw new Error('invalid map');
+    // The atoms of a planted-label scan: which files the sentences name is the thing under test, not which sentences a
+    // model reads as references.
+    const { map } = await scanPlantedFixture();
     const [alone] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
@@ -64,7 +65,7 @@ describe('the static runner', () => {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
       registryRoles: HAND_ROLES,
-      map: loaded.map,
+      map,
     });
     expect(mapped?.pass).toBe(false);
     expect(JSON.parse(mapped?.detail.slice(mapped.detail.indexOf('{')) ?? '{}')).toEqual({

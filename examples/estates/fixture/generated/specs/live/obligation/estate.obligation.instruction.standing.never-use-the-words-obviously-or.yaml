@@ -12,6 +12,7 @@ tags:
   - test:obligation
   - mode:live
   - kind:instruction
+  - kind:gate
   - judged
 target:
   adapter: claude-code
@@ -68,6 +69,7 @@ metadata:
   estate:
     atoms:
       - instruction.standing.never-use-the-words-obviously-or
+      - gate.standing.read-claude-memory-memory-md-before
     planRow: obligation.instruction.standing.never-use-the-words-obviously-or
     cell:
       atoms.instruction: instruction.standing.never-use-the-words-obviously-or
@@ -91,6 +93,15 @@ metadata:
         rule: instruction.standing.never-use-the-words-obviously-or
         ledger: w5v46k2lbi
       relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 708456f152fd
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-claude-memory-memory-md-before
+        ledger: 2z5lfdx7uu
+      relation: exercises
       status: declared
       created_by: generator
       at_version: 708456f152fd

@@ -107,7 +107,7 @@ metadata:
       relation: exercises
       status: declared
       created_by: generator
-      at_version: db9e07132a1b
+      at_version: 708456f152fd
     - block: ask
       to:
         kind: rule
@@ -116,7 +116,7 @@ metadata:
       relation: exercises
       status: declared
       created_by: generator
-      at_version: db9e07132a1b
+      at_version: 708456f152fd
     - block: ask
       to:
         kind: plan_row

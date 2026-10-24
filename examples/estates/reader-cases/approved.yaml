@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-23T06:11:57.932Z
+readAt: 2026-10-23T13:46:06.213Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -604,6 +604,8 @@ atoms:
       tool: Bash
       effect: declared
       rule: Bash
+      rules:
+        - Bash(./scripts/track.sh *)
   - id: setting.settings.setting-model-is-opus
     kind: setting
     title: Setting model is opus
@@ -845,6 +847,8 @@ atoms:
       from: .claude/memory/MEMORY.md
       extraction: pointer
       unit: gv2geffhvz
+      section:
+        - Memory
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -866,6 +870,8 @@ atoms:
     fields:
       extraction: pointer
       unit: 7wqtvpz2nv
+      section:
+        - Memory
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -893,6 +899,8 @@ atoms:
     fields:
       extraction: pointer
       unit: vbhqgyxxpc
+      section:
+        - Supplier languages
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -929,6 +937,9 @@ atoms:
     fields:
       extraction: pointer
       unit: eppoqn4q54
+      section:
+        - Claim rules
+        - Deadlines
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -956,6 +967,9 @@ atoms:
     fields:
       extraction: pointer
       unit: rhb3gjoz4g
+      section:
+        - Claim rules
+        - Deadlines
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -982,6 +996,8 @@ atoms:
     fields:
       extraction: pointer
       unit: s5wuhau5gf
+      section:
+        - Supplier languages
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1006,6 +1022,8 @@ atoms:
     fields:
       extraction: pointer
       unit: nutpconjzs
+      section:
+        - Supplier languages
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1035,6 +1053,8 @@ atoms:
       trigger: a claim needs the delivery scan it prints
       extraction: pointer
       unit: 22tewcyoke
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: gate-command
       labeler: jev+anthropic
@@ -1071,6 +1091,8 @@ atoms:
       path: .claude/skills/parcel-claims/scripts/track.sh <carrier> <number>
       extraction: pointer
       unit: 22tewcyoke
+      section:
+        - Carrier claims
       labelSet: gate-forms
       label: gate-split
       labeler: jev+anthropic
@@ -1107,6 +1129,8 @@ atoms:
       from: .claude/skills/parcel-claims/SKILL.md
       extraction: pointer
       unit: 22tewcyoke
+      section:
+        - Carrier claims
       labelSet: gate-forms
       label: gate-split
       labeler: jev+anthropic
@@ -1141,6 +1165,8 @@ atoms:
       path: .claude/skills/parcel-claims/references/supplier-languages.md
       extraction: pointer
       unit: ylqfmr6ppi
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1177,6 +1203,8 @@ atoms:
       from: .claude/skills/parcel-claims/SKILL.md
       extraction: pointer
       unit: ylqfmr6ppi
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1211,6 +1239,8 @@ atoms:
       from: .claude/skills/parcel-claims/SKILL.md
       extraction: pointer
       unit: psptzwq4ip
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1232,6 +1262,8 @@ atoms:
     fields:
       extraction: pointer
       unit: qy6vgb55k4
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -1267,6 +1299,8 @@ atoms:
       path: .claude/skills/parcel-claims/references/notes.md
       extraction: pointer
       unit: gpbcug5bbd
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1304,6 +1338,8 @@ atoms:
       from: .claude/skills/parcel-claims/SKILL.md
       extraction: pointer
       unit: gpbcug5bbd
+      section:
+        - Carrier claims
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1333,6 +1369,8 @@ atoms:
     fields:
       extraction: pointer
       unit: 2pgcgb6enm
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1368,6 +1406,8 @@ atoms:
       from: .claude/skills/shipment-tracker/SKILL.md
       extraction: pointer
       unit: 2pgcgb6enm
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1400,6 +1440,8 @@ atoms:
       from: .claude/skills/shipment-tracker/SKILL.md
       extraction: pointer
       unit: evvnctdqe4
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1428,6 +1470,8 @@ atoms:
       from: .claude/skills/shipment-tracker/SKILL.md
       extraction: pointer
       unit: 6ekeihmkj7
+      section:
+        - Shipment tracker
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1454,6 +1498,9 @@ atoms:
           material: git push --force
       extraction: pointer
       unit: frayno4pmi
+      section:
+        - Reader cases
+        - Rules
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
@@ -1487,6 +1534,9 @@ atoms:
     fields:
       extraction: pointer
       unit: hrqlz3osgc
+      section:
+        - Reader cases
+        - Rules
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
@@ -1524,6 +1574,9 @@ atoms:
       ask: file a claim for a damaged or missing parcel
       extraction: pointer
       unit: uwlke5amtz
+      section:
+        - Reader cases
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -1554,6 +1607,9 @@ atoms:
       ask: know where a shipment is
       extraction: pointer
       unit: bt4ppn3ukn
+      section:
+        - Reader cases
+        - Routing
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
@@ -1586,6 +1642,9 @@ atoms:
       path: .claude/memory/MEMORY.md
       extraction: pointer
       unit: 2z5lfdx7uu
+      section:
+        - Reader cases
+        - Process
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1629,6 +1688,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: 2z5lfdx7uu
+      section:
+        - Reader cases
+        - Process
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
@@ -1663,6 +1725,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: nim22d35d2
+      section:
+        - Reader cases
+        - Process
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1690,6 +1755,9 @@ atoms:
       from: CLAUDE.md
       extraction: pointer
       unit: nim22d35d2
+      section:
+        - Reader cases
+        - Process
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
@@ -1912,5 +1980,5 @@ registryRoles:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-23T06:11:57.932Z
+  at: 2026-10-23T13:46:06.213Z
 hash: a1677629ad0a350fb1d02832e5014e769a8d0ec8354837d89cf62f578b1ce4c0
