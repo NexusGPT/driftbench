@@ -555,6 +555,9 @@ function scanReport(
   return lines.join('\n');
 }
 
+/** A permission check: it polices the settings, so a run with nothing to police is not a lint that left a check out. */
+const isPolicyCheck = (check: string): boolean => check.startsWith('PERMISSION_');
+
 /** What a lint of a map gives: the result, or the exit code of a map or estate that could not be read. */
 export type LintRun =
   | { ok: false; code: number }
@@ -713,10 +716,15 @@ export async function estateLintCommand(
     ['missing-capability', 'the run lacks what it requires'],
   ] as const) {
     const codes = result.outcomes
-      .filter((outcome) => outcome.notRun === reason)
+      .filter((outcome) => outcome.notRun === reason && !isPolicyCheck(outcome.check))
       .map((outcome) => outcome.check);
     if (codes.length > 0) lines.push(`  not-run     ${codes.join(', ')}: ${text}.`);
   }
+  // A policy check with nothing to police (no settings, or none of its kind in them) is named apart: it neither fails nor clears the lint.
+  const idle = result.outcomes
+    .filter((outcome) => outcome.status === 'not-run' && isPolicyCheck(outcome.check))
+    .map((outcome) => outcome.check);
+  if (idle.length > 0) lines.push(`  policy      ${idle.join(', ')}: nothing to police.`);
   if (result.unknown.length > 0) {
     const named = result.unknown.slice(0, 5).join(', ');
     const more = result.unknown.length > 5 ? ` and ${result.unknown.length - 5} more` : '';
@@ -737,7 +745,10 @@ export async function estateLintCommand(
   }
   // A check the run lacks a capability for (no settings, no guard) is named on its own line and does not fail the lint.
   const notRun = result.outcomes.filter(
-    (outcome) => outcome.status === 'not-run' && outcome.notRun !== 'missing-capability',
+    (outcome) =>
+      outcome.status === 'not-run' &&
+      outcome.notRun !== 'missing-capability' &&
+      !isPolicyCheck(outcome.check),
   ).length;
   // Not clean names every reason that holds: the files no check read, then the checks that did not run.
   const reasons = [

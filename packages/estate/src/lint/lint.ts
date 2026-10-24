@@ -367,7 +367,12 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       ? 'none-ran'
       : unknown.length > 0
         ? 'unknown-files'
-        : outcomes.some((outcome) => outcome.status === 'not-run' && outcome.notRun !== 'missing-capability')
+        : outcomes.some(
+            (outcome) =>
+              outcome.status === 'not-run' &&
+              outcome.notRun !== 'missing-capability' &&
+              !outcome.check.startsWith('PERMISSION_'),
+          )
           ? 'checks-not-run'
           : 'clean';
   return { findings: kept, outcomes, failed, counts, unknown, summary };
