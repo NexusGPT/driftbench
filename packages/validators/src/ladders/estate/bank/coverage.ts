@@ -450,15 +450,13 @@ const CASES: Case[] = [
         'AMBIGUOUS_REFERENCE',
         'EXTERNAL',
         'MISSING_SCRIPT',
-      ],
-      lacking: [
-        'REGISTRY_ROW',
-        'REGISTRY_GUARD',
+        // The settings were read and hold no permission rule, so the permission checks had no input.
         'PERMISSION_UNKNOWN_SKILL',
         'PERMISSION_UNKNOWN_HELPER',
         'PERMISSION_READ_BYPASS',
         'PERMISSION_BYPASS_MODE',
       ],
+      lacking: ['REGISTRY_ROW', 'REGISTRY_GUARD'],
     }),
   },
   {
