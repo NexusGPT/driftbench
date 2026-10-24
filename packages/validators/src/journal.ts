@@ -69,6 +69,18 @@ export const JournalRowSchema = z
     /** The failing items that are composite checks (no distinct-cause credit). Goes with failingCauses. */
     failingComposite: count.optional(),
     executor: z.enum(['builder', 'blind']).optional(),
+    /**
+     * The pilot round the row belongs to (a short id such as r2 or r4). A pilot is measured on the bank of its day, and an
+     * audit runs another when the bank has grown: the iterations count on their own inside a round, and `--hardness`
+     * measures the latest complete round and names it. A row with no round belongs to the unnamed round.
+     */
+    pilotRound: z
+      .string()
+      .regex(
+        /^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$/,
+        'a pilot round is a short id of letters, digits, dots, dashes and underscores',
+      )
+      .optional(),
     /** The catch items, counted apart: `bankSize` and `passing` hold the hardness items alone (section 12.4). */
     catchItems: z.object({ size: count, passing: count }).strict().optional(),
     failingWithoutCause: count.optional(),
@@ -255,12 +267,22 @@ export function executorOf(row: Pick<JournalRow, 'executor'>): Executor {
   return row.executor ?? 'builder';
 }
 
+/** The pilot round of a row: its id, or null for the unnamed round of the rows that name none. */
+export function pilotRoundOf(row: Pick<JournalRow, 'pilotRound'>): string | null {
+  return row.pilotRound ?? null;
+}
+
 /**
- * The iterations the next row of an executor may carry. Each executor counts on its own: the builder from 0;
- * the blind executor from 0 (its own baseline) or from 1 (it starts from the builder's iteration 0).
+ * The iterations the next row of an executor may carry. Each executor counts on its own, and inside a pilot round: the
+ * builder from 0; the blind executor from 0 (its own baseline) or from 1 (it starts from the builder's iteration 0). A
+ * round with no row yet starts there again, whatever the earlier rounds hold.
  */
-export function nextIterations(previous: readonly JournalRow[], executor: Executor): number[] {
-  const own = previous.filter((row) => executorOf(row) === executor);
+export function nextIterations(
+  previous: readonly JournalRow[],
+  executor: Executor,
+  round: string | null = null,
+): number[] {
+  const own = previous.filter((row) => executorOf(row) === executor && pilotRoundOf(row) === round);
   const last = own.at(-1);
   if (last) return [last.iteration + 1];
   return executor === 'blind' ? [0, 1] : [0];
@@ -289,7 +311,7 @@ export function readJournal(root: string, component: string): { rows: JournalRow
         problems.push(`${journalFile(component)}:${index + 1} ${rowIssues(parsed.error.issues).join('; ')}`);
     });
   rows.forEach((row, index) => {
-    const allowed = nextIterations(rows.slice(0, index), executorOf(row));
+    const allowed = nextIterations(rows.slice(0, index), executorOf(row), pilotRoundOf(row));
     if (!allowed.includes(row.iteration)) {
       problems.push(
         `${journalFile(component)}: row ${index + 1} (${executorOf(row)}) says iteration ${row.iteration}, not ${allowed.join(' or ')}.`,
@@ -307,7 +329,7 @@ export function validateRow(
   const parsed = JournalRowSchema.safeParse(value);
   if (!parsed.success) return { refused: rowIssues(parsed.error.issues) };
   const executor = executorOf(parsed.data);
-  const allowed = nextIterations(previous, executor);
+  const allowed = nextIterations(previous, executor, pilotRoundOf(parsed.data));
   if (!allowed.includes(parsed.data.iteration)) {
     return {
       refused: [

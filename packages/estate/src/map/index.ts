@@ -15,4 +15,5 @@ export {
   renderEstateMap,
   validateEstateMap,
 } from './file';
+export { type MapRoot, resolveMapRoot } from './root';
 export { ESTATE_AXES, ESTATE_CONSTRAINTS, type EstateSpaceOptions, toEstateSpaceMap } from './space';

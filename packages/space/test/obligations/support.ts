@@ -53,7 +53,11 @@ export function spec(id: string, blocks: ObligationBlock[], extra: SpecFields = 
 }
 
 /** The same spec cut to these blocks, with any field changed. */
-export function cut(one: ObligationSpec, blocks: ObligationBlock[], extra: SpecFields = {}): ObligationSpec {
+export function cut(
+  one: ObligationSpec,
+  blocks: readonly ObligationBlock[],
+  extra: SpecFields = {},
+): ObligationSpec {
   return { ...one, blocks, ...extra };
 }
 

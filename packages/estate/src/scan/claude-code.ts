@@ -1,6 +1,17 @@
 import { homedir } from 'node:os';
 import { basename, join, posix, resolve } from 'node:path';
-import { CLAUDE_CODE_PROFILE, type PartType, variablePrefix } from '@agent-nexus/driftbench-core';
+import {
+  CLAUDE_CODE_PROFILE,
+  coveringType,
+  type ModelCoverage,
+  type PartType,
+  parseTypes,
+  pathWithin,
+  renderedSettingsFile,
+  type SkippedInput,
+  type TypeSet,
+  variablePrefix,
+} from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import {
   comparableName,
@@ -68,6 +79,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 
 /** The runtime profile this reader reads by: its layout, its part types, the variables. */
 const PROFILE = CLAUDE_CODE_PROFILE;
+/** The place a rendered copy of the settings stands in, when the profile takes one. */
+const RENDERED_SETTINGS = renderedSettingsFile(PROFILE);
 const LAYOUT = PROFILE.layout.root;
 /** The types the profile maps to a kind of the map, by that kind, in the profile's order. */
 const typesOfKind = (kind: string): PartType[] =>
@@ -160,7 +173,26 @@ export type ClaudeCodeReaderOptions = {
   home?: string;
   /** How the reader classifies a file and finds the files beside the layout it reads. */
   classifier?: FileClassifier;
+  /**
+   * A rendered copy of the settings, for an estate whose install step writes them: the copy is read as the
+   * settings file of the place the profile gives it, when the estate holds no file there.
+   */
+  settings?: string;
 };
+
+/**
+ * The estate stores a file in the place a rendered copy of the settings was handed over for: two sources for one
+ * place. The reader refuses; the caller decides which one the scan is about.
+ */
+export class RenderedSettingsConflict extends Error {
+  readonly code = 'rendered-settings-conflict';
+  constructor(readonly place: string) {
+    super(
+      `the estate holds its own ${place}: scan it as it is, or scan a copy of the estate without that file`,
+    );
+    this.name = 'RenderedSettingsConflict';
+  }
+}
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
 
@@ -174,6 +206,8 @@ type EstateConfig = {
   home?: string;
   /** Declared document roles, by glob: they win over a recorded label and over structure. */
   documents?: Array<{ rule: IgnoreRule; role: DocumentRole }>;
+  /** The profile's types and the ones the configuration's `types:` declares. */
+  types?: TypeSet;
 };
 
 /**
@@ -189,6 +223,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly userSkills: string | undefined;
   private readonly home: string | undefined;
   private readonly classifier: FileClassifier;
+  private readonly settings: string | undefined;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -202,6 +237,13 @@ export class ClaudeCodeReader implements EstateReader {
       throw new RangeError('home must name a folder: an empty value would read the working folder as home');
     this.home = options.home;
     this.classifier = options.classifier ?? PROFILE_CLASSIFIER;
+    if (options.settings !== undefined) {
+      if (options.settings.trim() === '')
+        throw new RangeError('settings must name a file: an empty value names no rendered copy');
+      if (RENDERED_SETTINGS === undefined)
+        throw new RangeError(`the ${PROFILE.name} profile takes no rendered copy of the settings`);
+    }
+    this.settings = options.settings;
   }
 
   /**
@@ -218,7 +260,7 @@ export class ClaudeCodeReader implements EstateReader {
     const raw = await this.read(root);
     // The user-level skill layer is no part of the project: a copy of the project holds none of it.
     const rootReferences = [
-      ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
+      ...raw.files.filter((file) => file.layer !== 'user' && !file.rendered).map((file) => file.path),
       ...raw.notes
         .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
         .map((note) => note.file),
@@ -255,10 +297,22 @@ export class ClaudeCodeReader implements EstateReader {
     const notes: ReadNote[] = [];
     const { config, chosen, ignored } = await this.ignoreOf(root, notes);
     await noteFollowed(root, LAYOUT, notes);
+    // Every file beside the layout the walk for nested standing files meets, for the count of unknown files.
+    const beside: Beside = { files: [], pruned: new Set() };
     const paths = [
       ...(await present(root, PROFILE.standing.rootFiles, notes)),
       ...(await walk(root, LAYOUT, notes, ignored)),
-      ...(await nestedStanding(root, '', notes, ignored, this.classifier)),
+      ...(await nestedStanding(
+        root,
+        '',
+        notes,
+        ignored,
+        this.classifier,
+        undefined,
+        undefined,
+        undefined,
+        beside,
+      )),
     ];
     const files: EstateFile[] = [];
     const loaded = await readBatch(paths, async (path) => ({
@@ -273,6 +327,21 @@ export class ClaudeCodeReader implements EstateReader {
         notes.push({ file: path, message: 'empty file: nothing to read' });
         files.push({ path, text, kind: 'other' });
       } else files.push({ path, text, ...this.classifier.classify(path, text) });
+    }
+    if (this.settings !== undefined && RENDERED_SETTINGS !== undefined) {
+      if (files.some((file) => file.path === RENDERED_SETTINGS))
+        throw new RenderedSettingsConflict(RENDERED_SETTINGS);
+      const text = (await readFile(this.settings, 'utf8')).replace(/^\uFEFF/, '');
+      if (text.trim() === '') {
+        notes.push({ file: RENDERED_SETTINGS, message: 'empty file: nothing to read' });
+        files.push({ path: RENDERED_SETTINGS, text, kind: 'other', rendered: true });
+      } else
+        files.push({
+          path: RENDERED_SETTINGS,
+          text,
+          ...this.classifier.classify(RENDERED_SETTINGS, text),
+          rendered: true,
+        });
     }
 
     for (const file of files)
@@ -368,7 +437,7 @@ export class ClaudeCodeReader implements EstateReader {
       const name = nameOf.get(file.path.split('/').slice(0, 3).join('/'));
       if (name !== undefined) file.owner = name;
     }
-    await readRootReferences(root, estate, ignored, budget);
+    const reached = await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
     const registries = files.filter(
@@ -397,9 +466,72 @@ export class ClaudeCodeReader implements EstateReader {
         if (found) estate.home.present.push(script);
       }
     }
+    const texts = new Map(files.map((file) => [file.path, file.text]));
+    estate.coverage = coverageOf({
+      paths: [...paths, ...beside.files],
+      texts,
+      types: config.types ?? PROFILE.types,
+      reached,
+      large: estate.notes
+        .filter((note) => note.message === LARGE_NOTE && !isUserLayerPath(note.file))
+        .map((note) => note.file),
+      ignored: ignored.rules
+        .filter((rule) => (ignored.counts.get(rule.pattern) ?? 0) > 0)
+        .map((rule) => rule.pattern),
+      pruned: [...beside.pruned],
+    });
     return estate;
   }
 }
+
+/** The files beside the layout the walk for nested standing files met, and the globs that pruned a path there. */
+type Beside = { files: string[]; pruned: Set<string> };
+
+const LARGE_NOTE = 'skipped: larger than 1 MB';
+
+/**
+ * What the read covered: each file under the root it met (the layout folder walked whole, the standing files,
+ * every file beside the layout) is covered when a part type locates it or a reference of the estate reached it,
+ * left out with the code of why (the estate configuration, a file over the size limit, an ignore glob), or else
+ * unknown: no type covers it, so no check can have looked at it.
+ */
+function coverageOf(input: {
+  paths: readonly string[];
+  /** The text of each file the read loaded, for the types that cover a file only when it has their shape. */
+  texts: ReadonlyMap<string, string>;
+  types: TypeSet;
+  reached: ReadonlySet<string>;
+  large: readonly string[];
+  /** The ignore globs that skipped a file the walks counted. */
+  ignored: readonly string[];
+  /** The ignore globs that pruned a path beside the layout: left out only when the root itself is counted. */
+  pruned: readonly string[];
+}): ModelCoverage {
+  const config = new Set(PROFILE.configFiles);
+  const large = [...new Set(input.large)].sort(byExactName);
+  const skipped: SkippedInput[] = [];
+  const unknown: string[] = [];
+  let covered = 0;
+  const roots = PROFILE.coverageRoots.flatMap((name) => {
+    const folder = PROFILE.roots[name];
+    return folder === undefined ? [] : [folder];
+  });
+  const counted = (path: string) => roots.some((folder) => pathWithin(folder, path) !== undefined);
+  for (const path of [...new Set(input.paths)].sort(byExactName)) {
+    const text = input.texts.get(path);
+    const hasShape = (shape: string) => text !== undefined && READER_SHAPES[shape]?.(text, path) === true;
+    const located = coveringType(input.types, path, hasShape) !== undefined || input.reached.has(path);
+    if (config.has(path)) skipped.push({ what: path, reason: 'estate-config' });
+    else if (located) covered += 1;
+    else if (counted(path)) unknown.push(path);
+  }
+  for (const path of large) skipped.push({ what: path, reason: 'too-large' });
+  const globs = new Set([...input.ignored, ...(roots.includes('.') ? input.pruned : [])]);
+  for (const glob of globs) skipped.push({ what: glob, reason: 'ignored' });
+  return { covered, unknown, skipped };
+}
+
+const byExactName = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /** Follow explicit document references and standing imports, once each, without loading unrelated prose. */
 async function readRootReferences(
@@ -407,7 +539,9 @@ async function readRootReferences(
   estate: RawEstate,
   ignored: Ignored,
   budget: number,
-): Promise<void> {
+): Promise<Set<string>> {
+  // The files a reference or an import of the estate reached: they are covered, whatever their type.
+  const reached = new Set<string>();
   const files = new Map(estate.files.map((file) => [file.path, file]));
   const byName = fileNames(files);
   const skipped = new Set(ignored.paths);
@@ -504,6 +638,7 @@ async function readRootReferences(
           // The name gets a new list: a list of names is never changed in place once built.
           byName.set(basename(path), [...(byName.get(basename(path)) ?? []), path]);
         }
+        reached.add(path);
         // An imported file is standing; a file code reads as structure (a registry, settings, a step list,
         // a guard, an alias table) is not sent again as prose.
         if (imported) candidate.kind = 'standing';
@@ -527,6 +662,7 @@ async function readRootReferences(
   }
   for (const pattern of estate.ignored?.patterns ?? [])
     pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
+  return reached;
 }
 
 /** Discover only nested standing instructions; ignore whole excluded trees and stop directory cycles. */
@@ -539,6 +675,7 @@ async function nestedStanding(
   ancestors: Set<string> = new Set(),
   canonical?: string,
   found: string[] = [],
+  beside?: Beside,
 ): Promise<string[]> {
   const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (!real) return [];
@@ -552,7 +689,11 @@ async function nestedStanding(
       const path = posix.join(folder, entry.name);
       // The regular layout walk already owns this tree and the root standing files.
       if (folder === '' && (entry.name === LAYOUT || PROFILE.standing.rootFiles.includes(path))) continue;
-      if (ignored.rules.some((rule) => rule.test(path))) continue;
+      const rule = ignored.rules.find((candidate) => candidate.test(path));
+      if (rule) {
+        beside?.pruned.add(rule.pattern);
+        continue;
+      }
       // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
       if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
@@ -566,12 +707,13 @@ async function nestedStanding(
           ancestors,
           entry.isSymbolicLink() ? undefined : join(real, entry.name),
           found,
+          beside,
         );
       } else if (classifier.besideLayout(path) && (entry.isFile() || linked?.isFile())) {
         const info = linked ?? (await stat(join(root, path)));
-        if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+        if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: LARGE_NOTE });
         else found.push(path);
-      }
+      } else if (entry.isFile() || linked?.isFile()) beside?.files.push(path);
     }
     return found;
   } finally {
@@ -685,8 +827,30 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
         message: 'aliases: must map each alias to a folder or a list of folders',
       });
   }
+  if (parsed.types !== undefined) {
+    // Part types the estate declares beside the profile's, in the versioned types schema. A user type covers its
+    // files; it changes no kind the map gives a file. A document with any fault is refused whole.
+    const types = parseTypes(
+      { version: TYPES_IN_CONFIG, types: parsed.types },
+      {
+        runtime: PROFILE.name,
+        roots: PROFILE.roots,
+        base: PROFILE.types,
+        folder: posix.dirname(place),
+        source: place,
+        shapes: PROFILE.shapes,
+      },
+    );
+    if (types.ok) config.types = types.set;
+    else
+      for (const error of types.errors)
+        notes.push({ file: place, message: `types: ${error.code} at ${error.path}: ${error.message}` });
+  }
   return config;
 }
+
+/** The types schema version the `types:` key of the estate configuration is written in. */
+const TYPES_IN_CONFIG = 1;
 
 /**
  * Where the user-level skill layer is read from: the option, else the configuration, else nowhere. A home folder

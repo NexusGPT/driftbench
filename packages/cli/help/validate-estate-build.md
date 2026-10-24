@@ -35,7 +35,7 @@ Each stage calls the same code as its own command, so the files equal what the s
 ## Commands and every option
 
 ```
-driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--pointer] [--labels <file>] [--cassette <file>] [--record | --plan-only] [--labeler <spec>]... [--jobs <n>] [--prices <file>] [--phrases <file>] [--sessions <file>] [--t <n>]
+driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <name>] [--replay <file>] [--no-model] [--provider <name>] [--ignore <glob>]... [--settings <file>] [--pointer] [--labels <file>] [--cassette <file>] [--record | --plan-only] [--labeler <spec>]... [--jobs <n>] [--prices <file>] [--phrases <file>] [--sessions <file>] [--t <n>]
 ```
 
 | Option | Default | Meaning |
@@ -49,6 +49,7 @@ driftbench estate build <root> [--out <dir>] [--yes] [--verbose] [--runtime <nam
 | `--no-model` | off | read the structured atoms only; no prose atom |
 | `--provider <name>` | the first whose key is set | `anthropic` or `openai` |
 | `--ignore <glob>` | none | skip the paths this glob matches; repeat it |
+| `--settings <file>` | none | read this rendered copy of the settings, for an estate whose install step writes them; the scan and the lint of the build both read it |
 | `--pointer` | off | read the prose with the pointer reader and keep `ledger.json` in the folder |
 | `--labels <file>` | the shipped set | with `--pointer`: the label sets |
 | `--cassette <file>` | none | with `--pointer`: the recorded labeler answers |

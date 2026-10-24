@@ -15,6 +15,8 @@ export type RoutingRule = 'route-table' | 'description' | 'name';
 /**
  * Where the runtime's settings come from: files the estate holds as they are (`static`), or one file the user
  * renders beforehand and names on the command line (`rendered`, e.g. a settings file a build step writes).
+ * A rendered copy is read as the settings file of the place `file` names (relative to the estate root), so its
+ * parts are the parts that file would give; it is accepted only when the estate holds no file of that place.
  */
 export type SettingsSource =
   | { kind: 'static'; files: readonly string[] }
@@ -65,6 +67,11 @@ export type RuntimeProfile = {
   mapKinds: Readonly<Record<string, string>>;
   /** The structures its reader can test a file for, which a type's `shape` names. */
   shapes: readonly string[];
+  /**
+   * The roots, by name, whose every file counts for coverage: a file under one that no type covers is unknown.
+   * A file outside them counts only when a type locates it or a reference of the estate reaches it.
+   */
+  coverageRoots: readonly string[];
   layout: LayoutProfile;
   standing: StandingProfile;
   /** Where settings come from; the first static source is what the reader classifies as settings. */
@@ -98,6 +105,12 @@ export function loadsByItself(name: string, types: TypeSet): (path: string) => b
     const clean = path.replace(/^\.?\/+/, '').replace(/\/+/g, '/');
     return own.some((type) => locateFile(type, clean) !== undefined);
   };
+}
+
+/** The place a rendered copy of the settings stands in, or undefined when the profile takes no rendered copy. */
+export function renderedSettingsFile(profile: RuntimeProfile): string | undefined {
+  for (const source of profile.settings) if (source.kind === 'rendered') return source.file;
+  return undefined;
 }
 
 /** The files of the settings sources that are static, in order. */

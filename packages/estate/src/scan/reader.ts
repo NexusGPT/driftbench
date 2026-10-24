@@ -1,3 +1,4 @@
+import type { ModelCoverage } from '@agent-nexus/driftbench-core';
 import type { DocumentInfo } from '../schema';
 import type { Located } from './text';
 
@@ -37,6 +38,11 @@ export type EstateFile = {
   owner?: string;
   document?: DocumentInfo;
   layer?: 'user';
+  /**
+   * True for a file the reader was handed outside the estate, in the place of a file the estate does not hold
+   * (a rendered copy of the settings): a copy of the estate holds none.
+   */
+  rendered?: true;
 };
 
 /** Whether a path of the map is a file of the user-level skill layer. */
@@ -221,6 +227,11 @@ export type RawEstate = {
    * one that starts with `~/` or `/`, is external when the estate does not hold it.
    */
   externals?: string[];
+  /**
+   * What the read covered among the files under the root: how many a part type covers or a reference reached,
+   * the files no type covers (unknown), and what was left out on purpose with the code of why.
+   */
+  coverage?: ModelCoverage;
 };
 
 export interface EstateReader {

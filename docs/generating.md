@@ -353,7 +353,7 @@ The generator keeps the allocation even. No stage, deviation class or behaviour 
 1. A walk that declares perturbations places them where the suite has the least. A recovery that was drawn moves to a rarer stage with the same wording when its flow recovers from the class there. Further recoveries, at most one per class and walk, are added at the rarest stage the walk reaches: before its first turn for a class a first message can carry, between turns, or after its last turn. Only a class whose flow recovers in place (the conversation stays where it arrived) is declared this way, with the wording and the Then the map approves. This adds no block, no random draw and no spec. A probe for a class goes to the stage where the suite gains most, counting the moves before it when the walk ends there.
 2. When the declared recoveries do not reach the floor, short approved walks fill the rarest stage (`gen-stage-balance-NNN`): a path cut after the stage, or the whole path for the last stage. Of the paths through the stage, the walk that leaves stages and classes nearest balance is written, and only when it brings them nearer. A walk written to balance declares only what the balance adds, because every other walk already declares one drawn class and a tool failure at the stages it crosses.
 3. Walks for the behaviours a few specs cover (`gen-behaviour-balance-NNN`) go on a path of a flow that holds the behaviour.
-4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or after 40 rounds (`MAX_ROUNDS`), or when 8 rounds in a row (`MAX_STALLED`) reach no new low of the imbalance.
+4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or after 40 rounds (`MAX_ROUNDS`), or when 8 rounds in a row (`MAX_STALLED`) reach no new low of the imbalance, or when the rounds since the lowest imbalance have added more specs than the suite held there (`MAX_GROWTH` is 1), whichever comes first: a map whose strata cannot be balanced only rises, and each round is hundreds of specs for nothing.
 
 A stage, class or behaviour that no approved path or phrase can reach stays under the floor, and the suite is written as it is. The count follows `driftbench coverage`, so a stage placed by a declared perturbation is a placed stage.
 
@@ -367,9 +367,11 @@ A walk often ends the way another walk already ended: the same test, run from th
 * Every ordered pair of consecutive moves the walk took (a stage move and the class said with it) is taken by a spec already written.
 * The stage and class allocation is no further from balance (see the previous section).
 * If the block injects a deviation class, the first probe of that class on the path stays: a probe is owed once per path and class, and the t-wise row of a t-wise spec stays with it. A later probe of the class is cut like any other block when the other conditions hold.
-* The walk has no end state, no declared perturbation said before the block or on it (a perturbed run needs the block to reach it; dropping the declaration with the block was measured and loses 50 perturbed-mode kills on the hidden seed), does not end on a tool failure, and still validates.
+* The walk has no end state and no declared perturbation said before the block or on it that no other walk of the path declares (a perturbed run needs the block to reach it; a declaration is owed once per path and class, as `docs/validators.md` says, so it goes with its block only when another walk of the path declares the same class), does not end on a tool failure, and still validates.
 
 The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. A block that injects a class is cut like any other block, as long as every obligation of the blocks it drops stays held by a written spec: a probe of a class is owed once per path, and a t-wise spec stands for its row (its cell and the class of its first injected block), which the items that read t-wise specs alone count. A later probe the tuples, pairs, allocation and phrase checks allow to go is cut with the blocks after it. A walk that is cut down to one block that a written spec already says, and whose tuples, pairs, probes, t-wise row and allocation are all held by written specs, is not written at all (budget mode and the pass after `--spec-cap` write it). Exactly one walk ends on a block: when a check stops the cut with more than one block left, on a block another written walk ends on, the cut is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. A stay in the middle of a walk (a block that leaves the walk at the stage it started from, with no world, no fact and no injection of its own) that another written spec already says is cut too, when the walk stays valid: the block after it starts from the same stage and the same world. The same checks hold, a block a declared perturbation names stays, and a metamorphic family is never cut from the middle; the cut is recorded in `reduced_middle`. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
+
+That cut sees only the walks written before each one. On the eager writer a second pass looks at the whole suite once it is written (`seed/suite-cut.ts`), and cuts the tail of a walk when the same checks hold against every other walk of the suite, whatever order the walks were written in: it visits the walks in the order of their ids, the highest first, so the walk with the lowest id is the one that stays whole where two end on one block. What the suite owes is the shared ruling (`RULINGS` in `packages/space/src/obligations`, asked through `SuiteIndex.lostBy`): a class probed once per path, a declared perturbation once per path and class, a pair of twins once per path and context axis (the pair the invariance items read), a metamorphic family cut as one unit whose variants keep what tells them apart (the first block where they differ stays), one walk ending on a given block, and a walk dropped only once it is cut to one block. The tuples, pairs, messages, t-wise rows and the allocation stay checks of the generator beside the ruling. The pass runs twice: before the rounds that top the stages and classes up, where the allocation is not a reason to keep a block, and after them, where it is. A walk cut to one block whose tuples, messages and context another walk holds is dropped from the suite; a variant of a metamorphic family is never dropped alone. It goes on until no walk can be cut. In the API, `settle: false` skips it. The writer to disk holds one spec at a time and does not run it; budget mode and `--spec-cap` do not run it either. The report says which: `settle: { run, unsettled }` gives whether the pass ran and, when it did not, how many complete specs were written without it.
 
 Each removed end block is recorded in the shortened spec's `metadata.generated.reduced_ends`.
 The record gives `from_blocks`, `to_blocks`, and `duplicates`: the removed block's `block` ID and
@@ -384,7 +386,7 @@ leaves no removed blocks in the record. Whole specs have no `reduced_ends` entry
 The report's `seeders.<seeder>.cut_blocks` counts the removed blocks in that seeder's written specs,
 including each shortened variant. It is zero when no block is cut. This count is separate from `cut`,
 which reports a seeder stopped by `--max`. With `--spec-cap`, both the count and witnesses refer only
-to specs retained by the cap. The eager and disk APIs write the same record.
+to specs retained by the cap. The eager and disk APIs write the same record, except that the disk API does not run the whole-suite pass.
 
 ### The machine Then in every block
 
@@ -494,9 +496,9 @@ Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     790       153           3
-boundary         85     176        13          72
-deviation       120     562       120           0
+twise           156     789       153           3
+boundary         82     173        10          72
+deviation       118     560       118           0
 metamorphic      42     188        42           0
 task             67      71        67           0
 cover            11      48        11           0
@@ -537,7 +539,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 694 files to generated.
+Wrote 689 files to generated.
 exit 1
 ```
 
