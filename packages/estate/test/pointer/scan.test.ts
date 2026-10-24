@@ -1207,6 +1207,36 @@ describe('a gate whose act span no run located in its unit', () => {
     ]);
   });
 
+  it('asks span-missing of the labeler that can name a span, not of the yes or no labeler that stands first in a stack', async () => {
+    // As the invoice-reconcile gate of the Northwind fixture: system 1 is unsure of every unit and cannot answer a span.
+    let call = 0;
+    const chat = plantedDense(
+      (window) => {
+        call++;
+        const plan = [bare, elsewhere, bare, elsewhere, bare, located];
+        return [
+          plan[call - 1] ?? located,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5, id: 'chat' },
+    );
+    const result = await pointerScan({
+      ...input(chat, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }),
+      labelling: stackedLabelling(
+        plantedYesNo(() => ({ rule: 0.4, gate: 0.4 })),
+        chat,
+        { passAt: 0.6, failAt: 0.2 },
+      ),
+    });
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toEqual([
+      expect.stringContaining('of chat: asked again'),
+    ]);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(labelOf(result)?.spans).toEqual([{ kind: 'governed-action', from: 7, to: 25 }]);
+  });
+
   it('leaves the unit unlabeled, never a rule, when the answer to span-missing gives no span in the unit', async () => {
     const result = await scanPlan([bare, elsewhere, bare, elsewhere, bare, elsewhere]);
     expect(labelOf(result)).toBeUndefined();
