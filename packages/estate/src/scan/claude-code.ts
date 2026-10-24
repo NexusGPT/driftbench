@@ -9,6 +9,7 @@ import {
   pathWithin,
   renderedSettingsFile,
   type SkippedInput,
+  staticSettingsFiles,
   type TypeSet,
   variablePrefix,
 } from '@agent-nexus/driftbench-core';
@@ -185,7 +186,7 @@ export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
     runtime: 'claude-code',
     standing: await found(['CLAUDE.md', 'CLAUDE.local.md'], false),
     folders: await found(['.claude'], true),
-    settings: await found([...SETTINGS], false),
+    settings: await found(staticSettingsFiles(PROFILE), false),
   };
 }
 
