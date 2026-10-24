@@ -601,6 +601,7 @@ export async function lintMap(
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
+    ...(loaded.map.registryRoles ? { registryRoles: loaded.map.registryRoles } : {}),
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
     ...(options.home !== undefined ? { home: userFolder(options.home, io) } : {}),
     ...(settings !== undefined ? { settings } : {}),
@@ -641,7 +642,14 @@ export async function lintMap(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string; home?: string; verbose?: boolean; json?: boolean },
+  options: {
+    ceiling?: string;
+    ignore?: string[];
+    userSkills?: string;
+    home?: string;
+    verbose?: boolean;
+    json?: boolean;
+  },
   io: Io,
 ): Promise<number> {
   const run = await lintMap(path, options, io);

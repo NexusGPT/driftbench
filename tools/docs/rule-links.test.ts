@@ -5,11 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import { main } from '../../packages/cli/src/index';
+import { ANCHOR } from './story-anchor';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
-const RULE = 'instruction.weekly-report.count-only-what-the-ledger-and';
-const LEDGER_ID = 'wrl4c7wlvb';
+const RULE = ANCHOR.atom;
+const LEDGER_ID = ANCHOR.ledger;
 const run = promisify(execFile);
 
 async function cli(argv: string[], cwd: string) {
@@ -116,12 +117,12 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
         'utf8',
       );
       const links = spec.slice(spec.indexOf('  links:\n'));
-      shown(links.slice(0, links.indexOf('    - block: ask', 5)).trimEnd());
+      shown(links.slice(0, links.indexOf('    - block: ask', 10)).trimEnd());
 
-      const skill = join(dir, 'northwind/.claude/skills/weekly-report/SKILL.md');
+      const skill = join(dir, 'northwind', ANCHOR.file);
       const text = await readFile(skill, 'utf8');
-      expect(text).toContain('for the last seven days');
-      await writeFile(skill, text.replace('for the last seven days', 'for the last fourteen days'));
+      expect(text).toContain(ANCHOR.edit.from);
+      await writeFile(skill, text.replace(ANCHOR.edit.from, ANCHOR.edit.to));
       const change = await cli(
         ['radius', 'ledger', 'map.yaml', '--ledger', 'ledger.json', '--out', 'change.yaml'],
         dir,

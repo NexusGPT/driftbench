@@ -523,6 +523,26 @@ describe('blind pointer bank harness', () => {
     }
   });
 
+  it('plants a second window for fence.second-request under the documented budget: arm 0 is over it, cut at a heading', () => {
+    // docs/estate-pointer-reader.md, section Window: a file is one window while its unit text stays under 400,000
+    // characters, and a longer one is cut at a heading. Arm 0 must be past the budget, with a heading that opens a
+    // second part under the budget, and the fence after that heading; arm 1 stays one window.
+    const budget = 400_000;
+    const item = bank.find((i) => i.id === 'privacy.fence.second-request') as BankItem;
+    for (const seed of [1, 2, 3]) {
+      const [first, last] = item.generate(seed).probes as [Probe, Probe];
+      const several = (first.request.input as { source: string }).source;
+      const one = (last.request.input as { source: string }).source;
+      expect(several.length, `seed ${seed}`).toBeGreaterThan(budget);
+      const second = several.lastIndexOf('\n# ');
+      expect(second, `seed ${seed}`).toBeGreaterThan(0);
+      expect(second, `seed ${seed}`).toBeLessThan(budget);
+      expect(several.length - second, `seed ${seed}`).toBeLessThan(budget);
+      expect(several.indexOf('```'), `seed ${seed}`).toBeGreaterThan(second);
+      expect(one.length, `seed ${seed}`).toBeLessThan(budget);
+    }
+  });
+
   it('fails a reader that never sends a request beside an opaque block, and one that sends one for a fence alone', async () => {
     const item = bank.find((i) => i.id === 'privacy.fence.no-request') as BankItem;
     const quiet: PointerAdapter = { execute: () => ({ labels: [], status: 'no-request' }) };

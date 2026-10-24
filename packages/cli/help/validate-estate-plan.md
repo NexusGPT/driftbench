@@ -120,7 +120,7 @@ do not fit. A plan that does not load reports `PLAN_PARSE`, `PLAN_NOT_OBJECT`, `
 ```sh
 driftbench estate plan examples/estates/fixture/approved.yaml --out plan.yaml
 driftbench estate plan approve plan.yaml
-driftbench estate plan approve plan.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
+driftbench estate plan approve plan.yaml --row twin.instruction.inbox-triager.never-answer-a-message-yourself-write --strike
 driftbench estate plan approve plan.yaml --all
 driftbench estate plan approve plan.yaml --row nosuch # exit 1
 driftbench estate plan examples/estates/fixture/approved.yaml --out plan.yaml # exit 2

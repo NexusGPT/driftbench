@@ -169,7 +169,7 @@ const EDITS: Edit[] = [
     cause: RETIRE,
     apply: (r) =>
       edit(r, '.claude/skills/weekly-report/SKILL.md', (text) =>
-        text.replace('allowed-tools: Read, Write, Bash(python3 *)', 'allowed-tools: Read, Write'),
+        text.replace('allowed-tools: Read, Write, Edit, Bash(python3 *)', 'allowed-tools: Read, Write, Edit'),
       ),
   },
   {

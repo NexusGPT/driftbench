@@ -1,10 +1,14 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
+  AGENT_RULES_SET,
   Cassette,
   CassetteMiss,
+  CLOSE_REASK_MAX,
   createAnthropicLabeler,
   cut,
+  denseUser,
+  isTooLarge,
   type Labeler,
   LabelerError,
   type Labelled,
@@ -14,16 +18,19 @@ import {
   outOfStep,
   type PointerInput,
   type PointerPlan,
+  parseLabelSets,
   pointerScan,
   REASK_LIMIT,
   renderLedger,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   singleLabelling,
   stackedLabelling,
+  votedSpans,
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { BAKERY, type Call, load, plantedDense, plantedYesNo } from './support';
+import { BAKERY, type Call, load, plantedDense, plantedYesNo, windowOf } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -81,16 +88,16 @@ const input = (labeler: Labeler, cassette: Cassette, over: Partial<PointerInput>
 const replayOf = (labeler: Labeler): Labeler => ({ ...labeler, call: undefined });
 
 describe('the windows', () => {
-  it('cut at a top-level heading and at the size, and leave an opaque unit out', () => {
+  it('make a file one window, cut only at the size of the labeler, and leave an opaque unit out', () => {
     const text = '# One\n\nA first sentence. A second sentence.\n\n```sh\nrun\n```\n\n# Two\n\n- Item\n';
     const units = cut(text).units;
     const windows = windowsOf('a.md', units, 60);
-    expect(windows.map((window) => window.units.length)).toEqual([3, 2]);
+    expect(windows.map((window) => window.units.length)).toEqual([5]);
     expect(
       windows.flatMap((window) => window.units.map((unit) => units[unit.index]?.container)),
     ).not.toContain('opaque');
-    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 1, 2]);
-    expect(windows[1]?.id).toBe('a.md#2');
+    expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 2, 1]);
+    expect(windowsOf('a.md', units, 2)[1]?.id).toBe('a.md#2');
   });
 
   it('do not cut a table row: the cells of a row stay in one window, so a label can point from one to the next', () => {
@@ -280,13 +287,48 @@ describe('the pointer scan', () => {
         set: 'duty',
         reason: [
           'quay.md#1: "99" leaves the window',
-          'quay.md#1: the label rotate is not in the set duty',
+          'quay.md#1: label-not-in-set (duty)',
           'quay.md#1: "3" names a unit that is already labelled',
         ].join('; '),
       },
     ]);
     expect(result.labelled.filter((item) => item.set.set === 'duty')).toEqual([]);
     expect(result.unlabeled).toBeGreaterThan(0);
+  });
+
+  it('keeps the entries of a refused answer in the failure it records, and replays it as the same failure', async () => {
+    const bad = (window: Window, set: LabelSet): Labelled[] =>
+      set.set === 'duty'
+        ? [
+            { units: '99', label: 'order', spans: [{ kind: 'x', quote: 'copied unit text' }] as never },
+            { units: '1', label: 'rotate', target: 2 },
+            { units: 'some private words', label: 'words of the unit' },
+          ]
+        : byLength(window, set);
+    const cassette = new Cassette();
+    const result = await pointerScan(
+      input(plantedDense(bad), cassette, { files: [FILES[0] as (typeof FILES)[number]] }),
+    );
+    const failed = [...cassette.entries.values()].filter((entry) => entry.answer.refused === 'unreadable');
+    expect(failed.length).toBeGreaterThan(0);
+    // One list per try, with units, label and target only: no span, no copied text.
+    // A label that is not in the set, and units that are no number or range, are stored as the marker "unknown".
+    const tried = [
+      { units: '99', label: 'order' },
+      { units: '1', label: 'unknown', target: 2 },
+      { units: 'unknown', label: 'unknown' },
+    ];
+    expect(failed[0]?.answer.refusedAnswers).toEqual([tried, tried]);
+    // The stored entry holds none of the model's own words, in its answers or in its error.
+    expect(cassette.render()).not.toMatch(/private words|rotate|words of the unit|copied unit text/);
+    const replay = await pointerScan(
+      input(replayOf(plantedDense(bad)), Cassette.parse(cassette.render()), {
+        mode: 'replay',
+        files: [FILES[0] as (typeof FILES)[number]],
+      }),
+    );
+    expect(replay.calls).toBe(0);
+    expect(replay.failedWindows).toEqual(result.failedWindows);
   });
 
   it('retries an unreadable answer once, then lists the window as failed and records the failure', async () => {
@@ -351,8 +393,17 @@ describe('the pointer scan', () => {
     expect(seen.join('\n')).not.toContain('secret fence');
   });
 
+  it('reads too large from the error type the provider named, whatever the words of the message', () => {
+    // A check reads the field, never the message: reworded, the same failure is still too large.
+    const named = { status: 400, providerType: 'max_tokens_exceeded' };
+    expect(isTooLarge(new ModelError('http', '400 max_tokens_exceeded', named))).toBe(true);
+    expect(isTooLarge(new ModelError('http', '400: the request is over the limit', named))).toBe(true);
+    expect(isTooLarge(new ModelError('http', '400 max_tokens_exceeded', { status: 400 }))).toBe(false);
+  });
+
   it('halves a window the endpoint refuses as too large, records the refusal, and replays the same halves', async () => {
-    const tooLarge = () => new ModelError('http', '400 max_tokens_exceeded', { status: 400 });
+    const tooLarge = () =>
+      new ModelError('http', '400 max_tokens_exceeded', { status: 400, providerType: 'max_tokens_exceeded' });
     const log: string[] = [];
     const files = [{ path: 'quay.md', text: QUAY }];
     const refuseOver = (limit: number) => (window: Window) =>
@@ -397,7 +448,11 @@ describe('the pointer scan', () => {
     const result = await pointerScan(
       input(
         plantedDense(byLength, [], {
-          fail: () => new ModelError('http', '400 max_tokens_exceeded', { status: 400 }),
+          fail: () =>
+            new ModelError('http', '400 max_tokens_exceeded', {
+              status: 400,
+              providerType: 'max_tokens_exceeded',
+            }),
         }),
         new Cassette(),
         { files: [{ path: 'one.md', text: 'Lock the gate.\n' }] },
@@ -570,6 +625,36 @@ describe('a labeler that answers several times', () => {
     expect(result.split).toBe(0);
   });
 
+  it('drops a run that leaves a unit out and holds a labelled entry whose anchor starts no line', async () => {
+    // As the reviewer's probe: runs 2 and 3 of the office leave its last unit out, and the entries they do give carry
+    // anchors that start no line (anchored null), so the units they name may be shifted too: those runs are not heard
+    // on any unit of the window, not even on the units they name.
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const left = call >= 2 && window.path === 'office.md' ? window.units.length - 1 : window.units.length;
+        return [
+          {
+            units: `1-${left}`,
+            label: 'order',
+            ...(call >= 2 && window.path === 'office.md' ? { anchored: null } : {}),
+          } as Labelled,
+        ];
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await duty(labeler, new Cassette());
+    const office = result.outOfStep.filter(
+      (note) => note.startsWith('office.md#1 run 2 ') || note.startsWith('office.md#1 run 3 '),
+    );
+    expect(office).toHaveLength(2);
+    for (const note of office)
+      expect(note).toMatch(/units-missing: 1 units .*; the run is left out of the vote$/);
+  });
+
   it('replays the runs from the cassette with no call', async () => {
     const cassette = new Cassette();
     const first = await duty(
@@ -632,9 +717,9 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
-    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie; the two runs asked for the
-    // split say order and ban, so it still ties, 3 against 3.
-    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban']);
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie. The runs asked for the split
+    // say order and ban, then, as it still ties, order and ban again: 4 against 4 at the most voices it gets.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban', 'order', 'ban']);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
@@ -724,6 +809,43 @@ describe('runs that split between labels of one atom kind', () => {
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
+  it('asks again a split re-ask that slips, and asks two more while the unit still ties', async () => {
+    // order 2, ban 2, remark 1. Run 6 slips and is asked again (run 7); runs 7 and 8 say order and ban, so it still
+    // ties; runs 9 and 10 say order: order holds 5 of 9.
+    const calls = new Map<string, number>();
+    const plan = ['order', 'ban', 'order', 'ban', 'remark', 'slip', 'order', 'ban', 'order', 'order'];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const label = plan[call - 1] ?? 'remark';
+        if (label === 'slip')
+          return window.units.map(
+            (unit) =>
+              ({
+                units: String(unit.n),
+                label: 'remark',
+                spans: Array(4).fill({
+                  kind: 'act',
+                  from: -1,
+                  to: -1,
+                  unlocated: 'the text is not in the unit',
+                }),
+              }) as Labelled,
+          );
+        return [{ units: `1-${window.units.length}`, label }];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(KINDS) }));
+    expect(SPLIT_REASK_MAX).toBe(4);
+    expect(result.outOfStep.some((note) => /run 6 of planted \(asked again for a split\)/.test(note))).toBe(
+      true,
+    );
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
   it('asks a window with a tie inside a kind two more times, and the extra voices decide', async () => {
     // order 2, ban 2, remark 1 tie inside the instruction kind; runs 6 and 7 say order, so order holds 4 of 7.
     const cassette = new Cassette();
@@ -752,12 +874,389 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The two
-    // runs asked for the split say order and voice, so no label or kind holds four of seven: the unit stays unlabeled
-    // and counts as a split.
-    const result = await scan(['order', 'voice', 'order', 'voice', 'remark', 'order', 'voice']);
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The runs
+    // asked for the split say order, voice, order, voice and, as the two readings stay one run apart (a close unit
+    // gets six), order and voice again, so no label or kind holds six of eleven: the unit stays unlabeled and counts as
+    // a split.
+    const result = await scan([
+      'order',
+      'voice',
+      'order',
+      'voice',
+      'remark',
+      'order',
+      'voice',
+      'order',
+      'voice',
+      'order',
+      'voice',
+    ]);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
     expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
+describe('a unit that names a file to read is no condition alone', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  /** The label unit 1 of `text` gets when run n answers `plan[n - 1]`; the rest of the window is a rule. */
+  const scanUnit = async (text: string, plan: Labelled[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // A re-ask hears the last reading again.
+        const entry = plan[call - 1] ?? (plan.at(-1) as Labelled);
+        return [
+          entry,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(
+      input(labeler, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }),
+    );
+    return result.labelled.find((item) => item.index === 0)?.label;
+  };
+  const condition: Labelled = { units: '1', label: 'condition', target: 2 };
+
+  it('decides the file read of a when clause as a gate, though three of five runs call it a condition', async () => {
+    // As invoice-reconcile/SKILL.md of the Northwind fixture: the condition readings count for the group of file
+    // labels, and inside it the gate readings, which can build their atom, choose.
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    const gate: Labelled = {
+      units: '1',
+      label: 'gate',
+      spans: [{ kind: 'governed-action', text: 'convert every amount' }],
+      links: [{ kind: 'act-tool', to: 'Edit' }],
+    };
+    expect(await scanUnit(text, [condition, gate, condition, gate, condition])).toBe('gate');
+  });
+
+  it('decides a when clause that names files to read as a reference, though three of five runs call it a condition', async () => {
+    // As unit 21 of the reader-cases CLAUDE.md: four files named, read when a claim names a supplier.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(await scanUnit(text, [condition, reference, condition, reference, condition])).toBe('reference');
+  });
+
+  it('keeps a condition of a unit that names no file', async () => {
+    const text = 'When the invoice is not in EUR, convert every amount.\n\nKeep two decimals.\n';
+    expect(
+      await scanUnit(text, [
+        condition,
+        condition,
+        condition,
+        { units: '1', label: 'rule' } as Labelled,
+        condition,
+      ]),
+    ).toBe('condition');
+  });
+
+  it('asks a file-naming unit that every run calls a condition again, and the two new voices decide it', async () => {
+    // As reader-cases draw 1: five runs of five read the supplier unit as a condition; runs 6 and 7 read a reference.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(
+      await scanUnit(text, [condition, condition, condition, condition, condition, reference, reference]),
+    ).toBe('reference');
+  });
+
+  it('leaves unlabeled a unit that names a file when only conditions are given for it, after every re-ask', async () => {
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    expect(await scanUnit(text, [condition, condition, condition, condition, condition])).toBeUndefined();
+  });
+});
+
+describe('a unit the runs read two ways near evenly is listed as unstable', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  /** The scan of `text` when run n answers `plan[n - 1]` for unit 1; the rest of the window is a rule. */
+  const scanPlan = async (text: string, plan: Labelled[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // A re-ask hears the last reading again.
+        const entry = plan[call - 1] ?? (plan.at(-1) as Labelled);
+        return [
+          entry,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    return pointerScan(input(labeler, new Cassette(), { files: [{ path: 'CLAUDE.md', text }], sets }));
+  };
+  const text = 'Read a file before you edit it.\n\nKeep two decimals.\n';
+  const rule: Labelled = { units: '1', label: 'rule' };
+  const gateSame: Labelled = {
+    units: '1',
+    label: 'gate-same',
+    spans: [{ kind: 'governed-action', text: 'edit it' }],
+    links: [
+      { kind: 'act-tool', to: 'Edit' },
+      { kind: 'order-key', to: 'file_path' },
+    ],
+  };
+  const unitOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.ledger.entries.find((entry) => entry.index === 0)?.id;
+
+  const labelOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.labelled.find((item) => item.index === 0)?.label;
+
+  it('asks a unit one run from another outcome again, and takes the label once two runs separate the kinds', async () => {
+    // As R3 of the Northwind fixture: rule 3, gate-same 2. Two more runs both say rule: rule 5, gate-same 2.
+    const result = await scanPlan(text, [gateSame, rule, rule, gateSame, rule, rule, rule]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('rule');
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('takes the gate the other way round: gate-same 3, rule 2, and two more runs of gate-same', async () => {
+    // Restores the other-way case of #1359: the gate side leads, and two runs separate it.
+    const result = await scanPlan(text, [gateSame, rule, gateSame, rule, gateSame, gateSame, gateSame]);
+    expect(result.reasked).toHaveLength(SPLIT_REASK_RUNS);
+    expect(labelOf(result)).toBe('gate-same');
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('leaves a unit unlabeled and lists it as unstable when six more runs still leave its kinds one run apart', async () => {
+    // Every pair of new runs splits one and one: rule 6 against gate-same 5 after the sixth. The vote never picks the
+    // label whose atom can be built.
+    const result = await scanPlan(text, [
+      gateSame,
+      rule,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+      gateSame,
+      rule,
+    ]);
+    expect(result.reasked).toHaveLength(CLOSE_REASK_MAX);
+    expect(labelOf(result)).toBeUndefined();
+    expect(result.unstable).toEqual([
+      {
+        unit: unitOf(result),
+        path: 'CLAUDE.md',
+        set: 'agent-rules',
+        labeler: 'planted',
+        kinds: { instruction: 6, gate: 5 },
+      },
+    ]);
+  });
+
+  it('does not list a unit four runs of five agree on', async () => {
+    const result = await scanPlan(text, [gateSame, gateSame, rule, gateSame, gateSame]);
+    expect(result.unstable).toEqual([]);
+  });
+
+  it('does not list a split between two labels of one kind, a rule and a prohibition', async () => {
+    const prohibition: Labelled = { units: '1', label: 'prohibition' };
+    const result = await scanPlan('Never edit a file you have not read.\n\nKeep two decimals.\n', [
+      rule,
+      prohibition,
+      rule,
+      prohibition,
+      rule,
+    ]);
+    expect(result.unstable).toEqual([]);
+  });
+});
+
+describe('a rescan asks the whole row of a table cell it asks', () => {
+  const ROUTES = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: route
+        description: A cell that names an ask, pointing at the cell of the helper that takes it.
+        target: required
+      - name: helper
+        description: A cell that names a helper.
+      - name: remark
+        description: Any other unit.
+`;
+  const TABLE = [
+    '# Helpers',
+    '',
+    '| Ask | Helper |',
+    '|---|---|',
+    '| audit the ledger | the `ledger-auditor` agent |',
+    '| plan the routes for tomorrow | the `route-planner` agent |',
+    '',
+  ].join('\n');
+  /** Labels each cell by its words, and records the units each request asks about. */
+  const labeler = (asked: string[]) =>
+    plantedDense((window) => {
+      asked.push(...window.units.map((unit) => unit.text));
+      return window.units.map((unit) =>
+        unit.text.startsWith('audit') || unit.text.startsWith('plan')
+          ? ({ units: String(unit.n), label: 'route', target: unit.n + 1 } as Labelled)
+          : ({ units: String(unit.n), label: unit.text.includes('agent') ? 'helper' : 'remark' } as Labelled),
+      );
+    });
+
+  it('asks the retained ledger target of a row cell newly promoted by the rescan', async () => {
+    // The promoted-row-target probe from run 39879376688: A needs a label, its row promotes B, and B points at C.
+    const text = '| Name | Helper |\n|---|---|\n| Harbour A | Harbour B |\n\nDistant harbour C.\n';
+    const asked: string[] = [];
+    let target = 0;
+    const member = plantedDense((window) => {
+      const c = window.units.find((unit) => unit.text === 'Distant harbour C.');
+      if (c) target = c.n;
+      asked.push(...window.units.map((unit) => unit.text));
+      return window.units.map((unit) =>
+        unit.text === 'Harbour B'
+          ? { units: String(unit.n), label: 'route', target }
+          : { units: String(unit.n), label: 'helper' },
+      );
+    });
+    const options = { files: [{ path: 'harbour.md', text }], sets: load(ROUTES) };
+    const first = await pointerScan(input(member, new Cassette(), options));
+    expect(first.refusals).toEqual([]);
+    const a = first.ledger.entries.find((entry) => entry.quote === 'Harbour A');
+    const b = first.ledger.entries.find((entry) => entry.quote === 'Harbour B');
+    const c = first.ledger.entries.find((entry) => entry.quote === 'Distant harbour C.');
+    expect(a).toBeDefined();
+    expect(c).toBeDefined();
+    expect(b?.labels.duty?.target).toBe(c?.id);
+    // Only A is dirty. B and C retain their labels and fingerprints, so the ledger alone would carry them.
+    if (a) delete a.labels.duty;
+    asked.length = 0;
+    const second = await pointerScan(input(member, new Cassette(), { ...options, previous: first.ledger }));
+    expect(asked).toEqual(['Harbour A', 'Harbour B', 'Distant harbour C.']);
+    expect(second.refusals).toEqual([]);
+    expect(second.calls).toBe(1);
+    expect(second.plan.carried).toBe(second.plan.units - 3);
+    expect(second.carried).toBe(second.plan.carried);
+    expect(second.labelled.find((item) => item.id === b?.id)?.target?.id).toBe(c?.id);
+    // A settled rescan carries every unit and asks nothing, even though the row and target edges remain.
+    const third = await pointerScan(input(member, new Cassette(), { ...options, previous: second.ledger }));
+    expect(third.calls).toBe(0);
+    expect(third.carried).toBe(third.plan.units);
+  });
+
+  it('asks the ask cell of a row whose helper cell it asks, so a route keeps its target in the window', async () => {
+    // As the fixture-v2 routing table: the edit of the second row's ask re-asks the cells beside it, among them the
+    // first row's helper cell; the first row's ask cell, the other end of that row, is asked with it.
+    const sets = load(ROUTES);
+    const files = [{ path: 'CLAUDE.md', text: TABLE }];
+    const first = await pointerScan(input(labeler([]), new Cassette(), { files, sets }));
+    const asked: string[] = [];
+    await pointerScan(
+      input(labeler(asked), new Cassette(), {
+        files: [{ path: 'CLAUDE.md', text: TABLE.replace('for tomorrow', 'for the next two days') }],
+        sets,
+        previous: first.ledger,
+      }),
+    );
+    expect(asked).toContain('the `ledger-auditor` agent');
+    expect(asked).toContain('audit the ledger');
+  });
+});
+
+describe('a gate whose act span no run located in its unit', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  const text =
+    'Before writing the report: Read `templates/report.md` !!\n\nFill the template in this order.\n';
+  /** The scan when run n answers `plan[n - 1]` for unit 1 (the last entry for any later run); unit 2 is a rule. */
+  const scanPlan = async (plan: Labelled[]) => {
+    let call = 0;
+    const labeler = plantedDense(
+      (window) => {
+        call++;
+        return [
+          plan[call - 1] ?? (plan.at(-1) as Labelled),
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    return pointerScan(input(labeler, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }));
+  };
+  const bare: Labelled = { units: '1', label: 'gate', links: [{ kind: 'act-tool', to: 'Write' }] };
+  const elsewhere: Labelled = { ...bare, spans: [{ kind: 'governed-action', text: 'Fill the template' }] };
+  const located: Labelled = { ...bare, spans: [{ kind: 'governed-action', text: 'writing the report' }] };
+  const labelOf = (result: Awaited<ReturnType<typeof scanPlan>>) =>
+    result.labelled.find((item) => item.index === 0);
+
+  it('asks again once with span-missing, and keeps the gate with the span that answer located in the unit', async () => {
+    // As the weekly-report unit of the Northwind fixture: three runs give no act, two give the next unit's words.
+    const result = await scanPlan([bare, elsewhere, bare, elsewhere, bare, located]);
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toHaveLength(1);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(labelOf(result)?.spans).toEqual([{ kind: 'governed-action', from: 7, to: 25 }]);
+    expect(result.spanless).toEqual([
+      expect.objectContaining({ path: 'SKILL.md', label: 'gate', kinds: ['governed-action'], filled: true }),
+    ]);
+  });
+
+  it('asks span-missing of the labeler that can name a span, not of the yes or no labeler that stands first in a stack', async () => {
+    // As the invoice-reconcile gate of the Northwind fixture: system 1 is unsure of every unit and cannot answer a span.
+    let call = 0;
+    const chat = plantedDense(
+      (window) => {
+        call++;
+        const plan = [bare, elsewhere, bare, elsewhere, bare, located];
+        return [
+          plan[call - 1] ?? located,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5, id: 'chat' },
+    );
+    const result = await pointerScan({
+      ...input(chat, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }),
+      labelling: stackedLabelling(
+        plantedYesNo(() => ({ rule: 0.4, gate: 0.4 })),
+        chat,
+        { passAt: 0.6, failAt: 0.2 },
+      ),
+    });
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toEqual([
+      expect.stringContaining('of chat: asked again'),
+    ]);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(labelOf(result)?.spans).toEqual([{ kind: 'governed-action', from: 7, to: 25 }]);
+  });
+
+  it('leaves the unit unlabeled, never a rule, when the answer to span-missing gives no span in the unit', async () => {
+    const result = await scanPlan([bare, elsewhere, bare, elsewhere, bare, elsewhere]);
+    expect(labelOf(result)).toBeUndefined();
+    expect(result.spanless).toEqual([
+      expect.objectContaining({ label: 'gate', kinds: ['governed-action'], filled: false }),
+    ]);
+  });
+
+  it('asks nothing when a run located the act in the unit', async () => {
+    const result = await scanPlan([located, bare, located, bare, located]);
+    expect(result.reasked.filter((note) => note.includes('span-missing'))).toEqual([]);
+    expect(labelOf(result)?.label).toBe('gate');
+    expect(result.spanless).toEqual([]);
+  });
+
+  it('names the unit, the label and the span kind in the request that asks again', () => {
+    const user = denseUser(sets[0] as LabelSet, windowOf(2), {
+      notes: ['span-missing: unit 1 has the label gate'],
+    });
+    expect(user.split('\n').at(-1)).toBe('NOTE span-missing: unit 1 has the label gate');
   });
 });
 
@@ -848,6 +1347,69 @@ describe('an even split of the runs between the generic rule and a specific labe
     ]);
   });
 
+  it('lists every unit it leaves unlabeled with a structured kind, no majority, and the count of each label', async () => {
+    const result = await pointerScan(
+      input(runs(['rule', 'prohibition', 'rule', 'prohibition']), new Cassette(), {
+        sets: load(TIED),
+      }),
+    );
+    const first = result.ledger.entries.filter((entry) => entry.index === 0);
+    expect(first.map((entry) => entry.labels['agent-rules']?.label)).toEqual([undefined, undefined]);
+    // Every unit that ends unlabeled is in the unstable report: this one by a tie of two labels of one kind.
+    const listed = new Map(result.unstable.map((item) => [item.unit, item.kinds]));
+    for (const entry of first) {
+      const kinds = listed.get(entry.id);
+      expect(kinds, entry.id).toBeDefined();
+      expect(kinds?.['no majority']).toBeGreaterThanOrEqual(4);
+      expect(kinds?.rule).toBeGreaterThanOrEqual(2);
+      expect(kinds?.prohibition).toBeGreaterThanOrEqual(2);
+    }
+    const unlabeled = result.unlabeledUnits.map((item) => item.unit).sort();
+    expect([...listed.keys()].sort()).toEqual(unlabeled);
+  });
+
+  it('counts a label named constructor as a number, not as a property of every object', async () => {
+    const CTOR = `labels:
+  - set: agent-rules
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: rule
+        description: A unit that tells the skipper to do something.
+        atom: { kind: instruction, polarity: obligation }
+      - name: constructor
+        description: A unit that forbids.
+        atom: { kind: instruction, polarity: prohibition }
+`;
+    const result = await pointerScan(
+      input(runs(['rule', 'constructor', 'rule', 'constructor']), new Cassette(), { sets: load(CTOR) }),
+    );
+    const first = result.ledger.entries.find((entry) => entry.index === 0);
+    const kinds = result.unstable.find((item) => item.unit === first?.id)?.kinds;
+    expect(kinds).toBeDefined();
+    expect(typeof kinds?.constructor).toBe('number');
+    expect(kinds?.constructor).toBeGreaterThanOrEqual(2);
+    expect(kinds?.rule).toBeGreaterThanOrEqual(2);
+  });
+
+  it('lists a unit no run gave a usable answer for, with the reason, not nowhere', async () => {
+    // One run per window, and its answer leaves the first unit out: the unit stays unlabeled with no opinion at all.
+    const labeler = plantedDense(
+      (window) =>
+        window.units.filter((unit) => unit.n !== 1).map((unit) => ({ units: String(unit.n), label: 'rule' })),
+      [],
+      { runs: 1 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(TIED) }));
+    const unlabeled = result.unlabeledUnits.map((item) => item.unit).sort();
+    expect(unlabeled.length).toBeGreaterThan(0);
+    const listed = new Map(result.unstable.map((item) => [item.unit, item.kinds]));
+    for (const unit of unlabeled) expect(listed.get(unit), unit).toEqual({ 'no usable answer': 0 });
+    // Each unit lands in one place: the report holds no unit twice for the same labeler.
+    expect(result.unstable.length).toBe(
+      new Set(result.unstable.map((item) => `${item.unit}\0${item.labeler}`)).size,
+    );
+  });
+
   it('leaves a tie between two specific labels unlabeled', async () => {
     expect(await firstLabel(['gate', 'hazard-compaction', 'gate', 'hazard-compaction'])).toEqual([
       undefined,
@@ -917,12 +1479,48 @@ describe('a run out of step with the units of its window', () => {
   const every = (window: Window, label: string, spans: unknown[]): Labelled[] =>
     window.units.map((unit) => ({ units: String(unit.n), label, spans }) as Labelled);
 
+  it('names a run out of step when one entry is anchored on another line than the unit it numbers', () => {
+    const entries = (...anchored: Array<number | null>) => ({
+      labels: anchored.map((at, n) => ({ units: String(n + 1), label: 'order', anchored: at })),
+    });
+    expect(outOfStep(entries(0, -1, 0))).toEqual({ quoted: 0, unlocated: 0, slipped: 1, missing: 0 });
+    expect(outOfStep(entries(0, 0, null))).toBeUndefined();
+    // A none range whose end anchor is on another line slipped too.
+    expect(outOfStep({ labels: [{ units: '1-3', label: 'none', anchored: 0, anchoredEnd: 1 }] })).toEqual({
+      quoted: 0,
+      unlocated: 0,
+      slipped: 1,
+      missing: 0,
+    });
+  });
+
+  it('names a run out of step when its answer leaves a unit of the window out, never reading it as none', () => {
+    const window = {
+      id: 'notes.md#1',
+      path: 'notes.md',
+      headingPath: [],
+      units: [1, 2, 3, 4].map((n) => ({ n, index: n - 1, text: `Line ${n}` })),
+      display: [{ n: 5, mode: 'read', text: 'Read already' }],
+    } as unknown as Window;
+    const answer = (...units: string[]) => ({ labels: units.map((u) => ({ units: u, label: 'none' })) });
+    expect(outOfStep(answer('1-2', '4'), window)).toEqual({
+      quoted: 0,
+      unlocated: 0,
+      slipped: 0,
+      missing: 1,
+    });
+    // A shown line is no unit: an answer that leaves it out covers the window.
+    expect(outOfStep(answer('1-4'), window)).toBeUndefined();
+  });
+
   it('counts the quoted clauses and those not in their unit, and names a run out of step only past both bounds', () => {
     const answer = (spans: unknown[]) => ({ labels: [{ units: '1', label: 'order', spans }] });
     // 7 of 22, as the slipped run of the Northwind fixture: out of step.
     expect(outOfStep(answer([...Array(7).fill(unlocated), ...Array(15).fill(located)]))).toEqual({
       quoted: 22,
       unlocated: 7,
+      slipped: 0,
+      missing: 0,
     });
     // 2 of 11 and 2 of 20, as the runs in step: in step.
     expect(outOfStep(answer([...Array(2).fill(unlocated), ...Array(9).fill(located)]))).toBeUndefined();
@@ -930,7 +1528,12 @@ describe('a run out of step with the units of its window', () => {
     expect(outOfStep(answer([...Array(4).fill(unlocated), ...Array(12).fill(located)]))).toBeUndefined();
     // Under four clauses missed is never enough, whatever the share.
     expect(outOfStep(answer(Array(OUT_OF_STEP_MIN - 1).fill(unlocated)))).toBeUndefined();
-    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN).fill(unlocated)))).toEqual({ quoted: 4, unlocated: 4 });
+    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN).fill(unlocated)))).toEqual({
+      quoted: 4,
+      unlocated: 4,
+      slipped: 0,
+      missing: 0,
+    });
     expect(OUT_OF_STEP_SHARE).toBe(0.25);
     expect(outOfStep({ labels: [{ units: '1', label: 'remark' }] })).toBeUndefined();
   });
@@ -1002,6 +1605,63 @@ describe('a run out of step with the units of its window', () => {
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
+  it.each([0, 1, 2])('reports insufficient usable runs after re-asks: %i usable', async (usable) => {
+    let calls = 0;
+    const member = plantedDense(
+      (window) => {
+        calls++;
+        return every(window, 'order', calls <= usable ? [located] : Array(4).fill(unlocated));
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(
+      input(member, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes.\n' }],
+        sets: load(SPANNED),
+      }),
+    );
+    expect(calls).toBe(3 + REASK_LIMIT);
+    // The slipped runs and every re-ask came back out of step: the unit is not decided, and its row says why.
+    expect(result.unstable).toEqual(
+      usable < 2
+        ? [
+            {
+              unit: result.ledger.entries[0]?.id,
+              path: 'harbour.md',
+              set: 'duty',
+              labeler: 'planted',
+              kinds: { 'too few runs': usable },
+              undecided: 'out_of_step',
+            },
+          ]
+        : [],
+    );
+    expect(result.unlabeled).toBe(usable < 2 ? 1 : 0);
+  });
+
+  it('reports too few runs only for the omitted unit, not the other units of its window', async () => {
+    let calls = 0;
+    const member = plantedDense(
+      (window) => {
+        calls++;
+        return every(window, 'order', [located]).filter((entry) => calls === 1 || entry.units !== '1');
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(
+      input(member, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes.\n\nLight the lamp.\n' }],
+        sets: load(SPANNED),
+      }),
+    );
+    expect(result.unstable).toEqual([
+      expect.objectContaining({ unit: result.ledger.entries[0]?.id, kinds: { 'too few runs': 1 } }),
+    ]);
+    expect(result.labelled.map((unit) => unit.unit.text)).toEqual(['Light the lamp.']);
+  });
+
   /** Five runs, then re-asks; call n of a window answers `plan[n - 1]` on every unit (`slip` quotes four lost clauses). */
   const scripted = (plan: string[]) => {
     const calls = new Map<string, number>();
@@ -1012,9 +1672,12 @@ describe('a run out of step with the units of its window', () => {
         calls.set(window.path, call);
         log.push(call);
         const said = plan[call - 1] ?? 'order';
+        // A label that carries no span is given none: an empty spans list is an entry the check refuses, no vote.
         return said === 'slip'
           ? every(window, 'remark', Array(4).fill(unlocated))
-          : every(window, said, said === 'order' ? [located] : []);
+          : said === 'order'
+            ? every(window, 'order', [located])
+            : window.units.map((unit) => ({ units: String(unit.n), label: said }));
       },
       [],
       { runs: 5 },
@@ -1023,8 +1686,9 @@ describe('a run out of step with the units of its window', () => {
   };
 
   it('asks a window again after a slipped run, and the re-ask in step takes its place', async () => {
-    // Heard without the re-ask: order 2, remark 2, a tie with no label. Run 6 says order: three of five.
-    const { labeler } = scripted(['order', 'slip', 'remark', 'remark', 'order', 'order']);
+    // Heard without the re-ask: order 2, remark 1, none 1, no label above half. Run 6 says order: three of five, and
+    // order is two runs ahead of any other kind, so no more voices are asked.
+    const { labeler } = scripted(['order', 'slip', 'remark', 'none', 'order', 'order']);
     const cassette = new Cassette();
     const result = await pointerScan(input(labeler, cassette, { sets: load(SPANNED) }));
     const files = result.windows / 6;
@@ -1047,7 +1711,7 @@ describe('a run out of step with the units of its window', () => {
       'slip',
       'order',
       'remark',
-      'remark',
+      'none',
       'slip',
       'slip',
       'slip',
@@ -1056,7 +1720,7 @@ describe('a run out of step with the units of its window', () => {
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
     expect(Math.max(...log)).toBe(5 + REASK_LIMIT);
     expect(result.reasked).toEqual([]);
-    // Four runs heard: order 2, remark 2, a split.
+    // Four runs heard: order 2, remark 1, none 1: no label holds more than half, and no two tie.
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
@@ -1244,6 +1908,118 @@ describe('a vote of two runs out of three for the labels that carry spans', () =
     expect(entry?.labels.duty?.label).toBe('order');
     expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 4 }]);
     expect(result.spanSplit).toBeGreaterThan(0);
+    expect(result.unstable.filter((item) => 'span vote' in item.kinds)).toEqual([]);
+  });
+});
+
+describe('the spans of a unit are a vote of the runs that gave its label', () => {
+  const TWO = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+      - { name: place, description: the place the act is done at }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act, place]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+  const ACT = { kind: 'act', from: 0, to: 3 };
+  const PLACE = { kind: 'place', from: 4, to: 9 };
+  /** Run k (counted per window) draws `drawn(k)`; every unit is an order. */
+  const scanWith = async (runCount: number, drawn: (run: number) => unknown[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const run = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, run);
+        return window.units.map(
+          (unit) => ({ units: String(unit.n), label: 'order', spans: drawn(run) }) as Labelled,
+        );
+      },
+      [],
+      { runs: runCount },
+    );
+    const result = await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes on the red post\n' }],
+        sets: load(TWO),
+      }),
+    );
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    return { result, entry };
+  };
+
+  it('gives one result whatever order the runs come in: a span that bridges two others joins them', () => {
+    const left = { kind: 'act', from: 0, to: 8 };
+    const right = { kind: 'act', from: 9, to: 19 };
+    const bridge = { kind: 'act', from: 4, to: 14 };
+    const runs = [{ spans: [left] }, { spans: [right] }, { spans: [bridge] }, {}];
+    const orders = (items: number[]): number[][] =>
+      items.length <= 1
+        ? [items]
+        : items.flatMap((item) =>
+            orders(items.filter((other) => other !== item)).map((tail) => [item, ...tail]),
+          );
+    const results = orders([0, 1, 2, 3]).map((order) => {
+      const votes: unknown[] = [];
+      const spans = votedSpans(
+        order.map((at) => runs[at] as { spans?: (typeof left)[] }),
+        (vote) => votes.push(vote),
+      );
+      return JSON.stringify({ spans, votes });
+    });
+    expect(results).toHaveLength(24);
+    expect(new Set(results).size).toBe(1);
+    // The three spans overlap through the bridge: one clause drawn by 3 of 4 runs is kept.
+    expect(JSON.parse(results[0] as string).spans).toHaveLength(1);
+  });
+
+  it('keeps no clause that fewer than half the runs drew, whatever the order', () => {
+    const one = { kind: 'act', from: 0, to: 8 };
+    const two = { kind: 'act', from: 9, to: 19 };
+    const orders = [
+      [{ spans: [one] }, { spans: [two] }, {}, {}],
+      [{}, {}, { spans: [two] }, { spans: [one] }],
+      [{ spans: [two] }, {}, { spans: [one] }, {}],
+    ];
+    for (const winners of orders) expect(votedSpans(winners)).toEqual([]);
+  });
+
+  it('does not take the spans of the first run when only 3 of 7 runs drew the place', async () => {
+    // Run 1 and run 2 drew the act alone; runs 3, 6 and 7 drew the place as well; runs 4 and 5 drew nothing of it.
+    const { result, entry } = await scanWith(7, (run) => ([3, 6, 7].includes(run) ? [ACT, PLACE] : [ACT]));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toEqual([ACT]);
+    expect(result.unstable.filter((item) => 'span vote' in item.kinds)).toEqual([
+      expect.objectContaining({ unit: entry?.id, kinds: { 'span vote': 7, 'place 4-9': 3 } }),
+    ]);
+  });
+
+  it('keeps a span that 4 of 7 runs drew, though the first run did not', async () => {
+    const { result, entry } = await scanWith(7, (run) => (run >= 4 ? [ACT, PLACE] : [ACT]));
+    expect(entry?.labels.duty?.spans).toEqual([ACT, PLACE]);
+    expect(result.unstable.filter((item) => 'span vote' in item.kinds)).toEqual([]);
+  });
+
+  it('keeps one span, the one most runs drew, when the runs draw the same clause a word apart', async () => {
+    const wide = { kind: 'act', from: 0, to: 4 };
+    const { result, entry } = await scanWith(3, (run) => (run === 1 ? [ACT] : [wide]));
+    expect(entry?.labels.duty?.spans).toEqual([wide]);
+    expect(result.unstable.filter((item) => 'span vote' in item.kinds)).toEqual([]);
+  });
+
+  it('keeps no span of a kind on a tie, and reports each clause drawn', async () => {
+    const elsewhere = { kind: 'act', from: 12, to: 16 };
+    const { result, entry } = await scanWith(6, (run) => (run <= 3 ? [ACT] : [elsewhere]));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toBeUndefined();
+    expect(result.unstable.filter((item) => 'span vote' in item.kinds)).toEqual([
+      expect.objectContaining({ unit: entry?.id, kinds: { 'span vote': 6, 'act 0-3': 3, 'act 12-16': 3 } }),
+    ]);
   });
 });
 
@@ -1419,5 +2195,83 @@ describe('a stack asks system 2 only about the windows system 1 does not decide'
 `;
     const { two } = await run({ order: 0.02, remark: 0.02, curt: 0.02, long: 0.02, plain: 0.02 }, withTarget);
     expect(two.some((entry) => entry.endsWith(':ties'))).toBe(true);
+  });
+});
+
+describe('the windows of a file over the character budget', () => {
+  const section = (title: string, rules: number) =>
+    [`# ${title}`, '', ...Array.from({ length: rules }, (_, at) => `Rule ${title} number ${at}.`)].join(
+      '\n\n',
+    );
+
+  it('are cut only at a heading, every window starts at one, and no unit is in two', () => {
+    const text = `${section('Alpha', 6)}\n\n${section('Beta', 6)}\n\n${section('Gamma', 6)}\n`;
+    const units = cut(text).units;
+    const whole = windowsOf('big.md', units, 1000);
+    expect(whole).toHaveLength(1);
+    const windows = windowsOf('big.md', units, 1000, text, 170);
+    expect(windows.length).toBeGreaterThan(1);
+    for (const window of windows) {
+      expect(units[window.units[0]?.index as number]?.container).toBe('heading');
+      expect(window.units.reduce((sum, unit) => sum + unit.text.length, 0)).toBeLessThanOrEqual(170);
+    }
+    const seen = windows.flatMap((window) => window.units.map((unit) => unit.index));
+    expect(new Set(seen).size).toBe(seen.length);
+    expect(seen).toHaveLength(units.length);
+  });
+
+  it('are cut at the unit when no heading falls inside the run', () => {
+    const text = Array.from({ length: 30 }, (_, at) => `A plain rule number ${at}.`).join('\n\n');
+    const windows = windowsOf('flat.md', cut(text).units, 1000, text, 100);
+    expect(windows.length).toBeGreaterThan(3);
+    expect(windows.reduce((sum, window) => sum + window.units.length, 0)).toBe(30);
+  });
+});
+
+describe('a rescan sends the units it needs and shows the others as context', () => {
+  it('marks the units that keep their label as context lines with their own numbers', async () => {
+    const calls: string[] = [];
+    const labeler: Labeler = {
+      ...plantedDense(byLength),
+      async call(wire, set, window, attempt) {
+        calls.push(
+          `${window.id}:${window.units.map((unit) => unit.n).join(',')}|${(window.display ?? []).map((line) => `${line.n}${line.mode}`).join(',')}`,
+        );
+        return (plantedDense(byLength).call as NonNullable<Labeler['call']>)(wire, set, window, attempt);
+      },
+    };
+    const first = await pointerScan(
+      input(labeler, new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
+    );
+    calls.length = 0;
+    const edited = QUAY.replace('Name the skipper of every boat', 'Name the skipper of each boat');
+    await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [{ path: 'quay.md', text: edited }],
+        previous: first.ledger,
+      }),
+    );
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      const [units, display] = call.split('|');
+      expect(units).not.toBe('');
+      expect(display).toMatch(/context/);
+    }
+  });
+});
+
+describe('the path of a window and the layout of its request', () => {
+  it('names the heading a window starts at, after the headings above it', () => {
+    const text = '# Emails\n\nGreet the client.\n\n## Tone\n\nStay calm.\n';
+    const [window] = windowsOf('emails.md', cut(text).units, 1000, text);
+    expect(window?.headingPath).toEqual(['Emails']);
+    const body = createAnthropicLabeler({}).render(load(SETS)[0] as LabelSet, window as Window).body as {
+      messages: Array<{ content: string }>;
+    };
+    const lines = (body.messages[0]?.content ?? '').split('\n');
+    expect(lines[0]).toBe('SET duty');
+    expect(lines[1]).toMatch(/^DESCRIPTION /);
+    expect(lines[2]).toBe('LABELS order | remark | none');
+    expect(lines.find((line) => line.startsWith('WINDOW '))).toBe('WINDOW emails.md#1  path: Emails');
   });
 });

@@ -1,13 +1,12 @@
 import { AGENT_RULES_SET } from './agent-rules';
+import { SHIPPED_LABEL_SETS } from './gate-forms-set';
 
+export { readSpansOf } from '../scan/claude-code';
 export { AGENT_RULES_SET } from './agent-rules';
 export { GATE_FORMS_SET, GATE_FORMS_SET_NAME, SHIPPED_LABEL_SETS } from './gate-forms-set';
 
-/**
- * The label file the estate scan asks by default: the main set. The gate forms are a second shipped set
- * (`SHIPPED_LABEL_SETS(AGENT_RULES_SET)` holds both); a committed cassette answers them once it is recorded.
- */
-export const DEFAULT_LABEL_SETS: string = AGENT_RULES_SET;
+/** The label file the estate scan asks by default: the main set and the gate forms. */
+export const DEFAULT_LABEL_SETS: string = SHIPPED_LABEL_SETS(AGENT_RULES_SET);
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
   Cassette,
@@ -42,7 +41,7 @@ export {
   NUMBER_RULE,
   parseDenseAnswer,
   SPAN_RULE,
-  systemFor,
+  TARGET_RULE,
   windowLines,
 } from './dense';
 export {
@@ -59,9 +58,11 @@ export {
   usageOf,
 } from './labeler';
 export {
+  anchorUnits,
   type Checked,
   canonical,
   checkAnswer,
+  type DisplayLine,
   expandUnits,
   Label,
   type LabelContext,
@@ -70,13 +71,14 @@ export {
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
+  type LocateMiss,
   locateSpanText,
   offsetSpans,
   parseLabelSets,
-  type ShownLine,
   type SpanAnswer,
   SpanKind,
   setHash,
+  shownLabelDrops,
   type Window,
   type WindowUnit,
 } from './labels';
@@ -90,6 +92,8 @@ export {
   type Ledger,
   type LedgerEntry,
   type LedgerLabel,
+  type LedgerUnlabeled,
+  type LedgerVote,
   LINEAGE_KEEP,
   labelMap,
   mintId,
@@ -97,8 +101,10 @@ export {
   nextLedger,
   parseLedger,
   recordLabel,
+  recordUnlabeled,
   renderLedger,
   unitKey,
+  unlabeledMap,
 } from './ledger';
 export {
   blastRadius,
@@ -131,12 +137,28 @@ export {
   type UnitChange,
 } from './radius';
 export {
+  NO_REGISTRY_ROLES,
+  REGISTRY_ROLE_LABELS,
+  REGISTRY_ROLES,
+  REGISTRY_ROLES_SET,
+  REGISTRY_ROLES_SET_NAME,
+  type RegistryRole,
+  type RegistryRoles,
+  type RegistryRolesInput,
+  type RegistryTableRef,
+  STATE_OFF_LABEL,
+} from './registry-roles-set';
+export {
+  atomNeeds,
+  CLOSE_REASK_ATTEMPTS,
+  CLOSE_REASK_MAX,
   DEFAULT_WINDOW_UNITS,
   type FailedWindow,
   type LabelerUsage,
   type LabelFlip,
   type LabelledUnit,
   type MemberPlan,
+  missingForAtom,
   OUT_OF_STEP_MIN,
   OUT_OF_STEP_SHARE,
   outOfStep,
@@ -146,7 +168,13 @@ export {
   type PointerResult,
   pointerScan,
   REASK_LIMIT,
+  SPLIT_REASK_ATTEMPTS,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
+  type UndecidedReason,
+  type Unstable,
+  votedSpans,
+  WINDOW_CHARS,
   windowsOf,
 } from './scan';
 export {

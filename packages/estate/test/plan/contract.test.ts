@@ -134,6 +134,11 @@ describe('the contract per atom kind', () => {
         session_state: 'long',
         estate_hazard: 'compaction_mid_task',
       },
+      {
+        'atoms.hazard': 'hazard.standing.r20-after-a-restart-of-your',
+        session_state: 'long',
+        estate_hazard: 'process_restart',
+      },
     ]);
   });
 

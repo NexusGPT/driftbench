@@ -1,0 +1,9 @@
+{
+  "note": "The rule the walkthrough, the rule-links page and the README follow. Chosen because the labelers gave its sentence one label in every recorded run (7 of 7 runs: prohibition). Change it here, then run the docs tests: they print the ids and figures to put on the pages.",
+  "atom": "instruction.inbox-triager.never-answer-a-message-yourself-write",
+  "ledger": "nmsqgwccyc",
+  "file": ".claude/agents/inbox-triager.md",
+  "sentence": "Never answer a message yourself: write nothing to `outbox/`.",
+  "edit": { "from": "write nothing to `outbox/`", "to": "write nothing to `outbox/` or `drafts/`" },
+  "ask": "Please handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail."
+}

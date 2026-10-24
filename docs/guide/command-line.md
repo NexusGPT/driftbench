@@ -272,11 +272,11 @@ Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs
 
 ```console
 $ driftbench estate scan examples/estates/fixture --no-model --out estate-map.yaml
-Wrote estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
 $ driftbench estate lint estate-map.yaml   # exit 1
 estate-map.yaml: estate at examples/estates/fixture, 47 atoms.
   ORPHAN            .claude/steps.json: nothing in the estate names this file
-19 findings.
+17 findings.
 ```
 
 **How to read it.**

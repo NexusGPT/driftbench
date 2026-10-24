@@ -974,6 +974,7 @@ const DOC_CODE_CHECKED: ReadonlySet<string> = new Set([
   'currency_after_amount',
   'stopped_and_confirmed',
   'json_only',
+  'one_line_per_item',
   'asks_for',
   'route_table',
   'same_language_as_user',
