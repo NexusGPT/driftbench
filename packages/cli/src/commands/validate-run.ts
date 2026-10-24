@@ -136,9 +136,9 @@ export async function validateCommand(
   }
   if (
     options.levels !== undefined &&
-    (options.brief || options.journal !== undefined || options.checkHandover || options.hardness)
+    (options.journal !== undefined || options.checkHandover || options.hardness)
   ) {
-    io.err('--levels goes with a run, not with --brief, --journal, --check-handover or --hardness.\n');
+    io.err('--levels goes with a run or --brief, not with --journal, --check-handover or --hardness.\n');
     return USAGE_EXIT;
   }
   if (options.fresh && !options.brief) {
