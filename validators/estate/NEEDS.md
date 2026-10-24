@@ -7,9 +7,9 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | scan.generated | 48 | reader | docs/estate.md section 1, "Reading the estate: `estate scan`" (every atom kind the scanner reads) |
 | scan.frontmatter | 28 | reader | docs/adapters/claude-code.md, "The estate" (skill and agent frontmatter); docs/validators.md 12.6 (compact frontmatter) |
 | scan.symlink | 23 | reader | docs/validators.md 12.6 (symlinks, a reader gap on the Cue estate) |
-| scan.registry | 37 | reader | docs/adapters/claude-code.md, "The estate", Guard row (a check registry); docs/validators.md 12.6 (registry tables) |
+| scan.registry | 45 | reader | docs/adapters/claude-code.md, "The estate", Guard row (a check registry); docs/validators.md 12.6 (registry tables) |
 | scan.steps | 20 | reader | docs/adapters/claude-code.md, Stage row (step lists); docs/validators.md 12.6 (process maps) |
-| scan.catalogue | 22 | reader | docs/validators.md 12.6 (catalogue JSON). The adapter page still names only files whose name holds "registry": the docs lag the reader |
+| scan.catalogue | 23 | reader | docs/validators.md 12.6 (catalogue JSON). The adapter page still names only files whose name holds "registry": the docs lag the reader |
 | scan.dispatcher | 27 | reader | docs/adapters/claude-code.md, Guard row (hook command); docs/validators.md 12.6 (dispatcher commands); docs/estate.md, "Home paths in guards" (`$HOME/`, `${HOME}/`, a quoted `~`) |
 | scan.reference-prose | 22 | reader | docs/estate.md section 1 (the model splits prose; references "the files it names"); docs/validators.md 12.6 (long references) |
 | scan.gates | 29 | reader | docs/estate.md section 1 (gates in four fixed forms, read by code) |
@@ -26,8 +26,8 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | blind.lint | 46 | reader | docs/estate.md section 2, "Checking the estate: `estate lint`" |
 | blind.edges | 25 | reader | docs/estate.md section 2, "Relations: the estate graph" |
 | estate.determinism | 25 | reader | docs/estate.md section 5, "The same map, plan, bank and seed give the same specs" and "The same holds on every Node version the package supports (22 and later), in any time zone and locale"; section 1, atom ids and hashes from file, span and quote |
-| lint.defect | 31 | lint | docs/estate.md section 2, `estate lint` |
-| lint.clean | 22 | lint | docs/estate.md section 2, `estate lint` (no finding on a clean estate) |
+| lint.defect | 36 | lint | docs/estate.md section 2, `estate lint` |
+| lint.clean | 23 | lint | docs/estate.md section 2, `estate lint` (no finding on a clean estate) |
 | lint.coverage | 30 | lint | docs/estate-model.md, "Coverage and unknown files" (the files no part type covers listed in the map, never a clean lint while one is, the configuration, large and ignored files skipped by path, an ignored folder once with its file count, home paths never read, declared types covering their files, a document the standing file names or imports covered while its unnamed twin is unknown) and "Outcomes" (a check that read nothing is not-run, never a pass; a lint is clean only when every check ran) |
 | plan.contract | 25 | plan | docs/estate.md section 4, the contract table |
 | plan.pairs | 20 | plan | docs/estate.md section 4, "Pairwise: a covering array of strength t" |
