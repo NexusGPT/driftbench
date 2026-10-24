@@ -91,7 +91,8 @@ export function formatLadder(report: LadderReport, options: FormatOptions = {}):
   text += table(header, rows);
   // A slice measured only its own levels: a level or floor verdict is printed only where the measured prefix holds it.
   const slice = report.levels;
-  const unmeasuredBelow = slice && slice.from > 1 ? `levels 1 to ${slice.from - 1} were not measured` : undefined;
+  const unmeasuredBelow =
+    slice && slice.from > 1 ? `levels 1 to ${slice.from - 1} were not measured` : undefined;
   const exact = !slice || (!unmeasuredBelow && report.seeds.some((run) => run.failing));
   const seedLevel = (run: SeedRun) =>
     !slice || (!unmeasuredBelow && run.failing)

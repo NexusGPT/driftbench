@@ -545,8 +545,14 @@ describe('driftbench validate loop files', () => {
     const d = await deps([1]);
     const root = d.root as string;
     await mkdir(join(root, 'validators'), { recursive: true });
-    await writeFile(join(root, 'validators/floors.json'), `${JSON.stringify({ version: 1, floors: { planted: 2 } }, null, 2)}\n`);
-    await writeFile(join(root, 'validators/EXECUTOR.md'), '# Executor instruction\n\nDrive <component> to 100 percent.\n');
+    await writeFile(
+      join(root, 'validators/floors.json'),
+      `${JSON.stringify({ version: 1, floors: { planted: 2 } }, null, 2)}\n`,
+    );
+    await writeFile(
+      join(root, 'validators/EXECUTOR.md'),
+      '# Executor instruction\n\nDrive <component> to 100 percent.\n',
+    );
     const brief = async (levels: string) => {
       const { io, output } = capture(root);
       expect(await validateCommand('planted', { brief: true, seed: '1', levels }, io, d)).toBe(0);
