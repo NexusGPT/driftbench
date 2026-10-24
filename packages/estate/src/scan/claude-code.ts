@@ -15,6 +15,8 @@ import {
 import { parse as parseYaml } from 'yaml';
 import {
   comparableName,
+  isSpelledOnDisk,
+  type Listings,
   leavesRoot,
   listFolder,
   readdir,
@@ -22,6 +24,7 @@ import {
   realpath,
   sameName,
   stat,
+  statSpelled,
 } from '../fs/estate-fs';
 import { EstatePathError, estatePath } from '../paths';
 import { DocumentRole } from '../schema';
@@ -510,7 +513,8 @@ async function readRootReferences(
   const proseFiles = new Set(estate.prose.map((chunk) => chunk.file));
   const expanded = new Set<string>();
   const unitNames = new Set([...estate.skills, ...estate.subagents].map((unit) => unit.name));
-  // Many lines name the same file: each path is looked up on disk once.
+  // Many lines name the same file: each path is looked up on disk once, against the listing, in exact case.
+  const listings: Listings = new Map();
   const isFile = new Map<string, Promise<boolean>>();
   const fileAt = (path: string) => {
     let known = isFile.get(path);
@@ -518,7 +522,8 @@ async function readRootReferences(
       known = localPath(root, path, estate.notes).then(async (safe) =>
         safe === undefined
           ? false
-          : stat(safe).then(
+          : (await isSpelledOnDisk(root, path, listings)) &&
+            stat(safe).then(
               (info) => info.isFile(),
               () => false,
             ),
@@ -586,7 +591,9 @@ async function readRootReferences(
             if (!estate.externals?.includes(path)) estate.externals?.push(path);
             continue;
           }
-          const info = await stat(safe).catch(() => undefined);
+          const info = (await isSpelledOnDisk(root, path, listings))
+            ? await stat(safe).catch(() => undefined)
+            : undefined;
           if (!info?.isFile()) continue;
           if (info.size > MAX_FILE_BYTES) {
             estate.notes.push({ file: path, message: 'skipped: larger than 1 MB' });
@@ -685,7 +692,7 @@ async function nestedStanding(
 async function present(root: string, names: readonly string[], notes: ReadNote[]): Promise<string[]> {
   const found: string[] = [];
   for (const name of names) {
-    const info = await stat(join(root, name)).catch(() => undefined);
+    const info = await statSpelled(root, name);
     if (info?.isFile()) {
       found.push(name);
       await noteFollowed(root, name, notes);
@@ -704,7 +711,9 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
   let text: string | undefined;
   let place = ESTATE_CONFIG;
   for (const candidate of PROFILE.configFiles) {
-    text = await readFile(join(root, candidate), 'utf8').catch(() => undefined);
+    text = (await isSpelledOnDisk(root, candidate))
+      ? await readFile(join(root, candidate), 'utf8').catch(() => undefined)
+      : undefined;
     place = candidate;
     if (text !== undefined) break;
   }

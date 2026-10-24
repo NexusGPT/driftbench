@@ -48,6 +48,7 @@ code literals (`packages/estate/src/scan/code-names.ts`), the unit runner's conf
 read the disk through.
 
 - `listFolder(folder)`: the entries in exact-case order (by UTF-16 code unit), empty when unreadable.
+- `isSpelledOnDisk(root, path)` and `statSpelled(root, path)`: whether a name is spelled, at every step, as the folder listing spells it. A name is a file only then, on every disk, so a disk that ignores case never gives one file two paths or lets a name reach a file in other letters. The reader looks every name up through them: a standing file, the estate configuration, a file a prose names, a file a mutant copy takes.
 - `dedupeByRealPath(root, paths)`: one spelling per real file, the first kept.
 - Link policy: `LAYOUT_LINKS` (`follow`) inside the layout folder, `BESIDE_LAYOUT_LINKS` (`inside-only`)
   beside it; `leavesRoot(root, path)` says whether a link points outside the root.

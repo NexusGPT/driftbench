@@ -820,7 +820,10 @@ export async function estateMutateCommand(
   let result: MutantResult;
   try {
     await copyEstate(root, to, map);
-    result = await mutateEstate({ root: to, map }, options.delete ? { delete: id } : { invert: id });
+    result = await mutateEstate(
+      { root: to, map, source: root },
+      options.delete ? { delete: id } : { invert: id },
+    );
   } catch (cause) {
     await rm(to, { recursive: true, force: true });
     io.err(`${cause instanceof MutantError ? '' : 'The mutant could not be made: '}${describe(cause)}\n`);
