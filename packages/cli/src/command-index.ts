@@ -21,6 +21,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['extract'], load: async () => (await import('./commands/extract')).registerExtractCommand },
   { names: ['generate'], load: async () => (await import('./commands/generate')).registerGenerateCommand },
   { names: ['intake'], load: async () => (await import('./commands/intake')).registerIntakeCommand },
+  { names: ['doctor'], load: async () => (await import('./commands/doctor')).registerDoctorCommand },
   { names: ['estate'], load: async () => (await import('./commands/estate')).registerEstateCommand },
   { names: ['replay'], load: async () => (await import('./commands/replay')).registerReplayCommand },
   { names: ['gate'], load: async () => (await import('./commands/gate')).registerGateCommand },
@@ -80,6 +81,7 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
     'Generate specs from an approved map, by code: graph paths, t-wise rows, boundaries, probes',
   ],
   ['intake', 'Build the reference set of user turns: from past conversations, or from an interview'],
+  ['doctor [options] [path]', 'Detect an agent setup, preview coverage and prices, and guard against drift.'],
   ['estate', 'Read an agent estate into atoms, lint it, approve its prose atoms, export its space map'],
   [
     'replay [options] <sessions...>',

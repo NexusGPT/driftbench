@@ -13,7 +13,7 @@ import { type ReducedEnds, type RunIdentity, renderDraft, type SpecDraft } from 
 import { type PreparedMap, phraseKey } from './map';
 
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
-function failsAtEnd(spec: Spec): boolean {
+export function failsAtEnd(spec: Spec): boolean {
   const tools = spec.blocks.at(-1)?.given?.world?.tools ?? {};
   return Object.values(tools).some((tool) => tool.error !== undefined);
 }
@@ -35,8 +35,8 @@ function failsAtEnd(spec: Spec): boolean {
  * Memory is bounded by the coverage grid and the distinct blocks and move pairs of the suite.
  */
 export class TerminalSubsumption {
-  private readonly space;
-  private readonly projections;
+  readonly space;
+  readonly projections;
   /** The tuples the written specs place. */
   private readonly held: Uint8Array[];
   /** Blocks written so far, by what makes two blocks the same test. */
@@ -122,6 +122,8 @@ export class TerminalSubsumption {
         // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
         // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
         // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
+        // The block where the variants of a family differ is the family: it stays.
+        if (family !== undefined && draft.variesAt !== undefined && last <= draft.variesAt) break;
         if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
@@ -160,6 +162,7 @@ export class TerminalSubsumption {
           // A follower's wording differs: its first variant supplies the witnesses for the shared suffix.
           const key = this.key(original, spec.blocks.length + offset);
           const inherited = followed?.reduction?.duplicates[offset];
+          draft.cutKeys = { ...draft.cutKeys, [block.id]: key };
           const duplicate = inherited?.duplicate_of ?? this.blocks.get(key);
           const duplicateFamily = family
             ? (inherited?.duplicate_family ?? this.familyBlocks.get(key))
@@ -261,7 +264,8 @@ export class TerminalSubsumption {
       if (before === undefined || written.expect?.stage !== before) continue;
       if (written.expect?.ledger_add !== undefined) continue;
       if (spec.perturbations?.some((entry) => entry.inject_at === index)) continue;
-      const duplicate = this.blocks.get(this.key(spec, index));
+      const cutKey = this.key(spec, index);
+      const duplicate = this.blocks.get(cutKey);
       if (!duplicate || !this.phrasesHold(written)) continue;
       const candidate = {
         ...draft,
@@ -280,13 +284,14 @@ export class TerminalSubsumption {
       draft.blocks = candidate.blocks;
       draft.perturbations = candidate.perturbations;
       draft.reducedMiddle = [{ block: block.id, duplicate_of: duplicate }, ...(draft.reducedMiddle ?? [])];
+      draft.cutKeys = { ...draft.cutKeys, [block.id]: cutKey };
       spec = parsed.spec;
     }
     return spec;
   }
 
   /** The messages a block says: its user turn, or the turns of a burst. */
-  private textsOf(block: Spec['blocks'][number] | undefined): string[] {
+  textsOf(block: Spec['blocks'][number] | undefined): string[] {
     const when = block?.when;
     if (when === undefined) return [];
     if ('user' in when) return [when.user];
@@ -309,7 +314,7 @@ export class TerminalSubsumption {
   }
 
   /** The spec without the blocks from `length` on: a link that names a removed block goes with it. */
-  private cut(spec: Spec, length: number): Spec {
+  cut(spec: Spec, length: number): Spec {
     const kept = new Set(spec.blocks.slice(0, length).map((block) => block.id));
     const links = spec.metadata?.links;
     const metadata =
@@ -367,7 +372,7 @@ export class TerminalSubsumption {
   }
 
   /** The channel and the persona a spec is written for: no agent receives them, a suite varies them. */
-  private contextOf(spec: Spec): string {
+  contextOf(spec: Spec): string {
     return JSON.stringify([spec.channel, spec.tags?.filter((tag) => tag.startsWith('persona:'))]);
   }
 
@@ -391,13 +396,13 @@ export class TerminalSubsumption {
   }
 
   /** A walk on a path: two walks are twins only on the same path, whatever their blocks say. */
-  private walkKey(spec: Spec): string {
+  walkKey(spec: Spec): string {
     const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
     return contentHash([path, spec.blocks.map((_, index) => this.key(spec, index))]);
   }
 
   /** The judged criteria a block references, with their definitions: a criterion no kept spec covers is a lost check. */
-  private criteriaOf(spec: Spec, block: Spec['blocks'][number] | undefined): unknown {
+  criteriaOf(spec: Spec, block: Spec['blocks'][number] | undefined): unknown {
     return (block?.expect?.criteria ?? []).map((entry) => {
       const name = entry.split('@')[0];
       return [entry, spec.criteria?.find((definition) => definition.name === name)];
@@ -405,7 +410,7 @@ export class TerminalSubsumption {
   }
 
   /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class (said how, not part of it). */
-  private turnOf(block: Spec['blocks'][number] | undefined): unknown {
+  turnOf(block: Spec['blocks'][number] | undefined): unknown {
     const when = block?.when;
     if (when === undefined) return undefined;
     if ('injection' in when) return { injection: when.injection.class };
@@ -414,7 +419,7 @@ export class TerminalSubsumption {
   }
 
   /** The turn, the stage it is said from and what it expects, in the language and under the rules it is said in. */
-  private key(spec: Spec, index: number): string {
+  key(spec: Spec, index: number): string {
     const block = spec.blocks[index];
     const { criteria: _criteria, ...machine } = block?.expect ?? {};
     const from = index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage;
@@ -431,7 +436,7 @@ export class TerminalSubsumption {
   }
 
   /** Consecutive moves of a walk, with the class each says: the pairs a sequence of the suite is made of. */
-  private pairsOf(spec: Spec): string[] {
+  pairsOf(spec: Spec): string[] {
     const move = (index: number) => {
       const block = spec.blocks[index];
       const cls = block && 'injection' in block.when ? block.when.injection.class : '';
@@ -440,7 +445,7 @@ export class TerminalSubsumption {
     return spec.blocks.slice(1).map((_, index) => `${move(index)}|${move(index + 1)}`);
   }
 
-  private recoveriesHold(spec: Spec): boolean {
+  recoveriesHold(spec: Spec): boolean {
     try {
       for (const entry of spec.perturbations ?? []) createPerturbingDriver({ spec, perturbation: entry.id });
       return true;
@@ -487,7 +492,7 @@ export class TerminalSubsumption {
     return row(before) === row(after) || this.twiseRows.has(row(before));
   }
 
-  private twiseRow(spec: Spec): string {
+  twiseRow(spec: Spec): string {
     const cell = (spec.metadata?.generated as { cell?: unknown } | undefined)?.cell ?? {};
     const injected = spec.blocks.find((block) => 'injection' in block.when)?.when;
     return contentHash([cell, injected && 'injection' in injected ? injected.injection.class : 'none']);
