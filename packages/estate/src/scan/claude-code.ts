@@ -2,6 +2,7 @@ import { homedir } from 'node:os';
 import { basename, join, posix, resolve } from 'node:path';
 import {
   CLAUDE_CODE_PROFILE,
+  coverageFolders,
   coveringType,
   type ModelCoverage,
   type PartType,
@@ -15,6 +16,7 @@ import {
 import { parse as parseYaml } from 'yaml';
 import {
   comparableName,
+  expandVariables,
   leavesRoot,
   listFolder,
   readdir,
@@ -413,7 +415,7 @@ export class ClaudeCodeReader implements EstateReader {
       const name = nameOf.get(file.path.split('/').slice(0, 3).join('/'));
       if (name !== undefined) file.owner = name;
     }
-    const reached = await readRootReferences(root, estate, ignored, budget);
+    const { reached, notRead } = await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
     const registries = files.filter(
@@ -437,6 +439,8 @@ export class ClaudeCodeReader implements EstateReader {
         .filter((note) => note.message === LARGE_NOTE && !isUserLayerPath(note.file))
         .map((note) => note.file),
       ignored: ignored.paths.filter((path) => !isUserLayerPath(path)),
+      rules: ignored.rules,
+      notRead: [...notRead],
       pruned: [...beside.pruned],
     });
     return estate;
@@ -463,6 +467,10 @@ function coverageOf(input: {
   large: readonly string[];
   /** The files an ignore glob kept out, root-relative. */
   ignored: readonly string[];
+  /** The ignore globs: a folder one of them matches is listed once, with the number of its files kept out. */
+  rules: readonly IgnoreRule[];
+  /** Paths a line of the estate names behind the home folder: never read, since no home folder is mapped. */
+  notRead: readonly string[];
   /** The ignore globs that pruned a path beside the layout: left out only when the root itself is counted. */
   pruned: readonly string[];
 }): ModelCoverage {
@@ -471,10 +479,8 @@ function coverageOf(input: {
   const skipped: SkippedInput[] = [];
   const unknown: string[] = [];
   let covered = 0;
-  const roots = PROFILE.coverageRoots.flatMap((name) => {
-    const folder = PROFILE.roots[name];
-    return folder === undefined ? [] : [folder];
-  });
+  // A coverage root that names no root is refused when the profile is registered, never dropped here.
+  const roots = coverageFolders(PROFILE);
   const counted = (path: string) => roots.some((folder) => pathWithin(folder, path) !== undefined);
   for (const path of [...new Set(input.paths)].sort(byExactName)) {
     const text = input.texts.get(path);
@@ -485,11 +491,25 @@ function coverageOf(input: {
     else if (counted(path)) unknown.push(path);
   }
   for (const path of large) skipped.push({ what: path, reason: 'too-large' });
-  for (const path of [...new Set(input.ignored)].sort(byExactName))
-    skipped.push({ what: path, reason: 'ignored' });
+  // A folder an ignore glob matches is one entry with its file count; a file a glob matches alone is one entry.
+  const ignoredFolders = new Map<string, number>();
+  for (const path of [...new Set(input.ignored)].sort(byExactName)) {
+    const parts = path.split('/');
+    let folder: string | undefined;
+    for (let depth = 1; depth < parts.length && folder === undefined; depth++) {
+      const candidate = parts.slice(0, depth).join('/');
+      if (input.rules.some((rule) => rule.test(candidate))) folder = candidate;
+    }
+    if (folder === undefined) skipped.push({ what: path, reason: 'ignored' });
+    else ignoredFolders.set(folder, (ignoredFolders.get(folder) ?? 0) + 1);
+  }
+  for (const [folder, files] of [...ignoredFolders].sort(([a], [b]) => byExactName(a, b)))
+    skipped.push({ what: folder, reason: 'ignored', files });
   if (roots.includes('.'))
     for (const glob of [...new Set(input.pruned)].sort(byExactName))
       skipped.push({ what: glob, reason: 'ignored' });
+  for (const path of [...new Set(input.notRead)].sort(byExactName))
+    skipped.push({ what: path, reason: 'home-not-mapped' });
   return { covered, unknown, skipped };
 }
 
@@ -501,9 +521,11 @@ async function readRootReferences(
   estate: RawEstate,
   ignored: Ignored,
   budget: number,
-): Promise<Set<string>> {
+): Promise<{ reached: Set<string>; notRead: Set<string> }> {
   // The files the estate's prose names or imports and the reader reads as prose: covered, whatever their type.
   const reached = new Set<string>();
+  // The paths a line names behind the home folder: never read, since no home folder is mapped.
+  const notRead = new Set<string>();
   const files = new Map(estate.files.map((file) => [file.path, file]));
   const byName = fileNames(files);
   const skipped = new Set(ignored.paths);
@@ -537,6 +559,10 @@ async function readRootReferences(
       const imported = source?.kind === 'standing' ? IMPORT?.exec(line.text.trim())?.[1] : undefined;
       const names = imported ? [imported] : namedPaths(line.text);
       for (const name of names) {
+        if ('notRead' in expandVariables(name, PROFILE, { root })) {
+          notRead.add(name);
+          continue;
+        }
         if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
         // An unindexed root guide is a candidate only after the naming file's own subtree.
         const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
@@ -625,7 +651,7 @@ async function readRootReferences(
   }
   for (const pattern of estate.ignored?.patterns ?? [])
     pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
-  return reached;
+  return { reached, notRead };
 }
 
 /** Discover only nested standing instructions; ignore whole excluded trees and stop directory cycles. */
