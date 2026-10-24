@@ -1122,3 +1122,129 @@ describe('the things a hazard orders read again that are no file (reread-other)'
     expect(options).not.toHaveProperty('rereadSelf');
   });
 });
+
+describe('the reply shape and the forbid case of the shipped set', () => {
+  const FILES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Answer with one JSON object and nothing else',
+      '- End every reply with a short note',
+      '- Never run `rm` on the ledger folder',
+      '- Never lose a message',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 json reply, 3 note reply, 4 forbidden command, 5 forbidden without material.
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'reply-rule', links: [{ kind: 'reply-shape', to: 'json_only' }] },
+      { units: '3', label: 'reply-rule' },
+      {
+        units: '4',
+        label: 'prohibition',
+        spans: [{ kind: 'forbidden-material', text: 'rm' }],
+        links: [
+          { kind: 'forbid-tool', to: 'Bash' },
+          { kind: 'forbid-input', to: 'command' },
+        ],
+      },
+      { units: '5', label: 'prohibition' },
+    ] as pointer.Labelled[],
+  };
+  const atoms = async () => {
+    const { result } = await scan(rows, { sets }, FILES);
+    const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    return (text: string) => mine.find((atom) => atom.provenance.quote.includes(text));
+  };
+
+  it('builds the json_only evidence and the declared shape for a reply rule that fixes the shape', async () => {
+    const find = await atoms();
+    const json = find('one JSON object');
+    expect(json?.kind).toBe('register');
+    expect(json?.fields).toMatchObject({ replyShape: 'json_only' });
+    expect(json?.evidence).toEqual(expect.arrayContaining([{ type: 'custom', name: 'json_only' }]));
+  });
+
+  it('leaves a reply rule that fixes no shape with its prose evidence only', async () => {
+    const note = (await atoms())('short note');
+    expect(note?.kind).toBe('register');
+    expect(note?.fields?.replyShape).toBeUndefined();
+    expect(note?.evidence.map((item) => item.type)).toEqual(['custom']);
+  });
+
+  it('builds a forbid case and a tool_not_called evidence for a prohibition that names its material', async () => {
+    const rm = (await atoms())('rm');
+    expect(rm?.fields?.unitCases).toEqual([{ effect: 'forbid', tool: 'Bash', material: 'rm' }]);
+    expect(rm?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'tool_not_called', label: 'Bash', input: { command: { contains: 'rm' } } },
+      ]),
+    );
+  });
+
+  it('keeps a prohibition that names no material as it was: no forbid case, no extra evidence', async () => {
+    const lose = (await atoms())('Never lose');
+    expect(lose?.kind).toBe('instruction');
+    expect(lose?.fields?.unitCases).toBeUndefined();
+    expect(lose?.evidence.map((item) => item.type)).toEqual(['custom']);
+  });
+});
+
+describe('a forbidden material inside the ask of the same prohibition', () => {
+  const FILES = { 'CLAUDE.md': ['# Harbour office', '', 'Never run `erase-all`.', ''].join('\n') };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const ASK = { kind: 'ask-text', text: 'run `erase-all`' };
+  const MATERIAL = { kind: 'forbidden-material', text: 'erase-all' };
+  const LINKS = [
+    { kind: 'forbid-tool', to: 'Bash' },
+    { kind: 'forbid-input', to: 'command' },
+  ];
+
+  for (const [order, spans] of [
+    ['ask first', [ASK, MATERIAL]],
+    ['material first', [MATERIAL, ASK]],
+  ] as const) {
+    it(`keeps both spans, ${order}: the ask and the forbid case`, async () => {
+      const { result } = await scan(
+        { 'CLAUDE.md': [{ units: '2', label: 'prohibition', spans: [...spans], links: LINKS }] },
+        { sets },
+        FILES,
+      );
+      const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+      expect(result.pointer?.dropped ?? []).toEqual([]);
+      expect(atom?.fields?.ask).toMatchObject({ text: 'run `erase-all`' });
+      expect(atom?.fields?.unitCases).toEqual([{ effect: 'forbid', tool: 'Bash', material: 'erase-all' }]);
+      expect(atom?.evidence).toEqual(
+        expect.arrayContaining([
+          { type: 'tool_not_called', label: 'Bash', input: { command: { contains: 'erase-all' } } },
+        ]),
+      );
+    });
+  }
+
+  it('still drops a span that overlaps another without lying inside it', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'prohibition',
+            spans: [
+              { kind: 'ask-text', text: 'Never run' },
+              { kind: 'forbidden-material', text: 'run `erase-all`' },
+            ],
+            links: LINKS,
+          },
+        ],
+      },
+      { sets },
+      FILES,
+    );
+    const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+    expect(atom?.fields?.unitCases).toBeUndefined();
+  });
+});

@@ -275,6 +275,7 @@ export function intentsOf(index, setOffAtoms, cwd) {
   const reads = [];
   const guards = [];
   const replies = [];
+  const shapes = [];
   const unit = (kind, name) => {
     if (name && !units.some((entry) => entry.kind === kind && entry.name === name))
       units.push({ kind, name });
@@ -310,13 +311,14 @@ export function intentsOf(index, setOffAtoms, cwd) {
       default:
         break;
     }
+    if (fields.replyShape === 'json_only' && !shapes.includes('json_only')) shapes.push('json_only');
     if (typeof atom.replyAct?.id === 'string')
       replies.push({
         id: atom.replyAct.id,
         part: atom.replyAct.evidence?.part === 'draft' ? 'draft' : 'reply',
       });
   }
-  return { units, reads, guards, replies };
+  return { units, reads, guards, replies, shapes };
 }
 
 /** The code spans of a quote, as the reader cuts them: markup, not words. */
