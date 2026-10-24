@@ -736,6 +736,8 @@ export async function estateLintCommand(
   // What a check left out is said, with the reason.
   let skipped = 0;
   for (const outcome of result.outcomes) {
+    // Only a script the lint could not look for (a home folder not mapped) is said here.
+    if (outcome.check !== 'MISSING_SCRIPT') continue;
     const why = [...new Set(outcome.coverage.skipped.map((entry) => entry.reason))];
     if (why.length === 0) continue;
     skipped += outcome.coverage.skipped.length;

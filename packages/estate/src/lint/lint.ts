@@ -347,6 +347,9 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     QUOTE_DRIFT: atoms.length,
     ...policy.reads,
   };
+  // A policy check over settings that hold nothing of its kind read the settings and found nothing: it ran.
+  if (available.has('settings'))
+    for (const code of PERMISSION_CODES) read[code] = Math.max(1, read[code]);
   const unknown = [...(raw.coverage?.unknown ?? [])];
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
