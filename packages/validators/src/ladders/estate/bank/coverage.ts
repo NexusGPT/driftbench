@@ -423,7 +423,14 @@ const CASES: Case[] = [
           'MISSING_SCRIPT',
           'QUOTE_DRIFT',
         ],
-        lacking: ['REGISTRY_ROW', 'REGISTRY_GUARD'],
+        lacking: [
+          'REGISTRY_ROW',
+          'REGISTRY_GUARD',
+          'PERMISSION_UNKNOWN_SKILL',
+          'PERMISSION_UNKNOWN_HELPER',
+          'PERMISSION_READ_BYPASS',
+          'PERMISSION_BYPASS_MODE',
+        ],
       };
     },
   },
@@ -444,7 +451,14 @@ const CASES: Case[] = [
         'EXTERNAL',
         'MISSING_SCRIPT',
       ],
-      lacking: ['REGISTRY_ROW', 'REGISTRY_GUARD'],
+      lacking: [
+        'REGISTRY_ROW',
+        'REGISTRY_GUARD',
+        'PERMISSION_UNKNOWN_SKILL',
+        'PERMISSION_UNKNOWN_HELPER',
+        'PERMISSION_READ_BYPASS',
+        'PERMISSION_BYPASS_MODE',
+      ],
     }),
   },
   {
