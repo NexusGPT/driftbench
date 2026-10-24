@@ -20,6 +20,7 @@ import {
   SPLIT_REASK_RUNS,
   singleLabelling,
   stackedLabelling,
+  votedSpans,
   type Window,
   windowsOf,
 } from '../../src/pointer';
@@ -1244,6 +1245,130 @@ describe('a vote of two runs out of three for the labels that carry spans', () =
     expect(entry?.labels.duty?.label).toBe('order');
     expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 4 }]);
     expect(result.spanSplit).toBeGreaterThan(0);
+    expect(result.spanVotes).toEqual([]);
+  });
+});
+
+describe('the spans of a unit are a vote of the runs that gave its label', () => {
+  const TWO = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+      - { name: place, description: the place the act is done at }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act, place]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+  const ACT = { kind: 'act', from: 0, to: 3 };
+  const PLACE = { kind: 'place', from: 4, to: 9 };
+  /** Run k (counted per window) draws `drawn(k)`; every unit is an order. */
+  const scanWith = async (runCount: number, drawn: (run: number) => unknown[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const run = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, run);
+        return window.units.map(
+          (unit) => ({ units: String(unit.n), label: 'order', spans: drawn(run) }) as Labelled,
+        );
+      },
+      [],
+      { runs: runCount },
+    );
+    const result = await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [{ path: 'harbour.md', text: 'Coil the ropes on the red post\n' }],
+        sets: load(TWO),
+      }),
+    );
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    return { result, entry };
+  };
+
+  it('gives one result whatever order the runs come in: a span that bridges two others joins them', () => {
+    const left = { kind: 'act', from: 0, to: 8 };
+    const right = { kind: 'act', from: 9, to: 19 };
+    const bridge = { kind: 'act', from: 4, to: 14 };
+    const runs = [{ spans: [left] }, { spans: [right] }, { spans: [bridge] }, {}];
+    const orders = (items: number[]): number[][] =>
+      items.length <= 1
+        ? [items]
+        : items.flatMap((item) =>
+            orders(items.filter((other) => other !== item)).map((tail) => [item, ...tail]),
+          );
+    const results = orders([0, 1, 2, 3]).map((order) => {
+      const votes: unknown[] = [];
+      const spans = votedSpans(
+        order.map((at) => runs[at] as { spans?: (typeof left)[] }),
+        (vote) => votes.push(vote),
+      );
+      return JSON.stringify({ spans, votes });
+    });
+    expect(results).toHaveLength(24);
+    expect(new Set(results).size).toBe(1);
+    // The three spans overlap through the bridge: one clause drawn by 3 of 4 runs is kept.
+    expect(JSON.parse(results[0] as string).spans).toHaveLength(1);
+  });
+
+  it('keeps no clause that fewer than half the runs drew, whatever the order', () => {
+    const one = { kind: 'act', from: 0, to: 8 };
+    const two = { kind: 'act', from: 9, to: 19 };
+    const orders = [
+      [{ spans: [one] }, { spans: [two] }, {}, {}],
+      [{}, {}, { spans: [two] }, { spans: [one] }],
+      [{ spans: [two] }, {}, { spans: [one] }, {}],
+    ];
+    for (const winners of orders) expect(votedSpans(winners)).toEqual([]);
+  });
+
+  it('does not take the spans of the first run when only 3 of 7 runs drew the place', async () => {
+    // Run 1 and run 2 drew the act alone; runs 3, 6 and 7 drew the place as well; runs 4 and 5 drew nothing of it.
+    const { result, entry } = await scanWith(7, (run) => ([3, 6, 7].includes(run) ? [ACT, PLACE] : [ACT]));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toEqual([ACT]);
+    expect(result.spanVotes).toEqual([
+      expect.objectContaining({
+        unit: entry?.id,
+        kind: 'place',
+        runs: 7,
+        counts: [{ from: 4, to: 9, count: 3 }],
+      }),
+    ]);
+  });
+
+  it('keeps a span that 4 of 7 runs drew, though the first run did not', async () => {
+    const { result, entry } = await scanWith(7, (run) => (run >= 4 ? [ACT, PLACE] : [ACT]));
+    expect(entry?.labels.duty?.spans).toEqual([ACT, PLACE]);
+    expect(result.spanVotes).toEqual([]);
+  });
+
+  it('keeps one span, the one most runs drew, when the runs draw the same clause a word apart', async () => {
+    const wide = { kind: 'act', from: 0, to: 4 };
+    const { result, entry } = await scanWith(3, (run) => (run === 1 ? [ACT] : [wide]));
+    expect(entry?.labels.duty?.spans).toEqual([wide]);
+    expect(result.spanVotes).toEqual([]);
+  });
+
+  it('keeps no span of a kind on a tie, and reports each clause drawn', async () => {
+    const elsewhere = { kind: 'act', from: 12, to: 16 };
+    const { result, entry } = await scanWith(6, (run) => (run <= 3 ? [ACT] : [elsewhere]));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toBeUndefined();
+    expect(result.spanVotes).toEqual([
+      expect.objectContaining({
+        kind: 'act',
+        runs: 6,
+        counts: [
+          { from: 0, to: 3, count: 3 },
+          { from: 12, to: 16, count: 3 },
+        ],
+      }),
+    ]);
   });
 });
 
