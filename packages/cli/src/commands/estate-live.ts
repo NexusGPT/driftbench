@@ -13,6 +13,8 @@ import {
   type Campaign,
   carryRuns,
   contentHash,
+  type ExecutionPolicy,
+  executionEnvironment,
   planCampaign,
   type RunResult,
   runProvenance,
@@ -40,7 +42,9 @@ import type { Io } from '../io';
 import {
   addJudgeOptions,
   addRunCheckOptions,
+  EXECUTION_POLICY_MARKER,
   isStandIn,
+  keepsExecutionPolicy,
   type RunCheckFlags,
   type RunJudgeOptions,
   runCheckSettingsFrom,
@@ -134,6 +138,10 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     )
     .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
     .option(
+      '--no-exec',
+      'with a stand-in: run no command of the estate (no guard, no script); use it on an estate you do not trust',
+    )
+    .option(
       '--progress <file>',
       'append one JSON line per finished spec to this file as each finishes, so a stopped batch keeps them',
     )
@@ -178,6 +186,8 @@ export type EstateRunOptions = {
   lockDeny?: string[];
   timeout?: string;
   allowBilled?: boolean;
+  /** False with --no-exec: the execution policy `none`, the stand-in runs no command of the estate. */
+  exec?: boolean;
   /** A file that gets one JSON line per finished spec, appended as each spec finishes. */
   progress?: string;
   model?: string;
@@ -270,6 +280,20 @@ export async function estateRunCommand(
   if (!standIn && !options.allowBilled) {
     io.err(
       `${command} is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.\n`,
+    );
+    return 2;
+  }
+  // A real runtime runs the estate's guards whatever the flags say, so only a stand-in can keep the policy `none`.
+  const policy: ExecutionPolicy = options.exec === false ? 'none' : 'estate';
+  if (policy === 'none' && !standIn) {
+    io.err(
+      `--no-exec needs a stand-in command: ${command} is the real runtime, which runs the estate's guards. Use a stand-in, or run the estate where it is safe to execute it.\n`,
+    );
+    return 2;
+  }
+  if (policy === 'none' && !(await keepsExecutionPolicy(commandPath))) {
+    io.err(
+      `--no-exec needs a stand-in that keeps the execution policy: ${command} does not carry the line ${EXECUTION_POLICY_MARKER} in its first lines, so it would run the estate's commands and the run would claim otherwise.\n`,
     );
     return 2;
   }
@@ -375,6 +399,12 @@ export async function estateRunCommand(
     if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);
     else env[name] = value;
   }
+  // The policy comes last: no variable the user sets or passes on can undo it.
+  Object.assign(env, executionEnvironment(policy));
+  if (policy === 'none')
+    notes.push(
+      '--no-exec: the stand-in was told to start no command of the estate (execution policy none); its results are those of a run in which no hook, call or script of the estate started',
+    );
 
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
