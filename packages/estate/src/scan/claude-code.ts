@@ -1401,7 +1401,7 @@ function scriptFrom(
       ? relative
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     // A script the home folder holds that is also a file of the estate is named by its path in the estate.
-    const first = { ...joined, script: inEstate(joined.script, home) };
+    const first = joined.anchored ? { ...joined, script: inEstate(joined.script, home) } : joined;
     if (!paths) return first;
     const target = paths.has(first.script)
       ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))

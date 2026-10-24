@@ -251,6 +251,24 @@ describe('quotes', () => {
     expect(result.out).toContain('UNANCHORED_GUARD');
   });
 
+  // The home folder lies in the estate and holds a file named like the script. A quoted tilde is not the home
+  // folder, so the shell runs a path under the working folder and that file is never run: the guard must not be
+  // shown as enforced by it.
+  it.each([
+    'python3 "~/guard.py"',
+    "python3 '~/guard.py'",
+    'cd "~" && python3 guard.py',
+    "python3 '$HOME/guard.py'",
+  ])('%s does not map to the file of the home folder that lies in the estate', async (command) => {
+    const work = await estateOf(command, { 'p/.claude/h/guard.py': SCRIPT });
+    const home = join(work, 'p/.claude/h');
+    await scan(work, '--home', home);
+    const map = await readFile(join(work, 'map.yaml'), 'utf8');
+    expect(map).not.toContain('script: .claude/h/guard.py');
+    const result = await lint(work, '--home', home);
+    expect(result.out).toContain('UNANCHORED_GUARD');
+  });
+
   it('"$HOME/..." in double quotes is expanded by the shell, so it is the home folder', async () => {
     const home = await folder({ 'guards/zz-check.py': SCRIPT });
     const work = await estateOf('python3 "$HOME/guards/zz-check.py"');
