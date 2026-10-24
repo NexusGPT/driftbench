@@ -81,6 +81,58 @@ export {
   scopeOf,
   triggers,
 } from './diagnostics';
+export {
+  ASPECTS,
+  type Aspect,
+  type CompiledGlob,
+  compileGlob,
+  coveringType,
+  type FieldRead,
+  type FieldReadError,
+  type FilePlace,
+  folderHolding,
+  type GlobError,
+  type GlobResult,
+  type JsonPathError,
+  type JsonStep,
+  LINK_KINDS,
+  type Link,
+  type LinkKind,
+  type LinkProvenance,
+  LOAD_TIMES,
+  type Loaded,
+  type LoadTime,
+  type Locator,
+  type LocatorError,
+  loadedText,
+  locateFile,
+  locateInside,
+  type ModelCoverage,
+  matchGlob,
+  type Part,
+  type PartType,
+  parseFieldRead,
+  parseJsonPath,
+  parseLoaded,
+  parseLocator,
+  parseReferenceRule,
+  parseTypes,
+  parseTypesText,
+  pathWithin,
+  type ReferenceRule,
+  referenceRuleText,
+  selectJson,
+  TYPES_ERROR_CODES,
+  TYPES_SCHEMA_VERSION,
+  type TypeSet,
+  TypeSpec,
+  TypesDocument,
+  type TypesError,
+  type TypesErrorCode,
+  type TypesOptions,
+  type TypesResult,
+  typeNamed,
+} from './estate-model/index';
 export * as evidence from './evidence';
 export {
   type ImportError,
@@ -141,6 +193,20 @@ export {
   type UsedObject,
 } from './objects';
 export { bindObjectContext, objectContextOfSpec } from './objects/context';
+export {
+  CHECK_CAPABILITIES,
+  type CheckCapability,
+  type CheckCoverage,
+  type CheckDeclaration,
+  type CheckOutcome,
+  type CheckRun,
+  type CheckStatus,
+  checkOutcome,
+  type NotRunReason,
+  noneRan,
+  runCheck,
+  type SkippedInput,
+} from './outcome/check-outcome';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -436,6 +502,23 @@ export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
+  CLAUDE_CODE_MAP_KINDS,
+  CLAUDE_CODE_PROFILE,
+  CLAUDE_CODE_TYPES,
+  type LayoutProfile,
+  loadsByItself,
+  type PathVariables,
+  type RoutingRule,
+  type RuntimeProfile,
+  registerRuntimeProfile,
+  runtimeProfile,
+  runtimeProfileNames,
+  type SettingsSource,
+  type StandingProfile,
+  staticSettingsFiles,
+  variablePrefix,
+} from './runtime-profile/index';
+export {
   Actor,
   Assertion,
   Budget,
@@ -564,6 +647,20 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export {
+  type DoctorDetection,
+  type DoctorResult,
+  diagnoseSetup,
+  parseSetupText,
+  type ResolvedSetupSource,
+  resolveSetupSources,
+  SetupDocument,
+  type SetupIssue,
+  type SetupRead,
+  type SetupReader,
+  type SetupResult,
+  SetupSource,
+} from './setup';
 export { stringifyBlockYaml } from './spec/block-yaml';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';

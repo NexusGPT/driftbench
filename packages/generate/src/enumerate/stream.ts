@@ -52,7 +52,10 @@ import { DiskArray, writeDiskJson } from './stream-storage';
  * Budget allocation and total spec-cap selection are not streaming operations; this API rejects those
  * options before writing. It never falls back to the eager API or reduces coverage to fit memory.
  */
-export type GenerateDiskOptions = Omit<GenerateOptions, 'budget' | 'specCap' | 'specCapMode' | 'stems'> & {
+export type GenerateDiskOptions = Omit<
+  GenerateOptions,
+  'budget' | 'specCap' | 'specCapMode' | 'stems' | 'settle'
+> & {
   outputDir: string;
 };
 export type GenerateDiskResult = {
@@ -330,6 +333,7 @@ function writeSuite(
   const completeCoverage = coverage.measured(t);
   const report = {
     generator: 'driftbench generate',
+    settle: { run: false, unsettled: options.reduceEnds !== false ? summary.complete : 0 },
     map: {
       path: options.mapPath,
       agent: prepared.agent,

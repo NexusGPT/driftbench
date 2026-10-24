@@ -29,6 +29,8 @@ Where the weights family belongs: `mixtureWeights` and `mixedStrengthCoverage` a
 
 The floor drops from 7 (ladder version 2) to 3 (ladder version 4). That is acceptable only because version 4 is a harder bank: version 3 added 46 items for defects and for statistics the docs define and the package lacks, and version 4 adds the 187 items of the weights family, whose functions the package also lacks. A floor belongs to one ladder version, so the 7 stays in `validators/floors.json` as the history of version 2; the stats-fix pull requests raise the floor again as they land.
 
+The floor of version 4 rises from 3 to 8, the top of the ladder. `driftbench validate floors --raise stats 8 --ladder-version 4` wrote it from the whole ladder on Node.js 22: seeds 1 to 20 and the hidden seed (548221152, derived from commit `d36e4ca0a`), 21 of 21 at level 8.
+
 ## Ladder version 3: the recorded bar
 
 Max score after the pilot: 0.85

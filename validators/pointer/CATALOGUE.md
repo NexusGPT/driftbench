@@ -2,16 +2,16 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **486 items**, 12 families, 319 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **490 items**, 12 families, 323 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
 | Family | Level | Items | T1 | T2 | T3 | T4 | T5 |
 |---|---|---|---|---|---|---|---|
-| cutting | cut | 78 | 9 | 35 | 29 | 4 | 1 |
+| cutting | cut | 81 | 9 | 37 | 30 | 4 | 1 |
 | golden | cut | 46 | 0 | 23 | 23 | 0 | 0 |
 | ids | ids | 41 | 11 | 20 | 9 | 1 | 0 |
-| re-anchoring | anchor | 62 | 5 | 13 | 29 | 11 | 4 |
+| re-anchoring | anchor | 63 | 5 | 13 | 30 | 11 | 4 |
 | grouping | labels | 24 | 5 | 12 | 6 | 1 | 0 |
 | labels | labels | 70 | 4 | 34 | 31 | 1 | 0 |
 | replay | replay | 42 | 3 | 8 | 22 | 9 | 0 |
@@ -20,7 +20,7 @@ Bank: **486 items**, 12 families, 319 distinct causes, 9 levels. This file is ge
 | radius | links | 23 | 4 | 6 | 9 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **486** | **47** | **170** | **201** | **54** | **14** |
+| **all** | | **490** | **47** | **172** | **203** | **54** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -34,7 +34,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 84 |
+| maintainer-added | 88 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -174,16 +174,19 @@ Level `cut`, default component `cutter`, default needs cut. The cutter turns a f
 | `cutting.digest-cosmetic` | maintainer-repaired | 3 | Rewrap, CRLF and bullet swap on one document. | The digests are equal. | `cutter:cut-digest-cosmetic-stable` | cutter | cut |
 | `cutting.cut-pure` | maintainer-repaired | 2 | Cut A, cut B, cut A again. | Both cuts of A deep-equal. | `cutter:no-state-between-files` | cutter | cut |
 | `cutting.footnote-reference-after-stop` | maintainer-added | 2 | A sentence, `[^1]` right after its full stop, a second sentence; then the definition `[^1]: ` and a sentence. | Exact cut: the first sentence with its reference, the second sentence, the definition sentence without its marker. | `cutter:footnote-reference-in-sentence` | cutter | cut |
+| `cutting.footnote-reference-undefined` | maintainer-added | 2 | A sentence, `[^1]` right after its full stop, a second sentence; no definition. | Exact cut: the text is cut like any bracketed text, so the first unit ends at the `[` and the second starts at `^1]`. | `cutter:footnote-reference-undefined` | cutter | cut |
 | `cutting.footnote-definition-path` | maintainer-added | 3 | A heading, a sentence, then a definition `[^n1]: ` with one sentence. | The definition sentence has the heading path of the file followed by its label. | `cutter:footnote-definition-path` | cutter | cut |
 | `cutting.footnote-definition-paragraphs` | maintainer-added | 3 | A sentence with `[^2]`, then a definition of two paragraphs (the second indented four spaces). | Exact cut: one sentence unit per paragraph sentence, the marker in no unit. | `cutter:footnote-definition-prose` | cutter | cut |
 | `cutting.alert-marker-not-prose` | maintainer-added | 2 | `> [!WARNING]` and one quoted sentence. | Exact cut: one block quote unit, the sentence alone. | `cutter:alert-marker-not-prose` | cutter | cut |
 | `cutting.alert-type-path` | maintainer-added | 3 | A heading, then `> [!NOTE]` and one quoted sentence. | The quote unit has the heading path of the file followed by the alert type. | `cutter:alert-type-path` | cutter | cut |
 | `cutting.front-matter-toml` | maintainer-added | 2 | Front matter between `+++` lines: a title, an array of two tags, a table with a name; then one sentence. | Exact cut: four front matter units with their paths, then the sentence. | `cutter:toml-front-matter` | cutter | cut |
 | `cutting.front-matter-json` | maintainer-added | 2 | A JSON object opening the file: a title, an array with one tag, an object with a name; then one sentence. | Exact cut: three front matter units with their paths, then the sentence. | `cutter:json-front-matter` | cutter | cut |
+| `cutting.front-matter-json-one-line` | maintainer-added | 2 | A JSON object on one line opening the file: a title and an array with one tag; then one sentence. | Exact cut: two front matter units with their paths, then the sentence. | `cutter:json-front-matter-one-line` | cutter | cut |
 | `cutting.sentence-terminal-every-script` | maintainer-added | 2 | Two sentences each in Mongolian, Syriac, N’Ko and Balinese script, ended by their full stops; two Tibetan phrases ended by the shad. (seed-free) | Two units per script with the property; one unit for the Tibetan paragraph (the shad has no Sentence_Terminal property). | `cutter:sentence-terminal-property` | cutter | cut |
 | `cutting.thai-no-dictionary` | maintainer-added | 2 | Two Thai clauses separated by a space, then a third on the next line (a soft wrap). (seed-free) | One unit. | `cutter:uax29-no-dictionary` | cutter | cut |
 | `cutting.directive-marker-not-prose` | maintainer-added | 2 | `:::note`, one sentence, `:::`. | Exact cut: the sentence alone. | `cutter:directive-marker-not-prose` | cutter | cut |
 | `cutting.directive-name-path` | maintainer-added | 3 | A heading, then `:::warning`, one sentence, `:::`. | The sentence has the heading path of the file followed by the directive name. | `cutter:directive-name-path` | cutter | cut |
+| `cutting.directive-label-attributes-nesting` | maintainer-added | 3 | `::::outer[Label]{#id .wide}`, `:::inner`, one sentence, `:::`, `::::`. | Exact cut: the label with the path `outer`, then the sentence with the path `outer`, `inner`. | `cutter:directive-label-attributes-nesting` | cutter | cut |
 | `cutting.math-block-opaque` | maintainer-added | 2 | `$$`, a line with full stops, `$$`; then one sentence. | Exact cut: one opaque unit over the block, then the sentence. | `cutter:math-block-opaque` | cutter | cut |
 
 ## golden
@@ -353,6 +356,7 @@ Level `anchor`, default component `anchor`, default needs scan. An old unit must
 | `re-anchoring.table-column-reordered` | maintainer-added | 3 | A table of 3 rows by 3 columns of long cells; the last column moves to the front. | Every cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
 | `re-anchoring.table-column-inserted` | maintainer-added | 3 | A table of 3 rows by 2 columns of long cells; a new column is inserted between them. | Every old cell keeps its id on its own text. | `anchor:table-cell-follows-edit` | anchor | scan |
 | `re-anchoring.table-cell-text-follows` | maintainer-added | 3 | A table of 4 rows, short row keys and long cells; the rows move and the long column is renamed. | Every long cell keeps its id on its own text, though its row key and column header no longer match. | `anchor:table-cell-follows-edit` | anchor | scan |
+| `re-anchoring.table-cell-floor-12` | maintainer-added | 3 | A table of 4 rows, cells of 12 to 39 characters; the rows move and every row key is rewritten. | Every cell keeps its id on its own text. | `anchor:table-cell-floor-12` | anchor | scan |
 | `re-anchoring.table-cell-key-follows` | maintainer-added | 3 | 4 rows, long row keys, a `Done` column of `Yes` and `No`; the rows reverse and a column is inserted. | Each `Done` cell keeps its id in the row of its row key, under `Done`. | `anchor:table-cell-by-key` | anchor | scan |
 | `re-anchoring.table-cell-new-id` | maintainer-added | 3 | The same table; every row key is rewritten, the `Done` column is unchanged. | No old `Done` id is live: each `Done` cell has a new id. | `anchor:table-cell-new-id` | anchor | scan |
 

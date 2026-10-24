@@ -1,3 +1,4 @@
+import { check, none } from '../../../../failure';
 import type { ItemContext } from '../../bank/item';
 import type { Plan, Row, StoreDoc } from '../../interface';
 import {
@@ -8,7 +9,6 @@ import {
   callPlan,
   coveredTuples,
   makeStore,
-  must,
   names,
   newRows,
   requiredGroups,
@@ -60,11 +60,12 @@ function under60(ctx: ItemContext, arities: number[]): void {
   const { plan } = planChecked(ctx, store);
   const fresh = newRows(plan).length;
   const limit = Math.ceil(0.6 * fullProduct(arities)) - 1;
-  must(
-    fresh <= limit,
-    () =>
-      `${fresh} new rows for one rule of ${arities.length} variables; the page asks for fewer than 60 percent of the full product (${limit} at most)`,
-  );
+  check(fresh <= limit, () => ({
+    rule: 'a rule of binary variables takes well under the full product in rows',
+    input: { variables: arities.length },
+    got: { newRows: fresh },
+    expected: { atMost: limit },
+  }));
 }
 
 function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25): void {
@@ -77,11 +78,11 @@ function capHolds(ctx: ItemContext, store: StoreDoc, seeds: Row[], factor = 1.25
   assertRowsSound(space, plan, seeds);
   assertCovered(space, plan, seeds);
   const fresh = newRows(plan).length;
-  must(
-    fresh <= cap,
-    () =>
-      `${fresh} new rows; the page allows ${cap} (ceil(${factor} G) + 1 with ${missing.length} tuples missing and a widest tuple of ${widestTuple(space)} cells)`,
-  );
+  check(fresh <= cap, () => ({
+    rule: 'the plan stays under the greedy row cap of the page',
+    got: { newRows: fresh },
+    expected: { atMost: cap, factor, missing: missing.length, widest: widestTuple(space) },
+  }));
 }
 
 function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): void {
@@ -89,7 +90,7 @@ function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): voi
   const groups = requiredGroups(space);
   const allowed = allowedTuples(space, groups, allRows(space));
   const plan = callPlan(ctx, store, { seed: ctx.seed, seeds });
-  must(!!plan.report, () => 'the plan has no coverage report');
+  check(!!plan.report, () => ({ rule: 'the plan has no coverage report', expected: none('observation') }));
   const report = plan.report as NonNullable<Plan['report']>;
   const { covered } = coveredTuples(
     groups,
@@ -97,14 +98,16 @@ function reportCounts(ctx: ItemContext, store: StoreDoc, seeds: Row[] = []): voi
     plan.rows.map((r) => r.values),
     space,
   );
-  must(
-    Number(report.allowed) === allowed.size,
-    () => `report.allowed is ${String(report.allowed)}; the allowed required tuples number ${allowed.size}`,
-  );
-  must(
-    Number(report.covered) === covered.size,
-    () => `report.covered is ${String(report.covered)}; the rows hold ${covered.size} of them`,
-  );
+  check(Number(report.allowed) === allowed.size, () => ({
+    rule: 'the report counts the allowed required tuples',
+    got: { allowed: String(report.allowed) },
+    expected: { allowed: allowed.size },
+  }));
+  check(Number(report.covered) === covered.size, () => ({
+    rule: 'the report counts the required tuples the rows hold',
+    got: { covered: String(report.covered) },
+    expected: { covered: covered.size },
+  }));
 }
 
 export const STRENGTH_STEMS: readonly Stem[] = [
@@ -133,10 +136,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { store } = ruleStore(ctx, [2, 2, 2, 2, 2], 5);
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
-          must(
-            fresh < 32,
-            () => `${fresh} new rows: the whole product of 5 binary variables (32) is not required`,
-          );
+          check(fresh < 32, () => ({
+            rule: '{} new rows: the whole product of N binary variables (N) is not required',
+            got: { details: [fresh] },
+            expected: none('observation'),
+          }));
         },
       ],
     ],
@@ -211,9 +215,13 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const b = ids[3] as string;
           for (const x of ['v0', 'v1']) {
             for (const y of ['v0', 'v1']) {
-              must(
+              check(
                 plan.rows.some((r) => r.values[a] === x && r.values[b] === y),
-                () => `no row holds ${a}=${x} with ${b}=${y}, a pair of two axes`,
+                () => ({
+                  rule: 'no row holds {}={} with {}={}, a pair of two axes',
+                  got: { details: [a, x, b, y] },
+                  expected: none('observation'),
+                }),
               );
             }
           }
@@ -229,10 +237,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           });
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
-          must(
-            fresh <= 6,
-            () => `${fresh} new rows for eight independent ternary details; six are enough (twice the arity)`,
-          );
+          check(fresh <= 6, () => ({
+            rule: '{} new rows for eight independent ternary details; six are enough (twice the arity)',
+            got: { details: [fresh] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -249,9 +258,13 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           });
           const { plan } = planChecked(ctx, store);
           for (const x of valueIds(4))
-            must(
+            check(
               plan.rows.some((r) => r.values[ids[0] as string] === x),
-              () => `the value ${x} of the lone axis is in no row`,
+              () => ({
+                rule: 'the value {} of the lone axis is in no row',
+                got: { details: [x] },
+                expected: none('observation'),
+              }),
             );
         },
       ],
@@ -290,10 +303,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const store = makeStore({ vars: names(ctx.rng, 7).map((id) => ({ id, values: valueIds(4) })) });
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
-          must(
-            fresh <= 8,
-            () => `${fresh} new rows for seven independent details of arity 4; twice the arity bounds it`,
-          );
+          check(fresh <= 8, () => ({
+            rule: '{} new rows for seven independent details of arity N; twice the arity bounds it',
+            got: { details: [fresh] },
+            expected: none('observation'),
+          }));
         },
       ],
       [
@@ -303,9 +317,13 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { store, ids } = ruleStore(ctx, [2, 2, 2, 3], 3);
           const { plan } = planChecked(ctx, store);
           for (const x of valueIds(3))
-            must(
+            check(
               plan.rows.some((r) => r.values[ids[3] as string] === x),
-              () => `the value ${x} of the detail outside the rule is in no row`,
+              () => ({
+                rule: 'the value {} of the detail outside the rule is in no row',
+                got: { details: [x] },
+                expected: none('observation'),
+              }),
             );
         },
       ],
@@ -363,7 +381,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           });
           const { plan } = planChecked(ctx, store);
           for (const r of newRows(plan))
-            must(!((ids[2] as string) in r.values), () => `row ${r.id} assigns the unapproved variable`);
+            check(!((ids[2] as string) in r.values), () => ({
+              rule: 'row {} assigns the unapproved variable',
+              got: { details: [r.id] },
+              expected: none('observation'),
+            }));
         },
       ],
       [
@@ -385,11 +407,11 @@ export const STRENGTH_STEMS: readonly Stem[] = [
           const { store } = ruleStore(ctx, [2, 2, 2, 2, 2, 2, 2], 7);
           const { plan } = planChecked(ctx, store);
           const fresh = newRows(plan).length;
-          must(
-            fresh < 128 * 0.6,
-            () =>
-              `${fresh} new rows for a rule of seven binary variables; strength 3 needs far fewer than the 128 of the whole product`,
-          );
+          check(fresh < 128 * 0.6, () => ({
+            rule: '{} new rows for a rule of seven binary variables; strength N needs far fewer than the N of the whole product',
+            got: { details: [fresh] },
+            expected: none('observation'),
+          }));
         },
       ],
     ],
