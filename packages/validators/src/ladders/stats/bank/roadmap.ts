@@ -385,6 +385,7 @@ function roadmapPurityItems(all: Method[]): BankItem[] {
     out.push({
       id: `roadmap-purity.${m.name}`,
       family: 'roadmap-purity',
+      purity: true,
       tier: 2,
       level: 'roadmap',
       component: m.file,

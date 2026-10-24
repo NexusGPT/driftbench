@@ -1,4 +1,4 @@
-import { type Item, type LadderReport, type LevelRow, seedLabel } from './ladder';
+import { type Item, type LadderReport, type LevelRow, type SeedRun, seedLabel } from './ladder';
 
 /** A number as the table shows it: whole numbers plain, others to six significant digits; NaN is "error". */
 export function showNumber(value: number): string {
@@ -89,12 +89,34 @@ export function formatLadder(report: LadderReport, options: FormatOptions = {}):
   ];
   let text = `Validator ${report.component}${notes.length > 0 ? ` (${notes.join(', ')})` : ''}\n`;
   text += table(header, rows);
-  text += `Level per seed: ${report.seeds.map((run) => `${seedLabel(run)} = ${run.level}`).join(', ')}\n`;
-  text += `Level of the run: ${report.level} of ${report.top}, the minimum over ${report.seeds.length} seed${
-    report.seeds.length === 1 ? '' : 's'
-  }.\n`;
+  // A slice measured only its own levels: a level or floor verdict is printed only where the measured prefix holds it.
+  const slice = report.levels;
+  const unmeasuredBelow =
+    slice && slice.from > 1 ? `levels 1 to ${slice.from - 1} were not measured` : undefined;
+  const exact = !slice || (!unmeasuredBelow && report.seeds.some((run) => run.failing));
+  const seedLevel = (run: SeedRun) =>
+    !slice || (!unmeasuredBelow && run.failing)
+      ? String(run.level)
+      : unmeasuredBelow
+        ? `not known (levels ${slice.from} to ${slice.to} only)`
+        : `at least ${run.level}`;
+  text += `Level per seed: ${report.seeds.map((run) => `${seedLabel(run)} = ${seedLevel(run)}`).join(', ')}\n`;
+  if (exact) {
+    text += `Level of the run: ${report.level} of ${report.top}, the minimum over ${report.seeds.length} seed${
+      report.seeds.length === 1 ? '' : 's'
+    }.\n`;
+  } else if (unmeasuredBelow) {
+    text += `Level of the run: not known: ${unmeasuredBelow}.\n`;
+  } else {
+    text += `Level of the run: at least ${report.level} of ${report.top}; levels above ${report.level} were not measured.\n`;
+  }
   if (options.floor !== undefined) {
-    text += `Floor: ${options.floor}. ${report.level >= options.floor ? 'At or above the floor.' : 'BELOW THE FLOOR.'}\n`;
+    const floor = options.floor;
+    if (exact || (!unmeasuredBelow && report.level >= floor)) {
+      text += `Floor: ${floor}. ${report.level >= floor ? 'At or above the floor.' : 'BELOW THE FLOOR.'}\n`;
+    } else {
+      text += `Floor: ${floor}. Not known: ${unmeasuredBelow ?? `the slice ends at level ${report.level}`}.\n`;
+    }
   }
   if (options.floorNote) text += `${options.floorNote}\n`;
   if (report.seeds.some((run) => run.rows.some((row) => row.beyond))) {
