@@ -130,6 +130,13 @@ export type StoreValue = {
   weight?: number;
   /** False for a value a machine proposed and no person approved; absent means approved. */
   approved?: boolean;
+  /**
+   * The cells a rule applies in, per variable (docs/variables.md "Values"). The projection keeps no quote of a value,
+   * so a value with `when` or `unless` is a rule by itself: its variable and the variables it names.
+   */
+  when?: Record<VarId, ValId[]>;
+  /** The cells a rule does not hold in. It names variables like `when`. */
+  unless?: Record<VarId, ValId[]>;
 };
 
 /** The edge of a numeric condition (docs/variables.md "Boundaries"). */
@@ -140,6 +147,8 @@ export type StoreBoundary = {
   limit?: number;
   comparison?: 'lt' | 'le' | 'gt' | 'ge';
   unit?: string;
+  /** The id of a rule in `rules` whose passage states the condition: the variable of the boundary joins that rule. */
+  rule?: string;
 };
 
 export type StoreVariable = {
@@ -222,6 +231,11 @@ export type PlanOptions = {
   budget?: number;
   /** Real sessions, kept as they are, first in the plan. */
   seeds?: Row[];
+  /**
+   * The id of each seed row, in the order of `seeds`. A row without one is named by its position. Two seed rows with
+   * one id raise an Error that names the id (docs/variables.md R8).
+   */
+  seedIds?: string[];
 };
 
 export type PlanRow = {

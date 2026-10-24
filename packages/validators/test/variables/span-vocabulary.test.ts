@@ -132,3 +132,71 @@ describe('a product that labels the spans itself from a table of the vocabulary'
     expect(outcome.detail).toMatch(/reads the limit of the label, not the number in the text/);
   });
 });
+
+/**
+ * Cheats 8 and 9 of the r4 audit: a product that reads the vocabulary of the bank's own templates labels every span it
+ * meets, and so passes the span items without a recording. The one item above told it from a product that follows the
+ * label, but only for a numeric span worded "more than". A product that follows the label there and reads its own table
+ * for the other kinds, or for the other comparisons, passed. One item per kind of span closes that: each gives a label
+ * that disagrees with the wording of the text.
+ */
+const LABEL_ITEMS = [
+  'blind.sources.labelled-condition.the-label-comparison-decides-not-the-wording',
+  'blind.sources.labelled-condition.the-label-decides-a-range',
+  'blind.sources.labelled-condition.the-label-decides-a-membership',
+  'blind.sources.labelled-condition.the-label-decides-a-boolean-subject',
+] as const;
+
+/** A product's own reading of the wording of a span, kind by kind: the table of a reader that does not wait for a label. */
+function ownReading(text: string): Record<string, unknown> | undefined {
+  let m = /^(.+?) is between (\d+) and (\d+)(.*)$/.exec(text);
+  if (m)
+    return {
+      kind: 'range',
+      subject: m[1],
+      low: Number(m[2]),
+      high: Number(m[3]),
+      lowInclusive: true,
+      highInclusive: true,
+    };
+  m = /^(.+?) is one of (.+)$/.exec(text);
+  if (m) return { kind: 'member', subject: m[1], members: (m[2] as string).split(/, | or /) };
+  m = /^(.+?) is (?:more than|over) (\d+)(.*)$/.exec(text);
+  if (m) return { kind: 'numeric', subject: m[1], limit: Number(m[2]), comparison: 'gt' };
+  m = /^(.+?) is [a-z]+$/.exec(text);
+  if (m) return { kind: 'boolean', subject: m[1] };
+  return undefined;
+}
+
+const readsItsOwnTable: Partial<VariablesImpl> = {
+  ...adapter,
+  buildStore: (sources: Sources) =>
+    (adapter.buildStore as VariablesImpl['buildStore'])({
+      ...sources,
+      estate: sources.estate && {
+        ...sources.estate,
+        rules: sources.estate.rules.map((rule) => ({
+          ...rule,
+          conditions: rule.conditions.map((condition) => {
+            const own = ownReading(condition.text);
+            return (own ? { ...condition, label: own } : condition) as typeof condition;
+          }),
+        })),
+      },
+    }),
+};
+
+describe('a product that reads its own table for every kind of span', () => {
+  for (const id of LABEL_ITEMS) {
+    it(`the honest adapter passes ${id.split('.').pop()}`, async () => {
+      const outcome = await runItem(item(id), 1, ROOT, adapter);
+      expect(outcome.detail).toBe('ok');
+      expect(outcome.pass).toBe(true);
+    });
+
+    it(`the table product fails ${id.split('.').pop()}: it follows its own reading of the text, not the label`, async () => {
+      const outcome = await runItem(item(id), 1, ROOT, readsItsOwnTable);
+      expect(outcome.pass).toBe(false);
+    });
+  }
+});

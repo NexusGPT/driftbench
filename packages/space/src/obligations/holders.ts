@@ -66,7 +66,7 @@ export function isDeclared(subject: { channel: string; persona: string }, declar
 
 /** The kinds of obligation that a spec holds by a key. */
 export type HolderKind = Extract<ObligationKind, { keptWhen: unknown }>;
-type TwinKind = Extract<ObligationKind, { id: 'twin' }>;
+export type TwinKind = Extract<ObligationKind, { id: 'twin' }>;
 
 /** A key a spec holds, and the blocks of the spec that hold it. */
 export type Held = { key: string; kind: HolderKind; blocks: ReadonlySet<string> };
@@ -108,10 +108,41 @@ export function heldKeys(one: ObligationSpec, declared: DeclaredAxes, rulings: R
 const bothIn = (values: ReadonlySet<string>, one: string, two: string): boolean =>
   values.has(one) && values.has(two);
 
+/** The twin ruling of a set of rulings, when it has one. */
+export function twinKind(rulings: Rulings = RULINGS): TwinKind | undefined {
+  return rulings.obligations.find((kind): kind is TwinKind => kind.id === 'twin');
+}
+
+/** The walk twins share: the path and the walk. Two specs are twins only inside one such group. */
+export function twinGroup(one: { path: string; walk: string }): string {
+  return JSON.stringify([one.path, one.walk]);
+}
+
 /**
- * The twin pairs of a suite: two specs that write the same walk and differ in the value of one axis alone (the channel
- * with the persona equal, the persona with the channel equal), both values declared by the map. The key is
- * `<path>|<axis>`. The specs are the ones a map declares; the caller leaves the others out.
+ * The axes on which two specs are twins: the one they differ in alone (the channel with the persona equal, the persona
+ * with the channel equal), both values declared by the map when the ruling says so. None when they are not of one walk.
+ */
+export function twinAxes(
+  one: ObligationSpec,
+  two: ObligationSpec,
+  declared: DeclaredAxes,
+  twin: TwinKind,
+): string[] {
+  if (one.path !== two.path || one.walk !== two.walk) return [];
+  const sameChannel = one.channel === two.channel;
+  const samePersona = one.persona === two.persona;
+  const channelsOk = !twin.onlyDeclared || bothIn(declared.channels, one.channel, two.channel);
+  const personasOk = !twin.onlyDeclared || bothIn(declared.personas, one.persona, two.persona);
+  const found: string[] = [];
+  if (twin.axes.includes('channel') && !sameChannel && samePersona && channelsOk) found.push('channel');
+  if (twin.axes.includes('persona') && !samePersona && sameChannel && personasOk) found.push('persona');
+  return found;
+}
+
+/**
+ * The twin pairs of a suite: two specs that write the same walk and differ in the value of one axis alone. The key is
+ * `<path>|<axis>`. The specs are the ones a map declares; the caller leaves the others out. Twins share a walk, so the
+ * search runs inside each walk and reads no spec of another.
  */
 export function twinPairs(
   heads: readonly ObligationSpec[],
@@ -119,22 +150,24 @@ export function twinPairs(
   rulings: Rulings = RULINGS,
 ): Map<string, Array<[string, string]>> {
   const pairs = new Map<string, Array<[string, string]>>();
-  const twin = rulings.obligations.find((kind): kind is TwinKind => kind.id === 'twin');
+  const twin = twinKind(rulings);
   if (!twin) return pairs;
-  const axes = new Set<string>(twin.axes);
-  for (const [index, one] of heads.entries()) {
-    for (const two of heads.slice(index + 1)) {
-      if (one.path !== two.path || one.walk !== two.walk) continue;
-      const sameChannel = one.channel === two.channel;
-      const samePersona = one.persona === two.persona;
-      const channelsOk = !twin.onlyDeclared || bothIn(declared.channels, one.channel, two.channel);
-      const personasOk = !twin.onlyDeclared || bothIn(declared.personas, one.persona, two.persona);
-      const found: string[] = [];
-      if (axes.has('channel') && !sameChannel && samePersona && channelsOk) found.push('channel');
-      if (axes.has('persona') && !samePersona && sameChannel && personasOk) found.push('persona');
-      for (const axis of found) {
-        const key = `${one.path}|${axis}`;
-        pairs.set(key, [...(pairs.get(key) ?? []), [one.spec, two.spec]]);
+  const walks = new Map<string, ObligationSpec[]>();
+  for (const one of heads) {
+    const key = twinGroup(one);
+    const list = walks.get(key);
+    if (list) list.push(one);
+    else walks.set(key, [one]);
+  }
+  for (const list of walks.values()) {
+    for (const [index, one] of list.entries()) {
+      for (const two of list.slice(index + 1)) {
+        for (const axis of twinAxes(one, two, declared, twin)) {
+          const key = `${one.path}|${axis}`;
+          const found = pairs.get(key);
+          if (found) found.push([one.spec, two.spec]);
+          else pairs.set(key, [[one.spec, two.spec]]);
+        }
       }
     }
   }

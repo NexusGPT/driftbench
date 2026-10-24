@@ -493,5 +493,20 @@ describe('estate generate on a map copied away from its estate', () => {
     expect(home.markers).not.toContain('needs-existing-file');
     expect(copied.markers).not.toContain('needs-existing-file');
     expect(copied.out).toContain('holds none of the files the map was read from');
+
+    // A root that names no folder at all is refused with a fix, and nothing is written.
+    const lost = join(dir, 'lost');
+    await mkdir(lost);
+    const recorded = await readFile(join(estate, 'map.yaml'), 'utf8');
+    await writeFile(join(lost, 'map.yaml'), recorded.replace(/^root: .*$/m, 'root: ../nowhere'));
+    await copyFile(join(estate, 'plan.yaml'), join(lost, 'plan.yaml'));
+    const refused = await run(
+      ['estate', 'generate', '--map', 'map.yaml', '--plan', 'plan.yaml', '--out', 'gen'],
+      lost,
+    );
+    expect(refused.code).toBe(2);
+    expect(refused.err).toContain('Cannot find the estate folder');
+    expect(refused.err).toContain('Fix: ');
+    await expect(readFile(join(lost, 'gen', 'estate-generate-report.json'), 'utf8')).rejects.toThrow();
   }, 60_000);
 });

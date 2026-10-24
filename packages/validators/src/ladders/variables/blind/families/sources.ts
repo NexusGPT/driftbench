@@ -176,10 +176,29 @@ function hashes(store: ReturnType<typeof callBuild>, variable: string): string[]
   return out;
 }
 
+type Labelled = { text: string; label: Record<string, unknown> };
+
+/** Builds a store from condition spans that carry a label, each in the file its rule names. */
+function readLabelled(ctx: ItemContext, conditions: readonly Labelled[]) {
+  const file = 'agent/prompt.md';
+  const sources = {
+    estate: {
+      files: { [file]: conditions.map((c) => `Escalate when ${c.text}.`).join('\n') },
+      rules: conditions.map((c, i) => ({ id: `rule.${i}`, source: file, conditions: [c], tools: [] })),
+    },
+  } as unknown as Parameters<typeof callBuild>[1];
+  return callBuild(ctx, sources);
+}
+
+const samplesOf = (store: ReturnType<typeof callBuild>): Array<number | string | boolean | undefined> =>
+  store.variables.flatMap((v) => v.values.map((x) => x.sample));
+
 /**
  * A condition span the validator labelled: the product follows the label, not its own reading of the text. A product that
  * carries a table of the span vocabulary (or a pattern for it) and labels the spans itself reads the text, and the label
- * here disagrees with the text on purpose, so it builds another limit than the label gives.
+ * here disagrees with the text on purpose, so it builds another limit than the label gives. One item for each kind of span
+ * (a numeric comparison, a range, a membership list, a true-or-false fact): a product that follows the label for the one
+ * kind the first item tries and reads its own table for the others passes that item and none of these.
  */
 const LABELLED_STEM: Stem = {
   id: 'sources.labelled-condition',
@@ -220,6 +239,100 @@ const LABELLED_STEM: Stem = {
           rule: 'no variable takes the number in the text as its limit when a label gives the limit',
           got: { read: show(read, 160) },
           expected: none('observation'),
+        }));
+      },
+    ],
+    [
+      'the-label-comparison-decides-not-the-wording',
+      4,
+      (ctx) => {
+        // The wording says "more than"; the label says the quantity must not pass its limit. The item asks for the boundary
+        // of the label and says nothing of other boundaries: a product may report more than one.
+        const label = { kind: 'numeric', subject: 'the load', limit: 5, comparison: 'le' };
+        const store = readLabelled(ctx, [{ text: 'the load is more than 5 tons', label }]);
+        const boundaries = store.variables.flatMap((v) => v.boundaries ?? []);
+        check(
+          boundaries.some((b) => b.limit === 5 && b.comparison === 'le'),
+          () => ({
+            rule: 'a condition with a label reads the comparison of the label, not the one its wording states',
+            got: { boundaries: show(boundaries, 160) },
+            expected: { comparison: 'le' },
+          }),
+        );
+      },
+    ],
+    [
+      'the-label-decides-a-range',
+      4,
+      (ctx) => {
+        // The wording gives the limits 2 and 6; the label gives 100 and 140. The page names where the witnesses sit against the
+        // limits of the label (below the lower, at each, inside, above the upper), not which number a product picks, so the
+        // item asks for those positions and bans no number: a product that reads the wording has no sample at either limit.
+        const label = {
+          kind: 'range',
+          subject: 'the stay',
+          low: 100,
+          high: 140,
+          lowInclusive: true,
+          highInclusive: true,
+        };
+        const store = readLabelled(ctx, [{ text: 'the stay is between 2 and 6 nights', label }]);
+        const nums = samplesOf(store)
+          .filter((s): s is number => typeof s === 'number')
+          .sort((a, b) => a - b);
+        check(
+          nums.includes(100) &&
+            nums.includes(140) &&
+            nums.some((n) => n < 100) &&
+            nums.some((n) => n > 100 && n < 140) &&
+            nums.some((n) => n > 140),
+          () => ({
+            rule: 'a range condition with a label gets the samples the page lists for the limits of the label',
+            got: { samples: nums },
+            expected: { limits: [100, 140] },
+          }),
+        );
+      },
+    ],
+    [
+      'the-label-decides-a-membership',
+      4,
+      (ctx) => {
+        // The wording lists north, south and east; the label lists three other members. The value outside the list may be any
+        // other word, one of the wording included; a product that reads the wording has no sample that is a member.
+        const members = ['kazu', 'lemi', 'vora'];
+        const label = { kind: 'member', subject: 'the region', members };
+        const store = readLabelled(ctx, [{ text: 'the region is one of north, south or east', label }]);
+        const samples = samplesOf(store).filter((s): s is string => typeof s === 'string');
+        check(samples.some((s) => members.includes(s)) && samples.some((s) => !members.includes(s)), () => ({
+          rule: 'a membership condition with a label gets an in-list and an out-of-list sample for the members of the label',
+          got: { samples: show(samples, 160) },
+          expected: { members },
+        }));
+      },
+    ],
+    [
+      'the-label-decides-a-boolean-subject',
+      4,
+      (ctx) => {
+        // The wordings name a parcel and an invoice; the labels give both one subject, so they are one fact.
+        const label = { kind: 'boolean', subject: 'the handling flag' };
+        const store = readLabelled(ctx, [
+          { text: 'the parcel is fragile', label },
+          { text: 'the invoice is overdue', label },
+        ]);
+        const flags = store.variables.filter(
+          (v) => v.values.some((x) => x.sample === true) && v.values.some((x) => x.sample === false),
+        );
+        check(flags.length === 1, () => ({
+          rule: 'spans whose labels give one subject are one true-or-false variable, whatever their wording',
+          got: { flagVariables: flags.length },
+          expected: { flagVariables: 1 },
+        }));
+        check(flags[0]?.values.length === 2, () => ({
+          rule: 'a true-or-false variable holds a true value and a false value',
+          got: { values: flags[0]?.values.length },
+          expected: { values: 2 },
         }));
       },
     ],
