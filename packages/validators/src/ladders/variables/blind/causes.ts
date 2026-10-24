@@ -1116,6 +1116,22 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
       ['the-label-decides-not-the-text'],
     ],
+    [
+      'buildStore reads the comparison of a numeric condition from the label the reader gave the span, not from the wording of the text',
+      ['the-label-comparison-decides-not-the-wording'],
+    ],
+    [
+      'buildStore builds a range condition from the limits of the label the reader gave the span, not from the numbers in the text',
+      ['the-label-decides-a-range'],
+    ],
+    [
+      'buildStore builds a membership condition from the members of the label the reader gave the span, not from the list in the text',
+      ['the-label-decides-a-membership'],
+    ],
+    [
+      'buildStore names a true-or-false condition by the subject of the label the reader gave the span, so spans whose labels share a subject are one variable',
+      ['the-label-decides-a-boolean-subject'],
+    ],
   ]),
   'diff.cover': table([
     [
