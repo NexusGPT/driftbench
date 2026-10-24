@@ -960,6 +960,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       characters: 0,
     })),
   };
+  // In a cascade (system 1, then system 2), a window of system 2 goes out only when a unit system 1 did not decide needs
+  // it. A replay cannot tell which before it has read system 1, so it checks such a window when it asks it, not when it
+  // plans it; the plan still counts it, as a recording would send it.
+  const lateWindow = (task: Task) =>
+    labelling.members.length === 2 && labelling.members[0]?.cls === 'system1' && task.memberAt !== 0;
   let firstMiss: Task | undefined;
   for (const task of tasks) {
     const wire = task.member.render(task.set, task.window, task.context);
@@ -968,19 +973,29 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
     else {
       entry.characters += JSON.stringify(wire.body).length;
-      firstMiss ??= task;
+      if (!lateWindow(task)) firstMiss ??= task;
     }
   }
   input.onPlan?.(plan);
   const missing = plan.members.reduce((sum, member) => sum + member.windows - member.cached, 0);
   if (input.planOnly && !(input.planUnlessCached && missing === 0)) throw new PointerPlanOnly(plan);
   // A replay that lacks answers stops before the first request and says how many are lacking, not only the first.
+  const totals = {
+    missing,
+    requests: plan.members.reduce((sum, member) => sum + member.windows, 0),
+    characters: plan.members.reduce((sum, member) => sum + member.characters, 0),
+  };
+  const withTotals = (cause: CassetteMiss) =>
+    new CassetteMiss(
+      cause.key,
+      cause.differs,
+      cause.nearest,
+      cause.labeler,
+      cause.closest,
+      cause.window,
+      totals,
+    );
   if (input.mode === 'replay' && firstMiss) {
-    const totals = {
-      missing,
-      requests: plan.members.reduce((sum, member) => sum + member.windows, 0),
-      characters: plan.members.reduce((sum, member) => sum + member.characters, 0),
-    };
     try {
       cassette.get(
         firstMiss.member.render(firstMiss.set, firstMiss.window, firstMiss.context),
@@ -988,15 +1003,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       );
     } catch (cause) {
       if (!(cause instanceof CassetteMiss)) throw cause;
-      throw new CassetteMiss(
-        cause.key,
-        cause.differs,
-        cause.nearest,
-        cause.labeler,
-        cause.closest,
-        cause.window,
-        totals,
-      );
+      throw withTotals(cause);
     }
   }
   // A recording run that has requests to send asks its labelers whether they can send, before the first one leaves.
@@ -1030,6 +1037,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       counts.replayedOutput += hit.answer.usage.output;
       return { answer: hit.answer, key: hit.key };
     } catch (cause) {
+      if (cause instanceof CassetteMiss && input.mode === 'replay') throw withTotals(cause);
       if (!(cause instanceof CassetteMiss) || input.mode === 'replay' || !member.call) throw cause;
     }
     // One retry after an answer that cannot be read; nothing is recorded for a window that fails twice.
