@@ -7,6 +7,8 @@ export {
   type LayoutProfile,
   loadsByItself,
   type PathVariables,
+  type PolicyModel,
+  type PolicyTool,
   type RoutingRule,
   type RuntimeProfile,
   registerRuntimeProfile,

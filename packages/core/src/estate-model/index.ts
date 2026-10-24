@@ -43,6 +43,7 @@ export {
 export {
   ASPECTS,
   type Aspect,
+  INFERRED_CONFIDENCE,
   LINK_KINDS,
   type Link,
   type LinkKind,
@@ -50,4 +51,5 @@ export {
   LOAD_TIMES,
   type Loaded,
   type LoadTime,
+  PROVEN_CONFIDENCE,
 } from './vocabulary';

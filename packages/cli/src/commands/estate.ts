@@ -61,6 +61,8 @@ export type EstateScanOptions = EstatePointerOptions & {
   ignore?: string[];
   /** The folder of the user-level skill layer. Without it (or the configuration's `userSkills:`) none is read. */
   userSkills?: string;
+  /** The folder that stands for the user's home folder: a guard script written from it is looked for there. */
+  home?: string;
   /** A rendered copy of the settings, for an estate whose install step writes them. */
   settings?: string;
   runtime?: string;
@@ -87,6 +89,16 @@ async function userSkillsGiven(value: string | undefined, io: Io): Promise<boole
   return false;
 }
 
+/** False, with the error written, when `--home` was given an empty value: it would name the working folder. */
+async function homeGiven(value: string | undefined, io: Io): Promise<boolean> {
+  if (value === undefined || value.trim() !== '') return true;
+  io.err('error: --home needs a folder, not an empty value\n');
+  return false;
+}
+
+const HOME_FLAG = '--home <folder>';
+const HOME_HELP =
+  'the folder that stands for your home folder: a guard script written from ~/, $HOME/ or ${HOME}/ is looked for there; without it such a script is skipped, never read from this machine';
 /** The path a `--settings` value names, or false with the error written when it is empty or not a file. */
 async function settingsGiven(value: string | undefined, io: Io): Promise<string | undefined | false> {
   if (value === undefined) return undefined;
@@ -145,6 +157,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(HOME_FLAG, HOME_HELP)
     .option(SETTINGS_FLAG, SETTINGS_HELP)
     .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option('--force', 'replace an existing map; the approvals in it are lost')
@@ -211,6 +224,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
+    .option(HOME_FLAG, HOME_HELP)
     .option(SETTINGS_FLAG, SETTINGS_HELP)
     .option(VERBOSE_FLAG, VERBOSE_HELP)
     .option(
@@ -224,6 +238,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
           ceiling?: string;
           ignore?: string[];
           userSkills?: string;
+          home?: string;
           settings?: string;
           verbose?: boolean;
           json?: boolean;
@@ -285,11 +300,13 @@ export async function estateScanCommand(
   }
   const runtime = options.runtime ?? 'claude-code';
   if (!(await userSkillsGiven(options.userSkills, io))) return 2;
+  if (!(await homeGiven(options.home, io))) return 2;
   const settings = await settingsGiven(options.settings, io);
   if (settings === false) return 2;
   const reader = readerFor(runtime, {
     ignore: options.ignore ?? [],
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(options.home !== undefined ? { home: userFolder(options.home, io) } : {}),
     ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
@@ -550,6 +567,7 @@ export async function lintMap(
     ceiling?: string;
     ignore?: string[];
     userSkills?: string;
+    home?: string;
     settings?: string;
     verbose?: boolean;
     json?: boolean;
@@ -571,6 +589,7 @@ export async function lintMap(
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
   if (!(await userSkillsGiven(options.userSkills, io))) return { ok: false, code: 2 };
+  if (!(await homeGiven(options.home, io))) return { ok: false, code: 2 };
   const settings = await settingsGiven(options.settings, io);
   if (settings === false) return { ok: false, code: 2 };
   if (loaded.map.settings === true && settings === undefined) {
@@ -583,6 +602,7 @@ export async function lintMap(
   const reader = readerFor(loaded.map.runtime, {
     ignore,
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
+    ...(options.home !== undefined ? { home: userFolder(options.home, io) } : {}),
     ...(settings !== undefined ? { settings } : {}),
   });
   if (!reader) {
@@ -621,7 +641,7 @@ export async function lintMap(
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string; home?: string; verbose?: boolean; json?: boolean },
   io: Io,
 ): Promise<number> {
   const run = await lintMap(path, options, io);
@@ -694,12 +714,22 @@ export async function estateLintCommand(
     );
   }
   const unknown = result.unknown.length;
+  // What a check left out is said, with the reason.
+  let skipped = 0;
+  for (const outcome of result.outcomes) {
+    const reasons = [...new Set(outcome.coverage.skipped.map((entry) => entry.reason))];
+    if (reasons.length === 0) continue;
+    skipped += outcome.coverage.skipped.length;
+    lines.push(
+      `  SKIPPED     ${outcome.check}: ${outcome.coverage.skipped.length} not looked at (${reasons.join(', ')}).`,
+    );
+  }
   lines.push(
     {
       findings: `${found.length} ${plural(found.length, 'finding', 'findings')}.`,
       'none-ran': 'Not run: no check had an input.',
       'unknown-files': `Not clean: ${unknown} ${plural(unknown, 'file', 'files')} no part type covers, which no check read.`,
-      clean: 'Clean.',
+      clean: skipped > 0 ? 'No finding in what was read; some inputs were skipped.' : 'Clean.',
     }[result.summary],
     '',
   );
