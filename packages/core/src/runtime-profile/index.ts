@@ -8,6 +8,8 @@ export {
   type LayoutProfile,
   loadsByItself,
   type PathVariables,
+  type PolicyModel,
+  type PolicyTool,
   PROFILE_ERROR_CODES,
   type ProfileError,
   type ProfileErrorCode,

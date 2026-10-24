@@ -205,6 +205,8 @@ type EstateConfig = {
   userSkills?: string;
   /** The home folder, relative to the estate root (the option wins). */
   home?: string;
+  /** What the configuration declares about programs: by name, whether the program opens files. */
+  programs?: Record<string, { opensFiles: boolean }>;
   /** Declared document roles, by glob: they win over a recorded label and over structure. */
   documents?: Array<{ rule: IgnoreRule; role: DocumentRole }>;
   /** The profile's types and the ones the configuration's `types:` declares. */
@@ -385,6 +387,7 @@ export class ClaudeCodeReader implements EstateReader {
         ...notes.filter((note) => note.message === EXTERNAL_NOTE).map((note) => note.file),
       ],
     };
+    if (config.programs !== undefined) estate.programs = config.programs;
     const homeAt = homeFolderOf(this.home, config, root);
     if (homeAt !== undefined) {
       const inside = rootRelative(root, homeAt);
@@ -803,6 +806,24 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
   if (userSkills !== undefined) {
     if (typeof userSkills === 'string' && userSkills.trim() !== '') config.userSkills = userSkills.trim();
     else notes.push({ file: ESTATE_CONFIG, message: 'userSkills: must be a folder' });
+  }
+  const programs = parsed.programs;
+  if (programs !== undefined) {
+    const entries = isRecord(programs) ? Object.entries(programs) : [];
+    if (
+      entries.length > 0 &&
+      entries.every(
+        ([name, value]) => name.trim() !== '' && isRecord(value) && typeof value.opensFiles === 'boolean',
+      )
+    ) {
+      config.programs = Object.fromEntries(
+        entries.map(([name, value]) => [name, { opensFiles: (value as { opensFiles: boolean }).opensFiles }]),
+      );
+    } else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: 'programs: must map a program name to { opensFiles: true or false }',
+      });
   }
   const home = parsed.home;
   if (home !== undefined) {

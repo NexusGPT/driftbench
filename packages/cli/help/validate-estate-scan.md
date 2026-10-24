@@ -256,6 +256,7 @@ The configuration file `driftbench.estate.yaml` at the estate root, optional, ev
 | `ignore` | `scan`, `lint` | globs of paths no runtime loads, skipped beside the defaults (version control, dependency and cache folders, logs, test fixtures, operating system and editor files). Matched like a `.gitignore` line |
 | `userSkills` | `scan`, `lint` | the folder of the user-level skill layer to read as a second skill layer (relative to the estate root); none is read without it or `--user-skills` |
 | `home` | `scan`, `lint` | the folder that stands for the user's home folder (relative to the estate root); `--home <folder>` wins over it. Without either, a guard script written from the home folder is skipped, never read from the machine |
+| `programs` | `lint` | what a shell permission rule's program does, by name: `programs: { listing: { opensFiles: false } }`. A program declared to open no file does not reach around a deny on a file tool; one declared to open files makes the reach-around proven. An undeclared program with a wildcard in its rule is an assumed reach-around |
 | `externals` | `scan` | folders outside the estate a path may name; they replace the defaults `docs/` and `_meta/` |
 | `aliases` | `scan` | a map from an alias such as `REF` to the folder or folders it stands for: `REF/a/b.md` reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files`, `expect` (`exitCode`, `stdout`, `stdoutIncludes`) |
@@ -319,6 +320,10 @@ The codes:
 | `AMBIGUOUS_REFERENCE` | a bare file name fits several files, none in the naming file's own folder |
 | `UNENFORCED` | rules no guard enforces: reported as a count, never failing alone |
 | `EXTERNAL` | paths named outside the estate: information only |
+| `PERMISSION_UNKNOWN_SKILL` | a permission rule names a skill the estate does not hold |
+| `PERMISSION_READ_BYPASS` | a deny on a file tool (`Read`, `Edit`, `Write`) beside an allow on the shell with free arguments: a command can open the file itself. Proven when the allow lets any program run; assumed, with a lower confidence, when it fixes a program with a wildcard and the program's capability is not known |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions`: no allow rule decides anything in it. The message lists what still guards, the deny rules and the hooks |
+| `PERMISSION_UNKNOWN_HELPER` | a permission rule names a helper the estate does not declare; information only, since the runtime has helpers of its own |
 
 A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_ATOM`, `MAP_UNKNOWN_ATOM`,
 `MAP_HASH`, `MAP_QUOTE_DRIFT`, `MAP_UNKNOWN_KIND` or `SCHEMA_*`.
@@ -428,3 +433,7 @@ file, so its map reports no orphan.
 | `MAP_HASH` or `MAP_QUOTE_DRIFT` | the map or the estate was edited after the scan | scan again into a new file |
 | `error: required option '--to <file>' not specified` (exit 2) | `estate map` without `--to` | name the space map file |
 | `UNREACHABLE` on a helper you use | the helper is reached only through its own description | name it from the standing instructions, a routing table or a skill body |
+| `PERMISSION_UNKNOWN_SKILL` on a `Skill(...)` rule | the rule names a skill that has no folder in the estate; the user-level skill layer counts only with `--user-skills` | fix the name, remove the rule, or pass `--user-skills` |
+| `PERMISSION_UNKNOWN_HELPER` (information) | an `Agent(...)` rule names a helper the estate does not declare; the runtime has helpers of its own | none needed for a runtime helper; else fix the name |
+| `PERMISSION_READ_BYPASS` | a file tool is denied while a shell rule with free arguments is allowed | give the shell rules exact arguments, deny the path to the shell too, or declare under `programs:` whether the program opens files |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions` | use a default mode that asks |

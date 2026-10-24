@@ -1306,6 +1306,10 @@ Approve every proposed row with --all, a row with --row <id>, or strike one with
 | `REGISTRY_GUARD` | a registry row names a guard no part of the estate runs |
 | `QUOTE_DRIFT` | an atom's quote no longer matches its file |
 | `UNENFORCED` | a rule no guard enforces; reported, never failed |
+| `PERMISSION_UNKNOWN_SKILL` | a permission rule names a skill the estate does not hold |
+| `PERMISSION_READ_BYPASS` | a deny on a file tool (`Read`, `Edit`, `Write`) beside an allow on the shell with free arguments: a command can open the file itself. Proven when the allow lets any program run; assumed, with a lower confidence, when it fixes a program with a wildcard and the program's capability is not known |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions`: no allow rule decides anything in it. The message lists what still guards, the deny rules and the guards |
+| `PERMISSION_UNKNOWN_HELPER` | a permission rule names a helper the estate does not declare; information only, since the runtime has helpers of its own |
 
 A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_ATOM`, `MAP_UNKNOWN_ATOM`, `MAP_HASH`, `MAP_QUOTE_DRIFT`, `MAP_UNKNOWN_KIND` or `SCHEMA_*`; a plan that does not load reports `PLAN_PARSE`, `PLAN_NOT_OBJECT`, `PLAN_DUPLICATE_ROW`, `PLAN_UNKNOWN_ROW` or `SCHEMA_*`.
 
