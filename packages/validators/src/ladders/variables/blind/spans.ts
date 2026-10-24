@@ -15,20 +15,31 @@ export type SpanMeaning =
   | { kind: 'member'; subject: string; list: string[] }
   | { kind: 'boolean'; subject: string; word: string };
 
-const declared = new Map<string, SpanMeaning>();
+/**
+ * Where a declaration goes. The importable map of what each span means is gone from the validator's code: a readable
+ * table would let the implementation under test label spans from the oracle (round 2, cheat A). The test side
+ * installs a sink that collects the declarations for its reference reader.
+ *
+ * Limits, stated as measured (review of #1365): `setSpanSink` is still exported and `declareSpan` still calls the sink
+ * with (text, meaning) in the process that loads the implementation. A product can capture the meanings by installing
+ * its own sink, or by reading the arguments of `declareSpan` with a debugger attached through node:inspector. Both close
+ * only when the implementation runs in its own process and receives texts only (docs/validators.md 12.9, board row
+ * 887c6e52). test/variables-blind/span-table-inspector.test.ts pins the open state.
+ */
+let sink: ((text: string, meaning: SpanMeaning) => void) | undefined;
+
+/** Installs the sink that receives each declaration. Only the tests call it. */
+export function setSpanSink(next: ((text: string, meaning: SpanMeaning) => void) | undefined): void {
+  sink = next;
+}
 
 /** Declares what a span says and returns the span. */
 export function declareSpan(text: string, meaning: SpanMeaning): string {
-  declared.set(text, meaning);
+  sink?.(text, meaning);
   return text;
 }
 
 /** A numeric span: a quantity compared with a limit. */
 export function numeric(text: string, subject: string, limit: number, cmp: Cmp): string {
   return declareSpan(text, { kind: 'numeric', subject, limit, cmp, flavour: 'cmp' });
-}
-
-/** The meaning declared for a span, by its exact text. */
-export function meaningOf(text: string): SpanMeaning | undefined {
-  return declared.get(text);
 }
