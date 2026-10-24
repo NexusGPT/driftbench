@@ -40,14 +40,16 @@ describe('aliased results under the frame', () => {
     expect(twoCalls('fresh', true)).toEqual({ pass: true, found: undefined });
   });
 
-  it.each(['shared', 'overwrite'] as const)(
-    '%s: the item passes on the data, the frame finds the alias',
-    (name) => {
-      const run = twoCalls(name, true);
-      expect(run.pass).toBe(true);
-      expect(run.found).toContain('has changed since');
-    },
-  );
+  // The caller holds one object for two results that are one object (object identity, docs/validators.md 12.9), so
+  // the item fails on the data, as in its own process; an earlier result overwritten later stays the caller's copy.
+  it.each([
+    ['shared', false],
+    ['overwrite', true],
+  ] as const)('%s: the item passes on the data: %s; the frame finds the alias', (name, pass) => {
+    const run = twoCalls(name, true);
+    expect(run.pass).toBe(pass);
+    expect(run.found).toContain('has changed since');
+  });
 
   it.each(['shared', 'overwrite'] as const)('%s: nothing is reported when the option is off', (name) => {
     expect(twoCalls(name, false).found).toBeUndefined();

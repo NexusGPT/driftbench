@@ -23,6 +23,7 @@ import {
   checkMark,
   confine,
   markPath,
+  realOf,
   type SealDescriptor,
   sealOnce,
   setMark,
@@ -150,11 +151,34 @@ export type IsolateOptions = {
    */
   reads?: string[];
   /**
+   * Variables every run gets, the same in each (run A, B, D and C): a setting the product reads, such as the path of
+   * a file granted in `reads`. Never a value that tells the runs apart.
+   */
+  env?: Record<string, string>;
+  /**
+   * Variables no run gets, removed from the validator's environment too (run A and run C start from it): a setting of
+   * the validator's own that the product must not act on.
+   */
+  unset?: string[];
+  /**
+   * Each run gets a fresh folder of its own that it may read and write, as its temporary folder (TMPDIR, TMP and
+   * TEMP): for a product that writes files only to read them back. It is removed with the run's folder.
+   */
+  scratch?: boolean;
+  /**
+   * The number of new result objects one call may make before the frame fails it (default 2^24): the ids of a call's
+   * new objects take that many numbers. A test sets a small number to take that path; the validator never sets it.
+   */
+  idSpan?: number;
+  /**
    * How long the relay waits for each run it killed at close before it names the run in a `FrameError` (default
    * 5000 ms). A test sets 0 to take that path; the validator never sets it.
    */
   reapMs?: number;
 };
+
+/** Ambient conditions of a call (`Frame.ambient`). */
+export type Ambient = { random?: boolean; clock?: number; crypto?: boolean };
 
 export type Frame<T> = {
   /** The product, as the item calls it: each call goes to both runs and answers what run A answered. */
@@ -184,6 +208,21 @@ export type Frame<T> = {
    * declares a purity check; the frame adds no rule to any other call.
    */
   strictArguments(on: boolean): void;
+  /**
+   * From now on, until switched off (undefined), every call runs under these ambient conditions in every run: a
+   * Math.random that throws, a clock that stands still at `clock` (ms), crypto random functions that throw. For an
+   * item that sets them around its calls in its own process; they hold for each call only.
+   */
+  ambient(spec: Ambient | undefined): void;
+  /**
+   * Switches the identity watch on (true: a fresh watch) or off. While it is on, each run counts the objects of a
+   * result that are also objects of the call's arguments or of a result returned since the watch began, and the frame
+   * reports such a call (`sharedSince`). For an item that checks that its results are fresh: a copy of the answer
+   * hides both from the caller.
+   */
+  identity(on: boolean): void;
+  /** The first call from the tape position `from` on whose result shares objects (option `identity`), or undefined. */
+  sharedSince(from: number): string | undefined;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
   /**
@@ -257,7 +296,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string; deepFreeze: string };
+  codecNames: Omit<ReturnType<typeof plainCodec>, 'source'>;
   count: number;
   /** The file of the calls run C makes, one JSON line each, in the order they were made. */
   calls: string;
@@ -509,6 +548,202 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
     changeInPlace(old as object, now as object, kind);
 }
 
+/**
+ * The states of the caller's own arguments, by path (keys of plain objects, indices of arrays): 'f' frozen, 's'
+ * sealed, 'x' not extensible. The runs give each decoded object the state its caller's object has (driver.ts,
+ * `markAll`). Every path to an object is listed, so an object reached twice is marked at both copies.
+ */
+/** A step of a path: a key, or into a Map's key or value (['m', entry, 'k' | 'v']) or a Set's member (['s', member]). */
+type Step = string | number | ['m', number, 'k' | 'v'] | ['s', number];
+type Path = Step[];
+function marksOf(
+  args: readonly unknown[],
+  idOf: (value: object) => number,
+): { marks?: Array<[Path, 'f' | 's' | 'x']>; refs?: Array<[Path, number]> } {
+  const out: Array<[Path, 'f' | 's' | 'x']> = [];
+  const refs: Array<[Path, number]> = [];
+  const path: Path = [];
+  const ancestors: object[] = [];
+  let visited = 0;
+  // Inside a Map or a Set only ids are sent: the freeze marks go by keys alone.
+  let inside = 0;
+  const walk = (value: unknown) => {
+    if (value === null || typeof value !== 'object' || ancestors.length > 1000 || visited > 1_000_000) return;
+    if (ancestors.includes(value)) return;
+    visited += 1;
+    const state = Object.isFrozen(value)
+      ? 'f'
+      : Object.isSealed(value)
+        ? 's'
+        : !Object.isExtensible(value)
+          ? 'x'
+          : undefined;
+    if (state && inside === 0) out.push([[...path], state]);
+    // Every path to an object, with the object's id: the run gives each the same object (driver.ts, applyRefs).
+    refs.push([[...path], idOf(value)]);
+    ancestors.push(value);
+    const visit = (key: Step, child: unknown) => {
+      if (child === null || typeof child !== 'object') return;
+      path.push(key);
+      walk(child);
+      path.pop();
+    };
+    // A long array of numbers is read without a copy: the arguments of the scale items hold millions.
+    if (Array.isArray(value)) for (let at = 0; at < value.length; at += 1) visit(at, value[at]);
+    else if (value instanceof Map) {
+      inside += 1;
+      let at = 0;
+      for (const [key, child] of value) {
+        visit(['m', at, 'k'], key);
+        visit(['m', at, 'v'], child);
+        at += 1;
+      }
+      inside -= 1;
+    } else if (value instanceof Set) {
+      inside += 1;
+      let at = 0;
+      for (const child of value) {
+        visit(['s', at], child);
+        at += 1;
+      }
+      inside -= 1;
+    } else if (isPlain(value))
+      for (const key of Object.keys(value)) visit(key, (value as Record<string, unknown>)[key]);
+    ancestors.pop();
+  };
+  args.forEach((arg, at) => {
+    path.push(at);
+    walk(arg);
+    path.pop();
+  });
+  refs.sort((x, y) => x[0].length - y[0].length);
+  return { ...(out.length > 0 ? { marks: out } : {}), ...(refs.length > 0 ? { refs } : {}) };
+}
+
+/** One step of a path into a decoded value (driver.ts, stepInto). */
+function stepInto(node: unknown, step: Step): unknown {
+  if (node === null || typeof node !== 'object') return undefined;
+  if (Array.isArray(step)) {
+    if (step[0] === 'm' && node instanceof Map) {
+      const entry = [...node.entries()][step[1]];
+      return entry === undefined ? undefined : step[2] === 'k' ? entry[0] : entry[1];
+    }
+    if (step[0] === 's' && node instanceof Set) return [...node.values()][step[1]];
+    return undefined;
+  }
+  return (node as Record<string | number, unknown>)[step];
+}
+
+/** Puts `value` at one step of `parent`, keeping the order of a Map's entries and a Set's members. */
+function putInto(parent: unknown, step: Step, value: unknown): void {
+  if (Array.isArray(step)) {
+    if (step[0] === 'm' && parent instanceof Map) {
+      const entries = [...parent.entries()];
+      const entry = entries[step[1]];
+      if (!entry) return;
+      if (step[2] === 'v') {
+        parent.set(entry[0], value);
+        return;
+      }
+      entries[step[1]] = [value, entry[1]];
+      parent.clear();
+      for (const [k, v] of entries) parent.set(k, v);
+    } else if (step[0] === 's' && parent instanceof Set) {
+      const members = [...parent.values()];
+      if (step[1] >= members.length) return;
+      members[step[1]] = value;
+      parent.clear();
+      for (const member of members) parent.add(member);
+    }
+    return;
+  }
+  (parent as Record<string | number, unknown>)[step] = value;
+}
+
+/**
+ * The ids of the objects that cross the boundary on the caller's side (review of PR 1403, codex runs 39875360028 and
+ * 39875900785). The caller's objects get positive ids when they are sent; the objects a run makes come with the
+ * run's ids (negative). A result object of a known id is the caller's own object, kept as the caller holds it; a new
+ * one is remembered under its id. So the caller sees the sharing a call in its own process would show: a result that
+ * holds an argument, two results that are one object, an argument a cache keyed by the object sees again.
+ */
+function callerIdentity(): {
+  idOf(value: object): number;
+  adopt(value: unknown, refs?: Array<[Path, number]>): unknown;
+} {
+  const ids = new WeakMap<object, number>();
+  const byId = new Map<number, WeakRef<object>>();
+  const registry = new FinalizationRegistry<number>((id) => byId.delete(id));
+  let next = 1;
+  const remember = (value: object, id: number) => {
+    ids.set(value, id);
+    byId.set(id, new WeakRef(value));
+    registry.register(value, id);
+  };
+  return {
+    idOf(value) {
+      let id = ids.get(value);
+      if (id === undefined) {
+        id = next;
+        next += 1;
+        remember(value, id);
+      }
+      return id;
+    },
+    adopt(value, refs) {
+      if (!refs) return value;
+      let root = value;
+      const replaced: Path[] = [];
+      const sameStep = (x: Step, y: Step) =>
+        typeof x === 'object' || typeof y === 'object' ? JSON.stringify(x) === JSON.stringify(y) : x === y;
+      const under = (path: Path, prefix: Path) =>
+        prefix.length <= path.length && prefix.every((key, at) => sameStep(path[at] as Step, key));
+      for (const [path, id] of [...refs].sort((x, y) => x[0].length - y[0].length)) {
+        if (replaced.some((prefix) => under(path, prefix))) continue;
+        let parent: unknown = undefined;
+        let node: unknown = root;
+        for (const key of path) {
+          parent = node;
+          node = stepInto(node, key);
+        }
+        if (node === null || typeof node !== 'object') continue;
+        const known = byId.get(id)?.deref();
+        if (known !== undefined && known !== node) {
+          if (path.length === 0) root = known;
+          else putInto(parent, path[path.length - 1] as Step, known);
+          replaced.push(path);
+        } else if (known === undefined) remember(node, id);
+      }
+      return root;
+    },
+  };
+}
+
+/** An answer as the tape keeps it: without the ids of its objects and the codec's note, compared when it came. */
+function withoutIds(outcome: Outcome): Outcome {
+  const {
+    rrefs: _ids,
+    uncarried: _uncarried,
+    unsent: _unsent,
+    ...rest
+  } = outcome as Outcome & {
+    rrefs?: unknown;
+    uncarried?: unknown;
+    unsent?: unknown;
+  };
+  return rest as Outcome;
+}
+
+/** An environment without the named variables. */
+function withoutNames(
+  env: Record<string, string>,
+  names: readonly string[] | undefined,
+): Record<string, string> {
+  const out = { ...env };
+  for (const name of names ?? []) delete out[name];
+  return out;
+}
+
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
@@ -566,13 +801,36 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const plans = twinPlans(options.seed, tag, projectCache()).map((drawn) => {
     const plan = ownPlan(drawn);
+    // The scratch folder of the run lies in the run's own folder, which the frame removes when it closes.
+    const scratch = options.scratch
+      ? join(plan.driverDir, drawnFolder(options.seed, `scratch:${tag}:${plan.run}`))
+      : undefined;
+    if (scratch) mkdirSync(scratch, { recursive: true });
+    // The temporary folder is given by its real path: the permission model checks a write on the path it is given,
+    // and on macOS the system temporary folder is reached through a link (/var to /private/var).
+    const tmp = scratch ? realOf(scratch) : undefined;
+    const env =
+      options.env || scratch || options.unset
+        ? withoutNames(
+            {
+              ...(plan.env ?? (process.env as Record<string, string>)),
+              ...(options.env ?? {}),
+              ...(tmp ? { TMPDIR: tmp, TMP: tmp, TEMP: tmp } : {}),
+            },
+            options.unset,
+          )
+        : plan.env;
     const confined = confine(
       {
         ...plan,
+        ...(env ? { env } : {}),
         driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
         setup: { module: sealed, ...(plan.run === 'A' ? { writeBack: true } : {}) },
       },
-      { reads: [dirname(sealed), ...(options.reads ?? [])] },
+      {
+        reads: [dirname(sealed), ...(options.reads ?? []), ...(scratch ? [scratch] : [])],
+        ...(scratch ? { writes: [scratch] } : {}),
+      },
     );
     if (!plan.wrap) return confined;
     // Run D reaches the product through a wrapper module of the run's own folder.
@@ -584,6 +842,20 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed, aliasing: options.aliasing === true };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
+  if (plain && (options.env || options.scratch || options.unset)) {
+    const scratch = options.scratch
+      ? join(plain.dir, drawnFolder(options.seed, `scratch:${tag}:C`))
+      : undefined;
+    if (scratch) mkdirSync(scratch, { recursive: true });
+    plain.env = withoutNames(
+      {
+        ...plain.env,
+        ...(options.env ?? {}),
+        ...(scratch ? { TMPDIR: scratch, TMP: scratch, TEMP: scratch } : {}),
+      },
+      options.unset,
+    );
+  }
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
   const relay: Relay = {
@@ -679,7 +951,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const byName = new Map<string, { calls: number; ms: number; slow: number }>();
   const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
-  type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
+  type Recorded = {
+    call: string;
+    entry: Entry;
+    shared: string;
+    ids: string;
+    expected: string;
+    head: string;
+    at: number;
+  };
   const recorded: Recorded[] = [];
   let compared = 0;
   /**
@@ -695,9 +975,24 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     for (let index = compared; index < recorded.length; index += 1) {
       const held = recorded[index] as Recorded;
       const c = answers[index] as Outcome | { dead: string };
-      if (!('dead' in c)) held.entry.plain = c;
+      if (!('dead' in c)) held.entry.plain = withoutIds(c);
       if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      } else if (!('dead' in c) && JSON.stringify((c as { rrefs?: unknown }).rrefs ?? null) !== held.ids) {
+        const message = `${held.head}, the objects of the result are shared otherwise in ${describeRun('C')}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      } else if (
+        !('dead' in c) &&
+        JSON.stringify((c as { shared?: [number, number] }).shared ?? null) !== held.shared
+      ) {
+        // Run C counts shared objects as the confined runs do (review of PR 1403, codex run 39875360028: a product
+        // that shared one cached result only where no permission model ran passed).
+        const message = `${held.head}, shared objects ${held.shared}; ${describeRun('C')} returned shared objects ${JSON.stringify((c as { shared?: [number, number] }).shared ?? null)}`;
         found.push({ at: held.at, message });
         first ??= message;
         taint ??= message;
@@ -713,17 +1008,39 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
   };
   let strict = false;
+  let ambient: Ambient | undefined;
+  const identities = callerIdentity();
+  let identity: number | undefined;
+  let identityEpochs = 0;
+  const shared: Array<{ at: number; message: string }> = [];
   let calls = 0;
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent, freeze: strict });
+    const { marks, refs } = marksOf(args, identities.idOf);
+    relay.port.postMessage({
+      call: name,
+      args: sent,
+      freeze: strict,
+      ...(marks ? { marks } : {}),
+      ...(ambient ? { ambient } : {}),
+      ...(identity !== undefined ? { identity } : {}),
+      ...(refs ? { refs } : {}),
+      ...(options.idSpan ? { span: options.idSpan } : {}),
+    });
     calls += 1;
     const reply = wait(relay, CALL_MS, `${name}()`);
     checkReply(reply, calls, name);
     const { answers } = reply as { answers: Array<Outcome | { dead: string }> };
+    const overflow = answers
+      .map((each) => (each as { overflow?: number }).overflow)
+      .find((span) => span !== undefined);
+    if (overflow !== undefined)
+      throw new FrameError(
+        `${name}() returned ${overflow} new objects or more in one call: the frame gives the new objects of one call that many ids, so it cannot tell them from the next call's`,
+      );
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
@@ -793,6 +1110,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid: _invalid,
       written: _written,
       altered: _altered,
+      shared: sharedCounts,
+      rrefs: resultIds,
+      uncarried,
+      unsent,
       argsAfter,
       cannot,
       ...answer
@@ -802,9 +1123,55 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       invalid?: boolean;
       written?: boolean;
       altered?: string;
+      shared?: [number, number];
+      rrefs?: Array<[Path, number]>;
+      uncarried?: string;
+      unsent?: string;
       argsAfter?: Json;
       cannot?: boolean;
     };
+    // The runs must count the same shared objects: a product that shares only in some runs answers by how it is run.
+    const sharedText = (outcome: Outcome | { dead: string }) =>
+      JSON.stringify((outcome as { shared?: [number, number] }).shared ?? null);
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (!('dead' in other) && sharedText(other) !== sharedText(a)) {
+        const message = `${name}(): ${describeRun(plans[0] as TwinPlan)} returned shared objects ${sharedText(a)}, ${describeRun(plan as TwinPlan)} ${sharedText(other)}`;
+        found.push({ at: tape.length, message });
+        first ??= message;
+      }
+    }
+    // Every run must give its results the same ids: a product that shares objects only in some runs answers by how
+    // it is run. A result the codec cannot carry would hide what the caller's own call shows: the call fails.
+    const idsText = (outcome: Outcome | { dead: string }) =>
+      JSON.stringify((outcome as { rrefs?: unknown }).rrefs ?? null);
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (!('dead' in other) && idsText(other) !== idsText(a)) {
+        const message = `${name}(): the objects of the result are shared otherwise in ${describeRun(plan as TwinPlan)} than in ${describeRun(plans[0] as TwinPlan)}`;
+        found.push({ at: tape.length, message });
+        first ??= message;
+      }
+    }
+    if (uncarried) {
+      const message = `${name}() returned ${uncarried} (${describeRun(plans[0] as TwinPlan)}): the frame cannot carry it to the caller, whose own call would see it`;
+      found.push({ at: tape.length, message });
+      first ??= message;
+    }
+    if (unsent) {
+      const message = `${name}() was sent ${unsent} (${describeRun(plans[0] as TwinPlan)}): the frame cannot give the product the object the caller's own call would give it`;
+      found.push({ at: tape.length, message });
+      first ??= message;
+    }
+    if (sharedCounts)
+      shared.push({
+        at: tape.length,
+        message: `${name}() returned ${sharedCounts[0]} object(s) of its own arguments and ${sharedCounts[1]} object(s) of a result it returned before (${describeRun(plans[0] as TwinPlan)}): a fresh result shares no object with either`,
+      });
     if (cannot)
       aliased.push({
         at: tape.length,
@@ -820,8 +1187,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
-    if (!('dead' in b)) entry.twin = b;
-    if (!('dead' in d)) entry.wrapped = d;
+    // The tape keeps what each run answered; the ids of the result's objects were compared above.
+    if (!('dead' in b)) entry.twin = withoutIds(b);
+    if (!('dead' in d)) entry.wrapped = withoutIds(d);
     tape.push(entry);
     const kept = (outcome: Outcome | { dead: string }): string => {
       if ('dead' in outcome) return `dead`;
@@ -846,7 +1214,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       // cut short leaves no part of the call in the file run C reads: the file goes back to its size before it.
       const size = existsSync(plain.calls) ? statSync(plain.calls).size : 0;
       try {
-        appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent, freeze: strict })}\n`);
+        appendFileSync(
+          plain.calls,
+          `${JSON.stringify({ seq: calls, ...(options.idSpan ? { span: options.idSpan } : {}), call: name, args: sent, freeze: strict, ...(marks ? { marks } : {}), ...(ambient ? { ambient } : {}), ...(identity !== undefined ? { identity } : {}), ...(refs ? { refs } : {}) })}\n`,
+        );
       } catch (error) {
         if (existsSync(plain.calls)) truncateSync(plain.calls, size);
         throw error;
@@ -854,6 +1225,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       recorded.push({
         call: name,
         entry,
+        shared: JSON.stringify(sharedCounts ?? null),
+        ids: JSON.stringify(resultIds ?? null),
         expected: keptOf(a, options.keep?.[name]),
         head,
         at: tape.length - 1,
@@ -861,7 +1234,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     if ('throws' in a) throw decode(a.throws);
     const t2 = performance.now();
-    const value = decode(a.ret, revive);
+    const value = identities.adopt(decode(a.ret, revive), (a as { rrefs?: Array<[Path, number]> }).rrefs);
     spent.decodeMs += performance.now() - t2;
     return value;
   };
@@ -903,6 +1276,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return first;
     },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
+    ambient: (spec) => {
+      ambient = spec;
+    },
+    identity: (on) => {
+      identityEpochs += 1;
+      identity = on ? identityEpochs : undefined;
+    },
+    sharedSince: (from) => shared.find((each) => each.at >= from)?.message,
     strictArguments: (on) => {
       strict = on;
     },

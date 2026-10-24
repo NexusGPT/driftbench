@@ -17,7 +17,16 @@ import {
   withWeights,
 } from '../oracle/space';
 import { checkPlan, planIsSound, randomSeeds, randomSpace } from '../oracle/spaces';
-import { clone, deepFreeze, must, plainStringify, show, stableStringify } from '../util';
+import {
+  clone,
+  deepFreeze,
+  must,
+  type ProductAmbient,
+  plainStringify,
+  setProductAmbient,
+  show,
+  stableStringify,
+} from '../util';
 import { fullSources } from './values';
 
 /** A small busy wait, so that a clock-dependent field would differ between two calls. */
@@ -79,61 +88,77 @@ function planFresh(ctx: ItemContext, c: Case, extra: Partial<PlanOptions> = {}):
   return plan;
 }
 
-type Patch = () => () => void;
+/**
+ * A change of the ambient state of the process around a call: it returns its undo. `ambient` says the same change as
+ * data, for an implementation that runs in other processes (bank/util.ts, `setProductAmbient`).
+ */
+type Patch = (() => () => void) & { ambient: ProductAmbient };
 
-const patchMathRandom: Patch = () => {
-  const saved = Math.random;
-  Math.random = () => {
-    throw new Error('Math.random was called while planning: draw only from the seed');
-  };
-  return () => {
-    Math.random = saved;
-  };
-};
+const patchMathRandom: Patch = Object.assign(
+  () => {
+    const saved = Math.random;
+    Math.random = () => {
+      throw new Error('Math.random was called while planning: draw only from the seed');
+    };
+    return () => {
+      Math.random = saved;
+    };
+  },
+  { ambient: { random: true } },
+);
 
 function patchClock(at: number): Patch {
-  return () => {
-    const Real = Date;
-    class Frozen extends Real {
-      constructor(...args: unknown[]) {
-        super(...((args.length ? args : [at]) as [number]));
+  return Object.assign(
+    () => {
+      const Real = Date;
+      class Frozen extends Real {
+        constructor(...args: unknown[]) {
+          super(...((args.length ? args : [at]) as [number]));
+        }
+        static override now(): number {
+          return at;
+        }
       }
-      static override now(): number {
-        return at;
-      }
-    }
-    (globalThis as { Date: DateConstructor }).Date = Frozen as unknown as DateConstructor;
-    return () => {
-      (globalThis as { Date: DateConstructor }).Date = Real;
-    };
-  };
+      (globalThis as { Date: DateConstructor }).Date = Frozen as unknown as DateConstructor;
+      return () => {
+        (globalThis as { Date: DateConstructor }).Date = Real;
+      };
+    },
+    { ambient: { clock: at } },
+  );
 }
 
-const patchCrypto: Patch = () => {
-  const c = globalThis.crypto as unknown as Record<string, unknown>;
-  const saved = { getRandomValues: c.getRandomValues, randomUUID: c.randomUUID };
-  const boom = () => {
-    throw new Error('crypto random was called while planning: draw only from the seed');
-  };
-  Object.defineProperty(c, 'getRandomValues', { value: boom, configurable: true, writable: true });
-  Object.defineProperty(c, 'randomUUID', { value: boom, configurable: true, writable: true });
-  return () => {
-    Object.defineProperty(c, 'getRandomValues', {
-      value: saved.getRandomValues,
-      configurable: true,
-      writable: true,
-    });
-    Object.defineProperty(c, 'randomUUID', { value: saved.randomUUID, configurable: true, writable: true });
-  };
-};
+const patchCrypto: Patch = Object.assign(
+  () => {
+    const c = globalThis.crypto as unknown as Record<string, unknown>;
+    const saved = { getRandomValues: c.getRandomValues, randomUUID: c.randomUUID };
+    const boom = () => {
+      throw new Error('crypto random was called while planning: draw only from the seed');
+    };
+    Object.defineProperty(c, 'getRandomValues', { value: boom, configurable: true, writable: true });
+    Object.defineProperty(c, 'randomUUID', { value: boom, configurable: true, writable: true });
+    return () => {
+      Object.defineProperty(c, 'getRandomValues', {
+        value: saved.getRandomValues,
+        configurable: true,
+        writable: true,
+      });
+      Object.defineProperty(c, 'randomUUID', { value: saved.randomUUID, configurable: true, writable: true });
+    };
+  },
+  { ambient: { crypto: true } },
+);
 
+/** Runs `run` with the patches applied to this process and passed on to the implementation's calls. */
 function withPatches<T>(patches: readonly Patch[], run: () => T): T {
   const undo: Array<() => void> = [];
   try {
+    setProductAmbient(Object.assign({}, ...patches.map((patch) => patch.ambient)));
     for (const p of patches) undo.push(p());
     return run();
   } finally {
     for (const u of undo.reverse()) u();
+    setProductAmbient(undefined);
   }
 }
 

@@ -44,7 +44,7 @@ describe('built-in objects under the frame', () => {
   it.each([
     ['replaceMap', 'Array.prototype.map'],
     ['replaceSqrt', 'Math.sqrt'],
-    ['addToObject', 'a property added to or removed from Object.prototype'],
+    ['addToObject', 'a property added to Object.prototype (extraField)'],
     ['rebindJson', 'the global name JSON'],
     ['sealNumber', 'the extensibility of Number.prototype'],
     ['replaceIterator', '%ArrayIteratorPrototype%.next'],

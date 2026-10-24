@@ -149,6 +149,31 @@ export function show(value: unknown, limit = 200): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
+/**
+ * The processor time of the implementation's calls, when it runs in other processes (the frame, docs/validators.md
+ * section 12.9): a mark of the calls so far, and the processor time of the calls since a mark, in milliseconds.
+ * Unset, the implementation runs in this process and its time is this process's.
+ */
+export type ProductClock = { mark(): number; since(mark: number): number };
+let clock: ProductClock | undefined;
+export function useProductClock(next: ProductClock | undefined): void {
+  clock = next;
+}
+
+/**
+ * The ambient conditions an item sets around its calls (a Math.random that throws, a clock that stands still, crypto
+ * random functions that throw), for an implementation that runs in other processes (the frame): the hook passes them
+ * on to every call until it is given undefined. Unset, the item's own patches of this process are the conditions.
+ */
+export type ProductAmbient = { random?: boolean; clock?: number; crypto?: boolean };
+let ambientHook: ((spec: ProductAmbient | undefined) => void) | undefined;
+export function useProductAmbient(hook: ((spec: ProductAmbient | undefined) => void) | undefined): void {
+  ambientHook = hook;
+}
+export function setProductAmbient(spec: ProductAmbient | undefined): void {
+  ambientHook?.(spec);
+}
+
 /** Clock ticks a second in the process table of Linux (`/proc/<pid>/stat`). */
 const TICKS_PER_SECOND = 100;
 
@@ -180,9 +205,17 @@ export type Timed<T> = { value: T; ms: number; wallMs: number };
 /**
  * Processor time of a call in milliseconds (user and system, of this process and of the processes it started and waited
  * for), so a busy machine does not fail an item and work done in a child is not hidden; and the wall-clock time of the
- * call, which bounds a child that waits.
+ * call, which bounds a child that waits. When the implementation runs in the frame's processes, the processor time is
+ * theirs, from the product clock.
  */
 export function cpuMs<T>(run: () => T): Timed<T> {
+  if (clock) {
+    const mark = clock.mark();
+    const began = performance.now();
+    const value = run();
+    const wallMs = performance.now() - began;
+    return { value, ms: clock.since(mark), wallMs };
+  }
   const start = process.cpuUsage();
   const children = childrenCpuMs();
   const began = performance.now();

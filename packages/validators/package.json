@@ -41,7 +41,7 @@
   ],
   "scripts": {
     "build": "pnpm run build:runtime && tsup src/index.ts --format esm --dts-only --target node22",
-    "build:runtime": "tsup src/index.ts --format esm --clean --target node22 && tsup src/ladders/stats/bank/child.ts --format esm --target node22 --out-dir dist/stats-bank"
+    "build:runtime": "tsup src/index.ts --format esm --clean --target node22 && tsup src/ladders/stats/bank/child.ts --format esm --target node22 --out-dir dist/stats-bank && tsup src/ladders/variables/bank/child.ts --format esm --target node22 --out-dir dist/variables-bank"
   },
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
