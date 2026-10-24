@@ -2546,18 +2546,53 @@ add({
   tier: 2,
   component: ESTATE_CMD,
   title:
-    'estate lint on the approved fixture map reports ORPHAN, UNREACHABLE and MISSING_REFERENCE and exits 1 (cli.md estate lint)',
-  cause: 'estate lint reports the orphan, unreachable and missing-reference findings and exits 1.',
+    'estate lint on the approved fixture map reports ORPHAN and MISSING_REFERENCE, counts REACHED_BY_DESCRIPTION as information, and exits 1 (cli.md estate lint)',
+  cause:
+    'estate lint reports the orphan and missing-reference findings, lists the skills and helpers reached only by their description as information, and exits 1.',
   async run(ctx) {
     const result = await cli(
       ['estate', 'lint', join(ctx.root, 'examples/estates/fixture/approved.yaml')],
       ctx.dir,
     );
-    const missing = ['ORPHAN', 'UNREACHABLE', 'MISSING_REFERENCE'].filter(
+    const missing = ['ORPHAN', 'MISSING_REFERENCE', 'REACHED_BY_DESCRIPTION'].filter(
       (code) => !result.out.includes(code),
     );
     return expectAll([
       [result.code === 1 && missing.length === 0, `missing ${missing.join(', ')}; ${shown(result)}`],
+      // A skill or helper the runtime routes to by its description is reachable, so the lint has no UNREACHABLE for it.
+      [!/^ {2}UNREACHABLE /m.test(result.out), `expected no UNREACHABLE finding; ${shown(result)}`],
+    ]);
+  },
+});
+
+add({
+  slug: 'estate/lint-unreachable-without-description',
+  tier: 2,
+  component: ESTATE_CMD,
+  title:
+    'estate lint reports UNREACHABLE for a skill with no description and no route, and exits 1 (cli.md estate lint)',
+  cause: 'estate lint still reports a file that no route and no description reaches as unreachable.',
+  async run(ctx) {
+    const root = join(ctx.dir, 'lone-estate');
+    put(root, 'CLAUDE.md', '# Rules\n\nEverything here is invented for testing.\n');
+    put(
+      root,
+      '.claude/skills/lone-desk/SKILL.md',
+      '---\nname: lone-desk\nallowed-tools: Read\n---\n\n# Lone desk\n',
+    );
+    const map = join(ctx.dir, 'lone-map.yaml');
+    const scanned = await cli(['estate', 'scan', root, '--no-model', '--out', map], ctx.dir);
+    const linted = await cli(['estate', 'lint', map], ctx.dir);
+    return expectAll([
+      [scanned.code === 0, `the scan failed; ${shown(scanned)}`],
+      [
+        linted.code === 1 && /^ {2}UNREACHABLE /m.test(linted.out),
+        `expected exit 1 and an UNREACHABLE finding; ${shown(linted)}`,
+      ],
+      [
+        !linted.out.includes('REACHED_BY_DESCRIPTION  1'),
+        `expected no file reached by description; ${shown(linted)}`,
+      ],
     ]);
   },
 });

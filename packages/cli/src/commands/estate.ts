@@ -544,6 +544,8 @@ function scanReport(
   }
   lines.push(listLine('Orphans', analysis.orphans, limit));
   lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles, limit));
+  if (analysis.describedFiles.length > 0)
+    lines.push(listLine('Reached only by their description (information)', analysis.describedFiles, limit));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
   lines.push(`  Unenforced: ${analysis.unenforced.length} of ${rules} rules have no guard.`);
   for (const id of limit === undefined ? analysis.unenforced : analysis.unenforced.slice(0, limit))
@@ -713,6 +715,10 @@ export async function estateLintCommand(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
     `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
+  if (result.counts.REACHED_BY_DESCRIPTION > 0)
+    lines.push(
+      `  REACHED_BY_DESCRIPTION  ${result.counts.REACHED_BY_DESCRIPTION} ${plural(result.counts.REACHED_BY_DESCRIPTION, 'skill or helper', 'skills and helpers')} the standing instructions do not name; the runtime routes to ${result.counts.REACHED_BY_DESCRIPTION === 1 ? 'it' : 'them'} by description (information).`,
+    );
   // A check that read nothing did not run: it is named, never counted as a pass.
   for (const [reason, text] of [
     ['no-input', 'no input to read'],

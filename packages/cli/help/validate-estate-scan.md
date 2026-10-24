@@ -316,6 +316,7 @@ The codes:
 |---|---|
 | `ORPHAN` | nothing in the estate names this file |
 | `UNREACHABLE` | no route, reference or dispatch from the standing instructions leads to this file |
+| `REACHED_BY_DESCRIPTION` | information, never a failure: a skill or helper the standing instructions do not name, reached by its description because the runtime routes by description |
 | `MISSING_REFERENCE` | a body names a file that does not exist |
 | `MISSING_SCRIPT` | a guard runs a script that does not exist |
 | `OVERSIZE` | the standing instructions are over the ceiling |
@@ -392,20 +393,21 @@ Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by 
     refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
     refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (condition): the condition points at a unit that holds no atom
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
+  Unreachable from the standing instructions: none.
+  Reached only by their description (information): .claude/agents/inbox-triager.md.
   Unenforced: 56 of 62 rules have no guard.
 Next: driftbench estate lint map.yaml; driftbench estate approve map.yaml --kind instruction
 map.yaml already exists: pass --force to replace it (the approvals in it are lost).
 map.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
-  UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
   UNENFORCED  58 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-7 findings.
+  REACHED_BY_DESCRIPTION  1 skill or helper the standing instructions do not name; the runtime routes to it by description (information).
+6 findings.
 map.yaml: 80 of 127 atoms wait for approval.
   instruction: 45
     instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
@@ -438,7 +440,7 @@ file, so its map reports no orphan.
 | `MAP_UNKNOWN_KIND` (exit 1) | `approve --kind` with a kind that does not exist | one of the fourteen kinds |
 | `MAP_HASH` or `MAP_QUOTE_DRIFT` | the map or the estate was edited after the scan | scan again into a new file |
 | `error: required option '--to <file>' not specified` (exit 2) | `estate map` without `--to` | name the space map file |
-| `UNREACHABLE` on a helper you use | the helper is reached only through its own description | name it from the standing instructions, a routing table or a skill body |
+| `UNREACHABLE` on a helper you use | the helper has no description, and nothing names or dispatches it | give it a description, or name it from the standing instructions, a routing table or a skill body |
 | `PERMISSION_UNKNOWN_SKILL` on a `Skill(...)` rule | the rule names a skill that has no folder in the estate; the user-level skill layer counts only with `--user-skills` | fix the name, remove the rule, or pass `--user-skills` |
 | `PERMISSION_UNKNOWN_HELPER` (information) | an `Agent(...)` rule names a helper the estate does not declare; the runtime has helpers of its own | none needed for a runtime helper; else fix the name |
 | `PERMISSION_READ_BYPASS` | a file tool is denied while a shell rule with free arguments is allowed | give the shell rules exact arguments, deny the path to the shell too, or declare under `programs:` whether the program opens files |
