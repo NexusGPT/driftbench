@@ -91,6 +91,8 @@ export type SpecDraft = {
   dropped?: { duplicate_of: { spec: string; block: string } };
   /** Blocks cut from the middle of the walk: a stay another written spec already says. */
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
+  /** The key (what makes two blocks the same test) of every block cut from this walk, by block id. Not written to the spec. */
+  cutKeys?: Record<string, string>;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */
   vars?: Record<string, number>;
@@ -100,6 +102,8 @@ export type SpecDraft = {
   /** Concrete boundary values, by data value id. */
   concrete?: Record<string, unknown>;
   metamorphic?: { family: string; variant: number; of: number; relation: string };
+  /** For a metamorphic variant: the index of the first block where the variants of its family differ. Not written to the spec. */
+  variesAt?: number;
   /** What the store holds after the last block, derived from the path's end state. */
   end_state?: EndStateSpec;
   /** The path relation the spec walks, when it walks one. */

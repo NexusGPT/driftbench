@@ -1166,8 +1166,8 @@ Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id:
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record | --plan-only] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--force] [--pointer --cassette <file> [--record | --plan-only] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--verbose] [--json]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -1260,6 +1260,7 @@ Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approve
   Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
   Unenforced: 0 of 0 rules have no guard.
+  Lists stop after the first items: add --verbose to list every one.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
