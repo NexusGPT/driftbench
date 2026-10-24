@@ -13,6 +13,8 @@
 /** Why a glob was refused, as a code a reader branches on. */
 export type GlobError =
   | 'empty'
+  | 'too-long'
+  | 'too-many-stars'
   | 'absolute'
   | 'parent-segment'
   | 'empty-segment'
@@ -38,9 +40,18 @@ export type GlobResult = { ok: true; glob: CompiledGlob } | { ok: false; error: 
 const SPECIAL = /[.*+?^${}()|[\]\\/]/g;
 const literal = (char: string) => char.replace(SPECIAL, '\\$&');
 
+/**
+ * The limits a glob stays within. A glob comes from a user's types document, and a pattern with many stars can make
+ * matching backtrack heavily on a long name: a longer glob, or one with more stars, is refused.
+ */
+export const GLOB_LIMITS = { characters: 256, stars: 8 } as const;
+
 /** Compiles a glob, or says why it is refused. */
 export function compileGlob(glob: string): GlobResult {
   if (glob === '' || glob === '/') return { ok: false, error: 'empty' };
+  if (glob.length > GLOB_LIMITS.characters) return { ok: false, error: 'too-long' };
+  if ((glob.replace(/\\./g, '').match(/\*/g) ?? []).length > GLOB_LIMITS.stars)
+    return { ok: false, error: 'too-many-stars' };
   if (glob.startsWith('/')) return { ok: false, error: 'absolute' };
   if (slashInBrace(glob)) return { ok: false, error: 'slash-in-brace' };
   const folder = glob.endsWith('/');

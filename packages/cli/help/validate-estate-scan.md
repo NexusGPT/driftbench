@@ -296,8 +296,8 @@ orphans, and listed as left out, while the settings were not read. Pass `--setti
 step writes the settings: the copy is read as the settings file of its place, gives the same guards and atoms
 as if stored, and the map records it (`settings: true`); lint needs the same file again.
 
-`estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
-2 the map or the estate cannot be read. A code with more than 10 findings lists the first 10, then
+`estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean (no finding, no file no part type
+covers, every check ran), 1 not clean or an invalid map, 2 the map or the estate cannot be read. A code with more than 10 findings lists the first 10, then
 `... <n> more of <total>`, and one `Totals:` line names the total of each code; `--verbose` lists them all. A
 map whose estate folder is not there is refused with the folder looked at, the root as recorded, and a fix.
 The codes:
