@@ -1780,12 +1780,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         [split, spanSplit, voted] = counts;
         const needs = decision ? spansMissing(set, decision) : [];
         if (!decision || needs.length === 0) continue;
-        const task = tasks.find(
+        // The ask goes to the labeler that can name a span: in a stack, system 2, never the yes or no labeler that stands
+        // first and can answer no span.
+        const holding = tasks.filter(
           (candidate) =>
             candidate.file === file.path &&
             candidate.set === set &&
             candidate.window.units.some((unit) => unit.index === index),
         );
+        const task = holding.find((candidate) => candidate.member.cls === 'system2') ?? holding[0];
         const unit = task?.window.units.find((candidate) => candidate.index === index);
         if (!task || !unit) continue;
         const where = `${task.file}\0${task.set.set}\0${task.memberAt}\0${task.window.id}`;
