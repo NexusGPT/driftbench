@@ -56,10 +56,21 @@ describe('the fake runtime as the kill.fake family runs it', { timeout: 120_000 
   });
 
   it('decides a judged criterion with the stand-in judge instead of leaving it inconclusive', async () => {
-    const spec = await specNaming(
-      'obligation',
-      'instruction.inbox-triager.you-sort-messages-into-three-folders',
-    );
+    // The first judged obligation spec of the inbox helper (by file name) that the fake passes.
+    const dir = join(LIVE, 'obligation');
+    const names = (await readdir(dir))
+      .sort()
+      .filter((each) => each.startsWith('estate.obligation.instruction.inbox-triager.'));
+    let spec = '';
+    for (const name of names) {
+      const path = join(dir, name);
+      const ran = [...runOnFakeDetailed(FIXTURE, [path], join(await scratch(), 'probe.db'), MAP).values()][0];
+      if (ran?.pass) {
+        spec = path;
+        break;
+      }
+    }
+    expect(spec, 'an inbox obligation spec the fake passes').not.toBe('');
     const run = [...runOnFakeDetailed(FIXTURE, [spec], join(await scratch(), 'runs.db'), MAP).values()][0];
     expect(run?.failing.join('\n')).not.toContain('inconclusive');
     expect(run).toMatchObject({ completed: true, pass: true });

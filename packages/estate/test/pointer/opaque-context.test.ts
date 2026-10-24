@@ -38,15 +38,19 @@ describe('an opaque unit is shown to the labeler as context', () => {
   const units = cut(FILE).units;
   const [window] = windowsOf('harbour.md', units, 60);
 
-  it('keeps the numbers of the labelable units and adds the opaque lines where they stand', () => {
-    expect(window?.units.map((u) => u.n)).toEqual([1, 2, 3, 4]);
+  it('numbers the opaque lines with the units, where they stand, and says they cannot be labelled', () => {
+    expect(window?.units.map((u) => u.n)).toEqual([1, 2, 4, 6]);
+    expect(window?.display?.map((line) => [line.n, line.mode])).toEqual([
+      [3, 'opaque'],
+      [5, 'opaque'],
+    ]);
     expect(windowLines(window as NonNullable<typeof window>)).toEqual([
       '[1] # Harbour',
       '[2] Hang the lamp before dusk.',
-      '(fence, not labelable) ```js',
-      '[3] Close the gate at night.',
-      '(comment, not labelable) <!-- keeper: private note -->',
-      '[4] Lock the shed.',
+      '[3] (opaque, not labelable) fence: ```js',
+      '[4] Close the gate at night.',
+      '[5] (opaque, not labelable) comment: <!-- keeper: private note -->',
+      '[6] Lock the shed.',
     ]);
   });
 
@@ -54,7 +58,9 @@ describe('an opaque unit is shown to the labeler as context', () => {
     const body = createAnthropicLabeler({}).render(SET, window as NonNullable<typeof window>).body as {
       messages: Array<{ content: string }>;
     };
-    expect(body.messages[0]?.content).toContain('(fence, not labelable) ```js\n[3] Close the gate at night.');
+    expect(body.messages[0]?.content).toContain(
+      '[3] (opaque, not labelable) fence: ```js\n[4] Close the gate at night.',
+    );
   });
 
   it('sends nothing for a file whose only units are opaque', () => {
@@ -87,9 +93,9 @@ describe('an opaque unit is shown to the labeler as context', () => {
       expect(text, JSON.stringify(eol)).not.toContain('HIDDEN_SECOND_ROW');
       expect(text, JSON.stringify(eol)).not.toContain('HIDDEN_COMMENT_ROW');
       expect(
-        windows[0]?.shown?.map((line) => line.text),
+        windows[0]?.display?.map((line) => line.text),
         JSON.stringify(eol),
-      ).toEqual(['(fence, not labelable) ```js', '(comment, not labelable) <!-- first']);
+      ).toEqual(['fence: ```js', 'comment: <!-- first']);
     }
   });
 
@@ -99,8 +105,8 @@ describe('an opaque unit is shown to the labeler as context', () => {
         const prose = Array.from({ length: size }, (_unused, at) => `Rule number ${at}.`).join('\n\n');
         const windows = windowsOf('cap.md', cut(`${prose}\n\n${opaque}\n`).units, size);
         expect(windows, `${opaque} cap ${size}`).toHaveLength(1);
-        expect(windows[0]?.shown?.length, `${opaque} cap ${size}`).toBe(1);
-        expect(windows[0]?.shown?.[0]?.after, `${opaque} cap ${size}`).toBe(size);
+        expect(windows[0]?.display?.length, `${opaque} cap ${size}`).toBe(1);
+        expect(windows[0]?.display?.[0]?.n, `${opaque} cap ${size}`).toBe(size + 1);
       }
     }
   });
@@ -109,8 +115,8 @@ describe('an opaque unit is shown to the labeler as context', () => {
     const file = 'One.\n\nTwo.\n\n```js\nx\n```\n\nThree.\n\nFour.\n';
     const windows = windowsOf('mid.md', cut(file).units, 2);
     expect(windows.map((w) => w.units.length)).toEqual([2, 2]);
-    expect(windows[0]?.shown?.length).toBe(1);
-    expect(windows[1]?.shown).toBeUndefined();
+    expect(windows[0]?.display?.length).toBe(1);
+    expect(windows[1]?.display).toBeUndefined();
     expect(windowsOf('only.md', cut('```js\nx\n```\n').units, 1)).toEqual([]);
   });
 
@@ -156,7 +162,7 @@ describe('an opaque unit is shown to the labeler as context', () => {
       });
       expect(sent.length, JSON.stringify(eol)).toBeGreaterThan(0);
       for (const body of sent) {
-        expect(body, JSON.stringify(eol)).toContain('(fence, not labelable) ```js');
+        expect(body, JSON.stringify(eol)).toContain('(opaque, not labelable) fence: ```js');
         expect(body, JSON.stringify(eol)).not.toContain('SECRET_IN_FENCE_BODY');
         expect(body, JSON.stringify(eol)).not.toContain('SECRET_IN_COMMENT_BODY');
       }

@@ -185,9 +185,7 @@ describe('a delete in a JSON file, structurally', () => {
     );
     expect(existsSync(join(root, script))).toBe(false);
     expect(result.removed).toEqual([script]);
-    expect(result.collateral).toEqual([
-      'instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice',
-    ]);
+    expect(result.collateral).toEqual(['gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice']);
   });
 
   it('deletes a settings guard by its whole entry, and an environment key by its member', async () => {

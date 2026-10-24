@@ -12,6 +12,7 @@ import { literal } from './literal';
  * | max_characters { max } | `must_not`: a run of max + 1 characters |
  * | max_questions { max } | `must_not`: max + 1 question marks |
  * | json_only | `must`: the whole reply is one JSON object or array |
+ * | one_line_per_item { items } | `must`: the reply ends with one line per item, each line holding one item; `must_not`: two items on one of those lines. The items are the case's declared inputs (a situation's `inputs`), never words of the reply |
  * | same_language_as_user | `lang`: the language of the ask |
  * | asks_for { value } | `must`: the value's words and a question mark |
  * | confirmed_before_send, asks_again_on_loose_yes | `safety.confirm_before: [send]` |
@@ -61,6 +62,14 @@ export function compilePredicate(name: string, options: Record<string, unknown> 
       return max === undefined ? undefined : { mustNot: [`(?:\\?[\\s\\S]*){${max + 1}}`] };
     case 'json_only':
       return { must: [JSON_ONLY] };
+    case 'one_line_per_item': {
+      const items = Array.isArray(options.items)
+        ? options.items.filter((item): item is string => typeof item === 'string').map((item) => item.trim())
+        : [];
+      return items.length > 0 && !items.includes('') && new Set(items).size === items.length
+        ? perItem(items)
+        : undefined;
+    }
     case 'same_language_as_user':
       return { langFromAsk: true };
     case 'asks_for':
@@ -85,6 +94,31 @@ export function compilePredicate(name: string, options: Record<string, unknown> 
   }
 }
 
+/**
+ * One line per item, read from the declared items only: with N items, the last N lines that hold text each hold an
+ * item, every item stands on one of those lines, and no one of them holds two items. Lines before them are free (the
+ * rule says how the reply ends). Each item is matched as its literal text, as a whole token.
+ */
+function perItem(items: readonly string[]): Compiled {
+  const n = items.length;
+  // An item as a whole token: INV-1 is not found inside INV-10.
+  const token = (item: string) => `(?<![\\w-])${literal(item)}(?![\\w-])`;
+  const any = `(?:${items.map(token).join('|')})`;
+  // A line break, with any blank lines after it: the next line that holds text.
+  const next = '(?:\\n[^\\S\\n]*)*\\n';
+  const filled = '[^\\n]*\\S[^\\n]*';
+  // A line holding an item, then at most `n - 1` lines holding text, then only white space to the end of the reply.
+  const within = (head: string) => `${head}[^\\n]*(?:${next}${filled}){0,${n - 1}}\\s*(?![\\s\\S])`;
+  const must = [
+    `^[^\\n]*${any}[^\\n]*(?:${next}[^\\n]*${any}[^\\n]*){${n - 1}}\\s*(?![\\s\\S])`,
+    ...items.map((item) => within(token(item))),
+  ];
+  const mustNot = items.flatMap((first, i) =>
+    items.filter((_, j) => j !== i).map((second) => within(`${token(first)}[^\\n]*${token(second)}`)),
+  );
+  return { must, ...(mustNot.length > 0 ? { mustNot } : {}) };
+}
+
 /** The predicate names this module compiles. */
 export const COMPILED_PREDICATES: readonly string[] = [
   'asks_again_on_loose_yes',
@@ -97,6 +131,7 @@ export const COMPILED_PREDICATES: readonly string[] = [
   'max_characters',
   'max_questions',
   'no_secret_in_reply',
+  'one_line_per_item',
   'route_table',
   'same_language_as_user',
   'stopped_and_confirmed',

@@ -2,11 +2,12 @@ import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pointer } from '@agent-nexus/driftbench-estate';
+import { pointer, type ScanEstateResult } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
+import { pointerLines } from '../src/commands/estate-pointer';
 import { type Io, main } from '../src/index';
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
@@ -64,6 +65,30 @@ function unitsOf(text: string): Array<[number, string]> {
   return [...text.matchAll(/^\[(\d+)\] (.*)$/gm)].map((match) => [Number(match[1]), match[2] ?? '']);
 }
 
+/** The rows of a printed plan from its `prose:` line on: requests, those the cassette answers, to send. */
+function proseRows(out: string): Array<[number, number, number]> {
+  const prose = out.slice(out.indexOf('  prose:'));
+  return [...prose.matchAll(/: (\d+) requests, (\d+) in the cassette, (\d+) to send, \d+ characters\./g)].map(
+    (match): [number, number, number] => [Number(match[1]), Number(match[2]), Number(match[3])],
+  );
+}
+
+/**
+ * The plan's own sums, which hold whatever the counts become: each labeler sends its requests less those the
+ * cassette answers, and "To send" adds up every pass. A count that drifts fails the pins beside it; a sum
+ * that breaks fails here.
+ */
+function expectPlanSums(out: string): void {
+  const rows = [...out.matchAll(/: (\d+) requests, (\d+) in the cassette, (\d+) to send, \d+ characters\./g)];
+  expect(rows.length).toBeGreaterThan(0);
+  let total = 0;
+  for (const [, asked, cached, send] of rows) {
+    expect(Number(send)).toBe(Number(asked) - Number(cached));
+    total += Number(asked) - Number(cached);
+  }
+  expect(out).toContain(`To send: ${total} requests,`);
+}
+
 /**
  * The two services, as one fetch. System 1 is offered only the labels it can answer (reference, example,
  * description and none, not the labels that carry spans), so its service is sure of none for a line and torn on
@@ -97,7 +122,8 @@ const services: FetchLike = async (url, init) => {
     return json({ model: 'jev-fake', answers, usage: { input_tokens: 1000, output_tokens: 10 } });
   }
   const content = (body.messages as Array<{ content: string }>)[0]?.content ?? '';
-  const roles = content.includes('SET document-roles');
+  // The document roles and the gate forms are asked of this service too: it says none of every unit of both.
+  const roles = content.includes('SET document-roles') || content.includes('SET gate-forms');
   const labels = unitsOf(content).map(([n, line]) => ({
     units: String(n),
     label: roles || !imperative.test(line) ? 'none' : /^Never/.test(line) ? 'prohibition' : 'rule',
@@ -141,25 +167,25 @@ describe('driftbench estate scan --pointer', () => {
     expect(recorded.err).toBe('');
     expect(recorded.code).toBe(0);
     // The plan comes before the first request, then the counts, the classes that decided and the tokens.
-    expect(recorded.out).toMatch(/Pointer plan: 9 units in 2 files, 0 already labelled by the ledger\./);
+    expect(recorded.out).toMatch(/Pointer plan: 14 units in 2 files, 0 already labelled by the ledger\./);
     expect(recorded.out).toMatch(
-      /system 1 jev jev-latest: 3 requests, 0 in the cassette, \d+ characters to send\./,
+      /system 1 jev jev-latest: 2 requests, 0 in the cassette, \d+ characters to send\./,
     );
-    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette/);
+    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 20 requests, 0 in the cassette/);
     expect(recorded.out).toContain(
       'Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5',
     );
     expect(recorded.out).toMatch(
-      /Units: 9 in 2 files; 0 kept from the ledger, 9 labelled by this run \(\d+ by system 1, \d+ by system 2\)/,
+      /Units: 9 in 2 files; 0 kept from the ledger, 14 labelled by this run \(\d+ by system 1, \d+ by system 2/,
     );
-    expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 3000 in, 30 out, 3 requests sent.');
+    expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 2000 in, 20 out, 2 requests sent.');
     expect(recorded.out).toContain(
-      'Tokens, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests sent.',
+      'Tokens, system 2 anthropic claude-haiku-5-5: 10000 in, 1000 out, 20 requests sent.',
     );
     const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
-    // Three windows for system 1, and five runs of each for system 2. Both files are loaded by the runtime as
+    // Two windows for system 1, and five runs of each of the four windows for system 2 (the rules and the gate forms). Both files are loaded by the runtime as
     // instructions (the standing file and a skill body), so the document-roles question is never asked of them.
-    expect(cassette.entries.size).toBe(18);
+    expect(cassette.entries.size).toBe(22);
     // The file on disk is the sorted one, whatever the order the answers arrived in.
     expect(await readFile(join(root, 'cassette.jsonl'), 'utf8')).toBe(cassette.render());
 
@@ -182,8 +208,8 @@ describe('driftbench estate scan --pointer', () => {
     );
     const recorded = await record(root, [], { prices: 'prices.yaml' });
     expect(recorded.err).toBe('');
-    expect(recorded.out).toContain('Cost, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
-    expect(recorded.out).toContain('Cost in all: 0.0105 USD, without jev-latest.');
+    expect(recorded.out).toContain('Cost, system 2 anthropic claude-haiku-5-5: 0.0140 USD.');
+    expect(recorded.out).toContain('Cost in all: 0.0140 USD, without jev-latest.');
     // A field of the table that the cost does not use is named, never accepted without a word.
     expect(recorded.out).toContain(
       'Note: the price table gives cached_input for claude-haiku-5-5. It is not used: the labelers report no cached tokens.',
@@ -222,10 +248,10 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(replay.err).toBe('');
     expect(replay.out).toContain(
-      'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests.',
+      'Tokens replayed from the cassette, system 2 anthropic claude-haiku-5-5: 10000 in, 1000 out, 20 requests.',
     );
-    expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0105 USD.');
-    expect(replay.out).toContain('Cost when recorded in all: 0.0105 USD, without jev-latest.');
+    expect(replay.out).toContain('Cost when recorded, system 2 anthropic claude-haiku-5-5: 0.0140 USD.');
+    expect(replay.out).toContain('Cost when recorded in all: 0.0140 USD, without jev-latest.');
     expect(replay.out).not.toContain('requests sent.');
   });
 
@@ -233,21 +259,21 @@ describe('driftbench estate scan --pointer', () => {
     const root = await estate();
     // The second to fourth asks of a window holding the "Close" unit (system 1 is torn on it) call it a prohibition, a
     // description and a prohibition: five runs, and no label has three of them (rule 2, prohibition 2, description 1).
-    // That ties inside the instruction kind, so the window is asked twice more (asks 6 and 7): the sixth says
-    // prohibition and the seventh rule, so it still ties, 3 against 3.
+    // That ties inside the instruction kind, so the window is asked more: asks 6 and 8 say prohibition, 7 and 9 rule,
+    // so it still ties, 4 against 4, at the most voices a split gets.
     const asks = new Map<string, number>();
     const wavering: FetchLike = async (url, init) => {
       const response = await services(url, init);
       if (url.includes('systemone')) return response;
       const content =
         (JSON.parse(String(init.body)).messages as Array<{ content: string }>)[0]?.content ?? '';
-      // The document-roles question stays as the service answers it.
-      if (content.includes('SET document-roles')) return response;
+      // The document-roles and gate-forms questions stay as the service answers them.
+      if (content.includes('SET document-roles') || content.includes('SET gate-forms')) return response;
       const close = unitsOf(content).find(([, line]) => line.startsWith('Close'))?.[0];
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
       asks.set(content, seen);
-      if (seen < 2 || seen === 5 || seen > 6) return response;
+      if (seen < 2 || seen === 5 || seen === 7 || seen > 8) return response;
       const payload = (await response.json()) as { content: Array<{ text: string }> };
       const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
         labels: Array<{ units: string; label: string }>;
@@ -277,7 +303,149 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(code).toBe(0);
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
-    expect(output.out).toMatch(/asked again: .* asked again as run 7 for \d+ split units/);
+    expect(output.out).toMatch(/asked again: .* asked again as run 9 for \d+ split units/);
+
+    // The ledger keeps the unit unlabeled with what both classes heard on it: the one run of system 1, the nine of
+    // system 2 (five runs and the four extra voices its tie was asked for).
+    const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));
+    expect(ledger.version).toBe(2);
+    const close = ledger.entries.find((entry: { quote: string }) => entry.quote.startsWith('Close'));
+    expect(close.labels['agent-rules']).toBeUndefined();
+    const heard = close.unlabeled['agent-rules'].votes;
+    expect(heard.map((vote: { labeler: string }) => vote.labeler)).toEqual(['jev', 'anthropic']);
+    expect(heard[0].runs).toHaveLength(1);
+    expect(heard[0].runs[0].probabilities.none).toBeCloseTo(0.4);
+    expect(heard[1].runs.map((run: { label: string }) => run.label).sort()).toEqual([
+      'description',
+      'prohibition',
+      'prohibition',
+      'prohibition',
+      'prohibition',
+      'rule',
+      'rule',
+      'rule',
+      'rule',
+    ]);
+
+    // A rescan from that ledger does not ask the unit again, and says that the ledger kept it unlabeled.
+    const rescan = await run(
+      [
+        'estate',
+        'scan',
+        '.',
+        '--pointer',
+        '--cassette',
+        'split.jsonl',
+        '--ledger',
+        'ledger.json',
+        '--out',
+        'kept.yaml',
+      ],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(rescan.err).toBe('');
+    expect(rescan.code).toBe(0);
+    expect(rescan.out).toMatch(/1 unlabeled \(1 of them kept from the ledger, not asked again\)/);
+    expect(rescan.out).toContain('Requests: 0 answered, 0 sent, 0 recorded.');
+
+    // A cassette that holds the five runs and none of the two asked for the tie leaves the vote incomplete: the unit
+    // is not decided, the ledger keeps no record of it, and the report says that the next scan asks again.
+    const whole = pointer.Cassette.parse(await readFile(join(root, 'split.jsonl'), 'utf8'));
+    const five = new pointer.Cassette();
+    for (const entry of whole.entries.values())
+      if (Number(entry.readable.run) <= 5) five.entries.set(entry.key, entry);
+    expect(five.entries.size).toBeLessThan(whole.entries.size);
+    await writeFile(join(root, 'five.jsonl'), five.render());
+    const incomplete = await run(
+      [
+        'estate',
+        'scan',
+        '.',
+        '--pointer',
+        '--cassette',
+        'five.jsonl',
+        '--ledger',
+        'fresh.json',
+        '--update',
+        '--out',
+        'five.yaml',
+      ],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(incomplete.err).toBe('');
+    expect(incomplete.code).toBe(0);
+    expect(incomplete.out).toMatch(/1 unlabeled \(1 of them not decided: a vote lacked answers/);
+    const fresh = JSON.parse(await readFile(join(root, 'fresh.json'), 'utf8'));
+    const open = fresh.entries.find((entry: { quote: string }) => entry.quote.startsWith('Close'));
+    expect(open.labels['agent-rules']).toBeUndefined();
+    expect(open.unlabeled).toBeUndefined();
+  });
+
+  it('prints each unstable unit with the count of each kind, left unlabeled', () => {
+    const result = {
+      pointer: {
+        ledger: { entries: [] },
+        cuts: new Map(),
+        decidedBy: { system1: 0, system2: 0 },
+        usage: [],
+        events: {},
+        failed: [],
+        refusals: [],
+        atomRefusals: [],
+        dropped: [],
+        outOfStep: [],
+        reasked: [],
+        unlabeledUnits: [],
+        keptUnlabeled: 0,
+        unstable: [
+          {
+            unit: 'u1',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { instruction: 5, gate: 4 },
+          },
+          {
+            unit: 'u2',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { gate: 2, reference: 2 },
+          },
+          {
+            unit: 'u3',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { 'too few runs': 1 },
+          },
+          {
+            unit: 'u4',
+            path: 'CLAUDE.md',
+            set: 'agent-rules',
+            labeler: 'anthropic',
+            kinds: { 'too few runs': 1 },
+            undecided: 'out_of_step',
+          },
+        ],
+      },
+    } as unknown as ScanEstateResult;
+    const lines = pointerLines(result, 'system 2');
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u1 (agent-rules, anthropic): instruction 5, gate 4; left unlabeled',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u2 (agent-rules, anthropic): gate 2, reference 2; left unlabeled',
+    );
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u3 (agent-rules, anthropic): too few runs 1; left unlabeled',
+    );
+    // A unit that is not decided says why, and that the next scan asks it again.
+    expect(lines).toContain(
+      '    unstable: CLAUDE.md unit u4 (agent-rules, anthropic): too few runs 1; left unlabeled, not decided (out_of_step): the next scan asks it again',
+    );
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {
@@ -343,7 +511,7 @@ describe('driftbench estate scan --pointer', () => {
       root,
     );
     expect(again.code).toBe(0);
-    expect(again.out).toMatch(/Units: 9 in 2 files; 9 kept from the ledger, 0 labelled by this run/);
+    expect(again.out).toMatch(/Units: 9 in 2 files; 14 kept from the ledger, 0 labelled by this run/);
     expect(again.out).toContain('Requests: 0 answered, 0 sent, 0 recorded.');
   });
 
@@ -372,7 +540,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(wide.code).toBe(0);
     expect(wide.out).toMatch(
-      /0 kept from the ledger, 9 labelled by this run \(0 by system 1, 9 by system 2\)/,
+      /0 kept from the ledger, 14 labelled by this run \(0 by system 1, 14 by system 2/,
     );
   });
 
@@ -464,10 +632,22 @@ describe('driftbench estate scan --pointer', () => {
       root,
     );
     expect(result.code).toBe(2);
-    // The edited file is asked of both labelers: one window of system 1 and five runs of system 2.
+    // The edited file is asked of both labelers: one window of system 1 (asked the main set only), and five runs of
+    // system 2 for each of the two shipped sets (agent-rules and gate-forms).
     expect(result.err).toMatch(
-      /; 6 of 18 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
+      /; 11 of 22 requests of this pass have no answer \(\d+ characters to record\): --plan-only prints the plan, --record asks the labelers/,
     );
+    // The same counts as the plan of the same files and cassette: what it has to send of what it asks.
+    const planned = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'cassette.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    const rows = proseRows(planned.out);
+    const lacking = rows.reduce((sum, [, , send]) => sum + send, 0);
+    const asked = rows.reduce((sum, [requests]) => sum + requests, 0);
+    expect(result.err).toContain(`; ${lacking} of ${asked} requests of this pass have no answer`);
+    expectPlanSums(planned.out);
   });
 
   it('--plan-only prints the requests, characters and priced cost with no key, no call and no file', async () => {
@@ -494,14 +674,17 @@ describe('driftbench estate scan --pointer', () => {
     expect(code).toBe(0);
     expect(calls).toEqual([]);
     expect(output.out).toContain('Pointer plan (no key read, no request sent):');
-    expect(output.out).toContain('prose: 9 units in 2 files, 0 already labelled by the ledger.');
+    // Seven labelable units (the skill's name and description are read by code, not labelled) for each of the two
+    // shipped sets; one window per file; system 1 is asked the main set only, system 2 both sets five runs each.
+    expect(output.out).toContain('prose: 14 units in 2 files, 0 already labelled by the ledger.');
     expect(output.out).toMatch(
-      /system 1 jev jev-latest: 3 requests, 0 in the cassette, 3 to send, \d+ characters\./,
+      /system 1 jev jev-latest: 2 requests, 0 in the cassette, 2 to send, \d+ characters\./,
     );
     expect(output.out).toMatch(
-      /system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette, 15 to send, \d+ characters\./,
+      /system 2 anthropic claude-haiku-5-5: 20 requests, 0 in the cassette, 20 to send, \d+ characters\./,
     );
-    expect(output.out).toMatch(/To send: 18 requests, about \d+ input tokens\./);
+    expect(output.out).toMatch(/To send: 22 requests, about \d+ input tokens\./);
+    expectPlanSums(output.out);
     expect(output.out).toMatch(
       /Input cost: \d+\.\d{4} USD, without jev-latest \(no price in the table\)\. Output tokens are not estimated\./,
     );
@@ -533,6 +716,26 @@ describe('driftbench estate scan --pointer', () => {
     expect(empty.out).not.toContain('To send: 0 requests');
   });
 
+  it('--plan-only sizes the registry-roles pass apart when no cassette answers it, and goes on to the prose pass', async () => {
+    const root = await estate();
+    await mkdir(join(root, '.claude/guards'), { recursive: true });
+    await writeFile(
+      join(root, '.claude/guards/CHECK-REGISTRY.md'),
+      '# Checks\n\n| Check | Guard | Rule |\n|---|---|---|\n| Q1 | gate-guard | Never leave the gate open |\n',
+    );
+    const planned = await run(
+      ['estate', 'scan', '.', '--pointer', '--plan-only', '--cassette', 'none.jsonl'],
+      root,
+      { JEV_API_KEY: undefined, ANTHROPIC_API_KEY: undefined },
+    );
+    expect(planned.err).toBe('');
+    expect(planned.code).toBe(0);
+    // The question on the columns of the table is sized; the roles it would record are not asked, so the scan goes on
+    // without them and sizes the prose pass too.
+    expect(planned.out).toMatch(/registry roles: \d+ units in 1 files, 0 already labelled by the ledger\./);
+    expect(planned.out).toMatch(/prose: \d+ units in \d+ files/);
+  });
+
   it('--plan-only counts only what the cassette does not answer, and cannot be combined with --record', async () => {
     const root = await estate();
     await record(root);
@@ -543,8 +746,9 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(answered.err).toBe('');
     expect(answered.code).toBe(0);
-    expect(answered.out).toContain('15 requests, 15 in the cassette, 0 to send, 0 characters.');
+    expect(answered.out).toContain('20 requests, 20 in the cassette, 0 to send, 0 characters.');
     expect(answered.out).toContain('To send: 0 requests, about 0 input tokens.');
+    expectPlanSums(answered.out);
     expect(answered.out).toContain('No prices given: pass --prices <file> to see the input cost in USD.');
     const both = await run(
       ['estate', 'scan', '.', '--pointer', '--plan-only', '--record', '--cassette', 'cassette.jsonl'],
@@ -668,7 +872,7 @@ describe('driftbench estate scan --pointer', () => {
       `export default {
         id: 'house',
         cls: 'system2',
-        label: (request) => ({ labels: request.window.units.map((unit) => ({ units: String(unit.n), label: /^Never/.test(unit.text) ? 'prohibition' : 'none' })) }),
+        label: (request) => ({ labels: request.window.units.map((unit) => ({ units: String(unit.n), label: request.set.name === 'agent-rules' && /^Never/.test(unit.text) ? 'prohibition' : 'none' })) }),
       };`,
     );
     const { io, output } = capture(root);
@@ -910,7 +1114,7 @@ describe('the settings file of the estate', () => {
     const unchanged = await voided(root, before);
     expect(unchanged.added).toEqual([]);
     // 9 units under 2 label sets.
-    expect(unchanged.out).toMatch(/Units: 9 in 2 files; 18 kept from the ledger, 0 labelled by this run/);
+    expect(unchanged.out).toMatch(/Units: 9 in 2 files; 14 kept from the ledger, 0 labelled by this run/);
   });
 
   it('voids the recordings of one label set when its description changes, and no other', async () => {
@@ -932,7 +1136,7 @@ describe('the settings file of the estate', () => {
     await writeFile(join(root, 'driftbench.estate.yaml'), SETTINGS.replace('pass_at: 0.9', 'pass_at: 0.8'));
     const { added, out } = await voided(root, before);
     expect(added).toEqual([]);
-    expect(out).toMatch(/0 kept from the ledger, 18 labelled by this run/);
+    expect(out).toMatch(/0 kept from the ledger, 14 labelled by this run/);
   });
 
   it('voids no recording when the labeler drops a class or the ledger moves', async () => {

@@ -87,11 +87,11 @@ scripts:
 
 ```console
 $ driftbench estate scan est1 --no-model --out m1.yaml
-Wrote m1.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
+Wrote m1.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
   Ignored: none.
 $ echo 'ignore: [.claude/steps.json]' >> est1/driftbench.estate.yaml
 $ driftbench estate scan est1 --no-model --out m2.yaml
-Wrote m2.yaml: 42 atoms (42 read by code and approved, 0 split from prose by the model and waiting for approval), 30 edges.
+Wrote m2.yaml: 42 atoms (42 read by code and approved, 0 split from prose by the model and waiting for approval), 31 edges.
   Ignored: 1 file no runtime loads.
 ```
 
@@ -191,17 +191,17 @@ documents:
 **You type and you see.**
 
 ```console
-$ driftbench estate scan estate --pointer --cassette estate/settings-cassette.jsonl --update --out map.yaml
+$ driftbench estate scan estate --pointer --cassette estate/settings-cassette.jsonl --update --out map.yaml   # exit 1
 Pointer settings from driftbench.estate.yaml: labels, threshold, ledger.
-  Requests: 91 answered, 0 sent, 0 recorded.
-  Units since the last ledger: new 136.
+  Requests: 85 answered, 0 sent, 0 recorded.
+  Units since the last ledger: new 138.
 ```
 
 **How to read it.**
 
 - The first line lists the keys the scan read. A key you set and do not see here was not read.
-- `91 answered, 0 sent, 0 recorded` means the cassette held every answer. A run that sends 0 requests costs nothing.
-- `new 136` means the ledger did not exist, so all 136 units are new. The scan wrote `estate/driftbench.ledger.json`.
+- `85 answered, 0 sent, 0 recorded` means the cassette held every answer. A run that sends 0 requests costs nothing.
+- `new 138` means the ledger did not exist, so all 138 units are new. The scan wrote `estate/driftbench.ledger.json`.
 
 **The four keys, one at a time.**
 
@@ -220,12 +220,12 @@ Pointer settings from driftbench.estate.yaml: labels, threshold, ledger.
 ```console
 $ perl -pi -e 's/more than two days/more than one day/' estate/CLAUDE.md
 $ driftbench radius ledger map.yaml --out change.yaml
-Units: 133 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+Units: 135 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
   1 unit reruns, 2 advisory only; 1 change.
 Wrote change.yaml.
 ```
 
-Of 136 units, 1 changed, so 1 unit reruns. Two neighbours are **advisory**: shown for you to read, and not rerun. [Rerun less](rerun-less.md) uses this file.
+Of 138 units, 1 changed, so 1 unit reruns. Two neighbours are **advisory**: shown for you to read, and not rerun. [Rerun less](rerun-less.md) uses this file.
 
 **Plug in a labeler of your own.** A labeler can be a module you write. This one calls a line that starts with "Never" a prohibition:
 
@@ -237,7 +237,10 @@ export default {
   label(request) {
     const labels = request.window.units.map((unit) => ({
       units: String(unit.n),
-      label: /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text) ? 'prohibition' : 'none',
+      label:
+        request.set.name === 'agent-rules' && /^(?:- )?(?:\*\*[^*]+\*\* )?Never\b/.test(unit.text)
+          ? 'prohibition'
+          : 'none',
     }));
     return { labels };
   },
@@ -253,15 +256,15 @@ ledger: driftbench.ledger.json
 ```console
 $ driftbench estate scan estate --pointer --cassette estate/module-cassette.jsonl --record --out module-map.yaml
 Pointer settings from driftbench.estate.yaml: labeler, ledger.
-  Requests: 95 answered, 95 sent, 95 recorded.
-  Units since the last ledger: new 20, unchanged 135, changed 1.
+  Requests: 150 answered, 150 sent, 150 recorded.
+  Units since the last ledger: new 20, unchanged 137, changed 1.
 The ledger estate/driftbench.ledger.json is not written: pass --update to write it.
 ```
 
 **How to read it.**
 
-- `95 sent` means the module answered 95 requests, and `95 recorded` means the cassette now holds them. A second run reads the cassette and sends 0.
-- `unchanged 135, changed 1` is the edit above, read against the ledger.
+- `150 sent` means the module answered 150 requests, one for each window of each label set. `150 recorded` means the cassette now holds them. A second run reads the cassette and sends 0.
+- `unchanged 137, changed 1` is the edit above, read against the ledger.
 - The ledger is not written, because `--update` was left out. The scan only reads it.
 
 **If it goes wrong.**
@@ -365,8 +368,8 @@ documents:
 
 ```console
 $ driftbench estate build bld --out build --pointer --cassette bld/settings-cassette.jsonl --yes   # exit 1
-1. Read the estate: 114 atoms, 67 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
-5. Write the tests: 1547 tests written. 816 are complete and 731 still wait for something (the report lists what).
+1. Read the estate: 112 atoms, 65 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+5. Write the tests: 1500 tests written. 724 are complete and 776 still wait for something (the report lists what).
 $ ls build | grep ledger
 ledger.json
 $ ls bld | grep driftbench.ledger   # exit 1

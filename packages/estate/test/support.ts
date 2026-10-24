@@ -3,12 +3,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  applyRegistryRoles,
   approveAtoms,
   ClaudeCodeReader,
   type EstateMap,
   type PointerScanOptions,
   parseEstateMapText,
   pointer,
+  type RawEstate,
+  type RegistryRole,
+  type RegistryRolesInput,
   renderEstateMap,
   scanEstate,
 } from '../src/index';
@@ -34,7 +38,7 @@ export async function estate(files: Record<string, string>): Promise<string> {
  * come from the cassette. No network and no key.
  */
 export async function replayPointer(root: string, ledger?: string): Promise<PointerScanOptions> {
-  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = pointer.parseLabelSets(pointer.DEFAULT_LABEL_SETS);
   if (!sets.ok) throw new Error(sets.message);
   const specs = pointer.DEFAULT_LABELER_SPECS.map((text) => {
     const spec = pointer.parseLabelerSpec(text);
@@ -98,7 +102,10 @@ export type PlantedGate = {
  * The same planted labeller, with units it calls a gate: for the tests of what the plan does with a gate, where the
  * sentence that makes the gate is not the thing under test.
  */
-export function structurePointer(gates: readonly PlantedGate[] = []): PointerScanOptions {
+export function structurePointer(
+  gates: readonly PlantedGate[] = [],
+  planted: { routes?: boolean; notReferences?: readonly string[] } = {},
+): PointerScanOptions {
   const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
   if (!sets.ok) throw new Error(sets.message);
   const labeler: pointer.Labeler = {
@@ -113,9 +120,41 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
       body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
     }),
     opinions: pointer.denseOpinions,
-    async call(_wire, _set, window) {
+    async call(_wire, set, window) {
+      if (set.set === pointer.REGISTRY_ROLES_SET_NAME) {
+        return {
+          labels: window.units.map((unit) => ({
+            units: String(unit.n),
+            label: handRoleLabel(unit.text.replace(/^[-*]\s+/, '')),
+          })),
+          returnedModel: 'structure-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
       return {
-        labels: window.units.map((unit) => {
+        labels: window.units.map((unit, index) => {
+          // A request cell of a routing table, for the planted routes: the cell after it names the skill or the
+          // helper, so the unit is the request and the next unit is its target.
+          const next = window.units[index + 1];
+          const loads = planted.routes && next ? /^`([\w-]+)`$/.exec(next.text.trim())?.[1] : undefined;
+          const dispatches =
+            planted.routes && next ? /^the `([\w-]+)` agent$/.exec(next.text.trim())?.[1] : undefined;
+          if (loads || dispatches) {
+            const skill = loads !== undefined;
+            const name = (loads ?? dispatches) as string;
+            return {
+              units: String(unit.n),
+              label: skill ? 'route-skill' : 'route-helper',
+              target: next?.n,
+              links: [
+                {
+                  kind: skill ? 'route-skill' : 'route-helper',
+                  to: skill ? `skill.${name}.skill-${name}` : `subagent.${name}.helper-${name}`,
+                },
+              ],
+            };
+          }
           const gate = gates.find((entry) => unit.text.includes(entry.contains));
           const from = gate ? unit.text.indexOf(gate.act) : -1;
           if (gate && from >= 0) {
@@ -133,6 +172,7 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
             // read: a labeller that reads the sentence gives it no reference either.
             label:
               namedPaths(unit.text).length > 0 &&
+              !(planted.notReferences ?? []).some((text) => unit.text.includes(text)) &&
               !/^@\S+$/.test(unit.text.trim()) &&
               !/^[\w.-]+$/.test(unit.text.trim())
                 ? 'reference'
@@ -151,4 +191,92 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
     cassette: new pointer.Cassette(),
     mode: 'record',
   };
+}
+
+/**
+ * The fixture estate scanned with planted labels: a unit is a reference when it names a path (the one that forbids
+ * pasting `.env` names no file to read), and the request cell of the routing table is a route to the skill or the
+ * helper its next cell names. No rule, gate or register is labelled. For the tests of what the graph, the lint and
+ * the static runner do with the planted defects of the fixture, which hold whatever a recorded labeller says.
+ */
+export async function scanPlantedFixture() {
+  return scanEstate({
+    root: FIXTURE,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer([], { routes: true, notReferences: ['`.env`'] }),
+  });
+}
+
+/**
+ * The labels of the registry tables of the test estates, written by hand: the header cells and the off states the
+ * fixtures use, each with the role a labeller would record for it. The reader knows none of these words; a test
+ * that names a column here is the one that says what the column is.
+ */
+const HAND_WORDS: Record<RegistryRole, string[]> = {
+  id: ['id', 'check id', 'code'],
+  guard: [
+    'guard',
+    'guards',
+    'script',
+    'scripts',
+    'check',
+    'checks',
+    'hook',
+    'hooks',
+    'adapter',
+    'adapters',
+    'handler',
+    'handlers',
+    'run',
+    'runs',
+  ],
+  enforces: ['enforces', 'enforced rules', 'rule', 'rules', 'rule ids', 'gates', 'covers'],
+  watches: ['fires when', 'fires on', 'watches', 'watch', 'trigger', 'triggers'],
+  event: ['event', 'events'],
+  verdict: ['verdict', 'mode'],
+  state: ['rollout', 'status', 'state', 'enforcement'],
+  description: [
+    'description',
+    'meaning',
+    'purpose',
+    'summary',
+    'what it checks',
+    'what it does',
+    'check description',
+  ],
+};
+
+const capitalised = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+/** The role a test gives a header cell, by the words of its own estate. The reader never sees this table. */
+const HAND_COLUMNS: Readonly<Record<string, RegistryRole>> = Object.fromEntries(
+  (Object.entries(HAND_WORDS) as Array<[RegistryRole, string[]]>).flatMap(([role, words]) =>
+    words.flatMap((word) => [word, capitalised(word), word.toUpperCase()].map((key) => [key, role])),
+  ),
+);
+const HAND_OFF_STATES = ['off', 'disabled', 'retired', 'removed', 'dead'];
+const stripCell = (cell: string) => cell.replace(/^[`*"]+|[`*"]+$/g, '').trim();
+
+/** The hand-written roles of a test: decided for each table from its header cells, recorded per table. */
+export const HAND_ROLES: RegistryRolesInput = (tables) => ({
+  tables: tables.map((table) => ({
+    file: table.file,
+    index: table.index,
+    roles: table.header.map((cell) => HAND_COLUMNS[stripCell(cell)] ?? null),
+  })),
+  offStates: HAND_OFF_STATES,
+});
+
+/** What a labeller records for a cell of the registry-roles questions, from the hand-written table above. */
+export function handRoleLabel(cell: string): string {
+  const role = HAND_COLUMNS[cell.trim()];
+  if (role !== undefined) return `col-${role}`;
+  return HAND_OFF_STATES.includes(cell.trim()) ? 'state-off' : 'none';
+}
+
+/** The reader's raw estate with the hand-written registry roles applied, as a scan with a labeller gives it. */
+export async function readRaw(root: string, reader = new ClaudeCodeReader()): Promise<RawEstate> {
+  const raw = await reader.read(root);
+  applyRegistryRoles(raw, HAND_ROLES);
+  return raw;
 }

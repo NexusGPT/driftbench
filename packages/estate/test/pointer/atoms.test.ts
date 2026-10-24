@@ -699,8 +699,12 @@ describe('atoms from labels', () => {
         expect.stringContaining('needs a span, a link or a code span that the unit does not give'),
       ]);
       expect(noLink.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      // A missing span is caught before the atom builder (span-missing): the unit is asked again once and, with no
+      // span in that answer either, left unlabeled, so no atom is built and none is refused.
       const noSpan = await run(entry({ spans: undefined }));
-      expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
+      expect(noSpan.result.pointer?.atomRefusals).toEqual([]);
+      expect(noSpan.result.pointer?.spanless).toEqual([expect.objectContaining({ filled: false })]);
+      expect(noSpan.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
     });
 
     it('drops a link value the set did not declare, as the check of the answer does', async () => {
@@ -1120,5 +1124,311 @@ describe('the things a hazard orders read again that are no file (reread-other)'
     >;
     expect(options.unpathed ?? []).toEqual([]);
     expect(options).not.toHaveProperty('rereadSelf');
+  });
+});
+
+describe('the reply shape and the forbid case of the shipped set', () => {
+  const FILES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Answer with one JSON object and nothing else',
+      '- End every reply with a short note',
+      '- Never run `rm` on the ledger folder',
+      '- Never lose a message',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 json reply, 3 note reply, 4 forbidden command, 5 forbidden without material.
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'reply-rule', links: [{ kind: 'reply-shape', to: 'json_only' }] },
+      { units: '3', label: 'reply-rule' },
+      {
+        units: '4',
+        label: 'prohibition',
+        spans: [{ kind: 'forbidden-material', text: 'rm' }],
+        links: [
+          { kind: 'forbid-tool', to: 'Bash' },
+          { kind: 'forbid-input', to: 'command' },
+        ],
+      },
+      { units: '5', label: 'prohibition' },
+    ] as pointer.Labelled[],
+  };
+  const atoms = async () => {
+    const { result } = await scan(rows, { sets }, FILES);
+    const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    return (text: string) => mine.find((atom) => atom.provenance.quote.includes(text));
+  };
+
+  it('builds the json_only evidence and the declared shape for a reply rule that fixes the shape', async () => {
+    const find = await atoms();
+    const json = find('one JSON object');
+    expect(json?.kind).toBe('register');
+    expect(json?.fields).toMatchObject({ replyShape: 'json_only' });
+    expect(json?.evidence).toEqual(expect.arrayContaining([{ type: 'custom', name: 'json_only' }]));
+  });
+
+  it('leaves a reply rule that fixes no shape with its prose evidence only', async () => {
+    const note = (await atoms())('short note');
+    expect(note?.kind).toBe('register');
+    expect(note?.fields?.replyShape).toBeUndefined();
+    expect(note?.evidence.map((item) => item.type)).toEqual(['custom']);
+  });
+
+  it('builds a forbid case and a tool_not_called evidence for a prohibition that names its material', async () => {
+    const rm = (await atoms())('rm');
+    expect(rm?.fields?.unitCases).toEqual([{ effect: 'forbid', tool: 'Bash', material: 'rm' }]);
+    expect(rm?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'tool_not_called', label: 'Bash', input: { command: { contains: 'rm' } } },
+      ]),
+    );
+  });
+
+  it('keeps a prohibition that names no material as it was: no forbid case, no extra evidence', async () => {
+    const lose = (await atoms())('Never lose');
+    expect(lose?.kind).toBe('instruction');
+    expect(lose?.fields?.unitCases).toBeUndefined();
+    expect(lose?.evidence.map((item) => item.type)).toEqual(['custom']);
+  });
+});
+
+describe('the require case of the shipped set', () => {
+  const FILES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Put every parcel with no owner in `lost/`',
+      '- Keep the harbour tidy',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 a rule that names where things go, 3 a rule that names no place.
+  const rows = {
+    'CLAUDE.md': [
+      {
+        units: '2',
+        label: 'rule',
+        spans: [{ kind: 'required-material', text: 'lost/' }],
+        links: [{ kind: 'require-tool', to: 'Write' }],
+      },
+      { units: '3', label: 'rule' },
+    ] as pointer.Labelled[],
+  };
+  const atoms = async () => {
+    const { result } = await scan(rows, { sets }, FILES);
+    const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    return (text: string) => mine.find((atom) => atom.provenance.quote.includes(text));
+  };
+
+  it('builds a require case for a rule that names the place it sends things to', async () => {
+    const lost = (await atoms())('no owner');
+    expect(lost?.kind).toBe('instruction');
+    expect(lost?.fields?.unitCases).toEqual([{ effect: 'require', tool: 'Write', material: 'lost/' }]);
+  });
+
+  it('keeps a rule that names no place as it was: no require case', async () => {
+    const tidy = (await atoms())('tidy');
+    expect(tidy?.kind).toBe('instruction');
+    expect(tidy?.fields?.unitCases).toBeUndefined();
+  });
+});
+
+describe('a forbidden material inside the ask of the same prohibition', () => {
+  const FILES = { 'CLAUDE.md': ['# Harbour office', '', 'Never run `erase-all`.', ''].join('\n') };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const ASK = { kind: 'ask-text', text: 'run `erase-all`' };
+  const MATERIAL = { kind: 'forbidden-material', text: 'erase-all' };
+  const LINKS = [
+    { kind: 'forbid-tool', to: 'Bash' },
+    { kind: 'forbid-input', to: 'command' },
+  ];
+
+  for (const [order, spans] of [
+    ['ask first', [ASK, MATERIAL]],
+    ['material first', [MATERIAL, ASK]],
+  ] as const) {
+    it(`keeps both spans, ${order}: the ask and the forbid case`, async () => {
+      const { result } = await scan(
+        { 'CLAUDE.md': [{ units: '2', label: 'prohibition', spans: [...spans], links: LINKS }] },
+        { sets },
+        FILES,
+      );
+      const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+      expect(result.pointer?.dropped ?? []).toEqual([]);
+      expect(atom?.fields?.ask).toMatchObject({ text: 'run `erase-all`' });
+      expect(atom?.fields?.unitCases).toEqual([{ effect: 'forbid', tool: 'Bash', material: 'erase-all' }]);
+      expect(atom?.evidence).toEqual(
+        expect.arrayContaining([
+          { type: 'tool_not_called', label: 'Bash', input: { command: { contains: 'erase-all' } } },
+        ]),
+      );
+    });
+  }
+
+  it('still drops a span that overlaps another without lying inside it', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'prohibition',
+            spans: [
+              { kind: 'ask-text', text: 'Never run' },
+              { kind: 'forbidden-material', text: 'run `erase-all`' },
+            ],
+            links: LINKS,
+          },
+        ],
+      },
+      { sets },
+      FILES,
+    );
+    const atom = result.map.atoms.find((candidate) => candidate.provenance.quote.includes('erase-all'));
+    expect(atom?.fields?.unitCases).toBeUndefined();
+  });
+});
+
+describe('what an atom needs of a unit', () => {
+  const needs = (atomBody: string) => {
+    const set = setsOf(`labels:
+  - set: s
+    description: d
+    spans:
+      - name: material
+        description: m
+    links:
+      - name: tool
+        description: t
+        values: [Bash, Edit]
+    labels:
+      - name: ban
+        description: b
+        spans: [material]
+        links: [tool]
+        atom:
+          kind: instruction
+          polarity: prohibition
+${atomBody}
+`)[0];
+    return pointer.atomNeeds(set?.labels.find((l) => l.name === 'ban'));
+  };
+  const CALL = '{ type: tool_not_called, label: Bash, input: { command: { contains: $span.material } } }';
+
+  it('needs no span for an optional evidence item', () => {
+    expect(needs(`          evidence:\n            - optional: ${CALL}`).spans).toEqual([]);
+  });
+
+  it('needs the span of a plain evidence item', () => {
+    expect(needs(`          evidence:\n            - ${CALL}`).spans).toEqual(['material']);
+  });
+
+  it('still needs what a field, a link field or a custom option named optional holds', () => {
+    // fill() skips only the exact one-key wrapper in a list; any other key named optional is an ordinary key.
+    expect(needs('          fields: { optional: $span.material }').spans).toEqual(['material']);
+    expect(needs('          fields: { outer: { inner: { optional: $span.material } } }').spans).toEqual([
+      'material',
+    ]);
+    expect(needs('          fields: { optional: $link.tool }').links).toEqual(['tool']);
+    expect(
+      needs(
+        '          evidence:\n            - { type: custom, name: n, options: { optional: $span.material } }',
+      ).spans,
+    ).toEqual(['material']);
+  });
+
+  it('skips an optional wrapper only as the one key of a list item', () => {
+    expect(needs('          fields: { list: [ { optional: $span.material } ] }').spans).toEqual([]);
+    expect(needs('          fields: { list: [ { optional: $span.material, other: x } ] }').spans).toEqual([
+      'material',
+    ]);
+  });
+});
+
+describe('the clause a hazard names inside its ask', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const CASES = [
+    {
+      kind: 'reread-self',
+      line: '- After a compaction, re-read this file before you continue.',
+      ask: 're-read this file before you continue',
+      clause: 're-read this file',
+      option: { rereadSelf: true },
+    },
+    {
+      kind: 'reread-other',
+      line: '- After a compaction, re-read the open tracker note before you continue.',
+      ask: 're-read the open tracker note before you continue',
+      clause: 'the open tracker note',
+      option: { unpathed: ['the open tracker note'] },
+    },
+    {
+      kind: 'retry',
+      line: '- After a compaction, re-read this file and try the request again.',
+      ask: 're-read this file and try the request again',
+      clause: 'try the request again',
+      option: { retry: true },
+    },
+  ];
+
+  for (const { kind, line, ask, clause, option } of CASES) {
+    for (const order of ['ask first', 'clause first']) {
+      it(`keeps the ${kind} span and the ask, ${order}`, async () => {
+        const spans = [
+          { kind: 'ask-text', text: ask },
+          { kind, text: clause },
+        ];
+        const { result } = await scan(
+          {
+            'CLAUDE.md': [
+              {
+                units: '2',
+                label: 'hazard-compaction',
+                spans: order === 'ask first' ? spans : spans.reverse(),
+              },
+            ],
+          },
+          { sets },
+          { 'CLAUDE.md': ['# Office', '', line, ''].join('\n') },
+        );
+        expect(result.pointer?.dropped ?? []).toEqual([]);
+        const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+        expect(hazard?.fields?.ask).toMatchObject({ text: ask });
+        expect(hazard?.evidence).toContainEqual(
+          expect.objectContaining({
+            name: 'hazard_recovery',
+            options: expect.objectContaining(option),
+          }),
+        );
+      });
+    }
+  }
+
+  it('still drops a clause that overlaps the ask without lying inside it', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'hazard-compaction',
+            spans: [
+              { kind: 'ask-text', text: 're-read this file' },
+              { kind: 'retry', text: 'file and try the request again' },
+            ],
+          },
+        ],
+      },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', CASES[2]?.line, ''].join('\n') },
+    );
+    expect(result.pointer?.dropped).toEqual([expect.stringContaining('overlaps another span')]);
   });
 });

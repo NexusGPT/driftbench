@@ -42,12 +42,19 @@ export class ModelError extends Error {
   readonly status: number | undefined;
   /** True for a status or a failure that may pass on a later try: 429, 5xx, 529, network, timeout. */
   readonly retryable: boolean;
+  /** The error type the provider's body named (such as `max_tokens_exceeded`), when it named one: checks read this. */
+  readonly providerType: string | undefined;
 
-  constructor(code: ModelErrorCode, message: string, options: { status?: number; retryable?: boolean } = {}) {
+  constructor(
+    code: ModelErrorCode,
+    message: string,
+    options: { status?: number; retryable?: boolean; providerType?: string } = {},
+  ) {
     super(message);
     this.name = 'ModelError';
     this.code = code;
     this.status = options.status;
     this.retryable = options.retryable ?? false;
+    this.providerType = options.providerType;
   }
 }

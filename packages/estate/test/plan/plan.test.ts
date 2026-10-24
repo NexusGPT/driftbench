@@ -64,7 +64,7 @@ describe('the estate plan', () => {
     );
     expect(summary.unenforcedAtoms).toHaveLength(44);
     expect(summary.edgesWithoutJourney).toBe(7);
-    expect(details.gridCells).toBe(1_916_337_346_560);
+    expect(details.gridCells).toBe(2_190_099_824_640);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
   }, 60_000);
 

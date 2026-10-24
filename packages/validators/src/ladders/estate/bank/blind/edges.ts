@@ -1,4 +1,5 @@
 import { ROOT, STANDING, skillFile } from '../../layout';
+import { plantedHeader } from '../../registry-record';
 import { anchored, rule, writeSettings } from '../common';
 import type { Family } from '../frame';
 import { type Case, caseFamily } from '../hostile';
@@ -64,7 +65,11 @@ function registryRows(e: PlantedEstate, rows: ReadonlyArray<[string, string, str
   e.raw(
     `${ROOT}/guards/CHECK-REGISTRY.md`,
     [
-      '| Id | Guard | Enforces |',
+      plantedHeader([
+        ['id', 'Id'],
+        ['guard', 'Guard'],
+        ['enforces', 'Enforces'],
+      ]),
       '|---|---|---|',
       ...rows.map(([id, guard, rules]) => `| ${id} | ${guard} | ${rules} |`),
       '',

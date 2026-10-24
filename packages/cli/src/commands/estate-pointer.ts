@@ -479,9 +479,10 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   const done = result.pointer;
   if (!done) return [];
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
+  const undecided = done.unlabeledUnits.filter((unit) => unit.undecided !== undefined).length;
   const lines = [
     `  Pointer reader: ${describe}.`,
-    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
+    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.keptUnlabeled > 0 ? ` (${done.keptUnlabeled} of them kept from the ledger, not asked again)` : ''}${undecided > 0 ? ` (${undecided} of them not decided: a vote lacked answers, and the next scan asks again)` : ''}${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and a span stands when more than half of the runs drew it` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
   const spend = newSpend();
@@ -506,5 +507,26 @@ export function pointerLines(result: ScanEstateResult, describe: string, prices?
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   for (const note of done.outOfStep ?? []) lines.push(`    out of step: ${note}`);
   for (const note of done.reasked ?? []) lines.push(`    asked again: ${note}`);
+  for (const entry of done.spanless ?? []) {
+    lines.push(
+      `    span-missing: ${entry.path} unit ${entry.unit} (${entry.set}): ${entry.label} needs ${entry.kinds.join(', ')}; ${entry.filled ? 'asked again, and the answer gave it' : 'asked again with no span in the unit, left unlabeled'}`,
+    );
+  }
+  for (const entry of done.unstable ?? []) {
+    const kinds = Object.entries(entry.kinds)
+      .map(([kind, count]) => `${kind} ${count}`)
+      .join(', ');
+    // A span vote leaves its unit labelled, with no span of the kind no clause held the majority for. A unit that is
+    // not decided names its reason code: the next scan asks it again.
+    const outcome =
+      'span vote' in entry.kinds
+        ? 'no span of that kind kept'
+        : entry.undecided
+          ? `left unlabeled, not decided (${entry.undecided}): the next scan asks it again`
+          : 'left unlabeled';
+    lines.push(
+      `    unstable: ${entry.path} unit ${entry.unit} (${entry.set}, ${entry.labeler}): ${kinds}; ${outcome}`,
+    );
+  }
   return lines;
 }

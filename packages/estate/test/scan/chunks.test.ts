@@ -6,12 +6,12 @@ import {
   proseInventory,
   proseInventoryLines,
 } from '../../src/index';
-import { estate } from '../support';
+import { estate, readRaw } from '../support';
 import { CASES } from './cases';
 
 describe('skill reference files as prose', () => {
   it('chunks every markdown file beside a skill, like a skill body, and never a script', async () => {
-    const raw = await new ClaudeCodeReader().read(CASES);
+    const raw = await readRaw(CASES);
     const files = raw.prose.filter((chunk) => /\/(references|templates)\//.test(chunk.file));
     expect(files.map((chunk) => [chunk.id, chunk.startLine, chunk.endLine])).toEqual([
       ['.claude/skills/parcel-claims/references/claim-rules.md', 1, 11],
@@ -30,7 +30,7 @@ describe('skill reference files as prose', () => {
       '.claude/skills/a/SKILL.md': '---\nname: a\n---\n\nUse the guide.\n',
       '.claude/skills/a/guide.md': '---\ntitle: Guide\n---\n\n# Guide\n\nAlways cite the order.\n',
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     const guide = raw.prose.find((chunk) => chunk.file === '.claude/skills/a/guide.md');
     expect(guide).toMatchObject({ id: '.claude/skills/a/guide.md', startLine: 4, endLine: 7 });
     expect(guide?.text).not.toContain('title:');
@@ -83,7 +83,7 @@ describe('skill reference files as prose', () => {
   });
 
   it('counts the chunks by source, and lists each unanswered chunk with its size', async () => {
-    const raw = await new ClaudeCodeReader().read(CASES);
+    const raw = await readRaw(CASES);
     const inventory = proseInventory(raw);
     expect(
       Object.fromEntries(Object.entries(inventory.bySource).map(([source, entry]) => [source, entry.chunks])),

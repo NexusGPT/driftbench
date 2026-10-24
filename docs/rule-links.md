@@ -36,19 +36,19 @@ The lines that matter:
 
 ```
 Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
-  Units: 136 in 11 files; 0 kept from the ledger, 134 labelled by this run (21 by system 1, 113 by system 2), 2 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
-  Requests: 91 answered, 0 sent, 0 recorded.
+  Units: 138 in 11 files; 0 kept from the ledger, 215 labelled by this run (13 by system 1, 202 by system 2, 110 of them because the other labeler gave no opinion), 5 unlabeled (2 of them not decided: a vote lacked answers, and the next scan asks again); the runs of one labeler disagreed on 4 units; the runs drew the spans of 54 units differently, and a span stands when more than half of the runs drew it; 69 atoms; 39 notes (spans or links) were dropped, listed below.
+  Requests: 167 answered, 0 sent, 0 recorded.
 ```
 
-Code cut 11 prose files into 136 units. A labeler pointed at 134 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
+Code cut 11 prose files into 138 units. A labeler pointed at 134 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the inbox triager agent states (five of its fields):
 
 ```
 {
-  "id": "wrl4c7wlvb",
-  "fp": "731c59e8e7713e95",
-  "path": ".claude/skills/weekly-report/SKILL.md",
+  "id": "nmsqgwccyc",
+  "fp": "a8687754c642ae38",
+  "path": ".claude/agents/inbox-triager.md",
   "status": "live",
-  "quote": "Count only what the ledger and the shipment log show for the last seven days."
+  "quote": "Never answer a message yourself: write nothing to `outbox/`."
 }
 ```
 
@@ -73,8 +73,8 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated 
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1278 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1458 files to generated.
+Asks of the complete specs: 0 approved phrases, 1280 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1448 files to generated.
 ```
 
 The command exits 1 while some specs stay incomplete; its gap list names what each one needs. Every block it writes carries its links in `metadata.links`. This is the head of the spec that tests the sentence above:
@@ -84,22 +84,22 @@ The command exits 1 while some specs stay incomplete; its gap list names what ea
     - block: ask
       to:
         kind: rule
-        rule: instruction.weekly-report.count-only-what-the-ledger-and
-        ledger: wrl4c7wlvb
+        rule: instruction.inbox-triager.never-answer-a-message-yourself-write
+        ledger: nmsqgwccyc
       relation: verifies
       status: declared
       created_by: generator
-      at_version: db9e07132a1b
+      at_version: 708456f152fd
 ```
 
 The `rule` link names the atom and, because the pointer reader built the atom, its ledger id. `verifies` says the block tests the rule, and `declared` says an author or a generator wrote the link and nothing has proved it yet. The links stay out of the spec hash, so adding one never invalidates a recorded run. The other link kinds, `plan_row` and `source_turn`, are in the [change manifest reference](reference/change.md).
 
 ## 3. Edit a rule, and read the edit by its id
 
-Change the sentence: seven days becomes fourteen.
+Change the sentence: the triager also writes nothing to `drafts/`.
 
 ```
-sed -i.bak 's/for the last seven days/for the last fourteen days/' northwind/.claude/skills/weekly-report/SKILL.md
+sed -i.bak 's#write nothing to `outbox/`#write nothing to `outbox/` or `drafts/`#' northwind/.claude/agents/inbox-triager.md
 ```
 
 A new scan would ask the labeler about the changed text. `radius ledger` reads the files as they are and calls no labeler:
@@ -109,18 +109,18 @@ driftbench radius ledger map.yaml --ledger ledger.json --out change.yaml
 ```
 
 ```
-Units: 133 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+Units: 135 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
   1 unit reruns, 2 advisory only; 1 change.
 Wrote change.yaml.
 ```
 
 ```
-from: db9e07132a1b
+from: 708456f152fd
 to: working
 changes:
   - kind: prompt
-    id: instruction.weekly-report.count-only-what-the-ledger-and
-    note: "unit wrl4c7wlvb: changed"
+    id: instruction.inbox-triager.never-answer-a-message-yourself-write
+    note: "unit nmsqgwccyc: changed"
 ```
 
 The ledger found the unit by its ledger id although its text no longer matches the old text. A small script shows the two values side by side:
@@ -131,17 +131,17 @@ import { readFileSync } from 'node:fs';
 import { pointer } from '@agent-nexus/driftbench-estate';
 
 const ledger = JSON.parse(readFileSync('ledger.json', 'utf8'));
-const unit = ledger.entries.find((entry: { id: string }) => entry.id === 'wrl4c7wlvb');
-const edited = unit.quote.replace('seven days', 'fourteen days');
+const unit = ledger.entries.find((entry: { id: string }) => entry.id === 'nmsqgwccyc');
+const edited = unit.quote.replace('write nothing to `outbox/`', 'write nothing to `outbox/` or `drafts/`');
 console.log(`ledger id        ${unit.id}  (kept in ledger.json)`);
 console.log(`text fingerprint ${unit.fp}  before the edit`);
 console.log(`text fingerprint ${pointer.fingerprint(edited)}  after the edit`);
 ```
 
 ```
-ledger id        wrl4c7wlvb  (kept in ledger.json)
-text fingerprint 731c59e8e7713e95  before the edit
-text fingerprint 0d6f948324059b44  after the edit
+ledger id        nmsqgwccyc  (kept in ledger.json)
+text fingerprint a8687754c642ae38  before the edit
+text fingerprint ce504f6f97750393  after the edit
 ```
 
 The fingerprint moves and the ledger id stays. That is why the link of step 2 still reaches the unit after the edit.
@@ -153,39 +153,39 @@ driftbench radius generated/specs/live --change change.yaml
 ```
 
 ```
-Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1251 specs, 1254 blocks.
-Mode F, free-running: 17 of 1254 blocks in the radius (17 direct, 0 forward), 1237 out. 17 of 1251 cells.
-  A cell reruns whole: 17 of 1254 blocks sent, 98.6% saved; 1234 of 1251 cells left to carry.
+Blast radius of 708456f152fd to working (manifest cb088a5f76ff): prompt:instruction.inbox-triager.never-answer-a-message-yourself-write.
+1253 specs, 1256 blocks.
+Mode F, free-running: 16 of 1256 blocks in the radius (16 direct, 0 forward), 1240 out. 16 of 1253 cells.
+  A cell reruns whole: 16 of 1256 blocks sent, 98.7% saved; 1237 of 1253 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 12 more, 17 of 1254 blocks, which rerun. The other 1237 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind agent sentence, Never answer a message yourself: write nothing to outbox/, with its ledger id nmsqgwccyc and its text hash changing from a868 to ce50. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0035, 0092, 0162, 0230, 0300 and 11 more, 16 of 1256 blocks, which rerun. The other 1240 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Seventeen blocks rerun and 1,237 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,240 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 `estate run` does the same for the live runs of the stand-in or the real runtime. Run the suite once before the edit of step 3, labelled with the version the manifest starts from (`from` of `change.yaml`), and again after the edit, from the old store:
 
 ```
-driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store before.db --map approved.yaml --agent-version db9e07132a1b
+driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store before.db --map approved.yaml --agent-version 708456f152fd
 # edit the sentence of step 3 and write change.yaml, then:
 driftbench estate run generated/specs/live --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --states northwind/live/states/library.json --store after.db --agent-version working --from before.db --change change.yaml
 ```
 
-The output below is a recorded run of the full suite. It was made before the plan grouped the atoms of one section, so it shows 16 cells in the radius where the suite now gives 17.
+The output below is the run of the full suite on the stand-in. The one line per spec between the two summary lines is left out.
 
 ```
-Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-16 of 1251 cells in the radius. 16 cells run fresh, 1235 carried from estate-run-501322d100b5 in before.db.
+Blast radius of 708456f152fd to working (manifest cb088a5f76ff): prompt:instruction.inbox-triager.never-answer-a-message-yourself-write.
+16 of 1253 cells in the radius. 16 cells run fresh, 1237 carried from estate-run-77991892bb64 in before.db.
 ...
-16 specs run live on a stand-in and 1235 carried: 211 pass, 1040 fail (232 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-e48f7cf49eaf.
+16 specs run live on a stand-in and 1237 carried: 221 pass, 1032 fail (202 undecided: only inconclusive checks). Cost 0.0000 USD over 0 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-ea3cf65b96ad.
 ```
 
-Sixteen specs run and 1,235 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
+Sixteen specs run and 1,237 keep the result they had, stamped with the campaign and version that measured them. `before.db` is read from a copy and never written. A result is copied only when the spec, its block inputs, the runtime, its flags and environment and the judge are the same as in the first run; otherwise the spec runs and the output names why. A run made without `--agent-version` carries no version, so it cannot be carried from.
 
 ## 5. Prove a link by deleting its rule
 
@@ -204,7 +204,7 @@ driftbench estate mutate $F/approved.yaml --delete $A --to mutant
 Mutant: delete gate.invoice-reconcile.read-references-matching-rules-md-before in .claude/skills/invoice-reconcile/SKILL.md.
   before: 1. Read `references/matching-rules.md` before matching any line.
   after:  (the line is gone)
-  map db9e07132a1b -> fcf231475ca8
+  map 708456f152fd -> 01c0866c7f6b
   collateral: reference.invoice-reconcile.read-references-matching-rules-md
 Wrote mutant: the estate copy, map.yaml and mutant.json.
 ```
@@ -221,7 +221,7 @@ driftbench estate prove $SPECS --mutant mutant --original original.db --mutated 
 ```
 15 specs run live on a stand-in: 15 pass, 0 fail.
 15 specs run live on a stand-in: 0 pass, 15 fail.
-Proof of gate.invoice-reconcile.read-references-matching-rules-md-before (ledger 4wfcnk2irw) by the mutant delete fcf231475ca8: 15 blocks, 15 linked, 15 flipped.
+Proof of gate.invoice-reconcile.read-references-matching-rules-md-before (ledger 4wfcnk2irw) by the mutant delete 01c0866c7f6b: 15 blocks, 15 linked, 15 flipped.
   verified   15  linked: pass on the original, fail on the mutant
   refuted    0  linked: pass on both
   unproved   0  linked: no pass on the original, or no outcome on the mutant

@@ -18,9 +18,10 @@ async function replay(
     passAt?: number;
     failAt?: number;
     marginCut?: number;
+    labelSets?: string;
   } = {},
 ) {
-  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = pointer.parseLabelSets(options.labelSets ?? pointer.AGENT_RULES_SET);
   if (!sets.ok) throw new Error(sets.message);
   const parsed = specs.map((text) => {
     const spec = pointer.parseLabelerSpec(text);
@@ -54,32 +55,46 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
-    // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
-    // runs still decides the unit.
-    expect(result.pointer?.refusals.length).toBe(3);
-    expect(
-      result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
-        .length,
-    ).toBeGreaterThan(0);
+    // The recorded labeller gave no answer the checks refuse in this record (the earlier records held a span no unit
+    // holds, a condition or a route with no usable target): the refusals of the replay are counted, and the vote of
+    // the other runs still decides a unit when one is refused. The pin is the count of this record.
+    expect(result.pointer?.refusals.length).toBe(0);
     // A unit is decided, or left unlabeled because no label had three runs out of five.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.voted).toBeGreaterThan(0);
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
       result.pointer?.plan.units,
     );
-    // Every answer of the cassette is read: one request per window, labeler and run, for the rules and for the
-    // document roles.
-    expect(cassette.entries.size).toBe((result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0));
+    // Every answer of the cassette is read. The default stack reads one request per window, labeler and run, for the
+    // rules and for the document roles; the replay of system 2 alone reads the five runs of system 2 on the document
+    // roles of each file, which the stack leaves to system 1; the replay of the default label sets reads the gate forms. Together they read every entry.
+    const read = new Set<string>();
+    const get = pointer.Cassette.prototype.get;
+    pointer.Cassette.prototype.get = function (this: pointer.Cassette, wire, readable) {
+      const entry = get.call(this, wire, readable);
+      read.add(entry.key);
+      return entry;
+    };
+    try {
+      await replay();
+      await replay(['system2:anthropic']);
+      // The gate forms are the second shipped set: the default label sets read their requests too.
+      await replay(pointer.DEFAULT_LABELER_SPECS, { labelSets: pointer.DEFAULT_LABEL_SETS });
+    } finally {
+      pointer.Cassette.prototype.get = get;
+    }
+    expect(read.size).toBe(cassette.entries.size);
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
-  });
+  }, 60_000);
 
-  // Skipped until board row "Re-land the gate-calls wording from #1045": the nested command spans come from #1045's
-  // gate-calls text, which #877 does not take (recorded with it, the fixture lost every routing row and four
-  // standing rules, regen run 39625632619); today R14 is a gate-command gate. Test id: packages/estate/test/pointer/
-  // fixture.test.ts > the fixture through its committed cassettes > builds the git status before commit gate from
-  // the recorded nested command spans. The re-land PR un-skips it.
+  // Skipped, parked: board row "Make the prose labeller stable across fresh draws" names R14 as its blocker. Five label
+  // designs (the #1045 gate-calls wording, a verb-alone second call, gate-command and gate-calls disjoint by tool, a
+  // same-tool check, buildable readings choosing the label inside its group) landed R14 as gate-calls with the second
+  // call "commit" in 3 or 4 of 5 fresh draws at best: the labeler splits R14 between gate-command and gate-calls draw
+  // to draw. None of them is in this branch. Test id: packages/estate/test/pointer/fixture.test.ts > the fixture
+  // through its committed cassettes > builds the git status before commit gate from the recorded nested command
+  // spans. The PR that lands R14 in 5 of 5 un-skips it.
   it.skip('builds the git status before commit gate from the recorded nested command spans', async () => {
     const { result } = await replay();
     const gate = result.map.atoms.find(

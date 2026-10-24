@@ -2,7 +2,7 @@ import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
 import { plantedRoutes } from './pointer/support';
-import { answer, estate, NOW, scanFixture } from './support';
+import { answer, estate, HAND_ROLES, NOW, scanFixture, scanPlantedFixture } from './support';
 
 const SETTINGS = (command: string) =>
   JSON.stringify(
@@ -36,7 +36,13 @@ async function oneRule(guard: string, registry?: string) {
       },
     ]),
   ]);
-  const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+  const { map } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    registryRoles: HAND_ROLES,
+    port,
+    now: NOW,
+  });
   const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
   const enforced = map.atoms.filter((atom) => atom.enforcement.length > 0).map((atom) => atom.title);
   return { map, enforces: guardAtom?.fields?.enforces, enforced };
@@ -159,7 +165,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
@@ -187,7 +199,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'id' }]);
   });
@@ -209,7 +227,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const rule = map.atoms.find((atom) => atom.kind === 'instruction');
     expect(rule?.fields?.spans).toEqual(['2>/dev/null', '|| true']);
   });
@@ -264,12 +288,12 @@ describe('the fixture graph', () => {
     const kinds: Record<string, number> = {};
     for (const edge of map.edges) kinds[edge.kind] = (kinds[edge.kind] ?? 0) + 1;
     expect(kinds).toEqual({
-      allows: 15,
+      allows: 16,
       dispatch: 1,
       enforces: 7,
       event: 6,
       next: 4,
-      reference: 7,
+      reference: 6,
       route: 13,
       script: 2,
     });
@@ -299,7 +323,9 @@ describe('the fixture graph', () => {
   });
 
   it('finds the orphan, the unreachable helper and the unenforced rules', async () => {
-    const { map, raw } = await scanFixture();
+    // Planted labels: what the graph does with the files and routes is the thing under test, whatever a labeller
+    // says. The rules and the unenforced ones are counted on the recorded labels below.
+    const { map, raw } = await scanPlantedFixture();
     const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
     expect(analysis.orphans).toEqual(['.claude/skills/invoice-reconcile/references/old-tolerances.md']);
     expect(analysis.unreachableFiles).toEqual(['.claude/agents/inbox-triager.md']);
@@ -307,11 +333,15 @@ describe('the fixture graph', () => {
       'reference.weekly-report.read-references-kpi-definitions-md',
     ]);
     expect(analysis.missingScripts).toEqual([]);
-    const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(51);
-    expect(analysis.unenforced).toHaveLength(44);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
+    const recorded = await scanFixture();
+    const counted = analyzeGraph(recorded.map.atoms, recorded.map.edges, recorded.raw.files);
+    const rules = recorded.map.atoms.filter((atom) =>
+      ['instruction', 'gate', 'register'].includes(atom.kind),
+    );
+    expect(rules).toHaveLength(51);
+    expect(counted.unenforced).toHaveLength(44);
   });
 });
 
@@ -336,6 +366,7 @@ describe('reachability', () => {
       const { map, raw } = await scanEstate({
         root,
         reader: new ClaudeCodeReader(),
+        registryRoles: HAND_ROLES,
         now: NOW,
         pointer: plantedRoutes({ 'take a note': ['route-skill', skillAtom] }),
       });
@@ -358,6 +389,7 @@ describe('dispatch edges', () => {
     const { map } = await scanEstate({
       root: await estate(files),
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       now: NOW,
       pointer: plantedRoutes(links, '.claude/skills/parcels/SKILL.md'),
     });

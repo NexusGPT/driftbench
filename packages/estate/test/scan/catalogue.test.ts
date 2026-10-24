@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, HAND_ROLES, NOW, readRaw } from '../support';
 import { CASES } from './cases';
 
 const RULES = [
@@ -63,7 +63,7 @@ describe('a catalogue of checks', () => {
         2,
       ),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.files.find((file) => file.path === '.claude/hooks/CATALOGUE.json')?.kind).toBe('registry');
     expect(
       raw.guards.map((guard) => [
@@ -95,6 +95,7 @@ describe('a catalogue of checks', () => {
     const { map, analysis } = await scanEstate({
       root,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       port: RULE_PORT,
       now: NOW,
     });
@@ -114,7 +115,10 @@ describe('a catalogue of checks', () => {
     });
     expect(analysis.orphans).toEqual([]);
     expect(
-      lintEstate(map, (await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW })).raw).counts,
+      lintEstate(
+        map,
+        (await scanEstate({ root, reader: new ClaudeCodeReader(), registryRoles: HAND_ROLES, now: NOW })).raw,
+      ).counts,
     ).toMatchObject({ REGISTRY_ROW: 0, REGISTRY_GUARD: 0, UNANCHORED_GUARD: 0, ORPHAN: 0 });
   });
 
@@ -124,7 +128,7 @@ describe('a catalogue of checks', () => {
       '.claude/checks.json': JSON.stringify({ K7: { event: 'Stop', status: 'enforce', watches: ['R1'] } }),
       '.claude/notes.json': JSON.stringify({ kind: 'note', text: 'hello' }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.files.map((file) => [file.path, file.kind])).toEqual([
       ['CLAUDE.md', 'standing'],
       ['.claude/checks.json', 'registry'],
@@ -136,7 +140,7 @@ describe('a catalogue of checks', () => {
   });
 
   it('lets a registry table name a catalogue check by its id', async () => {
-    const raw = await new ClaudeCodeReader().read(CASES);
+    const raw = await readRaw(CASES);
     expect(
       raw.guards.filter((guard) => guard.check).map((guard) => [guard.check?.id, guard.check?.state]),
     ).toEqual([
@@ -179,7 +183,7 @@ describe('a catalogue of checks', () => {
         K1: { kind: 'check', event: 'PreToolUse (Bash)', status: 'enforce', tagged: 'io' },
       }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     const checks = raw.guards.filter((guard) => guard.scope === 'catalogue');
     expect(checks.map((guard) => [guard.check?.id, guard.check?.trigger, guard.check?.host])).toEqual([
       ['K1', ['2>/dev/null', '|| true'], '.claude/hooks/pre.py'],

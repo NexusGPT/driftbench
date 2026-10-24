@@ -16,7 +16,15 @@ const declaredText = (atom: MapAtom) => {
   const ask = (atom.fields as { ask?: unknown } | undefined)?.ask;
   return typeof ask === 'string' ? ask : (ask as { text?: string } | undefined)?.text;
 };
-const ACTED = map.atoms.find((atom) => declaredText(atom) === 'propose a supplier email') as MapAtom;
+// The atom whose act the tests ask for is chosen by property, never by name: the first instruction atom (by id) of the
+// approved map that declares an ask. A record that draws other spans moves the choice, and the tests follow it.
+const ACTED = [...map.atoms]
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .find((atom) => atom.kind === 'instruction' && declaredText(atom) !== undefined) as MapAtom;
+if (ACTED === undefined) throw new Error('no instruction atom of the approved map declares an ask');
+const ACT = declaredText(ACTED) as string;
+const SITUATION = ((ACTED.fields as { ask?: { context?: string } } | undefined)?.ask?.context ??
+  ACTED.situation) as string;
 const OTHER = map.atoms.find((atom) => atom.id !== ACTED?.id && declaredActs(atom).length > 0) as MapAtom;
 // An atom whose act is its labelled governed-action span, and one that declares no act at all.
 const governed = (atom: MapAtom) =>
@@ -27,8 +35,9 @@ const GATED = map.atoms.find((atom) => governed(atom) && !(atom.fields as { ask?
 // An atom with no declared act text, no trigger and no quote (fictional): it has no act.
 const BARE: MapAtom = { id: 'instruction.bare', kind: 'instruction', title: 'Keep the desk tidy' };
 const QUOTED = map.atoms.find((atom) => typeof atom.provenance?.quote === 'string') as MapAtom;
-const ASK = 'Please propose a supplier email.';
-const NOT_SET_OFF = 'Please propose a supplier e-mail.';
+const ASK = `Please ${ACT}.`;
+// One character away from the act: the fake does not set it off.
+const NOT_SET_OFF = `Please ${ACT.slice(0, -1)}.`;
 const MISS = 'the fake does not set off its act';
 const code = (askFrom?: string) => ({ ask: 'code', ...(askFrom === undefined ? {} : { askFrom }) });
 
@@ -91,11 +100,11 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect(ACTED).toBeDefined();
     const { setOff } = await fake();
     expect(setOff(ASK)).toEqual([ACTED.id]);
-    const late = 'Please propose a supplier email. When a shipment is late by more than two days.';
+    const late = `${ASK} ${SITUATION}.`;
     expect(setOff(late)).toEqual([ACTED.id]);
     expect(setOff(NOT_SET_OFF)).toEqual([]);
     // A situation slot takes a situation of the map, byte for byte, and nothing else.
-    expect(setOff('Please propose a supplier email. When a shipment is late.')).toEqual([]);
+    expect(setOff(`${ASK} ${SITUATION.split(' ').slice(0, -1).join(' ')}.`)).toEqual([]);
     const span = declaredActs(GATED)[0]?.text;
     expect(span).toBeDefined();
     expect(setOff(`Please handle this for me: ${span}.`)).toContain(GATED.id);
@@ -145,7 +154,8 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 
   // The reviewer's bypass (comment 6322228753): a real act, cited on a row it does not belong to.
   it('refuses an act that is no source of the row the plan names, and a spec that names no plan row', async () => {
-    const triager = 'instruction.inbox-triager.you-sort-messages-into-three-folders';
+    const triager = map.atoms.find((atom) => atom.kind === 'instruction' && atom.id !== ACTED.id)
+      ?.id as string;
     const out = await verdict([spec(ASK, code(`${ACTED.id} (ask)`), [triager])]);
     expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('no source of its row') });
     const unplanned = spec(ASK, code(`${ACTED.id} (ask)`));
@@ -171,8 +181,7 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect((await verdict([spec(undefined, code('neutral'))]))?.pass).toBe(false);
   });
 
-  const HYPOTHETICAL =
-    'No need to do anything: just tell me in one sentence what it would mean to propose a supplier email.';
+  const HYPOTHETICAL = `No need to do anything: just tell me in one sentence what it would mean to ${ACT}.`;
 
   it('lists a hypothetical frame apart: the fake does not set off its atom, and it never counts as the act', async () => {
     const { setOff, match } = await fake();

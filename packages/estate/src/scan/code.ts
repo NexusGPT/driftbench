@@ -581,6 +581,9 @@ type MarkdownToken = { start: number; end: number; tokenStart: number; tokenEnd:
 function markdownTokens(line: string): { codes: MarkdownToken[]; links: MarkdownToken[] } {
   const codes: MarkdownToken[] = [];
   const links: MarkdownToken[] = [];
+  // A code span needs a backtick and a link token here starts at a bracket: a line with neither has no token, and
+  // the parse, the costliest step of a scan over many units, is skipped.
+  if (!line.includes('`') && !line.includes('[')) return { codes, links };
   const visit = (node: MarkdownNode, insideLink: boolean): void => {
     const from = node.position?.start.offset;
     const to = node.position?.end.offset;

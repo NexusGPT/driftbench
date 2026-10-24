@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader } from '../../src/index';
-import { estate } from '../support';
+import { estate, readRaw } from '../support';
 
 describe('registry rule value normalization', () => {
   it.each([
@@ -25,7 +25,7 @@ describe('registry rule value normalization', () => {
         2,
       ),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry[0]?.enforces).toEqual(expected);
   });
 });
