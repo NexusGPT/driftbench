@@ -39,7 +39,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | unit.runner | 41 | generation | docs/estate.md section 6, "Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone", and "Guard messages and timing"; the command written in docs/estate.md section 6 and docs/reference/cli.md |
 | estate.stats | 37 | generation | docs/estate.md section 7, "Not built yet: coverage lines per atom kind" (tested over atoms, enforced over atoms), reach, decay and `drift.guards` with its finding note; the command written in docs/estate.md section 7, "The coverage command: `estate stats`", and docs/reference/cli.md |
 | mutant.agent | 44 | agent mutants | docs/estate.md section 6, estate mutants (adequacy: a deleted atom fails a test) |
-| kill.fake | 31 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
+| kill.fake | 30 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
 | maintain.impact | 33 | maintenance | docs/estate.md section 8, `estate diff` and `estate impact` |
 | maintain.fixture | 20 | maintenance | docs/estate.md section 8, `estate impact` on real versions of the fixture |
 | scale | 20 | scale | docs/validators.md 12.6 (estates of 5000 atoms). No product page sets a time budget; the bench run timed the Cue estate (5,964 atoms) |
