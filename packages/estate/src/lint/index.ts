@@ -1,4 +1,5 @@
 export {
+  type FindingsCut,
   INFORMATION,
   LINT_CHECKS,
   LINT_CODES,
@@ -8,4 +9,5 @@ export {
   type LintResult,
   type LintSummary,
   lintEstate,
+  summariseLint,
 } from './lint';

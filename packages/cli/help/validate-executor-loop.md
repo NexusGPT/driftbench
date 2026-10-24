@@ -152,6 +152,10 @@ The rules the append enforces:
 * `executor` is optional: `builder` (the default) or `blind` (the audit's blind pilot). Each executor keeps
   its own iteration count: the builder from 0, the blind executor from 0, or from 1 when it starts from the
   builder's iteration 0.
+* `pilotRound` is optional: a short id (`r2`, `r4`) of the pilot round the row belongs to. An audit runs a
+  pilot again when the bank has grown, and the count of iterations starts again in a new round: the first row
+  of a round is iteration 0 or 1 whatever earlier rounds hold. A row with no `pilotRound` belongs to the
+  unnamed round, which counts as before.
 * Bank fields: `passing` at most `bankSize`; `failingByFamily` sums to `bankSize` minus `passing`;
   `bankByFamilyTier` (optional, tiers `"1"` to `"5"` or `"none"`) sums to `bankSize`; `failingCauses`
   (optional) is at most the failing items and at least 1 when any item fails, except that it may be 0
@@ -241,6 +245,11 @@ The measurement that decides whether a validator is hard enough to merge (`docs/
   or a line `<check>: <verdict> <note>`; a check the file does not name prints as missing.
 * When the journal holds blind rows, the blind pilot gives the forecast, the score and the causes, both
   pilots print side by side, and a builder pilot more than 1.5 times slower is flagged.
+* With more than one pilot round, the measurement reads the latest complete round of each executor (all ten
+  pilot rows present), else its latest round, and prints `Pilot round measured: <id>` with the rounds of
+  the journal. The bank hashes, the losses and the catch items of an older round are not read. A newer round
+  that is still running is flagged. `--json` carries `pilot.round`, `pilots.<executor>.round` and
+  `pilotRounds`.
 
 Exit 0 when the gate holds, 1 when it does not, 64 when the journal has an invalid line or no iteration 0.
 `--json` prints `{ component, ... }` with the same measurement.
