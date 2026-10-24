@@ -233,15 +233,19 @@ const «scan» = («root», «prior») => {
   // The objects met in this scan, by the order they were first met, up to a cap (the arguments of the scale items hold
   // millions of rows, and a map of them costs more than the scan).
   const «known» = new Map();
-  const «dataHash» = «call»(«hashStart», undefined, ['sha256']);
-  const «otherHash» = «call»(«hashStart», undefined, ['sha256']);
+  // Small snapshots compare their unambiguous text directly. Most retained results fit here: do not create two
+  // native hash contexts for every unchanged result on every call. Large/binary snapshots still use bounded hashes.
+  let «dataHash»;
+  let «otherHash»;
   let «dataText» = '';
   let «otherText» = '';
   const «dataFlush» = () => {
+    «dataHash» ??= «call»(«hashStart», undefined, ['sha256']);
     if («dataText».length > 0) «call»(«hashUpdate», «dataHash», [«dataText»]);
     «dataText» = '';
   };
   const «otherFlush» = () => {
+    «otherHash» ??= «call»(«hashStart», undefined, ['sha256']);
     if («otherText».length > 0) «call»(«hashUpdate», «otherHash», [«otherText»]);
     «otherText» = '';
   };
@@ -255,7 +259,9 @@ const «scan» = («root», «prior») => {
   };
   // The objects on the way down to the value being walked, by depth: a value met again below itself is a cycle. No
   // set of every object met: the arguments of the scale items hold millions.
-  const «ancestors» = new Array(1002);
+  const «ancestors» = [];
+  // A parent flushes its numeric run before descending, so every array in this scan can share one scratch buffer.
+  let «numericRun»;
   // A stable number for a function, a prototype or an object: the same one the next time it is met.
   const «idOf» = («thing») => {
     try {
@@ -372,7 +378,9 @@ const «scan» = («root», «prior») => {
           // items are millions of numbers, and a scan of them runs before and after every call.
           const «length» = «value».length;
           «put»('A' + «length» + '[');
-          const «run» = new «floatArray»(4096);
+          const «binary» = «length» >= 64;
+          if («binary») «numericRun» ??= new «floatArray»(4096);
+          const «run» = «numericRun»;
           let «runLength» = 0;
           const «flushRun» = () => {
             if («runLength» === 0) return;
@@ -395,7 +403,7 @@ const «scan» = («root», «prior») => {
               «put»('G;');
             } else {
               if (!«cell».writable || !«cell».enumerable || !«cell».configurable) «putOther»('f' + «i» + ':' + («cell».writable ? 1 : 0) + («cell».enumerable ? 1 : 0) + («cell».configurable ? 1 : 0) + ';');
-              if (typeof «cell».value === 'number') {
+              if («binary» && typeof «cell».value === 'number') {
                 «run»[«runLength»] = «cell».value;
                 «runLength» += 1;
                 if («runLength» === 4096) «flushRun»();
@@ -451,13 +459,15 @@ const «scan» = («root», «prior») => {
     }
   };
   «walk»(«root», 0, false);
-  «dataFlush»();
-  «otherFlush»();
-  return { data: «call»(«hashDigest», «dataHash», ['hex']), other: «call»(«hashDigest», «otherHash», ['hex']), known: «known» };
+  let «data» = 't:' + «dataText»;
+  let «other» = 't:' + «otherText»;
+  if («dataHash» !== undefined) { «dataFlush»(); «data» = 'h:' + «call»(«hashDigest», «dataHash», ['hex']); }
+  if («otherHash» !== undefined) { «otherFlush»(); «other» = 'h:' + «call»(«hashDigest», «otherHash», ['hex']); }
+  return { data: «data», other: «other», known: «known» };
 };
 const «fingerprint» = («root») => {
   const «parts» = «scan»(«root»);
-  return «parts».data + «parts».other;
+  return «parts».data.length + ':' + «parts».data + «parts».other;
 };
 // What changed in a kept result, for the report (batch 44 of PR 986: a report that named only the call could not be
 // diagnosed). «was» and «now» are the encoded answers (data, as the caller receives it): the first path where they
@@ -609,6 +619,10 @@ if («setup».command) {
       }
     }
   }
+  for (let «r» = 0; «r» < «builtins».length; «r» += 1) {
+    const «record» = «builtins»[«r»];
+    «record».name = «record».thing === «globalObject» ? 'the global object' : «pathOf»(«record»);
+  }
   // Two descriptors are the same: the same kind, flags, and value or accessor functions. Only own fields are read.
   const «sameDescriptor» = («x», «y») => {
     const «xData» = «hasOwn»(«x», 'value');
@@ -619,7 +633,7 @@ if («setup».command) {
   // The first change in one recorded object, by its path, or undefined.
   const «changeOf» = («was») => {
     const «global» = «was».thing === «globalObject»;
-    const «named» = «global» ? 'the global object' : «pathOf»(«was»);
+    const «named» = «was».name;
     if («protoOf»(«was».thing) !== «was».proto) return 'the prototype of ' + «named»;
     if («isExt»(«was».thing) !== «was».ext) return 'the extensibility of ' + «named»;
     const «keysNow» = «ownKeys»(«was».thing);
@@ -689,7 +703,7 @@ if («setup».command) {
       const «used» = «cpuNow»(«before»);
       const «ret» = «encode»(«result»);
       const «after» = «afterState»();
-      const «written» = «strict» && «fingerprint»(«args») !== «argsBefore».data + «argsBefore».other;
+      const «written» = «strict» && «fingerprint»(«args») !== («argsBefore».data.length + ':' + «argsBefore».data + «argsBefore».other);
       const «moved» = [];
       const «evidence» = [];
       let «movedCount» = 0;
@@ -699,7 +713,7 @@ if («setup».command) {
         for (let «i» = 0; «i» < «kept»; «i» += 1) {
           const «each» = «recent»[«i»];
           const «parts» = «scan»(«each».live);
-          const «now» = «parts».data + «parts».other;
+          const «now» = «parts».data.length + ':' + «parts».data + «parts».other;
           // A change is reported by the one call after which it is seen, not again by the calls that follow, with what
           // changed: the evidence is part of the report.
           if («now» !== «each».digest) {
@@ -718,7 +732,7 @@ if («setup».command) {
           // A digest of every result, whatever its size: a result padded with an unused large field is watched too.
           «sawInvalid» = false;
           const «parts» = «scan»(«result»);
-          const «digest» = «parts».data + «parts».other;
+          const «digest» = «parts».data.length + ':' + «parts».data + «parts».other;
           if («sawInvalid») «invalid» = true;
           else if (typeof «result» === 'object') {
             «recent»[«stored» % 16] = {
