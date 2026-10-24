@@ -287,11 +287,42 @@ export const EstateMap = z.strictObject({
     .describe(
       'true when the scan read a user-level skill layer; lint then needs the folder to read it again',
     ),
+  settings: z
+    .literal(true)
+    .optional()
+    .describe(
+      'true when the scan read a rendered copy of the settings handed over beside the estate; lint then needs the file to read it again',
+    ),
   followedLinks: z
     .array(z.string().min(1))
     .optional()
     .describe(
       'Links, relative to the estate root, that the scan read through to a real path outside the root',
+    ),
+  coverage: z
+    .strictObject({
+      covered: z
+        .number()
+        .int()
+        .min(0)
+        .describe('Files under the estate root a part type covers or a reference of the estate reached.'),
+      unknown: z
+        .array(z.string().min(1))
+        .describe(
+          'Files under the estate root no part type covers, root-relative and sorted: no check read them.',
+        ),
+      skipped: z
+        .array(
+          z.strictObject({
+            what: z.string().min(1).describe('A path, or the ignore glob that skipped paths.'),
+            reason: z.string().min(1).describe('Why: estate-config, too-large or ignored.'),
+          }),
+        )
+        .describe('What the scan left out on purpose.'),
+    })
+    .optional()
+    .describe(
+      'What the scan covered among the files under the root. Lint never calls an estate clean while a file is unknown.',
     ),
   producedBy: z
     .strictObject({

@@ -12,6 +12,7 @@ export {
   type RoutingRule,
   type RuntimeProfile,
   registerRuntimeProfile,
+  renderedSettingsFile,
   runtimeProfile,
   runtimeProfileNames,
   type SettingsSource,

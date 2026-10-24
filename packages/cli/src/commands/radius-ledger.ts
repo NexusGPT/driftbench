@@ -1,10 +1,11 @@
-import { readFile, stat } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { loadEstateMap, pointer, readerFor } from '@agent-nexus/driftbench-estate';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { loadEstateMap, pointer, readerFor, resolveMapRoot } from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
 import { stringify } from 'yaml';
 import { show, writeOut } from '../files';
 import type { Io } from '../io';
+import { rootRefusal } from './map-root';
 
 export type RadiusLedgerOptions = {
   ledger?: string;
@@ -59,11 +60,12 @@ export async function radiusLedgerCommand(
     io.err(`The map was read by the runtime "${map.runtime}", which this driftbench cannot read.\n`);
     return 2;
   }
-  const root = resolve(dirname(file), map.root);
-  if (!(await isFolder(root))) {
-    io.err(`Cannot find the estate folder ${show(root, io)} the map names.\n`);
+  const located = await resolveMapRoot(file, map);
+  if (!located.ok) {
+    io.err(rootRefusal(file, located, io));
     return 2;
   }
+  const root = located.root;
   let ledgerPath = options.ledger === undefined ? undefined : resolve(io.cwd, options.ledger);
   if (ledgerPath === undefined) {
     // The ledger the settings file of the estate names, relative to the estate folder.
@@ -127,10 +129,6 @@ export async function radiusLedgerCommand(
   );
   io.out(`Wrote ${options.out}.\n`);
   return 0;
-}
-
-async function isFolder(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined))?.isDirectory() === true;
 }
 
 const count = (n: number, one: string, many: string): string => `${n} ${n === 1 ? one : many}`;

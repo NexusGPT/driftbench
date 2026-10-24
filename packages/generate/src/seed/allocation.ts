@@ -28,9 +28,16 @@ function deficit(counts: Iterable<number>): number {
  * No stage, deviation class or behaviour is placed fewer than a third as often as the most placed value of
  * its stratum. The allocation is generation-local: it reads only the suite written so far.
  */
-/** The most rounds of allocation top-ups, and the most rounds in a row that may reach no new low of the imbalance. */
+/**
+ * The most rounds of allocation top-ups, and two ways to stop early, whichever comes first: `MAX_STALLED` rounds in a
+ * row that reach no new low of the imbalance, or rounds since the lowest imbalance that have added more specs than the
+ * suite held there (`MAX_GROWTH` times). A map whose strata cannot be balanced (a class that every added walk probes
+ * more often than the class that falls behind) only rises, and each round is hundreds of specs for nothing; the growth
+ * bound ends it after one round past the doubling, where the stall count alone takes 8 rounds of 700 specs.
+ */
 export const MAX_ROUNDS = 40;
 export const MAX_STALLED = 8;
+export const MAX_GROWTH = 1;
 
 export class Allocation {
   private stageSerial = 0;
@@ -75,17 +82,36 @@ export class Allocation {
     blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[],
     perturbations?: readonly PerturbationSpec[],
     behaviours: readonly string[] = [],
+    delta = 1,
   ): void {
     for (const stage of this.events(blocks, perturbations))
-      this.stages.set(stage, (this.stages.get(stage) ?? 0) + 1);
+      this.stages.set(stage, (this.stages.get(stage) ?? 0) + delta);
     for (const cls of [
       ...blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
       ...(perturbations ?? []).map((entry) => entry.class),
     ])
-      if (this.classes.has(cls)) this.classes.set(cls, (this.classes.get(cls) ?? 0) + 1);
+      if (this.classes.has(cls)) this.classes.set(cls, (this.classes.get(cls) ?? 0) + delta);
     for (const counts of this.behaviours.values())
       for (const value of new Set(behaviours))
-        if (counts.has(value)) counts.set(value, (counts.get(value) ?? 0) + 1);
+        if (counts.has(value)) counts.set(value, (counts.get(value) ?? 0) + delta);
+  }
+
+  /** Takes out the counts `observe` added for the same walk, so the suite is seen without it. */
+  unobserve(
+    blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[],
+    perturbations?: readonly PerturbationSpec[],
+    behaviours: readonly string[] = [],
+  ): void {
+    this.observe(blocks, perturbations, behaviours, -1);
+  }
+
+  /** The behaviours a draft covers, as the allocation counts them. */
+  behavioursOf(draft: SpecDraft): string[] {
+    return draft.cell.flatMap(([dimension, value]) =>
+      this.behaviours.has(dimension)
+        ? [this.prepared.space.dimensions[dimension]?.values[value]?.id ?? NONE]
+        : [],
+    );
   }
 
   /** Counts a draft once, however many seeders and writers see it. Drafts with a gap count nothing. */
@@ -93,12 +119,12 @@ export class Allocation {
     if (this.observed.has(draft)) return;
     this.observed.add(draft);
     if (draft.blocks.some((block) => block.stimulus.kind === 'placeholder')) return;
-    const behaviours = draft.cell.flatMap(([dimension, value]) =>
-      this.behaviours.has(dimension)
-        ? [this.prepared.space.dimensions[dimension]?.values[value]?.id ?? NONE]
-        : [],
-    );
-    this.observe(draft.blocks, draft.perturbations, behaviours);
+    this.observe(draft.blocks, draft.perturbations, this.behavioursOf(draft));
+  }
+
+  /** Counts a draft as it stands now (delta 1), or takes that count out again (delta -1): the suite-wide pass moves walks in and out. */
+  countDraft(draft: SpecDraft, delta: 1 | -1): void {
+    this.observe(draft.blocks, draft.perturbations, this.behavioursOf(draft), delta);
   }
 
   /** Counts a spec written by code that builds specs, not drafts (the task seeder). */
@@ -118,15 +144,27 @@ export class Allocation {
     blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[];
     perturbations?: readonly PerturbationSpec[];
   }): number {
+    return this.imbalanceWithAll([draft]);
+  }
+
+  /** The imbalance as it would stand with the events of all these walks added. */
+  imbalanceWithAll(
+    drafts: ReadonlyArray<{
+      blocks: readonly Pick<BlockDraft, 'stage' | 'injection'>[];
+      perturbations?: readonly PerturbationSpec[];
+    }>,
+  ): number {
     const stages = new Map(this.stages);
-    for (const stage of this.events(draft.blocks, draft.perturbations))
-      stages.set(stage, (stages.get(stage) ?? 0) + 1);
     const classes = new Map(this.classes);
-    for (const cls of [
-      ...draft.blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
-      ...(draft.perturbations ?? []).map((entry) => entry.class),
-    ])
-      if (classes.has(cls)) classes.set(cls, (classes.get(cls) ?? 0) + 1);
+    for (const draft of drafts) {
+      for (const stage of this.events(draft.blocks, draft.perturbations))
+        stages.set(stage, (stages.get(stage) ?? 0) + 1);
+      for (const cls of [
+        ...draft.blocks.flatMap((block) => (block.injection ? [block.injection] : [])),
+        ...(draft.perturbations ?? []).map((entry) => entry.class),
+      ])
+        if (classes.has(cls)) classes.set(cls, (classes.get(cls) ?? 0) + 1);
+    }
     return deficit(stages.values()) + deficit(classes.values());
   }
 
@@ -354,9 +392,11 @@ export class Allocation {
     classes: Pick<DeviationBalance, 'topUps'>,
   ): Generator<SpecDraft> {
     // A fill can undo another (a probe for a class crosses stages), so the rounds go on until nothing is left to
-    // balance. They stop when a round writes nothing, or when MAX_STALLED rounds in a row reach no new low of the
-    // imbalance, or after MAX_ROUNDS rounds: a map whose strata cannot be balanced is cut, not grown without end.
+    // balance. They stop when a round writes nothing, after MAX_ROUNDS rounds, after MAX_STALLED rounds in a row without a
+    // new low, or when the rounds since the lowest imbalance have added more specs than the suite held there
+    // (MAX_GROWTH), whichever comes first: a map whose strata cannot be balanced is cut, not grown without end.
     let best = this.imbalance();
+    let heldAtBest = written();
     let stalled = 0;
     for (let round = 0; round < MAX_ROUNDS && this.imbalance() > 0; round += 1) {
       const before = written();
@@ -367,10 +407,11 @@ export class Allocation {
       const now = this.imbalance();
       if (now < best) {
         best = now;
+        heldAtBest = written();
         stalled = 0;
       } else {
         stalled += 1;
-        if (stalled >= MAX_STALLED) break;
+        if (stalled >= MAX_STALLED || written() - heldAtBest > MAX_GROWTH * heldAtBest) break;
       }
     }
   }

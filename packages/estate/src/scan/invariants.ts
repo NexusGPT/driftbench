@@ -1,4 +1,10 @@
-import { type CheckDeclaration, type CheckOutcome, checkOutcome } from '@agent-nexus/driftbench-core';
+import {
+  type CheckCapability,
+  type CheckDeclaration,
+  type CheckOutcome,
+  checkOutcome,
+  runCheck,
+} from '@agent-nexus/driftbench-core';
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { type PointerInput, type PointerResult, pointerAtoms, pointerScan } from '../pointer';
 import type { Atom } from '../schema';
@@ -190,6 +196,10 @@ export const INVARIANT_CHECKS: readonly CheckDeclaration[] = [
  * The outcome of each invariant check with what it read: the standing files, the files, the guards, the
  * registry rows. A check with nothing to read did not run (`not-run`), where its atom is simply absent.
  */
+function capabilities(raw: RawEstate): Set<CheckCapability> {
+  return new Set<CheckCapability>(raw.guards.length > 0 ? ['model-map', 'guards'] : ['model-map']);
+}
+
 export function invariantOutcomes(raw: RawEstate, state: InvariantState): CheckOutcome<string>[] {
   return [
     checkOutcome('standing_size', {
@@ -198,10 +208,10 @@ export function invariantOutcomes(raw: RawEstate, state: InvariantState): CheckO
     }),
     checkOutcome('no_orphans', { read: raw.files.length, findings: state.orphans }),
     checkOutcome('guard_paths_anchored', { read: raw.guards.length, findings: state.unanchored }),
-    checkOutcome('registry_complete', {
+    runCheck({ id: 'registry_complete', requires: ['guards'] }, capabilities(raw), () => ({
       read: raw.registry.length,
       findings: [...state.guardsWithoutRow, ...state.rowsWithoutGuard],
-    }),
+    })),
   ];
 }
 
@@ -268,7 +278,13 @@ export function invariantAtoms(raw: RawEstate, builder: AtomBuilder, state: Inva
           check: 'registry_complete',
           guardsWithoutRow: state.guardsWithoutRow,
           rowsWithoutGuard: state.rowsWithoutGuard,
-          holds: state.guardsWithoutRow.length === 0 && state.rowsWithoutGuard.length === 0,
+          // A registry compared with no guard at all proves nothing: it does not hold, and says how many guards
+          // it read. A guard from any source counts: the settings, or the frontmatter of a skill.
+          ...(raw.guards.length > 0 ? {} : { guardsRead: 0 }),
+          holds:
+            raw.guards.length > 0 &&
+            state.guardsWithoutRow.length === 0 &&
+            state.rowsWithoutGuard.length === 0,
         },
       }),
     );

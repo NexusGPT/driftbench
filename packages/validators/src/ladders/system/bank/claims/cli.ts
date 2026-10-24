@@ -2733,8 +2733,10 @@ add({
   cause: 'validate runs seed 1 by default and expands --seeds a..b into every seed of the range.',
   flags: true,
   async run(ctx) {
-    const plain = await cli(['validate', 'stats', '--json'], ctx.root);
-    const range = await cli(['validate', 'stats', '--seeds', '1..3', '--json'], ctx.root);
+    // Level 1 only (the run is scoped to its items, PR 1471): the claim is the seeds a run covers, and a whole
+    // statistics seed runs its bank under the frame for minutes (PR 986, batch 51d: level 10 passed its 30 minutes).
+    const plain = await cli(['validate', 'stats', '--levels', '1..1', '--json'], ctx.root);
+    const range = await cli(['validate', 'stats', '--seeds', '1..3', '--levels', '1..1', '--json'], ctx.root);
     const seeds = (r: Cli) => JSON.stringify(json<{ seeds?: unknown[] }>(r.out)?.seeds ?? null);
     const flat = (r: Cli) =>
       (json<{ seeds?: Array<number | { seed: number }> }>(r.out)?.seeds ?? [])

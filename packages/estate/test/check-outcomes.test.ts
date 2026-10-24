@@ -15,13 +15,19 @@ describe('lint and invariant outcomes with coverage', () => {
       'PERMISSION_READ_BYPASS',
       'PERMISSION_BYPASS_MODE',
     ]);
+    // Every check did not run. The registry checks say why by what the run lacked (a guard).
+    const wiring = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
     expect(result.outcomes.map((outcome) => [outcome.check, outcome.status, outcome.notRun])).toEqual(
       result.outcomes.map((outcome) => [
         outcome.check,
         'not-run',
-        needsSettings.has(outcome.check) ? 'missing-capability' : 'no-input',
+        wiring.has(outcome.check) || needsSettings.has(outcome.check) ? 'missing-capability' : 'no-input',
       ]),
     );
+    for (const outcome of result.outcomes)
+      expect(outcome.coverage.missing).toEqual(
+        wiring.has(outcome.check) ? ['guards'] : needsSettings.has(outcome.check) ? ['settings'] : [],
+      );
   });
 
   it('fails the checks the fixture plants defects for, and reports what each read', async () => {

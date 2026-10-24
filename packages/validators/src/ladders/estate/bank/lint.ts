@@ -10,6 +10,8 @@ import {
 } from './common';
 import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
+import { REPORT_CASES } from './lint-report';
+import { SETTINGS_CASES } from './lint-settings';
 import { type Planted, PlantedEstate, type ScanOutcome } from './planted';
 
 /**
@@ -88,7 +90,14 @@ type Build = {
   /** Counts the reference atoms an item plants, for their hidden ids. */
   counted: number;
 };
-type Case = { key: string; tier: Tier; title: string; plant(build: Build): Expected[] };
+type Case = {
+  key: string;
+  tier: Tier;
+  title: string;
+  plant(build: Build): Expected[];
+  /** An item that judges a rule of the report by itself, not a planted defect. */
+  judge?(): Promise<ItemResult>;
+};
 
 function skill(
   build: Build,
@@ -496,6 +505,8 @@ const DEFECTS: Case[] = [
       ];
     },
   },
+  ...REPORT_CASES.map((item): Case => ({ ...item, plant: () => [] })),
+  ...SETTINGS_CASES.map((item): Case => ({ ...item, plant: () => [] })),
 ];
 
 const CLEAN: Case[] = [
@@ -811,6 +822,7 @@ const CLEAN: Case[] = [
 ];
 
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
+  if (item.judge) return item.judge();
   const estate = new PlantedEstate();
   const owner = `${family}.${item.key}`;
   const build: Build = {

@@ -1,8 +1,7 @@
-import { analysePilot } from '@agent-nexus/driftbench-generate';
 import type { Observation } from '@agent-nexus/driftbench-stats';
 import { generator, normal } from '../draw';
+import { plantShares } from '../plant-shares';
 import type { StatsImpl } from '../reference';
-import { plantShares } from '../shares';
 import { attempt, type BankItem, fail, near, ok, show } from './item';
 
 /**
@@ -86,22 +85,29 @@ export function reproducibilityItems(): BankItem[] {
             `mulberry32(${MULBERRY.seed}) first five values ${show(got)}; ladder version 2 pinned ${show(want)}. A changed generator changes every seeded interval and report.`,
           );
     }),
-    item('reproducibility.analyse-pilot-same-seed', 'packages/generate/src/pilot/analyse.ts', ({ seed }) => {
-      const { observations } = plantShares(generator(seed, 99), {
-        datasets: 1,
-        cells: 4,
-        conversations: 3,
-        wordings: 2,
-        repeats: 2,
-        logitMean: 0.5,
-        logitSd: { cell: 0.6, conversation: 0.8, wording: 0.6 },
-      });
-      const a = analysePilot(observations, { seed: 7, iterations: 50 });
-      const b = analysePilot(observations, { seed: 7, iterations: 50 });
-      return same(a, b)
-        ? ok()
-        : fail('analysePilot on the same observations with seed 7 gave two different analyses.');
-    }),
+    item(
+      'reproducibility.analyse-pilot-same-seed',
+      'packages/generate/src/pilot/analyse.ts',
+      async ({ seed }) => {
+        // The one item of this bank that runs another package of the repository (generate, which imports the statistics
+        // package): loaded here, when the item runs, and not at the start of the bank child.
+        const { analysePilot } = await import('@agent-nexus/driftbench-generate');
+        const { observations } = plantShares(generator(seed, 99), {
+          datasets: 1,
+          cells: 4,
+          conversations: 3,
+          wordings: 2,
+          repeats: 2,
+          logitMean: 0.5,
+          logitSd: { cell: 0.6, conversation: 0.8, wording: 0.6 },
+        });
+        const a = analysePilot(observations, { seed: 7, iterations: 50 });
+        const b = analysePilot(observations, { seed: 7, iterations: 50 });
+        return same(a, b)
+          ? ok()
+          : fail('analysePilot on the same observations with seed 7 gave two different analyses.');
+      },
+    ),
   );
   // Order invariance: shuffle the input, the answer stays (to 1e-12).
   type Inv = [string, string, (s: StatsImpl, rng: () => number) => [unknown, unknown]];
