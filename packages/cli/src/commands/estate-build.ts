@@ -135,6 +135,10 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
     .option('--ignore <glob>', 'skip the paths this glob matches; repeat it', collect)
     .option(
+      '--settings <file>',
+      'read this rendered copy of the settings, for an estate whose install step writes them and so does not store them',
+    )
+    .option(
       '--pointer',
       'read the prose with the pointer reader, and keep a ledger of unit ids in the folder',
     )
@@ -220,6 +224,7 @@ export async function estateBuildCommand(
   const replay = options.replay ? resolve(io.cwd, options.replay) : undefined;
   const cassette = options.cassette ? resolve(io.cwd, options.cassette) : undefined;
   const labels = options.labels ? resolve(io.cwd, options.labels) : undefined;
+  const settings = options.settings ? resolve(io.cwd, options.settings) : undefined;
   const scanInput = sha(
     JSON.stringify([
       await folderHash(root, out),
@@ -232,6 +237,7 @@ export async function estateBuildCommand(
       replay ? await fileHash(replay) : null,
       cassette ? await fileHash(cassette) : null,
       labels ? await fileHash(labels) : null,
+      settings ? await fileHash(settings) : null,
     ]),
   );
   const scanned = stamp.stages.scan;
@@ -248,6 +254,7 @@ export async function estateBuildCommand(
       ...(options.model === false ? { model: false } : {}),
       ...(options.provider ? { provider: options.provider } : {}),
       ...(options.ignore ? { ignore: options.ignore } : {}),
+      ...(settings ? { settings } : {}),
       ...(options.pointer
         ? {
             pointer: true,
@@ -436,7 +443,7 @@ export async function estateBuildCommand(
   }
 
   // 6. Check the estate: the lint of the approved map, which the scan alone never shows.
-  const lint = await lintMap(file('approved.yaml'), {}, io);
+  const lint = await lintMap(file('approved.yaml'), settings ? { settings } : {}, io);
   if (!lint.ok) return lint.code;
   const found = lintTotals(lint.result);
   io.out(

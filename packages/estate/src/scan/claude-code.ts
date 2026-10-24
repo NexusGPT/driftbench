@@ -7,18 +7,22 @@ import {
   type PartType,
   parseTypes,
   pathWithin,
+  renderedSettingsFile,
   type SkippedInput,
+  staticSettingsFiles,
   type TypeSet,
   variablePrefix,
 } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import {
   comparableName,
+  expandVariables,
   leavesRoot,
   listFolder,
   readdir,
   readFile,
   realpath,
+  rootRelative,
   sameName,
   stat,
 } from '../fs/estate-fs';
@@ -76,6 +80,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 
 /** The runtime profile this reader reads by: its layout, its part types, the variables. */
 const PROFILE = CLAUDE_CODE_PROFILE;
+/** The place a rendered copy of the settings stands in, when the profile takes one. */
+const RENDERED_SETTINGS = renderedSettingsFile(PROFILE);
 const LAYOUT = PROFILE.layout.root;
 /** The types the profile maps to a kind of the map, by that kind, in the profile's order. */
 const typesOfKind = (kind: string): PartType[] =>
@@ -135,6 +141,8 @@ const INTERPRETERS = new Set([
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
 const DISPATCH_EXTENSIONS = ['.py', '.sh', '.bash', '.js', '.mjs', '.cjs', '.ts', '.rb', '.pl'];
 const ANCHOR = variablePrefix([...PROFILE.pathVariables.project, ...PROFILE.pathVariables.plugin]);
+/** A path written from the home folder: the profile's home variables, or an unquoted `~/`. */
+const HOME_FORM = new RegExp(`(?:${variablePrefix(PROFILE.pathVariables.home).source})|^~\\/`);
 
 /** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
 export const DEFAULT_CHUNK_CHARACTERS = 20_000;
@@ -148,6 +156,40 @@ export const DEFAULT_IGNORE: readonly string[] = PROFILE.ignore;
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
 export const ESTATE_CONFIG = 'driftbench.estate.yaml';
 
+/** What a runtime root holds, as the owner would name it: the standing files, the layout folder, the settings. */
+export type RootLayout = {
+  runtime: string;
+  /** The standing instruction files found at the root. */
+  standing: string[];
+  /** The layout folders found at the root. */
+  folders: string[];
+  /** The settings files found. */
+  settings: string[];
+};
+
+/** True when the root holds no standing file, no layout folder and no settings: a scan of it reads nothing. */
+export function layoutIsEmpty(layout: RootLayout): boolean {
+  return layout.standing.length === 0 && layout.folders.length === 0 && layout.settings.length === 0;
+}
+
+/** Looks at the root without reading the estate: which of the files the claude-code reader starts from exist. */
+export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
+  const found = async (paths: readonly string[], folder: boolean): Promise<string[]> => {
+    const out: string[] = [];
+    for (const path of paths) {
+      const info = await stat(join(root, path)).catch(() => undefined);
+      if (info && (folder ? info.isDirectory() : info.isFile())) out.push(path);
+    }
+    return out;
+  };
+  return {
+    runtime: 'claude-code',
+    standing: await found(['CLAUDE.md', 'CLAUDE.local.md'], false),
+    folders: await found(['.claude'], true),
+    settings: await found(staticSettingsFiles(PROFILE), false),
+  };
+}
+
 export type ClaudeCodeReaderOptions = {
   /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
   chunkCharacters?: number;
@@ -158,9 +200,34 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /**
+   * The folder that stands for the user's home folder. A guard path written from the home folder (`~/x`,
+   * `$HOME/x`) is read through it: the script is found there. Opt-in: the reader never reads the machine's own
+   * home folder, so a scan gives the same map on every machine. Without it such a script is skipped, not missing.
+   */
+  home?: string;
   /** How the reader classifies a file and finds the files beside the layout it reads. */
   classifier?: FileClassifier;
+  /**
+   * A rendered copy of the settings, for an estate whose install step writes them: the copy is read as the
+   * settings file of the place the profile gives it, when the estate holds no file there.
+   */
+  settings?: string;
 };
+
+/**
+ * The estate stores a file in the place a rendered copy of the settings was handed over for: two sources for one
+ * place. The reader refuses; the caller decides which one the scan is about.
+ */
+export class RenderedSettingsConflict extends Error {
+  readonly code = 'rendered-settings-conflict';
+  constructor(readonly place: string) {
+    super(
+      `the estate holds its own ${place}: scan it as it is, or scan a copy of the estate without that file`,
+    );
+    this.name = 'RenderedSettingsConflict';
+  }
+}
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
 
@@ -170,6 +237,10 @@ type EstateConfig = {
   aliases: Record<string, string[]>;
   externals?: string[];
   userSkills?: string;
+  /** The home folder, relative to the estate root (the option wins). */
+  home?: string;
+  /** What the configuration declares about programs: by name, whether the program opens files. */
+  programs?: Record<string, { opensFiles: boolean }>;
   /** Declared document roles, by glob: they win over a recorded label and over structure. */
   documents?: Array<{ rule: IgnoreRule; role: DocumentRole }>;
   /** The profile's types and the ones the configuration's `types:` declares. */
@@ -187,7 +258,9 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly home: string | undefined;
   private readonly classifier: FileClassifier;
+  private readonly settings: string | undefined;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -197,7 +270,17 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    if (options.home !== undefined && options.home.trim() === '')
+      throw new RangeError('home must name a folder: an empty value would read the working folder as home');
+    this.home = options.home;
     this.classifier = options.classifier ?? PROFILE_CLASSIFIER;
+    if (options.settings !== undefined) {
+      if (options.settings.trim() === '')
+        throw new RangeError('settings must name a file: an empty value names no rendered copy');
+      if (RENDERED_SETTINGS === undefined)
+        throw new RangeError(`the ${PROFILE.name} profile takes no rendered copy of the settings`);
+    }
+    this.settings = options.settings;
   }
 
   /**
@@ -214,7 +297,7 @@ export class ClaudeCodeReader implements EstateReader {
     const raw = await this.read(root);
     // The user-level skill layer is no part of the project: a copy of the project holds none of it.
     const rootReferences = [
-      ...raw.files.filter((file) => file.layer !== 'user').map((file) => file.path),
+      ...raw.files.filter((file) => file.layer !== 'user' && !file.rendered).map((file) => file.path),
       ...raw.notes
         .filter((note) => note.message === 'skipped: larger than 1 MB' && !isUserLayerPath(note.file))
         .map((note) => note.file),
@@ -282,6 +365,21 @@ export class ClaudeCodeReader implements EstateReader {
         files.push({ path, text, kind: 'other' });
       } else files.push({ path, text, ...this.classifier.classify(path, text) });
     }
+    if (this.settings !== undefined && RENDERED_SETTINGS !== undefined) {
+      if (files.some((file) => file.path === RENDERED_SETTINGS))
+        throw new RenderedSettingsConflict(RENDERED_SETTINGS);
+      const text = (await readFile(this.settings, 'utf8')).replace(/^\uFEFF/, '');
+      if (text.trim() === '') {
+        notes.push({ file: RENDERED_SETTINGS, message: 'empty file: nothing to read' });
+        files.push({ path: RENDERED_SETTINGS, text, kind: 'other', rendered: true });
+      } else
+        files.push({
+          path: RENDERED_SETTINGS,
+          text,
+          ...this.classifier.classify(RENDERED_SETTINGS, text),
+          rendered: true,
+        });
+    }
 
     for (const file of files)
       file.document = classifyDocument(
@@ -323,6 +421,15 @@ export class ClaudeCodeReader implements EstateReader {
         ...notes.filter((note) => note.message === EXTERNAL_NOTE).map((note) => note.file),
       ],
     };
+    if (config.programs !== undefined) estate.programs = config.programs;
+    const homeAt = homeFolderOf(this.home, config, root);
+    if (homeAt !== undefined) {
+      const inside = rootRelative(root, homeAt);
+      estate.home = {
+        ...(inside === undefined ? {} : { folder: inside === '.' ? '' : inside }),
+        present: [],
+      };
+    }
     const where = userFolderOf(this.userSkills, config, root);
     if (where !== undefined) {
       const layer = await readUserLayer(where, files, root, ignored);
@@ -382,6 +489,21 @@ export class ClaudeCodeReader implements EstateReader {
     }
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
+    if (estate.home !== undefined && homeAt !== undefined) {
+      // A script written from the home folder is looked for there, through the mapping, and only there.
+      const from = new Set(
+        estate.guards.flatMap((guard) =>
+          guard.anchored && guard.script?.startsWith('~/') ? [guard.script] : [],
+        ),
+      );
+      for (const script of from) {
+        const found = await stat(expandVariables(script, PROFILE, { root, home: homeAt })).then(
+          (info) => info.isFile(),
+          () => false,
+        );
+        if (found) estate.home.present.push(script);
+      }
+    }
     const texts = new Map(files.map((file) => [file.path, file.text]));
     estate.coverage = coverageOf({
       paths: [...paths, ...beside.files],
@@ -693,6 +815,37 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
     if (typeof userSkills === 'string' && userSkills.trim() !== '') config.userSkills = userSkills.trim();
     else notes.push({ file: ESTATE_CONFIG, message: 'userSkills: must be a folder' });
   }
+  const programs = parsed.programs;
+  if (programs !== undefined) {
+    const entries = isRecord(programs) ? Object.entries(programs) : [];
+    if (
+      entries.length > 0 &&
+      entries.every(
+        ([name, value]) => name.trim() !== '' && isRecord(value) && typeof value.opensFiles === 'boolean',
+      )
+    ) {
+      config.programs = Object.fromEntries(
+        entries.map(([name, value]) => [name, { opensFiles: (value as { opensFiles: boolean }).opensFiles }]),
+      );
+    } else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: 'programs: must map a program name to { opensFiles: true or false }',
+      });
+  }
+  const home = parsed.home;
+  if (home !== undefined) {
+    if (typeof home !== 'string' || home.trim() === '')
+      notes.push({ file: ESTATE_CONFIG, message: 'home: must be a folder' });
+    else if (home.trim() === '~' || home.trim().startsWith('~/'))
+      // A file shared between machines must give each the same map: `~` would name each machine's own home.
+      notes.push({
+        file: ESTATE_CONFIG,
+        message:
+          'home: names a folder of the estate or a plain path, not ~ (the machine home is never read implicitly)',
+      });
+    else config.home = home.trim();
+  }
   const documents = parsed.documents;
   if (documents !== undefined) {
     const roles = DocumentRole.options as readonly string[];
@@ -765,6 +918,18 @@ function userFolderOf(option: string | undefined, config: EstateConfig, root: st
   const home = chosen === '~' || chosen.startsWith('~/') ? join(homedir(), chosen.slice(1)) : chosen;
   // A folder the command line names is relative to where it was typed; one the configuration names, to the estate.
   return resolve(option !== undefined ? process.cwd() : root, home);
+}
+
+/**
+ * The folder that stands for the user's home: the option (relative to where it was typed), else the
+ * configuration's (relative to the estate), else none. A `~` the user wrote is their explicit ask for their own
+ * home folder; with none written, no home folder is read.
+ */
+function homeFolderOf(option: string | undefined, config: EstateConfig, root: string): string | undefined {
+  const chosen = option ?? config.home;
+  if (chosen === undefined) return undefined;
+  const folder = chosen === '~' || chosen.startsWith('~/') ? join(homedir(), chosen.slice(1)) : chosen;
+  return resolve(option !== undefined ? process.cwd() : root, folder);
 }
 
 /** A name a folder listing skips: hidden (a repository, an archive) or a dependency folder. */
@@ -1351,6 +1516,7 @@ function readGuards(
                 command,
                 new Set(estate.files.map((entry) => entry.path)),
                 new Map(estate.files.map((entry) => [entry.path, entry.text])),
+                estate.home?.folder,
               )
             : { anchored: false }),
         };
@@ -1377,8 +1543,9 @@ export function scriptOf(
   command: string,
   paths?: ReadonlySet<string>,
   sources?: ReadonlyMap<string, string>,
+  home?: string,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
-  return scriptFrom(command, paths, '', false, sources);
+  return scriptFrom(command, paths, '', false, sources, home);
 }
 
 /** Carry a proven working directory into a command, including a shell's quoted command string. */
@@ -1388,13 +1555,18 @@ function scriptFrom(
   directory: string,
   anchoredDirectory: boolean,
   sources?: ReadonlyMap<string, string>,
+  homeFolder?: string,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
+  const home: HomeMap = {
+    ...(homeFolder === undefined ? {} : { folder: homeFolder }),
+    ...(paths ? { paths } : {}),
+  };
   for (const { words: segment, after } of segments(command)) {
-    const words = segment.map((word) => word.replace(/["']/g, ''));
+    const words = segment.map(unquote);
     if (words[0] === 'cd') {
       const target = words[1] === '--' ? words[2] : words[1];
       if (target !== undefined && after === '&&') {
-        const changed = anchorOf(`${target.replace(/\/$/, '')}/`);
+        const changed = anchorOf(`${target.replace(/\/$/, '')}/`, home);
         directory = changed.anchored ? changed.script : posix.join(directory, changed.script);
         anchoredDirectory = changed.anchored || anchoredDirectory;
       } else {
@@ -1415,7 +1587,7 @@ function scriptFrom(
         const quoted = segment[head + 2];
         if (quoted !== undefined) {
           const payload = /^(["']).*\1$/.test(quoted) ? quoted.slice(1, -1) : quoted;
-          const nested = scriptFrom(payload, paths, directory, anchoredDirectory, sources);
+          const nested = scriptFrom(payload, paths, directory, anchoredDirectory, sources, homeFolder);
           if (nested.script !== undefined) return nested;
           continue;
         }
@@ -1423,22 +1595,30 @@ function scriptFrom(
     }
     const runs = runPath(segment);
     if (runs === undefined) continue;
-    const relative = anchorOf(runs);
-    const first = relative.anchored
+    const relative = anchorOf(runs, home);
+    const joined = relative.anchored
       ? relative
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
+    // A script the home folder holds that is also a file of the estate is named by its path in the estate.
+    const first = joined.anchored ? { ...joined, script: inEstate(joined.script, home) } : joined;
     if (!paths) return first;
     const target = paths.has(first.script)
       ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))
       : undefined;
     // With source available, an argument is a file only when its data flows to an execution path.
     if (target === undefined) return first;
-    const last = scriptIn(`${JSON.stringify(runs)} ${JSON.stringify(target)}`, directory, paths, true);
+    const last = scriptIn(
+      `${JSON.stringify(runs)} ${JSON.stringify(target)}`,
+      directory,
+      paths,
+      true,
+      homeFolder,
+    );
     if (last === undefined || last === first.script) {
       // A dispatcher whose target name matches no file still names that target: the guard runs nothing.
       return target === undefined
         ? first
-        : { script: anchorOf(target).script, anchored: first.anchored, dispatcher: first.script };
+        : { script: anchorOf(target, home).script, anchored: first.anchored, dispatcher: first.script };
     }
     return {
       script: last,
@@ -1487,7 +1667,7 @@ function segments(command: string): Array<{ words: string[]; after?: string }> {
 
 /** The path a part of a command runs, as written: after assignments, `env` and an interpreter's flags. */
 function runPath(segment: readonly string[]): string | undefined {
-  const words = segment.map((token) => token.replace(/["']/g, ''));
+  const words = segment.map(unquote);
   let index = 0;
   const skip = (test: (word: string) => boolean) => {
     while (index < words.length && test(words[index] ?? '')) index++;
@@ -1521,9 +1701,41 @@ function runPath(segment: readonly string[]): string | undefined {
   return word.includes('/') || SCRIPT_EXTENSION.test(word) ? word : undefined;
 }
 
+/** Where the home folder lies in the estate, and the files the estate holds. */
+type HomeMap = { folder?: string; paths?: ReadonlySet<string> };
+
+/**
+ * A word of a command with its quotes taken off, and what the shell leaves of it as text kept as text. A tilde
+ * is expanded only unquoted, so `"~/x"` is a folder named `~` under the working folder, written `./~/x`; a
+ * variable is expanded unless single-quoted, so `'$HOME/x'` is a folder named `$HOME` and `"$HOME/x"` is not.
+ */
+function unquote(token: string): string {
+  const plain = token.replace(/["']/g, '');
+  const text =
+    (/^["']/.test(token) && plain.startsWith('~')) || (token.startsWith("'") && plain.startsWith('$'));
+  return text ? `./${plain}` : plain;
+}
+
+/** A script written `~/x` as the file of the estate it is, when the home folder lies in the estate and holds it. */
+function inEstate(script: string, home: HomeMap): string {
+  if (!script.startsWith('~/') || home.folder === undefined) return script;
+  const inside = posix.join(home.folder, script.slice(2));
+  return home.paths?.has(inside) ? inside : script;
+}
+
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
-function anchorOf(token: string): { script: string; anchored: boolean } {
+function anchorOf(token: string, home?: HomeMap): { script: string; anchored: boolean } {
   if (ANCHOR.test(token)) return { script: posix.normalize(token.replace(ANCHOR, '')), anchored: true };
+  if (HOME_FORM.test(token)) {
+    // One spelling for every form of the home folder. A script that is a file of the estate (the home folder
+    // lies inside it) is named by its path there; any other is named from the home folder, `~/x`.
+    const rest = posix.normalize(token.replace(HOME_FORM, ''));
+    const inside = home?.folder === undefined ? undefined : posix.join(home.folder, rest);
+    return {
+      script: inside !== undefined && home?.paths?.has(inside) ? inside : `~/${rest}`,
+      anchored: true,
+    };
+  }
   if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
   return { script: posix.normalize(token), anchored: false };
 }
@@ -1909,23 +2121,25 @@ function scriptIn(
   from: string,
   paths: ReadonlySet<string>,
   workingDirectoryFirst = false,
+  homeFolder?: string,
 ): string | undefined {
   let found: string | undefined;
+  const home: HomeMap = { ...(homeFolder === undefined ? {} : { folder: homeFolder }), paths };
   const bases = [''];
   if (from !== '.' && from !== '') {
     if (workingDirectoryFirst) bases.unshift(from);
     else bases.push(from);
   }
   for (const raw of tokens(command)) {
-    const unquoted = raw.replace(/["']/g, '');
-    const token = stripAnchor(unquoted);
+    const unquoted = unquote(raw);
+    const token = stripAnchor(unquoted, home);
     if (token === '' || token.startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue;
     const named = token.includes('/') || SCRIPT_EXTENSION.test(token);
     // After a dispatcher, a bare word may name its target script without the extension.
     const bare = !named && found !== undefined && /^[\w.-]+$/.test(token);
     if (!named && !bare) continue;
     const names = bare ? [token, ...DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`)] : [token];
-    const searchBases = workingDirectoryFirst && anchorOf(unquoted).anchored ? [''] : bases;
+    const searchBases = workingDirectoryFirst && anchorOf(unquoted, home).anchored ? [''] : bases;
     const hit = searchBases
       .flatMap((base) => names.map((name) => posix.normalize(posix.join(base, name))))
       .find((candidate) => paths.has(candidate));
@@ -1944,7 +2158,9 @@ function tokens(command: string): string[] {
 }
 
 /** A path with its project anchor (`$CLAUDE_PROJECT_DIR/`) taken off, relative to the root. */
-function stripAnchor(token: string): string {
+function stripAnchor(token: string, home?: HomeMap): string {
+  if (HOME_FORM.test(token) && home?.folder !== undefined)
+    return posix.join(home.folder, token.replace(HOME_FORM, ''));
   return token.replace(ANCHOR, '');
 }
 

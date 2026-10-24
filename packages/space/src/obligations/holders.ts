@@ -16,6 +16,8 @@ export type ObligationBlock = {
   deviation?: string;
   /** The classes of the declared perturbations that reach the block: those declared at or after it. */
   perturbed: readonly string[];
+  /** What makes the block the same test as another, as its caller reads it. `SuiteIndex` looks blocks up by it. */
+  test?: string;
 };
 
 /** One spec of a suite. The fields before `blocks` are the same for every block of the spec. */
@@ -38,6 +40,8 @@ export type ObligationSpec = {
   /** What the spec says apart from its labels. */
   words: string;
   blocks: readonly ObligationBlock[];
+  /** The ids of the validity rules this shape of the spec breaks, as its caller found them. */
+  broken?: readonly string[];
 };
 
 /** The channels and personas the map declares. A persona is written `persona:<id>`, as the spec tags it. */
@@ -60,12 +64,115 @@ export function isDeclared(subject: { channel: string; persona: string }, declar
   );
 }
 
-type HolderKind = Extract<ObligationKind, { keptWhen: unknown }>;
-type TwinKind = Extract<ObligationKind, { id: 'twin' }>;
-type Carried = { kind: HolderKind; holders: Map<string, Set<string>> };
+/** The kinds of obligation that a spec holds by a key. */
+export type HolderKind = Extract<ObligationKind, { keptWhen: unknown }>;
+export type TwinKind = Extract<ObligationKind, { id: 'twin' }>;
+
+/** A key a spec holds, and the blocks of the spec that hold it. */
+export type Held = { key: string; kind: HolderKind; blocks: ReadonlySet<string> };
+
+/**
+ * The keys one spec holds. A spec on a channel or a persona the map does not declare holds none. A metamorphic
+ * obligation rests on content, not on the labels a spec declares: a variant in range (1 <= variant <= of) whose words
+ * are said by this spec on the walk of the path.
+ */
+export function heldKeys(one: ObligationSpec, declared: DeclaredAxes, rulings: Rulings = RULINGS): Held[] {
+  if (!isDeclared(one, declared)) return [];
+  const kinds = new Map<HolderKind['id'], HolderKind>();
+  for (const kind of rulings.obligations) {
+    if (kind.id !== 'twin') kinds.set(kind.id, kind);
+  }
+  const found = new Map<string, { kind: HolderKind; blocks: Set<string> }>();
+  const hold = (kind: HolderKind, key: string, block?: string): void => {
+    const entry = found.get(key) ?? { kind, blocks: new Set<string>() };
+    if (block !== undefined) entry.blocks.add(block);
+    found.set(key, entry);
+  };
+  const family = kinds.get('family');
+  const probe = kinds.get('probe');
+  const perturb = kinds.get('perturb');
+  if (family && one.family !== '' && one.variant >= 1 && one.variant <= one.of)
+    hold(family, `family|${one.path}|${one.walk}|${one.words}`);
+  for (const block of one.blocks) {
+    if (probe && block.injected) {
+      const cls = block.deviation ?? 'injection';
+      hold(probe, `inject|${one.path}|${cls}`, block.key);
+    }
+    if (perturb) {
+      for (const cls of block.perturbed) hold(perturb, `perturb|${one.path}|${cls}`, block.key);
+    }
+  }
+  return [...found].map(([key, { kind, blocks }]) => ({ key, kind, blocks }));
+}
 
 const bothIn = (values: ReadonlySet<string>, one: string, two: string): boolean =>
   values.has(one) && values.has(two);
+
+/** The twin ruling of a set of rulings, when it has one. */
+export function twinKind(rulings: Rulings = RULINGS): TwinKind | undefined {
+  return rulings.obligations.find((kind): kind is TwinKind => kind.id === 'twin');
+}
+
+/** The walk twins share: the path and the walk. Two specs are twins only inside one such group. */
+export function twinGroup(one: { path: string; walk: string }): string {
+  return JSON.stringify([one.path, one.walk]);
+}
+
+/**
+ * The axes on which two specs are twins: the one they differ in alone (the channel with the persona equal, the persona
+ * with the channel equal), both values declared by the map when the ruling says so. None when they are not of one walk.
+ */
+export function twinAxes(
+  one: ObligationSpec,
+  two: ObligationSpec,
+  declared: DeclaredAxes,
+  twin: TwinKind,
+): string[] {
+  if (one.path !== two.path || one.walk !== two.walk) return [];
+  const sameChannel = one.channel === two.channel;
+  const samePersona = one.persona === two.persona;
+  const channelsOk = !twin.onlyDeclared || bothIn(declared.channels, one.channel, two.channel);
+  const personasOk = !twin.onlyDeclared || bothIn(declared.personas, one.persona, two.persona);
+  const found: string[] = [];
+  if (twin.axes.includes('channel') && !sameChannel && samePersona && channelsOk) found.push('channel');
+  if (twin.axes.includes('persona') && !samePersona && sameChannel && personasOk) found.push('persona');
+  return found;
+}
+
+/**
+ * The twin pairs of a suite: two specs that write the same walk and differ in the value of one axis alone. The key is
+ * `<path>|<axis>`. The specs are the ones a map declares; the caller leaves the others out. Twins share a walk, so the
+ * search runs inside each walk and reads no spec of another.
+ */
+export function twinPairs(
+  heads: readonly ObligationSpec[],
+  declared: DeclaredAxes,
+  rulings: Rulings = RULINGS,
+): Map<string, Array<[string, string]>> {
+  const pairs = new Map<string, Array<[string, string]>>();
+  const twin = twinKind(rulings);
+  if (!twin) return pairs;
+  const walks = new Map<string, ObligationSpec[]>();
+  for (const one of heads) {
+    const key = twinGroup(one);
+    const list = walks.get(key);
+    if (list) list.push(one);
+    else walks.set(key, [one]);
+  }
+  for (const list of walks.values()) {
+    for (const [index, one] of list.entries()) {
+      for (const two of list.slice(index + 1)) {
+        for (const axis of twinAxes(one, two, declared, twin)) {
+          const key = `${one.path}|${axis}`;
+          const found = pairs.get(key);
+          if (found) found.push([one.spec, two.spec]);
+          else pairs.set(key, [[one.spec, two.spec]]);
+        }
+      }
+    }
+  }
+  return pairs;
+}
 
 /**
  * The blocks and specs the suite keeps. Every obligation is collected with ALL its holders first. A holder is kept
@@ -77,63 +184,12 @@ export function soleHolders(
   declared: DeclaredAxes,
   rulings: Rulings = RULINGS,
 ): SoleHolders {
-  const kinds = new Map<HolderKind['id'], HolderKind>();
-  let twin: TwinKind | undefined;
-  for (const kind of rulings.obligations) {
-    if (kind.id === 'twin') twin = kind;
-    else kinds.set(kind.id, kind);
-  }
-  const carried = new Map<string, Carried>();
-  const carry = (kind: HolderKind, obligation: string, spec: string, block?: string): void => {
-    const entry = carried.get(obligation) ?? { kind, holders: new Map<string, Set<string>>() };
-    const keys = entry.holders.get(spec) ?? new Set<string>();
-    if (block !== undefined) keys.add(block);
-    entry.holders.set(spec, keys);
-    carried.set(obligation, entry);
-  };
-  const family = kinds.get('family');
-  const probe = kinds.get('probe');
-  const perturb = kinds.get('perturb');
-  const heads: ObligationSpec[] = [];
+  const carried = new Map<string, { kind: HolderKind; holders: Map<string, ReadonlySet<string>> }>();
   for (const one of specs) {
-    if (!isDeclared(one, declared)) continue;
-    heads.push(one);
-    // A metamorphic obligation rests on content, not on the labels a spec declares: a variant in range
-    // (1 <= variant <= of) whose words are said by this spec on the walk of the path.
-    if (family && one.family !== '' && one.variant >= 1 && one.variant <= one.of)
-      carry(family, `family|${one.path}|${one.walk}|${one.words}`, one.spec);
-    for (const block of one.blocks) {
-      if (probe && block.injected) {
-        const cls = block.deviation ?? 'injection';
-        carry(probe, `inject|${one.path}|${cls}`, one.spec, block.key);
-      }
-      if (perturb) {
-        for (const cls of block.perturbed) {
-          carry(perturb, `perturb|${one.path}|${cls}`, one.spec, block.key);
-        }
-      }
-    }
-  }
-  // A twin pair on an axis: two specs that write the same walk and differ in the value of that axis alone (the
-  // channel with the persona equal, the persona with the channel equal), both values declared by the map.
-  const pairs = new Map<string, Array<[string, string]>>();
-  if (twin) {
-    const axes = new Set<string>(twin.axes);
-    for (const [index, one] of heads.entries()) {
-      for (const two of heads.slice(index + 1)) {
-        if (one.path !== two.path || one.walk !== two.walk) continue;
-        const sameChannel = one.channel === two.channel;
-        const samePersona = one.persona === two.persona;
-        const channelsOk = !twin.onlyDeclared || bothIn(declared.channels, one.channel, two.channel);
-        const personasOk = !twin.onlyDeclared || bothIn(declared.personas, one.persona, two.persona);
-        const found: string[] = [];
-        if (axes.has('channel') && !sameChannel && samePersona && channelsOk) found.push('channel');
-        if (axes.has('persona') && !samePersona && sameChannel && personasOk) found.push('persona');
-        for (const axis of found) {
-          const key = `${one.path}|${axis}`;
-          pairs.set(key, [...(pairs.get(key) ?? []), [one.spec, two.spec]]);
-        }
-      }
+    for (const held of heldKeys(one, declared, rulings)) {
+      const entry = carried.get(held.key) ?? { kind: held.kind, holders: new Map() };
+      entry.holders.set(one.spec, held.blocks);
+      carried.set(held.key, entry);
     }
   }
   const blocks = new Set<string>();
@@ -147,7 +203,8 @@ export function soleHolders(
   }
   // Removing a spec drops the pair obligation of a path and axis below one holder only when the spec belongs to every
   // pair of it. With one pair, both members are protected; where a spec has two partners, it is the shared one.
-  for (const list of pairs.values()) {
+  const heads = specs.filter((one) => isDeclared(one, declared));
+  for (const list of twinPairs(heads, declared, rulings).values()) {
     for (const spec of new Set(list.flat())) {
       if (list.every((pair) => pair.includes(spec))) kept.add(spec);
     }

@@ -93,6 +93,7 @@ export {
   folderHolding,
   type GlobError,
   type GlobResult,
+  INFERRED_CONFIDENCE,
   type JsonPathError,
   type JsonStep,
   LINK_KINDS,
@@ -111,6 +112,7 @@ export {
   matchGlob,
   type Part,
   type PartType,
+  PROVEN_CONFIDENCE,
   parseFieldRead,
   parseJsonPath,
   parseLoaded,
@@ -207,6 +209,12 @@ export {
   runCheck,
   type SkippedInput,
 } from './outcome/check-outcome';
+export {
+  EXECUTION_POLICIES,
+  EXECUTION_POLICY_VARIABLE,
+  type ExecutionPolicy,
+  executionEnvironment,
+} from './outcome/execution-policy';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -508,9 +516,12 @@ export {
   type LayoutProfile,
   loadsByItself,
   type PathVariables,
+  type PolicyModel,
+  type PolicyTool,
   type RoutingRule,
   type RuntimeProfile,
   registerRuntimeProfile,
+  renderedSettingsFile,
   runtimeProfile,
   runtimeProfileNames,
   type SettingsSource,
@@ -647,6 +658,20 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export {
+  type DoctorDetection,
+  type DoctorResult,
+  diagnoseSetup,
+  parseSetupText,
+  type ResolvedSetupSource,
+  resolveSetupSources,
+  SetupDocument,
+  type SetupIssue,
+  type SetupRead,
+  type SetupReader,
+  type SetupResult,
+  SetupSource,
+} from './setup';
 export { stringifyBlockYaml } from './spec/block-yaml';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';

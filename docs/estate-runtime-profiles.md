@@ -20,10 +20,11 @@ what a runtime loads and how. All paths are relative to the estate root, written
 | `layout.root` | The folder the runtime owns, walked whole | `.claude` |
 | `layout.extraFiles` | Files beside the layout folder the runtime reads | `.mcp.json` |
 | `standing.rootFiles`, `primary` | The standing files the reader lists by name at the root, and the main one | `CLAUDE.md`, `CLAUDE.local.md`; `CLAUDE.md` |
-| `settings` | `static` files, or one `rendered` file the user names | `.claude/settings.json`, `.claude/settings.local.json` |
+| `settings` | `static` files, or one `rendered` file the user names with `--settings`; a rendered copy is read as the settings file of the place `file` gives, and is refused when the estate stores a file of that place | static `.claude/settings.json`, `.claude/settings.local.json`; rendered, in the place of `.claude/settings.json` |
 | `bases` | Folders a bare name is looked up in | `.claude`, `.claude/skills` |
 | `routing` | How a skill is reached: `route-table`, `description`, `name`. The graph reads `description`: with it, a skill or helper that has a description is reachable, and the lint reports one the standing instructions do not name as `REACHED_BY_DESCRIPTION` (information). The other two rules do not change what is reachable yet | all three |
 | `pathVariables` | The variables expanded in a path: `project`, `plugin`, `working`, `home` | `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`, `PWD`, `HOME` |
+| `policy` | The permission model: for each tool a rule can name, what it does as aspects (`acts`, `executes`, `instructs`, `delegates`) and the type of the part its argument names; and the setting that holds the default mode with the modes in which no allow rule decides anything. A runtime without one has no policy checks | `Read`, `Edit`, `Write` act; `Bash` acts and executes; `Skill` names a `skill`; `Agent` and `Task` name a `subagent`; `bypassPermissions` |
 | `loadsItself(path)` | True for a file the runtime loads with no visible read: one a type of the runtime locates whose parts load `always` and `instructs` (`loadsByItself`) | every `CLAUDE.md` and `CLAUDE.local.md` |
 | `copyFiles` | What a mutant copy holds by default | `CLAUDE.md`, `CLAUDE.local.md`, `.claude`, `.mcp.json` |
 | `configFiles` | Where `driftbench.estate.yaml` may live | the root, then `.claude/` |

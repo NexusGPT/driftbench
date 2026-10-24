@@ -98,7 +98,7 @@ describe('approved stage allocation', () => {
   it('balances actual placements with identical spec bytes and equivalent reports', async () => {
     const prepared = fixture();
     const options = { seed: 1031, t: 2, mapPath: '../desk.yaml' };
-    const eager = generateSuite(prepared, options);
+    const eager = generateSuite(prepared, { ...options, settle: false });
     expect(eager.report.invalid).toEqual([]);
     const counts = [...eventCounts(prepared, eager).values()];
     expect(counts).toHaveLength(4);
@@ -203,7 +203,7 @@ describe('approved stage allocation', () => {
     expect(first.blocks.every((block) => block.stimulus.kind !== 'placeholder')).toBe(true);
   });
 
-  it('stops after at most MAX_ROUNDS rounds, and after MAX_STALLED rounds that reach no new low', () => {
+  it('stops after at most MAX_ROUNDS rounds', () => {
     const prepared = fixture();
     const balance = new Allocation(prepared);
     balance.observe(Array.from({ length: 600 }, () => ({ stage: 'address' })));
@@ -225,6 +225,46 @@ describe('approved stage allocation', () => {
     expect(drafts.length).toBeGreaterThan(0);
     expect(rounds).toBeLessThanOrEqual(MAX_ROUNDS);
     expect(context.max).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('stops the rounds once they have added more specs than the suite had at its lowest imbalance', () => {
+    // The bound is written here, not imported: a rollback of the source must fail this test, not its import.
+    const GROWTH_BOUND = 1;
+    // Every walk the class probes add is another probe of the most probed class: the class that falls behind can
+    // never catch up, the imbalance only rises, and each round is a few hundred specs for nothing.
+    const prepared = fixture();
+    const balance = new Allocation(prepared);
+    // The stages stay balanced; the classes do not: one is probed 40 times as often as the other.
+    for (const stage of ['welcome', 'address', 'packing', 'receipt']) {
+      balance.observe(Array.from({ length: 300 }, () => ({ stage })));
+      balance.observe(Array.from({ length: 100 }, () => ({ stage, injection: 'D1_off_topic' })));
+    }
+    balance.observe(
+      Array.from({ length: 10 }, () => ({ stage: 'welcome', injection: 'D5_language_switch' })),
+    );
+    const context = { seed: 1031, t: 2, max: Number.POSITIVE_INFINITY, allocation: balance };
+    const start = 400;
+    let written = start;
+    const probe = (index: number) =>
+      ({
+        id: `gen-deviation-balance-${index}`,
+        cell: [],
+        blocks: [{ id: 'b1', stage: 'address', injection: 'D1_off_topic', stimulus: { kind: 'phrase' } }],
+        perturbations: [],
+      }) as unknown as import('../../src/seed/assemble').SpecDraft;
+    const classes = {
+      *topUps(_context: unknown, existing: number) {
+        for (let index = 0; index < 100; index += 1) yield probe(existing + index);
+      },
+    };
+    const before = balance.imbalance();
+    for (const draft of balance.rounds(context, () => written, classes as never)) {
+      balance.observeDraft(draft);
+      written += 1;
+    }
+    expect(balance.imbalance()).toBeGreaterThan(before);
+    // One round of 100 may cross the bound; none goes past it.
+    expect(written - start).toBeLessThanOrEqual(start * GROWTH_BOUND + 100);
   });
 
   it('moves a drawn recovery to a rarer arrival with the same wording, and adds one per class there', () => {

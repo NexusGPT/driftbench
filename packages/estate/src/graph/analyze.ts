@@ -84,6 +84,20 @@ function pathsOf(atom: Atom): string[] {
   return [...(target ? [target] : []), ...(typeof via === 'string' ? [via] : [])];
 }
 
+/**
+ * A guard whose script is written from the user's home folder (`~/x`), outside the estate. Whether it exists
+ * depends on the home folder the run was given, which the graph does not know: lint judges it.
+ */
+export function isHomeScript(atom: Atom): boolean {
+  const script = atom.fields?.script;
+  return (
+    atom.kind === 'guard' &&
+    typeof script === 'string' &&
+    script.startsWith('~/') &&
+    atom.fields?.anchored !== false
+  );
+}
+
 export function analyzeGraph(
   atoms: readonly Atom[],
   edges: readonly Edge[],
@@ -222,6 +236,7 @@ export function analyzeGraph(
           atom.kind === 'guard' &&
           typeof atom.fields?.script === 'string' &&
           !kinds.has(atom.fields.script) &&
+          !isHomeScript(atom) &&
           !isUserLayerPath(atom.provenance.file),
       )
       .map((atom) => atom.id),

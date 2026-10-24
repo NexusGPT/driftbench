@@ -1,3 +1,4 @@
+export { type CutList, cutList } from './cut';
 export {
   analyzeGraph,
   buildGraph,
@@ -14,6 +15,7 @@ export {
   targetOf,
 } from './graph';
 export {
+  type FindingsCut,
   INFORMATION,
   LINT_CHECKS,
   LINT_CODES,
@@ -23,6 +25,7 @@ export {
   type LintResult,
   type LintSummary,
   lintEstate,
+  summariseLint,
 } from './lint';
 export {
   AtomChange,
@@ -93,10 +96,12 @@ export {
   type MapIssueCode,
   MapIssueCodes,
   type MapResult,
+  type MapRoot,
   mapHash,
   parseEstateMapText,
   quoteDrift,
   renderEstateMap,
+  resolveMapRoot,
   type ScanEstateInput,
   type ScanEstateResult,
   scanEstate,
@@ -193,6 +198,7 @@ export {
   INVARIANT_CHECKS,
   type InvariantState,
   ignoreRule,
+  inspectRoot,
   invariantAtoms,
   invariantOutcomes,
   isExternal,
@@ -200,6 +206,7 @@ export {
   keyLine,
   type Located,
   labelOfLine,
+  layoutIsEmpty,
   lineAt,
   linesOf,
   loadEstateRecording,
@@ -223,6 +230,7 @@ export {
   profileClassifier,
   proseInventory,
   proseInventoryLines,
+  proseListing,
   proseRequest,
   provenanceHash,
   quoteAtSpan,
@@ -230,6 +238,8 @@ export {
   type Read,
   type ReadNote,
   type RegistryRow,
+  RenderedSettingsConflict,
+  type RootLayout,
   RUNTIMES,
   readerFor,
   readFrontmatter,

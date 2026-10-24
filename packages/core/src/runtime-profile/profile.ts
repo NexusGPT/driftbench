@@ -1,5 +1,6 @@
 import { locateFile } from '../estate-model/locate';
 import type { TypeSet } from '../estate-model/part-type';
+import type { Aspect } from '../estate-model/vocabulary';
 
 /**
  * A runtime profile: what an agent runtime loads from an estate, and how. The estate scanner, the mutant
@@ -15,6 +16,8 @@ export type RoutingRule = 'route-table' | 'description' | 'name';
 /**
  * Where the runtime's settings come from: files the estate holds as they are (`static`), or one file the user
  * renders beforehand and names on the command line (`rendered`, e.g. a settings file a build step writes).
+ * A rendered copy is read as the settings file of the place `file` names (relative to the estate root), so its
+ * parts are the parts that file would give; it is accepted only when the estate holds no file of that place.
  */
 export type SettingsSource =
   | { kind: 'static'; files: readonly string[] }
@@ -51,6 +54,27 @@ export type PathVariables = {
   home: readonly string[];
 };
 
+/**
+ * What one tool of a runtime does, as aspects, and whether a permission rule on it names a part of the estate.
+ * A check of the policy reads these and never a tool's name: `acts` (it touches a file or a service), `executes`
+ * (it runs a program), `instructs` or `delegates` (a skill's text, another reasoning context).
+ */
+export type PolicyTool = {
+  aspects: readonly Aspect[];
+  /** For a tool whose rule argument names a part of the estate (a skill, a helper): the type of the part. */
+  names?: string;
+};
+
+/**
+ * The permission model of a runtime: the tools a rule can name, what each does, and the setting that holds the
+ * default mode with the modes in which no allow rule decides anything. A rule is written `Tool(argument)`, or
+ * `Tool` alone for any argument; a `*` in an argument stands for any text.
+ */
+export type PolicyModel = {
+  tools: Readonly<Record<string, PolicyTool>>;
+  mode: { setting: string; unchecked: readonly string[] };
+};
+
 export type RuntimeProfile = {
   /** The name the CLI and an estate map give the runtime. */
   name: string;
@@ -78,6 +102,8 @@ export type RuntimeProfile = {
   bases: readonly string[];
   routing: readonly RoutingRule[];
   pathVariables: PathVariables;
+  /** The permission model; a runtime without one has no policy checks. */
+  policy?: PolicyModel;
   /** True for a file the runtime puts in its context by itself: no call ever shows a read of it. */
   loadsItself(path: string): boolean;
   /** What a mutant copy of the estate holds by default: files and folders, copied whole. */
@@ -103,6 +129,12 @@ export function loadsByItself(name: string, types: TypeSet): (path: string) => b
     const clean = path.replace(/^\.?\/+/, '').replace(/\/+/g, '/');
     return own.some((type) => locateFile(type, clean) !== undefined);
   };
+}
+
+/** The place a rendered copy of the settings stands in, or undefined when the profile takes no rendered copy. */
+export function renderedSettingsFile(profile: RuntimeProfile): string | undefined {
+  for (const source of profile.settings) if (source.kind === 'rendered') return source.file;
+  return undefined;
 }
 
 /** The files of the settings sources that are static, in order. */

@@ -33,19 +33,29 @@ import { pluginEmbedder } from './plugins';
 /** The line a stand-in command carries in its first lines. Any other command is billed. */
 export const STAND_IN_MARKER = '@driftbench-stand-in';
 
-/** True when the command is a file that names itself a stand-in in its first lines. */
-export async function isStandIn(command: string): Promise<boolean> {
+/** The line a stand-in carries when it keeps the execution policy of the run (`estate run --no-exec`). */
+export const EXECUTION_POLICY_MARKER = '@driftbench-execution-policy';
+
+/** True when the command is a file that carries the marker in its first lines. */
+async function carriesMarker(command: string, marker: string): Promise<boolean> {
   if (!command.includes('/')) return false;
   const handle = await open(command, 'r').catch(() => undefined);
   if (!handle) return false;
   try {
     const buffer = Buffer.alloc(2048);
     const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
-    return buffer.subarray(0, bytesRead).toString('utf8').includes(STAND_IN_MARKER);
+    return buffer.subarray(0, bytesRead).toString('utf8').includes(marker);
   } finally {
     await handle.close();
   }
 }
+
+/** True when the command is a file that names itself a stand-in in its first lines. */
+export const isStandIn = (command: string): Promise<boolean> => carriesMarker(command, STAND_IN_MARKER);
+
+/** True when the command is a stand-in that says it keeps the execution policy the run passes it. */
+export const keepsExecutionPolicy = async (command: string): Promise<boolean> =>
+  (await isStandIn(command)) && (await carriesMarker(command, EXECUTION_POLICY_MARKER));
 
 /** The judge kinds `--judge <kind>:<model>` takes. */
 export const JUDGE_KINDS = [

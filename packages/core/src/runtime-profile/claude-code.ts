@@ -37,7 +37,11 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
   coverageRoots: ['layout'],
   layout: { root: '.claude', extraFiles: ['.mcp.json'] },
   standing: { rootFiles: ['CLAUDE.md', 'CLAUDE.local.md'], primary: 'CLAUDE.md' },
-  settings: [{ kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] }],
+  settings: [
+    { kind: 'static', files: ['.claude/settings.json', '.claude/settings.local.json'] },
+    // An install step may write the settings file: a rendered copy stands in the place of the stored one.
+    { kind: 'rendered', file: '.claude/settings.json' },
+  ],
   bases: ['.claude', '.claude/skills'],
   routing: ['route-table', 'description', 'name'],
   pathVariables: {
@@ -45,6 +49,18 @@ export const CLAUDE_CODE_PROFILE: RuntimeProfile = {
     plugin: ['CLAUDE_PLUGIN_ROOT'],
     working: ['PWD'],
     home: ['HOME'],
+  },
+  policy: {
+    tools: {
+      Read: { aspects: ['acts'] },
+      Edit: { aspects: ['acts'] },
+      Write: { aspects: ['acts'] },
+      Bash: { aspects: ['acts', 'executes'] },
+      Skill: { aspects: ['instructs'], names: 'skill' },
+      Agent: { aspects: ['delegates'], names: 'subagent' },
+      Task: { aspects: ['delegates'], names: 'subagent' },
+    },
+    mode: { setting: 'permissions.defaultMode', unchecked: ['bypassPermissions'] },
   },
   loadsItself: loadsByItself('claude-code', TYPES),
   copyFiles: ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'],

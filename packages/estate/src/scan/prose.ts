@@ -11,6 +11,7 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
+import { type CutList, cutList } from '../cut';
 import { type Atom, EvidencePredicate } from '../schema';
 import type { AtomBuilder } from './code';
 import { type ProseCache, proseCacheKey } from './prose-cache';
@@ -473,7 +474,18 @@ export function proseInventory(raw: RawEstate): ProseInventory {
  * The lines a scan prints about its prose: the count by source, and, when no model ran, every chunk left
  * unanswered with its size, so the owner sees what a model call would cost before funding it.
  */
-export function proseInventoryLines(inventory: ProseInventory, answered: boolean): string[] {
+export function proseListing(
+  inventory: ProseInventory,
+  options: { limit?: number } = {},
+): CutList<ProseInventory['chunks'][number]> {
+  return cutList(inventory.chunks, options.limit);
+}
+
+export function proseInventoryLines(
+  inventory: ProseInventory,
+  answered: boolean,
+  options: { limit?: number } = {},
+): string[] {
   const { chunks, characters, bySource } = inventory;
   if (chunks.length === 0) return ['  Prose: none.'];
   const parts = PROSE_SOURCES.filter((source) => bySource[source].chunks > 0).map(
@@ -484,6 +496,8 @@ export function proseInventoryLines(inventory: ProseInventory, answered: boolean
   ];
   if (answered) return lines;
   lines.push(`  Unanswered prose chunks (no model call): ${chunks.length}, ${characters} characters.`);
-  for (const chunk of chunks) lines.push(`    ${chunk.id}  ${chunk.characters} characters`);
+  const listing = proseListing(inventory, options);
+  for (const chunk of listing.shown) lines.push(`    ${chunk.id}  ${chunk.characters} characters`);
+  if (listing.omitted > 0) lines.push(`    ... ${listing.omitted} more`);
   return lines;
 }

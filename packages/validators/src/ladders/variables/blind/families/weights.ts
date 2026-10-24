@@ -10,7 +10,7 @@ import { conversationsOf, discover, OWNER_DATE, type ToolSpec } from '../scene';
 
 const Z = 1.959963984540054;
 
-function wilson(count: number, total: number): [number, number] {
+export function wilson(count: number, total: number): [number, number] {
   const p = count / total;
   const d = 1 + (Z * Z) / total;
   const centre = (p + (Z * Z) / (2 * total)) / d;
