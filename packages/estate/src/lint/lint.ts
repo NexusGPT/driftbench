@@ -63,12 +63,12 @@ export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERN
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
 /** What each lint check requires of the run: only the drift check needs the map's atoms. */
-/** The checks that compare the estate with what its settings declare: without the settings they cannot run. */
-const WIRING_CHECKS: ReadonlySet<LintCode> = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
+/** The checks that compare the check registry with the guards: with no guard read, from any source, they cannot run. */
+const GUARD_CHECKS: ReadonlySet<LintCode> = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
 
 export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) => ({
   id: code,
-  requires: code === 'QUOTE_DRIFT' ? ['model-map'] : WIRING_CHECKS.has(code) ? ['settings'] : [],
+  requires: code === 'QUOTE_DRIFT' ? ['model-map'] : GUARD_CHECKS.has(code) ? ['guards'] : [],
 }));
 
 /**

@@ -490,10 +490,18 @@ function scanReport(
     lines.push(`  ${note.file}: ${note.message}`);
   lines.push(...ignoredLines(result));
   if (!result.raw.files.some((file) => file.kind === 'settings')) {
-    lines.push(
-      '  Settings: none read, so 0 guards were read and the checks that compare the registry with the guards do not run.',
-      '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
-    );
+    const guards = result.raw.guards.length;
+    if (guards > 0) {
+      lines.push(
+        `  Settings: none read; ${guards} ${plural(guards, 'guard was', 'guards were')} read from other sources.`,
+        '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
+      );
+    } else {
+      lines.push(
+        '  Settings: none read, so no guard was read and the checks that compare the registry with the guards do not run.',
+        '    If an install step writes the settings, pass a rendered copy with --settings <file>.',
+      );
+    }
   }
   const layer = result.raw.userLayer;
   if (layer && layer.read.length + layer.shadowed.length > 0) {

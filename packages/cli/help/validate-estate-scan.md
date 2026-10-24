@@ -287,12 +287,14 @@ rules no guard enforces, and a `Next:` line. Exit 0 written; 1 written, but a pr
 was refused; 2 nothing written. The lists of unanswered chunks, orphans, unreachable files and unenforced
 rules stop after the first 10 items and say so; `--verbose` lists every one.
 
-When no settings file was read, the scan says so: 0 guards were read, so the checks that compare the registry
-with the guards do not run (lint reports them as not run, lacking the settings, with no finding), and a part
-that only the settings can name is left out of the orphans and listed as left out. The registry invariant
-then does not hold and records `guardsRead: 0`. Pass `--settings <file>` when an install step writes the
-settings: the copy is read as the settings file of its place, gives the same guards and atoms as if stored,
-and the map records it (`settings: true`); lint needs the same file again.
+When no settings file was read, the scan says so, and says how many guards it read from other sources (a
+skill may declare its own). The checks that compare the registry with the guards (`REGISTRY_ROW`,
+`REGISTRY_GUARD`, the `registry_complete` invariant) run whenever a guard was read, from any source. When no
+guard was read at all, they do not run: lint reports them as not run, lacking a guard, with no finding, and the
+invariant does not hold and records `guardsRead: 0`. A part that only the settings can name is left out of the
+orphans, and listed as left out, while the settings were not read. Pass `--settings <file>` when an install
+step writes the settings: the copy is read as the settings file of its place, gives the same guards and atoms
+as if stored, and the map records it (`settings: true`); lint needs the same file again.
 
 `estate lint` prints one line per finding, then `<n> findings.` Exit 0 clean, 1 a finding or an invalid map,
 2 the map or the estate cannot be read. A code with more than 10 findings lists the first 10, then

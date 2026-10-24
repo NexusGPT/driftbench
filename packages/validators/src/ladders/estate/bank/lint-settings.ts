@@ -21,8 +21,9 @@ import { invent } from './lint-names';
  *
  *   the wiring of the policies (the guards) may be stored with the estate, stored in the local file, handed
  *   over as a rendered copy, or not available; the first three give the same estate
- *   a check that compares against the wiring needs the settings: without them it does not run, it reports
- *   nothing, and it says it did not run; a part that only the wiring can name is not called an orphan
+ *   a check that compares the registry with the guards needs a guard, whatever source it came from: with none
+ *   read it does not run, it reports nothing, and it says it did not run; a part that only the wiring can name is
+ *   not called an orphan when the settings were not read
  *   a rendered copy never stands beside a stored file of the same place
  */
 
@@ -145,8 +146,8 @@ export const SETTINGS_CASES: SettingsCase[] = [
               } else {
                 if (outcome?.status !== 'not-run' || outcome.notRun !== 'missing-capability')
                   problems.push(`${label}: ${check} did not report that it could not run`);
-                if (!outcome?.coverage.missing.includes('settings'))
-                  problems.push(`${label}: ${check} does not name the settings it lacked`);
+                if (!outcome?.coverage.missing.includes('guards'))
+                  problems.push(`${label}: ${check} does not name the guards it lacked`);
               }
               if (countOf(lint, check) !== 0) problems.push(`${label}: ${check} gave findings`);
             }
@@ -238,6 +239,92 @@ export const SETTINGS_CASES: SettingsCase[] = [
         if (refused === undefined)
           problems.push('a rendered copy beside a stored file of its place was accepted');
       });
+      return verdict(problems);
+    },
+  },
+  {
+    key: 'guard-sources',
+    tier: 2,
+    title:
+      'the registry checks as run whenever a guard was read, from the settings or a skill, and as not run only when no guard was read',
+    judge: async () => {
+      const problems: string[] = [];
+      type Shape = 'complete' | 'ghost-row' | 'other-row' | 'no-guard';
+      const SHAPES: readonly Shape[] = ['complete', 'ghost-row', 'other-row', 'no-guard'];
+      for (const shape of SHAPES) {
+        const top = await mkdtemp(join(tmpdir(), 'driftbench-guard-source-'));
+        const built: Built = { top, root: join(top, 'home'), scripts: [], policies: 0, strays: 0 };
+        await cleanly(built, async () => {
+          const [skill, guard] = invent(120, 2, 'part');
+          const script = `${ROOT}/skills/${skill}/scripts/${guard}.sh`;
+          const frontmatter = [
+            '---',
+            `name: ${skill}`,
+            'description: Checks things for the team.',
+            ...(shape === 'no-guard'
+              ? []
+              : [
+                  'hooks:',
+                  '  PreToolUse:',
+                  '    - matcher: Bash',
+                  '      hooks:',
+                  '        - type: command',
+                  `          command: "$CLAUDE_PROJECT_DIR/${script}"`,
+                ]),
+            '---',
+            '',
+            'Check things.',
+          ].join('\n');
+          const rows =
+            shape === 'complete'
+              ? [`| G1 | ${guard}.sh | none |`]
+              : shape === 'ghost-row'
+                ? [`| G1 | ${guard}.sh | none |`, '| G2 | ghost-check.sh | none |']
+                : shape === 'other-row'
+                  ? ['| G1 | other-check.sh | none |']
+                  : [`| G1 | ${guard}.sh | none |`];
+          await write(built.root, {
+            [STANDING]: INSTRUCTION,
+            [`${ROOT}/skills/${skill}/SKILL.md`]: `${frontmatter}\n`,
+            [script]: '#!/bin/sh\nexit 0\n',
+            [REGISTRY_MD]: `# Check registry\n\n| Id | Guard | Enforces |\n|---|---|---|\n${rows.join('\n')}\n`,
+          });
+          const { atoms, lint, raw } = await read(built, null);
+          const guards = shape === 'no-guard' ? 0 : 1;
+          if (raw.guards.length !== guards)
+            problems.push(`${shape}: ${raw.guards.length} guards read, not ${guards}`);
+          if (raw.files.some((file) => file.kind === 'settings'))
+            problems.push(`${shape}: a settings file was read`);
+          const row = outcomeOf(lint, 'REGISTRY_ROW');
+          const rowing = outcomeOf(lint, 'REGISTRY_GUARD');
+          const holds = atoms.find(
+            (atom) => atom.kind === 'invariant' && atom.fields?.check === 'registry_complete',
+          )?.fields?.holds;
+          if (shape === 'no-guard') {
+            for (const outcome of [row, rowing])
+              if (outcome?.status !== 'not-run' || outcome.notRun !== 'missing-capability')
+                problems.push(`${shape}: ${outcome?.check} did not report that it could not run`);
+            if (countOf(lint, 'REGISTRY_ROW') + countOf(lint, 'REGISTRY_GUARD') !== 0)
+              problems.push(`${shape}: the registry checks gave findings over no guard`);
+            if (holds !== false) problems.push(`${shape}: the registry invariant holds over no guard`);
+            return;
+          }
+          // A guard was read, so the checks ran: they pass on a complete registry and fail on a mismatch.
+          const want = {
+            complete: { row: 'pass', guard: 'pass', holds: true },
+            'ghost-row': { row: 'pass', guard: 'fail', holds: false },
+            'other-row': { row: 'fail', guard: 'fail', holds: false },
+          }[shape as Exclude<Shape, 'no-guard'>];
+          if (row?.status !== want.row)
+            problems.push(`${shape}: REGISTRY_ROW is ${row?.status}, not ${want.row}`);
+          if (rowing?.status !== want.guard)
+            problems.push(`${shape}: REGISTRY_GUARD is ${rowing?.status}, not ${want.guard}`);
+          if (holds !== want.holds) problems.push(`${shape}: the registry invariant holds ${holds}`);
+          // The script a skill's own guard runs is named by the guard.
+          if (lint.findings.some((finding) => finding.code === 'ORPHAN' && finding.subject === script))
+            problems.push(`${shape}: the script of the skill's guard is called an orphan`);
+        });
+      }
       return verdict(problems);
     },
   },

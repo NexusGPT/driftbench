@@ -9,7 +9,7 @@ describe('lint and invariant outcomes with coverage', () => {
     const result = lintEstate({ ...(await scanFixture()).map, atoms: [], edges: [] }, raw);
     expect(result.failed).toBe(false);
     // Every check did not run. The two that compare the registry with the guards say why by what the run lacked
-    // (the settings); the others read no input.
+    // (a guard); the others read no input.
     const wiring = new Set(['REGISTRY_ROW', 'REGISTRY_GUARD']);
     expect(result.outcomes.map((outcome) => [outcome.check, outcome.status, outcome.notRun])).toEqual(
       result.outcomes.map((outcome) => [
@@ -19,7 +19,7 @@ describe('lint and invariant outcomes with coverage', () => {
       ]),
     );
     for (const outcome of result.outcomes)
-      expect(outcome.coverage.missing).toEqual(wiring.has(outcome.check) ? ['settings'] : []);
+      expect(outcome.coverage.missing).toEqual(wiring.has(outcome.check) ? ['guards'] : []);
   });
 
   it('fails the checks the fixture plants defects for, and reports what each read', async () => {

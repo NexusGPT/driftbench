@@ -1,5 +1,6 @@
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   atomsOf,
@@ -23,8 +24,8 @@ vi.setConfig({ testTimeout: 120_000 });
  * (policies are the guards wired by the settings, strays are parts nothing names), never over file names:
  *
  *   S1 a settings source handed over is read like the stored one, in the place the profile gives it
- *   S2 a check that compares with the wiring needs the settings: without them it does not run, reports nothing,
- *      and says what it lacked; the scan says it read 0 guards
+ *   S2 a check that compares the registry with the guards needs a guard, whatever source it came from: with
+ *      none read it does not run, reports nothing, and says what it lacked; the scan says no guard was read
  *   S3 a part only the wiring can name is left out of the orphans when the wiring was not read, and listed as left out
  *   S4 the same source is needed again to lint; a second source for a place the estate stores is refused
  */
@@ -71,17 +72,17 @@ describe('S1 to S3: the settings sources, whatever their place', () => {
         const registry = invariantOf(run.atoms, 'registry_complete');
         const checks = new Map(run.data.checks.map((entry) => [entry.check, entry]));
         if (expected.policies === 0) {
-          // S2: the registry checks did not run, and lack the settings; the invariant does not hold.
+          // S2: the registry checks did not run, and lack a guard; the invariant does not hold.
           for (const code of ['REGISTRY_ROW', 'REGISTRY_GUARD']) {
             expect(checks.get(code)).toMatchObject({
               status: 'not-run',
               notRun: 'missing-capability',
-              missing: ['settings'],
+              missing: ['guards'],
             });
           }
           expect(registry?.fields?.holds).toBe(false);
           expect(registry?.fields?.guardsRead).toBe(0);
-          expect(run.scan.out).toMatch(/0 guards were read/);
+          expect(run.scan.out).toMatch(/no guard was read/);
           // S3: the scripts only the wiring names are left out, one per policy, and are no orphans.
           expect(checks.get('ORPHAN')?.skipped).toBe(policies);
         } else {
@@ -89,7 +90,7 @@ describe('S1 to S3: the settings sources, whatever their place', () => {
             expect(checks.get(code)?.status).toBe('pass');
           expect(registry?.fields?.holds).toBe(true);
           expect(checks.get('ORPHAN')?.skipped).toBe(0);
-          expect(run.scan.out).not.toMatch(/0 guards were read/);
+          expect(run.scan.out).not.toMatch(/no guard was read/);
         }
         const counts = Object.fromEntries(run.data.totals.map((entry) => [entry.code, entry.total]));
         // The strays are the only parts nothing names; the guard scripts are named by the wiring, or the wiring is not there to say.
@@ -137,12 +138,12 @@ describe('S1 to S3: the settings sources, whatever their place', () => {
 
 describe('S5: the closing verdict names what did not run', () => {
   for (const source of SETTINGS_SOURCES) {
-    it(`${source}: with nothing wrong the verdict is clean, and the checks that lacked the settings are listed as not run`, async () => {
+    it(`${source}: with nothing wrong the verdict is clean, and the checks that lacked a guard are listed as not run`, async () => {
       const run = await read(source, 2, 0);
       expect(run.data.failed).toBe(false);
       expect(run.data.summary).toBe('clean');
       const lacking = run.data.checks
-        .filter((entry) => entry.missing.includes('settings'))
+        .filter((entry) => entry.missing.includes('guards'))
         .map((entry) => entry.check);
       // The wiring was read: nothing lacked it. It was not: exactly the registry checks lacked it.
       expect(lacking.sort()).toEqual(source === 'absent' ? ['REGISTRY_GUARD', 'REGISTRY_ROW'] : []);
@@ -159,6 +160,100 @@ describe('S5: the closing verdict names what did not run', () => {
       expect(/^ {2}not-run {5}.*REGISTRY_GUARD/m.test(text.out)).toBe(source === 'absent');
     });
   }
+});
+
+describe('S6: a guard from any source, not only the settings', () => {
+  type Shape = 'complete' | 'ghost-row' | 'other-row' | 'no-guard';
+
+  /** An estate with no settings file whose only guard, if any, is declared in a skill's own frontmatter. */
+  async function skillGuard(shape: Shape) {
+    const top = await mkdtemp(join(tmpdir(), 'driftbench-guard-source-'));
+    const script = '.claude/skills/quay/scripts/watch.sh';
+    const hooks = [
+      'hooks:',
+      '  PreToolUse:',
+      '    - matcher: Bash',
+      '      hooks:',
+      '        - type: command',
+      `          command: "$CLAUDE_PROJECT_DIR/${script}"`,
+    ];
+    const rows =
+      shape === 'ghost-row'
+        ? ['| G1 | watch.sh | none |', '| G2 | ghost-check.sh | none |']
+        : shape === 'other-row'
+          ? ['| G1 | other-check.sh | none |']
+          : ['| G1 | watch.sh | none |'];
+    const files: Record<string, string> = {
+      'home/CLAUDE.md': '# Quay desk assistant\n\nAlways answer in the language of the user.\n',
+      'home/.claude/skills/quay/SKILL.md': [
+        '---',
+        'name: quay',
+        'description: Watches the quay desk.',
+        ...(shape === 'no-guard' ? [] : hooks),
+        '---',
+        '',
+        'Watch the desk.',
+        '',
+      ].join('\n'),
+      [`home/${script}`]: '#!/bin/sh\nexit 0\n',
+      'home/.claude/guards/CHECK-REGISTRY.md': `# Check registry\n\n| Id | Guard | Enforces |\n|---|---|---|\n${rows.join('\n')}\n`,
+    };
+    for (const [path, text] of Object.entries(files)) {
+      await mkdir(dirname(join(top, path)), { recursive: true });
+      await writeFile(join(top, path), text);
+    }
+    const scan = await cli(['estate', 'scan', 'home', '--no-model', '--out', 'map.yaml'], top);
+    const lint = await cli(['estate', 'lint', 'map.yaml', '--json', '--verbose'], top);
+    const atoms = await atomsOf(join(top, 'map.yaml'));
+    return { scan, data: lintData(lint.out), atoms, script };
+  }
+
+  const status = (data: LintData, check: string) => data.checks.find((entry) => entry.check === check);
+  const total = (data: LintData, code: string) =>
+    data.totals.find((entry) => entry.code === code)?.total ?? 0;
+
+  it('a complete registry passes, and the scan counts the guard and does not say none was read', async () => {
+    const run = await skillGuard('complete');
+    expect(countByKind(run.atoms).guard ?? 0).toBe(1);
+    expect(run.scan.out).not.toMatch(/no guard was read/);
+    expect(run.scan.out).toMatch(/Settings: none read; 1 guard was read from other sources/);
+    expect(status(run.data, 'REGISTRY_ROW')?.status).toBe('pass');
+    expect(status(run.data, 'REGISTRY_GUARD')?.status).toBe('pass');
+    expect(invariantOf(run.atoms, 'registry_complete')?.fields?.holds).toBe(true);
+    expect(total(run.data, 'REGISTRY_ROW') + total(run.data, 'REGISTRY_GUARD')).toBe(0);
+    expect(total(run.data, 'ORPHAN')).toBe(0);
+  });
+
+  it('a registry row naming no guard fails REGISTRY_GUARD, a registry that omits the guard fails both', async () => {
+    const ghost = await skillGuard('ghost-row');
+    expect(status(ghost.data, 'REGISTRY_ROW')?.status).toBe('pass');
+    expect(status(ghost.data, 'REGISTRY_GUARD')?.status).toBe('fail');
+    expect(total(ghost.data, 'REGISTRY_GUARD')).toBe(1);
+    expect(invariantOf(ghost.atoms, 'registry_complete')?.fields?.holds).toBe(false);
+    const other = await skillGuard('other-row');
+    expect(status(other.data, 'REGISTRY_ROW')?.status).toBe('fail');
+    expect(status(other.data, 'REGISTRY_GUARD')?.status).toBe('fail');
+    expect(total(other.data, 'REGISTRY_ROW')).toBe(1);
+    expect(total(other.data, 'REGISTRY_GUARD')).toBe(1);
+    expect(other.data.failed).toBe(true);
+  });
+
+  it('with no guard from any source the registry checks do not run and say they lacked a guard', async () => {
+    const run = await skillGuard('no-guard');
+    expect(countByKind(run.atoms).guard ?? 0).toBe(0);
+    expect(run.scan.out).toMatch(/no guard was read/);
+    for (const code of ['REGISTRY_ROW', 'REGISTRY_GUARD'])
+      expect(status(run.data, code)).toMatchObject({
+        status: 'not-run',
+        notRun: 'missing-capability',
+        missing: ['guards'],
+      });
+    expect(invariantOf(run.atoms, 'registry_complete')?.fields).toMatchObject({
+      holds: false,
+      guardsRead: 0,
+    });
+    expect(total(run.data, 'REGISTRY_ROW') + total(run.data, 'REGISTRY_GUARD')).toBe(0);
+  });
 });
 
 describe('S4: the same source again, and one source for one place', () => {
