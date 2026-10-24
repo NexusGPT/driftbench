@@ -3,10 +3,13 @@ import { AUDIT_STEMS } from './families/audit';
 import { BOUNDARIES_STEMS } from './families/boundaries';
 import { BUDGET_STEMS } from './families/budget';
 import { COUNTER_STEMS } from './families/counter';
+import { HARDENING_STEMS } from './families/hardening';
 import { IMPOSSIBLE_STEMS } from './families/impossible';
+import { PORTRULES_STEMS } from './families/portrules';
 import { PROPERTY_STEMS } from './families/property';
 import { QUOTES_STEMS } from './families/quotes';
 import { SCALE_STEMS } from './families/scale';
+import { SEEDIDS_STEMS } from './families/seedids';
 import { SEEDS_STEMS } from './families/seeds';
 import { SOURCES_STEMS } from './families/sources';
 import { STRENGTH_STEMS } from './families/strength';
@@ -38,6 +41,9 @@ export const BLIND_STEMS: readonly Stem[] = [
   ...SCALE_STEMS,
   ...AUDIT_STEMS,
   ...PROPERTY_STEMS,
+  ...HARDENING_STEMS,
+  ...SEEDIDS_STEMS,
+  ...PORTRULES_STEMS,
 ];
 
 /** Every item of the blind bank, in family order. */

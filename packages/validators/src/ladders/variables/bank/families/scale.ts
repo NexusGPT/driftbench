@@ -23,18 +23,31 @@ import {
   type SpaceGroup,
   toStore,
 } from '../oracle/space';
-import { choose, cpuMs, must, type Rng, show } from '../util';
+import { choose, cpuMs, must, type Rng, show, wallLimitMs } from '../util';
 import { toBig } from './counter';
 import { type Base, baseStore, checkCounts, draw } from './sources';
 
 const BOUND = 1.25;
 
-type Run = { plan: Plan; ms: number };
+/**
+ * The wall-clock bound beside a processor-time limit (docs/variables.md R15). The processor time counts the processes
+ * the call starts and waits for where the kernel keeps it; a child that waits uses none, and only the clock sees it.
+ */
+function withinClock(wallMs: number, limitMs: number, input: unknown): void {
+  check(wallMs <= wallLimitMs(limitMs), () => ({
+    rule: 'the call also finishes within the multiple of that time that the page allows on the clock',
+    input,
+    got: { wallMs: Math.round(wallMs) },
+    expected: { atMost: wallLimitMs(limitMs) },
+  }));
+}
+
+type Run = { plan: Plan; ms: number; wallMs: number };
 
 function planTimed(ctx: ItemContext, space: Space, seed = ctx.seed): Run {
   const store = toStore(space);
-  const { value: plan, ms } = cpuMs(() => planOf(ctx, store, { seed }));
-  return { plan, ms };
+  const { value: plan, ms, wallMs } = cpuMs(() => planOf(ctx, store, { seed }));
+  return { plan, ms, wallMs };
 }
 
 /** Checks the shape, the impossible pairs, the scan coverage, the bound and the processor time of a scale plan. */
@@ -90,6 +103,7 @@ function verify(
     got: { ms: Math.round(run.ms) },
     expected: { atMost: limits.budgetMs },
   }));
+  withinClock(run.wallMs, limits.budgetMs, { label });
 }
 
 const axesGroup = (space: Space): SpaceGroup => ({
@@ -249,7 +263,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       files[`docs/part-${f}.md`] = text;
     });
     const estate = estateOf(files, rules);
-    const { value: store, ms } = cpuMs(() => build(ctx, { estate }));
+    const { value: store, ms, wallMs } = cpuMs(() => build(ctx, { estate }));
     check(store.refused.length === 0, () => ({
       rule: '{} refusals for findable spans: {}',
       got: { details: [store.refused.length, show(store.refused.slice(0, 2))] },
@@ -283,6 +297,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       got: { ms: Math.round(ms) },
       expected: { atMost: budget },
     }));
+    withinClock(wallMs, budget, { spans, files: filesCount });
   },
 
   'scale.conversations': (variant, ctx) => {
@@ -292,9 +307,11 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const skew = [1, 1.2, 1.4, 1.6, 1.8];
     const mixes = base.vars.map(() => skew.map((x) => x / skew.reduce((a, b) => a + b, 0)));
     const { sessions, counts, observed } = draw(rng, base, n, mixes);
-    const { value: store, ms } = cpuMs(() =>
-      build(ctx, { estate: base.estate, conversations: sessions as ConversationInput[] }),
-    );
+    const {
+      value: store,
+      ms,
+      wallMs,
+    } = cpuMs(() => build(ctx, { estate: base.estate, conversations: sessions as ConversationInput[] }));
     checkCounts(store, base, counts, observed);
     const budget = n <= 10_000 ? 2000 : 5000;
     check(ms <= budget, () => ({
@@ -303,6 +320,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       got: { ms: Math.round(ms) },
       expected: { atMost: budget },
     }));
+    withinClock(wallMs, budget, { sessions: n });
   },
 
   'scale.counter-big-plan': (variant, ctx) => {
@@ -321,9 +339,11 @@ export const SCALE_RUNS: Record<string, StemRun> = {
     const asRows = rows.map((r) =>
       Object.fromEntries(r.map((v, i) => [`v${String(i).padStart(3, '0')}`, `x${v}`])),
     );
-    const { value: result, ms } = cpuMs(() =>
-      callCoverage(ctx, store, asRows, counterGroups(space, [group])),
-    );
+    const {
+      value: result,
+      ms,
+      wallMs,
+    } = cpuMs(() => callCoverage(ctx, store, asRows, counterGroups(space, [group])));
     check(toBig(result.allowed, 'allowed') === want, () => ({
       rule: 'coverage counts the allowed tuples exactly',
       got: { allowed: show(result.allowed) },
@@ -341,6 +361,7 @@ export const SCALE_RUNS: Record<string, StemRun> = {
       got: { ms: Math.round(ms) },
       expected: { atMost: 20000 },
     }));
+    withinClock(wallMs, 20_000, { variables: n, strength: t });
   },
 
   'scale.big-arity-axis': (_variant, ctx) => {

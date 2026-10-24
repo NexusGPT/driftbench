@@ -35,27 +35,35 @@ it.each([0, 1])(
   60_000,
 );
 
+// Run C makes the calls of a frame in one process when the frame closes (PR 1403), from the file of calls the frame
+// appends to: a write cut short must leave no part of its call there, and run C still answers every other call.
 it('never publishes a partial request when a write is interrupted', () => {
   const frame = isolate<Product>({ module: PRODUCT, seed: 2, tag: 'interrupted-write' });
-  const write = fs.writeFileSync;
+  const append = fs.appendFileSync;
   const interrupted = new Error('interrupted request write');
   let request = '';
-  const spy = vi.spyOn(fs, 'writeFileSync').mockImplementation((file, data, options) => {
-    if (typeof file === 'string' && data === '[101,202,303]') {
+  const spy = vi.spyOn(fs, 'appendFileSync').mockImplementation((file, data, options) => {
+    if (typeof file === 'string' && typeof data === 'string' && data.includes('[101,202,303]')) {
       request = file;
-      write(file, '[101,');
+      append(file, data.slice(0, 20));
       throw interrupted;
     }
-    return write(file, data, options);
+    return append(file, data, options);
   });
   syncBuiltinESMExports();
   try {
+    expect(frame.product.honest([1, 2, 3])).toBe(4);
     // A request is an encoded argument list, so target that write without knowing its filename.
-    expect(() => (frame.product.honest as unknown as (...xs: number[]) => number)(101, 202, 303)).toThrow(
-      interrupted,
-    );
+    expect(() => frame.product.honest([101, 202, 303])).toThrow(interrupted);
     expect(request).not.toBe('');
-    expect(fs.existsSync(request)).toBe(false);
+    const lines = fs.readFileSync(request, 'utf8');
+    expect(lines.endsWith('\n')).toBe(true);
+    expect(lines).not.toContain('[101,202,303]');
+    spy.mockRestore();
+    syncBuiltinESMExports();
+    expect(frame.product.honest([5, 6, 7])).toBe(12);
+    expect(frame.divergence()).toBeUndefined();
+    expect(frame.tainted()).toBeUndefined();
   } finally {
     spy.mockRestore();
     syncBuiltinESMExports();
