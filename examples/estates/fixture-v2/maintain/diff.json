@@ -3,7 +3,7 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-23T13:45:52.538Z",
+    "readAt": "2026-10-24T10:19:17.835Z",
     "hash": "708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d",
     "atoms": 116,
     "edges": 55
@@ -11,7 +11,7 @@
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-23T13:46:01.081Z",
+    "readAt": "2026-10-24T10:20:15.330Z",
     "hash": "5e21b82dae5d71068a9dc5c495ce1182afb7e96ac36d294830255a55406d13e7",
     "atoms": 119,
     "edges": 54
@@ -524,16 +524,106 @@
         "fields": ["fields"]
       },
       {
+        "id": "instruction.ledger-auditor.you-never-edit-a-file-you",
+        "kind": "instruction",
+        "title": "You never edit a file: you read and you report.",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "instruction.ledger-auditor.when-either-is-missing-answer-with",
+        "kind": "instruction",
+        "title": "When either is missing, answer with {\"status\": \"blocked\", \"missing\": [...]} and stop.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.memory-memory.the-operations-team-wants-the-weekly",
+        "kind": "instruction",
+        "title": "The operations team wants the weekly report on Monday before 10:00.",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.memory-memory.never-schedule-a-delivery-on-a",
+        "kind": "instruction",
+        "title": "Never schedule a delivery on a public holiday in the receiving country.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.invoice-reconcile.never-change-an-amount-on-an",
+        "kind": "instruction",
+        "title": "Never change an amount on an invoice; report the difference instead.",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "instruction.invoice-reconcile.when-the-total-difference-is-above",
+        "kind": "instruction",
+        "title": "When the total difference is above 50.00 EUR, dispatch the ledger-auditor agent with the…",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.shipment-tracker.ask-for-the-tracking-number-when",
+        "kind": "instruction",
+        "title": "Ask for the tracking number when the user gives none.",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.shipment-tracker.always-pass-the-carrier-code-to",
+        "kind": "instruction",
+        "title": "Always pass the carrier code to track.sh, as in ./scripts/track.sh NWX 123.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "reference.shipment-tracker.read-track-sh",
+        "kind": "reference",
+        "title": "Read track.sh",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.shipment-tracker.when-the-carrier-answers-with-an",
+        "kind": "instruction",
+        "title": "When the carrier answers with an error, say so and give the carrier's own tracking page;…",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.supplier-email.never-copy-a-price-or-a",
+        "kind": "instruction",
+        "title": "Never copy a price or a date into a draft unless you read it in the order or the invoice.",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "register.standing.r1-always-answer-in-the-language",
+        "kind": "register",
+        "title": "R1. Always answer in the language of the user's latest message.",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.standing.r4-never-delete-a-file-under",
+        "kind": "instruction",
+        "title": "R4. Never delete a file under ledger/; move it to ledger/archive/ instead.",
+        "fields": ["evidence", "fields"]
+      },
+      {
         "id": "instruction.standing.r6-never-run-git-push-force",
         "kind": "instruction",
         "title": "R6. Never run git push --force on any branch.",
         "fields": ["fields"]
       },
       {
-        "id": "instruction.standing.r11-never-paste-the-contents-of",
+        "id": "register.standing.r9-ask-at-most-one-question",
+        "kind": "register",
+        "title": "R9. Ask at most one question per reply.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.standing.r10-when-the-user-says-stop",
         "kind": "instruction",
-        "title": "R11. Never paste the contents of .env or any credential into a reply.",
-        "fields": ["evidence", "fields"]
+        "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.standing.r16-if-a-tool-fails-twice",
+        "kind": "instruction",
+        "title": "R16. If a tool fails twice in a row, stop and tell the user what failed instead of retryi…",
+        "fields": ["situation", "fields"]
       },
       {
         "id": "instruction.standing.r17-report-a-number-only-when",
@@ -549,6 +639,42 @@
       },
       {
         "id": "reference.standing.read-claude-memory-memory-md",
+        "kind": "reference",
+        "title": "Read .claude/memory/MEMORY.md",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.standing.never-report-a-task-as-done",
+        "kind": "instruction",
+        "title": "Never report a task as done before the verify step has passed.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "register.standing.keep-every-reply-under-1-200",
+        "kind": "register",
+        "title": "Keep every reply under 1,200 characters unless the user asks for detail.",
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "register.standing.lead-with-the-result-in-the",
+        "kind": "register",
+        "title": "Lead with the result in the first line.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "register.standing.write-amounts-with-the-currency-code",
+        "kind": "register",
+        "title": "Write amounts with the currency code after the number, as in 1,250.00 EUR.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "gate.standing.read-claude-memory-memory-md-before",
+        "kind": "gate",
+        "title": "Read .claude/memory/MEMORY.md before the start of every session",
+        "fields": ["title", "situation", "fields"]
+      },
+      {
+        "id": "reference.standing.read-claude-memory-memory-md-2",
         "kind": "reference",
         "title": "Read .claude/memory/MEMORY.md",
         "fields": ["fields"]
@@ -1052,8 +1178,8 @@
     "whitespace": 1,
     "semantic": 2,
     "moved": 22,
-    "restated": 7,
-    "unchanged": 86,
+    "restated": 28,
+    "unchanged": 73,
     "edgesAdded": 1,
     "edgesRemoved": 2
   }

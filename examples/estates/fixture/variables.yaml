@@ -409,7 +409,7 @@ variables:
             quote: "**R14.** Do not commit to git until you have read the output of `git status`."
             ledger: zuie2qo5us
       - id: gate.standing.read-claude-memory-memory-md-before
-        title: Read .claude/memory/MEMORY.md before the start of every session
+        title: Read .claude/memory/MEMORY.md before at the start of every session
         approved: true
         produced_by: model
         provenance:

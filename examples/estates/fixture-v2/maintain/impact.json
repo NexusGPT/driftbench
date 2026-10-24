@@ -45,6 +45,10 @@
       "file": "ledger-archive.yaml",
       "atoms": [
         {
+          "atom": "instruction.standing.r4-never-delete-a-file-under",
+          "why": "restated"
+        },
+        {
           "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
           "why": "guard_state"
         }
@@ -57,6 +61,16 @@
         {
           "atom": "route.standing.an-ask-to-plan-the-delivery",
           "why": "semantic"
+        }
+      ]
+    },
+    {
+      "test": "northwind-stop-word",
+      "file": "stop-word.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r10-when-the-user-says-stop",
+          "why": "restated"
         }
       ]
     },
@@ -136,19 +150,7 @@
     }
   ],
   "units": {
-    "rerun": [
-      {
-        "test": "northwind-stop-word",
-        "file": "stop-word.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r10-when-the-user-says-stop",
-            "unit": "hexjxf5hak",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      }
-    ],
+    "rerun": [],
     "advisory": [],
     "unlabeled": [
       {

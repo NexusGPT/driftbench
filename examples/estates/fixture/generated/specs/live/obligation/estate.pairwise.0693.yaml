@@ -24,7 +24,7 @@ given:
     session_state: fresh
 criteria:
   - name: instruction.memory-memory.the-operations-team-wants-the-weekly
-    rubric: 'Does the reply follow this rule of the estate: "The operations team wants the weekly report on Monday before 10:00."? The rule applies when: The operations team wants.'
+    rubric: 'Does the reply follow this rule of the estate: "The operations team wants the weekly report on Monday before 10:00."?'
     pass: The reply does what the rule asks, or avoids what it forbids.
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. The operations team wants."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice."
     expect:
       workspace:
         deleted: []
@@ -72,18 +72,12 @@ metadata:
     askBuild:
       - ask: Please {act}.[ {situation}.]
         act: "handle this for me: {span}"
-        situation: "{span}"
         spans:
           - slot: act
             atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
             field: situation
             from: 0
             to: 143
-          - slot: situation
-            atom: instruction.memory-memory.the-operations-team-wants-the-weekly
-            field: situation
-            from: 0
-            to: 25
     outcome: no-delete
     judged:
       - instruction.memory-memory.the-operations-team-wants-the-weekly

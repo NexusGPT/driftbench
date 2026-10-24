@@ -169,7 +169,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       },
     ]);
     // Every instruction the labelers read carries no check of its own, so its spec is judged from its words.
-    expect(result.report.summary.judged).toBe(9);
+    expect(result.report.summary.judged).toBe(10);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -479,9 +479,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1410,
       blocks: 1405,
-      complete: 1404,
-      incomplete: 6,
-      judged: 603,
+      complete: 1394,
+      incomplete: 16,
+      judged: 679,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

@@ -119,7 +119,7 @@ dimensions:
       - { id: gate.standing.read-before-edit-it, title: Read before edit it }
       - { id: gate.standing.read-claude-skills-invoice-reconcile-references, title: Read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file }
       - { id: gate.standing.read-git-status-before-commit-to, title: Read git status before commit to git }
-      - { id: gate.standing.read-claude-memory-memory-md-before, title: Read .claude/memory/MEMORY.md before the start of every session }
+      - { id: gate.standing.read-claude-memory-memory-md-before, title: Read .claude/memory/MEMORY.md before at the start of every session }
   - id: atoms.route
     title: Target route atoms
     kind: behaviour

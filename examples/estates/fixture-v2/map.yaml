@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-23T13:46:01.081Z
+readAt: 2026-10-24T10:20:15.330Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -2221,17 +2221,10 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: A "looks fine" or a thumbs up
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dn435raxki, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      ask:
-        text: ask once more
-        context: A "looks fine" or a thumbs up
-        act:
-          kind: reply
-          name: clarify
       extraction: pointer
       unit: dn435raxki
       section:
@@ -2240,13 +2233,6 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 29
-        - kind: ask-text
-          from: 44
-          to: 57
       labelLinks:
         - kind: reply-act
           value: clarify
@@ -3021,7 +3007,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: when you read it in a file or a tool result during this session
+    situation: Report a number only when you read it in a file or a tool result during this session
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: snwqcymbbi, set: agent-rules, label: rule } }
     enforcement: []
@@ -3037,7 +3023,7 @@ atoms:
       polarity: obligation
       labelSpans:
         - kind: situation
-          from: 30
+          from: 9
           to: 93
       labelLinks:
         - kind: reply-act
@@ -3074,10 +3060,6 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
-      labelSpans:
-        - kind: forbidden-material
-          from: 37
-          to: 85
   - id: instruction.standing.r19-when-r18-applies-and-the
     kind: instruction
     title: R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…
@@ -3133,12 +3115,10 @@ atoms:
     situation: A process restart
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2ehiz3u7nq, set: agent-rules, label: hazard-restart } }
-      - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: [ .claude/memory/MEMORY.md ], unpathed: [ "`.claude/memory/MEMORY.md`" ], calls: [] } }
+      - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: [ .claude/memory/MEMORY.md ], unpathed: [ .claude/memory/MEMORY.md ], calls: [] } }
     enforcement: []
     fields:
       hazard: restart
-      ask:
-        text: re-read `.claude/memory/MEMORY.md` before you continue
       extraction: pointer
       unit: 2ehiz3u7nq
       section:
@@ -3148,12 +3128,9 @@ atoms:
       label: hazard-restart
       labeler: jev+anthropic
       labelSpans:
-        - kind: ask-text
-          from: 42
-          to: 96
         - kind: reread-other
-          from: 50
-          to: 76
+          from: 51
+          to: 75
   - id: reference.standing.read-claude-memory-memory-md
     kind: reference
     title: Read .claude/memory/MEMORY.md
@@ -3185,12 +3162,9 @@ atoms:
       label: hazard-restart
       labeler: jev+anthropic
       labelSpans:
-        - kind: ask-text
-          from: 42
-          to: 96
         - kind: reread-other
-          from: 50
-          to: 76
+          from: 51
+          to: 75
   - id: route.standing.an-ask-to-reconcile-an-invoice
     kind: route
     title: An ask to reconcile an invoice against a purchase order loads invoice-reconcile
@@ -3908,8 +3882,12 @@ registryRoles:
         - enforces
         - verdict
   offStates: []
+coverage:
+  covered: 26
+  unknown: []
+  skipped: []
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-23T13:46:01.081Z
+  at: 2026-10-24T10:20:15.330Z
 hash: 5e21b82dae5d71068a9dc5c495ce1182afb7e96ac36d294830255a55406d13e7

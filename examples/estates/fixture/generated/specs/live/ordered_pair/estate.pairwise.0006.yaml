@@ -4,7 +4,7 @@
 id: estate.pairwise.0006
 version: 708456f152fd
 kind: task
-title: "ordered_pair: Read .claude/memory/MEMORY.md before the start of every session"
+title: "ordered_pair: Read .claude/memory/MEMORY.md before at the start of every session"
 lang: EN
 tier: generated
 tags:
@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: the start of every session."
+      user: "Please handle this for me: at the start of every session."
     expect:
       references:
         - path: "**/.claude/memory/MEMORY.md"
@@ -38,7 +38,7 @@ rules:
     ordered:
       pairs:
         - before: Read~.claude/memory/MEMORY.md
-          after: Read~the
+          after: Read~at
 metadata:
   estate:
     atoms:
@@ -71,7 +71,7 @@ metadata:
             atom: gate.standing.read-claude-memory-memory-md-before
             field: fields.trigger
             from: 0
-            to: 26
+            to: 29
     outcome: no-delete
   links:
     - block: ask

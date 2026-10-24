@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-23T13:46:06.213Z
+readAt: 2026-10-24T10:20:32.131Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -892,7 +892,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: When a supplier is not in this table
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vbhqgyxxpc, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -904,10 +903,6 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 36
       labelLinks:
         - kind: reply-act
           value: report
@@ -930,7 +925,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: within 7 days of the delivery scan
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: eppoqn4q54, set: agent-rules, label: rule } }
     enforcement: []
@@ -944,10 +938,6 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 20
-          to: 54
   - id: instruction.parcel-claims.a-missing-parcel-is-claimed-only
     kind: instruction
     title: A missing parcel is claimed only after 10 days without a delivery scan.
@@ -1362,7 +1352,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Always
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2pgcgb6enm, set: agent-rules, label: rule } }
     enforcement: []
@@ -1375,10 +1364,6 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 6
       spans:
         - ./scripts/track.sh NWX 123
   - id: reference.shipment-tracker.read-track-sh
@@ -1411,10 +1396,6 @@ atoms:
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 6
   - id: reference.shipment-tracker.read-claim-rules-md
     kind: reference
     title: Read claim-rules.md
@@ -1977,8 +1958,30 @@ registryRoles:
         - state
   offStates:
     - off
+coverage:
+  covered: 19
+  unknown: []
+  skipped:
+    - what: driftbench.estate.yaml
+      reason: estate-config
+    - what: node_modules
+      reason: ignored
+    - what: __pycache__
+      reason: ignored
+    - what: "*.log"
+      reason: ignored
+    - what: tests/fixtures
+      reason: ignored
+    - what: hooks/**/tests
+      reason: ignored
+    - what: .trash
+      reason: ignored
+    - what: skills/synced
+      reason: ignored
+    - what: archive
+      reason: ignored
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-23T13:46:06.213Z
+  at: 2026-10-24T10:20:32.131Z
 hash: a1677629ad0a350fb1d02832e5014e769a8d0ec8354837d89cf62f578b1ce4c0

@@ -75,7 +75,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.out).toMatch(/instruction\s+31 {2}\(31 by the model\)/);
     expect(result.out).toContain(
-      'refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate needs a span, a link or a code span that the unit does not give',
+      'refused: .claude/skills/invoice-reconcile/SKILL.md unit 4wfcnk2irw (gate-split): the unit names 1 files and the label gate-split takes 0 to 0',
     );
     // A run whose quotes are not in their unit is left out of the vote, and the scan says so.
     expect(result.out).toContain(

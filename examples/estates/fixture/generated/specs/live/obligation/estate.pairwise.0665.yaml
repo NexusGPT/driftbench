@@ -36,7 +36,7 @@ rules:
         - label: Read
           input:
             file_path:
-              contains: the contents of `.env`
+              contains: .env
           count: 0
           block: 0
 metadata:

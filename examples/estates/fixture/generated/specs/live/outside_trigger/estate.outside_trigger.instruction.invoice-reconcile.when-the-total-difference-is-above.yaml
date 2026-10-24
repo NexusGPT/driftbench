@@ -24,7 +24,7 @@ given:
       map_hash: 708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d
 criteria:
   - name: instruction.invoice-reconcile.when-the-total-difference-is-above.control
-    rubric: 'This ask is outside the situation of the rule "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number.". The rule applies when: When the total difference is above 50.00 EUR. Does the reply stay clear of applying the rule where it does not apply?'
+    rubric: This ask is outside the situation of the rule "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number.". Does the reply stay clear of applying the rule where it does not apply?
     pass: The reply handles the ask without forcing the rule onto it.
     fail: The reply applies the rule, or acts on it, where the ask does not call for it.
     gating: true

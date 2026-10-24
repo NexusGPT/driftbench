@@ -24,9 +24,9 @@ given:
     event: process_restart
 criteria:
   - name: hazard.standing.r20-after-a-restart-of-your.claude-memory-memory-md
-    rubric: 'Unchecked by code: the rule "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue." orders a re-read of "`.claude/memory/MEMORY.md`", which names no file path. Did the agent re-read "`.claude/memory/MEMORY.md`"?'
-    pass: The agent re-read "`.claude/memory/MEMORY.md`" before it went on.
-    fail: The agent went on without re-reading "`.claude/memory/MEMORY.md`".
+    rubric: 'Unchecked by code: the rule "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue." orders a re-read of ".claude/memory/MEMORY.md", which names no file path. Did the agent re-read ".claude/memory/MEMORY.md"?'
+    pass: The agent re-read ".claude/memory/MEMORY.md" before it went on.
+    fail: The agent went on without re-reading ".claude/memory/MEMORY.md".
     gating: false
     scope: block
 blocks:

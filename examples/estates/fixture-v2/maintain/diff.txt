@@ -1,5 +1,5 @@
 Estate diff: examples/estates/fixture/approved.yaml (708456f152fd) to examples/estates/fixture-v2/map.yaml (5e21b82dae5d).
-  Atoms: 5 added, 2 removed, 3 changed (1 white space only, 2 semantic), 22 moved with the same quote, 7 restated, 86 unchanged.
+  Atoms: 5 added, 2 removed, 3 changed (1 white space only, 2 semantic), 22 moved with the same quote, 28 restated, 73 unchanged.
   Edges: 1 added, 2 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
@@ -51,11 +51,32 @@ Moved, same quote:
   > reference.standing.read-claude-memory-memory-md-2 CLAUDE.md:51 to 53
 Restated, same quote:
   * skill.weekly-report.skill-weekly-report: fields
+  * instruction.ledger-auditor.you-never-edit-a-file-you: evidence, fields
+  * instruction.ledger-auditor.when-either-is-missing-answer-with: fields
+  * instruction.memory-memory.the-operations-team-wants-the-weekly: situation, fields
+  * instruction.memory-memory.never-schedule-a-delivery-on-a: fields
+  * instruction.invoice-reconcile.never-change-an-amount-on-an: evidence, fields
+  * instruction.invoice-reconcile.when-the-total-difference-is-above: situation, fields
+  * instruction.shipment-tracker.ask-for-the-tracking-number-when: situation, fields
+  * instruction.shipment-tracker.always-pass-the-carrier-code-to: fields
+  * reference.shipment-tracker.read-track-sh: fields
+  * instruction.shipment-tracker.when-the-carrier-answers-with-an: situation, fields
+  * instruction.supplier-email.never-copy-a-price-or-a: evidence, fields
+  * register.standing.r1-always-answer-in-the-language: situation, fields
+  * instruction.standing.r4-never-delete-a-file-under: evidence, fields
   * instruction.standing.r6-never-run-git-push-force: fields
-  * instruction.standing.r11-never-paste-the-contents-of: evidence, fields
+  * register.standing.r9-ask-at-most-one-question: fields
+  * instruction.standing.r10-when-the-user-says-stop: fields
+  * instruction.standing.r16-if-a-tool-fails-twice: situation, fields
   * instruction.standing.r17-report-a-number-only-when: situation, evidence, fields
   * hazard.standing.r20-after-a-restart-of-your: fields
   * reference.standing.read-claude-memory-memory-md: fields
+  * instruction.standing.never-report-a-task-as-done: fields
+  * register.standing.keep-every-reply-under-1-200: situation, fields
+  * register.standing.lead-with-the-result-in-the: fields
+  * register.standing.write-amounts-with-the-currency-code: fields
+  * gate.standing.read-claude-memory-memory-md-before: title, situation, fields
+  * reference.standing.read-claude-memory-memory-md-2: fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
 Edges added:
   + skill.supplier-email.skill-supplier-email reference reference.supplier-email.read-claude-memory-supplier-languages-md

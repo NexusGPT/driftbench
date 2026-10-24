@@ -26,7 +26,7 @@ given:
     event: compaction_mid_task
 criteria:
   - name: instruction.invoice-reconcile.when-the-total-difference-is-above
-    rubric: 'Does the reply follow this rule of the estate: "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number."? The rule applies when: When the total difference is above 50.00 EUR.'
+    rubric: 'Does the reply follow this rule of the estate: "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number."?'
     pass: The reply does what the rule asks, or avoids what it forbids.
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
@@ -34,7 +34,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. When the total difference is above 50.00 EUR."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice."
     expect:
       skills:
         - name: invoice-reconcile
@@ -72,18 +72,12 @@ metadata:
     askBuild:
       - ask: Please {act}.[ {situation}.]
         act: "handle this for me: {span}"
-        situation: "{span}"
         spans:
           - slot: act
             atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
             field: situation
             from: 0
             to: 143
-          - slot: situation
-            atom: instruction.invoice-reconcile.when-the-total-difference-is-above
-            field: situation
-            from: 0
-            to: 44
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.when-the-total-difference-is-above
