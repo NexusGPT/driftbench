@@ -8,7 +8,7 @@ import {
   type SkippedInput,
 } from '@agent-nexus/driftbench-core';
 import { cutList } from '../cut';
-import { analyzeGraph } from '../graph/analyze';
+import { analyzeGraph, isHomeScript } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
 import { codeNames, runtimeProduct } from '../scan/code-names';
@@ -59,6 +59,9 @@ export type LintCode = (typeof LINT_CODES)[number];
 
 /** Codes reported as information: counted and listed, never failing the lint. */
 export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERNAL', 'UNRESOLVED_REFERENCE']);
+
+/** Why a guard script written from the home folder was not looked for. */
+export const HOME_NOT_MAPPED = 'home-not-mapped';
 
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
@@ -234,6 +237,20 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     });
   }
 
+  // A script written from the home folder lies outside the estate. It is looked for in the home folder the run
+  // was given, and only there: without one it is skipped, never read from the machine and never called missing.
+  const skippedScripts: SkippedInput[] = [];
+  for (const atom of atoms.filter(isHomeScript)) {
+    const script = String(atom.fields?.script);
+    if (raw.home === undefined) skippedScripts.push({ what: script, reason: HOME_NOT_MAPPED });
+    else if (!raw.home.present.includes(script))
+      findings.push({
+        code: 'MISSING_SCRIPT',
+        subject: atom.id,
+        message: `the guard runs ${script}, which the home folder does not hold`,
+      });
+  }
+
   const ceiling = options.ceiling ?? DEFAULT_STANDING_CEILING;
   const state = measureInvariants(raw, analysis.orphans, ceiling);
   if (state.standingCharacters > ceiling) {
@@ -295,7 +312,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     UNRESOLVED_REFERENCE: proseParts,
     AMBIGUOUS_REFERENCE: proseParts,
     EXTERNAL: proseParts,
-    MISSING_SCRIPT: raw.guards.length,
+    MISSING_SCRIPT: Math.max(0, raw.guards.length - skippedScripts.length),
     REGISTRY_ROW: raw.registry.filter((row) => row.origin !== 'catalogue').length,
     REGISTRY_GUARD: raw.registry.length,
     QUOTE_DRIFT: atoms.length,
@@ -308,6 +325,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       // it, and it changes no count of what was read.
       skipped: raw.coverage?.skipped ?? [],
       unknown,
+      ...(check.id === 'MISSING_SCRIPT' && skippedScripts.length > 0 ? { skipped: skippedScripts } : {}),
       ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? { skipped: wiringSkipped[check.id] } : {}),
       findings: kept.filter((finding) => finding.code === check.id),
     })),
