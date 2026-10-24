@@ -25,14 +25,32 @@ export const mutation = {
   noSingles: false,
   ignoreForbids: false,
   ignoreExtension: false,
+  noCountGuard: false,
+  noSeedIdCheck: false,
+  noBoundaryRules: false,
+  noWhenRules: false,
+  naiveHugeTotals: false,
 };
 
 export function weightInterval(count: number, total: number): [number, number] {
+  if (!mutation.noCountGuard) {
+    if (!Number.isInteger(count) || !Number.isInteger(total) || total < 1 || count < 0 || count > total)
+      throw new RangeError(
+        `weightInterval needs whole numbers with 0 <= count <= total and total >= 1, got ${count} of ${total}`,
+      );
+  }
   const p = count / total;
   const d = 1 + (Z * Z) / total;
   const centre = (p + (Z * Z) / (2 * total)) / d;
-  const half = (Z * Math.sqrt((p * (1 - p)) / total + (Z * Z) / (4 * total * total))) / d;
-  return [Math.max(0, centre - half), Math.min(1, centre + half)];
+  // The square of a count above about 6.7e153 overflows; there the root is taken in scaled form.
+  const spread = 4 * total * total;
+  const root =
+    mutation.naiveHugeTotals || Number.isFinite(spread)
+      ? Math.sqrt((p * (1 - p)) / total + (Z * Z) / spread)
+      : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(total), Z / 2 / total);
+  const half = (Z * root) / d;
+  const low = count === 0 && !mutation.naiveHugeTotals ? 0 : centre - half;
+  return [Math.max(0, low), Math.min(1, centre + half)];
 }
 
 type Space = {
@@ -103,12 +121,32 @@ function spaceOf(store: StoreDoc): Space {
     if (a && b) addForbid([a, b]);
   }
   const rules: number[][] = [];
+  const named = new Map<string, Set<string>>(store.rules.map((r) => [r.id, new Set(r.variables)]));
+  if (!mutation.noBoundaryRules)
+    for (const v of store.variables)
+      for (const b of v.boundaries ?? []) if (b.rule !== undefined) named.get(b.rule)?.add(v.id);
   for (const r of store.rules) {
     const own = [
-      ...new Set(r.variables.map((id) => index.get(id)).filter((i): i is number => i !== undefined)),
+      ...new Set(
+        [...(named.get(r.id) ?? [])].map((id) => index.get(id)).filter((i): i is number => i !== undefined),
+      ),
     ];
     if (own.length > 0) rules.push(own);
   }
+  if (!mutation.noWhenRules)
+    for (const v of store.variables) {
+      for (const x of v.values) {
+        if (x.approved === false || (x.when === undefined && x.unless === undefined)) continue;
+        const own = [
+          ...new Set(
+            [v.id, ...Object.keys(x.when ?? {}), ...Object.keys(x.unless ?? {})]
+              .map((id) => index.get(id))
+              .filter((i): i is number => i !== undefined),
+          ),
+        ];
+        if (own.length > 0 && index.has(v.id)) rules.push(own);
+      }
+    }
   return {
     ids,
     doms,
@@ -324,9 +362,21 @@ export function plan(store: StoreDoc, options: PlanOptions): Plan {
       f.every(([v, x]) => cells.some(([cv, cx]) => cv === v && cx === x));
     if (s.forbids.some(held))
       warn('seed_forbidden', `the seed ${i + 1} holds a combination the store forbids`);
-    seedRows.push({ id: `seed.${i + 1}`, kind: 'seed', values, logWeight: weightOf(s, cells) });
+    seedRows.push({
+      id: `seed.${options.seedIds?.[i] ?? i + 1}`,
+      kind: 'seed',
+      values,
+      logWeight: weightOf(s, cells),
+    });
     seedCells.push(cells);
   });
+  if (!mutation.noSeedIdCheck) {
+    const seen = new Set<string>();
+    for (const row of seedRows) {
+      if (seen.has(row.id)) throw new Error(`two seed rows have the id ${row.id}`);
+      seen.add(row.id);
+    }
+  }
   const budgetFor = (): number =>
     budget === undefined ? Number.POSITIVE_INFINITY : Math.max(0, budget - seedRows.length);
   if (s.ids.length === 0) {

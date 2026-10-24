@@ -1,4 +1,5 @@
 import { defineLadder, type Ladder } from '../../ladder';
+import { canaryItems, voidReason } from './bank/canary';
 import {
   type BankItem,
   type BankRun,
@@ -16,12 +17,19 @@ export { type BankItem, LEVELS, type Level, variablesBank } from './bank/index';
 export type { VariablesImpl } from './interface';
 
 /** The ladder version this bank is (docs/validators.md section 12.5: floors are per ladder version). */
-export const VARIABLES_LADDER_VERSION = 2;
+export const VARIABLES_LADDER_VERSION = 3;
+// Version 3: eight levels (the store split into store-core and store-readers) and a locked level counts as failing
+// (docs/validators.md 12.5). A report of version 2 has seven levels and no locking, so its level numbers are not
+// those of a report of version 3.
 
 const LEVEL_TEXT: Record<Level, { name: string; metric: string }> = {
-  store: {
-    name: 'the variable store from its three sources',
-    metric: 'store items (sources, quotes, values, boundaries) passing / items',
+  'store-core': {
+    name: 'the store file: loader, ids and boundaries',
+    metric: 'store-core items (file loader, ids, boundaries) passing / items',
+  },
+  'store-readers': {
+    name: 'the readers of the three sources',
+    metric: 'reader items (estate spans, quotes, owner words, conversations, merging) passing / items',
   },
   constraints: {
     name: 'impossible pairs and weights',
@@ -61,6 +69,31 @@ export type VariablesLadderOptions = {
 };
 
 /**
+ * A level opens only when every level before it has no failing item. An item of a level that is still locked counts
+ * as failing, whatever it returned, and says which level locks it, so the score never rises because items are hidden
+ * and a product cannot collect later levels before it has earlier ones.
+ */
+export function lockedRun(items: readonly BankItem[], run: BankRun, level: Level): BankRun {
+  const at = LEVELS.indexOf(level);
+  for (const earlier of LEVELS.slice(0, at)) {
+    const failing = items.filter(
+      (item) => item.level === earlier && !(run.get(item.id)?.pass ?? false),
+    ).length;
+    if (failing === 0) continue;
+    const locked: BankRun = new Map();
+    for (const item of items) {
+      if (item.level !== level) continue;
+      locked.set(item.id, {
+        pass: false,
+        detail: `locked: level ${earlier} still has ${failing} failing item${failing === 1 ? '' : 's'}; it opens when none fails`,
+      });
+    }
+    return locked;
+  }
+  return run;
+}
+
+/**
  * The variables validator (docs/validators.md sections 1 and 12): a bank of items in seven sub-banks, each a
  * level with threshold 1. A seed's whole bank runs once, in child processes that stop an item past its budget,
  * and each level reads its items from that run. The interface the bank defines is in interface.ts.
@@ -74,13 +107,17 @@ export function variablesLadder(options: VariablesLadderOptions = {}): Ladder {
     if (!pending) {
       pending = (async () => {
         const items = variablesBank().filter(options.filter ?? (() => true));
+        // The canary pair runs beside the bank and counts in no level (bank/canary.ts).
+        const ran = [...items, ...canaryItems()];
         let run: BankRun;
         if (inProcess) {
           const loaded = options.impl ? { impl: options.impl, module: options.implModule } : await loadImpl();
-          run = await runInProcess(items, seed, root, loaded.impl, loaded.module);
+          run = await runInProcess(ran, seed, root, loaded.impl, loaded.module);
         } else {
-          run = await runIsolated(items, seed, root);
+          run = await runIsolated(ran, seed, root);
         }
+        const reason = voidReason(run, seed);
+        if (reason) run = new Map(items.map((item) => [item.id, { pass: false, detail: reason }]));
         return { items, run };
       })();
       runs.set(key, pending);
@@ -99,7 +136,7 @@ export function variablesLadder(options: VariablesLadderOptions = {}): Ladder {
         const { items, run } = await seedRun(seed, root);
         return levelMeasure(
           items.filter((item) => item.level === level),
-          run,
+          lockedRun(items, run, level),
         );
       },
     })),

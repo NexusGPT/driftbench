@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { meaningOf } from '../../src/ladders/variables/blind/spans';
 import type {
   Plan,
   PlanOptions,
@@ -11,6 +10,7 @@ import type {
 } from '../../src/ladders/variables/interface';
 import { mutation as plannerMutation } from './reference/planner';
 import { quoteMutation } from './reference/validate';
+import { meaningOf } from './span-table';
 
 /**
  * Mutants of the reference: one wrong behaviour each, the kind of mistake a product makes. The bank must lose at
@@ -69,6 +69,11 @@ const resetPlanner = (): void => {
     noSingles: false,
     ignoreForbids: false,
     ignoreExtension: false,
+    noCountGuard: false,
+    noSeedIdCheck: false,
+    noBoundaryRules: false,
+    noWhenRules: false,
+    naiveHugeTotals: false,
   });
 };
 const resetQuotes = (): void => {
@@ -138,6 +143,62 @@ const GATE_FUNCTIONS = [
 ] as const;
 
 export const MUTANTS: readonly Mutant[] = [
+  // ---- the audit of round 2: bugs 17 and 20 ---------------------------------------------------------------
+  {
+    name: 'weightInterval no longer refuses a count above its total',
+    families: ['weights'],
+    only: ['count-above-total-is-refused'],
+    make: flag(() => {
+      plannerMutation.noCountGuard = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'coverage counts a constraint nobody approved',
+    families: ['counter'],
+    only: ['unapproved-forbid-excludes-nothing'],
+    make: (base) => ({
+      impl: {
+        ...base,
+        coverage: (store, rows, groups, options) => {
+          const changed = copy(store);
+          for (const f of changed.forbids ?? []) f.approved = true;
+          return base.coverage(changed, rows, groups, options);
+        },
+      },
+    }),
+  },
+  {
+    name: 'plan accepts two seed rows with one id',
+    families: ['seed-rows'],
+    only: ['two-seed-rows-with-one-id-are-refused'],
+    make: flag(() => {
+      plannerMutation.noSeedIdCheck = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'plan leaves the boundary of a variable out of the rule that states it',
+    families: ['strength'],
+    only: ['boundary-names-a-rule-and-joins-it'],
+    make: flag(() => {
+      plannerMutation.noBoundaryRules = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'plan ignores the variables a when or unless names',
+    families: ['strength'],
+    only: ['a-value-with-when-is-a-rule', 'a-value-with-unless-is-a-rule'],
+    make: flag(() => {
+      plannerMutation.noWhenRules = true;
+    }, resetPlanner),
+  },
+  {
+    name: 'weightInterval squares the total and loses the interval above 2^512',
+    families: ['weights'],
+    only: ['totals-beyond-the-square-root-of-the-largest-double'],
+    make: flag(() => {
+      plannerMutation.naiveHugeTotals = true;
+    }, resetPlanner),
+  },
   // ---- the plan --------------------------------------------------------------------------------------------
   {
     name: 'plan drops its last new row',
@@ -2387,6 +2448,42 @@ export const MUTANTS: readonly Mutant[] = [
         })),
       },
     })),
+  },
+  // The label of one kind of span ignored, or its comparison read from the wording: a product that follows the label for
+  // the one kind the first item tries and reads its own table for the others (cheats 8 and 9 of the r4 audit).
+  ...(
+    [
+      ['range', 'the-label-decides-a-range'],
+      ['member', 'the-label-decides-a-membership'],
+      ['boolean', 'the-label-decides-a-boolean-subject'],
+    ] as const
+  ).map(
+    ([kind, key]): Mutant => ({
+      name: `buildStore ignores the label of a ${kind} span and reads its text`,
+      families: ['sources'],
+      only: [`sources.labelled-condition.${key}`],
+      make: buildFrom((sources) => {
+        for (const rule of sources.estate?.rules ?? [])
+          for (const condition of rule.conditions) {
+            const label = (condition as { label?: { kind?: string } }).label;
+            if (label?.kind === kind) delete (condition as { label?: unknown }).label;
+          }
+        return sources;
+      }),
+    }),
+  ),
+  {
+    name: 'buildStore reads the comparison of a numeric span from its wording and not from its label',
+    families: ['sources'],
+    only: ['sources.labelled-condition.the-label-comparison-decides-not-the-wording'],
+    make: buildFrom((sources) => {
+      for (const rule of sources.estate?.rules ?? [])
+        for (const condition of rule.conditions) {
+          const label = (condition as { label?: { kind?: string; comparison?: string } }).label;
+          if (label?.kind === 'numeric') label.comparison = 'gt';
+        }
+      return sources;
+    }),
   },
   {
     name: 'quotes reports the right number of wrong quotes at the wrong place at scale',

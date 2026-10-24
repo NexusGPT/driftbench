@@ -16,6 +16,7 @@ export {
   type RuntimeProfile,
   RuntimeProfileError,
   registerRuntimeProfile,
+  renderedSettingsFile,
   runtimeProfile,
   runtimeProfileNames,
   type SettingsSource,

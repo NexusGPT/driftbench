@@ -2,11 +2,19 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
-import { parseEstateMapText, parsePlanText } from '@agent-nexus/driftbench-estate';
+import {
+  INFORMATION,
+  LINT_CODES,
+  type LintCode,
+  type LintResult,
+  parseEstateMapText,
+  parsePlanText,
+} from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
 import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
 import * as estateCommands from './estate';
+import { lintMap } from './estate';
 import { estateGenerateCommand } from './estate-generate';
 import { estatePlanApproveCommand, estatePlanCommand } from './estate-plan';
 import { usageSummary } from './estate-pointer';
@@ -127,12 +135,20 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
     .option('--ignore <glob>', 'skip the paths this glob matches; repeat it', collect)
     .option(
+      '--settings <file>',
+      'read this rendered copy of the settings, for an estate whose install step writes them and so does not store them',
+    )
+    .option(
       '--pointer',
       'read the prose with the pointer reader, and keep a ledger of unit ids in the folder',
     )
     .option('--labels <file>', 'with --pointer: the label sets (YAML)')
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
     .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
+    .option(
+      '--plan-only',
+      'with --pointer: print the requests, characters and priced cost of the scan, then stop: no key, no request, no file',
+    )
     .option('--labeler <spec>', 'with --pointer: <class>:<client>[:<model>]; repeat it', collect)
     .option('--prices <file>', 'with --pointer: a table of USD per million tokens (YAML), to print the cost')
     .option('--jobs <n>', 'with --pointer: requests in flight at once')
@@ -166,6 +182,34 @@ export async function estateBuildCommand(
   }
   const out = resolve(io.cwd, options.out ?? DEFAULT_BUILD_FOLDER);
   const file = (name: string) => join(out, name);
+  if (options.planOnly === true) {
+    // Sizes the one stage that can spend: the scan with the pointer reader. Nothing is written or approved.
+    if (!options.pointer) {
+      io.err(
+        'error: --plan-only needs --pointer: the scan with the pointer reader is the stage that spends\n',
+      );
+      return 2;
+    }
+    return estateCommands.estateScanCommand(
+      root,
+      {
+        runtime: options.runtime ?? 'claude-code',
+        pointer: true,
+        planOnly: true,
+        ...(options.ignore ? { ignore: options.ignore } : {}),
+        ...(options.labels ? { labels: options.labels } : {}),
+        ...(options.cassette ? { cassette: options.cassette } : {}),
+        ...(options.labeler ? { labeler: options.labeler } : {}),
+        ...(options.jobs ? { jobs: options.jobs } : {}),
+        ...(options.prices ? { prices: options.prices } : {}),
+        ...(options.record ? { record: true } : {}),
+        // The ledger of an earlier build carries units over, so the plan counts only what is new.
+        ledger: file('ledger.json'),
+      },
+      io,
+      deps,
+    );
+  }
   const shown = (name: string) => show(file(name), io);
   const interactive = deps.interactive ?? (process.stdin.isTTY === true && process.stdout.isTTY === true);
   const ask = deps.ask ?? askOnTerminal;
@@ -180,6 +224,7 @@ export async function estateBuildCommand(
   const replay = options.replay ? resolve(io.cwd, options.replay) : undefined;
   const cassette = options.cassette ? resolve(io.cwd, options.cassette) : undefined;
   const labels = options.labels ? resolve(io.cwd, options.labels) : undefined;
+  const settings = options.settings ? resolve(io.cwd, options.settings) : undefined;
   const scanInput = sha(
     JSON.stringify([
       await folderHash(root, out),
@@ -192,6 +237,7 @@ export async function estateBuildCommand(
       replay ? await fileHash(replay) : null,
       cassette ? await fileHash(cassette) : null,
       labels ? await fileHash(labels) : null,
+      settings ? await fileHash(settings) : null,
     ]),
   );
   const scanned = stamp.stages.scan;
@@ -208,6 +254,7 @@ export async function estateBuildCommand(
       ...(options.model === false ? { model: false } : {}),
       ...(options.provider ? { provider: options.provider } : {}),
       ...(options.ignore ? { ignore: options.ignore } : {}),
+      ...(settings ? { settings } : {}),
       ...(options.pointer
         ? {
             pointer: true,
@@ -395,12 +442,36 @@ export async function estateBuildCommand(
     await saveStamp();
   }
 
+  // 6. Check the estate: the lint of the approved map, which the scan alone never shows.
+  const lint = await lintMap(file('approved.yaml'), settings ? { settings } : {}, io);
+  if (!lint.ok) return lint.code;
+  const found = lintTotals(lint.result);
+  io.out(
+    `6. Check the estate: ${
+      found.failing.length === 0
+        ? 'no finding'
+        : `${found.failing.reduce((sum, [, count]) => sum + count, 0)} findings`
+    }${found.failing.length > 0 ? ` (${found.failing.map(([code, count]) => `${code} ${count}`).join(', ')})` : ''}${
+      found.information.length > 0
+        ? `; information: ${found.information.map(([code, count]) => `${code} ${count}`).join(', ')}`
+        : ''
+    }. List them with driftbench estate lint ${shown('approved.yaml')}.\n`,
+  );
+
   const specs = show(file('generated'), io);
+  const exit = generateCode === 0 && found.failing.length === 0 ? 0 : 1;
+  const live = await liveTests(report);
   io.out(
     [
       '',
-      `Done. The tests are in ${specs}. Next:`,
+      exit === 0
+        ? `Done. The tests are in ${specs}. Next:`
+        : `Not done: exit 1, ${[
+            ...(generateCode === 0 ? [] : ['some tests are incomplete']),
+            ...(found.failing.length === 0 ? [] : ['the lint has findings']),
+          ].join(' and ')}. The tests are in ${specs}. Next:`,
       `  run a test:        driftbench estate run <a spec of ${specs}/specs/live> --estate ${show(root, io)} --runtime claude-code --command <your agent> --store runs.db --map ${shown('approved.yaml')}`,
+      `  cost of a run:     one conversation with your agent per test${live === undefined ? '' : `, ${live} live tests in all`}; your agent's own model calls are billed to you and driftbench cannot price them. Run one test first.`,
       ...(options.pointer
         ? [
             `  after an edit:     driftbench radius ledger ${shown('map.yaml')} --ledger ${shown('ledger.json')} --out change.yaml`,
@@ -410,7 +481,32 @@ export async function estateBuildCommand(
       '',
     ].join('\n'),
   );
-  return generateCode === 0 ? 0 : 1;
+  return exit;
+}
+
+/** The finding totals of a lint, per code: those that fail it, and those that are information. */
+function lintTotals(result: LintResult): {
+  failing: Array<[string, number]>;
+  information: Array<[string, number]>;
+} {
+  const rows = LINT_CODES.map((code): [string, number] => [code, result.counts[code]]).filter(
+    ([, count]) => count > 0,
+  );
+  return {
+    failing: rows.filter(([code]) => !INFORMATION.has(code as LintCode)),
+    information: rows.filter(([code]) => INFORMATION.has(code as LintCode)),
+  };
+}
+
+/** The live tests the generate report counts, or undefined when the report does not say. */
+async function liveTests(report: string): Promise<number | undefined> {
+  try {
+    const parsed = JSON.parse(await readFile(report, 'utf8')) as { perMode?: { live?: { specs?: unknown } } };
+    const count = parsed.perMode?.live?.specs;
+    return typeof count === 'number' ? count : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** The number of atoms of a map, and how many of them are not approved. */

@@ -211,11 +211,20 @@ function storeOf(doc: StoreDoc): VariableStore {
           title: value.title ?? value.id,
           ...(value.weight === undefined ? {} : { weight: value.weight }),
           ...(value.approved === undefined ? {} : { approved: value.approved }),
+          ...(value.when === undefined ? {} : { when: value.when }),
+          ...(value.unless === undefined ? {} : { unless: value.unless }),
           ...(provenance.length > 0 ? { provenance } : {}),
         };
       }),
       ...(variable.boundaries && variable.boundaries.length > 0
-        ? { boundaries: variable.boundaries.map((boundary) => ({ ...boundary })) }
+        ? {
+            boundaries: variable.boundaries.map(({ rule, ...boundary }) => ({
+              ...boundary,
+              ...(rule === undefined
+                ? {}
+                : { provenance: [{ kind: 'quote', path: RULES_FILE, quote: `Rule ${rule} applies.` }] }),
+            })),
+          }
         : {}),
     })),
     // The loader gives an absent list as an empty one; the projection never passes the loader, which would
@@ -226,7 +235,7 @@ function storeOf(doc: StoreDoc): VariableStore {
 
 function plan(doc: StoreDoc, options: PlanOptions): Plan {
   const seeds: PlanSeedRow[] = (options.seeds ?? []).map((values, index) => ({
-    id: `s${String(index + 1).padStart(3, '0')}`,
+    id: options.seedIds?.[index] ?? `s${String(index + 1).padStart(3, '0')}`,
     values: { ...values },
   }));
   const planned = planV2(storeOf(doc), {

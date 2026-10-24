@@ -15,6 +15,8 @@ export type RoutingRule = 'route-table' | 'description' | 'name';
 /**
  * Where the runtime's settings come from: files the estate holds as they are (`static`), or one file the user
  * renders beforehand and names on the command line (`rendered`, e.g. a settings file a build step writes).
+ * A rendered copy is read as the settings file of the place `file` names (relative to the estate root), so its
+ * parts are the parts that file would give; it is accepted only when the estate holds no file of that place.
  */
 export type SettingsSource =
   | { kind: 'static'; files: readonly string[] }
@@ -144,6 +146,12 @@ export function coverageFolders(profile: RuntimeProfile): string[] {
   const errors = profileErrors(profile);
   if (errors.length > 0) throw new RuntimeProfileError(profile.name, errors);
   return profile.coverageRoots.map((name) => profile.roots[name] as string);
+}
+
+/** The place a rendered copy of the settings stands in, or undefined when the profile takes no rendered copy. */
+export function renderedSettingsFile(profile: RuntimeProfile): string | undefined {
+  for (const source of profile.settings) if (source.kind === 'rendered') return source.file;
+  return undefined;
 }
 
 /** The files of the settings sources that are static, in order. */
