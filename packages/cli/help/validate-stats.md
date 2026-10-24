@@ -1,6 +1,6 @@
 ---
 title: The statistics validator
-summary: What `driftbench validate stats` measures, its 7 levels and 834 items, reference fixtures and budgets, and how to read a failing statistics item.
+summary: What `driftbench validate stats` measures, its 8 levels and 1167 items, reference fixtures and budgets, and how to read a failing statistics item.
 commands:
   - validate
 see_also:
