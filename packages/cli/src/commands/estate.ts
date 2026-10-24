@@ -618,7 +618,11 @@ export async function lintMap(
   };
 }
 
-/** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
+/**
+ * Exit 0 only when the lint is clean: no finding (unenforced atoms alone are reported, not failed), no file no part
+ * type covers, and every check ran. Exit 1 when it is not clean or the map is invalid, 2 when the map or the estate
+ * cannot be read.
+ */
 export async function estateLintCommand(
   path: string,
   options: { ceiling?: string; ignore?: string[]; userSkills?: string; verbose?: boolean; json?: boolean },
@@ -694,17 +698,29 @@ export async function estateLintCommand(
     );
   }
   const unknown = result.unknown.length;
+  const notRun = result.outcomes.filter(
+    (outcome) => outcome.status === 'not-run' && outcome.notRun === 'no-input',
+  ).length;
+  // Not clean names every reason that holds: the files no check read, then the checks that did not run.
+  const reasons = [
+    ...(unknown > 0
+      ? [`${unknown} ${plural(unknown, 'file', 'files')} no part type covers, which no check read`]
+      : []),
+    ...(notRun > 0 ? [`${notRun} ${plural(notRun, 'check', 'checks')} did not run`] : []),
+  ];
   lines.push(
     {
       findings: `${found.length} ${plural(found.length, 'finding', 'findings')}.`,
       'none-ran': 'Not run: no check had an input.',
-      'unknown-files': `Not clean: ${unknown} ${plural(unknown, 'file', 'files')} no part type covers, which no check read.`,
+      'unknown-files': `Not clean: ${reasons.join('; ')}.`,
+      'checks-not-run': `Not clean: ${reasons.join('; ')}.`,
       clean: 'Clean.',
     }[result.summary],
     '',
   );
   io.out(lines.join('\n'));
-  return result.failed ? 1 : 0;
+  // The exit code says what the last line says: 0 only for a clean lint.
+  return result.summary === 'clean' ? 0 : 1;
 }
 
 export type EstateApproveOptions = { kind?: string[]; atom?: string[]; all?: boolean; to?: string };

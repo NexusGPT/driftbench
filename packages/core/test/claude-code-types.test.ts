@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   CLAUDE_CODE_PROFILE,
   CLAUDE_CODE_TYPES,
+  coverageFolders,
   locateFile,
   parseTypes,
+  profileErrors,
+  RuntimeProfileError,
+  registerRuntimeProfile,
   staticSettingsFiles,
   typeNamed,
 } from '../src/index';
@@ -98,5 +102,37 @@ describe('the Claude Code profile as data', () => {
       '.',
     ];
     for (const path of paths) expect(profile.loadsItself(path), path).toBe(before(path));
+  });
+
+  it('refuses at registration a coverage root that names no root, so unknown counting never turns off unseen', () => {
+    expect(coverageFolders(profile)).toEqual(['.claude']);
+    const typo = { ...profile, name: 'typo-runtime', coverageRoots: ['layuot'] };
+    expect(profileErrors(typo).map((error) => [error.code, error.path])).toEqual([
+      ['unknown-coverage-root', 'coverageRoots[0]'],
+    ]);
+    let refused: unknown;
+    try {
+      registerRuntimeProfile(typo);
+    } catch (cause) {
+      refused = cause;
+    }
+    expect(refused).toBeInstanceOf(RuntimeProfileError);
+    expect((refused as RuntimeProfileError).errors.map((error) => error.code)).toEqual([
+      'unknown-coverage-root',
+    ]);
+    expect(() => coverageFolders(typo)).toThrow(RuntimeProfileError);
+    // A name every object inherits is no root either: only the profile's own roots resolve.
+    for (const inherited of ['toString', 'constructor', '__proto__']) {
+      const named = { ...profile, name: `inherited-${inherited}`, coverageRoots: [inherited] };
+      expect(
+        profileErrors(named).map((error) => error.code),
+        inherited,
+      ).toEqual(['unknown-coverage-root']);
+      expect(() => coverageFolders(named), inherited).toThrow(RuntimeProfileError);
+    }
+    // A reader's own source root resolves: a profile that names it is registered.
+    const source = { ...profile, name: 'source-runtime', roots: { source: '.' }, coverageRoots: ['source'] };
+    expect(profileErrors(source)).toEqual([]);
+    expect(coverageFolders(source)).toEqual(['.']);
   });
 });

@@ -72,11 +72,14 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
 }));
 
 /**
- * The verdict of a lint, as a code: a finding outside INFORMATION (`findings`); no check had an input
- * (`none-ran`); no finding, but files under the root no part type covers, which no check read (`unknown-files`);
- * else `clean`. A lint is clean only when every file is covered and some check ran.
+ * The verdict of a lint, as a code, the first that holds: a finding outside INFORMATION (`findings`); no check had
+ * an input (`none-ran`); no finding, but files under the roots the profile counts that no part type covers, which
+ * no check read (`unknown-files`); no finding, but a check that had no input to read (`checks-not-run`); else
+ * `clean`. A check the run lacked a capability for (`missing-capability`, such as the registry checks with no guard
+ * read) is listed as not run and leaves the lint clean. A lint is clean only when every check with an input ran
+ * and passed (an INFORMATION finding aside) and every file is covered.
  */
-export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'clean';
+export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'checks-not-run' | 'clean';
 
 export type LintResult = {
   findings: LintFinding[];
@@ -281,17 +284,19 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const kept = findings.filter((finding) => !unable.has(finding.code));
   const counts = Object.fromEntries(LINT_CODES.map((code) => [code, 0])) as Record<LintCode, number>;
   for (const finding of kept) counts[finding.code]++;
-  const references = atoms.filter((atom) => atom.kind === 'reference').length;
+  // The reference checks read the prose: a prose part that names no path was read and found nothing, so the
+  // check ran. Their input is the prose parts, never the references found in them.
+  const proseParts = new Set(raw.prose.map((chunk) => chunk.file)).size;
   const read: Record<LintCode, number> = {
     ORPHAN: raw.files.length,
     UNREACHABLE: raw.files.length,
     UNENFORCED: atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length,
     OVERSIZE: standingFiles(raw).length,
     UNANCHORED_GUARD: raw.guards.length,
-    MISSING_REFERENCE: references,
-    UNRESOLVED_REFERENCE: references,
-    AMBIGUOUS_REFERENCE: references,
-    EXTERNAL: references,
+    MISSING_REFERENCE: proseParts,
+    UNRESOLVED_REFERENCE: proseParts,
+    AMBIGUOUS_REFERENCE: proseParts,
+    EXTERNAL: proseParts,
     MISSING_SCRIPT: raw.guards.length,
     REGISTRY_ROW: raw.registry.filter((row) => row.origin !== 'catalogue').length,
     REGISTRY_GUARD: raw.registry.length,
@@ -301,6 +306,9 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const outcomes = LINT_CHECKS.map((check) =>
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
+      // What the read kept out on purpose (an ignore glob, a size limit, a home folder not mapped): no check read
+      // it, and it changes no count of what was read.
+      skipped: raw.coverage?.skipped ?? [],
       unknown,
       ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? { skipped: wiringSkipped[check.id] } : {}),
       findings: kept.filter((finding) => finding.code === check.id),
@@ -313,6 +321,8 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       ? 'none-ran'
       : unknown.length > 0
         ? 'unknown-files'
-        : 'clean';
+        : outcomes.some((outcome) => outcome.status === 'not-run' && outcome.notRun === 'no-input')
+          ? 'checks-not-run'
+          : 'clean';
   return { findings: kept, outcomes, failed, counts, unknown, summary };
 }

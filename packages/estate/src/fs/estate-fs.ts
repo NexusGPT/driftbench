@@ -1,6 +1,5 @@
 import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { isAbsolute, join, posix, relative, sep } from 'node:path';
 import { type RuntimeProfile, variablePrefix } from '@agent-nexus/driftbench-core';
 import { type IgnoreRule, ignoreRule } from '../scan/ignore';
@@ -113,23 +112,45 @@ export async function ignoreStack(
   return { rules, match: (path) => rules.find((rule) => rule.test(path)) };
 }
 
-/** The folders a path variable stands for, when a scan maps them: `--home` and the estate root. */
+/**
+ * The folders a path variable stands for: the estate root, and the home folder only when the caller maps one. The
+ * real home folder of the machine is never one of them, so a scan reads the same files on every machine.
+ */
 export type VariableFolders = { root: string; home?: string };
 
+/** Why a path is not read, as a code: a home path with no home folder mapped. */
+export type NotRead = 'home-not-mapped';
+
 /**
- * A path written behind one of the profile's variables, expanded: the project and plugin variables to the
- * estate root (root-relative, so the result is relative), the home variable and `~/` to the home folder (the
- * `--home` folder when one is given, else the user's own). A path behind no variable comes back as written.
+ * A path written behind one of the profile's variables, expanded as a shell would, never from the machine:
+ * - the project and plugin variables to the estate root (root-relative, so the result is relative);
+ * - the home variable and `~` to the mapped home folder; with none mapped the path is not read, and the caller
+ *   lists it as skipped with the code `home-not-mapped`;
+ * - inside single quotes nothing expands; inside double quotes a variable expands and `~` stays as written.
+ * A path behind no variable comes back as written, without its quotes.
  */
-export function expandVariables(path: string, profile: RuntimeProfile, folders: VariableFolders): string {
+export function expandVariables(
+  path: string,
+  profile: RuntimeProfile,
+  folders: VariableFolders,
+): { path: string } | { notRead: NotRead } {
+  const quote =
+    path.length >= 2 && (path[0] === '"' || path[0] === "'") && path.at(-1) === path[0] ? path[0] : '';
+  const text = quote === '' ? path : path.slice(1, -1);
+  if (quote === "'") return { path: text };
   const project = variablePrefix([...profile.pathVariables.project, ...profile.pathVariables.plugin]);
-  if (project.test(path)) return path.replace(project, '');
-  const home = folders.home ?? homedir();
+  if (project.test(text)) return { path: text.replace(project, '') };
   const homeVariable = variablePrefix(profile.pathVariables.home);
-  if (homeVariable.test(path)) return join(home, path.replace(homeVariable, ''));
-  if (path === '~') return home;
-  if (path.startsWith('~/')) return join(home, path.slice(2));
-  return path;
+  const tail = homeVariable.test(text)
+    ? text.replace(homeVariable, '')
+    : quote === '' && text === '~'
+      ? ''
+      : quote === '' && text.startsWith('~/')
+        ? text.slice(2)
+        : undefined;
+  if (tail === undefined) return { path: text };
+  if (folders.home === undefined) return { notRead: 'home-not-mapped' };
+  return { path: tail === '' ? folders.home : join(folders.home, tail) };
 }
 
 /** A path stored in a map: relative to the estate root, with `/`, or undefined for a path outside the root. */

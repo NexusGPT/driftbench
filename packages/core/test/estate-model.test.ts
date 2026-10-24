@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   compileGlob,
   coveringType,
+  GLOB_LIMITS,
   matchGlob,
   parseFieldRead,
   parseJsonPath,
@@ -107,6 +108,28 @@ describe('globs', () => {
     if (!plain.ok) throw new Error(plain.error);
     expect(plain.glob.captures).toBe(false);
     expect(matchGlob(plain.glob, 'settings.json')).toEqual({});
+  });
+
+  it('refuses a glob with more stars or characters than its limits, so no pattern makes matching backtrack', () => {
+    // Ten stars between letters: on a long name of the letter, matching such a pattern backtracks heavily.
+    expect(compileGlob('*a*a*a*a*a*a*a*a*a*b')).toEqual({ ok: false, error: 'too-many-stars' });
+    expect(compileGlob(`docs/${'x'.repeat(GLOB_LIMITS.characters)}.md`)).toEqual({
+      ok: false,
+      error: 'too-long',
+    });
+    // At the limits, and with an escaped star that is no wildcard, a glob is read.
+    expect(compileGlob('*/*/*/*/*/*/*/*.md').ok).toBe(true);
+    expect(compileGlob('a\\*b/*/*/*/*/*/*/*/*.md').ok).toBe(true);
+    const refused = parseTypes(
+      {
+        version: 1,
+        types: { a: { locate: '*a*a*a*a*a*a*a*a*a*b', aspects: ['informs'], loaded: 'always' } },
+      },
+      options(),
+    );
+    expect(refused.ok ? [] : refused.errors.map((error) => [error.code, error.reason])).toEqual([
+      ['locator', 'too-many-stars'],
+    ]);
   });
 
   it('refuses a glob that leaves the root or cannot be read, with a code', () => {
