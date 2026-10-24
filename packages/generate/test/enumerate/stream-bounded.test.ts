@@ -39,7 +39,7 @@ describe('generation to disk at scale', () => {
       const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
       if (!source.prepared) throw new Error('the fictional map failed to load');
       const options = { mapPath: '../map.yaml', seed };
-      const eager = generateSuite(source.prepared, options);
+      const eager = generateSuite(source.prepared, { ...options, settle: false });
       expect(eager.files.some((file) => file.path.includes('gen-deviation-balance-'))).toBe(true);
       const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-balance-'));
       try {
@@ -61,7 +61,7 @@ describe('generation to disk at scale', () => {
     const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
     if (!source.prepared) throw new Error('the fictional map failed to load');
     const options = { mapPath: '../map.yaml', seed };
-    const eager = generateSuite(source.prepared, options);
+    const eager = generateSuite(source.prepared, { ...options, settle: false });
     expect(eager.files.some((file) => file.path.includes('gen-restated-'))).toBe(true);
     expect(eager.files.some((file) => file.path.includes('gen-phrase-'))).toBe(true);
     const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-seeders-'));

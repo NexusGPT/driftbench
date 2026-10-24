@@ -98,7 +98,7 @@ describe('approved stage allocation', () => {
   it('balances actual placements with identical spec bytes and equivalent reports', async () => {
     const prepared = fixture();
     const options = { seed: 1031, t: 2, mapPath: '../desk.yaml' };
-    const eager = generateSuite(prepared, options);
+    const eager = generateSuite(prepared, { ...options, settle: false });
     expect(eager.report.invalid).toEqual([]);
     const counts = [...eventCounts(prepared, eager).values()];
     expect(counts).toHaveLength(4);
