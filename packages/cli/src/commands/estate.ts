@@ -698,7 +698,9 @@ export async function estateLintCommand(
     );
   }
   const unknown = result.unknown.length;
-  const notRun = result.outcomes.filter((outcome) => outcome.status === 'not-run').length;
+  const notRun = result.outcomes.filter(
+    (outcome) => outcome.status === 'not-run' && outcome.notRun === 'no-input',
+  ).length;
   // Not clean names every reason that holds: the files no check read, then the checks that did not run.
   const reasons = [
     ...(unknown > 0

@@ -76,8 +76,8 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
  * an input (`none-ran`); no finding, but files under the roots the profile counts that no part type covers, which
  * no check read (`unknown-files`); no finding, but a check that had no input to read (`checks-not-run`); else
  * `clean`. A check the run lacked a capability for (`missing-capability`, such as the registry checks with no guard
- * read) is listed as not run and leaves the lint clean. A lint
- * is clean only when every check ran and passed (an INFORMATION finding aside) and every file is covered.
+ * read) is listed as not run and leaves the lint clean. A lint is clean only when every check with an input ran
+ * and passed (an INFORMATION finding aside) and every file is covered.
  */
 export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'checks-not-run' | 'clean';
 
