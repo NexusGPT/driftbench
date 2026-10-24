@@ -2,6 +2,7 @@ import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { INFORMATION } from '../../src/index';
 import { expectedKinds, findingsOf, PROVEN } from './model';
 import {
   lintResult,
@@ -160,6 +161,24 @@ describe('a reach-around is certain only when any program may run', () => {
       };
       expect(await readBypassConfidences(bare)).toEqual([PROVEN]);
     });
+  });
+});
+
+describe('a stale helper rule is information', () => {
+  it('alone it does not fail the lint, where a stale skill rule does', async () => {
+    const lintFails = async (rule: string) => {
+      const { root } = await render({ skills: ['intake-notes'], policy: { allow: [rule] } });
+      const result = await lintResult(root);
+      return result.findings.some(
+        (finding) => !INFORMATION.has(finding.code) && finding.code.startsWith('PERMISSION_'),
+      );
+    };
+    // The set itself is pinned by the literal codes, not read back from the code under test.
+    expect([...INFORMATION].filter((code) => code.startsWith('PERMISSION_'))).toEqual([
+      'PERMISSION_UNKNOWN_HELPER',
+    ]);
+    expect(await lintFails('Agent(ghost-helper)')).toBe(false);
+    expect(await lintFails('Skill(ghost-skill)')).toBe(true);
   });
 });
 

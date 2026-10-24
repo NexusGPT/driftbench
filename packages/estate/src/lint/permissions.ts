@@ -1,4 +1,10 @@
-import { type PolicyModel, type RuntimeProfile, runtimeProfile } from '@agent-nexus/driftbench-core';
+import {
+  INFERRED_CONFIDENCE,
+  type PolicyModel,
+  PROVEN_CONFIDENCE,
+  type RuntimeProfile,
+  runtimeProfile,
+} from '@agent-nexus/driftbench-core';
 import type { PermissionDecl, RawEstate } from '../scan/reader';
 
 /**
@@ -18,16 +24,6 @@ export type PermissionCode =
   | 'PERMISSION_UNKNOWN_HELPER'
   | 'PERMISSION_READ_BYPASS'
   | 'PERMISSION_BYPASS_MODE';
-
-/** The confidence of a finding read from structure, the value step 1 gives a link read from structure. */
-export const PROVEN_CONFIDENCE = 1;
-
-/**
- * The confidence of a reach-around that rests on an assumption: an allow fixes a program with a wildcard and the
- * program's capability is not known, so whether it opens the denied file is not proven. It is only a value below
- * PROVEN_CONFIDENCE; nothing reads its size, and a reader compares with PROVEN_CONFIDENCE.
- */
-export const ASSUMED_CONFIDENCE = 0.5;
 
 export type PermissionFinding = {
   code: PermissionCode;
@@ -142,7 +138,7 @@ export function permissionFindings(raw: RawEstate): {
         message: certain
           ? `${where(rule)} denies ${rule.rule}, but ${where(by as PermissionDecl)} allows ${(by as PermissionDecl).rule}, which opens the file itself`
           : `${where(rule)} denies ${rule.rule}; ${where(first)} allows ${first.rule}, which may open the file if that program opens files (assumed: wildcard arguments, program capability unknown; declare it under programs: in the configuration file to settle it)`,
-        confidence: certain ? PROVEN_CONFIDENCE : ASSUMED_CONFIDENCE,
+        confidence: certain ? PROVEN_CONFIDENCE : INFERRED_CONFIDENCE,
         ...(certain ? {} : { basis: 'wildcard arguments, program capability unknown' }),
       });
     }
