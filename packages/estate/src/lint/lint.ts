@@ -307,10 +307,13 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     runCheck(check, available, () => ({
       read: read[check.id as LintCode],
       // What the read kept out on purpose (an ignore glob, a size limit, a home folder not mapped): no check read
-      // it, and it changes no count of what was read.
-      skipped: raw.coverage?.skipped ?? [],
+      // it, and it changes no count of what was read. The orphan checks also leave out a part only the wiring
+      // names, when the settings were not read.
+      skipped: [
+        ...(raw.coverage?.skipped ?? []),
+        ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? wiringSkipped[check.id] : []),
+      ],
       unknown,
-      ...(check.id === 'ORPHAN' || check.id === 'UNREACHABLE' ? { skipped: wiringSkipped[check.id] } : {}),
       findings: kept.filter((finding) => finding.code === check.id),
     })),
   );

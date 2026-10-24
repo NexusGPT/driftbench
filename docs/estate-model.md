@@ -147,7 +147,7 @@ The scan never reads the home folder of the machine it runs on, so it reads the 
 
 The lint exits 0 only on `Clean.`; an unknown file or a check that did not run exits 1, as a finding does. Unknown files stay coverage, not findings: they add no finding to the list. A type you declare makes its files covered; it changes no kind the map gives a file.
 
-An estate with nothing for a check to read is never clean. A folder that holds only `CLAUDE.md`, scanned with `--no-model`, has no guard, no registry and no rule, so five checks do not run (`UNENFORCED`, `UNANCHORED_GUARD`, `MISSING_SCRIPT`, `REGISTRY_ROW`, `REGISTRY_GUARD`), and the lint ends on `Not clean: 5 checks did not run.`
+An estate with nothing for a check to read is never clean. A folder that holds only `CLAUDE.md`, scanned with `--no-model`, has no rule and no guard. Three checks had no input (`UNENFORCED`, `UNANCHORED_GUARD`, `MISSING_SCRIPT`), so the lint ends on `Not clean: 3 checks did not run.` The registry checks (`REGISTRY_ROW`, `REGISTRY_GUARD`) require a guard to have been read; with none, they are listed on their own `not-run` line because the run lacks what they require. Only a check that had no input is counted in that closing line.
 
 ## Writing your own types
 

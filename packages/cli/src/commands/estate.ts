@@ -663,7 +663,8 @@ export async function estateLintCommand(
         2,
       )}\n`,
     );
-    return result.failed ? 1 : 0;
+    // The exit code says what the summary says: 0 only for a clean lint.
+    return result.summary === 'clean' ? 0 : 1;
   }
   const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${run.atoms} atoms.`];
   const width = Math.max(0, ...found.map((finding) => finding.code.length));

@@ -34,12 +34,17 @@ describe('driftbench estate lint over no input', () => {
     await writeFile(join(root, 'CLAUDE.md'), '# Rules\n\nAnswer in English.\n');
     await run(['estate', 'scan', '.', '--no-model', '--out', 'map.yaml'], root);
     const lint = await run(['estate', 'lint', 'map.yaml'], root);
-    // No guard, no registry and, with no model, no rule: those checks read nothing, so they did not run.
+    // No rule and no guard: those checks read nothing. The registry checks require a guard to have been read,
+    // so with none they lack that capability and are not counted as no-input.
     expect(lint.out).toContain(
-      '  not-run     UNENFORCED, UNANCHORED_GUARD, MISSING_SCRIPT, REGISTRY_ROW, REGISTRY_GUARD: no input to read.',
+      '  not-run     UNENFORCED, UNANCHORED_GUARD, MISSING_SCRIPT: no input to read.',
     );
-    expect(lint.out).toContain('Not clean: 5 checks did not run.');
+    expect(lint.out).toContain('  not-run     REGISTRY_ROW, REGISTRY_GUARD: the run lacks what it requires.');
+    expect(lint.out).toContain('Not clean: 3 checks did not run.');
     expect(lint.out).not.toContain('Clean.');
     expect(lint.code).toBe(1);
+    const json = await run(['estate', 'lint', 'map.yaml', '--json'], root);
+    expect(JSON.parse(json.out).summary).toBe('checks-not-run');
+    expect(json.code).toBe(1);
   });
 });

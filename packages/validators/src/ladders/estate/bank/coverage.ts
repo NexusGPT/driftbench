@@ -464,6 +464,7 @@ const CASES: Case[] = [
       return {
         unknown: [],
         summary: 'none-ran',
+        // The registry checks require a guard: with none they are missing-capability, not no-input.
         notRun: [
           'ORPHAN',
           'UNREACHABLE',
@@ -475,8 +476,6 @@ const CASES: Case[] = [
           'AMBIGUOUS_REFERENCE',
           'EXTERNAL',
           'MISSING_SCRIPT',
-          'REGISTRY_ROW',
-          'REGISTRY_GUARD',
           'QUOTE_DRIFT',
         ],
       };
@@ -485,11 +484,12 @@ const CASES: Case[] = [
   {
     key: 'not-run-no-guard',
     tier: 2,
-    title: 'with no guard and no registry, the guard and registry checks are not-run, the file checks ran',
+    title: 'with no guard and no rule, the checks that had no input are not-run, and the file checks ran',
     cause: 'notRun',
     plant: () => ({
       unknown: [],
-      // The reference checks read the prose parts: the standing file is one, so they ran.
+      // The reference checks read the prose parts: the standing file is one, so they ran. The registry checks
+      // require a guard, so they are missing-capability, not no-input.
       ran: [
         'ORPHAN',
         'UNREACHABLE',
@@ -499,7 +499,7 @@ const CASES: Case[] = [
         'AMBIGUOUS_REFERENCE',
         'EXTERNAL',
       ],
-      notRun: ['UNENFORCED', 'UNANCHORED_GUARD', 'MISSING_SCRIPT', 'REGISTRY_ROW', 'REGISTRY_GUARD'],
+      notRun: ['UNENFORCED', 'UNANCHORED_GUARD', 'MISSING_SCRIPT'],
       summary: 'checks-not-run',
     }),
   },
