@@ -84,7 +84,9 @@ export const ROOT_CASES: RootCase[] = [
             ? []
             : [`the empty folder gave ${result.map.atoms.length} atoms`]),
           // A map with no atom gives every check nothing to read: the lint says none ran, which is never clean.
-          ...(lint.summary === 'none-ran' ? [] : [`the lint of a map with 0 atoms is ${lint.summary}, not none-ran`]),
+          ...(lint.summary === 'none-ran'
+            ? []
+            : [`the lint of a map with 0 atoms is ${lint.summary}, not none-ran`]),
         ]);
       }),
   },
