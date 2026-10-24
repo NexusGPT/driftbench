@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import type { PlanSeedRow, PlanV2 } from '@agent-nexus/driftbench-generate';
 import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
-import { isolate, neutralName, rngOf } from '../../frame';
+import { type Frame, type IsolateOptions, isolate, neutralName, rngOf } from '../../frame';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 
 /**
@@ -39,6 +39,31 @@ const verdict = (pass: boolean, detail: string, cause?: string): Verdict => ({
   detail,
   ...(cause === undefined ? {} : { cause }),
 });
+
+/** Every planner call is pure: watch live results and freeze its inputs in every run. */
+function plannerFrame<T>(options: IsolateOptions): Frame<T> {
+  const frame = isolate<T>({ ...options, aliasing: true });
+  frame.strictArguments(true);
+  return frame;
+}
+
+/** A watch finding vetoes an item's ordinary predicate, with the watch's evidence and cause. */
+function plannerWatchFailure(frame: Frame<unknown>): Verdict | undefined {
+  const aliased = frame.aliasSince(0);
+  const altered = frame.alteredSince(0);
+  if (aliased === undefined && altered === undefined) return undefined;
+  const details: string[] = [];
+  const causes: string[] = [];
+  if (aliased !== undefined) {
+    details.push(`frame aliasing/argument watch: ${aliased}`);
+    causes.push(`${FILES.plan}: leave returned results and call arguments unchanged`);
+  }
+  if (altered !== undefined) {
+    details.push(`frame built-in watch: ${altered}`);
+    causes.push(`${FILES.plan}: leave the caller's built-in objects unchanged`);
+  }
+  return verdict(false, details.join('; '), causes.join('; '));
+}
 
 /** One variable of a drawn store, as the oracle reads it. */
 type Variable = { id: string; role: 'axis' | 'detail'; values: string[]; weights?: number[] };
@@ -466,6 +491,7 @@ type Answers = {
   /** On a store with a required value: the plan at budgets of 1 and of 0. */
   requiredCuts?: Map<number, PlanV2>;
   divergence?: string;
+  watchFailure?: Verdict;
 };
 
 const rowsOf = (plan: PlanV2): Cell[] => plan.rows.map((row) => row.values);
@@ -525,7 +551,7 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
   return data.memoized(`planner:${shape.name}:${module}`, async () => {
     const scenario = draw(data.seed, shape);
     const oracle = new Oracle(scenario);
-    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:${shape.name}` });
+    const frame = plannerFrame<PlannerModule>({ module, seed: data.seed, tag: `planner:${shape.name}` });
     try {
       const plan = frame.product.planV2;
       const full = plan(scenario.store, { seed: 1 });
@@ -606,6 +632,7 @@ async function answers(data: SeedData, shape: Shape, module: string): Promise<An
         seedsOnly,
         ...(requiredCuts ? { requiredCuts } : {}),
         divergence: frame.divergence(),
+        watchFailure: plannerWatchFailure(frame),
       };
     } finally {
       frame.close();
@@ -1316,10 +1343,14 @@ function hostileItems(module: string): BankItem[] {
     data.memoized(`planner:hostile:${tag}:${module}`, async () => {
       const scenario = base(data);
       const [store, options] = make(scenario);
-      const frame = isolate<{ planV2: PlanFn }>({ module, seed: data.seed, tag: `planner:hostile:${tag}` });
+      const frame = plannerFrame<{ planV2: PlanFn }>({
+        module,
+        seed: data.seed,
+        tag: `planner:hostile:${tag}`,
+      });
       try {
         const out = frame.product.planV2(store as VariableStore, options);
-        return { scenario, out, divergence: frame.divergence() };
+        return { scenario, out, divergence: frame.divergence(), watchFailure: plannerWatchFailure(frame) };
       } finally {
         frame.close();
       }
@@ -1337,7 +1368,7 @@ function hostileItems(module: string): BankItem[] {
       component: FILES.plan,
       cause: `${FILES.plan}: keep the seeds when nothing is approved, and say why`,
       async check(data) {
-        const { scenario, out, divergence } = await call(data, 'nothing', (s) => [
+        const { scenario, out, divergence, watchFailure } = await call(data, 'nothing', (s) => [
           unapproved(s),
           {
             seeds: [
@@ -1349,6 +1380,7 @@ function hostileItems(module: string): BankItem[] {
           out.rows.length === 1 &&
           out.rows[0]?.source === 'seed' &&
           out.warnings.some((w) => w.code === 'no_variables');
+        if (watchFailure) return watchFailure;
         return verdict(
           ok && divergence === undefined,
           divergence ??
@@ -1364,7 +1396,7 @@ function hostileItems(module: string): BankItem[] {
       component: FILES.plan,
       cause: `${FILES.plan}: warn value_unreachable once for a value no valid row can hold, and plan no row with it`,
       async check(data) {
-        const { out, scenario, divergence } = await call(data, 'unreachable', (s) => {
+        const { out, scenario, divergence, watchFailure } = await call(data, 'unreachable', (s) => {
           const [a, b] = s.variables as [Variable, Variable];
           // Every value of b is forbidden next to the first value of a, so that value can be in no row.
           const forbids = b.values.map((value) => ({
@@ -1380,6 +1412,7 @@ function hostileItems(module: string): BankItem[] {
           .filter((w) => w.code === 'value_unreachable')
           .map((w) => `${(w as { variable: string }).variable}=${(w as { value: string }).value}`);
         const held = out.rows.filter((row) => row.values[a.id] === a.values[0]).length;
+        if (watchFailure) return watchFailure;
         return verdict(
           divergence === undefined && warned.join('|') === target && held === 0,
           divergence ?? `warned ${JSON.stringify(warned)} where ${target} is wanted; ${held} rows hold it`,
@@ -1394,7 +1427,8 @@ function hostileItems(module: string): BankItem[] {
       component: FILES.plan,
       cause: `${FILES.plan}: a budget of zero with no seeds gives no row`,
       async check(data) {
-        const { out, divergence } = await call(data, 'zero', (s) => [s.store, { budget: 0 }]);
+        const { out, divergence, watchFailure } = await call(data, 'zero', (s) => [s.store, { budget: 0 }]);
+        if (watchFailure) return watchFailure;
         return verdict(
           out.rows.length === 0 && divergence === undefined,
           divergence ?? `${out.rows.length} rows at a budget of zero`,
@@ -1409,7 +1443,7 @@ function hostileItems(module: string): BankItem[] {
       component: FILES.plan,
       cause: `${FILES.plan}: keep a seed that names a value the store lacks, drop the entry, and report it`,
       async check(data) {
-        const { out, scenario, divergence } = await call(data, 'unknown', (s) => [
+        const { out, scenario, divergence, watchFailure } = await call(data, 'unknown', (s) => [
           s.store,
           {
             seeds: [
@@ -1436,6 +1470,7 @@ function hostileItems(module: string): BankItem[] {
             w.variable === second.id &&
             w.value === 'a-value-the-store-never-had',
         );
+        if (watchFailure) return watchFailure;
         return verdict(
           kept && warned && divergence === undefined,
           divergence ?? `kept ${kept}, reported ${warned}`,
@@ -1451,7 +1486,11 @@ function hostileItems(module: string): BankItem[] {
       cause: `${FILES.plan}: refuse a budget that is not a whole number from 0`,
       async check(data) {
         const scenario = base(data);
-        const frame = isolate<{ planV2: PlanFn }>({ module, seed: data.seed, tag: 'planner:hostile:budget' });
+        const frame = plannerFrame<{ planV2: PlanFn }>({
+          module,
+          seed: data.seed,
+          tag: 'planner:hostile:budget',
+        });
         try {
           const refused = [-1, 1.5].map((budget) => {
             try {
@@ -1461,9 +1500,12 @@ function hostileItems(module: string): BankItem[] {
               return true;
             }
           });
+          const divergence = frame.divergence();
+          const watchFailure = plannerWatchFailure(frame);
+          if (watchFailure) return watchFailure;
           return verdict(
-            refused.every(Boolean) && frame.divergence() === undefined,
-            frame.divergence() ?? `refused: ${refused.join(', ')}`,
+            refused.every(Boolean) && divergence === undefined,
+            divergence ?? `refused: ${refused.join(', ')}`,
           );
         } finally {
           frame.close();
@@ -1494,7 +1536,7 @@ function benchmarkItems(module: string): BankItem[] {
     cause: `${FILES.groups}: count the tuples a seed holds as covered, so the plan needs fewer new rows`,
     async check(data: SeedData) {
       const scenario = draw(data.seed, BENCHMARK);
-      const frame = isolate<{ planV2: PlanFn }>({
+      const frame = plannerFrame<{ planV2: PlanFn }>({
         module,
         seed: data.seed,
         tag: `planner:benchmark:${percent}`,
@@ -1509,6 +1551,8 @@ function benchmarkItems(module: string): BankItem[] {
         const seeded = plan(scenario.store, { seed: 1, seeds });
         const fresh = seeded.rows.filter((row) => row.source === 'planned').length;
         const divergence = frame.divergence();
+        const watchFailure = plannerWatchFailure(frame);
+        if (watchFailure) return watchFailure;
         return verdict(
           divergence === undefined && fresh < planned.length,
           divergence ??
@@ -1541,6 +1585,7 @@ export function plannerItems(module: string = PLANNER_MODULE, only?: readonly st
         cause: stem.cause,
         async check(data) {
           const got = await answers(data, shape, module);
+          if (got.watchFailure) return got.watchFailure;
           if (got.divergence !== undefined)
             return verdict(false, got.divergence, `${FILES.plan}: answer the same in every run`);
           return stem.check(got);
@@ -1574,10 +1619,10 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
     check,
   });
   const framed = async <T>(data: SeedData, tag: string, run: (product: PlannerModule) => T) => {
-    const frame = isolate<PlannerModule>({ module, seed: data.seed, tag: `planner:catch:${tag}` });
+    const frame = plannerFrame<PlannerModule>({ module, seed: data.seed, tag: `planner:catch:${tag}` });
     try {
       const out = run(frame.product);
-      return { out, divergence: frame.divergence() };
+      return { out, divergence: frame.divergence(), watchFailure: plannerWatchFailure(frame) };
     } finally {
       frame.close();
     }
@@ -1590,12 +1635,13 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
       3,
       `${FILES.solver}: every plan is valid and covers every target`,
       async (data) => {
-        const { out, divergence } = await framed(data, 'search', (product) =>
+        const { out, divergence, watchFailure } = await framed(data, 'search', (product) =>
           SHAPES.flatMap((shape) => {
             const scenario = draw(data.seed, shape);
             return [1, 2].map((seed) => ({ scenario, plan: product.planV2(scenario.store, { seed }) }));
           }),
         );
+        if (watchFailure) return watchFailure;
         if (divergence !== undefined) return verdict(false, divergence);
         const wrong: string[] = [];
         for (const { scenario, plan } of out) {
@@ -1639,7 +1685,7 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
           ),
         };
         // The refusal is read in fields, never in words: a RangeError whose code is VARIABLES_WEIGHT_ZERO.
-        const { out, divergence } = await framed(data, 'zero', (product) => {
+        const { out, divergence, watchFailure } = await framed(data, 'zero', (product) => {
           try {
             product.planV2(store as VariableStore, { seed: 1 });
             return { planned: true, range: false, code: undefined as unknown };
@@ -1651,6 +1697,7 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
             };
           }
         });
+        if (watchFailure) return watchFailure;
         if (divergence !== undefined) return verdict(false, divergence);
         return verdict(
           !out.planned && out.range && out.code === 'VARIABLES_WEIGHT_ZERO',
@@ -1663,10 +1710,11 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
     // docs/variables.md, The plan: `budget` echoes the option; renderPlanV2 writes it.
     item('rendered-budget', 2, `${FILES.render}: write the budget of a budgeted plan`, async (data) => {
       const scenario = draw(data.seed, SHAPES[2] as Shape);
-      const { out, divergence } = await framed(data, 'render', (product) => {
+      const { out, divergence, watchFailure } = await framed(data, 'render', (product) => {
         const plan = product.planV2(scenario.store, { seed: 1, budget: 2 });
         return { plan, text: product.renderPlanV2(plan) };
       });
+      if (watchFailure) return watchFailure;
       if (divergence !== undefined) return verdict(false, divergence);
       let written: { budget?: unknown; rows?: unknown[] } = {};
       try {
@@ -1706,9 +1754,10 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
           ),
           constraints: [...scenario.store.constraints, ...forbids],
         });
-        const { out, divergence } = await framed(data, 'required', (product) =>
+        const { out, divergence, watchFailure } = await framed(data, 'required', (product) =>
           [true, false].map((required) => product.planV2(storeWith(required) as VariableStore, { seed: 1 })),
         );
+        if (watchFailure) return watchFailure;
         if (divergence !== undefined) return verdict(false, divergence);
         const flag = (plan: PlanV2) =>
           (plan.warnings.find((w) => w.code === 'value_unreachable') as { required?: unknown } | undefined)
@@ -1784,9 +1833,10 @@ function catchItems(module: string, only?: readonly string[]): BankItem[] {
           throw new Error(
             `the drawn store is invalid: ${checked.errors.map((issue) => issue.message).join('; ')}`,
           );
-        const { out, divergence } = await framed(data, 'rules', (product) =>
+        const { out, divergence, watchFailure } = await framed(data, 'rules', (product) =>
           product.planV2(checked.store, { seed: 1 }),
         );
+        if (watchFailure) return watchFailure;
         if (divergence !== undefined) return verdict(false, divergence);
         const key = (variables: readonly string[]) => [...variables].sort().join(',');
         const wanted = [key([a, b]), key([c, d, e]), key([e, b])].sort();
