@@ -110,6 +110,8 @@ export const RUNTIMES = ['claude-code'] as const;
 export type EstateReaderOptions = {
   ignore?: readonly string[];
   userSkills?: string;
+  /** The folder that stands for the user's home folder: a guard script written from it is looked for there. */
+  home?: string;
   /** A rendered copy of the settings, for an estate that does not store its settings file (the profile says where it stands). */
   settings?: string;
 };

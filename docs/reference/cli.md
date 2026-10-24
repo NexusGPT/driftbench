@@ -1166,8 +1166,8 @@ Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id:
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--settings <file>] [--verbose] [--force] [--pointer --cassette <file> [--record | --plan-only] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--settings <file>] [--verbose] [--json]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--home <folder>] [--settings <file>] [--verbose] [--force] [--pointer --cassette <file> [--record | --plan-only] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--home <folder>] [--settings <file>] [--verbose] [--json]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -1306,6 +1306,10 @@ Approve every proposed row with --all, a row with --row <id>, or strike one with
 | `REGISTRY_GUARD` | a registry row names a guard no part of the estate runs |
 | `QUOTE_DRIFT` | an atom's quote no longer matches its file |
 | `UNENFORCED` | a rule no guard enforces; reported, never failed |
+| `PERMISSION_UNKNOWN_SKILL` | a permission rule names a skill the estate does not hold |
+| `PERMISSION_READ_BYPASS` | a deny on a file tool (`Read`, `Edit`, `Write`) beside an allow on the shell with free arguments: a command can open the file itself. Proven when the allow lets any program run; assumed, with a lower confidence, when it fixes a program with a wildcard and the program's capability is not known |
+| `PERMISSION_BYPASS_MODE` | the default mode is `bypassPermissions`: no allow rule decides anything in it. The message lists what still guards, the deny rules and the guards |
+| `PERMISSION_UNKNOWN_HELPER` | a permission rule names a helper the estate does not declare; information only, since the runtime has helpers of its own |
 
 A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_ATOM`, `MAP_UNKNOWN_ATOM`, `MAP_HASH`, `MAP_QUOTE_DRIFT`, `MAP_UNKNOWN_KIND` or `SCHEMA_*`; a plan that does not load reports `PLAN_PARSE`, `PLAN_NOT_OBJECT`, `PLAN_DUPLICATE_ROW`, `PLAN_UNKNOWN_ROW` or `SCHEMA_*`.
 

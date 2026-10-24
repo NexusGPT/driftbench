@@ -117,16 +117,28 @@ export const ALLOWED = ['Read', 'Edit', 'Write', 'Bash', 'Grep', 'Glob', 'Agent'
 
 export type GuardLine = { owner: string; event: string; matcher?: string; command: string; atoms: Planted[] };
 
+/** More permission lines an item plants beside the base settings. */
+export type ExtraPermissions = { allow?: readonly string[]; deny?: readonly string[]; defaultMode?: string };
+
 /** The base settings: every tool allowed bare, then the guards items plant, grouped by event. */
-export function writeSettings(estate: PlantedEstate, guards: readonly GuardLine[] = []): void {
+export function writeSettings(
+  estate: PlantedEstate,
+  guards: readonly GuardLine[] = [],
+  extra: ExtraPermissions = {},
+): void {
   const writer = estate.file(SETTINGS, BASE);
   writer.line('{');
   writer.line('  "permissions": {');
-  writer.line('    "allow": [');
-  ALLOWED.forEach((tool, index) => {
-    writer.line(`      ${JSON.stringify(tool)}${index === ALLOWED.length - 1 ? '' : ','}`);
+  const lists: Array<[string, readonly string[]]> = [['allow', [...ALLOWED, ...(extra.allow ?? [])]]];
+  if (extra.deny !== undefined && extra.deny.length > 0) lists.push(['deny', extra.deny]);
+  lists.forEach(([name, rules], at) => {
+    writer.line(`    ${JSON.stringify(name)}: [`);
+    rules.forEach((rule, index) => {
+      writer.line(`      ${JSON.stringify(rule)}${index === rules.length - 1 ? '' : ','}`);
+    });
+    writer.line(`    ]${at === lists.length - 1 && extra.defaultMode === undefined ? '' : ','}`);
   });
-  writer.line('    ]');
+  if (extra.defaultMode !== undefined) writer.line(`    "defaultMode": ${JSON.stringify(extra.defaultMode)}`);
   writer.line(`  }${guards.length > 0 ? ',' : ''}`);
   if (guards.length > 0) {
     writer.line('  "hooks": {');

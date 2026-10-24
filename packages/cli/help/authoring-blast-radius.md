@@ -672,6 +672,7 @@ changes:
 | `radius needs spec paths and --change <manifest>.` (exit 2) | no `--change`, or no spec path | pass both |
 | `--mode takes T, F or P, separated by commas, not "F,X".` (exit 2) | a mode other than T, F, P | use only `T`, `F`, `P` |
 | `The change manifest is invalid, so no radius was computed.` after `✗ <file>` and one line per issue (exit 2) | the manifest breaks the schema | fix each listed key, see below |
+| `This file is a <kind>, not a change manifest. A change manifest comes from one of: ...` as the last line of the issues (exit 2) | the file is another driftbench artifact: an estate diff or impact (`estate diff --out`, `estate impact --out`), an estate map, a spec, or the `radius --json` report | pass a manifest: `estate diff --change-out <file>` with `--old-ledger` and `--new-ledger`, `radius ledger`, `radius auto`, or `radius sections reanchor --change-out` |
 | `driftbench: cannot use <path>: ENOENT: no such file or directory, open '<path>'` (exit 2) | the manifest or prompt file does not exist | fix the path; paths are relative to the current folder |
 | `No spec files found.` (exit 2) | the paths hold no spec file | point at spec files or folders |
 | `Fix the invalid specs first: nothing ran.` after `✗ <file>` lines (exit 2) | a path holds an invalid spec (for example you passed the manifest as a spec path) | pass the manifest with `--change`, fix or remove the invalid spec |
