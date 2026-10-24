@@ -874,7 +874,7 @@ const runs = plans.map((plan) => {
   });
   const run = { plan, child, waiting: [], stderr: '', exited: undefined };
   trace('spawned run ' + plan.run);
-  child.stderr.on('data', (chunk) => { process.stderr.write(chunk); run.stderr = (run.stderr + chunk).slice(-4000); });
+  child.stderr.on('data', (chunk) => { appendFileSync('/tmp/frame-cost-profile.log', chunk); run.stderr = (run.stderr + chunk).slice(-4000); });
   child.on('exit', (code, sig) => {
     trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');

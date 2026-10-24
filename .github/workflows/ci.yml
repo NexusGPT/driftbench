@@ -726,4 +726,6 @@ jobs:
         if: always()
         with:
           name: frame-profile
-          path: frame-profile.log
+          path: |
+            frame-profile.log
+            /tmp/frame-cost-profile.log
