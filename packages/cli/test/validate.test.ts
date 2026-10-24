@@ -3,8 +3,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  checkFloors,
   defineLadder,
   FLOORS_FILE,
+  floorOf,
+  type LadderReport,
   ladderVersion,
   readFloors,
   registeredLadders,
@@ -301,7 +304,8 @@ describe('driftbench validate legs and --reports', () => {
       { levels: '0..2' },
       { levels: 'x' },
       { levels: '1..4' },
-      { levels: '1..2', brief: true },
+      { levels: '1..2', journal: 'row.json' },
+      { levels: '1..2', checkHandover: true },
       { levels: '1..2', hardness: true },
       { levels: '1..2', reports: folder },
     ]) {
@@ -537,6 +541,46 @@ describe('driftbench validate loop files', () => {
     expect(stale.output.err).toContain('the level table says 1=3, hidden=1');
   });
 
+  it('a sliced --brief says it is partial and claims no level or floor verdict the slice did not measure', async () => {
+    const d = await deps([1]);
+    const root = d.root as string;
+    await mkdir(join(root, 'validators'), { recursive: true });
+    await writeFile(
+      join(root, 'validators/floors.json'),
+      `${JSON.stringify({ version: 1, floors: { planted: 2 } }, null, 2)}\n`,
+    );
+    await writeFile(
+      join(root, 'validators/EXECUTOR.md'),
+      '# Executor instruction\n\nDrive <component> to 100 percent.\n',
+    );
+    const brief = async (levels: string) => {
+      const { io, output } = capture(root);
+      expect(await validateCommand('planted', { brief: true, seed: '1', levels }, io, d)).toBe(0);
+      return output.out;
+    };
+    // Lower edge: the slice starts above level 1, which it did not measure. Seed 1 fails level 2, so its level is 1;
+    // a brief of levels 3..3 alone must not claim level 3 or hold the floor.
+    const above = await brief('3..3');
+    expect(above).toContain('# Brief: validator planted (partial: levels 3 to 3)');
+    expect(above).toContain('`driftbench validate planted --brief --levels 3..3`');
+    expect(above).toContain('Level per seed: 1 = not known (levels 3 to 3 only)');
+    expect(above).toContain('Level of the run: not known: levels 1 to 2 were not measured.');
+    expect(above).toContain('Floor: 2. Not known: levels 1 to 2 were not measured.');
+    expect(above).not.toContain('Level of the run: 3');
+    expect(above).not.toContain('At or above the floor.');
+    // Upper edge: the slice starts at level 1 and ends before the first failing level, so the level is a lower bound.
+    const short = await brief('1..1');
+    expect(short).toContain('Level per seed: 1 = at least 1');
+    expect(short).toContain('Level of the run: at least 1 of 3; levels above 1 were not measured.');
+    expect(short).toContain('Floor: 2. Not known: the slice ends at level 1.');
+    expect(short).not.toContain('BELOW THE FLOOR.');
+    // A slice from level 1 that reaches the failing level measures the level exactly.
+    const whole = await brief('1..2');
+    expect(whole).toContain('Level per seed: 1 = 1');
+    expect(whole).toContain('Level of the run: 1 of 3');
+    expect(whole).toContain('Floor: 2. BELOW THE FLOOR.');
+  });
+
   it('--brief prints EXECUTOR.md with the live state; --fresh leaves out the hypotheses', async () => {
     const d = await deps([1]);
     const root = d.root as string;
@@ -621,27 +665,52 @@ describe('driftbench validate through main', () => {
     return { code, ...output };
   }
 
-  it('runs the registered stats ladder and exits with its level', async () => {
-    const result = await run(['validate', 'stats', '--seed', '1']);
-    const floors = JSON.parse(await readFile(join(ROOT, 'validators/floors.json'), 'utf8')) as {
-      floors: Record<string, number>;
-      ladderVersion: Record<string, number>;
-    };
-    // A floor belongs to its ladder version: a registered version without a floor yet has none to hold.
-    const floor =
-      floors.ladderVersion.stats === registeredLadders().stats?.version ? (floors.floors.stats as number) : 0;
-    expect(result.code).toBeGreaterThanOrEqual(floor);
-    expect(result.out).toContain('Validator stats');
-    expect(result.out).toMatch(
-      /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
-    );
-    const top = registeredLadders().stats?.levels.length;
-    expect(result.out).toContain(`Level of the run: ${result.code} of ${top}, the minimum over 1 seed.`);
+  // The whole stats ladder runs per seed in the validators workflow (the `ladders-leg` legs stats-s1, stats-s2,
+  // stats-s3 and stats-hidden, each `validate stats <seed> --check-floor`, joined by `ladders`), which enforces
+  // validators/floors.json. These tests check the wiring of the real stats ladder to the CLI and to the floor on
+  // levels 1 and 2 only; a slice of levels exits 0 whatever it reached.
+  async function statsSlice() {
+    const result = await run(['validate', 'stats', '--seed', '1', '--levels', '1..2', '--json']);
+    expect(result.code).toBe(0);
+    return JSON.parse(result.out) as LadderReport;
+  }
+
+  it('runs the registered stats ladder through the CLI and reports its levels', async () => {
+    const stats = registeredLadders().stats;
+    if (!stats) throw new Error('the statistics ladder is not registered');
+    const report = await statsSlice();
+    expect(report.component).toBe('stats');
+    expect(report.ladderVersion).toBe(ladderVersion(stats));
+    expect(report.top).toBe(stats.levels.length);
+    const rows = report.seeds[0]?.rows ?? [];
+    expect(rows.slice(0, 2).map((row) => row.pass)).toEqual([true, true]);
+    expect(rows.slice(2).every((row) => row.observed === null)).toBe(true);
+    expect(report.level).toBe(2);
   }, 600_000);
 
-  // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
+  it('holds the committed floor of the stats ladder: a report at the floor holds, one level lower fails', async () => {
+    const stats = registeredLadders().stats;
+    if (!stats) throw new Error('the statistics ladder is not registered');
+    const floors = readFloors(ROOT);
+    const floor = floorOf(floors, 'stats', ladderVersion(stats));
+    expect(floor).toBeGreaterThan(0);
+    const report = await statsSlice();
+    const tops = Object.fromEntries(
+      Object.entries(registeredLadders()).map(([name, ladder]) => [
+        name,
+        { top: ladder.levels.length, version: ladderVersion(ladder) },
+      ]),
+    );
+    const at = checkFloors([{ ...report, level: floor }], floors, tops);
+    expect(at.checks).toEqual([{ component: 'stats', level: floor, floor, holds: true }]);
+    expect(at.problems).toEqual([]);
+    const lowered = checkFloors([{ ...report, level: floor - 1 }], floors, tops);
+    expect(lowered.checks).toEqual([{ component: 'stats', level: floor - 1, floor, holds: false }]);
+  }, 600_000);
+
+  // One test per other registered ladder, so each has its own time and a slow ladder is named. The validators
   // workflow also runs `validate all --seeds 1..3 --hidden --check-floor`, which checks the floors file as a whole.
-  it.for(Object.keys(registeredLadders()))(
+  it.for(Object.keys(registeredLadders()).filter((component) => component !== 'stats'))(
     'holds the committed floor of the %s ladder',
     { timeout: 600_000 },
     async (component, context) => {
@@ -669,7 +738,7 @@ describe('driftbench validate through main', () => {
   }, 60_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
-    const result = await run(['validate', 'stats', '--brief', '--fresh']);
+    const result = await run(['validate', 'stats', '--brief', '--fresh', '--levels', '1..1']);
     expect(result.code).toBe(0);
     expect(result.out).toContain('# Brief: validator stats (fresh)');
     expect(result.out).toContain(
