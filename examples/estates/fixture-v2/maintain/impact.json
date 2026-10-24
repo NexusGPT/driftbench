@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
-    "new": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260"
+    "old": "708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d",
+    "new": "5e21b82dae5d71068a9dc5c495ce1182afb7e96ac36d294830255a55406d13e7"
   },
   "tests": {
     "live": 8,
@@ -10,6 +10,26 @@
     "other": 0
   },
   "regenerate": [
+    {
+      "test": "northwind-draft-pair",
+      "file": "draft-pair.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r2-never-send-an-email-to",
+          "why": "restated"
+        }
+      ]
+    },
+    {
+      "test": "northwind-force-push",
+      "file": "force-push.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r6-never-run-git-push-force",
+          "why": "restated"
+        }
+      ]
+    },
     {
       "test": "northwind-late-shipment",
       "file": "late-shipment.yaml",
@@ -25,6 +45,10 @@
       "file": "ledger-archive.yaml",
       "atoms": [
         {
+          "atom": "instruction.standing.r4-never-delete-a-file-under",
+          "why": "restated"
+        },
+        {
           "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
           "why": "guard_state"
         }
@@ -37,6 +61,26 @@
         {
           "atom": "route.standing.an-ask-to-plan-the-delivery",
           "why": "semantic"
+        }
+      ]
+    },
+    {
+      "test": "northwind-stop-word",
+      "file": "stop-word.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r10-when-the-user-says-stop",
+          "why": "restated"
+        }
+      ]
+    },
+    {
+      "test": "northwind-supplier-yes",
+      "file": "supplier-yes.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r2-never-send-an-email-to",
+          "why": "restated"
         }
       ]
     }
@@ -60,11 +104,25 @@
   "retire": [],
   "new": [
     {
-      "atom": "register.weekly-report.fill-the-template-in-this-order",
+      "atom": "register.supplier-email.write-in-the-supplier-s-language",
       "kind": "register",
-      "title": "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…",
-      "file": ".claude/skills/weekly-report/SKILL.md",
-      "line": 11
+      "title": "Write in the supplier's language, as listed in .claude/memory/supplier-languages.md.",
+      "file": ".claude/skills/supplier-email/SKILL.md",
+      "line": 8
+    },
+    {
+      "atom": "reference.supplier-email.read-claude-memory-supplier-languages-md",
+      "kind": "reference",
+      "title": "Read .claude/memory/supplier-languages.md",
+      "file": ".claude/skills/supplier-email/SKILL.md",
+      "line": 8
+    },
+    {
+      "atom": "instruction.supplier-email.a-looks-fine-or-a-thumbs",
+      "kind": "instruction",
+      "title": "A \"looks fine\" or a thumbs up is not a yes: ask once more.",
+      "file": ".claude/skills/supplier-email/SKILL.md",
+      "line": 13
     },
     {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
@@ -72,6 +130,13 @@
       "title": "R18. Never approve a credit note above 500.00 EUR without naming the finance lead who agr…",
       "file": "CLAUDE.md",
       "line": 26
+    },
+    {
+      "atom": "instruction.standing.r19-when-r18-applies-and-the",
+      "kind": "instruction",
+      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
+      "file": "CLAUDE.md",
+      "line": 27
     }
   ],
   "guards": [
@@ -85,80 +150,15 @@
     }
   ],
   "units": {
-    "rerun": [
-      {
-        "test": "northwind-draft-pair",
-        "file": "draft-pair.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r2-never-send-an-email-to",
-            "unit": "6juqj4iyft",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      },
-      {
-        "test": "northwind-force-push",
-        "file": "force-push.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r6-never-run-git-push-force",
-            "unit": "josrxaogo4",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      },
-      {
-        "test": "northwind-stop-word",
-        "file": "stop-word.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r10-when-the-user-says-stop",
-            "unit": "hexjxf5hak",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      },
-      {
-        "test": "northwind-supplier-yes",
-        "file": "supplier-yes.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r2-never-send-an-email-to",
-            "unit": "6juqj4iyft",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      }
-    ],
-    "advisory": [
-      {
-        "test": "northwind-force-push",
-        "file": "force-push.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r6-never-run-git-push-force",
-            "unit": "josrxaogo4",
-            "why": ["context"]
-          }
-        ]
-      }
-    ],
+    "rerun": [],
+    "advisory": [],
     "unlabeled": [
       {
-        "unit": "mx7vrgfrjv",
-        "path": "CLAUDE.md",
-        "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
-        "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
-        "tests": [
-          "northwind-draft-pair",
-          "northwind-force-push",
-          "northwind-late-shipment",
-          "northwind-ledger-archive",
-          "northwind-route-planner",
-          "northwind-stop-word",
-          "northwind-supplier-yes"
-        ]
+        "unit": "h6afckxejn",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "Read, Write, Bash(python3 *)",
+        "was": "Read, Write, Edit, Bash(python3 *)",
+        "tests": []
       }
     ]
   },
@@ -170,15 +170,18 @@
     }
   ],
   "unaffected": {
-    "moved": 25,
+    "moved": 22,
     "tests": 0
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet",
+    "approve the tests of the new atom register.supplier-email.write-in-the-supplier-s-language: no test covers it yet",
+    "approve the tests of the new atom reference.supplier-email.read-claude-memory-supplier-languages-md: no test covers it yet",
+    "approve the tests of the new atom instruction.supplier-email.a-looks-fine-or-a-thumbs: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet",
     "the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now",
-    "review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file"
+    "review the unlabeled unit h6afckxejn in .claude/skills/weekly-report/SKILL.md: it changed and no atom covers it"
   ]
 }

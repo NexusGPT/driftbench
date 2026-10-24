@@ -1,7 +1,9 @@
+import type { RegistryRolesInput } from '../pointer/registry-roles-set';
 import { ClaudeCodeReader } from './claude-code';
 import type { EstateReader } from './reader';
 
 export {
+  applyRegistryRoles,
   ClaudeCodeReader,
   type ClaudeCodeReaderOptions,
   cutLines,
@@ -10,6 +12,7 @@ export {
   DEFAULT_IGNORE,
   ESTATE_CONFIG,
   ignoreRule,
+  registryCellsToLabel,
   RenderedSettingsConflict,
   scriptOf,
   splitList,
@@ -77,6 +80,7 @@ export type {
   Read,
   ReadNote,
   RegistryRow,
+  RegistryTable,
   SettingDecl,
   SkillDecl,
   StepDecl,
@@ -112,6 +116,8 @@ export type EstateReaderOptions = {
   userSkills?: string;
   /** The folder that stands for the user's home folder: a guard script written from it is looked for there. */
   home?: string;
+  /** The registry-roles labels of the pointer reader, which the Claude Code reader uses to read a check registry. */
+  registryRoles?: RegistryRolesInput;
   /** A rendered copy of the settings, for an estate that does not store its settings file (the profile says where it stands). */
   settings?: string;
 };

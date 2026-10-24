@@ -1,9 +1,10 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { denseSystemFor } from '@agent-nexus/driftbench-core';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
-import { DEFAULT_RUNS, denseLabels, denseOpinions, denseUser, systemFor } from './dense';
+import { DEFAULT_RUNS, denseLabels, denseOpinions, denseUser } from './dense';
 import {
   type Labeler,
   type LabelerClass,
@@ -12,7 +13,7 @@ import {
   refusingKey,
   usageOf,
 } from './labeler';
-import { type LabelContext, type LabelSet, offsetSpans, type Window } from './labels';
+import { anchorUnits, type LabelContext, type LabelSet, offsetSpans, type Window } from './labels';
 import {
   askedLabels,
   DEFAULT_MAX_QUESTIONS,
@@ -80,7 +81,7 @@ export function userRequest(
       set: setBody,
       window: windowBody,
       prompt: {
-        system: systemFor(set),
+        system: denseSystemFor(set, { target: false }),
         user: denseUser(set, window, context),
       },
     };
@@ -103,7 +104,7 @@ export function userAnswer(cls: LabelerClass, payload: unknown, model: string, w
   };
   if (cls === 'system2') {
     const labels = denseLabels(payload);
-    return { labels: window ? offsetSpans(labels, window) : labels, ...common };
+    return { labels: window ? anchorUnits(offsetSpans(labels, window), window) : labels, ...common };
   }
   const probabilities = payload.probabilities;
   if (!isRecord(probabilities)) throw new LabelerError('the answer has no probabilities object');

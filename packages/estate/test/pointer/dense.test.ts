@@ -2,6 +2,7 @@ import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   AGENT_RULES_SET,
+  anchorUnits,
   createAnthropicLabeler,
   DENSE_SYSTEM,
   denseLabels,
@@ -9,8 +10,11 @@ import {
   denseUser,
   LabelerError,
   type LabelSet,
+  locateSpanText,
   parseDenseAnswer,
   SPAN_RULE,
+  TARGET_RULE,
+  type Window,
 } from '../../src/pointer';
 import { BAKERY, type Call, fakeFetch, load, windowOf } from './support';
 
@@ -30,6 +34,31 @@ describe('the dense request', () => {
     expect(DENSE_SYSTEM).not.toMatch(forbidden);
     expect(outside(BAKE)).toBe(outside(RULES));
     expect(outside(BAKE)).not.toMatch(forbidden);
+  });
+
+  it('tells the labeler in the first request that a line marked not labelable takes no label, none included', () => {
+    expect(DENSE_SYSTEM).not.toContain('asks for a target always');
+    expect(DENSE_SYSTEM).toContain(
+      'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
+    );
+    expect(DENSE_SYSTEM).toContain(
+      'A target must be a unit that can be labelled, never a line marked not labelable.',
+    );
+    const shown = {
+      ...windowOf(1),
+      display: [
+        { n: 2, mode: 'read' as const, text: 'read line' },
+        { n: 3, mode: 'context' as const, text: 'context line' },
+        { n: 4, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const lines = denseUser(BAKE, shown).split('\n');
+    for (const [n, mode] of [
+      [2, 'read'],
+      [3, 'context'],
+      [4, 'opaque'],
+    ] as const)
+      expect(lines.find((line) => line.startsWith(`[${n}] `))).toContain(`(${mode}, not labelable)`);
   });
 
   it('numbers the units, flattens their wrapped lines and gives the heading path', () => {
@@ -62,6 +91,21 @@ describe('reading a dense answer', () => {
     expect(labels[0]?.target).toBe('3');
   });
 
+  it('reads a near-JSON answer with the repairs the judges use: quotes, a comment line, a trailing comma', () => {
+    // As the parcel-claims answer that was not JSON and was not stored: the object is there, but for one slip.
+    const rule = [{ units: '1', label: 'rule' }];
+    expect(parseDenseAnswer("{'labels': [{'units': '1', 'label': 'rule'}]}")).toEqual(rule);
+    expect(parseDenseAnswer('{"labels": [{"units": "1", "label": "rule"},]}')).toEqual(rule);
+    expect(parseDenseAnswer('{\n// the labels\n"labels": [{"units": "1", "label": "rule"}]\n}')).toEqual(
+      rule,
+    );
+    expect(
+      parseDenseAnswer(
+        '{\u201clabels\u201d: [{\u201cunits\u201d: \u201c1\u201d, \u201clabel\u201d: \u201crule\u201d}]}',
+      ),
+    ).toEqual(rule);
+  });
+
   it('refuses text that is not JSON, a missing list, and an entry without units or label', () => {
     expect(() => parseDenseAnswer('Sure! Here you go')).toThrow(LabelerError);
     expect(() => parseDenseAnswer('{"window":"notes.md#1"}')).toThrow(/not JSON/);
@@ -89,6 +133,29 @@ describe('reading a dense answer', () => {
       [1, { label: 'none' }],
     ]);
     expect(opinions.refusals).toEqual([]);
+  });
+
+  it('reads a scope by its number when a line the window shows comes before the units', () => {
+    // A skill's front matter is read by code: its lines keep their numbers, so the units start at 2.
+    const window: Window = {
+      ...windowOf(3),
+      units: windowOf(3).units.map((unit) => ({ ...unit, n: unit.n + 1 })),
+      display: [{ n: 1, mode: 'read', text: 'description: counter notes' }],
+    };
+    const opinions = denseOpinions(
+      {
+        labels: [
+          { units: '2', label: 'greeting', scopes: [4] },
+          { units: '3-4', label: 'none' },
+        ],
+        returnedModel: 'm',
+        stopReason: 'end_turn',
+        usage: { input: 0, output: 0 },
+      },
+      BAKE,
+      window,
+    );
+    expect(opinions.byUnit.get(0)).toEqual({ label: 'greeting', scopes: [2] });
   });
 });
 
@@ -239,6 +306,70 @@ describe('an answer that wraps the object in words', () => {
   });
 });
 
+describe('the second request after a refused answer', () => {
+  const object = '{"labels":[{"units":"1","label":"greeting"}]}';
+
+  it('names the numbers of the shown lines of the window, which take no label', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const window = {
+      ...windowOf(1),
+      display: [
+        { n: 7, mode: 'read' as const, text: 'read line' },
+        { n: 9, mode: 'opaque' as const, text: 'fence' },
+      ],
+    };
+    const wire = labeler.render(BAKE, window);
+    await labeler.call?.(wire, BAKE, window, 1);
+    await labeler.call?.(wire, BAKE, window, 2);
+    expect(String(calls[0]?.body.system)).not.toContain('[7]');
+    expect(String(calls[1]?.body.system)).toContain('Lines [7], [9] are not labelable: give them no label');
+    // A window with no shown line adds nothing beyond the note of the first retry.
+    await labeler.call?.(wire, BAKE, windowOf(1), 2);
+    expect(String(calls[2]?.body.system)).not.toContain('not labelable: give');
+  });
+
+  it('names, from the set, the labels that ask for a target, and says each entry with one names its target', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const needing = RULES.labels.filter((label) => label.target === 'required').map((label) => label.name);
+    expect(needing.length).toBeGreaterThan(1);
+    const wire = labeler.render(RULES, windowOf(1));
+    await labeler.call?.(wire, RULES, windowOf(1), 1);
+    await labeler.call?.(wire, RULES, windowOf(1), 2);
+    expect(String(calls[0]?.body.system)).not.toContain('ask for a target:');
+    expect(String(calls[1]?.body.system)).toContain(
+      `Labels that ask for a target: ${needing.join(', ')}. An entry with one of them always names its target.`,
+    );
+    // A set whose labels ask for no target adds nothing.
+    const plain = labeler.render(BAKE, windowOf(1));
+    await labeler.call?.(plain, BAKE, windowOf(1), 2);
+    expect(String(calls[2]?.body.system)).not.toContain('ask for a target:');
+  });
+});
+
 describe('the dense request for a set with spans and links', () => {
   const WITH = load(`labels:
   - set: counter-voice
@@ -263,6 +394,19 @@ describe('the dense request for a set with spans and links', () => {
     expect(body.system).toBe(DENSE_SYSTEM);
     expect(body.messages[0]?.content).not.toContain('SPAN KINDS');
     expect(body.messages[0]?.content).not.toContain('LINK KINDS');
+  });
+
+  it('adds the target rule to the system text only for a set with a label that asks for a target, byte for byte otherwise', () => {
+    const ask = createAnthropicLabeler().render(RULES, windowOf(2)).body as { system: string };
+    expect(ask.system).toContain(TARGET_RULE);
+    expect(TARGET_RULE).toBe('A label that asks for a target always names one.');
+    // A set with no such label, with or without spans, keeps the system text it had.
+    expect((createAnthropicLabeler().render(BAKE, windowOf(2)).body as { system: string }).system).toBe(
+      DENSE_SYSTEM,
+    );
+    expect(
+      (createAnthropicLabeler().render(WITH, windowOf(2), context).body as { system: string }).system,
+    ).toBe(`${DENSE_SYSTEM} ${SPAN_RULE}`);
   });
 
   it('names the span kinds, the link kinds and the candidates, and adds the span rule to the system text', () => {
@@ -355,5 +499,95 @@ describe('the dense request for a set with spans and links', () => {
       spans: [{ kind: 'clause', from: 0, to: 4, polarity: 'obligation' }],
       links: [{ kind: 'topic', to: 'route.a' }],
     });
+  });
+});
+
+describe('the anchor of an entry, read against the window', () => {
+  const window = {
+    id: 'CLAUDE.md#1',
+    path: 'CLAUDE.md',
+    headingPath: ['Rules'],
+    units: [
+      { n: 1, index: 0, text: '**R13.** Before you dispatch a helper agent, write its brief.' },
+      { n: 2, index: 1, text: '**R14.** Do not commit to git until you have read `git status`.' },
+      { n: 3, index: 2, text: '**R15.** After a compaction, re-read this file.' },
+      { n: 4, index: 3, text: 'Fill the template in this order.' },
+    ],
+  };
+  const anchored = (units: string, anchor?: string) =>
+    anchorUnits([{ units, label: 'rule', ...(anchor === undefined ? {} : { anchor }) }], window)[0];
+
+  it('is 0 when the anchor is located in the first unit the entry names, as a span is', () => {
+    expect(anchored('2', 'Do not commit')).toEqual({ units: '2', label: 'rule', anchored: 0 });
+    expect(anchored('1-2', 'Before you dispatch')).toEqual({ units: '1-2', label: 'rule', anchored: 0 });
+    // Located without regard to case, as a span is, and anywhere in the unit.
+    expect(anchored('2', 'do not COMMIT')?.anchored).toBe(0);
+  });
+
+  it('counts the lines to the unit it starts when the number slipped, either way', () => {
+    // As R14 of the Northwind fixture: the reading of R13 put on R14's number.
+    expect(anchored('2', 'Before you dispatch')?.anchored).toBe(-1);
+    expect(anchored('1', 'Do not commit')?.anchored).toBe(1);
+    expect(anchored('1', 'Fill the template')?.anchored).toBe(3);
+  });
+
+  it('is null when it starts no line of the window', () => {
+    expect(anchored('2', 'Never paste secrets')?.anchored).toBeNull();
+  });
+
+  it('keeps no word of the anchor, and adds nothing to an entry with none', () => {
+    expect(anchored('2', 'Do not commit')).not.toHaveProperty('anchor');
+    expect(anchored('2')).toEqual({ units: '2', label: 'rule' });
+  });
+
+  it('is kept from the answer until the window reads it', () => {
+    expect(
+      parseDenseAnswer('{"labels": [{"units": "2", "label": "rule", "anchor": "Do not commit"}]}'),
+    ).toEqual([{ units: '2', label: 'rule', anchor: 'Do not commit' }]);
+  });
+
+  it('is asked for in the request on every entry, none included, and a range is anchored at both ends', () => {
+    // A none entry with no anchor let a shifted none through unseen (R11 of the fixture-v2 delta window).
+    expect(DENSE_SYSTEM).toContain('Every entry, none included, also gives "anchor"');
+    expect(DENSE_SYSTEM).toContain('a range also gives "anchorEnd"');
+  });
+
+  it('asks for every unit, none included, in ranges', () => {
+    expect(DENSE_SYSTEM).toContain('Units labelled none still appear, joined in ranges.');
+  });
+
+  it('reads a miss of the locator by its code: other wording for its messages changes no anchor', () => {
+    // A check reads the code, never the message: the same anchors come out when every message is reworded.
+    const reworded: typeof locateSpanText = (text, words) => {
+      const found = locateSpanText(text, words);
+      return 'reason' in found ? { ...found, reason: `reworded ${found.code}` } : found;
+    };
+    const twice = {
+      ...window,
+      units: [
+        { n: 1, index: 0, text: 'Keep the log, the log of every boat.' },
+        { n: 2, index: 1, text: 'The log is kept at the desk.' },
+      ],
+    };
+    for (const locate of [locateSpanText, reworded]) {
+      // Found twice in its own unit (ambiguous) is still its own unit, though the words are in unit 2 as well.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'the log' }], twice, locate)[0]?.anchored,
+      ).toBe(0);
+      // Found in no line (not found) points nowhere.
+      expect(
+        anchorUnits([{ units: '1', label: 'rule', anchor: 'no such words' }], twice, locate)[0]?.anchored,
+      ).toBeNull();
+    }
+  });
+
+  it('reads the end anchor of a range against its last unit', () => {
+    const range = (anchorEnd: string) =>
+      anchorUnits([{ units: '1-3', label: 'none', anchor: 'Before you dispatch', anchorEnd }], window)[0];
+    expect(range('After a compaction')).toEqual({ units: '1-3', label: 'none', anchored: 0, anchoredEnd: 0 });
+    // A none range one line short at its end: its end anchor is on the line after it.
+    expect(range('Fill the template')?.anchoredEnd).toBe(1);
+    expect(range('Never paste secrets')?.anchoredEnd).toBeNull();
+    expect(range('After a compaction')).not.toHaveProperty('anchorEnd');
   });
 });

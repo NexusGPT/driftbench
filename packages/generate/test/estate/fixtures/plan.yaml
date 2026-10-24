@@ -3,7 +3,7 @@
 # every row approved but one struck. The summary counts the rows below; no covering array was computed.
 # Fictional data only.
 version: 1
-mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
+mapHash: 708456f152fdeeab57a1e49e2b6216d5ddcbd4b69e0240efea7f20b311268d4d
 rows:
   - id: p01
     atomIds:
@@ -135,7 +135,7 @@ rows:
     weight: 1
   - id: p12
     atomIds:
-      - instruction.supplier-email.a-looks-fine-or-a-thumbs
+      - instruction.supplier-email.every-draft-has-a-subject-with
     cell:
       ask_class: compose
       ask_shape: concrete
@@ -374,7 +374,7 @@ rows:
     weight: 1
   - id: p29
     atomIds:
-      - register.standing.never-use-the-words-obviously-or
+      - instruction.standing.never-use-the-words-obviously-or
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -477,7 +477,7 @@ rows:
     weight: 1
   - id: p36
     atomIds:
-      - instruction.standing.a-tracker-note-may-be-written
+      - instruction.standing.never-use-the-words-obviously-or
     cell:
       ask_class: operate
       ask_shape: concrete

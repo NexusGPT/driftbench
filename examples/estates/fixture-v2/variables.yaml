@@ -3,7 +3,7 @@
 # Regenerate it from the estate; do not edit it.
 format: 1
 agent: northwind
-version: 0c62ba644a29
+version: 5e21b82dae5d
 prior:
   kind: declared
 variables:
@@ -14,18 +14,8 @@ variables:
     approved: false
     produced_by: code
     values:
-      - id: instruction.inbox-triager.you-sort-messages-into-three-folders
-        title: "You sort messages into three folders: invoices, shipments and suppliers."
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/agents/inbox-triager.md
-            quote: "You sort messages into three folders: invoices, shipments and suppliers."
-            ledger: ifwlbe733a
-        polarity: must
       - id: instruction.inbox-triager.a-message-that-fits-none-goes
-        title: A message that fits none goes to "other".
+        title: A message that fits none goes to inbox/other/.
         approved: false
         produced_by: model
         provenance:
@@ -33,18 +23,28 @@ variables:
             path: .claude/agents/inbox-triager.md
             quote: |-
               A message that fits none goes to
-              "other".
-            ledger: ucqzvfeiik
+              `inbox/other/`.
+            ledger: zi42p52krf
         polarity: must
-      - id: instruction.inbox-triager.never-answer-a-message-yourself-and
-        title: Never answer a message yourself and never delete one.
+      - id: instruction.inbox-triager.never-answer-a-message-yourself-write
+        title: "Never answer a message yourself: write nothing to outbox/."
         approved: false
         produced_by: model
         provenance:
           - kind: quote
             path: .claude/agents/inbox-triager.md
-            quote: Never answer a message yourself and never delete one.
-            ledger: e5orfrbvw4
+            quote: "Never answer a message yourself: write nothing to `outbox/`."
+            ledger: nmsqgwccyc
+        polarity: must_not
+      - id: instruction.inbox-triager.never-delete-a-message-move-it
+        title: "Never delete a message: move it, do not run rm."
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/agents/inbox-triager.md
+            quote: "Never delete a message: move it, do not run `rm`."
+            ledger: lk3mrzwbnt
         polarity: must_not
       - id: instruction.ledger-auditor.you-never-edit-a-file-you
         title: "You never edit a file: you read and you report."
@@ -56,6 +56,18 @@ variables:
             quote: "You never edit a file: you read and you report."
             ledger: wf65yszjnc
         polarity: must_not
+      - id: instruction.ledger-auditor.when-either-is-missing-answer-with
+        title: 'When either is missing, answer with {"status": "blocked", "missing": [...]} and stop.'
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/agents/ledger-auditor.md
+            quote: |-
+              When either is missing, answer with
+              {"status": "blocked", "missing": [...]} and stop.
+            ledger: 3eyqckfmkn
+        polarity: must
       - id: instruction.ledger-auditor.look-for-the-same-invoice-number
         title: Look for the same invoice number paid twice, the same amount paid to the same supplier wi…
         approved: false
@@ -100,6 +112,16 @@ variables:
               delivery on a public holiday in the receiving country.
             ledger: 3j7thuawtp
         polarity: must_not
+      - id: instruction.memory-memory.the-operations-team-wants-the-weekly
+        title: The operations team wants the weekly report on Monday before 10:00.
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/memory/MEMORY.md
+            quote: The operations team wants the weekly report on Monday before 10:00.
+            ledger: uy66cc5nh7
+        polarity: must
       - id: instruction.memory-memory.never-schedule-a-delivery-on-a
         title: Never schedule a delivery on a public holiday in the receiving country.
         approved: false
@@ -110,15 +132,15 @@ variables:
             quote: Never schedule a delivery on a public holiday in the receiving country.
             ledger: 7wqtvpz2nv
         polarity: must_not
-      - id: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-        title: Run python3 scripts/reconcile.py <invoice> <order> and show the summary it prints.
+      - id: instruction.invoice-reconcile.a-line-on-the-invoice-with
+        title: "A line on the invoice with no order line is an extra charge: list it apart."
         approved: false
         produced_by: model
         provenance:
           - kind: quote
-            path: .claude/skills/invoice-reconcile/SKILL.md
-            quote: Run `python3 scripts/reconcile.py <invoice> <order>` and show the summary it prints.
-            ledger: mc2fjnpbks
+            path: .claude/skills/invoice-reconcile/references/matching-rules.md
+            quote: "A line on the invoice with no order line is an extra charge: list it apart."
+            ledger: l2du4zrlr4
         polarity: must
       - id: instruction.invoice-reconcile.never-change-an-amount-on-an
         title: Never change an amount on an invoice; report the difference instead.
@@ -170,6 +192,18 @@ variables:
             quote: When the carrier answers with an error, say so and give the carrier's own tracking page; never guess a status.
             ledger: iax6q7xbmz
         polarity: must
+      - id: instruction.supplier-email.every-draft-has-a-subject-with
+        title: Every draft has a subject with the order number, one paragraph that states the problem, a…
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/supplier-email/SKILL.md
+            quote: |-
+              Every draft has a subject with the order number, one paragraph that states the problem, and one sentence
+              with the action and the date you expect it by.
+            ledger: lnoao4ftra
+        polarity: must
       - id: instruction.supplier-email.a-looks-fine-or-a-thumbs
         title: 'A "looks fine" or a thumbs up is not a yes: ask once more.'
         approved: false
@@ -194,16 +228,6 @@ variables:
               invoice.
             ledger: xxhhucduvn
         polarity: must_not
-      - id: instruction.weekly-report.count-only-what-the-ledger-and
-        title: Count only what the ledger and the shipment log show for the last seven days.
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/skills/weekly-report/SKILL.md
-            quote: Count only what the ledger and the shipment log show for the last seven days.
-            ledger: wrl4c7wlvb
-        polarity: must
       - id: instruction.weekly-report.save-the-report-as-reports-year
         title: Save the report as reports/<year>-W<week>.md and never overwrite an earlier week.
         approved: false
@@ -215,7 +239,7 @@ variables:
               Save the report as
               `reports/<year>-W<week>.md` and never overwrite an earlier week.
             ledger: 4u2gwiyt2j
-        polarity: must_not
+        polarity: must
       - id: instruction.standing.r2-never-send-an-email-to
         title: R2. Never send an email to a supplier without showing the full draft to the user first an…
         approved: false
@@ -258,16 +282,6 @@ variables:
             quote: "**R7.** When a shipment is late by more than one day, tell the user and propose a supplier email."
             ledger: cojjskkmp4
         polarity: must
-      - id: instruction.standing.r8-do-not-invent-order-numbers
-        title: R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: "**R8.** Do not invent order numbers, prices or dates; when a value is missing, ask the user for it."
-            ledger: jixkl7ilvt
-        polarity: must_not
       - id: instruction.standing.r10-when-the-user-says-stop
         title: R10. When the user says "stop", stop all work and confirm in one line.
         approved: false
@@ -318,27 +332,15 @@ variables:
             quote: "**R18.** Never approve a credit note above 500.00 EUR without naming the finance lead who agreed to it."
             ledger: bluhvywt5m
         polarity: must_not
-      - id: instruction.standing.every-task-follows-the-step-list
-        title: "Every task follows the step list in .claude/steps.json: plan, do, verify, report."
+      - id: instruction.standing.r19-when-r18-applies-and-the
+        title: R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…
         approved: false
         produced_by: model
         provenance:
           - kind: quote
             path: CLAUDE.md
-            quote: "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report."
-            ledger: mnlr5rno4r
-        polarity: must
-      - id: instruction.standing.a-tracker-note-may-be-written
-        title: A tracker note may be written at any step.
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: |-
-              A tracker note may be
-              written at any step.
-            ledger: ceowdbcrfy
+            quote: "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft."
+            ledger: kfm4uyqyuy
         polarity: must
       - id: instruction.standing.never-report-a-task-as-done
         title: Never report a task as done before the verify step has passed.
@@ -349,6 +351,16 @@ variables:
             path: CLAUDE.md
             quote: Never report a task as done before the verify step has passed.
             ledger: i7uw67ztqh
+        polarity: must_not
+      - id: instruction.standing.never-use-the-words-obviously-or
+        title: Never use the words "obviously" or "simply".
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: CLAUDE.md
+            quote: Never use the words "obviously" or "simply".
+            ledger: w5v46k2lbi
         polarity: must_not
   - id: atoms.gate
     title: Target gate atoms
@@ -366,6 +378,24 @@ variables:
             path: .claude/skills/invoice-reconcile/SKILL.md
             quote: Read `references/matching-rules.md` before matching any line.
             ledger: 4wfcnk2irw
+      - id: gate.invoice-reconcile.read-references-currency-table-md-before
+        title: Read references/currency-table.md before convert every amount
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/invoice-reconcile/SKILL.md
+            quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+            ledger: gfz5utnqh3
+      - id: gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
+        title: Read python3 scripts/reconcile.py <invoice> <order> before show the summary it prints
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: .claude/skills/invoice-reconcile/SKILL.md
+            quote: Run `python3 scripts/reconcile.py <invoice> <order>` and show the summary it prints.
+            ledger: mc2fjnpbks
       - id: gate.weekly-report.read-templates-report-md-before-writing
         title: Read templates/report.md before writing the report
         approved: false
@@ -403,7 +433,7 @@ variables:
             quote: "**R14.** Do not commit to git until you have read the output of `git status`."
             ledger: zuie2qo5us
       - id: gate.standing.read-claude-memory-memory-md-before
-        title: Read .claude/memory/MEMORY.md before at the start of every session
+        title: Read .claude/memory/MEMORY.md before the start of every session
         approved: false
         produced_by: model
         provenance:
@@ -517,15 +547,6 @@ variables:
             path: CLAUDE.md
             quote: prepare the weekly report | `weekly-report`
             ledger: exnaqevdtv
-      - id: route.standing.an-ask-to-audit-the-ledger
-        title: An ask to audit the ledger for duplicate payments dispatches ledger-auditor
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: audit the ledger for duplicate payments | the `ledger-auditor` agent
-            ledger: d3pn74rs46
       - id: route.standing.an-ask-to-plan-the-delivery
         title: An ask to plan the delivery routes for the next two days dispatches route-planner
         approved: false
@@ -781,17 +802,15 @@ variables:
             path: .claude/skills/invoice-reconcile/SKILL.md
             quote: "End with one line per invoice: matched, short or over, and the amount."
             ledger: hkxeghi3ug
-      - id: register.supplier-email.every-draft-has-a-subject-with
-        title: Every draft has a subject with the order number, one paragraph that states the problem, a…
+      - id: register.supplier-email.write-in-the-supplier-s-language
+        title: Write in the supplier's language, as listed in .claude/memory/supplier-languages.md.
         approved: false
         produced_by: model
         provenance:
           - kind: quote
             path: .claude/skills/supplier-email/SKILL.md
-            quote: |-
-              Every draft has a subject with the order number, one paragraph that states the problem, and one sentence
-              with the action and the date you expect it by.
-            ledger: lnoao4ftra
+            quote: Write in the supplier's language, as listed in `.claude/memory/supplier-languages.md`.
+            ledger: dgwysklcdn
       - id: register.supplier-email.keep-a-draft-under-120-words
         title: Keep a draft under 120 words.
         approved: false
@@ -801,15 +820,6 @@ variables:
             path: .claude/skills/supplier-email/SKILL.md
             quote: Keep a draft under 120 words.
             ledger: 2hpjnbkcu3
-      - id: register.weekly-report.fill-the-template-in-this-order
-        title: "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…"
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: .claude/skills/weekly-report/SKILL.md
-            quote: "Fill the template in this order: invoices reconciled, shipments late, supplier emails sent, open questions."
-            ledger: zccykz54pt
       - id: register.standing.r1-always-answer-in-the-language
         title: R1. Always answer in the language of the user's latest message.
         approved: false
@@ -855,15 +865,6 @@ variables:
             path: CLAUDE.md
             quote: Use a bullet list for three or more parallel items.
             ledger: akbpjlr55w
-      - id: register.standing.never-use-the-words-obviously-or
-        title: Never use the words "obviously" or "simply".
-        approved: false
-        produced_by: model
-        provenance:
-          - kind: quote
-            path: CLAUDE.md
-            quote: Never use the words "obviously" or "simply".
-            ledger: w5v46k2lbi
       - id: register.standing.write-amounts-with-the-currency-code
         title: Write amounts with the currency code after the number, as in 1,250.00 EUR.
         approved: false
@@ -963,16 +964,16 @@ variables:
             path: CLAUDE.md
             quote: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
             ledger: 7cv2d5ktjq
-      - id: reference.standing.read-claude-steps-json
-        title: Read .claude/steps.json
+      - id: reference.standing.read-claude-memory-memory-md
+        title: Read .claude/memory/MEMORY.md
         approved: false
         produced_by: model
         provenance:
           - kind: quote
             path: CLAUDE.md
-            quote: "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report."
-            ledger: mnlr5rno4r
-      - id: reference.standing.read-claude-memory-memory-md
+            quote: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+            ledger: 2ehiz3u7nq
+      - id: reference.standing.read-claude-memory-memory-md-2
         title: Read .claude/memory/MEMORY.md
         approved: false
         produced_by: model
@@ -1180,6 +1181,15 @@ variables:
             path: CLAUDE.md
             quote: "**R15.** After a compaction, re-read this file and the open tracker note before you continue."
             ledger: ndszu34jlz
+      - id: hazard.standing.r20-after-a-restart-of-your
+        title: R20. After a restart of your process, re-read .claude/memory/MEMORY.md before you continu…
+        approved: false
+        produced_by: model
+        provenance:
+          - kind: quote
+            path: CLAUDE.md
+            quote: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+            ledger: 2ehiz3u7nq
   - id: details.invariant
     title: Detail invariant atoms
     kind: data

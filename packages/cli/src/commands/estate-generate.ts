@@ -191,7 +191,10 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     return 2;
   }
   const root = located.root;
-  const lister = readerFor(loaded.map.runtime, { ignore: loaded.map.ignore ?? [] });
+  const lister = readerFor(loaded.map.runtime, {
+    ignore: loaded.map.ignore ?? [],
+    ...(loaded.map.registryRoles ? { registryRoles: loaded.map.registryRoles } : {}),
+  });
   const listed = lister?.listFiles ? await lister.listFiles(root) : undefined;
   const sources = new Set(loaded.map.atoms.map((atom) => atom.provenance.file));
   if (listed?.some((file) => sources.has(file))) {

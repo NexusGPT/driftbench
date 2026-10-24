@@ -17,7 +17,7 @@ import {
   scanEstate,
 } from '../../src/index';
 import type { EstateMap } from '../../src/schema';
-import { FIXTURE, NOW, replayPointer } from '../support';
+import { FIXTURE, HAND_ROLES, NOW, replayPointer } from '../support';
 
 const V2 = fileURLToPath(new URL('../../../../examples/estates/fixture-v2/', import.meta.url));
 const OLD_PATH = 'examples/estates/fixture/approved.yaml';
@@ -63,6 +63,7 @@ describe('the fixture-v2 estate', () => {
     const scanned = await scanEstate({
       root: V2,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       now: NOW,
       pointer: await replayPointer(V2, join(FIXTURE, 'ledger.json')),
     });

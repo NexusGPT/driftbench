@@ -9,6 +9,7 @@ import {
   offsetSpans,
   parseLabelSets,
   setHash,
+  shownLabelDrops,
 } from '../../src/pointer';
 
 // Two invented sets on the same units: one for a bakery's counter notes, one for a harbour's mooring notes.
@@ -203,10 +204,123 @@ describe('checking an answer', () => {
     expect([...checked.covered]).toEqual([1, 2, 3]);
   });
 
+  it('labels the units of a range that crosses a line the window shows but does not ask about', () => {
+    // Units and display lines share one numbering: 3 is a read line, 5 a context line.
+    const shown = {
+      ...window,
+      units: [1, 2, 4, 6].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const checked = checkAnswer(counter, shown, [{ units: '1-5', label: 'greeting' }]);
+    expect(checked.refusals).toEqual([]);
+    expect([...checked.accepted.keys()]).toEqual([1, 2, 4]);
+    expect([...checked.covered]).toEqual([1, 2, 4]);
+    // A number outside the window still refuses the whole entry, even inside a range over display lines.
+    const outside = checkAnswer(counter, shown, [{ units: '1-9', label: 'greeting' }]);
+    expect(outside.refusals).toEqual(['notes.md#1: "1-9" leaves the window']);
+    expect(outside.accepted.size).toBe(0);
+    // An entry called none that names only display lines is dropped, and the answer is not refused.
+    const only = checkAnswer(counter, shown, [
+      { units: '3', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ]);
+    expect(only.refusals).toEqual([]);
+    expect(only.invalid).toEqual([]);
+    expect([...only.accepted.keys()]).toEqual([1, 2]);
+    // A label other than none on a display line alone is a wrong answer: refused.
+    expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).invalid).toEqual([
+      'notes.md#1: "3" names a line that is not labelable',
+    ]);
+  });
+
+  it('accepts a range as wide as a window of more than 10,000 units, and refuses one past its last line', () => {
+    // A file under the character budget is one window, so a window can hold far more than 10,000 units; a range
+    // is bounded by the window it is answered for, never by a fixed count (docs/estate-pointer-reader.md, Validation).
+    const wide = {
+      ...window,
+      units: Array.from({ length: 12_293 }, (_, at) => ({ n: at + 1, text: `unit ${at + 1}`, index: at })),
+    };
+    const whole = checkAnswer(counter, wide, [{ units: '1-12293', label: 'greeting' }]);
+    expect(whole.invalid).toEqual([]);
+    expect(whole.accepted.size).toBe(12_293);
+    const past = checkAnswer(counter, wide, [{ units: '1-12294', label: 'greeting' }]);
+    expect(past.invalid).toEqual(['notes.md#1: "1-12294" leaves the window']);
+    expect(past.accepted.size).toBe(0);
+    // The same refusal as a short range that leaves a short window.
+    expect(checkAnswer(counter, window, [{ units: '3-5', label: 'greeting' }]).invalid).toEqual([
+      'notes.md#1: "3-5" leaves the window',
+    ]);
+    // A wide range on display lines alone is still dropped on the last try, never refused for its width.
+    const shownWide = {
+      ...wide,
+      units: [{ n: 12_294, text: 'last unit', index: 12_293 }],
+      display: wide.units.map((unit) => ({ n: unit.n, mode: 'context' as const, text: unit.text })),
+    };
+    const split = shownLabelDrops(shownWide, [{ units: '1-12293', label: 'greeting' }]);
+    expect(split.labels).toEqual([]);
+    expect(split.dropped).toHaveLength(12_293);
+  });
+
+  it('keeps one entry of an entry written twice and refuses a unit named again in any other way', () => {
+    const same = checkAnswer(counter, window, [
+      { units: '1-2', label: 'greeting' },
+      { units: '1-2', label: 'greeting' },
+      { units: '3', label: 'none' },
+      { units: '3', label: 'none' },
+    ]);
+    expect(same.refusals).toEqual([]);
+    expect([...same.accepted.keys()]).toEqual([1, 2]);
+    expect([...same.covered]).toEqual([1, 2, 3]);
+    // Another label, or the same label on a unit inside a range already given, is a unit named twice.
+    for (const second of [
+      { units: '2', label: 'price-claim' },
+      { units: '2', label: 'greeting' },
+    ]) {
+      const other = checkAnswer(counter, window, [{ units: '1-2', label: 'greeting' }, second]);
+      expect(other.invalid).toEqual(['notes.md#1: "2" names a unit that is already labelled']);
+    }
+  });
+
+  it('splits the entries that put a real label on shown lines alone from the rest of an answer', () => {
+    const shown = {
+      ...window,
+      units: [1, 2, 4].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const answer = [
+      { units: '3', label: 'greeting' },
+      { units: '3-4', label: 'greeting' },
+      { units: '5', label: 'greeting' },
+      { units: '5', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ];
+    const split = shownLabelDrops(shown, answer);
+    expect(split.labels).toEqual([answer[1], answer[3], answer[4]]);
+    expect(split.dropped).toEqual([
+      { line: 3, label: 'greeting' },
+      { line: 5, label: 'greeting' },
+    ]);
+    // A label the set does not have is not dropped with the shown lines: it stays, and the check refuses it.
+    const known = new Set(['greeting', 'none']);
+    const unknown = shownLabelDrops(shown, [{ units: '3', label: 'mystery' }], known);
+    expect(unknown.dropped).toEqual([]);
+    expect(unknown.labels).toHaveLength(1);
+    // The entries that stand are checked as before.
+    expect(checkAnswer(counter, shown, split.labels).refusals).toEqual([]);
+  });
+
   it('refuses a label that is not in the set, with the reason', () => {
     const checked = checkAnswer(counter, window, [{ units: '1', label: 'order' }]);
     expect(checked.refusals).toEqual(['notes.md#1: the label order is not in the set counter-voice']);
     expect(checked.accepted.size).toBe(0);
+    // The code form keeps no word of the model: a code and the set.
+    expect(checked.invalidCodes).toEqual(['notes.md#1: label-not-in-set (counter-voice)']);
   });
 
   it('refuses a unit that is not in the window and a range that leaves it', () => {
@@ -518,8 +632,12 @@ describe('spans and links in a label set', () => {
 
   it('locates words in a text: one place, none, or several', () => {
     expect(locateSpanText('Read the log first.', 'THE LOG')).toEqual({ from: 5, to: 12 });
-    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({ reason: 'the text is not in the unit' });
+    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({
+      code: 'not-found',
+      reason: 'the text is not in the unit',
+    });
     expect(locateSpanText('the log, the log', 'the log')).toEqual({
+      code: 'ambiguous',
       reason: 'the text is found twice in the unit',
     });
   });

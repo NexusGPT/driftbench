@@ -1310,7 +1310,7 @@ const SEEDED: Record<string, Seeded> = {
   'set-hash/value': seededSetHash,
   'set-hash/pairs': seededSetHash,
   'set-hash/isolated': seededSetHash,
-  'answer/accepted': defect('none'),
+  'answer/accepted': defect('none', 'written-twice'),
   'answer/refuses-unknown-label': defect('unknown-label'),
   'answer/refuses-bad-units': defect('bad-units'),
   'answer/refuses-outside-window': defect('outside-window'),

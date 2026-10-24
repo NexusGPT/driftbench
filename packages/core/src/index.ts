@@ -217,6 +217,14 @@ export {
   executionEnvironment,
 } from './outcome/execution-policy';
 export {
+  DENSE_SYSTEM,
+  type DenseSystemSet,
+  denseSystemFor,
+  NUMBER_RULE,
+  SPAN_RULE,
+  TARGET_RULE,
+} from './pointer-prompt';
+export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
   agentVersionOf,
@@ -725,4 +733,11 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export {
+  dropCommentLines,
+  dropTrailingComma,
+  repairAnswerText,
+  singleToDoubleQuotes,
+  straightenCurlyQuotes,
+} from './text/near-json';
 export { type OpenAiCompatibleOptions, openAiCompatibleEmbedder } from './text/openai-embedder';

@@ -11,11 +11,32 @@ import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
 import { estateMeta } from '../../src/ladders/estate/levels';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 
-const APPROVED_TASKS = [
-  { type: 'route_positive', text: 'Fill in the shipments late section of the week 41 report.' },
-  { type: 'twin', text: 'Go through inbox/ and say which folder each message belongs in.' },
-  { type: 'route_positive', text: 'Has NW-55031 arrived yet? The carrier is FRT.' },
-];
+// The approved asks the tests judge are chosen by property, never by name: for each test type, the first approved
+// phrase (situations by id) of a trigger situation that holds the first atom of a plan row of that type.
+const BANK = parse(readFileSync(join(fixture.FIXTURE, 'phrases.yaml'), 'utf8')) as {
+  situations: Array<{
+    id: string;
+    use?: string;
+    atoms: string[];
+    phrases: Array<{ text: string; approved: boolean }>;
+  }>;
+};
+const PLAN = parse(readFileSync(join(fixture.FIXTURE, 'plan.yaml'), 'utf8')) as {
+  rows: Array<{ id: string; atomIds: string[]; testType: string }>;
+};
+const APPROVED_TASKS = ['route_positive', 'twin'].map((type) => {
+  const situation = [...BANK.situations]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .find(
+      (each) =>
+        each.use === 'trigger' &&
+        each.phrases.some((phrase) => phrase.approved) &&
+        PLAN.rows.some((row) => row.testType === type && each.atoms.includes(row.atomIds[0] as string)),
+    );
+  const phrase = situation?.phrases.find((each) => each.approved);
+  if (phrase === undefined) throw new Error(`no approved phrase of the bank belongs to a ${type} row`);
+  return { type, text: phrase.text };
+});
 
 function task(ask: string): Spec {
   const loaded = parseSpecText(

@@ -163,7 +163,10 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^scan\.dispatcher\.shell-wrapper$/, 'unwrap a quoted shell wrapper to find its script'],
   [/^scan\.dispatcher\.dispatcher-flag$/, 'resolve a dispatcher target given by a flag'],
   // Reference files.
-  [/^scan\.reference-prose\.(large|huge-chunked)$/, 'split a reference over 40,000 characters into chunks'],
+  [
+    /^scan\.reference-prose\.(large|huge-chunked)$/,
+    'split a reference over the window cap into windows under it',
+  ],
   [/^scan\.reference-prose\.nested-folder$/, 'read references in nested folders'],
   [/^scan\.reference-prose\.text-file$/, 'read plain text references'],
   [

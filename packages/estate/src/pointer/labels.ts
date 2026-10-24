@@ -21,6 +21,11 @@ export const SpanKind = z.strictObject({
   polarity: z.literal(true).optional(),
   /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
   within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
+  /**
+   * A span of this kind may lie inside a span of the named kind, where two spans would otherwise clash, and stands on
+   * its own when there is none. Unlike `within`, a span of the named kind is not required.
+   */
+  inside: z.string().regex(LABEL_NAME, { error: 'inside names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
@@ -78,7 +83,16 @@ const AtomBase = z.strictObject({
   /** The reply act the atom governs: a top-level key of the atom, filled as `fields` is, with the same optional keys. */
   replyAct: z.record(z.string(), FieldValue).optional(),
   /** Checks the set puts on every atom of this label, after the review check the scan adds. */
-  evidence: z.array(EvidencePredicate).optional(),
+  evidence: z
+    .array(
+      z.union([
+        EvidencePredicate,
+        // Left out of the atom when a placeholder inside it does not fill, where any other item that does not fill
+        // refuses the atom.
+        z.strictObject({ optional: EvidencePredicate }),
+      ]),
+    )
+    .optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
   /**
@@ -267,6 +281,12 @@ function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: str
 
 /** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
 function nestingProblem(set: LabelSet): string | undefined {
+  const declared = new Set((set.spans ?? []).map((kind) => kind.name));
+  for (const kind of set.spans ?? []) {
+    if (kind.inside === kind.name) return `the span kind ${kind.name} is inside itself`;
+    if (kind.inside !== undefined && !declared.has(kind.inside))
+      return `the span kind ${kind.name} is inside ${kind.inside}, which the set does not declare`;
+  }
   const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
   for (const [name, parent] of parents) {
     if (parent === undefined) continue;
@@ -287,19 +307,25 @@ export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 1
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
 
-/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind and first line. */
-export type ShownLine = { after: number; text: string };
+/**
+ * A line the labeler reads and cannot label, with the number it has among the lines of the window. `context` is a
+ * unit that already has its label (a unit of the window the scan does not ask about), `opaque` a fence or a comment
+ * shown by its kind and first line, `read` a unit the code already read.
+ */
+export type DisplayLine = { n: number; mode: 'context' | 'opaque' | 'read'; text: string; index?: number };
 
 /**
- * A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. `shown` holds
- * the display-only lines of the opaque units in the run: `after` is the number of labelable units before the line.
+ * A run of units that one request labels. `index` is the unit's place in its file. Units and display lines share
+ * one numbering, so a number names one line of the window.
  */
 export type Window = {
   id: string;
   path: string;
   headingPath: string[];
+  /** The units the labeler is asked about. */
   units: WindowUnit[];
-  shown?: ShownLine[];
+  /** The other lines of the window, between the units by their number. */
+  display?: DisplayLine[];
   /** True when the window ends at its ceiling inside a section: the next unit is in the same section. */
   cutsSection?: true;
 };
@@ -308,6 +334,14 @@ export type Window = {
 export type Labelled = {
   units: string;
   label: string;
+  /** The first words of the unit the labeler meant, as it answered; `anchorUnits` turns them into `anchored`. */
+  anchor?: string;
+  /** Lines from the first unit the entry names to the one its anchor starts; null for none (`anchorUnits`). */
+  anchored?: number | null;
+  /** On a range, the first words of its last unit, as the labeler answered (`anchorUnits`). */
+  anchorEnd?: string;
+  /** Lines from the last unit of a range to the one its end anchor starts; null for none (`anchorUnits`). */
+  anchoredEnd?: number | null;
   target?: number;
   /** Other units of the window that this unit applies to, besides its target: any label may carry them. */
   scopes?: number[];
@@ -333,6 +367,8 @@ export type LinkAnswer = { kind: string; to: string; value?: number; unit?: stri
 /** What a request lists for a labeler to point at: the atoms of the kinds a link may name. */
 export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
+  /** Lines a request adds after the window when it asks again for something an earlier answer left out. */
+  notes?: readonly string[];
 };
 
 /** Why a list of scopes is refused, or undefined when it is sound. */
@@ -353,7 +389,7 @@ function scopeProblem(
   return undefined;
 }
 
-/** `5` or `5-7` as the numbers it names. */
+/** `5` or `5-7` as the numbers it names, read with no window at hand: a range over 10,000 numbers is refused. */
 export function expandUnits(units: string): number[] | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
   if (!match) return undefined;
@@ -361,6 +397,65 @@ export function expandUnits(units: string): number[] | undefined {
   const to = Number(match[2] ?? match[1]);
   if (to < from || to - from > 10_000) return undefined;
   return Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
+}
+
+/**
+ * `5` or `5-7` as its first and last number, without listing the numbers between: what `expandUnits` reads, with no
+ * cap, for a reader that holds the window the range must stay in.
+ */
+export function unitRange(units: string): { from: number; to: number } | undefined {
+  const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
+  if (!match) return undefined;
+  const from = Number(match[1]);
+  const to = Number(match[2] ?? match[1]);
+  return to < from ? undefined : { from, to };
+}
+
+/** The last number of a window: its units and its shown lines share one numbering. */
+function lastLine(window: Window): number {
+  let last = 0;
+  for (const unit of window.units) last = Math.max(last, unit.n);
+  for (const line of window.display ?? []) last = Math.max(last, line.n);
+  return last;
+}
+
+/**
+ * The numbers a unit reference names in a window. A range may be as wide as the window, never wider: one that runs
+ * past the window's last line is `leaves`, found without listing its numbers.
+ */
+function unitsIn(window: Window, units: string): number[] | 'leaves' | undefined {
+  const range = unitRange(units);
+  if (!range) return undefined;
+  if (range.to > lastLine(window)) return 'leaves';
+  return Array.from({ length: range.to - range.from + 1 }, (_, offset) => range.from + offset);
+}
+
+/**
+ * Splits an answer into the entries that stand and the labels it put on shown lines alone (read, context, opaque),
+ * which a window never asks about. An entry that names a unit besides stands; a `none` on shown lines stands too,
+ * the check ignores it; so does a label outside `known` (when given), which the check refuses. `dropped` lists each dropped line with the label it was given.
+ */
+export function shownLabelDrops(
+  window: Window,
+  answer: readonly Labelled[],
+  known?: ReadonlySet<string>,
+): { labels: Labelled[]; dropped: Array<{ line: number; label: string }> } {
+  const shown = new Set((window.display ?? []).map((line) => line.n));
+  const labels: Labelled[] = [];
+  const dropped: Array<{ line: number; label: string }> = [];
+  for (const entry of answer) {
+    const named = typeof entry.units === 'string' ? unitsIn(window, entry.units) : undefined;
+    if (
+      entry.label !== 'none' &&
+      (known === undefined || known.has(entry.label)) &&
+      Array.isArray(named) &&
+      named.length > 0 &&
+      named.every((n) => shown.has(n))
+    ) {
+      for (const line of named) dropped.push({ line, label: entry.label });
+    } else labels.push(entry);
+  }
+  return { labels, dropped };
 }
 
 export type Checked = {
@@ -374,6 +469,8 @@ export type Checked = {
   refusals: string[];
   /** The refusals of the answer as a whole: a label, a unit or a target that does not exist. */
   invalid: string[];
+  /** The same refusals with no word the model chose: a code and the set (a cassette keeps these). */
+  invalidCodes: string[];
   /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
   dropped: string[];
 };
@@ -390,36 +487,69 @@ export function checkAnswer(
 ): Checked {
   const allowed = new Map(set.labels.map((label) => [label.name, label]));
   const inWindow = new Set(window.units.map((unit) => unit.n));
+  const shown = new Set((window.display ?? []).map((line) => line.n));
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
+  const seenEntries = new Set<string>();
   const refusals: string[] = [];
   const invalid: string[] = [];
-  const refuse = (reason: string) => {
+  const invalidCodes: string[] = [];
+  // The reason names the part of the answer it refuses; the code leaves out the words the model chose.
+  const refuse = (reason: string, code = reason) => {
     refusals.push(reason);
     invalid.push(reason);
+    invalidCodes.push(code);
   };
   const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refuse(`${window.id}: the label ${entry.label} is not in the set ${set.set}`);
+      refuse(
+        `${window.id}: the label ${entry.label} is not in the set ${set.set}`,
+        `${window.id}: label-not-in-set (${set.set})`,
+      );
       continue;
     }
-    const numbers = expandUnits(entry.units);
-    if (!numbers) {
-      refuse(`${window.id}: "${entry.units}" is no unit number or range`);
+    const named = unitsIn(window, entry.units);
+    if (!named) {
+      refuse(
+        `${window.id}: "${entry.units}" is no unit number or range`,
+        `${window.id}: units-not-a-number-or-range`,
+      );
       continue;
     }
-    if (numbers.some((n) => !inWindow.has(n))) {
+    if (named === 'leaves') {
       refuse(`${window.id}: "${entry.units}" leaves the window`);
       continue;
     }
+    // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
+    // are dropped. A number that is neither a unit nor a shown line of this window refuses the entry.
+    if (named.some((n) => !inWindow.has(n) && !shown.has(n))) {
+      refuse(`${window.id}: "${entry.units}" leaves the window`);
+      continue;
+    }
+    const numbers = named.filter((n) => inWindow.has(n));
+    // An entry that names only shown lines has nothing to label. Called none, it is dropped and the answer stands; a
+    // label on a line the window did not ask about is a wrong answer, refused as a whole.
+    if (numbers.length === 0) {
+      if (entry.label === 'none') continue;
+      refuse(`${window.id}: "${entry.units}" names a line that is not labelable`);
+      continue;
+    }
+    // An entry written twice, the same units and the same label, adds nothing: the first stands. A unit named again
+    // inside a range, or with another label, is a unit named twice and is refused below.
+    const written = JSON.stringify([entry.units.trim(), entry.label, entry.target ?? null]);
+    if (seenEntries.has(written)) continue;
+    seenEntries.add(written);
     if (numbers.some((n) => covered.has(n))) {
       refuse(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refuse(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      refuse(
+        `${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`,
+        `${window.id}: target-not-a-number`,
+      );
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
@@ -460,7 +590,7 @@ export function checkAnswer(
       }
     }
   }
-  return { accepted, covered, refusals, invalid, dropped };
+  return { accepted, covered, refusals, invalid, invalidCodes, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
@@ -491,20 +621,66 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/** Why words were not located in a text: in no place (`not-found`), or in several (`ambiguous`). */
+export type LocateMiss = 'not-found' | 'ambiguous';
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
- * kept is the unit's own text, never the copy. `reason` says why not.
+ * kept is the unit's own text, never the copy. A miss gives `code`, which checks read, and `reason`, its words for a
+ * report.
  */
 export function locateSpanText(
   unitText: string,
   words: string,
-): { from: number; to: number } | { reason: string } {
+): { from: number; to: number } | { code: LocateMiss; reason: string } {
   const lower = unitText.toLowerCase();
   const wanted = words.toLowerCase();
   const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: 'the text is not in the unit' };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  if (first < 0) return { code: 'not-found', reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0)
+    return { code: 'ambiguous', reason: 'the text is found twice in the unit' };
   return { from: first, to: first + wanted.length };
+}
+
+/**
+ * Reads each entry's anchors against the window, and keeps only where they point, so the words never reach a
+ * cassette. `anchor` is the first words of the first unit the entry names and `anchorEnd`, on a range, those of its
+ * last unit. Each is located as a span is (`locateSpanText`, on the text the labeler was shown, without regard to
+ * case), in every line of the window: `anchored` (`anchoredEnd` for the end) is 0 when it is in the unit it should
+ * start, the count of lines from that unit to the one line that holds it when the number slipped (-1 for the line
+ * before), or null when no line holds it, or several do and not the right one. An anchor missing or empty keeps none.
+ * A miss of the locator is read by its code, never by its message; `locate` stands in for it in a test.
+ */
+export function anchorUnits(
+  entries: readonly Labelled[],
+  window: Window,
+  locate: typeof locateSpanText = locateSpanText,
+): Labelled[] {
+  const lines = [
+    ...window.units.map((unit): [number, string] => [unit.n, flatten(unit.text).text]),
+    ...(window.display ?? []).map((line): [number, string] => [line.n, flatten(line.text).text]),
+  ];
+  const offset = (anchor: unknown, at: number | undefined): number | null | undefined => {
+    const words = typeof anchor === 'string' ? flatten(anchor).text : '';
+    if (words === '' || at === undefined) return undefined;
+    const holds = (text: string) => {
+      const found = locate(text, words);
+      return !('reason' in found) || found.code === 'ambiguous';
+    };
+    const found = lines.filter(([, text]) => holds(text)).map(([n]) => n);
+    return found.includes(at) ? 0 : found.length === 1 ? (found[0] as number) - at : null;
+  };
+  return entries.map((entry) => {
+    const { anchor, anchorEnd, ...rest } = entry;
+    const named = expandUnits(entry.units);
+    const anchored = offset(anchor, named?.[0]);
+    const anchoredEnd = named && named.length > 1 ? offset(anchorEnd, named.at(-1)) : undefined;
+    return {
+      ...rest,
+      ...(anchored === undefined ? {} : { anchored }),
+      ...(anchoredEnd === undefined ? {} : { anchoredEnd }),
+    };
+  });
 }
 
 /**
@@ -657,6 +833,9 @@ function checkExtras(
       // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
       // any other span a span may not overlap: of two that clash, the later one is dropped.
       const kept = counted.map(() => true);
+      // A span of a kind declared `inside` another may lie wholly inside a span of that kind.
+      const lies = (inner: (typeof counted)[number], outer: (typeof counted)[number]) =>
+        kinds.get(inner.kind)?.inside === outer.kind && outer.from <= inner.from && inner.to <= outer.to;
       for (const [index, span] of counted.entries()) {
         const outer = kinds.get(span.kind)?.within;
         if (
@@ -675,7 +854,9 @@ function checkExtras(
               span.from < o.to &&
               o.from < span.to &&
               !ancestor(kinds, span.kind, o.kind) &&
-              !ancestor(kinds, o.kind, span.kind),
+              !ancestor(kinds, o.kind, span.kind) &&
+              !lies(span, o) &&
+              !lies(o, span),
           );
         if (clash) {
           kept[index] = false;

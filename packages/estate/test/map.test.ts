@@ -12,7 +12,7 @@ import {
   scanEstate,
   toEstateSpaceMap,
 } from '../src/index';
-import { FIXTURE, NOW, scanFixture } from './support';
+import { FIXTURE, HAND_ROLES, NOW, scanFixture } from './support';
 
 describe('the estate map file', () => {
   it('renders the same text for the same estate, answers and clock, and parses back to the same map', async () => {
@@ -79,9 +79,9 @@ describe('the estate map file', () => {
     expect(drift.map((issue) => issue.message.split(':')[0])).toEqual([
       'subagent.inbox-triager.helper-inbox-triager',
       'route.inbox-triager.an-ask-that-fits-inbox-triager',
-      'instruction.inbox-triager.you-sort-messages-into-three-folders',
       'instruction.inbox-triager.a-message-that-fits-none-goes',
-      'instruction.inbox-triager.never-answer-a-message-yourself-and',
+      'instruction.inbox-triager.never-answer-a-message-yourself-write',
+      'instruction.inbox-triager.never-delete-a-message-move-it',
       'register.standing.r1-always-answer-in-the-language',
     ]);
   });
@@ -92,7 +92,7 @@ describe('approval', () => {
     const text = renderEstateMap((await scanFixture()).map);
     const result = approveAtoms(text, { kinds: ['register'] });
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.approved).toHaveLength(14);
+    expect(result.approved).toHaveLength(12);
     expect(result.already).toBe(0);
     expect(result.text.split('\n').slice(0, 6)).toEqual(text.split('\n').slice(0, 6));
     const parsed = parseEstateMapText(result.text);
@@ -101,7 +101,7 @@ describe('approval', () => {
     expect(new Set(pending.map((atom) => atom.kind))).toEqual(
       new Set(['instruction', 'gate', 'reference', 'hazard', 'route']),
     );
-    expect(pending).toHaveLength(55);
+    expect(pending).toHaveLength(57);
   });
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
@@ -156,18 +156,23 @@ describe('the space map of an estate', () => {
     );
     expect(sizes).toEqual({
       'atoms.instruction': 31,
-      'atoms.gate': 6,
+      'atoms.gate': 8,
       'atoms.route': 13,
       'atoms.skill': 4,
       'atoms.subagent': 3,
       'atoms.guard': 6,
       'atoms.stage': 5,
-      'atoms.register': 14,
+      'atoms.register': 12,
     });
   });
 
   it('keeps a code-only scan valid as a space map', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     expect(validateSpaceMap(toEstateSpaceMap(map)).ok).toBe(true);
   });
 });

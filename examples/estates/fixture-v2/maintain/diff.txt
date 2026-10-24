@@ -1,21 +1,28 @@
-Estate diff: examples/estates/fixture/approved.yaml (db9e07132a1b) to examples/estates/fixture-v2/map.yaml (0c62ba644a29).
-  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 86 unchanged.
-  Edges: 0 added, 0 removed.
+Estate diff: examples/estates/fixture/approved.yaml (708456f152fd) to examples/estates/fixture-v2/map.yaml (5e21b82dae5d).
+  Atoms: 5 added, 2 removed, 3 changed (1 white space only, 2 semantic), 22 moved with the same quote, 28 restated, 73 unchanged.
+  Edges: 1 added, 2 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
-  Units: 125 unchanged, 8 context, 0 moved, 3 changed, 0 deleted, 2 new.
-  The whole suite reruns: a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold.
+  Units: 124 unchanged, 10 context, 0 moved, 4 changed, 0 deleted, 1 new.
+  Units whose links rerun: 20; advisory only: 10.
 Added:
-  + register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
+  + register.supplier-email.write-in-the-supplier-s-language (register) .claude/skills/supplier-email/SKILL.md:8
+  + reference.supplier-email.read-claude-memory-supplier-languages-md (reference) .claude/skills/supplier-email/SKILL.md:8
+  + instruction.supplier-email.a-looks-fine-or-a-thumbs (instruction) .claude/skills/supplier-email/SKILL.md:13-14
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
+  + instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
+Removed:
+  - instruction.standing.r8-do-not-invent-order-numbers (instruction) CLAUDE.md:16
+  - route.standing.an-ask-to-audit-the-ledger (route) CLAUDE.md:36
 Changed, white space only:
   ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
+      also: situation, evidence, fields
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       also: title, situation, fields
-  ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
+  ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:39
       was: plan the delivery routes for tomorrow | the `route-planner` agent
       now: plan the delivery routes for the next two days | the `route-planner` agent
       also: title, situation, fields
@@ -25,28 +32,55 @@ Moved, same quote:
   > gate.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > reference.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
-  > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
   > register.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
   > instruction.standing.r10-when-the-user-says-stop CLAUDE.md:18 to 19
   > instruction.standing.r11-never-paste-the-contents-of CLAUDE.md:19 to 20
-  > route.standing.an-ask-to-reconcile-an-invoice CLAUDE.md:31 to 33
-  > route.standing.an-ask-to-know-where-a CLAUDE.md:32 to 34
-  > route.standing.an-ask-to-write-to-or CLAUDE.md:33 to 35
-  > route.standing.an-ask-to-prepare-the-weekly CLAUDE.md:34 to 36
-  > route.standing.an-ask-to-audit-the-ledger CLAUDE.md:35 to 37
-  > instruction.standing.every-task-follows-the-step-list CLAUDE.md:40 to 42
-  > reference.standing.read-claude-steps-json CLAUDE.md:40 to 42
-  > instruction.standing.a-tracker-note-may-be-written CLAUDE.md:40-41 to 42
-  > instruction.standing.never-report-a-task-as-done CLAUDE.md:41 to 43
-  > register.standing.keep-every-reply-under-1-200 CLAUDE.md:45 to 47
-  > register.standing.lead-with-the-result-in-the CLAUDE.md:46 to 48
-  > register.standing.use-a-bullet-list-for-three CLAUDE.md:47 to 49
-  > register.standing.never-use-the-words-obviously-or CLAUDE.md:48 to 50
-  > register.standing.write-amounts-with-the-currency-code CLAUDE.md:49 to 51
-  > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
-  > reference.standing.read-claude-memory-memory-md CLAUDE.md:50 to 52
+  > hazard.standing.r20-after-a-restart-of-your CLAUDE.md:26 to 28
+  > reference.standing.read-claude-memory-memory-md CLAUDE.md:26 to 28
+  > route.standing.an-ask-to-reconcile-an-invoice CLAUDE.md:32 to 34
+  > route.standing.an-ask-to-know-where-a CLAUDE.md:33 to 35
+  > route.standing.an-ask-to-write-to-or CLAUDE.md:34 to 36
+  > route.standing.an-ask-to-prepare-the-weekly CLAUDE.md:35 to 37
+  > instruction.standing.never-report-a-task-as-done CLAUDE.md:42 to 44
+  > register.standing.keep-every-reply-under-1-200 CLAUDE.md:46 to 48
+  > register.standing.lead-with-the-result-in-the CLAUDE.md:47 to 49
+  > register.standing.use-a-bullet-list-for-three CLAUDE.md:48 to 50
+  > instruction.standing.never-use-the-words-obviously-or CLAUDE.md:49 to 51
+  > register.standing.write-amounts-with-the-currency-code CLAUDE.md:50 to 52
+  > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:51 to 53
+  > reference.standing.read-claude-memory-memory-md-2 CLAUDE.md:51 to 53
 Restated, same quote:
-  * instruction.standing.r8-do-not-invent-order-numbers: situation, evidence, fields
-  * instruction.standing.r17-report-a-number-only-when: situation, fields
+  * skill.weekly-report.skill-weekly-report: fields
+  * instruction.ledger-auditor.you-never-edit-a-file-you: evidence, fields
+  * instruction.ledger-auditor.when-either-is-missing-answer-with: fields
+  * instruction.memory-memory.the-operations-team-wants-the-weekly: situation, fields
+  * instruction.memory-memory.never-schedule-a-delivery-on-a: fields
+  * instruction.invoice-reconcile.never-change-an-amount-on-an: evidence, fields
+  * instruction.invoice-reconcile.when-the-total-difference-is-above: situation, fields
+  * instruction.shipment-tracker.ask-for-the-tracking-number-when: situation, fields
+  * instruction.shipment-tracker.always-pass-the-carrier-code-to: fields
+  * reference.shipment-tracker.read-track-sh: fields
+  * instruction.shipment-tracker.when-the-carrier-answers-with-an: situation, fields
+  * instruction.supplier-email.never-copy-a-price-or-a: evidence, fields
+  * register.standing.r1-always-answer-in-the-language: situation, fields
+  * instruction.standing.r4-never-delete-a-file-under: evidence, fields
+  * instruction.standing.r6-never-run-git-push-force: fields
+  * register.standing.r9-ask-at-most-one-question: fields
+  * instruction.standing.r10-when-the-user-says-stop: fields
+  * instruction.standing.r16-if-a-tool-fails-twice: situation, fields
+  * instruction.standing.r17-report-a-number-only-when: situation, evidence, fields
+  * hazard.standing.r20-after-a-restart-of-your: fields
+  * reference.standing.read-claude-memory-memory-md: fields
+  * instruction.standing.never-report-a-task-as-done: fields
+  * register.standing.keep-every-reply-under-1-200: situation, fields
+  * register.standing.lead-with-the-result-in-the: fields
+  * register.standing.write-amounts-with-the-currency-code: fields
+  * gate.standing.read-claude-memory-memory-md-before: title, situation, fields
+  * reference.standing.read-claude-memory-memory-md-2: fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
+Edges added:
+  + skill.supplier-email.skill-supplier-email reference reference.supplier-email.read-claude-memory-supplier-languages-md
+Edges removed:
+  - route.standing.an-ask-to-audit-the-ledger route subagent.ledger-auditor.helper-ledger-auditor
+  - skill.weekly-report.skill-weekly-report allows tool.invoice-reconcile.declared-edit
 Wrote examples/estates/fixture-v2/maintain/diff.json.

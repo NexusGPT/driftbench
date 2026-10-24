@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, loadEstateMap, runStaticTests } from '../src/index';
-import { FIXTURE } from './support';
+import { ClaudeCodeReader, runStaticTests } from '../src/index';
+import { FIXTURE, HAND_ROLES, scanPlantedFixture } from './support';
 
 function test(id: string, check: StaticTest['check']): StaticTest {
   return {
@@ -35,7 +35,11 @@ async function copy(): Promise<string> {
 
 describe('the static runner', () => {
   it('reads the estate again and passes or fails each invariant and setting on the files as they are', async () => {
-    const results = await runStaticTests(TESTS, { root: FIXTURE, reader: new ClaudeCodeReader() });
+    const results = await runStaticTests(TESTS, {
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+    });
     expect(Object.fromEntries(results.map((result) => [result.id, result.pass]))).toEqual({
       size: true,
       registry: false,
@@ -47,18 +51,21 @@ describe('the static runner', () => {
   });
 
   it('counts the files the atoms of a given map name, which code cannot read again from the prose', async () => {
-    const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
-    if (!loaded.ok) throw new Error('invalid map');
+    // The atoms of a planted-label scan: which files the sentences name is the thing under test, not which sentences a
+    // model reads as references.
+    const { map } = await scanPlantedFixture();
     const [alone] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
     });
     // Code alone names no file by a sentence: the references the prose gave are unseen, so the files are unnamed.
     expect(alone?.detail).toContain('matching-rules.md');
     const [mapped] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
-      map: loaded.map,
+      registryRoles: HAND_ROLES,
+      map,
     });
     expect(mapped?.pass).toBe(false);
     expect(JSON.parse(mapped?.detail.slice(mapped.detail.indexOf('{')) ?? '{}')).toEqual({
@@ -81,7 +88,11 @@ describe('the static runner', () => {
         '',
       ),
     );
-    const results = await runStaticTests(TESTS, { root, reader: new ClaudeCodeReader() });
+    const results = await runStaticTests(TESTS, {
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+    });
     const by = Object.fromEntries(results.map((result) => [result.id, result]));
     expect(by.model?.pass).toBe(false);
     expect(by.model?.detail).toContain('haiku');
@@ -94,7 +105,7 @@ describe('the static runner', () => {
         test('none', { kind: 'invariant', check: 'no_such_check' }),
         test('gone', { kind: 'setting', key: 'nope' }),
       ],
-      { root: FIXTURE, reader: new ClaudeCodeReader() },
+      { root: FIXTURE, reader: new ClaudeCodeReader(), registryRoles: HAND_ROLES },
     );
     expect(results.map((result) => result.pass)).toEqual([false, false]);
   });

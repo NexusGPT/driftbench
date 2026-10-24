@@ -28,6 +28,32 @@ export type LedgerLabel = {
   links?: Array<{ kind: string; to: string; value?: number; unit?: string }>;
 };
 
+/** What one run of a labeler said about a unit. */
+export type LedgerVote = {
+  label: string;
+  /** System 1: the probability of yes for every label that was asked. */
+  probabilities?: Record<string, number>;
+  /** The unit, by id, at the other end of a label that asks for one. */
+  target?: string;
+  /** The other units, by id, that the unit applies to. */
+  scopes?: string[];
+  /** The cassette key (first 12 characters) of the answer the vote comes from. */
+  source?: string;
+};
+
+/**
+ * A unit the labelers left without a label of a set: the decision is kept the way a label is kept, so a rescan does not
+ * ask an unchanged unit again. The votes are what each labeler heard on the unit, in stack order.
+ */
+export type LedgerUnlabeled = {
+  /** The hash of the label set that was asked. */
+  setHash: string;
+  /** The hash of the labelers and settings that decided. A change of either asks the unit again. */
+  labeler: string;
+  /** Per labeler, the runs that were heard on the unit, in run order; a run that did not name the unit is null. */
+  votes: Array<{ labeler: string; runs: Array<LedgerVote | null> }>;
+};
+
 export type LedgerEntry = {
   id: string;
   path: string;
@@ -48,6 +74,11 @@ export type LedgerEntry = {
   status: 'live' | 'deleted';
   /** Keyed by set name; a map without a prototype, so a set may bear any name. */
   labels: Record<string, LedgerLabel>;
+  /**
+   * Keyed by set name, like `labels`: the sets for which the labelers decided that the unit has no label. Absent when
+   * there is none, and on an entry written before version 2 of the ledger.
+   */
+  unlabeled?: Record<string, LedgerUnlabeled>;
   /** What the scans that changed the ledger decided for the unit, oldest first, the last {@link LINEAGE_KEEP} kept. */
   lineage: Array<{ scan: number; event: Event }>;
   /** The id of the unit with the same text in an earlier file of the estate (identical boilerplate), else null. */
@@ -56,7 +87,7 @@ export type LedgerEntry = {
   cell?: { row: string; column: string; table: number; header?: true };
 };
 
-export type Ledger = { version: 1; cutDigests: Record<string, string>; entries: LedgerEntry[] };
+export type Ledger = { version: 2; cutDigests: Record<string, string>; entries: LedgerEntry[] };
 
 export type Event = 'new' | 'unchanged' | 'moved' | 'ambiguous' | 'changed' | 'split' | 'merged' | 'deleted';
 
@@ -72,15 +103,38 @@ export type LabelFlip = { unit: string; set: string; from: string; to?: string }
  * `none`) and is now another label, `none` or none is a flip, returned so the scan can report it.
  */
 export function recordLabel(
-  entry: { id: string; labels: Record<string, LedgerLabel> },
+  entry: { id: string; labels: Record<string, LedgerLabel>; unlabeled?: Record<string, LedgerUnlabeled> },
   set: string,
   next: LedgerLabel | undefined,
 ): LabelFlip | undefined {
   const before = Object.hasOwn(entry.labels, set) ? entry.labels[set]?.label : undefined;
   if (next === undefined) delete entry.labels[set];
   else entry.labels[set] = next;
+  // Whatever the labelers decided before for the set is replaced: a label ends the record of being unlabeled, and a
+  // unit no answer named holds no decision at all.
+  clearUnlabeled(entry, set);
   if (before === undefined || before === 'none' || before === next?.label) return undefined;
   return { unit: entry.id, set, from: before, ...(next === undefined ? {} : { to: next.label }) };
+}
+
+/**
+ * Records that the labelers left a unit without a label of a set, with what they heard. The label the set had, if any, is
+ * removed; a label that was selected (not `none`) is a flip, returned as `recordLabel` returns it.
+ */
+export function recordUnlabeled(
+  entry: { id: string; labels: Record<string, LedgerLabel>; unlabeled?: Record<string, LedgerUnlabeled> },
+  set: string,
+  gap: LedgerUnlabeled,
+): LabelFlip | undefined {
+  const flip = recordLabel(entry, set, undefined);
+  entry.unlabeled = unlabeledMap({ ...entry.unlabeled, [set]: gap });
+  return flip;
+}
+
+function clearUnlabeled(entry: { unlabeled?: Record<string, LedgerUnlabeled> }, set: string): void {
+  if (!entry.unlabeled || !Object.hasOwn(entry.unlabeled, set)) return;
+  delete entry.unlabeled[set];
+  if (Object.keys(entry.unlabeled).length === 0) delete entry.unlabeled;
 }
 
 /** Whether a unit keeps the labels it had: its text and its neighbours (the context) are unchanged. */
@@ -621,6 +675,19 @@ export function labelMap(from?: Readonly<Record<string, LedgerLabel>>): Record<s
   return map;
 }
 
+/** The same for the sets a unit is unlabeled in. */
+export function unlabeledMap(
+  from?: Readonly<Record<string, LedgerUnlabeled>>,
+): Record<string, LedgerUnlabeled> {
+  const map: Record<string, LedgerUnlabeled> = Object.create(null);
+  if (from) for (const key of Object.keys(from)) map[key] = from[key] as LedgerUnlabeled;
+  return map;
+}
+
+/** Whether an entry holds a record of being unlabeled in some set. */
+const holdsUnlabeled = (entry: { unlabeled?: Record<string, LedgerUnlabeled> }): boolean =>
+  entry.unlabeled !== undefined && Object.keys(entry.unlabeled).length > 0;
+
 /** The scan after the last one the ledger remembers, from 1. */
 const scanAfter = (previous: Ledger | undefined): number =>
   1 +
@@ -700,7 +767,12 @@ export function nextLedger(
       taken.add(id);
       carried = { id, event: 'new' };
     }
-    const keepLabels = carried.from && keepsLabels(carried.from, { fp: item.unit.fp, ctxFp: item.ctxFp });
+    // The decisions about a unit carry only while its text and its neighbours do: the labels, and the sets it was left
+    // unlabeled in. An unchanged unit is never asked again.
+    const kept =
+      carried.from && keepsLabels(carried.from, { fp: item.unit.fp, ctxFp: item.ctxFp })
+        ? carried.from
+        : undefined;
     events[carried.event]++;
     ids.set(unitKey(item.path, item.index), carried.id);
     entries.push({
@@ -716,7 +788,8 @@ export function nextLedger(
       suffix: item.suffix,
       hint: { start: item.unit.start, end: item.unit.end },
       status: 'live',
-      labels: labelMap(keepLabels && carried.from ? carried.from.labels : undefined),
+      labels: labelMap(kept?.labels),
+      ...(kept && holdsUnlabeled(kept) ? { unlabeled: unlabeledMap(kept.unlabeled) } : {}),
       lineage: remember(carried.from?.lineage, scan, carried.event),
       twinOf: null,
       ...(item.unit.cell ? { cell: item.unit.cell } : {}),
@@ -736,6 +809,7 @@ export function nextLedger(
       ...entry,
       status: 'deleted',
       labels: labelMap(entry.labels),
+      ...(holdsUnlabeled(entry) ? { unlabeled: unlabeledMap(entry.unlabeled) } : {}),
       lineage: entry.status === 'live' ? remember(entry.lineage, scan, 'deleted') : (entry.lineage ?? []),
     });
   }
@@ -746,7 +820,7 @@ export function nextLedger(
       (a.status === 'live' ? a.index - b.index : a.id.localeCompare(b.id)),
   );
   const cutDigests = Object.fromEntries(files.map(({ path, cut }) => [path, cut.digest.slice(0, 16)]));
-  return { ledger: { version: 1, cutDigests, entries }, ids, events, eventsById, candidates };
+  return { ledger: { version: 2, cutDigests, entries }, ids, events, eventsById, candidates };
 }
 
 /**
@@ -767,13 +841,20 @@ function twins(entries: readonly LedgerEntry[]): void {
 /** The ledger as the file beside the estate: sorted keys, no times, so equal ledgers are equal bytes. */
 export const renderLedger = (ledger: Ledger): string => `${canonical(ledger)}\n`;
 
+/**
+ * Reads a ledger. Version 1, which kept no record of the units left unlabeled, reads as version 2 with none: such a unit
+ * is asked again by the next scan, which then records the decision, and `scan --update` writes version 2.
+ */
 export function parseLedger(text: string): Ledger | undefined {
   try {
-    const value = JSON.parse(text) as Partial<Ledger>;
-    if (value.version !== 1 || !Array.isArray(value.entries)) return undefined;
+    const value = JSON.parse(text) as Partial<Omit<Ledger, 'version'>> & { version?: number };
+    if ((value.version !== 1 && value.version !== 2) || !Array.isArray(value.entries)) return undefined;
+    value.version = 2;
     // An entry written before lineage and twins were kept reads as having neither.
     for (const entry of value.entries) {
       entry.labels = labelMap(entry.labels);
+      if (holdsUnlabeled(entry)) entry.unlabeled = unlabeledMap(entry.unlabeled);
+      else delete entry.unlabeled;
       entry.lineage ??= [];
       entry.twinOf ??= null;
       entry.hint ??= { start: 0, end: 0 };

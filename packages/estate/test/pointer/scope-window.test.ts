@@ -44,7 +44,7 @@ describe('a window cap does not cut a section', () => {
   it('keeps a section whole up to twice the cap, and cuts a longer one at that ceiling', () => {
     const capped = windowsOf('n.md', units, 4, NOTES);
     expect(capped.every((window) => window.units.length <= 4)).toBe(true);
-    const kept = windowsOf('n.md', units, 4, NOTES, true);
+    const kept = windowsOf('n.md', units, 4, NOTES, Number.POSITIVE_INFINITY, true);
     expect(Math.max(...kept.map((window) => window.units.length))).toBeLessThanOrEqual(8);
     expect(Math.max(...kept.map((window) => window.units.length))).toBeGreaterThan(4);
     expect(kept.length).toBeLessThan(capped.length);
@@ -55,7 +55,7 @@ describe('a window cap does not cut a section', () => {
   });
 
   it('runs a window past the cap only inside one section', () => {
-    const kept = windowsOf('n.md', units, 4, NOTES, true);
+    const kept = windowsOf('n.md', units, 4, NOTES, Number.POSITIVE_INFINITY, true);
     for (const window of kept.filter((each) => each.units.length > 4)) {
       // The headings that open the window are not part of a section's run: the cap waits on its sentences.
       const body = window.units.filter((unit) => units[unit.index]?.container !== 'heading');
@@ -128,7 +128,7 @@ describe('a section longer than twice the cap is a named failure, never a quiet 
 
   it('marks the window that ends at its ceiling inside a section, and no other', () => {
     const units = cut(NOTES).units;
-    const windows = windowsOf('n.md', units, 4, NOTES, true);
+    const windows = windowsOf('n.md', units, 4, NOTES, Number.POSITIVE_INFINITY, true);
     expect(windows.filter((window) => window.cutsSection).map((window) => window.id)).toEqual(['n.md#1']);
     expect(windowsOf('n.md', units, 4, NOTES).some((window) => window.cutsSection)).toBe(false);
   });

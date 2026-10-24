@@ -166,9 +166,16 @@ export {
   validatePlan,
 } from './plan';
 export * as pointer from './pointer';
+export type {
+  RegistryRole,
+  RegistryRoles,
+  RegistryRolesInput,
+  RegistryTableRef,
+} from './pointer/registry-roles-set';
 export {
   AtomBuilder,
   acceptProse,
+  applyRegistryRoles,
   type CheckDecl,
   type ChunkRun,
   ClaudeCodeReader,
@@ -236,12 +243,14 @@ export {
   type Read,
   type ReadNote,
   type RegistryRow,
+  type RegistryTable,
   RenderedSettingsConflict,
   RUNTIMES,
   readerFor,
   readFrontmatter,
   readTables,
   registerEstateReader,
+  registryCellsToLabel,
   registryRowOf,
   registryRowsOf,
   resolveNamed,

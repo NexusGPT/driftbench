@@ -9,7 +9,8 @@
 #   - It finds no instructions in an empty body and exits 1: with nothing to follow it does no work.
 #   - A body that sorts messages into named folders is followed: each message of the folder the task names is
 #     filed under the folder whose name it holds most often, a message that fits none goes where the body says,
-#     and a filed message is removed unless the body forbids deleting.
+#     and a filed message is removed unless the body forbids deleting without saying to move it (a move takes
+#     the message out of the folder it was in).
 #   - A body that says to answer with one JSON object gets one.
 #   - It reports the workspace files it created, changed and deleted, measured before and after.
 #
@@ -64,7 +65,9 @@ helpers:
               .filter((line) => !negative(line))
               .map((line) => /\bfits (?:none|no \w+)\b[^"]*"([^"]+)"/i.exec(line)?.[1])
               .find(Boolean);
-            const keeps = sentences.some((line) => negative(line) && /\b(?:delete|remove)\b/i.test(line));
+            const keeps = sentences.some(
+              (line) => negative(line) && /\b(?:delete|remove)\b/i.test(line) && !/\bmove\b/i.test(line),
+            );
             const folder = (task.split(/\s+/).find((word) => word.endsWith('/') && word.length > 1) || '').replace(
               /[.,;:!?]+$/,
               '',

@@ -54,9 +54,11 @@ export async function postJson(
         }
         return payload;
       }
+      const providerType = providerTypeOf(payload);
       failure = new ModelError('http', describeError(response.status, payload), {
         status: response.status,
         retryable: RETRYABLE_STATUS.has(response.status),
+        ...(providerType ? { providerType } : {}),
       });
       waitMs = retryAfter(response) ?? waitMs;
     } catch (cause) {
@@ -106,4 +108,15 @@ export function errorText(status: number, payload: unknown): string {
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * The error type a provider's error body names, as a field: `error.type` (Anthropic, OpenAI) or `detail.error_type`
+ * (Jev). Undefined when the body names none.
+ */
+export function providerTypeOf(payload: unknown): string | undefined {
+  if (typeof payload !== 'object' || payload === null) return undefined;
+  const body = payload as { error?: { type?: unknown }; detail?: { error_type?: unknown } };
+  const type = body.error?.type ?? body.detail?.error_type;
+  return typeof type === 'string' && type !== '' ? type : undefined;
 }

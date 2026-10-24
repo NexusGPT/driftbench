@@ -203,7 +203,8 @@ describe('driftbench estate build', () => {
   it('keeps the scan warning on a re-run and re-reads the scan when the label sets change', async () => {
     const root = await workspace();
     const labels = join(root, 'labels.yaml');
-    await writeFile(labels, pointer.AGENT_RULES_SET);
+    // The shipped label sets: the gate-forms set is the one whose recorded answers hold refusals in this record.
+    await writeFile(labels, pointer.DEFAULT_LABEL_SETS);
     const pointed: BuildOptions = {
       yes: true,
       pointer: true,
@@ -217,7 +218,7 @@ describe('driftbench estate build', () => {
     const again = await build(root, pointed);
     expect(again.out).toContain('1. Read the estate: unchanged');
     expect(again.out).toContain(warning);
-    await writeFile(labels, `${pointer.AGENT_RULES_SET}\n# an edit of the label sets\n`);
+    await writeFile(labels, `${pointer.DEFAULT_LABEL_SETS}\n# an edit of the label sets\n`);
     const edited = await build(root, pointed);
     expect(edited.out).not.toContain('1. Read the estate: unchanged');
   }, 240_000);

@@ -25,6 +25,7 @@ Everything in this estate is invented for testing.
 - **R17.** Report a number only when you read it in a file or a tool result during this session.
 - **R18.** Never approve a credit note above 500.00 EUR without naming the finance lead who agreed to it.
 - **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
+- **R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue.
 
 ## Routing
 
