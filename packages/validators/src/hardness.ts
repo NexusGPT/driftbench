@@ -1,4 +1,4 @@
-import { type Executor, executorOf, type JournalRow, PILOT_ITERATIONS } from './journal';
+import { type Executor, executorOf, type JournalRow, PILOT_ITERATIONS, pilotRoundOf } from './journal';
 
 /** The gate of docs/validators.md section 12.4: the forecast is at least this, the pilot score at most that. */
 export const HARDNESS_MIN_FORECAST = 100;
@@ -14,6 +14,8 @@ export const BANK_MIN_FAMILY = 20;
 /** One pilot: its rows (iterations 1 to 10 of one executor), its end, its rate and what remains. */
 export type PilotMeasure = {
   executor: Executor;
+  /** The pilot round measured: the latest complete round of the executor, or its latest round when none is complete. Null: the unnamed round. */
+  round: string | null;
   /** Pilot rows present, iterations 1 to 10. */
   iterations: number;
   complete: boolean;
@@ -62,9 +64,11 @@ export type Hardness = {
   iteration0: { bankSize: number; passing: number; score: number };
   /** The pilot the forecast and the gate use: the blind one when it has rows, else the builder's. */
   source: Executor;
-  pilot: { iterations: number; complete: boolean; end: PilotMeasure['end'] };
+  pilot: { round: string | null; iterations: number; complete: boolean; end: PilotMeasure['end'] };
   /** Both pilots, so their rates can be read side by side. `blind` is null without blind rows. */
   pilots: { builder: PilotMeasure; blind: PilotMeasure | null };
+  /** Every pilot round of the journal, by executor, in the order the rounds first appear. */
+  pilotRounds: Array<{ executor: Executor; round: string | null; iterations: number; complete: boolean }>;
   /** Mean items fixed per pilot iteration, of the source pilot. */
   fixedPerIteration: number | null;
   /** Failing items at the end of the source pilot. */
@@ -108,6 +112,35 @@ const allScore = (row: Pick<JournalRow, 'bankSize' | 'passing' | 'catchItems'>) 
 const gateScore = (row: Pick<JournalRow, 'bankSize' | 'passing' | 'catchItems'>) =>
   Math.max(score(row), allScore(row));
 
+/** The rows of one executor, grouped by pilot round in the order the rounds first appear. */
+function roundsOf(
+  rows: readonly JournalRow[],
+  executor: Executor,
+): Array<{ round: string | null; rows: JournalRow[] }> {
+  const groups: Array<{ round: string | null; rows: JournalRow[] }> = [];
+  for (const row of rows) {
+    if (executorOf(row) !== executor) continue;
+    const round = pilotRoundOf(row);
+    const group = groups.find((entry) => entry.round === round);
+    if (group) group.rows.push(row);
+    else groups.push({ round, rows: [row] });
+  }
+  return groups;
+}
+
+const pilotRowsOf = (rows: readonly JournalRow[]) =>
+  rows.filter((row) => row.iteration >= 1 && row.iteration <= PILOT_ITERATIONS);
+
+/**
+ * The round a pilot is measured on: the latest complete round (all PILOT_ITERATIONS pilot rows present) of the executor,
+ * else its latest round. The later of two complete rounds is the one measured, because the bank it ran on is the newer one.
+ */
+function chosenRound(rows: readonly JournalRow[], executor: Executor) {
+  const groups = roundsOf(rows, executor);
+  const complete = groups.filter((group) => pilotRowsOf(group.rows).length === PILOT_ITERATIONS);
+  return { groups, chosen: complete.at(-1) ?? groups.at(-1) };
+}
+
 function measurePilot(
   rows: readonly JournalRow[],
   executor: Executor,
@@ -116,14 +149,16 @@ function measurePilot(
   measure: PilotMeasure;
   endRow: JournalRow | undefined;
 } {
-  const own = rows.filter((row) => executorOf(row) === executor);
+  const { chosen } = chosenRound(rows, executor);
+  const own = chosen?.rows ?? [];
   const baselineRow = own.find((row) => row.iteration === 0) ?? builderZero;
-  const pilotRows = own.filter((row) => row.iteration >= 1 && row.iteration <= PILOT_ITERATIONS);
+  const pilotRows = pilotRowsOf(own);
   const endRow = pilotRows.at(-1);
   return {
     endRow,
     measure: {
       executor,
+      round: chosen?.round ?? null,
       iterations: pilotRows.length,
       complete: pilotRows.length === PILOT_ITERATIONS,
       baseline: {
@@ -190,8 +225,18 @@ export function measureHardness(
   rows: readonly JournalRow[],
   options: { audit?: string; gate?: string; bankHash?: string } = {},
 ): Hardness {
-  const zero = rows.find((row) => executorOf(row) === 'builder' && row.iteration === 0);
-  const latest = rows.at(-1);
+  const builderRounds = chosenRound(rows, 'builder');
+  const blindRounds = chosenRound(rows, 'blind');
+  const zero =
+    builderRounds.chosen?.rows.find((row) => row.iteration === 0) ??
+    rows.find((row) => executorOf(row) === 'builder' && row.iteration === 0);
+  // The rows the measurement reads: those of the round measured for each executor. An older round, taken on an older
+  // bank, is history: its bank hashes, its losses and its catch items are not the live pilot's.
+  const scope = rows.filter((row) => {
+    const own = executorOf(row) === 'builder' ? builderRounds.chosen : blindRounds.chosen;
+    return own !== undefined && own.round === pilotRoundOf(row);
+  });
+  const latest = scope.at(-1);
   if (!zero || !latest)
     throw new RangeError('the journal holds no iteration 0 row: run and record iteration 0 first');
   const builder = measurePilot(rows, 'builder', zero);
@@ -208,8 +253,8 @@ export function measureHardness(
   ].filter((value): value is number => value !== null);
   const forecast = forecasts.length === 0 ? null : Math.min(...forecasts);
   const reasons: string[] = [];
-  const hashes = [...new Set(rows.flatMap((row) => (row.bankHash ? [row.bankHash] : [])))];
-  const missingRows = rows.filter((row) => !row.bankHash).length;
+  const hashes = [...new Set(scope.flatMap((row) => (row.bankHash ? [row.bankHash] : [])))];
+  const missingRows = scope.filter((row) => !row.bankHash).length;
   const freshness: Hardness['freshness'] =
     options.bankHash === undefined
       ? null
@@ -266,12 +311,12 @@ export function measureHardness(
   if (!end) reasons.push('no pilot row yet');
   // A catch item guards a capability the product already has: one that fails on any row, at the start or after a
   // pilot round broke it, is a hardness item, and the hardness gain beside it would be bought with that break.
-  const lost = rows.find((row) => row.catchItems && row.catchItems.passing < row.catchItems.size);
+  const lost = scope.find((row) => row.catchItems && row.catchItems.passing < row.catchItems.size);
   if (lost?.catchItems)
     reasons.push(
       `catch items must all pass on every journal row: at iteration ${lost.iteration}, ${lost.catchItems.passing} of ${lost.catchItems.size} do; a catch item that fails is a hardness item`,
     );
-  for (const row of rows) {
+  for (const row of scope) {
     const caught = row.catchItems;
     if (!caught) continue;
     const share = caught.size / (row.bankSize + caught.size);
@@ -286,7 +331,7 @@ export function measureHardness(
   // The catch set is frozen at iteration 0: a row that holds more or fewer catch items than the baseline moved items
   // between the two roles, and relabelling is not progress (the hardness passing rises with no product change).
   const frozen = zero.catchItems?.size ?? 0;
-  const moved = rows.find((row) => (row.catchItems?.size ?? 0) !== frozen);
+  const moved = scope.find((row) => (row.catchItems?.size ?? 0) !== frozen);
   if (moved)
     reasons.push(
       `the catch items are frozen at iteration 0 (${frozen}): iteration ${moved.iteration} holds ${moved.catchItems?.size ?? 0}; moving an item between the hardness and the catch role is not progress`,
@@ -302,7 +347,7 @@ export function measureHardness(
     );
   // No loss: the passing items of a pilot, counted over every item, never fall from one iteration to the next.
   for (const executor of ['builder', 'blind'] as const) {
-    const own = rows.filter((row) => executorOf(row) === executor).sort((a, b) => a.iteration - b.iteration);
+    const own = scope.filter((row) => executorOf(row) === executor).sort((a, b) => a.iteration - b.iteration);
     const drop = own.find(
       (row, index) => index > 0 && allPassing(row) < allPassing(own[index - 1] as JournalRow),
     );
@@ -319,6 +364,19 @@ export function measureHardness(
     if (entry.verdict !== 'pass') reasons.push(`the audit check ${entry.check} is ${entry.verdict}`);
   }
   const flags: string[] = [];
+  // A round newer than the one measured is running: the figures stay those of the complete round, and the journal says so.
+  for (const [executor, { groups, chosen: measured }] of [
+    ['builder', builderRounds],
+    ['blind', blindRounds],
+  ] as const) {
+    if (!measured) continue;
+    for (const group of groups.slice(groups.indexOf(measured) + 1)) {
+      const held = pilotRowsOf(group.rows).length;
+      flags.push(
+        `the ${executor} pilot round ${group.round ?? 'with no id'} holds ${held} of ${PILOT_ITERATIONS} iterations and is newer than the round measured (${measured.round ?? 'with no id'})`,
+      );
+    }
+  }
   const blindRate = blind?.measure.fixedPerIteration ?? null;
   const builderRate = builder.measure.fixedPerIteration;
   if (blindRate !== null && blindRate > 0 && builderRate !== null) {
@@ -340,8 +398,17 @@ export function measureHardness(
     freshness,
     iteration0: chosen.measure.baseline,
     source,
-    pilot: { iterations, complete, end },
+    pilot: { round: chosen.measure.round, iterations, complete, end },
     pilots: { builder: builder.measure, blind: blind ? blind.measure : null },
+    pilotRounds: [
+      ...builderRounds.groups.map((group) => ['builder', group] as const),
+      ...blindRounds.groups.map((group) => ['blind', group] as const),
+    ].map(([executor, group]) => ({
+      executor,
+      round: group.round,
+      iterations: pilotRowsOf(group.rows).length,
+      complete: pilotRowsOf(group.rows).length === PILOT_ITERATIONS,
+    })),
     fixedPerIteration,
     remaining,
     forecast,
@@ -445,6 +512,13 @@ export function formatHardness(component: string, h: Hardness): string {
   text += `${[line(header), ...rows.map(line)].join('\n')}\n`;
   text += `Score at iteration 0: ${round(h.iteration0.score)} (${h.iteration0.passing} of ${h.iteration0.bankSize}).\n`;
   const which = h.source === 'blind' ? 'the blind pilot' : 'the pilot';
+  if (h.pilotRounds.some((entry) => entry.round !== null)) {
+    const named = (round: string | null) => round ?? 'with no id';
+    const listed = h.pilotRounds
+      .map((entry) => `${entry.executor} ${named(entry.round)} (${entry.iterations} of ${PILOT_ITERATIONS})`)
+      .join(', ');
+    text += `Pilot round measured: ${named(h.pilot.round)}, the latest complete round of ${which} (rounds in the journal: ${listed}).\n`;
+  }
   text += h.pilot.end
     ? `Score after ${which}: ${round(h.pilot.end.score)} (${h.pilot.end.passing} of ${h.pilot.end.bankSize}, iteration ${h.pilot.end.iteration}; ${h.pilot.iterations} of ${PILOT_ITERATIONS} pilot iterations).\n`
     : `Score after ${which}: none yet (0 of ${PILOT_ITERATIONS} pilot iterations).\n`;
