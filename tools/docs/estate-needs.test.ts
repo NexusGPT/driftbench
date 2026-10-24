@@ -3,9 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { estateBank } from '../../packages/validators/src/ladders/estate/bank';
 
 const needs = readFileSync(new URL('../../validators/estate/NEEDS.md', import.meta.url), 'utf8');
-const documented = [...needs.matchAll(/^\|\s*([a-z][a-z0-9.-]*)\s*\|\s*(\d+)\s*\|/gm)].map(
-  (row) => ({ family: row[1] as string, count: Number(row[2]) }),
-);
+const documented = [...needs.matchAll(/^\|\s*([a-z][a-z0-9.-]*)\s*\|\s*(\d+)\s*\|/gm)].map((row) => ({
+  family: row[1] as string,
+  count: Number(row[2]),
+}));
 // Enumerate metadata only: no family evaluation, fixture execution or model call.
 const families = estateBank();
 
