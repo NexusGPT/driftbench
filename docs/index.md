@@ -91,6 +91,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [pydantic-ai](adapters/pydantic-ai.md): a Pydantic AI agent in a Python process.
 * [litellm](adapters/litellm.md): a model behind a LiteLLM proxy or any OpenAI-compatible endpoint.
 * [Claude Code estates](adapters/claude-code.md): a Claude Code estate and its recorded sessions, read for the estate commands and `driftbench replay`.
+* [Shared agent sources](adapters/agents-folder.md): instructions, skills, helpers, scripts and guards declared once for runtime deployments.
 
 ## Example scorecards
 
