@@ -27,12 +27,16 @@ describe('bounded snapshots of nested arrays and text', () => {
     expect(frame.tainted()).toBeUndefined();
   }, 60_000);
 
-  it.each(['row', 'zero', 'text', 'hidden'])('still reports a change to %s', (where) => {
-    const frame = frameOf();
-    frame.product.keep();
-    frame.product.change(where);
-    expect(frame.aliasSince(0)).toContain('has changed since');
-    expect(frame.divergence()).toBeUndefined();
-    expect(frame.tainted()).toBeUndefined();
-  }, 60_000);
+  it.each(['row', 'zero', 'text', 'hidden'])(
+    'still reports a change to %s',
+    (where) => {
+      const frame = frameOf();
+      frame.product.keep();
+      frame.product.change(where);
+      expect(frame.aliasSince(0)).toContain('has changed since');
+      expect(frame.divergence()).toBeUndefined();
+      expect(frame.tainted()).toBeUndefined();
+    },
+    60_000,
+  );
 });
