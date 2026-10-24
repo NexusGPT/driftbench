@@ -114,7 +114,7 @@
   "observation :: owner weights {}",
   "observation :: paths {} lack a value, a boundary or a constraint",
   "observation :: plan passed the item and then failed its witness: the item's own space is too large to enumerate: {} rows",
-  "observation :: plan passed the item and then failed its witness: the witness plan has fewer than three rows for three binary axes",
+  "observation :: plan passed the item and then failed its witness: the witness plan has fewer rows than binary axes",
   "observation :: plan returned {} instead of throwing",
   "observation :: plan returned {}, not an object with a rows array",
   "observation :: plan threw {}: {}",

@@ -233,6 +233,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     edges: graph.edges,
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(raw.userLayer ? { userSkills: true as const } : {}),
+    ...(raw.files.some((file) => file.rendered) ? { settings: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
     ...(raw.coverage ? { coverage: raw.coverage } : {}),
     ...(input.pointer
