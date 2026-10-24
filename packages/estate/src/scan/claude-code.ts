@@ -9,6 +9,7 @@ import {
   pathWithin,
   renderedSettingsFile,
   type SkippedInput,
+  staticSettingsFiles,
   type TypeSet,
   variablePrefix,
 } from '@agent-nexus/driftbench-core';
@@ -158,20 +159,23 @@ export const ESTATE_CONFIG = 'driftbench.estate.yaml';
 /** What a runtime root holds, as the owner would name it: the standing files, the layout folder, the settings. */
 export type RootLayout = {
   runtime: string;
-  /** The standing instruction files found at the root. */
+  /** The standing instruction files the reader loads, at the root and nested beside the layout folder. */
   standing: string[];
   /** The layout folders found at the root. */
   folders: string[];
-  /** The settings files found. */
+  /** The stored settings files found. A rendered copy passed to the reader is not one of these. */
   settings: string[];
 };
 
-/** True when the root holds no standing file, no layout folder and no settings: a scan of it reads nothing. */
+/** True when the reader would load no standing file, no layout folder and no stored settings from this root. */
 export function layoutIsEmpty(layout: RootLayout): boolean {
   return layout.standing.length === 0 && layout.folders.length === 0 && layout.settings.length === 0;
 }
 
-/** Looks at the root without reading the estate: which of the files the claude-code reader starts from exist. */
+/**
+ * Looks at the root without reading the estate: the standing files the reader loads (including those nested
+ * beside the layout folder, outside ignored trees), the layout folder, and the stored settings files.
+ */
 export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
   const found = async (paths: readonly string[], folder: boolean): Promise<string[]> => {
     const out: string[] = [];
@@ -181,11 +185,19 @@ export async function inspectClaudeCodeRoot(root: string): Promise<RootLayout> {
     }
     return out;
   };
+  const notes: ReadNote[] = [];
+  const ignored: Ignored = {
+    rules: DEFAULT_IGNORE.map(ignoreRule),
+    counts: new Map(),
+    paths: [],
+  };
+  // The same walk the reader uses for standing files that live outside the layout folder.
+  const nested = await nestedStanding(root, '', notes, ignored, PROFILE_CLASSIFIER);
   return {
-    runtime: 'claude-code',
-    standing: await found(['CLAUDE.md', 'CLAUDE.local.md'], false),
-    folders: await found(['.claude'], true),
-    settings: await found([...SETTINGS], false),
+    runtime: PROFILE.name,
+    standing: [...new Set([...(await found(PROFILE.standing.rootFiles, false)), ...nested])],
+    folders: await found([LAYOUT], true),
+    settings: await found(staticSettingsFiles(PROFILE), false),
   };
 }
 

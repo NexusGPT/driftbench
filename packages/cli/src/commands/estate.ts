@@ -361,9 +361,10 @@ export async function estateScanCommand(
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
-  // Say what the root holds before anything is read: a root with no layout reads as nothing, not as a clean estate.
+  // A root the reader cannot load reads as nothing, not as a clean estate. Nested standing files count, and so
+  // does a rendered copy passed with --settings: the reader loads that copy as the estate settings.
   const layout = await inspectRoot(runtime, root);
-  const emptyLayout = layout !== undefined && layoutIsEmpty(layout);
+  const emptyLayout = layout !== undefined && layoutIsEmpty(layout) && settings === undefined;
   if (emptyLayout) {
     io.out(
       `Warning: ${show(root, io)} holds no CLAUDE.md, no .claude/ folder and no settings.json, so this scan reads nothing. Scan the project folder that holds them.\n`,
