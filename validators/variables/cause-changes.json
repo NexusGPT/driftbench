@@ -156,72 +156,72 @@
       {
         "id": "blind.boundaries.file.sides.decimal-limit",
         "old": "a decimal limit is accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.ge-edge-is-a-third-value",
         "old": "an inclusive greater comparison accepts a third value for the edge",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.ge-edge-is-the-holds-value",
         "old": "an inclusive greater comparison accepts an edge that is the holds value",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.gt-edge-is-a-third-value",
         "old": "a strict greater comparison accepts a third value for the edge",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.gt-edge-is-the-fails-value",
         "old": "a strict greater comparison accepts an edge that is the fails value",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.le-edge-is-a-third-value",
         "old": "an inclusive lesser comparison accepts a third value for the edge",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.le-edge-is-the-holds-value",
         "old": "an inclusive lesser comparison accepts an edge that is the holds value",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.lt-edge-is-a-third-value",
         "old": "a strict lesser comparison accepts a third value for the edge",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.lt-edge-is-the-fails-value",
         "old": "a strict lesser comparison accepts an edge that is the fails value",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.negative-limit",
         "old": "a negative limit is accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.no-limit-the-edge-is-a-third-value",
         "old": "a boundary with no limit accepts a third value for its edge",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.no-limit-the-edge-is-the-holds-value",
         "old": "a boundary with no limit accepts its edge on the holds side",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.two-boundaries-on-one-variable",
         "old": "a variable may carry several boundaries",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.boundaries.file.sides.zero-limit",
         "old": "a limit of zero is accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.budget.cut.budget-above-the-plan",
@@ -516,12 +516,12 @@
       {
         "id": "blind.reach.validate.mapped",
         "old": "the adapter maps validate to a function of the product",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.reach.weight-interval.mapped",
         "old": "the adapter maps weightInterval to a function of the product",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       },
       {
         "id": "blind.seeds.credit.each-new-row-covers-a-tuple-the-seeds-miss",
@@ -586,37 +586,37 @@
       {
         "id": "blind.sources.file.advice.a-sourced-entry-gets-no-advice",
         "old": "an entry that names its source gets no advice",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.a-valid-entry-of-each-kind",
         "old": "the loader accepts a well formed entry of every provenance kind",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.conversation-count-equal-to-total",
         "old": "a conversations count may equal its total",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.conversation-count-zero",
         "old": "a conversations count may be zero",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.owner-date-on-a-leap-day",
         "old": "a day on 29 February of a leap year is a real day",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.owner-words-of-exactly-a-thousand-characters",
         "old": "owner words of exactly 1,000 characters are valid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.file.provenance-shape.quote-of-exactly-a-thousand-characters",
         "old": "a quote of exactly 1,000 characters is valid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.sources.merge.a-rule-with-nothing-to-read-adds-no-variable",
@@ -631,67 +631,67 @@
       {
         "id": "blind.values.file.ambiguous-value.a-detail-may-repeat-the-id-of-an-axis-of-another-kind",
         "old": "a detail may repeat the value id of an axis of another kind",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.ambiguous-value.ids-shared-with-a-stage-or-channel-axis-are-fine",
         "old": "a value id shared with a stage, channel or deviation axis is not an ambiguous value",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.ambiguous-value.none-in-axes-of-two-kinds-is-fine",
         "old": "the value none may sit in axes of different kinds",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.ids.ids-with-dots-underscores-hyphens-and-digits-are-fine",
         "old": "ids with digits, dots, underscores and hyphens inside are accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.a-constraint-on-a-detail-does-not-empty-the-grid",
         "old": "a constraint on a detail does not count toward the grid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.a-deviation-detail-may-hold-any-value",
         "old": "a deviation detail is exempt from the deviation rule",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.all-twelve-deviation-classes-and-none",
         "old": "a deviation axis may hold none and all twelve classes",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.constraints-that-leave-one-cell-are-fine",
         "old": "constraints that leave one cell of the axes are accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.fitted-prior-with-a-source-is-fine",
         "old": "a fitted prior with a source is accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.none-in-two-axes-is-fine",
         "old": "the value none may sit in several axes",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.same-value-in-an-axis-and-a-detail-is-fine",
         "old": "a value id may sit in an axis and a detail",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.second-channel-as-a-detail-is-fine",
         "old": "a second channel that is a detail is allowed",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.file.references.when-naming-known-values-is-fine",
         "old": "a when on known values is accepted",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.values.plan.approval.unapproved-variable-is-never-planned",
@@ -701,52 +701,52 @@
       {
         "id": "blind.weights.file.complete-weights-in-two-variables",
         "old": "complete weights in several variables are valid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.weights.file.fraction-weights-are-valid",
         "old": "weights on any scale are valid when every value has one",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.weights.file.no-weights-are-valid",
         "old": "a store with no weights is valid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.weights.file.one-zero-among-others-is-valid",
         "old": "one weight of zero among others is valid",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.weights.file.percent-weights-are-valid",
         "old": "weights on any scale are valid when every value has one",
-        "new": "validate refuses a store in which two values of one variable share an id, at the second value"
+        "new": "a value id repeated inside a variable is refused at the second place"
       },
       {
         "id": "blind.weights.interval.contains-the-observed-share",
         "old": "the interval contains the observed share",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       },
       {
         "id": "blind.weights.interval.inside-zero-one-and-ordered",
         "old": "the interval is ordered and inside zero and one",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       },
       {
         "id": "blind.weights.interval.is-mirrored-for-the-complement",
         "old": "the interval of the complement is the mirror of the interval",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       },
       {
         "id": "blind.weights.interval.stays-inside-zero-one-despite-rounding",
         "old": "the interval is clamped to zero and one, so rounding noise never leaves them",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       },
       {
         "id": "blind.weights.interval.zero-count-starts-at-zero-and-full-count-ends-at-one",
         "old": "a zero count starts the interval at zero and a full count ends it at one",
-        "new": "weightInterval returns the Wilson score interval of a count and a total"
+        "new": "weightInterval returns the Wilson score interval of the page"
       }
     ]
   }
