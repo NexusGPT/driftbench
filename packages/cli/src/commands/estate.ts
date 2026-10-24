@@ -735,7 +735,10 @@ export async function estateLintCommand(
       `  SKIPPED     ${outcome.check}: ${outcome.coverage.skipped.length} not looked at (${why.join(', ')}).`,
     );
   }
-  const notRun = result.outcomes.filter((outcome) => outcome.status === 'not-run').length;
+  // A check the run lacks a capability for (no settings, no guard) is named on its own line and does not fail the lint.
+  const notRun = result.outcomes.filter(
+    (outcome) => outcome.status === 'not-run' && outcome.notRun !== 'missing-capability',
+  ).length;
   // Not clean names every reason that holds: the files no check read, then the checks that did not run.
   const reasons = [
     ...(unknown > 0

@@ -103,7 +103,7 @@ export const LINT_CHECKS: readonly CheckDeclaration[] = LINT_CODES.map((code) =>
 /**
  * The verdict of a lint, as a code, the first that holds: a finding outside INFORMATION (`findings`); no check had
  * an input (`none-ran`); no finding, but files under the roots the profile counts that no part type covers, which
- * no check read (`unknown-files`); no finding, but a check that did not run (`checks-not-run`); else `clean`. A lint
+ * no check read (`unknown-files`); no finding, but a check that did not run for want of an input (`checks-not-run`; one the run lacks a capability for is named, not failed); else `clean`. A lint
  * is clean only when every check ran and passed (an INFORMATION finding aside) and every file is covered.
  */
 export type LintSummary = 'findings' | 'none-ran' | 'unknown-files' | 'checks-not-run' | 'clean';
@@ -367,7 +367,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
       ? 'none-ran'
       : unknown.length > 0
         ? 'unknown-files'
-        : outcomes.some((outcome) => outcome.status === 'not-run')
+        : outcomes.some((outcome) => outcome.status === 'not-run' && outcome.notRun !== 'missing-capability')
           ? 'checks-not-run'
           : 'clean';
   return { findings: kept, outcomes, failed, counts, unknown, summary };

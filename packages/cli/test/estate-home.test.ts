@@ -28,6 +28,12 @@ async function run(argv: string[], cwd: string) {
   return { code, ...output };
 }
 
+/** No finding and no skipped input: the only reason the lint is not clean is a check with no input (no model read a rule). */
+const noFinding = (result: { code: number; out: string }) =>
+  result.code === 1 &&
+  /Not clean: \d+ checks? did not run\./.test(result.out) &&
+  !/\d+ findings?\./.test(result.out);
+
 async function folder(files: Record<string, string>): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'driftbench-home-cli-'));
   for (const [path, text] of Object.entries(files)) {
@@ -66,7 +72,7 @@ describe('without a home folder', () => {
     const work = await estateOf(command);
     expect((await scan(work)).code).toBe(0);
     const result = await lint(work);
-    expect(result.code).toBe(0);
+    expect(result.code).toBe(1);
     expect(result.out).toContain('SKIPPED');
     expect(result.out).toContain(SKIPPED);
     expect(result.out).not.toContain('Clean.');
@@ -92,8 +98,7 @@ describe('--home', () => {
       expect(map).toContain('~/guards/zz-check.py');
       expect(map).not.toContain(home);
       const linted = await lint(work, '--home', home);
-      expect(linted.code).toBe(0);
-      expect(linted.out).toContain('Clean.');
+      expect(noFinding(linted)).toBe(true);
     },
   );
 
@@ -117,8 +122,7 @@ describe('--home', () => {
     const work = await estateOf('python3 ~/guards/zz-check.py', { 'base/guards/zz-check.py': SCRIPT });
     await scan(work);
     const result = await lint(work, '--home', 'base');
-    expect(result.code).toBe(0);
-    expect(result.out).toContain('Clean.');
+    expect(noFinding(result)).toBe(true);
   });
 
   it('expands a ~ the user wrote on the command line: an explicit mapping of their own', async () => {
@@ -126,8 +130,7 @@ describe('--home', () => {
     const work = await estateOf('python3 ~/guards/zz-check.py');
     await scan(work);
     const result = await lint(work, '--home', '~/base');
-    expect(result.code).toBe(0);
-    expect(result.out).toContain('Clean.');
+    expect(noFinding(result)).toBe(true);
   });
 
   it('is refused empty, on scan and on lint, exit 2', async () => {
@@ -150,8 +153,7 @@ describe('the home: key of the configuration file', () => {
     });
     await scan(work);
     const result = await lint(work);
-    expect(result.code).toBe(0);
-    expect(result.out).toContain('Clean.');
+    expect(noFinding(result)).toBe(true);
   });
 
   it('is given the flag as well: the flag wins', async () => {
@@ -160,7 +162,7 @@ describe('the home: key of the configuration file', () => {
       'p/driftbench.estate.yaml': 'home: base\n',
     });
     await scan(work);
-    expect((await lint(work, '--home', other)).code).toBe(0);
+    expect(noFinding(await lint(work, '--home', other))).toBe(true);
     expect((await lint(work)).code).toBe(1);
   });
 
@@ -204,7 +206,7 @@ describe('the shapes of a command that runs a script from the home folder', () =
       const present = await estateOf(command, { 'p/.claude/user-base/guards/zz-check.py': SCRIPT });
       await scan(present, '--home', join(present, 'p/.claude/user-base'));
       const found = await lint(present, '--home', join(present, 'p/.claude/user-base'));
-      expect(found.code).toBe(0);
+      expect(noFinding(found)).toBe(true);
       expect(found.out).not.toContain('MISSING_SCRIPT  ');
       const absent = await estateOf(command, { 'p/.claude/user-base/other/x.py': SCRIPT });
       await scan(absent, '--home', join(absent, 'p/.claude/user-base'));
@@ -229,7 +231,7 @@ describe('the shapes of a command that runs a script from the home folder', () =
       [`${base}/guards/zz-target.py`]: SCRIPT,
     });
     await scan(present, '--home', join(present, base));
-    expect((await lint(present, '--home', join(present, base))).code).toBe(0);
+    expect(noFinding(await lint(present, '--home', join(present, base)))).toBe(true);
     const absent = await estateOf(command, { [`${base}/guards/run.py`]: `${dispatcher}\n` });
     await scan(absent, '--home', join(absent, base));
     const missing = await lint(absent, '--home', join(absent, base));
@@ -274,7 +276,7 @@ describe('quotes', () => {
     const work = await estateOf('python3 "$HOME/guards/zz-check.py"');
     await scan(work, '--home', home);
     const result = await lint(work, '--home', home);
-    expect(result.code).toBe(0);
+    expect(noFinding(result)).toBe(true);
     expect(result.out).not.toContain('UNANCHORED_GUARD');
   });
 });
