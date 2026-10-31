@@ -49,8 +49,19 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
           check-latest: true
+      # The same pnpm store as `pr affected shard` in ci.yml, restored only.
+      - name: Locate the pnpm store
+        id: pnpm-store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache the pnpm store
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: node-cache-${{ runner.os }}-x64-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            node-cache-${{ runner.os }}-x64-pnpm-
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Cache package builds
         uses: actions/cache@v4
