@@ -40,11 +40,13 @@ jobs:
         continue-on-error: true
         with:
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/checkout@v7
         if: steps.checkout.outcome != 'success'
         timeout-minutes: 10
         with:
           fetch-depth: 0
+          filter: blob:none
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
