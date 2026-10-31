@@ -7,6 +7,12 @@
 // `vitest run --changed <base>`), adds the files that selection cannot see (ALWAYS), and plans them by measured
 // duration with the planner of the full suite (tools/ci/shard-plan.mjs). The list is the same on every shard, so
 // every affected file lands in exactly one shard. A shard that holds no file passes.
+//
+// The weights are tools/ci/affected-durations.json: each file's time as these eight slices print it (vitest's per-file
+// line, two workers, ubuntu-latest), read from the logs of `pr affected` runs that selected the whole suite, and the
+// weight of tools/ci/test-durations.json for a file those runs did not hold. The full suite's file cannot serve here:
+// it weighs validate.test.ts at 1,500,000 ms so that the file gets one of 32 shards to itself, and in 8 slices that
+// left one slice with that file alone (about 460 s measured) and the other seven with the rest.
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { plan } from './shard-plan.mjs';
@@ -62,7 +68,7 @@ function main(argv) {
   }
   const files = affectedFiles(listing.stdout.split('\n'));
   const durations = JSON.parse(
-    readFileSync(option('--durations', new URL('./test-durations.json', import.meta.url)), 'utf8'),
+    readFileSync(option('--durations', new URL('./affected-durations.json', import.meta.url)), 'utf8'),
   );
   const mine = shardOf(files, durations, count, index);
   console.log(`${files.length} affected test files; shard ${index} of ${count} holds ${mine.length}`);

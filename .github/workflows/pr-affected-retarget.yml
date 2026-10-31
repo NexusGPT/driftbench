@@ -40,17 +40,30 @@ jobs:
         continue-on-error: true
         with:
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/checkout@v7
         if: steps.checkout.outcome != 'success'
         timeout-minutes: 10
         with:
           fetch-depth: 0
+          filter: blob:none
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
           check-latest: true
+      # The same pnpm store as `pr affected shard` in ci.yml, restored only.
+      - name: Locate the pnpm store
+        id: pnpm-store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache the pnpm store
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: node-cache-${{ runner.os }}-x64-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            node-cache-${{ runner.os }}-x64-pnpm-
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Cache package builds
         uses: actions/cache@v4
@@ -68,6 +81,39 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+      # `--changed` selects tests through the module graph, so a source file that tests reach only by spawning it
+      # (packages/cli/src/bin.ts, run through tsx by ci.test.ts) selects none. The slices would then run the
+      # always-run files alone and report green over a source change no test ran. Slice 1 lists the selection
+      # once more and fails when package source changed and the selection holds no test file.
+      - name: A source change selects at least one test
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          if [ "$SHARD" != 1 ]; then
+            echo "Slice 1 runs this check."
+            exit 0
+          fi
+          changed="$(git diff --name-only "origin/$BASE_REF" -- ':(glob)packages/*/src/**' ':(glob)examples/*/src/**')"
+          if [ -z "$changed" ]; then
+            echo "No package source changed against origin/$BASE_REF."
+            exit 0
+          fi
+          err="$RUNNER_TEMP/vitest-list.err"
+          if ! listing="$(pnpm exec vitest list --filesOnly --changed "origin/$BASE_REF" 2>"$err")"; then
+            echo "::error::vitest list --changed origin/$BASE_REF failed."
+            cat "$err"
+            exit 1
+          fi
+          selected="$(printf '%s\n' "$listing" | grep -cE '\.test\.(ts|mjs)$' || true)"
+          if [ "$selected" -eq 0 ]; then
+            echo "::error::Package source changed, but vitest --changed selects no test file, so no slice would test it. Add a test that imports the change, or list the test that runs it in ALWAYS of tools/ci/affected-shard.mjs."
+            printf '%s\n' "$changed"
+            exit 1
+          fi
+          echo "$selected test files selected for the source change:"
+          printf '%s\n' "$changed"
       # Markdown dependencies are read at runtime, so --changed alone cannot select their examples: the tool adds the
       # help topics test to every selection. Each shard lists the same affected files and runs its own slice.
       - name: Tests affected by this PR, shard ${{ matrix.shard }} of 8
