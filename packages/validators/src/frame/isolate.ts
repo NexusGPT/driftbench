@@ -1,4 +1,3 @@
-// pilot throwaway: a broad source change for measurement, reverted before the pilot ends
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import {
