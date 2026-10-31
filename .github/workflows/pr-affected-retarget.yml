@@ -65,6 +65,11 @@ jobs:
           restore-keys: |
             node-cache-${{ runner.os }}-x64-pnpm-
       - run: pnpm install --frozen-lockfile --prefer-offline
+      # packages/validators/test/variables-blind/frame-grants.test.ts makes its temporary folder inside
+      # node_modules/.cache and does not create that parent; another test of the same slice used to create it first.
+      # The slices are planned by duration, so which tests share a slice changes: the folder is made here.
+      - name: Make the test cache folder
+        run: mkdir -p node_modules/.cache
       - name: Cache package builds
         uses: actions/cache@v4
         with:
